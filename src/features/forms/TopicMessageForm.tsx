@@ -1,0 +1,200 @@
+import type { IEvent } from "models/Event";
+import type { IOrg } from "models/Org";
+import type { ITopic } from "models/Topic";
+import type { ITopicMessage } from "models/TopicMessage";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
+import {
+  ChakraProps,
+  Button,
+  FormControl,
+  Box,
+  Stack,
+  FormErrorMessage,
+  useToast,
+  Flex
+} from "@chakra-ui/react";
+import { WarningIcon } from "@chakra-ui/icons";
+import { ErrorMessageText, RTEditor } from "features/common";
+import { useSession } from "hooks/useAuth";
+import { handleError } from "utils/form";
+import { useAddOrgDetailsMutation } from "features/orgs/orgsApi";
+import { useAddEventDetailsMutation } from "features/events/eventsApi";
+
+interface TopicMessageFormProps extends ChakraProps {
+  org?: IOrg;
+  event?: IEvent;
+  topic: ITopic;
+  topicMessage?: ITopicMessage;
+  onLoginClick: () => void;
+  onClose?: () => void;
+  onCancel?: () => void;
+  onSubmit?: (topicMessageName: string) => void;
+}
+
+export const TopicMessageForm = (props: TopicMessageFormProps) => {
+  const { data: session } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
+  const [addOrgDetails, addOrgDetailsMutation] = useAddOrgDetailsMutation();
+  const [addEventDetails, addEventDetailsMutation] =
+    useAddEventDetailsMutation();
+  const toast = useToast({ position: "top" });
+  const [topicMessageDefaultValue, setTopicMessageDefaultValue] = useState<
+    string | undefined
+  >();
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    errors,
+    setError,
+    clearErrors,
+    watch,
+    setValue,
+    getValues
+  } = useForm({
+    mode: "onChange"
+  });
+
+  const onChange = () => {
+    clearErrors("formErrorMessage");
+  };
+
+  const onSubmit = async (form: { topicMessage: string }) => {
+    console.log("submitted", form);
+    setTopicMessageDefaultValue("");
+
+    const payload = {
+      topic: {
+        ...props.topic,
+        topicMessages: [
+          { message: form.topicMessage, createdBy: session.user.userId }
+        ]
+      }
+    };
+
+    try {
+      if (props.org && props.org.orgName) {
+        await addOrgDetails({
+          payload,
+          orgName: props.org.orgName
+        }).unwrap();
+      } else if (props.event && props.event.eventName) {
+        await addEventDetails({
+          payload,
+          eventName: props.event.eventName
+        }).unwrap();
+      }
+
+      toast({
+        title: "Votre message a bien été ajouté !",
+        status: "success",
+        isClosable: true
+      });
+
+      clearErrors("topicMessage");
+      props.onSubmit && props.onSubmit(form.topicMessage);
+      props.onClose && props.onClose();
+    } catch (error) {
+      handleError(error, (message, field) => {
+        if (field) {
+          setError(field, { type: "manual", message });
+        } else {
+          setError("formErrorMessage", { type: "manual", message });
+        }
+      });
+    }
+  };
+
+  return (
+    <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+      <ErrorMessage
+        errors={errors}
+        name="formErrorMessage"
+        render={({ message }) => (
+          <Stack isInline p={5} mb={5} shadow="md" color="red.500">
+            <WarningIcon boxSize={5} />
+            <Box>
+              <ErrorMessageText>{message}</ErrorMessageText>
+            </Box>
+          </Stack>
+        )}
+      />
+
+      <FormControl
+        id="topicMessage"
+        isRequired
+        isInvalid={!!errors["topicMessage"]}
+        p={3}
+        pb={3}
+      >
+        <Controller
+          name="topicMessage"
+          control={control}
+          defaultValue={topicMessageDefaultValue}
+          rules={{ required: "Veuillez saisir un message" }}
+          render={(p) => {
+            return (
+              <RTEditor
+                readOnly={session === null}
+                toolbar={{
+                  container: [
+                    ["bold", "italic", "underline", "blockquote"], // toggled buttons
+
+                    [{ list: "ordered" }, { list: "bullet" }],
+
+                    ["link", "image", "video"],
+
+                    ["undo", "redo"],
+
+                    ["clean"] // remove formatting button
+                  ],
+                  handlers: {
+                    undo: () => {},
+                    redo: () => {}
+                  }
+                }}
+                defaultValue={topicMessageDefaultValue}
+                onChange={(html: string) => {
+                  clearErrors("topicMessage");
+                  p.onChange(html === "<p><br></p>" ? "" : html);
+                }}
+                placeholder="Cliquez ici pour répondre..."
+              />
+            );
+          }}
+        />
+
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="topicMessage" />
+        </FormErrorMessage>
+      </FormControl>
+
+      <Flex justifyContent={props.onCancel ? "space-between" : "flex-end"}>
+        {props.onCancel && (
+          <Button onClick={() => props.onCancel && props.onCancel()}>
+            Annuler
+          </Button>
+        )}
+
+        {session ? (
+          <Button
+            colorScheme="green"
+            type="submit"
+            isLoading={isLoading || addOrgDetailsMutation.isLoading}
+            isDisabled={Object.keys(errors).length > 0}
+            mr={props.onCancel ? 0 : 3}
+          >
+            {props.topicMessage ? "Modifier" : "Répondre"}
+          </Button>
+        ) : (
+          <Button variant="outline" onClick={props.onLoginClick}>
+            Connexion
+          </Button>
+        )}
+      </Flex>
+    </form>
+  );
+};
