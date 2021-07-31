@@ -101,8 +101,7 @@ describe("CRUD", () => {
       `/${eventName}`
     );
 
-    cy.get("[data-cy=eventEdit]").should("have.length", 1);
-    cy.get('button[aria-label="Supprimer"]').should("have.length", 1);
+    cy.get("[data-cy=eventSettings]").should("have.length", 1);
 
     cy.get(`[data-cy=eventCreatedBy-${orgName}]`)
       .should("have.length", 1)
@@ -213,7 +212,6 @@ describe("CRUD", () => {
         `/${orgName}`
       );
       cy.get("[data-cy=orgSettings]").should("have.length", 1);
-      cy.get('button[aria-label="Supprimer"]').should("have.length", 1);
     });
 
     it("updates orgName", () => {
@@ -243,6 +241,7 @@ describe("CRUD", () => {
       if (!skipVisit) {
         cy.visit(`/${eventName}`);
       }
+      cy.get("[data-cy=eventSettings]").click();
       cy.get("[data-cy=eventEdit]").click();
       cy.wait(10000);
       cy.get(".ql-editor.ql-blank").type("c");
@@ -256,6 +255,7 @@ describe("CRUD", () => {
         cy.visit(`/${eventName}`);
       }
       const newEventName = eventName + "t";
+      cy.get("[data-cy=eventSettings]").click();
       cy.get("[data-cy=eventEdit]").click();
       cy.wait(10000);
       cy.get("input#eventName").type("t");

@@ -15,9 +15,11 @@ export interface IEvent {
   eventDescription?: string;
   eventOrgs: IOrg[];
   eventNotif: string[];
-  repeat?: number;
   eventTopics: ITopic[];
+  repeat?: number;
+  isApproved?: boolean;
   createdBy: IUser;
+  createdAt?: string;
 }
 
 export const EventSchema = new Schema<IEvent>(
@@ -47,8 +49,9 @@ export const EventSchema = new Schema<IEvent>(
       type: Schema.Types.ObjectId,
       ref: "User"
     },
+    eventTopics: [TopicSchema],
     repeat: Number,
-    eventTopics: [TopicSchema]
+    isApproved: Schema.Types.Boolean
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );

@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import parse from "html-react-parser";
 import {
   Box,
-  Spinner,
   Text,
   useToast,
   Flex,
   Heading,
-  IconButton,
   Icon,
-  Grid
+  Grid,
+  Tooltip,
+  IconButton,
+  Alert,
+  AlertIcon
 } from "@chakra-ui/react";
 import type { IEvent } from "models/Event";
 import type { IUser } from "models/User";
@@ -19,20 +21,29 @@ import {
   useDeleteEventMutation,
   useGetEventByNameQuery
 } from "features/events/eventsApi";
-import { EventForm } from "features/forms/EventForm";
 import { useSession } from "hooks/useAuth";
-import { AddIcon, AtSignIcon, EditIcon, WarningIcon } from "@chakra-ui/icons";
 import {
-  Button,
-  DeleteButton,
-  GridHeader,
-  GridItem,
-  Link
-} from "features/common";
+  AddIcon,
+  AtSignIcon,
+  ChevronLeftIcon,
+  SettingsIcon,
+  WarningIcon
+} from "@chakra-ui/icons";
+import { Button, GridHeader, GridItem, Link } from "features/common";
 import tw, { css } from "twin.macro";
 import { IoIosPeople } from "react-icons/io";
 import { TopicModal } from "features/modals/TopicModal";
 import { TopicsList } from "features/forum/TopicsList";
+import { parseISO, format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { EventConfigPanel } from "./EventConfigPanel";
+
+export type Visibility = {
+  isVisible: {
+    topics: boolean;
+  };
+  setIsVisible: (obj: Visibility["isVisible"]) => void;
+};
 
 export const Event = (props: {
   event: IEvent;
@@ -41,125 +52,88 @@ export const Event = (props: {
 }) => {
   const router = useRouter();
 
-  const query = useGetEventByNameQuery(props.routeName);
+  const [deleteEvent, { isLoading }] = useDeleteEventMutation();
+  const eventQuery = useGetEventByNameQuery(props.routeName);
   useEffect(() => {
     console.log("refetching event");
 
-    query.refetch();
+    eventQuery.refetch();
   }, [router.asPath]);
-  const event = query.data || props.event;
-
-  const [deleteEvent, { isLoading }] = useDeleteEventMutation();
+  const event = eventQuery.data || props.event;
 
   const { data: session, loading: isSessionLoading } = useSession();
-  const toast = useToast({ position: "top" });
-
-  const [isEdit, setIsEdit] = useState(false);
-  const [isLogin, setIsLogin] = useState(0);
-  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
-
   const isCreator = session && event.createdBy._id === session.user.userId;
 
+  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
+  const [isLogin, setIsLogin] = useState(0);
+  const [isConfig, setIsConfig] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [isVisible, setIsVisible] = useState<Visibility["isVisible"]>({
+    topics: false
+  });
+
   return (
-    <Layout pageTitle={event.eventName}>
+    <Layout pageTitle={event.eventName} isLogin={isLogin}>
       {isTopicModalOpen && event && (
         <TopicModal
           event={event}
           onCancel={() => setIsTopicModalOpen(false)}
           onSubmit={async (topicName) => {
-            query.refetch();
+            eventQuery.refetch();
             setIsTopicModalOpen(false);
           }}
           onClose={() => setIsTopicModalOpen(false)}
         />
       )}
-      <Flex mb={5}>
-        {/* <Tooltip
-            placement="right"
-            hasArrow
-            label="Voir l'événement en tant que public"
-          >
-            <IconButton
-              aria-label="Public"
-              icon={<Icon as={ViewIcon} />}
-              mr={3}
-              onClick={() => setIsPublic(true)}
-            />
-          </Tooltip> */}
 
-        {/* {!isPublic && event.createdBy.email === session?.user.email ? ( */}
-
-        {event.createdBy._id === session?.user.userId && (
-          <>
-            <IconButton
-              aria-label="Modifier"
-              icon={<Icon as={EditIcon} />}
-              mr={3}
-              onClick={() => setIsEdit(!isEdit)}
-              css={css`
-                &:hover {
-                  ${tw`bg-green-300`}
-                }
-                ${isEdit && tw`bg-green-300`}
-              `}
-              data-cy="eventEdit"
-            />
-
-            <DeleteButton
-              isLoading={isLoading}
-              body={
-                <Box p={5} lineHeight={2}>
-                  <WarningIcon color="red" /> Êtes vous certain(e) de vouloir
-                  supprimer l'événement{" "}
-                  <Text display="inline" color="red" fontWeight="bold">
-                    {event.eventName}
-                  </Text>{" "}
-                  ?
-                </Box>
-              }
-              onClick={async () => {
-                try {
-                  const deletedEvent = await deleteEvent(
-                    event.eventName
-                  ).unwrap();
-
-                  if (deletedEvent) {
-                    await Router.push(`/`);
-                    toast({
-                      title: `${deletedEvent.eventName} a bien été supprimé !`,
-                      status: "success",
-                      isClosable: true
-                    });
-                  }
-                } catch (error) {
-                  toast({
-                    title: error.data ? error.data.message : error.message,
-                    status: "error",
-                    isClosable: true
-                  });
-                }
-              }}
-            />
-          </>
-        )}
-      </Flex>
-
-      {isEdit && (
-        <EventForm
-          event={event}
-          onCancel={() => setIsEdit(false)}
-          onSubmit={async (eventName) => {
-            if (props.event && eventName !== props.event.eventName) {
-              await router.push(`/${encodeURIComponent(eventName)}`);
-            } else {
-              query.refetch();
-              setIsEdit(false);
-            }
-          }}
+      {isCreator && !isConfig ? (
+        <Button
+          aria-label="Paramètres"
+          colorScheme="green"
+          leftIcon={<SettingsIcon boxSize={6} data-cy="eventSettings" />}
+          onClick={() => setIsConfig(true)}
+          mb={2}
+        >
+          Paramètres de l'événement
+        </Button>
+      ) : (
+        <IconButton
+          aria-label="Précédent"
+          icon={<ChevronLeftIcon boxSize={6} />}
+          onClick={() => setIsConfig(false)}
+          mb={2}
         />
       )}
 
-      {!isEdit && (
+      <Box mb={3}>
+        <Text fontSize="smaller" pt={1}>
+          Événement ajouté le{" "}
+          {format(parseISO(event.createdAt!), "eeee d MMMM yyyy", {
+            locale: fr
+          })}{" "}
+          par :{" "}
+          <Link
+            variant="underline"
+            href={`/${encodeURIComponent(event.createdBy.userName)}`}
+          >
+            @{event.createdBy.userName}
+          </Link>{" "}
+          {isCreator && "(Vous)"}
+        </Text>
+      </Box>
+
+      {isCreator && !event.isApproved && (
+        <Box mb={3}>
+          <Alert status="warning">
+            <AlertIcon />
+            Votre événement est en attente de modération. Vous devez attendre
+            avant de pouvoir envoyer un e-mail d'invitation aux abonnés des
+            organisateurs.
+          </Alert>
+        </Box>
+      )}
+
+      {!isConfig && (
         <Grid
           templateRows="auto 1fr"
           // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"
@@ -175,29 +149,36 @@ export const Event = (props: {
             }
           `}
         >
-          <GridItem>
-            <Grid templateRows="auto 1fr">
-              <GridHeader borderTopRadius="lg" alignItems="center">
-                <Heading size="sm" py={3}>
-                  Description
-                </Heading>
-              </GridHeader>
+          <GridItem
+            rowSpan={2}
+            light={{ bg: "orange.100" }}
+            dark={{ bg: "gray.500" }}
+          >
+            <GridHeader borderTopRadius="lg" alignItems="center">
+              <Heading size="sm" py={3}>
+                Description
+              </Heading>
+            </GridHeader>
 
-              <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
-                <Box className="ql-editor" p={5}>
-                  {event.eventDescription &&
-                  event.eventDescription.length > 0 ? (
-                    parse(event.eventDescription)
-                  ) : isCreator ? (
-                    <Link onClick={() => setIsEdit(true)} variant="underline">
-                      Cliquez ici pour ajouter la description.
-                    </Link>
-                  ) : (
-                    <Text fontStyle="italic">Aucune description.</Text>
-                  )}
-                </Box>
-              </GridItem>
-            </Grid>
+            <GridItem>
+              <Box className="ql-editor" p={5}>
+                {event.eventDescription && event.eventDescription.length > 0 ? (
+                  parse(event.eventDescription)
+                ) : isCreator ? (
+                  <Link
+                    onClick={() => {
+                      setIsConfig(true);
+                      setIsEdit(true);
+                    }}
+                    variant="underline"
+                  >
+                    Cliquez ici pour ajouter la description.
+                  </Link>
+                ) : (
+                  <Text fontStyle="italic">Aucune description.</Text>
+                )}
+              </Box>
+            </GridItem>
           </GridItem>
 
           <GridItem>
@@ -299,6 +280,7 @@ export const Event = (props: {
                     `}
                   >
                     <Button
+                      colorScheme="teal"
                       leftIcon={<AddIcon />}
                       onClick={() => {
                         if (!isSessionLoading) {
@@ -310,7 +292,6 @@ export const Event = (props: {
                         }
                       }}
                       m={1}
-                      dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
                     >
                       Ajouter un sujet de discussion
                     </Button>
@@ -321,13 +302,26 @@ export const Event = (props: {
               <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
                 <TopicsList
                   event={event}
-                  query={query}
+                  query={eventQuery}
                   onLoginClick={() => setIsLogin(isLogin + 1)}
                 />
               </GridItem>
             </GridItem>
           )}
         </Grid>
+      )}
+
+      {isConfig && (
+        <EventConfigPanel
+          event={event}
+          eventQuery={eventQuery}
+          isConfig={isConfig}
+          isEdit={isEdit}
+          isVisible={isVisible}
+          setIsConfig={setIsConfig}
+          setIsEdit={setIsEdit}
+          setIsVisible={setIsVisible}
+        />
       )}
     </Layout>
   );

@@ -109,7 +109,11 @@ export const EventForm = ({
   });
 
   const eventNotif = watch("eventNotif");
-  const eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
+  let eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
+  eventOrgs = eventOrgs.filter(
+    (org: IOrg) =>
+      Array.isArray(org.orgEmailList) && org.orgEmailList.length > 0
+  );
   watch("eventOrgs");
 
   const now = new Date();
@@ -152,8 +156,6 @@ export const EventForm = ({
   }, [eventMinDate]);
 
   useEffect(() => {
-    console.log(eventNotif);
-
     if (eventNotif === false) {
       setValue("eventNotif", []);
     }
@@ -593,36 +595,39 @@ export const EventForm = ({
         </FormErrorMessage>
       </FormControl>
 
-      {Array.isArray(eventOrgs) && eventOrgs.length > 0 && (
-        <FormControl id="eventNotif" mb={3}>
-          <FormLabel>
-            Partager cet événement avec les abonné(e)s des organisations
-            suivantes :
-          </FormLabel>
-          <CheckboxGroup>
-            {eventOrgs.map((org: IOrg) => {
-              return (
-                <Flex direction="row" key={org.orgName}>
-                  <Checkbox
-                    icon={<EmailIcon />}
-                    name="eventNotif"
-                    ref={register()}
-                    mb={3}
-                    mr={3}
-                    value={org._id}
-                  >
-                    {org.orgName}
-                  </Checkbox>
-                </Flex>
-              );
-            })}
-          </CheckboxGroup>
+      {props.event &&
+        props.event.isApproved &&
+        Array.isArray(eventOrgs) &&
+        eventOrgs.length > 0 && (
+          <FormControl id="eventNotif" mb={3}>
+            <FormLabel>
+              Envoyer un e-mail d'invitation aux abonné(e)s des organisations
+              suivantes :
+            </FormLabel>
+            <CheckboxGroup>
+              {eventOrgs.map((org: IOrg) => {
+                return (
+                  <Flex direction="row" key={org.orgName}>
+                    <Checkbox
+                      icon={<EmailIcon />}
+                      name="eventNotif"
+                      ref={register()}
+                      mb={3}
+                      mr={3}
+                      value={org._id}
+                    >
+                      {org.orgName}
+                    </Checkbox>
+                  </Flex>
+                );
+              })}
+            </CheckboxGroup>
 
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="eventNotif" />
-          </FormErrorMessage>
-        </FormControl>
-      )}
+            <FormErrorMessage>
+              <ErrorMessage errors={errors} name="eventNotif" />
+            </FormErrorMessage>
+          </FormControl>
+        )}
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>

@@ -60,7 +60,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
 
       const event = await models.Event.create({
         ...req.body,
-        eventNameLower: req.body.eventName.toLowerCase()
+        eventNameLower: req.body.eventName.toLowerCase(),
+        isApproved: false
       });
       await models.Org.updateMany(
         { _id: event.eventOrgs },

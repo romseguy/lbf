@@ -1,4 +1,4 @@
-import type { IOrg } from "models/Org";
+import { IOrg, OrgTypes } from "models/Org";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import parse from "html-react-parser";
@@ -9,14 +9,15 @@ import {
   useColorModeValue,
   Grid,
   Flex,
-  Tooltip
+  Tooltip,
+  IconButton
 } from "@chakra-ui/react";
 import { useSession } from "hooks/useAuth";
 import { Layout } from "features/layout";
 import { useGetOrgByNameQuery } from "features/orgs/orgsApi";
 import { OrgForm } from "features/forms/OrgForm";
 import { Button, GridHeader, GridItem, Link } from "features/common";
-import { AddIcon, SettingsIcon } from "@chakra-ui/icons";
+import { AddIcon, ChevronLeftIcon, SettingsIcon } from "@chakra-ui/icons";
 import tw, { css } from "twin.macro";
 import { format, parseISO } from "date-fns";
 import { EventModal } from "features/modals/EventModal";
@@ -55,16 +56,16 @@ export const Org = ({
 
   const eventBg = useColorModeValue("blue.100", "blue.800");
 
-  const [isEdit, setIsEdit] = useState(false);
-  const [isLogin, setIsLogin] = useState(0);
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
+  const [isLogin, setIsLogin] = useState(0);
+  const [isConfig, setIsConfig] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState<Visibility["isVisible"]>({
     topics: false,
     banner: false,
     subscribers: false
   });
-  const [isConfig, setIsConfig] = useState(false);
 
   const eventHeader = (
     <Grid templateColumns="1fr auto" alignItems="center">
@@ -72,7 +73,6 @@ export const Org = ({
         css={css`
           @media (max-width: 730px) {
             & {
-              padding-top: 12px;
               padding-bottom: 12px;
             }
           }
@@ -90,18 +90,18 @@ export const Org = ({
           }
         `}
       >
-        {session && (
-          <Button
-            leftIcon={<AddIcon />}
-            onClick={() => {
-              setIsEventModalOpen(true);
-            }}
-            m={1}
-            dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
-          >
-            Ajouter un événement
-          </Button>
-        )}
+        <Button
+          leftIcon={<AddIcon />}
+          colorScheme="teal"
+          onClick={() => {
+            setIsEventModalOpen(true);
+          }}
+          m={1}
+          // dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
+          style={{ visibility: session ? "visible" : "hidden" }}
+        >
+          Ajouter un événement
+        </Button>
       </GridItem>
     </Grid>
   );
@@ -133,42 +133,41 @@ export const Org = ({
         />
       )}
 
-      <Flex>
-        {isCreator && (
-          <Tooltip
-            placement="top"
-            label="Paramètres de l'organisation"
-            hasArrow
-          >
-            <SettingsIcon
-              mr={3}
-              boxSize={6}
-              cursor="pointer"
-              color={isConfig ? "green" : undefined}
-              _hover={{ color: "green" }}
-              onClick={() => setIsConfig(!isConfig)}
-              data-cy="orgSettings"
-            />
-          </Tooltip>
-        )}
+      {isCreator && !isConfig ? (
+        <Button
+          aria-label="Paramètres"
+          colorScheme="green"
+          leftIcon={<SettingsIcon boxSize={6} data-cy="orgSettings" />}
+          onClick={() => setIsConfig(true)}
+          mb={2}
+        >
+          Paramètres de l'organisation
+        </Button>
+      ) : (
+        <IconButton
+          aria-label="Précédent"
+          icon={<ChevronLeftIcon boxSize={6} />}
+          onClick={() => setIsConfig(false)}
+          mb={2}
+        />
+      )}
 
-        <Box>
-          <Text fontSize="smaller" mb={3} pt={1}>
-            Organisation ajoutée le{" "}
-            {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
-              locale: fr
-            })}{" "}
-            par :{" "}
-            <Link
-              variant="underline"
-              href={`/${encodeURIComponent(org.createdBy.userName)}`}
-            >
-              {org.createdBy.userName}
-            </Link>{" "}
-            {session && isCreator && "(Vous)"}
-          </Text>
-        </Box>
-      </Flex>
+      <Box mb={3}>
+        <Text fontSize="smaller" pt={1}>
+          Organisation ajoutée le{" "}
+          {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
+            locale: fr
+          })}{" "}
+          par :{" "}
+          <Link
+            variant="underline"
+            href={`/${encodeURIComponent(org.createdBy.userName)}`}
+          >
+            @{org.createdBy.userName}
+          </Link>{" "}
+          {isCreator && "(Vous)"}
+        </Text>
+      </Box>
 
       {!isConfig && (
         <Grid
@@ -189,7 +188,10 @@ export const Org = ({
             <Grid templateRows="auto 1fr">
               <GridHeader borderTopRadius="lg" alignItems="center">
                 <Heading size="sm" py={3}>
-                  Description
+                  Description{" "}
+                  {org.orgType === OrgTypes.ASSO
+                    ? "de l'association"
+                    : "du groupe"}
                 </Heading>
               </GridHeader>
 
@@ -254,6 +256,7 @@ export const Org = ({
                     `}
                   >
                     <Button
+                      colorScheme="teal"
                       leftIcon={<AddIcon />}
                       onClick={() => {
                         if (!isSessionLoading) {
@@ -265,7 +268,6 @@ export const Org = ({
                         }
                       }}
                       m={1}
-                      dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
                     >
                       Ajouter un sujet de discussion
                     </Button>
@@ -311,9 +313,11 @@ export const Org = ({
         <OrgConfigPanel
           org={org}
           orgQuery={orgQuery}
+          isConfig={isConfig}
           isEdit={isEdit}
-          setIsEdit={setIsEdit}
           isVisible={isVisible}
+          setIsConfig={setIsConfig}
+          setIsEdit={setIsEdit}
           setIsVisible={setIsVisible}
         />
       )}

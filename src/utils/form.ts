@@ -4,7 +4,7 @@ export const handleError = (
 ) => {
   if (error.message) return setError(error.message);
 
-  if (error.status === 400) {
+  if (error.status === 400 || error.status === 500) {
     const fields = Object.keys(error.data);
 
     if (!fields.length) {

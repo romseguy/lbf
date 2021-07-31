@@ -96,6 +96,11 @@ export const Nav = ({
           <Menu>
             <MenuButton mr={3}>
               <Avatar
+                css={css`
+                  // &:focus {
+                  //   box-shadow: var(--chakra-shadows-outline);
+                  // }
+                `}
                 src={
                   session.user.image
                     ? session.user.image

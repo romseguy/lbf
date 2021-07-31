@@ -191,7 +191,7 @@ export const TopicsList = ({
             })}
           </>
         ) : query.isLoading ? (
-          <Spinner />
+          <Spinner m={3} />
         ) : null}
       </GridItem>
     </Grid>

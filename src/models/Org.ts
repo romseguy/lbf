@@ -37,7 +37,7 @@ export const OrgSchema = new Schema<IOrg>(
     orgNameLower: String,
     orgType: {
       type: String,
-      enum: Object.keys(OrgTypes),
+      enum: Object.keys(OrgTypes).map((key) => OrgTypes[key]),
       required: true
     },
     orgAddress: String,

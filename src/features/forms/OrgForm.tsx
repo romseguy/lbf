@@ -147,7 +147,7 @@ export const OrgForm = (props: OrgFormProps) => {
         >
           {Object.keys(OrgTypes).map((orgType) => {
             return (
-              <option key={orgType} value={orgType}>
+              <option key={orgType} value={OrgTypes[orgType]}>
                 {OrgTypes[orgType]}
               </option>
             );

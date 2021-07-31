@@ -12,7 +12,6 @@ import { EventsList } from "./EventsList";
 
 export const Events = (props: { events?: IEvent[] }) => {
   const router = useRouter();
-
   const query = useGetEventsQuery();
   useEffect(() => {
     console.log("refetching events");
@@ -58,15 +57,9 @@ export const Events = (props: { events?: IEvent[] }) => {
         )}
       </Box>
 
-      {query.isLoading ? (
-        <Spinner />
-      ) : (
-        <>
-          {Array.isArray(events) && events.length > 0 ? (
-            <EventsList events={events} eventBg={eventBg} />
-          ) : null}
-        </>
-      )}
+      {Array.isArray(events) && events.length > 0 ? (
+        <EventsList events={events} eventBg={eventBg} />
+      ) : null}
     </Layout>
   );
 };

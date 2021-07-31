@@ -1,15 +1,17 @@
 import type { Visibility } from "./OrgPage";
 import type { IOrg } from "models/Org";
+import tw, { css } from "twin.macro";
 import React, { useState } from "react";
 import { Box, Heading, IconButton, Grid, FormLabel } from "@chakra-ui/react";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
-import { Button, GridHeader, GridItem, Textarea } from "features/common";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
   DeleteIcon
 } from "@chakra-ui/icons";
-import tw, { css } from "twin.macro";
+import { Button, GridHeader, GridItem, Textarea } from "features/common";
+import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditEventMutation } from "features/events/eventsApi";
+import { emailR } from "utils/email";
 
 type OrgConfigSubscribersPanelProps = Visibility & {
   org: IOrg;
@@ -22,6 +24,7 @@ export const OrgConfigSubscribersPanel = ({
   isVisible,
   setIsVisible
 }: OrgConfigSubscribersPanelProps) => {
+  const [editEvent, editEventMutation] = useEditEventMutation();
   const [editOrg, editOrgMutation] = useEditOrgMutation();
   const [isAdd, setIsAdd] = useState(false);
   const [emailList, setEmailList] = useState("");
@@ -79,17 +82,18 @@ export const OrgConfigSubscribersPanel = ({
             `}
           >
             <Button
-              m={1}
               rightIcon={isAdd ? <ChevronDownIcon /> : <ChevronRightIcon />}
+              colorScheme={isAdd ? "green" : "teal"}
               onClick={(e) => {
                 e.stopPropagation();
                 setIsAdd(!isAdd);
                 setIsVisible({ ...isVisible, subscribers: false });
               }}
-              dark={{
-                bg: "gray.500",
-                _hover: { bg: "gray.400" }
-              }}
+              m={1}
+              // dark={{
+              //   bg: "gray.500",
+              //   _hover: { bg: "gray.400" }
+              // }}
             >
               Ajouter
             </Button>
@@ -115,18 +119,35 @@ export const OrgConfigSubscribersPanel = ({
                   emailList
                     .split(/(\s+)/)
                     .filter((e: string) => e.trim().length > 0)
+                    .filter((email) => emailR.test(email))
                 );
-                await editOrg({
-                  orgName: org.orgName,
-                  payload: {
-                    orgEmailList: arr?.filter((item, index) => {
-                      if (arr?.indexOf(item) == index) return item;
-                    })
-                  }
-                });
-                setIsVisible({ ...isVisible, subscribers: true });
-                setIsAdd(false);
-                orgQuery.refetch();
+
+                if (arr.length > 0) {
+                  await editOrg({
+                    orgName: org.orgName,
+                    payload: {
+                      orgEmailList: arr?.filter((item, index) => {
+                        if (arr?.indexOf(item) == index) return item;
+                      })
+                    }
+                  });
+
+                  // first time we add subscribers => org events must be validated
+                  // if (!org.orgEmailList || !org.orgEmailList.length) {
+                  //   org.orgEvents?.forEach(async (event) => {
+                  //     await editEvent({
+                  //       eventName: event.eventName,
+                  //       payload: {
+                  //         isApproved: false
+                  //       }
+                  //     });
+                  //   });
+                  // }
+
+                  setIsVisible({ ...isVisible, subscribers: true });
+                  setIsAdd(false);
+                  orgQuery.refetch();
+                }
               }}
             >
               Ajouter

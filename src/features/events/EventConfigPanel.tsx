@@ -1,6 +1,6 @@
-import type { Visibility } from "./OrgPage";
-import type { IOrg } from "models/Org";
-import React, { useState } from "react";
+import type { Visibility } from "./EventPage";
+import type { IEvent } from "models/Event";
+import React from "react";
 import { useRouter } from "next/router";
 import {
   Box,
@@ -10,20 +10,19 @@ import {
   IconButton,
   Icon,
   Grid,
-  Alert,
-  AlertIcon
+  AlertIcon,
+  Alert
 } from "@chakra-ui/react";
-import { useDeleteOrgMutation } from "features/orgs/orgsApi";
+import { useDeleteEventMutation } from "features/events/eventsApi";
 import { Button, DeleteButton, Input } from "features/common";
 import { EditIcon, WarningIcon } from "@chakra-ui/icons";
 import tw, { css } from "twin.macro";
-import { OrgForm } from "features/forms/OrgForm";
-import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
-import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
+import { EventForm } from "features/forms/EventForm";
+import { useState } from "react";
 
-export const OrgConfigPanel = ({
-  org,
-  orgQuery,
+export const EventConfigPanel = ({
+  event,
+  eventQuery,
   isConfig,
   isEdit,
   isVisible,
@@ -31,8 +30,8 @@ export const OrgConfigPanel = ({
   setIsEdit,
   setIsVisible
 }: Visibility & {
-  org: IOrg;
-  orgQuery: any;
+  event: IEvent;
+  eventQuery: any;
   isConfig: boolean;
   isEdit: boolean;
   setIsConfig: (isConfig: boolean) => void;
@@ -40,7 +39,7 @@ export const OrgConfigPanel = ({
 }) => {
   const router = useRouter();
   const toast = useToast({ position: "top" });
-  const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
+  const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const [isDisabled, setIsDisabled] = useState(true);
 
   return (
@@ -52,7 +51,7 @@ export const OrgConfigPanel = ({
           mr={3}
           onClick={() => {
             setIsEdit(!isEdit);
-            setIsVisible({ ...isVisible, banner: false, subscribers: false });
+            setIsVisible({ ...isVisible });
           }}
           css={css`
             &:hover {
@@ -60,7 +59,7 @@ export const OrgConfigPanel = ({
             }
             ${isEdit && tw`bg-green-300`}
           `}
-          data-cy="orgEdit"
+          data-cy="eventEdit"
         >
           Modifier
         </Button>
@@ -70,28 +69,30 @@ export const OrgConfigPanel = ({
           isLoading={deleteQuery.isLoading}
           header={
             <>
-              Vous êtes sur le point de supprimer l'organisation
+              Vous êtes sur le point de supprimer l'événement
               <Text display="inline" color="red" fontWeight="bold">
-                {` ${org.orgName}`}
+                {` ${event.eventName}`}
               </Text>
             </>
           }
           body={
             <>
-              Saisissez le nom de l'organisation pour confimer sa suppression :
+              Saisissez le nom de l'événement pour confimer sa suppression :
               <Input
-                onChange={(e) => setIsDisabled(e.target.value !== org.orgName)}
+                onChange={(e) =>
+                  setIsDisabled(e.target.value !== event.eventName)
+                }
               />
             </>
           }
           onClick={async () => {
             try {
-              const deletedOrg = await deleteOrg(org.orgName).unwrap();
+              const deletedEvent = await deleteEvent(event.eventName).unwrap();
 
-              if (deletedOrg) {
+              if (deletedEvent) {
                 await router.push(`/`);
                 toast({
-                  title: `${deletedOrg.orgName} a bien été supprimé !`,
+                  title: `${deletedEvent.eventName} a bien été supprimé !`,
                   status: "success",
                   isClosable: true
                 });
@@ -108,14 +109,14 @@ export const OrgConfigPanel = ({
       </Box>
 
       {isEdit ? (
-        <OrgForm
-          org={org}
+        <EventForm
+          event={event}
           onCancel={() => setIsEdit(false)}
-          onSubmit={async (orgName) => {
-            if (org && orgName !== org.orgName) {
-              await router.push(`/${encodeURIComponent(orgName)}`);
+          onSubmit={async (eventName) => {
+            if (event && eventName !== event.eventName) {
+              await router.push(`/${encodeURIComponent(eventName)}`);
             } else {
-              orgQuery.refetch();
+              eventQuery.refetch();
               setIsEdit(false);
               setIsConfig(false);
             }
@@ -124,21 +125,21 @@ export const OrgConfigPanel = ({
       ) : (
         <Grid gridGap={5}>
           <Grid>
-            <OrgConfigBannerPanel
-              org={org}
-              orgQuery={orgQuery}
+            {/* <EventConfigBannerPanel
+              event={event}
+              eventQuery={eventQuery}
               isVisible={isVisible}
               setIsVisible={setIsVisible}
-            />
+            /> */}
           </Grid>
 
           <Grid>
-            <OrgConfigSubscribersPanel
-              org={org}
-              orgQuery={orgQuery}
+            {/* <EventConfigSubscribersPanel
+              event={event}
+              eventQuery={eventQuery}
               isVisible={isVisible}
               setIsVisible={setIsVisible}
-            />
+            /> */}
           </Grid>
         </Grid>
       )}
