@@ -273,7 +273,9 @@ export const RTEditor = ({
   }, [quill, undo, redo, insertHeart]);
 
   useEffect(() => {
-    if (quill) quill.root.innerHTML = defaultValue;
+    // console.log("RTE: NEW DEFAULT VALUE", typeof defaultValue, defaultValue);
+    if (quill)
+      quill.root.innerHTML = defaultValue === undefined ? "" : defaultValue;
   }, [defaultValue]);
 
   return (

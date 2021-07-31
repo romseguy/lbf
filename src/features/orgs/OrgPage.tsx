@@ -143,14 +143,14 @@ export const Org = ({
         >
           Paramètres de l'organisation
         </Button>
-      ) : (
+      ) : isConfig ? (
         <IconButton
           aria-label="Précédent"
           icon={<ChevronLeftIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
           mb={2}
         />
-      )}
+      ) : null}
 
       <Box mb={3}>
         <Text fontSize="smaller" pt={1}>

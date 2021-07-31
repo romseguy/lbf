@@ -64,7 +64,14 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
 
   const onSubmit = async (form: { topicMessage: string }) => {
     console.log("submitted", form);
-    setTopicMessageDefaultValue("");
+    // console.log(
+    //   "TMF: DEFAULT VALUE",
+    //   typeof topicMessageDefaultValue,
+    //   topicMessageDefaultValue
+    // );
+    setTopicMessageDefaultValue(
+      topicMessageDefaultValue === undefined ? "" : undefined
+    );
 
     const payload = {
       topic: {
@@ -133,35 +140,22 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
         <Controller
           name="topicMessage"
           control={control}
-          defaultValue={topicMessageDefaultValue}
+          defaultValue={topicMessageDefaultValue || ""}
           rules={{ required: "Veuillez saisir un message" }}
           render={(p) => {
             return (
               <RTEditor
                 readOnly={session === null}
-                toolbar={{
-                  container: [
-                    ["bold", "italic", "underline", "blockquote"], // toggled buttons
-
-                    [{ list: "ordered" }, { list: "bullet" }],
-
-                    ["link", "image", "video"],
-
-                    ["undo", "redo"],
-
-                    ["clean"] // remove formatting button
-                  ],
-                  handlers: {
-                    undo: () => {},
-                    redo: () => {}
-                  }
-                }}
                 defaultValue={topicMessageDefaultValue}
                 onChange={(html: string) => {
                   clearErrors("topicMessage");
                   p.onChange(html === "<p><br></p>" ? "" : html);
                 }}
-                placeholder="Cliquez ici pour répondre..."
+                placeholder={
+                  session
+                    ? "Cliquez ici pour répondre..."
+                    : "Connectez vous pour répondre..."
+                }
               />
             );
           }}
@@ -190,7 +184,7 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
             {props.topicMessage ? "Modifier" : "Répondre"}
           </Button>
         ) : (
-          <Button variant="outline" onClick={props.onLoginClick}>
+          <Button variant="outline" onClick={props.onLoginClick} mr={3}>
             Connexion
           </Button>
         )}

@@ -166,6 +166,9 @@ export const EventsList = (props: EventsProps) => {
             </GridItem>
             <GridItem
               className="ql-editor"
+              p={0}
+              m={0}
+              pl={3}
               light={{ bg: "white" }}
               dark={{ bg: "dark" }}
             >

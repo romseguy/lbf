@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from "react";
 import {
   Button,
@@ -37,7 +36,7 @@ export const DeleteButton = ({
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const onClose = () => setIsOpen(false);
-  const cancelRef = React.useRef();
+  const cancelRef = React.useRef<HTMLButtonElement | null>(null);
 
   return (
     <>

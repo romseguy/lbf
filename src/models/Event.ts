@@ -1,7 +1,9 @@
 import type { IOrg } from "models/Org";
 import type { IUser } from "models/User";
+import type { ITopic } from "models/Topic";
+import type { Base64Image } from "utils/image";
 import { Schema } from "mongoose";
-import { ITopic, TopicSchema } from "./Topic";
+import { TopicSchema } from "./Topic";
 
 export interface IEvent {
   _id: string;
@@ -18,6 +20,7 @@ export interface IEvent {
   eventTopics: ITopic[];
   repeat?: number;
   isApproved?: boolean;
+  eventBanner?: Base64Image & { mode: "light" | "dark" };
   createdBy: IUser;
   createdAt?: string;
 }
@@ -45,6 +48,12 @@ export const EventSchema = new Schema<IEvent>(
     eventDescription: String,
     eventOrgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
     eventNotif: [{ type: Schema.Types.ObjectId, ref: "Org" }],
+    eventBanner: {
+      base64: String,
+      width: Number,
+      height: Number,
+      mode: String
+    },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User"

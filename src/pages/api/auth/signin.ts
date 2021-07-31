@@ -31,6 +31,9 @@ handler.post<NextApiRequest, NextApiResponse>(async function signin(req, res) {
           createServerError(new Error("La tentative de connexion a échouée"))
         );
     } else {
+      user.isOnline = true;
+      await user.save();
+
       res.status(200).json(user);
     }
   } catch (error) {

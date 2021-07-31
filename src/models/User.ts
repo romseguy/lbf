@@ -7,17 +7,32 @@ const HASH_ROUNDS = 10;
 
 export interface IUser {
   _id: string;
-  userName: string;
-  userNameLower?: string;
-  userAddress?: string;
   email: string;
+  isOnline: boolean;
   password: string;
   securityCode: string;
+  userName: string;
+  userNameLower?: string;
   validatePassword(password: string): boolean;
 }
 
 export const UserSchema = new Schema<IUser>(
   {
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+      unique: true
+    },
+    isOnline: {
+      type: Schema.Types.Boolean
+    },
+    password: {
+      type: String,
+      required: true
+    },
+    securityCode: String,
     userName: {
       type: String,
       // required: true,
@@ -28,20 +43,7 @@ export const UserSchema = new Schema<IUser>(
       //   collation: { locale: "fr", strength: 2 }
       // }
     },
-    userNameLower: String,
-    userAddress: String,
-    email: {
-      type: String,
-      required: true,
-      trim: true,
-      lowercase: true,
-      unique: true
-    },
-    password: {
-      type: String,
-      required: true
-    },
-    securityCode: String
+    userNameLower: String
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );

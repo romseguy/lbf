@@ -1,12 +1,18 @@
 // https://raw.githubusercontent.com/chakra-ui/chakra-ui/develop/examples/nextjs-typescript/components/NextChakraLink.tsx
 import NextLink, { LinkProps as NextLinkProps } from "next/link";
-import { ThemingProps, Link as ChakraLink, SpaceProps } from "@chakra-ui/react";
+import {
+  ThemingProps,
+  Link as ChakraLink,
+  SpaceProps,
+  TypographyProps
+} from "@chakra-ui/react";
 import { UrlObject } from "url";
 import { SerializedStyles } from "@emotion/react";
 declare type Url = string | UrlObject;
 
 export type LinkProps = ThemingProps &
-  SpaceProps & {
+  SpaceProps &
+  TypographyProps & {
     href?: Url;
     as?: Url;
     replace?: boolean;

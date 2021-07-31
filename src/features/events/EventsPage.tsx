@@ -29,6 +29,7 @@ export const Events = (props: { events?: IEvent[] }) => {
     <Layout pageTitle="Votre Agenda Local" isLogin={isLogin}>
       <Box>
         <Button
+          colorScheme="teal"
           leftIcon={<AddIcon />}
           onClick={() => {
             if (!isSessionLoading) {
@@ -40,7 +41,7 @@ export const Events = (props: { events?: IEvent[] }) => {
             }
           }}
           mb={5}
-          dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
+          // dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
           data-cy="addEvent"
         >
           Ajouter un événement

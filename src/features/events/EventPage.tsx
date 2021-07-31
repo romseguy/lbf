@@ -41,6 +41,7 @@ import { EventConfigPanel } from "./EventConfigPanel";
 export type Visibility = {
   isVisible: {
     topics: boolean;
+    banner: boolean;
   };
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
@@ -69,11 +70,16 @@ export const Event = (props: {
   const [isConfig, setIsConfig] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isVisible, setIsVisible] = useState<Visibility["isVisible"]>({
-    topics: false
+    topics: false,
+    banner: false
   });
 
   return (
-    <Layout pageTitle={event.eventName} isLogin={isLogin}>
+    <Layout
+      pageTitle={event.eventName}
+      isLogin={isLogin}
+      banner={event.eventBanner}
+    >
       {isTopicModalOpen && event && (
         <TopicModal
           event={event}
@@ -96,14 +102,14 @@ export const Event = (props: {
         >
           Paramètres de l'événement
         </Button>
-      ) : (
+      ) : isConfig ? (
         <IconButton
           aria-label="Précédent"
           icon={<ChevronLeftIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
           mb={2}
         />
-      )}
+      ) : null}
 
       <Box mb={3}>
         <Text fontSize="smaller" pt={1}>
@@ -127,8 +133,8 @@ export const Event = (props: {
           <Alert status="warning">
             <AlertIcon />
             Votre événement est en attente de modération. Vous devez attendre
-            avant de pouvoir envoyer un e-mail d'invitation aux abonnés des
-            organisateurs.
+            son approbation avant de pouvoir envoyer un e-mail d'invitation aux
+            abonnés des organisateurs.
           </Alert>
         </Box>
       )}
@@ -244,70 +250,68 @@ export const Event = (props: {
             </Grid>
           </GridItem>
 
-          {session && (
-            <GridItem
-              colSpan={2}
-              css={css`
-                @media (max-width: 730px) {
-                  & {
-                    grid-column: 1;
-                  }
+          <GridItem
+            colSpan={2}
+            css={css`
+              @media (max-width: 730px) {
+                & {
+                  grid-column: 1;
                 }
-              `}
-            >
-              <GridHeader borderTopRadius="lg" alignItems="center">
-                <Grid templateColumns="1fr auto" alignItems="center">
-                  <GridItem
-                    css={css`
-                      @media (max-width: 730px) {
-                        & {
-                          padding-top: 12px;
-                          padding-bottom: 12px;
+              }
+            `}
+          >
+            <GridHeader borderTopRadius="lg" alignItems="center">
+              <Grid templateColumns="1fr auto" alignItems="center">
+                <GridItem
+                  css={css`
+                    @media (max-width: 730px) {
+                      & {
+                        padding-top: 12px;
+                        padding-bottom: 12px;
+                      }
+                    }
+                  `}
+                >
+                  <Heading size="sm">Discussions</Heading>
+                </GridItem>
+                <GridItem
+                  css={css`
+                    @media (max-width: 730px) {
+                      & {
+                        grid-column: 1;
+                        padding-bottom: 12px;
+                      }
+                    }
+                  `}
+                >
+                  <Button
+                    colorScheme="teal"
+                    leftIcon={<AddIcon />}
+                    onClick={() => {
+                      if (!isSessionLoading) {
+                        if (session) {
+                          setIsTopicModalOpen(true);
+                        } else {
+                          setIsLogin(isLogin + 1);
                         }
                       }
-                    `}
+                    }}
+                    m={1}
                   >
-                    <Heading size="sm">Discussions</Heading>
-                  </GridItem>
-                  <GridItem
-                    css={css`
-                      @media (max-width: 730px) {
-                        & {
-                          grid-column: 1;
-                          padding-bottom: 12px;
-                        }
-                      }
-                    `}
-                  >
-                    <Button
-                      colorScheme="teal"
-                      leftIcon={<AddIcon />}
-                      onClick={() => {
-                        if (!isSessionLoading) {
-                          if (session) {
-                            setIsTopicModalOpen(true);
-                          } else {
-                            setIsLogin(isLogin + 1);
-                          }
-                        }
-                      }}
-                      m={1}
-                    >
-                      Ajouter un sujet de discussion
-                    </Button>
-                  </GridItem>
-                </Grid>
-              </GridHeader>
+                    Ajouter un sujet de discussion
+                  </Button>
+                </GridItem>
+              </Grid>
+            </GridHeader>
 
-              <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
-                <TopicsList
-                  event={event}
-                  query={eventQuery}
-                  onLoginClick={() => setIsLogin(isLogin + 1)}
-                />
-              </GridItem>
+            <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
+              <TopicsList
+                event={event}
+                query={eventQuery}
+                onLoginClick={() => setIsLogin(isLogin + 1)}
+              />
             </GridItem>
-          )}
+          </GridItem>
         </Grid>
       )}
 

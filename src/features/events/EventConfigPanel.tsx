@@ -19,6 +19,7 @@ import { EditIcon, WarningIcon } from "@chakra-ui/icons";
 import tw, { css } from "twin.macro";
 import { EventForm } from "features/forms/EventForm";
 import { useState } from "react";
+import { EventConfigBannerPanel } from "./EventConfigBannerPanel";
 
 export const EventConfigPanel = ({
   event,
@@ -51,7 +52,7 @@ export const EventConfigPanel = ({
           mr={3}
           onClick={() => {
             setIsEdit(!isEdit);
-            setIsVisible({ ...isVisible });
+            setIsVisible({ ...isVisible, banner: false });
           }}
           css={css`
             &:hover {
@@ -125,12 +126,12 @@ export const EventConfigPanel = ({
       ) : (
         <Grid gridGap={5}>
           <Grid>
-            {/* <EventConfigBannerPanel
+            <EventConfigBannerPanel
               event={event}
               eventQuery={eventQuery}
               isVisible={isVisible}
               setIsVisible={setIsVisible}
-            /> */}
+            />
           </Grid>
 
           <Grid>

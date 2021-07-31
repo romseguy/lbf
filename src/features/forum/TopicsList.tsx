@@ -10,6 +10,7 @@ import { GridHeader, GridItem, Link, Spacer } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { intervalToDuration, format, formatDuration, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
+import { TopicMessagesList } from "./TopicMessagesList";
 
 export const TopicsList = ({
   event,
@@ -105,69 +106,11 @@ export const TopicsList = ({
                         light={{ bg: "orange.100" }}
                         dark={{ bg: "gray.700" }}
                       >
-                        {entityTopic.topicMessages.map(
-                          ({ _id, message, createdBy, createdAt }, index) => {
-                            const end = createdAt
-                              ? parseISO(createdAt)
-                              : new Date();
-                            const fullDate = format(
-                              end,
-                              "eeee dd MMMM yyyy à H'h'mm",
-                              { locale: fr }
-                            );
-                            const duration = intervalToDuration({
-                              start: new Date(),
-                              end
-                            });
-                            const formatted = formatDuration(duration, {
-                              format: [
-                                "years",
-                                "months",
-                                "weeks",
-                                "days",
-                                "hours",
-                                "minutes"
-                              ],
-                              locale: fr
-                            });
-                            const timeAgo =
-                              formatted === "" ? "1 minute" : formatted;
-
-                            return (
-                              <Box key={_id}>
-                                <Text ml={1} pt={3}>
-                                  <Link
-                                    href={`/${encodeURIComponent(
-                                      createdBy.userName
-                                    )}`}
-                                    variant="underline"
-                                  >
-                                    {createdBy.userName}
-                                  </Link>{" "}
-                                  a {index === 0 ? "écrit" : "répondu"} :
-                                </Text>
-                                <Box className="ql-editor" p={0} pt={1} pl={1}>
-                                  {parse(message)}
-                                </Box>
-                                <Box textAlign="right" fontStyle="italic">
-                                  <Tooltip
-                                    placement="left"
-                                    hasArrow
-                                    label={fullDate}
-                                    p={3}
-                                  >
-                                    <span>il y a {timeAgo}</span>
-                                  </Tooltip>
-                                </Box>
-                                {index !==
-                                  entityTopic.topicMessages.length - 1 && (
-                                  <Spacer borderWidth={1} />
-                                )}
-                              </Box>
-                            );
-                          }
-                        )}
+                        <TopicMessagesList
+                          topicMessages={entityTopic.topicMessages}
+                        />
                       </GridItem>
+
                       <GridItem
                         light={{ bg: "white" }}
                         dark={{ bg: "gray.800" }}

@@ -96,21 +96,13 @@ export const Nav = ({
           <Menu>
             <MenuButton mr={3}>
               <Avatar
+                name={session.user.userName}
                 css={css`
                   // &:focus {
                   //   box-shadow: var(--chakra-shadows-outline);
                   // }
                 `}
-                src={
-                  session.user.image
-                    ? session.user.image
-                    : !process.env.NEXT_PUBLIC_OFFLINE &&
-                      process.env.NODE_ENV === "production"
-                    ? `https://www.gravatar.com/avatar/${md5(
-                        session.user.email
-                      )}?d=identicon`
-                    : ""
-                }
+                src={session.user.image ? session.user.image : undefined}
                 w="48px"
                 h="48px"
               />
@@ -118,7 +110,7 @@ export const Nav = ({
 
             <MenuList>
               <Link href={`/${encodeURIComponent(session.user.userName)}`}>
-                <MenuItem>Mon profil</MenuItem>
+                <MenuItem>Mon compte</MenuItem>
               </Link>
 
               {/* 
@@ -132,7 +124,6 @@ export const Nav = ({
                   await signOut({
                     redirect: false
                   });
-                  router.push("/");
                 }}
               >
                 Déconnexion
@@ -148,7 +139,11 @@ export const Nav = ({
         </Flex>
       ) : (
         <Box mr={5} ml={isHome ? 5 : 0}>
-          <Button variant="outline" onClick={() => setIsLoginModalOpen(true)}>
+          <Button
+            variant="outline"
+            colorScheme="purple"
+            onClick={() => setIsLoginModalOpen(true)}
+          >
             Connexion
           </Button>
         </Box>

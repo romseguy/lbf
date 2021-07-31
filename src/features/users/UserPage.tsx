@@ -75,9 +75,9 @@ export const User = ({
         <Flex mb={5}>
           {user.email === session?.user.email && (
             <>
-              <IconButton
+              <Button
                 aria-label="Modifier"
-                icon={<Icon as={EditIcon} />}
+                leftIcon={<Icon as={EditIcon} />}
                 mr={3}
                 onClick={() => setIsEdit(!isEdit)}
                 css={css`
@@ -87,7 +87,9 @@ export const User = ({
                   ${isEdit && tw`bg-green-300`}
                 `}
                 data-cy="userEdit"
-              />
+              >
+                Modifier
+              </Button>
               {/* <DeleteButton
               isLoading={isLoading}
               body={
