@@ -90,7 +90,7 @@ export const OrgForm = (props: OrgFormProps) => {
   };
 
   return (
-    <form method="post" onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+    <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <ErrorMessage
         errors={errors}
         name="formErrorMessage"

@@ -14,12 +14,25 @@ handler.get<NextApiRequest, NextApiResponse>(async function getSubscription(
   req,
   res
 ) {
-  const query: { userId?: string } = req.query;
-
   try {
-    const subscription = await models.Subscription.findOne({
-      user: query.userId
-    });
+    const { userId } = req.query as NextApiRequest["query"] & {
+      userId: string;
+    };
+
+    let selector: { user?: string; email?: string } = { user: userId };
+
+    if (emailR.test(userId)) {
+      const user = await models.User.findOne({ email: userId });
+      if (user) selector = { user };
+      else selector = { email: userId };
+    }
+
+    const subscription = await models.Subscription.findOne(selector)
+      .populate("user")
+      .populate({
+        path: "orgs",
+        populate: { path: "org" }
+      });
 
     if (subscription) {
       res.status(200).json(subscription);
@@ -27,7 +40,9 @@ handler.get<NextApiRequest, NextApiResponse>(async function getSubscription(
       res
         .status(404)
         .json(
-          createServerError(new Error("Le document n'a pas pu être trouvé"))
+          createServerError(
+            new Error("Aucun abonnement trouvé pour cette adresse e-mail")
+          )
         );
     }
   } catch (error) {

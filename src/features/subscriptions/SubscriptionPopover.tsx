@@ -31,6 +31,7 @@ export const SubscriptionPopover = ({
   org?: IOrg;
   event?: IEvent;
   isDisabled?: boolean;
+  isLoading?: boolean;
   onSubmit?: () => void;
 }) => {
   const { data: session } = useSession();
@@ -82,10 +83,13 @@ export const SubscriptionPopover = ({
       <PopoverTrigger>
         <Button
           isDisabled={isDisabled}
+          isLoading={props.isLoading}
           leftIcon={<EmailIcon />}
           colorScheme="teal"
           onClick={() => {
-            setIsOpen(!isOpen);
+            if (session) {
+              onSubmit({ email: session.user.email });
+            } else setIsOpen(!isOpen);
           }}
         >
           {isDisabled ? "Abonné" : "S'abonner"}

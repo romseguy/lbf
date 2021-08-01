@@ -2,7 +2,8 @@ export const handleError = (
   error: { message?: string; status?: number; data?: any },
   setError: (message: string, field?: string) => void
 ) => {
-  if (error.message) return setError(error.message);
+  if (error.message || error.data.message)
+    return setError(error.message || error.data.message);
 
   if (error.status === 400 || error.status === 500) {
     const fields = Object.keys(error.data);

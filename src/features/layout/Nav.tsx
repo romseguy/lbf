@@ -18,10 +18,9 @@ import {
   SpaceProps
 } from "@chakra-ui/react";
 import { Link } from "features/common";
-import { OrgPopover } from "./OrgPopover";
+import { OrgPopover, EmailSubscriptionsPopover } from "features/layout";
 import { LoginModal } from "features/modals/LoginModal";
 import { useRouter } from "next/router";
-import { QuestionIcon } from "@chakra-ui/icons";
 import { useEffect } from "react";
 import { breakpoints } from "theme/theme";
 
@@ -91,11 +90,12 @@ export const Nav = ({
         <Spinner ml={5} mr={3} />
       ) : session ? (
         <Flex justify="flex-end" ml={5}>
+          <EmailSubscriptionsPopover email={session.user.email} mr={3} />
           <OrgPopover />
-
           <Menu>
             <MenuButton mr={3}>
               <Avatar
+                boxSize={10}
                 name={session.user.userName}
                 css={css`
                   // &:focus {
@@ -103,8 +103,6 @@ export const Nav = ({
                   // }
                 `}
                 src={session.user.image ? session.user.image : undefined}
-                w="48px"
-                h="48px"
               />
             </MenuButton>
 
@@ -138,15 +136,19 @@ export const Nav = ({
           </Menu> */}
         </Flex>
       ) : (
-        <Box mr={5} ml={isHome ? 5 : 0}>
-          <Button
-            variant="outline"
-            colorScheme="purple"
-            onClick={() => setIsLoginModalOpen(true)}
-          >
-            Connexion
-          </Button>
-        </Box>
+        <Flex justify="flex-end">
+          <EmailSubscriptionsPopover />
+
+          <Box mr={5} ml={5}>
+            <Button
+              variant="outline"
+              colorScheme="purple"
+              onClick={() => setIsLoginModalOpen(true)}
+            >
+              Connexion
+            </Button>
+          </Box>
+        </Flex>
       )}
 
       {isLoginModalOpen && (

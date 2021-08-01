@@ -46,7 +46,7 @@ export const Layout = ({
 
   let main = children;
   let header = pageTitle ? (
-    <Hero fontSize={["3xl", "6xl"]} title={pageTitle} py={3} pt={0} />
+    <Hero fontSize={["3xl", "3xl", "6xl"]} title={pageTitle} py={3} pt={0} />
   ) : (
     <Spinner mt={2} />
   );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { IoIosPeople, IoMdCheckmarkCircle } from "react-icons/io";
+import { IoIosPeople, IoMdCheckmarkCircle, IoMdPeople } from "react-icons/io";
 import {
   List,
   ListItem,
@@ -24,16 +24,20 @@ import {
   IconButton,
   Spinner,
   Button,
-  Box
+  Box,
+  Heading,
+  BoxProps
 } from "@chakra-ui/react";
 import { OrgForm } from "features/forms/OrgForm";
 import { getOrgsByCreator } from "features/orgs/orgsApi";
 import { Link } from "features/common";
 import { useSession } from "hooks/useAuth";
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
+import { FaPeopleCarry } from "react-icons/fa";
 
-export const OrgPopover = () => {
+export const OrgPopover = (props: BoxProps) => {
+  const router = useRouter();
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const { isOpen: isOrgModalOpen, onOpen, onClose } = useDisclosure();
@@ -44,14 +48,13 @@ export const OrgPopover = () => {
     refetch,
     isLoading
   } = getOrgsByCreator.useQuery(session?.user.userId);
-  const router = useRouter();
 
   useEffect(() => {
     refetch();
   }, [router.asPath]);
 
   return (
-    <>
+    <Box {...props}>
       <Popover isLazy isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <PopoverTrigger>
           <IconButton
@@ -60,13 +63,10 @@ export const OrgPopover = () => {
             mr={2}
             bg="transparent"
             _hover={{ bg: "transparent" }}
-            w="48px"
-            h="48px"
             icon={
               <Icon
                 as={IoIosPeople}
-                w="48px"
-                h="48px"
+                boxSize={14}
                 _hover={{ color: iconHoverColor }}
               />
             }
@@ -74,7 +74,9 @@ export const OrgPopover = () => {
           />
         </PopoverTrigger>
         <PopoverContent>
-          <PopoverHeader>Mes organisations</PopoverHeader>
+          <PopoverHeader>
+            <Heading size="md">Mes organisations</Heading>
+          </PopoverHeader>
           <PopoverCloseButton />
           <PopoverBody>
             <Box>
@@ -83,8 +85,17 @@ export const OrgPopover = () => {
               ) : (
                 <List>
                   {myOrgs.map(({ orgName }, index) => (
-                    <ListItem mb={1} key={index}>
-                      <ListIcon as={IoMdCheckmarkCircle} color="green.500" />{" "}
+                    <ListItem
+                      display="flex"
+                      alignItems="center"
+                      mb={1}
+                      key={index}
+                    >
+                      <ListIcon
+                        boxSize={6}
+                        as={IoIosPeople}
+                        color="green.500"
+                      />{" "}
                       <Link
                         onClick={() => {
                           setIsOpen(false);
@@ -133,6 +144,6 @@ export const OrgPopover = () => {
           </ModalBody>
         </ModalContent>
       </Modal>
-    </>
+    </Box>
   );
 };

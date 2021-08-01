@@ -192,6 +192,7 @@ export const Org = ({
             subQuery.refetch();
           }}
           isDisabled={isSubscribed}
+          isLoading={subQuery.isLoading}
         />
       )}
 
