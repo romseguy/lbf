@@ -1,4 +1,5 @@
 import type { IEvent } from "./Event";
+import type { ISubscription } from "./Subscription";
 import type { IUser } from "models/User";
 import type { Base64Image } from "utils/image";
 import { Schema } from "mongoose";
@@ -12,7 +13,7 @@ export interface IOrg {
   orgType: string;
   orgAddress?: string;
   orgEmail?: string;
-  orgEmailList: string[];
+  orgSubscriptions: ISubscription[];
   orgDescription?: string;
   orgEvents?: IEvent[];
   orgTopics: ITopic[];
@@ -42,7 +43,9 @@ export const OrgSchema = new Schema<IOrg>(
     },
     orgAddress: String,
     orgEmail: String,
-    orgEmailList: Array,
+    orgSubscriptions: [
+      { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
+    ],
     orgDescription: String,
     orgEvents: [{ type: Schema.Types.ObjectId, ref: "Event" }],
     orgTopics: [TopicSchema],

@@ -8,16 +8,29 @@ import {
   Heading,
   useColorModeValue,
   Grid,
-  Flex,
-  Tooltip,
-  IconButton
+  IconButton,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  InputRightAddon,
+  FormControl,
+  FormErrorMessage,
+  useToast
 } from "@chakra-ui/react";
 import { useSession } from "hooks/useAuth";
+import { useForm } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
 import { Layout } from "features/layout";
 import { useGetOrgByNameQuery } from "features/orgs/orgsApi";
-import { OrgForm } from "features/forms/OrgForm";
 import { Button, GridHeader, GridItem, Link } from "features/common";
-import { AddIcon, ChevronLeftIcon, SettingsIcon } from "@chakra-ui/icons";
+import {
+  AddIcon,
+  CheckCircleIcon,
+  ChevronLeftIcon,
+  EmailIcon,
+  SettingsIcon
+} from "@chakra-ui/icons";
 import tw, { css } from "twin.macro";
 import { format, parseISO } from "date-fns";
 import { EventModal } from "features/modals/EventModal";
@@ -26,6 +39,9 @@ import { TopicsList } from "features/forum/TopicsList";
 import { EventsList } from "features/events/EventsList";
 import { TopicModal } from "features/modals/TopicModal";
 import { OrgConfigPanel } from "./OrgConfigPanel";
+import { emailR } from "utils/email";
+import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
+import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 
 export type Visibility = {
   isVisible: {
@@ -44,6 +60,9 @@ export const Org = ({
   routeName: string;
 }) => {
   const router = useRouter();
+  const { data: session, loading: isSessionLoading } = useSession();
+  const toast = useToast({ position: "top" });
+
   const orgQuery = useGetOrgByNameQuery(routeName);
   useEffect(() => {
     console.log("refetching org");
@@ -51,8 +70,12 @@ export const Org = ({
     setIsEdit(false);
   }, [router.asPath]);
   const org = orgQuery.data || props.org;
-  const { data: session, loading: isSessionLoading } = useSession();
-  const isCreator = session && org.createdBy._id === session.user.userId;
+  const isCreator = session?.user.userId === org.createdBy._id;
+
+  const subQuery = useGetSubscriptionQuery(session?.user.userId);
+  const isSubscribed = !!subQuery.data?.orgs?.find(
+    (orgSubscription) => orgSubscription.orgId === org._id
+  );
 
   const eventBg = useColorModeValue("blue.100", "blue.800");
 
@@ -73,6 +96,7 @@ export const Org = ({
         css={css`
           @media (max-width: 730px) {
             & {
+              padding-top: 12px;
               padding-bottom: 12px;
             }
           }
@@ -94,11 +118,14 @@ export const Org = ({
           leftIcon={<AddIcon />}
           colorScheme="teal"
           onClick={() => {
-            setIsEventModalOpen(true);
+            if (!isSessionLoading) {
+              if (!session) setIsLogin(isLogin + 1);
+              // TODO: check if user is SUB
+              else if (isCreator) setIsEventModalOpen(true);
+            }
           }}
           m={1}
           // dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
-          style={{ visibility: session ? "visible" : "hidden" }}
         >
           Ajouter un événement
         </Button>
@@ -152,8 +179,24 @@ export const Org = ({
         />
       ) : null}
 
-      <Box mb={3}>
-        <Text fontSize="smaller" pt={1}>
+      {!isCreator && (
+        <SubscriptionPopover
+          org={org}
+          onSubmit={() => {
+            toast({
+              title: `Vous êtes maintenant abonné à ${org.orgName}`,
+              status: "success",
+              duration: 9000,
+              isClosable: true
+            });
+            subQuery.refetch();
+          }}
+          isDisabled={isSubscribed}
+        />
+      )}
+
+      <Box my={3}>
+        <Text fontSize="smaller">
           Organisation ajoutée le{" "}
           {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
             locale: fr
@@ -301,8 +344,8 @@ export const Org = ({
                 eventBg={eventBg}
               />
             ) : (
-              <GridHeader borderTopRadius="lg" alignItems="center" mb={3}>
-                {session ? eventHeader : null}
+              <GridHeader borderTopRadius="lg" alignItems="center">
+                {eventHeader}
               </GridHeader>
             )}
           </GridItem>

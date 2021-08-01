@@ -112,7 +112,7 @@ export const EventForm = ({
   let eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
   eventOrgs = eventOrgs.filter(
     (org: IOrg) =>
-      Array.isArray(org.orgEmailList) && org.orgEmailList.length > 0
+      Array.isArray(org.orgSubscriptions) && org.orgSubscriptions.length > 0
   );
   watch("eventOrgs");
 

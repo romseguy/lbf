@@ -1,11 +1,8 @@
 import React from "react";
 import {
-  Text,
   BorderProps,
   Button as ChakraButton,
   SpacerProps,
-  Heading,
-  Box,
   ButtonProps,
   useColorModeValue
 } from "@chakra-ui/react";

@@ -8,6 +8,7 @@ import counter from "features/counter/counterSlice";
 import notes from "features/notes/notesSlice";
 import { eventApi } from "features/events/eventsApi";
 import { orgApi } from "features/orgs/orgsApi";
+import { subscriptionApi } from "features/subscriptions/subscriptionsApi";
 import { userApi } from "features/users/usersApi";
 
 const makeStore = () =>
@@ -18,6 +19,7 @@ const makeStore = () =>
       subject,
       [eventApi.reducerPath]: eventApi.reducer,
       [orgApi.reducerPath]: orgApi.reducer,
+      [subscriptionApi.reducerPath]: subscriptionApi.reducer,
       [userApi.reducerPath]: userApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
@@ -25,6 +27,7 @@ const makeStore = () =>
       getDefaultMiddleware().concat(
         eventApi.middleware,
         orgApi.middleware,
+        subscriptionApi.middleware,
         userApi.middleware
       ),
     devTools: process.env.NODE_ENV !== "production"

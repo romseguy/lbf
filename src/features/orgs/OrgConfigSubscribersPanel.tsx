@@ -1,5 +1,5 @@
-import type { Visibility } from "./OrgPage";
 import type { IOrg } from "models/Org";
+import type { Visibility } from "./OrgPage";
 import tw, { css } from "twin.macro";
 import React, { useState } from "react";
 import { Box, Heading, IconButton, Grid, FormLabel } from "@chakra-ui/react";
@@ -9,9 +9,10 @@ import {
   DeleteIcon
 } from "@chakra-ui/icons";
 import { Button, GridHeader, GridItem, Textarea } from "features/common";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
-import { useEditEventMutation } from "features/events/eventsApi";
 import { emailR } from "utils/email";
+import { useAddSubscriptionMutation } from "features/subscriptions/subscriptionsApi";
+import { useSession } from "hooks/useAuth";
+import { SubscriptionTypes } from "models/Subscription";
 
 type OrgConfigSubscribersPanelProps = Visibility & {
   org: IOrg;
@@ -24,12 +25,20 @@ export const OrgConfigSubscribersPanel = ({
   isVisible,
   setIsVisible
 }: OrgConfigSubscribersPanelProps) => {
-  const [editEvent, editEventMutation] = useEditEventMutation();
-  const [editOrg, editOrgMutation] = useEditOrgMutation();
+  const { data: session } = useSession();
+  const [addSubscription, addSubscriptionMutation] =
+    useAddSubscriptionMutation();
   const [isAdd, setIsAdd] = useState(false);
   const [emailList, setEmailList] = useState("");
   const hasSubscribers =
-    Array.isArray(org.orgEmailList) && org.orgEmailList.length > 0;
+    Array.isArray(org.orgSubscriptions) &&
+    org.orgSubscriptions.find(
+      (orgSubscription) =>
+        Array.isArray(orgSubscription.orgs) &&
+        orgSubscription.orgs.find(
+          (org) => org.type === SubscriptionTypes.SUB || SubscriptionTypes.BOTH
+        )
+    );
 
   return (
     <>
@@ -58,7 +67,7 @@ export const OrgConfigSubscribersPanel = ({
             `}
           >
             <Heading size="sm">
-              Abonné(e)s{" "}
+              Adhérents{" "}
               {hasSubscribers && (
                 <>
                   {isVisible.subscribers ? (
@@ -111,43 +120,43 @@ export const OrgConfigSubscribersPanel = ({
               id="emailList"
               dark={{ _hover: { borderColor: "white" } }}
               onChange={(e) => setEmailList(e.target.value)}
+              value={emailList}
             />
             <Button
               mt={3}
+              isLoading={addSubscriptionMutation.isLoading}
               onClick={async () => {
-                const arr = org.orgEmailList?.concat(
-                  emailList
-                    .split(/(\s+)/)
-                    .filter((e: string) => e.trim().length > 0)
-                    .filter((email) => emailR.test(email))
-                );
+                const emailArray = emailList
+                  .split(/(\s+)/)
+                  .filter((e: string) => e.trim().length > 0)
+                  .filter((email) => emailR.test(email));
 
-                if (arr.length > 0) {
-                  await editOrg({
-                    orgName: org.orgName,
-                    payload: {
-                      orgEmailList: arr?.filter((item, index) => {
-                        if (arr?.indexOf(item) == index) return item;
-                      })
-                    }
-                  });
-
-                  // first time we add subscribers => org events must be validated
-                  // if (!org.orgEmailList || !org.orgEmailList.length) {
-                  //   org.orgEvents?.forEach(async (event) => {
-                  //     await editEvent({
-                  //       eventName: event.eventName,
-                  //       payload: {
-                  //         isApproved: false
-                  //       }
-                  //     });
-                  //   });
-                  // }
-
-                  setIsVisible({ ...isVisible, subscribers: true });
-                  setIsAdd(false);
-                  orgQuery.refetch();
+                if (!emailArray.length) {
+                  setEmailList("");
+                  return;
                 }
+
+                const promises = emailArray.map((email) => {
+                  return addSubscription({
+                    payload: {
+                      orgs: [
+                        {
+                          orgId: org._id,
+                          org,
+                          type: SubscriptionTypes.SUB
+                        }
+                      ]
+                    },
+                    email
+                  });
+                });
+
+                await Promise.all(promises);
+
+                setEmailList("");
+                setIsVisible({ ...isVisible, subscribers: true });
+                setIsAdd(false);
+                orgQuery.refetch();
               }}
             >
               Ajouter
@@ -159,30 +168,41 @@ export const OrgConfigSubscribersPanel = ({
       {isVisible.subscribers && hasSubscribers && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Box p={5}>
-            {org.orgEmailList.map((email, index) => (
-              // session ? (
-              <Box key={`email-${index}`}>
-                {email}{" "}
-                <IconButton
-                  aria-label="Désabonner"
-                  height="auto"
-                  bg="transparent"
-                  _hover={{ bg: "transparent" }}
-                  icon={<DeleteIcon />}
-                  onClick={async () => {
-                    await editOrg({
-                      orgName: org.orgName,
-                      payload: {
-                        orgEmailList: org.orgEmailList?.filter((item) => {
-                          return item !== email;
-                        })
-                      }
-                    });
-                    orgQuery.refetch();
-                  }}
-                />
-              </Box>
-            ))}
+            {org.orgSubscriptions
+              .filter((subscription) => {
+                if (!subscription.orgs) return false;
+
+                const orgSubscription = subscription.orgs.find(
+                  (orgSubscription) => {
+                    return orgSubscription.orgId === org._id;
+                  }
+                );
+
+                if (!orgSubscription) return false;
+
+                return (
+                  orgSubscription.type === SubscriptionTypes.SUB ||
+                  SubscriptionTypes.BOTH
+                );
+              })
+              .map((subscription, index) => {
+                return (
+                  <Box key={`email-${index}`}>
+                    {subscription.email || subscription.user?.email}
+                    <IconButton
+                      aria-label="Désinscrire"
+                      height="auto"
+                      bg="transparent"
+                      _hover={{ bg: "transparent", color: "red" }}
+                      icon={<DeleteIcon />}
+                      onClick={async () => {
+                        // TODO
+                        orgQuery.refetch();
+                      }}
+                    />
+                  </Box>
+                );
+              })}
           </Box>
         </GridItem>
       )}

@@ -28,14 +28,13 @@ handler.get<NextApiRequest, NextApiResponse>(async function getOrg(req, res) {
         path: "orgTopics.topicMessages",
         populate: { path: "createdBy" }
       })
-      .populate("orgEvents createdBy");
+      .populate("orgEvents orgSubscriptions createdBy")
+      .populate({
+        path: "orgSubscriptions",
+        populate: { path: "user" }
+      });
 
     if (org) {
-      const session = await getSession({ req });
-
-      if (!session) {
-        org.set("orgEmailList", null);
-      }
       res.status(200).json(org);
     } else {
       res
@@ -117,15 +116,6 @@ handler.put<NextApiRequest, NextApiResponse>(async function editOrg(req, res) {
 
       if (typeof body.orgName === "string" && !body.orgNameLower) {
         body.orgNameLower = body.orgName.toLowerCase();
-      }
-
-      if (Array.isArray(body.orgEmailList) && body.orgEmailList.length > 0) {
-        body.orgEmailList = body.orgEmailList.filter((email: string) => {
-          if (!emailR.test(email)) {
-            return false;
-          }
-          return true;
-        });
       }
 
       const { n, nModified } = await models.Org.updateOne({ orgName }, body);

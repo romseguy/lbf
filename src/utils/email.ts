@@ -14,11 +14,11 @@ export const sendToEmailList = async (event: IEvent, transport: any) => {
   for (const org of event.eventOrgs) {
     for (const orgId of event.eventNotif) {
       if (orgId !== org._id) continue;
-      for (const email of org.orgEmailList) {
+      for (const orgSubscription of org.orgSubscriptions) {
         process.env.NODE_ENV === "production" &&
           (await transport.sendMail({
             from: process.env.EMAIL_FROM,
-            to: `<${email}>`,
+            to: `<${orgSubscription.email}>`,
             subject: `${org.orgName} vous invite à un nouvel événement : ${event.eventName}`,
             html: `
               <h1>${org.orgName} vous invite à un nouvel événement : ${event.eventName}</h1>

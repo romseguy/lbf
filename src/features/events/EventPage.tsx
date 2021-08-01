@@ -134,7 +134,7 @@ export const Event = (props: {
             <AlertIcon />
             Votre événement est en attente de modération. Vous devez attendre
             son approbation avant de pouvoir envoyer un e-mail d'invitation aux
-            abonnés des organisateurs.
+            adhérents des organisateurs.
           </Alert>
         </Box>
       )}

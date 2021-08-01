@@ -121,26 +121,31 @@ handler.put<NextApiRequest, NextApiResponse>(async function editEvent(
         )
       );
   } else {
-    const {
-      query: { eventName },
-      body: { eventOrgs }
-    } = req;
-
     try {
-      sendToEmailList(req.body, transport);
+      const {
+        query: { eventName }
+      } = req;
+
+      let body = req.body;
+
+      if (typeof body.eventName === "string" && !body.eventNameLower) {
+        body.eventNameLower = body.eventName.toLowerCase();
+      }
+
+      sendToEmailList(body, transport);
       const event = await models.Event.findOne({ eventName });
 
       const { n, nModified } = await models.Event.updateOne(
         { eventName },
-        req.body
+        body
       );
 
-      eventOrgs.forEach(async (eventOrg: IOrg) => {
+      body.eventOrgs.forEach(async (eventOrg: IOrg) => {
         const org = await models.Org.findOne({ orgName: eventOrg.orgName });
 
         if (org.orgEvents.indexOf(event._id) === -1) {
           await models.Org.updateMany(
-            { _id: eventOrgs },
+            { _id: body.eventOrgs },
             {
               $push: {
                 orgEvents: event._id
