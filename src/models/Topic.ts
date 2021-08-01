@@ -9,8 +9,21 @@ export interface ITopic {
   topicName: string;
   topicNameLower?: string;
   topicMessages: ITopicMessage[];
+  topicVisibility?: string;
   createdBy: IUser;
 }
+
+export const Visibility: { [key: string]: string } = {
+  PUBLIC: "PUBLIC",
+  SUBSCRIBERS: "SUBSCRIBERS",
+  FOLLOWERS: "FOLLOWERS"
+};
+
+export const VisibilityV: { [key: string]: string } = {
+  PUBLIC: "Publique",
+  SUBSCRIBERS: "Adhérents",
+  FOLLOWERS: "Abonnés"
+};
 
 export const TopicSchema = new Schema<ITopic>(
   {
@@ -21,6 +34,10 @@ export const TopicSchema = new Schema<ITopic>(
     },
     topicNameLower: String,
     topicMessages: [TopicMessageSchema],
+    topicVisibility: {
+      type: String,
+      enum: Object.keys(Visibility).map((key) => Visibility[key])
+    },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User"

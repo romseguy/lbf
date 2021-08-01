@@ -1,14 +1,8 @@
 import type { IEvent } from "models/Event";
 import type { IOrg } from "models/Org";
-import {
-  BrowserView,
-  MobileView,
-  isBrowser,
-  isMobile
-} from "react-device-detect";
-import React, { forwardRef, Ref, useState } from "react";
+import type { ITopic } from "models/Topic";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import ReactSelect from "react-select";
 import { ErrorMessage } from "@hookform/error-message";
 import {
   ChakraProps,
@@ -19,47 +13,16 @@ import {
   Box,
   Stack,
   FormErrorMessage,
-  Textarea,
   useToast,
-  Spinner,
-  Text,
-  Select,
-  Checkbox,
   Flex,
-  CheckboxGroup
+  Select
 } from "@chakra-ui/react";
-import { EmailIcon, TimeIcon, WarningIcon } from "@chakra-ui/icons";
-import {
-  AddressControl,
-  DatePicker,
-  EmailControl,
-  ErrorMessageText,
-  RTEditor
-} from "features/common";
+import { WarningIcon } from "@chakra-ui/icons";
+import { ErrorMessageText, RTEditor } from "features/common";
 import { useSession } from "hooks/useAuth";
-import type { ITopic } from "models/Topic";
+import { Visibility, VisibilityV } from "models/Topic";
 import { handleError } from "utils/form";
-import {
-  addDays,
-  addHours,
-  addMinutes,
-  addWeeks,
-  getDay,
-  getHours,
-  intervalToDuration,
-  isToday,
-  parseISO,
-  setHours,
-  setMinutes,
-  subHours
-} from "date-fns";
-import { getDetails } from "use-places-autocomplete";
-import {
-  useGetOrgsByCreatorQuery,
-  useAddOrgDetailsMutation
-} from "features/orgs/orgsApi";
-import tw, { css } from "twin.macro";
-import { useEffect } from "react";
+import { useAddOrgDetailsMutation } from "features/orgs/orgsApi";
 import { useAddEventDetailsMutation } from "features/events/eventsApi";
 
 interface TopicFormProps extends ChakraProps {
@@ -106,7 +69,7 @@ export const TopicForm = (props: TopicFormProps) => {
 
     if (!props.topic) {
       topic = {
-        topicName: form.topicName,
+        ...form,
         topicMessages: form.topicMessage
           ? [{ message: form.topicMessage, createdBy: session.user.userId }]
           : [],
@@ -202,9 +165,37 @@ export const TopicForm = (props: TopicFormProps) => {
             );
           }}
         />
-
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="topicMessage" />
+        </FormErrorMessage>
+      </FormControl>
+
+      <FormControl
+        id="topicVisibility"
+        isRequired
+        isInvalid={!!errors["topicVisibility"]}
+        mb={3}
+      >
+        <FormLabel>Visibilité</FormLabel>
+        <Select
+          name="topicVisibility"
+          ref={register({
+            required:
+              "Veuillez sélectionner la visibilité du sujet de discussion"
+          })}
+          placeholder="Sélectionnez la visibilité du sujet de discussion..."
+          color="gray.400"
+        >
+          {Object.keys(Visibility).map((key) => {
+            return (
+              <option key={key} value={key}>
+                {VisibilityV[key]}
+              </option>
+            );
+          })}
+        </Select>
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="topicVisibility" />
         </FormErrorMessage>
       </FormControl>
 

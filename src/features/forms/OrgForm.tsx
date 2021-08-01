@@ -25,7 +25,7 @@ import {
 } from "features/common";
 import { useAddOrgMutation, useEditOrgMutation } from "features/orgs/orgsApi";
 import { useSession } from "hooks/useAuth";
-import { OrgTypes } from "models/Org";
+import { OrgTypes, OrgTypesV } from "models/Org";
 import type { IOrg } from "models/Org";
 import { handleError } from "utils/form";
 
@@ -147,8 +147,8 @@ export const OrgForm = (props: OrgFormProps) => {
         >
           {Object.keys(OrgTypes).map((orgType) => {
             return (
-              <option key={orgType} value={OrgTypes[orgType]}>
-                {OrgTypes[orgType]}
+              <option key={orgType} value={orgType}>
+                {OrgTypesV[orgType]}
               </option>
             );
           })}

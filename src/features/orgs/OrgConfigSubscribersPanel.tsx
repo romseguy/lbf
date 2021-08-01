@@ -2,13 +2,29 @@ import type { IOrg } from "models/Org";
 import type { Visibility } from "./OrgPage";
 import tw, { css } from "twin.macro";
 import React, { useState } from "react";
-import { Box, Heading, IconButton, Grid, FormLabel } from "@chakra-ui/react";
 import {
+  Box,
+  Heading,
+  IconButton,
+  Grid,
+  FormLabel,
+  Tag,
+  TagLeftIcon,
+  TagLabel,
+  Wrap,
+  WrapItem,
+  Tooltip,
+  Table,
+  Tr,
+  Td
+} from "@chakra-ui/react";
+import {
+  AddIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   DeleteIcon
 } from "@chakra-ui/icons";
-import { Button, GridHeader, GridItem, Textarea } from "features/common";
+import { Button, GridHeader, GridItem, Link, Textarea } from "features/common";
 import { emailR } from "utils/email";
 import { useAddSubscriptionMutation } from "features/subscriptions/subscriptionsApi";
 import { useSession } from "hooks/useAuth";
@@ -36,7 +52,8 @@ export const OrgConfigSubscribersPanel = ({
       (orgSubscription) =>
         Array.isArray(orgSubscription.orgs) &&
         orgSubscription.orgs.find(
-          (org) => org.type === SubscriptionTypes.SUB || SubscriptionTypes.BOTH
+          (org) =>
+            org.type === SubscriptionTypes.SUBSCRIBER || SubscriptionTypes.BOTH
         )
     );
 
@@ -67,7 +84,7 @@ export const OrgConfigSubscribersPanel = ({
             `}
           >
             <Heading size="sm">
-              Adhérents{" "}
+              Adhérents & Abonnés{" "}
               {hasSubscribers && (
                 <>
                   {isVisible.subscribers ? (
@@ -104,7 +121,7 @@ export const OrgConfigSubscribersPanel = ({
               //   _hover: { bg: "gray.400" }
               // }}
             >
-              Ajouter
+              Ajouter des adhérents
             </Button>
           </GridItem>
         </Grid>
@@ -143,7 +160,7 @@ export const OrgConfigSubscribersPanel = ({
                         {
                           orgId: org._id,
                           org,
-                          type: SubscriptionTypes.SUB
+                          type: SubscriptionTypes.SUBSCRIBER
                         }
                       ]
                     },
@@ -167,43 +184,127 @@ export const OrgConfigSubscribersPanel = ({
 
       {isVisible.subscribers && hasSubscribers && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
-          <Box p={5}>
+          <Table>
             {org.orgSubscriptions
-              .filter((subscription) => {
-                if (!subscription.orgs) return false;
+              .filter(({ orgs }) => {
+                if (!orgs) return false;
 
-                const orgSubscription = subscription.orgs.find(
-                  (orgSubscription) => {
-                    return orgSubscription.orgId === org._id;
-                  }
-                );
+                const orgSubscription = orgs.find(({ orgId }) => {
+                  return orgId === org._id;
+                });
 
                 if (!orgSubscription) return false;
 
                 return (
-                  orgSubscription.type === SubscriptionTypes.SUB ||
+                  orgSubscription.type === SubscriptionTypes.SUBSCRIBER ||
                   SubscriptionTypes.BOTH
                 );
               })
-              .map((subscription, index) => {
+              .map(({ email, user, orgs }, index) => {
+                const orgSubscription = orgs?.find(({ orgId }) => {
+                  return orgId === org._id;
+                });
+
+                const isFollower =
+                  orgSubscription!.type === SubscriptionTypes.FOLLOWER ||
+                  orgSubscription!.type === SubscriptionTypes.BOTH;
+                const isSub =
+                  orgSubscription!.type === SubscriptionTypes.SUBSCRIBER ||
+                  orgSubscription!.type === SubscriptionTypes.BOTH;
+
                 return (
-                  <Box key={`email-${index}`}>
-                    {subscription.email || subscription.user?.email}
-                    <IconButton
-                      aria-label="Désinscrire"
-                      height="auto"
-                      bg="transparent"
-                      _hover={{ bg: "transparent", color: "red" }}
-                      icon={<DeleteIcon />}
-                      onClick={async () => {
-                        // TODO
-                        orgQuery.refetch();
-                      }}
-                    />
-                  </Box>
+                  <Tr key={`email-${index}`}>
+                    <Td>
+                      <Tooltip
+                        placement="top"
+                        hasArrow
+                        label={`${
+                          isFollower ? "Retirer de" : "Ajouter à"
+                        } la liste des abonnés`}
+                      >
+                        <Tag
+                          variant={isFollower ? "solid" : "outline"}
+                          colorScheme="green"
+                          mr={3}
+                          cursor="pointer"
+                          _hover={{ textDecoration: "underline" }}
+                        >
+                          <TagLabel>Abonné</TagLabel>
+                        </Tag>
+                      </Tooltip>
+                      <Tooltip
+                        placement="top"
+                        hasArrow
+                        label={`${
+                          isSub ? "Retirer de" : "Ajouter à"
+                        } la liste des adhérents`}
+                      >
+                        <Tag
+                          variant={isSub ? "solid" : "outline"}
+                          colorScheme="purple"
+                          mr={3}
+                          cursor="pointer"
+                          _hover={{ textDecoration: "underline" }}
+                        >
+                          <TagLabel>Adhérent</TagLabel>
+                        </Tag>
+                      </Tooltip>
+                    </Td>
+
+                    <Td>
+                      {email || (
+                        <Link
+                          href={`/${
+                            user?.userName && encodeURIComponent(user.userName)
+                          }`}
+                          variant="underline"
+                        >
+                          {user?.email}
+                        </Link>
+                      )}
+                    </Td>
+
+                    <Td textAlign="right">
+                      {!user && (
+                        <Tooltip
+                          label="Créer un compte"
+                          hasArrow
+                          placement="top"
+                        >
+                          <IconButton
+                            aria-label="Créer un compte"
+                            bg="transparent"
+                            _hover={{ bg: "transparent", color: "green" }}
+                            icon={<AddIcon />}
+                            height="auto"
+                          >
+                            Créer un compte
+                          </IconButton>
+                        </Tooltip>
+                      )}
+
+                      <Tooltip
+                        label="Supprimer de la liste"
+                        hasArrow
+                        placement="top"
+                      >
+                        <IconButton
+                          aria-label="Désinscrire"
+                          bg="transparent"
+                          _hover={{ bg: "transparent", color: "red" }}
+                          icon={<DeleteIcon />}
+                          height="auto"
+                          onClick={async () => {
+                            // TODO
+                            orgQuery.refetch();
+                          }}
+                        />
+                      </Tooltip>
+                    </Td>
+                  </Tr>
                 );
               })}
-          </Box>
+          </Table>
         </GridItem>
       )}
     </>

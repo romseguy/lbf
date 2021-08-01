@@ -23,8 +23,13 @@ export interface IOrg {
 }
 
 export const OrgTypes: { [key: string]: string } = {
-  ASSO: "ASSOCIATION",
-  GROUP: "GROUPE"
+  ASSO: "ASSO",
+  GROUP: "GROUP"
+};
+
+export const OrgTypesV: { [key: string]: string } = {
+  ASSO: "Association",
+  GROUP: "Groupe"
 };
 
 export const OrgSchema = new Schema<IOrg>(

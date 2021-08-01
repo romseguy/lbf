@@ -24,7 +24,7 @@ export interface ISubscription {
 }
 
 export const SubscriptionTypes: { [key: string]: string } = {
-  SUB: "SUBSCRIBER",
+  SUBSCRIBER: "SUBSCRIBER",
   FOLLOWER: "FOLLOWER",
   BOTH: "BOTH"
 };

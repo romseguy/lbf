@@ -36,7 +36,7 @@ import { AddIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { FaPeopleCarry } from "react-icons/fa";
 
-export const OrgPopover = (props: BoxProps) => {
+export const OrgPopover = ({ boxSize, ...props }: BoxProps) => {
   const router = useRouter();
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
@@ -66,7 +66,7 @@ export const OrgPopover = (props: BoxProps) => {
             icon={
               <Icon
                 as={IoIosPeople}
-                boxSize={14}
+                boxSize={boxSize}
                 _hover={{ color: iconHoverColor }}
               />
             }

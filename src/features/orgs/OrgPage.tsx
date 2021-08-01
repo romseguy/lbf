@@ -1,4 +1,5 @@
-import { IOrg, OrgTypes } from "models/Org";
+import { IOrg, OrgTypes, OrgTypesV } from "models/Org";
+import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import parse from "html-react-parser";
@@ -9,39 +10,23 @@ import {
   useColorModeValue,
   Grid,
   IconButton,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
-  InputRightAddon,
-  FormControl,
-  FormErrorMessage,
   useToast
 } from "@chakra-ui/react";
 import { useSession } from "hooks/useAuth";
-import { useForm } from "react-hook-form";
-import { ErrorMessage } from "@hookform/error-message";
 import { Layout } from "features/layout";
 import { useGetOrgByNameQuery } from "features/orgs/orgsApi";
 import { Button, GridHeader, GridItem, Link } from "features/common";
-import {
-  AddIcon,
-  CheckCircleIcon,
-  ChevronLeftIcon,
-  EmailIcon,
-  SettingsIcon
-} from "@chakra-ui/icons";
+import { AddIcon, ChevronLeftIcon, SettingsIcon } from "@chakra-ui/icons";
 import tw, { css } from "twin.macro";
 import { format, parseISO } from "date-fns";
-import { EventModal } from "features/modals/EventModal";
 import { fr } from "date-fns/locale";
 import { TopicsList } from "features/forum/TopicsList";
 import { EventsList } from "features/events/EventsList";
 import { TopicModal } from "features/modals/TopicModal";
 import { OrgConfigPanel } from "./OrgConfigPanel";
-import { emailR } from "utils/email";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import { OrgEventHeader } from "./OrgEventHeader";
 
 export type Visibility = {
   isVisible: {
@@ -52,7 +37,7 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
-export const Org = ({
+export const OrgPage = ({
   routeName,
   ...props
 }: {
@@ -61,7 +46,6 @@ export const Org = ({
 }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
-  const toast = useToast({ position: "top" });
 
   const orgQuery = useGetOrgByNameQuery(routeName);
   useEffect(() => {
@@ -73,81 +57,54 @@ export const Org = ({
   const isCreator = session?.user.userId === org.createdBy._id;
 
   const subQuery = useGetSubscriptionQuery(session?.user.userId);
-  const isSubscribed = !!subQuery.data?.orgs?.find(
-    (orgSubscription) => orgSubscription.orgId === org._id
+  const isFollowedInitialState = (subQuery: any) =>
+    !!subQuery.data?.orgs?.find(
+      (orgSubscription: IOrgSubscription) =>
+        (orgSubscription.orgId === org._id &&
+          orgSubscription.type === SubscriptionTypes.FOLLOWER) ||
+        orgSubscription.type === SubscriptionTypes.BOTH
+    );
+  const [isFollowed, setIsFollowed] = useState(
+    isFollowedInitialState(subQuery)
   );
+  const isSubscribedInitialState = (subQuery: any) =>
+    !!subQuery.data?.orgs?.find(
+      (orgSubscription: IOrgSubscription) =>
+        (orgSubscription.orgId === org._id &&
+          orgSubscription.type === SubscriptionTypes.SUBSCRIBER) ||
+        orgSubscription.type === SubscriptionTypes.BOTH
+    );
+  const [isSubscribed, setIsSubscribed] = useState(
+    isSubscribedInitialState(subQuery)
+  );
+  useEffect(() => {
+    if (!session) {
+      setIsFollowed(false);
+      setIsSubscribed(false);
+    } else {
+      setIsFollowed(isFollowedInitialState(subQuery));
+      setIsSubscribed(isSubscribedInitialState(subQuery));
+    }
+  }, [session]);
 
-  const eventBg = useColorModeValue("blue.100", "blue.800");
+  console.log(isSubscribed);
+  console.log(isFollowed);
 
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState<Visibility["isVisible"]>({
     topics: false,
     banner: false,
     subscribers: false
   });
 
-  const eventHeader = (
-    <Grid templateColumns="1fr auto" alignItems="center">
-      <GridItem
-        css={css`
-          @media (max-width: 730px) {
-            & {
-              padding-top: 12px;
-              padding-bottom: 12px;
-            }
-          }
-        `}
-      >
-        <Heading size="sm">Événements</Heading>
-      </GridItem>
-      <GridItem
-        css={css`
-          @media (max-width: 730px) {
-            & {
-              grid-column: 1;
-              padding-bottom: 12px;
-            }
-          }
-        `}
-      >
-        <Button
-          leftIcon={<AddIcon />}
-          colorScheme="teal"
-          onClick={() => {
-            if (!isSessionLoading) {
-              if (!session) setIsLogin(isLogin + 1);
-              // TODO: check if user is SUB
-              else if (isCreator) setIsEventModalOpen(true);
-            }
-          }}
-          m={1}
-          // dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
-        >
-          Ajouter un événement
-        </Button>
-      </GridItem>
-    </Grid>
-  );
+  const toast = useToast({ position: "top" });
+  const eventBg = useColorModeValue("blue.100", "blue.800");
 
   return (
     <Layout pageTitle={org.orgName} isLogin={isLogin} banner={org.orgBanner}>
-      {isEventModalOpen && (
-        <EventModal
-          initialEventOrgs={[org]}
-          onCancel={() => setIsEventModalOpen(false)}
-          onSubmit={async (eventName) => {
-            await router.push(`/${encodeURIComponent(eventName)}`);
-          }}
-          onClose={() => {
-            setIsEventModalOpen(false);
-          }}
-        />
-      )}
-
       {isTopicModalOpen && org && (
         <TopicModal
           org={org}
@@ -168,7 +125,8 @@ export const Org = ({
           onClick={() => setIsConfig(true)}
           mb={2}
         >
-          Paramètres de l'organisation
+          Paramètres {org.orgType === OrgTypes.ASSO ? "de l'" : "du"}
+          {OrgTypesV[org.orgType].toLowerCase()}
         </Button>
       ) : isConfig ? (
         <IconButton
@@ -191,7 +149,7 @@ export const Org = ({
             });
             subQuery.refetch();
           }}
-          isDisabled={isSubscribed}
+          isDisabled={isFollowed}
           isLoading={subQuery.isLoading}
         />
       )}
@@ -261,73 +219,74 @@ export const Org = ({
             </Grid>
           </GridItem>
 
-          {session && (
-            <GridItem
-              css={css`
-                @media (max-width: 730px) {
-                  & {
-                    grid-column: 1;
-                  }
+          <GridItem
+            css={css`
+              @media (max-width: 730px) {
+                & {
+                  grid-column: 1;
                 }
-              `}
+              }
+            `}
+          >
+            <GridHeader
+              borderTopRadius="lg"
+              alignItems="center"
+              onClick={() => {}}
             >
-              <GridHeader
-                borderTopRadius="lg"
-                alignItems="center"
-                onClick={() => {}}
-              >
-                <Grid templateColumns="1fr auto" alignItems="center">
-                  <GridItem
-                    css={css`
-                      @media (max-width: 730px) {
-                        & {
-                          padding-top: 12px;
-                          padding-bottom: 12px;
+              <Grid templateColumns="1fr auto" alignItems="center">
+                <GridItem
+                  css={css`
+                    @media (max-width: 730px) {
+                      & {
+                        padding-top: 12px;
+                        padding-bottom: 12px;
+                      }
+                    }
+                  `}
+                >
+                  <Heading size="sm">Discussions</Heading>
+                </GridItem>
+                <GridItem
+                  css={css`
+                    @media (max-width: 730px) {
+                      & {
+                        grid-column: 1;
+                        padding-bottom: 12px;
+                      }
+                    }
+                  `}
+                >
+                  <Button
+                    colorScheme="teal"
+                    leftIcon={<AddIcon />}
+                    onClick={() => {
+                      if (!isSessionLoading) {
+                        if (session) {
+                          setIsTopicModalOpen(true);
+                        } else {
+                          setIsLogin(isLogin + 1);
                         }
                       }
-                    `}
+                    }}
+                    m={1}
                   >
-                    <Heading size="sm">Discussions</Heading>
-                  </GridItem>
-                  <GridItem
-                    css={css`
-                      @media (max-width: 730px) {
-                        & {
-                          grid-column: 1;
-                          padding-bottom: 12px;
-                        }
-                      }
-                    `}
-                  >
-                    <Button
-                      colorScheme="teal"
-                      leftIcon={<AddIcon />}
-                      onClick={() => {
-                        if (!isSessionLoading) {
-                          if (session) {
-                            setIsTopicModalOpen(true);
-                          } else {
-                            setIsLogin(isLogin + 1);
-                          }
-                        }
-                      }}
-                      m={1}
-                    >
-                      Ajouter un sujet de discussion
-                    </Button>
-                  </GridItem>
-                </Grid>
-              </GridHeader>
+                    Ajouter un sujet de discussion
+                  </Button>
+                </GridItem>
+              </Grid>
+            </GridHeader>
 
-              <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
-                <TopicsList
-                  org={org}
-                  query={orgQuery}
-                  onLoginClick={() => setIsLogin(isLogin + 1)}
-                />
-              </GridItem>
+            <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
+              <TopicsList
+                org={org}
+                query={orgQuery}
+                isCreator={isCreator}
+                isFollowed={isFollowed}
+                isSubscribed={isSubscribed}
+                onLoginClick={() => setIsLogin(isLogin + 1)}
+              />
             </GridItem>
-          )}
+          </GridItem>
 
           <GridItem
             css={css`
@@ -340,13 +299,27 @@ export const Org = ({
           >
             {Array.isArray(org.orgEvents) && org.orgEvents.length > 0 ? (
               <EventsList
-                eventHeader={eventHeader}
+                eventHeader={
+                  <OrgEventHeader
+                    org={org}
+                    isCreator={isCreator}
+                    isLogin={isLogin}
+                    setIsLogin={setIsLogin}
+                  />
+                }
                 events={org.orgEvents}
                 eventBg={eventBg}
               />
             ) : (
               <GridHeader borderTopRadius="lg" alignItems="center">
-                {eventHeader}
+                {
+                  <OrgEventHeader
+                    org={org}
+                    isCreator={isCreator}
+                    isLogin={isLogin}
+                    setIsLogin={setIsLogin}
+                  />
+                }
               </GridHeader>
             )}
           </GridItem>

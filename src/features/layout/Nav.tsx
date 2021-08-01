@@ -26,13 +26,14 @@ import { breakpoints } from "theme/theme";
 
 const linkList = css`
   & > a {
-    ${tw`mr-4`}
     font-weight: bold;
+    ${tw`mr-4`}
   }
 
   @media (max-width: ${breakpoints.sm}) {
     & > a {
       display: block;
+      margin: 0;
     }
     & > a:not(:first-of-type) {
       margin-top: 12px;
@@ -90,10 +91,14 @@ export const Nav = ({
         <Spinner ml={5} mr={3} />
       ) : session ? (
         <Flex justify="flex-end" ml={5}>
-          <EmailSubscriptionsPopover email={session.user.email} mr={3} />
-          <OrgPopover />
+          <EmailSubscriptionsPopover
+            email={session.user.email}
+            mr={[1, 3]}
+            boxSize={[8, 10, 10]}
+          />
+          <OrgPopover boxSize={[8, 10, 12]} />
           <Menu>
-            <MenuButton mr={3}>
+            <MenuButton mr={[1, 3]}>
               <Avatar
                 boxSize={10}
                 name={session.user.userName}
@@ -106,7 +111,7 @@ export const Nav = ({
               />
             </MenuButton>
 
-            <MenuList>
+            <MenuList mr={[1, 3]}>
               <Link href={`/${encodeURIComponent(session.user.userName)}`}>
                 <MenuItem>Mon compte</MenuItem>
               </Link>
@@ -137,7 +142,7 @@ export const Nav = ({
         </Flex>
       ) : (
         <Flex justify="flex-end">
-          <EmailSubscriptionsPopover />
+          <EmailSubscriptionsPopover boxSize={[8, 10, 10]} />
 
           <Box mr={5} ml={5}>
             <Button

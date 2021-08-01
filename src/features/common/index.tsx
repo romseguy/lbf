@@ -8,6 +8,7 @@ export * from "./Container";
 export * from "./DarkModeSwitch";
 export * from "./DeleteButton";
 export * from "./ErrorMessageText";
+export * from "./Grid";
 export * from "./GridHeader";
 export * from "./GridItem";
 export * from "./Hero";

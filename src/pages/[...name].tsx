@@ -6,7 +6,7 @@ import api from "utils/api";
 import { GetServerSidePropsContext } from "next";
 import { Event } from "features/events/EventPage";
 import { Layout } from "features/layout";
-import { Org } from "features/orgs/OrgPage";
+import { OrgPage } from "features/orgs/OrgPage";
 import { User } from "features/users/UserPage";
 import { useRouter } from "next/router";
 import { isServer } from "utils/isServer";
@@ -34,7 +34,7 @@ const Hash = ({
   }
 
   if (org) {
-    return <Org org={org} routeName={routeName} />;
+    return <OrgPage org={org} routeName={routeName} />;
   }
 
   if (user) {

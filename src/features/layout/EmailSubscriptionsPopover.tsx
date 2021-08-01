@@ -53,14 +53,15 @@ import { useAppDispatch } from "store";
 import { handleError } from "utils/form";
 import { IoMdCheckmarkCircle } from "react-icons/io";
 
-export const EmailSubscriptionsPopover = (
-  props: BoxProps & { email?: string }
-) => {
+export const EmailSubscriptionsPopover = ({
+  boxSize,
+  ...props
+}: BoxProps & { email?: string }) => {
   const router = useRouter();
   const { data: session } = useSession();
 
   useEffect(() => {
-    setMySubscription(undefined);
+    if (!session) setMySubscription(undefined);
   }, [session]);
 
   const dispatch = useAppDispatch();
@@ -201,32 +202,36 @@ export const EmailSubscriptionsPopover = (
       <PopoverBody>
         <Box>
           <>
-            {mySubscription && mySubscription.orgs && (
-              <>
-                <Heading size="sm">Organisations</Heading>
-                <List py={2}>
-                  {mySubscription.orgs.map((orgSubscription, index) => (
-                    <ListItem mb={1} key={index}>
-                      <ListIcon as={IoMdCheckmarkCircle} color="green.500" />{" "}
-                      <Link
-                        variant="underline"
-                        onClick={() => {
-                          onOpen();
-                          setCurrentOrgSubscription(orgSubscription);
-                        }}
-                      >
-                        <Tooltip
-                          label="Gérer les préférences de communication"
-                          hasArrow
-                          placement="bottom"
+            {mySubscription ? (
+              mySubscription.orgs && (
+                <>
+                  <Heading size="sm">Organisations</Heading>
+                  <List py={2}>
+                    {mySubscription.orgs.map((orgSubscription, index) => (
+                      <ListItem mb={1} key={index}>
+                        <ListIcon as={IoMdCheckmarkCircle} color="green.500" />{" "}
+                        <Link
+                          variant="underline"
+                          onClick={() => {
+                            onOpen();
+                            setCurrentOrgSubscription(orgSubscription);
+                          }}
                         >
-                          {orgSubscription.org.orgName}
-                        </Tooltip>
-                      </Link>
-                    </ListItem>
-                  ))}
-                </List>
-              </>
+                          <Tooltip
+                            label="Gérer les préférences de communication"
+                            hasArrow
+                            placement="bottom"
+                          >
+                            {orgSubscription.org.orgName}
+                          </Tooltip>
+                        </Link>
+                      </ListItem>
+                    ))}
+                  </List>
+                </>
+              )
+            ) : (
+              <>Aucun abonnement trouvé pour votre compte.</>
             )}
           </>
         </Box>
@@ -247,13 +252,14 @@ export const EmailSubscriptionsPopover = (
               <Icon
                 as={EmailIcon}
                 _hover={{ color: iconHoverColor }}
-                boxSize={14}
+                boxSize={boxSize}
               />
             }
             data-cy="subscriptionPopover"
           />
         </PopoverTrigger>
-        {!mySubscription && !session ? step1 : step2}
+        {session ? (mySubscription ? step2 : step2) : null}
+        {!session ? (mySubscription ? step2 : step1) : null}
       </Popover>
 
       {currentOrgSubscription && (
