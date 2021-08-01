@@ -157,6 +157,7 @@ export const Event = (props: {
         >
           <GridItem
             rowSpan={2}
+            borderTopRadius="lg"
             light={{ bg: "orange.100" }}
             dark={{ bg: "gray.500" }}
           >

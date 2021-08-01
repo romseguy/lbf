@@ -35,23 +35,31 @@ import {
   ModalFooter,
   Stack,
   Tooltip,
-  BoxProps
+  BoxProps,
+  useToast
 } from "@chakra-ui/react";
 import { ErrorMessageText, Link } from "features/common";
 import { useSession } from "hooks/useAuth";
 import {
   ArrowForwardIcon,
   ArrowRightIcon,
+  DeleteIcon,
   EmailIcon,
   WarningIcon
 } from "@chakra-ui/icons";
 import { useForm } from "react-hook-form";
 import { emailR } from "utils/email";
 import { ErrorMessage } from "@hookform/error-message";
-import { getSubscription } from "features/subscriptions/subscriptionsApi";
+import {
+  getSubscription,
+  useDeleteSubscriptionMutation,
+  useEditSubscriptionMutation,
+  useGetSubscriptionQuery
+} from "features/subscriptions/subscriptionsApi";
 import { useAppDispatch } from "store";
 import { handleError } from "utils/form";
 import { IoMdCheckmarkCircle } from "react-icons/io";
+import { setUserEmail } from "features/users/userSlice";
 
 export const EmailSubscriptionsPopover = ({
   boxSize,
@@ -59,33 +67,30 @@ export const EmailSubscriptionsPopover = ({
 }: BoxProps & { email?: string }) => {
   const router = useRouter();
   const { data: session } = useSession();
+  const [mySubscription, setMySubscription] = useState<ISubscription>();
+  const isStep1 = !session && !mySubscription;
+  const isStep2 = (!session && mySubscription) || session;
 
   useEffect(() => {
     if (!session) setMySubscription(undefined);
   }, [session]);
 
-  const dispatch = useAppDispatch();
-
+  const userEmail = mySubscription?.email || mySubscription?.user?.email;
+  const subQuery = useGetSubscriptionQuery(props.email || userEmail || "");
   useEffect(() => {
-    const xhr = async () => {
-      if (props.email) {
-        const { error, data } = await dispatch(
-          getSubscription.initiate(props.email)
-        );
-        if (error) console.error(error);
-        else setMySubscription(data);
-      }
-    };
+    setMySubscription(subQuery.data);
+  }, [subQuery.data]);
 
-    xhr();
-  }, [props.email]);
+  const dispatch = useAppDispatch();
+  //const [editSubscription, editSubscriptionMutation] = useEditSubscriptionMutation();
+  const [deleteSubscription, deleteSubscriptionMutation] =
+    useDeleteSubscriptionMutation();
 
   const [isOpen, setIsOpen] = useState(false);
   const [currentOrgSubscription, setCurrentOrgSubscription] =
     useState<IOrgSubscription>();
-  const [mySubscription, setMySubscription] = useState<ISubscription>();
-  const userEmail = mySubscription?.email || mySubscription?.user?.email;
 
+  const toast = useToast({ position: "top" });
   const iconHoverColor = useColorModeValue("white", "lightgreen");
   const {
     isOpen: isOrgSubscriptionModalOpen,
@@ -112,6 +117,7 @@ export const EmailSubscriptionsPopover = ({
   };
 
   const onSubmit = async ({ email }: { email: string }) => {
+    dispatch(setUserEmail(email));
     const { error, data } = await dispatch(getSubscription.initiate(email));
 
     if (error) {
@@ -200,41 +206,75 @@ export const EmailSubscriptionsPopover = ({
       </PopoverHeader>
       <PopoverCloseButton />
       <PopoverBody>
-        <Box>
-          <>
-            {mySubscription ? (
-              mySubscription.orgs && (
-                <>
-                  <Heading size="sm">Organisations</Heading>
-                  <List py={2}>
-                    {mySubscription.orgs.map((orgSubscription, index) => (
-                      <ListItem mb={1} key={index}>
-                        <ListIcon as={IoMdCheckmarkCircle} color="green.500" />{" "}
-                        <Link
-                          variant="underline"
-                          onClick={() => {
-                            onOpen();
-                            setCurrentOrgSubscription(orgSubscription);
-                          }}
-                        >
-                          <Tooltip
-                            label="Gérer les préférences de communication"
-                            hasArrow
-                            placement="bottom"
-                          >
-                            {orgSubscription.org.orgName}
-                          </Tooltip>
-                        </Link>
-                      </ListItem>
-                    ))}
-                  </List>
-                </>
-              )
-            ) : (
-              <>Aucun abonnement trouvé pour votre compte.</>
-            )}
-          </>
-        </Box>
+        <>
+          {subQuery.isLoading ? (
+            <Spinner />
+          ) : mySubscription &&
+            Array.isArray(mySubscription.orgs) &&
+            mySubscription.orgs.length > 0 ? (
+            <>
+              <Heading size="sm">Organisations</Heading>
+              <List py={2}>
+                {mySubscription.orgs.map((orgSubscription, index) => (
+                  <ListItem mb={1} key={index}>
+                    <ListIcon as={IoMdCheckmarkCircle} color="green.500" />{" "}
+                    <Link
+                      variant="underline"
+                      onClick={() => {
+                        onOpen();
+                        setCurrentOrgSubscription(orgSubscription);
+                      }}
+                    >
+                      <Tooltip
+                        label="Gérer les préférences de communication"
+                        hasArrow
+                        placement="bottom"
+                      >
+                        {orgSubscription.org.orgName}
+                      </Tooltip>
+                    </Link>
+                    <Tooltip label="Désabonnement" hasArrow placement="right">
+                      <IconButton
+                        aria-label="Désabonnement"
+                        bg="transparent"
+                        _hover={{ bg: "transparent", color: "red" }}
+                        icon={<DeleteIcon />}
+                        height="auto"
+                        ml={3}
+                        onClick={async () => {
+                          await deleteSubscription({
+                            subscriptionId: mySubscription._id,
+                            payload: {
+                              orgs: [orgSubscription]
+                            }
+                          });
+
+                          if (userEmail || session.user.userId)
+                            await dispatch(
+                              getSubscription.initiate(
+                                userEmail || session.user.userId,
+                                {
+                                  forceRefetch: true
+                                }
+                              )
+                            );
+                          toast({
+                            title: `Vous avez été désabonné de ${orgSubscription.org.orgName}`,
+                            status: "success",
+                            isClosable: true
+                          });
+                          subQuery.refetch();
+                        }}
+                      />
+                    </Tooltip>
+                  </ListItem>
+                ))}
+              </List>
+            </>
+          ) : (
+            <>Aucun abonnement trouvé pour votre compte.</>
+          )}
+        </>
       </PopoverBody>
     </PopoverContent>
   );
@@ -244,7 +284,12 @@ export const EmailSubscriptionsPopover = ({
       <Popover isLazy isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <PopoverTrigger>
           <IconButton
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => {
+              if (!isOpen && isStep2) {
+                subQuery.refetch();
+              }
+              setIsOpen(!isOpen);
+            }}
             aria-label="Abonnements"
             bg="transparent"
             _hover={{ bg: "transparent" }}
@@ -258,8 +303,7 @@ export const EmailSubscriptionsPopover = ({
             data-cy="subscriptionPopover"
           />
         </PopoverTrigger>
-        {session ? (mySubscription ? step2 : step2) : null}
-        {!session ? (mySubscription ? step2 : step1) : null}
+        {isStep1 ? step1 : step2}
       </Popover>
 
       {currentOrgSubscription && (

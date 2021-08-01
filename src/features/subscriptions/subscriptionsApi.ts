@@ -21,16 +21,26 @@ export const subscriptionApi = createApi({
       }),
       invalidatesTags: [{ type: "Subscriptions", id: "LIST" }]
     }),
-    // editSubscription: build.mutation<
-    //   ISubscription,
-    //   { payload: Partial<ISubscription>; subscriptionName?: string }
-    // >({
-    //   query: ({ payload, subscriptionName }) => ({
-    //     url: `subscription/${subscriptionName || payload.subscriptionName}`,
-    //     method: "PUT",
-    //     body: payload
-    //   })
-    // }),
+    deleteSubscription: build.mutation<
+      ISubscription,
+      { payload: Partial<ISubscription>; subscriptionId: string }
+    >({
+      query: ({ payload, subscriptionId }) => ({
+        url: `subscription/${subscriptionId}`,
+        method: "DELETE",
+        body: payload
+      })
+    }),
+    editSubscription: build.mutation<
+      ISubscription,
+      { payload: Partial<ISubscription>; subscriptionId: string }
+    >({
+      query: ({ payload, subscriptionId }) => ({
+        url: `subscription/${subscriptionId || payload._id}`,
+        method: "PUT",
+        body: payload
+      })
+    }),
     getSubscription: build.query<ISubscription, string>({
       query: (userId) => ({ url: `subscription/${userId}` })
     })
@@ -45,8 +55,9 @@ export const subscriptionApi = createApi({
 
 export const {
   useAddSubscriptionMutation,
+  useDeleteSubscriptionMutation,
+  useEditSubscriptionMutation,
   useGetSubscriptionQuery
-  //useEditSubscriptionMutation,
   // useGetSubscriptionByNameQuery,
   // useGetSubscriptionByEmailQuery
 } = subscriptionApi;

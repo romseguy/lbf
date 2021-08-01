@@ -1,3 +1,4 @@
+import type { IOrgSubscription, ISubscription } from "models/Subscription";
 import type { ITopic } from "models/Topic";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
@@ -67,36 +68,13 @@ handler.put<NextApiRequest, NextApiResponse>(async function editSubscription(
   } else {
     try {
       const {
-        query: { subscriptionName }
+        query: { userId: subscriptionId }
       } = req;
 
       let body = req.body;
 
-      if (
-        typeof body.subscriptionName === "string" &&
-        !body.subscriptionNameLower
-      ) {
-        body.subscriptionNameLower = body.subscriptionName.toLowerCase();
-      }
-
-      if (
-        Array.isArray(body.subscriptionEmailList) &&
-        body.subscriptionEmailList.length > 0
-      ) {
-        body.subscriptionEmailList = body.subscriptionEmailList.filter(
-          (email: string) => {
-            if (!emailR.test(email)) {
-              return false;
-            }
-            return true;
-          }
-        );
-
-        //await models.
-      }
-
       const { n, nModified } = await models.Subscription.updateOne(
-        { subscriptionName },
+        { _id: subscriptionId },
         body
       );
 
@@ -106,11 +84,7 @@ handler.put<NextApiRequest, NextApiResponse>(async function editSubscription(
         res
           .status(400)
           .json(
-            createServerError(
-              new Error(
-                `L'subscriptionanisation ${subscriptionName} n'a pas pu être modifiée`
-              )
-            )
+            createServerError(new Error(`L'abonnement n'a pas pu être modifié`))
           );
       }
     } catch (error) {
@@ -122,43 +96,45 @@ handler.put<NextApiRequest, NextApiResponse>(async function editSubscription(
 handler.delete(async function removeSubscription(req, res) {
   const session = await getSession({ req });
 
-  if (!session) {
-    res
-      .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
-        )
-      );
-  } else {
-    const {
-      query: { subscriptionName }
-    } = req;
+  const {
+    query: { userId: subscriptionId }
+  } = req;
 
-    try {
-      const subscription = await models.Subscription.findOne({
-        subscriptionName
-      });
-      const { deletedCount } = await models.Subscription.deleteOne({
-        subscriptionName
-      });
+  try {
+    const subscription = await models.Subscription.findOne({
+      _id: subscriptionId
+    });
 
-      if (deletedCount === 1) {
-        res.status(200).json(subscription);
-      } else {
-        res
-          .status(400)
-          .json(
-            createServerError(
-              new Error(
-                `L'subscriptionanisation ${subscriptionName} n'a pas pu être supprimé`
-              )
-            )
-          );
+    // if (!subscription) {
+    //   res
+    //     .status(400)
+    //     .json(
+    //       createServerError(
+    //         new Error(`L'abonnement n'a pas pu être trouvé`)
+    //       )
+    //     );
+    // }
+
+    subscription.orgs = subscription.orgs.filter(
+      (orgSubscription: IOrgSubscription) => {
+        return orgSubscription.orgId.toString() !== req.body.orgs[0].orgId;
       }
-    } catch (error) {
-      res.status(500).json(createServerError(error));
-    }
+    );
+    await subscription.save();
+
+    const org = await models.Org.findOne({
+      _id: req.body.orgs[0].orgId
+    });
+    org.orgSubscriptions = org.orgSubscriptions.filter(
+      (subscription: ISubscription) => {
+        return subscription._id.toString() !== subscriptionId;
+      }
+    );
+    await org.save();
+
+    res.status(200).json(subscription);
+  } catch (error) {
+    res.status(500).json(createServerError(error));
   }
 });
 

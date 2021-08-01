@@ -243,7 +243,7 @@ export const LoginModal = (props: {
               <ModalFooter justifyContent="space-between">
                 {isSignup ? (
                   <Button
-                    colorScheme="red"
+                    colorScheme="blue"
                     leftIcon={<ChevronLeftIcon />}
                     onClick={() => {
                       reset();
@@ -254,7 +254,7 @@ export const LoginModal = (props: {
                   </Button>
                 ) : (
                   <Button
-                    colorScheme="red"
+                    colorScheme="blue"
                     rightIcon={<ChevronRightIcon />}
                     onClick={() => {
                       reset();
@@ -265,7 +265,7 @@ export const LoginModal = (props: {
                   </Button>
                 )}
                 <Button
-                  colorScheme="blue"
+                  colorScheme="green"
                   type="submit"
                   isLoading={isLoading}
                   isDisabled={Object.keys(errors).length > 0}

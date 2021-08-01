@@ -27,6 +27,8 @@ import { OrgConfigPanel } from "./OrgConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { OrgEventHeader } from "./OrgEventHeader";
+import { selectUserEmail } from "features/users/userSlice";
+import { useSelector } from "react-redux";
 
 export type Visibility = {
   isVisible: {
@@ -36,6 +38,21 @@ export type Visibility = {
   };
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
+
+const isFollowedInitialState = (org: IOrg, subQuery: any) =>
+  !!subQuery.data?.orgs?.find(
+    (orgSubscription: IOrgSubscription) =>
+      (orgSubscription.orgId === org._id &&
+        orgSubscription.type === SubscriptionTypes.FOLLOWER) ||
+      orgSubscription.type === SubscriptionTypes.BOTH
+  );
+const isSubscribedInitialState = (org: IOrg, subQuery: any) =>
+  !!subQuery.data?.orgs?.find(
+    (orgSubscription: IOrgSubscription) =>
+      (orgSubscription.orgId === org._id &&
+        orgSubscription.type === SubscriptionTypes.SUBSCRIBER) ||
+      orgSubscription.type === SubscriptionTypes.BOTH
+  );
 
 export const OrgPage = ({
   routeName,
@@ -56,39 +73,23 @@ export const OrgPage = ({
   const org = orgQuery.data || props.org;
   const isCreator = session?.user.userId === org.createdBy._id;
 
-  const subQuery = useGetSubscriptionQuery(session?.user.userId);
-  const isFollowedInitialState = (subQuery: any) =>
-    !!subQuery.data?.orgs?.find(
-      (orgSubscription: IOrgSubscription) =>
-        (orgSubscription.orgId === org._id &&
-          orgSubscription.type === SubscriptionTypes.FOLLOWER) ||
-        orgSubscription.type === SubscriptionTypes.BOTH
-    );
+  const userEmail = useSelector(selectUserEmail);
+  const subQuery = useGetSubscriptionQuery(userEmail || session?.user.userId);
   const [isFollowed, setIsFollowed] = useState(
-    isFollowedInitialState(subQuery)
+    isFollowedInitialState(org, subQuery)
   );
-  const isSubscribedInitialState = (subQuery: any) =>
-    !!subQuery.data?.orgs?.find(
-      (orgSubscription: IOrgSubscription) =>
-        (orgSubscription.orgId === org._id &&
-          orgSubscription.type === SubscriptionTypes.SUBSCRIBER) ||
-        orgSubscription.type === SubscriptionTypes.BOTH
-    );
   const [isSubscribed, setIsSubscribed] = useState(
-    isSubscribedInitialState(subQuery)
+    isSubscribedInitialState(org, subQuery)
   );
   useEffect(() => {
     if (!session) {
       setIsFollowed(false);
       setIsSubscribed(false);
     } else {
-      setIsFollowed(isFollowedInitialState(subQuery));
-      setIsSubscribed(isSubscribedInitialState(subQuery));
+      setIsFollowed(isFollowedInitialState(org, subQuery));
+      setIsSubscribed(isSubscribedInitialState(org, subQuery));
     }
-  }, [session]);
-
-  console.log(isSubscribed);
-  console.log(isFollowed);
+  }, [session, subQuery.data]);
 
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
@@ -147,7 +148,8 @@ export const OrgPage = ({
               duration: 9000,
               isClosable: true
             });
-            subQuery.refetch();
+            //orgQuery.refetch();
+            setIsFollowed(true);
           }}
           isDisabled={isFollowed}
           isLoading={subQuery.isLoading}

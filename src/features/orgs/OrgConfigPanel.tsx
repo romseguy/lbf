@@ -62,7 +62,7 @@ export const OrgConfigPanel = ({
           `}
           data-cy="orgEdit"
         >
-          Modifier
+          {isEdit ? "Annuler" : "Modifier"}
         </Button>
 
         <DeleteButton

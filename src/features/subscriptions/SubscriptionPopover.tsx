@@ -38,7 +38,8 @@ export const SubscriptionPopover = ({
   const [addSubscription, addSubscriptionMutation] =
     useAddSubscriptionMutation();
   const [isOpen, setIsOpen] = useState(false);
-  // const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const { clearErrors, errors, handleSubmit, register } = useForm({
     mode: "onChange"
   });
@@ -48,6 +49,7 @@ export const SubscriptionPopover = ({
   };
 
   const onSubmit = async ({ email }: { email: string }) => {
+    setIsLoading(true);
     if (org) {
       await addSubscription({
         payload: {
@@ -74,6 +76,7 @@ export const SubscriptionPopover = ({
       });
     }
 
+    setIsLoading(false);
     setIsOpen(false);
     props.onSubmit && props.onSubmit();
   };
@@ -83,7 +86,7 @@ export const SubscriptionPopover = ({
       <PopoverTrigger>
         <Button
           isDisabled={isDisabled}
-          isLoading={props.isLoading}
+          isLoading={props.isLoading || isLoading}
           leftIcon={<EmailIcon />}
           colorScheme="teal"
           onClick={() => {
@@ -133,7 +136,9 @@ export const SubscriptionPopover = ({
             onClick={handleSubmit(onSubmit)}
             colorScheme="green"
             type="submit"
-            isLoading={addSubscriptionMutation.isLoading}
+            isLoading={
+              addSubscriptionMutation.isLoading || props.isLoading || isLoading
+            }
             isDisabled={Object.keys(errors).length > 0}
           >
             S'abonner

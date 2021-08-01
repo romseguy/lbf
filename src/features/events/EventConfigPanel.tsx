@@ -62,7 +62,7 @@ export const EventConfigPanel = ({
           `}
           data-cy="eventEdit"
         >
-          Modifier
+          {isEdit ? "Annuler" : "Modifier"}
         </Button>
 
         <DeleteButton

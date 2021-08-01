@@ -120,8 +120,10 @@ export const EventForm = ({
   // const now = setMinutes(setHours(new Date(), 23), 0);
   //const tomorrow = addDays(now, 1);
 
-  let eventMinDefaultDate = null;
-  let eventMaxDefaultDate = null;
+  let eventMinDefaultDate =
+    (props.event && parseISO(props.event.eventMinDate)) || null;
+  let eventMaxDefaultDate =
+    (props.event && parseISO(props.event.eventMaxDate)) || null;
   const eventMinDate = watch("eventMinDate");
   const eventMaxDate = watch("eventMaxDate");
   const eventMinDuration = 1;
@@ -454,7 +456,8 @@ export const EventForm = ({
           <Select
             name="repeat"
             ref={register()}
-            placeholder="-"
+            defaultValue={props.event?.repeat}
+            placeholder="Ne pas répéter"
             css={css`
               ${isDark
                 ? `
