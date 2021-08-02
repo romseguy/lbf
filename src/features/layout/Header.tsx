@@ -3,7 +3,6 @@ import React from "react";
 import { useColorMode } from "@chakra-ui/color-mode";
 import { Flex } from "@chakra-ui/layout";
 import tw, { css } from "twin.macro";
-import { Link } from "features/common";
 import { SpaceProps } from "@chakra-ui/system";
 import { breakpoints } from "theme/theme";
 

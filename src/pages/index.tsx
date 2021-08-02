@@ -1,11 +1,11 @@
 import React from "react";
-import { Events } from "features/events/EventsPage";
+import { EventsPage } from "features/events/EventsPage";
 import type { IEvent } from "models/Event";
 import api from "utils/api";
 import { GetServerSidePropsContext } from "next";
 
 const Index = ({ events }: { events?: IEvent[] }) => {
-  return <Events events={events} />;
+  return <EventsPage events={events} />;
 };
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {

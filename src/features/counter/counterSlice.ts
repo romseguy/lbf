@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppThunk, AppState } from "store";
 import { fetchCount } from "./counterApi";

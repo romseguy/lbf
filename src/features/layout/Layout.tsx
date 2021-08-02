@@ -39,10 +39,10 @@ export const Layout = ({
   pageTitle?: string;
   title?: string;
 }) => {
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
   const router = useRouter();
   const { isLoading } = useRouterLoading();
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
 
   let main = children;
   let header = pageTitle ? (
@@ -50,20 +50,19 @@ export const Layout = ({
   ) : (
     <Spinner mt={2} />
   );
-
   if (!isServer() && isLoading) {
     main = <Spinner />;
     header = <Spinner mt={2} />;
   }
 
-  const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false);
-  // console.log("hasVerticalScrollbar", hasVerticalScrollbar);
   let defaultTitleColor = isDark ? "white" : "black";
 
   if (banner) {
     defaultTitleColor = banner.mode === "light" ? "white" : "black";
   }
 
+  const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false);
+  // console.log("hasVerticalScrollbar", hasVerticalScrollbar);
   const handleResize = () => {
     let scrollHeight = Math.max(
       document.body.scrollHeight,
@@ -78,7 +77,6 @@ export const Layout = ({
       setHasVerticalScrollbar(true);
     }
   };
-
   useEffect(() => {
     window.addEventListener("resize", handleResize);
     handleResize();

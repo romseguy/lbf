@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppThunk, AppState } from "store";
 // import { supabase } from "utils/supabase";

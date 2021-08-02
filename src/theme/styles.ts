@@ -4,8 +4,7 @@ import { Dict } from "@chakra-ui/utils";
 const ReactSelectStyles = (props: Dict) => ({
   ".react-select-container": {
     ".react-select__control": {
-      backgroundColor: mode("white", "whiteAlpha.100")(props),
-      //border: 0,
+      backgroundColor: mode("white", "gray.700")(props),
       borderColor: mode("gray.200", "#7b8593")(props),
       ".react-select__placeholder": {
         color: mode("gray.400", "gray.400")(props)
@@ -14,7 +13,7 @@ const ReactSelectStyles = (props: Dict) => ({
 
     ".react-select__multi-value": {
       backgroundColor: mode("gray.400", "whiteAlpha.400")(props),
-      //borderRadius: "md",
+      borderRadius: "md",
       ".react-select__multi-value__label": {
         color: mode("black", "white")(props)
       },
@@ -22,7 +21,7 @@ const ReactSelectStyles = (props: Dict) => ({
         ":hover": {
           cursor: "pointer",
           color: "red",
-          //borderRadius: "md",
+          borderRadius: "md",
           backgroundColor: mode("black", "white")(props)
         }
       }
@@ -37,16 +36,20 @@ const ReactSelectStyles = (props: Dict) => ({
     },
 
     ".react-select__menu": {
+      backgroundColor: mode("white", "gray.700")(props),
       ".react-select__menu-list": {
-        backgroundColor: mode("orange.300", "black")(props),
+        padding: 0,
+        borderWidth: "2px",
+        borderRadius: "md",
+        borderColor: "#2684FF",
+        backgroundColor: mode("white", "transparent")(props),
         color: mode("black", "white")(props),
         ".react-select__option": {
-          backgroundColor: mode("white", "gray.700")(props),
+          backgroundColor: mode("white", "transparent")(props),
           "&:hover": {
             cursor: "pointer",
-            backgroundColor: mode("orange.200", "gray.500")(props),
+            backgroundColor: mode("orange.100", "whiteAlpha.400")(props),
             color: mode("black", "white")(props)
-            //color: mode("white", "black")(props)
           }
         }
       }

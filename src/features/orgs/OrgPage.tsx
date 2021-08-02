@@ -29,6 +29,12 @@ import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi
 import { OrgEventHeader } from "./OrgEventHeader";
 import { selectUserEmail } from "features/users/userSlice";
 import { useSelector } from "react-redux";
+import {
+  isFollowedBy,
+  isSubscribedBy,
+  selectSubscriptionRefetch
+} from "features/subscriptions/subscriptionSlice";
+import { selectOrgRefetch } from "./orgSlice";
 
 export type Visibility = {
   isVisible: {
@@ -38,21 +44,6 @@ export type Visibility = {
   };
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
-
-const isFollowedInitialState = (org: IOrg, subQuery: any) =>
-  !!subQuery.data?.orgs?.find(
-    (orgSubscription: IOrgSubscription) =>
-      (orgSubscription.orgId === org._id &&
-        orgSubscription.type === SubscriptionTypes.FOLLOWER) ||
-      orgSubscription.type === SubscriptionTypes.BOTH
-  );
-const isSubscribedInitialState = (org: IOrg, subQuery: any) =>
-  !!subQuery.data?.orgs?.find(
-    (orgSubscription: IOrgSubscription) =>
-      (orgSubscription.orgId === org._id &&
-        orgSubscription.type === SubscriptionTypes.SUBSCRIBER) ||
-      orgSubscription.type === SubscriptionTypes.BOTH
-  );
 
 export const OrgPage = ({
   routeName,
@@ -65,31 +56,35 @@ export const OrgPage = ({
   const { data: session, loading: isSessionLoading } = useSession();
 
   const orgQuery = useGetOrgByNameQuery(routeName);
+  const orgRefetch = useSelector(selectOrgRefetch);
   useEffect(() => {
     console.log("refetching org");
     orgQuery.refetch();
     setIsEdit(false);
-  }, [router.asPath]);
+  }, [router.asPath, orgRefetch]);
   const org = orgQuery.data || props.org;
+
   const isCreator = session?.user.userId === org.createdBy._id;
 
   const userEmail = useSelector(selectUserEmail);
+
   const subQuery = useGetSubscriptionQuery(userEmail || session?.user.userId);
-  const [isFollowed, setIsFollowed] = useState(
-    isFollowedInitialState(org, subQuery)
-  );
+  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    console.log("refetching subscription");
+    subQuery.refetch();
+  }, [subscriptionRefetch]);
+
+  const [isFollowed, setIsFollowed] = useState(isFollowedBy(org, subQuery));
   const [isSubscribed, setIsSubscribed] = useState(
-    isSubscribedInitialState(org, subQuery)
+    isSubscribedBy(org, subQuery)
   );
   useEffect(() => {
-    if (!session) {
-      setIsFollowed(false);
-      setIsSubscribed(false);
-    } else {
-      setIsFollowed(isFollowedInitialState(org, subQuery));
-      setIsSubscribed(isSubscribedInitialState(org, subQuery));
+    if (org && subQuery.data) {
+      setIsFollowed(isFollowedBy(org, subQuery));
+      setIsSubscribed(isSubscribedBy(org, subQuery));
     }
-  }, [session, subQuery.data]);
+  }, [org, subQuery.data]);
 
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
@@ -126,7 +121,7 @@ export const OrgPage = ({
           onClick={() => setIsConfig(true)}
           mb={2}
         >
-          Paramètres {org.orgType === OrgTypes.ASSO ? "de l'" : "du"}
+          Paramètres {org.orgType === OrgTypes.ASSO ? "de l'" : "du "}
           {OrgTypesV[org.orgType].toLowerCase()}
         </Button>
       ) : isConfig ? (
@@ -141,17 +136,26 @@ export const OrgPage = ({
       {!isCreator && (
         <SubscriptionPopover
           org={org}
-          onSubmit={() => {
-            toast({
-              title: `Vous êtes maintenant abonné à ${org.orgName}`,
-              status: "success",
-              duration: 9000,
-              isClosable: true
-            });
-            //orgQuery.refetch();
-            setIsFollowed(true);
+          mySubscription={subQuery.data}
+          onSubmit={(subscribed: boolean) => {
+            if (subscribed) {
+              toast({
+                title: `Vous êtes maintenant abonné à ${org.orgName}`,
+                status: "success",
+                duration: 9000,
+                isClosable: true
+              });
+            } else {
+              toast({
+                title: `Vous êtes désabonné de ${org.orgName}`,
+                status: "success",
+                duration: 9000,
+                isClosable: true
+              });
+            }
+            subQuery.refetch();
           }}
-          isDisabled={isFollowed}
+          isFollowed={isFollowed}
           isLoading={subQuery.isLoading}
         />
       )}

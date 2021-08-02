@@ -23,6 +23,9 @@ import { LoginModal } from "features/modals/LoginModal";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { breakpoints } from "theme/theme";
+import { useAppDispatch } from "store";
+import { setUserEmail } from "features/users/userSlice";
+import { subscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 
 const linkList = css`
   & > a {
@@ -47,6 +50,7 @@ export const Nav = ({
 }: SpaceProps & { isLogin?: number }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
+  const dispatch = useAppDispatch();
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
     router.asPath === "/?login" || false
@@ -124,8 +128,9 @@ export const Nav = ({
 
               <MenuItem
                 onClick={async () => {
+                  dispatch(setUserEmail());
                   await signOut({
-                    redirect: false
+                    //redirect: false
                   });
                 }}
               >
@@ -149,6 +154,7 @@ export const Nav = ({
               variant="outline"
               colorScheme="purple"
               onClick={() => setIsLoginModalOpen(true)}
+              data-cy="login"
             >
               Connexion
             </Button>
@@ -162,13 +168,14 @@ export const Nav = ({
             setIsLoginModalOpen(false);
             //setIsLogin(false);
           }}
-          onSubmit={(url) => {
-            if (url) {
-              router.push(url === "/?login" ? "/" : url);
+          onSubmit={async (url) => {
+            const login = `${process.env.NEXT_PUBLIC_URL}/?login`;
+
+            if (url === "/?login" || url === login) {
+              await router.push("/");
             } else {
-              router.push("/");
+              await router.push(url || "/");
             }
-            setIsLoginModalOpen(false);
           }}
         />
       )}

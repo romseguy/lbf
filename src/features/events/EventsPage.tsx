@@ -10,7 +10,7 @@ import { useSession } from "hooks/useAuth";
 import { useGetEventsQuery } from "./eventsApi";
 import { EventsList } from "./EventsList";
 
-export const Events = (props: { events?: IEvent[] }) => {
+export const EventsPage = (props: { events?: IEvent[] }) => {
   const router = useRouter();
   const query = useGetEventsQuery();
   useEffect(() => {

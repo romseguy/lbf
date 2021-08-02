@@ -22,7 +22,8 @@ import {
   ModalCloseButton,
   Portal,
   useDisclosure,
-  Stack
+  Stack,
+  useToast
 } from "@chakra-ui/react";
 import {
   ChevronDownIcon,
@@ -32,7 +33,7 @@ import {
 } from "@chakra-ui/icons";
 import { ErrorMessageText } from "features/common";
 import api from "utils/api";
-import { handleError as handleFormError } from "utils/form";
+import { handleError as handleError } from "utils/form";
 import { emailR } from "utils/email";
 import { ForgottenForm } from "features/forms/ForgottenForm";
 
@@ -65,18 +66,6 @@ export const LoginModal = (props: {
   const password = useRef({});
   password.current = watch("password", "");
 
-  const handleError = (error: { [key: string]: string }) =>
-    Object.keys(error).forEach((key) => {
-      if (key === "email" || key === "password") {
-        setError(key, { type: "manual", message: error[key] });
-      } else {
-        setError("formErrorMessage", {
-          type: "manual",
-          message: error[key] || error.message
-        });
-      }
-    });
-
   const onChange = () => {
     clearErrors("formErrorMessage");
   };
@@ -90,32 +79,41 @@ export const LoginModal = (props: {
   }) => {
     setIsLoading(true);
 
-    try {
-      if (isSignup) {
-        const { error } = await api.post("auth/signup", { email, password });
+    if (isSignup) {
+      const { error } = await api.post("auth/signup", { email, password });
 
-        if (!error) {
-          await signIn("credentials", { email, password });
-        } else {
-          handleError(error);
-        }
-      } else {
-        const res = await signIn("credentials", {
-          email,
-          password,
-          redirect: false
+      if (error) {
+        setIsLoading(false);
+        handleError(error, (message, field) => {
+          if (field) {
+            setError(field, { type: "manual", message });
+          } else {
+            setError("formErrorMessage", { type: "manual", message });
+          }
         });
+      } else {
+        await signIn("credentials", { email, password });
+        setIsLoading(false);
+        onClose();
+        props.onClose && props.onClose();
+      }
+    } else {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false
+      });
+      setIsLoading(false);
 
-        if (res?.error) {
-          throw { message: res.error };
-        }
-
+      if (res?.error) {
+        handleError({ message: res.error }, (message) =>
+          setError("formErrorMessage", { type: "manual", message })
+        );
+      } else {
+        onClose();
+        props.onClose && props.onClose();
         props.onSubmit && props.onSubmit(res?.url);
       }
-    } catch (error) {
-      setError("formErrorMessage", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -247,6 +245,7 @@ export const LoginModal = (props: {
                     leftIcon={<ChevronLeftIcon />}
                     onClick={() => {
                       reset();
+                      clearErrors("formErrorMessage");
                       setIsSignup(false);
                     }}
                   >
@@ -258,6 +257,7 @@ export const LoginModal = (props: {
                     rightIcon={<ChevronRightIcon />}
                     onClick={() => {
                       reset();
+                      clearErrors("formErrorMessage");
                       setIsSignup(true);
                     }}
                   >
@@ -269,6 +269,7 @@ export const LoginModal = (props: {
                   type="submit"
                   isLoading={isLoading}
                   isDisabled={Object.keys(errors).length > 0}
+                  data-cy="loginFormSubmit"
                 >
                   {isSignup ? "Inscription" : "Connexion"}
                 </Button>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { IoIosPeople, IoMdCheckmarkCircle, IoMdPeople } from "react-icons/io";
+import { IoIosPeople, IoIosPerson } from "react-icons/io";
 import {
   List,
   ListItem,
@@ -19,8 +19,6 @@ import {
   ModalHeader,
   ModalCloseButton,
   ModalBody,
-  ModalFooter,
-  Text,
   IconButton,
   Spinner,
   Button,
@@ -29,36 +27,59 @@ import {
   BoxProps
 } from "@chakra-ui/react";
 import { OrgForm } from "features/forms/OrgForm";
-import { getOrgsByCreator } from "features/orgs/orgsApi";
+import { getOrgsByCreator, useGetOrgsQuery } from "features/orgs/orgsApi";
 import { Link } from "features/common";
 import { useSession } from "hooks/useAuth";
-import { AddIcon, ArrowForwardIcon } from "@chakra-ui/icons";
+import { AddIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
-import { FaPeopleCarry } from "react-icons/fa";
+import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import { useSelector } from "react-redux";
+import {
+  isSubscribedBy,
+  selectSubscriptionRefetch
+} from "features/subscriptions/subscriptionSlice";
 
 export const OrgPopover = ({ boxSize, ...props }: BoxProps) => {
   const router = useRouter();
   const { data: session } = useSession();
+
+  const query = useGetOrgsQuery();
+  const myOrgs =
+    (Array.isArray(query.data) &&
+      query.data.length > 0 &&
+      query.data.filter((org) => session?.user.userId === org?.createdBy)) ||
+    [];
+  const hasOrgs = Array.isArray(myOrgs) && myOrgs.length > 0;
+
+  const subQuery = useGetSubscriptionQuery(session?.user.userId);
+  const subscribedOrgs =
+    (Array.isArray(query.data) &&
+      query.data.length > 0 &&
+      query.data.filter((org) => isSubscribedBy(org, subQuery))) ||
+    [];
+  const hasSubscribedOrgs =
+    Array.isArray(subscribedOrgs) && subscribedOrgs.length > 0;
+  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    console.log("refetching subscription");
+    subQuery.refetch();
+  }, [subscriptionRefetch]);
+
   const [isOpen, setIsOpen] = useState(false);
   const { isOpen: isOrgModalOpen, onOpen, onClose } = useDisclosure();
   const iconHoverColor = useColorModeValue("white", "lightgreen");
-
-  const {
-    data: myOrgs = [],
-    refetch,
-    isLoading
-  } = getOrgsByCreator.useQuery(session?.user.userId);
-
-  useEffect(() => {
-    refetch();
-  }, [router.asPath]);
 
   return (
     <Box {...props}>
       <Popover isLazy isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <PopoverTrigger>
           <IconButton
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => {
+              if (!isOpen) {
+                query.refetch();
+              }
+              setIsOpen(!isOpen);
+            }}
             aria-label="Social"
             mr={2}
             bg="transparent"
@@ -79,36 +100,75 @@ export const OrgPopover = ({ boxSize, ...props }: BoxProps) => {
           </PopoverHeader>
           <PopoverCloseButton />
           <PopoverBody>
-            <Box>
-              {isLoading ? (
-                <Spinner />
-              ) : (
-                <List>
-                  {myOrgs.map(({ orgName }, index) => (
-                    <ListItem
-                      display="flex"
-                      alignItems="center"
-                      mb={1}
-                      key={index}
-                    >
-                      <ListIcon
-                        boxSize={6}
-                        as={IoIosPeople}
-                        color="green.500"
-                      />{" "}
-                      <Link
-                        onClick={() => {
-                          setIsOpen(false);
-                        }}
-                        href={`/${encodeURIComponent(orgName)}`}
-                      >
-                        {orgName}
-                      </Link>
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-            </Box>
+            {query.isLoading ? (
+              <Spinner />
+            ) : (
+              <>
+                {hasOrgs && (
+                  <>
+                    <Heading size="sm" mb={1}>
+                      Ajoutées par vous
+                    </Heading>
+                    <List>
+                      {myOrgs.map((org, index) => (
+                        <ListItem
+                          display="flex"
+                          alignItems="center"
+                          mb={1}
+                          key={index}
+                        >
+                          <ListIcon
+                            boxSize={6}
+                            as={IoIosPeople}
+                            color="green.500"
+                          />{" "}
+                          <Link
+                            onClick={() => {
+                              setIsOpen(false);
+                            }}
+                            href={`/${encodeURIComponent(org.orgName)}`}
+                          >
+                            {org.orgName}
+                          </Link>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </>
+                )}
+
+                {hasSubscribedOrgs && (
+                  <>
+                    <Heading size="sm" mt={hasOrgs ? 2 : 0} mb={1}>
+                      Dont vous êtes adhérent
+                    </Heading>
+                    <List>
+                      {subscribedOrgs.map((org, index) => (
+                        <ListItem
+                          display="flex"
+                          alignItems="center"
+                          mb={1}
+                          key={index}
+                        >
+                          <ListIcon
+                            boxSize={6}
+                            as={IoIosPerson}
+                            color="green.500"
+                          />{" "}
+                          <Link
+                            onClick={() => {
+                              setIsOpen(false);
+                            }}
+                            href={`/${encodeURIComponent(org.orgName)}`}
+                          >
+                            {org.orgName}
+                          </Link>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </>
+                )}
+              </>
+            )}
             <Button
               onClick={onOpen}
               leftIcon={<AddIcon />}

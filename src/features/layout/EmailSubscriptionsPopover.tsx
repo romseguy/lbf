@@ -1,4 +1,8 @@
-import type { ISubscription, IOrgSubscription } from "models/Subscription";
+import {
+  ISubscription,
+  IOrgSubscription,
+  SubscriptionTypes
+} from "models/Subscription";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
@@ -58,8 +62,10 @@ import {
 } from "features/subscriptions/subscriptionsApi";
 import { useAppDispatch } from "store";
 import { handleError } from "utils/form";
-import { IoMdCheckmarkCircle } from "react-icons/io";
-import { setUserEmail } from "features/users/userSlice";
+import { IoIosPerson, IoMdCheckmarkCircle } from "react-icons/io";
+import { selectUserEmail, setUserEmail } from "features/users/userSlice";
+import { useSelector } from "react-redux";
+import { subscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 
 export const EmailSubscriptionsPopover = ({
   boxSize,
@@ -67,21 +73,23 @@ export const EmailSubscriptionsPopover = ({
 }: BoxProps & { email?: string }) => {
   const router = useRouter();
   const { data: session } = useSession();
+  const dispatch = useAppDispatch();
+
   const [mySubscription, setMySubscription] = useState<ISubscription>();
+
   const isStep1 = !session && !mySubscription;
   const isStep2 = (!session && mySubscription) || session;
 
-  useEffect(() => {
-    if (!session) setMySubscription(undefined);
-  }, [session]);
+  const userEmail =
+    useSelector(selectUserEmail) ||
+    mySubscription?.email ||
+    mySubscription?.user?.email;
 
-  const userEmail = mySubscription?.email || mySubscription?.user?.email;
   const subQuery = useGetSubscriptionQuery(props.email || userEmail || "");
   useEffect(() => {
     setMySubscription(subQuery.data);
   }, [subQuery.data]);
 
-  const dispatch = useAppDispatch();
   //const [editSubscription, editSubscriptionMutation] = useEditSubscriptionMutation();
   const [deleteSubscription, deleteSubscriptionMutation] =
     useDeleteSubscriptionMutation();
@@ -97,16 +105,6 @@ export const EmailSubscriptionsPopover = ({
     onOpen,
     onClose
   } = useDisclosure();
-
-  // const {
-  //   data: mySubscription,
-  //   refetch,
-  //   isLoading
-  // } = useGetSubscriptionQuery(session.user.userId);
-
-  // useEffect(() => {
-  //   refetch();
-  // }, [router.asPath]);
 
   const { clearErrors, errors, setError, handleSubmit, register } = useForm({
     mode: "onChange"
@@ -217,7 +215,15 @@ export const EmailSubscriptionsPopover = ({
               <List py={2}>
                 {mySubscription.orgs.map((orgSubscription, index) => (
                   <ListItem mb={1} key={index}>
-                    <ListIcon as={IoMdCheckmarkCircle} color="green.500" />{" "}
+                    <ListIcon
+                      as={
+                        orgSubscription.type === SubscriptionTypes.SUBSCRIBER ||
+                        orgSubscription.type === SubscriptionTypes.BOTH
+                          ? IoIosPerson
+                          : EmailIcon
+                      }
+                      color="green.500"
+                    />{" "}
                     <Link
                       variant="underline"
                       onClick={() => {
@@ -249,21 +255,15 @@ export const EmailSubscriptionsPopover = ({
                             }
                           });
 
-                          if (userEmail || session.user.userId)
-                            await dispatch(
-                              getSubscription.initiate(
-                                userEmail || session.user.userId,
-                                {
-                                  forceRefetch: true
-                                }
-                              )
-                            );
+                          subQuery.refetch();
+                          // so OrgPage knows
+                          dispatch(subscriptionRefetch());
+
                           toast({
                             title: `Vous avez été désabonné de ${orgSubscription.org.orgName}`,
                             status: "success",
                             isClosable: true
                           });
-                          subQuery.refetch();
                         }}
                       />
                     </Tooltip>

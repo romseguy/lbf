@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { HYDRATE } from "next-redux-wrapper";
 import { AppState, AppThunk } from "store";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";

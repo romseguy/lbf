@@ -117,7 +117,7 @@ export const OrgForm = (props: OrgFormProps) => {
           ref={register({
             required: "Veuillez saisir le nom de l'organisation",
             pattern: {
-              value: /^[a-z0-9 ]+$/i,
+              value: /^[A-zÀ-ú0-9 ]+$/i,
               message:
                 "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
             }

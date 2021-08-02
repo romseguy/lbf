@@ -4,22 +4,16 @@ import {
   getSession as getNextAuthSession
 } from "next-auth/react";
 import type { UseSessionOptions, GetSessionOptions } from "next-auth/react";
-import { isServer } from "utils/isServer";
 
 const speedUpDev = process.env.NODE_ENV === "development" && false;
-
-export const AccountTypes = {
-  ADMIN: "ADMIN",
-  USER: "USER"
-};
-
 const session = {
   user: {
-    userId: "60e318732d8f5b154bfaa346",
+    userId: process.env.NEXT_PUBLIC_IS_LOCAL_TEST
+      ? "60f69e25326ad61659d020ed"
+      : "60e318732d8f5b154bfaa346",
     userName: "romseguy8933",
     email: process.env.EMAIL_ADMIN
-  },
-  type: AccountTypes.ADMIN
+  }
 };
 
 type AppSession = {
@@ -28,7 +22,6 @@ type AppSession = {
     userName: string;
     email: string;
   };
-  type?: string;
 };
 
 // server-side

@@ -297,7 +297,7 @@ export const EventForm = ({
           ref={register({
             required: "Veuillez saisir un nom d'événement",
             pattern: {
-              value: /^[a-z0-9 ]+$/i,
+              value: /^[A-zÀ-ú0-9 ]+$/i,
               message:
                 "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
             }
@@ -654,20 +654,3 @@ export const EventForm = ({
     </form>
   );
 };
-
-// let eventMinDefaultDate = setMinutes(addHours(tomorrow, 1), 0);
-// let eventMaxDefaultDate = setMinutes(addHours(eventMinDefaultDate, 1), 0);
-
-// let isEventMaxDateTomorrow = false;
-
-// eventMaxDateProps.minDate = addHours(eventMinDate, 2);
-// eventMaxDefaultDate = addHours(eventMinDate, 2);
-
-// selected min date is close to midnight
-// if (getHours(addHours(eventMinDate, 2)) === 1) {
-//   console.log("midnight");
-
-// isEventMaxDateTomorrow = true;
-// } else {
-//   eventMaxDateProps.minDate = addHours(eventMinDate, 2);
-// }

@@ -2,20 +2,31 @@ export const handleError = (
   error: { message?: string; status?: number; data?: any },
   setError: (message: string, field?: string) => void
 ) => {
-  if (error.message || error.data.message)
-    return setError(error.message || error.data.message);
+  const setFieldsErrors = (fields: any) => {
+    const keys = Object.keys(fields);
+    if (!keys.length) {
+      return setError("Une erreur inconnue est survenue");
+    }
+    keys.forEach((key) => {
+      setError(fields[key], key);
+    });
+  };
 
   if (error.status === 400 || error.status === 500) {
-    const fields = Object.keys(error.data);
-
-    if (!fields.length) {
-      return setError(
-        "Une erreur est survenue, veuillez contacter le développeur"
-      );
+    if (error.data) {
+      setFieldsErrors(error.data);
+    } else if (error.message) {
+      setError(error.message);
+    } else {
+      setFieldsErrors(error);
     }
-
-    fields.forEach((field) => {
-      setError(error.data[field], field);
-    });
+  } else {
+    if (error.data) {
+      setFieldsErrors(error.data);
+    } else if (error.message) {
+      setError(error.message);
+    } else {
+      setFieldsErrors(error);
+    }
   }
 };

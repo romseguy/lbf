@@ -52,6 +52,7 @@ export const Event = (props: {
   routeName: string;
 }) => {
   const router = useRouter();
+  const { data: session, loading: isSessionLoading } = useSession();
 
   const [deleteEvent, { isLoading }] = useDeleteEventMutation();
   const eventQuery = useGetEventByNameQuery(props.routeName);
@@ -62,7 +63,6 @@ export const Event = (props: {
   }, [router.asPath]);
   const event = eventQuery.data || props.event;
 
-  const { data: session, loading: isSessionLoading } = useSession();
   const isCreator = session && event.createdBy._id === session.user.userId;
 
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);

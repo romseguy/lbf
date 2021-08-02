@@ -16,7 +16,8 @@ import {
   Tooltip,
   Table,
   Tr,
-  Td
+  Td,
+  Tbody
 } from "@chakra-ui/react";
 import {
   AddIcon,
@@ -185,125 +186,128 @@ export const OrgConfigSubscribersPanel = ({
       {isVisible.subscribers && hasSubscribers && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Table>
-            {org.orgSubscriptions
-              .filter(({ orgs }) => {
-                if (!orgs) return false;
+            <Tbody>
+              {org.orgSubscriptions
+                .filter(({ orgs }) => {
+                  if (!orgs) return false;
 
-                const orgSubscription = orgs.find(({ orgId }) => {
-                  return orgId === org._id;
-                });
+                  const orgSubscription = orgs.find(({ orgId }) => {
+                    return orgId === org._id;
+                  });
 
-                if (!orgSubscription) return false;
+                  if (!orgSubscription) return false;
 
-                return (
-                  orgSubscription.type === SubscriptionTypes.SUBSCRIBER ||
-                  SubscriptionTypes.BOTH
-                );
-              })
-              .map(({ email, user, orgs }, index) => {
-                const orgSubscription = orgs?.find(({ orgId }) => {
-                  return orgId === org._id;
-                });
+                  return (
+                    orgSubscription.type === SubscriptionTypes.SUBSCRIBER ||
+                    SubscriptionTypes.BOTH
+                  );
+                })
+                .map(({ email, user, orgs }, index) => {
+                  const orgSubscription = orgs?.find(({ orgId }) => {
+                    return orgId === org._id;
+                  });
 
-                const isFollower =
-                  orgSubscription!.type === SubscriptionTypes.FOLLOWER ||
-                  orgSubscription!.type === SubscriptionTypes.BOTH;
-                const isSub =
-                  orgSubscription!.type === SubscriptionTypes.SUBSCRIBER ||
-                  orgSubscription!.type === SubscriptionTypes.BOTH;
+                  const isFollower =
+                    orgSubscription!.type === SubscriptionTypes.FOLLOWER ||
+                    orgSubscription!.type === SubscriptionTypes.BOTH;
+                  const isSub =
+                    orgSubscription!.type === SubscriptionTypes.SUBSCRIBER ||
+                    orgSubscription!.type === SubscriptionTypes.BOTH;
 
-                return (
-                  <Tr key={`email-${index}`}>
-                    <Td>
-                      <Tooltip
-                        placement="top"
-                        hasArrow
-                        label={`${
-                          isFollower ? "Retirer de" : "Ajouter à"
-                        } la liste des abonnés`}
-                      >
-                        <Tag
-                          variant={isFollower ? "solid" : "outline"}
-                          colorScheme="green"
-                          mr={3}
-                          cursor="pointer"
-                          _hover={{ textDecoration: "underline" }}
-                        >
-                          <TagLabel>Abonné</TagLabel>
-                        </Tag>
-                      </Tooltip>
-                      <Tooltip
-                        placement="top"
-                        hasArrow
-                        label={`${
-                          isSub ? "Retirer de" : "Ajouter à"
-                        } la liste des adhérents`}
-                      >
-                        <Tag
-                          variant={isSub ? "solid" : "outline"}
-                          colorScheme="purple"
-                          mr={3}
-                          cursor="pointer"
-                          _hover={{ textDecoration: "underline" }}
-                        >
-                          <TagLabel>Adhérent</TagLabel>
-                        </Tag>
-                      </Tooltip>
-                    </Td>
-
-                    <Td>
-                      {email || (
-                        <Link
-                          href={`/${
-                            user?.userName && encodeURIComponent(user.userName)
-                          }`}
-                          variant="underline"
-                        >
-                          {user?.email}
-                        </Link>
-                      )}
-                    </Td>
-
-                    <Td textAlign="right">
-                      {!user && (
+                  return (
+                    <Tr key={`email-${index}`}>
+                      <Td>
                         <Tooltip
-                          label="Créer un compte"
+                          placement="top"
+                          hasArrow
+                          label={`${
+                            isFollower ? "Retirer de" : "Ajouter à"
+                          } la liste des abonnés`}
+                        >
+                          <Tag
+                            variant={isFollower ? "solid" : "outline"}
+                            colorScheme="green"
+                            mr={3}
+                            cursor="pointer"
+                            _hover={{ textDecoration: "underline" }}
+                          >
+                            <TagLabel>Abonné</TagLabel>
+                          </Tag>
+                        </Tooltip>
+                        <Tooltip
+                          placement="top"
+                          hasArrow
+                          label={`${
+                            isSub ? "Retirer de" : "Ajouter à"
+                          } la liste des adhérents`}
+                        >
+                          <Tag
+                            variant={isSub ? "solid" : "outline"}
+                            colorScheme="purple"
+                            mr={3}
+                            cursor="pointer"
+                            _hover={{ textDecoration: "underline" }}
+                          >
+                            <TagLabel>Adhérent</TagLabel>
+                          </Tag>
+                        </Tooltip>
+                      </Td>
+
+                      <Td>
+                        {email || (
+                          <Link
+                            href={`/${
+                              user?.userName &&
+                              encodeURIComponent(user.userName)
+                            }`}
+                            variant="underline"
+                          >
+                            {user?.email}
+                          </Link>
+                        )}
+                      </Td>
+
+                      <Td textAlign="right">
+                        {!user && (
+                          <Tooltip
+                            label="Créer un compte"
+                            hasArrow
+                            placement="top"
+                          >
+                            <IconButton
+                              aria-label="Créer un compte"
+                              bg="transparent"
+                              _hover={{ bg: "transparent", color: "green" }}
+                              icon={<AddIcon />}
+                              height="auto"
+                            >
+                              Créer un compte
+                            </IconButton>
+                          </Tooltip>
+                        )}
+
+                        <Tooltip
+                          label="Supprimer de la liste"
                           hasArrow
                           placement="top"
                         >
                           <IconButton
-                            aria-label="Créer un compte"
+                            aria-label="Désinscrire"
                             bg="transparent"
-                            _hover={{ bg: "transparent", color: "green" }}
-                            icon={<AddIcon />}
+                            _hover={{ bg: "transparent", color: "red" }}
+                            icon={<DeleteIcon />}
                             height="auto"
-                          >
-                            Créer un compte
-                          </IconButton>
+                            onClick={async () => {
+                              // TODO
+                              orgQuery.refetch();
+                            }}
+                          />
                         </Tooltip>
-                      )}
-
-                      <Tooltip
-                        label="Supprimer de la liste"
-                        hasArrow
-                        placement="top"
-                      >
-                        <IconButton
-                          aria-label="Désinscrire"
-                          bg="transparent"
-                          _hover={{ bg: "transparent", color: "red" }}
-                          icon={<DeleteIcon />}
-                          height="auto"
-                          onClick={async () => {
-                            // TODO
-                            orgQuery.refetch();
-                          }}
-                        />
-                      </Tooltip>
-                    </Td>
-                  </Tr>
-                );
-              })}
+                      </Td>
+                    </Tr>
+                  );
+                })}
+            </Tbody>
           </Table>
         </GridItem>
       )}

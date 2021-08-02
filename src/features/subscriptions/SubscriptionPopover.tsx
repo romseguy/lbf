@@ -1,5 +1,6 @@
 import type { IOrg } from "models/Org";
 import type { IEvent } from "models/Event";
+import type { ISubscription } from "models/Subscription";
 import React, { useState } from "react";
 import {
   Popover,
@@ -19,24 +20,38 @@ import { EmailIcon } from "@chakra-ui/icons";
 import { useForm } from "react-hook-form";
 import { emailR } from "utils/email";
 import { ErrorMessage } from "@hookform/error-message";
-import { useAddSubscriptionMutation } from "./subscriptionsApi";
+import {
+  useAddSubscriptionMutation,
+  useDeleteSubscriptionMutation
+} from "./subscriptionsApi";
 import { SubscriptionTypes } from "models/Subscription";
+import { useAppDispatch } from "store";
+import { selectUserEmail, setUserEmail } from "features/users/userSlice";
+import { useSelector } from "react-redux";
 
 export const SubscriptionPopover = ({
   org,
   event,
-  isDisabled,
+  mySubscription,
+  isFollowed,
   ...props
 }: {
   org?: IOrg;
   event?: IEvent;
-  isDisabled?: boolean;
+  mySubscription?: ISubscription;
+  isFollowed?: boolean;
   isLoading?: boolean;
-  onSubmit?: () => void;
+  onSubmit?: (subscribed: boolean) => void;
 }) => {
   const { data: session } = useSession();
+  const dispatch = useAppDispatch();
+  const userEmail = useSelector(selectUserEmail);
+
   const [addSubscription, addSubscriptionMutation] =
     useAddSubscriptionMutation();
+  const [deleteSubscription, deleteSubscriptionMutation] =
+    useDeleteSubscriptionMutation();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -50,6 +65,7 @@ export const SubscriptionPopover = ({
 
   const onSubmit = async ({ email }: { email: string }) => {
     setIsLoading(true);
+
     if (org) {
       await addSubscription({
         payload: {
@@ -76,26 +92,55 @@ export const SubscriptionPopover = ({
       });
     }
 
+    dispatch(setUserEmail(email));
     setIsLoading(false);
     setIsOpen(false);
-    props.onSubmit && props.onSubmit();
+    props.onSubmit && props.onSubmit(true);
   };
 
   return (
     <Popover isLazy isOpen={isOpen} onClose={() => setIsOpen(false)}>
       <PopoverTrigger>
         <Button
-          isDisabled={isDisabled}
           isLoading={props.isLoading || isLoading}
           leftIcon={<EmailIcon />}
           colorScheme="teal"
-          onClick={() => {
-            if (session) {
-              onSubmit({ email: session.user.email });
-            } else setIsOpen(!isOpen);
+          onClick={async () => {
+            if (
+              isFollowed &&
+              org &&
+              mySubscription &&
+              Array.isArray(mySubscription.orgs) &&
+              mySubscription.orgs.length > 0
+            ) {
+              setIsLoading(true);
+
+              const orgSubscription = mySubscription.orgs.find(
+                (orgSubscription) => {
+                  return orgSubscription.orgId === org._id;
+                }
+              );
+
+              if (orgSubscription) {
+                await deleteSubscription({
+                  subscriptionId: mySubscription._id,
+                  payload: {
+                    orgs: [orgSubscription]
+                  }
+                });
+              }
+
+              setIsLoading(false);
+              props.onSubmit && props.onSubmit(false);
+            } else {
+              if (userEmail || session) {
+                onSubmit({ email: userEmail || session.user.email });
+              } else setIsOpen(!isOpen);
+            }
           }}
+          data-cy="subscribeToOrg"
         >
-          {isDisabled ? "Abonné" : "S'abonner"}
+          {isFollowed ? "Se désabonner" : "S'abonner"}
         </Button>
       </PopoverTrigger>
       <PopoverContent ml={5}>

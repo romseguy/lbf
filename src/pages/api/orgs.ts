@@ -12,6 +12,18 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
+handler.get<NextApiRequest, NextApiResponse>(async function getOrgs(req, res) {
+  try {
+    const orgs = await models.Org.find({}).sort({
+      orgName: "ascending"
+    });
+
+    res.status(200).json(orgs);
+  } catch (error) {
+    res.status(500).json(createServerError(error));
+  }
+});
+
 handler.post<NextApiRequest, NextApiResponse>(async function postOrg(req, res) {
   const session = await getSession({ req });
 
