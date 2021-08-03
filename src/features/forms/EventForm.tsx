@@ -27,7 +27,14 @@ import {
   Checkbox,
   Flex,
   CheckboxGroup,
-  useColorMode
+  useColorMode,
+  Alert,
+  AlertIcon,
+  Tag,
+  Table,
+  Tbody,
+  Tr,
+  Td
 } from "@chakra-ui/react";
 import { EmailIcon, TimeIcon, WarningIcon } from "@chakra-ui/icons";
 import {
@@ -108,13 +115,16 @@ export const EventForm = ({
     mode: "onChange"
   });
 
-  const eventNotif = watch("eventNotif");
-  let eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
-  eventOrgs = eventOrgs.filter(
-    (org: IOrg) =>
-      Array.isArray(org.orgSubscriptions) && org.orgSubscriptions.length > 0
-  );
   watch("eventOrgs");
+  const eventNotif = watch("eventNotif");
+
+  let eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
+  // eventOrgs = eventOrgs.filter(
+  //   (org: IOrg) =>
+  //     Array.isArray(org.orgSubscriptions) && org.orgSubscriptions.length > 0
+  // );
+
+  console.log(eventOrgs);
 
   const now = new Date();
   // const now = setMinutes(setHours(new Date(), 23), 0);
@@ -199,14 +209,22 @@ export const EventForm = ({
 
     try {
       if (props.event) {
-        if (!form.eventNotif) {
-          payload.eventNotif = [];
-        }
+        // if (!form.eventNotif) {
+        //   payload.eventNotif = [];
+        // }
 
-        await editEvent({ payload, eventName: props.event.eventName }).unwrap();
+        const res = await editEvent({
+          payload,
+          eventName: props.event.eventName
+        }).unwrap();
 
         toast({
-          title: "Votre événement a bien été modifié !",
+          title:
+            res && res.emailList
+              ? `Une invitation a été envoyée à ${res.emailList.length} abonné${
+                  res.emailList.length > 1 ? "s" : ""
+                }`
+              : "Votre événement a bien été modifié !",
           status: "success",
           isClosable: true
         });
@@ -598,39 +616,67 @@ export const EventForm = ({
         </FormErrorMessage>
       </FormControl>
 
-      {props.event &&
-        props.event.isApproved &&
-        Array.isArray(eventOrgs) &&
-        eventOrgs.length > 0 && (
-          <FormControl id="eventNotif" mb={3}>
-            <FormLabel>
-              Envoyer un e-mail d'invitation aux abonné(e)s des organisations
-              suivantes :
-            </FormLabel>
-            <CheckboxGroup>
-              {eventOrgs.map((org: IOrg) => {
-                return (
-                  <Flex direction="row" key={org.orgName}>
-                    <Checkbox
-                      icon={<EmailIcon />}
-                      name="eventNotif"
-                      ref={register()}
-                      mb={3}
-                      mr={3}
-                      value={org._id}
+      {Array.isArray(eventOrgs) && eventOrgs.length > 0 && (
+        <>
+          {props.event && props.event.isApproved ? (
+            <FormControl id="eventNotif" mb={3}>
+              <Alert status="info" mb={3}>
+                <AlertIcon />
+                <Box>
+                  Pour envoyer un e-mail d'invitation à cet événement aux
+                  abonné(e)s des organisations que vous avez ajouté sur ce site,
+                  cochez une ou plusieurs des cases correspondantes :
+                  <CheckboxGroup>
+                    <Table
+                      backgroundColor={
+                        isDark ? "whiteAlpha.100" : "blackAlpha.100"
+                      }
+                      borderWidth="1px"
+                      borderRadius="lg"
+                      mt={2}
                     >
-                      {org.orgName}
-                    </Checkbox>
-                  </Flex>
-                );
-              })}
-            </CheckboxGroup>
+                      <Tbody>
+                        {eventOrgs.map((org: IOrg) => {
+                          return (
+                            <Tr key={org.orgName} mb={1}>
+                              <Td>
+                                <Checkbox
+                                  icon={<EmailIcon />}
+                                  name="eventNotif"
+                                  ref={register()}
+                                  value={org._id}
+                                  isDisabled={!org.orgSubscriptions.length}
+                                />
+                              </Td>
+                              <Td>{org.orgName}</Td>
+                              <Td textAlign="right">
+                                <Tag fontSize="smaller">
+                                  {org.orgSubscriptions.length} abonné(e)s
+                                </Tag>
+                              </Td>
+                            </Tr>
+                          );
+                        })}
+                      </Tbody>
+                    </Table>
+                  </CheckboxGroup>
+                </Box>
+              </Alert>
 
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="eventNotif" />
-            </FormErrorMessage>
-          </FormControl>
-        )}
+              <FormErrorMessage>
+                <ErrorMessage errors={errors} name="eventNotif" />
+              </FormErrorMessage>
+            </FormControl>
+          ) : (
+            <Alert status="info" mb={3}>
+              <AlertIcon />
+              Vous obtiendrez la permission d'envoyer un e-mail d'invitation à
+              cet événement aux abonné(e)s des organisateurs, lorsque celui-ci
+              sera approuvé par un modérateur
+            </Alert>
+          )}
+        </>
+      )}
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>

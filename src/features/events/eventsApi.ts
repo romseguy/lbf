@@ -30,7 +30,7 @@ export const eventApi = createApi({
       query: (eventName) => ({ url: `event/${eventName}`, method: "DELETE" })
     }),
     editEvent: build.mutation<
-      IEvent,
+      { emailList?: string[] },
       { payload: Partial<IEvent>; eventName?: string }
     >({
       query: ({ payload, eventName }) => ({

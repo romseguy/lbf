@@ -14,6 +14,11 @@ export const breakpoints = createBreakpoints({
 
 const theme = extendTheme({
   components: {
+    FormLabel: {
+      baseStyle: {
+        fontWeight: "bold"
+      }
+    },
     Input: {
       baseStyle: {
         ".chakra-ui-dark &": {

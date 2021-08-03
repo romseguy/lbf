@@ -7,7 +7,7 @@ import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import type { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
-import { sendToEmailList } from "utils/email";
+import { sendToFollowers } from "utils/email";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -132,7 +132,7 @@ handler.put<NextApiRequest, NextApiResponse>(async function editEvent(
         body.eventNameLower = body.eventName.toLowerCase();
       }
 
-      sendToEmailList(body, transport);
+      const emailList = await sendToFollowers(body, transport);
       const event = await models.Event.findOne({ eventName });
 
       const { n, nModified } = await models.Event.updateOne(
@@ -156,7 +156,7 @@ handler.put<NextApiRequest, NextApiResponse>(async function editEvent(
       });
 
       if (nModified === 1) {
-        res.status(200).json({});
+        res.status(200).json({ emailList });
       } else {
         res
           .status(400)
