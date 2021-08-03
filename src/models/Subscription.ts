@@ -14,13 +14,13 @@ export interface ISubscription {
   _id: string;
   user?: IUser;
   email?: string;
-  events?: [
+  events: [
     {
       event: IEvent;
       topics?: ITopic[];
     }
   ];
-  orgs?: IOrgSubscription[];
+  orgs: IOrgSubscription[];
 }
 
 export const SubscriptionTypes: { [key: string]: string } = {

@@ -22,10 +22,12 @@ handler.get<NextApiRequest, NextApiResponse>(async function getOrgs(req, res) {
         )
       );
   } else {
-    const createdBy = session.user.userId;
+    const createdBy = req.query.userId || session.user.userId;
 
     try {
-      const orgs = await models.Org.find({ createdBy });
+      const orgs = await models.Org.find({ createdBy }).populate(
+        "orgSubscriptions"
+      );
 
       if (orgs) {
         res.status(200).json(orgs);

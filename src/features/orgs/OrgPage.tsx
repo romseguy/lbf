@@ -24,7 +24,12 @@ import {
   IconFooter,
   Link
 } from "features/common";
-import { AddIcon, ChevronLeftIcon, SettingsIcon } from "@chakra-ui/icons";
+import {
+  AddIcon,
+  ArrowBackIcon,
+  ChevronLeftIcon,
+  SettingsIcon
+} from "@chakra-ui/icons";
 import tw, { css } from "twin.macro";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -134,7 +139,7 @@ export const OrgPage = ({
       ) : isConfig ? (
         <IconButton
           aria-label="Précédent"
-          icon={<ChevronLeftIcon boxSize={6} />}
+          icon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
           mb={2}
         />
@@ -227,17 +232,20 @@ export const OrgPage = ({
             </TabPanel>
             <TabPanel>
               {Array.isArray(org.orgEvents) && org.orgEvents.length > 0 ? (
-                <EventsList
-                  eventHeader={
-                    <OrgEventHeader
-                      org={org}
-                      isCreator={isCreator}
-                      isLogin={isLogin}
-                      setIsLogin={setIsLogin}
-                    />
-                  }
-                  events={org.orgEvents || []}
-                />
+                <>
+                  <EventsList
+                    eventHeader={
+                      <OrgEventHeader
+                        org={org}
+                        isCreator={isCreator}
+                        isLogin={isLogin}
+                        setIsLogin={setIsLogin}
+                      />
+                    }
+                    events={org.orgEvents || []}
+                  />
+                  <IconFooter />
+                </>
               ) : (
                 <OrgEventHeader
                   org={org}
@@ -248,73 +256,76 @@ export const OrgPage = ({
               )}
             </TabPanel>
             <TabPanel>
-              <Grid>
-                <GridHeader
-                  alignItems="center"
-                  borderTopRadius="lg"
-                  light={{}}
-                  dark={{}}
-                  pl={0}
-                  onClick={() => {}}
-                >
-                  {/* <Grid templateColumns="1fr auto" alignItems="center"> */}
-                  <Grid templateColumns="auto 1fr" alignItems="center">
-                    <GridItem
-                      css={css`
-                        @media (max-width: 730px) {
-                          & {
-                            padding-top: 12px;
-                            padding-bottom: 12px;
-                          }
-                        }
-                      `}
-                    >
-                      {/* <Heading size="sm">Discussions</Heading> */}
-                    </GridItem>
-                    <GridItem
-                      css={css`
-                        @media (max-width: 730px) {
-                          & {
-                            grid-column: 1;
-                            padding-bottom: 12px;
-                          }
-                        }
-                      `}
-                    >
-                      <Button
-                        colorScheme="teal"
-                        leftIcon={<AddIcon />}
-                        onClick={() => {
-                          if (!isSessionLoading) {
-                            if (session) {
-                              setIsTopicModalOpen(true);
-                            } else {
-                              setIsLogin(isLogin + 1);
+              <>
+                <Grid>
+                  <GridHeader
+                    alignItems="center"
+                    borderTopRadius="lg"
+                    light={{}}
+                    dark={{}}
+                    pl={0}
+                    onClick={() => {}}
+                  >
+                    {/* <Grid templateColumns="1fr auto" alignItems="center"> */}
+                    <Grid templateColumns="auto 1fr" alignItems="center">
+                      <GridItem
+                        css={css`
+                          @media (max-width: 730px) {
+                            & {
+                              padding-top: 12px;
+                              padding-bottom: 12px;
                             }
                           }
-                        }}
+                        `}
                       >
-                        Ajouter un sujet de discussion
-                      </Button>
-                    </GridItem>
-                  </Grid>
-                </GridHeader>
+                        {/* <Heading size="sm">Discussions</Heading> */}
+                      </GridItem>
+                      <GridItem
+                        css={css`
+                          @media (max-width: 730px) {
+                            & {
+                              grid-column: 1;
+                              padding-bottom: 12px;
+                            }
+                          }
+                        `}
+                      >
+                        <Button
+                          colorScheme="teal"
+                          leftIcon={<AddIcon />}
+                          onClick={() => {
+                            if (!isSessionLoading) {
+                              if (session) {
+                                setIsTopicModalOpen(true);
+                              } else {
+                                setIsLogin(isLogin + 1);
+                              }
+                            }
+                          }}
+                        >
+                          Ajouter un sujet de discussion
+                        </Button>
+                      </GridItem>
+                    </Grid>
+                  </GridHeader>
 
-                <GridItem
-                  // light={{ bg: "orange.100" }}
-                  // dark={{ bg: "gray.500" }}
-                  mt={3}
-                >
-                  <TopicsList
-                    org={org}
-                    query={orgQuery}
-                    isCreator={isCreator}
-                    isFollowed={isFollowed}
-                    isSubscribed={isSubscribed}
-                    onLoginClick={() => setIsLogin(isLogin + 1)}
-                  />
-                </GridItem>
-              </Grid>
+                  <GridItem
+                    // light={{ bg: "orange.100" }}
+                    // dark={{ bg: "gray.500" }}
+                    mt={3}
+                  >
+                    <TopicsList
+                      org={org}
+                      query={orgQuery}
+                      isCreator={isCreator}
+                      isFollowed={isFollowed}
+                      isSubscribed={isSubscribed}
+                      onLoginClick={() => setIsLogin(isLogin + 1)}
+                    />
+                  </GridItem>
+                </Grid>
+                <IconFooter />
+              </>
             </TabPanel>
           </TabPanels>
         </OrgPageTabs>

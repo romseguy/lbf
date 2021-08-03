@@ -68,6 +68,9 @@ import { getDetails } from "use-places-autocomplete";
 import { useGetOrgsByCreatorQuery } from "features/orgs/orgsApi";
 import tw, { css } from "twin.macro";
 import { useEffect } from "react";
+import { SubscriptionTypes } from "models/Subscription";
+import { useAppDispatch } from "store";
+import { getSubscription } from "features/subscriptions/subscriptionsApi";
 
 interface EventFormProps extends ChakraProps {
   event?: IEvent;
@@ -115,16 +118,22 @@ export const EventForm = ({
     mode: "onChange"
   });
 
-  watch("eventOrgs");
   const eventNotif = watch("eventNotif");
+  watch("eventOrgs");
 
   let eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
+
+  // const dispatch = useAppDispatch();
+  // eventOrgs = eventOrgs.map((org: IOrg) => ({
+  //   ...org,
+  //   orgSubscriptions: org.orgSubscriptions.map(async (orgSubscription: string) =>
+  //     dispatch(getSubscription.initiate(orgSubscription))
+  //     )
+  // }))
   // eventOrgs = eventOrgs.filter(
   //   (org: IOrg) =>
   //     Array.isArray(org.orgSubscriptions) && org.orgSubscriptions.length > 0
   // );
-
-  console.log(eventOrgs);
 
   const now = new Date();
   // const now = setMinutes(setHours(new Date(), 23), 0);
@@ -220,7 +229,7 @@ export const EventForm = ({
 
         toast({
           title:
-            res && res.emailList
+            res && Array.isArray(res.emailList) && res.emailList.length > 0
               ? `Une invitation a été envoyée à ${res.emailList.length} abonné${
                   res.emailList.length > 1 ? "s" : ""
                 }`
@@ -636,27 +645,48 @@ export const EventForm = ({
                       mt={2}
                     >
                       <Tbody>
-                        {eventOrgs.map((org: IOrg) => {
-                          return (
-                            <Tr key={org.orgName} mb={1}>
-                              <Td>
-                                <Checkbox
-                                  icon={<EmailIcon />}
-                                  name="eventNotif"
-                                  ref={register()}
-                                  value={org._id}
-                                  isDisabled={!org.orgSubscriptions.length}
-                                />
-                              </Td>
-                              <Td>{org.orgName}</Td>
-                              <Td textAlign="right">
-                                <Tag fontSize="smaller">
-                                  {org.orgSubscriptions.length} abonné(e)s
-                                </Tag>
-                              </Td>
-                            </Tr>
-                          );
-                        })}
+                        {orgs
+                          ?.filter(
+                            (org: IOrg) =>
+                              !!eventOrgs.find(
+                                (eventOrg: IOrg) => eventOrg._id === org._id
+                              )
+                          )
+                          .map((org: IOrg) => {
+                            console.log(org);
+
+                            const orgFollowersCount = org.orgSubscriptions
+                              .map(
+                                (subscription) =>
+                                  subscription.orgs.filter(
+                                    (orgSubscription) =>
+                                      orgSubscription.orgId === org._id &&
+                                      orgSubscription.type ===
+                                        SubscriptionTypes.FOLLOWER
+                                  ).length
+                              )
+                              .reduce((a, b) => a + b, 0);
+
+                            return (
+                              <Tr key={org.orgName} mb={1}>
+                                <Td>
+                                  <Checkbox
+                                    icon={<EmailIcon />}
+                                    name="eventNotif"
+                                    ref={register()}
+                                    value={org._id}
+                                    isDisabled={!orgFollowersCount}
+                                  />
+                                </Td>
+                                <Td>{org.orgName}</Td>
+                                <Td textAlign="right">
+                                  <Tag fontSize="smaller">
+                                    {orgFollowersCount} abonné(e)s
+                                  </Tag>
+                                </Td>
+                              </Tr>
+                            );
+                          })}
                       </Tbody>
                     </Table>
                   </CheckboxGroup>
@@ -672,7 +702,7 @@ export const EventForm = ({
               <AlertIcon />
               Vous obtiendrez la permission d'envoyer un e-mail d'invitation à
               cet événement aux abonné(e)s des organisateurs, lorsque celui-ci
-              sera approuvé par un modérateur
+              sera approuvé par un modérateur.
             </Alert>
           )}
         </>

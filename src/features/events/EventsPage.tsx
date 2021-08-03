@@ -3,7 +3,7 @@ import { Box, Spinner, useColorModeValue } from "@chakra-ui/react";
 import { Layout } from "features/layout";
 import { EventModal } from "features/modals/EventModal";
 import { useRouter } from "next/router";
-import { Button } from "features/common";
+import { Button, IconFooter } from "features/common";
 import type { IEvent } from "models/Event";
 import { AddIcon } from "@chakra-ui/icons";
 import { useSession } from "hooks/useAuth";
@@ -58,7 +58,10 @@ export const EventsPage = (props: { events?: IEvent[] }) => {
       </Box>
 
       {Array.isArray(events) && events.length > 0 ? (
-        <EventsList events={events} />
+        <>
+          <EventsList events={events} />
+          <IconFooter />
+        </>
       ) : null}
     </Layout>
   );

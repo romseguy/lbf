@@ -24,12 +24,19 @@ import {
 import { useSession } from "hooks/useAuth";
 import {
   AddIcon,
+  ArrowBackIcon,
   AtSignIcon,
   ChevronLeftIcon,
   SettingsIcon,
   WarningIcon
 } from "@chakra-ui/icons";
-import { Button, GridHeader, GridItem, Link } from "features/common";
+import {
+  Button,
+  GridHeader,
+  GridItem,
+  IconFooter,
+  Link
+} from "features/common";
 import tw, { css } from "twin.macro";
 import { IoIosPeople } from "react-icons/io";
 import { TopicModal } from "features/modals/TopicModal";
@@ -105,7 +112,7 @@ export const Event = (props: {
       ) : isConfig ? (
         <IconButton
           aria-label="Précédent"
-          icon={<ChevronLeftIcon boxSize={6} />}
+          icon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
           mb={2}
         />
@@ -129,191 +136,203 @@ export const Event = (props: {
       </Box>
 
       {isCreator && !event.isApproved && (
-        <Box mb={3}>
-          <Alert status="warning">
-            <AlertIcon />
-            Votre événement est en attente de modération. Vous devez attendre
-            son approbation avant de pouvoir envoyer un e-mail d'invitation aux
-            adhérents des organisateurs.
-          </Alert>
-        </Box>
+        <Alert status="info" mb={3}>
+          <AlertIcon />
+          <Box>
+            <Text>Votre événement est en attente de modération.</Text>
+            <Text fontSize="smaller">
+              Vous devez attendre son approbation avant de pouvoir envoyer un
+              e-mail d'invitation aux adhérents des organisateurs.
+            </Text>
+          </Box>
+        </Alert>
       )}
 
       {!isConfig && (
-        <Grid
-          templateRows="auto 1fr"
-          // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"
-          gridGap={5}
-          css={css`
-            & {
-              grid-template-columns: minmax(425px, 1fr) minmax(170px, 1fr);
-            }
-            @media (max-width: 650px) {
-              & {
-                grid-template-columns: 1fr !important;
-              }
-            }
-          `}
-        >
-          <GridItem
-            rowSpan={2}
-            borderTopRadius="lg"
-            light={{ bg: "orange.100" }}
-            dark={{ bg: "gray.500" }}
-          >
-            <GridHeader borderTopRadius="lg" alignItems="center">
-              <Heading size="sm" py={3}>
-                Description
-              </Heading>
-            </GridHeader>
-
-            <GridItem>
-              <Box className="ql-editor" p={5}>
-                {event.eventDescription && event.eventDescription.length > 0 ? (
-                  parse(event.eventDescription)
-                ) : isCreator ? (
-                  <Link
-                    onClick={() => {
-                      setIsConfig(true);
-                      setIsEdit(true);
-                    }}
-                    variant="underline"
-                  >
-                    Cliquez ici pour ajouter la description.
-                  </Link>
-                ) : (
-                  <Text fontStyle="italic">Aucune description.</Text>
-                )}
-              </Box>
-            </GridItem>
-          </GridItem>
-
-          <GridItem>
-            <Grid templateRows="auto 1fr">
-              <GridHeader borderTopRadius="lg" alignItems="center">
-                <Heading size="sm" py={3}>
-                  Adresse
-                </Heading>
-              </GridHeader>
-
-              <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
-                <Box p={5}>
-                  {event.eventAddress || (
-                    <Text fontStyle="italic">Aucune adresse.</Text>
-                  )}
-                </Box>
-              </GridItem>
-            </Grid>
-          </GridItem>
-
-          <GridItem>
-            <Grid templateRows="auto 1fr">
-              <GridHeader borderTopRadius="lg" alignItems="center">
-                <Heading size="sm" py={3}>
-                  Organisé par
-                </Heading>
-              </GridHeader>
-
-              <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
-                <Box p={5}>
-                  {Array.isArray(event.eventOrgs) &&
-                  event.eventOrgs.length > 0 ? (
-                    event.eventOrgs.map((eventOrg, index) => (
-                      <Flex key={eventOrg._id} mb={2} alignItems="center">
-                        <Icon as={IoIosPeople} mr={2} />
-                        <Link
-                          data-cy={`eventCreatedBy-${eventOrg.orgName}`}
-                          variant="underline"
-                          href={`/${encodeURIComponent(eventOrg.orgName)}`}
-                        >
-                          {`${eventOrg.orgName}`}
-                          {/* {`${eventOrg.orgName}${
-                            index < event.eventOrgs!.length - 1 ? ", " : ""
-                          }`} */}
-                        </Link>
-                      </Flex>
-                    ))
-                  ) : (
-                    <Box>
-                      <Icon as={AtSignIcon} mr={2} />
-                      <Link
-                        variant="underline"
-                        href={`/${encodeURIComponent(
-                          event.createdBy.userName
-                        )}`}
-                      >
-                        {event.createdBy.userName}
-                      </Link>
-                    </Box>
-                  )}
-                </Box>
-              </GridItem>
-            </Grid>
-          </GridItem>
-
-          <GridItem
-            colSpan={2}
+        <>
+          <Grid
+            templateRows="auto 1fr"
+            // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"
+            gridGap={5}
             css={css`
-              @media (max-width: 730px) {
+              & {
+                grid-template-columns: minmax(425px, 1fr) minmax(170px, 1fr);
+              }
+              @media (max-width: 650px) {
                 & {
-                  grid-column: 1;
+                  grid-template-columns: 1fr !important;
                 }
               }
             `}
           >
-            <GridHeader borderTopRadius="lg" alignItems="center">
-              <Grid templateColumns="1fr auto" alignItems="center">
+            <GridItem
+              rowSpan={2}
+              borderTopRadius="lg"
+              light={{ bg: "orange.100" }}
+              dark={{ bg: "gray.500" }}
+            >
+              <GridHeader borderTopRadius="lg" alignItems="center">
+                <Heading size="sm" py={3}>
+                  Description
+                </Heading>
+              </GridHeader>
+
+              <GridItem>
+                <Box className="ql-editor" p={5}>
+                  {event.eventDescription &&
+                  event.eventDescription.length > 0 ? (
+                    parse(event.eventDescription)
+                  ) : isCreator ? (
+                    <Link
+                      onClick={() => {
+                        setIsConfig(true);
+                        setIsEdit(true);
+                      }}
+                      variant="underline"
+                    >
+                      Cliquez ici pour ajouter la description.
+                    </Link>
+                  ) : (
+                    <Text fontStyle="italic">Aucune description.</Text>
+                  )}
+                </Box>
+              </GridItem>
+            </GridItem>
+
+            <GridItem>
+              <Grid templateRows="auto 1fr">
+                <GridHeader borderTopRadius="lg" alignItems="center">
+                  <Heading size="sm" py={3}>
+                    Adresse
+                  </Heading>
+                </GridHeader>
+
                 <GridItem
-                  css={css`
-                    @media (max-width: 730px) {
-                      & {
-                        padding-top: 12px;
-                        padding-bottom: 12px;
-                      }
-                    }
-                  `}
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
                 >
-                  <Heading size="sm">Discussions</Heading>
-                </GridItem>
-                <GridItem
-                  css={css`
-                    @media (max-width: 730px) {
-                      & {
-                        grid-column: 1;
-                        padding-bottom: 12px;
-                      }
-                    }
-                  `}
-                >
-                  <Button
-                    colorScheme="teal"
-                    leftIcon={<AddIcon />}
-                    onClick={() => {
-                      if (!isSessionLoading) {
-                        if (session) {
-                          setIsTopicModalOpen(true);
-                        } else {
-                          setIsLogin(isLogin + 1);
-                        }
-                      }
-                    }}
-                    m={1}
-                  >
-                    Ajouter un sujet de discussion
-                  </Button>
+                  <Box p={5}>
+                    {event.eventAddress || (
+                      <Text fontStyle="italic">Aucune adresse.</Text>
+                    )}
+                  </Box>
                 </GridItem>
               </Grid>
-            </GridHeader>
-
-            <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
-              <TopicsList
-                event={event}
-                query={eventQuery}
-                onLoginClick={() => setIsLogin(isLogin + 1)}
-              />
             </GridItem>
-          </GridItem>
-        </Grid>
+
+            <GridItem>
+              <Grid templateRows="auto 1fr">
+                <GridHeader borderTopRadius="lg" alignItems="center">
+                  <Heading size="sm" py={3}>
+                    Organisé par
+                  </Heading>
+                </GridHeader>
+
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                >
+                  <Box p={5}>
+                    {Array.isArray(event.eventOrgs) &&
+                    event.eventOrgs.length > 0 ? (
+                      event.eventOrgs.map((eventOrg, index) => (
+                        <Flex key={eventOrg._id} mb={2} alignItems="center">
+                          <Icon as={IoIosPeople} mr={2} />
+                          <Link
+                            data-cy={`eventCreatedBy-${eventOrg.orgName}`}
+                            variant="underline"
+                            href={`/${encodeURIComponent(eventOrg.orgName)}`}
+                          >
+                            {`${eventOrg.orgName}`}
+                            {/* {`${eventOrg.orgName}${
+                            index < event.eventOrgs!.length - 1 ? ", " : ""
+                          }`} */}
+                          </Link>
+                        </Flex>
+                      ))
+                    ) : (
+                      <Box>
+                        <Icon as={AtSignIcon} mr={2} />
+                        <Link
+                          variant="underline"
+                          href={`/${encodeURIComponent(
+                            event.createdBy.userName
+                          )}`}
+                        >
+                          {event.createdBy.userName}
+                        </Link>
+                      </Box>
+                    )}
+                  </Box>
+                </GridItem>
+              </Grid>
+            </GridItem>
+
+            <GridItem
+              colSpan={2}
+              css={css`
+                @media (max-width: 730px) {
+                  & {
+                    grid-column: 1;
+                  }
+                }
+              `}
+            >
+              <GridHeader borderTopRadius="lg" alignItems="center">
+                <Grid templateColumns="1fr auto" alignItems="center">
+                  <GridItem
+                    css={css`
+                      @media (max-width: 730px) {
+                        & {
+                          padding-top: 12px;
+                          padding-bottom: 12px;
+                        }
+                      }
+                    `}
+                  >
+                    <Heading size="sm">Discussions</Heading>
+                  </GridItem>
+                  <GridItem
+                    css={css`
+                      @media (max-width: 730px) {
+                        & {
+                          grid-column: 1;
+                          padding-bottom: 12px;
+                        }
+                      }
+                    `}
+                  >
+                    <Button
+                      colorScheme="teal"
+                      leftIcon={<AddIcon />}
+                      onClick={() => {
+                        if (!isSessionLoading) {
+                          if (session) {
+                            setIsTopicModalOpen(true);
+                          } else {
+                            setIsLogin(isLogin + 1);
+                          }
+                        }
+                      }}
+                      m={1}
+                    >
+                      Ajouter un sujet de discussion
+                    </Button>
+                  </GridItem>
+                </Grid>
+              </GridHeader>
+
+              <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
+                <TopicsList
+                  event={event}
+                  query={eventQuery}
+                  onLoginClick={() => setIsLogin(isLogin + 1)}
+                />
+              </GridItem>
+            </GridItem>
+          </Grid>
+          <IconFooter />
+        </>
       )}
 
       {isConfig && (

@@ -220,7 +220,7 @@ export const EmailSubscriptionsPopover = ({
                   {mySubscription.orgs
                     .filter(
                       (orgSubscription) =>
-                        orgSubscription.type === SubscriptionTypes.SUBSCRIBER
+                        orgSubscription.type === SubscriptionTypes.FOLLOWER
                     )
                     .map((orgSubscription, index) => (
                       <ListItem mb={1} key={index}>

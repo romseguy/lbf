@@ -181,8 +181,6 @@ export const TopicsList = ({
                   </Box>
                 );
               })}
-
-            <IconFooter />
           </>
         ) : query.isLoading ? (
           <Spinner m={3} />

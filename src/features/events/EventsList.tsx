@@ -189,8 +189,6 @@ export const EventsList = (props: EventsProps) => {
             </GridItem>
           </Grid>
 
-          {index === repeatedEvents.length - 1 && <IconFooter />}
-
           <DescriptionModal
             defaultIsOpen={false}
             isOpen={isDescriptionOpen[event.eventName]}
