@@ -1,5 +1,6 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
 import type { ISubscription } from "models/Subscription";
+import type { IUser } from "models/User";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import baseQuery from "utils/query";
 
 export const subscriptionApi = createApi({
@@ -12,23 +13,28 @@ export const subscriptionApi = createApi({
       {
         payload: Partial<ISubscription>;
         email?: string;
+        user?: IUser;
       }
     >({
-      query: ({ payload, email }) => ({
+      query: ({ payload, email, user }) => ({
         url: `subscriptions`,
         method: "POST",
-        body: { ...payload, email }
+        body: { ...payload, email, user }
       }),
       invalidatesTags: [{ type: "Subscriptions", id: "LIST" }]
     }),
     deleteSubscription: build.mutation<
       ISubscription,
-      { payload: Partial<ISubscription>; subscriptionId: string }
+      {
+        payload?: Partial<ISubscription>;
+        subscriptionId: string;
+        orgId?: string;
+      }
     >({
-      query: ({ payload, subscriptionId }) => ({
+      query: ({ payload, subscriptionId, orgId }) => ({
         url: `subscription/${subscriptionId}`,
         method: "DELETE",
-        body: payload
+        body: payload || { orgId }
       })
     }),
     editSubscription: build.mutation<

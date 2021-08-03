@@ -1,4 +1,4 @@
-import type { IOrg } from "models/Org";
+import { IOrg, orgTypeFull } from "models/Org";
 import type { Visibility } from "./OrgPage";
 import tw, { css } from "twin.macro";
 import React, { useState } from "react";
@@ -9,10 +9,7 @@ import {
   Grid,
   FormLabel,
   Tag,
-  TagLeftIcon,
   TagLabel,
-  Wrap,
-  WrapItem,
   Tooltip,
   Table,
   Tr,
@@ -27,9 +24,16 @@ import {
 } from "@chakra-ui/icons";
 import { Button, GridHeader, GridItem, Link, Textarea } from "features/common";
 import { emailR } from "utils/email";
-import { useAddSubscriptionMutation } from "features/subscriptions/subscriptionsApi";
-import { useSession } from "hooks/useAuth";
-import { SubscriptionTypes } from "models/Subscription";
+import {
+  useAddSubscriptionMutation,
+  useDeleteSubscriptionMutation
+} from "features/subscriptions/subscriptionsApi";
+import {
+  IOrgSubscription,
+  ISubscription,
+  SubscriptionTypes
+} from "models/Subscription";
+import { IUser } from "models/User";
 
 type OrgConfigSubscribersPanelProps = Visibility & {
   org: IOrg;
@@ -42,29 +46,125 @@ export const OrgConfigSubscribersPanel = ({
   isVisible,
   setIsVisible
 }: OrgConfigSubscribersPanelProps) => {
-  const { data: session } = useSession();
   const [addSubscription, addSubscriptionMutation] =
     useAddSubscriptionMutation();
+  const [deleteSubscription, deleteSubscriptionMutation] =
+    useDeleteSubscriptionMutation();
+
   const [isAdd, setIsAdd] = useState(false);
   const [emailList, setEmailList] = useState("");
-  const hasSubscribers =
-    Array.isArray(org.orgSubscriptions) &&
-    org.orgSubscriptions.find(
-      (orgSubscription) =>
-        Array.isArray(orgSubscription.orgs) &&
-        orgSubscription.orgs.find(
-          (org) =>
-            org.type === SubscriptionTypes.SUBSCRIBER || SubscriptionTypes.BOTH
-        )
-    );
+
+  const hasSubscriptions =
+    Array.isArray(org.orgSubscriptions) && org.orgSubscriptions.length > 0;
+  // !!org.orgSubscriptions.find(
+  //   (orgSubscription) =>
+  //     Array.isArray(orgSubscription.orgs) &&
+  //     !!orgSubscription.orgs.find(
+  //       ({ type }) =>
+  //         type === SubscriptionTypes.SUBSCRIBER ||
+  //         type === SubscriptionTypes.FOLLOWER
+  //     )
+  // );
+
+  const onTagClick = async ({
+    type,
+    following,
+    subscribing,
+    email,
+    user,
+    subscription
+  }: {
+    type: string;
+    following?: any;
+    subscribing?: any;
+    email?: string;
+    user?: IUser;
+    subscription: ISubscription;
+  }) => {
+    if (
+      addSubscriptionMutation.isLoading ||
+      deleteSubscriptionMutation.isLoading
+    )
+      return;
+
+    if (type === SubscriptionTypes.FOLLOWER) {
+      if (following) {
+        const unsubscribe = confirm(
+          `Êtes vous sûr de vouloir retirer ${
+            email || user?.email
+          } de la liste des abonné(e)s ${orgTypeFull(org.orgType)} ${
+            org.orgName
+          } ?`
+        );
+        if (unsubscribe) {
+          await deleteSubscription({
+            subscriptionId: subscription._id,
+            payload: {
+              orgs: [following]
+            }
+          });
+          orgQuery.refetch();
+        }
+      } else {
+        await addSubscription({
+          email,
+          user,
+          payload: {
+            orgs: [
+              {
+                orgId: org._id,
+                org,
+                type: SubscriptionTypes.FOLLOWER
+              }
+            ]
+          }
+        });
+        orgQuery.refetch();
+      }
+    } else if (type === SubscriptionTypes.SUBSCRIBER) {
+      if (subscribing) {
+        const unsubscribe = confirm(
+          `Êtes vous sûr de vouloir retirer ${
+            email || user?.email
+          } de la liste des adhérent(e)s ${orgTypeFull(org.orgType)} ${
+            org.orgName
+          } ?`
+        );
+        if (unsubscribe) {
+          await deleteSubscription({
+            subscriptionId: subscription._id,
+            payload: {
+              orgs: [subscribing]
+            }
+          });
+          orgQuery.refetch();
+        }
+      } else {
+        await addSubscription({
+          email,
+          user,
+          payload: {
+            orgs: [
+              {
+                orgId: org._id,
+                org,
+                type: SubscriptionTypes.SUBSCRIBER
+              }
+            ]
+          }
+        });
+        orgQuery.refetch();
+      }
+    }
+  };
 
   return (
     <>
       <GridHeader
         borderTopRadius="lg"
-        cursor={hasSubscribers ? "pointer" : "default"}
+        cursor={hasSubscriptions ? "pointer" : "default"}
         onClick={() => {
-          if (!hasSubscribers) return;
+          if (!hasSubscriptions) return;
           setIsAdd(false);
           setIsVisible({
             ...isVisible,
@@ -86,7 +186,7 @@ export const OrgConfigSubscribersPanel = ({
           >
             <Heading size="sm">
               Adhérents & Abonnés{" "}
-              {hasSubscribers && (
+              {hasSubscriptions && (
                 <>
                   {isVisible.subscribers ? (
                     <ChevronDownIcon />
@@ -122,7 +222,7 @@ export const OrgConfigSubscribersPanel = ({
               //   _hover: { bg: "gray.400" }
               // }}
             >
-              Ajouter des adhérents
+              Ajouter des e-mails
             </Button>
           </GridItem>
         </Grid>
@@ -132,7 +232,8 @@ export const OrgConfigSubscribersPanel = ({
         <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.700" }}>
           <Box p={5}>
             <FormLabel htmlFor="emailList">
-              Entrez les adresses e-mail séparées par un espace :
+              Entrez les e-mails séparées par un espace ou un retour à la ligne
+              :
             </FormLabel>
             <Textarea
               id="emailList"
@@ -156,6 +257,7 @@ export const OrgConfigSubscribersPanel = ({
 
                 const promises = emailArray.map((email) => {
                   return addSubscription({
+                    email,
                     payload: {
                       orgs: [
                         {
@@ -164,8 +266,7 @@ export const OrgConfigSubscribersPanel = ({
                           type: SubscriptionTypes.SUBSCRIBER
                         }
                       ]
-                    },
-                    email
+                    }
                   });
                 });
 
@@ -183,36 +284,34 @@ export const OrgConfigSubscribersPanel = ({
         </GridItem>
       )}
 
-      {isVisible.subscribers && hasSubscribers && (
+      {isVisible.subscribers && hasSubscriptions && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Table>
             <Tbody>
               {org.orgSubscriptions
-                .filter(({ orgs }) => {
-                  if (!orgs) return false;
+                // .filter(
+                //   ({ orgs = [] }) =>
+                //     !!orgs.find(
+                //       ({ orgId, type }) =>
+                //         orgId === org._id &&
+                //         (type === SubscriptionTypes.SUBSCRIBER ||
+                //           type === SubscriptionTypes.FOLLOWER)
+                //     )
+                // )
+                .map((subscription, index) => {
+                  const { email, user, orgs = [] } = subscription;
+                  let following: IOrgSubscription | null = null;
+                  let subscribing: IOrgSubscription | null = null;
 
-                  const orgSubscription = orgs.find(({ orgId }) => {
-                    return orgId === org._id;
-                  });
+                  for (const orgSubscription of orgs) {
+                    const { type } = orgSubscription;
+                    if (!type) continue;
 
-                  if (!orgSubscription) return false;
-
-                  return (
-                    orgSubscription.type === SubscriptionTypes.SUBSCRIBER ||
-                    SubscriptionTypes.BOTH
-                  );
-                })
-                .map(({ email, user, orgs }, index) => {
-                  const orgSubscription = orgs?.find(({ orgId }) => {
-                    return orgId === org._id;
-                  });
-
-                  const isFollower =
-                    orgSubscription!.type === SubscriptionTypes.FOLLOWER ||
-                    orgSubscription!.type === SubscriptionTypes.BOTH;
-                  const isSub =
-                    orgSubscription!.type === SubscriptionTypes.SUBSCRIBER ||
-                    orgSubscription!.type === SubscriptionTypes.BOTH;
+                    if (type === SubscriptionTypes.FOLLOWER)
+                      following = orgSubscription;
+                    else if (type === SubscriptionTypes.SUBSCRIBER)
+                      subscribing = orgSubscription;
+                  }
 
                   return (
                     <Tr key={`email-${index}`}>
@@ -221,15 +320,29 @@ export const OrgConfigSubscribersPanel = ({
                           placement="top"
                           hasArrow
                           label={`${
-                            isFollower ? "Retirer de" : "Ajouter à"
-                          } la liste des abonnés`}
+                            following ? "Retirer de" : "Ajouter à"
+                          } la liste des abonné(e)s`}
                         >
                           <Tag
-                            variant={isFollower ? "solid" : "outline"}
+                            variant={following ? "solid" : "outline"}
                             colorScheme="green"
                             mr={3}
-                            cursor="pointer"
+                            cursor={
+                              addSubscriptionMutation.isLoading ||
+                              deleteSubscriptionMutation.isLoading
+                                ? "not-allowed"
+                                : "pointer"
+                            }
                             _hover={{ textDecoration: "underline" }}
+                            onClick={() =>
+                              onTagClick({
+                                type: SubscriptionTypes.FOLLOWER,
+                                following,
+                                email,
+                                user,
+                                subscription
+                              })
+                            }
                           >
                             <TagLabel>Abonné</TagLabel>
                           </Tag>
@@ -238,15 +351,29 @@ export const OrgConfigSubscribersPanel = ({
                           placement="top"
                           hasArrow
                           label={`${
-                            isSub ? "Retirer de" : "Ajouter à"
-                          } la liste des adhérents`}
+                            subscribing ? "Retirer de" : "Ajouter à"
+                          } la liste des adhérent(e)s`}
                         >
                           <Tag
-                            variant={isSub ? "solid" : "outline"}
+                            variant={subscribing ? "solid" : "outline"}
                             colorScheme="purple"
                             mr={3}
-                            cursor="pointer"
+                            cursor={
+                              addSubscriptionMutation.isLoading ||
+                              deleteSubscriptionMutation.isLoading
+                                ? "not-allowed"
+                                : "pointer"
+                            }
                             _hover={{ textDecoration: "underline" }}
+                            onClick={() =>
+                              onTagClick({
+                                type: SubscriptionTypes.SUBSCRIBER,
+                                subscribing,
+                                email,
+                                user,
+                                subscription
+                              })
+                            }
                           >
                             <TagLabel>Adhérent</TagLabel>
                           </Tag>
@@ -297,9 +424,27 @@ export const OrgConfigSubscribersPanel = ({
                             _hover={{ bg: "transparent", color: "red" }}
                             icon={<DeleteIcon />}
                             height="auto"
+                            cursor={
+                              deleteSubscriptionMutation.isLoading
+                                ? "not-allowed"
+                                : "pointer"
+                            }
                             onClick={async () => {
-                              // TODO
-                              orgQuery.refetch();
+                              const unsubscribe = confirm(
+                                `Êtes vous sûr de vouloir supprimer l'abonnement ${
+                                  email || user?.email
+                                } de ${orgTypeFull(org.orgType)} ${
+                                  org.orgName
+                                } ?`
+                              );
+
+                              if (unsubscribe) {
+                                await deleteSubscription({
+                                  subscriptionId: subscription._id,
+                                  orgId: org._id
+                                });
+                                orgQuery.refetch();
+                              }
                             }}
                           />
                         </Tooltip>

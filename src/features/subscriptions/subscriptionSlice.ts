@@ -10,9 +10,8 @@ export const isFollowedBy = (org?: IOrg, subQuery?: any) => {
 
   return !!subQuery.data?.orgs?.find(
     (orgSubscription: IOrgSubscription) =>
-      (orgSubscription.orgId === org._id &&
-        orgSubscription.type === SubscriptionTypes.FOLLOWER) ||
-      orgSubscription.type === SubscriptionTypes.BOTH
+      orgSubscription.orgId === org._id &&
+      orgSubscription.type === SubscriptionTypes.FOLLOWER
   );
 };
 
@@ -21,9 +20,8 @@ export const isSubscribedBy = (org?: IOrg, subQuery?: any) => {
 
   return !!subQuery.data?.orgs?.find(
     (orgSubscription: IOrgSubscription) =>
-      (orgSubscription.orgId === org._id &&
-        orgSubscription.type === SubscriptionTypes.SUBSCRIBER) ||
-      orgSubscription.type === SubscriptionTypes.BOTH
+      orgSubscription.orgId === org._id &&
+      orgSubscription.type === SubscriptionTypes.SUBSCRIBER
   );
 };
 

@@ -1,4 +1,4 @@
-import { IOrg, OrgTypes, OrgTypesV } from "models/Org";
+import { IOrg, orgTypeFull, OrgTypes, OrgTypesV } from "models/Org";
 import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -121,8 +121,7 @@ export const OrgPage = ({
           onClick={() => setIsConfig(true)}
           mb={2}
         >
-          Paramètres {org.orgType === OrgTypes.ASSO ? "de l'" : "du "}
-          {OrgTypesV[org.orgType].toLowerCase()}
+          Paramètres {orgTypeFull(org.orgType)}
         </Button>
       ) : isConfig ? (
         <IconButton

@@ -1,18 +1,10 @@
 import type { Document } from "mongoose";
 import type { IOrg } from "models/Org";
-import {
-  IOrgSubscription,
-  ISubscription,
-  SubscriptionTypes
-} from "models/Subscription";
+import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
-import {
-  createServerError,
-  databaseErrorCodes,
-  duplicateError
-} from "utils/errors";
+import { createServerError, databaseErrorCodes } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -26,23 +18,24 @@ handler.post<NextApiRequest, NextApiResponse>(async function postSubscription(
   const session = await getSession({ req });
 
   try {
-    let userId = session?.user.userId;
-    let email;
+    const selector: { user?: string; email?: string } = {
+      user: session?.user.userId
+    };
 
     if (req.body.email) {
       const user = await models.User.findOne({ email: req.body.email });
 
       if (user) {
-        userId = user._id;
+        selector.user = user._id;
       } else {
-        email = req.body.email;
+        selector.email = req.body.email;
       }
-    }
+    } else if (req.body.user) {
+      const user = await models.User.findOne({ _id: req.body.user._id });
 
-    let selector: { user?: string; email?: string } = { user: userId };
-
-    if (email) {
-      selector = { email };
+      if (user) {
+        selector.user = user._id;
+      }
     }
 
     let userSubscription: Document & ISubscription =
@@ -68,7 +61,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postSubscription(
           }
         );
       }
-      // user/email got a subscription (TODO: move to PUT?)
+      // user/email got a subscription
       else {
         for (const newOrgSubscription of orgs) {
           const org: Document & IOrg = await models.Org.findOne({
@@ -77,28 +70,31 @@ handler.post<NextApiRequest, NextApiResponse>(async function postSubscription(
 
           if (!org) continue;
 
-          let found;
-          let both = false;
+          let isFollower = false;
+          let isSub = false;
 
           for (const orgSubscription of userSubscription.orgs) {
             if (org._id.equals(orgSubscription.org._id)) {
-              if (orgSubscription.type === SubscriptionTypes.BOTH) both = true;
-              else found = orgSubscription;
+              if (orgSubscription.type === SubscriptionTypes.FOLLOWER) {
+                isFollower = true;
+              } else if (
+                orgSubscription.type === SubscriptionTypes.SUBSCRIBER
+              ) {
+                isSub = true;
+              }
               break;
             }
           }
 
-          if (both) continue;
+          if (isFollower && isSub) continue;
 
-          if (found) found.type = SubscriptionTypes.BOTH;
-          else {
-            userSubscription.orgs.push(newOrgSubscription);
+          // if (!isFollower && !isSub)
+          //   await models.Org.updateOne(
+          //     { _id: org._id },
+          //     { $push: { orgSubscriptions: userSubscription } }
+          //   );
 
-            await models.Org.updateOne(
-              { _id: org._id },
-              { $push: { orgSubscriptions: userSubscription } }
-            );
-          }
+          userSubscription.orgs.push(newOrgSubscription);
         }
 
         await userSubscription.save();

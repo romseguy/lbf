@@ -32,6 +32,11 @@ export const OrgTypesV: { [key: string]: string } = {
   GROUP: "Groupe"
 };
 
+export const orgTypeFull = (orgType: string) =>
+  `${orgType === OrgTypes.ASSO ? "de l'" : "du "}${OrgTypesV[
+    orgType
+  ].toLowerCase()}`;
+
 export const OrgSchema = new Schema<IOrg>(
   {
     orgName: {

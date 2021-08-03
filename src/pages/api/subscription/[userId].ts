@@ -105,34 +105,78 @@ handler.delete(async function removeSubscription(req, res) {
       _id: subscriptionId
     });
 
-    // if (!subscription) {
-    //   res
-    //     .status(400)
-    //     .json(
-    //       createServerError(
-    //         new Error(`L'abonnement n'a pas pu être trouvé`)
-    //       )
-    //     );
-    // }
+    if (subscription) {
+      if (!req.body.orgs) {
+        const { deletedCount } = await models.Subscription.deleteOne({
+          _id: subscriptionId
+        });
 
-    subscription.orgs = subscription.orgs.filter(
-      (orgSubscription: IOrgSubscription) => {
-        return orgSubscription.orgId.toString() !== req.body.orgs[0].orgId;
+        const org = await models.Org.findOne({
+          _id: req.body.orgId
+        });
+
+        if (org) {
+          org.orgSubscriptions = org.orgSubscriptions.filter(
+            (subscription: ISubscription) => {
+              return subscription._id.toString() !== subscriptionId;
+            }
+          );
+          await org.save();
+        }
+
+        if (deletedCount === 1) {
+          res.status(200).json(subscription);
+        } else {
+          res
+            .status(400)
+            .json(
+              createServerError(
+                new Error(
+                  `Les abonnements de ${
+                    subscription.email || subscription.user?.email
+                  } n'ont pas pu être supprimés`
+                )
+              )
+            );
+        }
+      } else {
+        const { orgId, type } = req.body.orgs[0];
+        subscription.orgs = subscription.orgs.filter(
+          (orgSubscription: IOrgSubscription) => {
+            let allow = true;
+
+            if (orgSubscription.orgId.toString() === orgId) {
+              if (orgSubscription.type === type) {
+                allow = false;
+              }
+            }
+
+            return allow;
+          }
+        );
+        await subscription.save();
+
+        // if (!subscription.orgs.length) {
+        //   const org = await models.Org.findOne({
+        //     _id: req.body.orgs[0].orgId
+        //   });
+        //   org.orgSubscriptions = org.orgSubscriptions.filter(
+        //     (subscription: ISubscription) => {
+        //       return subscription._id.toString() !== subscriptionId;
+        //     }
+        //   );
+        //   await org.save();
+        // }
+
+        res.status(200).json(subscription);
       }
-    );
-    await subscription.save();
-
-    const org = await models.Org.findOne({
-      _id: req.body.orgs[0].orgId
-    });
-    org.orgSubscriptions = org.orgSubscriptions.filter(
-      (subscription: ISubscription) => {
-        return subscription._id.toString() !== subscriptionId;
-      }
-    );
-    await org.save();
-
-    res.status(200).json(subscription);
+    } else {
+      res
+        .status(404)
+        .json(
+          createServerError(new Error(`L'abonnement n'a pas pu être trouvé`))
+        );
+    }
   } catch (error) {
     res.status(500).json(createServerError(error));
   }

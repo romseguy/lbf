@@ -217,8 +217,7 @@ export const EmailSubscriptionsPopover = ({
                   <ListItem mb={1} key={index}>
                     <ListIcon
                       as={
-                        orgSubscription.type === SubscriptionTypes.SUBSCRIBER ||
-                        orgSubscription.type === SubscriptionTypes.BOTH
+                        orgSubscription.type === SubscriptionTypes.SUBSCRIBER
                           ? IoIosPerson
                           : EmailIcon
                       }
@@ -248,22 +247,28 @@ export const EmailSubscriptionsPopover = ({
                         height="auto"
                         ml={3}
                         onClick={async () => {
-                          await deleteSubscription({
-                            subscriptionId: mySubscription._id,
-                            payload: {
-                              orgs: [orgSubscription]
-                            }
-                          });
+                          const unsubscribe = confirm(
+                            `Êtes vous sûr de vouloir vous désabonner de ${orgSubscription.org.orgName} ?`
+                          );
 
-                          subQuery.refetch();
-                          // so OrgPage knows
-                          dispatch(subscriptionRefetch());
+                          if (unsubscribe) {
+                            await deleteSubscription({
+                              subscriptionId: mySubscription._id,
+                              payload: {
+                                orgs: [orgSubscription]
+                              }
+                            });
 
-                          toast({
-                            title: `Vous avez été désabonné de ${orgSubscription.org.orgName}`,
-                            status: "success",
-                            isClosable: true
-                          });
+                            subQuery.refetch();
+                            // so OrgPage knows
+                            dispatch(subscriptionRefetch());
+
+                            toast({
+                              title: `Vous avez été désabonné de ${orgSubscription.org.orgName}`,
+                              status: "success",
+                              isClosable: true
+                            });
+                          }
                         }}
                       />
                     </Tooltip>
