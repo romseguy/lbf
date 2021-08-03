@@ -37,7 +37,8 @@ export const OrgEventHeader = ({
           }}
         />
       )}
-      <Grid templateColumns="1fr auto" alignItems="center">
+      {/* <Grid templateColumns="1fr auto" alignItems="center"> */}
+      <Grid templateColumns="auto 1fr" alignItems="center">
         <GridItem
           css={css`
             @media (max-width: 730px) {
@@ -48,14 +49,14 @@ export const OrgEventHeader = ({
             }
           `}
         >
-          <Heading size="sm">Événements</Heading>
+          {/* <Heading size="sm">Événements</Heading> */}
         </GridItem>
         <GridItem
           css={css`
+            padding-bottom: 12px;
             @media (max-width: 730px) {
               & {
                 grid-column: 1;
-                padding-bottom: 12px;
               }
             }
           `}
@@ -70,7 +71,6 @@ export const OrgEventHeader = ({
                 else if (isCreator) setIsEventModalOpen(true);
               }
             }}
-            m={1}
             // dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
           >
             Ajouter un événement

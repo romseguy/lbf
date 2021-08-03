@@ -23,7 +23,6 @@ export const EventsPage = (props: { events?: IEvent[] }) => {
 
   const [isLogin, setIsLogin] = useState(0);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
-  const eventBg = useColorModeValue("blue.100", "blue.800");
 
   return (
     <Layout pageTitle="Votre Agenda Local" isLogin={isLogin}>
@@ -59,7 +58,7 @@ export const EventsPage = (props: { events?: IEvent[] }) => {
       </Box>
 
       {Array.isArray(events) && events.length > 0 ? (
-        <EventsList events={events} eventBg={eventBg} />
+        <EventsList events={events} />
       ) : null}
     </Layout>
   );

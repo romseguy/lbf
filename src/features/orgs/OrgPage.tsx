@@ -10,12 +10,20 @@ import {
   useColorModeValue,
   Grid,
   IconButton,
-  useToast
+  useToast,
+  TabPanels,
+  TabPanel
 } from "@chakra-ui/react";
 import { useSession } from "hooks/useAuth";
 import { Layout } from "features/layout";
 import { useGetOrgByNameQuery } from "features/orgs/orgsApi";
-import { Button, GridHeader, GridItem, Link } from "features/common";
+import {
+  Button,
+  GridHeader,
+  GridItem,
+  IconFooter,
+  Link
+} from "features/common";
 import { AddIcon, ChevronLeftIcon, SettingsIcon } from "@chakra-ui/icons";
 import tw, { css } from "twin.macro";
 import { format, parseISO } from "date-fns";
@@ -35,6 +43,7 @@ import {
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { selectOrgRefetch } from "./orgSlice";
+import { OrgPageTabs } from "./OrgPageTabs";
 
 export type Visibility = {
   isVisible: {
@@ -97,7 +106,6 @@ export const OrgPage = ({
   });
 
   const toast = useToast({ position: "top" });
-  const eventBg = useColorModeValue("blue.100", "blue.800");
 
   return (
     <Layout pageTitle={org.orgName} isLogin={isLogin} banner={org.orgBanner}>
@@ -177,158 +185,139 @@ export const OrgPage = ({
       </Box>
 
       {!isConfig && (
-        <Grid
-          templateColumns={`${
-            // session ? "minmax(325px, 1fr) minmax(325px, 1fr)" : "1fr"
-            "1fr"
-          }`}
-          gridGap={5}
-          css={css`
-            @media (max-width: 730px) {
-              & {
-                grid-template-columns: 1fr;
-              }
-            }
-          `}
-        >
-          <GridItem>
-            <Grid templateRows="auto 1fr">
-              <GridHeader borderTopRadius="lg" alignItems="center">
-                <Heading size="sm" py={3}>
-                  Description{" "}
-                  {org.orgType === OrgTypes.ASSO
-                    ? "de l'association"
-                    : "du groupe"}
-                </Heading>
-              </GridHeader>
+        <OrgPageTabs>
+          <TabPanels>
+            <TabPanel>
+              <>
+                <Grid templateRows="auto 1fr">
+                  <GridHeader borderTopRadius="lg" alignItems="center">
+                    <Heading size="sm" py={3}>
+                      Description{" "}
+                      {org.orgType === OrgTypes.ASSO
+                        ? "de l'association"
+                        : "du groupe"}
+                    </Heading>
+                  </GridHeader>
 
-              <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
-                <Box p={5}>
-                  {org.orgDescription ? (
-                    parse(org.orgDescription)
-                  ) : isCreator ? (
-                    <Link
-                      onClick={() => {
-                        setIsEdit(true);
-                        setIsConfig(true);
-                      }}
-                      variant="underline"
-                    >
-                      Cliquez ici pour ajouter la description.
-                    </Link>
-                  ) : (
-                    <Text fontStyle="italic">Aucune description.</Text>
-                  )}
-                </Box>
-              </GridItem>
-            </Grid>
-          </GridItem>
-
-          <GridItem
-            css={css`
-              @media (max-width: 730px) {
-                & {
-                  grid-column: 1;
-                }
-              }
-            `}
-          >
-            <GridHeader
-              borderTopRadius="lg"
-              alignItems="center"
-              onClick={() => {}}
-            >
-              <Grid templateColumns="1fr auto" alignItems="center">
-                <GridItem
-                  css={css`
-                    @media (max-width: 730px) {
-                      & {
-                        padding-top: 12px;
-                        padding-bottom: 12px;
-                      }
-                    }
-                  `}
-                >
-                  <Heading size="sm">Discussions</Heading>
-                </GridItem>
-                <GridItem
-                  css={css`
-                    @media (max-width: 730px) {
-                      & {
-                        grid-column: 1;
-                        padding-bottom: 12px;
-                      }
-                    }
-                  `}
-                >
-                  <Button
-                    colorScheme="teal"
-                    leftIcon={<AddIcon />}
-                    onClick={() => {
-                      if (!isSessionLoading) {
-                        if (session) {
-                          setIsTopicModalOpen(true);
-                        } else {
-                          setIsLogin(isLogin + 1);
-                        }
-                      }
-                    }}
-                    m={1}
+                  <GridItem
+                    light={{ bg: "orange.100" }}
+                    dark={{ bg: "gray.500" }}
                   >
-                    Ajouter un sujet de discussion
-                  </Button>
+                    <Box p={5}>
+                      {org.orgDescription ? (
+                        parse(org.orgDescription)
+                      ) : isCreator ? (
+                        <Link
+                          onClick={() => {
+                            setIsEdit(true);
+                            setIsConfig(true);
+                          }}
+                          variant="underline"
+                        >
+                          Cliquez ici pour ajouter la description.
+                        </Link>
+                      ) : (
+                        <Text fontStyle="italic">Aucune description.</Text>
+                      )}
+                    </Box>
+                  </GridItem>
+                </Grid>
+                <IconFooter />
+              </>
+            </TabPanel>
+            <TabPanel>
+              {Array.isArray(org.orgEvents) && org.orgEvents.length > 0 ? (
+                <EventsList
+                  eventHeader={
+                    <OrgEventHeader
+                      org={org}
+                      isCreator={isCreator}
+                      isLogin={isLogin}
+                      setIsLogin={setIsLogin}
+                    />
+                  }
+                  events={org.orgEvents || []}
+                />
+              ) : (
+                <OrgEventHeader
+                  org={org}
+                  isCreator={isCreator}
+                  isLogin={isLogin}
+                  setIsLogin={setIsLogin}
+                />
+              )}
+            </TabPanel>
+            <TabPanel>
+              <Grid>
+                <GridHeader
+                  alignItems="center"
+                  borderTopRadius="lg"
+                  light={{}}
+                  dark={{}}
+                  pl={0}
+                  onClick={() => {}}
+                >
+                  {/* <Grid templateColumns="1fr auto" alignItems="center"> */}
+                  <Grid templateColumns="auto 1fr" alignItems="center">
+                    <GridItem
+                      css={css`
+                        @media (max-width: 730px) {
+                          & {
+                            padding-top: 12px;
+                            padding-bottom: 12px;
+                          }
+                        }
+                      `}
+                    >
+                      {/* <Heading size="sm">Discussions</Heading> */}
+                    </GridItem>
+                    <GridItem
+                      css={css`
+                        @media (max-width: 730px) {
+                          & {
+                            grid-column: 1;
+                            padding-bottom: 12px;
+                          }
+                        }
+                      `}
+                    >
+                      <Button
+                        colorScheme="teal"
+                        leftIcon={<AddIcon />}
+                        onClick={() => {
+                          if (!isSessionLoading) {
+                            if (session) {
+                              setIsTopicModalOpen(true);
+                            } else {
+                              setIsLogin(isLogin + 1);
+                            }
+                          }
+                        }}
+                      >
+                        Ajouter un sujet de discussion
+                      </Button>
+                    </GridItem>
+                  </Grid>
+                </GridHeader>
+
+                <GridItem
+                  // light={{ bg: "orange.100" }}
+                  // dark={{ bg: "gray.500" }}
+                  mt={3}
+                >
+                  <TopicsList
+                    org={org}
+                    query={orgQuery}
+                    isCreator={isCreator}
+                    isFollowed={isFollowed}
+                    isSubscribed={isSubscribed}
+                    onLoginClick={() => setIsLogin(isLogin + 1)}
+                  />
                 </GridItem>
               </Grid>
-            </GridHeader>
-
-            <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
-              <TopicsList
-                org={org}
-                query={orgQuery}
-                isCreator={isCreator}
-                isFollowed={isFollowed}
-                isSubscribed={isSubscribed}
-                onLoginClick={() => setIsLogin(isLogin + 1)}
-              />
-            </GridItem>
-          </GridItem>
-
-          <GridItem
-            css={css`
-              @media (max-width: 730px) {
-                & {
-                  grid-column: 1;
-                }
-              }
-            `}
-          >
-            {Array.isArray(org.orgEvents) && org.orgEvents.length > 0 ? (
-              <EventsList
-                eventHeader={
-                  <OrgEventHeader
-                    org={org}
-                    isCreator={isCreator}
-                    isLogin={isLogin}
-                    setIsLogin={setIsLogin}
-                  />
-                }
-                events={org.orgEvents}
-                eventBg={eventBg}
-              />
-            ) : (
-              <GridHeader borderTopRadius="lg" alignItems="center">
-                {
-                  <OrgEventHeader
-                    org={org}
-                    isCreator={isCreator}
-                    isLogin={isLogin}
-                    setIsLogin={setIsLogin}
-                  />
-                }
-              </GridHeader>
-            )}
-          </GridItem>
-        </Grid>
+            </TabPanel>
+          </TabPanels>
+        </OrgPageTabs>
       )}
 
       {isConfig && (

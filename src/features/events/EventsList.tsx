@@ -1,7 +1,13 @@
 import React, { useMemo, useState } from "react";
 import parse from "html-react-parser";
 import { Flex, Box, Icon, Text, Image, Grid, Heading } from "@chakra-ui/react";
-import { Link, GridHeader, GridItem, Spacer } from "features/common";
+import {
+  Link,
+  GridHeader,
+  GridItem,
+  Spacer,
+  IconFooter
+} from "features/common";
 import {
   compareAsc,
   format,
@@ -21,14 +27,6 @@ import { UpDownIcon } from "@chakra-ui/icons";
 import { resetTime } from "utils/resetTime";
 import { css } from "twin.macro";
 import { DescriptionModal } from "features/modals/DescriptionModal";
-
-const Footer = () => {
-  return (
-    <Box p={3} borderBottomRadius="lg" align="center">
-      <Image src="/favicon-32x32.png" />
-    </Box>
-  );
-};
 
 const addRepeatedEvents = (events: IEvent[]) => {
   let array: IEvent[] = [];
@@ -63,7 +61,6 @@ const addRepeatedEvents = (events: IEvent[]) => {
 
 type EventsProps = {
   events: IEvent[];
-  eventBg: string;
   eventHeader?: any;
 };
 
@@ -192,7 +189,7 @@ export const EventsList = (props: EventsProps) => {
             </GridItem>
           </Grid>
 
-          {index === repeatedEvents.length - 1 && <Footer />}
+          {index === repeatedEvents.length - 1 && <IconFooter />}
 
           <DescriptionModal
             defaultIsOpen={false}

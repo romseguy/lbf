@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/icons";
 import { Box } from "@chakra-ui/layout";
 import { GridProps, Spinner, Tooltip, useColorMode } from "@chakra-ui/react";
-import { Grid, GridItem, Spacer } from "features/common";
+import { Grid, GridItem, IconFooter, Spacer } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { TopicMessagesList } from "./TopicMessagesList";
 
@@ -52,7 +52,7 @@ export const TopicsList = ({
       <GridItem>
         {entity && topicsCount > 0 ? (
           <>
-            <Spacer borderWidth={1} />
+            {/* <Spacer borderWidth={1} /> */}
             {entityTopics
               .filter((entityTopic) => {
                 let allow = false;
@@ -92,10 +92,16 @@ export const TopicsList = ({
                       templateColumns="auto 1fr auto"
                       cursor="pointer"
                       light={{
+                        borderTopRadius: topicIndex === 0 ? "lg" : undefined,
+                        borderBottomRadius:
+                          topicIndex === topicsCount - 1 ? "lg" : undefined,
                         bg: topicIndex % 2 === 0 ? "orange.100" : "orange.300",
                         _hover: { textDecoration: "underline" }
                       }}
                       dark={{
+                        borderTopRadius: topicIndex === 0 ? "lg" : undefined,
+                        borderBottomRadius:
+                          topicIndex === topicsCount - 1 ? "lg" : undefined,
                         bg: topicIndex % 2 === 0 ? "gray.500" : "gray.600",
                         _hover: { textDecoration: "underline" }
                       }}
@@ -140,7 +146,7 @@ export const TopicsList = ({
                       </GridItem>
                     </Grid>
 
-                    <Spacer borderWidth={1} />
+                    {/* <Spacer borderWidth={1} /> */}
 
                     {isCurrent && (
                       <>
@@ -155,7 +161,8 @@ export const TopicsList = ({
 
                         <GridItem
                           light={{ bg: "white" }}
-                          dark={{ bg: "gray.800" }}
+                          dark={{ bg: "gray.700" }}
+                          pb={3}
                         >
                           {/* <Text p={3}>Écrivez une réponse ci-dessous :</Text> */}
                           <TopicMessageForm
@@ -165,15 +172,17 @@ export const TopicsList = ({
                             topic={entityTopic}
                             onSubmit={() => query.refetch()}
                           />
-                          {topicIndex !== topicsCount - 1 && (
+                          {/* {topicIndex !== topicsCount - 1 && (
                             <Spacer mt={3} borderWidth={1} />
-                          )}
+                          )} */}
                         </GridItem>
                       </>
                     )}
                   </Box>
                 );
               })}
+
+            <IconFooter />
           </>
         ) : query.isLoading ? (
           <Spinner m={3} />

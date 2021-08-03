@@ -207,77 +207,98 @@ export const EmailSubscriptionsPopover = ({
         <>
           {subQuery.isLoading ? (
             <Spinner />
-          ) : mySubscription &&
-            Array.isArray(mySubscription.orgs) &&
-            mySubscription.orgs.length > 0 ? (
-            <>
-              <Heading size="sm">Organisations</Heading>
-              <List py={2}>
-                {mySubscription.orgs.map((orgSubscription, index) => (
-                  <ListItem mb={1} key={index}>
-                    <ListIcon
-                      as={
-                        orgSubscription.type === SubscriptionTypes.SUBSCRIBER
-                          ? IoIosPerson
-                          : EmailIcon
-                      }
-                      color="green.500"
-                    />{" "}
-                    <Link
-                      variant="underline"
-                      onClick={() => {
-                        onOpen();
-                        setCurrentOrgSubscription(orgSubscription);
-                      }}
-                    >
-                      <Tooltip
-                        label="Gérer les préférences de communication"
-                        hasArrow
-                        placement="bottom"
-                      >
-                        {orgSubscription.org.orgName}
-                      </Tooltip>
-                    </Link>
-                    <Tooltip label="Désabonnement" hasArrow placement="right">
-                      <IconButton
-                        aria-label="Désabonnement"
-                        bg="transparent"
-                        _hover={{ bg: "transparent", color: "red" }}
-                        icon={<DeleteIcon />}
-                        height="auto"
-                        ml={3}
-                        onClick={async () => {
-                          const unsubscribe = confirm(
-                            `Êtes vous sûr de vouloir vous désabonner de ${orgSubscription.org.orgName} ?`
-                          );
-
-                          if (unsubscribe) {
-                            await deleteSubscription({
-                              subscriptionId: mySubscription._id,
-                              payload: {
-                                orgs: [orgSubscription]
-                              }
-                            });
-
-                            subQuery.refetch();
-                            // so OrgPage knows
-                            dispatch(subscriptionRefetch());
-
-                            toast({
-                              title: `Vous avez été désabonné de ${orgSubscription.org.orgName}`,
-                              status: "success",
-                              isClosable: true
-                            });
-                          }
-                        }}
-                      />
-                    </Tooltip>
-                  </ListItem>
-                ))}
-              </List>
-            </>
           ) : (
-            <>Aucun abonnement trouvé pour votre compte.</>
+            <>
+              <Heading size="sm">
+                Organisations auxquelles vous êtes abonné(e)
+              </Heading>
+
+              {mySubscription &&
+              Array.isArray(mySubscription.orgs) &&
+              mySubscription.orgs.length > 0 ? (
+                <List ml={3} my={3}>
+                  {mySubscription.orgs
+                    .filter(
+                      (orgSubscription) =>
+                        orgSubscription.type === SubscriptionTypes.SUBSCRIBER
+                    )
+                    .map((orgSubscription, index) => (
+                      <ListItem mb={1} key={index}>
+                        <ListIcon as={EmailIcon} color="green.500" mr={3} />
+
+                        <Link
+                          variant="underline"
+                          onClick={() => {
+                            onOpen();
+                            setCurrentOrgSubscription(orgSubscription);
+                          }}
+                        >
+                          <Tooltip
+                            label="Gérer les préférences de communication"
+                            hasArrow
+                            placement="bottom"
+                          >
+                            {orgSubscription.org.orgName}
+                          </Tooltip>
+                        </Link>
+
+                        <Tooltip
+                          label="Se désabonner"
+                          hasArrow
+                          placement="right"
+                        >
+                          <IconButton
+                            aria-label="Se désabonner"
+                            bg="transparent"
+                            _hover={{ bg: "transparent", color: "red" }}
+                            icon={<DeleteIcon boxSize={4} />}
+                            height="auto"
+                            minWidth={0}
+                            ml={3}
+                            onClick={async () => {
+                              const unsubscribe = confirm(
+                                `Êtes vous sûr de vouloir vous désabonner de ${orgSubscription.org.orgName} ?`
+                              );
+
+                              if (unsubscribe) {
+                                await deleteSubscription({
+                                  subscriptionId: mySubscription._id,
+                                  payload: {
+                                    orgs: [orgSubscription]
+                                  }
+                                });
+
+                                subQuery.refetch();
+                                // so OrgPage knows
+                                dispatch(subscriptionRefetch());
+
+                                toast({
+                                  title: `Vous avez été désabonné de ${orgSubscription.org.orgName}`,
+                                  status: "success",
+                                  isClosable: true
+                                });
+                              }
+                            }}
+                          />
+                        </Tooltip>
+                      </ListItem>
+                    ))}
+                </List>
+              ) : (
+                <Text fontSize="smaller" ml={3} my={2}>
+                  Vous n'êtes abonné à aucune organisation.
+                </Text>
+              )}
+
+              <Heading size="sm">
+                Événements auxquels vous êtes abonné(e)
+              </Heading>
+              <Text fontSize="smaller" ml={3} my={2}>
+                {mySubscription?.email
+                  ? "Cet e-mail n'est abonnée à aucun événement."
+                  : "Vous n'êtes abonné à aucun événement."}
+              </Text>
+            </>
           )}
         </>
       </PopoverBody>
