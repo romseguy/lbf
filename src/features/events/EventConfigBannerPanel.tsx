@@ -8,7 +8,9 @@ import {
   FormLabel,
   FormControl,
   Stack,
-  FormErrorMessage
+  FormErrorMessage,
+  Alert,
+  AlertIcon
 } from "@chakra-ui/react";
 import { useEditEventMutation } from "features/events/eventsApi";
 import {
@@ -112,12 +114,10 @@ export const EventConfigBannerPanel = ({
                 errors={errors}
                 name="formErrorMessage"
                 render={({ message }) => (
-                  <Stack isInline p={5} mb={5} shadow="md" color="red.500">
-                    <WarningIcon boxSize={5} />
-                    <Box>
-                      <ErrorMessageText>{message}</ErrorMessageText>
-                    </Box>
-                  </Stack>
+                  <Alert status="error" mb={3}>
+                    <AlertIcon />
+                    <ErrorMessageText>{message}</ErrorMessageText>
+                  </Alert>
                 )}
               />
 

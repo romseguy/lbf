@@ -11,7 +11,9 @@ import {
   Textarea,
   useToast,
   Flex,
-  useColorMode
+  useColorMode,
+  Alert,
+  AlertIcon
 } from "@chakra-ui/react";
 import { WarningIcon } from "@chakra-ui/icons";
 import {
@@ -95,12 +97,10 @@ export const OrgForm = (props: OrgFormProps) => {
         errors={errors}
         name="formErrorMessage"
         render={({ message }) => (
-          <Stack isInline p={5} mb={5} shadow="md" color="red.500">
-            <WarningIcon boxSize={5} />
-            <Box>
-              <ErrorMessageText>{message}</ErrorMessageText>
-            </Box>
-          </Stack>
+          <Alert status="error" mb={3}>
+            <AlertIcon />
+            <ErrorMessageText>{message}</ErrorMessageText>
+          </Alert>
         )}
       />
 

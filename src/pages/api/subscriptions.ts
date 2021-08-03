@@ -94,7 +94,12 @@ handler.post<NextApiRequest, NextApiResponse>(async function postSubscription(
           //     { $push: { orgSubscriptions: userSubscription } }
           //   );
 
-          userSubscription.orgs.push(newOrgSubscription);
+          if (
+            (!isFollower &&
+              newOrgSubscription.type === SubscriptionTypes.FOLLOWER) ||
+            (!isSub && newOrgSubscription.type === SubscriptionTypes.SUBSCRIBER)
+          )
+            userSubscription.orgs.push(newOrgSubscription);
         }
 
         await userSubscription.save();

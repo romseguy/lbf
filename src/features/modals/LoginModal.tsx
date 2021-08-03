@@ -23,7 +23,9 @@ import {
   Portal,
   useDisclosure,
   Stack,
-  useToast
+  useToast,
+  Alert,
+  AlertIcon
 } from "@chakra-ui/react";
 import {
   ChevronDownIcon,
@@ -137,12 +139,10 @@ export const LoginModal = (props: {
                 errors={errors}
                 name="formErrorMessage"
                 render={({ message }) => (
-                  <Stack isInline p={5} mb={5} shadow="md" color="red.500">
-                    <WarningIcon boxSize={5} />
-                    <Box>
-                      <ErrorMessageText>{message}</ErrorMessageText>
-                    </Box>
-                  </Stack>
+                  <Alert status="error" mb={3}>
+                    <AlertIcon />
+                    <ErrorMessageText>{message}</ErrorMessageText>
+                  </Alert>
                 )}
               />
 

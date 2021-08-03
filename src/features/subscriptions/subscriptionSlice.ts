@@ -26,26 +26,26 @@ export const isSubscribedBy = (org?: IOrg, subQuery?: any) => {
 };
 
 type SubscriptionState = {
-  subscriptionRefetch: boolean;
+  refetchSubscription: boolean;
 };
 
 const initialState: SubscriptionState = {
-  subscriptionRefetch: false
+  refetchSubscription: false
 };
 
 export const subscriptionSlice = createSlice({
   name: "subscription",
   initialState,
   reducers: {
-    subscriptionRefetch: (state, action: PayloadAction<undefined>) => {
-      state.subscriptionRefetch = !state.subscriptionRefetch;
+    refetchSubscription: (state, action: PayloadAction<undefined>) => {
+      state.refetchSubscription = !state.refetchSubscription;
     }
   }
 });
 
-export const { subscriptionRefetch } = subscriptionSlice.actions;
+export const { refetchSubscription } = subscriptionSlice.actions;
 
 export const selectSubscriptionRefetch = (state: AppState) =>
-  state.subscription.subscriptionRefetch;
+  state.subscription.refetchSubscription;
 
 export default subscriptionSlice.reducer;

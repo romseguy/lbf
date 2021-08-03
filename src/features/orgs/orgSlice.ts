@@ -3,25 +3,25 @@ import type { AppState } from "store";
 import { createSlice } from "@reduxjs/toolkit";
 
 type OrgState = {
-  orgRefetch: boolean;
+  refetchOrg: boolean;
 };
 
 const initialState: OrgState = {
-  orgRefetch: false
+  refetchOrg: false
 };
 
 export const orgSlice = createSlice({
   name: "org",
   initialState,
   reducers: {
-    orgRefetch: (state, action: PayloadAction<undefined>) => {
-      state.orgRefetch = !state.orgRefetch;
+    refetchOrg: (state, action: PayloadAction<undefined>) => {
+      state.refetchOrg = !state.refetchOrg;
     }
   }
 });
 
-export const { orgRefetch } = orgSlice.actions;
+export const { refetchOrg } = orgSlice.actions;
 
-export const selectOrgRefetch = (state: AppState) => state.org.orgRefetch;
+export const selectOrgRefetch = (state: AppState) => state.org.refetchOrg;
 
 export default orgSlice.reducer;

@@ -14,7 +14,11 @@ export const handleError = (
 
   if (error.status === 400 || error.status === 500) {
     if (error.data) {
-      setFieldsErrors(error.data);
+      if (error.data.message) {
+        setError(error.data.message);
+      } else {
+        setFieldsErrors(error.data);
+      }
     } else if (error.message) {
       setError(error.message);
     } else {
@@ -22,7 +26,11 @@ export const handleError = (
     }
   } else {
     if (error.data) {
-      setFieldsErrors(error.data);
+      if (error.data.message) {
+        setError(error.data.message);
+      } else {
+        setFieldsErrors(error.data);
+      }
     } else if (error.message) {
       setError(error.message);
     } else {

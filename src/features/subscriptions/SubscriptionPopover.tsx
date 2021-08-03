@@ -28,6 +28,7 @@ import { SubscriptionTypes } from "models/Subscription";
 import { useAppDispatch } from "store";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSelector } from "react-redux";
+import { refetchSubscription } from "./subscriptionSlice";
 
 export const SubscriptionPopover = ({
   org,
@@ -93,6 +94,7 @@ export const SubscriptionPopover = ({
     }
 
     dispatch(setUserEmail(email));
+    dispatch(refetchSubscription());
     setIsLoading(false);
     setIsOpen(false);
     props.onSubmit && props.onSubmit(true);

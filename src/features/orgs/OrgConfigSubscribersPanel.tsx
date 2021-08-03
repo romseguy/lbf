@@ -287,7 +287,35 @@ export const OrgConfigSubscribersPanel = ({
       {isVisible.subscribers && hasSubscriptions && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Table>
-            <Tbody>
+            <Tbody
+              css={css`
+                @media (max-width: 452px) {
+                  & > tr {
+                    td {
+                      padding: 0;
+                    }
+
+                    td:first-of-type {
+                      padding: 4px 0 4px 4px;
+
+                      & > span:first-of-type {
+                        margin-bottom: 4px;
+                      }
+                    }
+                  }
+                }
+
+                @media (min-width: 453px) and (max-width: 604px) {
+                  & > tr {
+                    td:first-of-type {
+                      & > span:first-of-type {
+                        margin-bottom: 4px;
+                      }
+                    }
+                  }
+                }
+              `}
+            >
               {org.orgSubscriptions
                 // .filter(
                 //   ({ orgs = [] }) =>

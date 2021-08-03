@@ -144,8 +144,8 @@ handler.put<NextApiRequest, NextApiResponse>(async function editEvent(
         const org = await models.Org.findOne({ orgName: eventOrg.orgName });
 
         if (org.orgEvents.indexOf(event._id) === -1) {
-          await models.Org.updateMany(
-            { _id: body.eventOrgs },
+          await models.Org.updateOne(
+            { _id: org._id },
             {
               $push: {
                 orgEvents: event._id

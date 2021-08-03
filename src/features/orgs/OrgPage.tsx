@@ -7,7 +7,6 @@ import {
   Box,
   Text,
   Heading,
-  useColorModeValue,
   Grid,
   IconButton,
   useToast,
@@ -70,12 +69,12 @@ export const OrgPage = ({
   const { data: session, loading: isSessionLoading } = useSession();
 
   const orgQuery = useGetOrgByNameQuery(routeName);
-  const orgRefetch = useSelector(selectOrgRefetch);
+  const refetchOrg = useSelector(selectOrgRefetch);
   useEffect(() => {
     console.log("refetching org");
     orgQuery.refetch();
     setIsEdit(false);
-  }, [router.asPath, orgRefetch]);
+  }, [router.asPath, refetchOrg]);
   const org = orgQuery.data || props.org;
 
   const isCreator = session?.user.userId === org.createdBy._id;
@@ -247,12 +246,15 @@ export const OrgPage = ({
                   <IconFooter />
                 </>
               ) : (
-                <OrgEventHeader
-                  org={org}
-                  isCreator={isCreator}
-                  isLogin={isLogin}
-                  setIsLogin={setIsLogin}
-                />
+                <>
+                  <OrgEventHeader
+                    org={org}
+                    isCreator={isCreator}
+                    isLogin={isLogin}
+                    setIsLogin={setIsLogin}
+                  />
+                  <IconFooter />
+                </>
               )}
             </TabPanel>
             <TabPanel>

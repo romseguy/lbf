@@ -25,7 +25,7 @@ import { useEffect } from "react";
 import { breakpoints } from "theme/theme";
 import { useAppDispatch } from "store";
 import { setUserEmail } from "features/users/userSlice";
-import { subscriptionRefetch } from "features/subscriptions/subscriptionSlice";
+import { refetchSubscription } from "features/subscriptions/subscriptionSlice";
 
 const linkList = css`
   & > a {

@@ -13,7 +13,9 @@ import {
   FormErrorMessage,
   Select,
   Textarea,
-  useToast
+  useToast,
+  Alert,
+  AlertIcon
 } from "@chakra-ui/react";
 import { WarningIcon } from "@chakra-ui/icons";
 import { EmailControl, ErrorMessageText } from "features/common";
@@ -79,12 +81,10 @@ export const UserForm = (props: {
         errors={errors}
         name="formErrorMessage"
         render={({ message }) => (
-          <Stack isInline p={5} mb={5} shadow="md" color="red.500">
-            <WarningIcon boxSize={5} />
-            <Box>
-              <ErrorMessageText>{message}</ErrorMessageText>
-            </Box>
-          </Stack>
+          <Alert status="error" mb={3}>
+            <AlertIcon />
+            <ErrorMessageText>{message}</ErrorMessageText>
+          </Alert>
         )}
       />
 

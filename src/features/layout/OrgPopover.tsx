@@ -78,6 +78,7 @@ export const OrgPopover = ({ boxSize, ...props }: BoxProps) => {
             onClick={() => {
               if (!isOpen) {
                 query.refetch();
+                subQuery.refetch();
               }
               setIsOpen(!isOpen);
             }}
@@ -101,78 +102,78 @@ export const OrgPopover = ({ boxSize, ...props }: BoxProps) => {
           </PopoverHeader>
           <PopoverCloseButton />
           <PopoverBody>
-            {query.isLoading ? (
-              <Spinner />
-            ) : (
-              <>
-                {hasOrgs && (
-                  <>
-                    <Heading size="sm" mb={1}>
-                      ...ajoutées par moi-même :
-                    </Heading>
-                    <List ml={3}>
-                      {myOrgs.map((org, index) => (
-                        <ListItem
-                          display="flex"
-                          alignItems="center"
-                          mb={1}
-                          key={index}
-                        >
-                          <ListIcon
-                            boxSize={6}
-                            as={IoIosPeople}
-                            color="green.500"
-                          />{" "}
-                          <Link
-                            onClick={() => {
-                              setIsOpen(false);
-                            }}
-                            href={`/${encodeURIComponent(org.orgName)}`}
-                          >
-                            {org.orgName}
-                          </Link>
-                        </ListItem>
-                      ))}
-                    </List>
-                  </>
-                )}
-
-                <Heading size="sm" mt={hasOrgs ? 2 : 0} mb={1}>
-                  ...où je suis adhérent(e)
-                </Heading>
-                {hasSubscribedOrgs ? (
-                  <List ml={3} my={3}>
-                    {subscribedOrgs.map((org, index) => (
-                      <ListItem
-                        display="flex"
-                        alignItems="center"
-                        mb={1}
-                        key={index}
+            <>
+              <Heading size="sm" mb={1}>
+                ...où je suis administrateur :
+              </Heading>
+              {query.isLoading ? (
+                <Spinner />
+              ) : hasOrgs ? (
+                <List ml={3}>
+                  {myOrgs.map((org, index) => (
+                    <ListItem
+                      display="flex"
+                      alignItems="center"
+                      mb={1}
+                      key={index}
+                    >
+                      <ListIcon
+                        boxSize={6}
+                        as={IoIosPeople}
+                        color="green.500"
+                      />{" "}
+                      <Link
+                        onClick={() => {
+                          setIsOpen(false);
+                        }}
+                        href={`/${encodeURIComponent(org.orgName)}`}
                       >
-                        <ListIcon
-                          boxSize={6}
-                          as={IoIosPerson}
-                          color="green.500"
-                        />{" "}
-                        <Link
-                          onClick={() => {
-                            setIsOpen(false);
-                          }}
-                          href={`/${encodeURIComponent(org.orgName)}`}
-                        >
-                          {org.orgName}
-                        </Link>
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Text fontSize="smaller" ml={3} my={2}>
-                    Personne ne vous a inscrit(e) en tant qu'adhérent, bientôt
-                    peut-être ?
-                  </Text>
-                )}
-              </>
-            )}
+                        {org.orgName}
+                      </Link>
+                    </ListItem>
+                  ))}
+                </List>
+              ) : (
+                <Text fontSize="smaller" ml={3} my={2}>
+                  Vous n'avez ajouté aucune organisation.
+                </Text>
+              )}
+
+              <Heading size="sm" mt={hasOrgs ? 2 : 0} mb={1}>
+                ...où je suis adhérent(e) :
+              </Heading>
+              {hasSubscribedOrgs ? (
+                <List ml={3} my={3}>
+                  {subscribedOrgs.map((org, index) => (
+                    <ListItem
+                      display="flex"
+                      alignItems="center"
+                      mb={1}
+                      key={index}
+                    >
+                      <ListIcon
+                        boxSize={6}
+                        as={IoIosPerson}
+                        color="green.500"
+                      />{" "}
+                      <Link
+                        onClick={() => {
+                          setIsOpen(false);
+                        }}
+                        href={`/${encodeURIComponent(org.orgName)}`}
+                      >
+                        {org.orgName}
+                      </Link>
+                    </ListItem>
+                  ))}
+                </List>
+              ) : (
+                <Text fontSize="smaller" ml={3} my={2}>
+                  Personne ne vous a inscrit(e) en tant qu'adhérent, bientôt
+                  peut-être ?
+                </Text>
+              )}
+            </>
             <Button
               onClick={onOpen}
               leftIcon={<AddIcon />}
