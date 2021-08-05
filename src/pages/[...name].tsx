@@ -4,7 +4,7 @@ import type { IUser } from "models/User";
 import type { IOrg } from "models/Org";
 import api from "utils/api";
 import { GetServerSidePropsContext } from "next";
-import { Event } from "features/events/EventPage";
+import { EventPage } from "features/events/EventPage";
 import { Layout } from "features/layout";
 import { OrgPage } from "features/orgs/OrgPage";
 import { User } from "features/users/UserPage";
@@ -30,7 +30,7 @@ const Hash = ({
   }
 
   if (event) {
-    return <Event event={event} user={user} routeName={routeName} />;
+    return <EventPage event={event} user={user} routeName={routeName} />;
   }
 
   if (org) {

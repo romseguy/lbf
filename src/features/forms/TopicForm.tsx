@@ -31,6 +31,9 @@ interface TopicFormProps extends ChakraProps {
   org?: IOrg;
   event?: IEvent;
   topic?: ITopic;
+  isCreator?: boolean;
+  isFollowed?: boolean;
+  isSubscribed?: boolean;
   onClose?: () => void;
   onCancel?: () => void;
   onSubmit?: (topicName: string) => void;
@@ -43,6 +46,15 @@ export const TopicForm = (props: TopicFormProps) => {
   const [addEventDetails, addEventDetailsMutation] =
     useAddEventDetailsMutation();
   const toast = useToast({ position: "top" });
+  const visibilityOptions = [Visibility.PUBLIC];
+
+  if (props.isSubscribed) {
+    visibilityOptions.push(Visibility.SUBSCRIBERS);
+  }
+
+  if (props.isCreator) {
+    visibilityOptions.push(Visibility.FOLLOWERS);
+  }
 
   const {
     control,
@@ -186,7 +198,7 @@ export const TopicForm = (props: TopicFormProps) => {
           placeholder="Sélectionnez la visibilité du sujet de discussion..."
           color="gray.400"
         >
-          {Object.keys(Visibility).map((key) => {
+          {visibilityOptions.map((key) => {
             return (
               <option key={key} value={key}>
                 {VisibilityV[key]}

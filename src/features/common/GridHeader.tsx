@@ -1,15 +1,11 @@
 import React from "react";
 import {
-  Text,
   BorderProps,
   BoxProps,
-  GridItem,
   SpacerProps,
-  Heading,
-  Box,
-  GridItemProps,
-  useColorModeValue
+  GridItemProps
 } from "@chakra-ui/react";
+import { GridItem } from "./GridItem";
 
 export const GridHeader = ({
   children,
@@ -25,10 +21,8 @@ export const GridHeader = ({
     light?: { [key: string]: string };
     dark?: { [key: string]: string };
   }) => {
-  const styles = useColorModeValue(light, dark);
-
   return (
-    <GridItem pl={pl} {...styles} {...props}>
+    <GridItem light={light} dark={dark} pl={pl} {...props}>
       {children}
     </GridItem>
   );

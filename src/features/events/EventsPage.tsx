@@ -10,7 +10,15 @@ import { useSession } from "hooks/useAuth";
 import { useGetEventsQuery } from "./eventsApi";
 import { EventsList } from "./EventsList";
 
-export const EventsPage = (props: { events?: IEvent[] }) => {
+export const EventsPage = ({
+  isLogin,
+  setIsLogin,
+  ...props
+}: {
+  events?: IEvent[];
+  isLogin: number;
+  setIsLogin: (isLogin: number) => void;
+}) => {
   const router = useRouter();
   const query = useGetEventsQuery();
   useEffect(() => {
@@ -21,15 +29,15 @@ export const EventsPage = (props: { events?: IEvent[] }) => {
 
   const { data: session, loading: isSessionLoading } = useSession();
 
-  const [isLogin, setIsLogin] = useState(0);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
 
   return (
-    <Layout pageTitle="Votre Agenda Local" isLogin={isLogin}>
-      <Box>
+    <>
+      <>
         <Button
           colorScheme="teal"
           leftIcon={<AddIcon />}
+          mb={5}
           onClick={() => {
             if (!isSessionLoading) {
               if (session) {
@@ -39,8 +47,6 @@ export const EventsPage = (props: { events?: IEvent[] }) => {
               }
             }
           }}
-          mb={5}
-          // dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
           data-cy="addEvent"
         >
           Ajouter un événement
@@ -55,14 +61,14 @@ export const EventsPage = (props: { events?: IEvent[] }) => {
             onClose={() => setIsEventModalOpen(false)}
           />
         )}
-      </Box>
+      </>
 
       {Array.isArray(events) && events.length > 0 ? (
-        <>
+        <div>
           <EventsList events={events} />
           <IconFooter />
-        </>
+        </div>
       ) : null}
-    </Layout>
+    </>
   );
 };

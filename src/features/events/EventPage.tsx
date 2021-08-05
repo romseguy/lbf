@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
+
 import { useRouter } from "next/router";
-import parse from "html-react-parser";
 import {
   Box,
   Text,
@@ -12,7 +12,8 @@ import {
   Tooltip,
   IconButton,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Container
 } from "@chakra-ui/react";
 import type { IEvent } from "models/Event";
 import type { IUser } from "models/User";
@@ -44,6 +45,7 @@ import { TopicsList } from "features/forum/TopicsList";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EventConfigPanel } from "./EventConfigPanel";
+import DOMPurify from "isomorphic-dompurify";
 
 export type Visibility = {
   isVisible: {
@@ -53,7 +55,7 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
-export const Event = (props: {
+export const EventPage = (props: {
   event: IEvent;
   user?: IUser;
   routeName: string;
@@ -181,7 +183,11 @@ export const Event = (props: {
                 <Box className="ql-editor" p={5}>
                   {event.eventDescription &&
                   event.eventDescription.length > 0 ? (
-                    parse(event.eventDescription)
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(event.eventDescription)
+                      }}
+                    />
                   ) : isCreator ? (
                     <Link
                       onClick={() => {
@@ -268,67 +274,28 @@ export const Event = (props: {
               </Grid>
             </GridItem>
 
-            <GridItem
-              colSpan={2}
-              css={css`
-                @media (max-width: 730px) {
-                  & {
-                    grid-column: 1;
-                  }
-                }
-              `}
-            >
-              <GridHeader borderTopRadius="lg" alignItems="center">
-                <Grid templateColumns="1fr auto" alignItems="center">
-                  <GridItem
-                    css={css`
-                      @media (max-width: 730px) {
-                        & {
-                          padding-top: 12px;
-                          padding-bottom: 12px;
-                        }
-                      }
-                    `}
-                  >
-                    <Heading size="sm">Discussions</Heading>
-                  </GridItem>
-                  <GridItem
-                    css={css`
-                      @media (max-width: 730px) {
-                        & {
-                          grid-column: 1;
-                          padding-bottom: 12px;
-                        }
-                      }
-                    `}
-                  >
-                    <Button
-                      colorScheme="teal"
-                      leftIcon={<AddIcon />}
-                      onClick={() => {
-                        if (!isSessionLoading) {
-                          if (session) {
-                            setIsTopicModalOpen(true);
-                          } else {
-                            setIsLogin(isLogin + 1);
-                          }
-                        }
-                      }}
-                      m={1}
-                    >
-                      Ajouter un sujet de discussion
-                    </Button>
-                  </GridItem>
-                </Grid>
-              </GridHeader>
+            <GridItem colSpan={2}>
+              <Grid templateRows="auto 1fr">
+                <GridHeader borderTopRadius="lg" alignItems="center">
+                  <Heading size="sm" py={3}>
+                    Discussions
+                  </Heading>
+                </GridHeader>
 
-              <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
-                <TopicsList
-                  event={event}
-                  query={eventQuery}
-                  onLoginClick={() => setIsLogin(isLogin + 1)}
-                />
-              </GridItem>
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                >
+                  <Box p={5}>
+                    <TopicsList
+                      event={event}
+                      query={eventQuery}
+                      isLogin={isLogin}
+                      setIsLogin={setIsLogin}
+                    />
+                  </Box>
+                </GridItem>
+              </Grid>
             </GridItem>
           </Grid>
           <IconFooter />

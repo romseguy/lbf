@@ -1,5 +1,4 @@
 import React from "react";
-import parse from "html-react-parser";
 import { Box } from "@chakra-ui/layout";
 import { Avatar, AvatarBadge, Flex, Tooltip } from "@chakra-ui/react";
 import { Container, Link, Spacer } from "features/common";
@@ -7,6 +6,7 @@ import { intervalToDuration, format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ITopicMessage } from "models/TopicMessage";
 import { formatDuration } from "utils/date";
+import DOMPurify from "isomorphic-dompurify";
 
 export const TopicMessagesList = ({
   topicMessages
@@ -50,7 +50,11 @@ export const TopicMessagesList = ({
                   {createdBy.userName}
                 </Link>
                 <Box className="ql-editor" p={0} m={0}>
-                  {parse(message)}
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(message)
+                    }}
+                  />
                 </Box>
               </Container>
               <Link pl={3} fontSize="smaller">

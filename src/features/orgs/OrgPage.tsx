@@ -1,8 +1,6 @@
 import { IOrg, orgTypeFull, OrgTypes, OrgTypesV } from "models/Org";
-import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import parse from "html-react-parser";
 import {
   Box,
   Text,
@@ -38,7 +36,6 @@ import { TopicModal } from "features/modals/TopicModal";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import { OrgEventHeader } from "./OrgEventHeader";
 import { selectUserEmail } from "features/users/userSlice";
 import { useSelector } from "react-redux";
 import {
@@ -48,6 +45,8 @@ import {
 } from "features/subscriptions/subscriptionSlice";
 import { selectOrgRefetch } from "./orgSlice";
 import { OrgPageTabs } from "./OrgPageTabs";
+import DOMPurify from "isomorphic-dompurify";
+import { EventModal } from "features/modals/EventModal";
 
 export type Visibility = {
   isVisible: {
@@ -99,7 +98,7 @@ export const OrgPage = ({
     }
   }, [org, subQuery.data]);
 
-  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -113,18 +112,6 @@ export const OrgPage = ({
 
   return (
     <Layout pageTitle={org.orgName} isLogin={isLogin} banner={org.orgBanner}>
-      {isTopicModalOpen && org && (
-        <TopicModal
-          org={org}
-          onCancel={() => setIsTopicModalOpen(false)}
-          onSubmit={async (topicName) => {
-            orgQuery.refetch();
-            setIsTopicModalOpen(false);
-          }}
-          onClose={() => setIsTopicModalOpen(false)}
-        />
-      )}
-
       {isCreator && !isConfig ? (
         <Button
           aria-label="Paramètres"
@@ -209,7 +196,11 @@ export const OrgPage = ({
                   >
                     <Box p={5}>
                       {org.orgDescription ? (
-                        parse(org.orgDescription)
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(org.orgDescription)
+                          }}
+                        />
                       ) : isCreator ? (
                         <Link
                           onClick={() => {
@@ -230,102 +221,51 @@ export const OrgPage = ({
               </>
             </TabPanel>
             <TabPanel>
-              {Array.isArray(org.orgEvents) && org.orgEvents.length > 0 ? (
-                <>
-                  <EventsList
-                    eventHeader={
-                      <OrgEventHeader
-                        org={org}
-                        isCreator={isCreator}
-                        isLogin={isLogin}
-                        setIsLogin={setIsLogin}
-                      />
+              <>
+                <Button
+                  colorScheme="teal"
+                  leftIcon={<AddIcon />}
+                  mb={5}
+                  onClick={() => {
+                    if (!isSessionLoading) {
+                      if (!session) setIsLogin(isLogin + 1);
+                      // TODO: check if user is SUB
+                      else if (isCreator) setIsEventModalOpen(true);
                     }
-                    events={org.orgEvents || []}
+                  }}
+                  data-cy="addEvent"
+                >
+                  Ajouter un événement
+                </Button>
+
+                {isEventModalOpen && (
+                  <EventModal
+                    onCancel={() => setIsEventModalOpen(false)}
+                    onSubmit={async (eventName) => {
+                      await router.push(`/${encodeURIComponent(eventName)}`);
+                    }}
+                    onClose={() => setIsEventModalOpen(false)}
                   />
+                )}
+              </>
+              {Array.isArray(org.orgEvents) && org.orgEvents.length > 0 ? (
+                <div>
+                  <EventsList events={org.orgEvents || []} />
                   <IconFooter />
-                </>
-              ) : (
-                <>
-                  <OrgEventHeader
-                    org={org}
-                    isCreator={isCreator}
-                    isLogin={isLogin}
-                    setIsLogin={setIsLogin}
-                  />
-                  <IconFooter />
-                </>
-              )}
+                </div>
+              ) : null}
             </TabPanel>
             <TabPanel>
               <>
-                <Grid>
-                  <GridHeader
-                    alignItems="center"
-                    borderTopRadius="lg"
-                    light={{}}
-                    dark={{}}
-                    pl={0}
-                    onClick={() => {}}
-                  >
-                    {/* <Grid templateColumns="1fr auto" alignItems="center"> */}
-                    <Grid templateColumns="auto 1fr" alignItems="center">
-                      <GridItem
-                        css={css`
-                          @media (max-width: 730px) {
-                            & {
-                              padding-top: 12px;
-                              padding-bottom: 12px;
-                            }
-                          }
-                        `}
-                      >
-                        {/* <Heading size="sm">Discussions</Heading> */}
-                      </GridItem>
-                      <GridItem
-                        css={css`
-                          @media (max-width: 730px) {
-                            & {
-                              grid-column: 1;
-                              padding-bottom: 12px;
-                            }
-                          }
-                        `}
-                      >
-                        <Button
-                          colorScheme="teal"
-                          leftIcon={<AddIcon />}
-                          onClick={() => {
-                            if (!isSessionLoading) {
-                              if (session) {
-                                setIsTopicModalOpen(true);
-                              } else {
-                                setIsLogin(isLogin + 1);
-                              }
-                            }
-                          }}
-                        >
-                          Ajouter un sujet de discussion
-                        </Button>
-                      </GridItem>
-                    </Grid>
-                  </GridHeader>
-
-                  <GridItem
-                    // light={{ bg: "orange.100" }}
-                    // dark={{ bg: "gray.500" }}
-                    mt={3}
-                  >
-                    <TopicsList
-                      org={org}
-                      query={orgQuery}
-                      isCreator={isCreator}
-                      isFollowed={isFollowed}
-                      isSubscribed={isSubscribed}
-                      onLoginClick={() => setIsLogin(isLogin + 1)}
-                    />
-                  </GridItem>
-                </Grid>
+                <TopicsList
+                  org={org}
+                  query={orgQuery}
+                  isCreator={isCreator}
+                  isFollowed={isFollowed}
+                  isSubscribed={isSubscribed}
+                  isLogin={isLogin}
+                  setIsLogin={setIsLogin}
+                />
                 <IconFooter />
               </>
             </TabPanel>

@@ -1,10 +1,11 @@
-import Quill, { QuillOptionsStatic } from "quill";
+import type Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { useCallback, useEffect, RefObject } from "react";
 import { useQuill } from "react-quilljs";
 import styled from "@emotion/styled";
-import { BoxProps, Tooltip, useColorMode } from "@chakra-ui/react";
+import { Tooltip, useColorMode } from "@chakra-ui/react";
 import { FaHeart } from "react-icons/fa";
+import { getUniqueId } from "utils/string";
 
 const ReactQuillStyles = styled("span")(
   (props: { height?: string; width?: string }) => {
@@ -134,28 +135,67 @@ const ReactQuillStyles = styled("span")(
   }
 );
 
-const defaultToolbar = {
-  container: [
-    ["bold", "italic", "underline", "blockquote"], // toggled buttons
+const CustomToolbar = ({ id }: { id: string }) => {
+  return (
+    <div id={id}>
+      <span className="ql-formats">
+        <select className="ql-size" title="Taille du texte">
+          <option value="small">Petit</option>
+          <option selected />
+          <option value="large">Grand</option>
+          <option value="huge">Très grand</option>
+        </select>
+      </span>
+      <span className="ql-formats">
+        <select className="ql-color" title="Texte en couleur" />
 
-    // [{ header: 1 }, { header: 2 }], // custom button values
-    [{ size: ["small", false, "large", "huge"] }], // custom dropdown
-    [{ list: "ordered" }, { list: "bullet" }],
-    // [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
-
-    [{ color: [] }], // dropdown with defaults from theme
-    [{ align: [] }],
-
-    ["link", "image", "video"],
-
-    ["undo", "redo"],
-
-    ["clean"] // remove formatting button
-  ],
-  handlers: {
-    undo: () => {},
-    redo: () => {}
-  }
+        <Tooltip label="Texte en gras">
+          <button className="ql-bold" />
+        </Tooltip>
+        <Tooltip label="Texte en italique">
+          <button className="ql-italic" />
+        </Tooltip>
+        <Tooltip label="Texte souligné">
+          <button className="ql-underline" />
+        </Tooltip>
+      </span>
+      <span className="ql-formats">
+        <Tooltip label="Citation">
+          <button className="ql-blockquote" />
+        </Tooltip>
+        <select className="ql-align" title="Aligner le texte" />
+      </span>
+      <span className="ql-formats">
+        <Tooltip label="Annuler">
+          <button className="ql-undo" />
+        </Tooltip>
+        <Tooltip label="Refaire">
+          <button className="ql-redo" />
+        </Tooltip>
+      </span>
+      <span className="ql-formats">
+        <Tooltip label="Insérer une image">
+          <button className="ql-image" />
+        </Tooltip>
+        <Tooltip label="Insérer une vidéo">
+          <button className="ql-video" />
+        </Tooltip>
+        <Tooltip label="Insérer un lien">
+          <button className="ql-link" />
+        </Tooltip>
+      </span>
+      <span className="ql-formats">
+        <Tooltip label="Supprimer le formatage">
+          <button className="ql-clean" />
+        </Tooltip>
+        <Tooltip label="Insérer un ♥">
+          <button className="ql-insertHeart">
+            <FaHeart />
+          </button>
+        </Tooltip>
+      </span>
+    </div>
+  );
 };
 
 export const RTEditor = ({
@@ -163,32 +203,34 @@ export const RTEditor = ({
   onChange,
   readOnly,
   placeholder,
-  toolbar = defaultToolbar,
   ...props
 }: {
   defaultValue?: string;
   onChange?: (html: string) => void;
   readOnly?: boolean;
   placeholder?: string;
-  toolbar?: any;
   height?: string;
   width?: string;
 }) => {
-  const modules = {
+  const shortId = getUniqueId();
+  console.log(shortId);
+
+  const modules = (id: string) => ({
     history: {
       delay: 1000,
       maxStack: 50,
       userOnly: false
     },
     toolbar: {
-      container: "#toolbar",
+      container: "#" + id,
       handlers: {
         insertHeart: () => {},
         undo: () => {},
         redo: () => {}
       }
     }
-  };
+  });
+
   const formats = [
     "size",
     "bold",
@@ -218,7 +260,7 @@ export const RTEditor = ({
     editor: Quill | undefined;
   } = useQuill({
     theme: "snow",
-    modules,
+    modules: modules(shortId),
     formats,
     placeholder,
     readOnly
@@ -256,14 +298,16 @@ export const RTEditor = ({
 
   useEffect(() => {
     if (quill) {
-      // quill.clipboard.dangerouslyPasteHTML(defaultValue);
-      quill.root.innerHTML = defaultValue || "";
+      if (quill.root) {
+        quill.root.innerHTML = defaultValue || "";
+      }
 
       quill.on("text-change", () => {
-        const html = quill.root.innerHTML;
+        if (quill.root) {
+        }
         const text = quill.getText();
 
-        onChange && onChange(html);
+        if (onChange && quill.root) onChange(quill.root.innerHTML);
       });
 
       quill.getModule("toolbar").addHandler("undo", undo);
@@ -273,71 +317,13 @@ export const RTEditor = ({
   }, [quill, undo, redo, insertHeart]);
 
   useEffect(() => {
-    // console.log("RTE: NEW DEFAULT VALUE", typeof defaultValue, defaultValue);
-    if (quill)
+    if (quill && quill.root)
       quill.root.innerHTML = defaultValue === undefined ? "" : defaultValue;
   }, [defaultValue]);
 
   return (
     <ReactQuillStyles height={props.height} width={props.width}>
-      <div id="toolbar">
-        <span className="ql-formats">
-          <select className="ql-size" title="Taille du texte">
-            <option value="small">Petit</option>
-            <option selected />
-            <option value="large">Grand</option>
-            <option value="huge">Très grand</option>
-          </select>
-        </span>
-        <span className="ql-formats">
-          <select className="ql-color" title="Texte en couleur" />
-
-          <Tooltip label="Texte en gras">
-            <button className="ql-bold" />
-          </Tooltip>
-          <Tooltip label="Texte en italique">
-            <button className="ql-italic" />
-          </Tooltip>
-          <Tooltip label="Texte souligné">
-            <button className="ql-underline" />
-          </Tooltip>
-        </span>
-        <span className="ql-formats">
-          <Tooltip label="Citation">
-            <button className="ql-blockquote" />
-          </Tooltip>
-          <select className="ql-align" title="Aligner le texte" />
-        </span>
-        <span className="ql-formats">
-          <Tooltip label="Annuler">
-            <button className="ql-undo" />
-          </Tooltip>
-          <Tooltip label="Refaire">
-            <button className="ql-redo" />
-          </Tooltip>
-        </span>
-        <span className="ql-formats">
-          <Tooltip label="Insérer une image">
-            <button className="ql-image" />
-          </Tooltip>
-          <Tooltip label="Insérer une vidéo">
-            <button className="ql-video" />
-          </Tooltip>
-          <Tooltip label="Insérer un lien">
-            <button className="ql-link" />
-          </Tooltip>
-        </span>
-        <span className="ql-formats">
-          <Tooltip label="Supprimer le formatage">
-            <button className="ql-clean" />
-          </Tooltip>
-          <Tooltip label="Insérer un ♥">
-            <button className="ql-insertHeart">
-              <FaHeart />
-            </button>
-          </Tooltip>
-        </span>
-      </div>
+      <CustomToolbar id={shortId} />
       <div ref={quillRef} />
     </ReactQuillStyles>
   );

@@ -29,14 +29,11 @@
     "@hookform/error-message": "^2.0.0",
     "@react-google-maps/api": "^2.2.0",
     "@reduxjs/toolkit": "^1.6.0",
-    "aws4": "^1.11.0",
     "bcryptjs": "^2.4.3",
-    "blueimp-md5": "^2.18.0",
     "cssnano": "^5.0.6",
     "date-fns": "^2.22.1",
-    "draft-js": "^0.11.7",
     "framer-motion": "^4.1.17",
-    "html-react-parser": "^1.2.7",
+    "isomorphic-dompurify": "^0.15.0",
     "mongodb": "^3.6.9",
     "mongoose": "^5.12.14",
     "next": "^11.0.0",
@@ -70,9 +67,7 @@
   "devDependencies": {
     "@next/bundle-analyzer": "^11.0.1",
     "@types/bcryptjs": "^2.4.2",
-    "@types/blueimp-md5": "^2.18.0",
     "@types/google.maps": "^3.45.6",
-    "@types/html-to-draftjs": "^1.4.0",
     "@types/node": "^15.12.2",
     "@types/nodemailer": "^6.4.2",
     "@types/nodemailer-sendgrid": "^1.0.0",
@@ -81,13 +76,11 @@
     "@types/react-avatar-editor": "^10.3.6",
     "@types/react-datepicker": "^3.1.8",
     "@types/react-dom": "^17.0.0",
-    "@types/react-draft-wysiwyg": "^1.13.3",
     "@types/react-redux": "^7.1.16",
     "@types/react-select": "^4.0.16",
     "@types/react-toggle": "^4.0.2",
     "cypress": "^8.0.0",
-    "cypress-promise": "^1.1.0",
-    "reselector": "^0.21.0"
+    "cypress-promise": "^1.1.0"
   },
   "browserslist": {
     "production": [

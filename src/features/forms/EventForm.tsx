@@ -208,6 +208,7 @@ export const EventForm = ({
     console.log("submitted", form);
     const payload = {
       ...form,
+      eventDescription: form.eventDescription?.replace(/\&nbsp;/g, " "),
       eventNotif:
         typeof form.eventNotif === "boolean"
           ? []

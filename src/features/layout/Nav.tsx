@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { signOut } from "next-auth/react";
 import { useSession } from "hooks/useAuth";
-import md5 from "blueimp-md5";
 import tw, { css } from "twin.macro";
 import {
   Button,
@@ -26,6 +25,8 @@ import { breakpoints } from "theme/theme";
 import { useAppDispatch } from "store";
 import { setUserEmail } from "features/users/userSlice";
 import { refetchSubscription } from "features/subscriptions/subscriptionSlice";
+import { IoIosChatbubbles } from "react-icons/io";
+import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 
 const linkList = css`
   & > a {
@@ -33,14 +34,25 @@ const linkList = css`
     ${tw`mr-4`}
   }
 
+  margin-left: 20px;
+
   @media (max-width: ${breakpoints.sm}) {
+    margin-left: 0;
+
     & > a {
       display: block;
       margin: 0;
     }
-    & > a:not(:first-of-type) {
-      margin-top: 12px;
-    }
+    // & > a:not(:first-of-type) {
+    //   margin-top: 12px;
+    // }
+  }
+`;
+
+const buttonList = css`
+  margin-left: 20px;
+  @media (max-width: ${breakpoints.sm}) {
+    margin-left: 0;
   }
 `;
 
@@ -61,8 +73,6 @@ export const Nav = ({
       tw`h-24 bg-gradient-to-b from-white via-yellow-400 to-yellow-50`,
       tw`h-24 bg-gradient-to-b from-gray-800 via-green-600 to-gray-800`
     )}
-    @media (min-width: ${breakpoints["2xl"]}) {
-    }
   `;
 
   const isHome = router.asPath === "/";
@@ -78,23 +88,39 @@ export const Nav = ({
       as="nav"
       align="center"
       justify="space-between"
-      wrap="wrap"
+      wrap="nowrap"
       {...props}
       css={styles}
     >
-      <Box css={linkList} ml={5}>
-        {!isHome && (
-          <Link href="/" data-cy="homeLink">
+      <Box css={linkList}>
+        <Link href="/" data-cy="homeLink">
+          <Button
+            bg="transparent"
+            _hover={{
+              bg: useColorModeValue("whiteAlpha.600", "blackAlpha.400")
+            }}
+            leftIcon={<CalendarIcon />}
+          >
             Votre agenda local
-          </Link>
-        )}
-        <Link href="/forum">Forum</Link>
+          </Button>
+        </Link>
+        <Link href="/forum">
+          <Button
+            bg="transparent"
+            _hover={{
+              bg: useColorModeValue("whiteAlpha.600", "blackAlpha.400")
+            }}
+            leftIcon={<ChatIcon />}
+          >
+            Forum
+          </Button>
+        </Link>
       </Box>
 
       {isSessionLoading ? (
         <Spinner ml={5} mr={3} />
       ) : session ? (
-        <Flex justify="flex-end" ml={5}>
+        <Flex justify="flex-end" css={buttonList}>
           <EmailSubscriptionsPopover
             email={session.user.email}
             mr={[1, 3]}

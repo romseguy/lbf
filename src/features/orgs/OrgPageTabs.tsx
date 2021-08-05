@@ -29,7 +29,10 @@ export const OrgPageTabs = ({
   const inactiveTabBg = useColorModeValue("gray.100", "whiteAlpha.300");
 
   const CustomTab = React.forwardRef(
-    (props: { children: React.ReactNode | React.ReactNodeArray }, ref) => {
+    (
+      { icon, ...props }: { children: React.ReactNode | React.ReactNodeArray },
+      ref
+    ) => {
       const tabProps = useTab(props);
       tabProps.tabIndex = 0;
       // tabProps.onClick = useCallback(tabProps.onFocus);
@@ -62,7 +65,7 @@ export const OrgPageTabs = ({
               marginInlineEnd: "0.5rem"
             }}
           >
-            <Icon as={props.icon} boxSize={5} verticalAlign="middle" />
+            <Icon as={icon} boxSize={5} verticalAlign="middle" />
           </span>
           {tabProps.children}
         </StyledTab>
@@ -102,7 +105,9 @@ export const OrgPageTabs = ({
           { name: "Événements", icon: CalendarIcon },
           { name: "Discussions", icon: ChatIcon }
         ].map(({ name, icon }, id) => (
-          <CustomTab icon={icon}>{name}</CustomTab>
+          <CustomTab key={`orgTab-${id}`} icon={icon}>
+            {name}
+          </CustomTab>
         ))}
       </TabList>
       {children}

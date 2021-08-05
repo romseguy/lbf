@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import parse from "html-react-parser";
 import { Flex, Box, Icon, Text, Image, Grid, Heading } from "@chakra-ui/react";
 import {
   Link,
@@ -19,7 +18,8 @@ import {
   formatISO,
   compareDesc,
   getDay,
-  getMinutes
+  getMinutes,
+  getDayOfYear
 } from "date-fns";
 import type { IEvent } from "models/Event";
 import { fr } from "date-fns/locale";
@@ -27,6 +27,7 @@ import { UpDownIcon } from "@chakra-ui/icons";
 import { resetTime } from "utils/resetTime";
 import { css } from "twin.macro";
 import { DescriptionModal } from "features/modals/DescriptionModal";
+import DOMPurify from "isomorphic-dompurify";
 
 const addRepeatedEvents = (events: IEvent[]) => {
   let array: IEvent[] = [];
@@ -82,7 +83,7 @@ export const EventsList = (props: EventsProps) => {
       const maxDate = parseISO(event.eventMaxDate);
 
       const isCurrentDateOneDayBeforeMinDate = currentDate
-        ? currentDate.getTime() < minDate.getTime()
+        ? getDayOfYear(currentDate) < getDayOfYear(minDate)
         : true;
 
       if (isCurrentDateOneDayBeforeMinDate) {
@@ -92,24 +93,25 @@ export const EventsList = (props: EventsProps) => {
         addGridHeader = false;
       }
 
-      //debugger;
-
       return (
         <div key={`${event._id}${event.repeat}`}>
-          {index === 0 && props.eventHeader && props.eventHeader}
           <Grid
             templateRows="auto auto 4fr"
             templateColumns="1fr 6fr minmax(75px, 1fr)"
           >
             {addGridHeader ? (
-              <GridHeader
-                colSpan={3}
-                borderTopRadius={index === 0 ? "lg" : undefined}
-              >
-                <Heading size="sm" py={3}>
-                  {format(minDate, "cccc d MMMM", { locale: fr })}
-                </Heading>
-              </GridHeader>
+              props.eventHeader ? (
+                props.eventHeader
+              ) : (
+                <GridHeader
+                  colSpan={3}
+                  borderTopRadius={index === 0 ? "lg" : undefined}
+                >
+                  <Heading size="sm" py={3}>
+                    {format(minDate, "cccc d MMMM", { locale: fr })}
+                  </Heading>
+                </GridHeader>
+              )
             ) : (
               <GridItem colSpan={3}>
                 <Spacer borderWidth={1} />
@@ -162,7 +164,6 @@ export const EventsList = (props: EventsProps) => {
               </Text>
             </GridItem>
             <GridItem
-              className="ql-editor"
               p={0}
               m={0}
               pl={3}
@@ -203,7 +204,13 @@ export const EventsList = (props: EventsProps) => {
             {event.eventDescription &&
             event.eventDescription.length > 0 &&
             event.eventDescription !== "<p><br></p>" ? (
-              <div className="ql-editor">{parse(event.eventDescription)}</div>
+              <div className="ql-editor">
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(event.eventDescription)
+                  }}
+                />
+              </div>
             ) : (
               <Text fontStyle="italic">Aucune description.</Text>
             )}
@@ -213,5 +220,5 @@ export const EventsList = (props: EventsProps) => {
     });
   }, [props.events, isDescriptionOpen]);
 
-  return <>{events}</>;
+  return <div>{events}</div>;
 };

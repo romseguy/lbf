@@ -17,6 +17,9 @@ export const TopicModal = (props: {
   org?: IOrg;
   event?: IEvent;
   topic?: ITopic;
+  isCreator?: boolean;
+  isFollowed?: boolean;
+  isSubscribed?: boolean;
   onCancel: () => void;
   onClose: () => void;
   onSubmit: (topicName: string) => void;
