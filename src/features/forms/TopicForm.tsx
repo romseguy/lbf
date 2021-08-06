@@ -46,14 +46,17 @@ export const TopicForm = (props: TopicFormProps) => {
   const [addEventDetails, addEventDetailsMutation] =
     useAddEventDetailsMutation();
   const toast = useToast({ position: "top" });
-  const visibilityOptions = [Visibility.PUBLIC];
+  const visibilityOptions = [];
 
-  if (props.isSubscribed) {
-    visibilityOptions.push(Visibility.SUBSCRIBERS);
-  }
+  if (props.org && props.org.orgName !== "aucourant") {
+    visibilityOptions.push(Visibility.PUBLIC);
 
-  if (props.isCreator) {
-    visibilityOptions.push(Visibility.FOLLOWERS);
+    if (props.isCreator) {
+      visibilityOptions.push(Visibility.FOLLOWERS);
+      visibilityOptions.push(Visibility.SUBSCRIBERS);
+    } else if (props.isSubscribed) {
+      visibilityOptions.push(Visibility.SUBSCRIBERS);
+    }
   }
 
   const {
@@ -182,34 +185,36 @@ export const TopicForm = (props: TopicFormProps) => {
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl
-        id="topicVisibility"
-        isRequired
-        isInvalid={!!errors["topicVisibility"]}
-        mb={3}
-      >
-        <FormLabel>Visibilité</FormLabel>
-        <Select
-          name="topicVisibility"
-          ref={register({
-            required:
-              "Veuillez sélectionner la visibilité du sujet de discussion"
-          })}
-          placeholder="Sélectionnez la visibilité du sujet de discussion..."
-          color="gray.400"
+      {visibilityOptions.length > 0 && (
+        <FormControl
+          id="topicVisibility"
+          isRequired
+          isInvalid={!!errors["topicVisibility"]}
+          mb={3}
         >
-          {visibilityOptions.map((key) => {
-            return (
-              <option key={key} value={key}>
-                {VisibilityV[key]}
-              </option>
-            );
-          })}
-        </Select>
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="topicVisibility" />
-        </FormErrorMessage>
-      </FormControl>
+          <FormLabel>Visibilité</FormLabel>
+          <Select
+            name="topicVisibility"
+            ref={register({
+              required:
+                "Veuillez sélectionner la visibilité du sujet de discussion"
+            })}
+            placeholder="Sélectionnez la visibilité du sujet de discussion..."
+            color="gray.400"
+          >
+            {visibilityOptions.map((key) => {
+              return (
+                <option key={key} value={key}>
+                  {VisibilityV[key]}
+                </option>
+              );
+            })}
+          </Select>
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="topicVisibility" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>

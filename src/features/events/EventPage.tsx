@@ -112,12 +112,13 @@ export const EventPage = (props: {
           Paramètres de l'événement
         </Button>
       ) : isConfig ? (
-        <IconButton
-          aria-label="Précédent"
-          icon={<ArrowBackIcon boxSize={6} />}
+        <Button
+          leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
           mb={2}
-        />
+        >
+          Retour
+        </Button>
       ) : null}
 
       <Box mb={3}>

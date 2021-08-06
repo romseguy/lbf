@@ -36,7 +36,7 @@ import { TopicModal } from "features/modals/TopicModal";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import { selectUserEmail } from "features/users/userSlice";
+import { selectSubscribedEmail } from "features/users/userSlice";
 import { useSelector } from "react-redux";
 import {
   isFollowedBy,
@@ -78,9 +78,11 @@ export const OrgPage = ({
 
   const isCreator = session?.user.userId === org.createdBy._id;
 
-  const userEmail = useSelector(selectUserEmail);
+  const subscribedEmail = useSelector(selectSubscribedEmail);
 
-  const subQuery = useGetSubscriptionQuery(userEmail || session?.user.userId);
+  const subQuery = useGetSubscriptionQuery(
+    subscribedEmail || session?.user.userId
+  );
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     console.log("refetching subscription");
@@ -123,12 +125,13 @@ export const OrgPage = ({
           Paramètres {orgTypeFull(org.orgType)}
         </Button>
       ) : isConfig ? (
-        <IconButton
-          aria-label="Précédent"
-          icon={<ArrowBackIcon boxSize={6} />}
+        <Button
+          leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
           mb={2}
-        />
+        >
+          Retour
+        </Button>
       ) : null}
 
       {!isCreator && (

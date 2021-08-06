@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
 import { Button, DeleteButton, Input } from "features/common";
-import { EditIcon, WarningIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, EditIcon, WarningIcon } from "@chakra-ui/icons";
 import tw, { css } from "twin.macro";
 import { OrgForm } from "features/forms/OrgForm";
 import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
@@ -48,7 +48,7 @@ export const OrgConfigPanel = ({
       <Box mb={3}>
         <Button
           aria-label="Modifier"
-          leftIcon={<Icon as={EditIcon} />}
+          leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
           mr={3}
           onClick={() => {
             setIsEdit(!isEdit);
@@ -58,11 +58,10 @@ export const OrgConfigPanel = ({
             &:hover {
               ${tw`bg-green-300`}
             }
-            ${isEdit && tw`bg-green-300`}
           `}
           data-cy="orgEdit"
         >
-          {isEdit ? "Annuler" : "Modifier"}
+          {isEdit ? "Retour" : "Modifier"}
         </Button>
 
         <DeleteButton

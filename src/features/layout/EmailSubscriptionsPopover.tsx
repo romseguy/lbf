@@ -65,7 +65,10 @@ import {
 import { useAppDispatch } from "store";
 import { handleError } from "utils/form";
 import { IoIosPerson, IoMdCheckmarkCircle } from "react-icons/io";
-import { selectUserEmail, setUserEmail } from "features/users/userSlice";
+import {
+  selectSubscribedEmail,
+  setSubscribedEmail
+} from "features/users/userSlice";
 import { useSelector } from "react-redux";
 import {
   refetchSubscription,
@@ -88,12 +91,14 @@ export const EmailSubscriptionsPopover = ({
   const isStep1 = !session && !mySubscription;
   const isStep2 = (!session && mySubscription) || session;
 
-  const userEmail =
-    useSelector(selectUserEmail) ||
+  const subscribedEmail =
+    useSelector(selectSubscribedEmail) ||
     mySubscription?.email ||
     mySubscription?.user?.email;
 
-  const subQuery = useGetSubscriptionQuery(props.email || userEmail || "");
+  const subQuery = useGetSubscriptionQuery(
+    props.email || subscribedEmail || ""
+  );
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     console.log("refetching subscription");
@@ -137,7 +142,7 @@ export const EmailSubscriptionsPopover = ({
         setError("formErrorMessage", { type: "manual", message });
       });
     } else {
-      dispatch(setUserEmail(email));
+      dispatch(setSubscribedEmail(email));
       setMySubscription(data);
     }
   };
@@ -211,7 +216,7 @@ export const EmailSubscriptionsPopover = ({
       <PopoverHeader>
         <Heading size="md">
           <Link onClick={() => setMySubscription(undefined)}>
-            {userEmail || "Mes abonnements"}
+            {subscribedEmail || "Mes abonnements"}
           </Link>
         </Heading>
       </PopoverHeader>
@@ -355,7 +360,7 @@ export const EmailSubscriptionsPopover = ({
             <ModalHeader fontSize="md">
               <Text display="inline">{currentOrgSubscription.org.orgName}</Text>{" "}
               <ArrowForwardIcon /> <EmailIcon color="green" />{" "}
-              <ArrowForwardIcon /> {userEmail}
+              <ArrowForwardIcon /> {subscribedEmail}
             </ModalHeader>
             <ModalCloseButton ml={5} data-cy="subscriptionPopoverCloseButton" />
             <ModalBody>

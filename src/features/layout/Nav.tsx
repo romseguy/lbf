@@ -23,10 +23,15 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { breakpoints } from "theme/theme";
 import { useAppDispatch } from "store";
-import { setUserEmail } from "features/users/userSlice";
+import {
+  selectUserEmail,
+  selectUserName,
+  setSubscribedEmail
+} from "features/users/userSlice";
 import { refetchSubscription } from "features/subscriptions/subscriptionSlice";
-import { IoIosChatbubbles } from "react-icons/io";
+import { IoIosChatbubbles, IoIosPerson, IoMdPerson } from "react-icons/io";
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
+import { useSelector } from "react-redux";
 
 const linkList = css`
   & > a {
@@ -60,9 +65,11 @@ export const Nav = ({
   isLogin = 0,
   ...props
 }: SpaceProps & { isLogin?: number }) => {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
-  const dispatch = useAppDispatch();
+  const storedUserName = useSelector(selectUserName);
+  const userName = storedUserName || session.user.userName;
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
     router.asPath === "/?login" || false
@@ -131,7 +138,7 @@ export const Nav = ({
             <MenuButton mr={[1, 3]}>
               <Avatar
                 boxSize={10}
-                name={session.user.userName}
+                name={userName}
                 css={css`
                   // &:focus {
                   //   box-shadow: var(--chakra-shadows-outline);
@@ -142,8 +149,14 @@ export const Nav = ({
             </MenuButton>
 
             <MenuList mr={[1, 3]}>
-              <Link href={`/${encodeURIComponent(session.user.userName)}`}>
-                <MenuItem>Mon compte</MenuItem>
+              <MenuItem
+                command={`@${userName}`}
+                cursor="default"
+                _hover={{ bg: "white" }}
+              ></MenuItem>
+
+              <Link href={`/${encodeURIComponent(userName)}`}>
+                <MenuItem>Ma page</MenuItem>
               </Link>
 
               {/* 
@@ -154,7 +167,7 @@ export const Nav = ({
 
               <MenuItem
                 onClick={async () => {
-                  dispatch(setUserEmail());
+                  dispatch(setSubscribedEmail());
                   await signOut({
                     //redirect: false
                   });

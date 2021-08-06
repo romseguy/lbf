@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Router from "next/router";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
@@ -15,7 +15,9 @@ import {
   Textarea,
   useToast,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Avatar,
+  Tooltip
 } from "@chakra-ui/react";
 import { WarningIcon } from "@chakra-ui/icons";
 import { EmailControl, ErrorMessageText } from "features/common";
@@ -26,19 +28,41 @@ import {
 import { useSession } from "hooks/useAuth";
 import { handleError } from "utils/form";
 import type { IUser } from "models/User";
+import { useAppDispatch } from "store";
+import {
+  setUserEmail,
+  setUserImage,
+  setUserName
+} from "features/users/userSlice";
+import { calculateScale, getBase64, getPicaInstance } from "utils/image";
+import AvatarEditor from "react-avatar-editor";
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 
 export const UserForm = (props: {
   user: IUser;
   onSubmit: (user: IUser) => void;
 }) => {
+  const dispatch = useAppDispatch();
   const [addUser, addUserMutation] = useAddUserMutation();
   const [editUser, editUserMutation] = useEditUserMutation();
-  const toast = useToast({ position: "top" });
 
   const { control, register, handleSubmit, errors, setError, clearErrors } =
     useForm({
       mode: "onChange"
     });
+  const [upImg, setUpImg] = useState<string | File>();
+  const [scale, setScale] = useState(1);
+  const [elementLocked, setElementLocked] = useState<
+    { el: HTMLElement; locked: boolean } | undefined
+  >();
+  const disableScroll = (target: HTMLElement) => {
+    disableBodyScroll(target);
+  };
+  const enableScroll = (target: HTMLElement) => {
+    enableBodyScroll(target);
+  };
+
+  const setEditorRef = useRef<AvatarEditor | null>(null);
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -48,19 +72,37 @@ export const UserForm = (props: {
     console.log("submitted", form);
     const payload = form;
 
+    if (setEditorRef.current) {
+      const canvas = setEditorRef.current.getImage();
+
+      const offScreenCanvas = document.createElement("canvas");
+      offScreenCanvas.width = 40;
+      offScreenCanvas.height = 40;
+
+      const picaCanvas = await getPicaInstance().resize(
+        canvas,
+        offScreenCanvas,
+        {
+          alpha: true
+        }
+      );
+
+      payload.userImage = {
+        width: 40,
+        height: 40,
+        base64: picaCanvas.toDataURL("image/png", 1.0)
+      };
+    }
+
     try {
       if (props.user) {
         await editUser({
           payload,
           userName: props.user.userName
         }).unwrap();
-      } else {
-        await addUser(payload).unwrap();
-        toast({
-          title: "Votre profil a bien été ajouté !",
-          status: "success",
-          isClosable: true
-        });
+        dispatch(setUserEmail(payload.email));
+        dispatch(setUserImage(payload.userImage));
+        dispatch(setUserName(payload.userName));
       }
 
       props.onSubmit && props.onSubmit(payload);
@@ -76,7 +118,13 @@ export const UserForm = (props: {
   };
 
   return (
-    <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onChange={onChange}
+      onSubmit={handleSubmit(onSubmit)}
+      onWheel={(e) => {
+        if (elementLocked) enableScroll(elementLocked.el);
+      }}
+    >
       <ErrorMessage
         errors={errors}
         name="formErrorMessage"
@@ -129,6 +177,83 @@ export const UserForm = (props: {
         register={register}
         mb={3}
       />
+
+      <Alert status="info" mb={3}>
+        <AlertIcon />
+        Votre e-mail ne sera jamais affiché publiquement sur le site.
+      </Alert>
+
+      <FormControl id="userImage" isInvalid={!!errors["userImage"]} mb={3}>
+        <FormLabel>Avatar</FormLabel>
+        {props.user?.userImage && (
+          <Tooltip hasArrow label="Changer l'avatar" placement="right">
+            <Avatar
+              boxSize={10}
+              name={props.user?.userName}
+              src={props.user?.userImage?.base64}
+              mb={3}
+              cursor="pointer"
+              onClick={() => {
+                document?.getElementById("fileInput")?.click();
+              }}
+            />
+          </Tooltip>
+        )}
+
+        <Input
+          id="fileInput"
+          name="userImage"
+          display="none"
+          type="file"
+          accept="image/*"
+          onChange={async ({ target: { files } }) => {
+            if (files) {
+              const file = files[0];
+
+              if (file.size < 1000000) {
+                setUpImg(await getBase64(file));
+                clearErrors("userImage");
+              }
+            }
+          }}
+          ref={register({
+            validate: (file) => {
+              if (file && file[0] && file[0].size >= 1000000) {
+                return "L'image ne doit pas dépasser 1Mo.";
+              }
+              return true;
+            }
+          })}
+        />
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="userImage" />
+        </FormErrorMessage>
+      </FormControl>
+
+      {upImg && (
+        <Box
+          width="200px"
+          onWheel={(e) => {
+            e.stopPropagation();
+            setScale(calculateScale(scale, e.deltaY));
+
+            const el = e.target as HTMLElement;
+            disableScroll(el);
+            if (!elementLocked) setElementLocked({ el, locked: true });
+          }}
+        >
+          <AvatarEditor
+            ref={setEditorRef}
+            image={upImg}
+            border={0}
+            borderRadius={100}
+            color={[255, 255, 255, 0.6]} // RGBA
+            scale={scale}
+            rotate={0}
+            style={{ marginBottom: "12px" }}
+          />
+        </Box>
+      )}
 
       {/* <FormControl
         id="password"

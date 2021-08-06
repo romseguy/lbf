@@ -2,6 +2,7 @@ import type { HookNextFunction } from "mongoose";
 import { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import { randomNumber } from "utils/randomNumber";
+import { Base64Image } from "utils/image";
 
 const HASH_ROUNDS = 10;
 
@@ -13,6 +14,7 @@ export interface IUser {
   securityCode: string;
   userName: string;
   userNameLower?: string;
+  userImage?: Base64Image;
   validatePassword(password: string): boolean;
 }
 
@@ -43,7 +45,12 @@ export const UserSchema = new Schema<IUser>(
       //   collation: { locale: "fr", strength: 2 }
       // }
     },
-    userNameLower: String
+    userNameLower: String,
+    userImage: {
+      base64: String,
+      width: Number,
+      height: Number
+    }
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );

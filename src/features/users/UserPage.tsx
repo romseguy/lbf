@@ -32,6 +32,7 @@ import { useState } from "react";
 import { DeleteButton } from "features/common/DeleteButton";
 import {
   AddIcon,
+  ArrowBackIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   ChevronUpIcon,
@@ -45,6 +46,8 @@ import tw, { css } from "twin.macro";
 import api from "utils/api";
 import router from "next/router";
 import { signOut } from "next-auth/react";
+import { selectUserEmail, selectUserImage, selectUserName } from "./userSlice";
+import { useSelector } from "react-redux";
 
 export const User = ({
   routeName,
@@ -54,9 +57,6 @@ export const User = ({
   routeName: string;
 }) => {
   const router = useRouter();
-  const query = useGetUserByNameQuery(routeName);
-  const user = query.data || props.user;
-  // const [deleteOrg, { isLoading }] = useDeleteUserMutation();
   const { data: session, loading: isSessionLoading } =
     useSession(/* {
     required: true,
@@ -64,6 +64,14 @@ export const User = ({
       router.push("/?login");
     }
   } */);
+
+  const query = useGetUserByNameQuery(routeName);
+  const user = query.data || props.user;
+
+  const storedUserEmail = useSelector(selectUserEmail);
+  const storedUserImage = useSelector(selectUserImage);
+  const storedUserName = useSelector(selectUserName);
+
   const [isEdit, setIsEdit] = useState(false);
   const toast = useToast({ position: "top" });
 
@@ -77,18 +85,17 @@ export const User = ({
             <>
               <Button
                 aria-label="Modifier"
-                leftIcon={<Icon as={EditIcon} />}
+                leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
                 mr={3}
                 onClick={() => setIsEdit(!isEdit)}
                 css={css`
                   &:hover {
                     ${tw`bg-green-300`}
                   }
-                  ${isEdit && tw`bg-green-300`}
                 `}
                 data-cy="userEdit"
               >
-                Modifier
+                {isEdit ? "Retour" : "Modifier"}
               </Button>
               {/* <DeleteButton
               isLoading={isLoading}
@@ -129,36 +136,36 @@ export const User = ({
 
         {isEdit && (
           <UserForm
-            user={user}
+            user={{
+              ...user,
+              email: storedUserEmail || user.email,
+              userImage: storedUserImage || user.userImage,
+              userName: storedUserName || user.userName
+            }}
             onSubmit={async ({ userName, email }) => {
-              // if (
-              //   userName !== props.user.userName ||
-              //   email !== props.user.email
-              // ) {
-              //   toast({
-              //     title:
-              //       "Votre profil a bien été modifié, merci de vous reconnecter.",
-              //     status: "success",
-              //     isClosable: true
-              //   });
+              let title;
 
-              //   await signOut({
-              //     redirect: false
-              //   });
+              if (
+                email !== props.user.email &&
+                userName !== props.user.userName
+              ) {
+                title = "Votre page a bien été modifiée !";
+              }
+              if (email !== props.user.email) {
+                title = "Votre e-mail a bien été modifié !";
+              } else if (userName !== props.user.userName) {
+                title = "Votre nom d'utilisateur a bien été modifié !";
+                await router.push(`/${userName}`);
+              }
 
-              //   router.push("/?login");
-              // } else {
-              toast({
-                title: "Votre profil a bien été modifié !",
-                status: "success",
-                isClosable: true
-              });
+              if (title)
+                toast({
+                  title,
+                  status: "success",
+                  isClosable: true
+                });
 
               setIsEdit(false);
-
-              const res = await api.get("auth/session?update");
-              console.log(res);
-              // }
             }}
           />
         )}

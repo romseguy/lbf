@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { Button, DeleteButton, Input } from "features/common";
-import { EditIcon, WarningIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, EditIcon, WarningIcon } from "@chakra-ui/icons";
 import tw, { css } from "twin.macro";
 import { EventForm } from "features/forms/EventForm";
 import { useState } from "react";
@@ -48,7 +48,7 @@ export const EventConfigPanel = ({
       <Box mb={3}>
         <Button
           aria-label="Modifier"
-          leftIcon={<Icon as={EditIcon} />}
+          leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
           mr={3}
           onClick={() => {
             setIsEdit(!isEdit);
@@ -58,11 +58,10 @@ export const EventConfigPanel = ({
             &:hover {
               ${tw`bg-green-300`}
             }
-            ${isEdit && tw`bg-green-300`}
           `}
           data-cy="eventEdit"
         >
-          {isEdit ? "Annuler" : "Modifier"}
+          {isEdit ? "Retour" : "Modifier"}
         </Button>
 
         <DeleteButton

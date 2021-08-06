@@ -26,7 +26,10 @@ import {
 } from "./subscriptionsApi";
 import { SubscriptionTypes } from "models/Subscription";
 import { useAppDispatch } from "store";
-import { selectUserEmail, setUserEmail } from "features/users/userSlice";
+import {
+  selectSubscribedEmail,
+  setSubscribedEmail
+} from "features/users/userSlice";
 import { useSelector } from "react-redux";
 import { refetchSubscription } from "./subscriptionSlice";
 
@@ -46,7 +49,7 @@ export const SubscriptionPopover = ({
 }) => {
   const { data: session } = useSession();
   const dispatch = useAppDispatch();
-  const userEmail = useSelector(selectUserEmail);
+  const subscribedEmail = useSelector(selectSubscribedEmail);
 
   const [addSubscription, addSubscriptionMutation] =
     useAddSubscriptionMutation();
@@ -93,7 +96,7 @@ export const SubscriptionPopover = ({
       });
     }
 
-    dispatch(setUserEmail(email));
+    dispatch(setSubscribedEmail(email));
     dispatch(refetchSubscription());
     setIsLoading(false);
     setIsOpen(false);
@@ -135,8 +138,8 @@ export const SubscriptionPopover = ({
               setIsLoading(false);
               props.onSubmit && props.onSubmit(false);
             } else {
-              if (userEmail || session) {
-                onSubmit({ email: userEmail || session.user.email });
+              if (subscribedEmail || session) {
+                onSubmit({ email: subscribedEmail || session.user.email });
               } else setIsOpen(!isOpen);
             }
           }}
