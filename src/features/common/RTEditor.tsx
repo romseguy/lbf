@@ -248,6 +248,14 @@ export const RTEditor = ({
     "redo"
   ];
 
+  const options = {
+    theme: "snow",
+    modules: modules(shortId),
+    formats,
+    placeholder,
+    readOnly
+  };
+
   const {
     quill,
     quillRef,
@@ -258,13 +266,7 @@ export const RTEditor = ({
     quill: any;
     editorRef: RefObject<any>;
     editor: Quill | undefined;
-  } = useQuill({
-    theme: "snow",
-    modules: modules(shortId),
-    formats,
-    placeholder,
-    readOnly
-  });
+  } = useQuill(options);
 
   const insertHeart = useCallback(() => {
     const cursorPosition = quill.getSelection().index;

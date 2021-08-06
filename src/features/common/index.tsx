@@ -12,6 +12,7 @@ export * from "./Grid";
 export * from "./GridHeader";
 export * from "./GridItem";
 export * from "./Hero";
+export * from "./Map";
 export * from "./IconFooter";
 export * from "./Input";
 export * from "./Link";

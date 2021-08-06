@@ -1,5 +1,4 @@
 import React, { ChangeEvent, FormEventHandler, useState } from "react";
-import useScript from "hooks/useScript";
 import useOnclickOutside from "react-cool-onclickoutside";
 import {
   FormControlProps,
@@ -36,8 +35,8 @@ export const AutoCompletePlacesControl = ({
         country: "fr"
       }
     },
-    debounce: 300,
-    callbackName: "initMap"
+    debounce: 300
+    // callbackName: "initMap"
   });
 
   const ref = useOnclickOutside(() => {

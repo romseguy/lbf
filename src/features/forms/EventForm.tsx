@@ -64,7 +64,7 @@ import {
   setMinutes,
   subHours
 } from "date-fns";
-import { getDetails } from "use-places-autocomplete";
+import { getDetails, getGeocode, getLatLng } from "use-places-autocomplete";
 import { useGetOrgsByCreatorQuery } from "features/orgs/orgsApi";
 import tw, { css } from "twin.macro";
 import { useEffect } from "react";
@@ -518,6 +518,15 @@ export const EventForm = ({
         mb={3}
         onSuggestionSelect={(suggestion) => {
           setIsLoading(true);
+
+          getGeocode({ address: suggestion.description })
+            .then((results) => getLatLng(results[0]))
+            .then(({ lat, lng }) => {
+              console.log("📍 Coordinates: ", { lat, lng });
+            })
+            .catch((error) => {
+              console.log("😱 Error: ", error);
+            });
 
           getDetails({
             placeId: suggestion.place_id,

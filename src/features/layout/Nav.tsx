@@ -69,7 +69,7 @@ export const Nav = ({
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const storedUserName = useSelector(selectUserName);
-  const userName = storedUserName || session.user.userName;
+  const userName = storedUserName || (session && session.user.userName);
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
     router.asPath === "/?login" || false

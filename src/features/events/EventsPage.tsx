@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Box, Spinner, useColorModeValue } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  IconButton,
+  Spinner,
+  useColorModeValue
+} from "@chakra-ui/react";
 import { Layout } from "features/layout";
 import { EventModal } from "features/modals/EventModal";
 import { useRouter } from "next/router";
@@ -9,6 +15,9 @@ import { AddIcon } from "@chakra-ui/icons";
 import { useSession } from "hooks/useAuth";
 import { useGetEventsQuery } from "./eventsApi";
 import { EventsList } from "./EventsList";
+import { MapModal } from "features/modals/MapModal";
+import { FaMap, FaMapMarker } from "react-icons/fa";
+import { IoIosMap, IoIosPlanet, IoMdMap, IoMdPlanet } from "react-icons/io";
 
 export const EventsPage = ({
   isLogin,
@@ -30,27 +39,37 @@ export const EventsPage = ({
   const { data: session, loading: isSessionLoading } = useSession();
 
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   return (
     <>
       <>
-        <Button
-          colorScheme="teal"
-          leftIcon={<AddIcon />}
-          mb={5}
-          onClick={() => {
-            if (!isSessionLoading) {
-              if (session) {
-                setIsEventModalOpen(true);
-              } else {
-                setIsLogin(isLogin + 1);
+        <Flex justifyContent="space-between">
+          <Button
+            colorScheme="teal"
+            leftIcon={<AddIcon />}
+            mb={5}
+            onClick={() => {
+              if (!isSessionLoading) {
+                if (session) {
+                  setIsEventModalOpen(true);
+                } else {
+                  setIsLogin(isLogin + 1);
+                }
               }
-            }
-          }}
-          data-cy="addEvent"
-        >
-          Ajouter un événement
-        </Button>
+            }}
+            data-cy="addEvent"
+          >
+            Ajouter un événement
+          </Button>
+
+          <Button
+            leftIcon={<FaMapMarker />}
+            onClick={() => setIsMapModalOpen(true)}
+          >
+            Carte des événements
+          </Button>
+        </Flex>
 
         {isEventModalOpen && (
           <EventModal
@@ -60,6 +79,10 @@ export const EventsPage = ({
             }}
             onClose={() => setIsEventModalOpen(false)}
           />
+        )}
+
+        {isMapModalOpen && (
+          <MapModal onClose={() => setIsMapModalOpen(false)} />
         )}
       </>
 
