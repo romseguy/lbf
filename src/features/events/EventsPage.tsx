@@ -1,3 +1,4 @@
+import type { IEvent } from "models/Event";
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -10,7 +11,6 @@ import { Layout } from "features/layout";
 import { EventModal } from "features/modals/EventModal";
 import { useRouter } from "next/router";
 import { Button, IconFooter } from "features/common";
-import type { IEvent } from "models/Event";
 import { AddIcon } from "@chakra-ui/icons";
 import { useSession } from "hooks/useAuth";
 import { useGetEventsQuery } from "./eventsApi";
@@ -82,7 +82,7 @@ export const EventsPage = ({
         )}
 
         {isMapModalOpen && (
-          <MapModal onClose={() => setIsMapModalOpen(false)} />
+          <MapModal events={events} onClose={() => setIsMapModalOpen(false)} />
         )}
       </>
 

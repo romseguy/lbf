@@ -1,20 +1,14 @@
-import React, { ChangeEvent, FormEventHandler, useState } from "react";
+import React, { ChangeEvent } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";
-import {
-  FormControlProps,
-  List,
-  ListItem,
-  useColorMode
-} from "@chakra-ui/react";
+import { FormControlProps, List, ListItem } from "@chakra-ui/react";
 import { Input } from "features/common";
-import usePlacesAutocomplete from "use-places-autocomplete";
+import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
 
 type ControlProps = FormControlProps & {
-  onChange: FormEventHandler<HTMLDivElement> &
-    ((event: any[], suggestion: any) => void);
+  onChange: (description: string) => void;
   placeholder?: string;
   value?: string;
-  onSuggestionSelect?: (suggestion: any) => void;
+  onSuggestionSelect?: (suggestion: Suggestion) => void;
 };
 
 export const AutoCompletePlacesControl = ({
@@ -50,7 +44,7 @@ export const AutoCompletePlacesControl = ({
     setValue(e.target.value);
   };
 
-  const handleSelect = (suggestion: any) => () => {
+  const handleSelect = (suggestion: Suggestion) => () => {
     const { description } = suggestion;
     // When user selects a place, we can replace the keyword without request data from API
     // by setting the second parameter to "false"

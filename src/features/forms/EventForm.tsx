@@ -64,7 +64,13 @@ import {
   setMinutes,
   subHours
 } from "date-fns";
-import { getDetails, getGeocode, getLatLng } from "use-places-autocomplete";
+import {
+  DetailsResult,
+  getDetails,
+  getGeocode,
+  getLatLng,
+  Suggestion
+} from "use-places-autocomplete";
 import { useGetOrgsByCreatorQuery } from "features/orgs/orgsApi";
 import tw, { css } from "twin.macro";
 import { useEffect } from "react";
@@ -200,12 +206,16 @@ export const EventForm = ({
       : addHours(now, eventMinDuration)
   };
 
+  const [suggestion, setSuggestion] = useState<Suggestion | undefined>();
+
   const onChange = () => {
     clearErrors("formErrorMessage");
   };
 
   const onSubmit = async (form: IEvent) => {
     console.log("submitted", form);
+    setIsLoading(true);
+
     const payload = {
       ...form,
       eventDescription: form.eventDescription?.replace(/\&nbsp;/g, " "),
@@ -218,6 +228,27 @@ export const EventForm = ({
     };
 
     try {
+      if (suggestion) {
+        const details: any = await getDetails({
+          placeId: suggestion.place_id,
+          fields: ["address_component"]
+        });
+
+        details.address_components.forEach((component: any) => {
+          const types = component.types;
+
+          if (types.indexOf("locality") > -1) {
+            payload.eventCity = component.long_name;
+          }
+        });
+
+        const results = await getGeocode({ address: suggestion.description });
+        const { lat, lng } = await getLatLng(results[0]);
+
+        payload.eventLat = lat;
+        payload.eventLng = lng;
+      }
+
       if (props.event) {
         // if (!form.eventNotif) {
         //   payload.eventNotif = [];
@@ -252,6 +283,7 @@ export const EventForm = ({
         });
       }
 
+      setIsLoading(false);
       props.onSubmit && props.onSubmit(payload.eventName);
       props.onClose && props.onClose();
     } catch (error) {
@@ -517,45 +549,8 @@ export const EventForm = ({
         control={control}
         mb={3}
         onSuggestionSelect={(suggestion) => {
-          setIsLoading(true);
-
-          getGeocode({ address: suggestion.description })
-            .then((results) => getLatLng(results[0]))
-            .then(({ lat, lng }) => {
-              console.log("📍 Coordinates: ", { lat, lng });
-            })
-            .catch((error) => {
-              console.log("😱 Error: ", error);
-            });
-
-          getDetails({
-            placeId: suggestion.place_id,
-            fields: ["address_component"]
-          })
-            .then((details: any) => {
-              details.address_components.forEach((component: any) => {
-                const types = component.types;
-                if (types.indexOf("locality") > -1) {
-                  const city = component.long_name;
-
-                  setValue("eventCity", city);
-                  setIsLoading(false);
-                }
-              });
-            })
-            .catch((error) => {
-              // TODO
-              console.error(error);
-              setIsLoading(false);
-            });
+          setSuggestion(suggestion);
         }}
-      />
-
-      <Input
-        name="eventCity"
-        ref={register()}
-        defaultValue={props.event?.eventCity}
-        display="none"
       />
 
       <EmailControl

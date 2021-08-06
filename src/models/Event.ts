@@ -13,6 +13,8 @@ export interface IEvent {
   eventMaxDate: string;
   eventAddress?: string;
   eventCity?: string;
+  eventLat?: number;
+  eventLng?: number;
   eventEmail?: string;
   eventDescription?: string;
   eventOrgs: IOrg[];
@@ -44,6 +46,8 @@ export const EventSchema = new Schema<IEvent>(
     },
     eventAddress: String,
     eventCity: String,
+    eventLat: Number,
+    eventLng: Number,
     eventEmail: String,
     eventDescription: String,
     eventOrgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],

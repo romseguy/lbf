@@ -1,4 +1,4 @@
-import type { IOrg } from "models/Org";
+import type { IEvent } from "models/Event";
 import React from "react";
 import {
   Modal,
@@ -11,7 +11,13 @@ import {
 } from "@chakra-ui/react";
 import { Map } from "features/common";
 
-export const MapModal = (props: { onClose: () => void }) => {
+export const MapModal = ({
+  events,
+  ...props
+}: {
+  onClose: () => void;
+  events?: IEvent[];
+}) => {
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
 
   return (
@@ -28,7 +34,7 @@ export const MapModal = (props: { onClose: () => void }) => {
           <ModalHeader>Carte des événements</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Map {...props} />
+            <Map items={events} {...props} />
           </ModalBody>
         </ModalContent>
       </ModalOverlay>

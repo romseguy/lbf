@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Control, Controller } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import {
@@ -10,6 +10,8 @@ import {
 import { AutoCompletePlacesControl } from "features/common";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { Libraries } from "@react-google-maps/api/dist/utils/make-load-script-url";
+import { Suggestion } from "use-places-autocomplete";
+import { loadMapsApi } from "utils/maps";
 
 const libraries: Libraries = ["places"];
 
@@ -28,18 +30,43 @@ export const AddressControl = ({
   control: Control<any>;
   isRequired?: boolean;
   mb?: number;
-  onSuggestionSelect?: (suggestion: any) => void;
+  onSuggestionSelect?: (suggestion: Suggestion) => void;
 }) => {
-  let controlRules: { required?: string | boolean } = {};
+  //let controlRules: { required?: string | boolean } = {};
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY,
-    libraries
+  // const { isLoaded, loadError } = useJsApiLoader({
+  //   googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY,
+  //   libraries
+  // });
+
+  // if (isRequired) {
+  //   if (isLoaded) controlRules.required = "Veuillez saisir une adresse";
+  // }
+
+  const [controlRules, setControlRules] = useState<{
+    required?: string | boolean;
+  }>({});
+
+  const [mapsApiState, setMapsApiState] = useState({
+    loaded: false,
+    loading: false
   });
 
-  if (isRequired) {
-    if (isLoaded) controlRules.required = "Veuillez saisir une adresse";
-  }
+  useEffect(() => {
+    const xhr = async () => {
+      try {
+        setMapsApiState({ loaded: false, loading: true });
+        await loadMapsApi();
+        setMapsApiState({ loaded: true, loading: false });
+        setControlRules({ required: "Veuillez saisir une adresse" });
+      } catch (error) {
+        console.log(error);
+        setMapsApiState({ loaded: false, loading: false });
+      }
+    };
+
+    xhr();
+  }, []);
 
   return (
     <>
@@ -50,7 +77,9 @@ export const AddressControl = ({
         mb={mb}
       >
         <FormLabel>Adresse</FormLabel>
-        {isLoaded || loadError ? (
+        {mapsApiState.loading ? (
+          <Spinner />
+        ) : mapsApiState.loaded ? (
           <Controller
             name={name}
             control={control}
@@ -66,8 +95,11 @@ export const AddressControl = ({
             )}
           />
         ) : (
-          <Spinner />
+          <span>error</span>
         )}
+        {/* {isLoaded || loadError ? (
+        ) : (
+        )} */}
         <FormErrorMessage>
           <ErrorMessage errors={errors} name={name} />
         </FormErrorMessage>
