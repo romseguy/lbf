@@ -52,14 +52,14 @@ const Hash = ({
 };
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  let routeName = ctx.query.name![0];
+  let routeName = decodeURIComponent(ctx.query.name![0]);
 
   if (routeName === "forum") {
     return { props: { routeName } };
   }
 
   if (routeName.indexOf(" ") !== -1) {
-    const destination = `/${routeName.replace(/\ /g, "_")}`;
+    const destination = `/${encodeURIComponent(routeName.replace(/\ /g, "_"))}`;
 
     return {
       redirect: {
@@ -71,9 +71,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     routeName = routeName.replace(/_/g, " ");
   }
 
-  const { data: event } = await api.get(
-    `event/${encodeURIComponent(routeName)}`
-  );
+  const { data: event } = await api.get(`event/${routeName}`);
 
   if (event) {
     const { data: user } = await api.get(`user/${event.createdBy._id}`);

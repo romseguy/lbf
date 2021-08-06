@@ -76,8 +76,8 @@ export const EventsPage = ({
           <EventModal
             onCancel={() => setIsEventModalOpen(false)}
             onSubmit={async (eventName) => {
-              await router.push(`/${eventName}`);
-              // await router.push(`/${encodeURIComponent(eventName)}`);
+              //await router.push(`/${eventName}`);
+              await router.push(`/${encodeURIComponent(eventName)}`);
             }}
             onClose={() => setIsEventModalOpen(false)}
           />

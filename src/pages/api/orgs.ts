@@ -14,9 +14,7 @@ handler.use(database);
 
 handler.get<NextApiRequest, NextApiResponse>(async function getOrgs(req, res) {
   try {
-    const orgs = await models.Org.find({}).sort({
-      orgName: "ascending"
-    });
+    const orgs = await models.Org.find({}, { orgBanner: 0 });
 
     res.status(200).json(orgs);
   } catch (error) {

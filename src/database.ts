@@ -12,7 +12,7 @@ import { SubscriptionSchema } from "models/Subscription";
 
 let connection: Connection;
 export let db: mongodb.Db;
-export let models: { [key: string]: any } = {};
+export let models: { [key: string]: Model<any> } = {};
 // export let models: {
 //   Event: Model<IEvent>;
 //   Org: Model<IOrg>;
