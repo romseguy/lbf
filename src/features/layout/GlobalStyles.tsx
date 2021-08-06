@@ -40,6 +40,10 @@ export const GlobalStyles = () => (
 
       ${RainbowTextStyles}
       ${ReactToggleStyles}
+
+      .ql-editor, .ql-editor ul {
+        padding: 0;
+      }
     `}
   />
 );

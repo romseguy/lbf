@@ -35,7 +35,9 @@ export const DescriptionModal = ({
         <ModalContent>
           <ModalHeader>{props.header}</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>{props.children}</ModalBody>
+          <ModalBody px={3} pt={0}>
+            {props.children}
+          </ModalBody>
         </ModalContent>
       </ModalOverlay>
     </Modal>

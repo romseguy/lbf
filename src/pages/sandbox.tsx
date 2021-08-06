@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Layout } from "features/layout";
-import { Autocomplete, useJsApiLoader } from "@react-google-maps/api";
-import { Libraries } from "@react-google-maps/api/dist/utils/make-load-script-url";
-
-const libraries: Libraries = ["places"];
 
 const Sandbox: React.FC = () => {
   // const { isLoaded, loadError } = useJsApiLoader({

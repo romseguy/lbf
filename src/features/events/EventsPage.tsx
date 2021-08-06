@@ -1,13 +1,6 @@
 import type { IEvent } from "models/Event";
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Flex,
-  IconButton,
-  Spinner,
-  useColorModeValue
-} from "@chakra-ui/react";
-import { Layout } from "features/layout";
+import { Flex, IconButton } from "@chakra-ui/react";
 import { EventModal } from "features/modals/EventModal";
 import { useRouter } from "next/router";
 import { Button, IconFooter } from "features/common";
@@ -16,8 +9,8 @@ import { useSession } from "hooks/useAuth";
 import { useGetEventsQuery } from "./eventsApi";
 import { EventsList } from "./EventsList";
 import { MapModal } from "features/modals/MapModal";
-import { FaMap, FaMapMarker } from "react-icons/fa";
-import { IoIosMap, IoIosPlanet, IoMdMap, IoMdPlanet } from "react-icons/io";
+import { FaMapMarkerAlt } from "react-icons/fa";
+import { isMobile } from "react-device-detect";
 
 export const EventsPage = ({
   isLogin,
@@ -63,19 +56,28 @@ export const EventsPage = ({
             Ajouter un événement
           </Button>
 
-          <Button
-            leftIcon={<FaMapMarker />}
-            onClick={() => setIsMapModalOpen(true)}
-          >
-            Carte des événements
-          </Button>
+          {isMobile ? (
+            <IconButton
+              aria-label="Carte des événements"
+              icon={<FaMapMarkerAlt />}
+              onClick={() => setIsMapModalOpen(true)}
+            />
+          ) : (
+            <Button
+              leftIcon={<FaMapMarkerAlt />}
+              onClick={() => setIsMapModalOpen(true)}
+            >
+              Carte des événements
+            </Button>
+          )}
         </Flex>
 
         {isEventModalOpen && (
           <EventModal
             onCancel={() => setIsEventModalOpen(false)}
             onSubmit={async (eventName) => {
-              await router.push(`/${encodeURIComponent(eventName)}`);
+              await router.push(`/${eventName}`);
+              // await router.push(`/${encodeURIComponent(eventName)}`);
             }}
             onClose={() => setIsEventModalOpen(false)}
           />

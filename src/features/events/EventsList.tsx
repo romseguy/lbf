@@ -1,12 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { Flex, Box, Icon, Text, Image, Grid, Heading } from "@chakra-ui/react";
-import {
-  Link,
-  GridHeader,
-  GridItem,
-  Spacer,
-  IconFooter
-} from "features/common";
+import { Box, Icon, Text, Grid, Heading } from "@chakra-ui/react";
+import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import {
   compareAsc,
   format,
@@ -16,15 +10,12 @@ import {
   intervalToDuration,
   parseISO,
   formatISO,
-  compareDesc,
-  getDay,
   getMinutes,
   getDayOfYear
 } from "date-fns";
 import type { IEvent } from "models/Event";
 import { fr } from "date-fns/locale";
 import { UpDownIcon } from "@chakra-ui/icons";
-import { resetTime } from "utils/resetTime";
 import { css } from "twin.macro";
 import { DescriptionModal } from "features/modals/DescriptionModal";
 import DOMPurify from "isomorphic-dompurify";
@@ -199,7 +190,18 @@ export const EventsList = (props: EventsProps) => {
                 [event.eventName]: false
               });
             }}
-            header={event.eventName}
+            header={
+              <Link
+                href={`/${encodeURIComponent(event.eventName)}`}
+                css={css`
+                  letter-spacing: 0.1em;
+                `}
+                size="larger"
+                className="rainbow-text"
+              >
+                {event.eventName}
+              </Link>
+            }
           >
             {event.eventDescription &&
             event.eventDescription.length > 0 &&

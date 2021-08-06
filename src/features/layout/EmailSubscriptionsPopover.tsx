@@ -133,11 +133,10 @@ export const EmailSubscriptionsPopover = ({
   };
 
   const onSubmit = async ({ email }: { email: string }) => {
-    const { error, data } = await dispatch(getSubscription.initiate(email));
+    const { error, data }: { error?: any; data?: ISubscription } =
+      await dispatch(getSubscription.initiate(email));
 
     if (error) {
-      console.log(error);
-
       handleError(error, (message) => {
         setError("formErrorMessage", { type: "manual", message });
       });

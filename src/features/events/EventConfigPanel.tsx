@@ -114,7 +114,8 @@ export const EventConfigPanel = ({
           onCancel={() => setIsEdit(false)}
           onSubmit={async (eventName) => {
             if (event && eventName !== event.eventName) {
-              await router.push(`/${encodeURIComponent(eventName)}`);
+              await router.push(`/${eventName}`);
+              // await router.push(`/${encodeURIComponent(eventName)}`);
             } else {
               eventQuery.refetch();
               setIsEdit(false);

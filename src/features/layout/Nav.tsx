@@ -14,7 +14,8 @@ import {
   useColorModeValue,
   Spinner,
   Icon,
-  SpaceProps
+  SpaceProps,
+  IconButton
 } from "@chakra-ui/react";
 import { Link } from "features/common";
 import { OrgPopover, EmailSubscriptionsPopover } from "features/layout";
@@ -32,6 +33,8 @@ import { refetchSubscription } from "features/subscriptions/subscriptionSlice";
 import { IoIosChatbubbles, IoIosPerson, IoMdPerson } from "react-icons/io";
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { useSelector } from "react-redux";
+import { isMobile } from "react-device-detect";
+import { FaPowerOff } from "react-icons/fa";
 
 const linkList = css`
   & > a {
@@ -188,16 +191,27 @@ export const Nav = ({
         <Flex justify="flex-end">
           <EmailSubscriptionsPopover boxSize={[8, 10, 10]} />
 
-          <Box mr={5} ml={5}>
-            <Button
-              variant="outline"
-              colorScheme="purple"
+          {isMobile ? (
+            <IconButton
+              mx={3}
               onClick={() => setIsLoginModalOpen(true)}
-              data-cy="login"
-            >
-              Connexion
-            </Button>
-          </Box>
+              aria-label="Connexion"
+              bg="transparent"
+              _hover={{ bg: "transparent" }}
+              icon={<Icon as={FaPowerOff} boxSize={[8, 10, 10]} />}
+            />
+          ) : (
+            <Box mr={5} ml={5}>
+              <Button
+                variant="outline"
+                colorScheme="purple"
+                onClick={() => setIsLoginModalOpen(true)}
+                data-cy="login"
+              >
+                Connexion
+              </Button>
+            </Box>
+          )}
         </Flex>
       )}
 

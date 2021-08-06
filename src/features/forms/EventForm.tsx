@@ -272,7 +272,6 @@ export const EventForm = ({
       } else {
         await addEvent({
           ...payload,
-          eventName: form.eventName,
           createdBy: session.user.userId
         }).unwrap();
 

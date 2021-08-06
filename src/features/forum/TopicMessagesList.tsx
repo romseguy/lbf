@@ -49,7 +49,7 @@ export const TopicMessagesList = ({
                 >
                   {createdBy.userName}
                 </Link>
-                <Box className="ql-editor" p={0} m={0}>
+                <Box className="ql-editor">
                   <div
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(message)

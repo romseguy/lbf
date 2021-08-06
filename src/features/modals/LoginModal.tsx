@@ -265,6 +265,7 @@ export const LoginModal = (props: {
                   </Button>
                 )}
                 <Button
+                  ml={3}
                   colorScheme="green"
                   type="submit"
                   isLoading={isLoading}

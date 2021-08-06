@@ -11,82 +11,86 @@ const ReactQuillStyles = styled("span")(
   (props: { height?: string; width?: string }) => {
     const { colorMode } = useColorMode();
     const bothColorModes = `
-    &:hover {
-      .ql-toolbar {
-        border: 1px solid #cbd5e0;
+      .ql-editor {
+        padding: 12px;
       }
 
-      .ql-container {
-        border: 1px solid #cbd5e0;
-      }
-    }
+      &:hover {
+        .ql-toolbar {
+          border: 1px solid #cbd5e0;
+        }
 
-    .ql-toolbar {
-      border: 1px solid #e2e8f0;
-      padding: 0;
-      text-align: center;
-      border-top-left-radius: 6px;
-      border-top-right-radius: 6px;
-
-      button {
-        padding: 0;
-      }
-
-      .ql-picker-label {
-        padding: 0;
-      }
-
-      & > .ql-formats {
-        margin: 0 8px 0 0;
-      }
-
-      // & > .ql-formats > button {
-      //     padding: 0 2px 0 0;
-      //     width: auto;
-      // }
-
-      // & > .ql-formats > button:hover {
-      //     & > svg > .ql-stroke {
-      //     }
-      //     & > svg > .ql-fill {
-      //     }
-      // }
-
-      .ql-picker.ql-size {
-        width: auto;
-        .ql-picker-label {
-          padding-right: 16px;
-          padding-left: 4px;
+        .ql-container {
+          border: 1px solid #cbd5e0;
         }
       }
 
-      .ql-insertHeart {
+      .ql-toolbar {
+        border: 1px solid #e2e8f0;
         padding: 0;
-      }
-    }
+        text-align: center;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
 
-    .ql-container.ql-disabled {
-      * {
-        cursor: not-allowed;
-      }
-    }
+        button {
+          padding: 0;
+        }
 
-    .ql-container {
-      width: ${props.width ? props.width : ""};
-      height: ${props.height ? props.height : ""};
-      border: 1px solid #e2e8f0;
-      border-bottom-left-radius: 6px;
-      border-bottom-right-radius: 6px;
+        .ql-picker-label {
+          padding: 0;
+        }
 
-      & > .ql-editor.ql-blank::before {
-        font-size: 16px;
-        color: ${colorMode === "dark" ? "#7b8593" : "#bfc7ce"};
-        font-style: normal;
-        overflow: hidden;
-        white-space: nowrap;
+        & > .ql-formats {
+          margin: 0 8px 0 0;
+        }
+
+        // & > .ql-formats > button {
+        //     padding: 0 2px 0 0;
+        //     width: auto;
+        // }
+
+        // & > .ql-formats > button:hover {
+        //     & > svg > .ql-stroke {
+        //     }
+        //     & > svg > .ql-fill {
+        //     }
+        // }
+
+        .ql-picker.ql-size {
+          width: auto;
+          .ql-picker-label {
+            padding-right: 16px;
+            padding-left: 4px;
+          }
+        }
+
+        .ql-insertHeart {
+          padding: 0;
+        }
       }
-    }
-  `;
+
+      .ql-container.ql-disabled {
+        * {
+          cursor: not-allowed;
+        }
+      }
+
+      .ql-container {
+        width: ${props.width ? props.width : ""};
+        height: ${props.height ? props.height : ""};
+        border: 1px solid #e2e8f0;
+        border-bottom-left-radius: 6px;
+        border-bottom-right-radius: 6px;
+
+        & > .ql-editor.ql-blank::before {
+          font-size: 16px;
+          color: ${colorMode === "dark" ? "#7b8593" : "#bfc7ce"};
+          font-style: normal;
+          overflow: hidden;
+          white-space: nowrap;
+        }
+      }
+    `;
 
     return `
     ${bothColorModes}
@@ -130,7 +134,6 @@ const ReactQuillStyles = styled("span")(
       }
       `
     }
-
     `;
   }
 );
@@ -213,7 +216,6 @@ export const RTEditor = ({
   width?: string;
 }) => {
   const shortId = getUniqueId();
-  console.log(shortId);
 
   const modules = (id: string) => ({
     history: {
