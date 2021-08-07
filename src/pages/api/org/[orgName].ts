@@ -1,10 +1,19 @@
 import type { ITopic } from "models/Topic";
+import nodemailer from "nodemailer";
+import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import { emailR } from "utils/email";
+import mongoose from "mongoose";
+
+const transport = nodemailer.createTransport(
+  nodemailerSendgrid({
+    apiKey: process.env.EMAIL_API_KEY
+  })
+);
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -74,6 +83,12 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrgDetails(
 
       const org = await models.Org.findOne({ orgName });
 
+      if (!org) {
+        return res
+          .status(404)
+          .json(createServerError(new Error("Organisation introuvable")));
+      }
+
       const addOrUpdateSub = async (userId: string, topic: ITopic) => {
         if (!userId) return;
 
@@ -106,14 +121,54 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrgDetails(
         let topic = body.topic;
 
         if (body.topic._id) {
-          // existing topic => adding messages
-          const topic = await models.Topic.findOne({ _id: body.topic._id });
-
-          for (const topicMessage of body.topic.topicMessages) {
-            createdBy = topicMessage.createdBy;
-            topic.topicMessages.push(topicMessage);
+          if (!body.topic.topicMessages || !body.topic.topicMessages.length) {
+            return res.status(200).json(org);
           }
 
+          topic = await models.Topic.findOne({ _id: topic._id });
+
+          if (!topic) {
+            if (!org) {
+              return res
+                .status(404)
+                .json(createServerError(new Error("Topic introuvable")));
+            }
+          }
+
+          // existing topic => adding 1 message
+          const newMessage = body.topic.topicMessages[0];
+
+          // get subscriptions of users other than poster
+          const subscriptions = await models.Subscription.find({
+            "topics.topic": mongoose.Types.ObjectId(topic._id),
+            user: { $ne: newMessage.createdBy }
+          }).populate("user");
+
+          const subject = `Nouveau commentaire sur la discussion : ${topic.topicName}`;
+
+          for (const subscription of subscriptions) {
+            let url = `${process.env.NEXTAUTH_URL}/${org.orgName}`;
+            let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de <a href="${url}">${org.orgName}</a> pour lire la discussion.</p>`;
+
+            if (org.orgName === "aucourant") {
+              url = `${process.env.NEXTAUTH_URL}/forum`;
+              html = `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion.</p>`;
+            }
+
+            const mail = {
+              from: process.env.EMAIL_FROM,
+              to: `<${subscription.user.email}>`,
+              subject,
+              html
+            };
+
+            if (process.env.NODE_ENV === "production")
+              await transport.sendMail(mail);
+            else if (process.env.NODE_ENV === "development")
+              console.log("mail", mail);
+          }
+
+          topic.topicMessages.push(newMessage);
           await topic.save();
         } else {
           // new topic

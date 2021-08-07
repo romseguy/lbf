@@ -57,7 +57,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function forgotten(
             await transport.sendMail({
               from: process.env.EMAIL_FROM,
               to: `<${email}>`,
-              subject: `${securityCode} est votre code de sécurité aucourant.de`,
+              subject: `${securityCode} est votre code de sécurité ${process.env.NEXT_PUBLIC_SHORT_URL}`,
               html: `Bonjour,<br/><br/>Nous avons reçu une demande de réinitialisation de mot de passe de votre compte.<br/>Saisissez le code de sécurité suivant : ${securityCode}`
             });
           }

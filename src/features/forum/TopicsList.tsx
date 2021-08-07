@@ -93,12 +93,8 @@ export const TopicsList = ({
     useAddSubscriptionMutation();
 
   let entity: IEvent | IOrg | undefined = org || event;
+  const entityName: string = org?.orgName || event?.eventName || "";
   let entityTopics: ITopic[] = org?.orgTopics || event?.eventTopics || [];
-
-  if (event) {
-    entity = event;
-    entityTopics = event.eventTopics;
-  }
 
   const topicsCount = Array.isArray(entityTopics) ? entityTopics.length : 0;
 
@@ -149,6 +145,8 @@ export const TopicsList = ({
               {/* <Spacer borderWidth={1} /> */}
               {entityTopics
                 .filter((entityTopic) => {
+                  if (entityName === "aucourant") return true;
+
                   let allow = false;
 
                   if (entityTopic.topicVisibility === Visibility.PUBLIC) {

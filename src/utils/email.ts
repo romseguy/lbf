@@ -63,7 +63,7 @@ export const sendToAdmin = async (event: IEvent, transport: any) => {
       subject: `Un événement attend votre approbation : ${event.eventName}`,
       html: `
         <h1>Nouvel événement : ${event.eventName}</h1>
-        <p>Rendez-vous sur <a href="${process.env.NEXTAUTH_URL}/${event.eventName}">aucourant.de/${event.eventName}</a> pour en savoir plus.</p>
+        <p>Rendez-vous sur <a href="${process.env.NEXTAUTH_URL}/${event.eventName}">${process.env.NEXT_PUBLIC_SHORT_URL}/${event.eventName}</a> pour en savoir plus.</p>
       `
     }));
 };

@@ -61,6 +61,8 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
   });
 
   const onChange = () => {
+    console.log("!");
+
     clearErrors("formErrorMessage");
   };
 

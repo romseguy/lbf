@@ -61,7 +61,7 @@ const Index = ({ events }: { events?: IEvent[] }) => {
               size="larger"
               href={`/`}
             >
-              aucourant.de
+              {process.env.NEXT_PUBLIC_SHORT_URL}
             </Link>
           </Box> */}
           <Text align="justify" mb={3}>
