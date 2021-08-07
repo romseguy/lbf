@@ -1,3 +1,4 @@
+import type { IOrg } from "models/Org";
 import type { IEvent } from "models/Event";
 import React from "react";
 import {
@@ -12,11 +13,11 @@ import {
 import { Map } from "features/common";
 
 export const MapModal = ({
-  events,
+  items,
   ...props
 }: {
   onClose: () => void;
-  events?: IEvent[];
+  items?: IEvent[] | IOrg[];
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
 
@@ -31,10 +32,20 @@ export const MapModal = ({
     >
       <ModalOverlay>
         <ModalContent>
-          <ModalHeader>Carte des événements</ModalHeader>
+          <ModalHeader>
+            {items &&
+              items[0] &&
+              `Carte des ${
+                "eventName" in items[0] ? "événements" : "organisations"
+              }`}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Map items={events} {...props} />
+            {items ? (
+              <Map items={items} {...props} />
+            ) : (
+              "Il n'y a encore rien à afficher sur cette carte, revenez plus tard !"
+            )}
           </ModalBody>
         </ModalContent>
       </ModalOverlay>

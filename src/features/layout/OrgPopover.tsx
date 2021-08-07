@@ -44,7 +44,7 @@ export const OrgPopover = ({ boxSize, ...props }: BoxProps) => {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const query = useGetOrgsQuery();
+  const query = useGetOrgsQuery(null);
   const myOrgs =
     (Array.isArray(query.data) &&
       query.data.length > 0 &&

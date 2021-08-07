@@ -84,7 +84,7 @@ export const EventsPage = ({
         )}
 
         {isMapModalOpen && (
-          <MapModal events={events} onClose={() => setIsMapModalOpen(false)} />
+          <MapModal items={events} onClose={() => setIsMapModalOpen(false)} />
         )}
       </>
 

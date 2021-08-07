@@ -1,3 +1,4 @@
+import type { IOrg } from "models/Org";
 import type { IEvent } from "models/Event";
 import React from "react";
 import GoogleMap from "google-map-react";
@@ -16,10 +17,24 @@ const center = {
   lng: 1.989113
 };
 
-const Marker = ({ item }: { item: IEvent; lat: number; lng: number }) => {
+const Marker = ({
+  item,
+  lat,
+  lng
+}: {
+  item: IEvent | IOrg;
+  lat?: number;
+  lng?: number;
+}) => {
+  if (!lat || !lng) return null;
+
   const [isDescriptionOpen, setIsDescriptionOpen] = useState<{
     [key: string]: boolean;
   }>({});
+
+  const name = "eventName" in item ? item.eventName : item.orgName;
+  const description =
+    "eventName" in item ? item.eventDescription : item.orgDescription;
 
   return (
     <>
@@ -28,7 +43,7 @@ const Marker = ({ item }: { item: IEvent; lat: number; lng: number }) => {
         onClick={() => {
           setIsDescriptionOpen({
             ...isDescriptionOpen,
-            [item.eventName]: true
+            [name]: true
           });
         }}
         as={FaMapMarkerAlt}
@@ -38,33 +53,33 @@ const Marker = ({ item }: { item: IEvent; lat: number; lng: number }) => {
 
       <DescriptionModal
         defaultIsOpen={false}
-        isOpen={isDescriptionOpen[item.eventName]}
+        isOpen={isDescriptionOpen[name]}
         onClose={() => {
           setIsDescriptionOpen({
             ...isDescriptionOpen,
-            [item.eventName]: false
+            [name]: false
           });
         }}
         header={
           <Link
-            href={`/${encodeURIComponent(item.eventName)}`}
+            href={`/${encodeURIComponent(name)}`}
             css={css`
               letter-spacing: 0.1em;
             `}
             size="larger"
             className="rainbow-text"
           >
-            {item.eventName}
+            {name}
           </Link>
         }
       >
-        {item.eventDescription &&
-        item.eventDescription.length > 0 &&
-        item.eventDescription !== "<p><br></p>" ? (
+        {description &&
+        description.length > 0 &&
+        description !== "<p><br></p>" ? (
           <div className="ql-editor">
             <div
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(item.eventDescription)
+                __html: DOMPurify.sanitize(description)
               }}
             />
           </div>
@@ -76,7 +91,7 @@ const Marker = ({ item }: { item: IEvent; lat: number; lng: number }) => {
   );
 };
 
-export const Map = React.memo(({ items }: { items?: IEvent[] }) => {
+export const Map = React.memo(({ items }: { items: IEvent[] | IOrg[] }) => {
   const [mapsApiState, setMapsApiState] = useState({
     loaded: false,
     loading: false
@@ -110,16 +125,15 @@ export const Map = React.memo(({ items }: { items?: IEvent[] }) => {
   ) : (
     <div style={{ height: "400px", width: "100%" }}>
       <GoogleMap defaultCenter={center} defaultZoom={10}>
-        {items?.map((item, index) => {
-          if (!item.eventLat || !item.eventLng) return null;
-          return (
-            <Marker
-              key={`item-${index}`}
-              lat={item.eventLat}
-              lng={item.eventLng}
-              item={item}
-            />
-          );
+        {items.map((item, index) => {
+          const markerProps = {
+            key: `item-${index}`,
+            item,
+            lat: "eventName" in item ? item.eventLat : item.orgLat,
+            lng: "eventName" in item ? item.eventLng : item.orgLng
+          };
+
+          return <Marker {...markerProps} />;
         })}
       </GoogleMap>
     </div>

@@ -1,3 +1,4 @@
+import type { IOrg } from "models/Org";
 import React, { useState } from "react";
 import { signOut } from "next-auth/react";
 import { useSession } from "hooks/useAuth";
@@ -29,12 +30,13 @@ import {
   selectUserName,
   setSubscribedEmail
 } from "features/users/userSlice";
-import { refetchSubscription } from "features/subscriptions/subscriptionSlice";
-import { IoIosChatbubbles, IoIosPerson, IoMdPerson } from "react-icons/io";
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { useSelector } from "react-redux";
 import { isMobile } from "react-device-detect";
-import { FaPowerOff } from "react-icons/fa";
+import { FaMapMarkerAlt, FaPowerOff } from "react-icons/fa";
+import { MapModal } from "features/modals/MapModal";
+import { getOrgs } from "features/orgs/orgsApi";
+import api from "utils/api";
 
 const linkList = css`
   & > a {
@@ -46,6 +48,10 @@ const linkList = css`
 
   @media (max-width: ${breakpoints.sm}) {
     margin-left: 0;
+
+    button {
+      font-size: 0.8rem;
+    }
 
     & > a {
       display: block;
@@ -79,6 +85,8 @@ export const Nav = ({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
     router.asPath === "/?login" || false
   );
+  const [orgs, setOrgs] = useState<IOrg[]>();
+  const [isMapModalOpen, setisMapModalOpen] = useState(false);
 
   const styles = css`
     ${isDark
@@ -104,7 +112,7 @@ export const Nav = ({
       css={styles}
     >
       <Box css={linkList}>
-        <Link href="/" data-cy="homeLink">
+        <Link href="/" data-cy="homeLink" aria-hidden>
           <Button
             bg="transparent"
             _hover={{
@@ -115,7 +123,31 @@ export const Nav = ({
             Votre agenda local
           </Button>
         </Link>
-        <Link href="/forum">
+
+        <Button
+          bg="transparent"
+          _hover={{
+            bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
+          }}
+          leftIcon={<FaMapMarkerAlt />}
+          onClick={async () => {
+            const { error, data }: { error?: any; data?: IOrg[] } =
+              await api.get("orgs");
+
+            if (error) {
+              console.log("todo: handle error", error);
+            } else if (data) {
+              if (data.filter((org) => org.orgLat && org.orgLng).length > 0) {
+                setOrgs(data);
+              }
+              setisMapModalOpen(true);
+            }
+          }}
+        >
+          Carte des organisations
+        </Button>
+
+        <Link href="/forum" aria-hidden>
           <Button
             bg="transparent"
             _hover={{
@@ -154,12 +186,13 @@ export const Nav = ({
 
             <MenuList mr={[1, 3]}>
               <MenuItem
+                aria-hidden
                 command={`${userName}`}
                 cursor="default"
                 _hover={{ bg: isDark ? "gray.700" : "white" }}
               ></MenuItem>
 
-              <Link href={`/${encodeURIComponent(userName)}`}>
+              <Link href={`/${encodeURIComponent(userName)}`} aria-hidden>
                 <MenuItem>Ma page</MenuItem>
               </Link>
 
@@ -232,6 +265,10 @@ export const Nav = ({
             }
           }}
         />
+      )}
+
+      {isMapModalOpen && (
+        <MapModal items={orgs} onClose={() => setisMapModalOpen(false)} />
       )}
     </Flex>
   );

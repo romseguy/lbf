@@ -41,7 +41,7 @@ export const orgApi = createApi({
         })
       }
     ),
-    getOrgs: build.query<IOrg[], void>({
+    getOrgs: build.query<IOrg[], null>({
       query: () => ({ url: `orgs` })
     }),
     getOrgByName: build.query<IOrg, string>({
@@ -63,5 +63,5 @@ export const {
   useGetOrgsByCreatorQuery
 } = orgApi;
 export const {
-  endpoints: { getOrgByName, getOrgsByCreator }
+  endpoints: { getOrgByName, getOrgs, getOrgsByCreator }
 } = orgApi;

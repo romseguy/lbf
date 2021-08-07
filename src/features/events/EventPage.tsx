@@ -111,7 +111,7 @@ export const EventPage = (props: {
         >
           Paramètres de l'événement
         </Button>
-      ) : isConfig ? (
+      ) : isConfig && !isEdit ? (
         <Button
           leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}

@@ -124,7 +124,7 @@ export const OrgPage = ({
         >
           Paramètres {orgTypeFull(org.orgType)}
         </Button>
-      ) : isConfig ? (
+      ) : isConfig && !isEdit ? (
         <Button
           leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}

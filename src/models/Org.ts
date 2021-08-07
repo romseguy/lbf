@@ -12,6 +12,9 @@ export interface IOrg {
   orgNameLower?: string;
   orgType: string;
   orgAddress?: string;
+  orgCity?: string;
+  orgLat?: number;
+  orgLng?: number;
   orgEmail?: string;
   orgSubscriptions: ISubscription[];
   orgDescription?: string;
@@ -52,6 +55,9 @@ export const OrgSchema = new Schema<IOrg>(
       required: true
     },
     orgAddress: String,
+    orgCity: String,
+    orgLat: Number,
+    orgLng: Number,
     orgEmail: String,
     orgSubscriptions: [
       { type: Schema.Types.ObjectId, ref: "Subscription", required: true }

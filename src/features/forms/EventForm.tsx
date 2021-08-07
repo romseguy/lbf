@@ -206,7 +206,7 @@ export const EventForm = ({
       : addHours(now, eventMinDuration)
   };
 
-  const [suggestion, setSuggestion] = useState<Suggestion | undefined>();
+  const [suggestion, setSuggestion] = useState<Suggestion>();
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -218,7 +218,10 @@ export const EventForm = ({
 
     const payload = {
       ...form,
-      eventDescription: form.eventDescription?.replace(/\&nbsp;/g, " "),
+      eventDescription:
+        form.eventDescription === "<p><br></p>"
+          ? ""
+          : form.eventDescription?.replace(/\&nbsp;/g, " "),
       eventNotif:
         typeof form.eventNotif === "boolean"
           ? []

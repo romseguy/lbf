@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import {
@@ -30,6 +30,13 @@ import { useSession } from "hooks/useAuth";
 import { OrgTypes, OrgTypesV } from "models/Org";
 import type { IOrg } from "models/Org";
 import { handleError } from "utils/form";
+import usePlacesAutocomplete, {
+  getDetails,
+  getGeocode,
+  getLatLng,
+  Suggestion
+} from "use-places-autocomplete";
+import { useEffect } from "react";
 
 interface OrgFormProps extends ChakraProps {
   org?: IOrg;
@@ -45,10 +52,41 @@ export const OrgForm = (props: OrgFormProps) => {
   const [editOrg, editOrgMutation] = useEditOrgMutation();
   const toast = useToast({ position: "top" });
 
-  const { control, register, handleSubmit, errors, setError, clearErrors } =
-    useForm({
-      mode: "onChange"
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    errors,
+    setError,
+    clearErrors,
+    watch,
+    getValues
+  } = useForm({
+    mode: "onChange"
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [suggestion, setSuggestion] = useState<Suggestion>();
+  watch("orgAddress");
+  const orgAddress = getValues("orgAddress") || props.org?.orgAddress;
+  const {
+    ready,
+    value: autoCompleteValue,
+    suggestions: { status, data },
+    setValue,
+    clearSuggestions
+  } = usePlacesAutocomplete({
+    requestOptions: {
+      componentRestrictions: {
+        country: "fr"
+      }
+    },
+    debounce: 300
+  });
+
+  useEffect(() => {
+    if (!suggestion) setValue(orgAddress);
+  }, [orgAddress]);
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -56,9 +94,43 @@ export const OrgForm = (props: OrgFormProps) => {
 
   const onSubmit = async (form: IOrg) => {
     console.log("submitted", form);
-    const payload = form;
+    setIsLoading(true);
+    const payload = {
+      ...form,
+      orgDescription:
+        form.orgDescription === "<p><br></p>"
+          ? ""
+          : form.orgDescription?.replace(/\&nbsp;/g, " ")
+    };
 
     try {
+      let sugg = suggestion;
+
+      if (!suggestion && payload.orgAddress && data[0]) {
+        sugg = data[0];
+      }
+
+      if (sugg) {
+        const details: any = await getDetails({
+          placeId: sugg.place_id,
+          fields: ["address_component"]
+        });
+
+        details.address_components.forEach((component: any) => {
+          const types = component.types;
+
+          if (types.indexOf("locality") > -1) {
+            payload.orgCity = component.long_name;
+          }
+        });
+
+        const results = await getGeocode({ address: sugg.description });
+        const { lat, lng } = await getLatLng(results[0]);
+
+        payload.orgLat = lat;
+        payload.orgLng = lng;
+      }
+
       if (props.org) {
         await editOrg({ payload, orgName: props.org.orgName }).unwrap();
 
@@ -78,6 +150,7 @@ export const OrgForm = (props: OrgFormProps) => {
         });
       }
 
+      setIsLoading(false);
       props.onClose && props.onClose();
       props.onSubmit && props.onSubmit(payload.orgName);
     } catch (error) {
@@ -165,6 +238,9 @@ export const OrgForm = (props: OrgFormProps) => {
         errors={errors}
         control={control}
         mb={3}
+        onSuggestionSelect={(suggestion) => {
+          setSuggestion(suggestion);
+        }}
       />
 
       <EmailControl
@@ -212,7 +288,9 @@ export const OrgForm = (props: OrgFormProps) => {
         <Button
           colorScheme="green"
           type="submit"
-          isLoading={addOrgMutation.isLoading || editOrgMutation.isLoading}
+          isLoading={
+            isLoading || addOrgMutation.isLoading || editOrgMutation.isLoading
+          }
           isDisabled={Object.keys(errors).length > 0}
           data-cy="orgFormSubmit"
         >

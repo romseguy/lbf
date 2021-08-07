@@ -30,7 +30,6 @@ export const AutoCompletePlacesControl = ({
       }
     },
     debounce: 300
-    // callbackName: "initMap"
   });
 
   const ref = useOnclickOutside(() => {
