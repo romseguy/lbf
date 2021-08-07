@@ -2,10 +2,8 @@ import React from "react";
 import { Box } from "@chakra-ui/layout";
 import { Avatar, AvatarBadge, Flex, Tooltip } from "@chakra-ui/react";
 import { Container, Link, Spacer } from "features/common";
-import { intervalToDuration, format, parseISO } from "date-fns";
-import { fr } from "date-fns/locale";
 import { ITopicMessage } from "models/TopicMessage";
-import { formatDuration } from "utils/date";
+import * as dateUtils from "utils/date";
 import DOMPurify from "isomorphic-dompurify";
 
 export const TopicMessagesList = ({
@@ -16,31 +14,22 @@ export const TopicMessagesList = ({
   return (
     <>
       {topicMessages.map(({ _id, message, createdBy, createdAt }, index) => {
-        const end = createdAt ? parseISO(createdAt) : new Date();
-        const fullDate = format(end, "eeee dd MMMM yyyy à H'h'mm", {
-          locale: fr
-        });
-
-        const duration = intervalToDuration({
-          start: new Date(),
-          end
-        });
-        const formatted = formatDuration(duration, {
-          format: ["years", "months", "weeks", "days", "hours", "minutes"]
-        });
-        const timeAgo = formatted === "" ? "1m" : formatted;
+        const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt);
 
         return (
-          <Flex key={_id} px={2} py={2}>
-            <Avatar name={createdBy.userName} boxSize={12} />
+          <Flex key={_id} px={2} pt={index === 0 ? 3 : 0} pb={3}>
+            <Avatar
+              name={createdBy.userName}
+              boxSize={10}
+              src={createdBy.userImage?.base64}
+            />
             {/* <AvatarBadge boxSize="1.25em" bg="green.500" />
             </Avatar> */}
-            <Box ml={3}>
+            <Box ml={2}>
               <Container
                 borderRadius={18}
                 light={{ bg: "white" }}
-                dark={{ bg: "gray.700" }}
-                py={1}
+                dark={{ bg: "gray.600" }}
                 px={3}
               >
                 <Link

@@ -1,26 +1,21 @@
 import type { IEvent } from "./Event";
 import type { IOrg } from "./Org";
+import type { ITopic } from "./Topic";
 import type { IUser } from "models/User";
 import { Schema } from "mongoose";
-import { ITopic, TopicSchema } from "./Topic";
 
 export interface IOrgSubscription {
   orgId: string;
   org: IOrg /* | string*/;
-  topics?: ITopic[];
   type: string;
 }
 export interface ISubscription {
   _id: string;
   user?: IUser;
   email?: string;
-  events: [
-    {
-      event: IEvent;
-      topics?: ITopic[];
-    }
-  ];
+  events: [{ event: IEvent }];
   orgs: IOrgSubscription[];
+  topics: [{ topic: ITopic }];
 }
 
 export const SubscriptionTypes: { [key: string]: string } = {
@@ -40,10 +35,6 @@ export const SubscriptionSchema = new Schema<ISubscription>(
         event: {
           type: Schema.Types.ObjectId,
           ref: "Event"
-        },
-        topics: {
-          type: Schema.Types.ObjectId,
-          ref: "Topic"
         }
       }
     ],
@@ -57,16 +48,20 @@ export const SubscriptionSchema = new Schema<ISubscription>(
           type: Schema.Types.ObjectId,
           ref: "Org"
         },
-        topics: {
-          type: Schema.Types.ObjectId,
-          ref: "Topic"
-        },
         type: {
           type: String,
           enum: Object.keys(SubscriptionTypes).map(
             (key) => SubscriptionTypes[key]
           ),
           required: true
+        }
+      }
+    ],
+    topics: [
+      {
+        topic: {
+          type: Schema.Types.ObjectId,
+          ref: "Topic"
         }
       }
     ]

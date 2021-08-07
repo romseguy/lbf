@@ -1,11 +1,16 @@
-import type { Document } from "mongoose";
+import { Document, model } from "mongoose";
 import type { IOrg } from "models/Org";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import {
+  IOrgSubscription,
+  ISubscription,
+  SubscriptionTypes
+} from "models/Subscription";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError, databaseErrorCodes } from "utils/errors";
 import { getSession } from "hooks/useAuth";
+import { ITopic } from "models/Topic";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -38,33 +43,21 @@ handler.post<NextApiRequest, NextApiResponse>(async function postSubscription(
       }
     }
 
-    let userSubscription: Document & ISubscription =
-      await models.Subscription.findOne(selector);
+    let userSubscription = await models.Subscription.findOne(selector);
+
+    if (!userSubscription) {
+      userSubscription = await models.Subscription.create({
+        ...selector
+      });
+    }
 
     if (req.body.orgs) {
-      const { orgs }: ISubscription = req.body;
+      const { orgs: newOrgSubscriptions }: { orgs: IOrgSubscription[] } =
+        req.body;
 
-      if (!userSubscription || !userSubscription.orgs) {
-        userSubscription = await models.Subscription.create({
-          ...selector,
-          orgs
-        });
-
-        await models.Org.updateMany(
-          {
-            _id: orgs.map((orgSubscription) => orgSubscription.org._id)
-          },
-          {
-            $push: {
-              orgSubscriptions: userSubscription
-            }
-          }
-        );
-      }
-      // user/email got a subscription
-      else {
-        for (const newOrgSubscription of orgs) {
-          const org: Document & IOrg = await models.Org.findOne({
+      if (userSubscription.orgs) {
+        for (const newOrgSubscription of newOrgSubscriptions) {
+          const org = await models.Org.findOne({
             _id: newOrgSubscription.org._id
           });
 
@@ -101,11 +94,49 @@ handler.post<NextApiRequest, NextApiResponse>(async function postSubscription(
           )
             userSubscription.orgs.push(newOrgSubscription);
         }
+      } else {
+        userSubscription.orgs = newOrgSubscriptions;
+        await models.Org.updateMany(
+          {
+            _id: newOrgSubscriptions.map(
+              (newOrgSubscription) => newOrgSubscription.org._id
+            )
+          },
+          {
+            $push: {
+              orgSubscriptions: userSubscription
+            }
+          }
+        );
+      }
+    } else if (req.body.topics) {
+      const topicId = req.body.topics[0].topic._id;
+      const topic = await models.Topic.findOne({ _id: topicId });
 
-        await userSubscription.save();
+      if (!topic) {
+        return res
+          .status(404)
+          .json(
+            createServerError(
+              new Error(`Vous ne pouvez pas vous abonner à un topic inexistant`)
+            )
+          );
+      }
+
+      if (userSubscription.topics) {
+        if (
+          !userSubscription.topics.find(
+            ({ topic }: { topic: ITopic }) => topic._id === topicId
+          )
+        ) {
+          userSubscription.topics.push({ topic });
+        }
+      } else {
+        userSubscription.topics = req.body.topics;
       }
     }
 
+    await userSubscription.save();
     res.status(200).json(userSubscription);
   } catch (error) {
     if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {

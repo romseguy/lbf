@@ -29,12 +29,13 @@ export const subscriptionApi = createApi({
         payload?: Partial<ISubscription>;
         subscriptionId: string;
         orgId?: string;
+        topicId?: string;
       }
     >({
-      query: ({ payload, subscriptionId, orgId }) => ({
+      query: ({ payload, subscriptionId, orgId, topicId }) => ({
         url: `subscription/${subscriptionId}`,
         method: "DELETE",
-        body: payload || { orgId }
+        body: payload ? payload : { orgId, topicId }
       })
     }),
     editSubscription: build.mutation<

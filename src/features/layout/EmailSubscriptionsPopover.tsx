@@ -263,11 +263,13 @@ export const EmailSubscriptionsPopover = ({
                           minWidth={0}
                           ml={3}
                           onClick={async () => {
+                            if (!mySubscription) return;
+
                             const unsubscribe = confirm(
-                              `Êtes vous sûr de vouloir vous désabonner de ${orgSubscription.org.orgName} ?`
+                              `Êtes vous sûr(e) de vouloir vous désabonner de ${orgSubscription.org.orgName} ?`
                             );
 
-                            if (unsubscribe && mySubscription) {
+                            if (unsubscribe) {
                               await deleteSubscription({
                                 subscriptionId: mySubscription._id,
                                 payload: {

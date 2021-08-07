@@ -172,7 +172,7 @@ export const OrgPage = ({
             variant="underline"
             href={`/${encodeURIComponent(org.createdBy.userName)}`}
           >
-            @{org.createdBy.userName}
+            {org.createdBy.userName}
           </Link>{" "}
           {isCreator && "(Vous)"}
         </Text>

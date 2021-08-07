@@ -20,18 +20,21 @@ handler.get<NextApiRequest, NextApiResponse>(async function getOrg(req, res) {
 
   try {
     const org = await models.Org.findOne({ orgNameLower })
+      .populate("createdBy", "-email -password -userImage")
+      .populate("orgEvents orgSubscriptions orgTopics")
       .populate({
         path: "orgTopics",
-        populate: { path: "createdBy" }
+        populate: [
+          {
+            path: "topicMessages",
+            populate: { path: "createdBy", select: "-email -password" }
+          },
+          { path: "createdBy", select: "-email -password" }
+        ]
       })
-      .populate({
-        path: "orgTopics.topicMessages",
-        populate: { path: "createdBy" }
-      })
-      .populate("orgEvents orgSubscriptions createdBy")
       .populate({
         path: "orgSubscriptions",
-        populate: { path: "user" }
+        populate: { path: "user", select: "-email -password" }
       });
 
     if (org) {
@@ -71,24 +74,59 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrgDetails(
 
       const org = await models.Org.findOne({ orgName });
 
-      if (body.topic) {
-        if (body.topic._id) {
-          const orgTopic = org.orgTopics.find(
-            (topic: ITopic) => topic.id === body.topic._id
+      const addOrUpdateSub = async (userId: string, topic: ITopic) => {
+        if (!userId) return;
+
+        const user = await models.User.findOne({ _id: userId });
+
+        if (!user) return;
+
+        let subscription = await models.Subscription.findOne({ user });
+
+        if (!subscription) {
+          subscription = await models.Subscription.create({
+            user,
+            topics: [{ topic }]
+          });
+        } else {
+          let topicSubscription = subscription.topics.find(
+            (topic: ITopic) => topic._id === body.topic._id
           );
 
-          for (const topicMessage of body.topic.topicMessages) {
-            orgTopic.topicMessages.push(topicMessage);
+          if (!topicSubscription) {
+            console.log("no sub for this topic");
+            subscription.topics.push({ topic });
+            await subscription.save();
           }
+        }
+      };
+
+      if (body.topic) {
+        let createdBy;
+        let topic = body.topic;
+
+        if (body.topic._id) {
+          // existing topic => adding messages
+          const topic = await models.Topic.findOne({ _id: body.topic._id });
+
+          for (const topicMessage of body.topic.topicMessages) {
+            createdBy = topicMessage.createdBy;
+            topic.topicMessages.push(topicMessage);
+          }
+
+          await topic.save();
         } else {
-          org.orgTopics.push(body.topic);
+          // new topic
+          topic = await models.Topic.create(body.topic);
+          createdBy = topic.createdBy;
+          org.orgTopics.push(topic);
+          await org.save();
         }
 
-        await org.save();
-        res.status(200).json(org);
-      } else {
-        res.status(200).json(org);
+        addOrUpdateSub(createdBy, topic);
       }
+
+      res.status(200).json(org);
     } catch (error) {
       res.status(400).json(createServerError(error));
     }

@@ -3,8 +3,9 @@ import type { IOrg } from "models/Org";
 import type { ISubscription } from "models/Subscription";
 import type { ITopic } from "models/Topic";
 import { Visibility } from "models/Topic";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  BellIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   EmailIcon,
@@ -12,14 +13,49 @@ import {
   ViewIcon
 } from "@chakra-ui/icons";
 import { Box } from "@chakra-ui/layout";
-import { GridProps, Spinner, Tooltip, useColorMode } from "@chakra-ui/react";
-import { Grid, GridItem, IconFooter, Spacer } from "features/common";
+import {
+  GridProps,
+  Icon,
+  Spinner,
+  Text,
+  Tooltip,
+  useColorMode,
+  useToast
+} from "@chakra-ui/react";
+import { Grid, GridItem, IconFooter, Link, Spacer } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { TopicMessagesList } from "./TopicMessagesList";
 import { AddIcon } from "@chakra-ui/icons";
 import { Button } from "features/common";
 import { TopicModal } from "features/modals/TopicModal";
 import { useSession } from "hooks/useAuth";
+import { FaBell, FaBellSlash, FaGlobeEurope } from "react-icons/fa";
+import * as dateUtils from "utils/date";
+import {
+  useAddSubscriptionMutation,
+  useDeleteSubscriptionMutation,
+  useGetSubscriptionQuery
+} from "features/subscriptions/subscriptionsApi";
+import { useSelector } from "react-redux";
+import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
+
+// https://github.com/chakra-ui/chakra-ui/issues/2869
+const TopicVisibility = ({ topicVisibility }: { topicVisibility?: string }) =>
+  topicVisibility === Visibility.SUBSCRIBERS ? (
+    <Tooltip label="Discussion réservée aux adhérents">
+      <LockIcon boxSize={4} />
+    </Tooltip>
+  ) : topicVisibility === Visibility.FOLLOWERS ? (
+    <Tooltip label="Discussion réservée aux abonnés">
+      <EmailIcon boxSize={4} />
+    </Tooltip>
+  ) : topicVisibility === Visibility.PUBLIC ? (
+    <Tooltip label="Discussion visible par tous">
+      <span>
+        <Icon as={FaGlobeEurope} boxSize={4} />
+      </span>
+    </Tooltip>
+  ) : null;
 
 export const TopicsList = ({
   event,
@@ -41,9 +77,20 @@ export const TopicsList = ({
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const { data: session, loading: isSessionLoading } = useSession();
-  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
-  const [topic, setTopic] = useState<ITopic | null>(null);
+
+  const subQuery = useGetSubscriptionQuery(session?.user.userId);
+  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    console.log("refetching subscription");
+    subQuery.refetch();
+  }, [subscriptionRefetch]);
+  const [deleteSubscription, deleteSubscriptionMutation] =
+    useDeleteSubscriptionMutation();
+  const [addSubscription, addSubscriptionMutation] =
+    useAddSubscriptionMutation();
 
   let entity: IEvent | IOrg | undefined = org || event;
   let entityTopics: ITopic[] = org?.orgTopics || event?.eventTopics || [];
@@ -54,6 +101,10 @@ export const TopicsList = ({
   }
 
   const topicsCount = Array.isArray(entityTopics) ? entityTopics.length : 0;
+
+  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
+  const [topic, setTopic] = useState<ITopic | null>(null);
+  const toast = useToast({ position: "top" });
 
   return (
     <>
@@ -72,7 +123,7 @@ export const TopicsList = ({
         }}
         mb={5}
       >
-        Ajouter un sujet de discussion
+        Ajouter une discussion
       </Button>
 
       {isTopicModalOpen && entity && (
@@ -128,6 +179,18 @@ export const TopicsList = ({
                 .map((entityTopic, topicIndex) => {
                   const isCurrent =
                     topic && entityTopic.topicName === topic.topicName;
+                  const { timeAgo, fullDate } = dateUtils.timeAgo(
+                    entityTopic.createdAt,
+                    true
+                  );
+
+                  let isSub = false;
+
+                  if (subQuery.data) {
+                    isSub = !!subQuery.data.topics.find(
+                      ({ topic }) => topic?._id === entityTopic._id
+                    );
+                  }
 
                   return (
                     <Box key={entityTopic._id}>
@@ -137,17 +200,21 @@ export const TopicsList = ({
                         light={{
                           borderTopRadius: topicIndex === 0 ? "lg" : undefined,
                           borderBottomRadius:
-                            topicIndex === topicsCount - 1 ? "lg" : undefined,
+                            topicIndex === topicsCount - 1 && !isCurrent
+                              ? "lg"
+                              : undefined,
                           bg:
                             topicIndex % 2 === 0 ? "orange.300" : "orange.100",
-                          _hover: { textDecoration: "underline" }
+                          _hover: { bg: "red" }
                         }}
                         dark={{
                           borderTopRadius: topicIndex === 0 ? "lg" : undefined,
                           borderBottomRadius:
-                            topicIndex === topicsCount - 1 ? "lg" : undefined,
+                            topicIndex === topicsCount - 1 && !isCurrent
+                              ? "lg"
+                              : undefined,
                           bg: topicIndex % 2 === 0 ? "gray.600" : "gray.500",
-                          _hover: { textDecoration: "underline" }
+                          _hover: { bg: "gray.400" }
                         }}
                         onClick={() => setTopic(isCurrent ? null : entityTopic)}
                       >
@@ -165,27 +232,110 @@ export const TopicsList = ({
                           bg: isDark ? "gray.800" : "orange.200"
                         }}
                       > */}
-                          {entityTopic.topicName}
+                          <Box lineHeight="1">
+                            <Text fontWeight="bold">
+                              {entityTopic.topicName}
+                            </Text>
+                            <Box
+                              display="inline"
+                              fontSize="smaller"
+                              color={isDark ? "white" : "gray.600"}
+                            >
+                              <Link
+                                href={`/${encodeURIComponent(
+                                  entityTopic.createdBy.userName
+                                )}`}
+                              >
+                                {entityTopic.createdBy.userName}
+                              </Link>
+                              <span aria-hidden="true"> · </span>
+                              <Tooltip placement="bottom" label={fullDate}>
+                                {timeAgo}
+                              </Tooltip>
+                              <span aria-hidden="true"> · </span>
+                              <TopicVisibility
+                                topicVisibility={entityTopic.topicVisibility}
+                              />
+                            </Box>
+                          </Box>
                           {/* </Box> */}
                         </GridItem>
                         <GridItem>
-                          <Box pr={3}>
-                            {entityTopic.topicVisibility ===
-                            Visibility.SUBSCRIBERS ? (
-                              <Tooltip label="Discussion réservée aux adhérents">
-                                <LockIcon boxSize={4} />
+                          <Box pr={3} pt={3}>
+                            {subQuery.isLoading ||
+                            addSubscriptionMutation.isLoading ||
+                            deleteSubscriptionMutation.isLoading ? (
+                              <Spinner boxSize={4} />
+                            ) : (
+                              <Tooltip
+                                label={
+                                  isSub
+                                    ? "Désactiver les notifications e-mail"
+                                    : "Activer les notifications e-mail"
+                                }
+                              >
+                                <span>
+                                  <Icon
+                                    as={isSub ? FaBellSlash : FaBell}
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+
+                                      if (!subQuery.data) {
+                                        console.log("user got no sub");
+                                        await addSubscription({
+                                          payload: {
+                                            topics: [{ topic: entityTopic }]
+                                          },
+                                          user: session.user?._id
+                                          // email:
+                                        });
+                                        toast({
+                                          title: `Vous avez été abonné à ${entityTopic.topicName}`,
+                                          status: "success",
+                                          isClosable: true
+                                        });
+                                      } else if (isSub) {
+                                        const unsubscribe = confirm(
+                                          `Êtes vous sûr(e) de vouloir vous désabonner de la discussion : ${entityTopic.topicName} ?`
+                                        );
+
+                                        if (unsubscribe) {
+                                          await deleteSubscription({
+                                            subscriptionId: subQuery.data._id,
+                                            topicId: entityTopic._id
+                                          });
+
+                                          toast({
+                                            title: `Vous avez été désabonné de ${entityTopic.topicName}`,
+                                            status: "success",
+                                            isClosable: true
+                                          });
+                                        }
+                                      } else {
+                                        console.log("user got no topic sub");
+                                        await addSubscription({
+                                          payload: {
+                                            topics: [{ topic: entityTopic }]
+                                          },
+                                          user: session.user?._id
+                                          // email:
+                                        });
+                                        toast({
+                                          title: `Vous avez été abonné à ${entityTopic.topicName}`,
+                                          status: "success",
+                                          isClosable: true
+                                        });
+                                      }
+
+                                      subQuery.refetch();
+                                    }}
+                                    _hover={{
+                                      color: isDark ? "lightgreen" : "white"
+                                    }}
+                                  />
+                                </span>
                               </Tooltip>
-                            ) : entityTopic.topicVisibility ===
-                              Visibility.FOLLOWERS ? (
-                              <Tooltip label="Discussion réservée aux abonnés">
-                                <EmailIcon boxSize={4} />
-                              </Tooltip>
-                            ) : entityTopic.topicVisibility ===
-                              Visibility.PUBLIC ? (
-                              <Tooltip label="Discussion visible par tous">
-                                <ViewIcon boxSize={4} />
-                              </Tooltip>
-                            ) : null}
+                            )}
                           </Box>
                         </GridItem>
                       </Grid>

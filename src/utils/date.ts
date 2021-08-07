@@ -1,4 +1,10 @@
-import { formatDuration as oFormatDuration } from "date-fns";
+import {
+  format,
+  formatDuration as oFormatDuration,
+  intervalToDuration,
+  parseISO
+} from "date-fns";
+import { fr } from "date-fns/locale";
 
 const formatDistanceLocale = {
   xSeconds: "{{count}}s",
@@ -20,4 +26,34 @@ export const formatDuration = (
         formatDistanceLocale[token].replace("{{count}}", count)
     }
   });
+};
+
+export const timeAgo = (date?: string | Date, isShort?: boolean) => {
+  const end =
+    typeof date === "string"
+      ? parseISO(date)
+      : date !== undefined
+      ? date
+      : new Date();
+  const fullDate = format(end, "eeee dd MMMM yyyy à H'h'mm", {
+    locale: fr
+  });
+  const duration = intervalToDuration({
+    start: new Date(),
+    end
+  });
+
+  let formatArray = ["years", "months", "weeks", "days", "hours", "minutes"];
+
+  if (isShort) {
+    if (duration.days === 0 && duration.hours && duration.hours > 0) {
+      formatArray = ["hours"];
+    }
+  }
+
+  const formatted = formatDuration(duration, {
+    format: formatArray
+  });
+
+  return { timeAgo: formatted === "" ? "1m" : formatted, fullDate };
 };

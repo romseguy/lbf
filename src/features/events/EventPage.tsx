@@ -132,7 +132,7 @@ export const EventPage = (props: {
             variant="underline"
             href={`/${encodeURIComponent(event.createdBy.userName)}`}
           >
-            @{event.createdBy.userName}
+            {event.createdBy.userName}
           </Link>{" "}
           {isCreator && "(Vous)"}
         </Text>

@@ -11,6 +11,7 @@ export interface ITopic {
   topicMessages: ITopicMessage[];
   topicVisibility?: string;
   createdBy: IUser;
+  createdAt?: string;
 }
 
 export const Visibility: { [key: string]: string } = {

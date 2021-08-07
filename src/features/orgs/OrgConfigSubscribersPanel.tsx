@@ -90,7 +90,7 @@ export const OrgConfigSubscribersPanel = ({
     if (type === SubscriptionTypes.FOLLOWER) {
       if (following) {
         const unsubscribe = confirm(
-          `Êtes vous sûr de vouloir retirer ${
+          `Êtes vous sûr(e) de vouloir retirer ${
             email || user?.email
           } de la liste des abonné(e)s ${orgTypeFull(org.orgType)} ${
             org.orgName
@@ -124,7 +124,7 @@ export const OrgConfigSubscribersPanel = ({
     } else if (type === SubscriptionTypes.SUBSCRIBER) {
       if (subscribing) {
         const unsubscribe = confirm(
-          `Êtes vous sûr de vouloir retirer ${
+          `Êtes vous sûr(e) de vouloir retirer ${
             email || user?.email
           } de la liste des adhérent(e)s ${orgTypeFull(org.orgType)} ${
             org.orgName
@@ -459,7 +459,7 @@ export const OrgConfigSubscribersPanel = ({
                             }
                             onClick={async () => {
                               const unsubscribe = confirm(
-                                `Êtes vous sûr de vouloir supprimer l'abonnement ${
+                                `Êtes vous sûr(e) de vouloir supprimer l'abonnement ${
                                   email || user?.email
                                 } de ${orgTypeFull(org.orgType)} ${
                                   org.orgName

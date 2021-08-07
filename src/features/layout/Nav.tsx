@@ -11,11 +11,11 @@ import {
   MenuList,
   MenuItem,
   Avatar,
-  useColorModeValue,
   Spinner,
   Icon,
   SpaceProps,
-  IconButton
+  IconButton,
+  useColorMode
 } from "@chakra-ui/react";
 import { Link } from "features/common";
 import { OrgPopover, EmailSubscriptionsPopover } from "features/layout";
@@ -68,6 +68,8 @@ export const Nav = ({
   isLogin = 0,
   ...props
 }: SpaceProps & { isLogin?: number }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
@@ -79,10 +81,9 @@ export const Nav = ({
   );
 
   const styles = css`
-    ${useColorModeValue(
-      tw`h-24 bg-gradient-to-b from-white via-yellow-400 to-yellow-50`,
-      tw`h-24 bg-gradient-to-b from-gray-800 via-green-600 to-gray-800`
-    )}
+    ${isDark
+      ? tw`h-24 bg-gradient-to-b from-gray-800 via-green-600 to-gray-800`
+      : tw`h-24 bg-gradient-to-b from-white via-yellow-400 to-yellow-50`}
   `;
 
   const isHome = router.asPath === "/";
@@ -107,7 +108,7 @@ export const Nav = ({
           <Button
             bg="transparent"
             _hover={{
-              bg: useColorModeValue("whiteAlpha.600", "blackAlpha.400")
+              bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
             }}
             leftIcon={<CalendarIcon />}
           >
@@ -118,7 +119,7 @@ export const Nav = ({
           <Button
             bg="transparent"
             _hover={{
-              bg: useColorModeValue("whiteAlpha.600", "blackAlpha.400")
+              bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
             }}
             leftIcon={<ChatIcon />}
           >
@@ -153,9 +154,9 @@ export const Nav = ({
 
             <MenuList mr={[1, 3]}>
               <MenuItem
-                command={`@${userName}`}
+                command={`${userName}`}
                 cursor="default"
-                _hover={{ bg: "white" }}
+                _hover={{ bg: isDark ? "gray.700" : "white" }}
               ></MenuItem>
 
               <Link href={`/${encodeURIComponent(userName)}`}>

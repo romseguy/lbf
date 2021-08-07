@@ -9,6 +9,7 @@ import { EventSchema } from "models/Event";
 import { OrgSchema } from "models/Org";
 import { UserSchema } from "models/User";
 import { SubscriptionSchema } from "models/Subscription";
+import { TopicSchema } from "models/Topic";
 
 let connection: Connection;
 export let db: mongodb.Db;
@@ -40,6 +41,7 @@ export const connectToDatabase = async () => {
       Event: connection.model("Event", EventSchema),
       Org: connection.model("Org", OrgSchema),
       Subscription: connection.model("Subscription", SubscriptionSchema),
+      Topic: connection.model("Topic", TopicSchema),
       User: connection.model("User", UserSchema)
     };
   }

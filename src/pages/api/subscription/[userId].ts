@@ -33,8 +33,11 @@ handler.get<NextApiRequest, NextApiResponse>(async function getSubscription(
       .populate({
         path: "orgs",
         populate: { path: "org" }
+      })
+      .populate({
+        path: "topics",
+        populate: { path: "topic" }
       });
-
     if (subscription) {
       res.status(200).json(subscription);
     } else {
@@ -103,14 +106,55 @@ handler.delete(async function removeSubscription(req, res) {
   try {
     const subscription = await models.Subscription.findOne({
       _id: subscriptionId
+    }).populate({
+      path: "topics",
+      populate: "topic"
     });
 
-    if (subscription) {
-      if (!req.body.orgs) {
-        const { deletedCount } = await models.Subscription.deleteOne({
-          _id: subscriptionId
-        });
+    if (!subscription) {
+      return res
+        .status(404)
+        .json(
+          createServerError(new Error(`L'abonnement n'a pas pu être trouvé`))
+        );
+    }
 
+    if (req.body.orgs) {
+      console.log("unsubbing from org", req.body.orgs[0]);
+      const { orgId, type } = req.body.orgs[0];
+      subscription.orgs = subscription.orgs.filter(
+        (orgSubscription: IOrgSubscription) => {
+          let allow = true;
+
+          if (orgSubscription.orgId.toString() === orgId) {
+            if (orgSubscription.type === type) {
+              allow = false;
+            }
+          }
+
+          return allow;
+        }
+      );
+      await subscription.save();
+      res.status(200).json(subscription);
+    } else if (req.body.topicId) {
+      //console.log("unsubbing from topic", req.body.topicId);
+      subscription.topics = subscription.topics.filter(
+        ({ topic }: { topic: ITopic }) => {
+          let allow = false;
+          allow = topic._id?.toString() !== req.body.topicId;
+          return allow;
+        }
+      );
+      await subscription.save();
+      res.status(200).json(subscription);
+    } else {
+      console.log("unsubbing user");
+      const { deletedCount } = await models.Subscription.deleteOne({
+        _id: subscriptionId
+      });
+
+      if (req.body.orgId) {
         const org = await models.Org.findOne({
           _id: req.body.orgId
         });
@@ -123,59 +167,23 @@ handler.delete(async function removeSubscription(req, res) {
           );
           await org.save();
         }
-
-        if (deletedCount === 1) {
-          res.status(200).json(subscription);
-        } else {
-          res
-            .status(400)
-            .json(
-              createServerError(
-                new Error(
-                  `Les abonnements de ${
-                    subscription.email || subscription.user?.email
-                  } n'ont pas pu être supprimés`
-                )
-              )
-            );
-        }
-      } else {
-        const { orgId, type } = req.body.orgs[0];
-        subscription.orgs = subscription.orgs.filter(
-          (orgSubscription: IOrgSubscription) => {
-            let allow = true;
-
-            if (orgSubscription.orgId.toString() === orgId) {
-              if (orgSubscription.type === type) {
-                allow = false;
-              }
-            }
-
-            return allow;
-          }
-        );
-        await subscription.save();
-
-        // if (!subscription.orgs.length) {
-        //   const org = await models.Org.findOne({
-        //     _id: req.body.orgs[0].orgId
-        //   });
-        //   org.orgSubscriptions = org.orgSubscriptions.filter(
-        //     (subscription: ISubscription) => {
-        //       return subscription._id.toString() !== subscriptionId;
-        //     }
-        //   );
-        //   await org.save();
-        // }
-
-        res.status(200).json(subscription);
       }
-    } else {
-      res
-        .status(404)
-        .json(
-          createServerError(new Error(`L'abonnement n'a pas pu être trouvé`))
-        );
+
+      if (deletedCount === 1) {
+        res.status(200).json(subscription);
+      } else {
+        res
+          .status(400)
+          .json(
+            createServerError(
+              new Error(
+                `Les abonnements de ${
+                  subscription.email || subscription.user?.email
+                } n'ont pas pu être supprimés`
+              )
+            )
+          );
+      }
     }
   } catch (error) {
     res.status(500).json(createServerError(error));

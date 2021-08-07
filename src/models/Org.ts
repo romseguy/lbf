@@ -58,7 +58,7 @@ export const OrgSchema = new Schema<IOrg>(
     ],
     orgDescription: String,
     orgEvents: [{ type: Schema.Types.ObjectId, ref: "Event" }],
-    orgTopics: [TopicSchema],
+    orgTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
     orgBanner: {
       base64: String,
       width: Number,
