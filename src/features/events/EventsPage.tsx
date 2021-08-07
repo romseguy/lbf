@@ -58,12 +58,14 @@ export const EventsPage = ({
 
           {isMobile ? (
             <IconButton
+              isDisabled={!events || !events.length}
               aria-label="Carte des événements"
               icon={<FaMapMarkerAlt />}
               onClick={() => setIsMapModalOpen(true)}
             />
           ) : (
             <Button
+              isDisabled={!events || !events.length}
               leftIcon={<FaMapMarkerAlt />}
               onClick={() => setIsMapModalOpen(true)}
             >
