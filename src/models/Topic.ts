@@ -1,6 +1,6 @@
 import type { ITopicMessage } from "models/TopicMessage";
 import type { IUser } from "models/User";
-import { Schema } from "mongoose";
+import { Schema, Types } from "mongoose";
 import { TopicMessageSchema } from "models/TopicMessage";
 
 export interface ITopic {
@@ -10,7 +10,7 @@ export interface ITopic {
   topicNameLower?: string;
   topicMessages: ITopicMessage[];
   topicVisibility?: string;
-  createdBy: IUser;
+  createdBy: IUser | string;
   createdAt?: string;
 }
 

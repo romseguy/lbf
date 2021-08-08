@@ -82,6 +82,7 @@ export const TopicForm = (props: TopicFormProps) => {
     topicMessage: string;
   }) => {
     console.log("submitted", form);
+    if (!session) return;
     let topic: ITopic | undefined = undefined;
 
     if (!props.topic) {

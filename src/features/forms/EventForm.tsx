@@ -1,11 +1,7 @@
+import type { AppSession } from "hooks/useAuth";
 import type { IEvent } from "models/Event";
 import type { IOrg } from "models/Org";
-import {
-  BrowserView,
-  MobileView,
-  isBrowser,
-  isMobile
-} from "react-device-detect";
+import { isMobile } from "react-device-detect";
 import React, { forwardRef, Ref, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import ReactSelect from "react-select";
@@ -17,12 +13,8 @@ import {
   FormControl,
   FormLabel,
   Box,
-  Stack,
   FormErrorMessage,
-  Textarea,
   useToast,
-  Spinner,
-  Text,
   Select,
   Checkbox,
   Flex,
@@ -36,7 +28,7 @@ import {
   Tr,
   Td
 } from "@chakra-ui/react";
-import { EmailIcon, TimeIcon, WarningIcon } from "@chakra-ui/icons";
+import { EmailIcon, TimeIcon } from "@chakra-ui/icons";
 import {
   AddressControl,
   DatePicker,
@@ -48,37 +40,32 @@ import {
   useAddEventMutation,
   useEditEventMutation
 } from "features/events/eventsApi";
-import { useSession } from "hooks/useAuth";
 import { handleError } from "utils/form";
 import {
-  addDays,
   addHours,
-  addMinutes,
   addWeeks,
   getDay,
   getHours,
   intervalToDuration,
-  isToday,
   parseISO,
-  setHours,
-  setMinutes,
   subHours
 } from "date-fns";
 import {
-  DetailsResult,
   getDetails,
   getGeocode,
   getLatLng,
   Suggestion
 } from "use-places-autocomplete";
-import { useGetOrgsByCreatorQuery } from "features/orgs/orgsApi";
-import tw, { css } from "twin.macro";
+import {
+  useGetOrgsByCreatorQuery,
+  useGetOrgsQuery
+} from "features/orgs/orgsApi";
+import { css } from "twin.macro";
 import { useEffect } from "react";
 import { SubscriptionTypes } from "models/Subscription";
-import { useAppDispatch } from "store";
-import { getSubscription } from "features/subscriptions/subscriptionsApi";
 
 interface EventFormProps extends ChakraProps {
+  session: AppSession;
   event?: IEvent;
   initialEventOrgs?: IOrg[];
   onClose?: () => void;
@@ -97,16 +84,22 @@ export const EventForm = ({
 }: EventFormProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs;
   const [addEvent, addEventMutation] = useAddEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
   const toast = useToast({ position: "top" });
 
-  const { orgs, refetch } = useGetOrgsByCreatorQuery(session?.user.userId, {
+  const { orgs, refetch } = useGetOrgsQuery(undefined, {
     selectFromResult: ({ data }) => {
-      return { orgs: data };
+      if (!data) return { orgs: [] };
+      return {
+        orgs: data.filter((org) =>
+          typeof org.createdBy === "object"
+            ? org.createdBy._id === props.session.user.userId
+            : org.createdBy === props.session.user.userId
+        )
+      };
     }
   });
 
@@ -275,7 +268,7 @@ export const EventForm = ({
       } else {
         await addEvent({
           ...payload,
-          createdBy: session.user.userId
+          createdBy: props.session.user.userId
         }).unwrap();
 
         toast({

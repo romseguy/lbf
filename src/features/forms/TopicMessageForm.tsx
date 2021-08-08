@@ -68,6 +68,8 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
 
   const onSubmit = async (form: { topicMessage: string }) => {
     console.log("submitted", form);
+    if (!session) return;
+
     // console.log(
     //   "TMF: DEFAULT VALUE",
     //   typeof topicMessageDefaultValue,

@@ -132,6 +132,7 @@ export const TopicsList = ({
           onCancel={() => setIsTopicModalOpen(false)}
           onSubmit={async (topicName) => {
             query.refetch();
+            subQuery.refetch();
             setIsTopicModalOpen(false);
           }}
           onClose={() => setIsTopicModalOpen(false)}
@@ -181,11 +182,15 @@ export const TopicsList = ({
                     entityTopic.createdAt,
                     true
                   );
+                  const entityTopicCreatedByUsername =
+                    typeof entityTopic.createdBy === "object"
+                      ? entityTopic.createdBy.userName
+                      : "";
 
-                  let isSub = false;
+                  let isSubbedToTopic = false;
 
                   if (subQuery.data) {
-                    isSub = !!subQuery.data.topics.find(
+                    isSubbedToTopic = !!subQuery.data.topics.find(
                       ({ topic }) => topic?._id === entityTopic._id
                     );
                   }
@@ -241,10 +246,10 @@ export const TopicsList = ({
                             >
                               <Link
                                 href={`/${encodeURIComponent(
-                                  entityTopic.createdBy.userName
+                                  entityTopicCreatedByUsername
                                 )}`}
                               >
-                                {entityTopic.createdBy.userName}
+                                {entityTopicCreatedByUsername}
                               </Link>
                               <span aria-hidden="true"> · </span>
                               <Tooltip placement="bottom" label={fullDate}>
@@ -258,84 +263,89 @@ export const TopicsList = ({
                           </Box>
                           {/* </Box> */}
                         </GridItem>
-                        <GridItem>
-                          <Box pr={3} pt={3}>
-                            {subQuery.isLoading ||
-                            addSubscriptionMutation.isLoading ||
-                            deleteSubscriptionMutation.isLoading ? (
-                              <Spinner boxSize={4} />
-                            ) : (
-                              <Tooltip
-                                label={
-                                  isSub
-                                    ? "Désactiver les notifications e-mail"
-                                    : "Activer les notifications e-mail"
-                                }
-                              >
-                                <span>
-                                  <Icon
-                                    as={isSub ? FaBellSlash : FaBell}
-                                    onClick={async (e) => {
-                                      e.stopPropagation();
+                        {session && (
+                          <GridItem>
+                            <Box pr={3} pt={3}>
+                              {subQuery.isLoading ||
+                              addSubscriptionMutation.isLoading ||
+                              deleteSubscriptionMutation.isLoading ? (
+                                <Spinner boxSize={4} />
+                              ) : (
+                                <Tooltip
+                                  label={
+                                    isSubbedToTopic
+                                      ? "Vous recevez un e-mail lorsque quelqu'un répond à cette discussion. Cliquez ici pour désactiver ces notifications."
+                                      : "Recevoir un e-mail lorsque quelqu'un répond à cette discussion."
+                                  }
+                                  placement="left"
+                                >
+                                  <span>
+                                    <Icon
+                                      as={
+                                        isSubbedToTopic ? FaBellSlash : FaBell
+                                      }
+                                      onClick={async (e) => {
+                                        e.stopPropagation();
 
-                                      if (!subQuery.data) {
-                                        console.log("user got no sub");
-                                        await addSubscription({
-                                          payload: {
-                                            topics: [{ topic: entityTopic }]
-                                          },
-                                          user: session.user?._id
-                                          // email:
-                                        });
-                                        toast({
-                                          title: `Vous avez été abonné à ${entityTopic.topicName}`,
-                                          status: "success",
-                                          isClosable: true
-                                        });
-                                      } else if (isSub) {
-                                        const unsubscribe = confirm(
-                                          `Êtes vous sûr(e) de vouloir vous désabonner de la discussion : ${entityTopic.topicName} ?`
-                                        );
-
-                                        if (unsubscribe) {
-                                          await deleteSubscription({
-                                            subscriptionId: subQuery.data._id,
-                                            topicId: entityTopic._id
+                                        if (!subQuery.data) {
+                                          console.log("user got no sub");
+                                          await addSubscription({
+                                            payload: {
+                                              topics: [{ topic: entityTopic }]
+                                            },
+                                            user: session.user.userId
+                                            // email:
                                           });
-
                                           toast({
-                                            title: `Vous avez été désabonné de ${entityTopic.topicName}`,
+                                            title: `Vous avez été abonné à ${entityTopic.topicName}`,
+                                            status: "success",
+                                            isClosable: true
+                                          });
+                                        } else if (isSubbedToTopic) {
+                                          const unsubscribe = confirm(
+                                            `Êtes vous sûr(e) de vouloir vous désabonner de la discussion : ${entityTopic.topicName} ?`
+                                          );
+
+                                          if (unsubscribe) {
+                                            await deleteSubscription({
+                                              subscriptionId: subQuery.data._id,
+                                              topicId: entityTopic._id
+                                            });
+
+                                            toast({
+                                              title: `Vous avez été désabonné de ${entityTopic.topicName}`,
+                                              status: "success",
+                                              isClosable: true
+                                            });
+                                          }
+                                        } else {
+                                          console.log("user got no topic sub");
+                                          await addSubscription({
+                                            payload: {
+                                              topics: [{ topic: entityTopic }]
+                                            },
+                                            user: session.user?.userId
+                                            // email:
+                                          });
+                                          toast({
+                                            title: `Vous avez été abonné à ${entityTopic.topicName}`,
                                             status: "success",
                                             isClosable: true
                                           });
                                         }
-                                      } else {
-                                        console.log("user got no topic sub");
-                                        await addSubscription({
-                                          payload: {
-                                            topics: [{ topic: entityTopic }]
-                                          },
-                                          user: session.user?._id
-                                          // email:
-                                        });
-                                        toast({
-                                          title: `Vous avez été abonné à ${entityTopic.topicName}`,
-                                          status: "success",
-                                          isClosable: true
-                                        });
-                                      }
 
-                                      subQuery.refetch();
-                                    }}
-                                    _hover={{
-                                      color: isDark ? "lightgreen" : "white"
-                                    }}
-                                  />
-                                </span>
-                              </Tooltip>
-                            )}
-                          </Box>
-                        </GridItem>
+                                        subQuery.refetch();
+                                      }}
+                                      _hover={{
+                                        color: isDark ? "lightgreen" : "white"
+                                      }}
+                                    />
+                                  </span>
+                                </Tooltip>
+                              )}
+                            </Box>
+                          </GridItem>
+                        )}
                       </Grid>
 
                       {/* <Spacer borderWidth={1} /> */}

@@ -1,3 +1,7 @@
+import type { IEvent } from "models/Event";
+import type { ITopic } from "models/Topic";
+import type { IUser } from "models/User";
+import { Document, Types } from "mongoose";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -5,9 +9,8 @@ import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import type { IOrg } from "models/Org";
-import { ITopic } from "models/Topic";
-import { sendToFollowers } from "utils/email";
+import { sendToFollowers, sendToTopicFollowers } from "utils/email";
+import { addOrUpdateSub } from "api/shared";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -22,25 +25,27 @@ handler.use(database);
 handler.get<NextApiRequest & { query: { eventName: string } }, NextApiResponse>(
   async function getEvent(req, res) {
     const eventName = decodeURIComponent(req.query.eventName);
-    let eventNameLower;
-
-    if (eventName && typeof eventName === "string") {
-      eventNameLower = eventName.toLowerCase();
-    }
+    const eventNameLower = eventName.toLowerCase();
 
     try {
       const event = await models.Event.findOne({
         eventNameLower
       })
+        .populate("createdBy", "-email -password -securityCode -userImage")
+        .populate("eventOrgs eventTopics")
         .populate({
           path: "eventTopics",
-          populate: { path: "createdBy" }
-        })
-        .populate({
-          path: "eventTopics.topicMessages",
-          populate: { path: "createdBy" }
-        })
-        .populate("eventOrgs createdBy");
+          populate: [
+            {
+              path: "topicMessages",
+              populate: {
+                path: "createdBy",
+                select: "-email -password -securityCode"
+              }
+            },
+            { path: "createdBy", select: "-email -password -securityCode" }
+          ]
+        });
 
       if (event) {
         res.status(200).json(event);
@@ -49,7 +54,7 @@ handler.get<NextApiRequest & { query: { eventName: string } }, NextApiResponse>(
           .status(404)
           .json(
             createServerError(
-              new Error(`L'événement ${eventNameLower} n'a pas pu être trouvé`)
+              new Error(`L'événement ${eventName} n'a pas pu être trouvé`)
             )
           );
       }
@@ -59,10 +64,13 @@ handler.get<NextApiRequest & { query: { eventName: string } }, NextApiResponse>(
   }
 );
 
-handler.post<NextApiRequest, NextApiResponse>(async function postEventDetails(
-  req,
-  res
-) {
+handler.post<
+  NextApiRequest & {
+    query: { eventName: string };
+    body: { topic?: ITopic };
+  },
+  NextApiResponse
+>(async function postEventDetails(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -75,41 +83,79 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEventDetails(
       );
   } else {
     try {
-      const {
-        query: { eventName },
-        body
-      } = req;
+      const eventName = decodeURIComponent(req.query.eventName);
+      const eventNameLower = eventName.toLowerCase();
 
-      const event = await models.Event.findOne({ eventName });
+      const event = await models.Event.findOne({ eventNameLower });
+
+      if (!event) {
+        return res
+          .status(404)
+          .json(
+            createServerError(
+              new Error(`L'événement ${eventName} n'a pas pu être trouvé`)
+            )
+          );
+      }
+
+      const { body }: { body: { topic?: ITopic } } = req;
 
       if (body.topic) {
-        if (body.topic._id) {
-          const eventTopic = event.eventTopics.find(
-            (topic: ITopic) => topic.id === body.topic._id
-          );
+        let createdBy: string;
+        let topic: (ITopic & Document<any, any, any>) | null;
 
-          for (const topicMessage of body.topic.topicMessages) {
-            eventTopic.topicMessages.push(topicMessage);
+        if (body.topic._id) {
+          if (!body.topic.topicMessages || !body.topic.topicMessages.length) {
+            return res.status(200).json(event);
           }
+
+          topic = await models.Topic.findOne({ _id: body.topic._id });
+
+          if (!topic) {
+            return res
+              .status(404)
+              .json(createServerError(new Error("Topic introuvable")));
+          }
+
+          createdBy = topic.createdBy.toString();
+
+          // existing topic => adding 1 message
+          const newMessage = body.topic.topicMessages[0];
+          topic.topicMessages.push(newMessage);
+          await topic.save();
+
+          // get subscriptions of users other than new message poster
+          const subscriptions = await models.Subscription.find({
+            "topics.topic": Types.ObjectId(topic._id),
+            user: { $ne: newMessage.createdBy }
+          }).populate("user");
+
+          sendToTopicFollowers(event, subscriptions, topic, transport);
         } else {
-          event.eventTopics.push(body.topic);
+          // new topic
+          topic = await models.Topic.create(body.topic);
+          createdBy = topic.createdBy.toString();
+          event.eventTopics.push(topic);
+          await event.save();
         }
 
-        await event.save();
-        res.status(200).json(event);
-      } else {
-        res.status(200).json(event);
+        await addOrUpdateSub(createdBy, topic);
       }
+
+      res.status(200).json(event);
     } catch (error) {
       res.status(400).json(createServerError(error));
     }
   }
 });
 
-handler.put<NextApiRequest, NextApiResponse>(async function editEvent(
-  req,
-  res
-) {
+handler.put<
+  NextApiRequest & {
+    query: { eventName: string };
+    body: IEvent;
+  },
+  NextApiResponse
+>(async function editEvent(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -122,26 +168,44 @@ handler.put<NextApiRequest, NextApiResponse>(async function editEvent(
       );
   } else {
     try {
-      const {
-        query: { eventName }
-      } = req;
+      const { body }: { body: IEvent } = req;
+      const eventName = decodeURIComponent(req.query.eventName);
+      const eventNameLower = eventName.toLowerCase();
+      body.eventNameLower = body.eventName.toLowerCase();
 
-      let body = req.body;
+      const event = await models.Event.findOne({ eventNameLower });
 
-      if (typeof body.eventName === "string" && !body.eventNameLower) {
-        body.eventNameLower = body.eventName.toLowerCase();
+      if (!event) {
+        return res
+          .status(404)
+          .json(
+            createServerError(
+              new Error(`L'événement ${eventName} n'a pas pu être trouvé`)
+            )
+          );
       }
 
-      const emailList = await sendToFollowers(body, transport);
-      const event = await models.Event.findOne({ eventName });
+      if (event.createdBy.toString() !== session.user.userId) {
+        return res
+          .status(403)
+          .json(
+            createServerError(
+              new Error(
+                "Vous ne pouvez pas modifier un événement que vous n'avez pas créé."
+              )
+            )
+          );
+      }
 
-      const { n, nModified } = await models.Event.updateOne(
-        { eventName },
-        body
-      );
+      const staleEventOrgsIds: string[] = [];
 
-      body.eventOrgs.forEach(async (eventOrg: IOrg) => {
-        const org = await models.Org.findOne({ orgName: eventOrg.orgName });
+      for (const { _id } of body.eventOrgs) {
+        const org = await models.Org.findOne({ _id });
+
+        if (!org) {
+          staleEventOrgsIds.push(_id);
+          continue;
+        }
 
         if (org.orgEvents.indexOf(event._id) === -1) {
           await models.Org.updateOne(
@@ -153,7 +217,20 @@ handler.put<NextApiRequest, NextApiResponse>(async function editEvent(
             }
           );
         }
-      });
+      }
+
+      if (staleEventOrgsIds.length > 0) {
+        body.eventOrgs = body.eventOrgs.filter(
+          (eventOrg) => !staleEventOrgsIds.find((id) => id === eventOrg._id)
+        );
+      }
+
+      const emailList = await sendToFollowers(body, transport);
+
+      const { n, nModified } = await models.Event.updateOne(
+        { eventName },
+        body
+      );
 
       if (nModified === 1) {
         res.status(200).json({ emailList });
@@ -170,7 +247,12 @@ handler.put<NextApiRequest, NextApiResponse>(async function editEvent(
   }
 });
 
-handler.delete(async function removeEvent(req, res) {
+handler.delete<
+  NextApiRequest & {
+    query: { eventName: string };
+  },
+  NextApiResponse
+>(async function removeEvent(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -182,12 +264,33 @@ handler.delete(async function removeEvent(req, res) {
         )
       );
   } else {
-    const {
-      query: { eventName }
-    } = req;
-
     try {
-      const event = await models.Event.findOne({ eventName });
+      const eventName = decodeURIComponent(req.query.eventName);
+      const eventNameLower = eventName.toLowerCase();
+      const event = await models.Event.findOne({ eventNameLower });
+
+      if (!event) {
+        return res
+          .status(404)
+          .json(
+            createServerError(
+              new Error(`L'événement ${eventName} n'a pas pu être trouvé`)
+            )
+          );
+      }
+
+      if (event.createdBy.toString() !== session.user.userId) {
+        return res
+          .status(403)
+          .json(
+            createServerError(
+              new Error(
+                "Vous ne pouvez pas supprimer un événement que vous n'avez pas créé."
+              )
+            )
+          );
+      }
+
       const { deletedCount } = await models.Event.deleteOne({ eventName });
 
       if (deletedCount === 1) {

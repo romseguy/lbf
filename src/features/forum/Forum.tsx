@@ -27,7 +27,18 @@ export const Forum = () => {
 
   const query = useGetOrgByNameQuery("aucourant");
   const org = query.data;
-  const isCreator = session?.user.userId === org?.createdBy._id;
+  let isCreator = false;
+
+  if (session && org) {
+    if (
+      typeof org.createdBy === "object" &&
+      org.createdBy._id === session.user.userId
+    ) {
+      isCreator = true;
+    } else if (org.createdBy === session.user.userId) {
+      isCreator = true;
+    }
+  }
 
   const subQuery = useGetSubscriptionQuery(session?.user.userId);
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);

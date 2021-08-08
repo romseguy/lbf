@@ -41,14 +41,14 @@ export const orgApi = createApi({
         })
       }
     ),
-    getOrgs: build.query<IOrg[], null>({
+    getOrgs: build.query<IOrg[], undefined>({
       query: () => ({ url: `orgs` })
     }),
     getOrgByName: build.query<IOrg, string>({
       query: (orgName) => ({ url: `org/${orgName}` })
     }),
-    getOrgsByCreator: build.query<IOrg[], void>({
-      query: (createdBy) => ({ url: `org?userId=${createdBy}` })
+    getOrgsByCreator: build.query<IOrg[], string>({
+      query: (createdBy) => ({ url: `orgs/${createdBy}` })
     })
   })
 });

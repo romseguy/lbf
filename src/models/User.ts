@@ -1,5 +1,5 @@
 import type { HookNextFunction } from "mongoose";
-import { Schema } from "mongoose";
+import { Schema, Types } from "mongoose";
 import bcrypt from "bcryptjs";
 import { randomNumber } from "utils/randomNumber";
 import { Base64Image } from "utils/image";
@@ -7,7 +7,7 @@ import { Base64Image } from "utils/image";
 const HASH_ROUNDS = 10;
 
 export interface IUser {
-  _id: string;
+  _id: string | Types.ObjectId;
   email: string;
   isOnline: boolean;
   password: string;
@@ -40,10 +40,6 @@ export const UserSchema = new Schema<IUser>(
       // required: true,
       trim: true,
       unique: true
-      // index: {
-      //   unique: true,
-      //   collation: { locale: "fr", strength: 2 }
-      // }
     },
     userNameLower: String,
     userImage: {
@@ -54,15 +50,6 @@ export const UserSchema = new Schema<IUser>(
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );
-
-// UserSchema.index(
-//   { userName: 1, email: 1 },
-//   {
-//     unique: true,
-//     background: true,
-//     collation: { locale: "fr", strength: 2 }
-//   }
-// );
 
 UserSchema.methods.validatePassword = async function (pass: string) {
   return bcrypt.compare(pass, this.password);

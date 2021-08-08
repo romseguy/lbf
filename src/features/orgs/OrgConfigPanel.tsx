@@ -1,3 +1,4 @@
+import type { AppSession } from "hooks/useAuth";
 import type { Visibility } from "./OrgPage";
 import type { IOrg } from "models/Org";
 import React, { useState } from "react";
@@ -22,6 +23,7 @@ import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
 
 export const OrgConfigPanel = ({
+  session,
   org,
   orgQuery,
   isConfig,
@@ -31,6 +33,7 @@ export const OrgConfigPanel = ({
   setIsEdit,
   setIsVisible
 }: Visibility & {
+  session: AppSession;
   org: IOrg;
   orgQuery: any;
   isConfig: boolean;
@@ -108,6 +111,7 @@ export const OrgConfigPanel = ({
 
       {isEdit ? (
         <OrgForm
+          session={session}
           org={org}
           onCancel={() => setIsEdit(false)}
           onSubmit={async (orgName) => {

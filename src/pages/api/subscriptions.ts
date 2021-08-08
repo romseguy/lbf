@@ -1,10 +1,6 @@
-import { Document, model } from "mongoose";
-import type { IOrg } from "models/Org";
-import {
-  IOrgSubscription,
-  ISubscription,
-  SubscriptionTypes
-} from "models/Subscription";
+import type { ISubscription } from "models/Subscription";
+import type { IUser } from "models/User";
+import { SubscriptionTypes } from "models/Subscription";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
@@ -16,52 +12,63 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.post<NextApiRequest, NextApiResponse>(async function postSubscription(
-  req,
-  res
-) {
+handler.post<
+  NextApiRequest & {
+    body: ISubscription;
+  },
+  NextApiResponse
+>(async function postSubscription(req, res) {
   const session = await getSession({ req });
 
   try {
-    const selector: { user?: string; email?: string } = {
-      user: session?.user.userId
-    };
+    const { body }: { body: ISubscription } = req;
+    const selector: { user?: IUser; email?: string } = {};
 
-    if (req.body.email) {
-      const user = await models.User.findOne({ email: req.body.email });
+    if (body.email) {
+      const user = await models.User.findOne({ email: body.email });
 
       if (user) {
-        selector.user = user._id;
+        selector.user = user;
       } else {
-        selector.email = req.body.email;
+        selector.email = body.email;
       }
-    } else if (req.body.user) {
-      const user = await models.User.findOne({ _id: req.body.user._id });
+    } else if (body.user) {
+      const user = await models.User.findOne({
+        _id: typeof body.user === "object" ? body.user._id : body.user
+      });
 
       if (user) {
-        selector.user = user._id;
+        selector.user = user;
+      }
+    } else if (session) {
+      const user = await models.User.findOne({ _id: session.user.userId });
+
+      if (user) {
+        selector.user = user;
       }
     }
 
     let userSubscription = await models.Subscription.findOne(selector);
 
     if (!userSubscription) {
-      userSubscription = await models.Subscription.create({
-        ...selector
-      });
+      userSubscription = await models.Subscription.create(selector);
     }
 
-    if (req.body.orgs) {
-      const { orgs: newOrgSubscriptions }: { orgs: IOrgSubscription[] } =
-        req.body;
+    if (body.orgs) {
+      const { orgs: newOrgSubscriptions } = body;
 
-      if (userSubscription.orgs) {
+      if (userSubscription.orgs.length > 0) {
+        const staleOrgSubscriptionOrgIds: string[] = [];
+
         for (const newOrgSubscription of newOrgSubscriptions) {
           const org = await models.Org.findOne({
             _id: newOrgSubscription.org._id
           });
 
-          if (!org) continue;
+          if (!org) {
+            staleOrgSubscriptionOrgIds.push(newOrgSubscription.org._id);
+            continue;
+          }
 
           let isFollower = false;
           let isSub = false;
@@ -81,11 +88,11 @@ handler.post<NextApiRequest, NextApiResponse>(async function postSubscription(
 
           if (isFollower && isSub) continue;
 
-          // if (!isFollower && !isSub)
-          //   await models.Org.updateOne(
-          //     { _id: org._id },
-          //     { $push: { orgSubscriptions: userSubscription } }
-          //   );
+          if (!isFollower && !isSub)
+            await models.Org.updateOne(
+              { _id: org._id },
+              { $push: { orgSubscriptions: userSubscription } }
+            );
 
           if (
             (!isFollower &&
@@ -93,6 +100,16 @@ handler.post<NextApiRequest, NextApiResponse>(async function postSubscription(
             (!isSub && newOrgSubscription.type === SubscriptionTypes.SUBSCRIBER)
           )
             userSubscription.orgs.push(newOrgSubscription);
+        }
+
+        // todo: check id string/objectId comparison
+        if (staleOrgSubscriptionOrgIds.length > 0) {
+          userSubscription.orgs = userSubscription.orgs.filter(
+            (orgSubscription) =>
+              !staleOrgSubscriptionOrgIds.find(
+                (id) => id === orgSubscription.orgId
+              )
+          );
         }
       } else {
         userSubscription.orgs = newOrgSubscriptions;
@@ -109,8 +126,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function postSubscription(
           }
         );
       }
-    } else if (req.body.topics) {
-      const topicId = req.body.topics[0].topic._id;
+    } else if (body.topics) {
+      const topicId = body.topics[0].topic._id;
       const topic = await models.Topic.findOne({ _id: topicId });
 
       if (!topic) {
@@ -132,7 +149,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postSubscription(
           userSubscription.topics.push({ topic });
         }
       } else {
-        userSubscription.topics = req.body.topics;
+        userSubscription.topics = body.topics;
       }
     }
 

@@ -1,4 +1,4 @@
-import { IOrg, orgTypeFull, OrgTypes, OrgTypesV } from "models/Org";
+import { IOrg, orgTypeFull, OrgTypes } from "models/Org";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
@@ -6,7 +6,6 @@ import {
   Text,
   Heading,
   Grid,
-  IconButton,
   useToast,
   TabPanels,
   TabPanel
@@ -21,18 +20,11 @@ import {
   IconFooter,
   Link
 } from "features/common";
-import {
-  AddIcon,
-  ArrowBackIcon,
-  ChevronLeftIcon,
-  SettingsIcon
-} from "@chakra-ui/icons";
-import tw, { css } from "twin.macro";
+import { AddIcon, ArrowBackIcon, SettingsIcon } from "@chakra-ui/icons";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { TopicsList } from "features/forum/TopicsList";
 import { EventsList } from "features/events/EventsList";
-import { TopicModal } from "features/modals/TopicModal";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
@@ -75,8 +67,10 @@ export const OrgPage = ({
     setIsEdit(false);
   }, [router.asPath, refetchOrg]);
   const org = orgQuery.data || props.org;
+  const orgCreatedByUserName =
+    typeof org.createdBy === "object" && org.createdBy.userName;
 
-  const isCreator = session?.user.userId === org.createdBy._id;
+  const isCreator = session?.user.userName === orgCreatedByUserName;
 
   const subscribedEmail = useSelector(selectSubscribedEmail);
 
@@ -170,9 +164,9 @@ export const OrgPage = ({
           par :{" "}
           <Link
             variant="underline"
-            href={`/${encodeURIComponent(org.createdBy.userName)}`}
+            href={`/${encodeURIComponent(orgCreatedByUserName)}`}
           >
-            {org.createdBy.userName}
+            {orgCreatedByUserName}
           </Link>{" "}
           {isCreator && "(Vous)"}
         </Text>
@@ -186,10 +180,7 @@ export const OrgPage = ({
                 <Grid templateRows="auto 1fr">
                   <GridHeader borderTopRadius="lg" alignItems="center">
                     <Heading size="sm" py={3}>
-                      Description{" "}
-                      {org.orgType === OrgTypes.ASSO
-                        ? "de l'association"
-                        : "du groupe"}
+                      Description {orgTypeFull(org.orgType)}
                     </Heading>
                   </GridHeader>
 
@@ -241,8 +232,10 @@ export const OrgPage = ({
                   Ajouter un événement
                 </Button>
 
-                {isEventModalOpen && (
+                {isEventModalOpen && session && (
                   <EventModal
+                    session={session}
+                    initialEventOrgs={[org]}
                     onCancel={() => setIsEventModalOpen(false)}
                     onSubmit={async (eventName) => {
                       //await router.push(`/${eventName}`);
@@ -277,8 +270,9 @@ export const OrgPage = ({
         </OrgPageTabs>
       )}
 
-      {isConfig && (
+      {isConfig && session && (
         <OrgConfigPanel
+          session={session}
           org={org}
           orgQuery={orgQuery}
           isConfig={isConfig}

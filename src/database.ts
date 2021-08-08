@@ -1,10 +1,11 @@
 import type { IEvent } from "models/Event";
 import type { IOrg } from "models/Org";
 import type { ISubscription } from "models/Subscription";
+import type { ITopic } from "models/Topic";
 import type { IUser } from "models/User";
 import mongodb from "mongodb";
+import mongoose, { Connection, Document, Model } from "mongoose";
 import nextConnect from "next-connect";
-import mongoose, { Connection, Model } from "mongoose";
 import { EventSchema } from "models/Event";
 import { OrgSchema } from "models/Org";
 import { UserSchema } from "models/User";
@@ -13,18 +14,13 @@ import { TopicSchema } from "models/Topic";
 
 let connection: Connection;
 export let db: mongodb.Db;
-export let models: { [key: string]: Model<any> } = {};
-// export let models: {
-//   Event: Model<IEvent>;
-//   Org: Model<IOrg>;
-//   Subscription: Model<ISubscription>;
-//   User: Model<IUser>;
-// } = {
-//   Event: mongoose.model("Event", EventSchema),
-//   Org: mongoose.model("Org", OrgSchema),
-//   Subscription: mongoose.model("Subscription", SubscriptionSchema),
-//   User: mongoose.model("User", UserSchema)
-// };
+export let models: {
+  Event: Model<IEvent & Document<any, any, any>, {}, {}>;
+  Org: Model<IOrg & Document<any, any, any>, {}, {}>;
+  Subscription: Model<ISubscription & Document<any, any, any>, {}, {}>;
+  Topic: Model<ITopic & Document<any, any, any>, {}, {}>;
+  User: Model<IUser & Document<any, any, any>, {}, {}>;
+};
 const middleware = nextConnect();
 
 export const connectToDatabase = async () => {
@@ -38,11 +34,14 @@ export const connectToDatabase = async () => {
     db = connection.db;
 
     models = {
-      Event: connection.model("Event", EventSchema),
-      Org: connection.model("Org", OrgSchema),
-      Subscription: connection.model("Subscription", SubscriptionSchema),
-      Topic: connection.model("Topic", TopicSchema),
-      User: connection.model("User", UserSchema)
+      Event: connection.model<IEvent & Document>("Event", EventSchema),
+      Org: connection.model<IOrg & Document>("Org", OrgSchema),
+      Subscription: connection.model<ISubscription & Document>(
+        "Subscription",
+        SubscriptionSchema
+      ),
+      Topic: connection.model<ITopic & Document>("Topic", TopicSchema),
+      User: connection.model<IUser & Document>("User", UserSchema)
     };
   }
 

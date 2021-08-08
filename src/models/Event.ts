@@ -1,9 +1,9 @@
 import type { IOrg } from "models/Org";
-import type { IUser } from "models/User";
+import type { ISubscription } from "./Subscription";
 import type { ITopic } from "models/Topic";
+import type { IUser } from "models/User";
 import type { Base64Image } from "utils/image";
-import { Schema } from "mongoose";
-import { TopicSchema } from "./Topic";
+import { Schema, Types } from "mongoose";
 
 export interface IEvent {
   _id: string;
@@ -18,12 +18,13 @@ export interface IEvent {
   eventEmail?: string;
   eventDescription?: string;
   eventOrgs: IOrg[];
+  eventSubscriptions: ISubscription[];
   eventNotif: string[];
   eventTopics: ITopic[];
   repeat?: number;
   isApproved?: boolean;
   eventBanner?: Base64Image & { mode: "light" | "dark" };
-  createdBy: IUser;
+  createdBy: IUser | string;
   createdAt?: string;
 }
 
@@ -51,6 +52,10 @@ export const EventSchema = new Schema<IEvent>(
     eventEmail: String,
     eventDescription: String,
     eventOrgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
+    eventSubscriptions: [
+      { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
+    ],
+    eventTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
     eventNotif: [{ type: Schema.Types.ObjectId, ref: "Org" }],
     eventBanner: {
       base64: String,
@@ -62,7 +67,6 @@ export const EventSchema = new Schema<IEvent>(
       type: Schema.Types.ObjectId,
       ref: "User"
     },
-    eventTopics: [TopicSchema],
     repeat: Number,
     isApproved: Schema.Types.Boolean
   },

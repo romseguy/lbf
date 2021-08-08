@@ -74,8 +74,9 @@ export const EventsPage = ({
           )}
         </Flex>
 
-        {isEventModalOpen && (
+        {isEventModalOpen && session && (
           <EventModal
+            session={session}
             onCancel={() => setIsEventModalOpen(false)}
             onSubmit={async (eventName) => {
               //await router.push(`/${eventName}`);

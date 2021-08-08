@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { AutoCompletePlacesControl } from "features/common";
 import { Suggestion } from "use-places-autocomplete";
-import { loadMapsApi } from "utils/maps";
+import { loadMapsSdk } from "utils/maps";
 
 export const AddressControl = ({
   name,
@@ -32,7 +32,7 @@ export const AddressControl = ({
     required?: string | boolean;
   }>({});
 
-  const [mapsApiState, setMapsApiState] = useState({
+  const [mapsSdkState, setMapsSdkState] = useState({
     loaded: false,
     loading: false
   });
@@ -40,13 +40,13 @@ export const AddressControl = ({
   useEffect(() => {
     const xhr = async () => {
       try {
-        setMapsApiState({ loaded: false, loading: true });
-        await loadMapsApi();
-        setMapsApiState({ loaded: true, loading: false });
+        setMapsSdkState({ loaded: false, loading: true });
+        await loadMapsSdk();
+        setMapsSdkState({ loaded: true, loading: false });
         setControlRules({ required: "Veuillez saisir une adresse" });
       } catch (error) {
         console.log(error);
-        setMapsApiState({ loaded: false, loading: false });
+        setMapsSdkState({ loaded: false, loading: false });
       }
     };
 
@@ -62,7 +62,7 @@ export const AddressControl = ({
         mb={mb}
       >
         <FormLabel>Adresse</FormLabel>
-        {mapsApiState.loading ? (
+        {mapsSdkState.loading ? (
           <Spinner />
         ) : (
           <Controller

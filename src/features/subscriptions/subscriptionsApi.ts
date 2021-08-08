@@ -13,7 +13,7 @@ export const subscriptionApi = createApi({
       {
         payload: Partial<ISubscription>;
         email?: string;
-        user?: IUser;
+        user?: IUser | string;
       }
     >({
       query: ({ payload, email, user }) => ({
@@ -48,7 +48,7 @@ export const subscriptionApi = createApi({
         body: payload
       })
     }),
-    getSubscription: build.query<ISubscription, string>({
+    getSubscription: build.query<ISubscription, string | undefined>({
       query: (userId) => ({ url: `subscription/${userId}` })
     })
     // getSubscriptionByName: build.query<ISubscription, string>({

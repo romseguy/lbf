@@ -1,3 +1,4 @@
+import type { AppSession } from "hooks/useAuth";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
@@ -39,6 +40,7 @@ import usePlacesAutocomplete, {
 import { useEffect } from "react";
 
 interface OrgFormProps extends ChakraProps {
+  session: AppSession;
   org?: IOrg;
   onClose?: () => void;
   onCancel?: () => void;
@@ -140,7 +142,7 @@ export const OrgForm = (props: OrgFormProps) => {
           isClosable: true
         });
       } else {
-        payload.createdBy = session.user.userId;
+        payload.createdBy = props.session.user.userId;
         await addOrg(payload).unwrap();
 
         toast({

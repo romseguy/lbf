@@ -4,7 +4,7 @@ import { Schema } from "mongoose";
 export interface ITopicMessage {
   _id?: string;
   message: string;
-  createdBy: IUser;
+  createdBy: IUser | string;
   createdAt?: string;
 }
 

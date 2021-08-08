@@ -1,5 +1,8 @@
-import { models } from "database";
 import type { IEvent } from "models/Event";
+import type { IOrg } from "models/Org";
+import type { ITopic } from "models/Topic";
+import type { ISubscription } from "models/Subscription";
+import { models } from "database";
 import { SubscriptionTypes } from "models/Subscription";
 
 export const emailR = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -24,6 +27,11 @@ export const sendToFollowers = async (event: IEvent, transport: any) => {
           _id: orgSubscription
         }).populate("user");
 
+        if (!subscription) {
+          // todo: remove stale
+          continue;
+        }
+
         for (const { orgId, type } of subscription.orgs) {
           if (
             eventNotifOrgId !== orgId.toString() ||
@@ -31,7 +39,10 @@ export const sendToFollowers = async (event: IEvent, transport: any) => {
           )
             continue;
 
-          const email = subscription.email || subscription.user?.email;
+          const email =
+            typeof subscription.user === "object"
+              ? subscription.user.email
+              : subscription.email;
           const eventUrl = `${process.env.NEXTAUTH_URL}/${event.eventName}`;
           const mail = {
             from: process.env.EMAIL_FROM,
@@ -53,6 +64,44 @@ export const sendToFollowers = async (event: IEvent, transport: any) => {
   }
 
   return emailList;
+};
+
+export const sendToTopicFollowers = async (
+  entity: IOrg | IEvent,
+  subscriptions: ISubscription[],
+  topic: ITopic,
+  transport: any
+) => {
+  const subject = `Nouveau commentaire sur la discussion : ${topic.topicName}`;
+  const name = "eventName" in entity ? entity.eventName : entity.orgName;
+  const type = "eventName" in entity ? "l'événement" : "l'organisation";
+
+  for (const subscription of subscriptions) {
+    let url = `${process.env.NEXTAUTH_URL}/${name}`;
+    let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${name}</a> pour lire la discussion.</p>`;
+
+    if (name === "aucourant") {
+      url = `${process.env.NEXTAUTH_URL}/forum`;
+      html = `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion.</p>`;
+    }
+
+    const email =
+      typeof subscription.user === "object"
+        ? subscription.user.email
+        : undefined;
+
+    if (!email) continue;
+
+    const mail = {
+      from: process.env.EMAIL_FROM,
+      to: `<${email}>`,
+      subject,
+      html
+    };
+
+    if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
+    else if (process.env.NODE_ENV === "development") console.log("mail", mail);
+  }
 };
 
 export const sendToAdmin = async (event: IEvent, transport: any) => {

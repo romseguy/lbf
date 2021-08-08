@@ -2,20 +2,23 @@ import type { IEvent } from "./Event";
 import type { IOrg } from "./Org";
 import type { ITopic } from "./Topic";
 import type { IUser } from "models/User";
-import { Schema } from "mongoose";
+import { Schema, Types } from "mongoose";
 
 export interface IOrgSubscription {
   orgId: string;
   org: IOrg /* | string*/;
   type: string;
 }
+export interface ITopicSubscription {
+  topic: ITopic;
+}
 export interface ISubscription {
   _id: string;
-  user?: IUser;
+  user?: IUser | string;
   email?: string;
   events: [{ event: IEvent }];
   orgs: IOrgSubscription[];
-  topics: [{ topic: ITopic }];
+  topics: ITopicSubscription[];
 }
 
 export const SubscriptionTypes: { [key: string]: string } = {

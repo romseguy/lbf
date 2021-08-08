@@ -78,7 +78,7 @@ export const OrgConfigSubscribersPanel = ({
     following?: any;
     subscribing?: any;
     email?: string;
-    user?: IUser;
+    user?: IUser | string;
     subscription: ISubscription;
   }) => {
     if (
@@ -87,14 +87,14 @@ export const OrgConfigSubscribersPanel = ({
     )
       return;
 
+    const userEmail = typeof user === "object" ? user.email : email;
+
     if (type === SubscriptionTypes.FOLLOWER) {
       if (following) {
         const unsubscribe = confirm(
-          `Êtes vous sûr(e) de vouloir retirer ${
-            email || user?.email
-          } de la liste des abonné(e)s ${orgTypeFull(org.orgType)} ${
-            org.orgName
-          } ?`
+          `Êtes vous sûr(e) de vouloir retirer ${userEmail} de la liste des abonné(e)s ${orgTypeFull(
+            org.orgType
+          )} ${org.orgName} ?`
         );
         if (unsubscribe) {
           await deleteSubscription({
@@ -124,11 +124,9 @@ export const OrgConfigSubscribersPanel = ({
     } else if (type === SubscriptionTypes.SUBSCRIBER) {
       if (subscribing) {
         const unsubscribe = confirm(
-          `Êtes vous sûr(e) de vouloir retirer ${
-            email || user?.email
-          } de la liste des adhérent(e)s ${orgTypeFull(org.orgType)} ${
-            org.orgName
-          } ?`
+          `Êtes vous sûr(e) de vouloir retirer ${userEmail} de la liste des adhérent(e)s ${orgTypeFull(
+            org.orgType
+          )} ${org.orgName} ?`
         );
         if (unsubscribe) {
           await deleteSubscription({
@@ -328,6 +326,10 @@ export const OrgConfigSubscribersPanel = ({
                 // )
                 .map((subscription, index) => {
                   const { email, user, orgs = [] } = subscription;
+                  const userEmail =
+                    typeof user === "object" ? user.email : email;
+                  const userName =
+                    typeof user === "object" ? user.userName : "";
                   let following: IOrgSubscription | null = null;
                   let subscribing: IOrgSubscription | null = null;
 
@@ -412,12 +414,11 @@ export const OrgConfigSubscribersPanel = ({
                         {email || (
                           <Link
                             href={`/${
-                              user?.userName &&
-                              encodeURIComponent(user.userName)
+                              userName && encodeURIComponent(userName)
                             }`}
                             variant="underline"
                           >
-                            {user?.email}
+                            {userEmail}
                           </Link>
                         )}
                       </Td>
@@ -459,11 +460,9 @@ export const OrgConfigSubscribersPanel = ({
                             }
                             onClick={async () => {
                               const unsubscribe = confirm(
-                                `Êtes vous sûr(e) de vouloir supprimer l'abonnement ${
-                                  email || user?.email
-                                } de ${orgTypeFull(org.orgType)} ${
-                                  org.orgName
-                                } ?`
+                                `Êtes vous sûr(e) de vouloir supprimer l'abonnement ${userEmail} de ${orgTypeFull(
+                                  org.orgType
+                                )} ${org.orgName} ?`
                               );
 
                               if (unsubscribe) {

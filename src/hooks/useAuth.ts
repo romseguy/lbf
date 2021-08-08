@@ -16,10 +16,11 @@ const session = {
   }
 };
 
-type AppSession = {
+export type AppSession = {
   user: {
     userId: string;
     userName: string;
+    userImage: string;
     email: string;
   };
 };
@@ -37,7 +38,7 @@ export async function getSession(
 
 // client-side
 export function useSession(options?: UseSessionOptions): {
-  data: Session | null;
+  data: AppSession | null;
   loading: boolean;
 } {
   if (process.env.NEXT_PUBLIC_IS_TEST || speedUpDev) {

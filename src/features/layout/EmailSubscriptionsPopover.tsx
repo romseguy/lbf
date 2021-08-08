@@ -84,6 +84,10 @@ export const EmailSubscriptionsPopover = ({
   const dispatch = useAppDispatch();
 
   const [mySubscription, setMySubscription] = useState<ISubscription>();
+  const mySubscriptionEmail =
+    typeof mySubscription?.user === "object"
+      ? mySubscription?.user.email
+      : mySubscription?.email;
   const orgFollowerSubscriptons = mySubscription?.orgs.filter(
     (orgSubscription) => orgSubscription.type === SubscriptionTypes.FOLLOWER
   );
@@ -92,9 +96,7 @@ export const EmailSubscriptionsPopover = ({
   const isStep2 = (!session && mySubscription) || session;
 
   const subscribedEmail =
-    useSelector(selectSubscribedEmail) ||
-    mySubscription?.email ||
-    mySubscription?.user?.email;
+    useSelector(selectSubscribedEmail) || mySubscriptionEmail;
 
   const subQuery = useGetSubscriptionQuery(
     props.email || subscribedEmail || ""

@@ -46,7 +46,7 @@ export const eventApi = createApi({
       query: (eventName) => ({ url: `event/${eventName}` })
     }),
     getEventsByCreator: build.query<IEvent[], string>({
-      query: (createdBy) => ({ url: `event?email=${createdBy}` })
+      query: (createdBy) => ({ url: `events/${createdBy}` })
     })
   })
 });

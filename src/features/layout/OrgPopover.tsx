@@ -28,7 +28,7 @@ import {
   Text
 } from "@chakra-ui/react";
 import { OrgForm } from "features/forms/OrgForm";
-import { getOrgsByCreator, useGetOrgsQuery } from "features/orgs/orgsApi";
+import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { Link } from "features/common";
 import { useSession } from "hooks/useAuth";
 import { AddIcon } from "@chakra-ui/icons";
@@ -40,11 +40,16 @@ import {
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 
-export const OrgPopover = ({ boxSize, ...props }: BoxProps) => {
+export const OrgPopover = ({
+  boxSize,
+  ...props
+}: BoxProps & {
+  setIsLoginModalOpen: (isLogin: boolean) => void;
+}) => {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, loading: isSessionLoading } = useSession();
 
-  const query = useGetOrgsQuery(null);
+  const query = useGetOrgsQuery(undefined);
   const myOrgs =
     (Array.isArray(query.data) &&
       query.data.length > 0 &&
@@ -175,7 +180,15 @@ export const OrgPopover = ({ boxSize, ...props }: BoxProps) => {
               )}
             </>
             <Button
-              onClick={onOpen}
+              onClick={() => {
+                if (!isSessionLoading) {
+                  if (session) {
+                    onOpen();
+                  } else {
+                    props.setIsLoginModalOpen(true);
+                  }
+                }
+              }}
               leftIcon={<AddIcon />}
               data-cy="addOrg"
               mt={1}
@@ -186,29 +199,32 @@ export const OrgPopover = ({ boxSize, ...props }: BoxProps) => {
         </PopoverContent>
       </Popover>
 
-      <Modal
-        isOpen={isOrgModalOpen}
-        onClose={onClose}
-        closeOnOverlayClick={false}
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Ajouter une organisation</ModalHeader>
-          <ModalCloseButton data-cy="orgPopoverCloseButton" />
-          <ModalBody>
-            <OrgForm
-              onCancel={onClose}
-              onSubmit={async (orgName) => {
-                onClose();
-                await router.push(`/${encodeURIComponent(orgName)}`);
-              }}
-              onClose={() => {
-                onClose();
-              }}
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      {session && (
+        <Modal
+          isOpen={isOrgModalOpen}
+          onClose={onClose}
+          closeOnOverlayClick={false}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Ajouter une organisation</ModalHeader>
+            <ModalCloseButton data-cy="orgPopoverCloseButton" />
+            <ModalBody>
+              <OrgForm
+                session={session}
+                onCancel={onClose}
+                onSubmit={async (orgName) => {
+                  onClose();
+                  await router.push(`/${encodeURIComponent(orgName)}`);
+                }}
+                onClose={() => {
+                  onClose();
+                }}
+              />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
     </Box>
   );
 };

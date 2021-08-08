@@ -11,7 +11,7 @@ import {
   Spinner,
   Text
 } from "@chakra-ui/react";
-import { loadMapsApi } from "utils/maps";
+import { loadMapsSdk } from "utils/maps";
 import { useEffect } from "react";
 import { useState } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
@@ -105,7 +105,7 @@ const Marker = ({
 };
 
 export const Map = React.memo(({ items }: { items: IEvent[] | IOrg[] }) => {
-  const [mapsApiState, setMapsApiState] = useState({
+  const [mapsSdkState, setMapsSdkState] = useState({
     loaded: false,
     loading: false
   });
@@ -113,12 +113,12 @@ export const Map = React.memo(({ items }: { items: IEvent[] | IOrg[] }) => {
   useEffect(() => {
     const xhr = async () => {
       try {
-        setMapsApiState({ loaded: false, loading: true });
-        await loadMapsApi();
-        setMapsApiState({ loaded: true, loading: false });
+        setMapsSdkState({ loaded: false, loading: true });
+        await loadMapsSdk();
+        setMapsSdkState({ loaded: true, loading: false });
       } catch (error) {
         console.log(error);
-        setMapsApiState({ loaded: false, loading: false });
+        setMapsSdkState({ loaded: false, loading: false });
       }
     };
 
@@ -151,7 +151,7 @@ export const Map = React.memo(({ items }: { items: IEvent[] | IOrg[] }) => {
     })
   );
 
-  if (!mapsApiState.loading && !mapsApiState.loaded)
+  if (!mapsSdkState.loading && !mapsSdkState.loaded)
     return (
       <Alert status="error">
         <AlertIcon />
@@ -159,7 +159,7 @@ export const Map = React.memo(({ items }: { items: IEvent[] | IOrg[] }) => {
       </Alert>
     );
 
-  return mapsApiState.loading ? (
+  return mapsSdkState.loading ? (
     <Spinner />
   ) : (
     <div style={{ height: "400px", width: "100%" }}>

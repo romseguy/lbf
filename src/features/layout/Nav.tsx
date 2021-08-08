@@ -80,7 +80,7 @@ export const Nav = ({
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const storedUserName = useSelector(selectUserName);
-  const userName = storedUserName || (session && session.user.userName);
+  const userName = storedUserName || session?.user.userName || "";
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
     router.asPath === "/?login" || false
@@ -169,7 +169,10 @@ export const Nav = ({
             mr={[1, 3]}
             boxSize={[8, 10, 10]}
           />
-          <OrgPopover boxSize={[8, 10, 12]} />
+          <OrgPopover
+            boxSize={[8, 10, 12]}
+            setIsLoginModalOpen={setIsLoginModalOpen}
+          />
           <Menu>
             <MenuButton mr={[1, 3]}>
               <Avatar
@@ -180,7 +183,9 @@ export const Nav = ({
                   //   box-shadow: var(--chakra-shadows-outline);
                   // }
                 `}
-                src={session.user.image ? session.user.image : undefined}
+                src={
+                  session.user.userImage ? session.user.userImage : undefined
+                }
               />
             </MenuButton>
 

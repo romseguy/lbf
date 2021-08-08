@@ -14,15 +14,17 @@ export const TopicMessagesList = ({
   return (
     <>
       {topicMessages.map(({ _id, message, createdBy, createdAt }, index) => {
+        let userName = "";
+        let userImage;
+        if (typeof createdBy === "object") {
+          userName = createdBy.userName;
+          userImage = createdBy.userImage?.base64;
+        }
         const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt);
 
         return (
           <Flex key={_id} px={2} pt={index === 0 ? 3 : 0} pb={3}>
-            <Avatar
-              name={createdBy.userName}
-              boxSize={10}
-              src={createdBy.userImage?.base64}
-            />
+            <Avatar name={userName} boxSize={10} src={userImage} />
             {/* <AvatarBadge boxSize="1.25em" bg="green.500" />
             </Avatar> */}
             <Box ml={2}>
@@ -33,10 +35,10 @@ export const TopicMessagesList = ({
                 px={3}
               >
                 <Link
-                  href={`/${encodeURIComponent(createdBy.userName)}`}
+                  href={`/${encodeURIComponent(userName)}`}
                   fontWeight="bold"
                 >
-                  {createdBy.userName}
+                  {userName}
                 </Link>
                 <Box className="ql-editor">
                   <div

@@ -67,7 +67,8 @@ export const SubscriptionPopover = ({
     //clearErrors("email");
   };
 
-  const onSubmit = async ({ email }: { email: string }) => {
+  const onSubmit = async ({ email }: { email?: string }) => {
+    if (!email) return;
     setIsLoading(true);
 
     if (org) {
@@ -139,7 +140,7 @@ export const SubscriptionPopover = ({
               props.onSubmit && props.onSubmit(false);
             } else {
               if (subscribedEmail || session) {
-                onSubmit({ email: subscribedEmail || session.user.email });
+                onSubmit({ email: subscribedEmail || session?.user.email });
               } else setIsOpen(!isOpen);
             }
           }}

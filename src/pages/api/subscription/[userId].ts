@@ -1,5 +1,6 @@
 import type { IOrgSubscription, ISubscription } from "models/Subscription";
 import type { ITopic } from "models/Topic";
+import type { IUser } from "models/User";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
@@ -11,16 +12,18 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<NextApiRequest, NextApiResponse>(async function getSubscription(
-  req,
-  res
-) {
+handler.get<
+  NextApiRequest & {
+    query: { userId: string };
+  },
+  NextApiResponse
+>(async function getSubscription(req, res) {
   try {
-    const { userId } = req.query as NextApiRequest["query"] & {
-      userId: string;
-    };
+    const {
+      query: { userId }
+    } = req;
 
-    let selector: { user?: string; email?: string } = { user: userId };
+    let selector: { user?: IUser; email?: string } = {};
 
     if (emailR.test(userId)) {
       const user = await models.User.findOne({ email: userId });
@@ -29,7 +32,7 @@ handler.get<NextApiRequest, NextApiResponse>(async function getSubscription(
     }
 
     const subscription = await models.Subscription.findOne(selector)
-      .populate("user")
+      .populate("user", "-email -password -securityCode -userImage")
       .populate({
         path: "orgs",
         populate: { path: "org" }
@@ -96,11 +99,29 @@ handler.put<NextApiRequest, NextApiResponse>(async function editSubscription(
   }
 });
 
-handler.delete(async function removeSubscription(req, res) {
+handler.delete<
+  NextApiRequest & {
+    query: { userId: string };
+    body: {
+      orgs?: IOrgSubscription[];
+      orgId?: string;
+      topicId?: string;
+    };
+  },
+  NextApiResponse
+>(async function removeSubscription(req, res) {
   const session = await getSession({ req });
 
   const {
-    query: { userId: subscriptionId }
+    query: { userId: subscriptionId },
+    body
+  }: {
+    query: { userId: string };
+    body: {
+      orgs?: IOrgSubscription[];
+      orgId?: string;
+      topicId?: string;
+    };
   } = req;
 
   try {
@@ -119,9 +140,9 @@ handler.delete(async function removeSubscription(req, res) {
         );
     }
 
-    if (req.body.orgs) {
-      console.log("unsubbing from org", req.body.orgs[0]);
-      const { orgId, type } = req.body.orgs[0];
+    if (body.orgs) {
+      console.log("unsubbing from org", body.orgs[0]);
+      const { orgId, type } = body.orgs[0];
       subscription.orgs = subscription.orgs.filter(
         (orgSubscription: IOrgSubscription) => {
           let allow = true;
@@ -137,12 +158,12 @@ handler.delete(async function removeSubscription(req, res) {
       );
       await subscription.save();
       res.status(200).json(subscription);
-    } else if (req.body.topicId) {
-      //console.log("unsubbing from topic", req.body.topicId);
+    } else if (body.topicId) {
+      //console.log("unsubbing from topic", body.topicId);
       subscription.topics = subscription.topics.filter(
         ({ topic }: { topic: ITopic }) => {
           let allow = false;
-          allow = topic._id?.toString() !== req.body.topicId;
+          allow = topic._id?.toString() !== body.topicId;
           return allow;
         }
       );
@@ -154,9 +175,9 @@ handler.delete(async function removeSubscription(req, res) {
         _id: subscriptionId
       });
 
-      if (req.body.orgId) {
+      if (body.orgId) {
         const org = await models.Org.findOne({
-          _id: req.body.orgId
+          _id: body.orgId
         });
 
         if (org) {
@@ -172,14 +193,16 @@ handler.delete(async function removeSubscription(req, res) {
       if (deletedCount === 1) {
         res.status(200).json(subscription);
       } else {
+        const email =
+          typeof subscription.user === "object"
+            ? subscription.user.email
+            : subscription.email;
         res
           .status(400)
           .json(
             createServerError(
               new Error(
-                `Les abonnements de ${
-                  subscription.email || subscription.user?.email
-                } n'ont pas pu être supprimés`
+                `Les abonnements de ${email} n'ont pas pu être supprimés`
               )
             )
           );

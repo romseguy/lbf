@@ -1,36 +1,24 @@
+import type { IEvent } from "models/Event";
+import type { IUser } from "models/User";
 import React, { useEffect, useState } from "react";
-
 import { useRouter } from "next/router";
+import DOMPurify from "isomorphic-dompurify";
+import { css } from "twin.macro";
 import {
   Box,
   Text,
-  useToast,
   Flex,
   Heading,
   Icon,
   Grid,
-  Tooltip,
-  IconButton,
   Alert,
-  AlertIcon,
-  Container
+  AlertIcon
 } from "@chakra-ui/react";
-import type { IEvent } from "models/Event";
-import type { IUser } from "models/User";
-import { Layout } from "features/layout";
-import {
-  useDeleteEventMutation,
-  useGetEventByNameQuery
-} from "features/events/eventsApi";
+import { ArrowBackIcon, AtSignIcon, SettingsIcon } from "@chakra-ui/icons";
+import { IoIosPeople } from "react-icons/io";
+import { parseISO, format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { useSession } from "hooks/useAuth";
-import {
-  AddIcon,
-  ArrowBackIcon,
-  AtSignIcon,
-  ChevronLeftIcon,
-  SettingsIcon,
-  WarningIcon
-} from "@chakra-ui/icons";
 import {
   Button,
   GridHeader,
@@ -38,14 +26,11 @@ import {
   IconFooter,
   Link
 } from "features/common";
-import tw, { css } from "twin.macro";
-import { IoIosPeople } from "react-icons/io";
-import { TopicModal } from "features/modals/TopicModal";
+import { useGetEventByNameQuery } from "features/events/eventsApi";
 import { TopicsList } from "features/forum/TopicsList";
-import { parseISO, format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { Layout } from "features/layout";
+import { TopicModal } from "features/modals/TopicModal";
 import { EventConfigPanel } from "./EventConfigPanel";
-import DOMPurify from "isomorphic-dompurify";
 
 export type Visibility = {
   isVisible: {
@@ -63,7 +48,6 @@ export const EventPage = (props: {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
 
-  const [deleteEvent, { isLoading }] = useDeleteEventMutation();
   const eventQuery = useGetEventByNameQuery(props.routeName);
   useEffect(() => {
     console.log("refetching event");
@@ -71,8 +55,10 @@ export const EventPage = (props: {
     eventQuery.refetch();
   }, [router.asPath]);
   const event = eventQuery.data || props.event;
+  const eventCreatedByUserName =
+    typeof event.createdBy === "object" && event.createdBy.userName;
 
-  const isCreator = session && event.createdBy._id === session.user.userId;
+  const isCreator = session && eventCreatedByUserName === session.user.userName;
 
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
@@ -130,9 +116,9 @@ export const EventPage = (props: {
           par :{" "}
           <Link
             variant="underline"
-            href={`/${encodeURIComponent(event.createdBy.userName)}`}
+            href={`/${encodeURIComponent(eventCreatedByUserName)}`}
           >
-            {event.createdBy.userName}
+            {eventCreatedByUserName}
           </Link>{" "}
           {isCreator && "(Vous)"}
         </Text>
@@ -260,14 +246,16 @@ export const EventPage = (props: {
                     ) : (
                       <Box>
                         <Icon as={AtSignIcon} mr={2} />
-                        <Link
-                          variant="underline"
-                          href={`/${encodeURIComponent(
-                            event.createdBy.userName
-                          )}`}
-                        >
-                          {event.createdBy.userName}
-                        </Link>
+                        {eventCreatedByUserName && (
+                          <Link
+                            variant="underline"
+                            href={`/${encodeURIComponent(
+                              eventCreatedByUserName
+                            )}`}
+                          >
+                            {eventCreatedByUserName}
+                          </Link>
+                        )}
                       </Box>
                     )}
                   </Box>
@@ -303,8 +291,9 @@ export const EventPage = (props: {
         </>
       )}
 
-      {isConfig && (
+      {session && isConfig && (
         <EventConfigPanel
+          session={session}
           event={event}
           eventQuery={eventQuery}
           isConfig={isConfig}

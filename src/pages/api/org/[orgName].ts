@@ -1,4 +1,7 @@
+import type { IOrg } from "models/Org";
 import type { ITopic } from "models/Topic";
+import type { IUser } from "models/User";
+import { Document, Types } from "mongoose";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -6,8 +9,8 @@ import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { emailR } from "utils/email";
-import mongoose from "mongoose";
+import { emailR, sendToTopicFollowers } from "utils/email";
+import { addOrUpdateSub } from "api/shared";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -19,51 +22,67 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<NextApiRequest, NextApiResponse>(async function getOrg(req, res) {
-  const query: { orgName?: string | string[] } = req.query;
-  let orgNameLower;
+handler.get<NextApiRequest & { query: { orgName: string } }, NextApiResponse>(
+  async function getOrg(req, res) {
+    const session = await getSession({ req });
+    const orgName = decodeURIComponent(req.query.orgName);
+    const orgNameLower = orgName.toLowerCase();
 
-  if (query.orgName && typeof query.orgName === "string") {
-    orgNameLower = query.orgName.toLowerCase();
-  }
+    try {
+      let org = await models.Org.findOne({ orgNameLower });
 
-  try {
-    const org = await models.Org.findOne({ orgNameLower })
-      .populate("createdBy", "-email -password -userImage")
-      .populate("orgEvents orgSubscriptions orgTopics")
-      .populate({
-        path: "orgTopics",
-        populate: [
-          {
-            path: "topicMessages",
-            populate: { path: "createdBy", select: "-email -password" }
-          },
-          { path: "createdBy", select: "-email -password" }
-        ]
-      })
-      .populate({
-        path: "orgSubscriptions",
-        populate: { path: "user", select: "-email -password" }
-      });
+      if (!org) {
+        return res
+          .status(404)
+          .json(
+            createServerError(
+              new Error(`L'organisation ${orgName} n'a pas pu être trouvé`)
+            )
+          );
+      }
 
-    if (org) {
+      // hand emails to org creator only
+      const select =
+        session &&
+        typeof org.createdBy === "object" &&
+        "toString" in org.createdBy &&
+        org.createdBy.toString() === session.user.userId
+          ? "-password -securityCode"
+          : "-email -password -securityCode";
+
+      org = await org
+        .populate("createdBy", "-email -password -userImage -securityCode")
+        .populate("orgEvents orgSubscriptions orgTopics")
+        .populate({
+          path: "orgTopics",
+          populate: [
+            {
+              path: "topicMessages",
+              populate: { path: "createdBy", select }
+            },
+            { path: "createdBy", select }
+          ]
+        })
+        .populate({
+          path: "orgSubscriptions",
+          populate: { path: "user", select }
+        })
+        .execPopulate();
+
       res.status(200).json(org);
-    } else {
-      res
-        .status(404)
-        .json(
-          createServerError(new Error("Le document n'a pas pu être trouvé"))
-        );
+    } catch (error) {
+      res.status(500).json(createServerError(error));
     }
-  } catch (error) {
-    res.status(400).json(createServerError(error));
   }
-});
+);
 
-handler.post<NextApiRequest, NextApiResponse>(async function postOrgDetails(
-  req,
-  res
-) {
+handler.post<
+  NextApiRequest & {
+    query: { orgName: string };
+    body: { topic?: ITopic };
+  },
+  NextApiResponse
+>(async function postOrgDetails(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -76,109 +95,63 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrgDetails(
       );
   } else {
     try {
-      const {
-        query: { orgName },
-        body
-      } = req;
+      const orgName = decodeURIComponent(req.query.orgName);
+      const orgNameLower = orgName.toLowerCase();
 
-      const org = await models.Org.findOne({ orgName });
+      const org = await models.Org.findOne({ orgNameLower });
 
       if (!org) {
         return res
           .status(404)
-          .json(createServerError(new Error("Organisation introuvable")));
+          .json(
+            createServerError(
+              new Error(`L'organisation ${orgName} n'a pas pu être trouvé`)
+            )
+          );
       }
 
-      const addOrUpdateSub = async (userId: string, topic: ITopic) => {
-        if (!userId) return;
-
-        const user = await models.User.findOne({ _id: userId });
-
-        if (!user) return;
-
-        let subscription = await models.Subscription.findOne({ user });
-
-        if (!subscription) {
-          subscription = await models.Subscription.create({
-            user,
-            topics: [{ topic }]
-          });
-        } else {
-          let topicSubscription = subscription.topics.find(
-            (topic: ITopic) => topic._id === body.topic._id
-          );
-
-          if (!topicSubscription) {
-            console.log("no sub for this topic");
-            subscription.topics.push({ topic });
-            await subscription.save();
-          }
-        }
-      };
+      const { body }: { body: { topic?: ITopic } } = req;
 
       if (body.topic) {
-        let createdBy;
-        let topic = body.topic;
+        let createdBy: string;
+        let topic: (ITopic & Document<any, any, any>) | null;
 
         if (body.topic._id) {
           if (!body.topic.topicMessages || !body.topic.topicMessages.length) {
             return res.status(200).json(org);
           }
 
-          topic = await models.Topic.findOne({ _id: topic._id });
+          topic = await models.Topic.findOne({ _id: body.topic._id });
 
           if (!topic) {
-            if (!org) {
-              return res
-                .status(404)
-                .json(createServerError(new Error("Topic introuvable")));
-            }
+            return res
+              .status(404)
+              .json(createServerError(new Error("Topic introuvable")));
           }
+
+          createdBy = topic.createdBy.toString();
 
           // existing topic => adding 1 message
           const newMessage = body.topic.topicMessages[0];
+          topic.topicMessages.push(newMessage);
+          await topic.save();
 
-          // get subscriptions of users other than poster
+          // get subscriptions of users other than new message poster
           const subscriptions = await models.Subscription.find({
-            "topics.topic": mongoose.Types.ObjectId(topic._id),
+            "topics.topic": Types.ObjectId(topic._id),
             user: { $ne: newMessage.createdBy }
           }).populate("user");
 
-          const subject = `Nouveau commentaire sur la discussion : ${topic.topicName}`;
-
-          for (const subscription of subscriptions) {
-            let url = `${process.env.NEXTAUTH_URL}/${org.orgName}`;
-            let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de <a href="${url}">${org.orgName}</a> pour lire la discussion.</p>`;
-
-            if (org.orgName === "aucourant") {
-              url = `${process.env.NEXTAUTH_URL}/forum`;
-              html = `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion.</p>`;
-            }
-
-            const mail = {
-              from: process.env.EMAIL_FROM,
-              to: `<${subscription.user.email}>`,
-              subject,
-              html
-            };
-
-            if (process.env.NODE_ENV === "production")
-              await transport.sendMail(mail);
-            else if (process.env.NODE_ENV === "development")
-              console.log("mail", mail);
-          }
-
-          topic.topicMessages.push(newMessage);
-          await topic.save();
+          sendToTopicFollowers(org, subscriptions, topic, transport);
         } else {
           // new topic
           topic = await models.Topic.create(body.topic);
-          createdBy = topic.createdBy;
+          createdBy = topic.createdBy.toString();
           org.orgTopics.push(topic);
           await org.save();
         }
 
-        addOrUpdateSub(createdBy, topic);
+        await addOrUpdateSub(createdBy, topic);
       }
 
       res.status(200).json(org);
@@ -188,7 +161,13 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrgDetails(
   }
 });
 
-handler.put<NextApiRequest, NextApiResponse>(async function editOrg(req, res) {
+handler.put<
+  NextApiRequest & {
+    query: { orgName: string };
+    body: IOrg;
+  },
+  NextApiResponse
+>(async function editOrg(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -201,17 +180,39 @@ handler.put<NextApiRequest, NextApiResponse>(async function editOrg(req, res) {
       );
   } else {
     try {
-      const {
-        query: { orgName }
-      } = req;
+      const { body }: { body: IOrg } = req;
+      const orgName = decodeURIComponent(req.query.orgName);
+      const orgNameLower = orgName.toLowerCase();
+      body.orgNameLower = body.orgName.toLowerCase();
 
-      let body = req.body;
+      const org = await models.Org.findOne({ orgNameLower });
 
-      if (typeof body.orgName === "string" && !body.orgNameLower) {
-        body.orgNameLower = body.orgName.toLowerCase();
+      if (!org) {
+        return res
+          .status(404)
+          .json(
+            createServerError(
+              new Error(`L'organisation ${orgName} n'a pas pu être trouvé`)
+            )
+          );
       }
 
-      const { n, nModified } = await models.Org.updateOne({ orgName }, body);
+      if (org.createdBy.toString() !== session.user.userId) {
+        return res
+          .status(403)
+          .json(
+            createServerError(
+              new Error(
+                "Vous ne pouvez pas modifier un organisation que vous n'avez pas créé."
+              )
+            )
+          );
+      }
+
+      const { n, nModified } = await models.Org.updateOne(
+        { orgNameLower },
+        body
+      );
 
       if (nModified === 1) {
         res.status(200).json({});
@@ -230,7 +231,12 @@ handler.put<NextApiRequest, NextApiResponse>(async function editOrg(req, res) {
   }
 });
 
-handler.delete(async function removeOrg(req, res) {
+handler.delete<
+  NextApiRequest & {
+    query: { orgName: string };
+  },
+  NextApiResponse
+>(async function removeOrg(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -242,12 +248,33 @@ handler.delete(async function removeOrg(req, res) {
         )
       );
   } else {
-    const {
-      query: { orgName }
-    } = req;
-
     try {
-      const org = await models.Org.findOne({ orgName });
+      const orgName = decodeURIComponent(req.query.orgName);
+      const orgNameLower = orgName.toLowerCase();
+      const org = await models.Org.findOne({ orgNameLower });
+
+      if (!org) {
+        return res
+          .status(404)
+          .json(
+            createServerError(
+              new Error(`L'organisation ${orgName} n'a pas pu être trouvé`)
+            )
+          );
+      }
+
+      if (org.createdBy.toString() !== session.user.userId) {
+        return res
+          .status(403)
+          .json(
+            createServerError(
+              new Error(
+                "Vous ne pouvez pas supprimer un organisation que vous n'avez pas créé."
+              )
+            )
+          );
+      }
+
       const { deletedCount } = await models.Org.deleteOne({ orgName });
 
       if (deletedCount === 1) {

@@ -1,3 +1,4 @@
+import type { AppSession } from "hooks/useAuth";
 import type { Visibility } from "./EventPage";
 import type { IEvent } from "models/Event";
 import React from "react";
@@ -22,6 +23,7 @@ import { useState } from "react";
 import { EventConfigBannerPanel } from "./EventConfigBannerPanel";
 
 export const EventConfigPanel = ({
+  session,
   event,
   eventQuery,
   isConfig,
@@ -31,6 +33,7 @@ export const EventConfigPanel = ({
   setIsEdit,
   setIsVisible
 }: Visibility & {
+  session: AppSession;
   event: IEvent;
   eventQuery: any;
   isConfig: boolean;
@@ -110,6 +113,7 @@ export const EventConfigPanel = ({
 
       {isEdit ? (
         <EventForm
+          session={session}
           event={event}
           onCancel={() => setIsEdit(false)}
           onSubmit={async (eventName) => {

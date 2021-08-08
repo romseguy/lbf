@@ -185,20 +185,24 @@ export const UserForm = (props: {
 
       <FormControl id="userImage" isInvalid={!!errors["userImage"]} mb={3}>
         <FormLabel>Avatar</FormLabel>
-        {props.user?.userImage && (
-          <Tooltip hasArrow label="Changer l'avatar" placement="right">
-            <Avatar
-              boxSize={10}
-              name={props.user?.userName}
-              src={props.user?.userImage?.base64}
-              mb={3}
-              cursor="pointer"
-              onClick={() => {
-                document?.getElementById("fileInput")?.click();
-              }}
-            />
-          </Tooltip>
-        )}
+        <Tooltip
+          hasArrow
+          label={
+            props.user?.userImage ? "Changer l'avatar" : "Définir un avatar"
+          }
+          placement="right"
+        >
+          <Avatar
+            boxSize={10}
+            name={props.user?.userName}
+            src={props.user?.userImage?.base64}
+            mb={3}
+            cursor="pointer"
+            onClick={() => {
+              document?.getElementById("fileInput")?.click();
+            }}
+          />
+        </Tooltip>
 
         <Input
           id="fileInput"
