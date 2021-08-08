@@ -141,7 +141,7 @@ handler.delete<
     }
 
     if (body.orgs) {
-      console.log("unsubbing from org", body.orgs[0]);
+      // console.log("unsubbing from org", body.orgs[0]);
       const { orgId, type } = body.orgs[0];
       subscription.orgs = subscription.orgs.filter(
         (orgSubscription: IOrgSubscription) => {
@@ -159,18 +159,18 @@ handler.delete<
       await subscription.save();
       res.status(200).json(subscription);
     } else if (body.topicId) {
-      //console.log("unsubbing from topic", body.topicId);
+      // console.log("unsubbing from topic", body.topicId);
       subscription.topics = subscription.topics.filter(
         ({ topic }: { topic: ITopic }) => {
           let allow = false;
-          allow = topic._id?.toString() !== body.topicId;
+          allow = topic._id!.toString() !== body.topicId;
           return allow;
         }
       );
       await subscription.save();
       res.status(200).json(subscription);
     } else {
-      console.log("unsubbing user");
+      // console.log("unsubbing user");
       const { deletedCount } = await models.Subscription.deleteOne({
         _id: subscriptionId
       });

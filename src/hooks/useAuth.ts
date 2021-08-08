@@ -9,7 +9,7 @@ const speedUpDev = process.env.NODE_ENV === "development" && false;
 const session = {
   user: {
     userId: process.env.NEXT_PUBLIC_IS_LOCAL_TEST
-      ? "60f69e25326ad61659d020ed"
+      ? "610ee9f18ee7760d3390e482"
       : "60e318732d8f5b154bfaa346",
     userName: "romseguy8933",
     email: process.env.EMAIL_ADMIN

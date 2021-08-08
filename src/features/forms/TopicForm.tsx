@@ -83,20 +83,15 @@ export const TopicForm = (props: TopicFormProps) => {
   }) => {
     console.log("submitted", form);
     if (!session) return;
-    let topic: ITopic | undefined = undefined;
 
-    if (!props.topic) {
-      topic = {
+    const payload = {
+      topic: {
         ...form,
         topicMessages: form.topicMessage
           ? [{ message: form.topicMessage, createdBy: session.user.userId }]
           : [],
         createdBy: session.user.userId
-      };
-    }
-
-    const payload = {
-      topic
+      }
     };
 
     try {

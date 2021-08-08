@@ -37,6 +37,7 @@ import { FaMapMarkerAlt, FaPowerOff } from "react-icons/fa";
 import { MapModal } from "features/modals/MapModal";
 import { getOrgs } from "features/orgs/orgsApi";
 import api from "utils/api";
+import { isServer } from "utils/isServer";
 
 const linkList = css`
   & > a {
@@ -241,14 +242,18 @@ export const Nav = ({
             />
           ) : (
             <Box mr={5} ml={5}>
-              <Button
-                variant="outline"
-                colorScheme="purple"
-                onClick={() => setIsLoginModalOpen(true)}
-                data-cy="login"
-              >
-                Connexion
-              </Button>
+              {isServer() ? (
+                <Spinner mt={2} />
+              ) : (
+                <Button
+                  variant="outline"
+                  colorScheme="purple"
+                  onClick={() => setIsLoginModalOpen(true)}
+                  data-cy="login"
+                >
+                  Connexion
+                </Button>
+              )}
             </Box>
           )}
         </Flex>

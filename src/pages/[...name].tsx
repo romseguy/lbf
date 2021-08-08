@@ -41,12 +41,16 @@ const Hash = ({
     return <User user={user} routeName={routeName} />;
   }
 
-  if (!isServer()) router.push("/");
+  if (!isServer()) {
+    setTimeout(() => {
+      router.push("/");
+    }, 2000);
+  }
 
   return (
     <Layout>
       La page demandée n'a pas été trouvée. Vous allez être redirigé vers la
-      page d'accueil.
+      page d'accueil dans quelques secondes.
     </Layout>
   );
 };
@@ -59,7 +63,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   }
 
   if (routeName.indexOf(" ") !== -1) {
-    const destination = `/${encodeURIComponent(routeName.replace(/\ /g, "_"))}`;
+    const destination = `/${routeName.replace(/\ /g, "_")}`;
 
     return {
       redirect: {

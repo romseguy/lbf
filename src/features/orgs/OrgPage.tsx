@@ -68,7 +68,7 @@ export const OrgPage = ({
   }, [router.asPath, refetchOrg]);
   const org = orgQuery.data || props.org;
   const orgCreatedByUserName =
-    typeof org.createdBy === "object" && org.createdBy.userName;
+    typeof org.createdBy === "object" ? org.createdBy.userName : "";
 
   const isCreator = session?.user.userName === orgCreatedByUserName;
 

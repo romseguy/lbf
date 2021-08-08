@@ -15,6 +15,10 @@ describe("CRUD", () => {
     cy.request("http://localhost:3004/api/reset-db");
   });
 
+  // it("lands", () => {
+  //   cy.visit("/");
+  // });
+
   it("404", () => {
     cy.visit("/test");
     cy.location("pathname", { timeout: 10000 }).should("eq", "/");

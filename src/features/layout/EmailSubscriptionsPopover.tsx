@@ -88,7 +88,7 @@ export const EmailSubscriptionsPopover = ({
     typeof mySubscription?.user === "object"
       ? mySubscription?.user.email
       : mySubscription?.email;
-  const orgFollowerSubscriptons = mySubscription?.orgs.filter(
+  const orgFollowerSubscriptons = mySubscription?.orgs?.filter(
     (orgSubscription) => orgSubscription.type === SubscriptionTypes.FOLLOWER
   );
 

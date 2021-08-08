@@ -7,8 +7,6 @@ declare namespace NodeJS {
     NEXT_PUBLIC_URL: string;
     NEXT_PUBLIC_API: string;
     NEXT_PUBLIC_GOOGLE_PLACES_API_KEY: string;
-    NEXT_PUBLIC_SUPABASE_URL: string;
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
     NEXTAUTH_URL: string;
     SECRET: string;
     EMAIL_SERVER: string;

@@ -24,12 +24,11 @@ handler.use(database);
 
 handler.get<NextApiRequest & { query: { eventName: string } }, NextApiResponse>(
   async function getEvent(req, res) {
-    const eventName = decodeURIComponent(req.query.eventName);
-    const eventNameLower = eventName.toLowerCase();
+    const eventName = req.query.eventName;
 
     try {
       const event = await models.Event.findOne({
-        eventNameLower
+        eventName
       })
         .populate("createdBy", "-email -password -securityCode -userImage")
         .populate("eventOrgs eventTopics")

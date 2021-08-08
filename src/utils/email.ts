@@ -28,7 +28,7 @@ export const sendToFollowers = async (event: IEvent, transport: any) => {
         }).populate("user");
 
         if (!subscription) {
-          // todo: remove stale
+          // shouldn't happen because when user remove subscription to org it is also removed from org.orgSubscriptions
           continue;
         }
 
@@ -43,7 +43,7 @@ export const sendToFollowers = async (event: IEvent, transport: any) => {
             typeof subscription.user === "object"
               ? subscription.user.email
               : subscription.email;
-          const eventUrl = `${process.env.NEXTAUTH_URL}/${event.eventName}`;
+          const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventName}`;
           const mail = {
             from: process.env.EMAIL_FROM,
             to: `<${email}>`,
@@ -77,11 +77,11 @@ export const sendToTopicFollowers = async (
   const type = "eventName" in entity ? "l'événement" : "l'organisation";
 
   for (const subscription of subscriptions) {
-    let url = `${process.env.NEXTAUTH_URL}/${name}`;
+    let url = `${process.env.NEXT_PUBLIC_URL}/${name}`;
     let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${name}</a> pour lire la discussion.</p>`;
 
     if (name === "aucourant") {
-      url = `${process.env.NEXTAUTH_URL}/forum`;
+      url = `${process.env.NEXT_PUBLIC_URL}/forum`;
       html = `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion.</p>`;
     }
 
@@ -112,7 +112,7 @@ export const sendToAdmin = async (event: IEvent, transport: any) => {
       subject: `Un événement attend votre approbation : ${event.eventName}`,
       html: `
         <h1>Nouvel événement : ${event.eventName}</h1>
-        <p>Rendez-vous sur <a href="${process.env.NEXTAUTH_URL}/${event.eventName}">${process.env.NEXT_PUBLIC_SHORT_URL}/${event.eventName}</a> pour en savoir plus.</p>
+        <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${event.eventName}">${process.env.NEXT_PUBLIC_SHORT_URL}/${event.eventName}</a> pour en savoir plus.</p>
       `
     }));
 };

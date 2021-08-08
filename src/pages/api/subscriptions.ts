@@ -102,12 +102,11 @@ handler.post<
             userSubscription.orgs.push(newOrgSubscription);
         }
 
-        // todo: check id string/objectId comparison
         if (staleOrgSubscriptionOrgIds.length > 0) {
           userSubscription.orgs = userSubscription.orgs.filter(
             (orgSubscription) =>
               !staleOrgSubscriptionOrgIds.find(
-                (id) => id === orgSubscription.orgId
+                (id) => id === orgSubscription.orgId.toString()
               )
           );
         }

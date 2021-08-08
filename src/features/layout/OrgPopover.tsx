@@ -42,6 +42,7 @@ import {
 
 export const OrgPopover = ({
   boxSize,
+  setIsLoginModalOpen,
   ...props
 }: BoxProps & {
   setIsLoginModalOpen: (isLogin: boolean) => void;
@@ -185,7 +186,7 @@ export const OrgPopover = ({
                   if (session) {
                     onOpen();
                   } else {
-                    props.setIsLoginModalOpen(true);
+                    setIsLoginModalOpen(true);
                   }
                 }
               }}

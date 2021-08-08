@@ -25,11 +25,10 @@ handler.use(database);
 handler.get<NextApiRequest & { query: { orgName: string } }, NextApiResponse>(
   async function getOrg(req, res) {
     const session = await getSession({ req });
-    const orgName = decodeURIComponent(req.query.orgName);
-    const orgNameLower = orgName.toLowerCase();
+    const orgName = req.query.orgName;
 
     try {
-      let org = await models.Org.findOne({ orgNameLower });
+      let org = await models.Org.findOne({ orgName });
 
       if (!org) {
         return res
@@ -42,11 +41,8 @@ handler.get<NextApiRequest & { query: { orgName: string } }, NextApiResponse>(
       }
 
       // hand emails to org creator only
-      const select =
-        session &&
-        typeof org.createdBy === "object" &&
-        "toString" in org.createdBy &&
-        org.createdBy.toString() === session.user.userId
+      let select =
+        session && org.createdBy.toString() === session.user.userId
           ? "-password -securityCode"
           : "-email -password -securityCode";
 

@@ -191,7 +191,7 @@ export const TopicsList = ({
 
                   if (subQuery.data) {
                     isSubbedToTopic = !!subQuery.data.topics.find(
-                      ({ topic }) => topic?._id === entityTopic._id
+                      ({ topic }) => topic._id === entityTopic._id
                     );
                   }
 

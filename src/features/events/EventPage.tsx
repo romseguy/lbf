@@ -56,7 +56,7 @@ export const EventPage = (props: {
   }, [router.asPath]);
   const event = eventQuery.data || props.event;
   const eventCreatedByUserName =
-    typeof event.createdBy === "object" && event.createdBy.userName;
+    typeof event.createdBy === "object" ? event.createdBy.userName : "";
 
   const isCreator = session && eventCreatedByUserName === session.user.userName;
 
@@ -246,16 +246,14 @@ export const EventPage = (props: {
                     ) : (
                       <Box>
                         <Icon as={AtSignIcon} mr={2} />
-                        {eventCreatedByUserName && (
-                          <Link
-                            variant="underline"
-                            href={`/${encodeURIComponent(
-                              eventCreatedByUserName
-                            )}`}
-                          >
-                            {eventCreatedByUserName}
-                          </Link>
-                        )}
+                        <Link
+                          variant="underline"
+                          href={`/${encodeURIComponent(
+                            eventCreatedByUserName
+                          )}`}
+                        >
+                          {eventCreatedByUserName}
+                        </Link>
                       </Box>
                     )}
                   </Box>
