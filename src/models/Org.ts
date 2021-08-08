@@ -10,6 +10,7 @@ export interface IOrg {
   id: string;
   orgName: string;
   orgNameLower?: string;
+  orgUrl: string;
   orgType: string;
   orgAddress?: string;
   orgCity?: string;
@@ -49,6 +50,7 @@ export const OrgSchema = new Schema<IOrg>(
       unique: true
     },
     orgNameLower: String,
+    orgUrl: String,
     orgType: {
       type: String,
       enum: Object.keys(OrgTypes).map((key) => OrgTypes[key]),

@@ -52,7 +52,11 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
       );
   } else {
     try {
-      const org = await models.Org.findOne({ orgName: req.body.eventName });
+      const eventUrl = req.body.eventName
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "");
+
+      const org = await models.Org.findOne({ orgUrl: eventUrl });
       if (org) throw duplicateError;
 
       const user = await models.User.findOne({ userName: req.body.eventName });
@@ -61,6 +65,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
       const event = await models.Event.create({
         ...req.body,
         eventNameLower: req.body.eventName.toLowerCase(),
+        eventUrl,
         isApproved: false
       });
       await models.Org.updateMany(

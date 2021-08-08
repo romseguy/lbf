@@ -9,6 +9,7 @@ export interface IEvent {
   _id: string;
   eventName: string;
   eventNameLower?: string;
+  eventUrl: string;
   eventMinDate: string;
   eventMaxDate: string;
   eventAddress?: string;
@@ -37,6 +38,7 @@ export const EventSchema = new Schema<IEvent>(
       unique: true
     },
     eventNameLower: String,
+    eventUrl: String,
     eventMinDate: {
       type: String,
       required: true

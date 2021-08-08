@@ -42,6 +42,7 @@ const Marker = ({
   }>({});
 
   const name = "eventName" in item ? item.eventName : item.orgName;
+  const url = "eventName" in item ? item.eventUrl : item.orgUrl;
   const description =
     "eventName" in item ? item.eventDescription : item.orgDescription;
 
@@ -75,7 +76,7 @@ const Marker = ({
         }}
         header={
           <Link
-            href={`/${encodeURIComponent(name)}`}
+            href={`/${url}`}
             css={css`
               letter-spacing: 0.1em;
             `}

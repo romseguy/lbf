@@ -1,4 +1,4 @@
-import type { IEvent } from "models/Event";
+import type { IOrg } from "models/Org";
 import type { ITopic } from "models/Topic";
 import type { IUser } from "models/User";
 import { Document, Types } from "mongoose";
@@ -9,7 +9,7 @@ import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { sendToFollowers, sendToTopicFollowers } from "utils/email";
+import { emailR, sendToTopicFollowers } from "utils/email";
 import { addOrUpdateSub } from "api/shared";
 
 const transport = nodemailer.createTransport(
@@ -22,41 +22,50 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<NextApiRequest & { query: { eventName: string } }, NextApiResponse>(
-  async function getEvent(req, res) {
-    const eventName = req.query.eventName;
+handler.get<NextApiRequest & { query: { orgUrl: string } }, NextApiResponse>(
+  async function getOrg(req, res) {
+    const session = await getSession({ req });
+    const orgUrl = req.query.orgUrl;
 
     try {
-      const event = await models.Event.findOne({
-        eventName
-      })
-        .populate("createdBy", "-email -password -securityCode -userImage")
-        .populate("eventOrgs eventTopics")
-        .populate({
-          path: "eventTopics",
-          populate: [
-            {
-              path: "topicMessages",
-              populate: {
-                path: "createdBy",
-                select: "-email -password -securityCode"
-              }
-            },
-            { path: "createdBy", select: "-email -password -securityCode" }
-          ]
-        });
+      let org = await models.Org.findOne({ orgUrl });
 
-      if (event) {
-        res.status(200).json(event);
-      } else {
-        res
+      if (!org) {
+        return res
           .status(404)
           .json(
             createServerError(
-              new Error(`L'événement ${eventName} n'a pas pu être trouvé`)
+              new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
             )
           );
       }
+
+      // hand emails to org creator only
+      let select =
+        session && org.createdBy.toString() === session.user.userId
+          ? "-password -securityCode"
+          : "-email -password -securityCode";
+
+      org = await org
+        .populate("createdBy", "-email -password -userImage -securityCode")
+        .populate("orgEvents orgSubscriptions orgTopics")
+        .populate({
+          path: "orgTopics",
+          populate: [
+            {
+              path: "topicMessages",
+              populate: { path: "createdBy", select }
+            },
+            { path: "createdBy", select }
+          ]
+        })
+        .populate({
+          path: "orgSubscriptions",
+          populate: { path: "user", select }
+        })
+        .execPopulate();
+
+      res.status(200).json(org);
     } catch (error) {
       res.status(500).json(createServerError(error));
     }
@@ -65,11 +74,11 @@ handler.get<NextApiRequest & { query: { eventName: string } }, NextApiResponse>(
 
 handler.post<
   NextApiRequest & {
-    query: { eventName: string };
+    query: { orgUrl: string };
     body: { topic?: ITopic };
   },
   NextApiResponse
->(async function postEventDetails(req, res) {
+>(async function postOrgDetails(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -82,17 +91,15 @@ handler.post<
       );
   } else {
     try {
-      const eventName = decodeURIComponent(req.query.eventName);
-      const eventNameLower = eventName.toLowerCase();
+      const orgUrl = req.query.orgUrl;
+      const org = await models.Org.findOne({ orgUrl });
 
-      const event = await models.Event.findOne({ eventNameLower });
-
-      if (!event) {
+      if (!org) {
         return res
           .status(404)
           .json(
             createServerError(
-              new Error(`L'événement ${eventName} n'a pas pu être trouvé`)
+              new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
             )
           );
       }
@@ -105,7 +112,7 @@ handler.post<
 
         if (body.topic._id) {
           if (!body.topic.topicMessages || !body.topic.topicMessages.length) {
-            return res.status(200).json(event);
+            return res.status(200).json(org);
           }
 
           topic = await models.Topic.findOne({ _id: body.topic._id });
@@ -129,19 +136,19 @@ handler.post<
             user: { $ne: newMessage.createdBy }
           }).populate("user");
 
-          sendToTopicFollowers(event, subscriptions, topic, transport);
+          sendToTopicFollowers(org, subscriptions, topic, transport);
         } else {
           // new topic
           topic = await models.Topic.create(body.topic);
           createdBy = topic.createdBy.toString();
-          event.eventTopics.push(topic);
-          await event.save();
+          org.orgTopics.push(topic);
+          await org.save();
         }
 
         await addOrUpdateSub(createdBy, topic);
       }
 
-      res.status(200).json(event);
+      res.status(200).json(org);
     } catch (error) {
       res.status(400).json(createServerError(error));
     }
@@ -150,11 +157,11 @@ handler.post<
 
 handler.put<
   NextApiRequest & {
-    query: { eventName: string };
-    body: IEvent;
+    query: { orgUrl: string };
+    body: IOrg;
   },
   NextApiResponse
->(async function editEvent(req, res) {
+>(async function editOrg(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -167,91 +174,62 @@ handler.put<
       );
   } else {
     try {
-      const { body }: { body: IEvent } = req;
-      const eventName = decodeURIComponent(req.query.eventName);
-      const eventNameLower = eventName.toLowerCase();
-      body.eventNameLower = body.eventName.toLowerCase();
+      const { body }: { body: IOrg } = req;
+      const orgUrl = decodeURIComponent(req.query.orgUrl);
+      body.orgNameLower = body.orgName.toLowerCase();
+      body.orgUrl = body.orgName
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "");
 
-      const event = await models.Event.findOne({ eventNameLower });
+      const org = await models.Org.findOne({ orgUrl });
 
-      if (!event) {
+      if (!org) {
         return res
           .status(404)
           .json(
             createServerError(
-              new Error(`L'événement ${eventName} n'a pas pu être trouvé`)
+              new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
             )
           );
       }
 
-      if (event.createdBy.toString() !== session.user.userId) {
+      if (org.createdBy.toString() !== session.user.userId) {
         return res
           .status(403)
           .json(
             createServerError(
               new Error(
-                "Vous ne pouvez pas modifier un événement que vous n'avez pas créé."
+                "Vous ne pouvez pas modifier un organisation que vous n'avez pas créé."
               )
             )
           );
       }
 
-      const staleEventOrgsIds: string[] = [];
-
-      for (const { _id } of body.eventOrgs) {
-        const org = await models.Org.findOne({ _id });
-
-        if (!org) {
-          staleEventOrgsIds.push(_id);
-          continue;
-        }
-
-        if (org.orgEvents.indexOf(event._id) === -1) {
-          await models.Org.updateOne(
-            { _id: org._id },
-            {
-              $push: {
-                orgEvents: event._id
-              }
-            }
-          );
-        }
-      }
-
-      if (staleEventOrgsIds.length > 0) {
-        body.eventOrgs = body.eventOrgs.filter(
-          (eventOrg) => !staleEventOrgsIds.find((id) => id === eventOrg._id)
-        );
-      }
-
-      const emailList = await sendToFollowers(body, transport);
-
-      const { n, nModified } = await models.Event.updateOne(
-        { eventName },
-        body
-      );
+      const { n, nModified } = await models.Org.updateOne({ orgUrl }, body);
 
       if (nModified === 1) {
-        res.status(200).json({ emailList });
+        res.status(200).json({});
       } else {
         res
           .status(400)
           .json(
-            createServerError(new Error("L'événement n'a pas pu être modifié"))
+            createServerError(
+              new Error(`L'organisation ${orgUrl} n'a pas pu être modifiée`)
+            )
           );
       }
     } catch (error) {
-      res.status(500).json(createServerError(error));
+      res.status(400).json(createServerError(error));
     }
   }
 });
 
 handler.delete<
   NextApiRequest & {
-    query: { eventName: string };
+    query: { orgUrl: string };
   },
   NextApiResponse
->(async function removeEvent(req, res) {
+>(async function removeOrg(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -264,42 +242,41 @@ handler.delete<
       );
   } else {
     try {
-      const eventName = decodeURIComponent(req.query.eventName);
-      const eventNameLower = eventName.toLowerCase();
-      const event = await models.Event.findOne({ eventNameLower });
+      const orgUrl = req.query.orgUrl;
+      const org = await models.Org.findOne({ orgUrl });
 
-      if (!event) {
+      if (!org) {
         return res
           .status(404)
           .json(
             createServerError(
-              new Error(`L'événement ${eventName} n'a pas pu être trouvé`)
+              new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
             )
           );
       }
 
-      if (event.createdBy.toString() !== session.user.userId) {
+      if (org.createdBy.toString() !== session.user.userId) {
         return res
           .status(403)
           .json(
             createServerError(
               new Error(
-                "Vous ne pouvez pas supprimer un événement que vous n'avez pas créé."
+                "Vous ne pouvez pas supprimer un organisation que vous n'avez pas créé."
               )
             )
           );
       }
 
-      const { deletedCount } = await models.Event.deleteOne({ eventName });
+      const { deletedCount } = await models.Org.deleteOne({ orgUrl });
 
       if (deletedCount === 1) {
-        res.status(200).json(event);
+        res.status(200).json(org);
       } else {
         res
           .status(400)
           .json(
             createServerError(
-              new Error(`L'événement ${eventName} n'a pas pu être supprimé`)
+              new Error(`L'organisation ${orgUrl} n'a pas pu être supprimé`)
             )
           );
       }

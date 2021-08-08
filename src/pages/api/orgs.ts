@@ -35,15 +35,19 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrg(req, res) {
       );
   } else {
     try {
-      const org = await models.Org.findOne({ orgName: req.body.orgName });
+      const orgUrl = req.body.orgName
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "");
+      const org = await models.Org.findOne({ orgUrl });
       if (org) throw duplicateError;
       const user = await models.User.findOne({ userName: req.body.orgName });
       if (user) throw duplicateError;
-      const event = await models.Event.findOne({ eventName: req.body.orgName });
+      const event = await models.Event.findOne({ eventUrl: orgUrl });
       if (event) throw duplicateError;
       const doc = await models.Org.create({
         ...req.body,
-        orgNameLower: req.body.orgName.toLowerCase()
+        orgNameLower: req.body.orgName.toLowerCase(),
+        orgUrl
       });
       res.status(200).json(doc);
     } catch (error) {

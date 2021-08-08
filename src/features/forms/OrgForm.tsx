@@ -44,7 +44,7 @@ interface OrgFormProps extends ChakraProps {
   org?: IOrg;
   onClose?: () => void;
   onCancel?: () => void;
-  onSubmit?: (orgName: string) => void;
+  onSubmit?: (orgUrl: string) => void;
 }
 
 export const OrgForm = (props: OrgFormProps) => {
@@ -99,6 +99,7 @@ export const OrgForm = (props: OrgFormProps) => {
     setIsLoading(true);
     const payload = {
       ...form,
+      orgUrl: form.orgName.normalize("NFD").replace(/\p{Diacritic}/gu, ""),
       orgDescription:
         form.orgDescription === "<p><br></p>"
           ? ""
@@ -134,7 +135,7 @@ export const OrgForm = (props: OrgFormProps) => {
       }
 
       if (props.org) {
-        await editOrg({ payload, orgName: props.org.orgName }).unwrap();
+        await editOrg({ payload, orgUrl: props.org.orgUrl }).unwrap();
 
         toast({
           title: "Votre organisation a bien été modifiée !",
@@ -154,7 +155,7 @@ export const OrgForm = (props: OrgFormProps) => {
 
       setIsLoading(false);
       props.onClose && props.onClose();
-      props.onSubmit && props.onSubmit(payload.orgName);
+      props.onSubmit && props.onSubmit(payload.orgUrl);
     } catch (error) {
       handleError(error, (message, field) => {
         if (field) {

@@ -18,23 +18,23 @@ export const eventApi = createApi({
     }),
     addEventDetails: build.mutation<
       IEvent,
-      { payload: { topic?: ITopic }; eventName?: string }
+      { payload: { topic?: ITopic }; eventUrl?: string }
     >({
-      query: ({ payload, eventName }) => ({
-        url: `event/${eventName}`,
+      query: ({ payload, eventUrl }) => ({
+        url: `event/${eventUrl}`,
         method: "POST",
         body: payload
       })
     }),
     deleteEvent: build.mutation<IEvent, string>({
-      query: (eventName) => ({ url: `event/${eventName}`, method: "DELETE" })
+      query: (eventUrl) => ({ url: `event/${eventUrl}`, method: "DELETE" })
     }),
     editEvent: build.mutation<
       { emailList?: string[] },
-      { payload: Partial<IEvent>; eventName?: string }
+      { payload: Partial<IEvent>; eventUrl?: string }
     >({
-      query: ({ payload, eventName }) => ({
-        url: `event/${eventName || payload.eventName}`,
+      query: ({ payload, eventUrl }) => ({
+        url: `event/${eventUrl || payload.eventUrl}`,
         method: "PUT",
         body: payload
       })
@@ -43,7 +43,7 @@ export const eventApi = createApi({
       query: () => ({ url: `events` })
     }),
     getEventByName: build.query<IEvent, string>({
-      query: (eventName) => ({ url: `event/${eventName}` })
+      query: (eventUrl) => ({ url: `event/${eventUrl}` })
     }),
     getEventsByCreator: build.query<IEvent[], string>({
       query: (createdBy) => ({ url: `events/${createdBy}` })

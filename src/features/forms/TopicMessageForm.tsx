@@ -89,15 +89,15 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
     };
 
     try {
-      if (props.org && props.org.orgName) {
+      if (props.org && props.org.orgUrl) {
         await addOrgDetails({
           payload,
-          orgName: props.org.orgName
+          orgUrl: props.org.orgUrl
         }).unwrap();
-      } else if (props.event && props.event.eventName) {
+      } else if (props.event && props.event.eventUrl) {
         await addEventDetails({
           payload,
-          eventName: props.event.eventName
+          eventUrl: props.event.eventUrl
         }).unwrap();
       }
 

@@ -17,7 +17,7 @@ export const EventModal = (props: {
   initialEventOrgs?: IOrg[];
   onCancel: () => void;
   onClose: () => void;
-  onSubmit: (eventName: string) => void;
+  onSubmit: (eventUrl: string) => void;
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
 

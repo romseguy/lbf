@@ -68,7 +68,7 @@ export const OrgConfigBannerPanel = ({
             base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL()
           }
         },
-        orgName: org.orgName
+        orgUrl: org.orgUrl
       });
       orgQuery.refetch();
     } catch (error) {

@@ -132,7 +132,7 @@ export const OrgPopover = ({
                         onClick={() => {
                           setIsOpen(false);
                         }}
-                        href={`/${encodeURIComponent(org.orgName)}`}
+                        href={`/${org.orgUrl}`}
                       >
                         {org.orgName}
                       </Link>
@@ -166,7 +166,7 @@ export const OrgPopover = ({
                         onClick={() => {
                           setIsOpen(false);
                         }}
-                        href={`/${encodeURIComponent(org.orgName)}`}
+                        href={`/${org.orgUrl}`}
                       >
                         {org.orgName}
                       </Link>
@@ -214,9 +214,9 @@ export const OrgPopover = ({
               <OrgForm
                 session={session}
                 onCancel={onClose}
-                onSubmit={async (orgName) => {
+                onSubmit={async (orgUrl) => {
                   onClose();
-                  await router.push(`/${encodeURIComponent(orgName)}`);
+                  await router.push(`/${orgUrl}`);
                 }}
                 onClose={() => {
                   onClose();

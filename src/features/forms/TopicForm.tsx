@@ -96,11 +96,11 @@ export const TopicForm = (props: TopicFormProps) => {
 
     try {
       if (props.org) {
-        await addOrgDetails({ payload, orgName: props.org.orgName }).unwrap();
+        await addOrgDetails({ payload, orgUrl: props.org.orgUrl }).unwrap();
       } else if (props.event) {
         await addEventDetails({
           payload,
-          eventName: props.event.eventName
+          eventUrl: props.event.eventUrl
         }).unwrap();
       }
 

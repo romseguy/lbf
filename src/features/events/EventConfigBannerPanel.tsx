@@ -68,7 +68,7 @@ export const EventConfigBannerPanel = ({
             base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL()
           }
         },
-        eventName: event.eventName
+        eventUrl: event.eventUrl
       });
       eventQuery.refetch();
     } catch (error) {

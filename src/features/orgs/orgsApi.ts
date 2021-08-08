@@ -21,31 +21,29 @@ export const orgApi = createApi({
     }),
     addOrgDetails: build.mutation<
       IOrg,
-      { payload: { topic?: ITopic }; orgName?: string }
+      { payload: { topic?: ITopic }; orgUrl?: string }
     >({
-      query: ({ payload, orgName }) => ({
-        url: `org/${orgName}`,
+      query: ({ payload, orgUrl }) => ({
+        url: `org/${orgUrl}`,
         method: "POST",
         body: payload
       })
     }),
     deleteOrg: build.mutation<IOrg, string>({
-      query: (orgName) => ({ url: `org/${orgName}`, method: "DELETE" })
+      query: (orgUrl) => ({ url: `org/${orgUrl}`, method: "DELETE" })
     }),
-    editOrg: build.mutation<IOrg, { payload: Partial<IOrg>; orgName?: string }>(
-      {
-        query: ({ payload, orgName }) => ({
-          url: `org/${orgName || payload.orgName}`,
-          method: "PUT",
-          body: payload
-        })
-      }
-    ),
+    editOrg: build.mutation<IOrg, { payload: Partial<IOrg>; orgUrl?: string }>({
+      query: ({ payload, orgUrl }) => ({
+        url: `org/${orgUrl || payload.orgUrl}`,
+        method: "PUT",
+        body: payload
+      })
+    }),
     getOrgs: build.query<IOrg[], undefined>({
       query: () => ({ url: `orgs` })
     }),
     getOrgByName: build.query<IOrg, string>({
-      query: (orgName) => ({ url: `org/${orgName}` })
+      query: (orgUrl) => ({ url: `org/${orgUrl}` })
     }),
     getOrgsByCreator: build.query<IOrg[], string>({
       query: (createdBy) => ({ url: `orgs/${createdBy}` })

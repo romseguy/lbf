@@ -90,7 +90,7 @@ export const EventConfigPanel = ({
           }
           onClick={async () => {
             try {
-              const deletedEvent = await deleteEvent(event.eventName).unwrap();
+              const deletedEvent = await deleteEvent(event.eventUrl).unwrap();
 
               if (deletedEvent) {
                 await router.push(`/`);
@@ -116,10 +116,9 @@ export const EventConfigPanel = ({
           session={session}
           event={event}
           onCancel={() => setIsEdit(false)}
-          onSubmit={async (eventName) => {
-            if (event && eventName !== event.eventName) {
-              // await router.push(`/${eventName}`);
-              await router.push(`/${encodeURIComponent(eventName)}`);
+          onSubmit={async (eventUrl) => {
+            if (event && eventUrl !== event.eventUrl) {
+              await router.push(`/${eventUrl}`);
             } else {
               eventQuery.refetch();
               setIsEdit(false);

@@ -70,7 +70,7 @@ interface EventFormProps extends ChakraProps {
   initialEventOrgs?: IOrg[];
   onClose?: () => void;
   onCancel?: () => void;
-  onSubmit?: (eventName: string) => void;
+  onSubmit?: (eventUrl: string) => void;
 }
 
 const repeatOptions: number[] = [];
@@ -211,6 +211,7 @@ export const EventForm = ({
 
     const payload = {
       ...form,
+      eventUrl: form.eventName.normalize("NFD").replace(/\p{Diacritic}/gu, ""),
       eventDescription:
         form.eventDescription === "<p><br></p>"
           ? ""
@@ -252,12 +253,12 @@ export const EventForm = ({
 
         const res = await editEvent({
           payload,
-          eventName: props.event.eventName
+          eventUrl: props.event.eventUrl
         }).unwrap();
 
         toast({
           title:
-            res && Array.isArray(res.emailList) && res.emailList.length > 0
+            Array.isArray(res.emailList) && res.emailList.length > 0
               ? `Une invitation a été envoyée à ${res.emailList.length} abonné${
                   res.emailList.length > 1 ? "s" : ""
                 }`
@@ -266,7 +267,7 @@ export const EventForm = ({
           isClosable: true
         });
       } else {
-        await addEvent({
+        const event = await addEvent({
           ...payload,
           createdBy: props.session.user.userId
         }).unwrap();
@@ -279,7 +280,7 @@ export const EventForm = ({
       }
 
       setIsLoading(false);
-      props.onSubmit && props.onSubmit(payload.eventName);
+      props.onSubmit && props.onSubmit(payload.eventUrl);
       props.onClose && props.onClose();
     } catch (error) {
       handleError(error, (message, field) => {

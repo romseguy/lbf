@@ -234,7 +234,7 @@ export const EventPage = (props: {
                           <Link
                             data-cy={`eventCreatedBy-${eventOrg.orgName}`}
                             variant="underline"
-                            href={`/${encodeURIComponent(eventOrg.orgName)}`}
+                            href={`/${eventOrg.orgUrl}`}
                           >
                             {`${eventOrg.orgName}`}
                             {/* {`${eventOrg.orgName}${

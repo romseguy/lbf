@@ -74,7 +74,7 @@ export const OrgConfigPanel = ({
             <>
               Vous êtes sur le point de supprimer l'organisation
               <Text display="inline" color="red" fontWeight="bold">
-                {` ${org.orgName}`}
+                {` ${org.orgUrl}`}
               </Text>
             </>
           }
@@ -88,7 +88,7 @@ export const OrgConfigPanel = ({
           }
           onClick={async () => {
             try {
-              const deletedOrg = await deleteOrg(org.orgName).unwrap();
+              const deletedOrg = await deleteOrg(org.orgUrl).unwrap();
 
               if (deletedOrg) {
                 await router.push(`/`);
@@ -114,9 +114,9 @@ export const OrgConfigPanel = ({
           session={session}
           org={org}
           onCancel={() => setIsEdit(false)}
-          onSubmit={async (orgName) => {
-            if (org && orgName !== org.orgName) {
-              await router.push(`/${encodeURIComponent(orgName)}`);
+          onSubmit={async (orgUrl) => {
+            if (org && orgUrl !== org.orgUrl) {
+              await router.push(`/${orgUrl}`);
             } else {
               orgQuery.refetch();
               setIsEdit(false);

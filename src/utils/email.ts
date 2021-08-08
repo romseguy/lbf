@@ -43,7 +43,7 @@ export const sendToFollowers = async (event: IEvent, transport: any) => {
             typeof subscription.user === "object"
               ? subscription.user.email
               : subscription.email;
-          const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventName}`;
+          const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`;
           const mail = {
             from: process.env.EMAIL_FROM,
             to: `<${email}>`,
@@ -74,10 +74,11 @@ export const sendToTopicFollowers = async (
 ) => {
   const subject = `Nouveau commentaire sur la discussion : ${topic.topicName}`;
   const name = "eventName" in entity ? entity.eventName : entity.orgName;
+  const entityUrl = "eventName" in entity ? entity.eventUrl : entity.orgUrl;
   const type = "eventName" in entity ? "l'événement" : "l'organisation";
 
   for (const subscription of subscriptions) {
-    let url = `${process.env.NEXT_PUBLIC_URL}/${name}`;
+    let url = `${process.env.NEXT_PUBLIC_URL}/${entityUrl}`;
     let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${name}</a> pour lire la discussion.</p>`;
 
     if (name === "aucourant") {
@@ -112,7 +113,7 @@ export const sendToAdmin = async (event: IEvent, transport: any) => {
       subject: `Un événement attend votre approbation : ${event.eventName}`,
       html: `
         <h1>Nouvel événement : ${event.eventName}</h1>
-        <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${event.eventName}">${process.env.NEXT_PUBLIC_SHORT_URL}/${event.eventName}</a> pour en savoir plus.</p>
+        <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}">${process.env.NEXT_PUBLIC_SHORT_URL}/${event.eventUrl}</a> pour en savoir plus.</p>
       `
     }));
 };

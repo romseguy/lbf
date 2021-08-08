@@ -237,9 +237,8 @@ export const OrgPage = ({
                     session={session}
                     initialEventOrgs={[org]}
                     onCancel={() => setIsEventModalOpen(false)}
-                    onSubmit={async (eventName) => {
-                      //await router.push(`/${eventName}`);
-                      await router.push(`/${encodeURIComponent(eventName)}`);
+                    onSubmit={async (eventUrl) => {
+                      await router.push(`/${eventUrl}`);
                     }}
                     onClose={() => setIsEventModalOpen(false)}
                   />
