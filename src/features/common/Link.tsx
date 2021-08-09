@@ -6,9 +6,8 @@ import {
   SpaceProps,
   TypographyProps
 } from "@chakra-ui/react";
-import { UrlObject } from "url";
 import { SerializedStyles } from "@emotion/react";
-declare type Url = string | UrlObject;
+declare type Url = string;
 
 export type LinkProps = ThemingProps &
   SpaceProps &

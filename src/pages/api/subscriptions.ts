@@ -7,6 +7,7 @@ import database, { models } from "database";
 import { createServerError, databaseErrorCodes } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import { ITopic } from "models/Topic";
+import { equals } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -105,25 +106,43 @@ handler.post<
         if (staleOrgSubscriptionOrgIds.length > 0) {
           userSubscription.orgs = userSubscription.orgs.filter(
             (orgSubscription) =>
-              !staleOrgSubscriptionOrgIds.find(
-                (id) => id === orgSubscription.orgId.toString()
+              !staleOrgSubscriptionOrgIds.find((id) =>
+                equals(id, orgSubscription.orgId)
               )
           );
         }
-      } else {
+      } else if (userSubscription) {
         userSubscription.orgs = newOrgSubscriptions;
-        await models.Org.updateMany(
-          {
-            _id: newOrgSubscriptions.map(
-              (newOrgSubscription) => newOrgSubscription.org._id
-            )
-          },
-          {
-            $push: {
-              orgSubscriptions: userSubscription
-            }
+        const newOrgSubscription = newOrgSubscriptions[0];
+        let org = await models.Org.findOne({
+          _id: newOrgSubscription.org._id
+        }).populate("orgSubscriptions");
+
+        if (!org) {
+          return res
+            .status(400)
+            .json(
+              createServerError(
+                new Error(
+                  "Vous ne pouvez pas vous abonner à une organisation inexistante"
+                )
+              )
+            );
+        }
+
+        let found = false;
+
+        for (const orgSubscription of org.orgSubscriptions) {
+          if (equals(orgSubscription._id, userSubscription._id)) {
+            found = true;
+            break;
           }
-        );
+        }
+
+        if (!found) {
+          org.orgSubscriptions.push(userSubscription);
+          await org.save();
+        }
       }
     } else if (body.topics) {
       const topicId = body.topics[0].topic._id;

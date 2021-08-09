@@ -62,15 +62,17 @@ export const Forum = () => {
 
   return (
     <Layout pageTitle="Forum" isLogin={isLogin} p={isMobile ? 5 : 5}>
-      <TopicsList
-        org={org}
-        query={query}
-        isCreator={isCreator}
-        isFollowed={isFollowed}
-        isSubscribed={isSubscribed}
-        setIsLogin={setIsLogin}
-        isLogin={isLogin}
-      />
+      {org && (
+        <TopicsList
+          entity={org}
+          query={query}
+          isCreator={isCreator}
+          isFollowed={isFollowed}
+          isSubscribed={isSubscribed}
+          setIsLogin={setIsLogin}
+          isLogin={isLogin}
+        />
+      )}
     </Layout>
   );
 };

@@ -1,25 +1,14 @@
 import type { AppSession } from "hooks/useAuth";
 import type { Visibility } from "./EventPage";
 import type { IEvent } from "models/Event";
-import React from "react";
-import { useRouter } from "next/router";
-import {
-  Box,
-  Text,
-  Heading,
-  useToast,
-  IconButton,
-  Icon,
-  Grid,
-  AlertIcon,
-  Alert
-} from "@chakra-ui/react";
-import { useDeleteEventMutation } from "features/events/eventsApi";
-import { Button, DeleteButton, Input } from "features/common";
-import { ArrowBackIcon, EditIcon, WarningIcon } from "@chakra-ui/icons";
+import React, { useState } from "react";
 import tw, { css } from "twin.macro";
+import { useRouter } from "next/router";
+import { Box, Text, useToast, Icon, Grid } from "@chakra-ui/react";
+import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
+import { Button, DeleteButton, Input } from "features/common";
+import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
-import { useState } from "react";
 import { EventConfigBannerPanel } from "./EventConfigBannerPanel";
 
 export const EventConfigPanel = ({
@@ -49,66 +38,73 @@ export const EventConfigPanel = ({
   return (
     <>
       <Box mb={3}>
-        <Button
-          aria-label="Modifier"
-          leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-          mr={3}
-          onClick={() => {
-            setIsEdit(!isEdit);
-            setIsVisible({ ...isVisible, banner: false });
-          }}
-          css={css`
-            &:hover {
-              ${tw`bg-green-300`}
-            }
-          `}
-          data-cy="eventEdit"
-        >
-          {isEdit ? "Retour" : "Modifier"}
-        </Button>
-
-        <DeleteButton
-          isDisabled={isDisabled}
-          isLoading={deleteQuery.isLoading}
-          header={
-            <>
-              Vous êtes sur le point de supprimer l'événement
-              <Text display="inline" color="red" fontWeight="bold">
-                {` ${event.eventName}`}
-              </Text>
-            </>
-          }
-          body={
-            <>
-              Saisissez le nom de l'événement pour confimer sa suppression :
-              <Input
-                onChange={(e) =>
-                  setIsDisabled(e.target.value !== event.eventName)
+        {!isEdit && (
+          <>
+            <Button
+              aria-label="Modifier"
+              leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+              mr={3}
+              onClick={() => {
+                setIsEdit(!isEdit);
+                setIsVisible({ ...isVisible, banner: false });
+              }}
+              css={css`
+                &:hover {
+                  ${tw`bg-green-300`}
                 }
-              />
-            </>
-          }
-          onClick={async () => {
-            try {
-              const deletedEvent = await deleteEvent(event.eventUrl).unwrap();
+              `}
+              data-cy="eventEdit"
+            >
+              Modifier
+            </Button>
 
-              if (deletedEvent) {
-                await router.push(`/`);
-                toast({
-                  title: `${deletedEvent.eventName} a bien été supprimé !`,
-                  status: "success",
-                  isClosable: true
-                });
+            <DeleteButton
+              isDisabled={isDisabled}
+              isLoading={deleteQuery.isLoading}
+              header={
+                <>
+                  Vous êtes sur le point de supprimer l'événement
+                  <Text display="inline" color="red" fontWeight="bold">
+                    {` ${event.eventName}`}
+                  </Text>
+                </>
               }
-            } catch (error) {
-              toast({
-                title: error.data ? error.data.message : error.message,
-                status: "error",
-                isClosable: true
-              });
-            }
-          }}
-        />
+              body={
+                <>
+                  Saisissez le nom de l'événement pour confimer sa suppression :
+                  <Input
+                    autoComplete="off"
+                    onChange={(e) =>
+                      setIsDisabled(e.target.value !== event.eventName)
+                    }
+                  />
+                </>
+              }
+              onClick={async () => {
+                try {
+                  const deletedEvent = await deleteEvent(
+                    event.eventUrl
+                  ).unwrap();
+
+                  if (deletedEvent) {
+                    await router.push(`/`);
+                    toast({
+                      title: `${deletedEvent.eventName} a bien été supprimé !`,
+                      status: "success",
+                      isClosable: true
+                    });
+                  }
+                } catch (error) {
+                  toast({
+                    title: error.data ? error.data.message : error.message,
+                    status: "error",
+                    isClosable: true
+                  });
+                }
+              }}
+            />
+          </>
+        )}
       </Box>
 
       {isEdit ? (

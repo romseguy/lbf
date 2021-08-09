@@ -28,8 +28,7 @@ import { useAddOrgDetailsMutation } from "features/orgs/orgsApi";
 import { useAddEventDetailsMutation } from "features/events/eventsApi";
 
 interface TopicFormProps extends ChakraProps {
-  org?: IOrg;
-  event?: IEvent;
+  entity: IOrg | IEvent;
   topic?: ITopic;
   isCreator?: boolean;
   isFollowed?: boolean;
@@ -38,6 +37,9 @@ interface TopicFormProps extends ChakraProps {
   onCancel?: () => void;
   onSubmit?: (topicName: string) => void;
 }
+
+let event: IEvent;
+let org: IOrg;
 
 export const TopicForm = (props: TopicFormProps) => {
   const { data: session } = useSession();
@@ -48,7 +50,13 @@ export const TopicForm = (props: TopicFormProps) => {
   const toast = useToast({ position: "top" });
   const visibilityOptions = [];
 
-  if (props.org && props.org.orgName !== "aucourant") {
+  if ("orgName" in props.entity) {
+    org = props.entity as IOrg;
+  } else {
+    event = props.entity as IEvent;
+  }
+
+  if (org && org.orgName !== "aucourant") {
     visibilityOptions.push(Visibility.PUBLIC);
 
     if (props.isCreator) {
@@ -59,19 +67,10 @@ export const TopicForm = (props: TopicFormProps) => {
     }
   }
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    errors,
-    setError,
-    clearErrors,
-    watch,
-    setValue,
-    getValues
-  } = useForm({
-    mode: "onChange"
-  });
+  const { control, register, handleSubmit, errors, setError, clearErrors } =
+    useForm({
+      mode: "onChange"
+    });
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -80,9 +79,12 @@ export const TopicForm = (props: TopicFormProps) => {
   const onSubmit = async (form: {
     topicName: string;
     topicMessage: string;
+    topicVisibility: string;
   }) => {
     console.log("submitted", form);
     if (!session) return;
+
+    setIsLoading(true);
 
     const payload = {
       topic: {
@@ -90,26 +92,32 @@ export const TopicForm = (props: TopicFormProps) => {
         topicMessages: form.topicMessage
           ? [{ message: form.topicMessage, createdBy: session.user.userId }]
           : [],
+        org,
+        event,
+        topicVisibility: !form.topicVisibility
+          ? Visibility[Visibility.PUBLIC]
+          : form.topicVisibility,
         createdBy: session.user.userId
       }
     };
 
     try {
-      if (props.org) {
-        await addOrgDetails({ payload, orgUrl: props.org.orgUrl }).unwrap();
-      } else if (props.event) {
+      if (org) {
+        await addOrgDetails({ payload, orgUrl: org.orgUrl }).unwrap();
+      } else if (event) {
         await addEventDetails({
           payload,
-          eventUrl: props.event.eventUrl
+          eventUrl: event.eventUrl
         }).unwrap();
       }
 
       toast({
-        title: "Votre sujet de discussion a bien été ajouté !",
+        title: "Votre discussion a bien été ajouté !",
         status: "success",
         isClosable: true
       });
 
+      setIsLoading(false);
       props.onSubmit && props.onSubmit(form.topicName);
       props.onClose && props.onClose();
     } catch (error) {
@@ -142,12 +150,12 @@ export const TopicForm = (props: TopicFormProps) => {
         isInvalid={!!errors["topicName"]}
         mb={3}
       >
-        <FormLabel>Titre du sujet de discussion</FormLabel>
+        <FormLabel>Titre de la discussion</FormLabel>
         <Input
           name="topicName"
           placeholder="Cliquez ici pour saisir le titre..."
           ref={register({
-            required: "Veuillez saisir le titre du sujet de discussion"
+            required: "Veuillez saisir le titre de la discussion"
           })}
           defaultValue={props.topic && props.topic.topicName}
         />
@@ -191,11 +199,11 @@ export const TopicForm = (props: TopicFormProps) => {
           <FormLabel>Visibilité</FormLabel>
           <Select
             name="topicVisibility"
+            defaultValue={Visibility[Visibility.PUBLIC]}
             ref={register({
-              required:
-                "Veuillez sélectionner la visibilité du sujet de discussion"
+              required: "Veuillez sélectionner la visibilité de la discussion"
             })}
-            placeholder="Sélectionnez la visibilité du sujet de discussion..."
+            placeholder="Sélectionnez la visibilité de la discussion..."
             color="gray.400"
           >
             {visibilityOptions.map((key) => {
@@ -222,6 +230,7 @@ export const TopicForm = (props: TopicFormProps) => {
           type="submit"
           isLoading={isLoading || addOrgDetailsMutation.isLoading}
           isDisabled={Object.keys(errors).length > 0}
+          data-cy="addTopic"
         >
           {props.topic ? "Modifier" : "Ajouter"}
         </Button>

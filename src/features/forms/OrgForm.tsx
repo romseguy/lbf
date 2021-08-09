@@ -38,6 +38,7 @@ import usePlacesAutocomplete, {
   Suggestion
 } from "use-places-autocomplete";
 import { useEffect } from "react";
+import { normalize } from "utils/string";
 
 interface OrgFormProps extends ChakraProps {
   session: AppSession;
@@ -48,11 +49,9 @@ interface OrgFormProps extends ChakraProps {
 }
 
 export const OrgForm = (props: OrgFormProps) => {
-  //const [isLoading, setIsLoading] = useState();
-  const { data: session } = useSession();
+  const toast = useToast({ position: "top" });
   const [addOrg, addOrgMutation] = useAddOrgMutation();
   const [editOrg, editOrgMutation] = useEditOrgMutation();
-  const toast = useToast({ position: "top" });
 
   const {
     control,
@@ -75,7 +74,7 @@ export const OrgForm = (props: OrgFormProps) => {
     ready,
     value: autoCompleteValue,
     suggestions: { status, data },
-    setValue,
+    setValue: setAutoCompleteValue,
     clearSuggestions
   } = usePlacesAutocomplete({
     requestOptions: {
@@ -87,7 +86,7 @@ export const OrgForm = (props: OrgFormProps) => {
   });
 
   useEffect(() => {
-    if (!suggestion) setValue(orgAddress);
+    if (!suggestion) setAutoCompleteValue(orgAddress);
   }, [orgAddress]);
 
   const onChange = () => {
@@ -99,7 +98,7 @@ export const OrgForm = (props: OrgFormProps) => {
     setIsLoading(true);
     const payload = {
       ...form,
-      orgUrl: form.orgName.normalize("NFD").replace(/\p{Diacritic}/gu, ""),
+      orgUrl: normalize(form.orgName),
       orgDescription:
         form.orgDescription === "<p><br></p>"
           ? ""
@@ -107,11 +106,7 @@ export const OrgForm = (props: OrgFormProps) => {
     };
 
     try {
-      let sugg = suggestion;
-
-      if (!suggestion && payload.orgAddress && data[0]) {
-        sugg = data[0];
-      }
+      const sugg = suggestion || data[0];
 
       if (sugg) {
         const details: any = await getDetails({

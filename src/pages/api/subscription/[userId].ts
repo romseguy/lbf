@@ -7,6 +7,7 @@ import database, { models } from "database";
 import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import { emailR } from "utils/email";
+import { equals } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -147,7 +148,7 @@ handler.delete<
         (orgSubscription: IOrgSubscription) => {
           let allow = true;
 
-          if (orgSubscription.orgId.toString() === orgId) {
+          if (equals(orgSubscription.orgId, orgId)) {
             if (orgSubscription.type === type) {
               allow = false;
             }
@@ -163,7 +164,7 @@ handler.delete<
       subscription.topics = subscription.topics.filter(
         ({ topic }: { topic: ITopic }) => {
           let allow = false;
-          allow = topic._id!.toString() !== body.topicId;
+          allow = !equals(topic._id, body.topicId);
           return allow;
         }
       );
@@ -183,7 +184,7 @@ handler.delete<
         if (org) {
           org.orgSubscriptions = org.orgSubscriptions.filter(
             (subscription: ISubscription) => {
-              return subscription._id.toString() !== subscriptionId;
+              return !equals(subscription._id, subscriptionId);
             }
           );
           await org.save();

@@ -9,6 +9,7 @@ import user from "features/users/userSlice";
 import { eventApi } from "features/events/eventsApi";
 import { orgApi } from "features/orgs/orgsApi";
 import { subscriptionApi } from "features/subscriptions/subscriptionsApi";
+import { topicsApi } from "features/forum/topicsApi";
 import { userApi } from "features/users/usersApi";
 
 const makeStore = () =>
@@ -20,14 +21,15 @@ const makeStore = () =>
       [eventApi.reducerPath]: eventApi.reducer,
       [orgApi.reducerPath]: orgApi.reducer,
       [subscriptionApi.reducerPath]: subscriptionApi.reducer,
+      [topicsApi.reducerPath]: topicsApi.reducer,
       [userApi.reducerPath]: userApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
-      // getDefaultMiddleware({ serializableCheck: false }).concat(logger),
-      getDefaultMiddleware().concat(
+      getDefaultMiddleware({ serializableCheck: false }).concat(
         eventApi.middleware,
         orgApi.middleware,
         subscriptionApi.middleware,
+        topicsApi.middleware,
         userApi.middleware
       ),
     devTools: process.env.NODE_ENV !== "production"

@@ -1,9 +1,8 @@
 import type { ITopic } from "models/Topic";
-import type { IUser } from "models/User";
-import { Types } from "mongoose";
 import { models } from "database";
+import { equals } from "utils/string";
 
-export const addOrUpdateSub = async (userId: string, topic: ITopic) => {
+export const subscribeUserToTopic = async (userId: string, topic: ITopic) => {
   if (!userId || !topic) return;
 
   const user = await models.User.findOne({ _id: userId });
@@ -17,15 +16,17 @@ export const addOrUpdateSub = async (userId: string, topic: ITopic) => {
       user,
       topics: [{ topic }]
     });
+    console.log(subscription);
   } else {
-    let topicSubscription = subscription.topics.find(
-      ({ topic: t }) => t._id === topic._id
+    const topicSubscription = subscription.topics.find(({ topic: t }) =>
+      equals(t._id, topic._id)
     );
 
     if (!topicSubscription) {
       console.log("no sub for this topic");
       subscription.topics.push({ topic });
       await subscription.save();
+      console.log(subscription);
     }
   }
 };

@@ -10,7 +10,7 @@ handler.use(database);
 handler.get<NextApiRequest & { query: { userId: string } }, NextApiResponse>(
   async function getEvents(req, res) {
     try {
-      const userId = decodeURIComponent(req.query.userId);
+      const userId = req.query.userId;
       const events = await models.Event.find({ createdBy: userId });
 
       res.status(200).json(events);

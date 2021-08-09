@@ -2,6 +2,9 @@ import type { IEvent } from "models/Event";
 import type { IUser } from "models/User";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { useSession } from "hooks/useAuth";
+import { parseISO, format } from "date-fns";
+import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { css } from "twin.macro";
 import {
@@ -16,9 +19,6 @@ import {
 } from "@chakra-ui/react";
 import { ArrowBackIcon, AtSignIcon, SettingsIcon } from "@chakra-ui/icons";
 import { IoIosPeople } from "react-icons/io";
-import { parseISO, format } from "date-fns";
-import { fr } from "date-fns/locale";
-import { useSession } from "hooks/useAuth";
 import {
   Button,
   GridHeader,
@@ -29,7 +29,6 @@ import {
 import { useGetEventByNameQuery } from "features/events/eventsApi";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
-import { TopicModal } from "features/modals/TopicModal";
 import { EventConfigPanel } from "./EventConfigPanel";
 
 export type Visibility = {
@@ -60,7 +59,6 @@ export const EventPage = (props: {
 
   const isCreator = session && eventCreatedByUserName === session.user.userName;
 
-  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -75,18 +73,6 @@ export const EventPage = (props: {
       isLogin={isLogin}
       banner={event.eventBanner}
     >
-      {isTopicModalOpen && event && (
-        <TopicModal
-          event={event}
-          onCancel={() => setIsTopicModalOpen(false)}
-          onSubmit={async (topicName) => {
-            eventQuery.refetch();
-            setIsTopicModalOpen(false);
-          }}
-          onClose={() => setIsTopicModalOpen(false)}
-        />
-      )}
-
       {isCreator && !isConfig ? (
         <Button
           aria-label="Paramètres"
@@ -103,7 +89,7 @@ export const EventPage = (props: {
           onClick={() => setIsConfig(false)}
           mb={2}
         >
-          Retour
+          Revenir à l'événement
         </Button>
       ) : null}
 
@@ -275,7 +261,7 @@ export const EventPage = (props: {
                 >
                   <Box p={5}>
                     <TopicsList
-                      event={event}
+                      entity={event}
                       query={eventQuery}
                       isLogin={isLogin}
                       setIsLogin={setIsLogin}

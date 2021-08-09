@@ -1,3 +1,5 @@
+import type { IEvent } from "models/Event";
+import type { IOrg } from "models/Org";
 import type { ITopicMessage } from "models/TopicMessage";
 import type { IUser } from "models/User";
 import { Schema, Types } from "mongoose";
@@ -10,6 +12,8 @@ export interface ITopic {
   topicNameLower?: string;
   topicMessages: ITopicMessage[];
   topicVisibility?: string;
+  org?: IOrg;
+  event?: IEvent;
   createdBy: IUser | string;
   createdAt?: string;
 }
@@ -38,6 +42,14 @@ export const TopicSchema = new Schema<ITopic>(
     topicVisibility: {
       type: String,
       enum: Object.keys(Visibility).map((key) => Visibility[key])
+    },
+    org: {
+      type: Schema.Types.ObjectId,
+      ref: "Org"
+    },
+    event: {
+      type: Schema.Types.ObjectId,
+      ref: "Event"
     },
     createdBy: {
       type: Schema.Types.ObjectId,

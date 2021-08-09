@@ -16,7 +16,9 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogBody,
-  AlertDialogFooter
+  AlertDialogFooter,
+  Tooltip,
+  SpaceProps
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import tw, { css } from "twin.macro";
@@ -25,14 +27,17 @@ export const DeleteButton = ({
   onClick,
   isDisabled,
   isLoading,
+  isIconOnly,
   header,
-  body
-}: {
+  body,
+  ...props
+}: SpaceProps & {
   header: React.ReactNode;
   body: React.ReactNode;
   onClick: () => void;
   isDisabled?: boolean;
   isLoading?: boolean;
+  isIconOnly?: boolean;
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const onClose = () => setIsOpen(false);
@@ -40,22 +45,36 @@ export const DeleteButton = ({
 
   return (
     <>
-      <Button
-        aria-label="Supprimer"
-        leftIcon={<DeleteIcon />}
-        onClick={() => {
-          setIsOpen(true);
-        }}
-        colorScheme="red"
-        // css={css`
-        //   &:hover {
-        //     background-color: red;
-        //   }
-        //   ${tw`bg-red-400`}
-        // `}
-      >
-        Supprimer
-      </Button>
+      {isIconOnly ? (
+        <Tooltip label="Supprimer" placement="left">
+          <DeleteIcon
+            {...props}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(true);
+            }}
+          />
+        </Tooltip>
+      ) : (
+        <Button
+          {...props}
+          aria-label="Supprimer"
+          leftIcon={<DeleteIcon />}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsOpen(true);
+          }}
+          colorScheme="red"
+          // css={css`
+          //   &:hover {
+          //     background-color: red;
+          //   }
+          //   ${tw`bg-red-400`}
+          // `}
+        >
+          Supprimer
+        </Button>
+      )}
       <AlertDialog
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}
@@ -77,8 +96,12 @@ export const DeleteButton = ({
                 isDisabled={isDisabled}
                 isLoading={isLoading}
                 colorScheme="red"
-                onClick={onClick}
+                onClick={() => {
+                  onClick();
+                  onClose();
+                }}
                 ml={3}
+                data-cy="deleteButtonSubmit"
               >
                 Supprimer
               </Button>

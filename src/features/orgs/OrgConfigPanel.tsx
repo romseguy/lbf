@@ -2,22 +2,12 @@ import type { AppSession } from "hooks/useAuth";
 import type { Visibility } from "./OrgPage";
 import type { IOrg } from "models/Org";
 import React, { useState } from "react";
-import { useRouter } from "next/router";
-import {
-  Box,
-  Text,
-  Heading,
-  useToast,
-  IconButton,
-  Icon,
-  Grid,
-  Alert,
-  AlertIcon
-} from "@chakra-ui/react";
-import { useDeleteOrgMutation } from "features/orgs/orgsApi";
-import { Button, DeleteButton, Input } from "features/common";
-import { ArrowBackIcon, EditIcon, WarningIcon } from "@chakra-ui/icons";
 import tw, { css } from "twin.macro";
+import { useRouter } from "next/router";
+import { Box, Text, useToast, Icon, Grid } from "@chakra-ui/react";
+import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
+import { Button, DeleteButton, Input } from "features/common";
+import { useDeleteOrgMutation } from "features/orgs/orgsApi";
 import { OrgForm } from "features/forms/OrgForm";
 import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
@@ -49,64 +39,76 @@ export const OrgConfigPanel = ({
   return (
     <>
       <Box mb={3}>
-        <Button
-          aria-label="Modifier"
-          leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-          mr={3}
-          onClick={() => {
-            setIsEdit(!isEdit);
-            setIsVisible({ ...isVisible, banner: false, subscribers: false });
-          }}
-          css={css`
-            &:hover {
-              ${tw`bg-green-300`}
-            }
-          `}
-          data-cy="orgEdit"
-        >
-          {isEdit ? "Retour" : "Modifier"}
-        </Button>
-
-        <DeleteButton
-          isDisabled={isDisabled}
-          isLoading={deleteQuery.isLoading}
-          header={
-            <>
-              Vous êtes sur le point de supprimer l'organisation
-              <Text display="inline" color="red" fontWeight="bold">
-                {` ${org.orgUrl}`}
-              </Text>
-            </>
-          }
-          body={
-            <>
-              Saisissez le nom de l'organisation pour confimer sa suppression :
-              <Input
-                onChange={(e) => setIsDisabled(e.target.value !== org.orgName)}
-              />
-            </>
-          }
-          onClick={async () => {
-            try {
-              const deletedOrg = await deleteOrg(org.orgUrl).unwrap();
-
-              if (deletedOrg) {
-                await router.push(`/`);
-                toast({
-                  title: `${deletedOrg.orgName} a bien été supprimé !`,
-                  status: "success",
-                  isClosable: true
+        {!isEdit && (
+          <>
+            <Button
+              aria-label="Modifier"
+              leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+              mr={3}
+              onClick={() => {
+                setIsEdit(!isEdit);
+                setIsVisible({
+                  ...isVisible,
+                  banner: false,
+                  subscribers: false
                 });
+              }}
+              css={css`
+                &:hover {
+                  ${tw`bg-green-300`}
+                }
+              `}
+              data-cy="orgEdit"
+            >
+              Modifier
+            </Button>
+
+            <DeleteButton
+              isDisabled={isDisabled}
+              isLoading={deleteQuery.isLoading}
+              header={
+                <>
+                  Vous êtes sur le point de supprimer l'organisation
+                  <Text display="inline" color="red" fontWeight="bold">
+                    {` ${org.orgUrl}`}
+                  </Text>
+                </>
               }
-            } catch (error) {
-              toast({
-                title: error.data ? error.data.message : error.message,
-                status: "error",
-                isClosable: true
-              });
-            }
-          }}
-        />
+              body={
+                <>
+                  Saisissez le nom de l'organisation pour confimer sa
+                  suppression :
+                  <Input
+                    autoComplete="off"
+                    onChange={(e) =>
+                      setIsDisabled(e.target.value !== org.orgName)
+                    }
+                  />
+                </>
+              }
+              onClick={async () => {
+                try {
+                  const deletedOrg = await deleteOrg(org.orgUrl).unwrap();
+
+                  if (deletedOrg) {
+                    await router.push(`/`);
+                    toast({
+                      title: `${deletedOrg.orgName} a bien été supprimé !`,
+                      status: "success",
+                      isClosable: true
+                    });
+                  }
+                } catch (error) {
+                  toast({
+                    title: error.data ? error.data.message : error.message,
+                    status: "error",
+                    isClosable: true
+                  });
+                }
+              }}
+            />
+          </>
+        )}
       </Box>
 
       {isEdit ? (

@@ -4,6 +4,7 @@ import type { ITopic } from "models/Topic";
 import type { ISubscription } from "models/Subscription";
 import { models } from "database";
 import { SubscriptionTypes } from "models/Subscription";
+import { equals } from "./string";
 
 export const emailR = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
@@ -34,7 +35,7 @@ export const sendToFollowers = async (event: IEvent, transport: any) => {
 
         for (const { orgId, type } of subscription.orgs) {
           if (
-            eventNotifOrgId !== orgId.toString() ||
+            !equals(eventNotifOrgId, orgId) ||
             type !== SubscriptionTypes.FOLLOWER
           )
             continue;

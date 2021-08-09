@@ -33,6 +33,7 @@ export const TopicMessagesList = ({
                 light={{ bg: "white" }}
                 dark={{ bg: "gray.600" }}
                 px={3}
+                data-cy="topicMessage"
               >
                 <Link
                   href={`/${encodeURIComponent(userName)}`}

@@ -10,7 +10,7 @@ handler.use(database);
 handler.get<NextApiRequest & { query: { userId: string } }, NextApiResponse>(
   async function getOrgs(req, res) {
     try {
-      const userId = decodeURIComponent(req.query.userId);
+      const userId = req.query.userId;
       const orgs = await models.Org.find(
         { createdBy: userId },
         { orgBanner: 0 }

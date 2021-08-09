@@ -215,10 +215,7 @@ export const OrgConfigSubscribersPanel = ({
                 setIsVisible({ ...isVisible, subscribers: false });
               }}
               m={1}
-              // dark={{
-              //   bg: "gray.500",
-              //   _hover: { bg: "gray.400" }
-              // }}
+              data-cy="orgAddSubscribers"
             >
               Ajouter des e-mails
             </Button>
@@ -275,6 +272,7 @@ export const OrgConfigSubscribersPanel = ({
                 setIsAdd(false);
                 orgQuery.refetch();
               }}
+              data-cy="orgAddSubscribersSubmit"
             >
               Ajouter
             </Button>
@@ -373,6 +371,11 @@ export const OrgConfigSubscribersPanel = ({
                                 subscription
                               })
                             }
+                            data-cy={
+                              following
+                                ? "orgSubscriberUnfollow"
+                                : "orgSubscriberFollow"
+                            }
                           >
                             <TagLabel>Abonné</TagLabel>
                           </Tag>
@@ -403,6 +406,11 @@ export const OrgConfigSubscribersPanel = ({
                                 user,
                                 subscription
                               })
+                            }
+                            data-cy={
+                              subscribing
+                                ? "orgSubscriberUnsubscribe"
+                                : "orgSubscriberSubscribe"
                             }
                           >
                             <TagLabel>Adhérent</TagLabel>
@@ -473,6 +481,7 @@ export const OrgConfigSubscribersPanel = ({
                                 orgQuery.refetch();
                               }
                             }}
+                            data-cy="orgUnsubscribe"
                           />
                         </Tooltip>
                       </Td>

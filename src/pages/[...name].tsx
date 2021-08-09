@@ -56,7 +56,7 @@ const Hash = ({
 };
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  let routeName = decodeURIComponent(ctx.query.name![0]);
+  let routeName = ctx.query.name![0];
 
   if (routeName === "forum") {
     return { props: { routeName } };

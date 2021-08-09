@@ -17,7 +17,8 @@ handler.get<NextApiRequest, NextApiResponse>(async function resetDb(req, res) {
     await Promise.all([
       db.dropCollection("events"),
       db.dropCollection("orgs"),
-      db.dropCollection("subscriptions")
+      db.dropCollection("subscriptions"),
+      db.dropCollection("topics")
     ]);
     res.status(200).send("Database reset");
   } catch (error) {

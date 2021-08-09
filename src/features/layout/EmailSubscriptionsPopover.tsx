@@ -77,6 +77,7 @@ import {
 
 export const EmailSubscriptionsPopover = ({
   boxSize,
+  email,
   ...props
 }: BoxProps & { email?: string }) => {
   const router = useRouter();
@@ -98,9 +99,7 @@ export const EmailSubscriptionsPopover = ({
   const subscribedEmail =
     useSelector(selectSubscribedEmail) || mySubscriptionEmail;
 
-  const subQuery = useGetSubscriptionQuery(
-    props.email || subscribedEmail || ""
-  );
+  const subQuery = useGetSubscriptionQuery(email || subscribedEmail || "");
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     console.log("refetching subscription");

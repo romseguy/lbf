@@ -1,7 +1,5 @@
 import type { IEvent } from "models/Event";
 import type { ITopic } from "models/Topic";
-import type { IUser } from "models/User";
-import { Document, Types } from "mongoose";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -9,8 +7,9 @@ import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { sendToFollowers, sendToTopicFollowers } from "utils/email";
-import { addOrUpdateSub } from "api/shared";
+import { sendToFollowers } from "utils/email";
+import { equals, normalize } from "utils/string";
+import { addOrUpdateTopic } from "api";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -83,7 +82,6 @@ handler.post<
   } else {
     try {
       const eventUrl = req.query.eventUrl;
-
       const event = await models.Event.findOne({ eventUrl });
 
       if (!event) {
@@ -97,49 +95,7 @@ handler.post<
       }
 
       const { body }: { body: { topic?: ITopic } } = req;
-
-      if (body.topic) {
-        let createdBy: string;
-        let topic: (ITopic & Document<any, any, any>) | null;
-
-        if (body.topic._id) {
-          if (!body.topic.topicMessages || !body.topic.topicMessages.length) {
-            return res.status(200).json(event);
-          }
-
-          topic = await models.Topic.findOne({ _id: body.topic._id });
-
-          if (!topic) {
-            return res
-              .status(404)
-              .json(createServerError(new Error("Topic introuvable")));
-          }
-
-          createdBy = topic.createdBy.toString();
-
-          // existing topic => adding 1 message
-          const newMessage = body.topic.topicMessages[0];
-          topic.topicMessages.push(newMessage);
-          await topic.save();
-
-          // get subscriptions of users other than new message poster
-          const subscriptions = await models.Subscription.find({
-            "topics.topic": Types.ObjectId(topic._id),
-            user: { $ne: newMessage.createdBy }
-          }).populate("user");
-
-          sendToTopicFollowers(event, subscriptions, topic, transport);
-        } else {
-          // new topic
-          topic = await models.Topic.create(body.topic);
-          createdBy = topic.createdBy.toString();
-          event.eventTopics.push(topic);
-          await event.save();
-        }
-
-        await addOrUpdateSub(createdBy, topic);
-      }
-
+      addOrUpdateTopic(body, event, transport, res);
       res.status(200).json(event);
     } catch (error) {
       res.status(400).json(createServerError(error));
@@ -169,9 +125,7 @@ handler.put<
       const { body }: { body: IEvent } = req;
       const eventUrl = req.query.eventUrl;
       body.eventNameLower = body.eventName.toLowerCase();
-      body.eventUrl = body.eventName
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "");
+      body.eventUrl = normalize(body.eventName);
 
       const event = await models.Event.findOne({ eventUrl });
 
@@ -185,7 +139,7 @@ handler.put<
           );
       }
 
-      if (event.createdBy.toString() !== session.user.userId) {
+      if (!equals(event.createdBy, session.user.userId)) {
         return res
           .status(403)
           .json(
@@ -262,7 +216,7 @@ handler.delete<
       );
   } else {
     try {
-      const eventUrl = decodeURIComponent(req.query.eventUrl);
+      const eventUrl = req.query.eventUrl;
       const event = await models.Event.findOne({ eventUrl });
 
       if (!event) {
@@ -275,7 +229,7 @@ handler.delete<
           );
       }
 
-      if (event.createdBy.toString() !== session.user.userId) {
+      if (!equals(event.createdBy, session.user.userId)) {
         return res
           .status(403)
           .json(

@@ -39,8 +39,10 @@ export const orgApi = createApi({
         body: payload
       })
     }),
-    getOrgs: build.query<IOrg[], undefined>({
-      query: () => ({ url: `orgs` })
+    getOrgs: build.query<IOrg[], string | undefined>({
+      query: (populate) => ({
+        url: `orgs${populate ? `?populate=${populate}` : ""}`
+      })
     }),
     getOrgByName: build.query<IOrg, string>({
       query: (orgUrl) => ({ url: `org/${orgUrl}` })

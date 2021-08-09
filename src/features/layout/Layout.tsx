@@ -1,23 +1,11 @@
+import NextNprogress from "nextjs-progressbar";
 import type { Base64Image } from "utils/image";
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { Hero, DarkModeSwitch, Link } from "features/common";
-import { Header, Footer, Main, Nav } from "features/layout";
-import {
-  Flex,
-  Box,
-  Spinner,
-  Text,
-  Icon,
-  IconButton,
-  BoxProps,
-  useColorMode
-} from "@chakra-ui/react";
-import { useRouterLoading } from "hooks/useRouterLoading";
-import { isServer } from "utils/isServer";
-import { QuestionIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
+import { Header, Main, Nav } from "features/layout";
+import { Flex, Spinner, Text, BoxProps, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { FaQuestion, FaQuestionCircle } from "react-icons/fa";
 import { css } from "twin.macro";
 import { breakpoints } from "theme/theme";
 
@@ -40,7 +28,6 @@ export const Layout = ({
   title?: string;
 }) => {
   const router = useRouter();
-  const { isLoading } = useRouterLoading();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
@@ -50,10 +37,6 @@ export const Layout = ({
   ) : (
     <Spinner mt={2} />
   );
-  if (!isServer() && isLoading) {
-    main = <Spinner />;
-    header = <Spinner mt={2} />;
-  }
 
   let defaultTitleColor = isDark ? "white" : "black";
 
@@ -118,6 +101,13 @@ export const Layout = ({
           }
         `}
       >
+        <NextNprogress
+          color="#29D"
+          startPosition={0.3}
+          stopDelayMs={200}
+          height={3}
+          showOnShallow={true}
+        />
         <DarkModeSwitch position="absolute" right="0" top="0" m={3} />
         <Header headerBg={banner}>
           <Flex direction="column" ml={5}>

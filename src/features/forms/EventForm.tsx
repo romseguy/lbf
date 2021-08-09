@@ -50,19 +50,19 @@ import {
   parseISO,
   subHours
 } from "date-fns";
-import {
+import usePlacesAutocomplete, {
   getDetails,
   getGeocode,
   getLatLng,
   Suggestion
 } from "use-places-autocomplete";
-import {
-  useGetOrgsByCreatorQuery,
-  useGetOrgsQuery
-} from "features/orgs/orgsApi";
+import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { css } from "twin.macro";
 import { useEffect } from "react";
 import { SubscriptionTypes } from "models/Subscription";
+import { normalize } from "utils/string";
+import { useSelector } from "react-redux";
+import { refetchOrgs, selectOrgsRefetch } from "features/orgs/orgSlice";
 
 interface EventFormProps extends ChakraProps {
   session: AppSession;
@@ -82,19 +82,16 @@ export const EventForm = ({
   initialEventOrgs = [],
   ...props
 }: EventFormProps) => {
+  const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const [isLoading, setIsLoading] = useState(false);
-  const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs;
   const [addEvent, addEventMutation] = useAddEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
-  const toast = useToast({ position: "top" });
-
-  const { orgs, refetch } = useGetOrgsQuery(undefined, {
+  const { myOrgs, refetch } = useGetOrgsQuery("orgSubscriptions", {
     selectFromResult: ({ data }) => {
-      if (!data) return { orgs: [] };
+      if (!data) return { myOrgs: [] };
       return {
-        orgs: data.filter((org) =>
+        myOrgs: data.filter((org) =>
           typeof org.createdBy === "object"
             ? org.createdBy._id === props.session.user.userId
             : org.createdBy === props.session.user.userId
@@ -102,6 +99,10 @@ export const EventForm = ({
       };
     }
   });
+  const refetchOrgs = useSelector(selectOrgsRefetch);
+  useEffect(() => {
+    refetch();
+  }, [refetchOrgs]);
 
   const {
     control,
@@ -117,26 +118,36 @@ export const EventForm = ({
     mode: "onChange"
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [suggestion, setSuggestion] = useState<Suggestion>();
+  watch("eventAddress");
+  const eventAddress = getValues("eventAddress") || props.event?.eventAddress;
+
+  const {
+    ready,
+    value: autoCompleteValue,
+    suggestions: { status, data },
+    setValue: setAutoCompleteValue,
+    clearSuggestions
+  } = usePlacesAutocomplete({
+    requestOptions: {
+      componentRestrictions: {
+        country: "fr"
+      }
+    },
+    debounce: 300
+  });
+  useEffect(() => {
+    if (!suggestion) setAutoCompleteValue(eventAddress);
+  }, [eventAddress]);
+
   const eventNotif = watch("eventNotif");
   watch("eventOrgs");
 
+  const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs;
   let eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
 
-  // const dispatch = useAppDispatch();
-  // eventOrgs = eventOrgs.map((org: IOrg) => ({
-  //   ...org,
-  //   orgSubscriptions: org.orgSubscriptions.map(async (orgSubscription: string) =>
-  //     dispatch(getSubscription.initiate(orgSubscription))
-  //     )
-  // }))
-  // eventOrgs = eventOrgs.filter(
-  //   (org: IOrg) =>
-  //     Array.isArray(org.orgSubscriptions) && org.orgSubscriptions.length > 0
-  // );
-
   const now = new Date();
-  // const now = setMinutes(setHours(new Date(), 23), 0);
-  //const tomorrow = addDays(now, 1);
 
   let eventMinDefaultDate =
     (props.event && parseISO(props.event.eventMinDate)) || null;
@@ -199,8 +210,6 @@ export const EventForm = ({
       : addHours(now, eventMinDuration)
   };
 
-  const [suggestion, setSuggestion] = useState<Suggestion>();
-
   const onChange = () => {
     clearErrors("formErrorMessage");
   };
@@ -211,7 +220,7 @@ export const EventForm = ({
 
     const payload = {
       ...form,
-      eventUrl: form.eventName.normalize("NFD").replace(/\p{Diacritic}/gu, ""),
+      eventUrl: normalize(form.eventName),
       eventDescription:
         form.eventDescription === "<p><br></p>"
           ? ""
@@ -225,9 +234,11 @@ export const EventForm = ({
     };
 
     try {
-      if (suggestion) {
+      const sugg = suggestion || data[0];
+
+      if (sugg) {
         const details: any = await getDetails({
-          placeId: suggestion.place_id,
+          placeId: sugg.place_id,
           fields: ["address_component"]
         });
 
@@ -239,7 +250,7 @@ export const EventForm = ({
           }
         });
 
-        const results = await getGeocode({ address: suggestion.description });
+        const results = await getGeocode({ address: sugg.description });
         const { lat, lng } = await getLatLng(results[0]);
 
         payload.eventLat = lat;
@@ -247,10 +258,6 @@ export const EventForm = ({
       }
 
       if (props.event) {
-        // if (!form.eventNotif) {
-        //   payload.eventNotif = [];
-        // }
-
         const res = await editEvent({
           payload,
           eventUrl: props.event.eventUrl
@@ -614,7 +621,7 @@ export const EventForm = ({
               };
             }
           }}
-          options={orgs}
+          options={myOrgs}
           getOptionLabel={(option: IOrg) => `${option.orgName}`}
           getOptionValue={(option: IOrg) => option._id}
           onChange={([option]: [option: IOrg]) => option._id}
@@ -644,7 +651,7 @@ export const EventForm = ({
                       mt={2}
                     >
                       <Tbody>
-                        {orgs
+                        {myOrgs
                           ?.filter(
                             (org: IOrg) =>
                               !!eventOrgs.find(
@@ -652,8 +659,6 @@ export const EventForm = ({
                               )
                           )
                           .map((org: IOrg) => {
-                            console.log(org);
-
                             const orgFollowersCount = org.orgSubscriptions
                               .map(
                                 (subscription) =>

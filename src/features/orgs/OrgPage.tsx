@@ -1,6 +1,11 @@
-import { IOrg, orgTypeFull, OrgTypes } from "models/Org";
+import { IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import { useSession } from "hooks/useAuth";
+import { format, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
+import DOMPurify from "isomorphic-dompurify";
 import {
   Box,
   Text,
@@ -10,9 +15,7 @@ import {
   TabPanels,
   TabPanel
 } from "@chakra-ui/react";
-import { useSession } from "hooks/useAuth";
-import { Layout } from "features/layout";
-import { useGetOrgByNameQuery } from "features/orgs/orgsApi";
+import { AddIcon, ArrowBackIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
   Button,
   GridHeader,
@@ -20,25 +23,22 @@ import {
   IconFooter,
   Link
 } from "features/common";
-import { AddIcon, ArrowBackIcon, SettingsIcon } from "@chakra-ui/icons";
-import { format, parseISO } from "date-fns";
-import { fr } from "date-fns/locale";
-import { TopicsList } from "features/forum/TopicsList";
 import { EventsList } from "features/events/EventsList";
-import { OrgConfigPanel } from "./OrgConfigPanel";
-import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
+import { TopicsList } from "features/forum/TopicsList";
+import { Layout } from "features/layout";
+import { EventModal } from "features/modals/EventModal";
+import { useGetOrgByNameQuery } from "features/orgs/orgsApi";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import { selectSubscribedEmail } from "features/users/userSlice";
-import { useSelector } from "react-redux";
+import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import {
   isFollowedBy,
   isSubscribedBy,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
+import { selectSubscribedEmail } from "features/users/userSlice";
+import { OrgConfigPanel } from "./OrgConfigPanel";
 import { selectOrgRefetch } from "./orgSlice";
 import { OrgPageTabs } from "./OrgPageTabs";
-import DOMPurify from "isomorphic-dompurify";
-import { EventModal } from "features/modals/EventModal";
 
 export type Visibility = {
   isVisible: {
@@ -124,7 +124,7 @@ export const OrgPage = ({
           onClick={() => setIsConfig(false)}
           mb={2}
         >
-          Retour
+          {`Revenir à ${orgTypeFull2(org.orgType)}`}
         </Button>
       ) : null}
 
@@ -254,7 +254,7 @@ export const OrgPage = ({
             <TabPanel>
               <>
                 <TopicsList
-                  org={org}
+                  entity={org}
                   query={orgQuery}
                   isCreator={isCreator}
                   isFollowed={isFollowed}

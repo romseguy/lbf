@@ -1,21 +1,15 @@
 //@ts-nocheck
-import React, { useCallback } from "react";
+import React, { useState } from "react";
 import {
-  Box,
-  Button,
   chakra,
-  Flex,
   Icon,
   TabList,
-  TabPanel,
-  TabPanels,
   Tabs,
   useColorModeValue,
   useStyles,
   useTab
 } from "@chakra-ui/react";
 import { isMobile } from "react-device-detect";
-import { useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 
@@ -27,16 +21,25 @@ export const OrgPageTabs = ({
 }) => {
   const StyledTab = chakra("button", { themeKey: "Tabs.Tab" });
   const inactiveTabBg = useColorModeValue("gray.100", "whiteAlpha.300");
+  const [currentTabIndex, setCurrentTabIndex] = useState(0);
+  const defaultTabIndex = 0;
 
   const CustomTab = React.forwardRef(
     (
-      { icon, ...props }: { children: React.ReactNode | React.ReactNodeArray },
+      {
+        icon,
+        tabIndex,
+        ...props
+      }: { children: React.ReactNode | React.ReactNodeArray },
       ref
     ) => {
       const tabProps = useTab(props);
+
       tabProps.tabIndex = 0;
-      // tabProps.onClick = useCallback(tabProps.onFocus);
-      // tabProps.onFocus = () => {};
+
+      if (currentTabIndex === tabIndex) {
+        tabProps["aria-selected"] = true;
+      }
 
       const styles = useStyles();
 
@@ -55,9 +58,6 @@ export const OrgPageTabs = ({
           {...tabProps}
           __css={styles.tab}
         >
-          {/* <Box as="span" mr="2">
-            {isSelected ? "😎" : "😶‍🌫️"}
-          </Box> */}
           <span
             style={{
               display: "inline-flex",
@@ -75,7 +75,9 @@ export const OrgPageTabs = ({
 
   return (
     <Tabs
-      defaultIndex={0}
+      defaultIndex={defaultTabIndex}
+      index={currentTabIndex}
+      onChange={(index) => setCurrentTabIndex(index)}
       isFitted
       variant="solid-rounded"
       borderWidth={1}
@@ -104,8 +106,13 @@ export const OrgPageTabs = ({
           { name: "Accueil", icon: FaHome },
           { name: "Événements", icon: CalendarIcon },
           { name: "Discussions", icon: ChatIcon }
-        ].map(({ name, icon }, id) => (
-          <CustomTab key={`orgTab-${id}`} icon={icon}>
+        ].map(({ name, icon }, tabIndex) => (
+          <CustomTab
+            key={`orgTab-${tabIndex}`}
+            tabIndex={tabIndex}
+            icon={icon}
+            data-cy={`orgTab-${name}`}
+          >
             {name}
           </CustomTab>
         ))}

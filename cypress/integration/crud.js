@@ -90,7 +90,6 @@ describe("CRUD", () => {
           cy.get(".suggestions[role=list] li:first").click();
           cy.get("input#eventAddress").should("have.value", "Comiac, France");
           cy.wait(1000);
-          cy.get('input[name="eventCity"]').should("have.value", "Comiac");
         }
       });
       cy.get(".react-select-container").click();

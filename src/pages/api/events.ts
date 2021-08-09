@@ -10,6 +10,7 @@ import {
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import { sendToAdmin, sendToFollowers } from "utils/email";
+import { normalize } from "utils/string";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -52,9 +53,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
       );
   } else {
     try {
-      const eventUrl = req.body.eventName
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "");
+      const eventUrl = normalize(req.body.eventName);
 
       const org = await models.Org.findOne({ orgUrl: eventUrl });
       if (org) throw duplicateError;

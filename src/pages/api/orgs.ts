@@ -7,14 +7,30 @@ import {
   duplicateError
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
+import { normalize } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<NextApiRequest, NextApiResponse>(async function getOrgs(req, res) {
+handler.get<
+  NextApiRequest & {
+    query: { populate: string };
+  },
+  NextApiResponse
+>(async function getOrgs(req, res) {
   try {
-    const orgs = await models.Org.find({}, { orgBanner: 0 });
+    const {
+      query: { populate }
+    } = req;
+
+    let orgs = await models.Org.find({}, { orgBanner: 0 });
+
+    if (populate) {
+      for (let org of orgs) {
+        org = await org.populate(populate).execPopulate();
+      }
+    }
 
     res.status(200).json(orgs);
   } catch (error) {
@@ -35,9 +51,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrg(req, res) {
       );
   } else {
     try {
-      const orgUrl = req.body.orgName
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "");
+      const orgUrl = normalize(req.body.orgName);
       const org = await models.Org.findOne({ orgUrl });
       if (org) throw duplicateError;
       const user = await models.User.findOne({ userName: req.body.orgName });
