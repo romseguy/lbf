@@ -53,14 +53,16 @@ handler.post<NextApiRequest, NextApiResponse>(async function forgotten(
         );
 
         if (nModified === 1) {
-          if (process.env.NODE_ENV === "production") {
-            await transport.sendMail({
-              from: process.env.EMAIL_FROM,
-              to: `<${email}>`,
-              subject: `${securityCode} est votre code de sécurité ${process.env.NEXT_PUBLIC_SHORT_URL}`,
-              html: `Bonjour,<br/><br/>Nous avons reçu une demande de réinitialisation de mot de passe de votre compte.<br/>Saisissez le code de sécurité suivant : ${securityCode}`
-            });
-          }
+          const mail = {
+            from: process.env.EMAIL_FROM,
+            to: `<${email}>`,
+            subject: `${securityCode} est votre code de sécurité ${process.env.NEXT_PUBLIC_SHORT_URL}`,
+            html: `Bonjour,<br/><br/>Nous avons reçu une demande de réinitialisation de mot de passe de votre compte.<br/>Saisissez le code de sécurité suivant : ${securityCode}`
+          };
+          if (process.env.NODE_ENV === "production")
+            await transport.sendMail(mail);
+          else if (process.env.NODE_ENV === "development")
+            console.log("mail", mail);
 
           res.status(200).json(securityCode);
         } else {

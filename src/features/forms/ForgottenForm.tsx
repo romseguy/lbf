@@ -14,7 +14,8 @@ import {
   Stack,
   useToast,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Flex
 } from "@chakra-ui/react";
 import { EmailIcon, WarningIcon } from "@chakra-ui/icons";
 import { ErrorMessageText } from "features/common";
@@ -24,9 +25,11 @@ import { handleError } from "utils/form";
 
 export const ForgottenForm = ({
   display,
+  onCancel,
   onSuccess
 }: {
   display: string;
+  onCancel: () => void;
   onSuccess?: () => void;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -124,7 +127,11 @@ export const ForgottenForm = ({
   };
 
   return (
-    <form style={{ display }} onChange={onChange}>
+    <form
+      style={{ display }}
+      onChange={onChange}
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <ErrorMessage
         errors={errors}
         name="formErrorMessage"
@@ -142,9 +149,9 @@ export const ForgottenForm = ({
           id="emailForgotten"
           isRequired
           isInvalid={!!errors["emailForgotten"]}
-          mt={3}
           mb={3}
         >
+          <FormLabel>Adresse e-mail</FormLabel>
           <InputGroup>
             <InputLeftElement pointerEvents="none" children={<EmailIcon />} />
 
@@ -173,14 +180,9 @@ export const ForgottenForm = ({
           isRequired
           isInvalid={!!errors["securityCode"]}
           mb={3}
-          mt={3}
         >
+          <FormLabel>Code de sécurité</FormLabel>
           <InputGroup>
-            <InputLeftElement
-              pointerEvents="none"
-              children={<RequiredIndicator color="red" />}
-            />
-
             <Input
               name="securityCode"
               placeholder="Entrez le code de sécurité"
@@ -200,7 +202,6 @@ export const ForgottenForm = ({
         <>
           <FormControl
             id="password"
-            mt={3}
             mb={3}
             isRequired
             isInvalid={!!errors["password"]}
@@ -241,20 +242,29 @@ export const ForgottenForm = ({
         </>
       )}
 
-      <Button
-        colorScheme="blue"
-        isLoading={isLoading}
-        isDisabled={Object.keys(errors).length > 0}
-        p={5}
-        mb={3}
-        onClick={onSubmit}
-      >
-        {isSent
-          ? isValid
-            ? "Valider le changement de mot de passe"
-            : "Valider le code de sécurité"
-          : "Demander un nouveau mot de passe"}
-      </Button>
+      <Flex justifyContent="space-between">
+        <Button
+          onClick={() => {
+            reset();
+            setSavedEmail(undefined);
+            setIsSent(false);
+            setIsValid(false);
+            onCancel();
+          }}
+        >
+          Annuler
+        </Button>
+        <Button
+          colorScheme="blue"
+          type="submit"
+          isLoading={isLoading}
+          isDisabled={Object.keys(errors).length > 0}
+          p={5}
+          mb={3}
+        >
+          Valider
+        </Button>
+      </Flex>
     </form>
   );
 };

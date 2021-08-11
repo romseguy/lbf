@@ -28,6 +28,7 @@ import {
   AlertIcon
 } from "@chakra-ui/react";
 import {
+  ArrowBackIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -79,6 +80,7 @@ export const LoginModal = (props: {
     password: string;
     email: string;
   }) => {
+    if (isForgotten) return;
     setIsLoading(true);
 
     if (isSignup) {
@@ -119,6 +121,8 @@ export const LoginModal = (props: {
     }
   };
 
+  console.log(errors);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -131,10 +135,16 @@ export const LoginModal = (props: {
     >
       <ModalOverlay>
         <ModalContent>
-          <ModalHeader>Connexion</ModalHeader>
+          <ModalHeader>
+            {isForgotten
+              ? "Mot de passe oublié"
+              : isSignup
+              ? "Créer un compte"
+              : "Connexion"}
+          </ModalHeader>
           <ModalCloseButton />
           <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-            <ModalBody>
+            <ModalBody pt={0}>
               <ErrorMessage
                 errors={errors}
                 name="formErrorMessage"
@@ -146,66 +156,71 @@ export const LoginModal = (props: {
                 )}
               />
 
-              <FormControl
-                id="email"
-                isRequired
-                isInvalid={!!errors["email"]}
-                mb={3}
-              >
-                <FormLabel>Adresse e-mail</FormLabel>
-                <Input
-                  name="email"
-                  ref={register({
-                    required: "Veuillez saisir une adresse e-mail",
-                    pattern: {
-                      value: emailR,
-                      message: "Adresse e-mail invalide"
-                    }
-                  })}
-                />
-                <FormErrorMessage>
-                  <ErrorMessage errors={errors} name="email" />
-                </FormErrorMessage>
-              </FormControl>
+              {!isForgotten && (
+                <>
+                  <FormControl
+                    id="email"
+                    isRequired
+                    isInvalid={!!errors["email"]}
+                    mb={3}
+                  >
+                    <FormLabel>Adresse e-mail</FormLabel>
+                    <Input
+                      name="email"
+                      ref={register({
+                        required: "Veuillez saisir une adresse e-mail",
+                        pattern: {
+                          value: emailR,
+                          message: "Adresse e-mail invalide"
+                        }
+                      })}
+                    />
+                    <FormErrorMessage>
+                      <ErrorMessage errors={errors} name="email" />
+                    </FormErrorMessage>
+                  </FormControl>
 
-              <FormControl
-                id="password"
-                mb={3}
-                isRequired
-                isInvalid={!!errors["password"]}
-              >
-                <FormLabel>Mot de passe</FormLabel>
-                <Input
-                  name="password"
-                  ref={register({
-                    required: "Veuillez saisir un mot de passe"
-                  })}
-                  type="password"
-                />
-                <FormErrorMessage>
-                  <ErrorMessage errors={errors} name="password" />
-                </FormErrorMessage>
-              </FormControl>
+                  <FormControl
+                    id="password"
+                    mb={3}
+                    isRequired
+                    isInvalid={!!errors["password"]}
+                  >
+                    <FormLabel>Mot de passe</FormLabel>
+                    <Input
+                      name="password"
+                      ref={register({
+                        required: "Veuillez saisir un mot de passe"
+                      })}
+                      type="password"
+                    />
+                    <FormErrorMessage>
+                      <ErrorMessage errors={errors} name="password" />
+                    </FormErrorMessage>
+                  </FormControl>
+                </>
+              )}
 
               {!isSignup && (
                 <>
-                  <Box mt={5}>
-                    <Link
-                      onClick={() => {
-                        setIsForgotten(!isForgotten);
-                      }}
-                    >
-                      <Icon
-                        as={isForgotten ? ChevronDownIcon : ChevronRightIcon}
-                      />{" "}
-                      Mot de passe oublié ?
-                    </Link>
+                  <Box mt={isForgotten ? 0 : 5}>
+                    {!isForgotten && (
+                      <Link
+                        onClick={() => {
+                          clearErrors("formErrorMessage");
+                          setIsForgotten(true);
+                        }}
+                      >
+                        Mot de passe oublié ?
+                      </Link>
+                    )}
                   </Box>
 
                   <>
                     <Portal containerRef={portalRef}>
                       <ForgottenForm
                         display={isForgotten ? "block" : "none"}
+                        onCancel={() => setIsForgotten(false)}
                         onSuccess={() => setIsForgotten(false)}
                       />
                     </Portal>
