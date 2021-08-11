@@ -37,7 +37,7 @@ const theme = extendTheme({
         }
       },
       variants: {
-        "without-underline": {
+        "no-underline": {
           _hover: {
             textDecoration: "none"
           }

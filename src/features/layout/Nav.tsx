@@ -138,9 +138,7 @@ export const Nav = ({
             if (error) {
               console.log("todo: handle error", error);
             } else if (data) {
-              if (data.filter((org) => org.orgLat && org.orgLng).length > 0) {
-                setOrgs(data);
-              }
+              setOrgs(data);
               setisMapModalOpen(true);
             }
           }}
@@ -198,7 +196,7 @@ export const Nav = ({
                 _hover={{ bg: isDark ? "gray.700" : "white" }}
               ></MenuItem>
 
-              <Link href={`${userName}`} aria-hidden>
+              <Link href={`/${userName}`} aria-hidden>
                 <MenuItem>Ma page</MenuItem>
               </Link>
 
@@ -280,7 +278,13 @@ export const Nav = ({
       )}
 
       {isMapModalOpen && (
-        <MapModal items={orgs} onClose={() => setisMapModalOpen(false)} />
+        <MapModal
+          items={orgs?.filter(
+            (org) =>
+              typeof org.orgLat === "number" && typeof org.orgLng === "number"
+          )}
+          onClose={() => setisMapModalOpen(false)}
+        />
       )}
     </Flex>
   );

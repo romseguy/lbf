@@ -111,7 +111,7 @@ export const Layout = ({
         <DarkModeSwitch position="absolute" right="0" top="0" m={3} />
         <Header headerBg={banner}>
           <Flex direction="column" ml={5}>
-            <Link href="/" variant="without-underline">
+            <Link href="/" variant="no-underline">
               <Text
                 fontFamily="Aladin"
                 fontSize="x-large"
@@ -123,7 +123,7 @@ export const Layout = ({
               </Text>
             </Link>
 
-            <Link href={router.asPath} variant="without-underline">
+            <Link href={router.asPath} variant="no-underline">
               {header}
             </Link>
           </Flex>

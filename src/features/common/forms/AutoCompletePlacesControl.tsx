@@ -1,27 +1,31 @@
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useEffect } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";
-import { FormControlProps, List, ListItem } from "@chakra-ui/react";
+import { InputGroup, InputLeftElement, List, ListItem } from "@chakra-ui/react";
 import { Input } from "features/common";
 import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
+import { FaMapMarkedAlt } from "react-icons/fa";
+import { EmailIcon } from "@chakra-ui/icons";
 
-type ControlProps = FormControlProps & {
+type ControlProps = {
   onChange: (description: string) => void;
-  placeholder?: string;
   value?: string;
+  placeholder?: string;
   onSuggestionSelect?: (suggestion: Suggestion) => void;
+  onClick?: () => void;
 };
 
 export const AutoCompletePlacesControl = ({
   onChange,
-  placeholder,
   value,
-  onSuggestionSelect
+  placeholder,
+  onSuggestionSelect,
+  onClick
 }: ControlProps) => {
   const {
     ready,
     value: autoCompleteValue,
     suggestions: { status, data },
-    setValue,
+    setValue: setAutoCompleteValue,
     clearSuggestions
   } = usePlacesAutocomplete({
     requestOptions: {
@@ -32,22 +36,19 @@ export const AutoCompletePlacesControl = ({
     debounce: 300
   });
 
+  useEffect(() => {
+    if (typeof value === "string") {
+      setAutoCompleteValue(value, false);
+    }
+  }, [value]);
+
   const ref = useOnclickOutside(() => {
-    // When user clicks outside of the component, we can dismiss
-    // the searched suggestions by calling this method
     clearSuggestions();
   });
 
-  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
-    // Update the keyword of the input element
-    setValue(e.target.value);
-  };
-
   const handleSelect = (suggestion: Suggestion) => () => {
     const { description } = suggestion;
-    // When user selects a place, we can replace the keyword without request data from API
-    // by setting the second parameter to "false"
-    setValue(description, false);
+    setAutoCompleteValue(description, false);
     onChange(description);
     onSuggestionSelect && onSuggestionSelect(suggestion);
     clearSuggestions();
@@ -74,15 +75,22 @@ export const AutoCompletePlacesControl = ({
 
   return (
     <div ref={ref}>
-      <Input
-        value={value || autoCompleteValue}
-        onChange={(e) => {
-          handleInput(e);
-          onChange(e);
-        }}
-        autoComplete="off"
-        placeholder={placeholder}
-      />
+      <InputGroup>
+        <InputLeftElement pointerEvents="none" children={<FaMapMarkedAlt />} />
+
+        <Input
+          value={autoCompleteValue}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            setAutoCompleteValue(e.target.value);
+            onChange(e.target.value);
+          }}
+          autoComplete="off"
+          placeholder={placeholder}
+          pl={10}
+          onClick={onClick}
+        />
+      </InputGroup>
+
       {status === "OK" && (
         <List className="suggestions" spacing={3} pt={2} px={5}>
           {renderSuggestions()}

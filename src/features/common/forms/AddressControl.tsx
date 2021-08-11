@@ -17,16 +17,23 @@ export const AddressControl = ({
   errors,
   control,
   isRequired = false,
+  noLabel = false,
   mb,
-  onSuggestionSelect
+  onSuggestionSelect,
+  onClick,
+  ...props
 }: {
   name: string;
   defaultValue?: string;
+  value?: string;
   errors: { [key: string]: string };
   control: Control<any>;
   isRequired?: boolean;
+  noLabel?: boolean;
   mb?: number;
   onSuggestionSelect?: (suggestion: Suggestion) => void;
+  onClick?: () => void;
+  onChange?: (description: string) => void;
 }) => {
   const [controlRules, setControlRules] = useState<{
     required?: string | boolean;
@@ -43,7 +50,8 @@ export const AddressControl = ({
         setMapsSdkState({ loaded: false, loading: true });
         await loadMapsSdk();
         setMapsSdkState({ loaded: true, loading: false });
-        setControlRules({ required: "Veuillez saisir une adresse" });
+        if (isRequired)
+          setControlRules({ required: "Veuillez saisir une adresse" });
       } catch (error) {
         console.log(error);
         setMapsSdkState({ loaded: false, loading: false });
@@ -61,7 +69,7 @@ export const AddressControl = ({
         isInvalid={!!errors[name]}
         mb={mb}
       >
-        <FormLabel>Adresse</FormLabel>
+        {!noLabel && <FormLabel>Adresse</FormLabel>}
         {mapsSdkState.loading ? (
           <Spinner />
         ) : (
@@ -70,14 +78,20 @@ export const AddressControl = ({
             control={control}
             defaultValue={defaultValue}
             rules={controlRules}
-            render={({ onChange, value }) => (
-              <AutoCompletePlacesControl
-                onChange={onChange}
-                onSuggestionSelect={onSuggestionSelect}
-                value={value}
-                placeholder="Cliquez ici pour saisir une adresse..."
-              />
-            )}
+            render={({ onChange, value }) => {
+              return (
+                <AutoCompletePlacesControl
+                  onClick={onClick}
+                  onChange={(description: string) => {
+                    onChange(description);
+                    props.onChange && props.onChange(description);
+                  }}
+                  onSuggestionSelect={onSuggestionSelect}
+                  value={typeof props.value === "string" ? props.value : value}
+                  placeholder="Cliquez ici pour saisir une adresse..."
+                />
+              );
+            }}
           />
         )}
         <FormErrorMessage>

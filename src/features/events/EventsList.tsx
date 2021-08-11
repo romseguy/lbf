@@ -139,7 +139,7 @@ export const EventsList = (props: EventsProps) => {
                     letter-spacing: 0.1em;
                   `}
                   size="larger"
-                  href={`${event.eventUrl}`}
+                  href={`/${event.eventUrl}`}
                 >
                   {event.eventName}
                 </Link>
@@ -192,7 +192,7 @@ export const EventsList = (props: EventsProps) => {
             }}
             header={
               <Link
-                href={`${event.eventUrl}`}
+                href={`/${event.eventUrl}`}
                 css={css`
                   letter-spacing: 0.1em;
                 `}

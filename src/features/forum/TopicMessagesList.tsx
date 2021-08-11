@@ -24,7 +24,9 @@ export const TopicMessagesList = ({
 
         return (
           <Flex key={_id} px={2} pt={index === 0 ? 3 : 0} pb={3}>
-            <Avatar name={userName} boxSize={10} src={userImage} />
+            <Link variant="no-underline" href={userName}>
+              <Avatar name={userName} boxSize={10} src={userImage} />
+            </Link>
             {/* <AvatarBadge boxSize="1.25em" bg="green.500" />
             </Avatar> */}
             <Box ml={2}>
@@ -35,7 +37,7 @@ export const TopicMessagesList = ({
                 px={3}
                 data-cy="topicMessage"
               >
-                <Link href={`${userName}`} fontWeight="bold">
+                <Link href={`/${userName}`} fontWeight="bold">
                   {userName}
                 </Link>
                 <Box className="ql-editor">

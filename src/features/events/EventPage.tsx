@@ -100,7 +100,7 @@ export const EventPage = (props: {
             locale: fr
           })}{" "}
           par :{" "}
-          <Link variant="underline" href={`${eventCreatedByUserName}`}>
+          <Link variant="underline" href={`/${eventCreatedByUserName}`}>
             {eventCreatedByUserName}
           </Link>{" "}
           {isCreator && "(Vous)"}
@@ -217,7 +217,7 @@ export const EventPage = (props: {
                           <Link
                             data-cy={`eventCreatedBy-${eventOrg.orgName}`}
                             variant="underline"
-                            href={`${eventOrg.orgUrl}`}
+                            href={`/${eventOrg.orgUrl}`}
                           >
                             {`${eventOrg.orgName}`}
                             {/* {`${eventOrg.orgName}${
@@ -231,7 +231,7 @@ export const EventPage = (props: {
                         <Icon as={AtSignIcon} mr={2} />
                         <Link
                           variant="underline"
-                          href={`${eventCreatedByUserName}`}
+                          href={`/${eventCreatedByUserName}`}
                         >
                           {eventCreatedByUserName}
                         </Link>

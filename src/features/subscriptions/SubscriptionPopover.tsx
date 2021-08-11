@@ -13,7 +13,9 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
-  FormErrorMessage
+  FormErrorMessage,
+  Tooltip,
+  Box
 } from "@chakra-ui/react";
 import { useSession } from "hooks/useAuth";
 import { EmailIcon } from "@chakra-ui/icons";
@@ -58,6 +60,15 @@ export const SubscriptionPopover = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [tooltipProps, setTooltipProps] = useState<{
+    label?: string;
+    closeDelay?: number;
+    openDelay?: number;
+  }>({
+    label: org
+      ? "Recevoir un e-mail lorsque cette organisation publie un événement, ou lorsque quelqu'un ajoute une nouvelle discussion."
+      : "Recevoir un e-mail lorsque quelqu'un ajoute une discussion."
+  });
 
   const { clearErrors, errors, handleSubmit, register } = useForm({
     mode: "onChange"
@@ -106,49 +117,53 @@ export const SubscriptionPopover = ({
 
   return (
     <Popover isLazy isOpen={isOpen} onClose={() => setIsOpen(false)}>
-      <PopoverTrigger>
-        <Button
-          isLoading={props.isLoading || isLoading}
-          leftIcon={<EmailIcon />}
-          colorScheme="teal"
-          onClick={async () => {
-            if (
-              isFollowed &&
-              org &&
-              mySubscription &&
-              Array.isArray(mySubscription.orgs) &&
-              mySubscription.orgs.length > 0
-            ) {
-              setIsLoading(true);
+      <Tooltip {...tooltipProps} placement="top" hasArrow>
+        <Box display="inline-block">
+          <PopoverTrigger>
+            <Button
+              isLoading={props.isLoading || isLoading}
+              leftIcon={<EmailIcon />}
+              colorScheme="teal"
+              onClick={async () => {
+                if (
+                  isFollowed &&
+                  org &&
+                  mySubscription &&
+                  Array.isArray(mySubscription.orgs) &&
+                  mySubscription.orgs.length > 0
+                ) {
+                  setIsLoading(true);
 
-              const orgSubscription = mySubscription.orgs.find(
-                (orgSubscription) => {
-                  return orgSubscription.orgId === org._id;
-                }
-              );
+                  const orgSubscription = mySubscription.orgs.find(
+                    (orgSubscription) => {
+                      return orgSubscription.orgId === org._id;
+                    }
+                  );
 
-              if (orgSubscription) {
-                await deleteSubscription({
-                  subscriptionId: mySubscription._id,
-                  payload: {
-                    orgs: [orgSubscription]
+                  if (orgSubscription) {
+                    await deleteSubscription({
+                      subscriptionId: mySubscription._id,
+                      payload: {
+                        orgs: [orgSubscription]
+                      }
+                    });
                   }
-                });
-              }
 
-              setIsLoading(false);
-              props.onSubmit && props.onSubmit(false);
-            } else {
-              if (subscribedEmail || session) {
-                onSubmit({ email: subscribedEmail || session?.user.email });
-              } else setIsOpen(!isOpen);
-            }
-          }}
-          data-cy="subscribeToOrg"
-        >
-          {isFollowed ? "Se désabonner" : "S'abonner"}
-        </Button>
-      </PopoverTrigger>
+                  setIsLoading(false);
+                  props.onSubmit && props.onSubmit(false);
+                } else {
+                  if (subscribedEmail || session) {
+                    onSubmit({ email: subscribedEmail || session?.user.email });
+                  } else setIsOpen(!isOpen);
+                }
+              }}
+              data-cy="subscribeToOrg"
+            >
+              {isFollowed ? "Se désabonner" : "S'abonner"}
+            </Button>
+          </PopoverTrigger>
+        </Box>
+      </Tooltip>
       <PopoverContent ml={5}>
         {/* <PopoverCloseButton /> */}
         <PopoverBody>

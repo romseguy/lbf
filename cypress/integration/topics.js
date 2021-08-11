@@ -12,17 +12,17 @@ describe(" topics", () => {
       cy.get("[data-cy=addTopicForm]").click();
       cy.get("#topicName").type(topicName);
       cy.get("[data-cy=addTopic]").click();
-      cy.get("[data-cy=topicHeader").contains(topicName);
-      cy.get("[data-cy=topicHeader").contains(userName);
-      cy.get("[data-cy=topicUnsubscribe").should("exist");
+      cy.get("[data-cy=topicHeader]").contains(topicName);
+      cy.get("[data-cy=topicHeader]").contains(userName);
+      cy.get("[data-cy=topicUnsubscribe]").should("exist");
     });
 
     it("unsubscribes and subscribes from topic", () => {
-      cy.get("[data-cy=topicUnsubscribe").click();
+      cy.get("[data-cy=topicUnsubscribe]").click();
       cy.wait(5000);
-      cy.get("[data-cy=topicSubscribe").should("exist");
+      cy.get("[data-cy=topicSubscribe]").should("exist");
       cy.wait(5000);
-      cy.get("[data-cy=topicSubscribe").click();
+      cy.get("[data-cy=topicSubscribe]").click();
     });
 
     it("adds topic messages", () => {
@@ -37,7 +37,7 @@ describe(" topics", () => {
       cy.get("[data-cy=deleteTopic]").click();
       cy.get("#topicName").type(topicName);
       cy.get("[data-cy=deleteButtonSubmit]").click();
-      cy.get("[data-cy=topicList").contains(topicName).should("not.exist");
+      cy.get("[data-cy=topicList]").contains(topicName).should("not.exist");
     });
   });
 
@@ -49,17 +49,17 @@ describe(" topics", () => {
       cy.get("[data-cy=addTopicForm]").click();
       cy.get("#topicName").type(topicName);
       cy.get("[data-cy=addTopic]").click();
-      cy.get("[data-cy=topicHeader").contains(topicName);
-      cy.get("[data-cy=topicHeader").contains(userName);
-      cy.get("[data-cy=topicUnsubscribe").should("exist");
+      cy.get("[data-cy=topicHeader]").contains(topicName);
+      cy.get("[data-cy=topicHeader]").contains(userName);
+      cy.get("[data-cy=topicUnsubscribe]").should("exist");
     });
 
     it("unsubscribes and subscribes from topic", () => {
-      cy.get("[data-cy=topicUnsubscribe").click();
+      cy.get("[data-cy=topicUnsubscribe]").click();
       cy.wait(5000);
-      cy.get("[data-cy=topicSubscribe").should("exist");
+      cy.get("[data-cy=topicSubscribe]").should("exist");
       cy.wait(5000);
-      cy.get("[data-cy=topicSubscribe").click();
+      cy.get("[data-cy=topicSubscribe]").click();
     });
 
     it("adds topic messages", () => {
@@ -74,7 +74,7 @@ describe(" topics", () => {
       cy.get("[data-cy=deleteTopic]").click();
       cy.get("#topicName").type(topicName);
       cy.get("[data-cy=deleteButtonSubmit]").click();
-      cy.get("[data-cy=topicList").contains(topicName).should("not.exist");
+      cy.get("[data-cy=topicList]").contains(topicName).should("not.exist");
     });
   });
 });

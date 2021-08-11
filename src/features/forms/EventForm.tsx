@@ -63,6 +63,7 @@ import { SubscriptionTypes } from "models/Subscription";
 import { normalize } from "utils/string";
 import { useSelector } from "react-redux";
 import { refetchOrgs, selectOrgsRefetch } from "features/orgs/orgSlice";
+import { unwrapSuggestion } from "utils/maps";
 
 interface EventFormProps extends ChakraProps {
   session: AppSession;
@@ -218,7 +219,7 @@ export const EventForm = ({
     console.log("submitted", form);
     setIsLoading(true);
 
-    const payload = {
+    let payload = {
       ...form,
       eventUrl: normalize(form.eventName),
       eventDescription:
@@ -237,24 +238,12 @@ export const EventForm = ({
       const sugg = suggestion || data[0];
 
       if (sugg) {
-        const details: any = await getDetails({
-          placeId: sugg.place_id,
-          fields: ["address_component"]
-        });
-
-        details.address_components.forEach((component: any) => {
-          const types = component.types;
-
-          if (types.indexOf("locality") > -1) {
-            payload.eventCity = component.long_name;
-          }
-        });
-
-        const results = await getGeocode({ address: sugg.description });
-        const { lat, lng } = await getLatLng(results[0]);
-
-        payload.eventLat = lat;
-        payload.eventLng = lng;
+        const {
+          lat: eventLat,
+          lng: eventLng,
+          city: eventCity
+        } = await unwrapSuggestion(sugg);
+        payload = { ...payload, eventLat, eventLng, eventCity };
       }
 
       if (props.event) {

@@ -36,7 +36,7 @@ const Index = ({ events }: { events?: IEvent[] }) => {
   const subscribers = (plural?: boolean) => (
     <Text color={useColorModeValue("green", "green.200")} display="inline">
       <Icon as={IoMdPerson} />
-      abonné(e){plural ? "s" : ""}
+      adhérent(e){plural ? "s" : ""}
     </Text>
   );
 

@@ -39,6 +39,7 @@ import usePlacesAutocomplete, {
 } from "use-places-autocomplete";
 import { useEffect } from "react";
 import { normalize } from "utils/string";
+import { unwrapSuggestion } from "utils/maps";
 
 interface OrgFormProps extends ChakraProps {
   session: AppSession;
@@ -96,7 +97,7 @@ export const OrgForm = (props: OrgFormProps) => {
   const onSubmit = async (form: IOrg) => {
     console.log("submitted", form);
     setIsLoading(true);
-    const payload = {
+    let payload = {
       ...form,
       orgUrl: normalize(form.orgName),
       orgDescription:
@@ -109,24 +110,12 @@ export const OrgForm = (props: OrgFormProps) => {
       const sugg = suggestion || data[0];
 
       if (sugg) {
-        const details: any = await getDetails({
-          placeId: sugg.place_id,
-          fields: ["address_component"]
-        });
-
-        details.address_components.forEach((component: any) => {
-          const types = component.types;
-
-          if (types.indexOf("locality") > -1) {
-            payload.orgCity = component.long_name;
-          }
-        });
-
-        const results = await getGeocode({ address: sugg.description });
-        const { lat, lng } = await getLatLng(results[0]);
-
-        payload.orgLat = lat;
-        payload.orgLng = lng;
+        const {
+          lat: orgLat,
+          lng: orgLng,
+          city: orgCity
+        } = await unwrapSuggestion(sugg);
+        payload = { ...payload, orgLat, orgLng, orgCity };
       }
 
       if (props.org) {

@@ -4,10 +4,13 @@ import {
   FormErrorMessage,
   FormLabel,
   Input as ChakraInput,
+  InputGroup,
+  InputLeftElement,
   useColorMode,
   useColorModeValue
 } from "@chakra-ui/react";
 import { Input } from "features/common";
+import { EmailIcon } from "@chakra-ui/icons";
 
 export const EmailControl = ({
   defaultValue,
@@ -38,18 +41,24 @@ export const EmailControl = ({
       mb={mb}
     >
       <FormLabel>Adresse e-mail</FormLabel>
-      <Input
-        name={name}
-        placeholder="Cliquez ici pour saisir une adresse e-mail..."
-        ref={register({
-          pattern: {
-            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-            message: "Adresse email invalide"
-          },
-          ...formRules
-        })}
-        defaultValue={defaultValue}
-      />
+
+      <InputGroup>
+        <InputLeftElement pointerEvents="none" children={<EmailIcon />} />
+        <Input
+          name={name}
+          placeholder="Cliquez ici pour saisir une adresse e-mail..."
+          ref={register({
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: "Adresse email invalide"
+            },
+            ...formRules
+          })}
+          defaultValue={defaultValue}
+          pl={10}
+        />
+      </InputGroup>
+
       <FormErrorMessage>
         <ErrorMessage errors={errors} name={name} />
       </FormErrorMessage>

@@ -273,9 +273,7 @@ export const TopicsList = ({
                                 fontSize="smaller"
                                 color={isDark ? "white" : "gray.600"}
                               >
-                                <Link href={`${entityTopicCreatedByUsername}`}>
-                                  {entityTopicCreatedByUsername}
-                                </Link>
+                                {entityTopicCreatedByUsername}
                                 <span aria-hidden="true"> · </span>
                                 <Tooltip placement="bottom" label={fullDate}>
                                   {timeAgo}

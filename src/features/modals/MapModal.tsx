@@ -1,6 +1,7 @@
+import type { LatLon } from "use-places-autocomplete";
 import type { IOrg } from "models/Org";
 import type { IEvent } from "models/Event";
-import React from "react";
+import React, { useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -10,7 +11,8 @@ import {
   ModalCloseButton,
   useDisclosure
 } from "@chakra-ui/react";
-import { Map } from "features/common";
+import { Map } from "features/map/Map";
+import { MapSearch } from "features/map/MapSearch";
 
 export const MapModal = ({
   items,
@@ -20,6 +22,8 @@ export const MapModal = ({
   items?: IEvent[] | IOrg[];
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
+  const [center, setCenter] = useState<LatLon>();
+  const [size, setSize] = useState<string | undefined>();
 
   return (
     <Modal
@@ -28,10 +32,11 @@ export const MapModal = ({
         props.onClose && props.onClose();
         onClose();
       }}
+      size={size}
       closeOnOverlayClick
     >
       <ModalOverlay>
-        <ModalContent>
+        <ModalContent mt={size === "full" ? 0 : undefined}>
           <ModalHeader>
             {items &&
               items[0] &&
@@ -41,11 +46,23 @@ export const MapModal = ({
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {items ? (
-              <Map items={items} {...props} />
-            ) : (
-              "Il n'y a encore rien à afficher sur cette carte, revenez plus tard !"
-            )}
+            <>
+              {Array.isArray(items) && items.length > 0 ? (
+                <>
+                  <MapSearch setCenter={setCenter} />
+                  <Map
+                    center={center}
+                    items={items}
+                    onFullscreenControlClick={(isFull: boolean) => {
+                      setSize(isFull ? "full" : undefined);
+                    }}
+                    {...props}
+                  />
+                </>
+              ) : (
+                "Il n'y a encore rien à afficher sur cette carte, revenez plus tard !"
+              )}
+            </>
           </ModalBody>
         </ModalContent>
       </ModalOverlay>

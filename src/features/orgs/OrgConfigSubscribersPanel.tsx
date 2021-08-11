@@ -420,7 +420,7 @@ export const OrgConfigSubscribersPanel = ({
 
                       <Td>
                         {email || (
-                          <Link href={`${userName}`} variant="underline">
+                          <Link href={`/${userName}`} variant="underline">
                             {userEmail}
                           </Link>
                         )}
