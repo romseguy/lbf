@@ -96,7 +96,7 @@ export const TopicsList = ({
   useEffect(() => {
     console.log("refetching subscription");
     subQuery.refetch();
-  }, [subscriptionRefetch]);
+  }, [subscriptionRefetch, session?.user.userId]);
   const [deleteSubscription, deleteSubscriptionMutation] =
     useDeleteSubscriptionMutation();
   const [addSubscription, addSubscriptionMutation] =
@@ -273,11 +273,7 @@ export const TopicsList = ({
                                 fontSize="smaller"
                                 color={isDark ? "white" : "gray.600"}
                               >
-                                <Link
-                                  href={`/${encodeURIComponent(
-                                    entityTopicCreatedByUsername
-                                  )}`}
-                                >
+                                <Link href={`${entityTopicCreatedByUsername}`}>
                                   {entityTopicCreatedByUsername}
                                 </Link>
                                 <span aria-hidden="true"> · </span>

@@ -35,10 +35,7 @@ export const TopicMessagesList = ({
                 px={3}
                 data-cy="topicMessage"
               >
-                <Link
-                  href={`/${encodeURIComponent(userName)}`}
-                  fontWeight="bold"
-                >
+                <Link href={`${userName}`} fontWeight="bold">
                   {userName}
                 </Link>
                 <Box className="ql-editor">

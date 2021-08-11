@@ -22,10 +22,12 @@ handler.use(database);
 
 handler.get<NextApiRequest & { query: { orgUrl: string } }, NextApiResponse>(
   async function getOrg(req, res) {
-    const session = await getSession({ req });
-    const orgUrl = req.query.orgUrl;
-
     try {
+      const session = await getSession({ req });
+      const {
+        query: { orgUrl }
+      } = req;
+
       let org = await models.Org.findOne({ orgUrl });
 
       if (!org) {
@@ -84,7 +86,7 @@ handler.post<
       .status(403)
       .json(
         createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
+          new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
   } else {
@@ -125,7 +127,7 @@ handler.put<
       .status(403)
       .json(
         createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
+          new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
   } else {
@@ -191,7 +193,7 @@ handler.delete<
       .status(403)
       .json(
         createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
+          new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
   } else {

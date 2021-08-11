@@ -8,7 +8,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 handler.use(database);
 
 handler.get<NextApiRequest & { query: { userId: string } }, NextApiResponse>(
-  async function getEvents(req, res) {
+  async function getEventsByUserId(req, res) {
     try {
       const userId = req.query.userId;
       const events = await models.Event.find({ createdBy: userId });

@@ -39,14 +39,14 @@ export const eventApi = createApi({
         body: payload
       })
     }),
+    getEvent: build.query<IEvent, string>({
+      query: (eventUrl) => ({ url: `event/${eventUrl}` })
+    }),
     getEvents: build.query<IEvent[], void>({
       query: () => ({ url: `events` })
     }),
-    getEventByName: build.query<IEvent, string>({
-      query: (eventUrl) => ({ url: `event/${eventUrl}` })
-    }),
-    getEventsByCreator: build.query<IEvent[], string>({
-      query: (createdBy) => ({ url: `events/${createdBy}` })
+    getEventsByUserId: build.query<IEvent[], string>({
+      query: (userId) => ({ url: `events/${userId}` })
     })
   })
 });
@@ -54,11 +54,12 @@ export const eventApi = createApi({
 export const {
   useAddEventMutation,
   useAddEventDetailsMutation,
+  useDeleteEventMutation,
   useEditEventMutation,
+  useGetEventQuery,
   useGetEventsQuery,
-  useGetEventByNameQuery,
-  useDeleteEventMutation
+  useGetEventsByUserIdQuery
 } = eventApi;
 export const {
-  endpoints: { getEvents, getEventByName, getEventsByCreator, deleteEvent }
+  endpoints: { getEvent, getEvents, getEventsByUserId, deleteEvent }
 } = eventApi;

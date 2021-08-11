@@ -26,7 +26,7 @@ import {
   IconFooter,
   Link
 } from "features/common";
-import { useGetEventByNameQuery } from "features/events/eventsApi";
+import { useGetEventQuery } from "features/events/eventsApi";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
@@ -47,7 +47,7 @@ export const EventPage = (props: {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
 
-  const eventQuery = useGetEventByNameQuery(props.routeName);
+  const eventQuery = useGetEventQuery(props.routeName);
   useEffect(() => {
     console.log("refetching event");
 
@@ -100,10 +100,7 @@ export const EventPage = (props: {
             locale: fr
           })}{" "}
           par :{" "}
-          <Link
-            variant="underline"
-            href={`/${encodeURIComponent(eventCreatedByUserName)}`}
-          >
+          <Link variant="underline" href={`${eventCreatedByUserName}`}>
             {eventCreatedByUserName}
           </Link>{" "}
           {isCreator && "(Vous)"}
@@ -220,7 +217,7 @@ export const EventPage = (props: {
                           <Link
                             data-cy={`eventCreatedBy-${eventOrg.orgName}`}
                             variant="underline"
-                            href={`/${eventOrg.orgUrl}`}
+                            href={`${eventOrg.orgUrl}`}
                           >
                             {`${eventOrg.orgName}`}
                             {/* {`${eventOrg.orgName}${
@@ -234,9 +231,7 @@ export const EventPage = (props: {
                         <Icon as={AtSignIcon} mr={2} />
                         <Link
                           variant="underline"
-                          href={`/${encodeURIComponent(
-                            eventCreatedByUserName
-                          )}`}
+                          href={`${eventCreatedByUserName}`}
                         >
                           {eventCreatedByUserName}
                         </Link>

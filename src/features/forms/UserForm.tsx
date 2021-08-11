@@ -37,6 +37,7 @@ import {
 import { calculateScale, getBase64, getPicaInstance } from "utils/image";
 import AvatarEditor from "react-avatar-editor";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
+import { normalize } from "utils/string";
 
 export const UserForm = (props: {
   user: IUser;
@@ -70,7 +71,7 @@ export const UserForm = (props: {
 
   const onSubmit = async (form: IUser) => {
     console.log("submitted", form);
-    const payload = form;
+    const payload = { ...form, userName: normalize(form.userName) };
 
     if (setEditorRef.current) {
       const canvas = setEditorRef.current.getImage();

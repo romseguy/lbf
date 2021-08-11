@@ -4,6 +4,7 @@ import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError, databaseErrorCodes } from "utils/errors";
 import { getSession } from "hooks/useAuth";
+import { normalize } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -66,7 +67,7 @@ handler.put<
       .status(403)
       .json(
         createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
+          new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
   } else {
@@ -79,9 +80,8 @@ handler.put<
         body: IUser;
       } = req;
 
-      if (!body.userNameLower) {
-        body.userNameLower = body.userName.toLowerCase();
-      }
+      body.userName = normalize(body.userName);
+      body.userNameLower = body.userName.toLowerCase();
 
       const { n, nModified } = await models.User.updateOne({ userName }, body);
 

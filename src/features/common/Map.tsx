@@ -76,7 +76,7 @@ const Marker = ({
         }}
         header={
           <Link
-            href={`/${url}`}
+            href={`${url}`}
             css={css`
               letter-spacing: 0.1em;
             `}

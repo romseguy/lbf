@@ -13,6 +13,13 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
+handler.get<NextApiRequest, NextApiResponse>(async function getSubscriptions(
+  req,
+  res
+) {
+  console.log("getSubscriptions");
+});
+
 handler.post<
   NextApiRequest & {
     body: ISubscription;

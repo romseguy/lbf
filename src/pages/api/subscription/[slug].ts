@@ -1,123 +1,120 @@
 import type { IOrgSubscription, ISubscription } from "models/Subscription";
 import type { ITopic } from "models/Topic";
-import type { IUser } from "models/User";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { emailR } from "utils/email";
 import { equals } from "utils/string";
+import { emailR } from "utils/email";
+import { IUser } from "models/User";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<
-  NextApiRequest & {
-    query: { userId: string };
-  },
-  NextApiResponse
->(async function getSubscription(req, res) {
-  try {
-    const {
-      query: { userId }
-    } = req;
-
-    let selector: { user?: IUser; email?: string } = {};
-
-    if (emailR.test(userId)) {
-      const user = await models.User.findOne({ email: userId });
-      if (user) selector = { user };
-      else selector = { email: userId };
-    }
-
-    const subscription = await models.Subscription.findOne(selector)
-      .populate("user", "-email -password -securityCode -userImage")
-      .populate({
-        path: "orgs",
-        populate: { path: "org" }
-      })
-      .populate({
-        path: "topics",
-        populate: { path: "topic" }
-      });
-    if (subscription) {
-      res.status(200).json(subscription);
-    } else {
-      res
-        .status(404)
-        .json(
-          createServerError(
-            new Error("Aucun abonnement trouvé pour cette adresse e-mail")
-          )
-        );
-    }
-  } catch (error) {
-    res.status(400).json(createServerError(error));
-  }
-});
-
-handler.put<NextApiRequest, NextApiResponse>(async function editSubscription(
-  req,
-  res
-) {
-  const session = await getSession({ req });
-
-  if (!session) {
-    res
-      .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
-        )
-      );
-  } else {
+handler.get<NextApiRequest & { query: { slug: string } }, NextApiResponse>(
+  async function getSubscription(req, res) {
     try {
+      const session = await getSession({ req });
       const {
-        query: { userId: subscriptionId }
+        query: { slug }
       } = req;
 
-      let body = req.body;
+      let selector: { user?: IUser; email?: string; _id?: string } = {};
 
-      const { n, nModified } = await models.Subscription.updateOne(
-        { _id: subscriptionId },
-        body
-      );
-
-      if (nModified === 1) {
-        res.status(200).json({});
+      if (emailR.test(slug)) {
+        const user = await models.User.findOne({ email: slug });
+        selector = user ? { user } : { email: slug };
       } else {
-        res
-          .status(400)
+        const user = await models.User.findOne({ _id: slug });
+
+        if (user) selector = { user };
+        else selector = { _id: slug };
+      }
+
+      let subscription = await models.Subscription.findOne(selector);
+
+      if (!subscription) {
+        return res
+          .status(404)
           .json(
-            createServerError(new Error(`L'abonnement n'a pas pu être modifié`))
+            createServerError(
+              new Error(`L'abonnement ${slug} n'a pas pu être trouvé`)
+            )
           );
       }
+
+      subscription = await subscription
+        .populate({ path: "events", populate: { path: "event" } })
+        .populate({ path: "orgs", populate: { path: "org" } })
+        .populate({ path: "topics", populate: { path: "topic" } })
+        .execPopulate();
+
+      res.status(200).json(subscription);
     } catch (error) {
-      res.status(400).json(createServerError(error));
+      res.status(500).json(createServerError(error));
     }
   }
-});
+);
+
+handler.put<NextApiRequest & { query: { slug: string } }, NextApiResponse>(
+  async function editSubscription(req, res) {
+    const session = await getSession({ req });
+
+    if (!session) {
+      res
+        .status(403)
+        .json(
+          createServerError(
+            new Error("Vous devez être identifié pour accéder à ce contenu")
+          )
+        );
+    } else {
+      try {
+        const {
+          query: { slug }
+        } = req;
+
+        let body = req.body;
+
+        const { n, nModified } = await models.Subscription.updateOne(
+          { _id: slug },
+          body
+        );
+
+        if (nModified === 1) {
+          res.status(200).json({});
+        } else {
+          res
+            .status(400)
+            .json(
+              createServerError(
+                new Error(`L'abonnement n'a pas pu être modifié`)
+              )
+            );
+        }
+      } catch (error) {
+        res.status(400).json(createServerError(error));
+      }
+    }
+  }
+);
 
 handler.delete<
   NextApiRequest & {
-    query: { userId: string };
-    body: {
-      orgs?: IOrgSubscription[];
-      orgId?: string;
-      topicId?: string;
-    };
+    query: { slug: string };
+    body: { orgs?: IOrgSubscription[]; orgId?: string; topicId?: string };
   },
   NextApiResponse
 >(async function removeSubscription(req, res) {
   const session = await getSession({ req });
 
   const {
-    query: { userId: subscriptionId },
+    query: { slug },
     body
   }: {
-    query: { userId: string };
+    query: { slug: string };
     body: {
       orgs?: IOrgSubscription[];
       orgId?: string;
@@ -126,18 +123,17 @@ handler.delete<
   } = req;
 
   try {
-    const subscription = await models.Subscription.findOne({
-      _id: subscriptionId
-    }).populate({
-      path: "topics",
-      populate: "topic"
+    let subscription = await models.Subscription.findOne({
+      _id: slug
     });
 
     if (!subscription) {
       return res
         .status(404)
         .json(
-          createServerError(new Error(`L'abonnement n'a pas pu être trouvé`))
+          createServerError(
+            new Error(`L'abonnement ${slug} n'a pas pu être trouvé`)
+          )
         );
     }
 
@@ -161,6 +157,9 @@ handler.delete<
       res.status(200).json(subscription);
     } else if (body.topicId) {
       // console.log("unsubbing from topic", body.topicId);
+      subscription = await subscription
+        .populate({ path: "topics", populate: { path: "topic" } })
+        .execPopulate();
       subscription.topics = subscription.topics.filter(
         ({ topic }: { topic: ITopic }) => {
           let allow = false;
@@ -173,7 +172,7 @@ handler.delete<
     } else {
       // console.log("unsubbing user");
       const { deletedCount } = await models.Subscription.deleteOne({
-        _id: subscriptionId
+        _id: slug
       });
 
       if (body.orgId) {
@@ -184,7 +183,7 @@ handler.delete<
         if (org) {
           org.orgSubscriptions = org.orgSubscriptions.filter(
             (subscription: ISubscription) => {
-              return !equals(subscription._id, subscriptionId);
+              return !equals(subscription._id, slug);
             }
           );
           await org.save();

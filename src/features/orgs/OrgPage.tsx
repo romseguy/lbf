@@ -162,10 +162,7 @@ export const OrgPage = ({
             locale: fr
           })}{" "}
           par :{" "}
-          <Link
-            variant="underline"
-            href={`/${encodeURIComponent(orgCreatedByUserName)}`}
-          >
+          <Link variant="underline" href={`${orgCreatedByUserName}`}>
             {orgCreatedByUserName}
           </Link>{" "}
           {isCreator && "(Vous)"}

@@ -46,7 +46,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrg(req, res) {
       .status(403)
       .json(
         createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
+          new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
   } else {

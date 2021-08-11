@@ -24,7 +24,7 @@ handler.use(database);
 //       .status(403)
 //       .json(
 //         createServerError(
-//           new Error("Vous devez être identifié pour accéder à ce contenu.")
+//           new Error("Vous devez être identifié pour accéder à ce contenu")
 //         )
 //       );
 //   } else {
@@ -118,7 +118,7 @@ handler.delete<
       .status(403)
       .json(
         createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
+          new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
   } else {

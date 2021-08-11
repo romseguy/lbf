@@ -47,8 +47,8 @@ export const orgApi = createApi({
     getOrgByName: build.query<IOrg, string>({
       query: (orgUrl) => ({ url: `org/${orgUrl}` })
     }),
-    getOrgsByCreator: build.query<IOrg[], string>({
-      query: (createdBy) => ({ url: `orgs/${createdBy}` })
+    getOrgsByUserId: build.query<IOrg[], string>({
+      query: (userId) => ({ url: `orgs/${userId}` })
     })
   })
 });
@@ -60,8 +60,8 @@ export const {
   useEditOrgMutation,
   useGetOrgsQuery,
   useGetOrgByNameQuery,
-  useGetOrgsByCreatorQuery
+  useGetOrgsByUserIdQuery
 } = orgApi;
 export const {
-  endpoints: { getOrgByName, getOrgs, getOrgsByCreator }
+  endpoints: { getOrgByName, getOrgs, getOrgsByUserId }
 } = orgApi;

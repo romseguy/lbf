@@ -45,5 +45,5 @@ export const createServerError = (error: any) => {
     return new Error(databaseErrorMessages[error.code]);
   }
 
-  return { message: error.message };
+  return { message: error.message + "." };
 };

@@ -57,7 +57,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function forgotten(
             from: process.env.EMAIL_FROM,
             to: `<${email}>`,
             subject: `${securityCode} est votre code de sécurité ${process.env.NEXT_PUBLIC_SHORT_URL}`,
-            html: `Bonjour,<br/><br/>Nous avons reçu une demande de réinitialisation de mot de passe de votre compte.<br/>Saisissez le code de sécurité suivant : ${securityCode}`
+            html: `<h1>Votre demande de réinitialisation de mot de passe</h1>Afin de réinitialiser votre mot de passse, veuillez saisir le code de sécurité suivant : ${securityCode}`
           };
           if (process.env.NODE_ENV === "production")
             await transport.sendMail(mail);
@@ -70,7 +70,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function forgotten(
             .status(400)
             .json(
               createServerError(
-                new Error("Erreur dans la mise à jour du code de sécurité")
+                new Error("Cette adresse e-mail ne correspond à aucun compte")
               )
             );
         }

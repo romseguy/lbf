@@ -9,7 +9,9 @@ export function getUniqueId(prefix?: string): string {
   return `${prefix || "uid-"}${time}`;
 }
 
-export function normalize(str: string): string {
+export function normalize(str: string, underscores?: boolean): string {
+  if (underscores) str = str.replace(/\ /g, "_");
+
   return str
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")

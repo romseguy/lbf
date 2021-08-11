@@ -1,6 +1,6 @@
 import type { ISubscription } from "models/Subscription";
 import type { IUser } from "models/User";
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi, FetchArgs } from "@reduxjs/toolkit/query/react";
 import baseQuery from "utils/query";
 
 export const subscriptionApi = createApi({
@@ -49,13 +49,16 @@ export const subscriptionApi = createApi({
       })
     }),
     getSubscription: build.query<ISubscription, string | undefined>({
-      query: (userId) => ({ url: `subscription/${userId}` })
+      // slug is either :
+      // - email
+      // - user._id
+      // - subscription._id
+      query: (slug) => ({
+        url: `subscription/${slug || ""}`
+      })
     })
-    // getSubscriptionByName: build.query<ISubscription, string>({
-    //   query: (subscriptionName) => ({ url: `subscription/${subscriptionName}` })
-    // }),
-    // getSubscriptionByEmail: build.query<ISubscription, string>({
-    //   query: (email) => ({ url: `subscription/${email}` })
+    // getSubscription: build.query<ISubscription, string | undefined>({
+    //   query: (string) => ({ url: `subscriptions/${string}` })
     // })
   })
 });
@@ -65,8 +68,6 @@ export const {
   useDeleteSubscriptionMutation,
   useEditSubscriptionMutation,
   useGetSubscriptionQuery
-  // useGetSubscriptionByNameQuery,
-  // useGetSubscriptionByEmailQuery
 } = subscriptionApi;
 export const {
   endpoints: { getSubscription }

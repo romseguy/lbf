@@ -115,7 +115,7 @@ export default Hash;
 
 //       if (name) {
 //         // server-side fetching
-//         const query = await store.dispatch(getEventByName.initiate(name));
+//         const query = await store.dispatch(getEvent.initiate(name));
 
 //         if (query.data) {
 //           const event: IEvent = query.data;

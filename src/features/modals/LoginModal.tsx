@@ -121,8 +121,6 @@ export const LoginModal = (props: {
     }
   };
 
-  console.log(errors);
-
   return (
     <Modal
       isOpen={isOpen}

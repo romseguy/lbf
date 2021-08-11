@@ -1,11 +1,11 @@
 import type { IEvent } from "models/Event";
 import type { ITopic } from "models/Topic";
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
+import nodemailer from "nodemailer";
+import nodemailerSendgrid from "nodemailer-sendgrid";
 import { getSession } from "hooks/useAuth";
 import { sendToFollowers } from "utils/email";
 import { equals, normalize } from "utils/string";
@@ -23,13 +23,34 @@ handler.use(database);
 
 handler.get<NextApiRequest & { query: { eventUrl: string } }, NextApiResponse>(
   async function getEvent(req, res) {
-    const eventUrl = req.query.eventUrl;
-
     try {
-      const event = await models.Event.findOne({
+      const session = await getSession({ req });
+      const {
+        query: { eventUrl }
+      } = req;
+
+      let event = await models.Event.findOne({
         eventUrl
-      })
-        .populate("createdBy", "-email -password -securityCode -userImage")
+      });
+
+      if (!event) {
+        return res
+          .status(404)
+          .json(
+            createServerError(
+              new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
+            )
+          );
+      }
+
+      // hand emails to event creator only
+      let select =
+        session && equals(event.createdBy, session.user.userId)
+          ? "-password -securityCode"
+          : "-email -password -securityCode";
+
+      event = await event
+        .populate("createdBy", select + " -userImage")
         .populate("eventOrgs eventTopics")
         .populate({
           path: "eventTopics",
@@ -38,23 +59,16 @@ handler.get<NextApiRequest & { query: { eventUrl: string } }, NextApiResponse>(
               path: "topicMessages",
               populate: {
                 path: "createdBy",
-                select: "-email -password -securityCode"
+                select
               }
             },
-            { path: "createdBy", select: "-email -password -securityCode" }
+            { path: "createdBy", select: select + " -userImage" }
           ]
-        });
+        })
+        .execPopulate();
 
       if (event) {
         res.status(200).json(event);
-      } else {
-        res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
-            )
-          );
       }
     } catch (error) {
       res.status(500).json(createServerError(error));
@@ -76,7 +90,7 @@ handler.post<
       .status(403)
       .json(
         createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
+          new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
   } else {
@@ -117,7 +131,7 @@ handler.put<
       .status(403)
       .json(
         createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
+          new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
   } else {
@@ -211,7 +225,7 @@ handler.delete<
       .status(403)
       .json(
         createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
+          new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
   } else {

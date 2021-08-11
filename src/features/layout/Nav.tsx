@@ -198,7 +198,7 @@ export const Nav = ({
                 _hover={{ bg: isDark ? "gray.700" : "white" }}
               ></MenuItem>
 
-              <Link href={`/${encodeURIComponent(userName)}`} aria-hidden>
+              <Link href={`${userName}`} aria-hidden>
                 <MenuItem>Ma page</MenuItem>
               </Link>
 
@@ -211,9 +211,11 @@ export const Nav = ({
               <MenuItem
                 onClick={async () => {
                   dispatch(setSubscribedEmail());
-                  await signOut({
-                    //redirect: false
+                  const { url } = await signOut({
+                    redirect: false,
+                    callbackUrl: "/"
                   });
+                  router.push(url);
                 }}
               >
                 Déconnexion

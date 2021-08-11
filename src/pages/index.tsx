@@ -59,7 +59,7 @@ const Index = ({ events }: { events?: IEvent[] }) => {
                 letter-spacing: 0.1em;
               `}
               size="larger"
-              href={`/`}
+              href={``}
             >
               {process.env.NEXT_PUBLIC_SHORT_URL}
             </Link>

@@ -108,11 +108,11 @@ export const OrgPopover = ({
           </PopoverHeader>
           <PopoverCloseButton />
           <PopoverBody>
-            <>
+            <Box>
               <Heading size="sm" mb={1}>
                 ...où je suis administrateur :
               </Heading>
-              {query.isLoading ? (
+              {query.isLoading || query.isFetching ? (
                 <Spinner />
               ) : hasOrgs ? (
                 <List ml={3}>
@@ -148,7 +148,9 @@ export const OrgPopover = ({
               <Heading size="sm" mt={hasOrgs ? 2 : 0} mb={1}>
                 ...où je suis adhérent(e) :
               </Heading>
-              {hasSubscribedOrgs ? (
+              {query.isLoading || query.isFetching ? (
+                <Spinner />
+              ) : hasSubscribedOrgs ? (
                 <List ml={3} my={3}>
                   {subscribedOrgs.map((org, index) => (
                     <ListItem
@@ -179,7 +181,8 @@ export const OrgPopover = ({
                   peut-être ?
                 </Text>
               )}
-            </>
+            </Box>
+
             <Button
               onClick={() => {
                 if (!isSessionLoading) {

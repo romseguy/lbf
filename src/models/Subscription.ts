@@ -19,6 +19,7 @@ export interface ISubscription {
   events: [{ event: IEvent }];
   orgs: IOrgSubscription[];
   topics: ITopicSubscription[];
+  createdBy: IUser | string;
 }
 
 export const SubscriptionTypes: { [key: string]: string } = {

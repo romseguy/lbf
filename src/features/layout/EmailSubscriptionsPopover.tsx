@@ -84,30 +84,19 @@ export const EmailSubscriptionsPopover = ({
   const { data: session } = useSession();
   const dispatch = useAppDispatch();
 
-  const [mySubscription, setMySubscription] = useState<ISubscription>();
-  const mySubscriptionEmail =
-    typeof mySubscription?.user === "object"
-      ? mySubscription?.user.email
-      : mySubscription?.email;
-  const orgFollowerSubscriptons = mySubscription?.orgs?.filter(
-    (orgSubscription) => orgSubscription.type === SubscriptionTypes.FOLLOWER
-  );
-
-  const isStep1 = !session && !mySubscription;
-  const isStep2 = (!session && mySubscription) || session;
-
-  const subscribedEmail =
-    useSelector(selectSubscribedEmail) || mySubscriptionEmail;
-
+  const subscribedEmail = useSelector(selectSubscribedEmail);
   const subQuery = useGetSubscriptionQuery(email || subscribedEmail || "");
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     console.log("refetching subscription");
     subQuery.refetch();
   }, [subscriptionRefetch]);
-  useEffect(() => {
-    setMySubscription(subQuery.data);
-  }, [subQuery.data]);
+  const orgFollowerSubscriptions = subQuery.data?.orgs.filter(
+    (orgSubscription) => orgSubscription.type === SubscriptionTypes.FOLLOWER
+  );
+
+  const isStep1 = !session && (!subQuery.data || subQuery.isError);
+  const isStep2 = (!session && subQuery.data) || session;
 
   //const [editSubscription, editSubscriptionMutation] = useEditSubscriptionMutation();
   const [deleteSubscription, deleteSubscriptionMutation] =
@@ -134,17 +123,17 @@ export const EmailSubscriptionsPopover = ({
   };
 
   const onSubmit = async ({ email }: { email: string }) => {
-    const { error, data }: { error?: any; data?: ISubscription } =
-      await dispatch(getSubscription.initiate(email));
+    dispatch(setSubscribedEmail(email));
+    // const { error, data }: { error?: any; data?: ISubscription } =
+    //   await dispatch(getSubscription.initiate(email));
 
-    if (error) {
-      handleError(error, (message) => {
-        setError("formErrorMessage", { type: "manual", message });
-      });
-    } else {
-      dispatch(setSubscribedEmail(email));
-      setMySubscription(data);
-    }
+    // if (error) {
+    //   handleError(error, (message) => {
+    //     setError("formErrorMessage", { type: "manual", message });
+    //   });
+    // } else {
+    //   setMySubscription(data);
+    // }
   };
 
   const step1 = (
@@ -215,7 +204,11 @@ export const EmailSubscriptionsPopover = ({
     <PopoverContent>
       <PopoverHeader>
         <Heading size="md">
-          <Link onClick={() => setMySubscription(undefined)}>
+          <Link
+            onClick={() => {
+              dispatch(setSubscribedEmail(undefined));
+            }}
+          >
             {subscribedEmail || "Mes abonnements"}
           </Link>
         </Heading>
@@ -223,7 +216,7 @@ export const EmailSubscriptionsPopover = ({
       <PopoverCloseButton />
       <PopoverBody>
         <>
-          {subQuery.isLoading ? (
+          {subQuery.isLoading || subQuery.isFetching ? (
             <Spinner />
           ) : (
             <>
@@ -231,72 +224,78 @@ export const EmailSubscriptionsPopover = ({
                 Organisations auxquelles je suis abonné(e) :
               </Heading>
 
-              {Array.isArray(orgFollowerSubscriptons) &&
-              orgFollowerSubscriptons.length > 0 ? (
+              {Array.isArray(orgFollowerSubscriptions) &&
+              orgFollowerSubscriptions.length > 0 ? (
                 <List ml={3} my={3}>
-                  {orgFollowerSubscriptons.map((orgSubscription, index) => (
-                    <ListItem mb={1} key={index}>
-                      <ListIcon as={EmailIcon} color="green.500" mr={3} />
+                  {orgFollowerSubscriptions.map((orgSubscription, index) =>
+                    orgSubscription.org.orgName ? (
+                      <ListItem mb={1} key={index}>
+                        <ListIcon as={EmailIcon} color="green.500" mr={3} />
 
-                      <Link
-                        variant="underline"
-                        onClick={() => {
-                          onOpen();
-                          setCurrentOrgSubscription(orgSubscription);
-                        }}
-                      >
-                        <Tooltip
-                          label="Gérer les préférences de communication"
-                          hasArrow
-                          placement="bottom"
-                        >
-                          {orgSubscription.org.orgName}
-                        </Tooltip>
-                      </Link>
-
-                      <Tooltip label="Se désabonner" hasArrow placement="right">
-                        <IconButton
-                          aria-label="Se désabonner"
-                          bg="transparent"
-                          _hover={{ bg: "transparent", color: "red" }}
-                          icon={<DeleteIcon boxSize={4} />}
-                          height="auto"
-                          minWidth={0}
-                          ml={3}
-                          onClick={async () => {
-                            if (!mySubscription) return;
-
-                            const unsubscribe = confirm(
-                              `Êtes vous sûr(e) de vouloir vous désabonner de ${orgSubscription.org.orgName} ?`
-                            );
-
-                            if (unsubscribe) {
-                              await deleteSubscription({
-                                subscriptionId: mySubscription._id,
-                                payload: {
-                                  orgs: [orgSubscription]
-                                }
-                              });
-
-                              subQuery.refetch();
-                              // so OrgPage knows
-                              dispatch(refetchSubscription());
-
-                              toast({
-                                title: `Vous avez été désabonné de ${orgSubscription.org.orgName}`,
-                                status: "success",
-                                isClosable: true
-                              });
-                            }
+                        <Link
+                          variant="underline"
+                          onClick={() => {
+                            onOpen();
+                            setCurrentOrgSubscription(orgSubscription);
                           }}
-                        />
-                      </Tooltip>
-                    </ListItem>
-                  ))}
+                        >
+                          <Tooltip
+                            label="Gérer les préférences de communication"
+                            hasArrow
+                            placement="bottom"
+                          >
+                            {orgSubscription.org.orgName}
+                          </Tooltip>
+                        </Link>
+
+                        <Tooltip
+                          label="Se désabonner"
+                          hasArrow
+                          placement="right"
+                        >
+                          <IconButton
+                            aria-label="Se désabonner"
+                            bg="transparent"
+                            _hover={{ bg: "transparent", color: "red" }}
+                            icon={<DeleteIcon boxSize={4} />}
+                            height="auto"
+                            minWidth={0}
+                            ml={3}
+                            onClick={async () => {
+                              const unsubscribe = confirm(
+                                `Êtes vous sûr(e) de vouloir vous désabonner de ${orgSubscription.org.orgName} ?`
+                              );
+
+                              if (unsubscribe) {
+                                if (subQuery.data) {
+                                  await deleteSubscription({
+                                    subscriptionId: subQuery.data._id,
+                                    payload: {
+                                      orgs: [orgSubscription]
+                                    }
+                                  });
+                                }
+
+                                subQuery.refetch();
+                                // so OrgPage knows
+                                dispatch(refetchSubscription());
+
+                                toast({
+                                  title: `Vous avez été désabonné de ${orgSubscription.org.orgName}`,
+                                  status: "success",
+                                  isClosable: true
+                                });
+                              }
+                            }}
+                          />
+                        </Tooltip>
+                      </ListItem>
+                    ) : null
+                  )}
                 </List>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
-                  {mySubscription?.email
+                  {subscribedEmail
                     ? "Cet e-mail n'est abonnée à aucune organisation."
                     : "Vous n'êtes abonné à aucun organisation."}
                 </Text>
@@ -306,7 +305,7 @@ export const EmailSubscriptionsPopover = ({
                 Événements auxquels je suis abonné(e) :
               </Heading>
               <Text fontSize="smaller" ml={3} my={2}>
-                {mySubscription?.email
+                {subscribedEmail
                   ? "Cet e-mail n'est abonnée à aucun événement."
                   : "Vous n'êtes abonné à aucun événement."}
               </Text>
@@ -371,7 +370,7 @@ export const EmailSubscriptionsPopover = ({
                 onCancel={onClose}
                 onSubmit={async (subscriptionName) => {
                   onClose();
-                  await router.push(`/${encodeURIComponent(subscriptionName)}`);
+                  await router.push(`/${subscriptionName}`);
                 }}
                 onClose={() => {
                   onClose();
