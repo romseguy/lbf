@@ -8,7 +8,6 @@ import { Schema, Types } from "mongoose";
 export interface IEvent {
   _id: string;
   eventName: string;
-  eventNameLower?: string;
   eventUrl: string;
   eventMinDate: string;
   eventMaxDate: string;
@@ -33,12 +32,14 @@ export const EventSchema = new Schema<IEvent>(
   {
     eventName: {
       type: String,
+      required: true
+    },
+    eventUrl: {
+      type: String,
       required: true,
       trim: true,
       unique: true
     },
-    eventNameLower: String,
-    eventUrl: String,
     eventMinDate: {
       type: String,
       required: true

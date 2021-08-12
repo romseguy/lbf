@@ -134,7 +134,6 @@ handler.put<
     try {
       const { body }: { body: IOrg } = req;
       const orgUrl = req.query.orgUrl;
-      body.orgNameLower = body.orgName.toLowerCase();
       body.orgUrl = normalize(body.orgName);
 
       const org = await models.Org.findOne({ orgUrl });

@@ -13,7 +13,6 @@ export interface IUser {
   password: string;
   securityCode: string;
   userName: string;
-  userNameLower?: string;
   userImage?: Base64Image;
   validatePassword(password: string): boolean;
 }
@@ -38,10 +37,8 @@ export const UserSchema = new Schema<IUser>(
     userName: {
       type: String,
       // required: true,
-      trim: true,
-      unique: true
+      trim: true
     },
-    userNameLower: String,
     userImage: {
       base64: String,
       width: Number,
@@ -50,6 +47,8 @@ export const UserSchema = new Schema<IUser>(
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );
+
+UserSchema.index({ email: 1, userName: 1 }, { unique: true });
 
 UserSchema.methods.validatePassword = async function (pass: string) {
   return bcrypt.compare(pass, this.password);
@@ -77,7 +76,6 @@ UserSchema.pre("save", async function (next: HookNextFunction) {
       const name = nameParts.replace(/[&/\\#,+()$~%._@'":*?<>{}]/g, "");
       const userName = name + randomNumber(4);
       thisObj.userName = userName;
-      thisObj.userNameLower = userName.toLowerCase();
     } catch (error) {
       return next(error);
     }

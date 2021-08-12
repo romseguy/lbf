@@ -138,7 +138,6 @@ handler.put<
     try {
       const { body }: { body: IEvent } = req;
       const eventUrl = req.query.eventUrl;
-      body.eventNameLower = body.eventName.toLowerCase();
       body.eventUrl = normalize(body.eventName);
 
       const event = await models.Event.findOne({ eventUrl });

@@ -2,7 +2,11 @@ import type { IUser } from "models/User";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
-import { createServerError, databaseErrorCodes } from "utils/errors";
+import {
+  createServerError,
+  databaseErrorCodes,
+  duplicateError
+} from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import { normalize } from "utils/string";
 
@@ -81,7 +85,12 @@ handler.put<
       } = req;
 
       body.userName = normalize(body.userName);
-      body.userNameLower = body.userName.toLowerCase();
+
+      const user = await models.User.findOne({ userName: body.userName });
+
+      if (user) {
+        throw duplicateError;
+      }
 
       const { n, nModified } = await models.User.updateOne({ userName }, body);
 

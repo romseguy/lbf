@@ -9,7 +9,6 @@ export interface ITopic {
   _id?: string;
   id?: string;
   topicName: string;
-  topicNameLower?: string;
   topicMessages: ITopicMessage[];
   topicVisibility?: string;
   org?: IOrg;
@@ -37,7 +36,6 @@ export const TopicSchema = new Schema<ITopic>(
       required: true,
       trim: true
     },
-    topicNameLower: String,
     topicMessages: [TopicMessageSchema],
     topicVisibility: {
       type: String,

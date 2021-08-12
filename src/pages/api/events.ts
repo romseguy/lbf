@@ -63,7 +63,6 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
 
       const event = await models.Event.create({
         ...req.body,
-        eventNameLower: req.body.eventName.toLowerCase(),
         eventUrl,
         isApproved: false
       });

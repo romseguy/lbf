@@ -31,7 +31,6 @@ handler.use(database);
 //     try {
 //       const { body }: { body: ITopic } = req;
 //       const topicId = req.query.topicId;
-//       body.topicNameLower = body.topicName.toLowerCase();
 //       body.topicId = normalize(body.topicName);
 
 //       const topic = await models.Topic.findOne({ topicId });
