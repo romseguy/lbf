@@ -1,4 +1,4 @@
-import type { LatLon } from "use-places-autocomplete";
+import type { LatLon, Suggestion } from "use-places-autocomplete";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AddressControl } from "features/common";
@@ -42,13 +42,13 @@ export const MapSearch = ({
         value={value}
         noLabel
         mb={3}
-        onChange={(description) => {
+        onChange={(description: string) => {
           setValue(description);
         }}
         onClick={() => {
           setValue("");
         }}
-        onSuggestionSelect={async (suggestion) => {
+        onSuggestionSelect={async (suggestion: Suggestion) => {
           if (suggestion) {
             setCenter(await unwrapSuggestion(suggestion));
           }

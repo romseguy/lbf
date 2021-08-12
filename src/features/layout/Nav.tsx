@@ -279,10 +279,12 @@ export const Nav = ({
 
       {isMapModalOpen && (
         <MapModal
-          items={orgs?.filter(
-            (org) =>
-              typeof org.orgLat === "number" && typeof org.orgLng === "number"
-          )}
+          items={
+            orgs?.filter(
+              (org) =>
+                typeof org.orgLat === "number" && typeof org.orgLng === "number"
+            ) || []
+          }
           onClose={() => setisMapModalOpen(false)}
         />
       )}

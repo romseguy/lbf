@@ -1,7 +1,7 @@
 import type { LatLon } from "use-places-autocomplete";
 import type { IOrg } from "models/Org";
 import type { IEvent } from "models/Event";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -11,11 +11,14 @@ import {
   ModalCloseButton,
   useDisclosure,
   Box,
-  Text
+  Text,
+  Alert,
+  AlertIcon,
+  Spinner
 } from "@chakra-ui/react";
 import { Map } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
-import { css } from "twin.macro";
+import { withGoogleApi } from "features/map/GoogleApiWrapper";
 
 type SizeMap = {
   defaultSize: {
@@ -28,113 +31,144 @@ type SizeMap = {
   };
 };
 
-export const MapModal = ({
-  items,
-  ...props
-}: {
-  onClose: () => void;
-  items?: IEvent[] | IOrg[];
-}) => {
-  const divRef = useRef<HTMLDivElement>(null);
-  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
-  const [center, setCenter] = useState<LatLon>();
+export const MapModal = withGoogleApi({
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
+})(
+  ({
+    items,
+    ...props
+  }: {
+    google: any;
+    loaded: boolean;
+    isOpen: boolean;
+    onClose: () => void;
+    items: IEvent[] | IOrg[];
+  }) => {
+    const isOffline = props.loaded && !props.google;
 
-  const [size, setSize] = useState<SizeMap>({
-    defaultSize: { enabled: true },
-    fullSize: { enabled: false }
-  });
+    const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: false });
+    const [center, setCenter] = useState<LatLon>();
 
-  const [height, setHeight] = useState<number>();
+    const divRef = useRef<HTMLDivElement>(null);
+    const [height, setHeight] = useState<number>();
+    const [size, setSize] = useState<SizeMap>({
+      defaultSize: { enabled: true },
+      fullSize: { enabled: false }
+    });
 
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={() => {
-        props.onClose && props.onClose();
-        onClose();
-      }}
-      size={size.fullSize.enabled ? "full" : undefined}
-      closeOnOverlayClick
-    >
-      <ModalOverlay>
-        <ModalContent my={0} minHeight="100vh">
-          {size.defaultSize.enabled && (
-            <>
-              <ModalHeader>
-                {items &&
-                  items[0] &&
-                  `Carte des ${
-                    "eventName" in items[0] ? "événements" : "organisations"
-                  }`}
-              </ModalHeader>
-              <ModalCloseButton />
-            </>
-          )}
-          <ModalBody ref={divRef} p={size.fullSize.enabled ? 0 : undefined}>
-            {Array.isArray(items) && items.length > 0 ? (
+    return (
+      <Modal
+        isOpen={props.isOpen}
+        onClose={() => {
+          props.onClose && props.onClose();
+          onClose();
+        }}
+        size={size.fullSize.enabled ? "full" : undefined}
+        closeOnOverlayClick
+      >
+        <ModalOverlay
+        // css={css`
+        //   visibility: ${props.isOpen ? "visible" : "hidden"} !important;
+        // `}
+        >
+          <ModalContent
+            my={size.fullSize.enabled ? 0 : undefined}
+            minHeight={
+              !isOffline && size.defaultSize.enabled
+                ? "calc(100vh - 180px)"
+                : size.fullSize.enabled
+                ? "100vh"
+                : undefined
+            }
+          >
+            {size.defaultSize.enabled && (
               <>
-                <MapSearch
-                  setCenter={setCenter}
-                  isVisible={size.defaultSize.enabled}
-                />
-                <Map
-                  center={center}
-                  height={height}
-                  items={items}
-                  onGoogleApiLoaded={() => {
-                    if (divRef && divRef.current) {
-                      const height = divRef.current.offsetHeight - 80;
-                      const newSize: SizeMap = {
-                        ...size,
-                        defaultSize: { enabled: true, height }
-                      };
-                      setSize(newSize);
-                      setHeight(height);
-                    }
-                  }}
-                  onFullscreenControlClick={(isFull: boolean) => {
-                    if (isFull) {
-                      const newSize: SizeMap = {
-                        fullSize: { enabled: true },
-                        defaultSize: { enabled: false }
-                      };
-                      setSize(newSize);
-                      setTimeout(() => {
-                        if (divRef && divRef.current) {
-                          const height = divRef.current.offsetHeight;
-                          newSize.fullSize.height = height;
-                          setSize(newSize);
-                          setHeight(height);
-                        }
-                      }, 200);
-                    } else {
-                      const newSize: SizeMap = {
-                        defaultSize: { enabled: true },
-                        fullSize: { enabled: false }
-                      };
-                      setSize(newSize);
-                      setTimeout(() => {
-                        if (divRef && divRef.current) {
-                          const height = divRef.current.offsetHeight - 210;
-                          newSize.fullSize.height = height;
-                          setSize(newSize);
-                          setHeight(height);
-                        }
-                      }, 200);
-                    }
-                  }}
-                  {...props}
-                />
+                <ModalHeader>
+                  {items &&
+                    items[0] &&
+                    `Carte des ${
+                      "eventName" in items[0] ? "événements" : "organisations"
+                    }`}
+                </ModalHeader>
+                <ModalCloseButton />
               </>
-            ) : (
-              <Text>
-                Il n'y a encore rien à afficher sur cette carte, revenez plus
-                tard !
-              </Text>
             )}
-          </ModalBody>
-        </ModalContent>
-      </ModalOverlay>
-    </Modal>
-  );
-};
+            <ModalBody ref={divRef} p={size.fullSize.enabled ? 0 : undefined}>
+              {props.loaded &&
+              props.google &&
+              Array.isArray(items) &&
+              items.length > 0 ? (
+                <>
+                  <MapSearch
+                    setCenter={setCenter}
+                    isVisible={size.defaultSize.enabled}
+                  />
+                  <Map
+                    center={center}
+                    height={height}
+                    items={items}
+                    onGoogleApiLoaded={() => {
+                      if (divRef && divRef.current) {
+                        const height = divRef.current.offsetHeight - 10;
+                        const newSize: SizeMap = {
+                          ...size,
+                          defaultSize: { enabled: true, height }
+                        };
+                        setSize(newSize);
+                        setHeight(height);
+                      }
+                    }}
+                    onFullscreenControlClick={(isFull: boolean) => {
+                      if (isFull) {
+                        const newSize: SizeMap = {
+                          fullSize: { enabled: true },
+                          defaultSize: { enabled: false }
+                        };
+                        setSize(newSize);
+                        setTimeout(() => {
+                          if (divRef && divRef.current) {
+                            const height = divRef.current.offsetHeight;
+                            newSize.fullSize.height = height;
+                            setSize(newSize);
+                            setHeight(height);
+                          }
+                        }, 200);
+                      } else {
+                        const newSize: SizeMap = {
+                          defaultSize: { enabled: true },
+                          fullSize: { enabled: false }
+                        };
+                        setSize(newSize);
+                        setTimeout(() => {
+                          if (divRef && divRef.current) {
+                            const height = divRef.current.offsetHeight - 320;
+                            newSize.fullSize.height = height;
+                            setSize(newSize);
+                            setHeight(height);
+                          }
+                        }, 200);
+                      }
+                    }}
+                  />
+                </>
+              ) : isOffline ? (
+                <Alert status="error" mb={3}>
+                  <AlertIcon />
+                  Nous n'avons pas pu charger la carte. Êtes-vous connecté à
+                  internet ?
+                </Alert>
+              ) : !props.loaded ? (
+                <Spinner />
+              ) : (
+                <Text>
+                  Il n'y a encore rien à afficher sur cette carte, revenez plus
+                  tard !
+                </Text>
+              )}
+            </ModalBody>
+          </ModalContent>
+        </ModalOverlay>
+      </Modal>
+    );
+  }
+);

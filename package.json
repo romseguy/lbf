@@ -26,7 +26,6 @@
     "@emotion/babel-preset-css-prop": "^11.2.0",
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
-    "@googlemaps/js-api-loader": "^1.12.1",
     "@googlemaps/markerclustererplus": "^1.2.0",
     "@hookform/error-message": "^2.0.0",
     "@nastyox/rando.js": "^2.0.5",

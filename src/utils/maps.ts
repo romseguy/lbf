@@ -1,31 +1,12 @@
-import { Loader } from "@googlemaps/js-api-loader";
 import {
   getDetails,
   getGeocode,
   getLatLng,
-  LatLon
+  LatLon,
+  Suggestion
 } from "use-places-autocomplete";
 
-let loader: Loader;
-let maps: any;
-
-export async function loadMapsSdk() {
-  if (!maps) {
-    if (!loader) {
-      loader = new Loader({
-        apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY,
-        libraries: ["places"]
-      });
-    }
-
-    const res = await loader.load();
-    maps = res.maps;
-  }
-
-  return maps;
-}
-
-export const unwrapSuggestion = async (suggestion: any) => {
+export const unwrapSuggestion = async (suggestion: Suggestion) => {
   const details: any = await getDetails({
     placeId: suggestion.place_id,
     fields: ["address_component"]

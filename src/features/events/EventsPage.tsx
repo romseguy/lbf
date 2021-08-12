@@ -87,12 +87,15 @@ export const EventsPage = ({
 
         {isMapModalOpen && (
           <MapModal
-            items={events?.filter(
-              (event) =>
-                typeof event.eventLat === "number" &&
-                typeof event.eventLng === "number"
-            )}
+            items={
+              events?.filter(
+                (event) =>
+                  typeof event.eventLat === "number" &&
+                  typeof event.eventLng === "number"
+              ) || []
+            }
             onClose={() => setIsMapModalOpen(false)}
+            isOpen={isMapModalOpen}
           />
         )}
       </>
