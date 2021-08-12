@@ -20,14 +20,12 @@ import { Map } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 
-type SizeMap = {
+export type SizeMap = {
   defaultSize: {
     enabled: boolean;
-    height?: number;
   };
   fullSize: {
     enabled: boolean;
-    height?: number;
   };
 };
 
@@ -46,11 +44,9 @@ export const MapModal = withGoogleApi({
   }) => {
     const isOffline = props.loaded && !props.google;
 
-    const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: false });
     const [center, setCenter] = useState<LatLon>();
 
     const divRef = useRef<HTMLDivElement>(null);
-    const [height, setHeight] = useState<number>();
     const [size, setSize] = useState<SizeMap>({
       defaultSize: { enabled: true },
       fullSize: { enabled: false }
@@ -61,16 +57,11 @@ export const MapModal = withGoogleApi({
         isOpen={props.isOpen}
         onClose={() => {
           props.onClose && props.onClose();
-          onClose();
         }}
         size={size.fullSize.enabled ? "full" : undefined}
         closeOnOverlayClick
       >
-        <ModalOverlay
-        // css={css`
-        //   visibility: ${props.isOpen ? "visible" : "hidden"} !important;
-        // `}
-        >
+        <ModalOverlay>
           <ModalContent
             my={size.fullSize.enabled ? 0 : undefined}
             minHeight={
@@ -93,7 +84,12 @@ export const MapModal = withGoogleApi({
                 <ModalCloseButton />
               </>
             )}
-            <ModalBody ref={divRef} p={size.fullSize.enabled ? 0 : undefined}>
+            <ModalBody
+              ref={divRef}
+              p={size.fullSize.enabled ? 0 : undefined}
+              display="flex"
+              flexDirection="column"
+            >
               {props.loaded &&
               props.google &&
               Array.isArray(items) &&
@@ -105,49 +101,13 @@ export const MapModal = withGoogleApi({
                   />
                   <Map
                     center={center}
-                    height={height}
                     items={items}
-                    onGoogleApiLoaded={() => {
-                      if (divRef && divRef.current) {
-                        const height = divRef.current.offsetHeight - 10;
-                        const newSize: SizeMap = {
-                          ...size,
-                          defaultSize: { enabled: true, height }
-                        };
-                        setSize(newSize);
-                        setHeight(height);
-                      }
-                    }}
+                    size={size}
                     onFullscreenControlClick={(isFull: boolean) => {
-                      if (isFull) {
-                        const newSize: SizeMap = {
-                          fullSize: { enabled: true },
-                          defaultSize: { enabled: false }
-                        };
-                        setSize(newSize);
-                        setTimeout(() => {
-                          if (divRef && divRef.current) {
-                            const height = divRef.current.offsetHeight;
-                            newSize.fullSize.height = height;
-                            setSize(newSize);
-                            setHeight(height);
-                          }
-                        }, 200);
-                      } else {
-                        const newSize: SizeMap = {
-                          defaultSize: { enabled: true },
-                          fullSize: { enabled: false }
-                        };
-                        setSize(newSize);
-                        setTimeout(() => {
-                          if (divRef && divRef.current) {
-                            const height = divRef.current.offsetHeight - 320;
-                            newSize.fullSize.height = height;
-                            setSize(newSize);
-                            setHeight(height);
-                          }
-                        }, 200);
-                      }
+                      setSize({
+                        defaultSize: { enabled: !isFull },
+                        fullSize: { enabled: isFull }
+                      });
                     }}
                   />
                 </>

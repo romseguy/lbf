@@ -1,6 +1,6 @@
 import type { IEvent } from "models/Event";
 import React, { useEffect, useState } from "react";
-import { Flex, IconButton } from "@chakra-ui/react";
+import { Flex, IconButton, useDisclosure } from "@chakra-ui/react";
 import { EventModal } from "features/modals/EventModal";
 import { useRouter } from "next/router";
 import { Button, IconFooter } from "features/common";
@@ -32,7 +32,11 @@ export const EventsPage = ({
   const { data: session, loading: isSessionLoading } = useSession();
 
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
-  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const {
+    isOpen: isMapModalOpen,
+    onOpen: openMapModal,
+    onClose: closeMapModal
+  } = useDisclosure({ defaultIsOpen: false });
 
   return (
     <>
@@ -61,13 +65,13 @@ export const EventsPage = ({
               isDisabled={!events || !events.length}
               aria-label="Carte des événements"
               icon={<FaMapMarkerAlt />}
-              onClick={() => setIsMapModalOpen(true)}
+              onClick={openMapModal}
             />
           ) : (
             <Button
               isDisabled={!events || !events.length}
               leftIcon={<FaMapMarkerAlt />}
-              onClick={() => setIsMapModalOpen(true)}
+              onClick={openMapModal}
             >
               Carte des événements
             </Button>
@@ -87,6 +91,7 @@ export const EventsPage = ({
 
         {isMapModalOpen && (
           <MapModal
+            isOpen={isMapModalOpen}
             items={
               events?.filter(
                 (event) =>
@@ -94,8 +99,7 @@ export const EventsPage = ({
                   typeof event.eventLng === "number"
               ) || []
             }
-            onClose={() => setIsMapModalOpen(false)}
-            isOpen={isMapModalOpen}
+            onClose={closeMapModal}
           />
         )}
       </>

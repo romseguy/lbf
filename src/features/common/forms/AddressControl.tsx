@@ -42,9 +42,9 @@ export const AddressControl = withGoogleApi({
   }) => {
     const [controlRules, setControlRules] = useState<{
       required?: string | boolean;
-    }>({});
+    }>({ required: isRequired });
 
-    if (props.loaded && !props.google) {
+    if (props.loaded && !props.google && isRequired) {
       setControlRules({ required: false });
     }
 

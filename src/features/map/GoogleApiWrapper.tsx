@@ -118,12 +118,13 @@ export const withGoogleApi =
           google: window.google
         });
 
-        return (
-          <div>
-            <WrappedComponent {...props} />
-            <div ref={this.mapRef} />
-          </div>
-        );
+        return <WrappedComponent {...props} />;
+        // return (
+        //   <div>
+        //     <WrappedComponent {...props} />
+        //     <div ref={this.mapRef} />
+        //   </div>
+        // );
       }
     };
   };

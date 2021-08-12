@@ -225,7 +225,7 @@ export const OrgForm = (props: OrgFormProps) => {
         errors={errors}
         control={control}
         mb={3}
-        onSuggestionSelect={(suggestion) => {
+        onSuggestionSelect={(suggestion: Suggestion) => {
           setSuggestion(suggestion);
         }}
       />

@@ -16,7 +16,8 @@ import {
   Icon,
   SpaceProps,
   IconButton,
-  useColorMode
+  useColorMode,
+  useDisclosure
 } from "@chakra-ui/react";
 import { Link } from "features/common";
 import { OrgPopover, EmailSubscriptionsPopover } from "features/layout";
@@ -87,7 +88,11 @@ export const Nav = ({
     router.asPath === "/?login" || false
   );
   const [orgs, setOrgs] = useState<IOrg[]>();
-  const [isMapModalOpen, setisMapModalOpen] = useState(false);
+  const {
+    isOpen: isMapModalOpen,
+    onOpen: openMapModal,
+    onClose: closeMapModal
+  } = useDisclosure({ defaultIsOpen: false });
 
   const styles = css`
     ${isDark
@@ -139,7 +144,7 @@ export const Nav = ({
               console.log("todo: handle error", error);
             } else if (data) {
               setOrgs(data);
-              setisMapModalOpen(true);
+              openMapModal();
             }
           }}
         >
@@ -279,13 +284,14 @@ export const Nav = ({
 
       {isMapModalOpen && (
         <MapModal
+          isOpen={isMapModalOpen}
           items={
             orgs?.filter(
               (org) =>
                 typeof org.orgLat === "number" && typeof org.orgLng === "number"
             ) || []
           }
-          onClose={() => setisMapModalOpen(false)}
+          onClose={closeMapModal}
         />
       )}
     </Flex>

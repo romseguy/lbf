@@ -55,7 +55,7 @@ export const AutoCompletePlacesControl = ({
   };
 
   const renderSuggestions = () =>
-    data.map((suggestion) => {
+    data.map((suggestion: Suggestion) => {
       const {
         place_id,
         structured_formatting: { main_text, secondary_text }
