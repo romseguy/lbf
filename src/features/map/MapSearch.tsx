@@ -5,9 +5,11 @@ import { AddressControl } from "features/common";
 import { unwrapSuggestion } from "utils/maps";
 
 export const MapSearch = ({
-  setCenter
+  setCenter,
+  isVisible
 }: {
   setCenter: (center: LatLon) => void;
+  isVisible: boolean;
 }) => {
   const defaultValue = "Comiac, France";
   const [value, setValue] = useState(defaultValue);
@@ -27,6 +29,8 @@ export const MapSearch = ({
 
   const onChange = () => {};
   const onSubmit = () => {};
+
+  if (!isVisible) return null;
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>

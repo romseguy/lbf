@@ -11,9 +11,10 @@ import {
   Icon,
   IconButton,
   Spinner,
-  Text
+  Text,
+  Tooltip
 } from "@chakra-ui/react";
-import { loadMapsSdk } from "utils/maps";
+import { latLng2World, loadMapsSdk, world2Screen } from "utils/maps";
 import { useEffect } from "react";
 import { useState } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
@@ -28,36 +29,69 @@ const defaultCenter = {
   lng: 1.989113
 };
 
+import { styled } from "twin.macro";
+
+const styles = `
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  background-color: red;
+  border: 2px solid #fff;
+  border-radius: 100%;
+  user-select: none;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  &:hover {
+    z-index: 1;
+  }
+`;
+
+//cursor: ${(props) => (props.onClick ? "pointer" : "default")};
+// const DMarker = ({ item, onClick }) => {
+
+//   return <Wrapper onClick={onClick} />;
+// };
+
 const Marker = ({
   item,
   lat,
-  lng
+  lng,
+  zoomLevel
 }: {
-  item?: IEvent | IOrg;
+  item: IEvent | IOrg;
   lat?: number;
   lng?: number;
+  zoomLevel: number;
 }) => {
-  if (!item || !lat || !lng) return null;
-
+  const name = "eventName" in item ? item.eventName : item.orgName;
   const [isDescriptionOpen, setIsDescriptionOpen] = useState<{
     [key: string]: boolean;
   }>({});
-
-  const name = "eventName" in item ? item.eventName : item.orgName;
   const url = "eventName" in item ? item.eventUrl : item.orgUrl;
   const description =
     "eventName" in item ? item.eventDescription : item.orgDescription;
 
+  // if (lat && lng) {
+  // const world = latLng2World({ lat, lng });
+  // const screen = world2Screen({ x: world.x, y: world.y }, zoomLevel);
+  // }
+
   return (
     <>
-      <Button
+      <Tooltip label={name}>
+        <div
+          css={css(styles)}
+          onClick={() => {
+            setIsDescriptionOpen({
+              ...isDescriptionOpen,
+              [name]: true
+            });
+          }}
+        >
+          {/* <Button
         cursor="pointer"
-        onClick={() => {
-          setIsDescriptionOpen({
-            ...isDescriptionOpen,
-            [name]: true
-          });
-        }}
         leftIcon={<Icon as={FaMapMarkerAlt} boxSize={8} />}
         color="red"
         bg="transparent"
@@ -66,7 +100,9 @@ const Marker = ({
         }}
       >
         {name}
-      </Button>
+      </Button> */}
+        </div>
+      </Tooltip>
 
       <DescriptionModal
         defaultIsOpen={false}
@@ -185,6 +221,7 @@ export const Map = function Map({
       </Button>
     );
   };
+
   const mapRef = useRef(null);
   const options = {
     fullscreenControl: false
@@ -194,6 +231,7 @@ export const Map = function Map({
     // streetViewControl: boolean,
     // rotateControl: boolean,
   };
+  const [zoomLevel, setZoomLevel] = useState<number>(10);
 
   const [mapsSdkState, setMapsSdkState] = useState({
     loaded: false,
@@ -256,15 +294,12 @@ export const Map = function Map({
       map.controls[api.ControlPosition.TOP_RIGHT].push(controlButtonDiv);
     }
 
-    const gMarkers = markers.map(
-      ({ lat, lng }) =>
-        new api.Marker({
-          position: { lat, lng }
-        })
-    );
-
-    gMarkers.map((marker) => {
-      return marker.setVisible(false);
+    const gMarkers = markers.map(({ lat, lng }) => {
+      const gMarker = new api.Marker({
+        position: { lat, lng }
+      });
+      gMarker.setVisible(false);
+      return gMarker;
     });
 
     const cluster = new MarkerClusterer(map, gMarkers, {
@@ -286,20 +321,22 @@ export const Map = function Map({
         }))
       )[0];
 
-      setMarkers(
-        markers.filter(({ lat, lng }) => {
-          let allow = true;
-          if (
-            positions &&
-            positions.find(
-              (position: { lat: number; lng: number }) =>
-                position.lat === lat && position.lng === lng
-            )
+      const newMarkers = [];
+
+      for (const marker of markers) {
+        if (
+          positions &&
+          positions.find(
+            (position: { lat: number; lng: number }) =>
+              position.lat === marker.lat && position.lng === marker.lng
           )
-            allow = false;
-          return allow;
-        })
-      );
+        )
+          continue;
+
+        newMarkers.push(marker);
+      }
+
+      setMarkers(newMarkers);
     });
   };
 
@@ -316,10 +353,11 @@ export const Map = function Map({
   ) : (
     <div style={{ height: height + "px" || "400px", width: "100%" }}>
       <GoogleMap
+        ref={mapRef}
         defaultCenter={defaultCenter}
         defaultZoom={10}
         center={center}
-        ref={mapRef}
+        zoom={zoomLevel}
         // style={{
         //   position: "absolute",
         //   left: 0,
@@ -330,9 +368,15 @@ export const Map = function Map({
         options={(maps) => options}
         yesIWantToUseGoogleMapApiInternals
         onGoogleApiLoaded={onGoogleApiLoaded}
+        onChange={(e) => setZoomLevel(e.zoom)}
       >
         {markers.map((marker) => (
-          <Marker {...marker} />
+          <Marker
+            lat={marker.lat}
+            lng={marker.lng}
+            item={marker.item}
+            zoomLevel={zoomLevel}
+          />
         ))}
       </GoogleMap>
     </div>

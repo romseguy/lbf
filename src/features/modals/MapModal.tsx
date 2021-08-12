@@ -73,9 +73,10 @@ export const MapModal = ({
           <ModalBody ref={divRef} p={size.fullSize.enabled ? 0 : undefined}>
             {Array.isArray(items) && items.length > 0 ? (
               <>
-                {size.defaultSize.enabled && (
-                  <MapSearch setCenter={setCenter} />
-                )}
+                <MapSearch
+                  setCenter={setCenter}
+                  isVisible={size.defaultSize.enabled}
+                />
                 <Map
                   center={center}
                   height={height}
