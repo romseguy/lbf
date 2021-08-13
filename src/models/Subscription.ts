@@ -4,9 +4,13 @@ import type { ITopic } from "./Topic";
 import type { IUser } from "models/User";
 import { Schema, Types } from "mongoose";
 
+export interface IEventSubscription {
+  event: IEvent;
+  eventId: string;
+}
 export interface IOrgSubscription {
+  org: IOrg;
   orgId: string;
-  org: IOrg /* | string*/;
   type: string;
 }
 export interface ITopicSubscription {
@@ -16,7 +20,7 @@ export interface ISubscription {
   _id: string;
   user?: IUser | string;
   email?: string;
-  events: [{ event: IEvent }];
+  events: IEventSubscription[];
   orgs: IOrgSubscription[];
   topics: ITopicSubscription[];
   createdBy: IUser | string;
@@ -36,6 +40,10 @@ export const SubscriptionSchema = new Schema<ISubscription>(
     email: String,
     events: [
       {
+        eventId: {
+          type: Schema.Types.ObjectId,
+          required: true
+        },
         event: {
           type: Schema.Types.ObjectId,
           ref: "Event"

@@ -9,7 +9,7 @@ import {
   duplicateError
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { sendToAdmin, sendToFollowers } from "utils/email";
+import { sendToAdmin, sendEventToOrgFollowers } from "utils/email";
 import { normalize } from "utils/string";
 
 const transport = nodemailer.createTransport(
@@ -74,7 +74,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
           }
         }
       );
-      sendToFollowers(req.body, transport);
+      sendEventToOrgFollowers(req.body, transport);
       sendToAdmin(req.body, transport);
       res.status(200).json(event);
     } catch (error) {

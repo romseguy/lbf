@@ -73,26 +73,16 @@ export const OrgPage = ({
   const isCreator = session?.user.userName === orgCreatedByUserName;
 
   const subscribedEmail = useSelector(selectSubscribedEmail);
-
   const subQuery = useGetSubscriptionQuery(
     subscribedEmail || session?.user.userId
   );
+  const isFollowed = isFollowedBy({ org, subQuery });
+  const isSubscribed = isSubscribedBy(org, subQuery);
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     console.log("refetching subscription");
     subQuery.refetch();
   }, [subscriptionRefetch]);
-
-  const [isFollowed, setIsFollowed] = useState(isFollowedBy(org, subQuery));
-  const [isSubscribed, setIsSubscribed] = useState(
-    isSubscribedBy(org, subQuery)
-  );
-  useEffect(() => {
-    if (org && subQuery.data) {
-      setIsFollowed(isFollowedBy(org, subQuery));
-      setIsSubscribed(isSubscribedBy(org, subQuery));
-    }
-  }, [org, subQuery.data]);
 
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
@@ -131,7 +121,9 @@ export const OrgPage = ({
       {!isCreator && (
         <SubscriptionPopover
           org={org}
+          isFollowed={isFollowed}
           mySubscription={subQuery.data}
+          isLoading={subQuery.isLoading || subQuery.isFetching}
           onSubmit={(subscribed: boolean) => {
             if (subscribed) {
               toast({
@@ -150,8 +142,6 @@ export const OrgPage = ({
             }
             subQuery.refetch();
           }}
-          isFollowed={isFollowed}
-          isLoading={subQuery.isLoading}
         />
       )}
 
@@ -254,7 +244,7 @@ export const OrgPage = ({
                   entity={org}
                   query={orgQuery}
                   isCreator={isCreator}
-                  isFollowed={isFollowed}
+                  isFollowed={!!isFollowed}
                   isSubscribed={isSubscribed}
                   isLogin={isLogin}
                   setIsLogin={setIsLogin}

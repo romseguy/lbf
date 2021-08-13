@@ -8,7 +8,10 @@ import { equals } from "./string";
 
 export const emailR = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
-export const sendToFollowers = async (event: IEvent, transport: any) => {
+export const sendEventToOrgFollowers = async (
+  event: IEvent,
+  transport: any
+) => {
   if (
     !Array.isArray(event.eventOrgs) ||
     !event.eventOrgs.length ||
@@ -67,16 +70,25 @@ export const sendToFollowers = async (event: IEvent, transport: any) => {
   return emailList;
 };
 
-export const sendToTopicFollowers = async (
-  entity: IOrg | IEvent,
-  subscriptions: ISubscription[],
-  topic: ITopic,
-  transport: any
-) => {
-  const subject = `Nouveau commentaire sur la discussion : ${topic.topicName}`;
-  const name = "eventName" in entity ? entity.eventName : entity.orgName;
-  const entityUrl = "eventName" in entity ? entity.eventUrl : entity.orgUrl;
-  const type = "eventName" in entity ? "l'événement" : "l'organisation";
+export const sendTopicToFollowers = async ({
+  event,
+  org,
+  subscriptions,
+  topic,
+  transport
+}: {
+  event?: IEvent;
+  org?: IOrg;
+  subscriptions: ISubscription[];
+  topic: ITopic;
+  transport: any;
+}) => {
+  if (!event && !org) return;
+
+  const subject = `Nouvelle discussion : ${topic.topicName}`;
+  const name = event ? event.eventName : org?.orgName;
+  const entityUrl = event ? event.eventUrl : org?.orgUrl;
+  const type = event ? "l'événement" : "l'organisation";
 
   for (const subscription of subscriptions) {
     let url = `${process.env.NEXT_PUBLIC_URL}/${entityUrl}`;
@@ -90,7 +102,55 @@ export const sendToTopicFollowers = async (
     const email =
       typeof subscription.user === "object"
         ? subscription.user.email
-        : undefined;
+        : subscription.email;
+
+    if (!email) continue;
+
+    const mail = {
+      from: process.env.EMAIL_FROM,
+      to: `<${email}>`,
+      subject,
+      html
+    };
+
+    if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
+    else if (process.env.NODE_ENV === "development") console.log("mail", mail);
+  }
+};
+
+export const sendMessageToTopicFollowers = async ({
+  event,
+  org,
+  subscriptions,
+  topic,
+  transport
+}: {
+  event?: IEvent;
+  org?: IOrg;
+  subscriptions: ISubscription[];
+  topic: ITopic;
+  transport: any;
+}) => {
+  if (!event && !org) return;
+
+  const subject = `Nouveau commentaire sur la discussion : ${topic.topicName}`;
+  const name = event ? event.eventName : org?.orgName;
+  const entityUrl = event ? event.eventUrl : org?.orgUrl;
+  const type = event ? "l'événement" : "l'organisation";
+
+  for (const subscription of subscriptions) {
+    let url = `${process.env.NEXT_PUBLIC_URL}/${entityUrl}`;
+    let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${name}</a> pour lire la discussion.</p>`;
+
+    if (name === "aucourant") {
+      url = `${process.env.NEXT_PUBLIC_URL}/forum`;
+      html = `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion.</p>`;
+    }
+
+    const email =
+      typeof subscription.user === "object"
+        ? subscription.user.email
+        : subscription.email;
 
     if (!email) continue;
 

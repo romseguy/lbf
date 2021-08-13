@@ -70,11 +70,12 @@ handler.post<
 
         for (const newOrgSubscription of newOrgSubscriptions) {
           const org = await models.Org.findOne({
-            _id: newOrgSubscription.org._id
+            _id: newOrgSubscription.orgId
           });
 
           if (!org) {
-            staleOrgSubscriptionOrgIds.push(newOrgSubscription.org._id);
+            // userSub.orgs contains stale org subscription
+            staleOrgSubscriptionOrgIds.push(newOrgSubscription.orgId);
             continue;
           }
 
@@ -82,7 +83,7 @@ handler.post<
           let isSub = false;
 
           for (const orgSubscription of userSubscription.orgs) {
-            if (org._id.equals(orgSubscription.org._id)) {
+            if (equals(org._id, orgSubscription.orgId)) {
               if (orgSubscription.type === SubscriptionTypes.FOLLOWER) {
                 isFollower = true;
               } else if (
@@ -119,7 +120,6 @@ handler.post<
           );
         }
       } else if (userSubscription) {
-        userSubscription.orgs = newOrgSubscriptions;
         const newOrgSubscription = newOrgSubscriptions[0];
         let org = await models.Org.findOne({
           _id: newOrgSubscription.org._id
@@ -137,6 +137,8 @@ handler.post<
             );
         }
 
+        userSubscription.orgs = newOrgSubscriptions;
+
         let found = false;
 
         for (const orgSubscription of org.orgSubscriptions) {
@@ -149,6 +151,84 @@ handler.post<
         if (!found) {
           org.orgSubscriptions.push(userSubscription);
           await org.save();
+        }
+      }
+    } else if (body.events) {
+      const { events: newEventSubscriptions } = body;
+
+      if (userSubscription.events.length > 0) {
+        const staleEventSubscriptionEventIds: string[] = [];
+
+        for (const newEventSubscription of newEventSubscriptions) {
+          const event = await models.Event.findOne({
+            _id: newEventSubscription.eventId
+          });
+
+          if (!event) {
+            // userSub.events contains stale event subscription
+            staleEventSubscriptionEventIds.push(newEventSubscription.eventId);
+            continue;
+          }
+
+          let isAdded;
+
+          for (const eventSubscription of userSubscription.events) {
+            if (equals(event._id, eventSubscription.eventId)) {
+              isAdded = true;
+              break;
+            }
+          }
+
+          if (isAdded) continue;
+
+          await models.Event.updateOne(
+            { _id: event._id },
+            { $push: { orgSubscriptions: userSubscription } }
+          );
+
+          userSubscription.events.push(newEventSubscription);
+        }
+
+        if (staleEventSubscriptionEventIds.length > 0) {
+          userSubscription.events = userSubscription.events.filter(
+            (eventSubscription) =>
+              !staleEventSubscriptionEventIds.find((id) =>
+                equals(id, eventSubscription.eventId)
+              )
+          );
+        }
+      } else if (userSubscription) {
+        const newEventSubscription = newEventSubscriptions[0];
+        let event = await models.Event.findOne({
+          _id: newEventSubscription.event._id
+        }).populate("eventSubscriptions");
+
+        if (!event) {
+          return res
+            .status(400)
+            .json(
+              createServerError(
+                new Error(
+                  "Vous ne pouvez pas vous abonner à une eventanisation inexistante"
+                )
+              )
+            );
+        }
+
+        userSubscription.events = newEventSubscriptions;
+
+        let found = false;
+
+        for (const eventSubscription of event.eventSubscriptions) {
+          if (equals(eventSubscription._id, userSubscription._id)) {
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          event.eventSubscriptions.push(userSubscription);
+          await event.save();
         }
       }
     } else if (body.topics) {

@@ -1,4 +1,8 @@
-import type { IOrgSubscription, ISubscription } from "models/Subscription";
+import type {
+  IEventSubscription,
+  IOrgSubscription,
+  ISubscription
+} from "models/Subscription";
 import type { ITopic } from "models/Topic";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
@@ -116,6 +120,7 @@ handler.delete<
   }: {
     query: { slug: string };
     body: {
+      events?: IEventSubscription[];
       orgs?: IOrgSubscription[];
       orgId?: string;
       topicId?: string;
@@ -151,6 +156,22 @@ handler.delete<
           }
 
           return allow;
+        }
+      );
+      await subscription.save();
+      res.status(200).json(subscription);
+    } else if (body.events) {
+      // console.log("unsubbing from event", body.events[0]);
+      const { eventId } = body.events[0];
+      subscription.events = subscription.events.filter(
+        (eventSubscription: IEventSubscription) => {
+          let keep = true;
+
+          if (equals(eventSubscription.eventId, eventId)) {
+            keep = false;
+          }
+
+          return keep;
         }
       );
       await subscription.save();

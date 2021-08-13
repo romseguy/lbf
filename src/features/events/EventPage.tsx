@@ -15,7 +15,8 @@ import {
   Icon,
   Grid,
   Alert,
-  AlertIcon
+  AlertIcon,
+  useToast
 } from "@chakra-ui/react";
 import { ArrowBackIcon, AtSignIcon, SettingsIcon } from "@chakra-ui/icons";
 import { IoIosPeople } from "react-icons/io";
@@ -30,6 +31,14 @@ import { useGetEventQuery } from "features/events/eventsApi";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
+import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
+import { useSelector } from "react-redux";
+import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import { selectSubscribedEmail } from "features/users/userSlice";
+import {
+  isFollowedBy,
+  selectSubscriptionRefetch
+} from "features/subscriptions/subscriptionSlice";
 
 export type Visibility = {
   isVisible: {
@@ -57,7 +66,18 @@ export const EventPage = (props: {
   const eventCreatedByUserName =
     typeof event.createdBy === "object" ? event.createdBy.userName : "";
 
-  const isCreator = session && eventCreatedByUserName === session.user.userName;
+  const isCreator = session?.user.userName === eventCreatedByUserName;
+
+  const subscribedEmail = useSelector(selectSubscribedEmail);
+  const subQuery = useGetSubscriptionQuery(
+    subscribedEmail || session?.user.userId
+  );
+  const isFollowed = isFollowedBy({ event, subQuery });
+  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    console.log("refetching subscription");
+    subQuery.refetch();
+  }, [subscriptionRefetch]);
 
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
@@ -66,6 +86,8 @@ export const EventPage = (props: {
     topics: false,
     banner: false
   });
+
+  const toast = useToast({ position: "top" });
 
   return (
     <Layout
@@ -92,6 +114,33 @@ export const EventPage = (props: {
           Revenir à l'événement
         </Button>
       ) : null}
+
+      {!isCreator && (
+        <SubscriptionPopover
+          event={event}
+          isFollowed={isFollowed}
+          mySubscription={subQuery.data}
+          isLoading={subQuery.isLoading || subQuery.isFetching}
+          onSubmit={(subscribed: boolean) => {
+            if (subscribed) {
+              toast({
+                title: `Vous êtes maintenant abonné à ${event.eventName}`,
+                status: "success",
+                duration: 9000,
+                isClosable: true
+              });
+            } else {
+              toast({
+                title: `Vous êtes désabonné de ${event.eventName}`,
+                status: "success",
+                duration: 9000,
+                isClosable: true
+              });
+            }
+            subQuery.refetch();
+          }}
+        />
+      )}
 
       <Box mb={3}>
         <Text fontSize="smaller" pt={1}>
@@ -258,6 +307,8 @@ export const EventPage = (props: {
                     <TopicsList
                       entity={event}
                       query={eventQuery}
+                      isCreator={isCreator}
+                      isFollowed={!!isFollowed}
                       isLogin={isLogin}
                       setIsLogin={setIsLogin}
                     />

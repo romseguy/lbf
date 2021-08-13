@@ -85,7 +85,7 @@ handler.use(database);
 //         );
 //       }
 
-//       const emailList = await sendToFollowers(body, transport);
+//       const emailList = await sendEventToOrgFollowers(body, transport);
 
 //       const { n, nModified } = await models.Topic.updateOne({ topicId }, body);
 

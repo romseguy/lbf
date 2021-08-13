@@ -1,3 +1,4 @@
+import type { Document } from "mongoose";
 import type { IOrg } from "models/Org";
 import type { ITopic } from "models/Topic";
 import nodemailer from "nodemailer";
@@ -91,7 +92,14 @@ handler.post<
       );
   } else {
     try {
-      const orgUrl = req.query.orgUrl;
+      const {
+        query: { orgUrl },
+        body
+      }: {
+        query: { orgUrl: string };
+        body: { topic?: ITopic; org?: IOrg };
+      } = req;
+
       const org = await models.Org.findOne({ orgUrl });
 
       if (!org) {
@@ -104,8 +112,7 @@ handler.post<
           );
       }
 
-      const { body }: { body: { topic?: ITopic } } = req;
-      addOrUpdateTopic(body, org, transport, res);
+      addOrUpdateTopic({ body, org, transport, res });
       res.status(200).json(org);
     } catch (error) {
       res.status(400).json(createServerError(error));

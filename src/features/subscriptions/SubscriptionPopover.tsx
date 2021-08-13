@@ -1,6 +1,10 @@
 import type { IOrg } from "models/Org";
 import type { IEvent } from "models/Event";
-import type { ISubscription } from "models/Subscription";
+import type {
+  IEventSubscription,
+  IOrgSubscription,
+  ISubscription
+} from "models/Subscription";
 import React, { useState } from "react";
 import {
   Popover,
@@ -45,10 +49,12 @@ export const SubscriptionPopover = ({
   org?: IOrg;
   event?: IEvent;
   mySubscription?: ISubscription;
-  isFollowed?: boolean;
+  isFollowed?: IOrgSubscription | IEventSubscription;
   isLoading?: boolean;
   onSubmit?: (subscribed: boolean) => void;
 }) => {
+  if (!org && !event) return null;
+
   const { data: session } = useSession();
   const dispatch = useAppDispatch();
   const subscribedEmail = useSelector(selectSubscribedEmail);
@@ -100,6 +106,7 @@ export const SubscriptionPopover = ({
         payload: {
           events: [
             {
+              eventId: event._id,
               event
             }
           ]
@@ -125,37 +132,35 @@ export const SubscriptionPopover = ({
               leftIcon={<EmailIcon />}
               colorScheme="teal"
               onClick={async () => {
+                const subscriptionEntitySubscriptions = org
+                  ? mySubscription?.orgs
+                  : mySubscription?.events;
+
+                // delete case
                 if (
                   isFollowed &&
-                  org &&
                   mySubscription &&
-                  Array.isArray(mySubscription.orgs) &&
-                  mySubscription.orgs.length > 0
+                  Array.isArray(subscriptionEntitySubscriptions) &&
+                  subscriptionEntitySubscriptions.length > 0
                 ) {
                   setIsLoading(true);
+                  const payload = org
+                    ? { orgs: [isFollowed as IOrgSubscription] }
+                    : { events: [isFollowed as IEventSubscription] };
 
-                  const orgSubscription = mySubscription.orgs.find(
-                    (orgSubscription) => {
-                      return orgSubscription.orgId === org._id;
-                    }
-                  );
-
-                  if (orgSubscription) {
-                    await deleteSubscription({
-                      subscriptionId: mySubscription._id,
-                      payload: {
-                        orgs: [orgSubscription]
-                      }
-                    });
-                  }
-
+                  await deleteSubscription({
+                    subscriptionId: mySubscription._id,
+                    payload
+                  });
+                  dispatch(refetchSubscription());
                   setIsLoading(false);
                   props.onSubmit && props.onSubmit(false);
-                } else {
-                  if (subscribedEmail || session) {
-                    onSubmit({ email: subscribedEmail || session?.user.email });
-                  } else setIsOpen(!isOpen);
+                  return;
                 }
+
+                if (subscribedEmail || session) {
+                  onSubmit({ email: subscribedEmail || session?.user.email });
+                } else setIsOpen(!isOpen);
               }}
               data-cy="subscribeToOrg"
             >

@@ -6,16 +6,23 @@ import { Document, Types } from "mongoose";
 import { NextApiResponse } from "next";
 import { createServerError } from "utils/errors";
 import { toString } from "utils/string";
-import { sendToTopicFollowers } from "utils/email";
+import { sendMessageToTopicFollowers, sendTopicToFollowers } from "utils/email";
 import { subscribeUserToTopic } from "api";
 
-export const addOrUpdateTopic = async (
-  body: { topic?: ITopic },
-  entity: (IEvent | IOrg) & Document<any, any, any>,
-  transport: any,
-  res: NextApiResponse
-) => {
-  if (!body.topic) {
+export const addOrUpdateTopic = async ({
+  body,
+  event,
+  org,
+  transport,
+  res
+}: {
+  body: { topic?: ITopic };
+  event?: IEvent & Document<any, any, any>;
+  org?: IOrg & Document<any, any, any>;
+  transport: any;
+  res: NextApiResponse;
+}) => {
+  if (!body.topic || (!event && !org)) {
     return;
   }
 
@@ -25,7 +32,7 @@ export const addOrUpdateTopic = async (
   if (body.topic._id) {
     // existing topic: must have a message to add
     if (!body.topic.topicMessages || !body.topic.topicMessages.length) {
-      return res.status(200).json(entity);
+      return res.status(200).json(event || org);
     }
 
     topic = await models.Topic.findOne({ _id: body.topic._id });
@@ -46,21 +53,54 @@ export const addOrUpdateTopic = async (
     topic.topicMessages.push(newMessage);
     await topic.save();
 
-    // get subscriptions of users other than new message poster
+    // getting subscriptions of users subscribed to this topic
     const subscriptions = await models.Subscription.find({
       "topics.topic": Types.ObjectId(topic._id),
       user: { $ne: newMessage.createdBy }
     }).populate("user");
 
-    sendToTopicFollowers(entity, subscriptions, topic, transport);
+    sendMessageToTopicFollowers({
+      event,
+      org,
+      subscriptions,
+      topic,
+      transport
+    });
   } else {
     // new topic
     topic = await models.Topic.create(body.topic);
     createdBy = toString(topic.createdBy);
-    "eventName" in entity
-      ? entity.eventTopics.push(topic)
-      : entity.orgTopics.push(topic);
-    await entity.save();
+
+    if (event) {
+      event.eventTopics.push(topic);
+      await event.save();
+
+      // getting subscriptions of users subscribed to this event
+      const subscriptions = await models.Subscription.find({
+        "events.event": Types.ObjectId(event._id)
+      }).populate("user");
+
+      sendTopicToFollowers({
+        event,
+        subscriptions,
+        topic,
+        transport
+      });
+    } else if (org) {
+      org.orgTopics.push(topic);
+      await org.save();
+
+      const subscriptions = await models.Subscription.find({
+        "orgs.org": Types.ObjectId(org._id)
+      }).populate("user");
+
+      sendTopicToFollowers({
+        org,
+        subscriptions,
+        topic,
+        transport
+      });
+    }
   }
 
   await subscribeUserToTopic(createdBy, topic);

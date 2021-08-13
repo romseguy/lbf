@@ -47,13 +47,13 @@ export const Forum = () => {
     subQuery.refetch();
   }, [subscriptionRefetch]);
 
-  const [isFollowed, setIsFollowed] = useState(isFollowedBy(org, subQuery));
+  const [isFollowed, setIsFollowed] = useState(isFollowedBy({ org, subQuery }));
   const [isSubscribed, setIsSubscribed] = useState(
     isSubscribedBy(org, subQuery)
   );
   useEffect(() => {
     if (org && subQuery.data) {
-      setIsFollowed(isFollowedBy(org, subQuery));
+      setIsFollowed(isFollowedBy({ org, subQuery }));
       setIsSubscribed(isSubscribedBy(org, subQuery));
     }
   }, [org, subQuery.data]);

@@ -1,3 +1,4 @@
+import type { Document } from "mongoose";
 import type { IEvent } from "models/Event";
 import type { ITopic } from "models/Topic";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -7,7 +8,7 @@ import { createServerError } from "utils/errors";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import { getSession } from "hooks/useAuth";
-import { sendToFollowers } from "utils/email";
+import { sendEventToOrgFollowers } from "utils/email";
 import { equals, normalize } from "utils/string";
 import { addOrUpdateTopic } from "api";
 
@@ -95,7 +96,14 @@ handler.post<
       );
   } else {
     try {
-      const eventUrl = req.query.eventUrl;
+      const {
+        query: { eventUrl },
+        body
+      }: {
+        query: { eventUrl: string };
+        body: { topic?: ITopic; event?: IEvent };
+      } = req;
+
       const event = await models.Event.findOne({ eventUrl });
 
       if (!event) {
@@ -108,8 +116,7 @@ handler.post<
           );
       }
 
-      const { body }: { body: { topic?: ITopic } } = req;
-      addOrUpdateTopic(body, event, transport, res);
+      addOrUpdateTopic({ body, event, transport, res });
       res.status(200).json(event);
     } catch (error) {
       res.status(400).json(createServerError(error));
@@ -192,7 +199,7 @@ handler.put<
         );
       }
 
-      const emailList = await sendToFollowers(body, transport);
+      const emailList = await sendEventToOrgFollowers(body, transport);
 
       const { n, nModified } = await models.Event.updateOne({ eventUrl }, body);
 

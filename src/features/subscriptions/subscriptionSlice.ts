@@ -1,24 +1,44 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { AppState } from "store";
-import type { IOrgSubscription } from "models/Subscription";
+import type { IEvent } from "models/Event";
 import type { IOrg } from "models/Org";
+import type { IEventSubscription, IOrgSubscription } from "models/Subscription";
 import { createSlice } from "@reduxjs/toolkit";
 import { SubscriptionTypes } from "models/Subscription";
 
-export const isFollowedBy = (org?: IOrg, subQuery?: any) => {
-  if (!org || !subQuery) return false;
+export const isFollowedBy = ({
+  event,
+  org,
+  subQuery
+}: {
+  event?: IEvent;
+  org?: IOrg;
+  subQuery?: any;
+}): IOrgSubscription | IEventSubscription | undefined => {
+  if ((!org && !event) || !subQuery || !subQuery.data) return undefined;
 
-  return !!subQuery.data?.orgs?.find(
-    (orgSubscription: IOrgSubscription) =>
-      orgSubscription.orgId === org._id &&
-      orgSubscription.type === SubscriptionTypes.FOLLOWER
-  );
+  if (org) {
+    return subQuery.data.orgs.find(
+      (orgSubscription: IOrgSubscription) =>
+        orgSubscription.orgId === org._id &&
+        orgSubscription.type === SubscriptionTypes.FOLLOWER
+    );
+  }
+
+  if (event) {
+    return subQuery.data.events.find(
+      (eventSubscription: IEventSubscription) =>
+        eventSubscription.eventId === event._id
+    );
+  }
+
+  return undefined;
 };
 
 export const isSubscribedBy = (org?: IOrg, subQuery?: any) => {
-  if (!org || !subQuery) return false;
+  if (!org || !subQuery || !subQuery.data) return false;
 
-  return !!subQuery.data?.orgs?.find(
+  return !!subQuery.data.orgs?.find(
     (orgSubscription: IOrgSubscription) =>
       orgSubscription.orgId === org._id &&
       orgSubscription.type === SubscriptionTypes.SUBSCRIBER

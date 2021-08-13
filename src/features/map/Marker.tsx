@@ -48,32 +48,35 @@ export const Marker = ({
   // const screen = world2Screen({ x: world.x, y: world.y }, zoomLevel);
   // }
 
-  let additionalStyles;
+  let wideStyles;
   const isWide = zoomLevel > 16;
 
   if (isWide) {
     // console.log(getStyleObjectFromString(styles));
-    additionalStyles = `
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: auto;
-  height: auto;
-  padding: 8px;
-  color: black;
-  background-color: white;
-  border: 2px solid black;
-  border-radius: 12px;
-  user-select: none;
-  transform: translate(-50%, -50%);
-  cursor: pointer;
+    wideStyles = `
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: auto;
+    height: auto;
+    padding: 8px;
+    color: black;
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 12px;
+    user-select: none;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
     `;
   }
 
   const m = (
     <Box
-      css={css(additionalStyles || defaultStyles)}
-      _hover={{ zIndex: 1 }}
+      css={css(wideStyles || defaultStyles)}
+      _hover={{
+        bgColor: "green",
+        zIndex: 1
+      }}
       onClick={() => {
         setIsDescriptionOpen({
           ...isDescriptionOpen,
