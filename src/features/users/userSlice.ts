@@ -4,36 +4,36 @@ import type { Base64Image } from "utils/image";
 import { createSlice } from "@reduxjs/toolkit";
 
 type UserState = {
-  subscribedEmail?: string;
-  userEmail?: string;
-  userImage?: Base64Image;
-  userName?: string;
+  subscribedEmail: string | null;
+  userEmail: string | null;
+  userImage: Base64Image | null;
+  userName: string | null;
 };
 
 const initialState: UserState = {
-  subscribedEmail: undefined,
-  userEmail: undefined,
-  userImage: undefined,
-  userName: undefined
+  subscribedEmail: null,
+  userEmail: null,
+  userImage: null,
+  userName: null
 };
 
 export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUserEmail: (state, action: PayloadAction<string | undefined>) => {
+    setUserEmail: (state, action: PayloadAction<string | null>) => {
       if (!action.payload) state.userEmail = initialState.userEmail;
       state.userEmail = action.payload;
     },
-    setUserImage: (state, action: PayloadAction<Base64Image | undefined>) => {
+    setUserImage: (state, action: PayloadAction<Base64Image | null>) => {
       if (!action.payload) state.userImage = initialState.userImage;
       state.userImage = action.payload;
     },
-    setUserName: (state, action: PayloadAction<string | undefined>) => {
+    setUserName: (state, action: PayloadAction<string | null>) => {
       if (!action.payload) state.userName = initialState.userName;
       state.userName = action.payload;
     },
-    setSubscribedEmail: (state, action: PayloadAction<string | undefined>) => {
+    setSubscribedEmail: (state, action: PayloadAction<string | null>) => {
       if (!action.payload) state.subscribedEmail = initialState.subscribedEmail;
       state.subscribedEmail = action.payload;
     }

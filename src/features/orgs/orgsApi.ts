@@ -39,13 +39,13 @@ export const orgApi = createApi({
         body: payload
       })
     }),
+    getOrg: build.query<IOrg, string>({
+      query: (orgUrl) => ({ url: `org/${orgUrl}` })
+    }),
     getOrgs: build.query<IOrg[], string | undefined>({
       query: (populate) => ({
         url: `orgs${populate ? `?populate=${populate}` : ""}`
       })
-    }),
-    getOrgByName: build.query<IOrg, string>({
-      query: (orgUrl) => ({ url: `org/${orgUrl}` })
     }),
     getOrgsByUserId: build.query<IOrg[], string>({
       query: (userId) => ({ url: `orgs/${userId}` })
@@ -58,10 +58,10 @@ export const {
   useAddOrgDetailsMutation,
   useDeleteOrgMutation,
   useEditOrgMutation,
+  useGetOrgQuery,
   useGetOrgsQuery,
-  useGetOrgByNameQuery,
   useGetOrgsByUserIdQuery
 } = orgApi;
 export const {
-  endpoints: { getOrgByName, getOrgs, getOrgsByUserId }
+  endpoints: { getOrg, getOrgs, getOrgsByUserId }
 } = orgApi;

@@ -102,7 +102,7 @@ export const UserForm = (props: {
           userName: props.user.userName
         }).unwrap();
         dispatch(setUserEmail(payload.email));
-        dispatch(setUserImage(payload.userImage));
+        dispatch(setUserImage(payload.userImage || null));
         dispatch(setUserName(payload.userName));
       }
 

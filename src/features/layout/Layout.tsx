@@ -5,7 +5,6 @@ import Head from "next/head";
 import { Hero, DarkModeSwitch, Link } from "features/common";
 import { Header, Main, Nav } from "features/layout";
 import { Flex, Spinner, Text, BoxProps, useColorMode } from "@chakra-ui/react";
-import { useRouter } from "next/router";
 import { css } from "twin.macro";
 import { breakpoints } from "theme/theme";
 
@@ -27,16 +26,8 @@ export const Layout = ({
   pageTitle?: string;
   title?: string;
 }) => {
-  const router = useRouter();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-
-  let main = children;
-  let header = pageTitle ? (
-    <Hero fontSize={["3xl", "3xl", "6xl"]} title={pageTitle} py={3} pt={0} />
-  ) : (
-    <Spinner mt={2} />
-  );
 
   let defaultTitleColor = isDark ? "white" : "black";
 
@@ -109,27 +100,14 @@ export const Layout = ({
           showOnShallow={true}
         />
         <DarkModeSwitch position="absolute" right="0" top="0" m={3} />
-        <Header headerBg={banner}>
-          <Flex direction="column" ml={5}>
-            <Link href="/" variant="no-underline">
-              <Text
-                fontFamily="Aladin"
-                fontSize="x-large"
-                fontStyle="italic"
-                mt={5}
-                color={defaultTitleColor}
-              >
-                {defaultTitle}
-              </Text>
-            </Link>
-
-            <Link href={router.asPath} variant="no-underline">
-              {header}
-            </Link>
-          </Flex>
-        </Header>
+        <Header
+          defaultTitle={defaultTitle}
+          defaultTitleColor={defaultTitleColor}
+          pageTitle={pageTitle}
+          headerBg={banner}
+        />
         <Nav py={hasVerticalScrollbar ? 7 : 0} isLogin={isLogin} />
-        <Main {...props}>{main}</Main>
+        <Main {...props}>{children}</Main>
         {/* <Box position="fixed" bottom="20px" right="20px">
         <IconButton
           aria-label="Aide"

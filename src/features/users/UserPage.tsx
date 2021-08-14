@@ -24,7 +24,7 @@ import { isServer } from "utils/isServer";
 import { OrgTypes } from "models/Org";
 import type { IUser } from "models/User";
 import { Layout } from "features/layout";
-import { getUserByName, useGetUserByNameQuery } from "features/users/usersApi";
+import { useGetUserQuery } from "features/users/usersApi";
 import { OrgForm } from "features/forms/OrgForm";
 import { Link, GridHeader } from "features/common";
 import { useSession } from "hooks/useAuth";
@@ -65,7 +65,7 @@ export const User = ({
     }
   } */);
 
-  const query = useGetUserByNameQuery(routeName);
+  const query = useGetUserQuery(routeName);
   const user = query.data || props.user;
 
   const storedUserEmail = useSelector(selectUserEmail);

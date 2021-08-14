@@ -48,7 +48,7 @@ export const TopicForm = (props: TopicFormProps) => {
   const [addEventDetails, addEventDetailsMutation] =
     useAddEventDetailsMutation();
   const toast = useToast({ position: "top" });
-  const visibilityOptions = [];
+  const visibilityOptions: string[] = [];
 
   if ("orgName" in props.entity) {
     org = props.entity as IOrg;

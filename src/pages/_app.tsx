@@ -9,20 +9,31 @@ import { wrapper } from "store";
 import { isServer } from "utils/isServer";
 import { getSession } from "hooks/useAuth";
 
+import { AbortController } from "abort-controller";
+import fetch, { Headers, Request, Response } from "node-fetch";
+
+Object.assign(globalThis, {
+  fetch,
+  Headers,
+  Request,
+  Response,
+  AbortController
+});
+
 if (isServer()) {
   React.useLayoutEffect = React.useEffect;
 }
 
 const App = ({
   Component,
-  pageProps: { session, ...pageProps },
+  pageProps,
   cookies
 }: AppProps & { cookies?: string }) => {
   return (
     <>
       <GlobalStyles />
 
-      <SessionProvider session={session}>
+      <SessionProvider session={pageProps.session}>
         <Chakra theme={theme} cookies={cookies}>
           <Component {...pageProps} />
         </Chakra>

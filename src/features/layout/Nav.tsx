@@ -213,7 +213,7 @@ export const Nav = ({
 
               <MenuItem
                 onClick={async () => {
-                  dispatch(setSubscribedEmail());
+                  dispatch(setSubscribedEmail(null));
                   const { url } = await signOut({
                     redirect: false,
                     callbackUrl: "/"

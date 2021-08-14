@@ -109,8 +109,8 @@ const Index = ({ events }: { events?: IEvent[] }) => {
             <List spacing={1}>
               <ListItem align="justify">
                 <ListIcon as={CalendarIcon} />
-                Publiez vos événements et retrouvez les avec les événements des
-                autres organisations sur{" "}
+                Publiez vos événements <em>publics</em> et retrouvez les avec
+                les événements des autres organisations sur{" "}
                 <Link variant="underline" href="/">
                   <Tag>
                     <TagLeftIcon as={CalendarIcon} /> Votre agenda local
@@ -125,6 +125,11 @@ const Index = ({ events }: { events?: IEvent[] }) => {
                 <ListIcon as={IoIosChatbubbles} />
                 Créez des discussions <em>réservées</em> aux {subscribers(true)}{" "}
                 inscrits par les administrateurs de votre organisation.
+              </ListItem>
+              <ListItem align="justify">
+                <ListIcon as={CalendarIcon} />
+                Publiez des événements <em>réservés</em> aux {subscribers(true)}{" "}
+                et notifiez vos adhérent(e)s
               </ListItem>
             </List>
           </Container>

@@ -1,5 +1,5 @@
 import type { Document } from "mongoose";
-import type { IEvent } from "models/Event";
+import { IEvent, Visibility } from "models/Event";
 import type { ITopic } from "models/Topic";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
@@ -44,9 +44,43 @@ handler.get<NextApiRequest & { query: { eventUrl: string } }, NextApiResponse>(
           );
       }
 
+      const isCreator = equals(event.createdBy, session?.user.userId);
+
+      if (event.eventVisibility === Visibility.SUBSCRIBERS && !isCreator) {
+        if (session) {
+          const sub = await models.Subscription.findOne({
+            user: session.user.userId
+          });
+
+          let isSubscribed = false;
+
+          if (sub) {
+            for (const eventOrg of event.eventOrgs) {
+              for (const org of sub.orgs) {
+                if (equals(org.orgId, eventOrg)) {
+                  isSubscribed = true;
+                }
+              }
+            }
+          }
+
+          if (!isSubscribed) {
+            return res
+              .status(403)
+              .json(
+                createServerError(
+                  new Error(
+                    `Cet événement est réservé aux adhérents des organisateurs`
+                  )
+                )
+              );
+          }
+        }
+      }
+
       // hand emails to event creator only
       let select =
-        session && equals(event.createdBy, session.user.userId)
+        session && isCreator
           ? "-password -securityCode"
           : "-email -password -securityCode";
 

@@ -206,7 +206,7 @@ export const EmailSubscriptionsPopover = ({
         <Heading size="md">
           <Link
             onClick={() => {
-              dispatch(setSubscribedEmail(undefined));
+              dispatch(setSubscribedEmail(null));
             }}
           >
             {subscribedEmail || "Mes abonnements"}

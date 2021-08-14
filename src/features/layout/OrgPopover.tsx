@@ -217,7 +217,7 @@ export const OrgPopover = ({
               <OrgForm
                 session={session}
                 onCancel={onClose}
-                onSubmit={async (orgUrl) => {
+                onSubmit={async (orgUrl: string) => {
                   onClose();
                   await router.push(`/${orgUrl}`);
                 }}

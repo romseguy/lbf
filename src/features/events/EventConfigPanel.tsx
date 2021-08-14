@@ -112,7 +112,7 @@ export const EventConfigPanel = ({
           session={session}
           event={event}
           onCancel={() => setIsEdit(false)}
-          onSubmit={async (eventUrl) => {
+          onSubmit={async (eventUrl: string) => {
             if (event && eventUrl !== event.eventUrl) {
               await router.push(`/${eventUrl}`);
             } else {

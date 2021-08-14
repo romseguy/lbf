@@ -62,8 +62,13 @@ const createOptions = (req: NextApiRequest) => ({
       profile?: Profile;
       isNewUser?: boolean;
     }) {
-      const { user, account } = params;
       //console.log("JWT() PARAMS:", params);
+      const { user, account } = params;
+
+      if (user && account) {
+        console.log("JWT() INITIAL SIGN IN");
+      }
+
       let token = params.token;
 
       if (account?.accessToken) {

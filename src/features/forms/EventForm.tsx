@@ -1,5 +1,5 @@
 import type { AppSession } from "hooks/useAuth";
-import type { IEvent } from "models/Event";
+import { IEvent, VisibilityV } from "models/Event";
 import type { IOrg } from "models/Org";
 import { isMobile } from "react-device-detect";
 import React, { forwardRef, Ref, useState } from "react";
@@ -64,6 +64,8 @@ import { normalize } from "utils/string";
 import { useSelector } from "react-redux";
 import { refetchOrgs, selectOrgsRefetch } from "features/orgs/orgSlice";
 import { unwrapSuggestion } from "utils/maps";
+import { Visibility } from "models/Topic";
+import { withGoogleApi } from "features/map/GoogleApiWrapper";
 
 interface EventFormProps extends ChakraProps {
   session: AppSession;
@@ -79,15 +81,15 @@ for (let i = 1; i <= 10; i++) {
   repeatOptions[i] = i;
 }
 
-export const EventForm = ({
-  initialEventOrgs = [],
-  ...props
-}: EventFormProps) => {
-  const toast = useToast({ position: "top" });
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
+export const EventForm = withGoogleApi({
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
+})(({ initialEventOrgs = [], ...props }: EventFormProps) => {
+  //#region event
   const [addEvent, addEventMutation] = useAddEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
+  //#endregion
+
+  //#region myOrgs
   const { myOrgs, refetch } = useGetOrgsQuery("orgSubscriptions", {
     selectFromResult: ({ data }) => {
       if (!data) return { myOrgs: [] };
@@ -104,7 +106,9 @@ export const EventForm = ({
   useEffect(() => {
     refetch();
   }, [refetchOrgs]);
+  //#endregion
 
+  //#region form state
   const {
     control,
     register,
@@ -118,12 +122,27 @@ export const EventForm = ({
   } = useForm({
     mode: "onChange"
   });
+  watch(["eventAddress", "eventOrgs"]);
+  const eventAddress = getValues("eventAddress") || props.event?.eventAddress;
+  const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs;
+  const eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
+  const visibilityOptions: string[] = eventOrgs
+    ? [Visibility.PUBLIC, Visibility.SUBSCRIBERS]
+    : [];
+  const eventNotif = watch("eventNotif");
+  useEffect(() => {
+    if (eventNotif === false) {
+      setValue("eventNotif", []);
+    }
+  }, [eventNotif]);
+  //#endregion
 
+  //#region local state
+  const toast = useToast({ position: "top" });
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const [isLoading, setIsLoading] = useState(false);
   const [suggestion, setSuggestion] = useState<Suggestion>();
-  watch("eventAddress");
-  const eventAddress = getValues("eventAddress") || props.event?.eventAddress;
-
   const {
     ready,
     value: autoCompleteValue,
@@ -141,13 +160,9 @@ export const EventForm = ({
   useEffect(() => {
     if (!suggestion) setAutoCompleteValue(eventAddress);
   }, [eventAddress]);
+  //#endregion
 
-  const eventNotif = watch("eventNotif");
-  watch("eventOrgs");
-
-  const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs;
-  let eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
-
+  //#region event min and max dates
   const now = new Date();
 
   let eventMinDefaultDate =
@@ -187,12 +202,6 @@ export const EventForm = ({
     }
   }, [eventMinDate]);
 
-  useEffect(() => {
-    if (eventNotif === false) {
-      setValue("eventNotif", []);
-    }
-  }, [eventNotif]);
-
   if (props.event) {
     eventMinDefaultDate = parseISO(props.event.eventMinDate);
     eventMaxDefaultDate = parseISO(props.event.eventMaxDate);
@@ -210,6 +219,7 @@ export const EventForm = ({
       ? addHours(eventMinDefaultDate, eventMinDuration)
       : addHours(now, eventMinDuration)
   };
+  //#endregion
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -255,9 +265,9 @@ export const EventForm = ({
         toast({
           title:
             Array.isArray(res.emailList) && res.emailList.length > 0
-              ? `Une invitation a été envoyée à ${res.emailList.length} abonné${
-                  res.emailList.length > 1 ? "s" : ""
-                }`
+              ? `Une invitation a été envoyée à ${
+                  res.emailList.length
+                } abonné(e)${res.emailList.length > 1 ? "s" : ""}`
               : "Votre événement a bien été modifié !",
           status: "success",
           isClosable: true
@@ -581,6 +591,41 @@ export const EventForm = ({
         </FormErrorMessage>
       </FormControl>
 
+      {visibilityOptions.length > 0 && (
+        <FormControl
+          id="eventVisibility"
+          isRequired
+          isInvalid={!!errors["eventVisibility"]}
+          mb={3}
+        >
+          <FormLabel>Visibilité</FormLabel>
+          <Select
+            name="eventVisibility"
+            defaultValue={
+              props.event
+                ? props.event.eventVisibility
+                : Visibility[Visibility.PUBLIC]
+            }
+            ref={register({
+              required: "Veuillez sélectionner la visibilité de la discussion"
+            })}
+            placeholder="Sélectionnez la visibilité de la discussion..."
+            color="gray.400"
+          >
+            {visibilityOptions.map((key) => {
+              return (
+                <option key={key} value={key}>
+                  {VisibilityV[key]}
+                </option>
+              );
+            })}
+          </Select>
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="eventVisibility" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
+
       <FormControl mb={3} id="eventOrgs" isInvalid={!!errors["eventOrgs"]}>
         <FormLabel>Organisateurs</FormLabel>
         <Controller
@@ -627,9 +672,9 @@ export const EventForm = ({
               <Alert status="info" mb={3}>
                 <AlertIcon />
                 <Box>
-                  Pour envoyer un e-mail d'invitation à cet événement aux
-                  abonné(e)s des organisations que vous avez ajouté sur ce site,
-                  cochez une ou plusieurs des cases correspondantes :
+                  Pour envoyer un e-mail d'invitation aux abonné(e)s de vos
+                  organisations, cochez une ou plusieurs des cases
+                  correspondantes :
                   <CheckboxGroup>
                     <Table
                       backgroundColor={
@@ -693,9 +738,10 @@ export const EventForm = ({
           ) : (
             <Alert status="info" mb={3}>
               <AlertIcon />
-              Vous obtiendrez la permission d'envoyer un e-mail d'invitation à
-              cet événement aux abonné(e)s des organisateurs, lorsque celui-ci
-              sera approuvé par un modérateur.
+              Cet événement {props.event ? "doit" : "devra"} être approuvé par
+              un modérateur avant que vous puissiez envoyer un e-mail
+              d'invitation aux abonné(e)s des organisations sélectionnées
+              ci-dessus.
             </Alert>
           )}
         </>
@@ -722,4 +768,4 @@ export const EventForm = ({
       </Flex>
     </form>
   );
-};
+});

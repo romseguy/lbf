@@ -34,7 +34,10 @@ import { EventConfigPanel } from "./EventConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useSelector } from "react-redux";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import { selectSubscribedEmail } from "features/users/userSlice";
+import {
+  selectSubscribedEmail,
+  selectUserEmail
+} from "features/users/userSlice";
 import {
   isFollowedBy,
   selectSubscriptionRefetch
@@ -56,29 +59,37 @@ export const EventPage = (props: {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
 
-  const eventQuery = useGetEventQuery(props.routeName);
+  //#region event
+  const eventQuery = useGetEventQuery({
+    eventUrl: props.routeName,
+    email: useSelector(selectUserEmail) || undefined
+  });
   useEffect(() => {
     console.log("refetching event");
-
     eventQuery.refetch();
   }, [router.asPath]);
   const event = eventQuery.data || props.event;
   const eventCreatedByUserName =
     typeof event.createdBy === "object" ? event.createdBy.userName : "";
+  const eventCreatedByUserId =
+    typeof event.createdBy === "object" ? event.createdBy._id : "";
+  const isCreator = session?.user.userId === eventCreatedByUserId;
+  //#endregion
 
-  const isCreator = session?.user.userName === eventCreatedByUserName;
-
+  //#region sub
   const subscribedEmail = useSelector(selectSubscribedEmail);
   const subQuery = useGetSubscriptionQuery(
     subscribedEmail || session?.user.userId
   );
-  const isFollowed = isFollowedBy({ event, subQuery });
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     console.log("refetching subscription");
     subQuery.refetch();
   }, [subscriptionRefetch]);
+  const isFollowed = isFollowedBy({ event, subQuery });
+  //#endregion
 
+  //#region local state
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -86,6 +97,7 @@ export const EventPage = (props: {
     topics: false,
     banner: false
   });
+  //#endregion
 
   const toast = useToast({ position: "top" });
 

@@ -17,6 +17,7 @@ export interface IEvent {
   eventLng?: number;
   eventEmail?: string;
   eventDescription?: string;
+  eventVisibility?: string;
   eventOrgs: IOrg[];
   eventSubscriptions: ISubscription[];
   eventNotif: string[];
@@ -27,6 +28,16 @@ export interface IEvent {
   createdBy: IUser | string;
   createdAt?: string;
 }
+
+export const Visibility: { [key: string]: string } = {
+  PUBLIC: "PUBLIC",
+  SUBSCRIBERS: "SUBSCRIBERS"
+};
+
+export const VisibilityV: { [key: string]: string } = {
+  PUBLIC: "Publique",
+  SUBSCRIBERS: "Adhérents"
+};
 
 export const EventSchema = new Schema<IEvent>(
   {
@@ -54,6 +65,10 @@ export const EventSchema = new Schema<IEvent>(
     eventLng: Number,
     eventEmail: String,
     eventDescription: String,
+    eventVisibility: {
+      type: String,
+      enum: Object.keys(Visibility).map((key) => Visibility[key])
+    },
     eventOrgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
     eventSubscriptions: [
       { type: Schema.Types.ObjectId, ref: "Subscription", required: true }

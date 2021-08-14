@@ -116,7 +116,7 @@ export const OrgConfigPanel = ({
           session={session}
           org={org}
           onCancel={() => setIsEdit(false)}
-          onSubmit={async (orgUrl) => {
+          onSubmit={async (orgUrl: string) => {
             if (org && orgUrl !== org.orgUrl) {
               await router.push(`/${orgUrl}`);
             } else {

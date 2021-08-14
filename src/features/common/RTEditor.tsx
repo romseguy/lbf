@@ -142,12 +142,7 @@ const CustomToolbar = ({ id }: { id: string }) => {
   return (
     <div id={id}>
       <span className="ql-formats">
-        <select className="ql-size" title="Taille du texte">
-          <option value="small">Petit</option>
-          <option selected />
-          <option value="large">Grand</option>
-          <option value="huge">Très grand</option>
-        </select>
+        <select className="ql-size" title="Taille du texte" />
       </span>
       <span className="ql-formats">
         <select className="ql-color" title="Texte en couleur" />

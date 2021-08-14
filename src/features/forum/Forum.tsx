@@ -11,7 +11,7 @@ import { useSession } from "hooks/useAuth";
 import { Layout } from "features/layout";
 import { Button } from "features/common";
 import { TopicModal } from "features/modals/TopicModal";
-import { useGetOrgByNameQuery } from "features/orgs/orgsApi";
+import { useGetOrgQuery } from "features/orgs/orgsApi";
 import { TopicsList } from "./TopicsList";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import {
@@ -25,7 +25,7 @@ export const Forum = () => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
 
-  const query = useGetOrgByNameQuery("aucourant");
+  const query = useGetOrgQuery("aucourant");
   const org = query.data;
   let isCreator = false;
 
@@ -47,13 +47,15 @@ export const Forum = () => {
     subQuery.refetch();
   }, [subscriptionRefetch]);
 
-  const [isFollowed, setIsFollowed] = useState(isFollowedBy({ org, subQuery }));
+  const [isFollowed, setIsFollowed] = useState(
+    !!isFollowedBy({ org, subQuery })
+  );
   const [isSubscribed, setIsSubscribed] = useState(
     isSubscribedBy(org, subQuery)
   );
   useEffect(() => {
     if (org && subQuery.data) {
-      setIsFollowed(isFollowedBy({ org, subQuery }));
+      setIsFollowed(!!isFollowedBy({ org, subQuery }));
       setIsSubscribed(isSubscribedBy(org, subQuery));
     }
   }, [org, subQuery.data]);

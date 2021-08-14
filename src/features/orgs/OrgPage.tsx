@@ -27,7 +27,7 @@ import { EventsList } from "features/events/EventsList";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { EventModal } from "features/modals/EventModal";
-import { useGetOrgByNameQuery } from "features/orgs/orgsApi";
+import { useGetOrgQuery } from "features/orgs/orgsApi";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import {
@@ -59,7 +59,8 @@ export const OrgPage = ({
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
 
-  const orgQuery = useGetOrgByNameQuery(routeName);
+  //#region org
+  const orgQuery = useGetOrgQuery(routeName);
   const refetchOrg = useSelector(selectOrgRefetch);
   useEffect(() => {
     console.log("refetching org");
@@ -69,21 +70,26 @@ export const OrgPage = ({
   const org = orgQuery.data || props.org;
   const orgCreatedByUserName =
     typeof org.createdBy === "object" ? org.createdBy.userName : "";
+  const orgCreatedByUserId =
+    typeof org.createdBy === "object" ? org.createdBy._id : "";
+  const isCreator = session?.user.userId === orgCreatedByUserId;
+  //#endregion
 
-  const isCreator = session?.user.userName === orgCreatedByUserName;
-
+  //#region sub
   const subscribedEmail = useSelector(selectSubscribedEmail);
   const subQuery = useGetSubscriptionQuery(
     subscribedEmail || session?.user.userId
   );
-  const isFollowed = isFollowedBy({ org, subQuery });
-  const isSubscribed = isSubscribedBy(org, subQuery);
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     console.log("refetching subscription");
     subQuery.refetch();
   }, [subscriptionRefetch]);
+  const isFollowed = isFollowedBy({ org, subQuery });
+  const isSubscribed = isSubscribedBy(org, subQuery);
+  //#endregion
 
+  //#region local state
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
@@ -93,6 +99,7 @@ export const OrgPage = ({
     banner: false,
     subscribers: false
   });
+  //#endregion
 
   const toast = useToast({ position: "top" });
 
@@ -202,35 +209,37 @@ export const OrgPage = ({
               </>
             </TabPanel>
             <TabPanel>
-              <>
-                <Button
-                  colorScheme="teal"
-                  leftIcon={<AddIcon />}
-                  mb={5}
-                  onClick={() => {
-                    if (!isSessionLoading) {
-                      if (!session) setIsLogin(isLogin + 1);
-                      // TODO: check if user is SUB
-                      else if (isCreator) setIsEventModalOpen(true);
-                    }
-                  }}
-                  data-cy="addEvent"
-                >
-                  Ajouter un événement
-                </Button>
-
-                {isEventModalOpen && session && (
-                  <EventModal
-                    session={session}
-                    initialEventOrgs={[org]}
-                    onCancel={() => setIsEventModalOpen(false)}
-                    onSubmit={async (eventUrl) => {
-                      await router.push(`/${eventUrl}`);
+              {(isCreator || isSubscribed) && (
+                <>
+                  <Button
+                    colorScheme="teal"
+                    leftIcon={<AddIcon />}
+                    mb={5}
+                    onClick={() => {
+                      if (!isSessionLoading) {
+                        if (!session) setIsLogin(isLogin + 1);
+                        // TODO: check if user is SUB
+                        else if (isCreator) setIsEventModalOpen(true);
+                      }
                     }}
-                    onClose={() => setIsEventModalOpen(false)}
-                  />
-                )}
-              </>
+                    data-cy="addEvent"
+                  >
+                    Ajouter un événement
+                  </Button>
+
+                  {isEventModalOpen && session && (
+                    <EventModal
+                      session={session}
+                      initialEventOrgs={[org]}
+                      onCancel={() => setIsEventModalOpen(false)}
+                      onSubmit={async (eventUrl) => {
+                        await router.push(`/${eventUrl}`);
+                      }}
+                      onClose={() => setIsEventModalOpen(false)}
+                    />
+                  )}
+                </>
+              )}
               {Array.isArray(org.orgEvents) && org.orgEvents.length > 0 ? (
                 <div>
                   <EventsList events={org.orgEvents || []} />

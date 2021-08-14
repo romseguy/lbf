@@ -25,7 +25,7 @@ export const userApi = createApi({
         body: payload
       })
     }),
-    getUserByName: build.query<IUser, string>({
+    getUser: build.query<IUser, string>({
       query: (userName) => ({ url: `user/${userName}` })
     }),
     getUserByEmail: build.query<IUser, string>({
@@ -37,9 +37,9 @@ export const userApi = createApi({
 export const {
   useAddUserMutation,
   useEditUserMutation,
-  useGetUserByNameQuery,
+  useGetUserQuery,
   useGetUserByEmailQuery
 } = userApi;
 export const {
-  endpoints: { getUserByName }
+  endpoints: { getUser }
 } = userApi;

@@ -40,6 +40,7 @@ import usePlacesAutocomplete, {
 import { useEffect } from "react";
 import { normalize } from "utils/string";
 import { unwrapSuggestion } from "utils/maps";
+import { withGoogleApi } from "features/map/GoogleApiWrapper";
 
 interface OrgFormProps extends ChakraProps {
   session: AppSession;
@@ -49,11 +50,15 @@ interface OrgFormProps extends ChakraProps {
   onSubmit?: (orgUrl: string) => void;
 }
 
-export const OrgForm = (props: OrgFormProps) => {
-  const toast = useToast({ position: "top" });
+export const OrgForm = withGoogleApi({
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
+})((props: OrgFormProps) => {
+  //#region org
   const [addOrg, addOrgMutation] = useAddOrgMutation();
   const [editOrg, editOrgMutation] = useEditOrgMutation();
+  //#endregion
 
+  //#region form state
   const {
     control,
     register,
@@ -66,11 +71,14 @@ export const OrgForm = (props: OrgFormProps) => {
   } = useForm({
     mode: "onChange"
   });
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [suggestion, setSuggestion] = useState<Suggestion>();
   watch("orgAddress");
   const orgAddress = getValues("orgAddress") || props.org?.orgAddress;
+  //#endregion
+
+  //#region local state
+  const toast = useToast({ position: "top" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [suggestion, setSuggestion] = useState<Suggestion>();
   const {
     ready,
     value: autoCompleteValue,
@@ -85,10 +93,10 @@ export const OrgForm = (props: OrgFormProps) => {
     },
     debounce: 300
   });
-
   useEffect(() => {
     if (!suggestion) setAutoCompleteValue(orgAddress);
   }, [orgAddress]);
+  //#endregion
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -267,7 +275,7 @@ export const OrgForm = (props: OrgFormProps) => {
       <Flex justifyContent="space-between">
         <Button
           onClick={() => props.onCancel && props.onCancel()}
-          dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
+          // dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
         >
           Annuler
         </Button>
@@ -286,4 +294,4 @@ export const OrgForm = (props: OrgFormProps) => {
       </Flex>
     </form>
   );
-};
+});

@@ -29,6 +29,8 @@ handler.get<NextApiRequest & { query: { orgUrl: string } }, NextApiResponse>(
         query: { orgUrl }
       } = req;
 
+      console.log(orgUrl);
+
       let org = await models.Org.findOne({ orgUrl });
 
       if (!org) {
@@ -41,9 +43,11 @@ handler.get<NextApiRequest & { query: { orgUrl: string } }, NextApiResponse>(
           );
       }
 
+      const isCreator = equals(org.createdBy, session?.user.userId);
+
       // hand emails to org creator only
       let select =
-        session && equals(org.createdBy, session.user.userId)
+        session && isCreator
           ? "-password -securityCode"
           : "-email -password -securityCode";
 

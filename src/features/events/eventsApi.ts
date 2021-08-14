@@ -39,8 +39,10 @@ export const eventApi = createApi({
         body: payload
       })
     }),
-    getEvent: build.query<IEvent, string>({
-      query: (eventUrl) => ({ url: `event/${eventUrl}` })
+    getEvent: build.query<IEvent, { eventUrl: string; email?: string }>({
+      query: ({ eventUrl, email }) => ({
+        url: `event/${eventUrl}${email ? `/${email}` : ""}`
+      })
     }),
     getEvents: build.query<IEvent[], void>({
       query: () => ({ url: `events` })
