@@ -118,14 +118,33 @@ export const EventForm = withGoogleApi({
     clearErrors,
     watch,
     setValue,
-    getValues
+    getValues,
+    trigger
   } = useForm({
     mode: "onChange"
   });
+  console.log("errors", errors);
+
   watch(["eventAddress", "eventOrgs"]);
   const eventAddress = getValues("eventAddress") || props.event?.eventAddress;
+  const eventVisibility = watch("eventVisibility");
   const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs;
   const eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
+  const eventOrgsRules: { required: boolean } = {
+    required: eventVisibility === Visibility.SUBSCRIBERS
+  };
+  if (
+    eventOrgsRules.required &&
+    !errors.eventOrgs &&
+    Array.isArray(eventOrgs) &&
+    !eventOrgs.length
+  ) {
+    setError("eventOrgs", {
+      type: "manual",
+      message: "Veuillez sélectionner un ou plusieurs organisateurs"
+    });
+  }
+
   const visibilityOptions: string[] = eventOrgs
     ? [Visibility.PUBLIC, Visibility.SUBSCRIBERS]
     : [];
@@ -596,6 +615,9 @@ export const EventForm = withGoogleApi({
           id="eventVisibility"
           isRequired
           isInvalid={!!errors["eventVisibility"]}
+          onChange={async (e) => {
+            clearErrors("eventOrgs");
+          }}
           mb={3}
         >
           <FormLabel>Visibilité</FormLabel>
@@ -626,12 +648,16 @@ export const EventForm = withGoogleApi({
         </FormControl>
       )}
 
-      <FormControl mb={3} id="eventOrgs" isInvalid={!!errors["eventOrgs"]}>
+      <FormControl
+        mb={3}
+        id="eventOrgs"
+        isInvalid={!!errors["eventOrgs"]}
+        isRequired={eventOrgsRules.required}
+      >
         <FormLabel>Organisateurs</FormLabel>
         <Controller
           name="eventOrgs"
-          className="react-select-container"
-          classNamePrefix="react-select"
+          rules={eventOrgsRules}
           as={ReactSelect}
           control={control}
           defaultValue={defaultEventOrgs}
@@ -655,6 +681,8 @@ export const EventForm = withGoogleApi({
               };
             }
           }}
+          className="react-select-container"
+          classNamePrefix="react-select"
           options={myOrgs}
           getOptionLabel={(option: IOrg) => `${option.orgName}`}
           getOptionValue={(option: IOrg) => option._id}

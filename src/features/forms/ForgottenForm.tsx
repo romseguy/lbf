@@ -61,7 +61,7 @@ export const ForgottenForm = ({
   const onSubmit = async () => {
     setIsLoading(true);
 
-    trigger();
+    await trigger();
     const { emailForgotten, securityCode, password } = getValues([
       "emailForgotten",
       "securityCode",

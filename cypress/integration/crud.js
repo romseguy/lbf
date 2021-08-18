@@ -1,11 +1,9 @@
-const { getDate, getMonth, format, addDays } = require("date-fns");
-import { fr } from "date-fns/locale";
 import { OrgTypes, OrgTypesV } from "models/Org";
 
 const userName = "romseguy8933";
-const eventName = "testevent";
+const eventName = "test event";
 const eventDescription = "";
-const orgName = "test";
+const orgName = "test test";
 const skipVisit = true;
 
 describe("CRUD", () => {

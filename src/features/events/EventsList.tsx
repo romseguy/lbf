@@ -139,7 +139,7 @@ export const EventsList = (props: EventsProps) => {
                     letter-spacing: 0.1em;
                   `}
                   size="larger"
-                  href={`/${event.eventUrl}`}
+                  href={`/${encodeURIComponent(event.eventUrl)}`}
                 >
                   {event.eventName}
                 </Link>

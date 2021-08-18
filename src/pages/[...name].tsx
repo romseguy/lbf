@@ -1,10 +1,9 @@
 import type { IEvent } from "models/Event";
 import type { IUser } from "models/User";
 import type { IOrg } from "models/Org";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { GetServerSidePropsContext } from "next";
 import { Alert, AlertIcon, Text } from "@chakra-ui/react";
-import api from "utils/api";
 import { EventPage } from "features/events/EventPage";
 import { Layout } from "features/layout";
 import { OrgPage } from "features/orgs/OrgPage";
@@ -13,7 +12,6 @@ import { useRouter } from "next/router";
 import { isServer } from "utils/isServer";
 import { Forum } from "features/forum/Forum";
 import { wrapper } from "store";
-import { getSession } from "hooks/useAuth";
 import { getEvent } from "features/events/eventsApi";
 import { getOrg } from "features/orgs/orgsApi";
 import { getUser } from "features/users/usersApi";
@@ -72,73 +70,24 @@ const Hash = ({
   );
 };
 
-// export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-//   let routeName = ctx.query.name![0];
-
-//   if (routeName === "forum") {
-//     return { props: { routeName } };
-//   }
-
-//   if (routeName.indexOf(" ") !== -1) {
-//     const destination = `/${routeName.replace(/\ /g, "_")}`;
-
-//     return {
-//       redirect: {
-//         permanent: false,
-//         destination
-//       }
-//     };
-//   } else if (routeName.indexOf("_") !== -1) {
-//     routeName = routeName.replace(/_/g, " ");
-//   }
-
-//   const { data: event, error } = await api.get(`event/${routeName}`);
-
-//   if (event) {
-//     const { data: user } = await api.get(`user/${event.createdBy._id}`);
-
-//     return {
-//       props: { event, user, routeName }
-//     };
-//   }
-
-//   if (error) {
-//     return {
-//       props: { error, routeName }
-//     };
-//   }
-
-//   const { data: org } = await api.get(`org/${routeName}`);
-
-//   if (org) {
-//     return { props: { org, routeName } };
-//   }
-
-//   const { data: user } = await api.get(`user/${routeName}`);
-
-//   if (user) {
-//     return { props: { user, routeName } };
-//   }
-
-//   return { props: { routeName } };
-// }
-
 export default Hash;
 
-// https://github.com/reduxjs/redux-toolkit/issues/1240
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) =>
-    async ({ req, res }) => {
-      let routeName: string | undefined;
-
-      if (req.url) {
-        const matches = req.url.match(/[^/?]*[^/?]/g);
-
-        if (matches) routeName = matches[0];
+    async (ctx: GetServerSidePropsContext): Promise<any> => {
+      if (!ctx.query.name || typeof ctx.query.name[0] !== "string") {
+        return {
+          props: { routeName: "forum" }
+        };
       }
 
+      let routeName = ctx.query.name![0];
+
       if (routeName) {
-        // server-side fetching
+        if (routeName === "forum") {
+          return { props: { routeName } };
+        }
+
         const { data: event, ...eventQuery } = await store.dispatch(
           getEvent.initiate({ eventUrl: routeName })
         );
