@@ -1,9 +1,11 @@
-// @ts-nocheck
+//@ts-nocheck
 import {
   useSession as useNextAuthSession,
   getSession as getNextAuthSession
 } from "next-auth/react";
-import type { UseSessionOptions, GetSessionOptions } from "next-auth/react";
+//import type { UseSessionOptions, GetSessionOptions } from "next-auth/client";
+import type { GetSessionOptions } from "next-auth/react";
+import { Session } from "next-auth";
 
 const speedUpDev = process.env.NODE_ENV === "development" && false;
 const session = {
@@ -16,14 +18,15 @@ const session = {
   }
 };
 
-export type AppSession = {
-  user: {
-    userId: string;
-    userName: string;
-    userImage: string;
-    email: string;
-  };
-};
+export type AppSession =
+  | Session & {
+      user: {
+        userId: string;
+        userName: string;
+        userImage?: string;
+        email: string;
+      };
+    };
 
 // server-side
 export async function getSession(
@@ -37,7 +40,8 @@ export async function getSession(
 }
 
 // client-side
-export function useSession(options?: UseSessionOptions): {
+// export function useSession(options?: UseSessionOptions): {
+export function useSession(options?: any): {
   data: AppSession | null;
   loading: boolean;
 } {
@@ -45,5 +49,9 @@ export function useSession(options?: UseSessionOptions): {
     return { data: session, loading: false };
   }
 
-  return useNextAuthSession(options);
+  const { data, status } = useNextAuthSession();
+  return { data, loading: false };
+
+  // 3 const [session, loading] = useNextAuthSession();
+  // 3 return { data: session, loading };
 }

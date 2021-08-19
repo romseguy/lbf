@@ -1,6 +1,7 @@
 import React from "react";
 import { NextPage, NextPageContext } from "next";
 import { AppProps } from "next/app";
+// 3 import { Provider as SessionProvider } from "next-auth/client";
 import { SessionProvider } from "next-auth/react";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
@@ -24,23 +25,21 @@ if (isServer()) {
   React.useLayoutEffect = React.useEffect;
 }
 
-const App = ({
-  Component,
-  pageProps,
-  cookies
-}: AppProps & { cookies?: string }) => {
-  return (
-    <>
-      <GlobalStyles />
+const App = wrapper.withRedux(
+  ({ Component, pageProps, cookies }: AppProps & { cookies?: string }) => {
+    return (
+      <>
+        <GlobalStyles />
 
-      <SessionProvider session={pageProps.session}>
-        <Chakra theme={theme} cookies={cookies}>
-          <Component {...pageProps} />
-        </Chakra>
-      </SessionProvider>
-    </>
-  );
-};
+        <SessionProvider session={pageProps.session}>
+          <Chakra theme={theme} cookies={cookies}>
+            <Component {...pageProps} />
+          </Chakra>
+        </SessionProvider>
+      </>
+    );
+  }
+);
 
 App.getInitialProps = async ({
   Component,
@@ -71,4 +70,4 @@ App.getInitialProps = async ({
   };
 };
 
-export default wrapper.withRedux(App);
+export default App;

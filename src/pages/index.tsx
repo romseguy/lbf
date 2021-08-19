@@ -24,7 +24,6 @@ import { Link } from "features/common";
 import { CalendarIcon, ChatIcon, EmailIcon } from "@chakra-ui/icons";
 
 const Index = ({ events }: { events?: IEvent[] }) => {
-  const { data: session, loading: isSessionLoading } = useSession();
   const [isLogin, setIsLogin] = useState(0);
 
   const orgs = (plural?: boolean) => (
@@ -41,10 +40,8 @@ const Index = ({ events }: { events?: IEvent[] }) => {
   );
 
   return (
-    <Layout pageTitle="Votre Agenda Local" isLogin={isLogin}>
-      {isSessionLoading ? (
-        <Spinner />
-      ) : true ? (
+    <Layout isLogin={isLogin}>
+      {true ? (
         <Container
           maxW="xl"
           mb={3}
@@ -65,8 +62,8 @@ const Index = ({ events }: { events?: IEvent[] }) => {
             </Link>
           </Box> */}
           <Text align="justify" mb={3}>
-            La première vocation de cet outil de communication est de proposer
-            un <strong>agenda local commun</strong>.
+            La première vocation de cet outil de communication est de co-créer
+            un <strong>calendrier local commun</strong>.
           </Text>
 
           <Container
@@ -113,7 +110,7 @@ const Index = ({ events }: { events?: IEvent[] }) => {
                 les événements des autres organisations sur{" "}
                 <Link variant="underline" href="/">
                   <Tag>
-                    <TagLeftIcon as={CalendarIcon} /> Votre agenda local
+                    <TagLeftIcon as={CalendarIcon} /> Votre calendrier local
                   </Tag>
                 </Link>
               </ListItem>
@@ -157,20 +154,3 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 }
 
 export default Index;
-
-// https://github.com/reduxjs/redux-toolkit/issues/1240
-// export const getServerSideProps = wrapper.getServerSideProps(
-//   (store) =>
-//     async ({ req, res }) => {
-//       // server-side fetching
-//       const query = await store.dispatch(getEvents.initiate(null));
-//       console.log(query);
-
-//       if (query.data) {
-//         const events: IEvent = query.data;
-//         return Promise.resolve({ props: { events } });
-//       }
-
-//       return Promise.resolve({ props: {} });
-//     }
-// );

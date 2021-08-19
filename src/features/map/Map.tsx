@@ -12,8 +12,8 @@ import { FullscreenControl } from "./FullscreenControl";
 import { Marker } from "./Marker";
 
 const defaultCenter = {
-  lat: 44.940694,
-  lng: 1.989113
+  lat: 42.888663,
+  lng: 1.347818
 };
 
 export const Map = withGoogleApi({

@@ -10,7 +10,8 @@ export function getUniqueId(prefix?: string): string {
 }
 
 export function normalize(str: string, underscores?: boolean): string {
-  if (underscores) str = str.replace(/\ /g, "_");
+  // if (underscores)
+  str = str.replace(/\ /g, "_");
 
   return str
     .normalize("NFD")

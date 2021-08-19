@@ -1,4 +1,4 @@
-import type { IEvent } from "models/Event";
+import { IEvent, Visibility } from "models/Event";
 import React, { useEffect, useState } from "react";
 import { Flex, IconButton, useDisclosure } from "@chakra-ui/react";
 import { EventModal } from "features/modals/EventModal";
@@ -93,11 +93,13 @@ export const EventsPage = ({
           <MapModal
             isOpen={isMapModalOpen}
             items={
-              events?.filter(
-                (event) =>
+              events?.filter((event) => {
+                return (
                   typeof event.eventLat === "number" &&
-                  typeof event.eventLng === "number"
-              ) || []
+                  typeof event.eventLng === "number" &&
+                  event.eventVisibility === Visibility.PUBLIC
+                );
+              }) || []
             }
             onClose={closeMapModal}
           />

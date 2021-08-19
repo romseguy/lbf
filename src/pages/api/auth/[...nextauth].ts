@@ -1,3 +1,4 @@
+//@ts-nocheck
 import type { Account, Profile, Session, User } from "next-auth";
 import type {
   NextApiRequest,
@@ -9,6 +10,9 @@ import Providers from "next-auth/providers";
 import api from "utils/api";
 
 const createOptions = (req: NextApiRequest) => ({
+  pages: {
+    verifyRequest: "/verify"
+  },
   providers: [
     Providers.Credentials({
       name: "Credentials",
@@ -39,11 +43,16 @@ const createOptions = (req: NextApiRequest) => ({
           throw new Error("Nous n'avons pas pu vous identifier.");
         }
 
-        return {};
+        return null;
       }
+    }),
+    Providers.Email({
+      server: process.env.EMAIL_SERVER,
+      from: process.env.EMAIL_FROM
+      // maxAge: 24 * 60 * 60, // How long email links are valid for (default 24h)
     })
   ],
-  // database: process.env.DATABASE_URL,
+  database: process.env.DATABASE_URL,
   secret: process.env.SECRET,
   // JSON Web Tokens can be used for session tokens if enabled with session: { jwt: true }
   session: {
@@ -63,10 +72,14 @@ const createOptions = (req: NextApiRequest) => ({
       isNewUser?: boolean;
     }) {
       //console.log("JWT() PARAMS:", params);
+      if (!params.token) {
+        return params;
+      }
+
       const { user, account } = params;
 
       if (user && account) {
-        console.log("JWT() INITIAL SIGN IN");
+        //console.log("JWT() INITIAL SIGN IN");
       }
 
       let token = params.token;
@@ -79,16 +92,7 @@ const createOptions = (req: NextApiRequest) => ({
         token = { ...token, ...user };
       }
 
-      if (req && req.url === "/api/auth/session?update") {
-        const { data } = await api.get(`user/${token.userId}`);
-
-        if (data) {
-          const { userName, email } = data;
-          token = { ...token, userName, email };
-        }
-      }
-
-      // console.log("JWT() RETURN:", token);
+      // //console.log("JWT() RETURN:", token);
       return token;
     },
 
@@ -97,8 +101,12 @@ const createOptions = (req: NextApiRequest) => ({
      * e.g. getSession(), useSession(), /api/auth/session
      */
     async session(params: { session: Session; token: JWT }) {
+      //console.log("SESSION() PARAMS:", params);
+      if (!params.token) {
+        return params;
+      }
+
       const { session, token } = params;
-      // console.log("SESSION() PARAMS:", params);
 
       // If you want to make something available you added to the token through the jwt() callback,
       // you have to explicitly forward it here to make it available to the client.
@@ -106,7 +114,7 @@ const createOptions = (req: NextApiRequest) => ({
       const { email, userId, userName } = token;
       session.user = { email, userId, userName };
 
-      // console.log("SESSION() RETURN", session);
+      //console.log("SESSION() RETURN", session);
       return session;
     }
   },

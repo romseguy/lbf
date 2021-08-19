@@ -29,8 +29,6 @@ handler.get<NextApiRequest & { query: { orgUrl: string } }, NextApiResponse>(
         query: { orgUrl }
       } = req;
 
-      console.log(orgUrl);
-
       let org = await models.Org.findOne({ orgUrl });
 
       if (!org) {

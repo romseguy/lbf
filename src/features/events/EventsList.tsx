@@ -13,47 +13,17 @@ import {
   getMinutes,
   getDayOfYear
 } from "date-fns";
-import type { IEvent } from "models/Event";
+import { IEvent, Visibility } from "models/Event";
 import { fr } from "date-fns/locale";
 import { UpDownIcon } from "@chakra-ui/icons";
 import { css } from "twin.macro";
 import { DescriptionModal } from "features/modals/DescriptionModal";
 import DOMPurify from "isomorphic-dompurify";
 
-const addRepeatedEvents = (events: IEvent[]) => {
-  let array: IEvent[] = [];
-
-  events.forEach((event) => {
-    array.push(event);
-
-    if (event.repeat) {
-      const start = parseISO(event.eventMinDate);
-      const end = parseISO(event.eventMaxDate);
-
-      const { days = 0, hours = 0 } = intervalToDuration({
-        start,
-        end
-      });
-
-      for (let i = 1; i <= event.repeat; i++) {
-        const eventMinDate = addWeeks(start, i);
-        const eventMaxDate = addDays(addHours(eventMinDate, hours), days);
-        array.push({
-          ...event,
-          eventMinDate: formatISO(eventMinDate),
-          eventMaxDate: formatISO(eventMaxDate),
-          repeat: event.repeat + i
-        });
-      }
-    }
-  });
-
-  return array;
-};
-
 type EventsProps = {
   events: IEvent[];
   eventHeader?: any;
+  isSubscribed?: boolean;
 };
 
 export const EventsList = (props: EventsProps) => {
@@ -63,6 +33,42 @@ export const EventsList = (props: EventsProps) => {
   const [isDescriptionOpen, setIsDescriptionOpen] = useState<{
     [key: string]: boolean;
   }>({});
+
+  const addRepeatedEvents = (events: IEvent[]) => {
+    let array: IEvent[] = [];
+
+    events.forEach((event) => {
+      if (
+        event.eventVisibility === Visibility.PUBLIC ||
+        (event.eventVisibility === Visibility.SUBSCRIBERS && props.isSubscribed)
+      ) {
+        array.push(event);
+
+        if (event.repeat) {
+          const start = parseISO(event.eventMinDate);
+          const end = parseISO(event.eventMaxDate);
+
+          const { days = 0, hours = 0 } = intervalToDuration({
+            start,
+            end
+          });
+
+          for (let i = 1; i <= event.repeat; i++) {
+            const eventMinDate = addWeeks(start, i);
+            const eventMaxDate = addDays(addHours(eventMinDate, hours), days);
+            array.push({
+              ...event,
+              eventMinDate: formatISO(eventMinDate),
+              eventMaxDate: formatISO(eventMaxDate),
+              repeat: event.repeat + i
+            });
+          }
+        }
+      }
+    });
+
+    return array;
+  };
 
   const events = useMemo(() => {
     const repeatedEvents = addRepeatedEvents(props.events).sort((a, b) =>

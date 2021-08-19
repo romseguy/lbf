@@ -25,13 +25,17 @@ import {
   Stack,
   useToast,
   Alert,
-  AlertIcon
+  AlertIcon,
+  InputGroup,
+  InputRightElement
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ViewIcon,
+  ViewOffIcon,
   WarningIcon
 } from "@chakra-ui/icons";
 import { ErrorMessageText } from "features/common";
@@ -49,6 +53,7 @@ export const LoginModal = (props: {
   const [isForgotten, setIsForgotten] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordFieldType, setPasswordFieldType] = useState("password");
 
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
   const portalRef = useRef(null);
@@ -185,13 +190,30 @@ export const LoginModal = (props: {
                     isInvalid={!!errors["password"]}
                   >
                     <FormLabel>Mot de passe</FormLabel>
-                    <Input
-                      name="password"
-                      ref={register({
-                        required: "Veuillez saisir un mot de passe"
-                      })}
-                      type="password"
-                    />
+                    <InputGroup>
+                      <Input
+                        name="password"
+                        ref={register({
+                          required: "Veuillez saisir un mot de passe"
+                        })}
+                        type={passwordFieldType}
+                      />
+                      <InputRightElement
+                        cursor="pointer"
+                        children={
+                          passwordFieldType === "password" ? (
+                            <ViewIcon />
+                          ) : (
+                            <ViewOffIcon />
+                          )
+                        }
+                        onClick={() => {
+                          if (passwordFieldType === "password")
+                            setPasswordFieldType("text");
+                          else setPasswordFieldType("password");
+                        }}
+                      />
+                    </InputGroup>
                     <FormErrorMessage>
                       <ErrorMessage errors={errors} name="password" />
                     </FormErrorMessage>
@@ -234,15 +256,32 @@ export const LoginModal = (props: {
                   isInvalid={!!errors["passwordConfirm"]}
                 >
                   <FormLabel>Confirmation du mot de passe</FormLabel>
-                  <Input
-                    name="passwordConfirm"
-                    ref={register({
-                      validate: (value) =>
-                        value === password.current ||
-                        "Les mots de passe ne correspondent pas"
-                    })}
-                    type="password"
-                  />
+                  <InputGroup>
+                    <Input
+                      name="passwordConfirm"
+                      ref={register({
+                        validate: (value) =>
+                          value === password.current ||
+                          "Les mots de passe ne correspondent pas"
+                      })}
+                      type={passwordFieldType}
+                    />
+                    <InputRightElement
+                      cursor="pointer"
+                      children={
+                        passwordFieldType === "password" ? (
+                          <ViewIcon />
+                        ) : (
+                          <ViewOffIcon />
+                        )
+                      }
+                      onClick={() => {
+                        if (passwordFieldType === "password")
+                          setPasswordFieldType("text");
+                        else setPasswordFieldType("password");
+                      }}
+                    />
+                  </InputGroup>
                   <FormErrorMessage>
                     <ErrorMessage errors={errors} name="passwordConfirm" />
                   </FormErrorMessage>

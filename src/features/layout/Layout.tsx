@@ -106,7 +106,7 @@ export const Layout = ({
           pageTitle={pageTitle}
           headerBg={banner}
         />
-        <Nav py={hasVerticalScrollbar ? 7 : 0} isLogin={isLogin} />
+        <Nav py={hasVerticalScrollbar ? 7 : 0} minH="96px" isLogin={isLogin} />
         <Main {...props}>{children}</Main>
         {/* <Box position="fixed" bottom="20px" right="20px">
         <IconButton

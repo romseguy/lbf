@@ -15,6 +15,7 @@ import { wrapper } from "store";
 import { getEvent } from "features/events/eventsApi";
 import { getOrg } from "features/orgs/orgsApi";
 import { getUser } from "features/users/usersApi";
+import api from "utils/api";
 
 const Hash = ({
   event,
@@ -72,47 +73,51 @@ const Hash = ({
 
 export default Hash;
 
-export const getServerSideProps = wrapper.getServerSideProps(
-  (store) =>
-    async (ctx: GetServerSidePropsContext): Promise<any> => {
-      if (!ctx.query.name || typeof ctx.query.name[0] !== "string") {
-        return {
-          props: { routeName: "forum" }
-        };
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  if (!ctx.query.name || typeof ctx.query.name[0] !== "string") {
+    return {
+      props: { routeName: "forum" }
+    };
+  }
+
+  let routeName = ctx.query.name![0];
+
+  if (routeName === "forum") {
+    return { props: { routeName } };
+  }
+
+  if (routeName.indexOf(" ") !== -1) {
+    const destination = `/${routeName.replace(/\ /g, "_")}`;
+
+    return {
+      redirect: {
+        permanent: false,
+        destination
       }
+    };
+  }
 
-      let routeName = ctx.query.name![0];
+  const { data: event } = await api.get(`event/${routeName}`);
 
-      if (routeName) {
-        if (routeName === "forum") {
-          return { props: { routeName } };
-        }
+  if (event) {
+    const { data: user } = await api.get(`user/${event.createdBy._id}`);
 
-        const { data: event, ...eventQuery } = await store.dispatch(
-          getEvent.initiate({ eventUrl: routeName })
-        );
+    return {
+      props: { event, user, routeName }
+    };
+  }
 
-        if (event) {
-          return { props: { event, routeName } };
-        }
+  const { data: org } = await api.get(`org/${routeName}`);
 
-        const { data: org, ...orgQuery } = await store.dispatch(
-          getOrg.initiate(routeName)
-        );
+  if (org) {
+    return { props: { org, routeName } };
+  }
 
-        if (org) {
-          return { props: { org, routeName } };
-        }
+  const { data: user } = await api.get(`user/${routeName}`);
 
-        const { data: user, ...userQuery } = await store.dispatch(
-          getUser.initiate(routeName)
-        );
+  if (user) {
+    return { props: { user, routeName } };
+  }
 
-        if (user) {
-          return { props: { user, routeName } };
-        }
-      }
-
-      return Promise.resolve({ props: { routeName } });
-    }
-);
+  return { props: { routeName } };
+}

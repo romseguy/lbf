@@ -17,7 +17,8 @@ import {
   SpaceProps,
   IconButton,
   useColorMode,
-  useDisclosure
+  useDisclosure,
+  BoxProps
 } from "@chakra-ui/react";
 import { Link } from "features/common";
 import { OrgPopover, EmailSubscriptionsPopover } from "features/layout";
@@ -43,10 +44,8 @@ import { isServer } from "utils/isServer";
 const linkList = css`
   & > a {
     font-weight: bold;
-    ${tw`mr-4`}
+    margin: 20px 0;
   }
-
-  margin-left: 20px;
 
   @media (max-width: ${breakpoints.sm}) {
     margin-left: 0;
@@ -75,7 +74,7 @@ const buttonList = css`
 export const Nav = ({
   isLogin = 0,
   ...props
-}: SpaceProps & { isLogin?: number }) => {
+}: BoxProps & { isLogin?: number }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
@@ -95,6 +94,7 @@ export const Nav = ({
   } = useDisclosure({ defaultIsOpen: false });
 
   const styles = css`
+    height: auto !important;
     ${isDark
       ? tw`h-24 bg-gradient-to-b from-gray-800 via-green-600 to-gray-800`
       : tw`h-24 bg-gradient-to-b from-white via-yellow-400 to-yellow-50`}
@@ -126,7 +126,7 @@ export const Nav = ({
             }}
             leftIcon={<CalendarIcon />}
           >
-            Votre agenda local
+            Votre calendrier local
           </Button>
         </Link>
 
@@ -194,16 +194,20 @@ export const Nav = ({
             </MenuButton>
 
             <MenuList mr={[1, 3]}>
-              <MenuItem
-                aria-hidden
-                command={`${userName}`}
-                cursor="default"
-                _hover={{ bg: isDark ? "gray.700" : "white" }}
-              ></MenuItem>
+              {userName && (
+                <>
+                  <MenuItem
+                    aria-hidden
+                    command={`${userName}`}
+                    cursor="default"
+                    _hover={{ bg: isDark ? "gray.700" : "white" }}
+                  ></MenuItem>
 
-              <Link href={`/${userName}`} aria-hidden>
-                <MenuItem>Ma page</MenuItem>
-              </Link>
+                  <Link href={`/${userName}`} aria-hidden>
+                    <MenuItem>Ma page</MenuItem>
+                  </Link>
+                </>
+              )}
 
               {/* 
               <NextLink href="/settings" passHref>

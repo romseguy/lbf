@@ -5,6 +5,7 @@ import {
 } from "models/Subscription";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { signIn } from "next-auth/react";
 import {
   List,
   ListItem,
@@ -74,6 +75,7 @@ import {
   refetchSubscription,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
+import api from "utils/api";
 
 export const EmailSubscriptionsPopover = ({
   boxSize,
@@ -118,12 +120,23 @@ export const EmailSubscriptionsPopover = ({
     mode: "onChange"
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const onChange = () => {
     clearErrors("formErrorMessage");
   };
 
   const onSubmit = async ({ email }: { email: string }) => {
-    dispatch(setSubscribedEmail(email));
+    setIsLoading(true);
+    try {
+      await signIn("email", { email });
+    } catch (error) {
+      console.log("yala?", error);
+    } finally {
+      setIsLoading(false);
+    }
+    // dispatch(setSubscribedEmail(email));
+
     // const { error, data }: { error?: any; data?: ISubscription } =
     //   await dispatch(getSubscription.initiate(email));
 
@@ -139,10 +152,11 @@ export const EmailSubscriptionsPopover = ({
   const step1 = (
     <PopoverContent>
       <PopoverHeader>
-        <Heading size="md">Gérer mes abonnements</Heading>
+        <Heading size="md">Connexion par e-mail</Heading>
       </PopoverHeader>
       <PopoverBody>
-        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+        En construction.
+        {/* <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
           <ErrorMessage
             errors={errors}
             name="formErrorMessage"
@@ -174,7 +188,7 @@ export const EmailSubscriptionsPopover = ({
               <ErrorMessage errors={errors} name="email" />
             </FormErrorMessage>
           </FormControl>
-        </form>
+        </form> */}
       </PopoverBody>
       <PopoverFooter display="flex" justifyContent="space-between">
         <Button
@@ -191,10 +205,10 @@ export const EmailSubscriptionsPopover = ({
           onClick={handleSubmit(onSubmit)}
           colorScheme="green"
           type="submit"
-          // isLoading={addSubscriptionMutation.isLoading}
+          isLoading={isLoading}
           isDisabled={Object.keys(errors).length > 0}
         >
-          Valider
+          Connexion
         </Button>
       </PopoverFooter>
     </PopoverContent>

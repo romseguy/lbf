@@ -121,7 +121,7 @@ export const OrgPage = ({
           onClick={() => setIsConfig(false)}
           mb={2}
         >
-          {`Revenir à ${orgTypeFull2(org.orgType)}`}
+          {`Revenir ${orgTypeFull2(org.orgType)}`}
         </Button>
       ) : null}
 
@@ -242,7 +242,10 @@ export const OrgPage = ({
               )}
               {Array.isArray(org.orgEvents) && org.orgEvents.length > 0 ? (
                 <div>
-                  <EventsList events={org.orgEvents || []} />
+                  <EventsList
+                    events={org.orgEvents || []}
+                    isSubscribed={isSubscribed}
+                  />
                   <IconFooter />
                 </div>
               ) : null}
