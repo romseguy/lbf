@@ -179,7 +179,7 @@ export const OrgConfigBannerPanel = ({
                   }}
                   ref={register({
                     validate: (file) => {
-                      if (file && file[0].size >= 1000000) {
+                      if (file && file[0] && file[0].size >= 1000000) {
                         return "L'image ne doit pas dépasser 1Mo.";
                       }
                       return true;

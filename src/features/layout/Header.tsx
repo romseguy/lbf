@@ -5,7 +5,7 @@ import tw, { css } from "twin.macro";
 import { Flex, Text, useColorMode } from "@chakra-ui/react";
 import { SpaceProps } from "@chakra-ui/system";
 import { breakpoints } from "theme/theme";
-import { Hero, Link } from "features/common";
+import { Link } from "features/common";
 
 type HeaderProps = SpaceProps & {
   headerBg?: Base64Image;
@@ -56,12 +56,15 @@ export const Header = ({
         </Link>
 
         <Link href={router.asPath} variant="no-underline">
-          <Hero
+          <Text
+            as="h1"
+            className="rainbow-text"
             fontSize={["3xl", "3xl", "6xl"]}
-            title={pageTitle}
             py={3}
             pt={0}
-          />
+          >
+            {pageTitle}
+          </Text>
         </Link>
       </Flex>
     </Flex>

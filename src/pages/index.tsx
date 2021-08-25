@@ -28,8 +28,8 @@ const Index = ({ events }: { events?: IEvent[] }) => {
 
   const orgs = (plural?: boolean) => (
     <Text color={useColorModeValue("green", "green.200")} display="inline">
-      <Icon as={IoIosPeople} />
-      organisation{plural ? "s" : ""}
+      <Icon as={IoIosPeople} />{" "}
+      <Link href="/orgs">organisation{plural ? "s" : ""}</Link>
     </Text>
   );
   const subscribers = (plural?: boolean) => (
@@ -63,9 +63,12 @@ const Index = ({ events }: { events?: IEvent[] }) => {
           </Box> */}
           <Text align="justify" mb={3}>
             La première vocation de cet outil de communication est de co-créer
-            un <strong>calendrier local commun</strong>.
+            un <strong>calendrier local</strong>.
           </Text>
 
+          <Heading size="md" mb={3}>
+            Vous êtes un particulier :
+          </Heading>
           <Container
             borderWidth={1}
             borderColor="gray.200"
@@ -77,13 +80,13 @@ const Index = ({ events }: { events?: IEvent[] }) => {
             <List spacing={1}>
               <ListItem align="justify">
                 <ListIcon as={EmailIcon} />
-                Abonnez-vous aux {orgs(true)} à l'origine des événements pour
-                être averti sur votre e-mail des événements futurs.
+                Abonnez-vous aux {orgs(true)} et recevez un e-mail lors de la
+                publication d'un nouvel événement.
               </ListItem>
               <ListItem align="justify">
                 <ListIcon as={IoIosChatbubbles} />
-                Créez des discussions <em>publiques</em> sur les pages des{" "}
-                {orgs(true)}, de leurs événements, et du{" "}
+                Participez aux discussions sur les pages des {orgs(true)}, des
+                événements, et du{" "}
                 <Link variant="underline" href="/forum">
                   <Tag>
                     <TagLeftIcon as={ChatIcon} /> Forum
@@ -106,13 +109,12 @@ const Index = ({ events }: { events?: IEvent[] }) => {
             <List spacing={1}>
               <ListItem align="justify">
                 <ListIcon as={CalendarIcon} />
-                Publiez vos événements <em>publics</em> et retrouvez les avec
-                les événements des autres organisations sur{" "}
-                <Link variant="underline" href="/">
+                Publiez des événements public ou bien réservés à vos adhérents.
+                {/* <Link variant="underline" href="/">
                   <Tag>
                     <TagLeftIcon as={CalendarIcon} /> Votre calendrier local
                   </Tag>
-                </Link>
+                </Link> */}
               </ListItem>
               {/* <ListItem align="justify">
                   <ListIcon as={IoMdPersonAdd} />
@@ -120,13 +122,7 @@ const Index = ({ events }: { events?: IEvent[] }) => {
                 </ListItem> */}
               <ListItem align="justify">
                 <ListIcon as={IoIosChatbubbles} />
-                Créez des discussions <em>réservées</em> aux {subscribers(true)}{" "}
-                inscrits par les administrateurs de votre organisation.
-              </ListItem>
-              <ListItem align="justify">
-                <ListIcon as={CalendarIcon} />
-                Publiez des événements <em>réservés</em> aux {subscribers(true)}{" "}
-                et notifiez vos adhérent(e)s
+                Communiquez avec vos {subscribers(true)}.
               </ListItem>
             </List>
           </Container>

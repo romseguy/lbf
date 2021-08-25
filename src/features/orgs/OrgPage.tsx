@@ -58,6 +58,7 @@ export const OrgPage = ({
 }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
+  const toast = useToast({ position: "top" });
 
   //#region org
   const orgQuery = useGetOrgQuery(routeName);
@@ -101,7 +102,7 @@ export const OrgPage = ({
   });
   //#endregion
 
-  const toast = useToast({ position: "top" });
+  console.log("ORG EVENTS", org.orgEvents);
 
   return (
     <Layout pageTitle={org.orgName} isLogin={isLogin} banner={org.orgBanner}>
@@ -244,6 +245,7 @@ export const OrgPage = ({
                 <div>
                   <EventsList
                     events={org.orgEvents || []}
+                    isCreator={isCreator}
                     isSubscribed={isSubscribed}
                   />
                   <IconFooter />
@@ -253,7 +255,7 @@ export const OrgPage = ({
             <TabPanel>
               <>
                 <TopicsList
-                  entity={org}
+                  org={org}
                   query={orgQuery}
                   isCreator={isCreator}
                   isFollowed={!!isFollowed}
@@ -273,6 +275,7 @@ export const OrgPage = ({
           session={session}
           org={org}
           orgQuery={orgQuery}
+          subQuery={subQuery}
           isConfig={isConfig}
           isEdit={isEdit}
           isVisible={isVisible}

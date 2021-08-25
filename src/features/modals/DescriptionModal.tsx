@@ -33,7 +33,9 @@ export const DescriptionModal = ({
     >
       <ModalOverlay>
         <ModalContent>
-          <ModalHeader>{props.header}</ModalHeader>
+          <ModalHeader px={3} pt={1}>
+            {props.header}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody px={3} pt={0}>
             {props.children}

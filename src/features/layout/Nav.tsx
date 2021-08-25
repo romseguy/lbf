@@ -40,11 +40,13 @@ import { MapModal } from "features/modals/MapModal";
 import { getOrgs } from "features/orgs/orgsApi";
 import api from "utils/api";
 import { isServer } from "utils/isServer";
+import { IoIosPeople } from "react-icons/io";
 
 const linkList = css`
   & > a {
     font-weight: bold;
-    margin: 20px 0;
+    margin-top: 20px;
+    margin-bottom: 20px;
   }
 
   @media (max-width: ${breakpoints.sm}) {
@@ -86,12 +88,6 @@ export const Nav = ({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
     router.asPath === "/?login" || false
   );
-  const [orgs, setOrgs] = useState<IOrg[]>();
-  const {
-    isOpen: isMapModalOpen,
-    onOpen: openMapModal,
-    onClose: closeMapModal
-  } = useDisclosure({ defaultIsOpen: false });
 
   const styles = css`
     height: auto !important;
@@ -130,28 +126,30 @@ export const Nav = ({
           </Button>
         </Link>
 
-        <Button
-          bg="transparent"
-          _hover={{
-            bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
-          }}
-          leftIcon={<FaMapMarkerAlt />}
-          onClick={async () => {
-            const { error, data }: { error?: any; data?: IOrg[] } =
-              await api.get("orgs");
+        <Link href="/orgs" aria-hidden shallow>
+          <Button
+            bg="transparent"
+            _hover={{
+              bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
+            }}
+            leftIcon={<IoIosPeople />}
+            // onClick={async () => {
+            //   const { error, data }: { error?: any; data?: IOrg[] } =
+            //     await api.get("orgs");
 
-            if (error) {
-              console.log("todo: handle error", error);
-            } else if (data) {
-              setOrgs(data);
-              openMapModal();
-            }
-          }}
-        >
-          Carte des organisations
-        </Button>
+            //   if (error) {
+            //     console.log("todo: handle error", error);
+            //   } else if (data) {
+            //     setOrgs(data);
+            //     openMapModal();
+            //   }
+            // }}
+          >
+            Organisations
+          </Button>
+        </Link>
 
-        <Link href="/forum" aria-hidden>
+        <Link href="/forum" aria-hidden shallow>
           <Button
             bg="transparent"
             _hover={{
@@ -283,19 +281,6 @@ export const Nav = ({
               await router.push(url || "/");
             }
           }}
-        />
-      )}
-
-      {isMapModalOpen && (
-        <MapModal
-          isOpen={isMapModalOpen}
-          items={
-            orgs?.filter(
-              (org) =>
-                typeof org.orgLat === "number" && typeof org.orgLng === "number"
-            ) || []
-          }
-          onClose={closeMapModal}
         />
       )}
     </Flex>

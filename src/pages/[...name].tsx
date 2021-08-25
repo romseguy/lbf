@@ -10,7 +10,6 @@ import { OrgPage } from "features/orgs/OrgPage";
 import { User } from "features/users/UserPage";
 import { useRouter } from "next/router";
 import { isServer } from "utils/isServer";
-import { Forum } from "features/forum/Forum";
 import { wrapper } from "store";
 import { getEvent } from "features/events/eventsApi";
 import { getOrg } from "features/orgs/orgsApi";
@@ -32,10 +31,6 @@ const Hash = ({
 }) => {
   const router = useRouter();
 
-  if (routeName === "forum") {
-    return <Forum />;
-  }
-
   if (event) {
     return <EventPage event={event} user={user} routeName={routeName} />;
   }
@@ -50,7 +45,7 @@ const Hash = ({
 
   if (!isServer() && !error) {
     setTimeout(() => {
-      //router.push("/");
+      router.push("/");
     }, 2000);
   }
 
@@ -74,17 +69,13 @@ const Hash = ({
 export default Hash;
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  if (!ctx.query.name || typeof ctx.query.name[0] !== "string") {
+  if (!Array.isArray(ctx.query.name) || typeof ctx.query.name[0] !== "string") {
     return {
-      props: { routeName: "forum" }
+      props: {}
     };
   }
 
-  let routeName = ctx.query.name![0];
-
-  if (routeName === "forum") {
-    return { props: { routeName } };
-  }
+  let routeName = ctx.query.name[0];
 
   if (routeName.indexOf(" ") !== -1) {
     const destination = `/${routeName.replace(/\ /g, "_")}`;

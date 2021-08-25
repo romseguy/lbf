@@ -3,10 +3,18 @@ import type { IOrg } from "models/Org";
 import React, { useState } from "react";
 import { css } from "twin.macro";
 import DOMPurify from "isomorphic-dompurify";
-import { Box, Text, Tooltip } from "@chakra-ui/react";
+import { Box, Icon, Text, Tooltip } from "@chakra-ui/react";
 import { getStyleObjectFromString } from "utils/string";
 import { Link } from "features/common";
 import { DescriptionModal } from "features/modals/DescriptionModal";
+import {
+  FaMap,
+  FaMapMarked,
+  FaMapMarkedAlt,
+  FaMapMarker,
+  FaMapMarkerAlt
+} from "react-icons/fa";
+import { IoIosPeople } from "react-icons/io";
 
 const defaultStyles = `
   position: absolute;
@@ -42,6 +50,7 @@ export const Marker = ({
   const url = "eventName" in item ? item.eventUrl : item.orgUrl;
   const description =
     "eventName" in item ? item.eventDescription : item.orgDescription;
+  const address = "eventName" in item ? item.eventAddress : item.orgAddress;
 
   // if (lat && lng) {
   // const world = latLng2World({ lat, lng });
@@ -120,16 +129,26 @@ export const Marker = ({
           });
         }}
         header={
-          <Link
-            href={`/${url}`}
-            css={css`
-              letter-spacing: 0.1em;
-            `}
-            size="larger"
-            className="rainbow-text"
-          >
-            {name}
-          </Link>
+          <>
+            <Box display="inline-flex" alignItems="center">
+              <Icon as={IoIosPeople} mr={1} boxSize={6} color="green" />{" "}
+              <Link
+                href={`/${url}`}
+                css={css`
+                  letter-spacing: 0.1em;
+                `}
+                size="larger"
+                className="rainbow-text"
+              >
+                {name}
+              </Link>
+            </Box>
+            <br />
+            <Box display="inline-flex" alignItems="center">
+              <Icon as={FaMapMarkerAlt} mr={1} color="red" />
+              {address}
+            </Box>
+          </>
         }
       >
         {description &&

@@ -1,5 +1,13 @@
 import React, { useMemo, useState } from "react";
-import { Box, Icon, Text, Grid, Heading } from "@chakra-ui/react";
+import {
+  Box,
+  Icon,
+  Text,
+  Grid,
+  Heading,
+  Tooltip,
+  Flex
+} from "@chakra-ui/react";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import {
   compareAsc,
@@ -15,14 +23,34 @@ import {
 } from "date-fns";
 import { IEvent, Visibility } from "models/Event";
 import { fr } from "date-fns/locale";
-import { UpDownIcon } from "@chakra-ui/icons";
+import { EmailIcon, LockIcon, UpDownIcon } from "@chakra-ui/icons";
 import { css } from "twin.macro";
 import { DescriptionModal } from "features/modals/DescriptionModal";
 import DOMPurify from "isomorphic-dompurify";
+import { FaGlobeEurope } from "react-icons/fa";
+
+const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
+  eventVisibility === Visibility.SUBSCRIBERS ? (
+    <Tooltip label="Événement réservé aux adhérents">
+      <LockIcon boxSize={4} />
+    </Tooltip>
+  ) : // : topicVisibility === Visibility.FOLLOWERS ? (
+  //   <Tooltip label="Événement réservé aux abonnés">
+  //     <EmailIcon boxSize={4} />
+  //   </Tooltip>
+  // )
+  eventVisibility === Visibility.PUBLIC ? (
+    <Tooltip label="Événement visible par tous">
+      <span>
+        <Icon as={FaGlobeEurope} boxSize={4} />
+      </span>
+    </Tooltip>
+  ) : null;
 
 type EventsProps = {
   events: IEvent[];
   eventHeader?: any;
+  isCreator?: boolean;
   isSubscribed?: boolean;
 };
 
@@ -39,6 +67,7 @@ export const EventsList = (props: EventsProps) => {
 
     events.forEach((event) => {
       if (
+        props.isCreator ||
         event.eventVisibility === Visibility.PUBLIC ||
         (event.eventVisibility === Visibility.SUBSCRIBERS && props.isSubscribed)
       ) {
@@ -137,8 +166,12 @@ export const EventsList = (props: EventsProps) => {
                 </Text>
               </Box>
             </GridItem>
-            <GridItem light={{ bg: "white" }} dark={{ bg: "dark" }}>
-              <Box pt={2} pl={3}>
+            <GridItem
+              light={{ bg: "white" }}
+              dark={{ bg: "dark" }}
+              alignItems="center"
+            >
+              <Flex pt={2} pl={3} alignItems="center">
                 <Link
                   className="rainbow-text"
                   css={css`
@@ -149,7 +182,8 @@ export const EventsList = (props: EventsProps) => {
                 >
                   {event.eventName}
                 </Link>
-              </Box>
+                <EventVisibility eventVisibility={event.eventVisibility} />
+              </Flex>
             </GridItem>
             <GridItem
               rowSpan={2}
@@ -180,7 +214,7 @@ export const EventsList = (props: EventsProps) => {
                   Voir l'affiche de l'événement
                 </Link>
               ) : (
-                <Text fontSize="smaller" pl={3} py={2}>
+                <Text fontSize="smaller" py={2}>
                   Aucune affiche disponible.
                 </Text>
               )}

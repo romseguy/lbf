@@ -38,11 +38,13 @@ import { IUser } from "models/User";
 type OrgConfigSubscribersPanelProps = Visibility & {
   org: IOrg;
   orgQuery: any;
+  subQuery: any;
 };
 
 export const OrgConfigSubscribersPanel = ({
   org,
   orgQuery,
+  subQuery,
   isVisible,
   setIsVisible
 }: OrgConfigSubscribersPanelProps) => {
@@ -51,6 +53,7 @@ export const OrgConfigSubscribersPanel = ({
   const [deleteSubscription, deleteSubscriptionMutation] =
     useDeleteSubscriptionMutation();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [isAdd, setIsAdd] = useState(false);
   const [emailList, setEmailList] = useState("");
 
@@ -86,6 +89,8 @@ export const OrgConfigSubscribersPanel = ({
       deleteSubscriptionMutation.isLoading
     )
       return;
+
+    setIsLoading(true);
 
     const userEmail = typeof user === "object" ? user.email : email;
 
@@ -136,6 +141,7 @@ export const OrgConfigSubscribersPanel = ({
             }
           });
           orgQuery.refetch();
+          subQuery.refetch();
         }
       } else {
         await addSubscription({
@@ -154,6 +160,8 @@ export const OrgConfigSubscribersPanel = ({
         orgQuery.refetch();
       }
     }
+
+    setIsLoading(false);
   };
 
   return (
@@ -271,6 +279,7 @@ export const OrgConfigSubscribersPanel = ({
                 setIsVisible({ ...isVisible, subscribers: true });
                 setIsAdd(false);
                 orgQuery.refetch();
+                subQuery.refetch();
               }}
               data-cy="orgAddSubscribersSubmit"
             >
@@ -356,6 +365,7 @@ export const OrgConfigSubscribersPanel = ({
                             colorScheme="green"
                             mr={3}
                             cursor={
+                              isLoading ||
                               addSubscriptionMutation.isLoading ||
                               deleteSubscriptionMutation.isLoading
                                 ? "not-allowed"
@@ -392,6 +402,7 @@ export const OrgConfigSubscribersPanel = ({
                             colorScheme="purple"
                             mr={3}
                             cursor={
+                              isLoading ||
                               addSubscriptionMutation.isLoading ||
                               deleteSubscriptionMutation.isLoading
                                 ? "not-allowed"
@@ -474,6 +485,7 @@ export const OrgConfigSubscribersPanel = ({
                                   orgId: org._id
                                 });
                                 orgQuery.refetch();
+                                subQuery.refetch();
                               }
                             }}
                             data-cy="orgUnsubscribe"

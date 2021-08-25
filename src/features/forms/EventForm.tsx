@@ -123,7 +123,6 @@ export const EventForm = withGoogleApi({
   } = useForm({
     mode: "onChange"
   });
-  console.log("errors", errors);
 
   watch(["eventAddress", "eventOrgs"]);
   const eventAddress = getValues("eventAddress") || props.event?.eventAddress;

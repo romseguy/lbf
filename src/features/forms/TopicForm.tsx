@@ -28,7 +28,8 @@ import { useAddOrgDetailsMutation } from "features/orgs/orgsApi";
 import { useAddEventDetailsMutation } from "features/events/eventsApi";
 
 interface TopicFormProps extends ChakraProps {
-  entity: IOrg | IEvent;
+  org?: IOrg;
+  event?: IEvent;
   topic?: ITopic;
   isCreator?: boolean;
   isFollowed?: boolean;
@@ -38,10 +39,7 @@ interface TopicFormProps extends ChakraProps {
   onSubmit?: (topicName: string) => void;
 }
 
-let event: IEvent;
-let org: IOrg;
-
-export const TopicForm = (props: TopicFormProps) => {
+export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [addOrgDetails, addOrgDetailsMutation] = useAddOrgDetailsMutation();
@@ -49,12 +47,6 @@ export const TopicForm = (props: TopicFormProps) => {
     useAddEventDetailsMutation();
   const toast = useToast({ position: "top" });
   const visibilityOptions: string[] = [];
-
-  if ("orgName" in props.entity) {
-    org = props.entity as IOrg;
-  } else {
-    event = props.entity as IEvent;
-  }
 
   if (org && org.orgName !== "aucourant") {
     visibilityOptions.push(Visibility.PUBLIC);
@@ -112,7 +104,7 @@ export const TopicForm = (props: TopicFormProps) => {
       }
 
       toast({
-        title: "Votre discussion a bien été ajouté !",
+        title: "Votre discussion a bien été ajoutée !",
         status: "success",
         isClosable: true
       });

@@ -202,9 +202,9 @@ export const LoginModal = (props: {
                         cursor="pointer"
                         children={
                           passwordFieldType === "password" ? (
-                            <ViewIcon />
-                          ) : (
                             <ViewOffIcon />
+                          ) : (
+                            <ViewIcon />
                           )
                         }
                         onClick={() => {

@@ -58,6 +58,7 @@ export const EventPage = (props: {
 }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
+  const toast = useToast({ position: "top" });
 
   //#region event
   const eventQuery = useGetEventQuery({
@@ -98,8 +99,6 @@ export const EventPage = (props: {
     banner: false
   });
   //#endregion
-
-  const toast = useToast({ position: "top" });
 
   return (
     <Layout
@@ -317,7 +316,7 @@ export const EventPage = (props: {
                 >
                   <Box p={5}>
                     <TopicsList
-                      entity={event}
+                      event={event}
                       query={eventQuery}
                       isCreator={isCreator}
                       isFollowed={!!isFollowed}

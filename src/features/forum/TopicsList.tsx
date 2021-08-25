@@ -1,16 +1,13 @@
 import type { IEvent } from "models/Event";
 import type { IOrg } from "models/Org";
-import type { ISubscription } from "models/Subscription";
 import type { ITopic } from "models/Topic";
 import { Visibility } from "models/Topic";
 import React, { useEffect, useState } from "react";
 import {
-  BellIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   EmailIcon,
-  LockIcon,
-  ViewIcon
+  LockIcon
 } from "@chakra-ui/icons";
 import { Box } from "@chakra-ui/layout";
 import {
@@ -23,14 +20,7 @@ import {
   useColorMode,
   useToast
 } from "@chakra-ui/react";
-import {
-  DeleteButton,
-  Grid,
-  GridItem,
-  IconFooter,
-  Link,
-  Spacer
-} from "features/common";
+import { DeleteButton, Grid, GridItem } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { TopicMessagesList } from "./TopicMessagesList";
 import { AddIcon } from "@chakra-ui/icons";
@@ -66,11 +56,9 @@ const TopicVisibility = ({ topicVisibility }: { topicVisibility?: string }) =>
     </Tooltip>
   ) : null;
 
-let event: IEvent;
-let org: IOrg;
-
 export const TopicsList = ({
-  entity,
+  event,
+  org,
   query,
   isCreator,
   isFollowed,
@@ -79,7 +67,8 @@ export const TopicsList = ({
   setIsLogin,
   ...props
 }: GridProps & {
-  entity: IEvent | IOrg;
+  event?: IEvent;
+  org?: IOrg;
   query: any;
   isCreator?: boolean;
   isFollowed?: boolean;
@@ -90,7 +79,9 @@ export const TopicsList = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const { data: session, loading: isSessionLoading } = useSession();
+  const toast = useToast({ position: "top" });
 
+  //#region subscription
   const subQuery = useGetSubscriptionQuery(session?.user.userId);
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
@@ -101,23 +92,24 @@ export const TopicsList = ({
     useDeleteSubscriptionMutation();
   const [addSubscription, addSubscriptionMutation] =
     useAddSubscriptionMutation();
+  //#endregion
 
+  //#region topic
   const [deleteTopic, deleteTopicQuery] = useDeleteTopicMutation();
-  const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(true);
+  //#endregion
 
-  if ("orgName" in entity) {
-    org = entity as IOrg;
-  } else {
-    event = entity as IEvent;
-  }
-  const entityName = org ? org.orgName : event.eventName;
-  let entityTopics: ITopic[] = org ? org.orgTopics : event.eventTopics;
-
-  const topicsCount = Array.isArray(entityTopics) ? entityTopics.length : 0;
-
+  //#region local state
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
   const [topic, setTopic] = useState<ITopic | null>(null);
-  const toast = useToast({ position: "top" });
+  const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(true);
+  const entityName = org ? org.orgName : event?.eventName;
+  let entityTopics: ITopic[] = org
+    ? org.orgTopics
+    : event
+    ? event.eventTopics
+    : [];
+  const topicsCount = Array.isArray(entityTopics) ? entityTopics.length : 0;
+  //#endregion
 
   return (
     <>
@@ -140,9 +132,10 @@ export const TopicsList = ({
         Ajouter une discussion
       </Button>
 
-      {isTopicModalOpen && entity && (
+      {isTopicModalOpen && (
         <TopicModal
-          entity={entity}
+          org={org}
+          event={event}
           isCreator={isCreator}
           isFollowed={isFollowed}
           isSubscribed={isSubscribed}
@@ -158,7 +151,7 @@ export const TopicsList = ({
 
       <Grid data-cy="topicList" {...props}>
         <GridItem>
-          {entity && topicsCount > 0 ? (
+          {topicsCount > 0 ? (
             <>
               {/* <Spacer borderWidth={1} /> */}
               {entityTopics

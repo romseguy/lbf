@@ -16,6 +16,7 @@ export const OrgConfigPanel = ({
   session,
   org,
   orgQuery,
+  subQuery,
   isConfig,
   isEdit,
   isVisible,
@@ -26,6 +27,7 @@ export const OrgConfigPanel = ({
   session: AppSession;
   org: IOrg;
   orgQuery: any;
+  subQuery: any;
   isConfig: boolean;
   isEdit: boolean;
   setIsConfig: (isConfig: boolean) => void;
@@ -141,6 +143,7 @@ export const OrgConfigPanel = ({
             <OrgConfigSubscribersPanel
               org={org}
               orgQuery={orgQuery}
+              subQuery={subQuery}
               isVisible={isVisible}
               setIsVisible={setIsVisible}
             />

@@ -1,16 +1,6 @@
-import {
-  BrowserView,
-  MobileView,
-  isBrowser,
-  isMobile
-} from "react-device-detect";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { AddIcon } from "@chakra-ui/icons";
 import { useSession } from "hooks/useAuth";
-import { Layout } from "features/layout";
-import { Button } from "features/common";
-import { TopicModal } from "features/modals/TopicModal";
 import { useGetOrgQuery } from "features/orgs/orgsApi";
 import { TopicsList } from "./TopicsList";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
@@ -20,15 +10,22 @@ import {
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { useSelector } from "react-redux";
+import { Spinner } from "@chakra-ui/react";
 
-export const Forum = () => {
+export const Forum = ({
+  isLogin,
+  setIsLogin
+}: {
+  isLogin: number;
+  setIsLogin: (isLogin: number) => void;
+}) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
 
+  //#region org
   const query = useGetOrgQuery("aucourant");
   const org = query.data;
   let isCreator = false;
-
   if (session && org) {
     if (
       typeof org.createdBy === "object" &&
@@ -39,7 +36,9 @@ export const Forum = () => {
       isCreator = true;
     }
   }
+  //#endregion
 
+  //#region subscription
   const subQuery = useGetSubscriptionQuery(session?.user.userId);
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
@@ -59,22 +58,23 @@ export const Forum = () => {
       setIsSubscribed(isSubscribedBy(org, subQuery));
     }
   }, [org, subQuery.data]);
+  //#endregion
 
-  const [isLogin, setIsLogin] = useState(0);
+  if (query.isLoading) {
+    return <Spinner />;
+  }
+
+  if (!org) return null;
 
   return (
-    <Layout pageTitle="Forum" isLogin={isLogin} p={isMobile ? 5 : 5}>
-      {org && (
-        <TopicsList
-          entity={org}
-          query={query}
-          isCreator={isCreator}
-          isFollowed={isFollowed}
-          isSubscribed={isSubscribed}
-          setIsLogin={setIsLogin}
-          isLogin={isLogin}
-        />
-      )}
-    </Layout>
+    <TopicsList
+      org={org}
+      query={query}
+      isCreator={isCreator}
+      isFollowed={isFollowed}
+      isSubscribed={isSubscribed}
+      setIsLogin={setIsLogin}
+      isLogin={isLogin}
+    />
   );
 };

@@ -2,7 +2,7 @@ import NextNprogress from "nextjs-progressbar";
 import type { Base64Image } from "utils/image";
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
-import { Hero, DarkModeSwitch, Link } from "features/common";
+import { DarkModeSwitch, Link } from "features/common";
 import { Header, Main, Nav } from "features/layout";
 import { Flex, Spinner, Text, BoxProps, useColorMode } from "@chakra-ui/react";
 import { css } from "twin.macro";

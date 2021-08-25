@@ -14,7 +14,8 @@ import {
 import { TopicForm } from "features/forms/TopicForm";
 
 export const TopicModal = (props: {
-  entity: IOrg | IEvent;
+  org?: IOrg;
+  event?: IEvent;
   topic?: ITopic;
   isCreator?: boolean;
   isFollowed?: boolean;
