@@ -26,6 +26,7 @@ import { Visibility, VisibilityV } from "models/Topic";
 import { handleError } from "utils/form";
 import { useAddOrgDetailsMutation } from "features/orgs/orgsApi";
 import { useAddEventDetailsMutation } from "features/events/eventsApi";
+import { useEditTopicMutation } from "features/forum/topicsApi";
 
 interface TopicFormProps extends ChakraProps {
   org?: IOrg;
@@ -36,7 +37,7 @@ interface TopicFormProps extends ChakraProps {
   isSubscribed?: boolean;
   onClose?: () => void;
   onCancel?: () => void;
-  onSubmit?: (topicName: string) => void;
+  onSubmit?: (topic: ITopic | null) => void;
 }
 
 export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
@@ -45,6 +46,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
   const [addOrgDetails, addOrgDetailsMutation] = useAddOrgDetailsMutation();
   const [addEventDetails, addEventDetailsMutation] =
     useAddEventDetailsMutation();
+  const [editTopic, editTopicMutation] = useEditTopicMutation();
   const toast = useToast({ position: "top" });
   const visibilityOptions: string[] = [];
 
@@ -94,23 +96,42 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
     };
 
     try {
-      if (org) {
-        await addOrgDetails({ payload, orgUrl: org.orgUrl }).unwrap();
-      } else if (event) {
-        await addEventDetails({
-          payload,
-          eventUrl: event.eventUrl
+      if (props.topic) {
+        await editTopic({
+          payload: payload.topic,
+          topicId: props.topic._id
         }).unwrap();
+
+        toast({
+          title: "Votre discussion a bien été modifiée",
+          status: "success",
+          isClosable: true
+        });
+
+        setIsLoading(false);
+        props.onSubmit && props.onSubmit(props.topic);
+      } else {
+        let topic: ITopic | null = null;
+
+        if (org) {
+          topic = await addOrgDetails({ payload, orgUrl: org.orgUrl }).unwrap();
+        } else if (event) {
+          topic = await addEventDetails({
+            payload,
+            eventUrl: event.eventUrl
+          }).unwrap();
+        }
+
+        toast({
+          title: "Votre discussion a bien été ajoutée !",
+          status: "success",
+          isClosable: true
+        });
+
+        setIsLoading(false);
+        props.onSubmit && props.onSubmit(topic);
       }
 
-      toast({
-        title: "Votre discussion a bien été ajoutée !",
-        status: "success",
-        isClosable: true
-      });
-
-      setIsLoading(false);
-      props.onSubmit && props.onSubmit(form.topicName);
       props.onClose && props.onClose();
     } catch (error) {
       handleError(error, (message, field) => {
@@ -142,12 +163,12 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         isInvalid={!!errors["topicName"]}
         mb={3}
       >
-        <FormLabel>Titre de la discussion</FormLabel>
+        <FormLabel>Objet de la discussion</FormLabel>
         <Input
           name="topicName"
-          placeholder="Cliquez ici pour saisir le titre..."
+          placeholder="Cliquez ici pour saisir l'objet de la discussion..."
           ref={register({
-            required: "Veuillez saisir le titre de la discussion"
+            required: "Veuillez saisir l'objet de la discussion"
           })}
           defaultValue={props.topic && props.topic.topicName}
         />
@@ -220,7 +241,12 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         <Button
           colorScheme="green"
           type="submit"
-          isLoading={isLoading || addOrgDetailsMutation.isLoading}
+          isLoading={
+            isLoading ||
+            addOrgDetailsMutation.isLoading ||
+            addEventDetailsMutation.isLoading ||
+            editTopicMutation.isLoading
+          }
           isDisabled={Object.keys(errors).length > 0}
           data-cy="addTopic"
         >

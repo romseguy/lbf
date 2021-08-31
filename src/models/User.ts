@@ -14,6 +14,7 @@ export interface IUser {
   securityCode: string;
   userName: string;
   userImage?: Base64Image;
+  isAdmin: boolean;
   validatePassword(password: string): boolean;
 }
 
@@ -43,7 +44,8 @@ export const UserSchema = new Schema<IUser>(
       base64: String,
       width: Number,
       height: Number
-    }
+    },
+    isAdmin: Schema.Types.Boolean
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );
@@ -74,7 +76,8 @@ UserSchema.pre("save", async function (next: HookNextFunction) {
     try {
       const nameParts = thisObj.email.replace(/@.+/, "");
       const name = nameParts.replace(/[&/\\#,+()$~%._@'":*?<>{}]/g, "");
-      const userName = name + randomNumber(4);
+      const userName =
+        name.match(/[0-9]/) === null ? name + randomNumber(4) : name;
       thisObj.userName = userName;
     } catch (error) {
       return next(error);

@@ -20,7 +20,7 @@ export const orgApi = createApi({
       invalidatesTags: [{ type: "Orgs", id: "LIST" }]
     }),
     addOrgDetails: build.mutation<
-      IOrg,
+      ITopic,
       { payload: { topic?: ITopic }; orgUrl?: string }
     >({
       query: ({ payload, orgUrl }) => ({

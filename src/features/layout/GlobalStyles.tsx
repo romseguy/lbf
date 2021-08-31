@@ -67,7 +67,7 @@ const RainbowTextStyles = `
       #a7489b 83.333%
     );
 
-    /* Set thee background size and repeat properties. */
+    /* Set the background size and repeat properties. */
     background-size: 57%;
     background-repeat: repeat;
 

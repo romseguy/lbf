@@ -146,7 +146,7 @@ export const OrgPopover = ({
               )}
 
               <Heading size="sm" mt={hasOrgs ? 2 : 0} mb={1}>
-                ...où je suis adhérent(e) :
+                ...où je suis adhérent :
               </Heading>
               {query.isLoading || query.isFetching ? (
                 <Spinner />
@@ -177,7 +177,7 @@ export const OrgPopover = ({
                 </List>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
-                  Personne ne vous a inscrit(e) en tant qu'adhérent, bientôt
+                  Personne ne vous a inscrit en tant qu'adhérent, bientôt
                   peut-être ?
                 </Text>
               )}

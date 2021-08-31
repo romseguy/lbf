@@ -32,7 +32,8 @@ const createOptions = (req: NextApiRequest) => ({
           const user = {
             email,
             userId: data._id,
-            userName: data.userName
+            userName: data.userName,
+            isAdmin: data.isAdmin || false
           };
           //console.log("AUTHORIZED:", user);
           return user;
@@ -111,8 +112,8 @@ const createOptions = (req: NextApiRequest) => ({
       // If you want to make something available you added to the token through the jwt() callback,
       // you have to explicitly forward it here to make it available to the client.
       // e.g. getSession(), useSession(), /api/auth/session
-      const { email, userId, userName } = token;
-      session.user = { email, userId, userName };
+      const { email, userId, userName, isAdmin } = token;
+      session.user = { email, userId, userName, isAdmin };
 
       //console.log("SESSION() RETURN", session);
       return session;

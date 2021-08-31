@@ -22,7 +22,7 @@ export const TopicModal = (props: {
   isSubscribed?: boolean;
   onCancel: () => void;
   onClose: () => void;
-  onSubmit: (topicName: string) => void;
+  onSubmit: (topic: ITopic | null) => void;
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
 
@@ -37,7 +37,9 @@ export const TopicModal = (props: {
     >
       <ModalOverlay>
         <ModalContent>
-          <ModalHeader>Ajouter un sujet de discussion</ModalHeader>
+          <ModalHeader>
+            {props.topic ? "Modifier la discussion" : "Ajouter une discussion"}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <TopicForm {...props} />

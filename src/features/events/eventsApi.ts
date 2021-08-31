@@ -17,7 +17,7 @@ export const eventApi = createApi({
       invalidatesTags: [{ type: "Events", id: "LIST" }]
     }),
     addEventDetails: build.mutation<
-      IEvent,
+      ITopic,
       { payload: { topic?: ITopic }; eventUrl?: string }
     >({
       query: ({ payload, eventUrl }) => ({

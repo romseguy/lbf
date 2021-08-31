@@ -30,14 +30,17 @@ export const topicsApi = createApi({
     // }),
     deleteTopic: build.mutation<ITopic, string>({
       query: (topicId) => ({ url: `topic/${topicId}`, method: "DELETE" })
+    }),
+    editTopic: build.mutation<
+      ITopic,
+      { payload: Partial<ITopic>; topicId?: string }
+    >({
+      query: ({ payload, topicId }) => ({
+        url: `topic/${topicId ? topicId : payload._id}`,
+        method: "PUT",
+        body: payload
+      })
     })
-    // editTopic: build.mutation<ITopic, { payload: Partial<ITopic>; topicUrl?: string }>({
-    //   query: ({ payload, topicUrl }) => ({
-    //     url: `topic/${topicUrl || payload.topicUrl}`,
-    //     method: "PUT",
-    //     body: payload
-    //   })
-    // }),
     // getTopics: build.query<ITopic[], undefined>({
     //   query: () => ({ url: `topics` })
     // }),
@@ -53,8 +56,8 @@ export const topicsApi = createApi({
 export const {
   // useAddTopicMutation,
   // useAddTopicDetailsMutation,
-  useDeleteTopicMutation
-  // useEditTopicMutation,
+  useDeleteTopicMutation,
+  useEditTopicMutation
   // useGetTopicsQuery,
   // useGetTopicByNameQuery,
   // useGetTopicsByCreatorQuery

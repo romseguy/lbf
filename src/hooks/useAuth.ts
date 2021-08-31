@@ -25,6 +25,7 @@ export type AppSession =
         userName: string;
         userImage?: string;
         email: string;
+        isAdmin: boolean;
       };
     };
 

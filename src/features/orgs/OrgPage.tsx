@@ -13,9 +13,17 @@ import {
   Grid,
   useToast,
   TabPanels,
-  TabPanel
+  TabPanel,
+  Icon,
+  Flex,
+  Tooltip
 } from "@chakra-ui/react";
-import { AddIcon, ArrowBackIcon, SettingsIcon } from "@chakra-ui/icons";
+import {
+  AddIcon,
+  ArrowBackIcon,
+  EditIcon,
+  SettingsIcon
+} from "@chakra-ui/icons";
 import {
   Button,
   GridHeader,
@@ -73,7 +81,8 @@ export const OrgPage = ({
     typeof org.createdBy === "object" ? org.createdBy.userName : "";
   const orgCreatedByUserId =
     typeof org.createdBy === "object" ? org.createdBy._id : "";
-  const isCreator = session?.user.userId === orgCreatedByUserId;
+  const isCreator =
+    session?.user.userId === orgCreatedByUserId || session?.user.isAdmin;
   //#endregion
 
   //#region sub
@@ -101,8 +110,6 @@ export const OrgPage = ({
     subscribers: false
   });
   //#endregion
-
-  console.log("ORG EVENTS", org.orgEvents);
 
   return (
     <Layout pageTitle={org.orgName} isLogin={isLogin} banner={org.orgBanner}>
@@ -174,9 +181,28 @@ export const OrgPage = ({
               <>
                 <Grid templateRows="auto 1fr">
                   <GridHeader borderTopRadius="lg" alignItems="center">
-                    <Heading size="sm" py={3}>
-                      Description {orgTypeFull(org.orgType)}
-                    </Heading>
+                    <Flex flexDirection="row" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Description {orgTypeFull(org.orgType)}
+                      </Heading>
+                      {org.orgDescription && isCreator && (
+                        <Tooltip
+                          placement="bottom"
+                          label="Modifier la description"
+                        >
+                          <Icon
+                            as={EditIcon}
+                            cursor="pointer"
+                            ml={3}
+                            _hover={{ color: "green" }}
+                            onClick={() => {
+                              setIsConfig(true);
+                              setIsEdit(true);
+                            }}
+                          />
+                        </Tooltip>
+                      )}
+                    </Flex>
                   </GridHeader>
 
                   <GridItem

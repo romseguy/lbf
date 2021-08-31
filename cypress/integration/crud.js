@@ -1,9 +1,16 @@
 import { OrgTypes, OrgTypesV } from "models/Org";
 
 const userName = "romseguy8933";
+
 const eventName = "test event";
+const eventUrl = "test_event";
+const newEventUrl = eventUrl + "t";
 const eventDescription = "";
+
 const orgName = "test test";
+const orgUrl = "test_test";
+const newOrgUrl = orgUrl + "t";
+
 const skipVisit = true;
 
 describe("CRUD", () => {
@@ -95,13 +102,13 @@ describe("CRUD", () => {
       cy.get("[data-cy=eventFormSubmit").click();
       cy.location("pathname", { timeout: 10000 }).should(
         "include",
-        `/${eventName}`
+        `/${eventUrl}`
       );
       cy.get("[data-cy=eventSettings]").should("have.length", 1);
       cy.get(`[data-cy=eventCreatedBy-${orgName}]`)
         .should("have.length", 1)
         .should("have.attr", "href")
-        .and("include", `/${orgName}`);
+        .and("include", `/${orgUrl}`);
       // cy.get("[data-cy=homeLink]").click();
       // cy.location("pathname", { timeout: 10000 }).should("include", "/");
       // cy.findByRole("link", { name: eventName })
@@ -186,15 +193,14 @@ describe("CRUD", () => {
       cy.visit(`/${orgName}`);
       cy.location("pathname", { timeout: 10000 }).should(
         "include",
-        `/${orgName}`
+        `/${orgUrl}`
       );
       cy.get("[data-cy=orgSettings]").should("have.length", 1);
     });
 
     it("updates orgName", () => {
-      if (!skipVisit) cy.visit(`/${orgName}`);
+      if (!skipVisit) cy.visit(`/${orgUrl}`);
 
-      const newOrgName = orgName + "t";
       cy.get("[data-cy=orgSettings]").click();
       cy.get("[data-cy=orgEdit]").click();
       cy.wait(10000);
@@ -202,24 +208,24 @@ describe("CRUD", () => {
       cy.get("form").submit();
       cy.location("pathname", { timeout: 10000 }).should(
         "include",
-        `/${newOrgName}`
+        `/${newOrgUrl}`
       );
     });
   });
 
   describe("/event", () => {
     it("lands", () => {
-      cy.visit(`/${eventName}`);
+      cy.visit(`/${eventUrl}`);
       cy.location("pathname", { timeout: 10000 }).should(
         "include",
-        `/${eventName}`
+        `/${eventUrl}`
       );
       cy.get("[data-cy=eventSettings]").should("have.length", 1);
     });
 
     it("updates event description", () => {
       if (!skipVisit) {
-        cy.visit(`/${eventName}`);
+        cy.visit(`/${eventUrl}`);
       }
       cy.get("[data-cy=eventSettings]").click();
       cy.get("[data-cy=eventEdit]").click();
@@ -234,7 +240,6 @@ describe("CRUD", () => {
       if (!skipVisit) {
         cy.visit(`/${eventName}`);
       }
-      const newEventName = eventName + "t";
       cy.get("[data-cy=eventSettings]").click();
       cy.get("[data-cy=eventEdit]").click();
       cy.wait(10000);
@@ -242,7 +247,7 @@ describe("CRUD", () => {
       cy.get("form").submit();
       cy.location("pathname", { timeout: 10000 }).should(
         "include",
-        `/${newEventName}`
+        `/${newEventUrl}`
       );
     });
   });

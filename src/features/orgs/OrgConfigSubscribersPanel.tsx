@@ -97,7 +97,7 @@ export const OrgConfigSubscribersPanel = ({
     if (type === SubscriptionTypes.FOLLOWER) {
       if (following) {
         const unsubscribe = confirm(
-          `Êtes vous sûr(e) de vouloir retirer ${userEmail} de la liste des abonné(e)s ${orgTypeFull(
+          `Êtes vous sûr de vouloir retirer ${userEmail} de la liste des abonnés ${orgTypeFull(
             org.orgType
           )} ${org.orgName} ?`
         );
@@ -129,7 +129,7 @@ export const OrgConfigSubscribersPanel = ({
     } else if (type === SubscriptionTypes.SUBSCRIBER) {
       if (subscribing) {
         const unsubscribe = confirm(
-          `Êtes vous sûr(e) de vouloir retirer ${userEmail} de la liste des adhérent(e)s ${orgTypeFull(
+          `Êtes vous sûr de vouloir retirer ${userEmail} de la liste des adhérents ${orgTypeFull(
             org.orgType
           )} ${org.orgName} ?`
         );
@@ -335,6 +335,10 @@ export const OrgConfigSubscribersPanel = ({
                   const { email, user, orgs = [] } = subscription;
                   const userEmail =
                     typeof user === "object" ? user.email : email;
+                  console.log(user);
+
+                  console.log(userEmail);
+
                   const userName =
                     typeof user === "object" ? user.userName : "";
                   let following: IOrgSubscription | null = null;
@@ -358,7 +362,7 @@ export const OrgConfigSubscribersPanel = ({
                           hasArrow
                           label={`${
                             following ? "Retirer de" : "Ajouter à"
-                          } la liste des abonné(e)s`}
+                          } la liste des abonnés`}
                         >
                           <Tag
                             variant={following ? "solid" : "outline"}
@@ -395,7 +399,7 @@ export const OrgConfigSubscribersPanel = ({
                           hasArrow
                           label={`${
                             subscribing ? "Retirer de" : "Ajouter à"
-                          } la liste des adhérent(e)s`}
+                          } la liste des adhérents`}
                         >
                           <Tag
                             variant={subscribing ? "solid" : "outline"}
@@ -474,7 +478,7 @@ export const OrgConfigSubscribersPanel = ({
                             }
                             onClick={async () => {
                               const unsubscribe = confirm(
-                                `Êtes vous sûr(e) de vouloir supprimer l'abonnement ${userEmail} de ${orgTypeFull(
+                                `Êtes vous sûr de vouloir supprimer l'abonnement ${userEmail} de ${orgTypeFull(
                                   org.orgType
                                 )} ${org.orgName} ?`
                               );

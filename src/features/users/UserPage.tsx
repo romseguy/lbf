@@ -17,7 +17,8 @@ import {
   Grid,
   GridItem,
   Textarea,
-  FormLabel
+  FormLabel,
+  Alert
 } from "@chakra-ui/react";
 import { wrapper } from "store";
 import { isServer } from "utils/isServer";
@@ -80,28 +81,35 @@ export const User = ({
   return (
     <Layout pageTitle={user.userName}>
       <>
-        <Flex mb={5}>
+        <Flex mb={5} flexDirection="column">
           {user.email === session?.user.email && (
             <>
-              <Button
-                aria-label="Modifier"
-                leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-                mr={3}
-                onClick={() => setIsEdit(!isEdit)}
-                css={css`
-                  &:hover {
-                    ${tw`bg-green-300`}
-                  }
-                `}
-                data-cy="userEdit"
-              >
-                {isEdit ? "Retour" : "Modifier"}
-              </Button>
+              <Box>
+                <Button
+                  aria-label="Modifier"
+                  leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+                  mr={3}
+                  onClick={() => setIsEdit(!isEdit)}
+                  css={css`
+                    &:hover {
+                      ${tw`bg-green-300`}
+                    }
+                  `}
+                  data-cy="userEdit"
+                >
+                  {isEdit ? "Retour" : "Modifier"}
+                </Button>
+              </Box>
+              {session?.user.isAdmin && (
+                <Alert mt={3} status="info">
+                  Vous êtes administrateur.
+                </Alert>
+              )}
               {/* <DeleteButton
               isLoading={isLoading}
               body={
                 <Box p={5} lineHeight={2}>
-                  <WarningIcon color="red" /> Êtes vous certain(e) de vouloir
+                  <WarningIcon color="red" /> Êtes vous certain de vouloir
                   supprimer l'événement{" "}
                   <Text display="inline" color="red" fontWeight="bold">
                     {org.orgName}

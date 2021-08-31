@@ -31,6 +31,8 @@ export const addOrUpdateTopic = async ({
 
   if (body.topic._id) {
     // existing topic: must have a message to add
+    console.log("existing topic");
+
     if (!body.topic.topicMessages || !body.topic.topicMessages.length) {
       return res.status(200).json(event || org);
     }
@@ -67,7 +69,7 @@ export const addOrUpdateTopic = async ({
       transport
     });
   } else {
-    // new topic
+    console.log("new topic");
     topic = await models.Topic.create(body.topic);
     createdBy = toString(topic.createdBy);
 
@@ -104,4 +106,6 @@ export const addOrUpdateTopic = async ({
   }
 
   await subscribeUserToTopic(createdBy, topic);
+
+  return topic;
 };

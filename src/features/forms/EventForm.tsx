@@ -283,9 +283,9 @@ export const EventForm = withGoogleApi({
         toast({
           title:
             Array.isArray(res.emailList) && res.emailList.length > 0
-              ? `Une invitation a été envoyée à ${
-                  res.emailList.length
-                } abonné(e)${res.emailList.length > 1 ? "s" : ""}`
+              ? `Une invitation a été envoyée à ${res.emailList.length} abonné${
+                  res.emailList.length > 1 ? "s" : ""
+                }`
               : "Votre événement a bien été modifié !",
           status: "success",
           isClosable: true
@@ -699,7 +699,7 @@ export const EventForm = withGoogleApi({
               <Alert status="info" mb={3}>
                 <AlertIcon />
                 <Box>
-                  Pour envoyer un e-mail d'invitation aux abonné(e)s de vos
+                  Pour envoyer un e-mail d'invitation aux abonnés de vos
                   organisations, cochez une ou plusieurs des cases
                   correspondantes :
                   <CheckboxGroup>
@@ -746,7 +746,7 @@ export const EventForm = withGoogleApi({
                                 <Td>{org.orgName}</Td>
                                 <Td textAlign="right">
                                   <Tag fontSize="smaller">
-                                    {orgFollowersCount} abonné(e)s
+                                    {orgFollowersCount} abonnés
                                   </Tag>
                                 </Td>
                               </Tr>
@@ -767,7 +767,7 @@ export const EventForm = withGoogleApi({
               <AlertIcon />
               Cet événement {props.event ? "doit" : "devra"} être approuvé par
               un modérateur avant que vous puissiez envoyer un e-mail
-              d'invitation aux abonné(e)s des organisations sélectionnées
+              d'invitation aux abonnés des organisations sélectionnées
               ci-dessus.
             </Alert>
           )}

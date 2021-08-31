@@ -16,9 +16,15 @@ import {
   Grid,
   Alert,
   AlertIcon,
-  useToast
+  useToast,
+  Tooltip
 } from "@chakra-ui/react";
-import { ArrowBackIcon, AtSignIcon, SettingsIcon } from "@chakra-ui/icons";
+import {
+  ArrowBackIcon,
+  AtSignIcon,
+  EditIcon,
+  SettingsIcon
+} from "@chakra-ui/icons";
 import { IoIosPeople } from "react-icons/io";
 import {
   Button,
@@ -204,9 +210,25 @@ export const EventPage = (props: {
               dark={{ bg: "gray.500" }}
             >
               <GridHeader borderTopRadius="lg" alignItems="center">
-                <Heading size="sm" py={3}>
-                  Description
-                </Heading>
+                <Flex flexDirection="row" alignItems="center">
+                  <Heading size="sm" py={3}>
+                    Description
+                  </Heading>
+                  {event.eventDescription && isCreator && (
+                    <Tooltip placement="bottom" label="Modifier la description">
+                      <Icon
+                        as={EditIcon}
+                        cursor="pointer"
+                        ml={3}
+                        _hover={{ color: "green" }}
+                        onClick={() => {
+                          setIsConfig(true);
+                          setIsEdit(true);
+                        }}
+                      />
+                    </Tooltip>
+                  )}
+                </Flex>
               </GridHeader>
 
               <GridItem>

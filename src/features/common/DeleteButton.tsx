@@ -17,11 +17,9 @@ import {
   AlertDialogHeader,
   AlertDialogBody,
   AlertDialogFooter,
-  Tooltip,
-  SpaceProps
+  Tooltip
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
-import tw, { css } from "twin.macro";
 
 export const DeleteButton = ({
   onClick,
@@ -30,10 +28,12 @@ export const DeleteButton = ({
   isIconOnly,
   header,
   body,
+  placement = "left",
   ...props
-}: SpaceProps & {
+}: any & {
   header: React.ReactNode;
   body: React.ReactNode;
+  placement: string;
   onClick: () => void;
   isDisabled?: boolean;
   isLoading?: boolean;
@@ -46,7 +46,7 @@ export const DeleteButton = ({
   return (
     <>
       {isIconOnly ? (
-        <Tooltip label="Supprimer" placement="left">
+        <Tooltip label="Supprimer" placement={placement}>
           <DeleteIcon
             {...props}
             onClick={(e) => {

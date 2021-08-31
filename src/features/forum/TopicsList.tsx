@@ -6,8 +6,11 @@ import React, { useEffect, useState } from "react";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
+  EditIcon,
   EmailIcon,
-  LockIcon
+  LockIcon,
+  ViewIcon,
+  ViewOffIcon
 } from "@chakra-ui/icons";
 import { Box } from "@chakra-ui/layout";
 import {
@@ -99,8 +102,12 @@ export const TopicsList = ({
   //#endregion
 
   //#region local state
-  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
-  const [topic, setTopic] = useState<ITopic | null>(null);
+  const [topicModalState, setTopicModalState] = useState<{
+    isOpen: boolean;
+    topic?: ITopic;
+  }>({ isOpen: false, topic: undefined });
+  const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
+
   const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(true);
   const entityName = org ? org.orgName : event?.eventName;
   let entityTopics: ITopic[] = org
@@ -119,8 +126,8 @@ export const TopicsList = ({
         onClick={() => {
           if (!isSessionLoading) {
             if (session) {
-              //setTopic(null);
-              setIsTopicModalOpen(true);
+              //setCurrentTopic(null);
+              setTopicModalState({ ...topicModalState, isOpen: true });
             } else {
               setIsLogin(isLogin + 1);
             }
@@ -132,20 +139,26 @@ export const TopicsList = ({
         Ajouter une discussion
       </Button>
 
-      {isTopicModalOpen && (
+      {topicModalState.isOpen && (
         <TopicModal
+          topic={topicModalState.topic}
           org={org}
           event={event}
           isCreator={isCreator}
           isFollowed={isFollowed}
           isSubscribed={isSubscribed}
-          onCancel={() => setIsTopicModalOpen(false)}
-          onSubmit={async (topicName) => {
+          onCancel={() =>
+            setTopicModalState({ ...topicModalState, isOpen: false })
+          }
+          onSubmit={async (topic) => {
             query.refetch();
             subQuery.refetch();
-            setIsTopicModalOpen(false);
+            setTopicModalState({ ...topicModalState, isOpen: false });
+            setCurrentTopic(topic ? topic : null);
           }}
-          onClose={() => setIsTopicModalOpen(false)}
+          onClose={() =>
+            setTopicModalState({ ...topicModalState, isOpen: false })
+          }
         />
       )}
 
@@ -186,18 +199,22 @@ export const TopicsList = ({
                   return allow;
                 })
                 .map((entityTopic, topicIndex) => {
-                  const isCurrent = topic && entityTopic._id === topic._id;
+                  const isCurrent =
+                    currentTopic && entityTopic._id === currentTopic._id;
                   const { timeAgo, fullDate } = dateUtils.timeAgo(
                     entityTopic.createdAt,
                     true
                   );
-                  const entityTopicCreatedByUsername =
+                  const entityTopicCreatedBy =
+                    typeof entityTopic.createdBy === "object"
+                      ? entityTopic.createdBy._id
+                      : entityTopic.createdBy;
+                  const entityTopicCreatedByUserName =
                     typeof entityTopic.createdBy === "object"
                       ? entityTopic.createdBy.userName
                       : "";
                   const isCreator =
-                    session &&
-                    entityTopicCreatedByUsername === session.user.userName;
+                    session && entityTopicCreatedBy === session.user.userId;
 
                   let isSubbedToTopic = false;
 
@@ -220,7 +237,7 @@ export const TopicsList = ({
                               : undefined,
                           bg:
                             topicIndex % 2 === 0 ? "orange.300" : "orange.100",
-                          _hover: { bg: "red" }
+                          _hover: { bg: "teal.200" }
                         }}
                         dark={{
                           borderTopRadius: topicIndex === 0 ? "lg" : undefined,
@@ -231,14 +248,16 @@ export const TopicsList = ({
                           bg: topicIndex % 2 === 0 ? "gray.600" : "gray.500",
                           _hover: { bg: "gray.400" }
                         }}
-                        onClick={() => setTopic(isCurrent ? null : entityTopic)}
+                        onClick={() =>
+                          setCurrentTopic(isCurrent ? null : entityTopic)
+                        }
                         data-cy="topic"
                       >
                         <GridItem p={3}>
-                          {topic && isCurrent ? (
-                            <ChevronDownIcon boxSize={6} />
+                          {currentTopic && isCurrent ? (
+                            <ViewIcon boxSize={6} />
                           ) : (
-                            <ChevronRightIcon boxSize={6} />
+                            <ViewOffIcon boxSize={6} />
                           )}
                         </GridItem>
                         <GridItem py={3}>
@@ -257,7 +276,7 @@ export const TopicsList = ({
                               fontSize="smaller"
                               color={isDark ? "white" : "gray.600"}
                             >
-                              {entityTopicCreatedByUsername}
+                              {entityTopicCreatedByUserName}
                               <span aria-hidden="true"> · </span>
                               <Tooltip placement="bottom" label={fullDate}>
                                 {timeAgo}
@@ -275,13 +294,34 @@ export const TopicsList = ({
                             <Box pr={3} pt={3}>
                               {isCreator && (
                                 <>
+                                  <Tooltip
+                                    placement="bottom"
+                                    label="Modifier la discussion"
+                                  >
+                                    <Icon
+                                      as={EditIcon}
+                                      mr={3}
+                                      _hover={{ color: "green" }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+
+                                        setTopicModalState({
+                                          ...topicModalState,
+                                          isOpen: true,
+                                          topic: entityTopic
+                                        });
+                                      }}
+                                    />
+                                  </Tooltip>
                                   <DeleteButton
-                                    mr={3}
                                     isIconOnly
-                                    isDisabled={isDeleteButtonDisabled}
+                                    mr={3}
+                                    placement="bottom"
+                                    _hover={{ color: "red" }}
+                                    // isDisabled={isDeleteButtonDisabled}
                                     header={
                                       <>
-                                        Vous êtes sur le point de supprimer la
+                                        Êtes vous sûr de vouloir supprimer la
                                         discussion
                                         <Text
                                           display="inline"
@@ -289,12 +329,13 @@ export const TopicsList = ({
                                           fontWeight="bold"
                                         >
                                           {` ${entityTopic.topicName}`}
-                                        </Text>
+                                        </Text>{" "}
+                                        ?
                                       </>
                                     }
                                     body={
                                       <>
-                                        <label htmlFor="topicName">
+                                        {/* <label htmlFor="topicName">
                                           Saisissez le nom de la discussion pour
                                           confimer sa suppression :
                                         </label>
@@ -307,7 +348,7 @@ export const TopicsList = ({
                                                 entityTopic.topicName
                                             )
                                           }
-                                        />
+                                        /> */}
                                       </>
                                     }
                                     onClick={async () => {
@@ -345,88 +386,87 @@ export const TopicsList = ({
                                 </>
                               )}
 
-                              {subQuery.isLoading ||
-                              addSubscriptionMutation.isLoading ||
-                              deleteSubscriptionMutation.isLoading ? (
-                                <Spinner boxSize={4} />
-                              ) : (
-                                <Tooltip
-                                  label={
-                                    isSubbedToTopic
-                                      ? "Vous recevez un e-mail lorsque quelqu'un répond à cette discussion. Cliquez ici pour désactiver ces notifications."
-                                      : "Recevoir un e-mail lorsque quelqu'un répond à cette discussion."
-                                  }
-                                  placement="left"
-                                >
-                                  <span>
-                                    <Icon
-                                      as={
-                                        isSubbedToTopic ? FaBellSlash : FaBell
-                                      }
-                                      onClick={async (e) => {
-                                        e.stopPropagation();
+                              <Tooltip
+                                label={
+                                  isSubbedToTopic
+                                    ? "Vous recevez un e-mail lorsque quelqu'un répond à cette discussion. Cliquez ici pour désactiver ces notifications."
+                                    : "Recevoir un e-mail lorsque quelqu'un répond à cette discussion."
+                                }
+                                placement="left"
+                              >
+                                <span>
+                                  <Icon
+                                    as={isSubbedToTopic ? FaBellSlash : FaBell}
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
 
-                                        if (!subQuery.data) {
-                                          console.log("user got no sub");
-                                          await addSubscription({
-                                            payload: {
-                                              topics: [{ topic: entityTopic }]
-                                            },
-                                            user: session.user.userId
-                                            // email:
+                                      if (
+                                        subQuery.isLoading ||
+                                        addSubscriptionMutation.isLoading ||
+                                        deleteSubscriptionMutation.isLoading
+                                      )
+                                        return;
+
+                                      if (!subQuery.data) {
+                                        console.log("user got no sub");
+                                        await addSubscription({
+                                          payload: {
+                                            topics: [{ topic: entityTopic }]
+                                          },
+                                          user: session.user.userId
+                                          // email:
+                                        });
+                                        toast({
+                                          title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
+                                          status: "success",
+                                          isClosable: true
+                                        });
+                                      } else if (isSubbedToTopic) {
+                                        const unsubscribe = confirm(
+                                          `Êtes vous sûr de vouloir vous désabonner de la discussion : ${entityTopic.topicName} ?`
+                                        );
+
+                                        if (unsubscribe) {
+                                          await deleteSubscription({
+                                            subscriptionId: subQuery.data._id,
+                                            topicId: entityTopic._id
                                           });
+
                                           toast({
-                                            title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
-                                            status: "success",
-                                            isClosable: true
-                                          });
-                                        } else if (isSubbedToTopic) {
-                                          const unsubscribe = confirm(
-                                            `Êtes vous sûr(e) de vouloir vous désabonner de la discussion : ${entityTopic.topicName} ?`
-                                          );
-
-                                          if (unsubscribe) {
-                                            await deleteSubscription({
-                                              subscriptionId: subQuery.data._id,
-                                              topicId: entityTopic._id
-                                            });
-
-                                            toast({
-                                              title: `Vous avez été désabonné de ${entityTopic.topicName}`,
-                                              status: "success",
-                                              isClosable: true
-                                            });
-                                          }
-                                        } else {
-                                          console.log("user got no topic sub");
-                                          await addSubscription({
-                                            payload: {
-                                              topics: [{ topic: entityTopic }]
-                                            },
-                                            user: session.user.userId
-                                            // email:
-                                          });
-                                          toast({
-                                            title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
+                                            title: `Vous avez été désabonné de ${entityTopic.topicName}`,
                                             status: "success",
                                             isClosable: true
                                           });
                                         }
-
-                                        subQuery.refetch();
-                                      }}
-                                      _hover={{
-                                        color: isDark ? "lightgreen" : "white"
-                                      }}
-                                      data-cy={
-                                        isSubbedToTopic
-                                          ? "topicUnsubscribe"
-                                          : "topicSubscribe"
+                                      } else {
+                                        console.log("user got no topic sub");
+                                        await addSubscription({
+                                          payload: {
+                                            topics: [{ topic: entityTopic }]
+                                          },
+                                          user: session.user.userId
+                                          // email:
+                                        });
+                                        toast({
+                                          title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
+                                          status: "success",
+                                          isClosable: true
+                                        });
                                       }
-                                    />
-                                  </span>
-                                </Tooltip>
-                              )}
+
+                                      subQuery.refetch();
+                                    }}
+                                    _hover={{
+                                      color: isDark ? "lightgreen" : "white"
+                                    }}
+                                    data-cy={
+                                      isSubbedToTopic
+                                        ? "topicUnsubscribe"
+                                        : "topicSubscribe"
+                                    }
+                                  />
+                                </span>
+                              </Tooltip>
                             </Box>
                           </GridItem>
                         )}
@@ -441,7 +481,8 @@ export const TopicsList = ({
                             dark={{ bg: "gray.700" }}
                           >
                             <TopicMessagesList
-                              topicMessages={entityTopic.topicMessages}
+                              query={query}
+                              topic={entityTopic}
                             />
                           </GridItem>
 

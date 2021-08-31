@@ -26,7 +26,6 @@ export const subscribeUserToTopic = async (userId: string, topic: ITopic) => {
       console.log("no sub for this topic");
       subscription.topics.push({ topic });
       await subscription.save();
-      console.log(subscription);
     }
   }
 };

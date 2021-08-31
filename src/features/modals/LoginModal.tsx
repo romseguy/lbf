@@ -54,6 +54,8 @@ export const LoginModal = (props: {
   const [isSignup, setIsSignup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [passwordFieldType, setPasswordFieldType] = useState("password");
+  const [passwordConfirmFieldType, setPasswordConfirmFieldType] =
+    useState("password");
 
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
   const portalRef = useRef(null);
@@ -142,7 +144,7 @@ export const LoginModal = (props: {
             {isForgotten
               ? "Mot de passe oublié"
               : isSignup
-              ? "Créer un compte"
+              ? "Inscription"
               : "Connexion"}
           </ModalHeader>
           <ModalCloseButton />
@@ -223,9 +225,10 @@ export const LoginModal = (props: {
 
               {!isSignup && (
                 <>
-                  <Box mt={isForgotten ? 0 : 5}>
+                  <Box textAlign="right">
                     {!isForgotten && (
                       <Link
+                        fontSize={12}
                         onClick={() => {
                           clearErrors("formErrorMessage");
                           setIsForgotten(true);
@@ -264,21 +267,21 @@ export const LoginModal = (props: {
                           value === password.current ||
                           "Les mots de passe ne correspondent pas"
                       })}
-                      type={passwordFieldType}
+                      type={passwordConfirmFieldType}
                     />
                     <InputRightElement
                       cursor="pointer"
                       children={
-                        passwordFieldType === "password" ? (
-                          <ViewIcon />
-                        ) : (
+                        passwordConfirmFieldType === "password" ? (
                           <ViewOffIcon />
+                        ) : (
+                          <ViewIcon />
                         )
                       }
                       onClick={() => {
-                        if (passwordFieldType === "password")
-                          setPasswordFieldType("text");
-                        else setPasswordFieldType("password");
+                        if (passwordConfirmFieldType === "password")
+                          setPasswordConfirmFieldType("text");
+                        else setPasswordConfirmFieldType("password");
                       }}
                     />
                   </InputGroup>
@@ -293,27 +296,31 @@ export const LoginModal = (props: {
               <ModalFooter justifyContent="space-between">
                 {isSignup ? (
                   <Button
-                    colorScheme="blue"
+                    colorScheme="transparent"
+                    color="black"
+                    size="xs"
                     leftIcon={<ChevronLeftIcon />}
                     onClick={() => {
-                      reset();
+                      //reset();
                       clearErrors("formErrorMessage");
                       setIsSignup(false);
                     }}
                   >
-                    J'ai déjà un compte
+                    Se connecter
                   </Button>
                 ) : (
                   <Button
-                    colorScheme="blue"
+                    colorScheme="transparent"
+                    color="black"
+                    size="xs"
                     rightIcon={<ChevronRightIcon />}
                     onClick={() => {
-                      reset();
+                      //reset();
                       clearErrors("formErrorMessage");
                       setIsSignup(true);
                     }}
                   >
-                    Je crée mon compte
+                    S'inscrire
                   </Button>
                 )}
                 <Button

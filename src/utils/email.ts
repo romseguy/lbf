@@ -90,15 +90,38 @@ export const sendTopicToFollowers = async ({
   const entityUrl = event ? event.eventUrl : org?.orgUrl;
   const type = event ? "l'événement" : "l'organisation";
 
+  //#region email
+  let url = `${process.env.NEXT_PUBLIC_URL}/${entityUrl}`;
+  let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${name}</a> pour lire la discussion.</p>`;
+
+  if (name === "aucourant") {
+    url = `${process.env.NEXT_PUBLIC_URL}/forum`;
+    html = `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion : ${topic.topicName}.</p>`;
+  }
+
+  const mail: {
+    from: string;
+    subject: string;
+    to?: string;
+    html: string;
+  } = {
+    from: process.env.EMAIL_FROM,
+    subject,
+    html
+  };
+
+  if (process.env.NODE_ENV === "production")
+    await transport.sendMail({
+      ...mail,
+      to: event ? event.eventEmail : org?.orgEmail
+    });
+  else if (process.env.NODE_ENV === "development")
+    console.log("sent mail to creator", {
+      ...mail,
+      to: event ? event.eventEmail : org?.orgEmail
+    });
+
   for (const subscription of subscriptions) {
-    let url = `${process.env.NEXT_PUBLIC_URL}/${entityUrl}`;
-    let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${name}</a> pour lire la discussion.</p>`;
-
-    if (name === "aucourant") {
-      url = `${process.env.NEXT_PUBLIC_URL}/forum`;
-      html = `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion.</p>`;
-    }
-
     const email =
       typeof subscription.user === "object"
         ? subscription.user.email
@@ -106,15 +129,11 @@ export const sendTopicToFollowers = async ({
 
     if (!email) continue;
 
-    const mail = {
-      from: process.env.EMAIL_FROM,
-      to: `<${email}>`,
-      subject,
-      html
-    };
+    mail.to = `<${email}>`;
 
     if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
-    else if (process.env.NODE_ENV === "development") console.log("mail", mail);
+    else if (process.env.NODE_ENV === "development")
+      console.log(`sent mail to subscriber ${email}`, mail);
   }
 };
 

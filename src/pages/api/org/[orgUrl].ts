@@ -41,7 +41,8 @@ handler.get<NextApiRequest & { query: { orgUrl: string } }, NextApiResponse>(
           );
       }
 
-      const isCreator = equals(org.createdBy, session?.user.userId);
+      const isCreator =
+        equals(org.createdBy, session?.user.userId) || session?.user.isAdmin;
 
       // hand emails to org creator only
       let select =
@@ -114,8 +115,8 @@ handler.post<
           );
       }
 
-      addOrUpdateTopic({ body, org, transport, res });
-      res.status(200).json(org);
+      const topic = await addOrUpdateTopic({ body, org, transport, res });
+      res.status(200).json(topic);
     } catch (error) {
       res.status(400).json(createServerError(error));
     }

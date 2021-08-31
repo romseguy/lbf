@@ -150,8 +150,8 @@ handler.post<
           );
       }
 
-      addOrUpdateTopic({ body, event, transport, res });
-      res.status(200).json(event);
+      const topic = await addOrUpdateTopic({ body, event, transport, res });
+      res.status(200).json(topic);
     } catch (error) {
       res.status(400).json(createServerError(error));
     }

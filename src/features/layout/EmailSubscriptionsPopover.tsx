@@ -155,7 +155,7 @@ export const EmailSubscriptionsPopover = ({
         <Heading size="md">Connexion par e-mail</Heading>
       </PopoverHeader>
       <PopoverBody>
-        En construction.
+        Vous pourrez bientôt vous connecter sans mot de passe.
         {/* <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
           <ErrorMessage
             errors={errors}
@@ -190,7 +190,7 @@ export const EmailSubscriptionsPopover = ({
           </FormControl>
         </form> */}
       </PopoverBody>
-      <PopoverFooter display="flex" justifyContent="space-between">
+      {/* <PopoverFooter display="flex" justifyContent="space-between">
         <Button
           colorScheme="gray"
           onClick={() => {
@@ -210,7 +210,7 @@ export const EmailSubscriptionsPopover = ({
         >
           Connexion
         </Button>
-      </PopoverFooter>
+      </PopoverFooter> */}
     </PopoverContent>
   );
 
@@ -235,14 +235,14 @@ export const EmailSubscriptionsPopover = ({
           ) : (
             <>
               <Heading size="sm">
-                Organisations auxquelles je suis abonné(e) :
+                Organisations auxquelles je suis abonné :
               </Heading>
 
               {Array.isArray(orgFollowerSubscriptions) &&
               orgFollowerSubscriptions.length > 0 ? (
                 <List ml={3} my={3}>
                   {orgFollowerSubscriptions.map((orgSubscription, index) =>
-                    orgSubscription.org.orgName ? (
+                    orgSubscription.org?.orgName ? (
                       <ListItem mb={1} key={index}>
                         <ListIcon as={EmailIcon} color="green.500" mr={3} />
 
@@ -258,7 +258,7 @@ export const EmailSubscriptionsPopover = ({
                             hasArrow
                             placement="bottom"
                           >
-                            {orgSubscription.org.orgName}
+                            {orgSubscription.org?.orgName}
                           </Tooltip>
                         </Link>
 
@@ -277,7 +277,7 @@ export const EmailSubscriptionsPopover = ({
                             ml={3}
                             onClick={async () => {
                               const unsubscribe = confirm(
-                                `Êtes vous sûr(e) de vouloir vous désabonner de ${orgSubscription.org.orgName} ?`
+                                `Êtes vous sûr de vouloir vous désabonner de ${orgSubscription.org?.orgName} ?`
                               );
 
                               if (unsubscribe) {
@@ -295,7 +295,7 @@ export const EmailSubscriptionsPopover = ({
                                 dispatch(refetchSubscription());
 
                                 toast({
-                                  title: `Vous avez été désabonné de ${orgSubscription.org.orgName}`,
+                                  title: `Vous avez été désabonné de ${orgSubscription.org?.orgName}`,
                                   status: "success",
                                   isClosable: true
                                 });
@@ -315,9 +315,7 @@ export const EmailSubscriptionsPopover = ({
                 </Text>
               )}
 
-              <Heading size="sm">
-                Événements auxquels je suis abonné(e) :
-              </Heading>
+              <Heading size="sm">Événements auxquels je suis abonné :</Heading>
               <Text fontSize="smaller" ml={3} my={2}>
                 {subscribedEmail
                   ? "Cet e-mail n'est abonnée à aucun événement."
@@ -373,7 +371,9 @@ export const EmailSubscriptionsPopover = ({
           <ModalOverlay />
           <ModalContent>
             <ModalHeader fontSize="md">
-              <Text display="inline">{currentOrgSubscription.org.orgName}</Text>{" "}
+              <Text display="inline">
+                {currentOrgSubscription.org?.orgName}
+              </Text>{" "}
               <ArrowForwardIcon /> <EmailIcon color="green" />{" "}
               <ArrowForwardIcon /> {subscribedEmail}
             </ModalHeader>
