@@ -335,9 +335,6 @@ export const OrgConfigSubscribersPanel = ({
                   const { email, user, orgs = [] } = subscription;
                   const userEmail =
                     typeof user === "object" ? user.email : email;
-                  console.log(user);
-
-                  console.log(userEmail);
 
                   const userName =
                     typeof user === "object" ? user.userName : "";

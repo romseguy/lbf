@@ -1,5 +1,5 @@
 import type { Document } from "mongoose";
-import { IEvent, Visibility } from "models/Event";
+import { IEvent, StatusTypes, Visibility } from "models/Event";
 import type { ITopic } from "models/Topic";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
@@ -181,7 +181,9 @@ handler.put<
       const eventUrl = req.query.eventUrl;
       body.eventUrl = normalize(body.eventName);
 
-      const event = await models.Event.findOne({ eventUrl });
+      const event = await models.Event.findOne({ eventUrl }).populate(
+        "eventOrgs"
+      );
 
       if (!event) {
         return res
@@ -233,9 +235,20 @@ handler.put<
         );
       }
 
-      const emailList = await sendEventToOrgFollowers(body, transport);
+      const emailList = await sendEventToOrgFollowers(event, transport);
 
-      const { n, nModified } = await models.Event.updateOne({ eventUrl }, body);
+      const { n, nModified } = await models.Event.updateOne(
+        { eventUrl },
+        {
+          ...body,
+          eventNotified: event.eventNotified.concat(
+            emailList.map((email) => ({
+              email,
+              status: StatusTypes.PENDING
+            }))
+          )
+        }
+      );
 
       if (nModified === 1) {
         res.status(200).json({ emailList });

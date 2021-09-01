@@ -26,7 +26,8 @@ import {
   Table,
   Tbody,
   Tr,
-  Td
+  Td,
+  Spinner
 } from "@chakra-ui/react";
 import { EmailIcon, TimeIcon } from "@chakra-ui/icons";
 import {
@@ -87,13 +88,22 @@ export const EventForm = withGoogleApi({
   //#region event
   const [addEvent, addEventMutation] = useAddEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
+  const notifiedCount =
+    props.event && Array.isArray(props.event.eventNotified)
+      ? props.event.eventNotified.length
+      : 0;
   //#endregion
 
   //#region myOrgs
-  const { myOrgs, refetch } = useGetOrgsQuery("orgSubscriptions", {
-    selectFromResult: ({ data }) => {
+  const {
+    myOrgs,
+    isLoading: isQueryLoading,
+    refetch
+  } = useGetOrgsQuery("orgSubscriptions", {
+    selectFromResult: ({ data, ...rest }): any => {
       if (!data) return { myOrgs: [] };
       return {
+        ...rest,
         myOrgs: data.filter((org) =>
           typeof org.createdBy === "object"
             ? org.createdBy._id === props.session.user.userId
@@ -102,6 +112,7 @@ export const EventForm = withGoogleApi({
       };
     }
   });
+
   const refetchOrgs = useSelector(selectOrgsRefetch);
   useEffect(() => {
     refetch();
@@ -712,46 +723,69 @@ export const EventForm = withGoogleApi({
                       mt={2}
                     >
                       <Tbody>
-                        {myOrgs
-                          ?.filter(
-                            (org: IOrg) =>
-                              !!eventOrgs.find(
-                                (eventOrg: IOrg) => eventOrg._id === org._id
-                              )
-                          )
-                          .map((org: IOrg) => {
-                            const orgFollowersCount = org.orgSubscriptions
-                              .map(
-                                (subscription) =>
-                                  subscription.orgs.filter(
-                                    (orgSubscription) =>
-                                      orgSubscription.orgId === org._id &&
-                                      orgSubscription.type ===
-                                        SubscriptionTypes.FOLLOWER
-                                  ).length
-                              )
-                              .reduce((a, b) => a + b, 0);
+                        {isQueryLoading ? (
+                          <Tr>
+                            <Td colSpan={3}>
+                              <Spinner />
+                            </Td>
+                          </Tr>
+                        ) : (
+                          myOrgs
+                            ?.filter(
+                              (org: IOrg) =>
+                                !!eventOrgs.find(
+                                  (eventOrg: IOrg) => eventOrg._id === org._id
+                                )
+                            )
+                            .map((org: IOrg) => {
+                              const orgFollowersCount = org.orgSubscriptions
+                                .map(
+                                  (subscription) =>
+                                    subscription.orgs.filter(
+                                      (orgSubscription) =>
+                                        orgSubscription.orgId === org._id &&
+                                        orgSubscription.type ===
+                                          SubscriptionTypes.FOLLOWER
+                                    ).length
+                                )
+                                .reduce((a, b) => a + b, 0);
 
-                            return (
-                              <Tr key={org.orgName} mb={1}>
-                                <Td>
-                                  <Checkbox
-                                    icon={<EmailIcon />}
-                                    name="eventNotif"
-                                    ref={register()}
-                                    value={org._id}
-                                    isDisabled={!orgFollowersCount}
-                                  />
-                                </Td>
-                                <Td>{org.orgName}</Td>
-                                <Td textAlign="right">
-                                  <Tag fontSize="smaller">
-                                    {orgFollowersCount} abonnés
-                                  </Tag>
-                                </Td>
-                              </Tr>
-                            );
-                          })}
+                              const canSendCount =
+                                orgFollowersCount - notifiedCount;
+
+                              return (
+                                <Tr key={org.orgName} mb={1}>
+                                  <Td>
+                                    <Checkbox
+                                      id={org.orgName}
+                                      icon={<EmailIcon />}
+                                      name="eventNotif"
+                                      ref={register()}
+                                      value={org._id}
+                                      isDisabled={!canSendCount}
+                                    />
+                                  </Td>
+                                  <Td>
+                                    <FormLabel
+                                      htmlFor={org.orgName}
+                                      mb={0}
+                                      width="auto"
+                                      height="auto"
+                                      cursor="pointer"
+                                    >
+                                      {org.orgName}
+                                    </FormLabel>
+                                  </Td>
+                                  <Td textAlign="right">
+                                    <Tag fontSize="smaller">
+                                      {canSendCount} abonnés n'ont pas encore
+                                      reçu d'invitation
+                                    </Tag>
+                                  </Td>
+                                </Tr>
+                              );
+                            })
+                        )}
                       </Tbody>
                     </Table>
                   </CheckboxGroup>

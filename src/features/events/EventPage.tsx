@@ -1,4 +1,4 @@
-import type { IEvent } from "models/Event";
+import { IEvent, StatusTypes, StatusTypesV } from "models/Event";
 import type { IUser } from "models/User";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -17,7 +17,12 @@ import {
   Alert,
   AlertIcon,
   useToast,
-  Tooltip
+  Tooltip,
+  Tr,
+  Td,
+  Table,
+  Tbody,
+  Tag
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
@@ -320,6 +325,45 @@ export const EventPage = (props: {
                       </Box>
                     )}
                   </Box>
+                </GridItem>
+              </Grid>
+            </GridItem>
+
+            <GridItem colSpan={2}>
+              <Grid templateRows="auto 1fr">
+                <GridHeader borderTopRadius="lg" alignItems="center">
+                  <Heading size="sm" py={3}>
+                    Participants
+                  </Heading>
+                </GridHeader>
+
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                >
+                  <Table p={5}>
+                    <Tbody>
+                      {event.eventNotified.map(({ email, status }) => {
+                        return (
+                          <Tr>
+                            <Td>{email}</Td>
+                            <Td>
+                              <Tag
+                                variant="solid"
+                                colorScheme={
+                                  status === StatusTypes.PENDING
+                                    ? "orange"
+                                    : "green"
+                                }
+                              >
+                                {StatusTypesV[status]}
+                              </Tag>
+                            </Td>
+                          </Tr>
+                        );
+                      })}
+                    </Tbody>
+                  </Table>
                 </GridItem>
               </Grid>
             </GridItem>

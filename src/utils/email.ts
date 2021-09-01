@@ -12,19 +12,19 @@ export const sendEventToOrgFollowers = async (
   event: IEvent,
   transport: any
 ) => {
+  const emailList: string[] = [];
+
   if (
     !Array.isArray(event.eventOrgs) ||
     !event.eventOrgs.length ||
     !Array.isArray(event.eventNotif) ||
     !event.eventNotif.length
   )
-    return;
-
-  const emailList = [];
+    return emailList;
 
   for (const org of event.eventOrgs) {
     for (const eventNotifOrgId of event.eventNotif) {
-      if (eventNotifOrgId !== org._id) continue;
+      if (!equals(eventNotifOrgId, org._id)) continue;
 
       for (const orgSubscription of org.orgSubscriptions) {
         const subscription = await models.Subscription.findOne({
@@ -47,6 +47,17 @@ export const sendEventToOrgFollowers = async (
             typeof subscription.user === "object"
               ? subscription.user.email
               : subscription.email;
+
+          if (!email) continue;
+
+          console.log(event);
+
+          if (
+            Array.isArray(event.eventNotified) &&
+            event.eventNotified.find((m) => m.email === email)
+          )
+            continue;
+
           const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`;
           const mail = {
             from: process.env.EMAIL_FROM,

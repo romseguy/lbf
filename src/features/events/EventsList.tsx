@@ -19,7 +19,8 @@ import {
   parseISO,
   formatISO,
   getMinutes,
-  getDayOfYear
+  getDayOfYear,
+  getDay
 } from "date-fns";
 import { IEvent, Visibility } from "models/Event";
 import { fr } from "date-fns/locale";
@@ -158,6 +159,8 @@ export const EventsList = (props: EventsProps) => {
                 </Text>
                 <Icon as={UpDownIcon} />
                 <Text pt={2}>
+                  {getDay(minDate) !== getDay(maxDate) &&
+                    format(maxDate, `EEEE`, { locale: fr })}{" "}
                   {format(
                     maxDate,
                     `H'h'${getMinutes(maxDate) !== 0 ? "mm" : ""}`,

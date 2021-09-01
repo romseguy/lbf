@@ -20,7 +20,13 @@ export interface IEvent {
   eventVisibility?: string;
   eventOrgs: IOrg[];
   eventSubscriptions: ISubscription[];
-  eventNotif: string[];
+  eventNotif: string[]; // org ids to send an invite to
+  eventNotified: [
+    {
+      email: string;
+      status: string;
+    }
+  ]; // list of emails the invitation has been sent to
   eventTopics: ITopic[];
   repeat?: number;
   isApproved?: boolean;
@@ -28,6 +34,16 @@ export interface IEvent {
   createdBy: IUser | string;
   createdAt?: string;
 }
+
+export const StatusTypes: { [key: string]: string } = {
+  PENDING: "PENDING",
+  OK: "OK"
+};
+
+export const StatusTypesV: { [key: string]: string } = {
+  PENDING: "En attente",
+  OK: "OK"
+};
 
 export const Visibility: { [key: string]: string } = {
   PUBLIC: "PUBLIC",
@@ -75,6 +91,15 @@ export const EventSchema = new Schema<IEvent>(
     ],
     eventTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
     eventNotif: [{ type: Schema.Types.ObjectId, ref: "Org" }],
+    eventNotified: [
+      {
+        email: String,
+        status: {
+          type: String,
+          enum: Object.keys(StatusTypes).map((key) => StatusTypes[key])
+        }
+      }
+    ],
     eventBanner: {
       base64: String,
       width: Number,
