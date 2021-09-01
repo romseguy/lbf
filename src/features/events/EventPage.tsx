@@ -109,11 +109,34 @@ export const EventPage = (props: {
     topics: false,
     banner: false
   });
+
   //#endregion
+
+  const eventMinDate = parseISO(event.eventMinDate);
+  const eventMaxDate = parseISO(event.eventMaxDate);
+  const fullMinDateString = (date: Date) =>
+    format(date, "dd MMMM", {
+      locale: fr
+    });
+  const fullMaxDateString = (date: Date) =>
+    format(date, "dd MMMM", {
+      locale: fr
+    });
 
   return (
     <Layout
       pageTitle={event.eventName}
+      pageSubTitle={
+        <>
+          du <b>{format(eventMinDate, "eeee", { locale: fr })}</b>{" "}
+          {fullMinDateString(eventMinDate)} à{" "}
+          <b>{format(eventMinDate, "H'h'mm", { locale: fr })}</b>
+          <br />
+          jusqu'au <b>{format(eventMaxDate, "eeee", { locale: fr })}</b>{" "}
+          {fullMaxDateString(eventMaxDate)} à{" "}
+          <b>{format(eventMaxDate, "H'h'mm", { locale: fr })}</b>
+        </>
+      }
       isLogin={isLogin}
       banner={event.eventBanner}
     >
@@ -329,44 +352,46 @@ export const EventPage = (props: {
               </Grid>
             </GridItem>
 
-            <GridItem colSpan={2}>
-              <Grid templateRows="auto 1fr">
-                <GridHeader borderTopRadius="lg" alignItems="center">
-                  <Heading size="sm" py={3}>
-                    Participants
-                  </Heading>
-                </GridHeader>
+            {isCreator && (
+              <GridItem colSpan={2}>
+                <Grid templateRows="auto 1fr">
+                  <GridHeader borderTopRadius="lg" alignItems="center">
+                    <Heading size="sm" py={3}>
+                      Participants
+                    </Heading>
+                  </GridHeader>
 
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                >
-                  <Table p={5}>
-                    <Tbody>
-                      {event.eventNotified.map(({ email, status }) => {
-                        return (
-                          <Tr>
-                            <Td>{email}</Td>
-                            <Td>
-                              <Tag
-                                variant="solid"
-                                colorScheme={
-                                  status === StatusTypes.PENDING
-                                    ? "orange"
-                                    : "green"
-                                }
-                              >
-                                {StatusTypesV[status]}
-                              </Tag>
-                            </Td>
-                          </Tr>
-                        );
-                      })}
-                    </Tbody>
-                  </Table>
-                </GridItem>
-              </Grid>
-            </GridItem>
+                  <GridItem
+                    light={{ bg: "orange.100" }}
+                    dark={{ bg: "gray.500" }}
+                  >
+                    <Table p={5}>
+                      <Tbody>
+                        {event.eventNotified.map(({ email, status }) => {
+                          return (
+                            <Tr>
+                              <Td>{email}</Td>
+                              <Td>
+                                <Tag
+                                  variant="solid"
+                                  colorScheme={
+                                    status === StatusTypes.PENDING
+                                      ? "orange"
+                                      : "green"
+                                  }
+                                >
+                                  {StatusTypesV[status]}
+                                </Tag>
+                              </Td>
+                            </Tr>
+                          );
+                        })}
+                      </Tbody>
+                    </Table>
+                  </GridItem>
+                </Grid>
+              </GridItem>
+            )}
 
             <GridItem colSpan={2}>
               <Grid templateRows="auto 1fr">

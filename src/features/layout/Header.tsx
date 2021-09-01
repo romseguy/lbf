@@ -12,6 +12,7 @@ type HeaderProps = SpaceProps & {
   defaultTitle: string;
   defaultTitleColor: string;
   pageTitle?: string;
+  pageSubTitle?: React.ReactNode;
 };
 
 export const Header = ({
@@ -19,6 +20,7 @@ export const Header = ({
   defaultTitle,
   defaultTitleColor,
   pageTitle,
+  pageSubTitle,
   ...props
 }: HeaderProps) => {
   const router = useRouter();
@@ -66,6 +68,7 @@ export const Header = ({
             {pageTitle}
           </Text>
         </Link>
+        {pageSubTitle && <Text as="h3">{pageSubTitle}</Text>}
       </Flex>
     </Flex>
   );

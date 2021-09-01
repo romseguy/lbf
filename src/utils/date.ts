@@ -28,6 +28,12 @@ export const formatDuration = (
   });
 };
 
+export const fullDateString = (date: Date) => {
+  return format(date, "eeee dd MMMM yyyy à H'h'mm", {
+    locale: fr
+  });
+};
+
 export const timeAgo = (date?: string | Date, isShort?: boolean) => {
   const end =
     typeof date === "string"
@@ -35,9 +41,7 @@ export const timeAgo = (date?: string | Date, isShort?: boolean) => {
       : date !== undefined
       ? date
       : new Date();
-  const fullDate = format(end, "eeee dd MMMM yyyy à H'h'mm", {
-    locale: fr
-  });
+  const fullDate = fullDateString(end);
   const duration = intervalToDuration({
     start: new Date(),
     end

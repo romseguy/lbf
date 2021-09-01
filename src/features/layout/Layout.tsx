@@ -16,6 +16,7 @@ export const Layout = ({
   isLogin,
   pageHeader,
   pageTitle,
+  pageSubTitle,
   title,
   ...props
 }: BoxProps & {
@@ -24,6 +25,7 @@ export const Layout = ({
   isLogin?: number;
   pageHeader?: React.ReactNode | React.ReactNodeArray;
   pageTitle?: string;
+  pageSubTitle?: React.ReactNode;
   title?: string;
 }) => {
   const { colorMode } = useColorMode();
@@ -104,6 +106,7 @@ export const Layout = ({
           defaultTitle={defaultTitle}
           defaultTitleColor={defaultTitleColor}
           pageTitle={pageTitle}
+          pageSubTitle={pageSubTitle}
           headerBg={banner}
         />
         <Nav py={hasVerticalScrollbar ? 7 : 0} minH="96px" isLogin={isLogin} />
