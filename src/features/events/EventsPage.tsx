@@ -27,7 +27,9 @@ export const EventsPage = ({
     console.log("refetching events");
     query.refetch();
   }, [router.asPath]);
-  const events = query.data || props.events;
+  const events = (query.data || props.events)?.filter(
+    (event) => !event.forwardedFrom
+  );
 
   const { data: session, loading: isSessionLoading } = useSession();
 

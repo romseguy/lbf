@@ -35,13 +35,18 @@ handler.get<NextApiRequest & { query: { eventUrl: string } }, NextApiResponse>(
       });
 
       if (!event) {
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
-            )
-          );
+        event = await models.Event.findOne({
+          _id: eventUrl
+        });
+
+        if (!event)
+          return res
+            .status(404)
+            .json(
+              createServerError(
+                new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
+              )
+            );
       }
 
       const isCreator = equals(event.createdBy, session?.user.userId);
@@ -138,20 +143,68 @@ handler.post<
         body: { topic?: ITopic; event?: IEvent };
       } = req;
 
-      const event = await models.Event.findOne({ eventUrl });
+      let event = await models.Event.findOne({ eventUrl });
 
       if (!event) {
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
-            )
-          );
+        event = await models.Event.findOne({ _id: eventUrl });
+
+        if (!event)
+          return res
+            .status(404)
+            .json(
+              createServerError(
+                new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
+              )
+            );
       }
 
-      const topic = await addOrUpdateTopic({ body, event, transport, res });
-      res.status(200).json(topic);
+      if (body.topic) {
+        const topic = await addOrUpdateTopic({ body, event, transport, res });
+        res.status(200).json(topic);
+      } else if (body.event) {
+        // todo: check we're not reposting to already existing eventOrg?
+        event = await event.populate("eventOrgs").execPopulate();
+        event.eventNotif = body.event.eventNotif;
+
+        if (event.forwardedFrom) {
+          const e = await models.Event.findOne({
+            _id: event.forwardedFrom.eventId
+          });
+          if (e) {
+            event.forwardedFrom.eventUrl = event.eventUrl;
+            event.eventName = e.eventName;
+            event.eventUrl = e.eventUrl;
+          }
+        }
+
+        const emailList = await sendEventToOrgFollowers(event, transport);
+
+        const { n, nModified } = await models.Event.updateOne(
+          {
+            eventUrl: event.forwardedFrom.eventUrl || event.eventUrl
+          },
+          {
+            eventNotified: event.eventNotified.concat(
+              emailList.map((email) => ({
+                email,
+                status: StatusTypes.PENDING
+              }))
+            )
+          }
+        );
+
+        if (nModified === 1) {
+          res.status(200).json({ emailList });
+        } else {
+          res
+            .status(400)
+            .json(
+              createServerError(
+                new Error("L'événement n'a pas pu être modifié")
+              )
+            );
+        }
+      }
     } catch (error) {
       res.status(400).json(createServerError(error));
     }
@@ -206,6 +259,8 @@ handler.put<
             )
           );
       }
+
+      event.eventNotif = body.eventNotif;
 
       const staleEventOrgsIds: string[] = [];
 
@@ -284,19 +339,26 @@ handler.delete<
   } else {
     try {
       const eventUrl = req.query.eventUrl;
-      const event = await models.Event.findOne({ eventUrl });
+      let event = await models.Event.findOne({ eventUrl });
 
       if (!event) {
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
-            )
-          );
+        event = await models.Event.findOne({ _id: eventUrl });
+
+        if (!event) {
+          return res
+            .status(404)
+            .json(
+              createServerError(
+                new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
+              )
+            );
+        }
       }
 
-      if (!equals(event.createdBy, session.user.userId)) {
+      if (
+        !equals(event.createdBy, session.user.userId) &&
+        !session.user.isAdmin
+      ) {
         return res
           .status(403)
           .json(
@@ -309,17 +371,39 @@ handler.delete<
       }
 
       const { deletedCount } = await models.Event.deleteOne({ eventUrl });
+      const deleteOrgRef = async () => {
+        if (event && event.eventOrgs) {
+          for (const eventOrg of event.eventOrgs) {
+            const o = await models.Org.findOne({ _id: eventOrg });
+
+            if (o) {
+              o.orgEvents = o.orgEvents.filter(
+                (orgEvent) => !equals(orgEvent, event?._id)
+              );
+              o.save();
+            }
+          }
+        }
+      };
 
       if (deletedCount === 1) {
+        await deleteOrgRef();
         res.status(200).json(event);
       } else {
-        res
-          .status(400)
-          .json(
-            createServerError(
-              new Error(`L'événement ${eventUrl} n'a pas pu être supprimé`)
-            )
-          );
+        if (
+          (await models.Event.deleteOne({ _id: eventUrl })).deletedCount === 1
+        ) {
+          await deleteOrgRef();
+          res.status(200).json(event);
+        } else {
+          res
+            .status(400)
+            .json(
+              createServerError(
+                new Error(`L'événement ${eventUrl} n'a pas pu être supprimé`)
+              )
+            );
+        }
       }
     } catch (error) {
       res.status(500).json(createServerError(error));

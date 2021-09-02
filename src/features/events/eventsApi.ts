@@ -49,6 +49,16 @@ export const eventApi = createApi({
     }),
     getEventsByUserId: build.query<IEvent[], string>({
       query: (userId) => ({ url: `events/${userId}` })
+    }),
+    eventNotify: build.mutation<
+      { emailList?: string[] },
+      { payload: { event: Partial<IEvent> }; eventId: string }
+    >({
+      query: ({ payload, eventId }) => ({
+        url: `event/${eventId}`,
+        method: "POST",
+        body: payload
+      })
     })
   })
 });
@@ -60,7 +70,8 @@ export const {
   useEditEventMutation,
   useGetEventQuery,
   useGetEventsQuery,
-  useGetEventsByUserIdQuery
+  useGetEventsByUserIdQuery,
+  useEventNotifyMutation
 } = eventApi;
 export const {
   endpoints: { getEvent, getEvents, getEventsByUserId, deleteEvent }

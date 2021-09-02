@@ -45,7 +45,7 @@ const Index = ({ events }: { events?: IEvent[] }) => {
     <Layout isLogin={isLogin}>
       {true ? (
         <>
-          <Box textAlign="center">
+          <Box textAlign="center" mb={3}>
             <Link className="rainbow-text" onClick={() => setIsAbout(!isAbout)}>
               À propos de aucourant.de
             </Link>
@@ -54,7 +54,7 @@ const Index = ({ events }: { events?: IEvent[] }) => {
           {isAbout && (
             <Container
               maxW="xl"
-              my={3}
+              mb={3}
               p="4"
               bg={useColorModeValue("white", "gray.500")}
               borderRadius="lg"

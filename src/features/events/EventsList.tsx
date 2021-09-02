@@ -6,7 +6,9 @@ import {
   Grid,
   Heading,
   Tooltip,
-  Flex
+  Flex,
+  useToast,
+  IconButton
 } from "@chakra-ui/react";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import {
@@ -24,11 +26,17 @@ import {
 } from "date-fns";
 import { IEvent, Visibility } from "models/Event";
 import { fr } from "date-fns/locale";
-import { EmailIcon, LockIcon, UpDownIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EmailIcon, LockIcon, UpDownIcon } from "@chakra-ui/icons";
 import { css } from "twin.macro";
 import { DescriptionModal } from "features/modals/DescriptionModal";
 import DOMPurify from "isomorphic-dompurify";
-import { FaGlobeEurope } from "react-icons/fa";
+import { FaGlobeEurope, FaRetweet } from "react-icons/fa";
+import { useAppDispatch } from "store";
+import { useSession } from "hooks/useAuth";
+import { ForwardModal } from "features/modals/ForwardModal";
+import { useDeleteEventMutation, useEventNotifyMutation } from "./eventsApi";
+import { IOrg, orgTypeFull } from "models/Org";
+import { SubscriptionTypes } from "models/Subscription";
 
 const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
   eventVisibility === Visibility.SUBSCRIBERS ? (
@@ -50,23 +58,32 @@ const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
 
 type EventsProps = {
   events: IEvent[];
+  org?: IOrg;
+  orgQuery?: any;
   eventHeader?: any;
   isCreator?: boolean;
   isSubscribed?: boolean;
 };
 
 export const EventsList = (props: EventsProps) => {
+  const toast = useToast({ position: "top" });
+  const { data: session, loading: isSessionLoading } = useSession();
+  const [deleteEvent, deleteQuery] = useDeleteEventMutation();
+  const [eventNotify, q] = useEventNotifyMutation();
   let currentDate: Date | undefined;
   let addGridHeader = true;
 
   const [isDescriptionOpen, setIsDescriptionOpen] = useState<{
     [key: string]: boolean;
   }>({});
+  const [isForwardOpen, setIsForwardOpen] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   const addRepeatedEvents = (events: IEvent[]) => {
     let array: IEvent[] = [];
 
-    events.forEach((event) => {
+    for (const event of events) {
       if (
         props.isCreator ||
         event.eventVisibility === Visibility.PUBLIC ||
@@ -95,10 +112,22 @@ export const EventsList = (props: EventsProps) => {
           }
         }
       }
-    });
+    }
 
     return array;
   };
+
+  const orgFollowersCount = props.org?.orgSubscriptions
+    .map(
+      (subscription) =>
+        subscription.orgs.filter((orgSubscription) => {
+          return (
+            orgSubscription.orgId === props.org?._id &&
+            orgSubscription.type === SubscriptionTypes.FOLLOWER
+          );
+        }).length
+    )
+    .reduce((a, b) => a + b, 0);
 
   const events = useMemo(() => {
     const repeatedEvents = addRepeatedEvents(props.events).sort((a, b) =>
@@ -118,6 +147,16 @@ export const EventsList = (props: EventsProps) => {
         currentDate = minDate;
       } else {
         addGridHeader = false;
+      }
+
+      let notifiedCount = 0;
+      let canSendCount = 0;
+
+      if (orgFollowersCount && session?.user.userId === event.createdBy) {
+        notifiedCount = Array.isArray(event.eventNotified)
+          ? event.eventNotified.length
+          : 0;
+        canSendCount = orgFollowersCount - notifiedCount;
       }
 
       return (
@@ -175,17 +214,172 @@ export const EventsList = (props: EventsProps) => {
               alignItems="center"
             >
               <Flex pt={2} pl={3} alignItems="center">
+                {props.org && session?.user.userId === event.createdBy && (
+                  <Tooltip
+                    label={
+                      canSendCount === 0
+                        ? "Aucun abonné à notifier"
+                        : `Notifier ${canSendCount} abonné${
+                            canSendCount > 1 ? "s" : ""
+                          } de l'organisation : ${props.org.orgName}`
+                    }
+                  >
+                    <IconButton
+                      aria-label={
+                        canSendCount === 0
+                          ? "Aucun abonné à notifier"
+                          : `Notifier les abonnés de ${props.org.orgName}`
+                      }
+                      icon={<EmailIcon />}
+                      isDisabled={!event.isApproved}
+                      title={
+                        !event.isApproved
+                          ? "L'événement est en attente de modération"
+                          : ""
+                      }
+                      bg="transparent"
+                      minWidth={0}
+                      mr={2}
+                      _hover={{
+                        background: "transparent",
+                        color: "green"
+                      }}
+                      onClick={async () => {
+                        const notify = confirm(
+                          `Êtes-vous sûr de vouloir notifier ${canSendCount} abonné${
+                            canSendCount > 1 ? "s" : ""
+                          } de l'organisation : ${props.org!.orgName}`
+                        );
+
+                        if (!notify) return;
+
+                        try {
+                          const res = await eventNotify({
+                            eventId: event._id,
+                            payload: {
+                              event: {
+                                ...event,
+                                eventNotif: [props.org!._id]
+                              }
+                            }
+                          }).unwrap();
+
+                          if (
+                            Array.isArray(res.emailList) &&
+                            res.emailList.length > 0
+                          ) {
+                            props.orgQuery.refetch();
+                            toast({
+                              title: `Une invitation a été envoyée à ${
+                                res.emailList.length
+                              } abonné${res.emailList.length > 1 ? "s" : ""}`,
+                              status: "success",
+                              isClosable: true
+                            });
+                          } else {
+                            toast({
+                              title: "Aucune invitation envoyée",
+                              status: "warning",
+                              isClosable: true
+                            });
+                          }
+                        } catch (error) {
+                          toast({
+                            title: "Une erreur est survenue",
+                            status: "error",
+                            isClosable: true
+                          });
+                        }
+                      }}
+                    />
+                  </Tooltip>
+                )}
+
                 <Link
                   className="rainbow-text"
                   css={css`
                     letter-spacing: 0.1em;
                   `}
+                  mr={1}
                   size="larger"
                   href={`/${encodeURIComponent(event.eventUrl)}`}
                 >
                   {event.eventName}
                 </Link>
-                <EventVisibility eventVisibility={event.eventVisibility} />
+
+                {props.org && (
+                  <EventVisibility eventVisibility={event.eventVisibility} />
+                )}
+
+                {session && !event.forwardedFrom ? (
+                  <Tooltip label="Rediffuser">
+                    <span>
+                      <IconButton
+                        aria-label="Rediffuser"
+                        icon={<FaRetweet />}
+                        bg="transparent"
+                        _hover={{ background: "transparent", color: "green" }}
+                        minWidth={0}
+                        ml={2}
+                        onClick={() => {
+                          setIsForwardOpen({
+                            ...isForwardOpen,
+                            [event.eventName]: true
+                          });
+                        }}
+                      />
+                    </span>
+                  </Tooltip>
+                ) : event.forwardedFrom &&
+                  event.forwardedFrom.eventId &&
+                  session?.user.userId === event.createdBy ? (
+                  <Tooltip label="Annuler la rediffusion">
+                    <IconButton
+                      aria-label="Annuler la rediffusion"
+                      icon={<DeleteIcon />}
+                      bg="transparent"
+                      minWidth={0}
+                      ml={2}
+                      mr={2}
+                      _hover={{ background: "transparent", color: "red" }}
+                      onClick={async () => {
+                        if (!event.forwardedFrom.eventUrl) {
+                          console.log(event);
+                          return;
+                        }
+
+                        const confirmed = confirm(
+                          "Êtes vous sûr de vouloir annuler la rediffusion ?"
+                        );
+
+                        if (confirmed) {
+                          const deletedEvent = await deleteEvent(
+                            event.forwardedFrom.eventUrl
+                          ).unwrap();
+
+                          if (deletedEvent) {
+                            props.orgQuery.refetch();
+                            toast({
+                              title: `La rediffusion a bien été annulée.`,
+                              status: "success",
+                              isClosable: true
+                            });
+                          }
+                        }
+                      }}
+                    />
+                  </Tooltip>
+                ) : (
+                  event.forwardedFrom &&
+                  event.forwardedFrom.eventId &&
+                  props.org && (
+                    <Tooltip label={`Rediffusé par ${props.org.orgName}`}>
+                      <span>
+                        <Icon as={FaRetweet} color="green" ml={2} />
+                      </span>
+                    </Tooltip>
+                  )
+                )}
               </Flex>
             </GridItem>
             <GridItem
@@ -260,10 +454,37 @@ export const EventsList = (props: EventsProps) => {
               <Text fontStyle="italic">Aucune description.</Text>
             )}
           </DescriptionModal>
+
+          {session && (
+            <ForwardModal
+              defaultIsOpen={false}
+              isOpen={isForwardOpen[event.eventName]}
+              event={event}
+              session={session}
+              onCancel={() => {
+                setIsForwardOpen({
+                  ...isForwardOpen,
+                  [event.eventName]: false
+                });
+              }}
+              onClose={() => {
+                setIsForwardOpen({
+                  ...isForwardOpen,
+                  [event.eventName]: false
+                });
+              }}
+              onSubmit={() => {
+                setIsForwardOpen({
+                  ...isForwardOpen,
+                  [event.eventName]: false
+                });
+              }}
+            />
+          )}
         </div>
       );
     });
-  }, [props.events, isDescriptionOpen]);
+  }, [props.events, session, isDescriptionOpen, isForwardOpen]);
 
   return <div>{events}</div>;
 };

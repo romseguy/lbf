@@ -69,6 +69,19 @@ handler.get<NextApiRequest & { query: { orgUrl: string } }, NextApiResponse>(
         })
         .execPopulate();
 
+      for (const orgEvent of org.orgEvents) {
+        if (orgEvent.forwardedFrom?.eventId) {
+          const e = await models.Event.findOne({
+            _id: orgEvent.forwardedFrom.eventId
+          });
+          if (e) {
+            orgEvent.forwardedFrom.eventUrl = orgEvent._id;
+            orgEvent.eventName = e.eventName;
+            orgEvent.eventUrl = e.eventUrl;
+          }
+        }
+      }
+
       res.status(200).json(org);
     } catch (error) {
       res.status(500).json(createServerError(error));

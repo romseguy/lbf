@@ -742,10 +742,13 @@ export const EventForm = withGoogleApi({
                                 .map(
                                   (subscription) =>
                                     subscription.orgs.filter(
-                                      (orgSubscription) =>
-                                        orgSubscription.orgId === org._id &&
-                                        orgSubscription.type ===
-                                          SubscriptionTypes.FOLLOWER
+                                      (orgSubscription) => {
+                                        return (
+                                          orgSubscription.orgId === org._id &&
+                                          orgSubscription.type ===
+                                            SubscriptionTypes.FOLLOWER
+                                        );
+                                      }
                                     ).length
                                 )
                                 .reduce((a, b) => a + b, 0);

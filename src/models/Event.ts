@@ -16,6 +16,7 @@ export interface IEvent {
   eventLat?: number;
   eventLng?: number;
   eventEmail?: string;
+  eventPhone?: string;
   eventDescription?: string;
   eventVisibility?: string;
   eventOrgs: IOrg[];
@@ -30,6 +31,10 @@ export interface IEvent {
   eventTopics: ITopic[];
   repeat?: number;
   isApproved?: boolean;
+  forwardedFrom: {
+    eventId: string;
+    eventUrl?: string;
+  };
   eventBanner?: Base64Image & { mode: "light" | "dark" };
   createdBy: IUser | string;
   createdAt?: string;
@@ -41,8 +46,8 @@ export const StatusTypes: { [key: string]: string } = {
 };
 
 export const StatusTypesV: { [key: string]: string } = {
-  PENDING: "En attente",
-  OK: "OK"
+  PENDING: "Invitation envoyée",
+  OK: "Invitation acceptée"
 };
 
 export const Visibility: { [key: string]: string } = {
@@ -80,6 +85,7 @@ export const EventSchema = new Schema<IEvent>(
     eventLat: Number,
     eventLng: Number,
     eventEmail: String,
+    eventPhone: String,
     eventDescription: String,
     eventVisibility: {
       type: String,
@@ -111,7 +117,14 @@ export const EventSchema = new Schema<IEvent>(
       ref: "User"
     },
     repeat: Number,
-    isApproved: Schema.Types.Boolean
+    isApproved: Schema.Types.Boolean,
+    forwardedFrom: {
+      eventId: {
+        type: Schema.Types.ObjectId,
+        ref: "Event"
+      },
+      eventUrl: String
+    }
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );

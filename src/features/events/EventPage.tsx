@@ -82,10 +82,15 @@ export const EventPage = (props: {
   }, [router.asPath]);
   const event = eventQuery.data || props.event;
   const eventCreatedByUserName =
-    typeof event.createdBy === "object" ? event.createdBy.userName : "";
+    event.createdBy && typeof event.createdBy === "object"
+      ? event.createdBy.userName
+      : "";
   const eventCreatedByUserId =
-    typeof event.createdBy === "object" ? event.createdBy._id : "";
-  const isCreator = session?.user.userId === eventCreatedByUserId;
+    event.createdBy && typeof event.createdBy === "object"
+      ? event.createdBy._id
+      : "";
+  const isCreator =
+    session?.user.userId === eventCreatedByUserId || session?.user.isAdmin;
   //#endregion
 
   //#region sub
@@ -310,6 +315,36 @@ export const EventPage = (props: {
               <Grid templateRows="auto 1fr">
                 <GridHeader borderTopRadius="lg" alignItems="center">
                   <Heading size="sm" py={3}>
+                    Adresse e-mail
+                  </Heading>
+                </GridHeader>
+
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                >
+                  <Box p={5}>
+                    {session ? (
+                      event.eventEmail || (
+                        <Text fontStyle="italic">Aucune adresse e-mail.</Text>
+                      )
+                    ) : (
+                      <Link
+                        variant="underline"
+                        onClick={() => setIsLogin(isLogin + 1)}
+                      >
+                        Connectez-vous pour voir l'e-mail de l'événement
+                      </Link>
+                    )}
+                  </Box>
+                </GridItem>
+              </Grid>
+            </GridItem>
+
+            <GridItem>
+              <Grid templateRows="auto 1fr">
+                <GridHeader borderTopRadius="lg" alignItems="center">
+                  <Heading size="sm" py={3}>
                     Organisé par
                   </Heading>
                 </GridHeader>
@@ -352,12 +387,45 @@ export const EventPage = (props: {
               </Grid>
             </GridItem>
 
+            <GridItem>
+              <Grid templateRows="auto 1fr">
+                <GridHeader borderTopRadius="lg" alignItems="center">
+                  <Heading size="sm" py={3}>
+                    Numéro de téléphone
+                  </Heading>
+                </GridHeader>
+
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                >
+                  <Box p={5}>
+                    {session ? (
+                      event.eventPhone || (
+                        <Text fontStyle="italic">
+                          Aucun numéro de téléphone.
+                        </Text>
+                      )
+                    ) : (
+                      <Link
+                        variant="underline"
+                        onClick={() => setIsLogin(isLogin + 1)}
+                      >
+                        Connectez-vous pour voir le numéro de téléphone de
+                        l'événement
+                      </Link>
+                    )}
+                  </Box>
+                </GridItem>
+              </Grid>
+            </GridItem>
+
             {isCreator && (
               <GridItem colSpan={2}>
                 <Grid templateRows="auto 1fr">
                   <GridHeader borderTopRadius="lg" alignItems="center">
                     <Heading size="sm" py={3}>
-                      Participants
+                      Invitations
                     </Heading>
                   </GridHeader>
 
@@ -367,25 +435,35 @@ export const EventPage = (props: {
                   >
                     <Table p={5}>
                       <Tbody>
-                        {event.eventNotified.map(({ email, status }) => {
-                          return (
-                            <Tr>
-                              <Td>{email}</Td>
-                              <Td>
-                                <Tag
-                                  variant="solid"
-                                  colorScheme={
-                                    status === StatusTypes.PENDING
-                                      ? "orange"
-                                      : "green"
-                                  }
-                                >
-                                  {StatusTypesV[status]}
-                                </Tag>
-                              </Td>
-                            </Tr>
-                          );
-                        })}
+                        {Array.isArray(event.eventNotified) &&
+                        !event.eventNotified.length ? (
+                          <Tr>
+                            <Td colSpan={2}>
+                              Vous n'avez pas encore envoyé d'invitation pour
+                              cet événement.
+                            </Td>
+                          </Tr>
+                        ) : (
+                          event.eventNotified.map(({ email, status }) => {
+                            return (
+                              <Tr key={email}>
+                                <Td>{email}</Td>
+                                <Td>
+                                  <Tag
+                                    variant="solid"
+                                    colorScheme={
+                                      status === StatusTypes.PENDING
+                                        ? "blue"
+                                        : "green"
+                                    }
+                                  >
+                                    {StatusTypesV[status]}
+                                  </Tag>
+                                </Td>
+                              </Tr>
+                            );
+                          })
+                        )}
                       </Tbody>
                     </Table>
                   </GridItem>

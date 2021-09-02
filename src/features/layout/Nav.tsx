@@ -133,17 +133,6 @@ export const Nav = ({
               bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
             }}
             leftIcon={<IoIosPeople />}
-            // onClick={async () => {
-            //   const { error, data }: { error?: any; data?: IOrg[] } =
-            //     await api.get("orgs");
-
-            //   if (error) {
-            //     console.log("todo: handle error", error);
-            //   } else if (data) {
-            //     setOrgs(data);
-            //     openMapModal();
-            //   }
-            // }}
           >
             Organisations
           </Button>

@@ -91,10 +91,19 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const { data: event } = await api.get(`event/${routeName}`);
 
   if (event) {
-    const { data: user } = await api.get(`user/${event.createdBy._id}`);
+    const props: { event: IEvent; routeName: string; user?: IUser } = {
+      event,
+      routeName
+    };
+    const eventCreatedById =
+      event.createdBy && typeof event.createdBy === "object"
+        ? event.createdBy._id
+        : event.createdBy;
+    const { data: user } = await api.get(`user/${eventCreatedById}`);
+    if (user) props.user = user;
 
     return {
-      props: { event, user, routeName }
+      props
     };
   }
 

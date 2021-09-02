@@ -10,7 +10,7 @@ export const OrgsList = ({ orgsQuery }: { orgsQuery: any }) => {
       <Thead>
         <Tr>
           <Th>Nom</Th>
-          <Th>Description</Th>
+          {/* <Th>Description</Th> */}
           <Th>Adresse</Th>
           <Th>E-mail</Th>
         </Tr>
@@ -33,7 +33,7 @@ export const OrgsList = ({ orgsQuery }: { orgsQuery: any }) => {
                     {org.orgName}
                   </Link>
                 </Td>
-                <Td>
+                {/* <Td>
                   {org.orgDescription && (
                     <div className="ql-editor">
                       <div
@@ -43,8 +43,8 @@ export const OrgsList = ({ orgsQuery }: { orgsQuery: any }) => {
                       />
                     </div>
                   )}
-                </Td>
-                <Td>{org.orgAddress}</Td>
+                </Td> */}
+                <Td>{org.orgCity}</Td>
                 <Td>{org.orgEmail}</Td>
               </Tr>
             );

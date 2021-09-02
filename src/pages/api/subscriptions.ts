@@ -120,6 +120,8 @@ handler.post<
           );
         }
       } else if (userSubscription) {
+        console.log("user subscription", userSubscription);
+
         const newOrgSubscription = newOrgSubscriptions[0];
         let org = await models.Org.findOne({
           _id: newOrgSubscription.org._id
@@ -137,6 +139,7 @@ handler.post<
             );
         }
 
+        // console.log("user subscribing to", org);
         userSubscription.orgs = newOrgSubscriptions;
 
         let found = false;
@@ -149,8 +152,10 @@ handler.post<
         }
 
         if (!found) {
+          // console.log("pushing userSub to orgSubs", userSubscription);
           org.orgSubscriptions.push(userSubscription);
           await org.save();
+          // console.log("org updated with new subscription", org);
         }
       }
     } else if (body.events) {
@@ -259,6 +264,7 @@ handler.post<
     }
 
     await userSubscription.save();
+    console.log("user new subscription", userSubscription);
     res.status(200).json(userSubscription);
   } catch (error) {
     if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {

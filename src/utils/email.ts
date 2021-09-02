@@ -15,6 +15,7 @@ export const sendEventToOrgFollowers = async (
   const emailList: string[] = [];
 
   if (
+    !event.isApproved ||
     !Array.isArray(event.eventOrgs) ||
     !event.eventOrgs.length ||
     !Array.isArray(event.eventNotif) ||
@@ -23,13 +24,18 @@ export const sendEventToOrgFollowers = async (
     return emailList;
 
   for (const org of event.eventOrgs) {
+    const orgId = typeof org === "object" ? org._id : org;
+
     for (const eventNotifOrgId of event.eventNotif) {
-      if (!equals(eventNotifOrgId, org._id)) continue;
+      if (!equals(eventNotifOrgId, orgId)) continue;
+      // console.log("notifying followers from org", org);
 
       for (const orgSubscription of org.orgSubscriptions) {
         const subscription = await models.Subscription.findOne({
           _id: orgSubscription
         }).populate("user");
+
+        // console.log("orgsub", subscription);
 
         if (!subscription) {
           // shouldn't happen because when user remove subscription to org it is also removed from org.orgSubscriptions
@@ -37,6 +43,8 @@ export const sendEventToOrgFollowers = async (
         }
 
         for (const { orgId, type } of subscription.orgs) {
+          // console.log("notifying follower", orgId, type);
+
           if (
             !equals(eventNotifOrgId, orgId) ||
             type !== SubscriptionTypes.FOLLOWER
@@ -49,8 +57,6 @@ export const sendEventToOrgFollowers = async (
               : subscription.email;
 
           if (!email) continue;
-
-          console.log(event);
 
           if (
             Array.isArray(event.eventNotified) &&
@@ -197,14 +203,21 @@ export const sendMessageToTopicFollowers = async ({
 };
 
 export const sendToAdmin = async (event: IEvent, transport: any) => {
-  process.env.NODE_ENV === "production" &&
-    (await transport.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: process.env.EMAIL_ADMIN,
-      subject: `Un événement attend votre approbation : ${event.eventName}`,
-      html: `
+  if (event.isApproved) return;
+
+  const mail = {
+    from: process.env.EMAIL_FROM,
+    to: process.env.EMAIL_ADMIN,
+    subject: `Un événement attend votre approbation : ${event.eventName}`,
+    html: `
         <h1>Nouvel événement : ${event.eventName}</h1>
         <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}">${process.env.NEXT_PUBLIC_SHORT_URL}/${event.eventUrl}</a> pour en savoir plus.</p>
       `
-    }));
+  };
+
+  if (process.env.NODE_ENV === "production") {
+    await transport.sendMail(mail);
+  } else if (process.env.NODE_ENV === "development") {
+    console.log("mail", mail);
+  }
 };

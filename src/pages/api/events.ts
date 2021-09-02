@@ -1,3 +1,4 @@
+import { Document } from "mongoose";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -10,7 +11,9 @@ import {
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import { sendToAdmin, sendEventToOrgFollowers } from "utils/email";
-import { normalize } from "utils/string";
+import { equals, normalize } from "utils/string";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -30,6 +33,18 @@ handler.get<NextApiRequest, NextApiResponse>(async function getEvents(
     const events = await models.Event.find({}).sort({
       eventMinDate: "ascending"
     });
+
+    for (const event of events) {
+      if (event.forwardedFrom.eventId) {
+        const e = await models.Event.findOne({
+          _id: event.forwardedFrom.eventId
+        });
+        if (e) {
+          event.eventName = e.eventName;
+          event.eventUrl = e.eventUrl;
+        }
+      }
+    }
 
     res.status(200).json(events);
   } catch (error) {
@@ -53,29 +68,68 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
       );
   } else {
     try {
-      const eventUrl = normalize(req.body.eventName);
+      const { body }: { body: IEvent } = req;
+      const eventUrl = normalize(body.eventName);
 
-      const org = await models.Org.findOne({ orgUrl: eventUrl });
-      if (org) throw duplicateError;
+      let event: (IEvent & Document<any, any, any>) | null;
+      let eventOrgs: IOrg[] = [];
 
-      const user = await models.User.findOne({ userName: req.body.eventName });
-      if (user) throw duplicateError;
+      if (body.forwardedFrom) {
+        event = await models.Event.findOne({ eventUrl });
 
-      const event = await models.Event.create({
-        ...req.body,
-        eventUrl,
-        isApproved: false
-      });
+        for (const eventOrg of body.eventOrgs) {
+          const o = await models.Org.findOne({ _id: eventOrg._id }).populate(
+            "orgEvents"
+          );
+
+          if (o) {
+            if (
+              !o.orgEvents.find((orgEvent) =>
+                equals(orgEvent.eventUrl, eventUrl)
+              )
+            ) {
+              eventOrgs.push(o._id);
+            }
+          }
+        }
+
+        if (eventOrgs.length > 0) {
+          if (event) {
+            console.log(
+              "event has been forwarded once, update it with new orgs"
+            );
+          } else {
+            event = await models.Event.create({ ...body, eventUrl, eventOrgs });
+          }
+        }
+      } else {
+        eventOrgs = body.eventOrgs;
+
+        const org = await models.Org.findOne({ orgUrl: eventUrl });
+        if (org) throw duplicateError;
+        const user = await models.User.findOne({ userName: body.eventName });
+        if (user) throw duplicateError;
+
+        event = await models.Event.create({
+          ...body,
+          eventUrl,
+          isApproved: false
+        });
+      }
+
       await models.Org.updateMany(
-        { _id: event.eventOrgs },
+        { _id: eventOrgs },
         {
           $push: {
-            orgEvents: event._id
+            orgEvents: event?._id
           }
         }
       );
-      sendEventToOrgFollowers(req.body, transport);
-      sendToAdmin(req.body, transport);
+
+      if (event?.isApproved && !body.forwardedFrom) {
+        sendEventToOrgFollowers(body, transport);
+      }
+      sendToAdmin(body, transport);
       res.status(200).json(event);
     } catch (error) {
       if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {

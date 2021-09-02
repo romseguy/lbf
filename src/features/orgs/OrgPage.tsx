@@ -271,6 +271,8 @@ export const OrgPage = ({
                 <div>
                   <EventsList
                     events={org.orgEvents || []}
+                    org={org}
+                    orgQuery={orgQuery}
                     isCreator={isCreator}
                     isSubscribed={isSubscribed}
                   />
