@@ -171,7 +171,10 @@ handler.put<
           );
       }
 
-      if (!equals(org.createdBy, session.user.userId)) {
+      if (
+        !equals(org.createdBy, session.user.userId) &&
+        !session.user.isAdmin
+      ) {
         return res
           .status(403)
           .json(
@@ -233,7 +236,10 @@ handler.delete<
           );
       }
 
-      if (!equals(org.createdBy, session.user.userId)) {
+      if (
+        !equals(org.createdBy, session.user.userId) &&
+        !session.user.isAdmin
+      ) {
         return res
           .status(403)
           .json(

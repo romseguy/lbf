@@ -8,7 +8,8 @@ import {
   Tooltip,
   Flex,
   useToast,
-  IconButton
+  IconButton,
+  Tag
 } from "@chakra-ui/react";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import {
@@ -37,6 +38,7 @@ import { ForwardModal } from "features/modals/ForwardModal";
 import { useDeleteEventMutation, useEventNotifyMutation } from "./eventsApi";
 import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
+import { IoIosPeople } from "react-icons/io";
 
 const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
   eventVisibility === Visibility.SUBSCRIBERS ? (
@@ -162,7 +164,7 @@ export const EventsList = (props: EventsProps) => {
       return (
         <div key={`${event._id}${event.repeat}`}>
           <Grid
-            templateRows="auto auto 4fr"
+            templateRows="auto auto 4fr auto"
             templateColumns="1fr 6fr minmax(75px, 1fr)"
           >
             {addGridHeader ? (
@@ -183,8 +185,9 @@ export const EventsList = (props: EventsProps) => {
                 <Spacer borderWidth={1} />
               </GridItem>
             )}
+
             <GridItem
-              rowSpan={2}
+              rowSpan={3}
               light={{ bg: "orange.100" }}
               dark={{ bg: "gray.500" }}
             >
@@ -208,12 +211,13 @@ export const EventsList = (props: EventsProps) => {
                 </Text>
               </Box>
             </GridItem>
+
             <GridItem
               light={{ bg: "white" }}
-              dark={{ bg: "dark" }}
+              dark={{ bg: "gray.700" }}
               alignItems="center"
             >
-              <Flex pt={2} pl={3} alignItems="center">
+              <Flex pl={3} alignItems="center">
                 {props.org && session?.user.userId === event.createdBy && (
                   <Tooltip
                     label={
@@ -382,8 +386,9 @@ export const EventsList = (props: EventsProps) => {
                 )}
               </Flex>
             </GridItem>
+
             <GridItem
-              rowSpan={2}
+              rowSpan={3}
               light={{ bg: "orange.100" }}
               dark={{ bg: "gray.500" }}
             >
@@ -391,12 +396,12 @@ export const EventsList = (props: EventsProps) => {
                 {event.eventCity || "À définir"}
               </Text>
             </GridItem>
+
             <GridItem
-              p={0}
-              m={0}
               pl={3}
+              pb={3}
               light={{ bg: "white" }}
-              dark={{ bg: "dark" }}
+              dark={{ bg: "gray.700" }}
             >
               {event.eventDescription && event.eventDescription.length > 0 ? (
                 <Link
@@ -411,11 +416,24 @@ export const EventsList = (props: EventsProps) => {
                   Voir l'affiche de l'événement
                 </Link>
               ) : (
-                <Text fontSize="smaller" py={2}>
-                  Aucune affiche disponible.
-                </Text>
+                <Text fontSize="smaller">Aucune affiche disponible.</Text>
               )}
             </GridItem>
+
+            {!props.org && (
+              <GridItem light={{ bg: "white" }} dark={{ bg: "gray.700" }}>
+                {event.eventOrgs.map((eventOrg) => {
+                  return (
+                    <Link key={eventOrg.orgUrl} href={`/${eventOrg.orgUrl}`}>
+                      <Tag ml={3} mb={3}>
+                        <Icon as={IoIosPeople} mr={1} />
+                        {eventOrg.orgName}
+                      </Tag>
+                    </Link>
+                  );
+                })}
+              </GridItem>
+            )}
           </Grid>
 
           <DescriptionModal

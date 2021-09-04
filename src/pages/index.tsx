@@ -149,7 +149,7 @@ const Index = ({ events }: { events?: IEvent[] }) => {
 };
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const { data: events } = await api.get(`events`);
+  const { data: events } = await api.get(`events?populate=eventOrgs`);
 
   if (events) {
     return {

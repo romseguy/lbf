@@ -15,7 +15,7 @@ handler.use(database);
 
 handler.get<
   NextApiRequest & {
-    query: { populate: string };
+    query: { populate?: string };
   },
   NextApiResponse
 >(async function getOrgs(req, res) {
@@ -24,12 +24,12 @@ handler.get<
       query: { populate }
     } = req;
 
-    let orgs = await models.Org.find({}, { orgBanner: 0 });
+    let orgs;
 
     if (populate) {
-      for (let org of orgs) {
-        org = await org.populate(populate).execPopulate();
-      }
+      orgs = await models.Org.find({}, { orgBanner: 0 }).populate(populate);
+    } else {
+      orgs = await models.Org.find({}, { orgBanner: 0 });
     }
 
     res.status(200).json(orgs);

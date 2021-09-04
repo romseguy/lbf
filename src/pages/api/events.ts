@@ -25,14 +25,30 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<NextApiRequest, NextApiResponse>(async function getEvents(
-  req,
-  res
-) {
+handler.get<
+  NextApiRequest & {
+    query: { populate?: string };
+  },
+  NextApiResponse
+>(async function getEvents(req, res) {
   try {
-    const events = await models.Event.find({}).sort({
-      eventMinDate: "ascending"
-    });
+    const {
+      query: { populate }
+    } = req;
+
+    let events;
+
+    if (populate) {
+      events = await models.Event.find({})
+        .sort({
+          eventMinDate: "ascending"
+        })
+        .populate(populate);
+    } else {
+      events = await models.Event.find({}).sort({
+        eventMinDate: "ascending"
+      });
+    }
 
     for (const event of events) {
       if (event.forwardedFrom.eventId) {

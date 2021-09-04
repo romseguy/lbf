@@ -248,7 +248,10 @@ handler.put<
           );
       }
 
-      if (!equals(event.createdBy, session.user.userId)) {
+      if (
+        !equals(event.createdBy, session.user.userId) &&
+        !session.user.isAdmin
+      ) {
         return res
           .status(403)
           .json(

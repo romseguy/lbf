@@ -22,7 +22,7 @@ export const EventsPage = ({
   setIsLogin: (isLogin: number) => void;
 }) => {
   const router = useRouter();
-  const query = useGetEventsQuery();
+  const query = useGetEventsQuery("eventOrgs");
   useEffect(() => {
     console.log("refetching events");
     query.refetch();
@@ -64,6 +64,7 @@ export const EventsPage = ({
 
           {isMobile ? (
             <IconButton
+              colorScheme="teal"
               isDisabled={!events || !events.length}
               aria-label="Carte des événements"
               icon={<FaMapMarkerAlt />}
@@ -71,6 +72,7 @@ export const EventsPage = ({
             />
           ) : (
             <Button
+              colorScheme="teal"
               isDisabled={!events || !events.length}
               leftIcon={<FaMapMarkerAlt />}
               onClick={openMapModal}
