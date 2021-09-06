@@ -232,7 +232,8 @@ handler.put<
     try {
       const { body }: { body: IEvent } = req;
       const eventUrl = req.query.eventUrl;
-      body.eventUrl = normalize(body.eventName);
+
+      if (body.eventName) body.eventUrl = normalize(body.eventName);
 
       const event = await models.Event.findOne({ eventUrl }).populate(
         "eventOrgs"
@@ -249,6 +250,7 @@ handler.put<
       }
 
       if (
+        !body.eventNotified &&
         !equals(event.createdBy, session.user.userId) &&
         !session.user.isAdmin
       ) {
@@ -263,48 +265,57 @@ handler.put<
           );
       }
 
-      event.eventNotif = body.eventNotif;
+      if (body.eventOrgs) {
+        const staleEventOrgsIds: string[] = [];
 
-      const staleEventOrgsIds: string[] = [];
+        for (const { _id } of body.eventOrgs) {
+          const org = await models.Org.findOne({ _id });
 
-      for (const { _id } of body.eventOrgs) {
-        const org = await models.Org.findOne({ _id });
+          if (!org) {
+            staleEventOrgsIds.push(_id);
+            continue;
+          }
 
-        if (!org) {
-          staleEventOrgsIds.push(_id);
-          continue;
+          if (org.orgEvents.indexOf(event._id) === -1) {
+            await models.Org.updateOne(
+              { _id: org._id },
+              {
+                $push: {
+                  orgEvents: event._id
+                }
+              }
+            );
+          }
         }
 
-        if (org.orgEvents.indexOf(event._id) === -1) {
-          await models.Org.updateOne(
-            { _id: org._id },
-            {
-              $push: {
-                orgEvents: event._id
-              }
-            }
+        if (staleEventOrgsIds.length > 0) {
+          body.eventOrgs = body.eventOrgs.filter(
+            (eventOrg) => !staleEventOrgsIds.find((id) => id === eventOrg._id)
           );
         }
       }
 
-      if (staleEventOrgsIds.length > 0) {
-        body.eventOrgs = body.eventOrgs.filter(
-          (eventOrg) => !staleEventOrgsIds.find((id) => id === eventOrg._id)
+      event.eventNotif = body.eventNotif || [];
+      const emailList = await sendEventToOrgFollowers(event, transport);
+
+      let eventNotified;
+
+      if (body.eventNotified) {
+        eventNotified = body.eventNotified;
+      } else if (emailList.length > 0) {
+        eventNotified = event.eventNotified.concat(
+          emailList.map((email) => ({
+            email,
+            status: StatusTypes.PENDING
+          }))
         );
       }
-
-      const emailList = await sendEventToOrgFollowers(event, transport);
 
       const { n, nModified } = await models.Event.updateOne(
         { eventUrl },
         {
           ...body,
-          eventNotified: event.eventNotified.concat(
-            emailList.map((email) => ({
-              email,
-              status: StatusTypes.PENDING
-            }))
-          )
+          eventNotified
         }
       );
 

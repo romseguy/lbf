@@ -24,7 +24,7 @@ import { IoIosChatbubbles, IoIosPeople, IoMdPerson } from "react-icons/io";
 import { Link } from "features/common";
 import { CalendarIcon, ChatIcon, EmailIcon } from "@chakra-ui/icons";
 
-const Index = ({ events }: { events?: IEvent[] }) => {
+const IndexPage = ({ events }: { events?: IEvent[] }) => {
   const [isLogin, setIsLogin] = useState(0);
   const [isAbout, setIsAbout] = useState(false);
 
@@ -162,4 +162,4 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   };
 }
 
-export default Index;
+export default IndexPage;

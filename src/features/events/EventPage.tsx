@@ -22,7 +22,8 @@ import {
   Td,
   Table,
   Tbody,
-  Tag
+  Tag,
+  useColorMode
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
@@ -38,7 +39,10 @@ import {
   IconFooter,
   Link
 } from "features/common";
-import { useGetEventQuery } from "features/events/eventsApi";
+import {
+  useEditEventMutation,
+  useGetEventQuery
+} from "features/events/eventsApi";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
@@ -69,19 +73,19 @@ export const EventPage = (props: {
   user?: IUser;
   routeName: string;
 }) => {
+  //#region global
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
-  const toast = useToast({ position: "top" });
+  const storedUserEmail = useSelector(selectUserEmail);
+  const userEmail = storedUserEmail || session?.user.email || "";
+  //#endregion
 
   //#region event
+  const [editEvent, editEventMutation] = useEditEventMutation();
   const eventQuery = useGetEventQuery({
-    eventUrl: props.routeName,
-    email: useSelector(selectUserEmail) || undefined
+    eventUrl: props.routeName
+    // email: userEmail || undefined
   });
-  useEffect(() => {
-    console.log("refetching event");
-    eventQuery.refetch();
-  }, [router.asPath]);
   const event = eventQuery.data || props.event;
   const eventCreatedByUserName =
     event.createdBy && typeof event.createdBy === "object"
@@ -93,6 +97,12 @@ export const EventPage = (props: {
       : "";
   const isCreator =
     session?.user.userId === eventCreatedByUserId || session?.user.isAdmin;
+  const isAttending = !!event.eventNotified.find(({ email, status }) => {
+    return email === userEmail && status === StatusTypes.OK;
+  });
+  const isNotAttending = !!event.eventNotified.find(({ email, status }) => {
+    return email === userEmail && status === StatusTypes.NOK;
+  });
   //#endregion
 
   //#region sub
@@ -123,6 +133,9 @@ export const EventPage = (props: {
   //#endregion
 
   //#region local state
+  const toast = useToast({ position: "top" });
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -130,7 +143,11 @@ export const EventPage = (props: {
     topics: false,
     banner: false
   });
+  let showAttendingForm = false;
 
+  if (session) {
+    if (!isCreator && isSubscribedToAtLeastOneOrg) showAttendingForm = true;
+  } else showAttendingForm = true;
   //#endregion
 
   const eventMinDate = parseISO(event.eventMinDate);
@@ -143,6 +160,63 @@ export const EventPage = (props: {
     format(date, "dd MMMM", {
       locale: fr
     });
+
+  const attend = async () => {
+    if (isAttending) {
+      console.log("user is already attending");
+      return;
+    }
+
+    let isNew = true;
+
+    let eventNotified = event.eventNotified.map(({ email, status }) => {
+      if (
+        email === userEmail &&
+        (status === StatusTypes.PENDING || status === StatusTypes.NOK)
+      ) {
+        isNew = false;
+        return { email, status: StatusTypes.OK };
+      }
+      return { email, status };
+    });
+
+    if (isNew)
+      eventNotified.push({
+        email: userEmail,
+        status: StatusTypes.OK
+      });
+
+    await editEvent({
+      payload: { eventNotified },
+      eventUrl: event.eventUrl
+    });
+    eventQuery.refetch();
+  };
+
+  const unattend = async () => {
+    let isNew = true;
+    let eventNotified = event.eventNotified.map(({ email, status }) => {
+      if (email === userEmail) {
+        isNew = false;
+        return { email, status: StatusTypes.NOK };
+      }
+      return { email, status };
+    });
+
+    if (isNew)
+      eventNotified.push({
+        email: userEmail,
+        status: StatusTypes.NOK
+      });
+
+    await editEvent({
+      payload: {
+        eventNotified
+      },
+      eventUrl: event.eventUrl
+    });
+    eventQuery.refetch();
+  };
 
   return (
     <Layout
@@ -236,10 +310,13 @@ export const EventPage = (props: {
       )}
 
       {event.eventVisibility === Visibility.SUBSCRIBERS && !isConfig && (
-        <Alert status="warning" mb={3}>
+        <Alert
+          status={isSubscribedToAtLeastOneOrg ? "success" : "warning"}
+          mb={3}
+        >
           <AlertIcon />
           <Box>
-            <Text>
+            <Text as="h3">
               Cet événement est reservé aux adhérents des organisations
               suivantes :{" "}
               {event.eventOrgs.map((org) => (
@@ -249,6 +326,87 @@ export const EventPage = (props: {
               ))}
             </Text>
           </Box>
+        </Alert>
+      )}
+
+      {showAttendingForm && (
+        <Alert
+          mb={3}
+          status={isAttending ? "success" : isNotAttending ? "error" : "info"}
+        >
+          <AlertIcon />
+          {isAttending ? (
+            <Flex flexDirection="column">
+              <Text as="h3">Vous participez à cet événement.</Text>
+              <Box>
+                <Button
+                  colorScheme="red"
+                  onClick={async () => {
+                    const ok = confirm(
+                      "Êtes-vous sûr de ne plus vouloir participer à cet événement ?"
+                    );
+
+                    if (ok) {
+                      unattend();
+                    }
+                  }}
+                >
+                  Ne plus participer
+                </Button>
+              </Box>
+            </Flex>
+          ) : isNotAttending ? (
+            <Flex flexDirection="column">
+              <Text as="h3">
+                Vous avez refusé de participer à cet événement.
+              </Text>
+              <Box>
+                <Button
+                  colorScheme="green"
+                  mr={3}
+                  isLoading={
+                    editEventMutation.isLoading ||
+                    eventQuery.isFetching ||
+                    eventQuery.isLoading
+                  }
+                  onClick={attend}
+                >
+                  Participer
+                </Button>
+              </Box>
+            </Flex>
+          ) : (
+            <Flex flexDirection="column">
+              <Text as="h3">Participer à cet événement ?</Text>
+              <Box mt={2}>
+                <Button
+                  colorScheme="green"
+                  mr={3}
+                  isLoading={
+                    editEventMutation.isLoading ||
+                    eventQuery.isFetching ||
+                    eventQuery.isLoading
+                  }
+                  onClick={attend}
+                >
+                  Oui
+                </Button>
+                <Button
+                  colorScheme="red"
+                  isLoading={
+                    editEventMutation.isLoading ||
+                    eventQuery.isFetching ||
+                    eventQuery.isLoading
+                  }
+                  onClick={() => {
+                    unattend();
+                  }}
+                >
+                  Non
+                </Button>
+              </Box>
+            </Flex>
+          )}
         </Alert>
       )}
 
@@ -490,7 +648,7 @@ export const EventPage = (props: {
                 <Grid templateRows="auto 1fr">
                   <GridHeader borderTopRadius="lg" alignItems="center">
                     <Heading size="sm" py={3}>
-                      Invitations
+                      Participants
                     </Heading>
                   </GridHeader>
 
@@ -503,10 +661,7 @@ export const EventPage = (props: {
                         {Array.isArray(event.eventNotified) &&
                         !event.eventNotified.length ? (
                           <Tr>
-                            <Td colSpan={2}>
-                              Vous n'avez pas encore envoyé d'invitation pour
-                              cet événement.
-                            </Td>
+                            <Td colSpan={2}>Aucun participant.</Td>
                           </Tr>
                         ) : (
                           event.eventNotified.map(({ email, status }) => {
@@ -519,7 +674,9 @@ export const EventPage = (props: {
                                     colorScheme={
                                       status === StatusTypes.PENDING
                                         ? "blue"
-                                        : "green"
+                                        : status === StatusTypes.OK
+                                        ? "green"
+                                        : "red"
                                     }
                                   >
                                     {StatusTypesV[status]}

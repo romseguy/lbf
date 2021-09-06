@@ -10,19 +10,12 @@ import { OrgPage } from "features/orgs/OrgPage";
 import { User } from "features/users/UserPage";
 import { useRouter } from "next/router";
 import api from "utils/api";
+import { useSelector } from "react-redux";
+import { selectUserEmail } from "features/users/userSlice";
+import { useSession } from "hooks/useAuth";
 
-const Hash = ({}: // event,
-// org,
-// user,
-// routeName,
-// error
-{
-  // event?: IEvent;
-  // org?: IOrg;
-  // user?: IUser;
-  // routeName: string;
-  // error: any;
-}) => {
+const Hash = () => {
+  const { data: session, loading: isSessionLoading } = useSession();
   const router = useRouter();
   const routeName = router.asPath.substr(1, router.asPath.length);
   const [event, setEvent] = useState<IEvent | undefined>();
@@ -30,10 +23,15 @@ const Hash = ({}: // event,
   const [user, setUser] = useState<IUser | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | undefined>();
+  const storedUserEmail = useSelector(selectUserEmail);
+  const userEmail = storedUserEmail || session?.user.email || "";
 
   useEffect(() => {
     const xhr = async () => {
-      const eventQuery = await api.get(`event/${routeName}`);
+      const eventQuery = await api.get(
+        //`event/${routeName}${userEmail ? `/${userEmail}` : ""}`
+        `event/${routeName}`
+      );
 
       if (eventQuery.data) {
         setEvent(eventQuery.data);

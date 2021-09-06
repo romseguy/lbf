@@ -22,12 +22,10 @@ export interface IEvent {
   eventOrgs: IOrg[];
   eventSubscriptions: ISubscription[];
   eventNotif: string[]; // org ids to send an invite to
-  eventNotified: [
-    {
-      email: string;
-      status: string;
-    }
-  ]; // list of emails the invitation has been sent to
+  eventNotified: {
+    email: string;
+    status: string;
+  }[]; // list of emails the invitation has been sent to
   eventTopics: ITopic[];
   repeat?: number;
   isApproved?: boolean;
@@ -42,12 +40,14 @@ export interface IEvent {
 
 export const StatusTypes: { [key: string]: string } = {
   PENDING: "PENDING",
-  OK: "OK"
+  OK: "OK",
+  NOK: "NOK"
 };
 
 export const StatusTypesV: { [key: string]: string } = {
   PENDING: "Invitation envoyée",
-  OK: "Invitation acceptée"
+  OK: "Invitation acceptée",
+  NOK: "Invitation refusée"
 };
 
 export const Visibility: { [key: string]: string } = {
