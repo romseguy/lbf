@@ -321,6 +321,7 @@ export const EventForm = withGoogleApi({
       props.onSubmit && props.onSubmit(payload.eventUrl);
       props.onClose && props.onClose();
     } catch (error) {
+      setIsLoading(false);
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });

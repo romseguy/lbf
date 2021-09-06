@@ -46,7 +46,7 @@ export const StatusTypes: { [key: string]: string } = {
 
 export const StatusTypesV: { [key: string]: string } = {
   PENDING: "Invitation envoyée",
-  OK: "Invitation acceptée",
+  OK: "Participant",
   NOK: "Invitation refusée"
 };
 

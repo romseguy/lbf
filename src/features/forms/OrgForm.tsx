@@ -149,6 +149,7 @@ export const OrgForm = withGoogleApi({
       props.onClose && props.onClose();
       props.onSubmit && props.onSubmit(payload.orgUrl);
     } catch (error) {
+      setIsLoading(false);
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });

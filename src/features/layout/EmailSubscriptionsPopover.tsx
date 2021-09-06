@@ -92,10 +92,11 @@ export const EmailSubscriptionsPopover = ({
   useEffect(() => {
     console.log("refetching subscription");
     subQuery.refetch();
-  }, [subscriptionRefetch]);
+  }, [subscriptionRefetch, session?.user.userId]);
   const orgFollowerSubscriptions = subQuery.data?.orgs.filter(
     (orgSubscription) => orgSubscription.type === SubscriptionTypes.FOLLOWER
   );
+  const eventSubscriptions = subQuery.data?.events;
 
   const isStep1 = !session && (!subQuery.data || subQuery.isError);
   const isStep2 = (!session && subQuery.data) || session;
@@ -116,6 +117,7 @@ export const EmailSubscriptionsPopover = ({
     onClose
   } = useDisclosure();
 
+  //#region form
   const { clearErrors, errors, setError, handleSubmit, register } = useForm({
     mode: "onChange"
   });
@@ -148,6 +150,7 @@ export const EmailSubscriptionsPopover = ({
     //   setMySubscription(data);
     // }
   };
+  //#endregion
 
   const step1 = (
     <PopoverContent>
@@ -241,9 +244,9 @@ export const EmailSubscriptionsPopover = ({
               {Array.isArray(orgFollowerSubscriptions) &&
               orgFollowerSubscriptions.length > 0 ? (
                 <List ml={3} my={3}>
-                  {orgFollowerSubscriptions.map((orgSubscription, index) =>
+                  {orgFollowerSubscriptions.map((orgSubscription) =>
                     orgSubscription.org?.orgName ? (
-                      <ListItem mb={1} key={index}>
+                      <ListItem mb={1} key={orgSubscription.orgId}>
                         <ListIcon as={EmailIcon} color="green.500" mr={3} />
 
                         <Link
@@ -311,16 +314,82 @@ export const EmailSubscriptionsPopover = ({
                 <Text fontSize="smaller" ml={3} my={2}>
                   {subscribedEmail
                     ? "Cet e-mail n'est abonnée à aucune organisation."
-                    : "Vous n'êtes abonné à aucun organisation."}
+                    : "Vous n'êtes abonné à aucune organisation."}
                 </Text>
               )}
 
               <Heading size="sm">Événements auxquels je suis abonné :</Heading>
-              <Text fontSize="smaller" ml={3} my={2}>
-                {subscribedEmail
-                  ? "Cet e-mail n'est abonnée à aucun événement."
-                  : "Vous n'êtes abonné à aucun événement."}
-              </Text>
+
+              {Array.isArray(eventSubscriptions) &&
+              eventSubscriptions.length > 0 ? (
+                <List ml={3} my={3}>
+                  {eventSubscriptions.map((eventSubscription) => (
+                    <ListItem key={eventSubscription.eventId}>
+                      <ListIcon as={EmailIcon} color="green.500" mr={3} />
+
+                      <Link
+                        variant="underline"
+                        onClick={() => {
+                          onOpen();
+                          //setCurrentOrgSubscription(orgSubscription);
+                        }}
+                      >
+                        <Tooltip
+                          label="Gérer les préférences de communication"
+                          hasArrow
+                          placement="bottom"
+                        >
+                          {eventSubscription.event?.eventName}
+                        </Tooltip>
+                      </Link>
+
+                      <Tooltip label="Se désabonner" hasArrow placement="right">
+                        <IconButton
+                          aria-label="Se désabonner"
+                          bg="transparent"
+                          _hover={{ bg: "transparent", color: "red" }}
+                          icon={<DeleteIcon boxSize={4} />}
+                          height="auto"
+                          minWidth={0}
+                          ml={3}
+                          onClick={async () => {
+                            const unsubscribe = confirm(
+                              `Êtes vous sûr de vouloir vous désabonner de ${eventSubscription.event?.eventName} ?`
+                            );
+
+                            if (unsubscribe) {
+                              if (subQuery.data) {
+                                await deleteSubscription({
+                                  subscriptionId: subQuery.data._id,
+                                  payload: {
+                                    events: [eventSubscription]
+                                  }
+                                });
+                              }
+
+                              subQuery.refetch();
+                              // so EventPage knows
+                              dispatch(refetchSubscription());
+
+                              toast({
+                                title: `Vous avez été désabonné de ${eventSubscription.event?.eventName}`,
+                                status: "success",
+                                isClosable: true
+                              });
+                            }
+                          }}
+                        />
+                      </Tooltip>
+                    </ListItem>
+                  ))}
+                </List>
+              ) : (
+                <Text fontSize="smaller" ml={3} my={2}>
+                  {subscribedEmail
+                    ? "Cet e-mail n'est abonnée à aucun événement."
+                    : "Vous n'êtes abonné à aucun événement."}
+                </Text>
+              )}
             </>
           )}
         </>

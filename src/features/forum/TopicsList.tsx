@@ -86,11 +86,6 @@ export const TopicsList = ({
 
   //#region subscription
   const subQuery = useGetSubscriptionQuery(session?.user.userId);
-  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    console.log("refetching subscription");
-    subQuery.refetch();
-  }, [subscriptionRefetch, session?.user.userId]);
   const [deleteSubscription, deleteSubscriptionMutation] =
     useDeleteSubscriptionMutation();
   const [addSubscription, addSubscriptionMutation] =

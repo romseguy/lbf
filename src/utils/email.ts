@@ -69,7 +69,7 @@ export const sendEventToOrgFollowers = async (
             from: process.env.EMAIL_FROM,
             to: `<${email}>`,
             subject: `${org.orgName} vous invite à un nouvel événement : ${event.eventName}`,
-            html: `<h1>${org.orgName} vous invite à un nouvel événement : ${event.eventName}</h1><p>Rendez-vous sur <a href="${eventUrl}">${eventUrl}</a> pour en savoir plus.</p>`
+            html: `<h1>${org.orgName} vous invite à un nouvel événement : ${event.eventName}</h1><p>Rendez-vous sur <a href="${eventUrl}?email=${email}">${eventUrl}</a> pour en savoir plus.</p>`
           };
 
           if (process.env.NODE_ENV === "production")

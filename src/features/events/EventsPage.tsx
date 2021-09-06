@@ -27,10 +27,11 @@ export const EventsPage = ({
     console.log("refetching events");
     query.refetch();
   }, [router.asPath]);
-  const events = (query.data || props.events)?.filter(
-    (event) =>
-      !event.forwardedFrom && event.eventVisibility === VisibilityV.PUBLIC
-  );
+  const events = (query.data || props.events)?.filter((event) => {
+    if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
+    if (event.eventVisibility !== Visibility.PUBLIC) return false;
+    return true;
+  });
 
   const { data: session, loading: isSessionLoading } = useSession();
 

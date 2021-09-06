@@ -72,6 +72,7 @@ export const EventPage = (props: {
   event: IEvent;
   user?: IUser;
   routeName: string;
+  email?: string;
 }) => {
   //#region global
   const router = useRouter();
@@ -98,10 +99,16 @@ export const EventPage = (props: {
   const isCreator =
     session?.user.userId === eventCreatedByUserId || session?.user.isAdmin;
   const isAttending = !!event.eventNotified.find(({ email, status }) => {
-    return email === userEmail && status === StatusTypes.OK;
+    return (
+      (email === props.email || email === userEmail) &&
+      status === StatusTypes.OK
+    );
   });
   const isNotAttending = !!event.eventNotified.find(({ email, status }) => {
-    return email === userEmail && status === StatusTypes.NOK;
+    return (
+      (email === props.email || email === userEmail) &&
+      status === StatusTypes.NOK
+    );
   });
   //#endregion
 
@@ -110,11 +117,6 @@ export const EventPage = (props: {
   const subQuery = useGetSubscriptionQuery(
     subscribedEmail || session?.user.userId
   );
-  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    console.log("refetching subscription");
-    subQuery.refetch();
-  }, [subscriptionRefetch]);
   const isFollowed = isFollowedBy({ event, subQuery });
   const isSubscribedToAtLeastOneOrg =
     isCreator ||
@@ -171,8 +173,8 @@ export const EventPage = (props: {
 
     let eventNotified = event.eventNotified.map(({ email, status }) => {
       if (
-        email === userEmail &&
-        (status === StatusTypes.PENDING || status === StatusTypes.NOK)
+        (email === props.email || email === userEmail) &&
+        status !== StatusTypes.OK
       ) {
         isNew = false;
         return { email, status: StatusTypes.OK };
@@ -182,7 +184,7 @@ export const EventPage = (props: {
 
     if (isNew)
       eventNotified.push({
-        email: userEmail,
+        email: props.email || userEmail,
         status: StatusTypes.OK
       });
 
@@ -196,7 +198,10 @@ export const EventPage = (props: {
   const unattend = async () => {
     let isNew = true;
     let eventNotified = event.eventNotified.map(({ email, status }) => {
-      if (email === userEmail) {
+      if (
+        (email === props.email || email === userEmail) &&
+        status !== StatusTypes.NOK
+      ) {
         isNew = false;
         return { email, status: StatusTypes.NOK };
       }
@@ -205,7 +210,7 @@ export const EventPage = (props: {
 
     if (isNew)
       eventNotified.push({
-        email: userEmail,
+        email: props.email || userEmail,
         status: StatusTypes.NOK
       });
 

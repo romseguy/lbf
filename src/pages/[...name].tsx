@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 
-const Hash = () => {
+const Hash = ({ email }: { email?: string }) => {
   const { data: session, loading: isSessionLoading } = useSession();
   const router = useRouter();
   const routeName = router.asPath.substr(1, router.asPath.length);
@@ -71,7 +71,14 @@ const Hash = () => {
   }, [router.asPath]);
 
   if (event) {
-    return <EventPage event={event} user={user} routeName={routeName} />;
+    return (
+      <EventPage
+        event={event}
+        user={user}
+        routeName={routeName}
+        email={email}
+      />
+    );
   }
 
   if (org) {
@@ -124,6 +131,10 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         destination
       }
     };
+  }
+
+  if (ctx.query.email) {
+    return { props: { email: ctx.query.email } };
   }
 
   return { props: {} };

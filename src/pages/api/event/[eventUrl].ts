@@ -51,37 +51,37 @@ handler.get<NextApiRequest & { query: { eventUrl: string } }, NextApiResponse>(
 
       const isCreator = equals(event.createdBy, session?.user.userId);
 
-      if (event.eventVisibility === Visibility.SUBSCRIBERS && !isCreator) {
-        if (session) {
-          const sub = await models.Subscription.findOne({
-            user: session.user.userId
-          });
+      // if (event.eventVisibility === Visibility.SUBSCRIBERS && !isCreator) {
+      //   if (session) {
+      //     const sub = await models.Subscription.findOne({
+      //       user: session.user.userId
+      //     });
 
-          let isSubscribed = false;
+      //     let isSubscribed = false;
 
-          if (sub) {
-            for (const eventOrg of event.eventOrgs) {
-              for (const org of sub.orgs) {
-                if (equals(org.orgId, eventOrg)) {
-                  isSubscribed = true;
-                }
-              }
-            }
-          }
+      //     if (sub) {
+      //       for (const eventOrg of event.eventOrgs) {
+      //         for (const org of sub.orgs) {
+      //           if (equals(org.orgId, eventOrg)) {
+      //             isSubscribed = true;
+      //           }
+      //         }
+      //       }
+      //     }
 
-          if (!isSubscribed) {
-            return res
-              .status(403)
-              .json(
-                createServerError(
-                  new Error(
-                    `Cet événement est réservé aux adhérents des organisateurs`
-                  )
-                )
-              );
-          }
-        }
-      }
+      //     if (!isSubscribed) {
+      //       return res
+      //         .status(403)
+      //         .json(
+      //           createServerError(
+      //             new Error(
+      //               `Cet événement est réservé aux adhérents des organisateurs`
+      //             )
+      //           )
+      //         );
+      //     }
+      //   }
+      // }
 
       // hand emails to event creator only
       let select =
@@ -219,8 +219,9 @@ handler.put<
   NextApiResponse
 >(async function editEvent(req, res) {
   const session = await getSession({ req });
+  const { body }: { body: IEvent } = req;
 
-  if (!session) {
+  if (!session && !body.eventNotified) {
     res
       .status(403)
       .json(
@@ -230,7 +231,6 @@ handler.put<
       );
   } else {
     try {
-      const { body }: { body: IEvent } = req;
       const eventUrl = req.query.eventUrl;
 
       if (body.eventName) body.eventUrl = normalize(body.eventName);

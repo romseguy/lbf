@@ -66,11 +66,6 @@ export const OrgPopover = ({
     [];
   const hasSubscribedOrgs =
     Array.isArray(subscribedOrgs) && subscribedOrgs.length > 0;
-  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    console.log("refetching subscription");
-    subQuery.refetch();
-  }, [subscriptionRefetch]);
 
   const [isOpen, setIsOpen] = useState(false);
   const { isOpen: isOrgModalOpen, onOpen, onClose } = useDisclosure();
