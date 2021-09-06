@@ -47,7 +47,9 @@ export const DeleteButton = ({
     <>
       {isIconOnly ? (
         <Tooltip label="Supprimer" placement={placement}>
-          <DeleteIcon
+          <IconButton
+            aria-label="Supprimer"
+            icon={<DeleteIcon />}
             {...props}
             onClick={(e) => {
               e.stopPropagation();

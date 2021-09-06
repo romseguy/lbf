@@ -124,7 +124,7 @@ export const Nav = ({
             }}
             leftIcon={<CalendarIcon />}
           >
-            Votre calendrier local
+            Accueil
           </Button>
         </Link>
 

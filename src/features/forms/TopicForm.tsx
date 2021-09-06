@@ -182,7 +182,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         isInvalid={!!errors["topicMessage"]}
         mb={3}
       >
-        <FormLabel>Message (facultatif)</FormLabel>
+        <FormLabel>Message (optionnel)</FormLabel>
         <Controller
           name="topicMessage"
           control={control}

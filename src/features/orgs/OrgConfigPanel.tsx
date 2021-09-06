@@ -72,7 +72,7 @@ export const OrgConfigPanel = ({
                 <>
                   Vous êtes sur le point de supprimer l'organisation
                   <Text display="inline" color="red" fontWeight="bold">
-                    {` ${org.orgUrl}`}
+                    {` ${org.orgName}`}
                   </Text>
                 </>
               }

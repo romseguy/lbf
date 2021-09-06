@@ -57,17 +57,20 @@ export const Header = ({
           </Text>
         </Link>
 
-        <Link href={router.asPath} variant="no-underline">
-          <Text
-            as="h1"
-            className="rainbow-text"
-            fontSize={["3xl", "3xl", "6xl"]}
-            py={3}
-            pt={0}
-          >
-            {pageTitle}
-          </Text>
-        </Link>
+        {pageTitle && (
+          <Link href={router.asPath} variant="no-underline">
+            <Text
+              as="h1"
+              className="rainbow-text"
+              fontSize={["3xl", "3xl", "6xl"]}
+              py={3}
+              pt={0}
+            >
+              {pageTitle}
+            </Text>
+          </Link>
+        )}
+
         {pageSubTitle && <Text as="h3">{pageSubTitle}</Text>}
       </Flex>
     </Flex>

@@ -1,6 +1,6 @@
 import { IEvent, Visibility, VisibilityV } from "models/Event";
 import React, { useEffect, useState } from "react";
-import { Flex, IconButton, useDisclosure } from "@chakra-ui/react";
+import { Flex, IconButton, Spinner, useDisclosure } from "@chakra-ui/react";
 import { EventModal } from "features/modals/EventModal";
 import { useRouter } from "next/router";
 import { Button, IconFooter } from "features/common";
@@ -11,13 +11,12 @@ import { EventsList } from "./EventsList";
 import { MapModal } from "features/modals/MapModal";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { isMobile } from "react-device-detect";
+import { isServer } from "utils/isServer";
 
 export const EventsPage = ({
   isLogin,
-  setIsLogin,
-  ...props
+  setIsLogin
 }: {
-  events?: IEvent[];
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
 }) => {
@@ -27,7 +26,7 @@ export const EventsPage = ({
     console.log("refetching events");
     query.refetch();
   }, [router.asPath]);
-  const events = (query.data || props.events)?.filter((event) => {
+  const events = query.data?.filter((event) => {
     if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
     if (event.eventVisibility !== Visibility.PUBLIC) return false;
     return true;
@@ -73,14 +72,20 @@ export const EventsPage = ({
               onClick={openMapModal}
             />
           ) : (
-            <Button
-              colorScheme="teal"
-              isDisabled={!events || !events.length}
-              leftIcon={<FaMapMarkerAlt />}
-              onClick={openMapModal}
-            >
-              Carte des événements
-            </Button>
+            <>
+              {isServer() ? (
+                <Spinner />
+              ) : (
+                <Button
+                  colorScheme="teal"
+                  isDisabled={!events || !events.length}
+                  leftIcon={<FaMapMarkerAlt />}
+                  onClick={openMapModal}
+                >
+                  Carte des événements
+                </Button>
+              )}
+            </>
           )}
         </Flex>
 
@@ -112,12 +117,16 @@ export const EventsPage = ({
         )}
       </>
 
-      {Array.isArray(events) && events.length > 0 ? (
+      {query.isLoading ? (
+        <Spinner />
+      ) : Array.isArray(events) && events.length > 0 ? (
         <div>
           <EventsList events={events} />
           <IconFooter />
         </div>
-      ) : null}
+      ) : (
+        <>Aucun événement public prévu, pourquoi ne pas en ajouter un?</>
+      )}
     </>
   );
 };

@@ -184,7 +184,7 @@ handler.post<
             eventUrl: event.forwardedFrom.eventUrl || event.eventUrl
           },
           {
-            eventNotified: event.eventNotified.concat(
+            eventNotified: event.eventNotified?.concat(
               emailList.map((email) => ({
                 email,
                 status: StatusTypes.PENDING
@@ -303,7 +303,7 @@ handler.put<
       if (body.eventNotified) {
         eventNotified = body.eventNotified;
       } else if (emailList.length > 0) {
-        eventNotified = event.eventNotified.concat(
+        eventNotified = event.eventNotified?.concat(
           emailList.map((email) => ({
             email,
             status: StatusTypes.PENDING

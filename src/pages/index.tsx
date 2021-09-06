@@ -15,27 +15,27 @@ import {
   Tag,
   TagLeftIcon,
   Text,
-  useColorModeValue,
-  VStack
+  useColorMode
 } from "@chakra-ui/react";
-import { useSession } from "hooks/useAuth";
 import { Layout } from "features/layout";
 import { IoIosChatbubbles, IoIosPeople, IoMdPerson } from "react-icons/io";
 import { Link } from "features/common";
 import { CalendarIcon, ChatIcon, EmailIcon } from "@chakra-ui/icons";
 
-const IndexPage = ({ events }: { events?: IEvent[] }) => {
+const IndexPage = () => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const [isLogin, setIsLogin] = useState(0);
   const [isAbout, setIsAbout] = useState(false);
 
   const orgs = (plural?: boolean) => (
-    <Text color={useColorModeValue("green", "green.200")} display="inline">
+    <Text color={isDark ? "green.200" : "green"} display="inline">
       <Icon as={IoIosPeople} />{" "}
       <Link href="/orgs">organisation{plural ? "s" : ""}</Link>
     </Text>
   );
   const subscribers = (plural?: boolean) => (
-    <Text color={useColorModeValue("green", "green.200")} display="inline">
+    <Text color={isDark ? "green.200" : "green"} display="inline">
       <Icon as={IoMdPerson} />
       adhérent{plural ? "s" : ""}
     </Text>
@@ -56,7 +56,7 @@ const IndexPage = ({ events }: { events?: IEvent[] }) => {
               maxW="xl"
               mb={3}
               p="4"
-              bg={useColorModeValue("white", "gray.500")}
+              bg={isDark ? "gray.500" : "white"}
               borderRadius="lg"
             >
               {/* <Box textAlign="center">
@@ -143,23 +143,9 @@ const IndexPage = ({ events }: { events?: IEvent[] }) => {
       ) : (
         <Heading>Premiers pas</Heading>
       )}
-      <EventsPage events={events} isLogin={isLogin} setIsLogin={setIsLogin} />
+      <EventsPage isLogin={isLogin} setIsLogin={setIsLogin} />
     </Layout>
   );
 };
-
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const { data: events } = await api.get(`events?populate=eventOrgs`);
-
-  if (events) {
-    return {
-      props: { events }
-    };
-  }
-
-  return {
-    props: {}
-  };
-}
 
 export default IndexPage;

@@ -98,13 +98,14 @@ export const EventPage = (props: {
       : "";
   const isCreator =
     session?.user.userId === eventCreatedByUserId || session?.user.isAdmin;
-  const isAttending = !!event.eventNotified.find(({ email, status }) => {
+
+  const isAttending = !!event.eventNotified?.find(({ email, status }) => {
     return (
       (email === props.email || email === userEmail) &&
       status === StatusTypes.OK
     );
   });
-  const isNotAttending = !!event.eventNotified.find(({ email, status }) => {
+  const isNotAttending = !!event.eventNotified?.find(({ email, status }) => {
     return (
       (email === props.email || email === userEmail) &&
       status === StatusTypes.NOK
@@ -171,7 +172,7 @@ export const EventPage = (props: {
 
     let isNew = true;
 
-    let eventNotified = event.eventNotified.map(({ email, status }) => {
+    let eventNotified = event.eventNotified?.map(({ email, status }) => {
       if (
         (email === props.email || email === userEmail) &&
         status !== StatusTypes.OK
@@ -183,7 +184,7 @@ export const EventPage = (props: {
     });
 
     if (isNew)
-      eventNotified.push({
+      eventNotified?.push({
         email: props.email || userEmail,
         status: StatusTypes.OK
       });
@@ -197,7 +198,7 @@ export const EventPage = (props: {
 
   const unattend = async () => {
     let isNew = true;
-    let eventNotified = event.eventNotified.map(({ email, status }) => {
+    let eventNotified = event.eventNotified?.map(({ email, status }) => {
       if (
         (email === props.email || email === userEmail) &&
         status !== StatusTypes.NOK
@@ -209,7 +210,7 @@ export const EventPage = (props: {
     });
 
     if (isNew)
-      eventNotified.push({
+      eventNotified?.push({
         email: props.email || userEmail,
         status: StatusTypes.NOK
       });
@@ -663,13 +664,14 @@ export const EventPage = (props: {
                   >
                     <Table p={5}>
                       <Tbody>
-                        {Array.isArray(event.eventNotified) &&
-                        !event.eventNotified.length ? (
+                        {!event.eventNotified ||
+                        (Array.isArray(event.eventNotified) &&
+                          !event.eventNotified.length) ? (
                           <Tr>
                             <Td colSpan={2}>Aucun participant.</Td>
                           </Tr>
                         ) : (
-                          event.eventNotified.map(({ email, status }) => {
+                          event.eventNotified?.map(({ email, status }) => {
                             return (
                               <Tr key={email}>
                                 <Td>{email}</Td>

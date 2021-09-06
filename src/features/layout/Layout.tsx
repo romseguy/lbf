@@ -3,7 +3,7 @@ import type { Base64Image } from "utils/image";
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { DarkModeSwitch, Link } from "features/common";
-import { Header, Main, Nav } from "features/layout";
+import { Header, Main, Nav, Footer } from "features/layout";
 import { Flex, Spinner, Text, BoxProps, useColorMode } from "@chakra-ui/react";
 import { css } from "twin.macro";
 import { breakpoints } from "theme/theme";
@@ -101,7 +101,7 @@ export const Layout = ({
           height={3}
           showOnShallow={true}
         />
-        <DarkModeSwitch position="absolute" right="0" top="0" m={3} />
+        {/* <DarkModeSwitch position="absolute" right="0" top="0" m={3} /> */}
         <Header
           defaultTitle={defaultTitle}
           defaultTitleColor={defaultTitleColor}
@@ -111,6 +111,9 @@ export const Layout = ({
         />
         <Nav py={hasVerticalScrollbar ? 7 : 0} minH="96px" isLogin={isLogin} />
         <Main {...props}>{children}</Main>
+        <Footer>
+          <DarkModeSwitch />
+        </Footer>
         {/* <Box position="fixed" bottom="20px" right="20px">
         <IconButton
           aria-label="Aide"

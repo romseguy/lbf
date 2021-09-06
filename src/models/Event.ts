@@ -22,7 +22,7 @@ export interface IEvent {
   eventOrgs: IOrg[];
   eventSubscriptions: ISubscription[];
   eventNotif: string[]; // org ids to send an invite to
-  eventNotified: {
+  eventNotified?: {
     email: string;
     status: string;
   }[]; // list of emails the invitation has been sent to
