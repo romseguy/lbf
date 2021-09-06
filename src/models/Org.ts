@@ -17,10 +17,11 @@ export interface IOrg {
   orgLng?: number;
   orgEmail?: string;
   orgDescription?: string;
-  orgBanner?: Base64Image & { mode: "light" | "dark" };
   orgEvents: IEvent[];
   orgSubscriptions: ISubscription[];
   orgTopics: ITopic[];
+  orgBanner?: Base64Image & { mode: "light" | "dark" };
+  isApproved?: boolean;
   createdBy: IUser | string;
   createdAt?: string;
 }
@@ -81,6 +82,7 @@ export const OrgSchema = new Schema<IOrg>(
       height: Number,
       mode: String
     },
+    isApproved: Schema.Types.Boolean,
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User"

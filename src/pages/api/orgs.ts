@@ -60,7 +60,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrg(req, res) {
       if (event) throw duplicateError;
       const doc = await models.Org.create({
         ...req.body,
-        orgUrl
+        orgUrl,
+        isApproved: false
       });
       res.status(200).json(doc);
     } catch (error) {

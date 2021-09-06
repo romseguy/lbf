@@ -27,9 +27,12 @@ import {
   Tbody,
   Tr,
   Td,
-  Spinner
+  Spinner,
+  InputGroup,
+  InputLeftAddon,
+  InputLeftElement
 } from "@chakra-ui/react";
-import { EmailIcon, TimeIcon } from "@chakra-ui/icons";
+import { EmailIcon, PhoneIcon, TimeIcon } from "@chakra-ui/icons";
 import {
   AddressControl,
   DatePicker,
@@ -592,6 +595,28 @@ export const EventForm = withGoogleApi({
         mb={3}
       />
 
+      <FormControl id="eventPhone" isInvalid={!!errors["eventPhone"]} mb={3}>
+        <FormLabel>Numéro de téléphone</FormLabel>
+        <InputGroup>
+          <InputLeftElement pointerEvents="none" children={<PhoneIcon />} />
+          <Input
+            name="eventPhone"
+            placeholder="Cliquez ici pour saisir un numéro de téléphone..."
+            ref={register({
+              pattern: {
+                value: /^[0-9]{10,}$/i,
+                message: "Numéro de téléphone invalide"
+              }
+            })}
+            defaultValue={props.event?.eventPhone}
+            pl={10}
+          />
+        </InputGroup>
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="eventPhone" />
+        </FormErrorMessage>
+      </FormControl>
+
       <FormControl
         id="eventDescription"
         isInvalid={!!errors["eventDescription"]}
@@ -614,7 +639,6 @@ export const EventForm = withGoogleApi({
             );
           }}
         />
-
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="eventDescription" />
         </FormErrorMessage>

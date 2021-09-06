@@ -1,4 +1,4 @@
-import { IEvent, Visibility } from "models/Event";
+import { IEvent, Visibility, VisibilityV } from "models/Event";
 import React, { useEffect, useState } from "react";
 import { Flex, IconButton, useDisclosure } from "@chakra-ui/react";
 import { EventModal } from "features/modals/EventModal";
@@ -28,7 +28,8 @@ export const EventsPage = ({
     query.refetch();
   }, [router.asPath]);
   const events = (query.data || props.events)?.filter(
-    (event) => !event.forwardedFrom
+    (event) =>
+      !event.forwardedFrom && event.eventVisibility === VisibilityV.PUBLIC
   );
 
   const { data: session, loading: isSessionLoading } = useSession();

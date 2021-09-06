@@ -307,6 +307,7 @@ export const EventsList = (props: EventsProps) => {
                   mr={1}
                   size="larger"
                   href={`/${encodeURIComponent(event.eventUrl)}`}
+                  shallow
                 >
                   {event.eventName}
                 </Link>
@@ -421,11 +422,16 @@ export const EventsList = (props: EventsProps) => {
             </GridItem>
 
             {!props.org && (
-              <GridItem light={{ bg: "white" }} dark={{ bg: "gray.700" }}>
+              <GridItem
+                light={{ bg: "white" }}
+                dark={{ bg: "gray.700" }}
+                pl={3}
+                pb={3}
+              >
                 {event.eventOrgs.map((eventOrg) => {
                   return (
                     <Link key={eventOrg.orgUrl} href={`/${eventOrg.orgUrl}`}>
-                      <Tag ml={3} mb={3}>
+                      <Tag>
                         <Icon as={IoIosPeople} mr={1} />
                         {eventOrg.orgName}
                       </Tag>

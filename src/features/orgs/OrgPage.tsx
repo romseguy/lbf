@@ -1,4 +1,4 @@
-import { IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
+import { IOrg, orgTypeFull, orgTypeFull2, OrgTypesV } from "models/Org";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
@@ -16,7 +16,9 @@ import {
   TabPanel,
   Icon,
   Flex,
-  Tooltip
+  Tooltip,
+  Alert,
+  AlertIcon
 } from "@chakra-ui/react";
 import {
   AddIcon,
@@ -173,6 +175,33 @@ export const OrgPage = ({
           {isCreator && "(Vous)"}
         </Text>
       </Box>
+
+      {(isCreator || isSubscribed) && (
+        <Alert status="info" mb={3}>
+          <AlertIcon />
+          <Box>
+            <Text>
+              {isCreator ? (
+                <>
+                  Vous êtes administrateur {orgTypeFull(org.orgType)}{" "}
+                  {org.orgName}.
+                </>
+              ) : (
+                <>
+                  Vous êtes un adhérent {orgTypeFull(org.orgType)} {org.orgName}
+                  .
+                </>
+              )}
+            </Text>
+            {isSubscribed && (
+              <Text fontSize="smaller">
+                Vous avez donc accès aux événements et discussions réservées aux
+                adhérents.
+              </Text>
+            )}
+          </Box>
+        </Alert>
+      )}
 
       {!isConfig && (
         <OrgPageTabs>

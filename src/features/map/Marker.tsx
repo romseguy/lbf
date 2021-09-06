@@ -15,6 +15,7 @@ import {
   FaMapMarkerAlt
 } from "react-icons/fa";
 import { IoIosPeople } from "react-icons/io";
+import { CalendarIcon } from "@chakra-ui/icons";
 
 const defaultStyles = `
   position: absolute;
@@ -43,6 +44,7 @@ export const Marker = ({
   lng?: number;
   zoomLevel: number;
 }) => {
+  const isEvent = "eventName" in item;
   const name = "eventName" in item ? item.eventName : item.orgName;
   const [isDescriptionOpen, setIsDescriptionOpen] = useState<{
     [key: string]: boolean;
@@ -131,7 +133,11 @@ export const Marker = ({
         header={
           <>
             <Box display="inline-flex" alignItems="center">
-              <Icon as={IoIosPeople} mr={1} boxSize={6} color="green" />{" "}
+              {isEvent ? (
+                <Icon as={CalendarIcon} mr={1} boxSize={6} />
+              ) : (
+                <Icon as={IoIosPeople} mr={1} boxSize={6} />
+              )}{" "}
               <Link
                 href={`/${url}`}
                 css={css`

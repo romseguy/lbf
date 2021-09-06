@@ -1,4 +1,4 @@
-import { IEvent, StatusTypes, StatusTypesV } from "models/Event";
+import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
 import type { IUser } from "models/User";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -53,6 +53,8 @@ import {
   isFollowedBy,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
+import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
+import { isServer } from "utils/isServer";
 
 export type Visibility = {
   isVisible: {
@@ -104,6 +106,20 @@ export const EventPage = (props: {
     subQuery.refetch();
   }, [subscriptionRefetch]);
   const isFollowed = isFollowedBy({ event, subQuery });
+  const isSubscribedToAtLeastOneOrg =
+    isCreator ||
+    !!subQuery.data?.orgs.find((orgSubscription: IOrgSubscription) => {
+      for (const org of event.eventOrgs) {
+        if (
+          org._id === orgSubscription.orgId &&
+          orgSubscription.type === SubscriptionTypes.SUBSCRIBER
+        )
+          return true;
+      }
+
+      return false;
+    });
+
   //#endregion
 
   //#region local state
@@ -219,10 +235,26 @@ export const EventPage = (props: {
         </Alert>
       )}
 
+      {event.eventVisibility === Visibility.SUBSCRIBERS && !isConfig && (
+        <Alert status="warning" mb={3}>
+          <AlertIcon />
+          <Box>
+            <Text>
+              Cet événement est reservé aux adhérents des organisations
+              suivantes :{" "}
+              {event.eventOrgs.map((org) => (
+                <Link key={org._id} href={org.orgUrl} shallow>
+                  <Tag mx={1}>{org.orgName}</Tag>
+                </Link>
+              ))}
+            </Text>
+          </Box>
+        </Alert>
+      )}
+
       {!isConfig && (
         <>
           <Grid
-            templateRows="auto 1fr"
             // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"
             gridGap={5}
             css={css`
@@ -237,7 +269,7 @@ export const EventPage = (props: {
             `}
           >
             <GridItem
-              rowSpan={2}
+              rowSpan={4}
               borderTopRadius="lg"
               light={{ bg: "orange.100" }}
               dark={{ bg: "gray.500" }}
@@ -306,6 +338,25 @@ export const EventPage = (props: {
                     {event.eventAddress || (
                       <Text fontStyle="italic">Aucune adresse.</Text>
                     )}
+                    {/* {!session ? (
+                      <Link
+                        variant="underline"
+                        onClick={() => setIsLogin(isLogin + 1)}
+                      >
+                        Connectez-vous pour voir l'adresse
+                      </Link>
+                    ) : !isSubscribedToAtLeastOneOrg &&
+                      event.eventVisibility === Visibility.SUBSCRIBERS &&
+                      !isCreator ? (
+                      <Text>
+                        Vous devez être adhérent pour voir le numéro de
+                        téléphone.
+                      </Text>
+                    ) : (
+                      event.eventAddress || (
+                        <Text fontStyle="italic">Aucune adresse.</Text>
+                      )
+                    )} */}
                   </Box>
                 </GridItem>
               </Grid>
@@ -324,7 +375,10 @@ export const EventPage = (props: {
                   dark={{ bg: "gray.500" }}
                 >
                   <Box p={5}>
-                    {session ? (
+                    {event.eventEmail || (
+                      <Text fontStyle="italic">Aucune adresse e-mail.</Text>
+                    )}
+                    {/* {session ? (
                       event.eventEmail || (
                         <Text fontStyle="italic">Aucune adresse e-mail.</Text>
                       )
@@ -335,7 +389,49 @@ export const EventPage = (props: {
                       >
                         Connectez-vous pour voir l'e-mail de l'événement
                       </Link>
+                    )} */}
+                  </Box>
+                </GridItem>
+              </Grid>
+            </GridItem>
+
+            <GridItem>
+              <Grid templateRows="auto 1fr">
+                <GridHeader borderTopRadius="lg" alignItems="center">
+                  <Heading size="sm" py={3}>
+                    Numéro de téléphone
+                  </Heading>
+                </GridHeader>
+
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                >
+                  <Box p={5}>
+                    {event.eventPhone || (
+                      <Text fontStyle="italic">Aucun numéro de téléphone.</Text>
                     )}
+                    {/* {!session ? (
+                      <Link
+                        variant="underline"
+                        onClick={() => setIsLogin(isLogin + 1)}
+                      >
+                        Connectez-vous pour voir le numéro de téléphone
+                      </Link>
+                    ) : !isSubscribedToAtLeastOneOrg &&
+                      event.eventVisibility === Visibility.SUBSCRIBERS &&
+                      !isCreator ? (
+                      <Text>
+                        Vous devez être adhérent pour voir le numéro de
+                        téléphone.
+                      </Text>
+                    ) : (
+                      event.eventPhone || (
+                        <Text fontStyle="italic">
+                          Aucun numéro de téléphone.
+                        </Text>
+                      )
+                    )} */}
                   </Box>
                 </GridItem>
               </Grid>
@@ -386,42 +482,11 @@ export const EventPage = (props: {
                 </GridItem>
               </Grid>
             </GridItem>
+          </Grid>
 
-            <GridItem>
-              <Grid templateRows="auto 1fr">
-                <GridHeader borderTopRadius="lg" alignItems="center">
-                  <Heading size="sm" py={3}>
-                    Numéro de téléphone
-                  </Heading>
-                </GridHeader>
-
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                >
-                  <Box p={5}>
-                    {session ? (
-                      event.eventPhone || (
-                        <Text fontStyle="italic">
-                          Aucun numéro de téléphone.
-                        </Text>
-                      )
-                    ) : (
-                      <Link
-                        variant="underline"
-                        onClick={() => setIsLogin(isLogin + 1)}
-                      >
-                        Connectez-vous pour voir le numéro de téléphone de
-                        l'événement
-                      </Link>
-                    )}
-                  </Box>
-                </GridItem>
-              </Grid>
-            </GridItem>
-
+          <Grid gridGap={5} mt={5}>
             {isCreator && (
-              <GridItem colSpan={2}>
+              <GridItem>
                 <Grid templateRows="auto 1fr">
                   <GridHeader borderTopRadius="lg" alignItems="center">
                     <Heading size="sm" py={3}>
@@ -471,7 +536,7 @@ export const EventPage = (props: {
               </GridItem>
             )}
 
-            <GridItem colSpan={2}>
+            <GridItem>
               <Grid templateRows="auto 1fr">
                 <GridHeader borderTopRadius="lg" alignItems="center">
                   <Heading size="sm" py={3}>

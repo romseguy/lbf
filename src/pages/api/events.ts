@@ -119,17 +119,21 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
           }
         }
       } else {
-        eventOrgs = body.eventOrgs;
-
         const org = await models.Org.findOne({ orgUrl: eventUrl });
         if (org) throw duplicateError;
         const user = await models.User.findOne({ userName: body.eventName });
         if (user) throw duplicateError;
 
+        let isApproved = false;
+        for (const eventOrg of body.eventOrgs) {
+          const o = await models.Org.findOne({ _id: eventOrg._id });
+          if (o && o.isApproved) isApproved = true;
+        }
+
         event = await models.Event.create({
           ...body,
           eventUrl,
-          isApproved: false
+          isApproved
         });
       }
 
@@ -142,9 +146,6 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
         }
       );
 
-      if (event?.isApproved && !body.forwardedFrom) {
-        sendEventToOrgFollowers(body, transport);
-      }
       sendToAdmin(body, transport);
       res.status(200).json(event);
     } catch (error) {

@@ -24,6 +24,7 @@ const OrgsPage = () => {
   return (
     <Layout>
       <Button
+        colorScheme="teal"
         isDisabled={!orgsQuery.data || !orgsQuery.data.length}
         leftIcon={<FaMapMarkerAlt />}
         onClick={openMapModal}

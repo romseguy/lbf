@@ -1,35 +1,76 @@
 import type { IEvent } from "models/Event";
 import type { IUser } from "models/User";
 import type { IOrg } from "models/Org";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { GetServerSidePropsContext } from "next";
-import { Alert, AlertIcon, Text } from "@chakra-ui/react";
+import { Alert, AlertIcon, Spinner, Text } from "@chakra-ui/react";
 import { EventPage } from "features/events/EventPage";
 import { Layout } from "features/layout";
 import { OrgPage } from "features/orgs/OrgPage";
 import { User } from "features/users/UserPage";
 import { useRouter } from "next/router";
-import { isServer } from "utils/isServer";
-import { wrapper } from "store";
-import { getEvent } from "features/events/eventsApi";
-import { getOrg } from "features/orgs/orgsApi";
-import { getUser } from "features/users/usersApi";
 import api from "utils/api";
 
-const Hash = ({
-  event,
-  org,
-  user,
-  routeName,
-  error
-}: {
-  event?: IEvent;
-  org?: IOrg;
-  user?: IUser;
-  routeName: string;
-  error: any;
+const Hash = ({}: // event,
+// org,
+// user,
+// routeName,
+// error
+{
+  // event?: IEvent;
+  // org?: IOrg;
+  // user?: IUser;
+  // routeName: string;
+  // error: any;
 }) => {
   const router = useRouter();
+  const routeName = router.asPath.substr(1, router.asPath.length);
+  const [event, setEvent] = useState<IEvent | undefined>();
+  const [org, setOrg] = useState<IOrg | undefined>();
+  const [user, setUser] = useState<IUser | undefined>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | undefined>();
+
+  useEffect(() => {
+    const xhr = async () => {
+      const eventQuery = await api.get(`event/${routeName}`);
+
+      if (eventQuery.data) {
+        setEvent(eventQuery.data);
+
+        const eventCreatedById =
+          eventQuery.data.createdBy &&
+          typeof eventQuery.data.createdBy === "object"
+            ? eventQuery.data.createdBy._id
+            : eventQuery.data.createdBy;
+
+        const userQuery = await api.get(`user/${eventCreatedById}`);
+
+        if (userQuery.data) setUser(user);
+      } else {
+        const orgQuery = await api.get(`org/${routeName}`);
+
+        if (orgQuery.data) {
+          setOrg(orgQuery.data);
+        } else {
+          const userQuery = await api.get(`user/${routeName}`);
+
+          if (userQuery.data) setUser(userQuery.data);
+          else
+            setError(
+              new Error(
+                "La page demandée n'a pas été trouvée. Vous allez être redirigé vers la page d'accueil dans quelques secondes."
+              )
+            );
+        }
+      }
+    };
+
+    setEvent(undefined);
+    setOrg(undefined);
+    setUser(undefined);
+    xhr();
+  }, [router.asPath]);
 
   if (event) {
     return <EventPage event={event} user={user} routeName={routeName} />;
@@ -43,24 +84,23 @@ const Hash = ({
     return <User user={user} routeName={routeName} />;
   }
 
-  if (!isServer() && !error) {
+  if (error) {
     setTimeout(() => {
       router.push("/");
     }, 2000);
   }
 
   return (
-    <Layout pageTitle={error ? "Événement privé" : "Page introuvable"}>
-      {error ? (
+    <Layout pageTitle={error ? "Page introuvable" : ""}>
+      {isLoading ? (
+        <Spinner />
+      ) : error ? (
         <Alert status="error">
           <AlertIcon />
           {error.message}
         </Alert>
       ) : (
-        <Text>
-          La page demandée n'a pas été trouvée. Vous allez être redirigé vers la
-          page d'accueil dans quelques secondes.
-        </Text>
+        <></>
       )}
     </Layout>
   );
@@ -88,36 +128,5 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     };
   }
 
-  const { data: event } = await api.get(`event/${routeName}`);
-
-  if (event) {
-    const props: { event: IEvent; routeName: string; user?: IUser } = {
-      event,
-      routeName
-    };
-    const eventCreatedById =
-      event.createdBy && typeof event.createdBy === "object"
-        ? event.createdBy._id
-        : event.createdBy;
-    const { data: user } = await api.get(`user/${eventCreatedById}`);
-    if (user) props.user = user;
-
-    return {
-      props
-    };
-  }
-
-  const { data: org } = await api.get(`org/${routeName}`);
-
-  if (org) {
-    return { props: { org, routeName } };
-  }
-
-  const { data: user } = await api.get(`user/${routeName}`);
-
-  if (user) {
-    return { props: { user, routeName } };
-  }
-
-  return { props: { routeName } };
+  return { props: {} };
 }

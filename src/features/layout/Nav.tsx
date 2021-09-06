@@ -82,6 +82,8 @@ export const Nav = ({
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
+  const storedUserEmail = useSelector(selectUserEmail);
+  const userEmail = storedUserEmail || session?.user.email || "";
   const storedUserName = useSelector(selectUserName);
   const userName = storedUserName || session?.user.userName || "";
 
@@ -181,20 +183,16 @@ export const Nav = ({
             </MenuButton>
 
             <MenuList mr={[1, 3]}>
-              {userName && (
-                <>
-                  <MenuItem
-                    aria-hidden
-                    command={`${userName}`}
-                    cursor="default"
-                    _hover={{ bg: isDark ? "gray.700" : "white" }}
-                  ></MenuItem>
+              <MenuItem
+                aria-hidden
+                command={`${userEmail}`}
+                cursor="default"
+                _hover={{ bg: isDark ? "gray.700" : "white" }}
+              ></MenuItem>
 
-                  <Link href={`/${userName}`} aria-hidden>
-                    <MenuItem>Ma page</MenuItem>
-                  </Link>
-                </>
-              )}
+              <Link href={`/${userName}`} aria-hidden>
+                <MenuItem>Ma page</MenuItem>
+              </Link>
 
               {/* 
               <NextLink href="/settings" passHref>

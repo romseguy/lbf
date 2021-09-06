@@ -133,6 +133,7 @@ export const OrgPopover = ({
                           setIsOpen(false);
                         }}
                         href={`/${org.orgUrl}`}
+                        shallow
                       >
                         {org.orgName}
                       </Link>
