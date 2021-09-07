@@ -1504,6 +1504,11 @@
     debug "^3.1.0"
     lodash.once "^4.1.1"
 
+"@eaboy/clean-console@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@eaboy/clean-console/-/clean-console-1.0.4.tgz#f283ec0e48fe8c1c6602713a865d9d86cafd8e8a"
+  integrity sha512-ePqxMOebrsQW87lVBHKkrE2P0xle0dvnc1xedqx2GFsiEmKkRzyKtCPs436Kh2PgStmY1ebPfwUAmRAv3mf7MA==
+
 "@emotion/babel-plugin-jsx-pragmatic@^0.1.5":
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/@emotion/babel-plugin-jsx-pragmatic/-/babel-plugin-jsx-pragmatic-0.1.5.tgz#27debfe9c27c4d83574d509787ae553bf8a34d7e"

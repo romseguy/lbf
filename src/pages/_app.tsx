@@ -1,7 +1,6 @@
 import React from "react";
 import { NextPage, NextPageContext } from "next";
 import { AppProps } from "next/app";
-// 3 import { Provider as SessionProvider } from "next-auth/client";
 import { SessionProvider } from "next-auth/react";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
@@ -23,6 +22,12 @@ Object.assign(globalThis, {
 
 if (isServer()) {
   React.useLayoutEffect = React.useEffect;
+} else if (process.env.NODE_ENV === "production") {
+  const CleanConsole = require("@eaboy/clean-console");
+  CleanConsole.init({
+    initialMessages: [{ message: "Bienvenue sur aucourant.de" }],
+    debugLocalStoregeKey: "allowConsole"
+  });
 }
 
 const App = wrapper.withRedux(

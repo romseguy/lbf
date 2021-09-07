@@ -1,54 +1,27 @@
-import React, { useEffect } from "react";
-import type { GetServerSidePropsContext } from "next";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { format } from "date-fns";
+import tw, { css } from "twin.macro";
+import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Flex,
   Box,
-  List,
-  ListItem,
-  Spinner,
-  Text,
-  Heading,
   Button,
   useToast,
-  useColorModeValue,
-  IconButton,
   Icon,
-  Grid,
-  GridItem,
   Textarea,
-  FormLabel,
-  Alert
+  Alert,
+  AlertIcon,
+  VStack
 } from "@chakra-ui/react";
-import { wrapper } from "store";
-import { isServer } from "utils/isServer";
-import { OrgTypes } from "models/Org";
+import { useSession } from "hooks/useAuth";
+import api from "utils/api";
 import type { IUser } from "models/User";
 import { Layout } from "features/layout";
-import { useGetUserQuery } from "features/users/usersApi";
-import { OrgForm } from "features/forms/OrgForm";
-import { Link, GridHeader } from "features/common";
-import { useSession } from "hooks/useAuth";
-import { useState } from "react";
-import { DeleteButton } from "features/common/DeleteButton";
-import {
-  AddIcon,
-  ArrowBackIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  CloseIcon,
-  DeleteIcon,
-  EditIcon,
-  WarningIcon
-} from "@chakra-ui/icons";
 import { UserForm } from "features/forms/UserForm";
-import tw, { css } from "twin.macro";
-import api from "utils/api";
-import router from "next/router";
-import { signOut } from "next-auth/react";
+import { useGetUserQuery } from "features/users/usersApi";
 import { selectUserEmail, selectUserImage, selectUserName } from "./userSlice";
-import { useSelector } from "react-redux";
 
 export const User = ({
   routeName,
@@ -65,6 +38,7 @@ export const User = ({
       router.push("/?login");
     }
   } */);
+  const [data, setData] = useState<any>();
 
   const query = useGetUserQuery(routeName);
   const user = query.data || props.user;
@@ -75,8 +49,6 @@ export const User = ({
 
   const [isEdit, setIsEdit] = useState(false);
   const toast = useToast({ position: "top" });
-
-  // if (isSessionLoading) return <Spinner />;
 
   return (
     <Layout pageTitle={user.userName}>
@@ -101,43 +73,53 @@ export const User = ({
                 </Button>
               </Box>
               {session?.user.isAdmin && (
-                <Alert mt={3} status="info">
-                  Vous êtes administrateur.
-                </Alert>
-              )}
-              {/* <DeleteButton
-              isLoading={isLoading}
-              body={
-                <Box p={5} lineHeight={2}>
-                  <WarningIcon color="red" /> Êtes vous certain de vouloir
-                  supprimer l'événement{" "}
-                  <Text display="inline" color="red" fontWeight="bold">
-                    {org.orgName}
-                  </Text>{" "}
-                  ?
-                </Box>
-              }
-              onClick={async () => {
-                try {
-                  const deletedOrg = await deleteOrg(org.orgName).unwrap();
+                <VStack spacing={5}>
+                  <Alert mt={3} status="info">
+                    <AlertIcon />
+                    Vous êtes administrateur.
+                  </Alert>
 
-                  if (deletedOrg) {
-                    await Router.push(`/`);
-                    toast({
-                      title: `${deletedOrg.orgName} a bien été supprimé !`,
-                      status: "success",
-                      isClosable: true
-                    });
-                  }
-                } catch (error) {
-                  toast({
-                    title: error.data ? error.data.message : error.message,
-                    status: "error",
-                    isClosable: true
-                  });
-                }
-              }}
-            /> */}
+                  <Button
+                    onClick={async () => {
+                      const { error, data } = await api.get("admin/backup");
+                      const a = document.createElement("a");
+                      const href = window.URL.createObjectURL(
+                        new Blob([JSON.stringify(data)], {
+                          type: "application/json"
+                        })
+                      );
+                      a.href = href;
+                      a.download = "data-" + format(new Date(), "dd-MM-yyyy");
+                      a.click();
+                      window.URL.revokeObjectURL(href);
+                    }}
+                  >
+                    Exporter les données
+                  </Button>
+
+                  <Textarea
+                    onChange={(e) => setData(e.target.value)}
+                    placeholder="Copiez ici les données exportées précédemment"
+                  />
+                  <Button
+                    isDisabled={!data}
+                    onClick={async () => {
+                      const query = await api.post("admin/backup", data);
+
+                      if (query.error) {
+                        toast({ status: "error", title: query.error.message });
+                      } else {
+                        toast({
+                          status: "success",
+                          title: "Les données ont été importées"
+                        });
+                      }
+                    }}
+                  >
+                    Importer les données
+                  </Button>
+                </VStack>
+              )}
             </>
           )}
         </Flex>
