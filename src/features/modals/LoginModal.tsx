@@ -27,7 +27,8 @@ import {
   Alert,
   AlertIcon,
   InputGroup,
-  InputRightElement
+  InputRightElement,
+  useColorMode
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
@@ -49,6 +50,8 @@ export const LoginModal = (props: {
   onSubmit: (url?: string | null) => void;
 }) => {
   const router = useRouter();
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
 
   const [isForgotten, setIsForgotten] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
@@ -311,7 +314,7 @@ export const LoginModal = (props: {
                 ) : (
                   <Button
                     colorScheme="transparent"
-                    color="black"
+                    color={isDark ? "white" : "black"}
                     size="xs"
                     rightIcon={<ChevronRightIcon />}
                     onClick={() => {

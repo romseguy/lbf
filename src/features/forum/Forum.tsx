@@ -25,6 +25,8 @@ export const Forum = ({
   //#region org
   const query = useGetOrgQuery("aucourant");
   const org = query.data;
+  console.log(org);
+
   let isCreator = false;
   if (session && org) {
     if (

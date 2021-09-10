@@ -51,7 +51,7 @@ handler.get<NextApiRequest & { query: { orgUrl: string } }, NextApiResponse>(
           : "-email -password -securityCode";
 
       org = await org
-        .populate("createdBy", "-email -password -userImage -securityCode")
+        .populate("createdBy", select + " -userImage")
         .populate("orgEvents orgSubscriptions orgTopics")
         .populate({
           path: "orgTopics",
@@ -81,6 +81,8 @@ handler.get<NextApiRequest & { query: { orgUrl: string } }, NextApiResponse>(
           }
         }
       }
+
+      console.log(org);
 
       res.status(200).json(org);
     } catch (error) {

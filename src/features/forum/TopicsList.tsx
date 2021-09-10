@@ -54,7 +54,7 @@ const TopicVisibility = ({ topicVisibility }: { topicVisibility?: string }) =>
       <EmailIcon boxSize={4} />
     </Tooltip>
   ) : topicVisibility === Visibility.PUBLIC ? (
-    <Tooltip label="Discussion visible par tous">
+    <Tooltip label="Discussion publique">
       <span>
         <Icon as={FaGlobeEurope} boxSize={4} />
       </span>

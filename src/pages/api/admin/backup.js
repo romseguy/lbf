@@ -32,6 +32,7 @@ handler.get(async function exportData(req, res) {
       const keys = Object.keys(models);
 
       for (const key of keys) {
+        if (key === "User") continue;
         const model = models[key];
         data[key] = await model.find({});
       }
@@ -67,9 +68,12 @@ handler.post(async function importData(req, res) {
       const body = JSON.parse(req.body);
       const keys = Object.keys(models);
       for (const key of keys) {
+        if (key === "User") continue;
         const model = models[key];
         model.collection.remove({});
-        model.collection.insertMany(body.data[key], { ordered: false });
+        for (const o of body.data[key]) {
+          model.create(o);
+        }
       }
       res.status(200).json({});
     } catch (error) {

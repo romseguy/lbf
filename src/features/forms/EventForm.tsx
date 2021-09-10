@@ -824,7 +824,7 @@ export const EventForm = withGoogleApi({
                 <ErrorMessage errors={errors} name="eventNotif" />
               </FormErrorMessage>
             </FormControl>
-          ) : (
+          ) : !!!eventOrgs.find((org) => org.isApproved) ? (
             <Alert status="info" mb={3}>
               <AlertIcon />
               Cet événement {props.event ? "doit" : "devra"} être approuvé par
@@ -832,7 +832,7 @@ export const EventForm = withGoogleApi({
               d'invitation aux abonnés des organisations sélectionnées
               ci-dessus.
             </Alert>
-          )}
+          ) : null}
         </>
       )}
 

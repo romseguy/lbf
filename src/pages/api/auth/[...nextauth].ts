@@ -40,7 +40,7 @@ const createOptions = (req: NextApiRequest) => ({
         }
 
         if (error) {
-          //console.log("AUTHORIZE ERROR:", error);
+          console.log("AUTHORIZE ERROR:", error);
           throw new Error("Nous n'avons pas pu vous identifier.");
         }
 

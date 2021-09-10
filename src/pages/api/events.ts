@@ -88,7 +88,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
       const eventUrl = normalize(body.eventName);
 
       let event: (IEvent & Document<any, any, any>) | null;
-      let eventOrgs: IOrg[] = [];
+      let eventOrgs: IOrg[] = body.eventOrgs;
 
       if (body.forwardedFrom) {
         event = await models.Event.findOne({ eventUrl });
@@ -119,6 +119,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
           }
         }
       } else {
+        event = await models.Event.findOne({ eventUrl });
+        if (event) throw duplicateError;
         const org = await models.Org.findOne({ orgUrl: eventUrl });
         if (org) throw duplicateError;
         const user = await models.User.findOne({ userName: body.eventName });

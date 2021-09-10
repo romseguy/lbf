@@ -8,6 +8,7 @@ import {
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import { normalize } from "utils/string";
+import { IOrg } from "models/Org";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -51,10 +52,12 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrg(req, res) {
       );
   } else {
     try {
-      const orgUrl = normalize(req.body.orgName);
+      const { body }: { body: IOrg } = req;
+      const orgUrl = normalize(body.orgName);
+
       const org = await models.Org.findOne({ orgUrl });
       if (org) throw duplicateError;
-      const user = await models.User.findOne({ userName: req.body.orgName });
+      const user = await models.User.findOne({ userName: body.orgName });
       if (user) throw duplicateError;
       const event = await models.Event.findOne({ eventUrl: orgUrl });
       if (event) throw duplicateError;

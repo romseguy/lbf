@@ -27,11 +27,20 @@ import {
 } from "date-fns";
 import { IEvent, Visibility } from "models/Event";
 import { fr } from "date-fns/locale";
-import { DeleteIcon, EmailIcon, LockIcon, UpDownIcon } from "@chakra-ui/icons";
+import {
+  CheckCircleIcon,
+  CloseIcon,
+  DeleteIcon,
+  EmailIcon,
+  LockIcon,
+  NotAllowedIcon,
+  UpDownIcon,
+  WarningIcon
+} from "@chakra-ui/icons";
 import { css } from "twin.macro";
 import { DescriptionModal } from "features/modals/DescriptionModal";
 import DOMPurify from "isomorphic-dompurify";
-import { FaGlobeEurope, FaRetweet } from "react-icons/fa";
+import { FaCross, FaGlobeEurope, FaRetweet } from "react-icons/fa";
 import { useAppDispatch } from "store";
 import { useSession } from "hooks/useAuth";
 import { ForwardModal } from "features/modals/ForwardModal";
@@ -51,7 +60,7 @@ const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
   //   </Tooltip>
   // )
   eventVisibility === Visibility.PUBLIC ? (
-    <Tooltip label="Événement visible par tous">
+    <Tooltip label="Événement public">
       <span>
         <Icon as={FaGlobeEurope} boxSize={4} />
       </span>
@@ -218,85 +227,96 @@ export const EventsList = (props: EventsProps) => {
               alignItems="center"
             >
               <Flex pl={3} alignItems="center">
-                {props.org && session?.user.userId === event.createdBy && (
-                  <Tooltip
-                    label={
-                      canSendCount === 0
-                        ? "Aucun abonné à notifier"
-                        : `Notifier ${canSendCount} abonné${
-                            canSendCount > 1 ? "s" : ""
-                          } de l'organisation : ${props.org.orgName}`
-                    }
-                  >
-                    <IconButton
-                      aria-label={
+                {props.org && props.isCreator && (
+                  <>
+                    {event.isApproved ? (
+                      <Tooltip label="Approuvé">
+                        <CheckCircleIcon color="green" />
+                      </Tooltip>
+                    ) : (
+                      <Tooltip label="En attente de modération">
+                        <WarningIcon color="orange" />
+                      </Tooltip>
+                    )}
+                    <Tooltip
+                      label={
                         canSendCount === 0
                           ? "Aucun abonné à notifier"
-                          : `Notifier les abonnés de ${props.org.orgName}`
+                          : `Notifier ${canSendCount} abonné${
+                              canSendCount > 1 ? "s" : ""
+                            } de l'organisation : ${props.org.orgName}`
                       }
-                      icon={<EmailIcon />}
-                      isDisabled={!event.isApproved}
-                      title={
-                        !event.isApproved
-                          ? "L'événement est en attente de modération"
-                          : ""
-                      }
-                      bg="transparent"
-                      minWidth={0}
-                      mr={2}
-                      _hover={{
-                        background: "transparent",
-                        color: "green"
-                      }}
-                      onClick={async () => {
-                        const notify = confirm(
-                          `Êtes-vous sûr de vouloir notifier ${canSendCount} abonné${
-                            canSendCount > 1 ? "s" : ""
-                          } de l'organisation : ${props.org!.orgName}`
-                        );
+                    >
+                      <IconButton
+                        aria-label={
+                          canSendCount === 0
+                            ? "Aucun abonné à notifier"
+                            : `Notifier les abonnés de ${props.org.orgName}`
+                        }
+                        icon={<EmailIcon />}
+                        isDisabled={!event.isApproved}
+                        title={
+                          !event.isApproved
+                            ? "L'événement est en attente de modération"
+                            : ""
+                        }
+                        bg="transparent"
+                        minWidth={0}
+                        mx={2}
+                        _hover={{
+                          background: "transparent",
+                          color: "green"
+                        }}
+                        onClick={async () => {
+                          const notify = confirm(
+                            `Êtes-vous sûr de vouloir notifier ${canSendCount} abonné${
+                              canSendCount > 1 ? "s" : ""
+                            } de l'organisation : ${props.org!.orgName}`
+                          );
 
-                        if (!notify) return;
+                          if (!notify) return;
 
-                        try {
-                          const res = await eventNotify({
-                            eventId: event._id,
-                            payload: {
-                              event: {
-                                ...event,
-                                eventNotif: [props.org!._id]
+                          try {
+                            const res = await eventNotify({
+                              eventId: event._id,
+                              payload: {
+                                event: {
+                                  ...event,
+                                  eventNotif: [props.org!._id]
+                                }
                               }
-                            }
-                          }).unwrap();
+                            }).unwrap();
 
-                          if (
-                            Array.isArray(res.emailList) &&
-                            res.emailList.length > 0
-                          ) {
-                            props.orgQuery.refetch();
+                            if (
+                              Array.isArray(res.emailList) &&
+                              res.emailList.length > 0
+                            ) {
+                              props.orgQuery.refetch();
+                              toast({
+                                title: `Une invitation a été envoyée à ${
+                                  res.emailList.length
+                                } abonné${res.emailList.length > 1 ? "s" : ""}`,
+                                status: "success",
+                                isClosable: true
+                              });
+                            } else {
+                              toast({
+                                title: "Aucune invitation envoyée",
+                                status: "warning",
+                                isClosable: true
+                              });
+                            }
+                          } catch (error) {
                             toast({
-                              title: `Une invitation a été envoyée à ${
-                                res.emailList.length
-                              } abonné${res.emailList.length > 1 ? "s" : ""}`,
-                              status: "success",
-                              isClosable: true
-                            });
-                          } else {
-                            toast({
-                              title: "Aucune invitation envoyée",
-                              status: "warning",
+                              title: "Une erreur est survenue",
+                              status: "error",
                               isClosable: true
                             });
                           }
-                        } catch (error) {
-                          toast({
-                            title: "Une erreur est survenue",
-                            status: "error",
-                            isClosable: true
-                          });
-                        }
-                      }}
-                    />
-                  </Tooltip>
+                        }}
+                      />
+                    </Tooltip>
+                  </>
                 )}
 
                 <Link

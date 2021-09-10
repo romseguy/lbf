@@ -79,6 +79,8 @@ export const OrgPage = ({
     setIsEdit(false);
   }, [router.asPath, refetchOrg]);
   const org = orgQuery.data || props.org;
+  console.log(org);
+
   const orgCreatedByUserName =
     typeof org.createdBy === "object" ? org.createdBy.userName : "";
   const orgCreatedByUserId =
@@ -307,7 +309,9 @@ export const OrgPage = ({
                   />
                   <IconFooter />
                 </div>
-              ) : null}
+              ) : (
+                <Box>Aucun événement prévu, pourquoi ne pas en ajouter un?</Box>
+              )}
             </TabPanel>
             <TabPanel>
               <>
