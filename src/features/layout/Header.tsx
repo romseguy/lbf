@@ -45,16 +45,17 @@ export const Header = ({
       {...props}
     >
       <Flex direction="column" ml={5}>
-        <Link href="/" variant="no-underline">
-          <Text
-            fontFamily="Aladin"
-            fontSize="x-large"
-            fontStyle="italic"
-            mt={5}
-            color={defaultTitleColor}
-          >
-            {defaultTitle}
-          </Text>
+        <Link
+          variant="no-underline"
+          fontFamily="Aladin"
+          fontSize="x-large"
+          fontStyle="italic"
+          mt={5}
+          mb={!pageTitle ? 5 : undefined}
+          color={defaultTitleColor}
+          onClick={() => router.push("/", "/", { shallow: true })}
+        >
+          {defaultTitle}
         </Link>
 
         {pageTitle && (

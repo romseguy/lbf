@@ -386,7 +386,7 @@ export const EventForm = withGoogleApi({
         <FormLabel>Nom de l'événement</FormLabel>
         <Input
           name="eventName"
-          placeholder="Cliquez ici pour saisir le nom..."
+          placeholder="Nom de l'événement"
           ref={register({
             required: "Veuillez saisir un nom d'événement",
             pattern: {
@@ -583,6 +583,7 @@ export const EventForm = withGoogleApi({
         errors={errors}
         control={control}
         mb={3}
+        placeholder="Adresse de l'événement"
         onSuggestionSelect={(suggestion: Suggestion) => {
           setSuggestion(suggestion);
         }}
@@ -594,6 +595,7 @@ export const EventForm = withGoogleApi({
         errors={errors}
         register={register}
         mb={3}
+        placeholder="Adresse e-mail de l'événement"
       />
 
       <FormControl id="eventPhone" isInvalid={!!errors["eventPhone"]} mb={3}>
@@ -602,7 +604,7 @@ export const EventForm = withGoogleApi({
           <InputLeftElement pointerEvents="none" children={<PhoneIcon />} />
           <Input
             name="eventPhone"
-            placeholder="Cliquez ici pour saisir un numéro de téléphone..."
+            placeholder="Numéro de téléphone de l'événement"
             ref={register({
               pattern: {
                 value: /^[0-9]{10,}$/i,

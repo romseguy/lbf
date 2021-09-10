@@ -691,42 +691,41 @@ export const EventPage = (props: {
                   <GridItem
                     light={{ bg: "orange.100" }}
                     dark={{ bg: "gray.500" }}
+                    overflowX="auto"
                   >
-                    <Box overflowX="auto">
-                      <Table p={5}>
-                        <Tbody>
-                          {!event.eventNotified ||
-                          (Array.isArray(event.eventNotified) &&
-                            !event.eventNotified.length) ? (
-                            <Tr>
-                              <Td colSpan={2}>Aucun participant.</Td>
-                            </Tr>
-                          ) : (
-                            event.eventNotified?.map(({ email: e, status }) => {
-                              return (
-                                <Tr key={e}>
-                                  <Td>{e}</Td>
-                                  <Td>
-                                    <Tag
-                                      variant="solid"
-                                      colorScheme={
-                                        status === StatusTypes.PENDING
-                                          ? "blue"
-                                          : status === StatusTypes.OK
-                                          ? "green"
-                                          : "red"
-                                      }
-                                    >
-                                      {StatusTypesV[status]}
-                                    </Tag>
-                                  </Td>
-                                </Tr>
-                              );
-                            })
-                          )}
-                        </Tbody>
-                      </Table>
-                    </Box>
+                    <Table p={5}>
+                      <Tbody>
+                        {!event.eventNotified ||
+                        (Array.isArray(event.eventNotified) &&
+                          !event.eventNotified.length) ? (
+                          <Tr>
+                            <Td colSpan={2}>Aucun participant.</Td>
+                          </Tr>
+                        ) : (
+                          event.eventNotified?.map(({ email: e, status }) => {
+                            return (
+                              <Tr key={e}>
+                                <Td>{e}</Td>
+                                <Td>
+                                  <Tag
+                                    variant="solid"
+                                    colorScheme={
+                                      status === StatusTypes.PENDING
+                                        ? "blue"
+                                        : status === StatusTypes.OK
+                                        ? "green"
+                                        : "red"
+                                    }
+                                  >
+                                    {StatusTypesV[status]}
+                                  </Tag>
+                                </Td>
+                              </Tr>
+                            );
+                          })
+                        )}
+                      </Tbody>
+                    </Table>
                   </GridItem>
                 </Grid>
               </GridItem>

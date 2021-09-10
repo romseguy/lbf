@@ -151,7 +151,7 @@ export const TopicMessagesList = ({
 
                 <Link pl={3} fontSize="smaller" aria-hidden>
                   <Tooltip placement="bottom" label={fullDate}>
-                    {timeAgo}
+                    <span>{timeAgo}</span>
                   </Tooltip>
                 </Link>
 

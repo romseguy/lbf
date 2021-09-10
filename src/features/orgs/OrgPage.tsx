@@ -18,7 +18,8 @@ import {
   Flex,
   Tooltip,
   Alert,
-  AlertIcon
+  AlertIcon,
+  IconButton
 } from "@chakra-ui/react";
 import {
   AddIcon,
@@ -93,11 +94,6 @@ export const OrgPage = ({
   const subQuery = useGetSubscriptionQuery(
     subscribedEmail || session?.user.userId
   );
-  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    console.log("refetching subscription");
-    subQuery.refetch();
-  }, [subscriptionRefetch]);
   const isFollowed = isFollowedBy({ org, subQuery });
   const isSubscribed = isSubscribedBy(org, subQuery);
   //#endregion
@@ -180,7 +176,7 @@ export const OrgPage = ({
           <Link variant="underline" href={`/${orgCreatedByUserName}`}>
             {orgCreatedByUserName}
           </Link>{" "}
-          {isCreator && "(Vous)"}
+          {isCreator && !session?.user.isAdmin && "(Vous)"}
         </Text>
       </Box>
 
@@ -194,19 +190,16 @@ export const OrgPage = ({
                   Vous êtes administrateur {orgTypeFull(org.orgType)}{" "}
                   {org.orgName}.
                 </>
-              ) : (
+              ) : isSubscribed ? (
                 <>
-                  Vous êtes un adhérent {orgTypeFull(org.orgType)} {org.orgName}
-                  .
+                  Vous êtes adhérent {orgTypeFull(org.orgType)} {org.orgName}.
+                  <Text fontSize="smaller">
+                    Vous avez donc accès aux événements et discussions réservées
+                    aux adhérents.
+                  </Text>
                 </>
-              )}
+              ) : null}
             </Text>
-            {isSubscribed && (
-              <Text fontSize="smaller">
-                Vous avez donc accès aux événements et discussions réservées aux
-                adhérents.
-              </Text>
-            )}
           </Box>
         </Alert>
       )}
@@ -214,7 +207,7 @@ export const OrgPage = ({
       {!isConfig && (
         <OrgPageTabs>
           <TabPanels>
-            <TabPanel>
+            <TabPanel aria-hidden>
               <>
                 <Grid templateRows="auto 1fr">
                   <GridHeader borderTopRadius="lg" alignItems="center">
@@ -227,9 +220,10 @@ export const OrgPage = ({
                           placement="bottom"
                           label="Modifier la description"
                         >
-                          <Icon
-                            as={EditIcon}
-                            cursor="pointer"
+                          <IconButton
+                            aria-label="Modifier la description"
+                            icon={<EditIcon />}
+                            bg="transparent"
                             ml={3}
                             _hover={{ color: "green" }}
                             onClick={() => {
@@ -272,7 +266,8 @@ export const OrgPage = ({
                 <IconFooter />
               </>
             </TabPanel>
-            <TabPanel>
+
+            <TabPanel aria-hidden>
               {(isCreator || isSubscribed) && (
                 <>
                   <Button
@@ -319,7 +314,8 @@ export const OrgPage = ({
                 </Box>
               )}
             </TabPanel>
-            <TabPanel>
+
+            <TabPanel aria-hidden>
               <>
                 <TopicsList
                   org={org}

@@ -18,7 +18,8 @@ export const EmailControl = ({
   name,
   register,
   isRequired = false,
-  mb
+  mb,
+  ...props
 }: {
   defaultValue?: string;
   errors: { [key: string]: string };
@@ -26,6 +27,7 @@ export const EmailControl = ({
   register: any;
   isRequired?: boolean;
   mb?: number;
+  placeholder?: string;
 }) => {
   let formRules: { required?: string | boolean } = {};
 
@@ -46,7 +48,9 @@ export const EmailControl = ({
         <InputLeftElement pointerEvents="none" children={<EmailIcon />} />
         <Input
           name={name}
-          placeholder="Cliquez ici pour saisir une adresse e-mail..."
+          placeholder={
+            props.placeholder || "Cliquez ici pour saisir une adresse e-mail..."
+          }
           ref={register({
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,

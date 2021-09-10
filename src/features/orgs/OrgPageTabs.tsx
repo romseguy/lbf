@@ -100,6 +100,7 @@ export const OrgPageTabs = ({
           WebkitOverflowScrolling: "touch",
           msOverflowStyle: "-ms-autohiding-scrollbar"
         }}
+        aria-hidden
       >
         {[
           // { name: "Accueil", icon: <FaHome boxSize={6} /> },

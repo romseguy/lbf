@@ -166,7 +166,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         <FormLabel>Objet de la discussion</FormLabel>
         <Input
           name="topicName"
-          placeholder="Cliquez ici pour saisir l'objet de la discussion..."
+          placeholder="Objet de la discussion"
           ref={register({
             required: "Veuillez saisir l'objet de la discussion"
           })}

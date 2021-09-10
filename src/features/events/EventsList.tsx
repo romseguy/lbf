@@ -47,12 +47,14 @@ import { ForwardModal } from "features/modals/ForwardModal";
 import { useDeleteEventMutation, useEventNotifyMutation } from "./eventsApi";
 import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
-import { IoIosPeople } from "react-icons/io";
+import { IoIosPeople, IoMdPerson } from "react-icons/io";
 
 const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
   eventVisibility === Visibility.SUBSCRIBERS ? (
     <Tooltip label="Événement réservé aux adhérents">
-      <LockIcon boxSize={4} />
+      <span>
+        <Icon as={IoMdPerson} boxSize={4} />
+      </span>
     </Tooltip>
   ) : // : topicVisibility === Visibility.FOLLOWERS ? (
   //   <Tooltip label="Événement réservé aux abonnés">

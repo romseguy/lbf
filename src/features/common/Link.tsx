@@ -4,12 +4,14 @@ import {
   ThemingProps,
   Link as ChakraLink,
   SpaceProps,
-  TypographyProps
+  TypographyProps,
+  ColorProps
 } from "@chakra-ui/react";
 import { SerializedStyles } from "@emotion/react";
 declare type Url = string;
 
-export type LinkProps = ThemingProps &
+export type LinkProps = ColorProps &
+  ThemingProps &
   SpaceProps &
   TypographyProps & {
     href?: Url;

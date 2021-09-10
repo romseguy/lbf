@@ -36,6 +36,7 @@ export const AddressControl = withGoogleApi({
     isRequired?: boolean;
     noLabel?: boolean;
     mb?: number;
+    placeholder?: string;
     onSuggestionSelect?: (suggestion: Suggestion) => void;
     onClick?: () => void;
     onChange?: (description: string) => void;
@@ -73,7 +74,10 @@ export const AddressControl = withGoogleApi({
                     value={
                       typeof props.value === "string" ? props.value : value
                     }
-                    placeholder="Cliquez ici pour saisir une adresse..."
+                    placeholder={
+                      props.placeholder ||
+                      "Cliquez ici pour saisir une adresse..."
+                    }
                   />
                 );
               }}

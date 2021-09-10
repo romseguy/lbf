@@ -25,7 +25,7 @@ import {
   useColorMode,
   useToast
 } from "@chakra-ui/react";
-import { DeleteButton, Grid, GridItem } from "features/common";
+import { DeleteButton, Grid, GridItem, Link } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { TopicMessagesList } from "./TopicMessagesList";
 import { AddIcon } from "@chakra-ui/icons";
@@ -42,12 +42,15 @@ import {
 import { useSelector } from "react-redux";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { useDeleteTopicMutation } from "./topicsApi";
+import { IoMdPerson } from "react-icons/io";
 
 // https://github.com/chakra-ui/chakra-ui/issues/2869
 const TopicVisibility = ({ topicVisibility }: { topicVisibility?: string }) =>
   topicVisibility === Visibility.SUBSCRIBERS ? (
     <Tooltip label="Discussion réservée aux adhérents">
-      <LockIcon boxSize={4} />
+      <span>
+        <Icon as={IoMdPerson} boxSize={4} />
+      </span>
     </Tooltip>
   ) : topicVisibility === Visibility.FOLLOWERS ? (
     <Tooltip label="Discussion réservée aux abonnés">
@@ -233,132 +236,138 @@ export const TopicsList = ({
                   }
 
                   return (
-                    <Box key={entityTopic._id}>
-                      <Grid
-                        templateColumns="auto 1fr auto"
-                        cursor="pointer"
-                        light={{
-                          borderTopRadius: topicIndex === 0 ? "lg" : undefined,
-                          borderBottomRadius:
-                            topicIndex === topicsCount - 1 && !isCurrent
-                              ? "lg"
-                              : undefined,
-                          bg:
-                            topicIndex % 2 === 0 ? "orange.200" : "orange.100",
-                          _hover: { bg: "orange.300" }
-                        }}
-                        dark={{
-                          borderTopRadius: topicIndex === 0 ? "lg" : undefined,
-                          borderBottomRadius:
-                            topicIndex === topicsCount - 1 && !isCurrent
-                              ? "lg"
-                              : undefined,
-                          bg: topicIndex % 2 === 0 ? "gray.600" : "gray.500",
-                          _hover: { bg: "gray.400" }
-                        }}
+                    <div key={entityTopic._id}>
+                      <Link
+                        variant="no-underline"
                         onClick={() =>
                           setCurrentTopic(isCurrent ? null : entityTopic)
                         }
                         data-cy="topic"
                       >
-                        <GridItem p={3}>
-                          {currentTopic && isCurrent ? (
-                            <ViewIcon boxSize={6} />
-                          ) : (
-                            <ViewOffIcon boxSize={6} />
-                          )}
-                        </GridItem>
-                        <GridItem py={3}>
-                          {/* <Box
+                        <Grid
+                          templateColumns="auto 1fr auto"
+                          light={{
+                            borderTopRadius:
+                              topicIndex === 0 ? "lg" : undefined,
+                            borderBottomRadius:
+                              topicIndex === topicsCount - 1 && !isCurrent
+                                ? "lg"
+                                : undefined,
+                            bg:
+                              topicIndex % 2 === 0
+                                ? "orange.200"
+                                : "orange.100",
+                            _hover: { bg: "orange.300" }
+                          }}
+                          dark={{
+                            borderTopRadius:
+                              topicIndex === 0 ? "lg" : undefined,
+                            borderBottomRadius:
+                              topicIndex === topicsCount - 1 && !isCurrent
+                                ? "lg"
+                                : undefined,
+                            bg: topicIndex % 2 === 0 ? "gray.600" : "gray.500",
+                            _hover: { bg: "gray.400" }
+                          }}
+                        >
+                          <GridItem p={3}>
+                            {currentTopic && isCurrent ? (
+                              <ViewIcon boxSize={6} />
+                            ) : (
+                              <ViewOffIcon boxSize={6} />
+                            )}
+                          </GridItem>
+                          <GridItem py={3}>
+                            {/* <Box
                         px={3}
                         _hover={{
                           bg: isDark ? "gray.800" : "orange.200"
                         }}
                       > */}
-                          <Box lineHeight="1" data-cy="topicHeader">
-                            <Text fontWeight="bold">
-                              {entityTopic.topicName}
-                            </Text>
-                            <Box
-                              display="inline"
-                              fontSize="smaller"
-                              color={isDark ? "white" : "gray.600"}
-                            >
-                              {entityTopicCreatedByUserName}
-                              <span aria-hidden> · </span>
-                              <Tooltip placement="bottom" label={fullDate}>
-                                {timeAgo}
-                              </Tooltip>
-                              <span aria-hidden> · </span>
-                              <TopicVisibility
-                                topicVisibility={entityTopic.topicVisibility}
-                              />
+                            <Box lineHeight="1" data-cy="topicHeader">
+                              <Text fontWeight="bold">
+                                {entityTopic.topicName}
+                              </Text>
+                              <Box
+                                display="inline"
+                                fontSize="smaller"
+                                color={isDark ? "white" : "gray.600"}
+                              >
+                                {entityTopicCreatedByUserName}
+                                <span aria-hidden> · </span>
+                                <Tooltip placement="bottom" label={fullDate}>
+                                  <span>{timeAgo}</span>
+                                </Tooltip>
+                                <span aria-hidden> · </span>
+                                <TopicVisibility
+                                  topicVisibility={entityTopic.topicVisibility}
+                                />
+                              </Box>
                             </Box>
-                          </Box>
-                          {/* </Box> */}
-                        </GridItem>
-                        {session && (
-                          <GridItem>
-                            <Box
-                              pr={3}
-                              pt={3}
-                              //alignItems="center"
-                            >
-                              {isCreator && (
-                                <>
-                                  <Tooltip
-                                    placement="bottom"
-                                    label="Modifier la discussion"
-                                  >
-                                    <IconButton
-                                      aria-label="Modifier la discussion"
-                                      icon={<EditIcon />}
-                                      bg="transparent"
-                                      height="auto"
-                                      minWidth={0}
-                                      _hover={{ color: "green" }}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-
-                                        setTopicModalState({
-                                          ...topicModalState,
-                                          isOpen: true,
-                                          topic: entityTopic
-                                        });
-                                      }}
-                                    />
-                                  </Tooltip>
-
+                            {/* </Box> */}
+                          </GridItem>
+                          {session && (
+                            <GridItem>
+                              <Box
+                                pr={3}
+                                pt={3}
+                                //alignItems="center"
+                              >
+                                {isCreator && (
                                   <>
-                                    <span aria-hidden> · </span>
-                                    {deleteTopicMutation.isLoading ? (
-                                      <Spinner boxSize={4} />
-                                    ) : (
-                                      <DeleteButton
-                                        isIconOnly
-                                        placement="bottom"
+                                    <Tooltip
+                                      placement="bottom"
+                                      label="Modifier la discussion"
+                                    >
+                                      <IconButton
+                                        aria-label="Modifier la discussion"
+                                        icon={<EditIcon />}
                                         bg="transparent"
                                         height="auto"
                                         minWidth={0}
-                                        _hover={{ color: "red" }}
-                                        // isDisabled={isDeleteButtonDisabled}
-                                        header={
-                                          <>
-                                            Êtes vous sûr de vouloir supprimer
-                                            la discussion
-                                            <Text
-                                              display="inline"
-                                              color="red"
-                                              fontWeight="bold"
-                                            >
-                                              {` ${entityTopic.topicName}`}
-                                            </Text>{" "}
-                                            ?
-                                          </>
-                                        }
-                                        body={
-                                          <>
-                                            {/* <label htmlFor="topicName">
+                                        _hover={{ color: "green" }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+
+                                          setTopicModalState({
+                                            ...topicModalState,
+                                            isOpen: true,
+                                            topic: entityTopic
+                                          });
+                                        }}
+                                      />
+                                    </Tooltip>
+
+                                    <>
+                                      <span aria-hidden> · </span>
+                                      {deleteTopicMutation.isLoading ? (
+                                        <Spinner boxSize={4} />
+                                      ) : (
+                                        <DeleteButton
+                                          isIconOnly
+                                          placement="bottom"
+                                          bg="transparent"
+                                          height="auto"
+                                          minWidth={0}
+                                          _hover={{ color: "red" }}
+                                          // isDisabled={isDeleteButtonDisabled}
+                                          header={
+                                            <>
+                                              Êtes vous sûr de vouloir supprimer
+                                              la discussion
+                                              <Text
+                                                display="inline"
+                                                color="red"
+                                                fontWeight="bold"
+                                              >
+                                                {` ${entityTopic.topicName}`}
+                                              </Text>{" "}
+                                              ?
+                                            </>
+                                          }
+                                          body={
+                                            <>
+                                              {/* <label htmlFor="topicName">
                                           Saisissez le nom de la discussion pour
                                           confimer sa suppression :
                                         </label>
@@ -372,154 +381,156 @@ export const TopicsList = ({
                                             )
                                           }
                                         /> */}
-                                          </>
-                                        }
-                                        onClick={async () => {
-                                          try {
-                                            let deletedTopic;
+                                            </>
+                                          }
+                                          onClick={async () => {
+                                            try {
+                                              let deletedTopic;
 
-                                            if (entityTopic._id) {
-                                              deletedTopic = await deleteTopic(
-                                                entityTopic._id
-                                              ).unwrap();
+                                              if (entityTopic._id) {
+                                                deletedTopic =
+                                                  await deleteTopic(
+                                                    entityTopic._id
+                                                  ).unwrap();
+                                              }
+
+                                              if (deletedTopic) {
+                                                subQuery.refetch();
+                                                query.refetch();
+
+                                                toast({
+                                                  title: `${deletedTopic.topicName} a bien été supprimé !`,
+                                                  status: "success",
+                                                  isClosable: true
+                                                });
+                                              }
+                                            } catch (error) {
+                                              toast({
+                                                title: error.data
+                                                  ? error.data.message
+                                                  : error.message,
+                                                status: "error",
+                                                isClosable: true
+                                              });
                                             }
+                                          }}
+                                          data-cy="deleteTopic"
+                                        />
+                                      )}
+                                      <span aria-hidden> · </span>
+                                    </>
+                                  </>
+                                )}
 
-                                            if (deletedTopic) {
-                                              subQuery.refetch();
-                                              query.refetch();
+                                {subQuery.isLoading ||
+                                addSubscriptionMutation.isLoading ||
+                                deleteSubscriptionMutation.isLoading ? (
+                                  <Spinner boxSize={4} />
+                                ) : (
+                                  <Tooltip
+                                    label={
+                                      isSubbedToTopic
+                                        ? "Vous recevez un e-mail lorsque quelqu'un répond à cette discussion. Cliquez ici pour désactiver ces notifications."
+                                        : "Recevoir un e-mail lorsque quelqu'un répond à cette discussion."
+                                    }
+                                    placement="left"
+                                  >
+                                    <span>
+                                      <IconButton
+                                        aria-label={
+                                          isSubbedToTopic
+                                            ? "Se désabonner de la discussion"
+                                            : "S'abonner à la discussion"
+                                        }
+                                        icon={
+                                          isSubbedToTopic ? (
+                                            <FaBellSlash />
+                                          ) : (
+                                            <FaBell />
+                                          )
+                                        }
+                                        bg="transparent"
+                                        height="auto"
+                                        minWidth={0}
+                                        _hover={{
+                                          color: isDark ? "lightgreen" : "white"
+                                        }}
+                                        onClick={async (e) => {
+                                          e.stopPropagation();
+
+                                          if (
+                                            subQuery.isLoading ||
+                                            addSubscriptionMutation.isLoading ||
+                                            deleteSubscriptionMutation.isLoading
+                                          )
+                                            return;
+
+                                          if (!subQuery.data) {
+                                            console.log("user got no sub");
+                                            await addSubscription({
+                                              payload: {
+                                                topics: [{ topic: entityTopic }]
+                                              },
+                                              user: session?.user.userId
+                                              // email:
+                                            });
+                                            toast({
+                                              title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
+                                              status: "success",
+                                              isClosable: true
+                                            });
+                                          } else if (isSubbedToTopic) {
+                                            const unsubscribe = confirm(
+                                              `Êtes vous sûr de vouloir vous désabonner de la discussion : ${entityTopic.topicName} ?`
+                                            );
+
+                                            if (unsubscribe) {
+                                              await deleteSubscription({
+                                                subscriptionId:
+                                                  subQuery.data._id,
+                                                topicId: entityTopic._id
+                                              });
 
                                               toast({
-                                                title: `${deletedTopic.topicName} a bien été supprimé !`,
+                                                title: `Vous avez été désabonné de ${entityTopic.topicName}`,
                                                 status: "success",
                                                 isClosable: true
                                               });
                                             }
-                                          } catch (error) {
-                                            toast({
-                                              title: error.data
-                                                ? error.data.message
-                                                : error.message,
-                                              status: "error",
-                                              isClosable: true
+                                          } else {
+                                            console.log(
+                                              "user got no topic sub"
+                                            );
+                                            await addSubscription({
+                                              payload: {
+                                                topics: [{ topic: entityTopic }]
+                                              },
+                                              user: session?.user.userId
+                                              // email:
                                             });
-                                          }
-                                        }}
-                                        data-cy="deleteTopic"
-                                      />
-                                    )}
-                                    <span aria-hidden> · </span>
-                                  </>
-                                </>
-                              )}
-
-                              {subQuery.isLoading ||
-                              addSubscriptionMutation.isLoading ||
-                              deleteSubscriptionMutation.isLoading ? (
-                                <Spinner boxSize={4} />
-                              ) : (
-                                <Tooltip
-                                  label={
-                                    isSubbedToTopic
-                                      ? "Vous recevez un e-mail lorsque quelqu'un répond à cette discussion. Cliquez ici pour désactiver ces notifications."
-                                      : "Recevoir un e-mail lorsque quelqu'un répond à cette discussion."
-                                  }
-                                  placement="left"
-                                >
-                                  <span>
-                                    <IconButton
-                                      aria-label={
-                                        isSubbedToTopic
-                                          ? "Se désabonner de la discussion"
-                                          : "S'abonner à la discussion"
-                                      }
-                                      icon={
-                                        isSubbedToTopic ? (
-                                          <FaBellSlash />
-                                        ) : (
-                                          <FaBell />
-                                        )
-                                      }
-                                      bg="transparent"
-                                      height="auto"
-                                      minWidth={0}
-                                      _hover={{
-                                        color: isDark ? "lightgreen" : "white"
-                                      }}
-                                      onClick={async (e) => {
-                                        e.stopPropagation();
-
-                                        if (
-                                          subQuery.isLoading ||
-                                          addSubscriptionMutation.isLoading ||
-                                          deleteSubscriptionMutation.isLoading
-                                        )
-                                          return;
-
-                                        if (!subQuery.data) {
-                                          console.log("user got no sub");
-                                          await addSubscription({
-                                            payload: {
-                                              topics: [{ topic: entityTopic }]
-                                            },
-                                            user: session?.user.userId
-                                            // email:
-                                          });
-                                          toast({
-                                            title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
-                                            status: "success",
-                                            isClosable: true
-                                          });
-                                        } else if (isSubbedToTopic) {
-                                          const unsubscribe = confirm(
-                                            `Êtes vous sûr de vouloir vous désabonner de la discussion : ${entityTopic.topicName} ?`
-                                          );
-
-                                          if (unsubscribe) {
-                                            await deleteSubscription({
-                                              subscriptionId: subQuery.data._id,
-                                              topicId: entityTopic._id
-                                            });
-
                                             toast({
-                                              title: `Vous avez été désabonné de ${entityTopic.topicName}`,
+                                              title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
                                               status: "success",
                                               isClosable: true
                                             });
                                           }
-                                        } else {
-                                          console.log("user got no topic sub");
-                                          await addSubscription({
-                                            payload: {
-                                              topics: [{ topic: entityTopic }]
-                                            },
-                                            user: session?.user.userId
-                                            // email:
-                                          });
-                                          toast({
-                                            title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
-                                            status: "success",
-                                            isClosable: true
-                                          });
+
+                                          subQuery.refetch();
+                                        }}
+                                        data-cy={
+                                          isSubbedToTopic
+                                            ? "topicUnsubscribe"
+                                            : "topicSubscribe"
                                         }
-
-                                        subQuery.refetch();
-                                      }}
-                                      data-cy={
-                                        isSubbedToTopic
-                                          ? "topicUnsubscribe"
-                                          : "topicSubscribe"
-                                      }
-                                    />
-                                  </span>
-                                </Tooltip>
-                              )}
-                            </Box>
-                          </GridItem>
-                        )}
-                      </Grid>
-
-                      {/* <Spacer borderWidth={1} /> */}
-
+                                      />
+                                    </span>
+                                  </Tooltip>
+                                )}
+                              </Box>
+                            </GridItem>
+                          )}
+                        </Grid>
+                      </Link>
                       {isCurrent && (
                         <>
                           <GridItem
@@ -551,7 +562,7 @@ export const TopicsList = ({
                           </GridItem>
                         </>
                       )}
-                    </Box>
+                    </div>
                   );
                 })}
             </>

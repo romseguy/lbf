@@ -129,26 +129,23 @@ export const OrgConfigPanel = ({
           }}
         />
       ) : (
-        <Grid gridGap={5}>
-          <Grid>
-            <OrgConfigBannerPanel
-              org={org}
-              orgQuery={orgQuery}
-              isVisible={isVisible}
-              setIsVisible={setIsVisible}
-            />
-          </Grid>
+        <>
+          <OrgConfigBannerPanel
+            org={org}
+            orgQuery={orgQuery}
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
+            mb={3}
+          />
 
-          <Grid>
-            <OrgConfigSubscribersPanel
-              org={org}
-              orgQuery={orgQuery}
-              subQuery={subQuery}
-              isVisible={isVisible}
-              setIsVisible={setIsVisible}
-            />
-          </Grid>
-        </Grid>
+          <OrgConfigSubscribersPanel
+            org={org}
+            orgQuery={orgQuery}
+            subQuery={subQuery}
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
+          />
+        </>
       )}
     </>
   );

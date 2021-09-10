@@ -146,7 +146,7 @@ export const UserForm = (props: {
         <FormLabel>Nom d'utilisateur</FormLabel>
         <Input
           name="userName"
-          placeholder="Cliquez ici pour saisir le nom de l'utilisateur..."
+          placeholder="Nom d'utilisateur"
           ref={register({
             required: "Veuillez saisir le nom de l'utilisateur",
             pattern: {

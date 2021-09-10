@@ -77,17 +77,17 @@ import {
 } from "features/subscriptions/subscriptionSlice";
 import api from "utils/api";
 
-export const EmailSubscriptionsPopover = ({
-  boxSize,
-  email,
-  ...props
-}: BoxProps & { email?: string }) => {
+export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
   const router = useRouter();
   const { data: session } = useSession();
+  const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
 
+  //#region sub
   const subscribedEmail = useSelector(selectSubscribedEmail);
-  const subQuery = useGetSubscriptionQuery(email || subscribedEmail || "");
+  const subQuery = useGetSubscriptionQuery(
+    subscribedEmail || session?.user.userId
+  );
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     console.log("refetching subscription");
@@ -97,19 +97,20 @@ export const EmailSubscriptionsPopover = ({
     (orgSubscription) => orgSubscription.type === SubscriptionTypes.FOLLOWER
   );
   const eventSubscriptions = subQuery.data?.events;
-
-  const isStep1 = !session && (!subQuery.data || subQuery.isError);
-  const isStep2 = (!session && subQuery.data) || session;
-
   //const [editSubscription, editSubscriptionMutation] = useEditSubscriptionMutation();
   const [deleteSubscription, deleteSubscriptionMutation] =
     useDeleteSubscriptionMutation();
+  //#endregion
 
+  //#region local state
+  const isStep1 = !session && (!subQuery.data || subQuery.isError);
+  const isStep2 = (!session && subQuery.data) || session;
   const [isOpen, setIsOpen] = useState(false);
   const [currentOrgSubscription, setCurrentOrgSubscription] =
     useState<IOrgSubscription>();
+  const [isLoading, setIsLoading] = useState(false);
+  //#endregion
 
-  const toast = useToast({ position: "top" });
   const iconHoverColor = useColorModeValue("white", "lightgreen");
   const {
     isOpen: isOrgSubscriptionModalOpen,
@@ -121,8 +122,6 @@ export const EmailSubscriptionsPopover = ({
   const { clearErrors, errors, setError, handleSubmit, register } = useForm({
     mode: "onChange"
   });
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const onChange = () => {
     clearErrors("formErrorMessage");

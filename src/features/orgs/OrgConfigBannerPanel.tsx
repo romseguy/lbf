@@ -11,7 +11,9 @@ import {
   FormErrorMessage,
   Alert,
   AlertIcon,
-  Flex
+  Flex,
+  Grid,
+  GridProps
 } from "@chakra-ui/react";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import {
@@ -20,6 +22,7 @@ import {
   GridHeader,
   GridItem,
   Input,
+  Link,
   Select
 } from "features/common";
 import {
@@ -33,16 +36,18 @@ import { handleError } from "utils/form";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRef } from "react";
 
-type OrgConfigBannerPanelProps = Visibility & {
-  org: IOrg;
-  orgQuery: any;
-};
+type OrgConfigBannerPanelProps = GridProps &
+  Visibility & {
+    org: IOrg;
+    orgQuery: any;
+  };
 
 export const OrgConfigBannerPanel = ({
   org,
   orgQuery,
   isVisible,
-  setIsVisible
+  setIsVisible,
+  ...props
 }: OrgConfigBannerPanelProps) => {
   const [editOrg, editOrgMutation] = useEditOrgMutation();
   const { register, handleSubmit, setError, errors, clearErrors, watch } =
@@ -83,12 +88,8 @@ export const OrgConfigBannerPanel = ({
   };
 
   return (
-    <>
-      <GridHeader
-        borderTopRadius="lg"
-        borderBottomRadius={!isVisible.banner ? "lg" : undefined}
-        alignItems="center"
-        cursor="pointer"
+    <Grid {...props}>
+      <Link
         onClick={() =>
           setIsVisible({
             ...isVisible,
@@ -97,13 +98,19 @@ export const OrgConfigBannerPanel = ({
           })
         }
       >
-        <Flex flexDirection="row" alignItems="center">
-          {isVisible.banner ? <ChevronDownIcon /> : <ChevronRightIcon />}
-          <Heading size="sm" py={3}>
-            Changer l'image de couverture
-          </Heading>
-        </Flex>
-      </GridHeader>
+        <GridHeader
+          borderTopRadius="lg"
+          borderBottomRadius={!isVisible.banner ? "lg" : undefined}
+          alignItems="center"
+        >
+          <Flex flexDirection="row" alignItems="center">
+            {isVisible.banner ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            <Heading size="sm" py={3}>
+              Changer l'image de couverture
+            </Heading>
+          </Flex>
+        </GridHeader>
+      </Link>
 
       {isVisible.banner && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
@@ -221,6 +228,6 @@ export const OrgConfigBannerPanel = ({
           </Box>
         </GridItem>
       )}
-    </>
+    </Grid>
   );
 };

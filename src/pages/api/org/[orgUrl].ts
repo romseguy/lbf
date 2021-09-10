@@ -82,8 +82,6 @@ handler.get<NextApiRequest & { query: { orgUrl: string } }, NextApiResponse>(
         }
       }
 
-      console.log(org);
-
       res.status(200).json(org);
     } catch (error) {
       res.status(500).json(createServerError(error));

@@ -182,7 +182,7 @@ export const OrgForm = withGoogleApi({
         <FormLabel>Nom de l'organisation</FormLabel>
         <Input
           name="orgName"
-          placeholder="Cliquez ici pour saisir le nom de l'organisation..."
+          placeholder="Nom de l'organisation"
           ref={register({
             required: "Veuillez saisir le nom de l'organisation",
             pattern: {
@@ -211,7 +211,7 @@ export const OrgForm = withGoogleApi({
             required: "Veuillez sélectionner le type de l'organisation"
           })}
           defaultValue={props.org?.orgType}
-          placeholder="Cliquez ici pour sélectionner le type de l'organisation..."
+          placeholder="Type de l'organisation"
           color="gray.400"
         >
           {Object.keys(OrgTypes).map((orgType) => {
@@ -262,7 +262,7 @@ export const OrgForm = withGoogleApi({
               <RTEditor
                 defaultValue={props.org?.orgDescription}
                 onChange={p.onChange}
-                placeholder="Cliquez ici pour saisir la description de l'organisation..."
+                placeholder="Description de l'organisation"
               />
             );
           }}

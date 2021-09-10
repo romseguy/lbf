@@ -11,6 +11,7 @@ import {
 } from "features/subscriptions/subscriptionSlice";
 import { useSelector } from "react-redux";
 import { Spinner } from "@chakra-ui/react";
+import { selectSubscribedEmail } from "features/users/userSlice";
 
 export const Forum = ({
   isLogin,
@@ -25,7 +26,6 @@ export const Forum = ({
   //#region org
   const query = useGetOrgQuery("aucourant");
   const org = query.data;
-  console.log(org);
 
   let isCreator = false;
   if (session && org) {
@@ -41,13 +41,10 @@ export const Forum = ({
   //#endregion
 
   //#region subscription
-  const subQuery = useGetSubscriptionQuery(session?.user.userId);
-  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    console.log("refetching subscription");
-    subQuery.refetch();
-  }, [subscriptionRefetch]);
-
+  const subscribedEmail = useSelector(selectSubscribedEmail);
+  const subQuery = useGetSubscriptionQuery(
+    subscribedEmail || session?.user.userId
+  );
   const [isFollowed, setIsFollowed] = useState(
     !!isFollowedBy({ org, subQuery })
   );

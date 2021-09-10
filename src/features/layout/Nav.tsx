@@ -43,10 +43,8 @@ import { isServer } from "utils/isServer";
 import { IoIosPeople } from "react-icons/io";
 
 const linkList = css`
-  & > a {
-    font-weight: bold;
-    margin-top: 20px;
-    margin-bottom: 20px;
+  & > button {
+    margin: 0 0 0 12px;
   }
 
   @media (max-width: ${breakpoints.sm}) {
@@ -56,9 +54,9 @@ const linkList = css`
       font-size: 0.8rem;
     }
 
-    & > a {
+    & > button {
       display: block;
-      margin: 0;
+      margin: 0 0 0 12px;
     }
     // & > a:not(:first-of-type) {
     //   margin-top: 12px;
@@ -116,52 +114,46 @@ export const Nav = ({
       css={styles}
     >
       <Box css={linkList}>
-        <Link href="/" data-cy="homeLink" aria-hidden>
-          <Button
-            bg="transparent"
-            _hover={{
-              bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
-            }}
-            leftIcon={<CalendarIcon />}
-          >
-            Accueil
-          </Button>
-        </Link>
+        <Button
+          bg="transparent"
+          _hover={{
+            bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
+          }}
+          leftIcon={<CalendarIcon />}
+          onClick={() => router.push("/", "/", { shallow: true })}
+          data-cy="homeLink"
+        >
+          Accueil
+        </Button>
 
-        <Link href="/orgs" aria-hidden shallow>
-          <Button
-            bg="transparent"
-            _hover={{
-              bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
-            }}
-            leftIcon={<IoIosPeople />}
-          >
-            Organisations
-          </Button>
-        </Link>
+        <Button
+          bg="transparent"
+          _hover={{
+            bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
+          }}
+          leftIcon={<IoIosPeople />}
+          onClick={() => router.push("/orgs", "/orgs", { shallow: true })}
+        >
+          Organisations
+        </Button>
 
-        <Link href="/forum" aria-hidden shallow>
-          <Button
-            bg="transparent"
-            _hover={{
-              bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
-            }}
-            leftIcon={<ChatIcon />}
-          >
-            Forum
-          </Button>
-        </Link>
+        <Button
+          bg="transparent"
+          _hover={{
+            bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
+          }}
+          leftIcon={<ChatIcon />}
+          onClick={() => router.push("/forum", "/forum", { shallow: true })}
+        >
+          Forum
+        </Button>
       </Box>
 
       {isSessionLoading ? (
         <Spinner ml={5} mr={3} />
       ) : session ? (
         <Flex justify="flex-end" css={buttonList}>
-          <EmailSubscriptionsPopover
-            email={session.user.email}
-            mr={[1, 3]}
-            boxSize={[8, 10, 10]}
-          />
+          <EmailSubscriptionsPopover mr={[1, 3]} boxSize={[8, 10, 10]} />
           <OrgPopover
             boxSize={[8, 10, 12]}
             setIsLoginModalOpen={setIsLoginModalOpen}
