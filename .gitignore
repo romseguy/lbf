@@ -23,7 +23,9 @@ yarn-debug.log*
 yarn-error.log*
 
 .next
-/public/*.js
+**/public/workbox-*.js
+**/public/sw.js
+**/public/worker-*.js
 playground.mongodb
 TODO
 stuff.json

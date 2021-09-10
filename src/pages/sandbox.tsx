@@ -1,50 +1,141 @@
 import React, { useState, useEffect } from "react";
 import { Layout } from "features/layout";
+import { Button, useToast } from "@chakra-ui/react";
+import { base64ToUint8Array } from "utils/string";
+
+interface customWindow extends Window {
+  workbox?: any;
+}
+
+declare const window: customWindow;
 
 const Sandbox: React.FC = () => {
-  // const { isLoaded, loadError } = useJsApiLoader({
-  //   googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY,
-  //   libraries
-  // });
-  // const [autocomplete, setAutocomplete] = useState(null);
+  const toast = useToast({ position: "top" });
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscription, setSubscription] = useState<PushSubscription | null>(
+    null
+  );
+  const [registration, setRegistration] =
+    useState<ServiceWorkerRegistration | null>(null);
 
-  // const onLoad = (autocompleteInstance) => {
-  //   console.log("autocomplete: ", autocomplete);
-  //   setAutocomplete(autocompleteInstance);
-  // };
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      "serviceWorker" in navigator &&
+      window.workbox !== undefined
+    ) {
+      // run only in browser
+      navigator.serviceWorker.ready.then((reg) => {
+        setRegistration(reg);
 
-  // const onPlaceChanged = () => {
-  //   if (autocomplete) {
-  //     console.log(autocomplete.getPlace());
-  //   } else {
-  //     console.log("Autocomplete is not loaded yet!");
-  //   }
-  // };
+        reg.pushManager.getSubscription().then((sub) => {
+          if (
+            sub &&
+            !(
+              sub.expirationTime &&
+              Date.now() > sub.expirationTime - 5 * 60 * 1000
+            )
+          ) {
+            console.log("setting");
+            setSubscription(sub);
+            setIsSubscribed(true);
+          }
+        });
+      });
+    } else {
+      if (window.workbox === undefined) {
+        toast({
+          status: "error",
+          title: "could not find workbox"
+        });
+      }
+    }
+  }, []);
+
   return (
     <Layout>
-      {/* {isLoaded && (
-        <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
-          <input
-            type="text"
-            placeholder="Customized your placeholder"
-            style={{
-              boxSizing: `border-box`,
-              border: `1px solid transparent`,
-              width: `240px`,
-              height: `32px`,
-              padding: `0 12px`,
-              borderRadius: `3px`,
-              boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
-              fontSize: `14px`,
-              outline: `none`,
-              textOverflow: `ellipses`,
-              position: "absolute",
-              left: "50%",
-              marginLeft: "-120px"
-            }}
-          />
-        </Autocomplete>
-      )} */}
+      <Button
+        onClick={async (event) => {
+          event.preventDefault();
+
+          if (!registration) {
+            toast({ status: "error", title: "registration null" });
+            return;
+          }
+
+          try {
+            const sub = await registration.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: base64ToUint8Array(
+                process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
+              )
+            });
+
+            // TODO: you should call your API to save subscription data on server in order to send web push notification from server
+            setSubscription(sub);
+            setIsSubscribed(true);
+
+            toast({ status: "success", title: "subscribed" });
+          } catch (error) {
+            toast({ status: "error", title: error.message });
+          }
+        }}
+        disabled={isSubscribed}
+      >
+        Subscribe
+      </Button>
+
+      <Button
+        onClick={async (event) => {
+          event.preventDefault();
+
+          if (!subscription) {
+            toast({ status: "error", title: "subscription null" });
+            return;
+          }
+
+          try {
+            await subscription.unsubscribe();
+            // TODO: you should call your API to delete or invalidate subscription data on server
+            setSubscription(null);
+            setIsSubscribed(false);
+
+            toast({ status: "success", title: "unsubscribed" });
+          } catch (error) {
+            toast({ status: "error", title: error.message });
+          }
+        }}
+        disabled={!isSubscribed}
+      >
+        Unsubscribe
+      </Button>
+
+      <Button
+        onClick={async (event) => {
+          event.preventDefault();
+          if (subscription === null) {
+            toast({ status: "error", title: "subscription null" });
+            return;
+          }
+
+          try {
+            await fetch("/api/notification", {
+              method: "POST",
+              headers: {
+                "Content-type": "application/json"
+              },
+              body: JSON.stringify({
+                subscription
+              })
+            });
+          } catch (error) {
+            toast({ status: "error", title: error.message });
+          }
+        }}
+        disabled={!isSubscribed}
+      >
+        Send Notification
+      </Button>
     </Layout>
   );
 };

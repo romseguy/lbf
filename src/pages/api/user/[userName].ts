@@ -84,12 +84,14 @@ handler.put<
         body: IUser;
       } = req;
 
-      body.userName = normalize(body.userName);
+      if (body.userName) {
+        body.userName = normalize(body.userName);
 
-      const user = await models.User.findOne({ userName: body.userName });
+        const user = await models.User.findOne({ userName: body.userName });
 
-      if (user) {
-        throw duplicateError;
+        if (user) {
+          throw duplicateError;
+        }
       }
 
       const { n, nModified } = await models.User.updateOne({ userName }, body);

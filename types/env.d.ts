@@ -13,5 +13,7 @@ declare namespace NodeJS {
     EMAIL_API_KEY: string;
     EMAIL_FROM: string;
     EMAIL_ADMIN: string;
+    NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY: string;
+    WEB_PUSH_PRIVATE_KEY: string;
   }
 }

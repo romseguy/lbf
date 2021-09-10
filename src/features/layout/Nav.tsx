@@ -18,7 +18,8 @@ import {
   IconButton,
   useColorMode,
   useDisclosure,
-  BoxProps
+  BoxProps,
+  useToast
 } from "@chakra-ui/react";
 import { Link } from "features/common";
 import { OrgPopover, EmailSubscriptionsPopover } from "features/layout";
@@ -41,6 +42,14 @@ import { getOrgs } from "features/orgs/orgsApi";
 import api from "utils/api";
 import { isServer } from "utils/isServer";
 import { IoIosPeople } from "react-icons/io";
+import { base64ToUint8Array } from "utils/string";
+import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
+
+interface customWindow extends Window {
+  workbox?: any;
+}
+
+declare const window: customWindow;
 
 const linkList = css`
   & > button {
@@ -75,15 +84,20 @@ export const Nav = ({
   isLogin = 0,
   ...props
 }: BoxProps & { isLogin?: number }) => {
+  const router = useRouter();
+  const { data: session, loading: isSessionLoading } = useSession();
+  const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
-  const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
+
   const storedUserEmail = useSelector(selectUserEmail);
   const userEmail = storedUserEmail || session?.user.email || "";
   const storedUserName = useSelector(selectUserName);
   const userName = storedUserName || session?.user.userName || "";
+
+  const [editUser, editUserMutation] = useEditUserMutation();
+  const userQuery = useGetUserQuery(userName);
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
     router.asPath === "/?login" || false
@@ -96,13 +110,43 @@ export const Nav = ({
       : tw`h-24 bg-gradient-to-b from-white via-yellow-400 to-yellow-50`}
   `;
 
-  const isHome = router.asPath === "/";
-
   useEffect(() => {
     if (isLogin !== 0) {
       setIsLoginModalOpen(true);
     }
   }, [isLogin]);
+
+  const [registration, setRegistration] =
+    useState<ServiceWorkerRegistration | null>(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscription, setSubscription] = useState<PushSubscription | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (
+      !isServer() &&
+      "serviceWorker" in navigator &&
+      window.workbox !== undefined
+    ) {
+      navigator.serviceWorker.ready.then((reg) => {
+        setRegistration(reg);
+
+        reg.pushManager.getSubscription().then((sub) => {
+          if (
+            sub &&
+            !(
+              sub.expirationTime &&
+              Date.now() > sub.expirationTime - 5 * 60 * 1000
+            )
+          ) {
+            setSubscription(sub);
+            setIsSubscribed(true);
+          }
+        });
+      });
+    }
+  }, []);
 
   return (
     <Flex
@@ -185,6 +229,68 @@ export const Nav = ({
               <Link href={`/${userName}`} aria-hidden>
                 <MenuItem>Ma page</MenuItem>
               </Link>
+
+              {session.user.isAdmin && (
+                <MenuItem
+                  isDisabled={
+                    registration === null ||
+                    userQuery.isLoading ||
+                    userQuery.isFetching
+                  }
+                  onClick={async () => {
+                    try {
+                      if (isSubscribed && userQuery.data?.userSubscription) {
+                        if (!subscription)
+                          throw new Error("Une erreur est survenue.");
+
+                        await subscription.unsubscribe();
+                        await editUser({
+                          payload: { userSubscription: null },
+                          userName
+                        });
+                        setSubscription(null);
+                        setIsSubscribed(false);
+
+                        userQuery.refetch();
+
+                        toast({
+                          status: "success",
+                          title: "Vous ne recevrez plus de notifications mobile"
+                        });
+                      } else {
+                        const sub = await registration!.pushManager.subscribe({
+                          userVisibleOnly: true,
+                          applicationServerKey: base64ToUint8Array(
+                            process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
+                          )
+                        });
+                        setSubscription(sub);
+                        setIsSubscribed(true);
+
+                        await editUser({
+                          payload: { userSubscription: sub },
+                          userName
+                        }).unwrap();
+
+                        userQuery.refetch();
+
+                        toast({
+                          status: "success",
+                          title:
+                            "Vous recevrez des notifications mobile en plus des e-mails"
+                        });
+                      }
+                    } catch (error) {
+                      toast({ status: "error", title: error.message });
+                    }
+                  }}
+                >
+                  {isSubscribed && userQuery.data?.userSubscription
+                    ? "Désactiver"
+                    : "Activer"}{" "}
+                  les notifications mobile
+                </MenuItem>
+              )}
 
               {/* 
               <NextLink href="/settings" passHref>

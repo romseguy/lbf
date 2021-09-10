@@ -14,6 +14,7 @@ export interface IUser {
   securityCode: string;
   userName: string;
   userImage?: Base64Image;
+  userSubscription?: any;
   isAdmin: boolean;
   validatePassword(password: string): boolean;
 }
@@ -45,6 +46,7 @@ export const UserSchema = new Schema<IUser>(
       width: Number,
       height: Number
     },
+    userSubscription: Schema.Types.Mixed,
     isAdmin: Schema.Types.Boolean
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }

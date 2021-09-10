@@ -5,6 +5,7 @@ type ParamsType = { [key: string]: any };
 
 async function request(endpoint: string, params?: ParamsType, method = "GET") {
   console.log(`${method} /${endpoint}`);
+  if (params) console.log(params);
   try {
     const options: {
       method: string;

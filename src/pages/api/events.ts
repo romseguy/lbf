@@ -14,6 +14,7 @@ import { sendToAdmin, sendEventToOrgFollowers } from "utils/email";
 import { equals, normalize } from "utils/string";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
+import api from "utils/api";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -148,7 +149,15 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
         }
       );
 
-      sendToAdmin(body, transport);
+      const admin = await models.User.findOne({ isAdmin: true });
+
+      if (admin && admin.userSubscription) {
+        await api.post("notification", {
+          subscription: admin.userSubscription
+        });
+        sendToAdmin(body, transport);
+      }
+
       res.status(200).json(event);
     } catch (error) {
       if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {

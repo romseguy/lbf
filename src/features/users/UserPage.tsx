@@ -79,6 +79,10 @@ export const User = ({
                     Vous êtes administrateur.
                   </Alert>
 
+                  <Button onClick={() => router.push("/sandbox")}>
+                    Sandbox
+                  </Button>
+
                   <Button
                     onClick={async () => {
                       const { error, data } = await api.get("admin/backup");
