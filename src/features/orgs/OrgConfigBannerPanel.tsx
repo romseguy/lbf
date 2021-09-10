@@ -10,7 +10,8 @@ import {
   Stack,
   FormErrorMessage,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Flex
 } from "@chakra-ui/react";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import {
@@ -85,6 +86,7 @@ export const OrgConfigBannerPanel = ({
     <>
       <GridHeader
         borderTopRadius="lg"
+        borderBottomRadius={!isVisible.banner ? "lg" : undefined}
         alignItems="center"
         cursor="pointer"
         onClick={() =>
@@ -95,10 +97,12 @@ export const OrgConfigBannerPanel = ({
           })
         }
       >
-        <Heading size="sm" py={3}>
-          Changer l'image de couverture{" "}
+        <Flex flexDirection="row" alignItems="center">
           {isVisible.banner ? <ChevronDownIcon /> : <ChevronRightIcon />}
-        </Heading>
+          <Heading size="sm" py={3}>
+            Changer l'image de couverture
+          </Heading>
+        </Flex>
       </GridHeader>
 
       {isVisible.banner && (

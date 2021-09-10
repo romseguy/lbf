@@ -79,7 +79,6 @@ export const OrgPage = ({
     setIsEdit(false);
   }, [router.asPath, refetchOrg]);
   const org = orgQuery.data || props.org;
-  console.log(org);
 
   const orgCreatedByUserName =
     typeof org.createdBy === "object" ? org.createdBy.userName : "";
@@ -114,6 +113,13 @@ export const OrgPage = ({
     subscribers: false
   });
   //#endregion
+
+  const addEvent = () => {
+    if (!isSessionLoading) {
+      if (!session) setIsLogin(isLogin + 1);
+      else if (isCreator) setIsEventModalOpen(true);
+    }
+  };
 
   return (
     <Layout pageTitle={org.orgName} isLogin={isLogin} banner={org.orgBanner}>
@@ -273,13 +279,7 @@ export const OrgPage = ({
                     colorScheme="teal"
                     leftIcon={<AddIcon />}
                     mb={5}
-                    onClick={() => {
-                      if (!isSessionLoading) {
-                        if (!session) setIsLogin(isLogin + 1);
-                        // TODO: check if user is SUB
-                        else if (isCreator) setIsEventModalOpen(true);
-                      }
-                    }}
+                    onClick={addEvent}
                     data-cy="addEvent"
                   >
                     Ajouter un événement
@@ -310,7 +310,13 @@ export const OrgPage = ({
                   <IconFooter />
                 </div>
               ) : (
-                <Box>Aucun événement prévu, pourquoi ne pas en ajouter un?</Box>
+                <Box>
+                  Aucun événement prévu,{" "}
+                  <Link variant="underline" onClick={addEvent}>
+                    cliquez ici
+                  </Link>{" "}
+                  pour en ajouter un.
+                </Box>
               )}
             </TabPanel>
             <TabPanel>

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Flex, IconButton, Spinner, useDisclosure } from "@chakra-ui/react";
 import { EventModal } from "features/modals/EventModal";
 import { useRouter } from "next/router";
-import { Button, IconFooter } from "features/common";
+import { Button, IconFooter, Link } from "features/common";
 import { AddIcon } from "@chakra-ui/icons";
 import { useSession } from "hooks/useAuth";
 import { useGetEventsQuery } from "./eventsApi";
@@ -41,6 +41,16 @@ export const EventsPage = ({
     onClose: closeMapModal
   } = useDisclosure({ defaultIsOpen: false });
 
+  const addEvent = () => {
+    if (!isSessionLoading) {
+      if (session) {
+        setIsEventModalOpen(true);
+      } else {
+        setIsLogin(isLogin + 1);
+      }
+    }
+  };
+
   return (
     <>
       <>
@@ -49,15 +59,7 @@ export const EventsPage = ({
             colorScheme="teal"
             leftIcon={<AddIcon />}
             mb={5}
-            onClick={() => {
-              if (!isSessionLoading) {
-                if (session) {
-                  setIsEventModalOpen(true);
-                } else {
-                  setIsLogin(isLogin + 1);
-                }
-              }
-            }}
+            onClick={addEvent}
             data-cy="addEvent"
           >
             Ajouter un événement
@@ -125,7 +127,13 @@ export const EventsPage = ({
           <IconFooter />
         </div>
       ) : (
-        <>Aucun événement public prévu, pourquoi ne pas en ajouter un?</>
+        <>
+          Aucun événement public prévu,{" "}
+          <Link variant="underline" onClick={addEvent}>
+            cliquez ici
+          </Link>{" "}
+          pour en ajouter un.
+        </>
       )}
     </>
   );

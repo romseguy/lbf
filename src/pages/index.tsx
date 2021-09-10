@@ -46,7 +46,11 @@ const IndexPage = () => {
       {true ? (
         <>
           <Box textAlign="center" mb={3}>
-            <Link className="rainbow-text" onClick={() => setIsAbout(!isAbout)}>
+            <Link
+              className="rainbow-text"
+              size="larger"
+              onClick={() => setIsAbout(!isAbout)}
+            >
               À propos de aucourant.de
             </Link>
           </Box>
