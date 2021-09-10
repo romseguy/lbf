@@ -60,6 +60,32 @@ export const VisibilityV: { [key: string]: string } = {
   SUBSCRIBERS: "Adhérents"
 };
 
+export const isAttending = ({
+  email,
+  event
+}: {
+  email: string;
+  event: IEvent;
+}) => {
+  if (email === "") return false;
+  return !!event.eventNotified?.find(({ email: e, status }) => {
+    return e === email && status === StatusTypes.OK;
+  });
+};
+
+export const isNotAttending = ({
+  email,
+  event
+}: {
+  email: string;
+  event: IEvent;
+}) => {
+  if (email === "") return false;
+  return !!event.eventNotified?.find(({ email: e, status }) => {
+    return e === email && status === StatusTypes.NOK;
+  });
+};
+
 export const EventSchema = new Schema<IEvent>(
   {
     eventName: {
