@@ -48,6 +48,7 @@ export const SubscriptionPopover = ({
 }: {
   org?: IOrg;
   event?: IEvent;
+  email?: string;
   mySubscription?: ISubscription;
   isFollowed?: IOrgSubscription | IEventSubscription;
   isLoading?: boolean;
@@ -72,8 +73,8 @@ export const SubscriptionPopover = ({
     openDelay?: number;
   }>({
     label: org
-      ? "Recevoir un e-mail lorsque cette organisation publie un événement, ou lorsque quelqu'un ajoute une nouvelle discussion."
-      : "Recevoir un e-mail lorsque quelqu'un ajoute une discussion."
+      ? "S'abonner pour recevoir une notification quand un événement est publié par cette organisation, ou quand une discussion est ajoutée à cette organisation."
+      : "S'abonner pour recevoir une notification quand une discussion est ajoutée à cet événement."
   });
 
   const { clearErrors, errors, handleSubmit, register } = useForm({
@@ -158,8 +159,10 @@ export const SubscriptionPopover = ({
                   return;
                 }
 
-                if (subscribedEmail || session) {
-                  onSubmit({ email: subscribedEmail || session?.user.email });
+                if (props.email || subscribedEmail || session) {
+                  onSubmit({
+                    email: props.email || subscribedEmail || session?.user.email
+                  });
                 } else setIsOpen(!isOpen);
               }}
               data-cy="subscribeToOrg"

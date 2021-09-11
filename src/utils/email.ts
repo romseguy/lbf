@@ -5,6 +5,8 @@ import type { ISubscription } from "models/Subscription";
 import { models } from "database";
 import { SubscriptionTypes } from "models/Subscription";
 import { equals } from "./string";
+import { toDateRange } from "features/common";
+import { parseISO } from "date-fns";
 
 export const emailR = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
@@ -43,8 +45,6 @@ export const sendEventToOrgFollowers = async (
         }
 
         for (const { orgId, type } of subscription.orgs) {
-          // console.log("notifying follower", orgId, type);
-
           if (
             !equals(eventNotifOrgId, orgId) ||
             type !== SubscriptionTypes.FOLLOWER
@@ -64,12 +64,22 @@ export const sendEventToOrgFollowers = async (
           )
             continue;
 
+          // const user = await models.User.findOne({email})
+
           const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`;
           const mail = {
             from: process.env.EMAIL_FROM,
             to: `<${email}>`,
             subject: `${org.orgName} vous invite à un nouvel événement : ${event.eventName}`,
-            html: `<h1>${org.orgName} vous invite à un nouvel événement : ${event.eventName}</h1><p>Rendez-vous sur <a href="${eventUrl}?email=${email}">${eventUrl}</a> pour en savoir plus.</p>`
+            html: `
+            <h1>${org.orgName} vous invite à un nouvel événement : ${
+              event.eventName
+            }</h1>
+            <h2>${toDateRange(
+              parseISO(event.eventMinDate),
+              parseISO(event.eventMaxDate)
+            )}</h2>
+            <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">${eventUrl}</a> pour en savoir plus.</p>`
           };
 
           if (process.env.NODE_ENV === "production")

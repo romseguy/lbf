@@ -1,11 +1,4 @@
-import {
-  IEvent,
-  isAttending,
-  isNotAttending,
-  StatusTypes,
-  StatusTypesV,
-  Visibility
-} from "models/Event";
+import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
 import type { IUser } from "models/User";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -30,8 +23,7 @@ import {
   Table,
   Tbody,
   Tag,
-  useColorMode,
-  Spinner
+  useColorMode
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
@@ -42,15 +34,13 @@ import {
 import { IoIosPeople } from "react-icons/io";
 import {
   Button,
+  DateRange,
   GridHeader,
   GridItem,
   IconFooter,
   Link
 } from "features/common";
-import {
-  useEditEventMutation,
-  useGetEventQuery
-} from "features/events/eventsApi";
+import { useGetEventQuery } from "features/events/eventsApi";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
@@ -61,13 +51,9 @@ import {
   selectSubscribedEmail,
   selectUserEmail
 } from "features/users/userSlice";
-import {
-  isFollowedBy,
-  selectSubscriptionRefetch
-} from "features/subscriptions/subscriptionSlice";
+import { isFollowedBy } from "features/subscriptions/subscriptionSlice";
 import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
-import { isServer } from "utils/isServer";
-import { emailR } from "utils/email";
+import { EventAttendingForm } from "./EventAttendingForm";
 
 export type Visibility = {
   isVisible: {
@@ -84,18 +70,23 @@ export const EventPage = (props: {
   email?: string;
 }) => {
   const router = useRouter();
+  const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const { data: session, loading: isSessionLoading } = useSession();
+
   const storedUserEmail = useSelector(selectUserEmail);
-  const userEmail = storedUserEmail || session?.user.email || "";
+  const subscribedEmail = useSelector(selectSubscribedEmail);
+  const userEmail =
+    props.email ||
+    subscribedEmail ||
+    storedUserEmail ||
+    session?.user.email ||
+    "";
 
   //#region event
-  const [editEvent, editEventMutation] = useEditEventMutation();
   const eventQuery = useGetEventQuery({
     eventUrl: props.routeName
-    // email: userEmail || undefined
   });
   const event = eventQuery.data || props.event;
   const eventCreatedByUserName =
@@ -108,13 +99,12 @@ export const EventPage = (props: {
       : "";
   const isCreator =
     session?.user.userId === eventCreatedByUserId || session?.user.isAdmin;
+  const eventMinDate = parseISO(event.eventMinDate);
+  const eventMaxDate = parseISO(event.eventMaxDate);
   //#endregion
 
   //#region sub
-  const subscribedEmail = useSelector(selectSubscribedEmail);
-  const subQuery = useGetSubscriptionQuery(
-    subscribedEmail || session?.user.userId
-  );
+  const subQuery = useGetSubscriptionQuery(userEmail);
   const isFollowed = isFollowedBy({ event, subQuery });
   const isSubscribedToAtLeastOneOrg =
     isCreator ||
@@ -133,7 +123,7 @@ export const EventPage = (props: {
   //#endregion
 
   //#region local state
-  const [email, setEmail] = useState(props.email || userEmail);
+  const [email, setEmail] = useState(userEmail);
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -145,123 +135,16 @@ export const EventPage = (props: {
 
   if (session) {
     if (!isCreator && isSubscribedToAtLeastOneOrg) showAttendingForm = true;
-  } else showAttendingForm = true;
+  } else if (
+    !!event.eventNotified?.find((notified) => notified.email === email)
+  )
+    showAttendingForm = true;
   //#endregion
-
-  const eventMinDate = parseISO(event.eventMinDate);
-  const eventMaxDate = parseISO(event.eventMaxDate);
-  const fullMinDateString = (date: Date) =>
-    format(date, "dd MMMM", {
-      locale: fr
-    });
-  const fullMaxDateString = (date: Date) =>
-    format(date, "dd MMMM", {
-      locale: fr
-    });
-  //#endregion
-
-  const attend = async () => {
-    let promptedEmail: string | null = null;
-
-    if (!session && (!email || email === "")) {
-      promptedEmail = prompt("Veuillez entrer votre adresse e-mail :");
-
-      if (!promptedEmail || !emailR.test(promptedEmail)) {
-        toast({ status: "error", title: "Adresse e-mail invalide" });
-        return;
-      }
-
-      setEmail(promptedEmail);
-    }
-
-    if (isAttending({ email: promptedEmail || email, event })) {
-      toast({ status: "error", title: "Vous participez déjà à cet événement" });
-      return;
-    }
-
-    let isNew = true;
-
-    let eventNotified = event.eventNotified?.map(({ email: e, status }) => {
-      if ((e === promptedEmail || email) && status !== StatusTypes.OK) {
-        isNew = false;
-        return { email: e, status: StatusTypes.OK };
-      }
-      return { email: e, status };
-    });
-
-    if (isNew)
-      eventNotified?.push({
-        email: promptedEmail || email,
-        status: StatusTypes.OK
-      });
-
-    await editEvent({
-      payload: { eventNotified },
-      eventUrl: event.eventUrl
-    });
-    eventQuery.refetch();
-  };
-
-  const unattend = async () => {
-    let promptedEmail: string | null = null;
-
-    if (!session && (!email || email === "")) {
-      promptedEmail = prompt("Veuillez entrer votre adresse e-mail :");
-
-      if (!promptedEmail || !emailR.test(promptedEmail)) {
-        toast({ status: "error", title: "Adresse e-mail invalide" });
-        return;
-      }
-
-      setEmail(promptedEmail);
-    }
-
-    if (isNotAttending({ email: promptedEmail || email, event })) {
-      toast({
-        status: "error",
-        title: "Vous avez déjà indiqué ne pas participer à cet événement"
-      });
-      return;
-    }
-
-    let isNew = true;
-    let eventNotified = event.eventNotified?.map(({ email: e, status }) => {
-      if (e === (promptedEmail || email) && status !== StatusTypes.NOK) {
-        isNew = false;
-        return { email: e, status: StatusTypes.NOK };
-      }
-      return { email: e, status };
-    });
-
-    if (isNew)
-      eventNotified?.push({
-        email: promptedEmail || email,
-        status: StatusTypes.NOK
-      });
-
-    await editEvent({
-      payload: {
-        eventNotified
-      },
-      eventUrl: event.eventUrl
-    });
-    eventQuery.refetch();
-  };
 
   return (
     <Layout
       pageTitle={event.eventName}
-      pageSubTitle={
-        <>
-          du <b>{format(eventMinDate, "eeee", { locale: fr })}</b>{" "}
-          {fullMinDateString(eventMinDate)} à{" "}
-          <b>{format(eventMinDate, "H'h'mm", { locale: fr })}</b>
-          <br />
-          jusqu'au <b>{format(eventMaxDate, "eeee", { locale: fr })}</b>{" "}
-          {fullMaxDateString(eventMaxDate)} à{" "}
-          <b>{format(eventMaxDate, "H'h'mm", { locale: fr })}</b>
-        </>
-      }
+      pageSubTitle={<DateRange minDate={eventMinDate} maxDate={eventMaxDate} />}
       isLogin={isLogin}
       banner={event.eventBanner}
     >
@@ -288,6 +171,7 @@ export const EventPage = (props: {
       {!isCreator && (
         <SubscriptionPopover
           event={event}
+          email={email}
           isFollowed={isFollowed}
           mySubscription={subQuery.data}
           isLoading={subQuery.isLoading || subQuery.isFetching}
@@ -360,89 +244,12 @@ export const EventPage = (props: {
       )}
 
       {showAttendingForm && (
-        <Alert
-          mb={3}
-          status={
-            isAttending({ email, event })
-              ? "success"
-              : isNotAttending({ email, event })
-              ? "error"
-              : "info"
-          }
-        >
-          <AlertIcon />
-          {isAttending({ email, event }) ? (
-            <Flex flexDirection="column">
-              <Text as="h3">Vous participez à cet événement.</Text>
-              <Box>
-                <Button
-                  colorScheme="red"
-                  isLoading={
-                    editEventMutation.isLoading ||
-                    eventQuery.isFetching ||
-                    eventQuery.isLoading
-                  }
-                  onClick={async () => {
-                    const ok = confirm(
-                      "Êtes-vous sûr de ne plus vouloir participer à cet événement ?"
-                    );
-
-                    if (ok) {
-                      unattend();
-                    }
-                  }}
-                >
-                  Ne plus participer
-                </Button>
-              </Box>
-            </Flex>
-          ) : isNotAttending({ email, event }) ? (
-            <Flex flexDirection="column">
-              <Text as="h3">
-                Vous avez refusé de participer à cet événement.
-              </Text>
-              <Box>
-                <Button
-                  colorScheme="green"
-                  mr={3}
-                  isLoading={
-                    editEventMutation.isLoading ||
-                    eventQuery.isFetching ||
-                    eventQuery.isLoading
-                  }
-                  onClick={attend}
-                >
-                  Participer
-                </Button>
-              </Box>
-            </Flex>
-          ) : (
-            <Flex flexDirection="column">
-              <Text as="h3">Participer à cet événement ?</Text>
-              <Box mt={2}>
-                {editEventMutation.isLoading ||
-                eventQuery.isFetching ||
-                eventQuery.isLoading ? (
-                  <Spinner />
-                ) : (
-                  <>
-                    <Button colorScheme="green" mr={3} onClick={attend}>
-                      Oui
-                    </Button>
-                    <Button
-                      colorScheme="red"
-                      onClick={() => {
-                        unattend();
-                      }}
-                    >
-                      Non
-                    </Button>
-                  </>
-                )}
-              </Box>
-            </Flex>
-          )}
-        </Alert>
+        <EventAttendingForm
+          email={email}
+          setEmail={setEmail}
+          event={event}
+          eventQuery={eventQuery}
+        />
       )}
 
       {!isConfig && (
