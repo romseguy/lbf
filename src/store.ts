@@ -8,6 +8,7 @@ import subscription from "features/subscriptions/subscriptionSlice";
 import user from "features/users/userSlice";
 import { eventApi } from "features/events/eventsApi";
 import { orgApi } from "features/orgs/orgsApi";
+import { projectApi } from "features/projects/projectsApi";
 import { subscriptionApi } from "features/subscriptions/subscriptionsApi";
 import { topicsApi } from "features/forum/topicsApi";
 import { userApi } from "features/users/usersApi";
@@ -20,6 +21,7 @@ const makeStore = () =>
       user,
       [eventApi.reducerPath]: eventApi.reducer,
       [orgApi.reducerPath]: orgApi.reducer,
+      [projectApi.reducerPath]: projectApi.reducer,
       [subscriptionApi.reducerPath]: subscriptionApi.reducer,
       [topicsApi.reducerPath]: topicsApi.reducer,
       [userApi.reducerPath]: userApi.reducer
@@ -28,6 +30,7 @@ const makeStore = () =>
       getDefaultMiddleware({ serializableCheck: false }).concat(
         eventApi.middleware,
         orgApi.middleware,
+        projectApi.middleware,
         subscriptionApi.middleware,
         topicsApi.middleware,
         userApi.middleware

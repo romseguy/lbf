@@ -98,28 +98,24 @@ export const EventForm = withGoogleApi({
   //#endregion
 
   //#region myOrgs
-  const {
-    myOrgs,
-    isLoading: isQueryLoading,
-    refetch
-  } = useGetOrgsQuery("orgSubscriptions", {
-    selectFromResult: ({ data, ...rest }): any => {
-      if (!data) return { myOrgs: [] };
-      return {
-        ...rest,
-        myOrgs: data.filter((org) =>
-          typeof org.createdBy === "object"
-            ? org.createdBy._id === props.session.user.userId
-            : org.createdBy === props.session.user.userId
-        )
-      };
+  const { myOrgs, isLoading: isQueryLoading } = useGetOrgsQuery(
+    "orgSubscriptions",
+    {
+      selectFromResult: ({ data, ...rest }): any => {
+        if (Array.isArray(data) && data.length > 0) {
+          return {
+            ...rest,
+            myOrgs: data.filter((org) =>
+              typeof org.createdBy === "object"
+                ? org.createdBy._id === props.session.user.userId
+                : org.createdBy === props.session.user.userId
+            )
+          };
+        }
+        return { myOrgs: [] };
+      }
     }
-  });
-
-  const refetchOrgs = useSelector(selectOrgsRefetch);
-  useEffect(() => {
-    refetch();
-  }, [refetchOrgs]);
+  );
   //#endregion
 
   //#region form state

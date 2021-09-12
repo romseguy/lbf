@@ -11,20 +11,24 @@ import { User } from "features/users/UserPage";
 import { useRouter } from "next/router";
 import api from "utils/api";
 import { useSelector } from "react-redux";
-import { selectUserEmail } from "features/users/userSlice";
+import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
+import { useAppDispatch, wrapper } from "store";
 
 const Hash = ({ email }: { email?: string }) => {
-  const { data: session, loading: isSessionLoading } = useSession();
   const router = useRouter();
+  const { data: session, loading: isSessionLoading } = useSession();
+  const dispatch = useAppDispatch();
   const routeName = router.asPath.substr(1, router.asPath.length);
   const [event, setEvent] = useState<IEvent | undefined>();
   const [org, setOrg] = useState<IOrg | undefined>();
   const [user, setUser] = useState<IUser | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | undefined>();
-  const storedUserEmail = useSelector(selectUserEmail);
-  const userEmail = storedUserEmail || session?.user.email || "";
+
+  useEffect(() => {
+    if (email) dispatch(setUserEmail(email));
+  }, []);
 
   useEffect(() => {
     const xhr = async () => {
@@ -76,7 +80,7 @@ const Hash = ({ email }: { email?: string }) => {
         event={event}
         user={user}
         routeName={routeName}
-        email={email}
+        //email={email}
       />
     );
   }
@@ -113,29 +117,38 @@ const Hash = ({ email }: { email?: string }) => {
 
 export default Hash;
 
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  if (!Array.isArray(ctx.query.name) || typeof ctx.query.name[0] !== "string") {
-    return {
-      props: {}
-    };
+// export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async (ctx) => {
+    if (
+      !Array.isArray(ctx.query.name) ||
+      typeof ctx.query.name[0] !== "string"
+    ) {
+      return {
+        props: {}
+      };
+    }
+
+    let routeName = ctx.query.name[0];
+
+    if (routeName.indexOf(" ") !== -1) {
+      const destination = `/${routeName.replace(/\ /g, "_")}`;
+
+      return {
+        redirect: {
+          permanent: false,
+          destination
+        }
+      };
+    }
+
+    if (ctx.query.email) {
+      console.log("email", ctx.query.email);
+
+      await store.dispatch(setUserEmail(ctx.query.email as string)); // todo rehydrate
+      return { props: { email: ctx.query.email } };
+    }
+
+    return { props: {} };
   }
-
-  let routeName = ctx.query.name[0];
-
-  if (routeName.indexOf(" ") !== -1) {
-    const destination = `/${routeName.replace(/\ /g, "_")}`;
-
-    return {
-      redirect: {
-        permanent: false,
-        destination
-      }
-    };
-  }
-
-  if (ctx.query.email) {
-    return { props: { email: ctx.query.email } };
-  }
-
-  return { props: {} };
-}
+);

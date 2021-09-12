@@ -155,7 +155,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
         await api.post("notification", {
           subscription: admin.userSubscription
         });
-        sendToAdmin(body, transport);
+        sendToAdmin({ event: body, transport });
       }
 
       res.status(200).json(event);

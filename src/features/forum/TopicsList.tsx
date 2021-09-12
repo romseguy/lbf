@@ -122,6 +122,7 @@ export const TopicsList = ({
       <Button
         colorScheme="teal"
         leftIcon={<AddIcon />}
+        mb={5}
         onClick={() => {
           if (!isSessionLoading) {
             if (session) {
@@ -132,7 +133,6 @@ export const TopicsList = ({
             }
           }
         }}
-        mb={5}
         data-cy="addTopicForm"
       >
         Ajouter une discussion
@@ -236,7 +236,7 @@ export const TopicsList = ({
                   }
 
                   return (
-                    <div key={entityTopic._id}>
+                    <Box key={entityTopic._id} mb={5}>
                       <Link
                         variant="no-underline"
                         onClick={() =>
@@ -246,13 +246,11 @@ export const TopicsList = ({
                       >
                         <Grid
                           templateColumns="auto 1fr auto"
+                          borderTopRadius="xl"
+                          //borderBottomRadius="xl"
+                          // borderTopRadius={topicIndex === 0 ? "lg" : undefined}
+                          borderBottomRadius={!isCurrent ? "lg" : undefined}
                           light={{
-                            borderTopRadius:
-                              topicIndex === 0 ? "lg" : undefined,
-                            borderBottomRadius:
-                              topicIndex === topicsCount - 1 && !isCurrent
-                                ? "lg"
-                                : undefined,
                             bg:
                               topicIndex % 2 === 0
                                 ? "orange.200"
@@ -260,12 +258,6 @@ export const TopicsList = ({
                             _hover: { bg: "orange.300" }
                           }}
                           dark={{
-                            borderTopRadius:
-                              topicIndex === 0 ? "lg" : undefined,
-                            borderBottomRadius:
-                              topicIndex === topicsCount - 1 && !isCurrent
-                                ? "lg"
-                                : undefined,
                             bg: topicIndex % 2 === 0 ? "gray.600" : "gray.500",
                             _hover: { bg: "gray.400" }
                           }}
@@ -547,6 +539,7 @@ export const TopicsList = ({
                             light={{ bg: "white" }}
                             dark={{ bg: "gray.700" }}
                             pb={3}
+                            borderBottomRadius="xl"
                           >
                             {/* <Text p={3}>Écrivez une réponse ci-dessous :</Text> */}
                             <TopicMessageForm
@@ -562,7 +555,7 @@ export const TopicsList = ({
                           </GridItem>
                         </>
                       )}
-                    </div>
+                    </Box>
                   );
                 })}
             </>

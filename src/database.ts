@@ -1,22 +1,19 @@
-import type { IEvent } from "models/Event";
-import type { IOrg } from "models/Org";
-import type { ISubscription } from "models/Subscription";
-import type { ITopic } from "models/Topic";
-import type { IUser } from "models/User";
 import mongodb from "mongodb";
 import mongoose, { Connection, Document, Model } from "mongoose";
 import nextConnect from "next-connect";
-import { EventSchema } from "models/Event";
-import { OrgSchema } from "models/Org";
-import { UserSchema } from "models/User";
-import { SubscriptionSchema } from "models/Subscription";
-import { TopicSchema } from "models/Topic";
+import { IEvent, EventSchema } from "models/Event";
+import { IOrg, OrgSchema } from "models/Org";
+import { IProject, ProjectSchema } from "models/Project";
+import { IUser, UserSchema } from "models/User";
+import { ISubscription, SubscriptionSchema } from "models/Subscription";
+import { ITopic, TopicSchema } from "models/Topic";
 
 let connection: Connection;
 export let db: mongodb.Db;
 export let models: {
   Event: Model<IEvent & Document<any, any, any>, {}, {}>;
   Org: Model<IOrg & Document<any, any, any>, {}, {}>;
+  Project: Model<IProject & Document<any, any, any>, {}, {}>;
   Subscription: Model<ISubscription & Document<any, any, any>, {}, {}>;
   Topic: Model<ITopic & Document<any, any, any>, {}, {}>;
   User: Model<IUser & Document<any, any, any>, {}, {}>;
@@ -36,6 +33,7 @@ export const connectToDatabase = async () => {
     models = {
       Event: connection.model<IEvent & Document>("Event", EventSchema),
       Org: connection.model<IOrg & Document>("Org", OrgSchema),
+      Project: connection.model<IProject & Document>("Project", ProjectSchema),
       Subscription: connection.model<ISubscription & Document>(
         "Subscription",
         SubscriptionSchema

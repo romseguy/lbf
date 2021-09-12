@@ -18,8 +18,8 @@ export const GridHeader = ({
   SpacerProps &
   GridItemProps & {
     children: React.ReactNode | React.ReactNodeArray;
-    light?: { [key: string]: string };
-    dark?: { [key: string]: string };
+    light?: { [key: string]: any };
+    dark?: { [key: string]: any };
   }) => {
   return (
     <GridItem light={light} dark={dark} pl={pl} {...props}>

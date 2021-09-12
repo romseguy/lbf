@@ -39,6 +39,7 @@ import {
   isSubscribedBy,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
+import { selectOrgsRefetch } from "features/orgs/orgSlice";
 
 export const OrgPopover = ({
   boxSize,
@@ -56,6 +57,10 @@ export const OrgPopover = ({
       query.data.length > 0 &&
       query.data.filter((org) => session?.user.userId === org?.createdBy)) ||
     [];
+  const refetchOrgs = useSelector(selectOrgsRefetch);
+  useEffect(() => {
+    query.refetch();
+  }, [refetchOrgs]);
   const hasOrgs = Array.isArray(myOrgs) && myOrgs.length > 0;
 
   const subQuery = useGetSubscriptionQuery(session?.user.userId);

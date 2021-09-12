@@ -4,6 +4,7 @@ import type { ITopic } from "./Topic";
 import type { IUser } from "models/User";
 import type { Base64Image } from "utils/image";
 import { Schema, Types } from "mongoose";
+import { IProject } from "./Project";
 
 export interface IOrg {
   _id: string;
@@ -18,6 +19,7 @@ export interface IOrg {
   orgEmail?: string;
   orgDescription?: string;
   orgEvents: IEvent[];
+  orgProjects: IProject[];
   orgSubscriptions: ISubscription[];
   orgTopics: ITopic[];
   orgBanner?: Base64Image & { mode: "light" | "dark" };
@@ -72,6 +74,7 @@ export const OrgSchema = new Schema<IOrg>(
     orgEmail: String,
     orgDescription: String,
     orgEvents: [{ type: Schema.Types.ObjectId, ref: "Event" }],
+    orgProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
     orgSubscriptions: [
       { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
     ],

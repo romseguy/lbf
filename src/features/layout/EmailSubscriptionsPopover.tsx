@@ -66,10 +66,7 @@ import {
 import { useAppDispatch } from "store";
 import { handleError } from "utils/form";
 import { IoIosPerson, IoMdCheckmarkCircle } from "react-icons/io";
-import {
-  selectSubscribedEmail,
-  setSubscribedEmail
-} from "features/users/userSlice";
+import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSelector } from "react-redux";
 import {
   refetchSubscription,
@@ -84,10 +81,8 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
   const dispatch = useAppDispatch();
 
   //#region sub
-  const subscribedEmail = useSelector(selectSubscribedEmail);
-  const subQuery = useGetSubscriptionQuery(
-    subscribedEmail || session?.user.userId
-  );
+  const userEmail = useSelector(selectUserEmail);
+  const subQuery = useGetSubscriptionQuery(userEmail || session?.user.userId);
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     console.log("refetching subscription");
@@ -136,7 +131,7 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
     } finally {
       setIsLoading(false);
     }
-    // dispatch(setSubscribedEmail(email));
+    // dispatch(setUserEmail(email));
 
     // const { error, data }: { error?: any; data?: ISubscription } =
     //   await dispatch(getSubscription.initiate(email));
@@ -222,10 +217,10 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
         <Heading size="md">
           <Link
             onClick={() => {
-              dispatch(setSubscribedEmail(null));
+              dispatch(setUserEmail(null));
             }}
           >
-            {subscribedEmail || "Mes abonnements"}
+            {userEmail || "Mes abonnements"}
           </Link>
         </Heading>
       </PopoverHeader>
@@ -236,9 +231,7 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
             <Spinner />
           ) : (
             <>
-              <Heading size="sm">
-                Organisations auxquelles je suis abonné :
-              </Heading>
+              <Heading size="sm">Organisations où je suis abonné :</Heading>
 
               {Array.isArray(orgFollowerSubscriptions) &&
               orgFollowerSubscriptions.length > 0 ? (
@@ -311,13 +304,13 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
                 </List>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
-                  {subscribedEmail
+                  {userEmail
                     ? "Cet e-mail n'est abonnée à aucune organisation."
                     : "Vous n'êtes abonné à aucune organisation."}
                 </Text>
               )}
 
-              <Heading size="sm">Événements auxquels je suis abonné :</Heading>
+              <Heading size="sm">Événements où je suis abonné :</Heading>
 
               {Array.isArray(eventSubscriptions) &&
               eventSubscriptions.length > 0 ? (
@@ -384,7 +377,7 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
                 </List>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
-                  {subscribedEmail
+                  {userEmail
                     ? "Cet e-mail n'est abonnée à aucun événement."
                     : "Vous n'êtes abonné à aucun événement."}
                 </Text>
@@ -443,7 +436,7 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
                 {currentOrgSubscription.org?.orgName}
               </Text>{" "}
               <ArrowForwardIcon /> <EmailIcon color="green" />{" "}
-              <ArrowForwardIcon /> {subscribedEmail}
+              <ArrowForwardIcon /> {userEmail || session?.user.email}
             </ModalHeader>
             <ModalCloseButton ml={5} data-cy="subscriptionPopoverCloseButton" />
             <ModalBody>

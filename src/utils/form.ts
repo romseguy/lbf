@@ -7,17 +7,25 @@ export const handleError = (
     if (!keys.length) {
       return setError("Une erreur inconnue est survenue");
     }
+
     keys.forEach((key) => {
-      setError(fields[key], key);
+      const message = fields[key].message ? fields[key].message : fields[key];
+      setError(message, key);
     });
   };
 
   if (error.status === 400 || error.status === 500) {
     if (error.data) {
-      if (error.data.message) {
-        setError(error.data.message);
-      } else {
+      const keys = Object.keys(error.data);
+
+      if (keys.length) {
         setFieldsErrors(error.data);
+      } else {
+        if (error.data.message) {
+          setError(error.data.message);
+        } else {
+          setFieldsErrors(error.data);
+        }
       }
     } else if (error.message) {
       setError(error.message);

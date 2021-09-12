@@ -46,10 +46,11 @@ import {
   isSubscribedBy,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
-import { selectSubscribedEmail } from "features/users/userSlice";
+import { selectUserEmail } from "features/users/userSlice";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { selectOrgRefetch } from "./orgSlice";
 import { OrgPageTabs } from "./OrgPageTabs";
+import { ProjectsList } from "features/projects/ProjectsList";
 
 export type Visibility = {
   isVisible: {
@@ -72,7 +73,10 @@ export const OrgPage = ({
   const toast = useToast({ position: "top" });
 
   //#region org
-  const orgQuery = useGetOrgQuery(routeName);
+  const orgQuery = useGetOrgQuery({
+    orgUrl: routeName,
+    populate: "orgProjects"
+  });
   const refetchOrg = useSelector(selectOrgRefetch);
   useEffect(() => {
     console.log("refetching org");
@@ -90,15 +94,15 @@ export const OrgPage = ({
   //#endregion
 
   //#region sub
-  const subscribedEmail = useSelector(selectSubscribedEmail);
-  const subQuery = useGetSubscriptionQuery(
-    subscribedEmail || session?.user.userId
-  );
+  const storedUserEmail = useSelector(selectUserEmail);
+  const userEmail = storedUserEmail || session?.user.email || "";
+  const subQuery = useGetSubscriptionQuery(userEmail || session?.user.userId);
   const isFollowed = isFollowedBy({ org, subQuery });
   const isSubscribed = isSubscribedBy(org, subQuery);
   //#endregion
 
   //#region local state
+  const [email, setEmail] = useState(userEmail);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
@@ -255,7 +259,8 @@ export const OrgPage = ({
                           }}
                           variant="underline"
                         >
-                          Cliquez ici pour ajouter la description.
+                          Cliquez ici pour ajouter la description{" "}
+                          {orgTypeFull(org.orgType)}.
                         </Link>
                       ) : (
                         <Text fontStyle="italic">Aucune description.</Text>
@@ -313,6 +318,20 @@ export const OrgPage = ({
                   pour en ajouter un.
                 </Box>
               )}
+            </TabPanel>
+
+            <TabPanel aria-hidden>
+              <ProjectsList
+                org={org}
+                orgQuery={orgQuery}
+                isCreator={isCreator}
+                isFollowed={!!isFollowed}
+                isSubscribed={isSubscribed}
+                isLogin={isLogin}
+                setIsLogin={setIsLogin}
+                email={email}
+                setEmail={setEmail}
+              />
             </TabPanel>
 
             <TabPanel aria-hidden>

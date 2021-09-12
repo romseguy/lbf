@@ -11,7 +11,7 @@ import {
 } from "features/subscriptions/subscriptionSlice";
 import { useSelector } from "react-redux";
 import { Spinner } from "@chakra-ui/react";
-import { selectSubscribedEmail } from "features/users/userSlice";
+import { selectUserEmail } from "features/users/userSlice";
 
 export const Forum = ({
   isLogin,
@@ -24,7 +24,7 @@ export const Forum = ({
   const { data: session, loading: isSessionLoading } = useSession();
 
   //#region org
-  const query = useGetOrgQuery("aucourant");
+  const query = useGetOrgQuery({ orgUrl: "aucourant" });
   const org = query.data;
 
   let isCreator = false;
@@ -41,10 +41,8 @@ export const Forum = ({
   //#endregion
 
   //#region subscription
-  const subscribedEmail = useSelector(selectSubscribedEmail);
-  const subQuery = useGetSubscriptionQuery(
-    subscribedEmail || session?.user.userId
-  );
+  const userEmail = useSelector(selectUserEmail);
+  const subQuery = useGetSubscriptionQuery(userEmail || session?.user.userId);
   const [isFollowed, setIsFollowed] = useState(
     !!isFollowedBy({ org, subQuery })
   );

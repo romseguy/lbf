@@ -29,20 +29,19 @@ const Page = (props) => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(
-  (store) =>
-    async ({ params }) => {
-      const { id } = params;
+  (store) => async (ctx) => {
+    const { id } = ctx.params;
 
-      await store.dispatch(fetchSubject(id));
+    await store.dispatch(fetchSubject(id));
 
-      console.log("State on server", store.getState());
+    console.log("State on server", store.getState());
 
-      return {
-        props: {
-          id
-        }
-      };
-    }
+    return {
+      props: {
+        id
+      }
+    };
+  }
 );
 
 export default Page;

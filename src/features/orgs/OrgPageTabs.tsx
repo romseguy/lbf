@@ -10,7 +10,7 @@ import {
   useTab
 } from "@chakra-ui/react";
 import { isMobile } from "react-device-detect";
-import { FaHome } from "react-icons/fa";
+import { FaHome, FaTools } from "react-icons/fa";
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 
 export const OrgPageTabs = ({
@@ -106,6 +106,7 @@ export const OrgPageTabs = ({
           // { name: "Accueil", icon: <FaHome boxSize={6} /> },
           { name: "Accueil", icon: FaHome },
           { name: "Événements", icon: CalendarIcon },
+          { name: "Projets", icon: FaTools },
           { name: "Discussions", icon: ChatIcon }
         ].map(({ name, icon }, tabIndex) => (
           <CustomTab

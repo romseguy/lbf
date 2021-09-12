@@ -47,10 +47,7 @@ import { EventConfigPanel } from "./EventConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useSelector } from "react-redux";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import {
-  selectSubscribedEmail,
-  selectUserEmail
-} from "features/users/userSlice";
+import { selectUserEmail } from "features/users/userSlice";
 import { isFollowedBy } from "features/subscriptions/subscriptionSlice";
 import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
 import { EventAttendingForm } from "./EventAttendingForm";
@@ -67,7 +64,7 @@ export const EventPage = (props: {
   event: IEvent;
   user?: IUser;
   routeName: string;
-  email?: string;
+  //email?: string;
 }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
@@ -76,13 +73,9 @@ export const EventPage = (props: {
   const isDark = colorMode === "dark";
 
   const storedUserEmail = useSelector(selectUserEmail);
-  const subscribedEmail = useSelector(selectSubscribedEmail);
   const userEmail =
-    props.email ||
-    subscribedEmail ||
-    storedUserEmail ||
-    session?.user.email ||
-    "";
+    // props.email ||
+    storedUserEmail || session?.user.email || "";
 
   //#region event
   const eventQuery = useGetEventQuery({
@@ -313,7 +306,7 @@ export const EventPage = (props: {
                       }}
                       variant="underline"
                     >
-                      Cliquez ici pour ajouter la description.
+                      Cliquez ici pour ajouter la description de l'événement.
                     </Link>
                   ) : (
                     <Text fontStyle="italic">Aucune description.</Text>

@@ -31,7 +31,7 @@ import { useAppDispatch } from "store";
 import {
   selectUserEmail,
   selectUserName,
-  setSubscribedEmail
+  setUserEmail
 } from "features/users/userSlice";
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { useSelector } from "react-redux";
@@ -300,7 +300,7 @@ export const Nav = ({
 
               <MenuItem
                 onClick={async () => {
-                  dispatch(setSubscribedEmail(null));
+                  dispatch(setUserEmail(null));
                   const { url } = await signOut({
                     redirect: false,
                     callbackUrl: "/"

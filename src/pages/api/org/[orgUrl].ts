@@ -21,73 +21,86 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<NextApiRequest & { query: { orgUrl: string } }, NextApiResponse>(
-  async function getOrg(req, res) {
-    try {
-      const session = await getSession({ req });
-      const {
-        query: { orgUrl }
-      } = req;
+handler.get<
+  NextApiRequest & { query: { orgUrl: string; populate?: string } },
+  NextApiResponse
+>(async function getOrg(req, res) {
+  try {
+    const session = await getSession({ req });
+    const {
+      query: { orgUrl, populate }
+    } = req;
 
-      let org = await models.Org.findOne({ orgUrl });
+    let org = await models.Org.findOne({ orgUrl });
 
-      if (!org) {
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
-            )
-          );
-      }
+    if (!org) {
+      return res
+        .status(404)
+        .json(
+          createServerError(
+            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
+          )
+        );
+    }
 
-      const isCreator =
-        equals(org.createdBy, session?.user.userId) || session?.user.isAdmin;
+    if (populate) {
+      org = org.populate(populate);
 
-      // hand emails to org creator only
-      let select =
-        session && isCreator
-          ? "-password -securityCode"
-          : "-email -password -securityCode";
+      if (populate === "orgProjects")
+        org = await org
+          .populate({
+            path: "orgProjects",
+            populate: [{ path: "projectOrgs" }]
+          })
+          .execPopulate();
+    }
 
-      org = await org
-        .populate("createdBy", select + " -userImage")
-        .populate("orgEvents orgSubscriptions orgTopics")
-        .populate({
-          path: "orgTopics",
-          populate: [
-            {
-              path: "topicMessages",
-              populate: { path: "createdBy", select }
-            },
-            { path: "createdBy", select }
-          ]
-        })
-        .populate({
-          path: "orgSubscriptions",
-          populate: { path: "user", select }
-        })
-        .execPopulate();
+    const isCreator =
+      equals(org.createdBy, session?.user.userId) || session?.user.isAdmin;
 
-      for (const orgEvent of org.orgEvents) {
-        if (orgEvent.forwardedFrom?.eventId) {
-          const e = await models.Event.findOne({
-            _id: orgEvent.forwardedFrom.eventId
-          });
-          if (e) {
-            orgEvent.forwardedFrom.eventUrl = orgEvent._id;
-            orgEvent.eventName = e.eventName;
-            orgEvent.eventUrl = e.eventUrl;
-          }
+    // hand emails to org creator only
+    let select =
+      session && isCreator
+        ? "-password -securityCode"
+        : "-email -password -securityCode";
+
+    org = await org
+      .populate("createdBy", select + " -userImage")
+      .populate("orgEvents orgSubscriptions orgTopics")
+      .populate({
+        path: "orgTopics",
+        populate: [
+          {
+            path: "topicMessages",
+            populate: { path: "createdBy", select }
+          },
+          { path: "createdBy", select }
+        ]
+      })
+      .populate({
+        path: "orgSubscriptions",
+        populate: { path: "user", select }
+      })
+      .execPopulate();
+
+    for (const orgEvent of org.orgEvents) {
+      if (orgEvent.forwardedFrom?.eventId) {
+        const e = await models.Event.findOne({
+          _id: orgEvent.forwardedFrom.eventId
+        });
+        if (e) {
+          orgEvent.forwardedFrom.eventUrl = orgEvent._id;
+          orgEvent.eventName = e.eventName;
+          orgEvent.eventUrl = e.eventUrl;
         }
       }
-
-      res.status(200).json(org);
-    } catch (error) {
-      res.status(500).json(createServerError(error));
     }
+
+    res.status(200).json(org);
+  } catch (error) {
+    res.status(500).json(createServerError(error));
   }
-);
+});
 
 handler.post<
   NextApiRequest & {

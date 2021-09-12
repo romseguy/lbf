@@ -7,6 +7,14 @@ import { SubscriptionTypes } from "models/Subscription";
 import { equals } from "./string";
 import { toDateRange } from "features/common";
 import { parseISO } from "date-fns";
+import { IProject } from "models/Project";
+
+type MailType = {
+  from?: string;
+  subject?: string;
+  to?: string;
+  html?: string;
+};
 
 export const emailR = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
@@ -126,12 +134,7 @@ export const sendTopicToFollowers = async ({
     html = `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion : ${topic.topicName}.</p>`;
   }
 
-  const mail: {
-    from: string;
-    subject: string;
-    to?: string;
-    html: string;
-  } = {
+  const mail: MailType = {
     from: process.env.EMAIL_FROM,
     subject,
     html
@@ -212,18 +215,43 @@ export const sendMessageToTopicFollowers = async ({
   }
 };
 
-export const sendToAdmin = async (event: IEvent, transport: any) => {
-  if (event.isApproved) return;
+export const sendToAdmin = async ({
+  event,
+  project,
+  transport
+}: {
+  event?: IEvent;
+  project?: IProject;
+  transport: any;
+}) => {
+  if (!event && !project) return;
 
-  const mail = {
+  let mail: MailType = {
     from: process.env.EMAIL_FROM,
-    to: process.env.EMAIL_ADMIN,
-    subject: `Un événement attend votre approbation : ${event.eventName}`,
-    html: `
+    to: process.env.EMAIL_ADMIN
+  };
+
+  if (event) {
+    if (event.isApproved) return;
+
+    mail = {
+      ...mail,
+      subject: `Un événement attend votre approbation : ${event.eventName}`,
+      html: `
         <h1>Nouvel événement : ${event.eventName}</h1>
         <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}">${process.env.NEXT_PUBLIC_SHORT_URL}/${event.eventUrl}</a> pour en savoir plus.</p>
       `
-  };
+    };
+  } else if (project) {
+    mail = {
+      ...mail,
+      subject: `Un projet attend votre approbation : ${project.projectName}`,
+      html: `
+        <h1>Nouveau projet : ${project.projectName}</h1>
+        <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${project.projectOrgs[0].orgName}">${process.env.NEXT_PUBLIC_SHORT_URL}/${project.projectOrgs[0].orgName}</a> pour en savoir plus.</p>
+      `
+    };
+  }
 
   if (process.env.NODE_ENV === "production") {
     await transport.sendMail(mail);
