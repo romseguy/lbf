@@ -150,6 +150,7 @@ export const EventPage = (props: {
       pageSubTitle={<DateRange minDate={eventMinDate} maxDate={eventMaxDate} />}
       isLogin={isLogin}
       banner={event.eventBanner}
+      {...props}
     >
       {isCreator && !isConfig ? (
         <Button

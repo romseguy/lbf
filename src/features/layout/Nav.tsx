@@ -1,6 +1,6 @@
 import type { IOrg } from "models/Org";
 import React, { useState } from "react";
-import { signOut } from "next-auth/react";
+import { signOut } from "next-auth/client";
 import { useSession } from "hooks/useAuth";
 import tw, { css } from "twin.macro";
 import {
@@ -81,9 +81,10 @@ const buttonList = css`
 `;
 
 export const Nav = ({
+  csrfToken,
   isLogin = 0,
   ...props
-}: BoxProps & { isLogin?: number }) => {
+}: BoxProps & { isLogin?: number; csrfToken?: string }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
@@ -97,7 +98,7 @@ export const Nav = ({
   const userName = storedUserName || session?.user.userName || "";
 
   const [editUser, editUserMutation] = useEditUserMutation();
-  const userQuery = useGetUserQuery(userName);
+  const userQuery = useGetUserQuery(userEmail);
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
     router.asPath === "/?login" || false
@@ -324,7 +325,10 @@ export const Nav = ({
         </Flex>
       ) : (
         <Flex justify="flex-end">
-          <EmailSubscriptionsPopover boxSize={[8, 10, 10]} />
+          <EmailSubscriptionsPopover
+            boxSize={[8, 10, 10]}
+            csrfToken={csrfToken}
+          />
 
           {isMobile ? (
             <IconButton
@@ -337,18 +341,14 @@ export const Nav = ({
             />
           ) : (
             <Box mr={5} ml={5}>
-              {isServer() ? (
-                <Spinner mt={2} />
-              ) : (
-                <Button
-                  variant="outline"
-                  colorScheme="purple"
-                  onClick={() => setIsLoginModalOpen(true)}
-                  data-cy="login"
-                >
-                  Connexion
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                colorScheme="purple"
+                onClick={() => setIsLoginModalOpen(true)}
+                data-cy="login"
+              >
+                Connexion
+              </Button>
             </Box>
           )}
         </Flex>

@@ -51,7 +51,7 @@ export const User = ({
   const toast = useToast({ position: "top" });
 
   return (
-    <Layout pageTitle={user.userName}>
+    <Layout pageTitle={user.userName} {...props}>
       <>
         <Flex mb={5} flexDirection="column">
           {user.email === session?.user.email && (

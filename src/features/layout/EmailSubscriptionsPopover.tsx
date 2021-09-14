@@ -5,7 +5,7 @@ import {
 } from "models/Subscription";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { signIn } from "next-auth/react";
+import { signIn } from "next-auth/client";
 import {
   List,
   ListItem,
@@ -74,7 +74,11 @@ import {
 } from "features/subscriptions/subscriptionSlice";
 import api from "utils/api";
 
-export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
+export const EmailSubscriptionsPopover = ({
+  boxSize,
+  csrfToken,
+  ...props
+}: BoxProps & { csrfToken?: string }) => {
   const router = useRouter();
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
@@ -82,12 +86,12 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
 
   //#region sub
   const userEmail = useSelector(selectUserEmail);
-  const subQuery = useGetSubscriptionQuery(userEmail || session?.user.userId);
+  const subQuery = useGetSubscriptionQuery(userEmail || session?.user.email);
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     console.log("refetching subscription");
     subQuery.refetch();
-  }, [subscriptionRefetch, session?.user.userId]);
+  }, [subscriptionRefetch, session?.user.email]);
   const orgFollowerSubscriptions = subQuery.data?.orgs.filter(
     (orgSubscription) => orgSubscription.type === SubscriptionTypes.FOLLOWER
   );
@@ -126,8 +130,19 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
     setIsLoading(true);
     try {
       await signIn("email", { email });
+      // const res = await api.post("auth/signin/email", {
+      //   email,
+      //   csrfToken
+      // });
+
+      // if (res.error) {
+      //   toast({
+      //     title: "Un e-mail de connexion vous a été envoyé",
+      //     status: "success"
+      //   });
+      // }
     } catch (error) {
-      console.log("yala?", error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
@@ -152,8 +167,7 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
         <Heading size="md">Connexion par e-mail</Heading>
       </PopoverHeader>
       <PopoverBody>
-        Vous pourrez bientôt vous connecter sans mot de passe.
-        {/* <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
           <ErrorMessage
             errors={errors}
             name="formErrorMessage"
@@ -185,9 +199,9 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
               <ErrorMessage errors={errors} name="email" />
             </FormErrorMessage>
           </FormControl>
-        </form> */}
+        </form>
       </PopoverBody>
-      {/* <PopoverFooter display="flex" justifyContent="space-between">
+      <PopoverFooter display="flex" justifyContent="space-between">
         <Button
           colorScheme="gray"
           onClick={() => {
@@ -199,15 +213,15 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
         </Button>
 
         <Button
-          onClick={handleSubmit(onSubmit)}
           colorScheme="green"
           type="submit"
           isLoading={isLoading}
           isDisabled={Object.keys(errors).length > 0}
+          onClick={handleSubmit(onSubmit)}
         >
           Connexion
         </Button>
-      </PopoverFooter> */}
+      </PopoverFooter>
     </PopoverContent>
   );
 

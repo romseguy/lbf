@@ -13,6 +13,7 @@ const defaultTitle = "Au courant de...";
 export const Layout = ({
   banner,
   children,
+  csrfToken,
   isLogin,
   pageHeader,
   pageTitle,
@@ -22,6 +23,7 @@ export const Layout = ({
 }: BoxProps & {
   banner?: Base64Image & { mode: "dark" | "light" };
   children: React.ReactNode | React.ReactNodeArray;
+  csrfToken?: string;
   isLogin?: number;
   pageHeader?: React.ReactNode | React.ReactNodeArray;
   pageTitle?: string;
@@ -109,7 +111,12 @@ export const Layout = ({
           pageSubTitle={pageSubTitle}
           headerBg={banner}
         />
-        <Nav py={hasVerticalScrollbar ? 7 : 0} minH="96px" isLogin={isLogin} />
+        <Nav
+          py={hasVerticalScrollbar ? 7 : 0}
+          minH="96px"
+          isLogin={isLogin}
+          csrfToken={csrfToken}
+        />
         <Main {...props}>{children}</Main>
         <Footer>
           <DarkModeSwitch />

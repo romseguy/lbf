@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
-const OrgsPage = () => {
+const OrgsPage = (props: any) => {
   const orgsQuery = useGetOrgsQuery(undefined);
   const refetchOrgs = useSelector(selectOrgsRefetch);
   useEffect(() => {
@@ -22,7 +22,7 @@ const OrgsPage = () => {
   } = useDisclosure({ defaultIsOpen: false });
 
   return (
-    <Layout>
+    <Layout {...props}>
       <Button
         colorScheme="teal"
         isDisabled={!orgsQuery.data || !orgsQuery.data.length}

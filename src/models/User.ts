@@ -3,12 +3,13 @@ import { Schema, Types } from "mongoose";
 import bcrypt from "bcryptjs";
 import { randomNumber } from "utils/randomNumber";
 import { Base64Image } from "utils/image";
+import { normalize } from "utils/string";
 
 const HASH_ROUNDS = 10;
 
 export interface IUser {
   _id: string | Types.ObjectId;
-  email: string;
+  email?: string;
   isOnline: boolean;
   password: string;
   securityCode: string;
@@ -76,11 +77,9 @@ UserSchema.pre("save", async function (next: HookNextFunction) {
 
   if (this.isModified("email")) {
     try {
-      const nameParts = thisObj.email.replace(/@.+/, "");
-      const name = nameParts.replace(/[&/\\#,+()$~%._@'":*?<>{}]/g, "");
-      const userName =
-        name.match(/[0-9]/) === null ? name + randomNumber(4) : name;
-      thisObj.userName = userName;
+      // const name = normalize(thisObj.email.replace(/@.+/, ""));
+      // const userName = name.match(/[0-9]/) === null ? name + randomNumber(4) : name;
+      thisObj.userName = normalize(thisObj.email!.replace(/@.+/, ""));
     } catch (error) {
       return next(error);
     }

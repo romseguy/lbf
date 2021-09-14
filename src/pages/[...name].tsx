@@ -15,7 +15,7 @@ import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { useAppDispatch, wrapper } from "store";
 
-const Hash = ({ email }: { email?: string }) => {
+const Hash = ({ email, ...props }: { email?: string }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const dispatch = useAppDispatch();
@@ -100,7 +100,7 @@ const Hash = ({ email }: { email?: string }) => {
   }
 
   return (
-    <Layout pageTitle={error ? "Page introuvable" : ""}>
+    <Layout pageTitle={error ? "Page introuvable" : ""} {...props}>
       {isLoading ? (
         <Spinner />
       ) : error ? (

@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
-import { signIn, signOut } from "next-auth/react";
+import { signIn, signOut } from "next-auth/client";
 import { ErrorMessage } from "@hookform/error-message";
 import {
   Box,

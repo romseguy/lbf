@@ -22,7 +22,7 @@ import { IoIosChatbubbles, IoIosPeople, IoMdPerson } from "react-icons/io";
 import { Link } from "features/common";
 import { CalendarIcon, ChatIcon, EmailIcon } from "@chakra-ui/icons";
 
-const IndexPage = () => {
+const IndexPage = (props: any) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const [isLogin, setIsLogin] = useState(0);
@@ -42,7 +42,7 @@ const IndexPage = () => {
   );
 
   return (
-    <Layout isLogin={isLogin}>
+    <Layout isLogin={isLogin} {...props}>
       {true ? (
         <>
           <Box textAlign="center" mb={3}>

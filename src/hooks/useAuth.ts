@@ -1,22 +1,14 @@
 //@ts-nocheck
+import { useAsync } from "react-async-hook";
 import {
   useSession as useNextAuthSession,
   getSession as getNextAuthSession
-} from "next-auth/react";
-//import type { UseSessionOptions, GetSessionOptions } from "next-auth/client";
-import type { GetSessionOptions } from "next-auth/react";
-import { Session } from "next-auth";
-
-const speedUpDev = process.env.NODE_ENV === "development" && false;
-const session = {
-  user: {
-    userId: process.env.NEXT_PUBLIC_IS_LOCAL_TEST
-      ? "610ee9f18ee7760d3390e482"
-      : "60e318732d8f5b154bfaa346",
-    userName: "romseguy8933",
-    email: process.env.EMAIL_ADMIN
-  }
-};
+} from "next-auth/client";
+import { normalize } from "utils/string";
+import { getUser } from "features/users/usersApi";
+import { store } from "store";
+import { useState } from "react";
+import api from "utils/api";
 
 export type AppSession =
   | Session & {
@@ -29,30 +21,74 @@ export type AppSession =
       };
     };
 
-// server-side
-export async function getSession(
-  options?: GetSessionOptions
-): Promise<AppSession> {
-  if (process.env.NEXT_PUBLIC_IS_TEST || speedUpDev) {
-    return session;
+export async function getSession(options): Promise<AppSession | null> {
+  const session = await getNextAuthSession(options);
+  if (!session || !session.user) return session;
+
+  if (!session.user.userId) {
+    const { error, data } = await api.get(`user/${session.user.email}`);
+
+    console.log(data);
+
+    // const userQuery = await store.dispatch(
+    //   getUser.initiate(session.user.email)
+    // );
+
+    //if (userQuery.data) {
+    if (data) {
+      //const { _id, userName, isAdmin } = userQuery.data;
+      const { _id, userName, isAdmin } = data;
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          userId: _id,
+          userName: userName
+            ? userName
+            : normalize(session.user.email.replace(/@.+/, "")),
+          isAdmin: isAdmin || false
+        }
+      };
+    }
   }
 
-  return getNextAuthSession(options);
+  return session;
 }
 
-// client-side
-// export function useSession(options?: UseSessionOptions): {
-export function useSession(options?: any): {
-  data: AppSession | null;
-  loading: boolean;
-} {
-  if (process.env.NEXT_PUBLIC_IS_TEST || speedUpDev) {
-    return { data: session, loading: false };
+export function useSession(): { data: AppSession | null; loading: boolean } {
+  const [session, loading] = useNextAuthSession();
+  const [data, setData] = useState();
+
+  const xhr = async () => {
+    const userQuery = await store.dispatch(
+      getUser.initiate(session.user.email)
+    );
+
+    if (userQuery.data) setData(userQuery.data);
+  };
+
+  if (!session || session.user.userId) return { data: session, loading };
+
+  xhr();
+
+  if (data) {
+    const { _id, userName, isAdmin } = data;
+
+    return {
+      data: {
+        ...session,
+        user: {
+          ...session.user,
+          userId: _id,
+          userName: userName ? userName : _id,
+          // : normalize(session.user.email.replace(/@.+/, "")),
+          isAdmin: isAdmin || false
+        }
+      },
+      loading: false
+    };
   }
 
-  const { data, status } = useNextAuthSession();
-  return { data, loading: false };
-
-  // 3 const [session, loading] = useNextAuthSession();
-  // 3 return { data: session, loading };
+  return { data: session, loading };
 }

@@ -72,7 +72,7 @@ handler.get<
         populate: [
           {
             path: "topicMessages",
-            populate: { path: "createdBy", select }
+            populate: { path: "createdBy" }
           },
           { path: "createdBy", select }
         ]
@@ -92,6 +92,22 @@ handler.get<
           orgEvent.forwardedFrom.eventUrl = orgEvent._id;
           orgEvent.eventName = e.eventName;
           orgEvent.eventUrl = e.eventUrl;
+        }
+      }
+    }
+
+    for (const orgTopic of org.orgTopics) {
+      for (const topicMessage of orgTopic.topicMessages) {
+        if (typeof topicMessage.createdBy === "object") {
+          if (
+            !topicMessage.createdBy.userName &&
+            topicMessage.createdBy.email
+          ) {
+            topicMessage.createdBy.userName = normalize(
+              topicMessage.createdBy.email.replace(/@.+/, "")
+            );
+          }
+          topicMessage.createdBy.email = undefined;
         }
       }
     }
@@ -225,6 +241,7 @@ handler.delete<
   NextApiResponse
 >(async function removeOrg(req, res) {
   const session = await getSession({ req });
+  console.log(session);
 
   if (!session) {
     res

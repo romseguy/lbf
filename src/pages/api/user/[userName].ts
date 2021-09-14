@@ -28,29 +28,19 @@ handler.get<
 
   try {
     let user = await models.User.findOne({ userName });
+    if (!user) user = await models.User.findOne({ email: userName });
+    if (!user) user = await models.User.findOne({ _id: userName });
 
     if (user) {
       res.status(200).json(user);
     } else {
-      user = await models.User.findOne({ email: userName });
-
-      if (user) {
-        res.status(200).json(user);
-      } else {
-        user = await models.User.findOne({ _id: userName });
-
-        if (user) {
-          res.status(200).json(user);
-        } else {
-          res
-            .status(404)
-            .json(
-              createServerError(
-                new Error(`L'utilisateur ${userName} n'a pas pu être trouvé`)
-              )
-            );
-        }
-      }
+      res
+        .status(404)
+        .json(
+          createServerError(
+            new Error(`L'utilisateur ${userName} n'a pas pu être trouvé`)
+          )
+        );
     }
   } catch (error) {
     res.status(500).json(createServerError(error));
