@@ -23,12 +23,18 @@ import {
   Table,
   Tbody,
   Tag,
-  useColorMode
+  useColorMode,
+  CheckboxGroup,
+  Spinner,
+  Checkbox
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
   AtSignIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
   EditIcon,
+  EmailIcon,
   SettingsIcon
 } from "@chakra-ui/icons";
 import { IoIosPeople } from "react-icons/io";
@@ -51,6 +57,7 @@ import { selectUserEmail } from "features/users/userSlice";
 import { isFollowedBy } from "features/subscriptions/subscriptionSlice";
 import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
 import { EventAttendingForm } from "./EventAttendingForm";
+import { EventSendForm } from "features/common/forms/EventSendForm";
 
 export type Visibility = {
   isVisible: {
@@ -79,8 +86,10 @@ export const EventPage = (props: {
 
   //#region event
   const eventQuery = useGetEventQuery({
-    eventUrl: props.routeName
+    eventUrl: props.routeName,
+    populate: "orgSubscriptions"
   });
+  useEffect(() => eventQuery.refetch(), [router.asPath]);
   const event = eventQuery.data || props.event;
   const eventCreatedByUserName =
     event.createdBy && typeof event.createdBy === "object"
@@ -124,6 +133,7 @@ export const EventPage = (props: {
     topics: false,
     banner: false
   });
+  const [showSendForm, setShowSendForm] = useState(false);
   let showAttendingForm = false;
 
   if (session) {
@@ -481,12 +491,41 @@ export const EventPage = (props: {
           <Grid gridGap={5} mt={5}>
             {isCreator && (
               <GridItem>
-                <Grid templateRows="auto 1fr">
+                <Grid templateRows="auto auto 1fr">
                   <GridHeader borderTopRadius="lg" alignItems="center">
                     <Heading size="sm" py={3}>
                       Participants
                     </Heading>
                   </GridHeader>
+
+                  <GridItem
+                    light={{ bg: "orange.100" }}
+                    dark={{ bg: "gray.500" }}
+                  >
+                    <Button
+                      colorScheme="teal"
+                      mt={3}
+                      ml={3}
+                      rightIcon={
+                        showSendForm ? (
+                          <ChevronDownIcon />
+                        ) : (
+                          <ChevronRightIcon />
+                        )
+                      }
+                      isDisabled={!event.isApproved}
+                      onClick={() => setShowSendForm(!showSendForm)}
+                    >
+                      Envoyer les invitations
+                    </Button>
+                    {showSendForm && (
+                      <EventSendForm
+                        event={event}
+                        eventQuery={eventQuery}
+                        onSubmit={() => setShowSendForm(false)}
+                      />
+                    )}
+                  </GridItem>
 
                   <GridItem
                     light={{ bg: "orange.100" }}

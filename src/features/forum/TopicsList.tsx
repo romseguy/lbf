@@ -225,7 +225,8 @@ export const TopicsList = ({
                       ? entityTopic.createdBy.userName
                       : "";
                   const isCreator =
-                    session && entityTopicCreatedBy === session.user.userId;
+                    session?.user.isAdmin ||
+                    entityTopicCreatedBy === session?.user.userId;
 
                   let isSubbedToTopic = false;
 
@@ -332,34 +333,34 @@ export const TopicsList = ({
 
                                     <>
                                       <span aria-hidden> · </span>
-                                      {deleteTopicMutation.isLoading ? (
-                                        <Spinner boxSize={4} />
-                                      ) : (
-                                        <DeleteButton
-                                          isIconOnly
-                                          placement="bottom"
-                                          bg="transparent"
-                                          height="auto"
-                                          minWidth={0}
-                                          _hover={{ color: "red" }}
-                                          // isDisabled={isDeleteButtonDisabled}
-                                          header={
-                                            <>
-                                              Êtes vous sûr de vouloir supprimer
-                                              la discussion
-                                              <Text
-                                                display="inline"
-                                                color="red"
-                                                fontWeight="bold"
-                                              >
-                                                {` ${entityTopic.topicName}`}
-                                              </Text>{" "}
-                                              ?
-                                            </>
-                                          }
-                                          body={
-                                            <>
-                                              {/* <label htmlFor="topicName">
+                                      <DeleteButton
+                                        isIconOnly
+                                        isLoading={
+                                          deleteTopicMutation.isLoading
+                                        }
+                                        placement="bottom"
+                                        bg="transparent"
+                                        height="auto"
+                                        minWidth={0}
+                                        _hover={{ color: "red" }}
+                                        // isDisabled={isDeleteButtonDisabled}
+                                        header={
+                                          <>
+                                            Êtes vous sûr de vouloir supprimer
+                                            la discussion
+                                            <Text
+                                              display="inline"
+                                              color="red"
+                                              fontWeight="bold"
+                                            >
+                                              {` ${entityTopic.topicName}`}
+                                            </Text>{" "}
+                                            ?
+                                          </>
+                                        }
+                                        body={
+                                          <>
+                                            {/* <label htmlFor="topicName">
                                           Saisissez le nom de la discussion pour
                                           confimer sa suppression :
                                         </label>
@@ -373,151 +374,145 @@ export const TopicsList = ({
                                             )
                                           }
                                         /> */}
-                                            </>
-                                          }
-                                          onClick={async () => {
-                                            try {
-                                              let deletedTopic;
+                                          </>
+                                        }
+                                        onClick={async () => {
+                                          try {
+                                            let deletedTopic;
 
-                                              if (entityTopic._id) {
-                                                deletedTopic =
-                                                  await deleteTopic(
-                                                    entityTopic._id
-                                                  ).unwrap();
-                                              }
+                                            if (entityTopic._id) {
+                                              deletedTopic = await deleteTopic(
+                                                entityTopic._id
+                                              ).unwrap();
+                                            }
 
-                                              if (deletedTopic) {
-                                                subQuery.refetch();
-                                                query.refetch();
+                                            if (deletedTopic) {
+                                              subQuery.refetch();
+                                              query.refetch();
 
-                                                toast({
-                                                  title: `${deletedTopic.topicName} a bien été supprimé !`,
-                                                  status: "success",
-                                                  isClosable: true
-                                                });
-                                              }
-                                            } catch (error) {
                                               toast({
-                                                title: error.data
-                                                  ? error.data.message
-                                                  : error.message,
-                                                status: "error",
+                                                title: `${deletedTopic.topicName} a bien été supprimé !`,
+                                                status: "success",
                                                 isClosable: true
                                               });
                                             }
-                                          }}
-                                          data-cy="deleteTopic"
-                                        />
-                                      )}
+                                          } catch (error) {
+                                            toast({
+                                              title: error.data
+                                                ? error.data.message
+                                                : error.message,
+                                              status: "error",
+                                              isClosable: true
+                                            });
+                                          }
+                                        }}
+                                        data-cy="deleteTopic"
+                                      />
                                       <span aria-hidden> · </span>
                                     </>
                                   </>
                                 )}
 
-                                {subQuery.isLoading ||
-                                addSubscriptionMutation.isLoading ||
-                                deleteSubscriptionMutation.isLoading ? (
-                                  <Spinner boxSize={4} />
-                                ) : (
-                                  <Tooltip
-                                    label={
-                                      isSubbedToTopic
-                                        ? "Vous recevez un e-mail lorsque quelqu'un répond à cette discussion. Cliquez ici pour désactiver ces notifications."
-                                        : "Recevoir un e-mail lorsque quelqu'un répond à cette discussion."
-                                    }
-                                    placement="left"
-                                  >
-                                    <span>
-                                      <IconButton
-                                        aria-label={
-                                          isSubbedToTopic
-                                            ? "Se désabonner de la discussion"
-                                            : "S'abonner à la discussion"
-                                        }
-                                        icon={
-                                          isSubbedToTopic ? (
-                                            <FaBellSlash />
-                                          ) : (
-                                            <FaBell />
-                                          )
-                                        }
-                                        bg="transparent"
-                                        height="auto"
-                                        minWidth={0}
-                                        _hover={{
-                                          color: isDark ? "lightgreen" : "white"
-                                        }}
-                                        onClick={async (e) => {
-                                          e.stopPropagation();
+                                <Tooltip
+                                  label={
+                                    isSubbedToTopic
+                                      ? "Vous recevez un e-mail lorsque quelqu'un répond à cette discussion. Cliquez ici pour désactiver ces notifications."
+                                      : "Recevoir un e-mail lorsque quelqu'un répond à cette discussion."
+                                  }
+                                  placement="left"
+                                >
+                                  <span>
+                                    <IconButton
+                                      aria-label={
+                                        isSubbedToTopic
+                                          ? "Se désabonner de la discussion"
+                                          : "S'abonner à la discussion"
+                                      }
+                                      icon={
+                                        isSubbedToTopic ? (
+                                          <FaBellSlash />
+                                        ) : (
+                                          <FaBell />
+                                        )
+                                      }
+                                      isLoading={
+                                        subQuery.isLoading ||
+                                        addSubscriptionMutation.isLoading ||
+                                        deleteSubscriptionMutation.isLoading
+                                      }
+                                      bg="transparent"
+                                      height="auto"
+                                      minWidth={0}
+                                      _hover={{
+                                        color: isDark ? "lightgreen" : "white"
+                                      }}
+                                      onClick={async (e) => {
+                                        e.stopPropagation();
 
-                                          if (
-                                            subQuery.isLoading ||
-                                            addSubscriptionMutation.isLoading ||
-                                            deleteSubscriptionMutation.isLoading
-                                          )
-                                            return;
+                                        if (
+                                          subQuery.isLoading ||
+                                          addSubscriptionMutation.isLoading ||
+                                          deleteSubscriptionMutation.isLoading
+                                        )
+                                          return;
 
-                                          if (!subQuery.data) {
-                                            console.log("user got no sub");
-                                            await addSubscription({
-                                              payload: {
-                                                topics: [{ topic: entityTopic }]
-                                              },
-                                              user: session?.user.userId
-                                              // email:
+                                        if (!subQuery.data) {
+                                          console.log("user got no sub");
+                                          await addSubscription({
+                                            payload: {
+                                              topics: [{ topic: entityTopic }]
+                                            },
+                                            user: session?.user.userId
+                                            // email:
+                                          });
+                                          toast({
+                                            title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
+                                            status: "success",
+                                            isClosable: true
+                                          });
+                                        } else if (isSubbedToTopic) {
+                                          const unsubscribe = confirm(
+                                            `Êtes vous sûr de vouloir vous désabonner de la discussion : ${entityTopic.topicName} ?`
+                                          );
+
+                                          if (unsubscribe) {
+                                            await deleteSubscription({
+                                              subscriptionId: subQuery.data._id,
+                                              topicId: entityTopic._id
                                             });
+
                                             toast({
-                                              title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
-                                              status: "success",
-                                              isClosable: true
-                                            });
-                                          } else if (isSubbedToTopic) {
-                                            const unsubscribe = confirm(
-                                              `Êtes vous sûr de vouloir vous désabonner de la discussion : ${entityTopic.topicName} ?`
-                                            );
-
-                                            if (unsubscribe) {
-                                              await deleteSubscription({
-                                                subscriptionId:
-                                                  subQuery.data._id,
-                                                topicId: entityTopic._id
-                                              });
-
-                                              toast({
-                                                title: `Vous avez été désabonné de ${entityTopic.topicName}`,
-                                                status: "success",
-                                                isClosable: true
-                                              });
-                                            }
-                                          } else {
-                                            console.log(
-                                              "user got no topic sub"
-                                            );
-                                            await addSubscription({
-                                              payload: {
-                                                topics: [{ topic: entityTopic }]
-                                              },
-                                              user: session?.user.userId
-                                              // email:
-                                            });
-                                            toast({
-                                              title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
+                                              title: `Vous avez été désabonné de ${entityTopic.topicName}`,
                                               status: "success",
                                               isClosable: true
                                             });
                                           }
-
-                                          subQuery.refetch();
-                                        }}
-                                        data-cy={
-                                          isSubbedToTopic
-                                            ? "topicUnsubscribe"
-                                            : "topicSubscribe"
+                                        } else {
+                                          console.log("user got no topic sub");
+                                          await addSubscription({
+                                            payload: {
+                                              topics: [{ topic: entityTopic }]
+                                            },
+                                            user: session?.user.userId
+                                            // email:
+                                          });
+                                          toast({
+                                            title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
+                                            status: "success",
+                                            isClosable: true
+                                          });
                                         }
-                                      />
-                                    </span>
-                                  </Tooltip>
-                                )}
+
+                                        subQuery.refetch();
+                                      }}
+                                      data-cy={
+                                        isSubbedToTopic
+                                          ? "topicUnsubscribe"
+                                          : "topicSubscribe"
+                                      }
+                                    />
+                                  </span>
+                                </Tooltip>
                               </Box>
                             </GridItem>
                           )}

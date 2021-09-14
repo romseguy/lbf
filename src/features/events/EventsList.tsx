@@ -9,7 +9,8 @@ import {
   Flex,
   useToast,
   IconButton,
-  Tag
+  Tag,
+  Spinner
 } from "@chakra-ui/react";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import {
@@ -34,6 +35,7 @@ import {
   EmailIcon,
   LockIcon,
   NotAllowedIcon,
+  SpinnerIcon,
   UpDownIcon,
   WarningIcon
 } from "@chakra-ui/icons";
@@ -44,7 +46,7 @@ import { FaCross, FaGlobeEurope, FaRetweet } from "react-icons/fa";
 import { useAppDispatch } from "store";
 import { useSession } from "hooks/useAuth";
 import { ForwardModal } from "features/modals/ForwardModal";
-import { useDeleteEventMutation, useEventNotifyMutation } from "./eventsApi";
+import { useDeleteEventMutation, useEditEventMutation } from "./eventsApi";
 import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { IoIosPeople, IoMdPerson } from "react-icons/io";
@@ -82,16 +84,29 @@ export const EventsList = (props: EventsProps) => {
   const toast = useToast({ position: "top" });
   const { data: session, loading: isSessionLoading } = useSession();
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
-  const [eventNotify, q] = useEventNotifyMutation();
+  const [editEvent, editEventMutation] = useEditEventMutation();
   let currentDate: Date | undefined;
   let addGridHeader = true;
 
+  const [isLoading, setIsLoading] = useState(false);
   const [isDescriptionOpen, setIsDescriptionOpen] = useState<{
     [key: string]: boolean;
   }>({});
   const [isForwardOpen, setIsForwardOpen] = useState<{
     [key: string]: boolean;
   }>({});
+
+  const orgFollowersCount = props.org?.orgSubscriptions
+    .map(
+      (subscription) =>
+        subscription.orgs.filter((orgSubscription) => {
+          return (
+            orgSubscription.orgId === props.org?._id &&
+            orgSubscription.type === SubscriptionTypes.FOLLOWER
+          );
+        }).length
+    )
+    .reduce((a, b) => a + b, 0);
 
   const addRepeatedEvents = (events: IEvent[]) => {
     let array: IEvent[] = [];
@@ -130,18 +145,6 @@ export const EventsList = (props: EventsProps) => {
     return array;
   };
 
-  const orgFollowersCount = props.org?.orgSubscriptions
-    .map(
-      (subscription) =>
-        subscription.orgs.filter((orgSubscription) => {
-          return (
-            orgSubscription.orgId === props.org?._id &&
-            orgSubscription.type === SubscriptionTypes.FOLLOWER
-          );
-        }).length
-    )
-    .reduce((a, b) => a + b, 0);
-
   const events = useMemo(() => {
     const repeatedEvents = addRepeatedEvents(props.events).sort((a, b) =>
       compareAsc(parseISO(a.eventMinDate), parseISO(b.eventMinDate))
@@ -165,7 +168,10 @@ export const EventsList = (props: EventsProps) => {
       let notifiedCount = 0;
       let canSendCount = 0;
 
-      if (orgFollowersCount && session?.user.userId === event.createdBy) {
+      if (
+        orgFollowersCount &&
+        (session?.user.userId === event.createdBy || session?.user.isAdmin)
+      ) {
         notifiedCount = Array.isArray(event.eventNotified)
           ? event.eventNotified.length
           : 0;
@@ -240,6 +246,7 @@ export const EventsList = (props: EventsProps) => {
                         <WarningIcon color="orange" />
                       </Tooltip>
                     )}
+
                     <Tooltip
                       label={
                         canSendCount === 0
@@ -256,6 +263,7 @@ export const EventsList = (props: EventsProps) => {
                             : `Notifier les abonnés de ${props.org.orgName}`
                         }
                         icon={<EmailIcon />}
+                        isLoading={isLoading}
                         isDisabled={!event.isApproved}
                         title={
                           !event.isApproved
@@ -270,6 +278,7 @@ export const EventsList = (props: EventsProps) => {
                           color: "green"
                         }}
                         onClick={async () => {
+                          setIsLoading(true);
                           const notify = confirm(
                             `Êtes-vous sûr de vouloir notifier ${canSendCount} abonné${
                               canSendCount > 1 ? "s" : ""
@@ -279,13 +288,11 @@ export const EventsList = (props: EventsProps) => {
                           if (!notify) return;
 
                           try {
-                            const res = await eventNotify({
-                              eventId: event._id,
+                            const res = await editEvent({
+                              eventUrl: event.eventUrl,
                               payload: {
-                                event: {
-                                  ...event,
-                                  eventNotif: [props.org!._id]
-                                }
+                                ...event,
+                                eventNotif: [props.org!._id]
                               }
                             }).unwrap();
 
@@ -308,7 +315,10 @@ export const EventsList = (props: EventsProps) => {
                                 isClosable: true
                               });
                             }
+
+                            setIsLoading(false);
                           } catch (error) {
+                            setIsLoading(false);
                             toast({
                               title: "Une erreur est survenue",
                               status: "error",
@@ -530,7 +540,7 @@ export const EventsList = (props: EventsProps) => {
         </div>
       );
     });
-  }, [props.events, session, isDescriptionOpen, isForwardOpen]);
+  }, [props.events, session, isDescriptionOpen, isForwardOpen, isLoading]);
 
   return <div>{events}</div>;
 };

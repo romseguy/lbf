@@ -170,8 +170,6 @@ handler.put<
     try {
       const { body }: { body: IOrg } = req;
       const orgUrl = req.query.orgUrl;
-      body.orgUrl = normalize(body.orgName);
-
       const org = await models.Org.findOne({ orgUrl });
 
       if (!org) {
@@ -198,6 +196,8 @@ handler.put<
             )
           );
       }
+
+      if (body.orgName) body.orgUrl = normalize(body.orgName);
 
       const { n, nModified } = await models.Org.updateOne({ orgUrl }, body);
 

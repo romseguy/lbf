@@ -22,99 +22,114 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<NextApiRequest & { query: { eventUrl: string } }, NextApiResponse>(
-  async function getEvent(req, res) {
-    try {
-      const session = await getSession({ req });
-      const {
-        query: { eventUrl }
-      } = req;
+handler.get<
+  NextApiRequest & { query: { eventUrl: string; populate?: string } },
+  NextApiResponse
+>(async function getEvent(req, res) {
+  try {
+    const session = await getSession({ req });
+    const {
+      query: { eventUrl }
+    } = req;
+    let populate: any = req.query.populate;
 
-      let event = await models.Event.findOne({
-        eventUrl
+    let event = await models.Event.findOne({
+      eventUrl
+    });
+
+    if (!event) {
+      event = await models.Event.findOne({
+        _id: eventUrl
       });
 
-      if (!event) {
-        event = await models.Event.findOne({
-          _id: eventUrl
-        });
-
-        if (!event)
-          return res
-            .status(404)
-            .json(
-              createServerError(
-                new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
-              )
-            );
-      }
-
-      const isCreator = equals(event.createdBy, session?.user.userId);
-
-      // if (event.eventVisibility === Visibility.SUBSCRIBERS && !isCreator) {
-      //   if (session) {
-      //     const sub = await models.Subscription.findOne({
-      //       user: session.user.userId
-      //     });
-
-      //     let isSubscribed = false;
-
-      //     if (sub) {
-      //       for (const eventOrg of event.eventOrgs) {
-      //         for (const org of sub.orgs) {
-      //           if (equals(org.orgId, eventOrg)) {
-      //             isSubscribed = true;
-      //           }
-      //         }
-      //       }
-      //     }
-
-      //     if (!isSubscribed) {
-      //       return res
-      //         .status(403)
-      //         .json(
-      //           createServerError(
-      //             new Error(
-      //               `Cet événement est réservé aux adhérents des organisateurs`
-      //             )
-      //           )
-      //         );
-      //     }
-      //   }
-      // }
-
-      // hand emails to event creator only
-      let select =
-        session && isCreator
-          ? "-password -securityCode"
-          : "-email -password -securityCode";
-
-      event = await event
-        .populate("createdBy", select + " -userImage")
-        .populate("eventOrgs eventTopics")
-        .populate({
-          path: "eventTopics",
-          populate: [
-            {
-              path: "topicMessages",
-              populate: {
-                path: "createdBy",
-                select
-              }
-            },
-            { path: "createdBy", select: select + " -userImage" }
-          ]
-        })
-        .execPopulate();
-
-      if (event) {
-        res.status(200).json(event);
-      }
-    } catch (error) {
-      res.status(500).json(createServerError(error));
+      if (!event)
+        return res
+          .status(404)
+          .json(
+            createServerError(
+              new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
+            )
+          );
     }
+
+    const isCreator =
+      session?.user.isAdmin || equals(event.createdBy, session?.user.userId);
+    event = event.populate("eventOrgs");
+
+    if (populate) {
+      if (isCreator && populate === "orgSubscriptions") {
+        populate = {
+          path: "eventOrgs",
+          populate: [{ path: "orgSubscriptions" }]
+        };
+      }
+
+      event = event.populate(populate);
+    }
+
+    // if (event.eventVisibility === Visibility.SUBSCRIBERS && !isCreator) {
+    //   if (session) {
+    //     const sub = await models.Subscription.findOne({
+    //       user: session.user.userId
+    //     });
+
+    //     let isSubscribed = false;
+
+    //     if (sub) {
+    //       for (const eventOrg of event.eventOrgs) {
+    //         for (const org of sub.orgs) {
+    //           if (equals(org.orgId, eventOrg)) {
+    //             isSubscribed = true;
+    //           }
+    //         }
+    //       }
+    //     }
+
+    //     if (!isSubscribed) {
+    //       return res
+    //         .status(403)
+    //         .json(
+    //           createServerError(
+    //             new Error(
+    //               `Cet événement est réservé aux adhérents des organisateurs`
+    //             )
+    //           )
+    //         );
+    //     }
+    //   }
+    // }
+
+    // hand emails to event creator only
+    let select =
+      session && isCreator
+        ? "-password -securityCode"
+        : "-email -password -securityCode";
+
+    event = await event
+      .populate("createdBy", select + " -userImage")
+      .populate("eventTopics")
+      .populate({
+        path: "eventTopics",
+        populate: [
+          {
+            path: "topicMessages",
+            populate: {
+              path: "createdBy",
+              select
+            }
+          },
+          { path: "createdBy", select: select + " -userImage" }
+        ]
+      })
+      .execPopulate();
+
+    if (event) {
+      res.status(200).json(event);
+    }
+  } catch (error) {
+    res.status(500).json(createServerError(error));
   }
-);
+});
 
 handler.post<
   NextApiRequest & {
@@ -161,49 +176,6 @@ handler.post<
       if (body.topic) {
         const topic = await addOrUpdateTopic({ body, event, transport, res });
         res.status(200).json(topic);
-      } else if (body.event) {
-        // todo: check we're not reposting to already existing eventOrg?
-        event = await event.populate("eventOrgs").execPopulate();
-        event.eventNotif = body.event.eventNotif;
-
-        if (event.forwardedFrom) {
-          const e = await models.Event.findOne({
-            _id: event.forwardedFrom.eventId
-          });
-          if (e) {
-            event.forwardedFrom.eventUrl = event.eventUrl;
-            event.eventName = e.eventName;
-            event.eventUrl = e.eventUrl;
-          }
-        }
-
-        const emailList = await sendEventToOrgFollowers(event, transport);
-
-        const { n, nModified } = await models.Event.updateOne(
-          {
-            eventUrl: event.forwardedFrom.eventUrl || event.eventUrl
-          },
-          {
-            eventNotified: event.eventNotified?.concat(
-              emailList.map((email) => ({
-                email,
-                status: StatusTypes.PENDING
-              }))
-            )
-          }
-        );
-
-        if (nModified === 1) {
-          res.status(200).json({ emailList });
-        } else {
-          res
-            .status(400)
-            .json(
-              createServerError(
-                new Error("L'événement n'a pas pu être modifié")
-              )
-            );
-        }
       }
     } catch (error) {
       res.status(400).json(createServerError(error));
@@ -232,9 +204,6 @@ handler.put<
   } else {
     try {
       const eventUrl = req.query.eventUrl;
-
-      if (body.eventName) body.eventUrl = normalize(body.eventName);
-
       const event = await models.Event.findOne({ eventUrl }).populate(
         "eventOrgs"
       );
@@ -264,6 +233,8 @@ handler.put<
             )
           );
       }
+
+      if (body.eventName) body.eventUrl = normalize(body.eventName);
 
       if (body.eventOrgs) {
         const staleEventOrgsIds: string[] = [];
@@ -295,29 +266,24 @@ handler.put<
         }
       }
 
-      event.eventNotif = body.eventNotif || [];
-      const emailList = await sendEventToOrgFollowers(event, transport);
+      let emailList;
 
-      let eventNotified;
+      if (body.eventNotif) {
+        emailList = await sendEventToOrgFollowers(event, transport);
 
-      if (body.eventNotified) {
-        eventNotified = body.eventNotified;
-      } else if (emailList.length > 0) {
-        eventNotified = event.eventNotified?.concat(
-          emailList.map((email) => ({
+        if (emailList.length > 0) {
+          const newEntries = emailList.map((email) => ({
             email,
             status: StatusTypes.PENDING
-          }))
-        );
+          }));
+
+          body.eventNotified = event.eventNotified
+            ? event.eventNotified.concat(newEntries)
+            : newEntries;
+        }
       }
 
-      const { n, nModified } = await models.Event.updateOne(
-        { eventUrl },
-        {
-          ...body,
-          eventNotified
-        }
-      );
+      const { n, nModified } = await models.Event.updateOne({ eventUrl }, body);
 
       if (nModified === 1) {
         res.status(200).json({ emailList });
@@ -325,7 +291,9 @@ handler.put<
         res
           .status(400)
           .json(
-            createServerError(new Error("L'événement n'a pas pu être modifié"))
+            createServerError(
+              new Error(`L'événement ${eventUrl} n'a pas pu être modifié`)
+            )
           );
       }
     } catch (error) {

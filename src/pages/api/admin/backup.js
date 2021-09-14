@@ -67,8 +67,11 @@ handler.post(async function importData(req, res) {
     try {
       const body = JSON.parse(req.body);
       const keys = Object.keys(models);
+
       for (const key of keys) {
         if (key === "User") continue;
+        if (!body.data[key]) continue;
+
         const model = models[key];
         model.collection.remove({});
         for (const o of body.data[key]) {

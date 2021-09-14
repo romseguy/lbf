@@ -6,8 +6,18 @@
 
 self.addEventListener("push", function (event) {
   const data = JSON.parse(event.data.text());
+  // event.waitUntil(
+  //   registration.showNotification(data.title, {
+  //     body: data.message,
+  //     icon: "/icons/maskable-192-192.png",
+  //     data: {
+  //       url: data.url
+  //     }
+  //   })
+  // );
   event.waitUntil(
     registration.showNotification(data.title, {
+      actions: [{ action: "o", title: "t" }],
       body: data.message,
       icon: "/icons/maskable-192-192.png"
     })

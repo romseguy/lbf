@@ -34,11 +34,11 @@ export const sendEventToOrgFollowers = async (
     return emailList;
 
   for (const org of event.eventOrgs) {
+    //console.log("notifying followers from org", org);
     const orgId = typeof org === "object" ? org._id : org;
 
     for (const eventNotifOrgId of event.eventNotif) {
       if (!equals(eventNotifOrgId, orgId)) continue;
-      // console.log("notifying followers from org", org);
 
       for (const orgSubscription of org.orgSubscriptions) {
         const subscription = await models.Subscription.findOne({

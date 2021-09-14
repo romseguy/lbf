@@ -44,7 +44,10 @@ handler.put<
           );
       }
 
-      if (!equals(topic.createdBy, session.user.userId)) {
+      if (
+        !equals(topic.createdBy, session.user.userId) &&
+        !session.user.isAdmin
+      ) {
         return res
           .status(403)
           .json(
@@ -109,7 +112,10 @@ handler.delete<
           );
       }
 
-      if (!equals(topic.createdBy, session.user.userId)) {
+      if (
+        !equals(topic.createdBy, session.user.userId) &&
+        !session.user.isAdmin
+      ) {
         return res
           .status(403)
           .json(

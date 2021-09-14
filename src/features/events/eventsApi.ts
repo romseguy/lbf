@@ -39,9 +39,16 @@ export const eventApi = createApi({
         body: payload
       })
     }),
-    getEvent: build.query<IEvent, { eventUrl: string; email?: string }>({
-      query: ({ eventUrl, email }) => ({
-        url: `event/${eventUrl}${email ? `/${email}` : ""}`
+    getEvent: build.query<
+      IEvent,
+      { eventUrl: string; email?: string; populate?: string }
+    >({
+      query: ({ eventUrl, email, populate }) => ({
+        url: email
+          ? `event/${eventUrl}/${email}`
+          : populate
+          ? `event/${eventUrl}?populate=${populate}`
+          : ""
       })
     }),
     getEvents: build.query<IEvent[], string | undefined>({
@@ -51,16 +58,6 @@ export const eventApi = createApi({
     }),
     getEventsByUserId: build.query<IEvent[], string>({
       query: (userId) => ({ url: `events/${userId}` })
-    }),
-    eventNotify: build.mutation<
-      { emailList?: string[] },
-      { payload: { event: Partial<IEvent> }; eventId: string }
-    >({
-      query: ({ payload, eventId }) => ({
-        url: `event/${eventId}`,
-        method: "POST",
-        body: payload
-      })
     })
   })
 });
@@ -72,8 +69,7 @@ export const {
   useEditEventMutation,
   useGetEventQuery,
   useGetEventsQuery,
-  useGetEventsByUserIdQuery,
-  useEventNotifyMutation
+  useGetEventsByUserIdQuery
 } = eventApi;
 export const {
   endpoints: { getEvent, getEvents, getEventsByUserId, deleteEvent }

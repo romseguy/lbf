@@ -50,6 +50,7 @@ export const DeleteButton = ({
           <IconButton
             aria-label="Supprimer"
             icon={<DeleteIcon />}
+            isLoading={isLoading}
             {...props}
             onClick={(e) => {
               e.stopPropagation();

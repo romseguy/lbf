@@ -726,7 +726,7 @@ export const EventForm = withGoogleApi({
         </FormErrorMessage>
       </FormControl>
 
-      {Array.isArray(eventOrgs) && eventOrgs.length > 0 && (
+      {/* {Array.isArray(eventOrgs) && eventOrgs.length > 0 && (
         <>
           {props.event && props.event.isApproved ? (
             <FormControl id="eventNotif" mb={3}>
@@ -832,7 +832,7 @@ export const EventForm = withGoogleApi({
             </Alert>
           ) : null}
         </>
-      )}
+      )} */}
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>

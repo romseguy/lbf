@@ -138,6 +138,22 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
           eventUrl,
           isApproved
         });
+
+        if (!isApproved) {
+          const admin = await models.User.findOne({ isAdmin: true });
+
+          if (admin && admin.userSubscription) {
+            await api.post("notification", {
+              subscription: admin.userSubscription,
+              notification: {
+                title: "Un événement attend votre approbation",
+                message: "Appuyez pour ouvrir la page de l'événement"
+                //url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
+              }
+            });
+            sendToAdmin({ event: body, transport });
+          }
+        }
       }
 
       await models.Org.updateMany(
@@ -148,15 +164,6 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
           }
         }
       );
-
-      const admin = await models.User.findOne({ isAdmin: true });
-
-      if (admin && admin.userSubscription) {
-        await api.post("notification", {
-          subscription: admin.userSubscription
-        });
-        sendToAdmin({ event: body, transport });
-      }
 
       res.status(200).json(event);
     } catch (error) {

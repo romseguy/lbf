@@ -130,9 +130,12 @@ export const Nav = ({
       window.workbox !== undefined
     ) {
       navigator.serviceWorker.ready.then((reg) => {
+        console.log("sw ready, setting reg");
         setRegistration(reg);
 
         reg.pushManager.getSubscription().then((sub) => {
+          console.log("reg.pushManager.getSubscription", sub);
+
           if (
             sub &&
             !(

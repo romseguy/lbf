@@ -177,30 +177,32 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl
-        id="topicMessage"
-        isInvalid={!!errors["topicMessage"]}
-        mb={3}
-      >
-        <FormLabel>Message (optionnel)</FormLabel>
-        <Controller
-          name="topicMessage"
-          control={control}
-          defaultValue={""}
-          render={(p) => {
-            return (
-              <RTEditor
-                defaultValue={""}
-                onChange={p.onChange}
-                placeholder="Contenu de votre message"
-              />
-            );
-          }}
-        />
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="topicMessage" />
-        </FormErrorMessage>
-      </FormControl>
+      {!props.topic && (
+        <FormControl
+          id="topicMessage"
+          isInvalid={!!errors["topicMessage"]}
+          mb={3}
+        >
+          <FormLabel>Message (optionnel)</FormLabel>
+          <Controller
+            name="topicMessage"
+            control={control}
+            defaultValue={""}
+            render={(p) => {
+              return (
+                <RTEditor
+                  defaultValue={""}
+                  onChange={p.onChange}
+                  placeholder="Contenu de votre message"
+                />
+              );
+            }}
+          />
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="topicMessage" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
 
       {visibilityOptions.length > 0 && (
         <FormControl
@@ -212,7 +214,9 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
           <FormLabel>Visibilité</FormLabel>
           <Select
             name="topicVisibility"
-            defaultValue={Visibility[Visibility.PUBLIC]}
+            defaultValue={
+              props.topic?.topicVisibility || Visibility[Visibility.PUBLIC]
+            }
             ref={register({
               required: "Veuillez sélectionner la visibilité de la discussion"
             })}

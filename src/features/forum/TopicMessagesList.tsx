@@ -176,53 +176,49 @@ export const TopicMessagesList = ({
                         }}
                       />
                     </Tooltip>
+
                     <span aria-hidden> · </span>
 
-                    {editTopicMutation.isLoading ? (
-                      <Spinner boxSize={4} />
-                    ) : (
-                      <DeleteButton
-                        isIconOnly
-                        bg="transparent"
-                        height="auto"
-                        minWidth={0}
-                        _hover={{ color: "red" }}
-                        placement="bottom"
-                        header={
-                          <>Êtes vous sûr de vouloir supprimer ce message ?</>
-                        }
-                        onClick={async () => {
-                          if (editTopicMutation.isLoading) return;
+                    <DeleteButton
+                      isIconOnly
+                      isLoading={editTopicMutation.isLoading}
+                      bg="transparent"
+                      height="auto"
+                      minWidth={0}
+                      _hover={{ color: "red" }}
+                      placement="bottom"
+                      header={
+                        <>Êtes vous sûr de vouloir supprimer ce message ?</>
+                      }
+                      onClick={async () => {
+                        const payload = {
+                          ...topic,
+                          topicMessages:
+                            index === topic.topicMessages.length - 1
+                              ? topic.topicMessages.filter((m) => {
+                                  return m._id !== _id;
+                                })
+                              : topic.topicMessages.map((m) => {
+                                  if (m._id === _id) {
+                                    return {
+                                      _id,
+                                      message: "<i>Message supprimé</i>",
+                                      createdBy,
+                                      createdAt
+                                    };
+                                  }
 
-                          const payload = {
-                            ...topic,
-                            topicMessages:
-                              index === topic.topicMessages.length - 1
-                                ? topic.topicMessages.filter((m) => {
-                                    return m._id !== _id;
-                                  })
-                                : topic.topicMessages.map((m) => {
-                                    if (m._id === _id) {
-                                      return {
-                                        _id,
-                                        message: "<i>Message supprimé</i>",
-                                        createdBy,
-                                        createdAt
-                                      };
-                                    }
+                                  return m;
+                                })
+                        };
+                        await editTopic({
+                          payload,
+                          topicId: topic._id
+                        }).unwrap();
 
-                                    return m;
-                                  })
-                          };
-                          await editTopic({
-                            payload,
-                            topicId: topic._id
-                          }).unwrap();
-
-                          query.refetch();
-                        }}
-                      />
-                    )}
+                        query.refetch();
+                      }}
+                    />
                   </>
                 )}
               </Box>
