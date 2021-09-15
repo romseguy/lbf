@@ -1,7 +1,7 @@
 import React from "react";
 import { NextPage, NextPageContext } from "next";
 import { AppProps } from "next/app";
-import { getCsrfToken, Provider as SessionProvider } from "next-auth/client";
+import { Provider as SessionProvider } from "next-auth/client";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
 import theme from "theme/theme";
@@ -54,7 +54,6 @@ App.getInitialProps = async ({
   ctx: NextPageContext;
 }) => {
   const session = await getSession(ctx);
-  //const csrfToken = await getCsrfToken(ctx);
   let pageProps = {};
 
   if (Component.getInitialProps) {
@@ -72,7 +71,6 @@ App.getInitialProps = async ({
     pageProps: {
       ...pageProps,
       session
-      //csrfToken
     }
   };
 };

@@ -10,7 +10,7 @@ import {
   useToast,
   IconButton,
   Tag,
-  Spinner
+  Button
 } from "@chakra-ui/react";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import {
@@ -29,27 +29,25 @@ import {
 import { IEvent, Visibility } from "models/Event";
 import { fr } from "date-fns/locale";
 import {
+  AddIcon,
   CheckCircleIcon,
-  CloseIcon,
   DeleteIcon,
   EmailIcon,
-  LockIcon,
-  NotAllowedIcon,
-  SpinnerIcon,
   UpDownIcon,
   WarningIcon
 } from "@chakra-ui/icons";
 import { css } from "twin.macro";
 import { DescriptionModal } from "features/modals/DescriptionModal";
 import DOMPurify from "isomorphic-dompurify";
-import { FaCross, FaGlobeEurope, FaRetweet } from "react-icons/fa";
-import { useAppDispatch } from "store";
+import { FaGlobeEurope, FaRetweet } from "react-icons/fa";
 import { useSession } from "hooks/useAuth";
 import { ForwardModal } from "features/modals/ForwardModal";
 import { useDeleteEventMutation, useEditEventMutation } from "./eventsApi";
 import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { IoIosPeople, IoMdPerson } from "react-icons/io";
+import { EventModal } from "features/modals/EventModal";
+import { useRouter } from "next/router";
 
 const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
   eventVisibility === Visibility.SUBSCRIBERS ? (
@@ -78,44 +76,75 @@ type EventsProps = {
   eventHeader?: any;
   isCreator?: boolean;
   isSubscribed?: boolean;
+  isLogin?: number;
+  setIsLogin?: (isLogin: number) => void;
 };
 
-export const EventsList = (props: EventsProps) => {
-  const toast = useToast({ position: "top" });
+export const EventsList = ({
+  org,
+  orgQuery,
+  isCreator,
+  isSubscribed,
+  isLogin,
+  setIsLogin,
+  ...props
+}: EventsProps) => {
+  const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
+  const toast = useToast({ position: "top" });
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
   let currentDate: Date | undefined;
   let addGridHeader = true;
 
+  //#region local state
   const [isLoading, setIsLoading] = useState(false);
-  const [isDescriptionOpen, setIsDescriptionOpen] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const [isForwardOpen, setIsForwardOpen] = useState<{
-    [key: string]: boolean;
-  }>({});
+  const [eventToShow, setEventToShow] = useState<IEvent | null>(null);
+  const [eventToForward, setEventToForward] = useState<IEvent | null>(null);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  //#endregion
 
-  const orgFollowersCount = props.org?.orgSubscriptions
+  //#region org
+  const orgFollowersCount = org?.orgSubscriptions
     .map(
       (subscription) =>
         subscription.orgs.filter((orgSubscription) => {
           return (
-            orgSubscription.orgId === props.org?._id &&
+            orgSubscription.orgId === org?._id &&
             orgSubscription.type === SubscriptionTypes.FOLLOWER
           );
         }).length
     )
     .reduce((a, b) => a + b, 0);
+  //#endregion
+
+  const addEvent = () => {
+    if (!isSessionLoading) {
+      if (session) {
+        if (org) {
+          if (isCreator || isSubscribed) setIsEventModalOpen(true);
+          else
+            toast({
+              status: "error",
+              title: `Vous devez être adhérent ${orgTypeFull(
+                org.orgType
+              )} pour ajouter un événement`
+            });
+        } else setIsEventModalOpen(true);
+      } else if (setIsLogin && isLogin) {
+        setIsLogin(isLogin + 1);
+      }
+    }
+  };
 
   const addRepeatedEvents = (events: IEvent[]) => {
     let array: IEvent[] = [];
 
     for (const event of events) {
       if (
-        props.isCreator ||
+        isCreator ||
         event.eventVisibility === Visibility.PUBLIC ||
-        (event.eventVisibility === Visibility.SUBSCRIBERS && props.isSubscribed)
+        (event.eventVisibility === Visibility.SUBSCRIBERS && isSubscribed)
       ) {
         array.push(event);
 
@@ -235,7 +264,7 @@ export const EventsList = (props: EventsProps) => {
               alignItems="center"
             >
               <Flex pl={3} alignItems="center">
-                {props.org && props.isCreator && (
+                {org && isCreator && (
                   <>
                     {event.isApproved ? (
                       <Tooltip label="Approuvé">
@@ -253,14 +282,14 @@ export const EventsList = (props: EventsProps) => {
                           ? "Aucun abonné à notifier"
                           : `Notifier ${canSendCount} abonné${
                               canSendCount > 1 ? "s" : ""
-                            } de l'organisation : ${props.org.orgName}`
+                            } de l'organisation : ${org.orgName}`
                       }
                     >
                       <IconButton
                         aria-label={
                           canSendCount === 0
                             ? "Aucun abonné à notifier"
-                            : `Notifier les abonnés de ${props.org.orgName}`
+                            : `Notifier les abonnés de ${org.orgName}`
                         }
                         icon={<EmailIcon />}
                         isLoading={isLoading}
@@ -282,7 +311,7 @@ export const EventsList = (props: EventsProps) => {
                           const notify = confirm(
                             `Êtes-vous sûr de vouloir notifier ${canSendCount} abonné${
                               canSendCount > 1 ? "s" : ""
-                            } de l'organisation : ${props.org!.orgName}`
+                            } de l'organisation : ${org!.orgName}`
                           );
 
                           if (!notify) return;
@@ -292,7 +321,7 @@ export const EventsList = (props: EventsProps) => {
                               eventUrl: event.eventUrl,
                               payload: {
                                 ...event,
-                                eventNotif: [props.org!._id]
+                                eventNotif: [org!._id]
                               }
                             }).unwrap();
 
@@ -300,7 +329,7 @@ export const EventsList = (props: EventsProps) => {
                               Array.isArray(res.emailList) &&
                               res.emailList.length > 0
                             ) {
-                              props.orgQuery.refetch();
+                              orgQuery.refetch();
                               toast({
                                 title: `Une invitation a été envoyée à ${
                                   res.emailList.length
@@ -315,15 +344,14 @@ export const EventsList = (props: EventsProps) => {
                                 isClosable: true
                               });
                             }
-
-                            setIsLoading(false);
                           } catch (error) {
-                            setIsLoading(false);
                             toast({
                               title: "Une erreur est survenue",
                               status: "error",
                               isClosable: true
                             });
+                          } finally {
+                            setIsLoading(false);
                           }
                         }}
                       />
@@ -344,7 +372,7 @@ export const EventsList = (props: EventsProps) => {
                   {event.eventName}
                 </Link>
 
-                {props.org && (
+                {org && (
                   <EventVisibility eventVisibility={event.eventVisibility} />
                 )}
 
@@ -359,10 +387,7 @@ export const EventsList = (props: EventsProps) => {
                         minWidth={0}
                         ml={2}
                         onClick={() => {
-                          setIsForwardOpen({
-                            ...isForwardOpen,
-                            [event.eventName]: true
-                          });
+                          setEventToForward(event);
                         }}
                       />
                     </span>
@@ -395,7 +420,7 @@ export const EventsList = (props: EventsProps) => {
                           ).unwrap();
 
                           if (deletedEvent) {
-                            props.orgQuery.refetch();
+                            orgQuery.refetch();
                             toast({
                               title: `La rediffusion a bien été annulée.`,
                               status: "success",
@@ -409,8 +434,8 @@ export const EventsList = (props: EventsProps) => {
                 ) : (
                   event.forwardedFrom &&
                   event.forwardedFrom.eventId &&
-                  props.org && (
-                    <Tooltip label={`Rediffusé par ${props.org.orgName}`}>
+                  org && (
+                    <Tooltip label={`Rediffusé par ${org.orgName}`}>
                       <span>
                         <Icon as={FaRetweet} color="green" ml={2} />
                       </span>
@@ -437,15 +462,7 @@ export const EventsList = (props: EventsProps) => {
               dark={{ bg: "gray.700" }}
             >
               {event.eventDescription && event.eventDescription.length > 0 ? (
-                <Link
-                  variant="underline"
-                  onClick={() =>
-                    setIsDescriptionOpen({
-                      ...isDescriptionOpen,
-                      [event.eventName]: true
-                    })
-                  }
-                >
+                <Link variant="underline" onClick={() => setEventToShow(event)}>
                   Voir l'affiche de l'événement
                 </Link>
               ) : (
@@ -453,7 +470,7 @@ export const EventsList = (props: EventsProps) => {
               )}
             </GridItem>
 
-            {!props.org && (
+            {!org && (
               <GridItem
                 light={{ bg: "white" }}
                 dark={{ bg: "gray.700" }}
@@ -473,74 +490,91 @@ export const EventsList = (props: EventsProps) => {
               </GridItem>
             )}
           </Grid>
-
-          <DescriptionModal
-            defaultIsOpen={false}
-            isOpen={isDescriptionOpen[event.eventName]}
-            onClose={() => {
-              setIsDescriptionOpen({
-                ...isDescriptionOpen,
-                [event.eventName]: false
-              });
-            }}
-            header={
-              <Link
-                href={`/${event.eventUrl}`}
-                css={css`
-                  letter-spacing: 0.1em;
-                `}
-                size="larger"
-                className="rainbow-text"
-              >
-                {event.eventName}
-              </Link>
-            }
-          >
-            {event.eventDescription &&
-            event.eventDescription.length > 0 &&
-            event.eventDescription !== "<p><br></p>" ? (
-              <div className="ql-editor">
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(event.eventDescription)
-                  }}
-                />
-              </div>
-            ) : (
-              <Text fontStyle="italic">Aucune description.</Text>
-            )}
-          </DescriptionModal>
-
-          {session && (
-            <ForwardModal
-              defaultIsOpen={false}
-              isOpen={isForwardOpen[event.eventName]}
-              event={event}
-              session={session}
-              onCancel={() => {
-                setIsForwardOpen({
-                  ...isForwardOpen,
-                  [event.eventName]: false
-                });
-              }}
-              onClose={() => {
-                setIsForwardOpen({
-                  ...isForwardOpen,
-                  [event.eventName]: false
-                });
-              }}
-              onSubmit={() => {
-                setIsForwardOpen({
-                  ...isForwardOpen,
-                  [event.eventName]: false
-                });
-              }}
-            />
-          )}
         </div>
       );
     });
-  }, [props.events, session, isDescriptionOpen, isForwardOpen, isLoading]);
+  }, [props.events, session, isLoading]);
 
-  return <div>{events}</div>;
+  return (
+    <div>
+      {org && (
+        <>
+          <Button
+            colorScheme="teal"
+            leftIcon={<AddIcon />}
+            mb={5}
+            onClick={addEvent}
+            data-cy="addEvent"
+          >
+            Ajouter un événement
+          </Button>
+
+          {isEventModalOpen && (
+            <EventModal
+              session={session}
+              initialEventOrgs={[org]}
+              onCancel={() => setIsEventModalOpen(false)}
+              onSubmit={async (eventUrl) => {
+                await router.push(`/${eventUrl}`, `/${eventUrl}`, {
+                  shallow: true
+                });
+              }}
+              onClose={() => setIsEventModalOpen(false)}
+            />
+          )}
+        </>
+      )}
+
+      {events}
+
+      {eventToShow && (
+        <DescriptionModal
+          onClose={() => {
+            setEventToShow(null);
+          }}
+          header={
+            <Link
+              href={`/${eventToShow.eventUrl}`}
+              css={css`
+                letter-spacing: 0.1em;
+              `}
+              size="larger"
+              className="rainbow-text"
+            >
+              {eventToShow.eventName}
+            </Link>
+          }
+        >
+          {eventToShow.eventDescription &&
+          eventToShow.eventDescription.length > 0 &&
+          eventToShow.eventDescription !== "<p><br></p>" ? (
+            <div className="ql-editor">
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(eventToShow.eventDescription)
+                }}
+              />
+            </div>
+          ) : (
+            <Text fontStyle="italic">Aucune description.</Text>
+          )}
+        </DescriptionModal>
+      )}
+
+      {eventToForward && (
+        <ForwardModal
+          event={eventToForward}
+          onCancel={() => {
+            setEventToForward(null);
+          }}
+          onClose={() => {
+            setEventToForward(null);
+          }}
+          onSubmit={() => {
+            setEventToForward(null);
+          }}
+        />
+      )}
+    </div>
+  );
 };

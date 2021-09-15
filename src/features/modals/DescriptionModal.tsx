@@ -12,15 +12,14 @@ import {
 
 export const DescriptionModal = ({
   closeOnOverlayClick,
-  defaultIsOpen,
-  isOpen,
   ...props
-}: ModalProps & {
-  defaultIsOpen: boolean;
+}: {
+  closeOnOverlayClick?: boolean;
+  onClose: () => void;
   header: React.ReactNode | React.ReactNodeArray;
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
-  const { /* isOpen,  onOpen, */ onClose } = useDisclosure({ defaultIsOpen });
+  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
 
   return (
     <Modal

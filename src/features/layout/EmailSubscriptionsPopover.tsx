@@ -74,11 +74,7 @@ import {
 } from "features/subscriptions/subscriptionSlice";
 import api from "utils/api";
 
-export const EmailSubscriptionsPopover = ({
-  boxSize,
-  csrfToken,
-  ...props
-}: BoxProps & { csrfToken?: string }) => {
+export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
   const router = useRouter();
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
@@ -130,17 +126,6 @@ export const EmailSubscriptionsPopover = ({
     setIsLoading(true);
     try {
       await signIn("email", { email });
-      // const res = await api.post("auth/signin/email", {
-      //   email,
-      //   csrfToken
-      // });
-
-      // if (res.error) {
-      //   toast({
-      //     title: "Un e-mail de connexion vous a été envoyé",
-      //     status: "success"
-      //   });
-      // }
     } catch (error) {
       console.error(error);
     } finally {

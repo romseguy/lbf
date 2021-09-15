@@ -16,21 +16,22 @@ handler.use(database);
 
 handler.get<
   NextApiRequest & {
-    query: { populate?: string };
+    query: { populate?: string; createdBy?: string };
   },
   NextApiResponse
 >(async function getOrgs(req, res) {
   try {
     const {
-      query: { populate }
+      query: { populate, createdBy }
     } = req;
 
     let orgs;
+    let select = createdBy ? { createdBy } : {};
 
     if (populate) {
-      orgs = await models.Org.find({}, { orgBanner: 0 }).populate(populate);
+      orgs = await models.Org.find(select, { orgBanner: 0 }).populate(populate);
     } else {
-      orgs = await models.Org.find({}, { orgBanner: 0 });
+      orgs = await models.Org.find(select, { orgBanner: 0 });
     }
 
     res.status(200).json(orgs);

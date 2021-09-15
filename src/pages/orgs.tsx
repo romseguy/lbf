@@ -9,7 +9,7 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
 const OrgsPage = (props: any) => {
-  const orgsQuery = useGetOrgsQuery(undefined);
+  const orgsQuery = useGetOrgsQuery({});
   const refetchOrgs = useSelector(selectOrgsRefetch);
   useEffect(() => {
     orgsQuery.refetch();

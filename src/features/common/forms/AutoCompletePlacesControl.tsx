@@ -131,8 +131,18 @@ export const AutoCompletePlacesControl = ({
           onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
             if (!hasSuggestions || !acceptedKeys.includes(e.key)) return;
 
-            if (e.key === "Enter" || e.key === "Escape") {
+            if (e.key === "Escape") {
               e.preventDefault();
+              dismissSuggestions();
+              return;
+            }
+
+            if (e.key === "Enter") {
+              e.preventDefault();
+              const newValue =
+                currIndex === null ? cachedVal : data[currIndex].description;
+              setAutoCompleteValue(newValue, false);
+              onChange(newValue);
               dismissSuggestions();
               return;
             }
@@ -149,6 +159,7 @@ export const AutoCompletePlacesControl = ({
             }
 
             setCurrIndex(nextIndex);
+
             if (nextIndex === null) setAutoCompleteValue(cachedVal);
             else setAutoCompleteValue(data[nextIndex].description, false);
           }}

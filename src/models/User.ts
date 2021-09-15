@@ -8,7 +8,7 @@ import { normalize } from "utils/string";
 const HASH_ROUNDS = 10;
 
 export interface IUser {
-  _id: string | Types.ObjectId;
+  _id: string;
   email?: string;
   isOnline: boolean;
   password: string;

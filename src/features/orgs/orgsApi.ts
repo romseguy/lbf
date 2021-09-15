@@ -41,13 +41,22 @@ export const orgApi = createApi({
     }),
     getOrg: build.query<IOrg, { orgUrl: string; populate?: string }>({
       query: ({ orgUrl, populate }) => ({
-        url: `org/${orgUrl}${populate ? `?populate=${populate}` : ""}`
+        url: populate ? `org/${orgUrl}?populate=${populate}` : `org/${orgUrl}`
       })
     }),
-    getOrgs: build.query<IOrg[], string | undefined>({
-      query: (populate) => ({
-        url: `orgs${populate ? `?populate=${populate}` : ""}`
-      })
+    getOrgs: build.query<IOrg[], { populate?: string; createdBy?: string }>({
+      query: ({ populate, createdBy }) => {
+        let url = "orgs";
+
+        if (populate) {
+          url += `?populate=${populate}`;
+          if (createdBy) url += `&createdBy=${createdBy}`;
+        } else if (createdBy) url += `?createdBy=${createdBy}`;
+
+        return {
+          url
+        };
+      }
     }),
     getOrgsByUserId: build.query<IOrg[], string>({
       query: (userId) => ({ url: `orgs/${userId}` })

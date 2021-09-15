@@ -145,11 +145,9 @@ export const OrgForm = withGoogleApi({
         });
       }
 
-      setIsLoading(false);
       props.onClose && props.onClose();
       props.onSubmit && props.onSubmit(payload.orgUrl);
     } catch (error) {
-      setIsLoading(false);
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });
@@ -157,6 +155,8 @@ export const OrgForm = withGoogleApi({
           setError("formErrorMessage", { type: "manual", message });
         }
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

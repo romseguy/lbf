@@ -1,6 +1,13 @@
-import { IEvent, Visibility, VisibilityV } from "models/Event";
+import { Visibility } from "models/Event";
 import React, { useEffect, useState } from "react";
-import { Flex, IconButton, Spinner, useDisclosure } from "@chakra-ui/react";
+import {
+  Flex,
+  Icon,
+  IconButton,
+  Text,
+  Tooltip,
+  useDisclosure
+} from "@chakra-ui/react";
 import { EventModal } from "features/modals/EventModal";
 import { useRouter } from "next/router";
 import { Button, IconFooter, Link } from "features/common";
@@ -10,8 +17,6 @@ import { useGetEventsQuery } from "./eventsApi";
 import { EventsList } from "./EventsList";
 import { MapModal } from "features/modals/MapModal";
 import { FaMapMarkerAlt } from "react-icons/fa";
-import { isMobile } from "react-device-detect";
-import { isServer } from "utils/isServer";
 
 export const EventsPage = ({
   isLogin,
@@ -21,12 +26,12 @@ export const EventsPage = ({
   setIsLogin: (isLogin: number) => void;
 }) => {
   const router = useRouter();
-  const query = useGetEventsQuery("eventOrgs");
+  const eventsQuery = useGetEventsQuery("eventOrgs");
   useEffect(() => {
     console.log("refetching events");
-    query.refetch();
+    eventsQuery.refetch();
   }, [router.asPath]);
-  const events = query.data?.filter((event) => {
+  const events = eventsQuery.data?.filter((event) => {
     if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
     if (event.eventVisibility !== Visibility.PUBLIC) return false;
     return true;
@@ -65,30 +70,16 @@ export const EventsPage = ({
             Ajouter un événement
           </Button>
 
-          {isMobile ? (
+          <Tooltip label="Carte des événements">
             <IconButton
-              colorScheme="teal"
-              isDisabled={!events || !events.length}
               aria-label="Carte des événements"
+              colorScheme="teal"
+              isLoading={eventsQuery.isLoading}
+              isDisabled={!events || !events.length}
               icon={<FaMapMarkerAlt />}
               onClick={openMapModal}
             />
-          ) : (
-            <>
-              {isServer() ? (
-                <Spinner />
-              ) : (
-                <Button
-                  colorScheme="teal"
-                  isDisabled={!events || !events.length}
-                  leftIcon={<FaMapMarkerAlt />}
-                  onClick={openMapModal}
-                >
-                  Carte des événements
-                </Button>
-              )}
-            </>
-          )}
+          </Tooltip>
         </Flex>
 
         {isEventModalOpen && session && (
@@ -96,7 +87,9 @@ export const EventsPage = ({
             session={session}
             onCancel={() => setIsEventModalOpen(false)}
             onSubmit={async (eventUrl) => {
-              await router.push(`/${eventUrl}`);
+              await router.push(`/${eventUrl}`, `/${eventUrl}`, {
+                shallow: true
+              });
             }}
             onClose={() => setIsEventModalOpen(false)}
           />
@@ -119,8 +112,8 @@ export const EventsPage = ({
         )}
       </>
 
-      {query.isLoading ? (
-        <Spinner />
+      {eventsQuery.isLoading ? (
+        <Text>Chargement des événements publics...</Text>
       ) : Array.isArray(events) && events.length > 0 ? (
         <div>
           <EventsList events={events} />

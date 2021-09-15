@@ -6,10 +6,17 @@ import React, { useRef, useState } from "react";
 import { render } from "react-dom";
 import GoogleMap from "google-map-react";
 import MarkerClusterer from "@googlemaps/markerclustererplus";
-import { Alert, AlertIcon, Spinner } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Icon, Spinner, Text } from "@chakra-ui/react";
 import { withGoogleApi } from "./GoogleApiWrapper";
 import { FullscreenControl } from "./FullscreenControl";
 import { Marker } from "./Marker";
+import { DescriptionModal } from "features/modals/DescriptionModal";
+import { Link } from "features/common";
+import { FaMapMarkerAlt } from "react-icons/fa";
+import DOMPurify from "isomorphic-dompurify";
+import { CalendarIcon } from "@chakra-ui/icons";
+import { IoIosPeople } from "react-icons/io";
+import { css } from "twin.macro";
 
 const defaultCenter = {
   lat: 42.888663,
@@ -34,6 +41,9 @@ export const Map = withGoogleApi({
     onGoogleApiLoaded: () => void;
     onFullscreenControlClick?: (isFull: boolean) => void;
   }) => {
+    const [itemToShow, setItemToShow] = useState<IEvent | IOrg | null>(null);
+    const [zoomLevel, setZoomLevel] = useState<number>(10);
+
     const mapRef = useRef(null);
     const options = {
       fullscreenControl: false
@@ -43,7 +53,6 @@ export const Map = withGoogleApi({
       // streetViewControl: boolean,
       // rotateControl: boolean,
     };
-    const [zoomLevel, setZoomLevel] = useState<number>(10);
 
     const hash: { [key: string]: boolean } = {};
 
@@ -149,33 +158,104 @@ export const Map = withGoogleApi({
     }
 
     return (
-      <GoogleMap
-        ref={mapRef}
-        defaultCenter={defaultCenter}
-        defaultZoom={10}
-        center={center}
-        zoom={zoomLevel}
-        options={(maps) => options}
-        yesIWantToUseGoogleMapApiInternals
-        onGoogleApiLoaded={onGoogleApiLoaded}
-        onChange={(e) => {
-          setZoomLevel(e.zoom);
-        }}
-        style={{
-          position: "relative",
-          flex: 1
-        }}
-      >
-        {markers.map((marker) => (
-          <Marker
-            key={marker.key}
-            lat={marker.lat}
-            lng={marker.lng}
-            item={marker.item}
-            zoomLevel={zoomLevel}
-          />
-        ))}
-      </GoogleMap>
+      <>
+        <GoogleMap
+          ref={mapRef}
+          defaultCenter={defaultCenter}
+          defaultZoom={10}
+          center={center}
+          zoom={zoomLevel}
+          options={(maps) => options}
+          yesIWantToUseGoogleMapApiInternals
+          onGoogleApiLoaded={onGoogleApiLoaded}
+          onChange={(e) => {
+            setZoomLevel(e.zoom);
+          }}
+          style={{
+            position: "relative",
+            flex: 1
+          }}
+        >
+          {markers.map((marker) => (
+            <Marker
+              key={marker.key}
+              lat={marker.lat}
+              lng={marker.lng}
+              item={marker.item}
+              zoomLevel={zoomLevel}
+              setItemToShow={setItemToShow}
+            />
+          ))}
+        </GoogleMap>
+
+        {itemToShow && (
+          <DescriptionModal
+            onClose={() => {
+              setItemToShow(null);
+            }}
+            header={
+              <>
+                <Box display="inline-flex" alignItems="center">
+                  {"eventName" in itemToShow ? (
+                    <Icon as={CalendarIcon} mr={1} boxSize={6} />
+                  ) : (
+                    <Icon as={IoIosPeople} mr={1} boxSize={6} />
+                  )}{" "}
+                  <Link
+                    href={`/${
+                      "eventName" in itemToShow
+                        ? itemToShow.eventUrl
+                        : itemToShow.orgUrl
+                    }`}
+                    css={css`
+                      letter-spacing: 0.1em;
+                    `}
+                    size="larger"
+                    className="rainbow-text"
+                  >
+                    {"eventName" in itemToShow
+                      ? itemToShow.eventName
+                      : itemToShow.orgName}
+                  </Link>
+                </Box>
+                <br />
+                <Box display="inline-flex" alignItems="center">
+                  <Icon as={FaMapMarkerAlt} mr={2} color="red" />
+                  {"eventName" in itemToShow
+                    ? itemToShow.eventAddress
+                    : itemToShow.orgAddress}
+                </Box>
+              </>
+            }
+          >
+            {"eventName" in itemToShow ? (
+              itemToShow.eventDescription &&
+              itemToShow.eventDescription.length > 0 ? (
+                <div className="ql-editor">
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(itemToShow.eventDescription)
+                    }}
+                  />
+                </div>
+              ) : (
+                <Text fontStyle="italic">Aucune description.</Text>
+              )
+            ) : itemToShow.orgDescription &&
+              itemToShow.orgDescription.length > 0 ? (
+              <div className="ql-editor">
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(itemToShow.orgDescription)
+                  }}
+                />
+              </div>
+            ) : (
+              <Text fontStyle="italic">Aucune description.</Text>
+            )}
+          </DescriptionModal>
+        )}
+      </>
     );
   }
 );

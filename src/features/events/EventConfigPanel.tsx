@@ -114,7 +114,9 @@ export const EventConfigPanel = ({
           onCancel={() => setIsEdit(false)}
           onSubmit={async (eventUrl: string) => {
             if (event && eventUrl !== event.eventUrl) {
-              await router.push(`/${eventUrl}`);
+              await router.push(`/${eventUrl}`, `/${eventUrl}`, {
+                shallow: true
+              });
             } else {
               eventQuery.refetch();
               setIsEdit(false);

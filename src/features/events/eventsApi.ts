@@ -48,7 +48,7 @@ export const eventApi = createApi({
           ? `event/${eventUrl}/${email}`
           : populate
           ? `event/${eventUrl}?populate=${populate}`
-          : ""
+          : `event/${eventUrl}`
       })
     }),
     getEvents: build.query<IEvent[], string | undefined>({

@@ -7,13 +7,14 @@ import { Header, Main, Nav, Footer } from "features/layout";
 import { Flex, Spinner, Text, BoxProps, useColorMode } from "@chakra-ui/react";
 import { css } from "twin.macro";
 import { breakpoints } from "theme/theme";
+import { IOrg } from "models/Org";
+import { IEvent } from "models/Event";
 
 const defaultTitle = "Au courant de...";
 
 export const Layout = ({
   banner,
   children,
-  csrfToken,
   isLogin,
   pageHeader,
   pageTitle,
@@ -23,9 +24,10 @@ export const Layout = ({
 }: BoxProps & {
   banner?: Base64Image & { mode: "dark" | "light" };
   children: React.ReactNode | React.ReactNodeArray;
-  csrfToken?: string;
   isLogin?: number;
   pageHeader?: React.ReactNode | React.ReactNodeArray;
+  org?: IOrg;
+  event?: IEvent;
   pageTitle?: string;
   pageSubTitle?: React.ReactNode;
   title?: string;
@@ -107,16 +109,13 @@ export const Layout = ({
         <Header
           defaultTitle={defaultTitle}
           defaultTitleColor={defaultTitleColor}
+          org={props.org}
+          event={props.event}
           pageTitle={pageTitle}
           pageSubTitle={pageSubTitle}
           headerBg={banner}
         />
-        <Nav
-          py={hasVerticalScrollbar ? 7 : 0}
-          minH="96px"
-          isLogin={isLogin}
-          csrfToken={csrfToken}
-        />
+        <Nav py={hasVerticalScrollbar ? 7 : 0} minH="96px" isLogin={isLogin} />
         <Main {...props}>{children}</Main>
         <Footer>
           <DarkModeSwitch />

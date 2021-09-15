@@ -103,16 +103,16 @@ export const EventSendForm = ({
               isClosable: true
             });
           }
-          setIsLoading(false);
           props.onSubmit && props.onSubmit();
         } catch (error) {
-          setIsLoading(false);
           console.error(error);
           toast({
             title: "Une erreur est survenue",
             status: "error",
             isClosable: true
           });
+        } finally {
+          setIsLoading(false);
         }
       })}
     >

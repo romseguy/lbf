@@ -25,7 +25,7 @@ import {
   StatusV
 } from "models/Project";
 import { ProjectModal } from "features/modals/ProjectModal";
-import { IOrg } from "models/Org";
+import { IOrg, orgTypeFull } from "models/Org";
 import {
   DeleteButton,
   Grid,
@@ -87,9 +87,17 @@ export const ProjectsList = ({
         mb={5}
         onClick={() => {
           if (!isSessionLoading) {
-            if (session && isCreator) {
-              //setCurrentProject(null);
-              setProjectModalState({ ...projectModalState, isOpen: true });
+            if (session) {
+              if (!isCreator && !isSubscribed) {
+                toast({
+                  status: "error",
+                  title: `Vous devez être adhérent ${orgTypeFull(
+                    org.orgType
+                  )} pour ajouter un projet`
+                });
+              } else {
+                setProjectModalState({ ...projectModalState, isOpen: true });
+              }
             } else {
               setIsLogin(isLogin + 1);
             }

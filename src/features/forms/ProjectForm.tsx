@@ -57,24 +57,10 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
   //#endregion
 
   //#region myOrgs
-  const { myOrgs, isLoading: isQueryLoading } = useGetOrgsQuery(
-    "orgSubscriptions",
-    {
-      selectFromResult: ({ data, ...rest }): any => {
-        if (Array.isArray(data) && data.length > 0) {
-          return {
-            ...rest,
-            myOrgs: data.filter((org) =>
-              typeof org.createdBy === "object"
-                ? org.createdBy._id === props.session.user.userId
-                : org.createdBy === props.session.user.userId
-            )
-          };
-        }
-        return { myOrgs: [] };
-      }
-    }
-  );
+  const { data: myOrgs, isLoading: isQueryLoading } = useGetOrgsQuery({
+    populate: "orgSubscriptions",
+    createdBy: props.session.user.userId
+  });
   //#endregion
 
   //#region form state
@@ -150,11 +136,9 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
         }
       }
 
-      setIsLoading(false);
       props.onSubmit && props.onSubmit(props.project || null);
       props.onClose && props.onClose();
     } catch (error) {
-      setIsLoading(false);
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });
@@ -162,6 +146,8 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
           setError("formErrorMessage", { type: "manual", message });
         }
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -1,21 +1,10 @@
 import type { IEvent } from "models/Event";
 import type { IOrg } from "models/Org";
-import React, { useState } from "react";
+import React from "react";
 import { css } from "twin.macro";
-import DOMPurify from "isomorphic-dompurify";
-import { Box, Icon, Text, Tooltip } from "@chakra-ui/react";
+import { Box, Tooltip } from "@chakra-ui/react";
 import { getStyleObjectFromString } from "utils/string";
 import { Link } from "features/common";
-import { DescriptionModal } from "features/modals/DescriptionModal";
-import {
-  FaMap,
-  FaMapMarked,
-  FaMapMarkedAlt,
-  FaMapMarker,
-  FaMapMarkerAlt
-} from "react-icons/fa";
-import { IoIosPeople } from "react-icons/io";
-import { CalendarIcon } from "@chakra-ui/icons";
 
 const defaultStyles = `
   position: absolute;
@@ -36,23 +25,17 @@ export const Marker = ({
   item,
   lat,
   lng,
-  zoomLevel
+  zoomLevel,
+  setItemToShow
 }: {
   key: string;
   item: IEvent | IOrg;
   lat?: number;
   lng?: number;
   zoomLevel: number;
+  setItemToShow: (item: IEvent | IOrg | null) => void;
 }) => {
-  const isEvent = "eventName" in item;
   const name = "eventName" in item ? item.eventName : item.orgName;
-  const [isDescriptionOpen, setIsDescriptionOpen] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const url = "eventName" in item ? item.eventUrl : item.orgUrl;
-  const description =
-    "eventName" in item ? item.eventDescription : item.orgDescription;
-  const address = "eventName" in item ? item.eventAddress : item.orgAddress;
 
   // if (lat && lng) {
   // const world = latLng2World({ lat, lng });
@@ -88,12 +71,7 @@ export const Marker = ({
         bgColor: "green",
         zIndex: 1
       }}
-      onClick={() => {
-        setIsDescriptionOpen({
-          ...isDescriptionOpen,
-          [name]: true
-        });
-      }}
+      onClick={() => setItemToShow(item)}
     >
       {isWide ? (
         <Link className="rainbow-text" size="larger">
@@ -120,57 +98,6 @@ export const Marker = ({
       >
         {name}
       </Button> */}
-
-      <DescriptionModal
-        defaultIsOpen={false}
-        isOpen={isDescriptionOpen[name]}
-        onClose={() => {
-          setIsDescriptionOpen({
-            ...isDescriptionOpen,
-            [name]: false
-          });
-        }}
-        header={
-          <>
-            <Box display="inline-flex" alignItems="center">
-              {isEvent ? (
-                <Icon as={CalendarIcon} mr={1} boxSize={6} />
-              ) : (
-                <Icon as={IoIosPeople} mr={1} boxSize={6} />
-              )}{" "}
-              <Link
-                href={`/${url}`}
-                css={css`
-                  letter-spacing: 0.1em;
-                `}
-                size="larger"
-                className="rainbow-text"
-              >
-                {name}
-              </Link>
-            </Box>
-            <br />
-            <Box display="inline-flex" alignItems="center">
-              <Icon as={FaMapMarkerAlt} mr={1} color="red" />
-              {address}
-            </Box>
-          </>
-        }
-      >
-        {description &&
-        description.length > 0 &&
-        description !== "<p><br></p>" ? (
-          <div className="ql-editor">
-            <div
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(description)
-              }}
-            />
-          </div>
-        ) : (
-          <Text fontStyle="italic">Aucune description.</Text>
-        )}
-      </DescriptionModal>
     </div>
   );
 };

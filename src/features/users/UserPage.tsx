@@ -20,38 +20,28 @@ import api from "utils/api";
 import type { IUser } from "models/User";
 import { Layout } from "features/layout";
 import { UserForm } from "features/forms/UserForm";
-import { useGetUserQuery } from "features/users/usersApi";
 import { selectUserEmail, selectUserImage, selectUserName } from "./userSlice";
+import { useGetUserQuery } from "./usersApi";
 
-export const User = ({
-  routeName,
-  ...props
-}: {
-  user: IUser;
-  routeName: string;
-}) => {
+export const User = ({ ...props }: { user: IUser }) => {
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } =
-    useSession(/* {
-    required: true,
-    action() {
-      router.push("/?login");
-    }
-  } */);
-  const [data, setData] = useState<any>();
+  const { data: session, loading: isSessionLoading } = useSession();
+  const toast = useToast({ position: "top" });
 
-  const query = useGetUserQuery(routeName);
-  const user = query.data || props.user;
+  const userQuery = useGetUserQuery(props.user.userName, {
+    selectFromResult: (query) => query
+  });
+  const user = userQuery.data || props.user;
 
   const storedUserEmail = useSelector(selectUserEmail);
   const storedUserImage = useSelector(selectUserImage);
   const storedUserName = useSelector(selectUserName);
 
+  const [data, setData] = useState<any>();
   const [isEdit, setIsEdit] = useState(false);
-  const toast = useToast({ position: "top" });
 
   return (
-    <Layout pageTitle={user.userName} {...props}>
+    <Layout pageTitle={user.userName}>
       <>
         <Flex mb={5} flexDirection="column">
           {user.email === session?.user.email && (
@@ -139,15 +129,12 @@ export const User = ({
             onSubmit={async ({ userName, email }) => {
               let title;
 
-              if (
-                email !== props.user.email &&
-                userName !== props.user.userName
-              ) {
+              if (email !== user.email && userName !== user.userName) {
                 title = "Votre page a bien été modifiée !";
               }
-              if (email !== props.user.email) {
+              if (email !== user.email) {
                 title = "Votre e-mail a bien été modifié !";
-              } else if (userName !== props.user.userName) {
+              } else if (userName !== user.userName) {
                 title = "Votre nom d'utilisateur a bien été modifié !";
                 await router.push(`/${userName}`);
               }

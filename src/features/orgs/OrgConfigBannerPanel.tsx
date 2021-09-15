@@ -90,6 +90,7 @@ export const OrgConfigBannerPanel = ({
   return (
     <Grid {...props}>
       <Link
+        variant="no-underline"
         onClick={() =>
           setIsVisible({
             ...isVisible,

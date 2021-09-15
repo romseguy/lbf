@@ -51,23 +51,25 @@ export const OrgPopover = ({
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
 
-  const query = useGetOrgsQuery(undefined);
+  const orgsQuery = useGetOrgsQuery({});
   const myOrgs =
-    (Array.isArray(query.data) &&
-      query.data.length > 0 &&
-      query.data.filter((org) => session?.user.userId === org?.createdBy)) ||
+    (Array.isArray(orgsQuery.data) &&
+      orgsQuery.data.length > 0 &&
+      orgsQuery.data.filter(
+        (org) => session?.user.userId === org?.createdBy
+      )) ||
     [];
   const refetchOrgs = useSelector(selectOrgsRefetch);
   useEffect(() => {
-    query.refetch();
+    orgsQuery.refetch();
   }, [refetchOrgs]);
   const hasOrgs = Array.isArray(myOrgs) && myOrgs.length > 0;
 
   const subQuery = useGetSubscriptionQuery(session?.user.userId);
   const subscribedOrgs =
-    (Array.isArray(query.data) &&
-      query.data.length > 0 &&
-      query.data.filter((org) => isSubscribedBy(org, subQuery))) ||
+    (Array.isArray(orgsQuery.data) &&
+      orgsQuery.data.length > 0 &&
+      orgsQuery.data.filter((org) => isSubscribedBy(org, subQuery))) ||
     [];
   const hasSubscribedOrgs =
     Array.isArray(subscribedOrgs) && subscribedOrgs.length > 0;
@@ -83,7 +85,7 @@ export const OrgPopover = ({
           <IconButton
             onClick={() => {
               if (!isOpen) {
-                query.refetch();
+                orgsQuery.refetch();
                 subQuery.refetch();
               }
               setIsOpen(!isOpen);
@@ -112,7 +114,7 @@ export const OrgPopover = ({
               <Heading size="sm" mb={1}>
                 ...où je suis administrateur :
               </Heading>
-              {query.isLoading || query.isFetching ? (
+              {orgsQuery.isLoading || orgsQuery.isFetching ? (
                 <Spinner />
               ) : hasOrgs ? (
                 <List ml={3}>
@@ -149,7 +151,7 @@ export const OrgPopover = ({
               <Heading size="sm" mt={hasOrgs ? 2 : 0} mb={1}>
                 ...où je suis adhérent :
               </Heading>
-              {query.isLoading || query.isFetching ? (
+              {orgsQuery.isLoading || orgsQuery.isFetching ? (
                 <Spinner />
               ) : hasSubscribedOrgs ? (
                 <List ml={3} my={3}>

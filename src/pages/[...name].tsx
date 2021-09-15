@@ -1,30 +1,31 @@
-import type { IEvent } from "models/Event";
-import type { IUser } from "models/User";
-import type { IOrg } from "models/Org";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
+import { IUser } from "models/User";
 import React, { useEffect, useState } from "react";
-import { GetServerSidePropsContext } from "next";
-import { Alert, AlertIcon, Spinner, Text } from "@chakra-ui/react";
+import { Alert, AlertIcon, Spinner } from "@chakra-ui/react";
 import { EventPage } from "features/events/EventPage";
 import { Layout } from "features/layout";
 import { OrgPage } from "features/orgs/OrgPage";
 import { User } from "features/users/UserPage";
 import { useRouter } from "next/router";
-import api from "utils/api";
 import { useSelector } from "react-redux";
-import { selectUserEmail, setUserEmail } from "features/users/userSlice";
-import { useSession } from "hooks/useAuth";
+import { setUserEmail } from "features/users/userSlice";
 import { useAppDispatch, wrapper } from "store";
+import { getEvent } from "features/events/eventsApi";
+import { getOrg } from "features/orgs/orgsApi";
+import { getUser } from "features/users/usersApi";
+import { selectOrgRefetch } from "features/orgs/orgSlice";
 
 const Hash = ({ email, ...props }: { email?: string }) => {
-  const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const routeName = router.asPath.substr(1, router.asPath.length);
   const [event, setEvent] = useState<IEvent | undefined>();
   const [org, setOrg] = useState<IOrg | undefined>();
   const [user, setUser] = useState<IUser | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | undefined>();
+  const refetchOrg = useSelector(selectOrgRefetch);
 
   useEffect(() => {
     if (email) dispatch(setUserEmail(email));
@@ -32,30 +33,21 @@ const Hash = ({ email, ...props }: { email?: string }) => {
 
   useEffect(() => {
     const xhr = async () => {
-      const eventQuery = await api.get(
-        //`event/${routeName}${userEmail ? `/${userEmail}` : ""}`
-        `event/${routeName}`
+      const eventQuery = await dispatch(
+        getEvent.initiate({ eventUrl: routeName, populate: "orgSubscriptions" })
       );
 
       if (eventQuery.data) {
         setEvent(eventQuery.data);
-
-        const eventCreatedById =
-          eventQuery.data.createdBy &&
-          typeof eventQuery.data.createdBy === "object"
-            ? eventQuery.data.createdBy._id
-            : eventQuery.data.createdBy;
-
-        const userQuery = await api.get(`user/${eventCreatedById}`);
-
-        if (userQuery.data) setUser(user);
       } else {
-        const orgQuery = await api.get(`org/${routeName}`);
+        const orgQuery = await dispatch(
+          getOrg.initiate({ orgUrl: routeName, populate: "orgProjects" })
+        );
 
         if (orgQuery.data) {
           setOrg(orgQuery.data);
         } else {
-          const userQuery = await api.get(`user/${routeName}`);
+          const userQuery = await dispatch(getUser.initiate(routeName));
 
           if (userQuery.data) setUser(userQuery.data);
           else
@@ -72,25 +64,18 @@ const Hash = ({ email, ...props }: { email?: string }) => {
     setOrg(undefined);
     setUser(undefined);
     xhr();
-  }, [router.asPath]);
+  }, [router.asPath, refetchOrg]);
 
   if (event) {
-    return (
-      <EventPage
-        event={event}
-        user={user}
-        routeName={routeName}
-        //email={email}
-      />
-    );
+    return <EventPage event={event} />;
   }
 
   if (org) {
-    return <OrgPage org={org} routeName={routeName} />;
+    return <OrgPage org={org} />;
   }
 
   if (user) {
-    return <User user={user} routeName={routeName} />;
+    return <User user={user} />;
   }
 
   if (error) {
@@ -144,8 +129,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     if (ctx.query.email) {
       console.log("email", ctx.query.email);
-
-      await store.dispatch(setUserEmail(ctx.query.email as string)); // todo rehydrate
+      store.dispatch(setUserEmail(ctx.query.email as string)); // todo rehydrate
       return { props: { email: ctx.query.email } };
     }
 

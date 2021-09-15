@@ -59,6 +59,7 @@ import { borderRadius } from "react-select/src/theme";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import { handleError } from "utils/form";
+import { breakpoints } from "theme/theme";
 
 type OrgConfigSubscribersPanelProps = Visibility & {
   org: IOrg;
@@ -216,6 +217,7 @@ export const OrgConfigSubscribersPanel = ({
   return (
     <Grid>
       <Link
+        variant="no-underline"
         onClick={() => {
           if (!hasSubscriptions) {
             setIsAdd(true);
@@ -325,9 +327,7 @@ export const OrgConfigSubscribersPanel = ({
                   setIsAdd(false);
                   orgQuery.refetch();
                   subQuery.refetch();
-                  setIsLoading(false);
                 } catch (error) {
-                  setIsLoading(false);
                   handleError(error, (message, field) => {
                     if (field) {
                       setError(field, { type: "manual", message });
@@ -335,6 +335,8 @@ export const OrgConfigSubscribersPanel = ({
                       setError("formErrorMessage", { type: "manual", message });
                     }
                   });
+                } finally {
+                  setIsLoading(false);
                 }
               })}
             >
@@ -447,7 +449,7 @@ export const OrgConfigSubscribersPanel = ({
       )}
 
       {orgQuery.isLoading || orgQuery.isFetching ? (
-        <Spinner ml={3} mt={3} />
+        <Text>Chargement de la liste des adhérents & abonnés...</Text>
       ) : (
         isVisible.subscribers && (
           <GridItem
@@ -524,8 +526,9 @@ export const OrgConfigSubscribersPanel = ({
                           deleteSubscriptionMutation.isLoading ? (
                             <Spinner mr={3} boxSize={4} />
                           ) : (
-                            <>
+                            <Box>
                               <Link
+                                variant="no-underline"
                                 onClick={() =>
                                   onTagClick({
                                     type: SubscriptionTypes.FOLLOWER,
@@ -590,7 +593,7 @@ export const OrgConfigSubscribersPanel = ({
                                   </Tag>
                                 </Tooltip>
                               </Link>
-                            </>
+                            </Box>
                           )}
                         </Td>
 

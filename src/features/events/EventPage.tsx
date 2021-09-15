@@ -1,6 +1,5 @@
 import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
-import type { IUser } from "models/User";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "hooks/useAuth";
 import { parseISO, format } from "date-fns";
@@ -23,10 +22,7 @@ import {
   Table,
   Tbody,
   Tag,
-  useColorMode,
-  CheckboxGroup,
-  Spinner,
-  Checkbox
+  useColorMode
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
@@ -34,7 +30,6 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   EditIcon,
-  EmailIcon,
   SettingsIcon
 } from "@chakra-ui/icons";
 import { IoIosPeople } from "react-icons/io";
@@ -46,7 +41,6 @@ import {
   IconFooter,
   Link
 } from "features/common";
-import { useGetEventQuery } from "features/events/eventsApi";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
@@ -58,6 +52,7 @@ import { isFollowedBy } from "features/subscriptions/subscriptionSlice";
 import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
 import { EventAttendingForm } from "./EventAttendingForm";
 import { EventSendForm } from "features/common/forms/EventSendForm";
+import { useGetEventQuery } from "./eventsApi";
 
 export type Visibility = {
   isVisible: {
@@ -67,12 +62,7 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
-export const EventPage = (props: {
-  event: IEvent;
-  user?: IUser;
-  routeName: string;
-  //email?: string;
-}) => {
+export const EventPage = ({ ...props }: { event: IEvent }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
@@ -80,16 +70,15 @@ export const EventPage = (props: {
   const isDark = colorMode === "dark";
 
   const storedUserEmail = useSelector(selectUserEmail);
-  const userEmail =
-    // props.email ||
-    storedUserEmail || session?.user.email || "";
+  const userEmail = storedUserEmail || session?.user.email || "";
 
   //#region event
-  const eventQuery = useGetEventQuery({
-    eventUrl: props.routeName,
-    populate: "orgSubscriptions"
-  });
-  useEffect(() => eventQuery.refetch(), [router.asPath]);
+  const eventQuery = useGetEventQuery(
+    { eventUrl: props.event.eventUrl, populate: "orgSubscriptions" },
+    {
+      selectFromResult: (query) => query
+    }
+  );
   const event = eventQuery.data || props.event;
   const eventCreatedByUserName =
     event.createdBy && typeof event.createdBy === "object"
@@ -146,11 +135,11 @@ export const EventPage = (props: {
 
   return (
     <Layout
+      event={event}
       pageTitle={event.eventName}
       pageSubTitle={<DateRange minDate={eventMinDate} maxDate={eventMaxDate} />}
       isLogin={isLogin}
       banner={event.eventBanner}
-      {...props}
     >
       {isCreator && !isConfig ? (
         <Button

@@ -102,6 +102,7 @@ export const TopicsList = ({
   //#endregion
 
   //#region local state
+  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const [topicModalState, setTopicModalState] = useState<{
     isOpen: boolean;
     topic?: ITopic;
@@ -335,9 +336,7 @@ export const TopicsList = ({
                                       <span aria-hidden> · </span>
                                       <DeleteButton
                                         isIconOnly
-                                        isLoading={
-                                          deleteTopicMutation.isLoading
-                                        }
+                                        isLoading={isLoading[entityTopic._id!]}
                                         placement="bottom"
                                         bg="transparent"
                                         height="auto"
@@ -377,6 +376,9 @@ export const TopicsList = ({
                                           </>
                                         }
                                         onClick={async () => {
+                                          setIsLoading({
+                                            [entityTopic._id!]: true
+                                          });
                                           try {
                                             let deletedTopic;
 
@@ -403,6 +405,10 @@ export const TopicsList = ({
                                                 : error.message,
                                               status: "error",
                                               isClosable: true
+                                            });
+                                          } finally {
+                                            setIsLoading({
+                                              [entityTopic._id!]: false
                                             });
                                           }
                                         }}

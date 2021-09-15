@@ -1,12 +1,11 @@
 //@ts-nocheck
-import { useAsync } from "react-async-hook";
 import {
   useSession as useNextAuthSession,
   getSession as getNextAuthSession
 } from "next-auth/client";
 import { normalize } from "utils/string";
 import { getUser } from "features/users/usersApi";
-import { store } from "store";
+import { useAppDispatch } from "store";
 import { useState } from "react";
 import api from "utils/api";
 
@@ -26,18 +25,10 @@ export async function getSession(options): Promise<AppSession | null> {
   if (!session || !session.user) return session;
 
   if (!session.user.userId) {
-    const { error, data } = await api.get(`user/${session.user.email}`);
+    const { data } = await api.get(`user/${session.user.email}`);
 
-    console.log(data);
-
-    // const userQuery = await store.dispatch(
-    //   getUser.initiate(session.user.email)
-    // );
-
-    //if (userQuery.data) {
     if (data) {
-      //const { _id, userName, isAdmin } = userQuery.data;
-      const { _id, userName, isAdmin } = data;
+      const { _id, userName, userImage, isAdmin } = data;
 
       return {
         ...session,
@@ -47,6 +38,7 @@ export async function getSession(options): Promise<AppSession | null> {
           userName: userName
             ? userName
             : normalize(session.user.email.replace(/@.+/, "")),
+          userImage,
           isAdmin: isAdmin || false
         }
       };
@@ -59,11 +51,10 @@ export async function getSession(options): Promise<AppSession | null> {
 export function useSession(): { data: AppSession | null; loading: boolean } {
   const [session, loading] = useNextAuthSession();
   const [data, setData] = useState();
+  const dispatch = useAppDispatch();
 
   const xhr = async () => {
-    const userQuery = await store.dispatch(
-      getUser.initiate(session.user.email)
-    );
+    const userQuery = await dispatch(getUser.initiate(session.user.email));
 
     if (userQuery.data) setData(userQuery.data);
   };
@@ -73,7 +64,7 @@ export function useSession(): { data: AppSession | null; loading: boolean } {
   xhr();
 
   if (data) {
-    const { _id, userName, isAdmin } = data;
+    const { _id, userName, userImage, isAdmin } = data;
 
     return {
       data: {
@@ -82,7 +73,7 @@ export function useSession(): { data: AppSession | null; loading: boolean } {
           ...session.user,
           userId: _id,
           userName: userName ? userName : _id,
-          // : normalize(session.user.email.replace(/@.+/, "")),
+          userImage,
           isAdmin: isAdmin || false
         }
       },

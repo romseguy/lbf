@@ -81,10 +81,9 @@ const buttonList = css`
 `;
 
 export const Nav = ({
-  csrfToken,
   isLogin = 0,
   ...props
-}: BoxProps & { isLogin?: number; csrfToken?: string }) => {
+}: BoxProps & { isLogin?: number }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
@@ -197,9 +196,7 @@ export const Nav = ({
         </Button>
       </Box>
 
-      {isSessionLoading ? (
-        <Spinner ml={5} mr={3} />
-      ) : session ? (
+      {session ? (
         <Flex justify="flex-end" css={buttonList}>
           <EmailSubscriptionsPopover mr={[1, 3]} boxSize={[8, 10, 10]} />
           <OrgPopover
@@ -217,7 +214,9 @@ export const Nav = ({
                   // }
                 `}
                 src={
-                  session.user.userImage ? session.user.userImage : undefined
+                  session.user.userImage
+                    ? session.user.userImage.base64
+                    : undefined
                 }
               />
             </MenuButton>
@@ -325,25 +324,24 @@ export const Nav = ({
         </Flex>
       ) : (
         <Flex justify="flex-end">
-          <EmailSubscriptionsPopover
-            boxSize={[8, 10, 10]}
-            csrfToken={csrfToken}
-          />
+          <EmailSubscriptionsPopover boxSize={[8, 10, 10]} />
 
           {isMobile ? (
             <IconButton
-              mx={3}
-              onClick={() => setIsLoginModalOpen(true)}
               aria-label="Connexion"
+              icon={<Icon as={FaPowerOff} boxSize={[8, 10, 10]} />}
+              isLoading={isSessionLoading}
               bg="transparent"
               _hover={{ bg: "transparent" }}
-              icon={<Icon as={FaPowerOff} boxSize={[8, 10, 10]} />}
+              mx={3}
+              onClick={() => setIsLoginModalOpen(true)}
             />
           ) : (
             <Box mr={5} ml={5}>
               <Button
                 variant="outline"
                 colorScheme="purple"
+                isLoading={isSessionLoading}
                 onClick={() => setIsLoginModalOpen(true)}
                 data-cy="login"
               >

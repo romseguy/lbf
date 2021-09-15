@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 import { EventsPage } from "features/events/EventsPage";
-import type { IEvent } from "models/Event";
-import api from "utils/api";
-import { GetServerSidePropsContext } from "next";
 import {
   Box,
   Container,
@@ -11,7 +8,6 @@ import {
   List,
   ListIcon,
   ListItem,
-  Spinner,
   Tag,
   TagLeftIcon,
   Text,
@@ -63,18 +59,6 @@ const IndexPage = (props: any) => {
               bg={isDark ? "gray.500" : "white"}
               borderRadius="lg"
             >
-              {/* <Box textAlign="center">
-            <Link
-              className="rainbow-text"
-              css={css`
-                letter-spacing: 0.1em;
-              `}
-              size="larger"
-              href={``}
-            >
-              {process.env.NEXT_PUBLIC_SHORT_URL}
-            </Link>
-          </Box> */}
               <Text align="justify" mb={3}>
                 La première vocation de cet outil de communication est de
                 co-créer un <strong>calendrier local</strong>.

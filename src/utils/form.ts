@@ -2,6 +2,8 @@ export const handleError = (
   error: { message?: string; status?: number; data?: any },
   setError: (message: string, field?: string) => void
 ) => {
+  console.error(error);
+
   const setFieldsErrors = (fields: any) => {
     const keys = Object.keys(fields);
     if (!keys.length) {

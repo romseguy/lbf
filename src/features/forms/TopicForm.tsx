@@ -108,7 +108,6 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
           isClosable: true
         });
 
-        setIsLoading(false);
         props.onSubmit && props.onSubmit(props.topic);
       } else {
         let topic: ITopic | null = null;
@@ -128,7 +127,6 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
           isClosable: true
         });
 
-        setIsLoading(false);
         props.onSubmit && props.onSubmit(topic);
       }
 
@@ -141,6 +139,8 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
           setError("formErrorMessage", { type: "manual", message });
         }
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

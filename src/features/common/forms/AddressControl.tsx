@@ -67,8 +67,9 @@ export const AddressControl = withGoogleApi({
                   <AutoCompletePlacesControl
                     onClick={onClick}
                     onChange={(description: string) => {
-                      onChange(description);
-                      props.onChange && props.onChange(description);
+                      onChange(description.replace(", France", ""));
+                      props.onChange &&
+                        props.onChange(description.replace(", France", ""));
                     }}
                     onSuggestionSelect={onSuggestionSelect}
                     value={

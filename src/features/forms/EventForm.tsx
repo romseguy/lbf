@@ -98,24 +98,10 @@ export const EventForm = withGoogleApi({
   //#endregion
 
   //#region myOrgs
-  const { myOrgs, isLoading: isQueryLoading } = useGetOrgsQuery(
-    "orgSubscriptions",
-    {
-      selectFromResult: ({ data, ...rest }): any => {
-        if (Array.isArray(data) && data.length > 0) {
-          return {
-            ...rest,
-            myOrgs: data.filter((org) =>
-              typeof org.createdBy === "object"
-                ? org.createdBy._id === props.session.user.userId
-                : org.createdBy === props.session.user.userId
-            )
-          };
-        }
-        return { myOrgs: [] };
-      }
-    }
-  );
+  const { data: myOrgs, isLoading: isQueryLoading } = useGetOrgsQuery({
+    populate: "orgSubscriptions",
+    createdBy: props.session.user.userId
+  });
   //#endregion
 
   //#region form state
@@ -137,20 +123,23 @@ export const EventForm = withGoogleApi({
   watch(["eventAddress", "eventOrgs"]);
   const eventAddress = getValues("eventAddress") || props.event?.eventAddress;
   const eventVisibility = watch("eventVisibility");
-  const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs;
+  const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs || [];
   const eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
-  const eventOrgsRules: { required: boolean } = {
-    required: eventVisibility === Visibility.SUBSCRIBERS
+  const eventOrgsRules: { required: string | boolean } = {
+    required:
+      eventVisibility === Visibility.SUBSCRIBERS
+        ? "Veuillez sélectionner une ou plusieurs organisations"
+        : false
   };
   if (
-    eventOrgsRules.required &&
     !errors.eventOrgs &&
+    typeof eventOrgsRules.required === "string" &&
     Array.isArray(eventOrgs) &&
     !eventOrgs.length
   ) {
     setError("eventOrgs", {
       type: "manual",
-      message: "Veuillez sélectionner un ou plusieurs organisateurs"
+      message: eventOrgsRules.required
     });
   }
 
@@ -313,11 +302,9 @@ export const EventForm = withGoogleApi({
         });
       }
 
-      setIsLoading(false);
       props.onSubmit && props.onSubmit(payload.eventUrl);
       props.onClose && props.onClose();
     } catch (error) {
-      setIsLoading(false);
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });
@@ -325,6 +312,8 @@ export const EventForm = withGoogleApi({
           setError("formErrorMessage", { type: "manual", message });
         }
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -685,7 +674,9 @@ export const EventForm = withGoogleApi({
         mb={3}
         id="eventOrgs"
         isInvalid={!!errors["eventOrgs"]}
-        isRequired={eventOrgsRules.required}
+        isRequired={
+          eventOrgsRules.required === false ? false : !!eventOrgsRules.required
+        }
       >
         <FormLabel>Organisateurs</FormLabel>
         <Controller
@@ -694,7 +685,7 @@ export const EventForm = withGoogleApi({
           as={ReactSelect}
           control={control}
           defaultValue={defaultEventOrgs}
-          placeholder="Sélectionner..."
+          placeholder="Sélectionner une ou plusieurs organisations"
           menuPlacement="top"
           isClearable
           isMulti
@@ -725,114 +716,6 @@ export const EventForm = withGoogleApi({
           <ErrorMessage errors={errors} name="eventOrgs" />
         </FormErrorMessage>
       </FormControl>
-
-      {/* {Array.isArray(eventOrgs) && eventOrgs.length > 0 && (
-        <>
-          {props.event && props.event.isApproved ? (
-            <FormControl id="eventNotif" mb={3}>
-              <Alert status="info" mb={3}>
-                <AlertIcon />
-                <Box>
-                  Pour envoyer un e-mail d'invitation aux abonnés de vos
-                  organisations, cochez une ou plusieurs des cases
-                  correspondantes :
-                  <CheckboxGroup>
-                    <Table
-                      backgroundColor={
-                        isDark ? "whiteAlpha.100" : "blackAlpha.100"
-                      }
-                      borderWidth="1px"
-                      borderRadius="lg"
-                      mt={2}
-                    >
-                      <Tbody>
-                        {isQueryLoading ? (
-                          <Tr>
-                            <Td colSpan={3}>
-                              <Spinner />
-                            </Td>
-                          </Tr>
-                        ) : (
-                          myOrgs
-                            ?.filter(
-                              (org: IOrg) =>
-                                !!eventOrgs.find(
-                                  (eventOrg: IOrg) => eventOrg._id === org._id
-                                )
-                            )
-                            .map((org: IOrg) => {
-                              const orgFollowersCount = org.orgSubscriptions
-                                .map(
-                                  (subscription) =>
-                                    subscription.orgs.filter(
-                                      (orgSubscription) => {
-                                        return (
-                                          orgSubscription.orgId === org._id &&
-                                          orgSubscription.type ===
-                                            SubscriptionTypes.FOLLOWER
-                                        );
-                                      }
-                                    ).length
-                                )
-                                .reduce((a, b) => a + b, 0);
-
-                              const canSendCount =
-                                orgFollowersCount - notifiedCount;
-
-                              return (
-                                <Tr key={org.orgName} mb={1}>
-                                  <Td>
-                                    <Checkbox
-                                      id={org.orgName}
-                                      icon={<EmailIcon />}
-                                      name="eventNotif"
-                                      ref={register()}
-                                      value={org._id}
-                                      isDisabled={!canSendCount}
-                                    />
-                                  </Td>
-                                  <Td>
-                                    <FormLabel
-                                      htmlFor={org.orgName}
-                                      mb={0}
-                                      width="auto"
-                                      height="auto"
-                                      cursor="pointer"
-                                    >
-                                      {org.orgName}
-                                    </FormLabel>
-                                  </Td>
-                                  <Td textAlign="right">
-                                    <Tag fontSize="smaller">
-                                      {canSendCount} abonnés n'ont pas encore
-                                      reçu d'invitation
-                                    </Tag>
-                                  </Td>
-                                </Tr>
-                              );
-                            })
-                        )}
-                      </Tbody>
-                    </Table>
-                  </CheckboxGroup>
-                </Box>
-              </Alert>
-
-              <FormErrorMessage>
-                <ErrorMessage errors={errors} name="eventNotif" />
-              </FormErrorMessage>
-            </FormControl>
-          ) : !!!eventOrgs.find((org) => org.isApproved) ? (
-            <Alert status="info" mb={3}>
-              <AlertIcon />
-              Cet événement {props.event ? "doit" : "devra"} être approuvé par
-              un modérateur avant que vous puissiez envoyer un e-mail
-              d'invitation aux abonnés des organisations sélectionnées
-              ci-dessus.
-            </Alert>
-          ) : null}
-        </>
-      )} */}
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>
