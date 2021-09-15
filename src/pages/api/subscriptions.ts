@@ -264,7 +264,7 @@ handler.post<
     }
 
     await userSubscription.save();
-    console.log("user new subscription", userSubscription);
+    //console.log("user new subscription", userSubscription);
     res.status(200).json(userSubscription);
   } catch (error) {
     if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {

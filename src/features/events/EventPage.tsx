@@ -82,7 +82,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   const event = eventQuery.data || props.event;
   const eventCreatedByUserName =
     event.createdBy && typeof event.createdBy === "object"
-      ? event.createdBy.userName
+      ? event.createdBy.userName || event.createdBy._id
       : "";
   const eventCreatedByUserId =
     event.createdBy && typeof event.createdBy === "object"

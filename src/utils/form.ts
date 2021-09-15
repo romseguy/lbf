@@ -10,10 +10,14 @@ export const handleError = (
       return setError("Une erreur inconnue est survenue");
     }
 
-    keys.forEach((key) => {
-      const message = fields[key].message ? fields[key].message : fields[key];
-      setError(message, key);
-    });
+    for (const key of keys) {
+      if (key === "message") {
+        setError(fields[key]);
+      } else {
+        const message = fields[key].message ? fields[key].message : fields[key];
+        setError(message, key);
+      }
+    }
   };
 
   if (error.status === 400 || error.status === 500) {

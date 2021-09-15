@@ -28,8 +28,12 @@ handler.get<
 
   try {
     let user = await models.User.findOne({ userName });
-    if (!user) user = await models.User.findOne({ email: userName });
-    if (!user) user = await models.User.findOne({ _id: userName });
+
+    if (!user) {
+      user = await models.User.findOne({ email: userName });
+
+      if (!user) user = await models.User.findOne({ _id: userName });
+    }
 
     if (user) {
       res.status(200).json(user);
@@ -89,13 +93,22 @@ handler.put<
       if (nModified === 1) {
         res.status(200).json({});
       } else {
-        res
-          .status(400)
-          .json(
-            createServerError(
-              new Error(`L'utilisateur ${userName} n'a pas pu être modifié`)
-            )
-          );
+        const { n, nModified } = await models.User.updateOne(
+          { _id: userName },
+          body
+        );
+
+        if (nModified === 1) {
+          res.status(200).json({});
+        } else {
+          res
+            .status(400)
+            .json(
+              createServerError(
+                new Error(`L'utilisateur ${userName} n'a pas pu être modifié`)
+              )
+            );
+        }
       }
     } catch (error) {
       if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {

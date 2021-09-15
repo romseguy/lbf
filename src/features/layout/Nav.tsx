@@ -233,67 +233,72 @@ export const Nav = ({
                 <MenuItem>Ma page</MenuItem>
               </Link>
 
-              {session.user.isAdmin && (
-                <MenuItem
-                  isDisabled={
-                    registration === null ||
-                    userQuery.isLoading ||
-                    userQuery.isFetching
-                  }
-                  onClick={async () => {
-                    try {
-                      if (isSubscribed && userQuery.data?.userSubscription) {
-                        if (!subscription)
-                          throw new Error("Une erreur est survenue.");
-
-                        await subscription.unsubscribe();
-                        await editUser({
-                          payload: { userSubscription: null },
-                          userName
-                        });
-                        setSubscription(null);
-                        setIsSubscribed(false);
-
-                        userQuery.refetch();
-
-                        toast({
-                          status: "success",
-                          title: "Vous ne recevrez plus de notifications mobile"
-                        });
-                      } else {
-                        const sub = await registration!.pushManager.subscribe({
-                          userVisibleOnly: true,
-                          applicationServerKey: base64ToUint8Array(
-                            process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
-                          )
-                        });
-                        setSubscription(sub);
-                        setIsSubscribed(true);
-
-                        await editUser({
-                          payload: { userSubscription: sub },
-                          userName
-                        }).unwrap();
-
-                        userQuery.refetch();
-
-                        toast({
-                          status: "success",
-                          title:
-                            "Vous recevrez des notifications mobile en plus des e-mails"
-                        });
-                      }
-                    } catch (error) {
-                      toast({ status: "error", title: error.message });
+              {
+                /*isMobile*/ true && (
+                  <MenuItem
+                    isDisabled={
+                      registration === null ||
+                      userQuery.isLoading ||
+                      userQuery.isFetching
                     }
-                  }}
-                >
-                  {isSubscribed && userQuery.data?.userSubscription
-                    ? "Désactiver"
-                    : "Activer"}{" "}
-                  les notifications mobile
-                </MenuItem>
-              )}
+                    onClick={async () => {
+                      try {
+                        if (isSubscribed && userQuery.data?.userSubscription) {
+                          if (!subscription)
+                            throw new Error("Une erreur est survenue.");
+
+                          await subscription.unsubscribe();
+                          await editUser({
+                            payload: { userSubscription: null },
+                            userName
+                          });
+                          setSubscription(null);
+                          setIsSubscribed(false);
+
+                          userQuery.refetch();
+
+                          toast({
+                            status: "success",
+                            title:
+                              "Vous ne recevrez plus de notifications mobile"
+                          });
+                        } else {
+                          const sub = await registration!.pushManager.subscribe(
+                            {
+                              userVisibleOnly: true,
+                              applicationServerKey: base64ToUint8Array(
+                                process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
+                              )
+                            }
+                          );
+                          setSubscription(sub);
+                          setIsSubscribed(true);
+
+                          await editUser({
+                            payload: { userSubscription: sub },
+                            userName
+                          }).unwrap();
+
+                          userQuery.refetch();
+
+                          toast({
+                            status: "success",
+                            title:
+                              "Vous recevrez des notifications mobile en plus des e-mails"
+                          });
+                        }
+                      } catch (error) {
+                        toast({ status: "error", title: error.message });
+                      }
+                    }}
+                  >
+                    {isSubscribed && userQuery.data?.userSubscription
+                      ? "Désactiver"
+                      : "Activer"}{" "}
+                    les notifications mobile
+                  </MenuItem>
+                )
+              }
 
               {/* 
               <NextLink href="/settings" passHref>

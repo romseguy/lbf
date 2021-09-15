@@ -6,7 +6,7 @@ import { Box, Flex, Icon, Text, useColorMode } from "@chakra-ui/react";
 import { SpaceProps } from "@chakra-ui/system";
 import { breakpoints } from "theme/theme";
 import { Link } from "features/common";
-import { CalendarIcon } from "@chakra-ui/icons";
+import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { IoIosCalendar, IoIosPeople, IoMdCalendar } from "react-icons/io";
 import {
   FaCalendar,
@@ -86,16 +86,20 @@ export const Header = ({
               display="flex"
               alignItems="center"
             >
-              <Icon
-                mr={3}
-                as={
-                  props.org
-                    ? IoIosPeople
-                    : props.event?.isApproved
-                    ? FaRegCalendarCheck
-                    : FaRegCalendarTimes
-                }
-              />
+              {props.org || props.event ? (
+                <Icon
+                  mr={3}
+                  as={
+                    props.org
+                      ? IoIosPeople
+                      : props.event?.isApproved
+                      ? FaRegCalendarCheck
+                      : FaRegCalendarTimes
+                  }
+                />
+              ) : (
+                pageTitle === "Forum" && <Icon mr={3} as={ChatIcon} />
+              )}
 
               {pageTitle}
             </Text>

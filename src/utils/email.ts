@@ -8,6 +8,7 @@ import { equals } from "./string";
 import { toDateRange } from "features/common";
 import { parseISO } from "date-fns";
 import { IProject } from "models/Project";
+import api from "./api";
 
 type MailType = {
   from?: string;
@@ -72,7 +73,18 @@ export const sendEventToOrgFollowers = async (
           )
             continue;
 
-          // const user = await models.User.findOne({email})
+          const user = await models.User.findOne({ email });
+
+          if (user && user.userSubscription) {
+            await api.post("notification", {
+              subscription: user.userSubscription,
+              notification: {
+                title: `Invitation à un événement`,
+                message: event.eventName,
+                url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
+              }
+            });
+          }
 
           const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`;
           const mail = {

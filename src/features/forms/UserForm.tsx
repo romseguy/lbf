@@ -41,11 +41,14 @@ import { normalize } from "utils/string";
 
 export const UserForm = (props: {
   user: IUser;
-  onSubmit: (user: IUser) => void;
+  onSubmit: (user: Partial<IUser>) => void;
 }) => {
   const dispatch = useAppDispatch();
+
   const [addUser, addUserMutation] = useAddUserMutation();
   const [editUser, editUserMutation] = useEditUserMutation();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const { control, register, handleSubmit, errors, setError, clearErrors } =
     useForm({
@@ -71,7 +74,15 @@ export const UserForm = (props: {
 
   const onSubmit = async (form: IUser) => {
     console.log("submitted", form);
-    const payload = { ...form, userName: normalize(form.userName) };
+
+    setIsLoading(true);
+    const payload = {
+      ...form,
+      userName:
+        props.user.userName !== form.userName
+          ? normalize(form.userName)
+          : undefined
+    };
 
     if (setEditorRef.current) {
       const canvas = setEditorRef.current.getImage();
@@ -99,11 +110,11 @@ export const UserForm = (props: {
       if (props.user) {
         await editUser({
           payload,
-          userName: props.user.userName
+          userName: props.user.userName || props.user._id
         }).unwrap();
         dispatch(setUserEmail(payload.email!));
         dispatch(setUserImage(payload.userImage || null));
-        dispatch(setUserName(payload.userName));
+        dispatch(setUserName(payload.userName!));
       }
 
       props.onSubmit && props.onSubmit(payload);
@@ -115,6 +126,8 @@ export const UserForm = (props: {
           setError("formErrorMessage", { type: "manual", message });
         }
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -302,7 +315,7 @@ export const UserForm = (props: {
       <Button
         colorScheme="green"
         type="submit"
-        isLoading={addUserMutation.isLoading || editUserMutation.isLoading}
+        isLoading={isLoading}
         isDisabled={Object.keys(errors).length > 0}
         mb={2}
       >

@@ -5,19 +5,13 @@
 // It's also automatically injected into sw.js generated.
 
 self.addEventListener("push", function (event) {
+  console.log("[Service Worker] Push Received.");
+
   const data = JSON.parse(event.data.text());
-  // event.waitUntil(
-  //   registration.showNotification(data.title, {
-  //     body: data.message,
-  //     icon: "/icons/maskable-192-192.png",
-  //     data: {
-  //       url: data.url
-  //     }
-  //   })
-  // );
   event.waitUntil(
     registration.showNotification(data.title, {
-      actions: [{ action: "o", title: "t" }],
+      //actions: [{ action: "Ouvrir", title: "Ouvrir" }],
+      data: data.url,
       body: data.message,
       icon: "/icons/maskable-192-192.png"
     })
@@ -25,6 +19,11 @@ self.addEventListener("push", function (event) {
 });
 
 self.addEventListener("notificationclick", function (event) {
+  console.log(
+    "[Service Worker] Notification click Received.",
+    event.notification.data
+  );
+
   event.notification.close();
   event.waitUntil(
     clients
@@ -39,7 +38,7 @@ self.addEventListener("notificationclick", function (event) {
           }
           return client.focus();
         }
-        return clients.openWindow("/");
+        return clients.openWindow(event.notification.data);
       })
   );
 });

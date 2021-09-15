@@ -74,7 +74,7 @@ handler.get<
             path: "topicMessages",
             populate: { path: "createdBy" }
           },
-          { path: "createdBy", select }
+          { path: "createdBy" }
         ]
       })
       .populate({
@@ -103,9 +103,8 @@ handler.get<
             !topicMessage.createdBy.userName &&
             topicMessage.createdBy.email
           ) {
-            topicMessage.createdBy.userName = normalize(
-              topicMessage.createdBy.email.replace(/@.+/, "")
-            );
+            topicMessage.createdBy.userName =
+              topicMessage.createdBy.email.replace(/@.+/, "");
           }
           topicMessage.createdBy.email = undefined;
         }

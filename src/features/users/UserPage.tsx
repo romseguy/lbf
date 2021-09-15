@@ -20,15 +20,23 @@ import api from "utils/api";
 import type { IUser } from "models/User";
 import { Layout } from "features/layout";
 import { UserForm } from "features/forms/UserForm";
-import { selectUserEmail, selectUserImage, selectUserName } from "./userSlice";
+import {
+  selectUserEmail,
+  selectUserImage,
+  selectUserName,
+  setUserEmail
+} from "./userSlice";
 import { useGetUserQuery } from "./usersApi";
+import { useAppDispatch } from "store";
+import { signOut } from "next-auth/client";
 
 export const User = ({ ...props }: { user: IUser }) => {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
 
-  const userQuery = useGetUserQuery(props.user.userName, {
+  const userQuery = useGetUserQuery(props.user.userName || props.user._id, {
     selectFromResult: (query) => query
   });
   const user = userQuery.data || props.user;
@@ -127,26 +135,41 @@ export const User = ({ ...props }: { user: IUser }) => {
               userName: storedUserName || user.userName
             }}
             onSubmit={async ({ userName, email }) => {
-              let title;
+              // let title;
+              // if (email !== user.email && userName !== user.userName) {
+              //   title = "Votre page a bien été modifiée !";
+              // }
+              // if (email !== user.email) {
+              //   title = "Votre e-mail a bien été modifié !";
+              // } else if (userName !== user.userName) {
+              //   title = "Votre nom d'utilisateur a bien été modifié !";
+              // }
 
-              if (email !== user.email && userName !== user.userName) {
-                title = "Votre page a bien été modifiée !";
-              }
+              setIsEdit(false);
+
               if (email !== user.email) {
-                title = "Votre e-mail a bien été modifié !";
-              } else if (userName !== user.userName) {
-                title = "Votre nom d'utilisateur a bien été modifié !";
-                await router.push(`/${userName}`);
-              }
-
-              if (title)
                 toast({
-                  title,
+                  title:
+                    "Votre e-mail a été modifié. Merci de vous reconnecter.",
+                  status: "warning",
+                  isClosable: true
+                });
+                dispatch(setUserEmail(null));
+                const { url } = await signOut({
+                  redirect: false,
+                  callbackUrl: "/"
+                });
+                router.push(url);
+              } else {
+                toast({
+                  title: "Votre page a bien été modifiée !",
                   status: "success",
                   isClosable: true
                 });
-
-              setIsEdit(false);
+                if (userName !== user.userName) {
+                  await router.push(`/${userName}`);
+                }
+              }
             }}
           />
         )}

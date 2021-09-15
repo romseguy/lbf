@@ -81,8 +81,11 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
     orgQuery.refetch();
     setIsEdit(false);
   }, [router.asPath, refetchOrg]);
+
   const orgCreatedByUserName =
-    typeof org.createdBy === "object" ? org.createdBy.userName : "";
+    typeof org.createdBy === "object"
+      ? org.createdBy.userName || org.createdBy._id
+      : "";
   const orgCreatedByUserId =
     typeof org.createdBy === "object" ? org.createdBy._id : "";
   const isCreator =
@@ -277,30 +280,15 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
             </TabPanel>
 
             <TabPanel aria-hidden>
-              {!session
-                ? publicEvents.length > 0 && (
-                    <EventsList
-                      events={publicEvents}
-                      org={org}
-                      orgQuery={orgQuery}
-                      isCreator={false}
-                      isSubscribed={false}
-                      isLogin={isLogin}
-                      setIsLogin={setIsLogin}
-                    />
-                  )
-                : org.orgEvents.length > 0 && (
-                    <EventsList
-                      events={org.orgEvents}
-                      org={org}
-                      orgQuery={orgQuery}
-                      isCreator={isCreator}
-                      isSubscribed={isSubscribed}
-                      isLogin={isLogin}
-                      setIsLogin={setIsLogin}
-                    />
-                  )}
-
+              <EventsList
+                events={!session ? publicEvents : org.orgEvents}
+                org={org}
+                orgQuery={orgQuery}
+                isCreator={isCreator}
+                isSubscribed={isSubscribed}
+                isLogin={isLogin}
+                setIsLogin={setIsLogin}
+              />
               <IconFooter />
             </TabPanel>
 

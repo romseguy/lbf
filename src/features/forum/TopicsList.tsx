@@ -223,7 +223,8 @@ export const TopicsList = ({
                       : entityTopic.createdBy;
                   const entityTopicCreatedByUserName =
                     typeof entityTopic.createdBy === "object"
-                      ? entityTopic.createdBy.userName
+                      ? entityTopic.createdBy.userName ||
+                        entityTopic.createdBy.email?.replace(/@.+/, "")
                       : "";
                   const isCreator =
                     session?.user.isAdmin ||

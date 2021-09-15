@@ -35,9 +35,7 @@ export async function getSession(options): Promise<AppSession | null> {
         user: {
           ...session.user,
           userId: _id,
-          userName: userName
-            ? userName
-            : normalize(session.user.email.replace(/@.+/, "")),
+          userName: userName ? userName : session.user.email.replace(/@.+/, ""),
           userImage,
           isAdmin: isAdmin || false
         }
