@@ -1,17 +1,15 @@
-import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from "react";
+import React, { KeyboardEvent, useEffect, useState } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";
 import {
+  Input,
   InputGroup,
   InputLeftElement,
   List,
   ListItem,
   useColorMode
 } from "@chakra-ui/react";
-import { Input } from "features/common";
 import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
 import { FaMapMarkedAlt } from "react-icons/fa";
-import { EmailIcon } from "@chakra-ui/icons";
-import { css } from "twin.macro";
 
 let cachedVal = "";
 const acceptedKeys = ["ArrowUp", "ArrowDown", "Escape", "Enter"];

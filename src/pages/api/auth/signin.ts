@@ -37,7 +37,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function signin(req, res) {
       res.status(200).json(user);
     }
   } catch (error) {
-    res.status(400).json(createServerError(error));
+    res.status(500).json(createServerError(error));
   }
 });
 

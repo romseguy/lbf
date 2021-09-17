@@ -30,7 +30,6 @@ interface TopicMessageFormProps extends ChakraProps {
   topic: ITopic;
   topicMessage?: ITopicMessage;
   onLoginClick: () => void;
-  onClose?: () => void;
   onCancel?: () => void;
   onSubmit?: (topicMessageName: string) => void;
 }
@@ -61,8 +60,6 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
   });
 
   const onChange = () => {
-    console.log("!");
-
     clearErrors("formErrorMessage");
   };
 
@@ -70,11 +67,7 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
     console.log("submitted", form);
     if (!session) return;
 
-    // console.log(
-    //   "TMF: DEFAULT VALUE",
-    //   typeof topicMessageDefaultValue,
-    //   topicMessageDefaultValue
-    // );
+    setIsLoading(true);
     setTopicMessageDefaultValue(
       topicMessageDefaultValue === undefined ? "" : undefined
     );
@@ -107,9 +100,8 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
         isClosable: true
       });
 
-      clearErrors("topicMessage");
       props.onSubmit && props.onSubmit(form.topicMessage);
-      props.onClose && props.onClose();
+      clearErrors("topicMessage");
     } catch (error) {
       handleError(error, (message, field) => {
         if (field) {
@@ -118,6 +110,8 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
           setError("formErrorMessage", { type: "manual", message });
         }
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -181,7 +175,7 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
           <Button
             colorScheme="green"
             type="submit"
-            isLoading={isLoading || addOrgDetailsMutation.isLoading}
+            isLoading={isLoading}
             isDisabled={Object.keys(errors).length > 0}
             mr={props.onCancel ? 0 : 3}
           >

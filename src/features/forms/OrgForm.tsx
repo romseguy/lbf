@@ -6,37 +6,26 @@ import {
   ChakraProps,
   FormControl,
   FormLabel,
-  Box,
-  Stack,
+  Input,
   FormErrorMessage,
-  Textarea,
   useToast,
   Flex,
-  useColorMode,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Select
 } from "@chakra-ui/react";
-import { WarningIcon } from "@chakra-ui/icons";
 import {
   AddressControl,
   EmailControl,
   Button,
   ErrorMessageText,
-  Input,
-  Select,
   RTEditor
 } from "features/common";
 import { useAddOrgMutation, useEditOrgMutation } from "features/orgs/orgsApi";
-import { useSession } from "hooks/useAuth";
-import { OrgTypes, OrgTypesV } from "models/Org";
+import { orgTypeFull, OrgTypes, OrgTypesV } from "models/Org";
 import type { IOrg } from "models/Org";
 import { handleError } from "utils/form";
-import usePlacesAutocomplete, {
-  getDetails,
-  getGeocode,
-  getLatLng,
-  Suggestion
-} from "use-places-autocomplete";
+import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
 import { useEffect } from "react";
 import { normalize } from "utils/string";
 import { unwrapSuggestion } from "utils/maps";
@@ -45,6 +34,7 @@ import { withGoogleApi } from "features/map/GoogleApiWrapper";
 interface OrgFormProps extends ChakraProps {
   session: AppSession;
   org?: IOrg;
+  setOrgType: (orgType: string) => void;
   onClose?: () => void;
   onCancel?: () => void;
   onSubmit?: (orgUrl: string) => void;
@@ -72,7 +62,11 @@ export const OrgForm = withGoogleApi({
     mode: "onChange"
   });
   watch("orgAddress");
+  props.setOrgType(getValues("orgType"));
   const orgAddress = getValues("orgAddress") || props.org?.orgAddress;
+  const orgType =
+    orgTypeFull(getValues("orgType") || props.org?.orgType) ||
+    "de l'organisation";
   //#endregion
 
   //#region local state
@@ -179,12 +173,12 @@ export const OrgForm = withGoogleApi({
         isInvalid={!!errors["orgName"]}
         mb={3}
       >
-        <FormLabel>Nom de l'organisation</FormLabel>
+        <FormLabel>Nom {orgType}</FormLabel>
         <Input
           name="orgName"
-          placeholder="Nom de l'organisation"
+          placeholder={`Nom ${orgType}`}
           ref={register({
-            required: "Veuillez saisir le nom de l'organisation",
+            required: `Veuillez saisir le nom ${orgType}`,
             pattern: {
               value: /^[A-zÀ-ú0-9 ]+$/i,
               message:
@@ -204,14 +198,14 @@ export const OrgForm = withGoogleApi({
         isInvalid={!!errors["orgType"]}
         mb={3}
       >
-        <FormLabel>Type de l'organisation</FormLabel>
+        <FormLabel>Type {orgType}</FormLabel>
         <Select
           name="orgType"
           ref={register({
-            required: "Veuillez sélectionner le type de l'organisation"
+            required: `Veuillez sélectionner le type ${orgType}`
           })}
           defaultValue={props.org?.orgType}
-          placeholder="Type de l'organisation"
+          placeholder={`Type ${orgType}`}
           color="gray.400"
         >
           {Object.keys(OrgTypes).map((orgType) => {
@@ -234,6 +228,7 @@ export const OrgForm = withGoogleApi({
         errors={errors}
         control={control}
         mb={3}
+        placeholder={`Adresse ${orgType}`}
         onSuggestionSelect={(suggestion: Suggestion) => {
           setSuggestion(suggestion);
         }}
@@ -245,6 +240,7 @@ export const OrgForm = withGoogleApi({
         errors={errors}
         register={register}
         mb={3}
+        placeholder={`Adresse e-mail ${orgType}`}
       />
 
       <FormControl
@@ -262,7 +258,8 @@ export const OrgForm = withGoogleApi({
               <RTEditor
                 defaultValue={props.org?.orgDescription}
                 onChange={p.onChange}
-                placeholder="Description de l'organisation"
+                placeholder="Décrivez l'organisation, ses activités, etc..."
+                // TODO placeholder={`Description ${orgType}`}
               />
             );
           }}

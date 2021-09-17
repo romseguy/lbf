@@ -622,7 +622,7 @@ export const EventForm = withGoogleApi({
                 onChange={(html: string) => {
                   p.onChange(html === "<p><br></p>" ? "" : html);
                 }}
-                placeholder="Insérez l'affiche de l'événement, une vidéo, etc"
+                placeholder="Description de l'événement"
               />
             );
           }}

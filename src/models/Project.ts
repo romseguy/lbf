@@ -17,6 +17,7 @@ export interface IProject {
     projectId: string;
   };
   createdBy: IUser | string;
+  createdAt?: string;
 }
 
 export const Visibility: { [key: string]: string } = {

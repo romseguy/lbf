@@ -197,8 +197,10 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
           render={(p) => {
             return (
               <RTEditor
-                defaultValue={""}
-                onChange={p.onChange}
+                defaultValue={props.project?.projectDescription}
+                onChange={(html: string) => {
+                  p.onChange(html === "<p><br></p>" ? "" : html);
+                }}
                 placeholder="Description du projet"
               />
             );
@@ -283,7 +285,7 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
           rules={projectOrgsRules}
           as={ReactSelect}
           control={control}
-          defaultValue={props.project?.projectOrgs || org}
+          defaultValue={props.project?.projectOrgs || [org]}
           placeholder="Sélectionner..."
           menuPlacement="top"
           isClearable

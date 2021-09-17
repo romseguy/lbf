@@ -44,6 +44,11 @@ export const GlobalStyles = () => (
       .ql-editor, .ql-editor ul {
         padding: 0;
       }
+
+      .ql-editor a {
+        text-decoration: underline;
+        color: blue;
+      }
     `}
   />
 );

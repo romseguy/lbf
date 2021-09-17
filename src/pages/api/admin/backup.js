@@ -39,7 +39,7 @@ handler.get(async function exportData(req, res) {
 
       res.status(200).json({ data });
     } catch (error) {
-      res.status(400).json(createServerError(error));
+      res.status(500).json(createServerError(error));
     }
   }
 });

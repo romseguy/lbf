@@ -107,7 +107,7 @@ export const Nav = ({
     height: auto !important;
     ${isDark
       ? tw`h-24 bg-gradient-to-b from-gray-800 via-green-600 to-gray-800`
-      : tw`h-24 bg-gradient-to-b from-white via-yellow-400 to-yellow-50`}
+      : tw`h-24 bg-gradient-to-b from-white via-yellow-400 to-white`}
   `;
 
   useEffect(() => {
@@ -364,6 +364,7 @@ export const Nav = ({
             //setIsLogin(false);
           }}
           onSubmit={async (url) => {
+            dispatch(setUserEmail(null));
             const login = `${process.env.NEXT_PUBLIC_URL}/?login`;
 
             if (url === "/?login" || url === login) {

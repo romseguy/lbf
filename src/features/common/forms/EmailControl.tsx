@@ -3,13 +3,11 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Input as ChakraInput,
+  Input,
   InputGroup,
-  InputLeftElement,
-  useColorMode,
-  useColorModeValue
+  InputLeftElement
 } from "@chakra-ui/react";
-import { Input } from "features/common";
+// import { Input } from "features/common";
 import { EmailIcon } from "@chakra-ui/icons";
 
 export const EmailControl = ({

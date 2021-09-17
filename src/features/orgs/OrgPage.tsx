@@ -104,7 +104,6 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
   //#endregion
 
   //#region local state
-  const [email, setEmail] = useState(userEmail);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
@@ -301,8 +300,6 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
                 isSubscribed={isSubscribed}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
-                email={email}
-                setEmail={setEmail}
               />
               <IconFooter />
             </TabPanel>

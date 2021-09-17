@@ -1,28 +1,19 @@
 import React, { useState } from "react";
-import { Box } from "@chakra-ui/layout";
+import DOMPurify from "isomorphic-dompurify";
 import {
   Avatar,
-  AvatarBadge,
+  Box,
   Button,
   Flex,
-  Icon,
   IconButton,
-  Spinner,
   Tooltip
 } from "@chakra-ui/react";
-import {
-  Container,
-  DeleteButton,
-  Link,
-  RTEditor,
-  Spacer
-} from "features/common";
-import * as dateUtils from "utils/date";
-import DOMPurify from "isomorphic-dompurify";
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import { useEditTopicMutation } from "./topicsApi";
-import { ITopic } from "models/Topic";
+import { EditIcon } from "@chakra-ui/icons";
+import { Container, DeleteButton, Link, RTEditor } from "features/common";
 import { useSession } from "hooks/useAuth";
+import { ITopic } from "models/Topic";
+import * as dateUtils from "utils/date";
+import { useEditTopicMutation } from "./topicsApi";
 
 export const TopicMessagesList = ({
   topic,
@@ -32,13 +23,16 @@ export const TopicMessagesList = ({
   query: any;
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
+
   const [editTopic, editTopicMutation] = useEditTopicMutation();
+
   const [isEdit, setIsEdit] = useState<{
     [key: string]: {
       html?: string;
       isOpen: boolean;
     };
   }>({});
+  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
 
   if (!topic) return null;
 
@@ -181,7 +175,12 @@ export const TopicMessagesList = ({
 
                     <DeleteButton
                       isIconOnly
-                      isLoading={editTopicMutation.isLoading}
+                      isLoading={
+                        _id &&
+                        isLoading[_id] &&
+                        !query.isLoading &&
+                        !query.isFetching
+                      }
                       bg="transparent"
                       height="auto"
                       minWidth={0}
@@ -191,6 +190,8 @@ export const TopicMessagesList = ({
                         <>Êtes vous sûr de vouloir supprimer ce message ?</>
                       }
                       onClick={async () => {
+                        _id && setIsLoading({ [_id]: true });
+
                         const payload = {
                           ...topic,
                           topicMessages:
@@ -211,12 +212,19 @@ export const TopicMessagesList = ({
                                   return m;
                                 })
                         };
-                        await editTopic({
-                          payload,
-                          topicId: topic._id
-                        }).unwrap();
 
-                        query.refetch();
+                        try {
+                          await editTopic({
+                            payload,
+                            topicId: topic._id
+                          }).unwrap();
+
+                          query.refetch();
+                          _id && setIsLoading({ [_id]: false });
+                        } catch (error) {
+                          // todo
+                          console.error(error);
+                        }
                       }}
                     />
                   </>

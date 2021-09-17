@@ -12,7 +12,7 @@ import {
 import { getSession } from "hooks/useAuth";
 import { sendToAdmin, sendEventToOrgFollowers } from "utils/email";
 import { equals, normalize } from "utils/string";
-import { IEvent } from "models/Event";
+import { IEvent, Visibility } from "models/Event";
 import { IOrg } from "models/Org";
 import api from "utils/api";
 
@@ -142,7 +142,11 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
         if (!isApproved) {
           const admin = await models.User.findOne({ isAdmin: true });
 
-          if (admin && admin.userSubscription) {
+          if (
+            admin &&
+            admin.userSubscription &&
+            event.eventVisibility === Visibility.PUBLIC
+          ) {
             await api.post("notification", {
               subscription: admin.userSubscription,
               notification: {

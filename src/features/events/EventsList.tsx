@@ -236,6 +236,9 @@ export const EventsList = ({
               rowSpan={3}
               light={{ bg: "orange.100" }}
               dark={{ bg: "gray.500" }}
+              borderBottomLeftRadius={
+                index === repeatedEvents.length - 1 ? "lg" : undefined
+              }
             >
               <Box pt={2} pl={2} pr={2}>
                 <Text pb={1}>
@@ -449,6 +452,9 @@ export const EventsList = ({
               rowSpan={3}
               light={{ bg: "orange.100" }}
               dark={{ bg: "gray.500" }}
+              borderBottomRightRadius={
+                index === repeatedEvents.length - 1 ? "lg" : undefined
+              }
             >
               <Text pt={2} pl={2}>
                 {event.eventCity || "À définir"}

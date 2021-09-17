@@ -40,6 +40,8 @@ import {
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { selectOrgsRefetch } from "features/orgs/orgSlice";
+import { OrgModal } from "features/modals/OrgModal";
+import { IOrg } from "models/Org";
 
 export const OrgPopover = ({
   boxSize,
@@ -75,7 +77,10 @@ export const OrgPopover = ({
     Array.isArray(subscribedOrgs) && subscribedOrgs.length > 0;
 
   const [isOpen, setIsOpen] = useState(false);
-  const { isOpen: isOrgModalOpen, onOpen, onClose } = useDisclosure();
+  const [orgModalState, setOrgModalState] = useState<{
+    isOpen: boolean;
+    org?: IOrg;
+  }>({ isOpen: false, org: undefined });
   const iconHoverColor = useColorModeValue("white", "lightgreen");
 
   return (
@@ -190,7 +195,7 @@ export const OrgPopover = ({
               onClick={() => {
                 if (!isSessionLoading) {
                   if (session) {
-                    onOpen();
+                    setOrgModalState({ isOpen: true });
                   } else {
                     setIsLoginModalOpen(true);
                   }
@@ -206,31 +211,15 @@ export const OrgPopover = ({
         </PopoverContent>
       </Popover>
 
-      {session && (
-        <Modal
-          isOpen={isOrgModalOpen}
-          onClose={onClose}
-          closeOnOverlayClick={false}
-        >
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Ajouter une organisation</ModalHeader>
-            <ModalCloseButton data-cy="orgPopoverCloseButton" />
-            <ModalBody>
-              <OrgForm
-                session={session}
-                onCancel={onClose}
-                onSubmit={async (orgUrl: string) => {
-                  onClose();
-                  await router.push(`/${orgUrl}`);
-                }}
-                onClose={() => {
-                  onClose();
-                }}
-              />
-            </ModalBody>
-          </ModalContent>
-        </Modal>
+      {session && orgModalState.isOpen && (
+        <OrgModal
+          session={session}
+          onCancel={() => setOrgModalState({ isOpen: false })}
+          onClose={() => setOrgModalState({ isOpen: false })}
+          onSubmit={async (orgUrl: string) => {
+            await router.push(`/${orgUrl}`);
+          }}
+        />
       )}
     </Box>
   );

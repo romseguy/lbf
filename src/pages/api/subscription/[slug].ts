@@ -99,7 +99,7 @@ handler.put<NextApiRequest & { query: { slug: string } }, NextApiResponse>(
             );
         }
       } catch (error) {
-        res.status(400).json(createServerError(error));
+        res.status(500).json(createServerError(error));
       }
     }
   }

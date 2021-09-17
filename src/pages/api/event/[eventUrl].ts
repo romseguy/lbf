@@ -178,7 +178,7 @@ handler.post<
         res.status(200).json(topic);
       }
     } catch (error) {
-      res.status(400).json(createServerError(error));
+      res.status(500).json(createServerError(error));
     }
   }
 });

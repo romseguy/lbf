@@ -50,7 +50,7 @@ handler.get<
         org = await org
           .populate({
             path: "orgProjects",
-            populate: [{ path: "projectOrgs" }]
+            populate: [{ path: "projectOrgs createdBy" }]
           })
           .execPopulate();
     }
@@ -156,10 +156,12 @@ handler.post<
           );
       }
 
-      const topic = await addOrUpdateTopic({ body, org, transport, res });
-      res.status(200).json(topic);
+      if (body.topic) {
+        const topic = await addOrUpdateTopic({ body, org, transport, res });
+        res.status(200).json(topic);
+      } else res.status(200).json({});
     } catch (error) {
-      res.status(400).json(createServerError(error));
+      res.status(500).json(createServerError(error));
     }
   }
 });
@@ -228,7 +230,7 @@ handler.put<
           );
       }
     } catch (error) {
-      res.status(400).json(createServerError(error));
+      res.status(500).json(createServerError(error));
     }
   }
 });

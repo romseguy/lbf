@@ -7,7 +7,7 @@ export const Main = ({ p = 5, ...props }: BoxProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const styles = css`
-    ${isDark ? tw`bg-gray-800` : tw`bg-yellow-50`}
+    ${isDark ? tw`bg-gray-800` : tw`bg-white`}
     @media (min-width: ${breakpoints["2xl"]}) {
     }
   `;

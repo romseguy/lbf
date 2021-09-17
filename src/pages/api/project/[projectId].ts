@@ -42,8 +42,6 @@ handler.put<
     try {
       const projectId = req.query.projectId;
 
-      if (body.projectName) body.projectName = normalize(body.projectName);
-
       const project = await models.Project.findOne({ _id: projectId }).populate(
         "projectOrgs"
       );

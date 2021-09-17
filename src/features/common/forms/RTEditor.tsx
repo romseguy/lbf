@@ -99,16 +99,16 @@ const ReactQuillStyles = styled("span")(
       `
       &:hover {
         .ql-toolbar {
-          border: 1px solid white;
+          border: 1px solid #5F6774;
         }
 
         .ql-container {
-          border: 1px solid white;
+          border: 1px solid #5F6774;
         }
       }
 
       .ql-toolbar {
-        border: 1px solid #7b8593;
+        border: 1px solid #4F5765;
 
         .ql-stroke {
           stroke: white;
@@ -130,7 +130,7 @@ const ReactQuillStyles = styled("span")(
       }
 
       .ql-container {
-        border: 1px solid #7b8593;
+        border: 1px solid #4F5765;
       }
       `
     }
