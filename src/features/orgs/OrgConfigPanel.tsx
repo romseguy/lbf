@@ -11,6 +11,7 @@ import { useDeleteOrgMutation } from "features/orgs/orgsApi";
 import { OrgForm } from "features/forms/OrgForm";
 import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
+import { OrgConfigLogoPanel } from "./OrgConfigLogoPanel";
 
 export const OrgConfigPanel = ({
   session,
@@ -131,6 +132,14 @@ export const OrgConfigPanel = ({
         />
       ) : (
         <>
+          <OrgConfigLogoPanel
+            org={org}
+            orgQuery={orgQuery}
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
+            mb={3}
+          />
+
           <OrgConfigBannerPanel
             org={org}
             orgQuery={orgQuery}

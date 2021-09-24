@@ -30,7 +30,8 @@ import {
   Spinner,
   InputGroup,
   InputLeftAddon,
-  InputLeftElement
+  InputLeftElement,
+  Tooltip
 } from "@chakra-ui/react";
 import { EmailIcon, PhoneIcon, TimeIcon } from "@chakra-ui/icons";
 import {
@@ -365,6 +366,8 @@ export const EventForm = withGoogleApi({
         id="eventName"
         isRequired
         isInvalid={!!errors["eventName"]}
+        display="flex"
+        flexDirection="column"
         mb={3}
       >
         <FormLabel>Nom de l'événement</FormLabel>
@@ -372,15 +375,22 @@ export const EventForm = withGoogleApi({
           name="eventName"
           placeholder="Nom de l'événement"
           ref={register({
-            required: "Veuillez saisir un nom d'événement",
-            pattern: {
-              value: /^[A-zÀ-ú0-9 ]+$/i,
-              message:
-                "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
-            }
+            required: "Veuillez saisir un nom d'événement"
+            // pattern: {
+            //   value: /^[A-zÀ-ú0-9 ]+$/i,
+            //   message:
+            //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
+            // }
           })}
           defaultValue={props.event && props.event.eventName}
         />
+        {getValues("eventName") && (
+          <Tooltip label={`Adresse de la page de l'événement`}>
+            <Tag mt={3} alignSelf="flex-end" cursor="help">
+              {process.env.NEXT_PUBLIC_URL}/{normalize(getValues("eventName"))}
+            </Tag>
+          </Tooltip>
+        )}
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="eventName" />
         </FormErrorMessage>

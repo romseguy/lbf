@@ -24,7 +24,8 @@ export interface IOrg {
   orgProjects: IProject[];
   orgSubscriptions: ISubscription[];
   orgTopics: ITopic[];
-  orgBanner?: Base64Image & { mode: "light" | "dark" };
+  orgLogo?: Base64Image;
+  orgBanner?: Base64Image & { mode: "light" | "dark"; url?: string };
   isApproved?: boolean;
   createdBy: IUser | string;
   createdAt?: string;
@@ -96,11 +97,17 @@ export const OrgSchema = new Schema<IOrg>(
       { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
     ],
     orgTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
+    orgLogo: {
+      base64: String,
+      width: Number,
+      height: Number
+    },
     orgBanner: {
       base64: String,
       width: Number,
       height: Number,
-      mode: String
+      mode: String,
+      url: String
     },
     isApproved: Schema.Types.Boolean,
     createdBy: {

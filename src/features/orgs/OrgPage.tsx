@@ -48,6 +48,7 @@ import { useGetOrgQuery } from "./orgsApi";
 
 export type Visibility = {
   isVisible: {
+    logo: boolean;
     banner: boolean;
     subscribers: boolean;
     topics: boolean;
@@ -102,8 +103,9 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
   const [isConfig, setIsConfig] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isVisible, setIsVisible] = useState<Visibility["isVisible"]>({
-    topics: false,
+    logo: false,
     banner: false,
+    topics: false,
     subscribers: false
   });
   //#endregion
@@ -120,6 +122,7 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
       org={org}
       pageTitle={org.orgName}
       isLogin={isLogin}
+      logo={org.orgLogo}
       banner={org.orgBanner}
     >
       {isCreator && !isConfig ? (

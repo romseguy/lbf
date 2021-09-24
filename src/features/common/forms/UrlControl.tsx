@@ -5,12 +5,16 @@ import {
   FormLabel,
   Input,
   InputGroup,
-  InputLeftElement
+  InputLeftElement,
+  InputProps
 } from "@chakra-ui/react";
 // import { Input } from "features/common";
-import { EmailIcon } from "@chakra-ui/icons";
+import { AtSignIcon } from "@chakra-ui/icons";
+import { urlR } from "utils/url";
 
-export const EmailControl = ({
+export const UrlControl = ({
+  label,
+  placeholder,
   defaultValue,
   errors,
   name,
@@ -19,6 +23,7 @@ export const EmailControl = ({
   mb,
   ...props
 }: {
+  label?: string;
   defaultValue?: string;
   errors: { [key: string]: string };
   name: string;
@@ -26,11 +31,11 @@ export const EmailControl = ({
   isRequired?: boolean;
   mb?: number;
   placeholder?: string;
-}) => {
+} & InputProps) => {
   let formRules: { required?: string | boolean } = {};
 
   if (isRequired) {
-    formRules.required = "Veuillez saisir une adresse e-mail";
+    formRules.required = "Veuillez saisir une adresse internet";
   }
 
   return (
@@ -40,24 +45,23 @@ export const EmailControl = ({
       isInvalid={!!errors[name]}
       mb={mb}
     >
-      <FormLabel>Adresse e-mail</FormLabel>
+      <FormLabel>{label || "Site internet"}</FormLabel>
 
       <InputGroup>
-        <InputLeftElement pointerEvents="none" children={<EmailIcon />} />
+        <InputLeftElement pointerEvents="none" children={<AtSignIcon />} />
         <Input
           name={name}
-          placeholder={
-            props.placeholder || "Cliquez ici pour saisir une adresse e-mail..."
-          }
+          placeholder={placeholder || "Saisir une adresse internet"}
           ref={register({
             pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Adresse email invalide"
+              value: urlR,
+              message: "Adresse invalide"
             },
             ...formRules
           })}
           defaultValue={defaultValue}
           pl={10}
+          {...props}
         />
       </InputGroup>
 

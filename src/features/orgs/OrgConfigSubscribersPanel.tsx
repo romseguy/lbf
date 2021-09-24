@@ -448,10 +448,10 @@ export const OrgConfigSubscribersPanel = ({
         </GridItem>
       )}
 
-      {orgQuery.isLoading || orgQuery.isFetching ? (
-        <Text>Chargement de la liste des adhérents & abonnés...</Text>
-      ) : (
-        isVisible.subscribers && (
+      {isVisible.subscribers &&
+        (orgQuery.isLoading || orgQuery.isFetching ? (
+          <Text>Chargement de la liste des adhérents & abonnés...</Text>
+        ) : (
           <GridItem
             light={{ bg: "orange.100" }}
             dark={{ bg: "gray.500" }}
@@ -668,8 +668,7 @@ export const OrgConfigSubscribersPanel = ({
               </Tbody>
             </Table>
           </GridItem>
-        )
-      )}
+        ))}
     </Grid>
   );
 };

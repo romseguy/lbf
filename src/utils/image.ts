@@ -32,3 +32,15 @@ export function calculateScale(scale: number, delta: number): number {
 
   return clamped;
 }
+
+export function getMeta(
+  url: string,
+  callback: (width: number, height: number) => void
+) {
+  var img = new Image();
+  img.src = url;
+  img.onload = function () {
+    //@ts-expect-error
+    callback(this.width, this.height);
+  };
+}

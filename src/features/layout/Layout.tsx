@@ -14,6 +14,7 @@ import { breakpoints } from "theme/theme";
 const defaultTitle = "Au courant de...";
 
 export const Layout = ({
+  logo,
   banner,
   children,
   isLogin,
@@ -23,6 +24,7 @@ export const Layout = ({
   title,
   ...props
 }: BoxProps & {
+  logo?: Base64Image;
   banner?: Base64Image & { mode: "dark" | "light" };
   children: React.ReactNode | React.ReactNodeArray;
   isLogin?: number;
@@ -115,6 +117,7 @@ export const Layout = ({
           pageTitle={pageTitle}
           pageSubTitle={pageSubTitle}
           headerBg={banner}
+          logo={logo}
         />
         <Nav py={hasVerticalScrollbar ? 7 : 0} minH="96px" isLogin={isLogin} />
         <Main {...props}>{children}</Main>

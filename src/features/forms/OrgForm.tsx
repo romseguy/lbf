@@ -14,7 +14,10 @@ import {
   AlertIcon,
   Select,
   InputGroup,
-  InputLeftElement
+  InputLeftElement,
+  Tag,
+  Text,
+  Tooltip
 } from "@chakra-ui/react";
 import {
   AddressControl,
@@ -33,6 +36,7 @@ import { normalize } from "utils/string";
 import { unwrapSuggestion } from "utils/maps";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { AtSignIcon, PhoneIcon } from "@chakra-ui/icons";
+import { UrlControl } from "features/common/forms/UrlControl";
 
 interface OrgFormProps extends ChakraProps {
   session: Session;
@@ -174,6 +178,8 @@ export const OrgForm = withGoogleApi({
         id="orgName"
         isRequired
         isInvalid={!!errors["orgName"]}
+        display="flex"
+        flexDirection="column"
         mb={3}
       >
         <FormLabel>Nom {orgType}</FormLabel>
@@ -181,15 +187,22 @@ export const OrgForm = withGoogleApi({
           name="orgName"
           placeholder={`Nom ${orgType}`}
           ref={register({
-            required: `Veuillez saisir le nom ${orgType}`,
-            pattern: {
-              value: /^[A-zÀ-ú0-9 ]+$/i,
-              message:
-                "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
-            }
+            required: `Veuillez saisir le nom ${orgType}`
+            // pattern: {
+            //   value: /^[A-zÀ-ú0-9 ]+$/i,
+            //   message:
+            //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
+            // }
           })}
           defaultValue={props.org?.orgName}
         />
+        {getValues("orgName") && (
+          <Tooltip label={`Adresse de la page de ${orgType}`}>
+            <Tag mt={3} alignSelf="flex-end" cursor="help">
+              {process.env.NEXT_PUBLIC_URL}/{normalize(getValues("orgName"))}
+            </Tag>
+          </Tooltip>
+        )}
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="orgName" />
         </FormErrorMessage>
@@ -268,27 +281,14 @@ export const OrgForm = withGoogleApi({
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl id="orgWeb" isInvalid={!!errors["orgWeb"]} mb={3}>
-        <FormLabel>Site internet</FormLabel>
-        <InputGroup>
-          <InputLeftElement pointerOrgs="none" children={<AtSignIcon />} />
-          <Input
-            name="orgWeb"
-            placeholder={`Site internet ${orgType}`}
-            ref={register({
-              pattern: {
-                value: /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/i,
-                message: "Adresse invalide"
-              }
-            })}
-            defaultValue={props.org?.orgWeb}
-            pl={10}
-          />
-        </InputGroup>
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="orgWeb" />
-        </FormErrorMessage>
-      </FormControl>
+      <UrlControl
+        name="orgWeb"
+        placeholder={`Site internet ${orgType}`}
+        defaultValue={props.org?.orgWeb}
+        errors={errors}
+        register={register}
+        mb={3}
+      />
 
       <FormControl
         id="orgDescription"
