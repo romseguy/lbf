@@ -56,20 +56,21 @@ handler.put<
           );
       }
 
-      if (
-        !body.projectNotified &&
-        !equals(project.createdBy, session.user.userId) &&
-        !session.user.isAdmin
-      ) {
-        return res
-          .status(403)
-          .json(
-            createServerError(
-              new Error(
-                "Vous ne pouvez pas modifier un projet que vous n'avez pas créé."
+      if (!body.projectNotified && session) {
+        if (
+          !equals(project.createdBy, session.user.userId) &&
+          !session.user.isAdmin
+        ) {
+          return res
+            .status(403)
+            .json(
+              createServerError(
+                new Error(
+                  "Vous ne pouvez pas modifier un projet que vous n'avez pas créé."
+                )
               )
-            )
-          );
+            );
+        }
       }
 
       if (body.projectOrgs) {

@@ -1,4 +1,4 @@
-import type { AppSession } from "hooks/useAuth";
+import { Session } from "next-auth";
 import { IEvent, VisibilityV } from "models/Event";
 import type { IOrg } from "models/Org";
 import { isMobile } from "react-device-detect";
@@ -70,9 +70,10 @@ import { refetchOrgs, selectOrgsRefetch } from "features/orgs/orgSlice";
 import { unwrapSuggestion } from "utils/maps";
 import { Visibility } from "models/Topic";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { FaGlobeEurope } from "react-icons/fa";
 
 interface EventFormProps extends ChakraProps {
-  session: AppSession;
+  session: Session;
   event?: IEvent;
   initialEventOrgs?: IOrg[];
   onCancel?: () => void;
@@ -544,6 +545,9 @@ export const EventForm = withGoogleApi({
               `}
             `}
           >
+            <option key="all" value={99}>
+              Répéter toutes les semaines
+            </option>
             {repeatOptions.map((i) => (
               <option key={`${i}w`} value={i}>
                 {i > 1
@@ -600,6 +604,28 @@ export const EventForm = withGoogleApi({
         </InputGroup>
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="eventPhone" />
+        </FormErrorMessage>
+      </FormControl>
+
+      <FormControl id="eventWeb" isInvalid={!!errors["eventWeb"]} mb={3}>
+        <FormLabel>Site internet</FormLabel>
+        <InputGroup>
+          <InputLeftElement pointerEvents="none" children={<FaGlobeEurope />} />
+          <Input
+            name="eventWeb"
+            placeholder="Site internet de l'événement"
+            ref={register({
+              pattern: {
+                value: /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/i,
+                message: "Adresse invalide"
+              }
+            })}
+            defaultValue={props.event?.eventWeb}
+            pl={10}
+          />
+        </InputGroup>
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="eventWeb" />
         </FormErrorMessage>
       </FormControl>
 

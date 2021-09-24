@@ -1,4 +1,4 @@
-import type { AppSession } from "hooks/useAuth";
+import { Session } from "next-auth";
 import type { Visibility } from "./EventPage";
 import type { IEvent } from "models/Event";
 import React, { useState } from "react";
@@ -22,7 +22,7 @@ export const EventConfigPanel = ({
   setIsEdit,
   setIsVisible
 }: Visibility & {
-  session: AppSession;
+  session: Session;
   event: IEvent;
   eventQuery: any;
   isConfig: boolean;

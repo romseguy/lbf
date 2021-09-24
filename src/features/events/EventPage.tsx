@@ -2,7 +2,7 @@ import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "hooks/useAuth";
-import { parseISO, format } from "date-fns";
+import { parseISO, format, getHours } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { css } from "twin.macro";
@@ -22,11 +22,20 @@ import {
   Table,
   Tbody,
   Tag,
-  useColorMode
+  useColorMode,
+  TabPanel,
+  TabPanels,
+  IconButton,
+  List,
+  ListIcon,
+  ListItem
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
+  ArrowForwardIcon,
   AtSignIcon,
+  CalendarIcon,
+  CheckCircleIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   EditIcon,
@@ -53,6 +62,8 @@ import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
 import { EventAttendingForm } from "./EventAttendingForm";
 import { EventSendForm } from "features/common/forms/EventSendForm";
 import { useGetEventQuery } from "./eventsApi";
+import { EventPageTabs } from "./EventPageTabs";
+import { days } from "utils/date";
 
 export type Visibility = {
   isVisible: {
@@ -246,92 +257,172 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
       )}
 
       {!isConfig && (
-        <>
-          <Grid
-            // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"
-            gridGap={5}
-            css={css`
-              & {
-                grid-template-columns: minmax(425px, 1fr) minmax(170px, 1fr);
-              }
-              @media (max-width: 650px) {
-                & {
-                  grid-template-columns: 1fr !important;
-                }
-              }
-            `}
-          >
-            <GridItem
-              rowSpan={4}
-              borderTopRadius="lg"
-              light={{ bg: "orange.100" }}
-              dark={{ bg: "gray.500" }}
-            >
-              <GridHeader borderTopRadius="lg" alignItems="center">
-                <Flex flexDirection="row" alignItems="center">
-                  <Heading size="sm" py={3}>
-                    Description
-                  </Heading>
-                  {event.eventDescription && isCreator && (
-                    <Tooltip placement="bottom" label="Modifier la description">
-                      <Icon
-                        as={EditIcon}
-                        cursor="pointer"
-                        ml={3}
-                        _hover={{ color: "green" }}
-                        onClick={() => {
-                          setIsConfig(true);
-                          setIsEdit(true);
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                </Flex>
-              </GridHeader>
-
-              <GridItem>
-                <Box className="ql-editor" p={5}>
-                  {event.eventDescription &&
-                  event.eventDescription.length > 0 ? (
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(event.eventDescription)
-                      }}
-                    />
-                  ) : isCreator ? (
-                    <Link
-                      onClick={() => {
-                        setIsConfig(true);
-                        setIsEdit(true);
-                      }}
-                      variant="underline"
-                    >
-                      Cliquez ici pour ajouter la description de l'événement.
-                    </Link>
-                  ) : (
-                    <Text fontStyle="italic">Aucune description.</Text>
-                  )}
-                </Box>
-              </GridItem>
-            </GridItem>
-
-            <GridItem>
-              <Grid templateRows="auto 1fr">
-                <GridHeader borderTopRadius="lg" alignItems="center">
-                  <Heading size="sm" py={3}>
-                    Adresse
-                  </Heading>
-                </GridHeader>
-
+        <EventPageTabs>
+          <TabPanels>
+            <TabPanel aria-hidden>
+              <Grid
+                // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"
+                gridGap={5}
+                css={css`
+                  & {
+                    grid-template-columns: minmax(425px, 1fr) minmax(170px, 1fr);
+                  }
+                  @media (max-width: 650px) {
+                    & {
+                      grid-template-columns: 1fr !important;
+                    }
+                  }
+                `}
+              >
                 <GridItem
+                  rowSpan={5}
+                  borderTopRadius="lg"
                   light={{ bg: "orange.100" }}
                   dark={{ bg: "gray.500" }}
                 >
-                  <Box p={5}>
-                    {event.eventAddress || (
-                      <Text fontStyle="italic">Aucune adresse.</Text>
-                    )}
-                    {/* {!session ? (
+                  <GridHeader borderTopRadius="lg" alignItems="center">
+                    <Flex flexDirection="row" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Description de l'événement
+                      </Heading>
+                      {event.eventDescription && isCreator && (
+                        <Tooltip
+                          placement="bottom"
+                          label="Modifier la description"
+                        >
+                          <IconButton
+                            aria-label="Modifier la description"
+                            icon={<EditIcon />}
+                            bg="transparent"
+                            ml={3}
+                            _hover={{ color: "green" }}
+                            onClick={() => {
+                              setIsConfig(true);
+                              setIsEdit(true);
+                            }}
+                          />
+                        </Tooltip>
+                      )}
+                    </Flex>
+                  </GridHeader>
+
+                  <GridItem>
+                    <Box className="ql-editor" p={5}>
+                      {event.eventDescription &&
+                      event.eventDescription.length > 0 ? (
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(event.eventDescription)
+                          }}
+                        />
+                      ) : isCreator ? (
+                        <Link
+                          onClick={() => {
+                            setIsConfig(true);
+                            setIsEdit(true);
+                          }}
+                          variant="underline"
+                        >
+                          Cliquez ici pour ajouter la description de
+                          l'événement.
+                        </Link>
+                      ) : (
+                        <Text fontStyle="italic">Aucune description.</Text>
+                      )}
+                    </Box>
+                  </GridItem>
+                </GridItem>
+
+                <GridItem>
+                  <Grid templateRows="auto 1fr">
+                    <GridHeader borderTopRadius="lg" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Quand ?
+                      </Heading>
+                    </GridHeader>
+
+                    <GridItem
+                      light={{ bg: "orange.100" }}
+                      dark={{ bg: "gray.500" }}
+                    >
+                      <Box ml={3}>
+                        {event.repeat === 99 ? (
+                          <>
+                            <Text fontWeight="bold">
+                              <CalendarIcon mr={1} />
+                              Toutes les semaines
+                            </Text>
+                            <List
+                              spacing={3}
+                              css={css`
+                                & > li {
+                                  list-style: none;
+                                  margin-left: 24px;
+                                  margin-top: 0 !important;
+                                  border-left: 2px dashed #3f4e58;
+                                  padding: 0 0 0 20px;
+                                  position: relative;
+
+                                  &::before {
+                                    position: absolute;
+                                    left: -14px;
+                                    top: 0;
+                                    content: " ";
+                                    border: 8px solid rgba(255, 255, 255, 0.74);
+                                    border-radius: 500%;
+                                    background: #3f4e58;
+                                    height: 25px;
+                                    width: 25px;
+                                    transition: all 500ms ease-in-out;
+                                  }
+                                }
+                              `}
+                            >
+                              {days.map((day) => {
+                                return (
+                                  <ListItem>
+                                    <Text fontWeight="bold">{day}</Text>
+                                    <Box ml={3}>
+                                      {format(
+                                        parseISO(event.eventMinDate),
+                                        "H:mm"
+                                      )}
+                                      <ArrowForwardIcon />
+                                      {format(
+                                        parseISO(event.eventMaxDate),
+                                        "H:mm"
+                                      )}
+                                    </Box>
+                                  </ListItem>
+                                );
+                              })}
+                            </List>
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                      </Box>
+                    </GridItem>
+                  </Grid>
+                </GridItem>
+
+                <GridItem>
+                  <Grid templateRows="auto 1fr">
+                    <GridHeader borderTopRadius="lg" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Adresse
+                      </Heading>
+                    </GridHeader>
+
+                    <GridItem
+                      light={{ bg: "orange.100" }}
+                      dark={{ bg: "gray.500" }}
+                    >
+                      <Box p={5}>
+                        {event.eventAddress || (
+                          <Text fontStyle="italic">Aucune adresse.</Text>
+                        )}
+                        {/* {!session ? (
                       <Link
                         variant="underline"
                         onClick={() => setIsLogin(isLogin + 1)}
@@ -350,29 +441,29 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                         <Text fontStyle="italic">Aucune adresse.</Text>
                       )
                     )} */}
-                  </Box>
+                      </Box>
+                    </GridItem>
+                  </Grid>
                 </GridItem>
-              </Grid>
-            </GridItem>
 
-            <GridItem>
-              <Grid templateRows="auto 1fr">
-                <GridHeader borderTopRadius="lg" alignItems="center">
-                  <Heading size="sm" py={3}>
-                    Adresse e-mail
-                  </Heading>
-                </GridHeader>
+                <GridItem>
+                  <Grid templateRows="auto 1fr">
+                    <GridHeader borderTopRadius="lg" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Adresse e-mail
+                      </Heading>
+                    </GridHeader>
 
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  overflowX="auto"
-                >
-                  <Box p={5}>
-                    {event.eventEmail || (
-                      <Text fontStyle="italic">Aucune adresse e-mail.</Text>
-                    )}
-                    {/* {session ? (
+                    <GridItem
+                      light={{ bg: "orange.100" }}
+                      dark={{ bg: "gray.500" }}
+                      overflowX="auto"
+                    >
+                      <Box p={5}>
+                        {event.eventEmail || (
+                          <Text fontStyle="italic">Aucune adresse e-mail.</Text>
+                        )}
+                        {/* {session ? (
                       event.eventEmail || (
                         <Text fontStyle="italic">Aucune adresse e-mail.</Text>
                       )
@@ -384,28 +475,30 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                         Connectez-vous pour voir l'e-mail de l'événement
                       </Link>
                     )} */}
-                  </Box>
+                      </Box>
+                    </GridItem>
+                  </Grid>
                 </GridItem>
-              </Grid>
-            </GridItem>
 
-            <GridItem>
-              <Grid templateRows="auto 1fr">
-                <GridHeader borderTopRadius="lg" alignItems="center">
-                  <Heading size="sm" py={3}>
-                    Numéro de téléphone
-                  </Heading>
-                </GridHeader>
+                <GridItem>
+                  <Grid templateRows="auto 1fr">
+                    <GridHeader borderTopRadius="lg" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Numéro de téléphone
+                      </Heading>
+                    </GridHeader>
 
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                >
-                  <Box p={5}>
-                    {event.eventPhone || (
-                      <Text fontStyle="italic">Aucun numéro de téléphone.</Text>
-                    )}
-                    {/* {!session ? (
+                    <GridItem
+                      light={{ bg: "orange.100" }}
+                      dark={{ bg: "gray.500" }}
+                    >
+                      <Box p={5}>
+                        {event.eventPhone || (
+                          <Text fontStyle="italic">
+                            Aucun numéro de téléphone.
+                          </Text>
+                        )}
+                        {/* {!session ? (
                       <Link
                         variant="underline"
                         onClick={() => setIsLogin(isLogin + 1)}
@@ -426,168 +519,138 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                         </Text>
                       )
                     )} */}
-                  </Box>
+                      </Box>
+                    </GridItem>
+                  </Grid>
                 </GridItem>
-              </Grid>
-            </GridItem>
 
-            <GridItem>
-              <Grid templateRows="auto 1fr">
-                <GridHeader borderTopRadius="lg" alignItems="center">
-                  <Heading size="sm" py={3}>
-                    Organisé par
-                  </Heading>
-                </GridHeader>
+                <GridItem>
+                  <Grid templateRows="auto 1fr">
+                    <GridHeader borderTopRadius="lg" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Organisé par
+                      </Heading>
+                    </GridHeader>
 
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                >
-                  <Box p={5}>
-                    {Array.isArray(event.eventOrgs) &&
-                    event.eventOrgs.length > 0 ? (
-                      event.eventOrgs.map((eventOrg, index) => (
-                        <Flex key={eventOrg._id} mb={2} alignItems="center">
-                          <Icon as={IoIosPeople} mr={2} />
-                          <Link
-                            data-cy={`eventCreatedBy-${eventOrg.orgName}`}
-                            variant="underline"
-                            href={`/${eventOrg.orgUrl}`}
-                          >
-                            {`${eventOrg.orgName}`}
-                            {/* {`${eventOrg.orgName}${
+                    <GridItem
+                      light={{ bg: "orange.100" }}
+                      dark={{ bg: "gray.500" }}
+                    >
+                      <Box p={5}>
+                        {Array.isArray(event.eventOrgs) &&
+                        event.eventOrgs.length > 0 ? (
+                          event.eventOrgs.map((eventOrg, index) => (
+                            <Flex key={eventOrg._id} mb={2} alignItems="center">
+                              <Icon as={IoIosPeople} mr={2} />
+                              <Link
+                                data-cy={`eventCreatedBy-${eventOrg.orgName}`}
+                                variant="underline"
+                                href={`/${eventOrg.orgUrl}`}
+                              >
+                                {`${eventOrg.orgName}`}
+                                {/* {`${eventOrg.orgName}${
                             index < event.eventOrgs!.length - 1 ? ", " : ""
                           }`} */}
-                          </Link>
-                        </Flex>
-                      ))
-                    ) : (
-                      <Box>
-                        <Icon as={AtSignIcon} mr={2} />
-                        <Link
-                          variant="underline"
-                          href={`/${eventCreatedByUserName}`}
-                        >
-                          {eventCreatedByUserName}
-                        </Link>
+                              </Link>
+                            </Flex>
+                          ))
+                        ) : (
+                          <Box>
+                            <Icon as={AtSignIcon} mr={2} />
+                            <Link
+                              variant="underline"
+                              href={`/${eventCreatedByUserName}`}
+                            >
+                              {eventCreatedByUserName}
+                            </Link>
+                          </Box>
+                        )}
                       </Box>
-                    )}
-                  </Box>
+                    </GridItem>
+                  </Grid>
                 </GridItem>
               </Grid>
-            </GridItem>
-          </Grid>
+            </TabPanel>
 
-          <Grid gridGap={5} mt={5}>
+            <TabPanel aria-hidden>
+              <TopicsList
+                event={event}
+                query={eventQuery}
+                isCreator={isCreator}
+                isFollowed={!!isFollowed}
+                isLogin={isLogin}
+                setIsLogin={setIsLogin}
+              />
+            </TabPanel>
+
             {isCreator && (
-              <GridItem>
-                <Grid templateRows="auto auto 1fr">
-                  <GridHeader borderTopRadius="lg" alignItems="center">
-                    <Heading size="sm" py={3}>
-                      Participants
-                    </Heading>
-                  </GridHeader>
+              <TabPanel aria-hidden>
+                <Button
+                  colorScheme="teal"
+                  rightIcon={
+                    showSendForm ? <ChevronDownIcon /> : <ChevronRightIcon />
+                  }
+                  onClick={() => {
+                    if (!event.isApproved)
+                      alert(
+                        "L'événement doit être vérifié par un modérateur avant de pouvoir envoyer des invitations."
+                      );
+                    else setShowSendForm(!showSendForm);
+                  }}
+                >
+                  Envoyer les invitations
+                </Button>
 
-                  <GridItem
-                    light={{ bg: "orange.100" }}
-                    dark={{ bg: "gray.500" }}
-                  >
-                    <Button
-                      colorScheme="teal"
-                      mt={3}
-                      ml={3}
-                      rightIcon={
-                        showSendForm ? (
-                          <ChevronDownIcon />
-                        ) : (
-                          <ChevronRightIcon />
-                        )
-                      }
-                      isDisabled={!event.isApproved}
-                      onClick={() => setShowSendForm(!showSendForm)}
-                    >
-                      Envoyer les invitations
-                    </Button>
-                    {showSendForm && (
-                      <EventSendForm
-                        event={event}
-                        eventQuery={eventQuery}
-                        onSubmit={() => setShowSendForm(false)}
-                      />
-                    )}
-                  </GridItem>
+                {showSendForm && (
+                  <EventSendForm
+                    event={event}
+                    eventQuery={eventQuery}
+                    onSubmit={() => setShowSendForm(false)}
+                  />
+                )}
 
-                  <GridItem
-                    light={{ bg: "orange.100" }}
-                    dark={{ bg: "gray.500" }}
-                    overflowX="auto"
-                  >
-                    <Table p={5}>
-                      <Tbody>
-                        {!event.eventNotified ||
-                        (Array.isArray(event.eventNotified) &&
-                          !event.eventNotified.length) ? (
-                          <Tr>
-                            <Td colSpan={2}>Aucun participant.</Td>
-                          </Tr>
-                        ) : (
-                          event.eventNotified?.map(({ email: e, status }) => {
-                            return (
-                              <Tr key={e}>
-                                <Td>{e}</Td>
-                                <Td>
-                                  <Tag
-                                    variant="solid"
-                                    colorScheme={
-                                      status === StatusTypes.PENDING
-                                        ? "blue"
-                                        : status === StatusTypes.OK
-                                        ? "green"
-                                        : "red"
-                                    }
-                                  >
-                                    {StatusTypesV[status]}
-                                  </Tag>
-                                </Td>
-                              </Tr>
-                            );
-                          })
-                        )}
-                      </Tbody>
-                    </Table>
-                  </GridItem>
-                </Grid>
-              </GridItem>
-            )}
-
-            <GridItem>
-              <Grid templateRows="auto 1fr">
-                <GridHeader borderTopRadius="lg" alignItems="center">
-                  <Heading size="sm" py={3}>
-                    Discussions
-                  </Heading>
-                </GridHeader>
-
-                <GridItem
+                <Box
                   light={{ bg: "orange.100" }}
                   dark={{ bg: "gray.500" }}
+                  overflowX="auto"
+                  mt={5}
                 >
-                  <Box p={5}>
-                    <TopicsList
-                      event={event}
-                      query={eventQuery}
-                      isCreator={isCreator}
-                      isFollowed={!!isFollowed}
-                      isLogin={isLogin}
-                      setIsLogin={setIsLogin}
-                    />
-                  </Box>
-                </GridItem>
-              </Grid>
-            </GridItem>
-          </Grid>
-          <IconFooter />
-        </>
+                  {!event.eventNotified ||
+                  (Array.isArray(event.eventNotified) &&
+                    !event.eventNotified.length) ? (
+                    <Text>Aucune invitation envoyée.</Text>
+                  ) : (
+                    <Table>
+                      <Tbody>
+                        {event.eventNotified?.map(({ email: e, status }) => {
+                          return (
+                            <Tr key={e}>
+                              <Td>{e}</Td>
+                              <Td>
+                                <Tag
+                                  variant="solid"
+                                  colorScheme={
+                                    status === StatusTypes.PENDING
+                                      ? "blue"
+                                      : status === StatusTypes.OK
+                                      ? "green"
+                                      : "red"
+                                  }
+                                >
+                                  {StatusTypesV[status]}
+                                </Tag>
+                              </Td>
+                            </Tr>
+                          );
+                        })}
+                      </Tbody>
+                    </Table>
+                  )}
+                </Box>
+              </TabPanel>
+            )}
+          </TabPanels>
+        </EventPageTabs>
       )}
 
       {session && isConfig && (

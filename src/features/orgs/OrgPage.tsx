@@ -1,12 +1,6 @@
 import { Visibility as EventVisibility } from "models/Event";
-import { IOrg, orgTypeFull, orgTypeFull2, OrgTypesV } from "models/Org";
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useRouter } from "next/router";
-import { useSession } from "hooks/useAuth";
-import { format, parseISO } from "date-fns";
-import { fr } from "date-fns/locale";
-import DOMPurify from "isomorphic-dompurify";
+import { IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
+import { ArrowBackIcon, EditIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
   Box,
   Text,
@@ -15,19 +9,20 @@ import {
   useToast,
   TabPanels,
   TabPanel,
-  Icon,
   Flex,
   Tooltip,
   Alert,
   AlertIcon,
   IconButton
 } from "@chakra-ui/react";
-import {
-  AddIcon,
-  ArrowBackIcon,
-  EditIcon,
-  SettingsIcon
-} from "@chakra-ui/icons";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/router";
+import { useSession } from "hooks/useAuth";
+import { format, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
+import DOMPurify from "isomorphic-dompurify";
+import { css } from "twin.macro";
 import {
   Button,
   GridHeader,
@@ -38,13 +33,11 @@ import {
 import { EventsList } from "features/events/EventsList";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
-import { EventModal } from "features/modals/EventModal";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import {
   isFollowedBy,
-  isSubscribedBy,
-  selectSubscriptionRefetch
+  isSubscribedBy
 } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
 import { OrgConfigPanel } from "./OrgConfigPanel";
@@ -218,8 +211,26 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
         <OrgPageTabs>
           <TabPanels>
             <TabPanel aria-hidden>
-              <>
-                <Grid templateRows="auto 1fr">
+              <Grid
+                // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"
+                gridGap={5}
+                css={css`
+                  & {
+                    grid-template-columns: minmax(425px, 1fr) minmax(170px, 1fr);
+                  }
+                  @media (max-width: 650px) {
+                    & {
+                      grid-template-columns: 1fr !important;
+                    }
+                  }
+                `}
+              >
+                <GridItem
+                  rowSpan={4}
+                  borderTopRadius="lg"
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                >
                   <GridHeader borderTopRadius="lg" alignItems="center">
                     <Flex flexDirection="row" alignItems="center">
                       <Heading size="sm" py={3}>
@@ -246,12 +257,9 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
                     </Flex>
                   </GridHeader>
 
-                  <GridItem
-                    light={{ bg: "orange.100" }}
-                    dark={{ bg: "gray.500" }}
-                  >
-                    <Box p={5}>
-                      {org.orgDescription ? (
+                  <GridItem>
+                    <Box className="ql-editor" p={5}>
+                      {org.orgDescription && org.orgDescription.length > 0 ? (
                         <div
                           dangerouslySetInnerHTML={{
                             __html: DOMPurify.sanitize(org.orgDescription)
@@ -273,9 +281,99 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
                       )}
                     </Box>
                   </GridItem>
-                </Grid>
-                <IconFooter />
-              </>
+                </GridItem>
+
+                <GridItem>
+                  <Grid templateRows="auto 1fr">
+                    <GridHeader borderTopRadius="lg" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Adresse
+                      </Heading>
+                    </GridHeader>
+
+                    <GridItem
+                      light={{ bg: "orange.100" }}
+                      dark={{ bg: "gray.500" }}
+                    >
+                      <Box p={5}>
+                        {org.orgAddress || (
+                          <Text fontStyle="italic">Aucune adresse.</Text>
+                        )}
+                      </Box>
+                    </GridItem>
+                  </Grid>
+                </GridItem>
+
+                <GridItem>
+                  <Grid templateRows="auto 1fr">
+                    <GridHeader borderTopRadius="lg" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Adresse e-mail
+                      </Heading>
+                    </GridHeader>
+
+                    <GridItem
+                      light={{ bg: "orange.100" }}
+                      dark={{ bg: "gray.500" }}
+                      overflowX="auto"
+                    >
+                      <Box p={5}>
+                        {org.orgEmail || (
+                          <Text fontStyle="italic">Aucune adresse e-mail.</Text>
+                        )}
+                      </Box>
+                    </GridItem>
+                  </Grid>
+                </GridItem>
+
+                <GridItem>
+                  <Grid templateRows="auto 1fr">
+                    <GridHeader borderTopRadius="lg" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Numéro de téléphone
+                      </Heading>
+                    </GridHeader>
+
+                    <GridItem
+                      light={{ bg: "orange.100" }}
+                      dark={{ bg: "gray.500" }}
+                    >
+                      <Box p={5}>
+                        {org.orgPhone || (
+                          <Text fontStyle="italic">
+                            Aucun numéro de téléphone.
+                          </Text>
+                        )}
+                      </Box>
+                    </GridItem>
+                  </Grid>
+                </GridItem>
+
+                <GridItem>
+                  <Grid templateRows="auto 1fr">
+                    <GridHeader borderTopRadius="lg" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Site internet
+                      </Heading>
+                    </GridHeader>
+
+                    <GridItem
+                      light={{ bg: "orange.100" }}
+                      dark={{ bg: "gray.500" }}
+                    >
+                      <Box p={5}>
+                        {org.orgWeb ? (
+                          <Link variant="underline" href={org.orgWeb}>
+                            {org.orgWeb}
+                          </Link>
+                        ) : (
+                          <Text fontStyle="italic">Aucun site internet.</Text>
+                        )}
+                      </Box>
+                    </GridItem>
+                  </Grid>
+                </GridItem>
+              </Grid>
             </TabPanel>
 
             <TabPanel aria-hidden>

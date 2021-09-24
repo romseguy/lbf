@@ -1,4 +1,4 @@
-import type { AppSession } from "hooks/useAuth";
+import { Session } from "next-auth";
 import type { Visibility } from "./OrgPage";
 import type { IOrg } from "models/Org";
 import React, { useState } from "react";
@@ -24,7 +24,7 @@ export const OrgConfigPanel = ({
   setIsEdit,
   setIsVisible
 }: Visibility & {
-  session: AppSession;
+  session: Session;
   org: IOrg;
   orgQuery: any;
   subQuery: any;
@@ -37,6 +37,7 @@ export const OrgConfigPanel = ({
   const toast = useToast({ position: "top" });
   const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
   const [isDisabled, setIsDisabled] = useState(true);
+  const [orgType, setOrgType] = useState<string>();
 
   return (
     <>

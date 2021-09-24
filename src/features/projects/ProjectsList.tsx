@@ -175,7 +175,7 @@ export const ProjectsList = ({
 
       <Grid data-cy="projectList" {...props}>
         {orgQuery.isLoading || orgQuery.isFetching ? (
-          <Spinner />
+          <Text>Chargement des projets...</Text>
         ) : (
           org.orgProjects.map((orgProject, projectIndex) => {
             const {

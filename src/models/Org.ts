@@ -13,6 +13,8 @@ export interface IOrg {
   orgUrl: string;
   orgType: string;
   orgAddress?: string;
+  orgPhone?: string;
+  orgWeb?: string;
   orgCity?: string;
   orgLat?: number;
   orgLng?: number;
@@ -81,6 +83,8 @@ export const OrgSchema = new Schema<IOrg>(
       required: true
     },
     orgAddress: String,
+    orgPhone: String,
+    orgWeb: String,
     orgCity: String,
     orgLat: Number,
     orgLng: Number,

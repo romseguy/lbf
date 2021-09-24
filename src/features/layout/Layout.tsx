@@ -124,6 +124,7 @@ export const Layout = ({
 
         <Offline>
           <Box
+            pointerEvents="none"
             position="fixed"
             bottom="40px"
             right="20px"

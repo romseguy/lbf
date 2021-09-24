@@ -48,7 +48,7 @@ export const subscriptionApi = createApi({
         body: payload
       })
     }),
-    getSubscription: build.query<ISubscription, string | undefined>({
+    getSubscription: build.query<ISubscription, string | null | undefined>({
       // slug is either :
       // - email
       // - user._id

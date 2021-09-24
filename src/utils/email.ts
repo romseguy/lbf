@@ -25,14 +25,17 @@ export const sendEventToOrgFollowers = async (
 ) => {
   const emailList: string[] = [];
 
-  if (
-    !event.isApproved ||
-    !Array.isArray(event.eventOrgs) ||
-    !event.eventOrgs.length ||
-    !Array.isArray(event.eventNotif) ||
-    !event.eventNotif.length
-  )
-    return emailList;
+  if (!event.isApproved) {
+    throw new Error("L'événément doit être approuvé");
+  }
+
+  if (!Array.isArray(event.eventOrgs)) {
+    throw new Error("L'événement est organisé par aucune organisation");
+  }
+
+  if (!Array.isArray(event.eventNotif) || !event.eventNotif.length) {
+    throw new Error("Aucune organisation spécifiée");
+  }
 
   for (const org of event.eventOrgs) {
     //console.log("notifying followers from org", org);

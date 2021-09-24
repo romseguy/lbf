@@ -5,27 +5,29 @@ declare module "next-auth" {
    * Returned by `useSession`, `getSession` and received as a prop on the `Provider` React Context
    */
   interface Session {
-    user: {
-      email: string | null | undefined;
-      userId: string;
-      userName: string;
-    };
+    user: User;
   }
 
   /**
    * The shape of the user object returned in the OAuth providers' `profile` callback,
    * or the second parameter of the `session` callback, when using a database.
    */
-  // interface User {
-  //   userId: string;
-  //   userName: string;
-  // }
+  interface User {
+    email: string;
+    userId: string;
+    userName: string;
+    userImage?: Base64Image;
+    isAdmin: boolean;
+  }
 }
 
 declare module "next-auth/jwt" {
   /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
   interface JWT {
+    email: string;
     userId: string;
     userName: string;
+    userImage?: Base64Image;
+    isAdmin: boolean;
   }
 }

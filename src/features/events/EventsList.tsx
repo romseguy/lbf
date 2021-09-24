@@ -149,6 +149,7 @@ export const EventsList = ({
         array.push(event);
 
         if (event.repeat) {
+          const repeatCount = event.repeat === 99 ? 10 : event.repeat;
           const start = parseISO(event.eventMinDate);
           const end = parseISO(event.eventMaxDate);
 
@@ -157,14 +158,14 @@ export const EventsList = ({
             end
           });
 
-          for (let i = 1; i <= event.repeat; i++) {
+          for (let i = 1; i <= repeatCount; i++) {
             const eventMinDate = addWeeks(start, i);
             const eventMaxDate = addDays(addHours(eventMinDate, hours), days);
             array.push({
               ...event,
               eventMinDate: formatISO(eventMinDate),
               eventMaxDate: formatISO(eventMaxDate),
-              repeat: event.repeat + i
+              repeat: repeatCount + i
             });
           }
         }
@@ -515,7 +516,7 @@ export const EventsList = ({
             Ajouter un événement
           </Button>
 
-          {isEventModalOpen && (
+          {session && isEventModalOpen && (
             <EventModal
               session={session}
               initialEventOrgs={[org]}

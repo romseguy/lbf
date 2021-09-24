@@ -1,13 +1,11 @@
-//@ts-nocheck
-import nodemailer from "nodemailer";
-import type { Account, Profile, Session, User } from "next-auth";
+import NextAuth, { Account, Profile, Session, User } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import type {
   NextApiRequest,
   NextApiResponse
 } from "next-auth/internals/utils";
-import type { JWT } from "next-auth/jwt";
-import NextAuth from "next-auth";
 import Providers from "next-auth/providers";
+import nodemailer from "nodemailer";
 import api from "utils/api";
 
 const createOptions = (req: NextApiRequest) => ({
@@ -30,14 +28,14 @@ const createOptions = (req: NextApiRequest) => ({
         });
 
         if (data) {
-          const user = {
+          const user: User = {
             email,
             userId: data._id,
             userName: data.userName,
             userImage: data.userImage,
             isAdmin: data.isAdmin || false
           };
-          //console.log("AUTHORIZED:", user);
+          console.log("AUTHORIZED:", user);
           return user;
         }
 
@@ -93,7 +91,8 @@ const createOptions = (req: NextApiRequest) => ({
       profile?: Profile;
       isNewUser?: boolean;
     }) {
-      //console.log("JWT() PARAMS:", params);
+      console.log("JWT() PARAMS:", params);
+
       if (!params.token) {
         return params;
       }
@@ -101,7 +100,7 @@ const createOptions = (req: NextApiRequest) => ({
       const { user, account } = params;
 
       if (user && account) {
-        //console.log("JWT() INITIAL SIGN IN");
+        console.log("JWT() INITIAL SIGN IN");
       }
 
       let token = params.token;
@@ -114,7 +113,7 @@ const createOptions = (req: NextApiRequest) => ({
         token = { ...token, ...user };
       }
 
-      // //console.log("JWT() RETURN:", token);
+      console.log("JWT() RETURN:", token);
       return token;
     },
 
@@ -144,6 +143,7 @@ const createOptions = (req: NextApiRequest) => ({
 });
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
+  // @ts-expect-error
   return NextAuth(req, res, createOptions(req));
 };
 

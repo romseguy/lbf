@@ -17,6 +17,7 @@ export interface IEvent {
   eventLng?: number;
   eventEmail?: string;
   eventPhone?: string;
+  eventWeb?: string;
   eventDescription?: string;
   eventVisibility?: string;
   eventOrgs: IOrg[];
@@ -112,6 +113,7 @@ export const EventSchema = new Schema<IEvent>(
     eventLng: Number,
     eventEmail: String,
     eventPhone: String,
+    eventWeb: String,
     eventDescription: String,
     eventVisibility: {
       type: String,

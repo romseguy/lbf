@@ -123,9 +123,7 @@ handler.get<
       })
       .execPopulate();
 
-    if (event) {
-      res.status(200).json(event);
-    }
+    res.status(200).json(event);
   } catch (error) {
     res.status(500).json(createServerError(error));
   }
@@ -218,20 +216,21 @@ handler.put<
           );
       }
 
-      if (
-        !body.eventNotified &&
-        !equals(event.createdBy, session.user.userId) &&
-        !session.user.isAdmin
-      ) {
-        return res
-          .status(403)
-          .json(
-            createServerError(
-              new Error(
-                "Vous ne pouvez pas modifier un événement que vous n'avez pas créé."
+      if (!body.eventNotified && session) {
+        if (
+          !equals(event.createdBy, session.user.userId) &&
+          !session.user.isAdmin
+        ) {
+          return res
+            .status(403)
+            .json(
+              createServerError(
+                new Error(
+                  "Vous ne pouvez pas modifier un événement que vous n'avez pas créé."
+                )
               )
-            )
-          );
+            );
+        }
       }
 
       if (body.eventName) body.eventUrl = normalize(body.eventName);

@@ -12,10 +12,10 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { ProjectForm } from "features/forms/ProjectForm";
-import { AppSession } from "hooks/useAuth";
+import { Session } from "next-auth";
 
 export const ProjectModal = (props: {
-  session: AppSession;
+  session: Session;
   org?: IOrg;
   project?: IProject;
   isCreator?: boolean;

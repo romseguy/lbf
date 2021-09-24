@@ -9,7 +9,7 @@ import {
   ModalBody
 } from "@chakra-ui/react";
 import { OrgForm } from "features/forms/OrgForm";
-import { AppSession } from "hooks/useAuth";
+import { Session } from "next-auth";
 import { orgTypeFull2, orgTypeFull3, OrgTypesV } from "models/Org";
 
 export const OrgModal = ({
@@ -18,7 +18,7 @@ export const OrgModal = ({
   onSubmit,
   ...props
 }: {
-  session: AppSession;
+  session: Session;
   onCancel: () => void;
   onClose: () => void;
   onSubmit: (orgUrl: string) => void;

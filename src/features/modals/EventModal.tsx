@@ -1,4 +1,4 @@
-import type { AppSession } from "hooks/useAuth";
+import { Session } from "next-auth";
 import type { IOrg } from "models/Org";
 import React from "react";
 import {
@@ -13,7 +13,7 @@ import {
 import { EventForm } from "features/forms/EventForm";
 
 export const EventModal = (props: {
-  session: AppSession;
+  session: Session;
   initialEventOrgs?: IOrg[];
   onCancel: () => void;
   onClose: () => void;

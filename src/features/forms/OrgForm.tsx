@@ -1,4 +1,4 @@
-import type { AppSession } from "hooks/useAuth";
+import { Session } from "next-auth";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
@@ -12,7 +12,9 @@ import {
   Flex,
   Alert,
   AlertIcon,
-  Select
+  Select,
+  InputGroup,
+  InputLeftElement
 } from "@chakra-ui/react";
 import {
   AddressControl,
@@ -30,11 +32,12 @@ import { useEffect } from "react";
 import { normalize } from "utils/string";
 import { unwrapSuggestion } from "utils/maps";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { AtSignIcon, PhoneIcon } from "@chakra-ui/icons";
 
 interface OrgFormProps extends ChakraProps {
-  session: AppSession;
+  session: Session;
   org?: IOrg;
-  setOrgType: (orgType: string) => void;
+  setOrgType?: (orgType: string) => void;
   onClose?: () => void;
   onCancel?: () => void;
   onSubmit?: (orgUrl: string) => void;
@@ -62,7 +65,7 @@ export const OrgForm = withGoogleApi({
     mode: "onChange"
   });
   watch("orgAddress");
-  props.setOrgType(getValues("orgType"));
+  if (props.setOrgType) props.setOrgType(getValues("orgType"));
   const orgAddress = getValues("orgAddress") || props.org?.orgAddress;
   const orgType =
     orgTypeFull(getValues("orgType") || props.org?.orgType) ||
@@ -242,6 +245,50 @@ export const OrgForm = withGoogleApi({
         mb={3}
         placeholder={`Adresse e-mail ${orgType}`}
       />
+
+      <FormControl id="orgPhone" isInvalid={!!errors["orgPhone"]} mb={3}>
+        <FormLabel>Numéro de téléphone</FormLabel>
+        <InputGroup>
+          <InputLeftElement pointerOrgs="none" children={<PhoneIcon />} />
+          <Input
+            name="orgPhone"
+            placeholder={`Numéro de téléphone ${orgType}`}
+            ref={register({
+              pattern: {
+                value: /^[0-9]{10,}$/i,
+                message: "Numéro de téléphone invalide"
+              }
+            })}
+            defaultValue={props.org?.orgPhone}
+            pl={10}
+          />
+        </InputGroup>
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="orgPhone" />
+        </FormErrorMessage>
+      </FormControl>
+
+      <FormControl id="orgWeb" isInvalid={!!errors["orgWeb"]} mb={3}>
+        <FormLabel>Site internet</FormLabel>
+        <InputGroup>
+          <InputLeftElement pointerOrgs="none" children={<AtSignIcon />} />
+          <Input
+            name="orgWeb"
+            placeholder={`Site internet ${orgType}`}
+            ref={register({
+              pattern: {
+                value: /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/i,
+                message: "Adresse invalide"
+              }
+            })}
+            defaultValue={props.org?.orgWeb}
+            pl={10}
+          />
+        </InputGroup>
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="orgWeb" />
+        </FormErrorMessage>
+      </FormControl>
 
       <FormControl
         id="orgDescription"

@@ -500,6 +500,7 @@ export const OrgConfigSubscribersPanel = ({
                   // )
                   .map((subscription, index) => {
                     const { email, user, orgs = [] } = subscription;
+
                     const userEmail =
                       typeof user === "object" ? user.email : email;
 
@@ -509,8 +510,8 @@ export const OrgConfigSubscribersPanel = ({
                     let subscribing: IOrgSubscription | null = null;
 
                     for (const orgSubscription of orgs) {
-                      const { type } = orgSubscription;
-                      if (!type) continue;
+                      const { type, orgId } = orgSubscription;
+                      if (orgId !== org._id || !type) continue;
 
                       if (type === SubscriptionTypes.FOLLOWER)
                         following = orgSubscription;

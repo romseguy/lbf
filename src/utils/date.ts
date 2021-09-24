@@ -6,6 +6,16 @@ import {
 } from "date-fns";
 import { fr } from "date-fns/locale";
 
+export const days = [
+  "Lundi",
+  "Mardi",
+  "Mercredi",
+  "Jeudi",
+  "Vendredi",
+  "Samedi",
+  "Dimanche"
+];
+
 const formatDistanceLocale = {
   xSeconds: "{{count}}s",
   xMinutes: "{{count}}m",

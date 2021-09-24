@@ -21,7 +21,7 @@ import {
 } from "@chakra-ui/react";
 import { WarningIcon } from "@chakra-ui/icons";
 import { ErrorMessageText, RTEditor } from "features/common";
-import { AppSession } from "hooks/useAuth";
+import { Session } from "next-auth";
 import { Visibility, VisibilityV } from "models/Project";
 import { handleError } from "utils/form";
 import {
@@ -33,7 +33,7 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
 import { SerializedError } from "@reduxjs/toolkit";
 
 interface ProjectFormProps extends ChakraProps {
-  session: AppSession;
+  session: Session;
   org?: IOrg;
   project?: IProject;
   isCreator?: boolean;

@@ -69,7 +69,7 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
   const subQuery = useGetSubscriptionQuery(userEmail || session?.user.email);
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
-    console.log("refetching subscription");
+    // console.log("refetching subscription");
     subQuery.refetch();
   }, [subscriptionRefetch, session?.user.email]);
   const orgFollowerSubscriptions = subQuery.data?.orgs.filter(
