@@ -58,6 +58,11 @@ export const orgTypeFull3 = (orgType?: string): string => {
   ].toLowerCase()}`;
 };
 
+export const orgTypeFull4 = (orgType: string): string =>
+  `${orgType === OrgTypes.ASSO ? "cette " : "ce "}${OrgTypesV[
+    orgType
+  ].toLowerCase()}`;
+
 export const OrgSchema = new Schema<IOrg>(
   {
     orgName: {

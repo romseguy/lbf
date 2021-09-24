@@ -1,8 +1,4 @@
-import {
-  ISubscription,
-  IOrgSubscription,
-  SubscriptionTypes
-} from "models/Subscription";
+import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { signIn } from "next-auth/client";
@@ -37,8 +33,6 @@ import {
   ModalHeader,
   ModalCloseButton,
   ModalBody,
-  ModalFooter,
-  Stack,
   Tooltip,
   BoxProps,
   useToast,
@@ -47,32 +41,22 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessageText, Link } from "features/common";
 import { useSession } from "hooks/useAuth";
-import {
-  ArrowForwardIcon,
-  ArrowRightIcon,
-  DeleteIcon,
-  EmailIcon,
-  WarningIcon
-} from "@chakra-ui/icons";
+import { ArrowForwardIcon, DeleteIcon, EmailIcon } from "@chakra-ui/icons";
 import { useForm } from "react-hook-form";
 import { emailR } from "utils/email";
 import { ErrorMessage } from "@hookform/error-message";
 import {
-  getSubscription,
   useDeleteSubscriptionMutation,
-  useEditSubscriptionMutation,
   useGetSubscriptionQuery
 } from "features/subscriptions/subscriptionsApi";
 import { useAppDispatch } from "store";
-import { handleError } from "utils/form";
-import { IoIosPerson, IoMdCheckmarkCircle } from "react-icons/io";
-import { selectUserEmail, setUserEmail } from "features/users/userSlice";
+import { selectUserEmail } from "features/users/userSlice";
 import { useSelector } from "react-redux";
 import {
   refetchSubscription,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
-import api from "utils/api";
+import { OrgSubscriptionForm } from "features/forms/OrgSubscriptionForm";
 
 export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
   const router = useRouter();
@@ -213,15 +197,7 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
   const step2 = (
     <PopoverContent>
       <PopoverHeader>
-        <Heading size="md">
-          <Link
-            onClick={() => {
-              dispatch(setUserEmail(null));
-            }}
-          >
-            {userEmail || "Mes abonnements"}
-          </Link>
-        </Heading>
+        <Heading size="md">{userEmail || "Mes abonnements"}</Heading>
       </PopoverHeader>
       <PopoverCloseButton />
       <PopoverBody>
@@ -242,6 +218,7 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
 
                         <Link
                           variant="underline"
+                          aria-hidden
                           onClick={() => {
                             onOpen();
                             setCurrentOrgSubscription(orgSubscription);
@@ -439,17 +416,13 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
             </ModalHeader>
             <ModalCloseButton ml={5} data-cy="subscriptionPopoverCloseButton" />
             <ModalBody>
-              TODO!
-              {/* <OrgSubscriptionForm
+              <OrgSubscriptionForm
+                org={currentOrgSubscription.org}
                 onCancel={onClose}
-                onSubmit={async (subscriptionName) => {
-                  onClose();
-                  await router.push(`/${subscriptionName}`);
-                }}
-                onClose={() => {
+                onSubmit={async () => {
                   onClose();
                 }}
-              /> */}
+              />
             </ModalBody>
           </ModalContent>
         </Modal>

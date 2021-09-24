@@ -75,7 +75,6 @@ interface EventFormProps extends ChakraProps {
   session: AppSession;
   event?: IEvent;
   initialEventOrgs?: IOrg[];
-  onClose?: () => void;
   onCancel?: () => void;
   onSubmit?: (eventUrl: string) => void;
 }
@@ -303,7 +302,6 @@ export const EventForm = withGoogleApi({
       }
 
       props.onSubmit && props.onSubmit(payload.eventUrl);
-      props.onClose && props.onClose();
     } catch (error) {
       handleError(error, (message, field) => {
         if (field) {

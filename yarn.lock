@@ -2132,6 +2132,13 @@
     date-fns "^2.0.1"
     popper.js "^1.14.1"
 
+"@types/react-detect-offline@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@types/react-detect-offline/-/react-detect-offline-2.4.0.tgz#71aabc5a6ccf7b56350231fb2be8ee75747aa89d"
+  integrity sha512-mjVgUd56ne8PvRP7TMHbw3uAMVAb7WnGIh8lZ3V5DNDsdQsLXtbXd0eP1PJsoMHT1/xmGhSMxo+OInhzExHhUQ==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-dom@*", "@types/react-dom@^17.0.0":
   version "17.0.9"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-17.0.9.tgz#441a981da9d7be117042e1a6fd3dac4b30f55add"
@@ -6529,6 +6536,11 @@ react-datepicker@^4.1.1:
     prop-types "^15.7.2"
     react-onclickoutside "^6.10.0"
     react-popper "^2.2.5"
+
+react-detect-offline@^2.4.5:
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/react-detect-offline/-/react-detect-offline-2.4.5.tgz#3c242516c37b6789cf89102881031f87e70b80e6"
+  integrity sha512-sI13NPEKl3uQp95FT5CwrYzH3DnXCwNP6TnY6NRF5gFDM4NU9KDlbtA6HG2dwhDVS0RYQGXwZW/mHbdf8fCnaw==
 
 react-device-detect@^1.17.0:
   version "1.17.0"
