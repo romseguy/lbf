@@ -12,6 +12,7 @@ import {
 import { isMobile } from "react-device-detect";
 import { FaHome, FaTools } from "react-icons/fa";
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
+import { IoIosDocument } from "react-icons/io";
 
 export const OrgPageTabs = ({
   children,
@@ -103,11 +104,11 @@ export const OrgPageTabs = ({
         aria-hidden
       >
         {[
-          // { name: "Accueil", icon: <FaHome boxSize={6} /> },
           { name: "Accueil", icon: FaHome },
           { name: "Événements", icon: CalendarIcon },
           { name: "Projets", icon: FaTools },
-          { name: "Discussions", icon: ChatIcon }
+          { name: "Discussions", icon: ChatIcon },
+          { name: "Documents", icon: IoIosDocument }
         ].map(({ name, icon }, tabIndex) => (
           <CustomTab
             key={`orgTab-${tabIndex}`}

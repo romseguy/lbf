@@ -142,6 +142,8 @@ export const OrgConfigLogoPanel = ({
               <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
                 <FormLabel>Image</FormLabel>
                 <Input
+                  height="auto"
+                  py={3}
                   name="file"
                   type="file"
                   accept="image/*"

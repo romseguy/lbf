@@ -45,6 +45,7 @@ import { selectOrgRefetch } from "./orgSlice";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { useGetOrgQuery } from "./orgsApi";
+import { DocumentsList } from "features/documents/DocumentsList";
 
 export type Visibility = {
   isVisible: {
@@ -416,6 +417,17 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
                 setIsLogin={setIsLogin}
               />
               <IconFooter />
+            </TabPanel>
+
+            <TabPanel aria-hidden>
+              <DocumentsList
+                org={org}
+                query={orgQuery}
+                isCreator={isCreator}
+                isSubscribed={isSubscribed}
+                isLogin={isLogin}
+                setIsLogin={setIsLogin}
+              />
             </TabPanel>
           </TabPanels>
         </OrgPageTabs>

@@ -12,6 +12,7 @@ import { projectApi } from "features/projects/projectsApi";
 import { subscriptionApi } from "features/subscriptions/subscriptionsApi";
 import { topicsApi } from "features/forum/topicsApi";
 import { userApi } from "features/users/usersApi";
+import { documentApi } from "features/documents/documentsApi";
 
 const makeStore = () =>
   configureStore({
@@ -19,6 +20,7 @@ const makeStore = () =>
       org,
       subscription,
       user,
+      [documentApi.reducerPath]: documentApi.reducer,
       [eventApi.reducerPath]: eventApi.reducer,
       [orgApi.reducerPath]: orgApi.reducer,
       [projectApi.reducerPath]: projectApi.reducer,
@@ -28,6 +30,7 @@ const makeStore = () =>
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({ serializableCheck: false }).concat(
+        documentApi.middleware,
         eventApi.middleware,
         orgApi.middleware,
         projectApi.middleware,
