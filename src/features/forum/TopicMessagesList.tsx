@@ -8,10 +8,17 @@ import {
   IconButton,
   Spinner,
   Tag,
-  Tooltip
+  Tooltip,
+  useColorMode
 } from "@chakra-ui/react";
 import { EditIcon } from "@chakra-ui/icons";
-import { Container, DeleteButton, Link, RTEditor } from "features/common";
+import {
+  Container,
+  DeleteButton,
+  formats,
+  Link,
+  RTEditor
+} from "features/common";
 import { useSession } from "hooks/useAuth";
 import { ITopic } from "models/Topic";
 import * as dateUtils from "utils/date";
@@ -26,6 +33,8 @@ export const TopicMessagesList = ({
   query: any;
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
 
   const subQuery = useGetSubscriptionsQuery({ topicId: topic._id });
 
@@ -42,7 +51,7 @@ export const TopicMessagesList = ({
   if (!topic) return null;
 
   return (
-    <Flex flexDirection="column" pt={3} px={2}>
+    <Flex flexDirection="column" pt={3} px={3}>
       <Box>
         {topic.topicMessages.map(
           ({ _id, message, createdBy, createdAt }, index) => {
@@ -62,7 +71,6 @@ export const TopicMessagesList = ({
               userId === session?.user.userId || session?.user.isAdmin;
 
             return (
-              //<Flex key={_id} px={2} pt={index === 0 ? 3 : 0} pb={3} bg="red">
               <Box key={_id} display="flex" pb={3}>
                 <Link variant="no-underline" href={userName}>
                   <Avatar name={userName} boxSize={10} src={userImage} />
@@ -70,7 +78,7 @@ export const TopicMessagesList = ({
                 <Box ml={2}>
                   <Container
                     borderRadius={18}
-                    light={{ bg: "orange.50" }}
+                    light={{ bg: "white" }}
                     dark={{ bg: "gray.600" }}
                     px={3}
                     data-cy="topicMessage"
@@ -78,10 +86,11 @@ export const TopicMessagesList = ({
                     <Link href={`/${userName}`} fontWeight="bold">
                       {userName}
                     </Link>
+
                     {_id && isEdit[_id] && isEdit[_id].isOpen ? (
                       <Box pt={1} pb={3}>
                         <RTEditor
-                          //defaultValue={isEdit[_id].html || message}
+                          formats={formats.filter((f) => f !== "size")}
                           defaultValue={message}
                           onChange={(html) => {
                             setIsEdit({
@@ -243,7 +252,7 @@ export const TopicMessagesList = ({
         )}
       </Box>
 
-      <Box bg="gray.200" borderRadius="lg" p={3}>
+      <Box bg={isDark ? "gray.600" : "gray.200"} borderRadius="lg" p={3}>
         Abonnés à la discussion :{" "}
         {subQuery.isLoading || subQuery.isFetching ? (
           <Spinner boxSize={4} />
@@ -251,7 +260,7 @@ export const TopicMessagesList = ({
           Array.isArray(subQuery.data) &&
           subQuery.data.map((subscription) => {
             return (
-              <>
+              <div key={subscription._id}>
                 {typeof subscription.user === "object" && (
                   <>
                     <Link href={`/${subscription.user.userName}`}>
@@ -261,7 +270,7 @@ export const TopicMessagesList = ({
                     </Link>
                   </>
                 )}
-              </>
+              </div>
             );
           })
         )}

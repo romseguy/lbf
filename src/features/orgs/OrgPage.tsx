@@ -287,7 +287,11 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
                   </GridItem>
                 </GridItem>
 
-                <GridItem>
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                  borderTopRadius="lg"
+                >
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>
@@ -308,7 +312,11 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
                   </Grid>
                 </GridItem>
 
-                <GridItem>
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                  borderTopRadius="lg"
+                >
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>
@@ -330,7 +338,11 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
                   </Grid>
                 </GridItem>
 
-                <GridItem>
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                  borderTopRadius="lg"
+                >
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>
@@ -353,7 +365,11 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
                   </Grid>
                 </GridItem>
 
-                <GridItem>
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                  borderTopRadius="lg"
+                >
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>
@@ -428,6 +444,7 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
               />
+              <IconFooter />
             </TabPanel>
           </TabPanels>
         </OrgPageTabs>

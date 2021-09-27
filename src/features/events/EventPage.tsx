@@ -2,7 +2,7 @@ import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "hooks/useAuth";
-import { parseISO, format, getHours } from "date-fns";
+import { parseISO, format, getHours, intervalToDuration } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { css } from "twin.macro";
@@ -63,7 +63,31 @@ import { EventAttendingForm } from "./EventAttendingForm";
 import { EventSendForm } from "features/common/forms/EventSendForm";
 import { useGetEventQuery } from "./eventsApi";
 import { EventPageTabs } from "./EventPageTabs";
-import { days } from "utils/date";
+import { days, formatArray, formatDuration } from "utils/date";
+
+const timelineStyles = css`
+  & > li {
+    list-style: none;
+    margin-left: 24px;
+    margin-top: 0 !important;
+    border-left: 2px dashed #3f4e58;
+    padding: 0 0 0 20px;
+    position: relative;
+
+    &::before {
+      position: absolute;
+      left: -14px;
+      top: 0;
+      content: " ";
+      border: 8px solid rgba(255, 255, 255, 0.74);
+      border-radius: 500%;
+      background: #3f4e58;
+      height: 25px;
+      width: 25px;
+      transition: all 500ms ease-in-out;
+    }
+  }
+`;
 
 export type Visibility = {
   isVisible: {
@@ -333,7 +357,11 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                   </GridItem>
                 </GridItem>
 
-                <GridItem>
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                  borderTopRadius="lg"
+                >
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>
@@ -352,32 +380,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                               <CalendarIcon mr={1} />
                               Toutes les semaines
                             </Text>
-                            <List
-                              spacing={3}
-                              css={css`
-                                & > li {
-                                  list-style: none;
-                                  margin-left: 24px;
-                                  margin-top: 0 !important;
-                                  border-left: 2px dashed #3f4e58;
-                                  padding: 0 0 0 20px;
-                                  position: relative;
-
-                                  &::before {
-                                    position: absolute;
-                                    left: -14px;
-                                    top: 0;
-                                    content: " ";
-                                    border: 8px solid rgba(255, 255, 255, 0.74);
-                                    border-radius: 500%;
-                                    background: #3f4e58;
-                                    height: 25px;
-                                    width: 25px;
-                                    transition: all 500ms ease-in-out;
-                                  }
-                                }
-                              `}
-                            >
+                            <List spacing={3} css={timelineStyles}>
                               {days.map((day) => {
                                 return (
                                   <ListItem>
@@ -398,15 +401,54 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                               })}
                             </List>
                           </>
-                        ) : (
+                        ) : event.repeat ? (
                           <></>
+                        ) : (
+                          <>
+                            <Text fontWeight="bold" mb={1}>
+                              <CalendarIcon mr={1} />
+                              {formatDuration(
+                                intervalToDuration({
+                                  start: parseISO(event.eventMinDate),
+                                  end: parseISO(event.eventMaxDate)
+                                }),
+                                { format: formatArray }
+                              )}
+                            </Text>
+                            <List spacing={3} css={timelineStyles}>
+                              <ListItem>
+                                <Text fontWeight="bold">
+                                  {format(
+                                    parseISO(event.eventMinDate),
+                                    "EEEE",
+                                    { locale: fr }
+                                  )}
+                                  <Box ml={3}>
+                                    {format(
+                                      parseISO(event.eventMinDate),
+                                      "H:mm"
+                                    )}
+                                    <ArrowForwardIcon />
+                                    {format(
+                                      parseISO(event.eventMaxDate),
+                                      "H:mm"
+                                    )}
+                                  </Box>
+                                </Text>
+                              </ListItem>
+                            </List>
+                          </>
                         )}
                       </Box>
                     </GridItem>
                   </Grid>
                 </GridItem>
 
-                <GridItem>
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                  borderTopRadius="lg"
+                >
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>
@@ -446,7 +488,11 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                   </Grid>
                 </GridItem>
 
-                <GridItem>
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                  borderTopRadius="lg"
+                >
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>
@@ -480,7 +526,11 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                   </Grid>
                 </GridItem>
 
-                <GridItem>
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                  borderTopRadius="lg"
+                >
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>
@@ -524,7 +574,11 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                   </Grid>
                 </GridItem>
 
-                <GridItem>
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                  borderTopRadius="lg"
+                >
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>

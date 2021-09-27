@@ -25,7 +25,7 @@ import {
   useColorMode,
   useToast
 } from "@chakra-ui/react";
-import { DeleteButton, Grid, GridItem, Link } from "features/common";
+import { DeleteButton, formats, Grid, GridItem, Link } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { TopicMessagesList } from "./TopicMessagesList";
 import { AddIcon } from "@chakra-ui/icons";
@@ -518,7 +518,7 @@ export const TopicsList = ({
                     {isCurrent && (
                       <>
                         <GridItem
-                          light={{ bg: "white" }}
+                          light={{ bg: "orange.50" }}
                           dark={{ bg: "gray.700" }}
                         >
                           <TopicMessagesList
@@ -528,7 +528,7 @@ export const TopicsList = ({
                         </GridItem>
 
                         <GridItem
-                          light={{ bg: "white" }}
+                          light={{ bg: "orange.50" }}
                           dark={{ bg: "gray.700" }}
                           pb={3}
                           borderBottomRadius="xl"
@@ -538,6 +538,7 @@ export const TopicsList = ({
                             event={event}
                             org={org}
                             topic={entityTopic}
+                            formats={formats.filter((f) => f !== "size")}
                             onLoginClick={() => setIsLogin(isLogin + 1)}
                             onSubmit={() => query.refetch()}
                           />

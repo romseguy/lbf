@@ -7,13 +7,22 @@ import {
 import { fr } from "date-fns/locale";
 
 export const days = [
-  "Lundi",
-  "Mardi",
-  "Mercredi",
-  "Jeudi",
-  "Vendredi",
-  "Samedi",
-  "Dimanche"
+  "lundi",
+  "mardi",
+  "mercredi",
+  "jeudi",
+  "vendredi",
+  "samedi",
+  "dimanche"
+];
+
+export const formatArray = [
+  "years",
+  "months",
+  "weeks",
+  "days",
+  "hours",
+  "minutes"
 ];
 
 const formatDistanceLocale = {
@@ -57,16 +66,16 @@ export const timeAgo = (date?: string | Date, isShort?: boolean) => {
     end
   });
 
-  let formatArray = ["years", "months", "weeks", "days", "hours", "minutes"];
+  let format = formatArray;
 
   if (isShort) {
     if (duration.days === 0 && duration.hours && duration.hours > 0) {
-      formatArray = ["hours"];
+      format = formatArray.filter((f) => f === "hours");
     }
   }
 
   const formatted = formatDuration(duration, {
-    format: formatArray
+    format
   });
 
   return { timeAgo: formatted === "" ? "1m" : formatted, fullDate };

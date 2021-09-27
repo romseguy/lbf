@@ -7,6 +7,23 @@ import { Tooltip, useColorMode } from "@chakra-ui/react";
 import { FaHeart } from "react-icons/fa";
 import { getUniqueId } from "utils/string";
 
+export const formats = [
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "blockquote",
+  "header",
+  "list",
+  "color",
+  "align",
+  "link",
+  "image",
+  "video",
+  "undo",
+  "redo"
+];
+
 const ReactQuillStyles = styled("span")(
   (props: { height?: string; width?: string }) => {
     const { colorMode } = useColorMode();
@@ -138,12 +155,14 @@ const ReactQuillStyles = styled("span")(
   }
 );
 
-const CustomToolbar = ({ id }: { id: string }) => {
+const CustomToolbar = ({ id, formats }: { id: string; formats: string[] }) => {
   return (
     <div id={id}>
-      <span className="ql-formats">
-        <select className="ql-size" title="Taille du texte" />
-      </span>
+      {formats.includes("size") && (
+        <span className="ql-formats">
+          <select className="ql-size" title="Taille du texte" />
+        </span>
+      )}
       <span className="ql-formats">
         <select className="ql-color" title="Texte en couleur" />
 
@@ -209,6 +228,7 @@ export const RTEditor = ({
   placeholder?: string;
   height?: string;
   width?: string;
+  formats?: string[];
 }) => {
   const shortId = getUniqueId();
 
@@ -228,27 +248,10 @@ export const RTEditor = ({
     }
   });
 
-  const formats = [
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "blockquote",
-    "header",
-    "list",
-    "color",
-    "align",
-    "link",
-    "image",
-    "video",
-    "undo",
-    "redo"
-  ];
-
   const options = {
     theme: "snow",
     modules: modules(shortId),
-    formats,
+    formats: props.formats || formats,
     placeholder,
     readOnly
   };
@@ -322,7 +325,7 @@ export const RTEditor = ({
 
   return (
     <ReactQuillStyles height={props.height} width={props.width}>
-      <CustomToolbar id={shortId} />
+      <CustomToolbar id={shortId} formats={props.formats || formats} />
       <div ref={quillRef} />
     </ReactQuillStyles>
   );

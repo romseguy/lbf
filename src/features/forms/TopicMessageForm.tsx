@@ -27,6 +27,7 @@ import { useAddEventDetailsMutation } from "features/events/eventsApi";
 interface TopicMessageFormProps extends ChakraProps {
   org?: IOrg;
   event?: IEvent;
+  formats?: string[];
   topic: ITopic;
   topicMessage?: ITopicMessage;
   onLoginClick: () => void;
@@ -143,6 +144,7 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
           render={(p) => {
             return (
               <RTEditor
+                formats={props.formats}
                 readOnly={session === null}
                 defaultValue={topicMessageDefaultValue}
                 onChange={(html: string) => {
