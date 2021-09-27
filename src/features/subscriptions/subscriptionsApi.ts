@@ -56,6 +56,11 @@ export const subscriptionApi = createApi({
       query: (slug) => ({
         url: `subscription/${slug || ""}`
       })
+    }),
+    getSubscriptions: build.query<ISubscription[], { topicId?: string }>({
+      query: ({ topicId }) => ({
+        url: `subscriptions${topicId ? `?topicId=${topicId}` : ""}`
+      })
     })
     // getSubscription: build.query<ISubscription, string | undefined>({
     //   query: (string) => ({ url: `subscriptions/${string}` })
@@ -67,7 +72,8 @@ export const {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation,
   useEditSubscriptionMutation,
-  useGetSubscriptionQuery
+  useGetSubscriptionQuery,
+  useGetSubscriptionsQuery
 } = subscriptionApi;
 export const {
   endpoints: { getSubscription }

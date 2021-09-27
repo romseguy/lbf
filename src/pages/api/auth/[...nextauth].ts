@@ -91,7 +91,7 @@ const createOptions = (req: NextApiRequest) => ({
       profile?: Profile;
       isNewUser?: boolean;
     }) {
-      console.log("JWT() PARAMS:", params);
+      //console.log("JWT() PARAMS:", params);
 
       if (!params.token) {
         return params;

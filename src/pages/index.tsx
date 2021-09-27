@@ -47,7 +47,7 @@ const IndexPage = (props: any) => {
               size="larger"
               onClick={() => setIsAbout(!isAbout)}
             >
-              À propos de ${process.env.NEXT_PUBLIC_SHORT_URL}
+              À propos de {process.env.NEXT_PUBLIC_SHORT_URL}
             </Link>
           </Box>
 

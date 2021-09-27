@@ -13,12 +13,30 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<NextApiRequest, NextApiResponse>(async function getSubscriptions(
-  req,
-  res
-) {
-  console.log("getSubscriptions");
-});
+handler.get<NextApiRequest & { query: { topicId?: string } }, NextApiResponse>(
+  async function getSubscriptions(req, res) {
+    const {
+      query: { topicId }
+    } = req;
+
+    const array: ISubscription[] = [];
+    const subscriptions = await models.Subscription.find({});
+
+    for (const subscription of subscriptions) {
+      for (const topicSubscription of subscription.topics) {
+        if (equals(topicSubscription.topic, topicId)) {
+          const s = await subscription
+            .populate("user", "-userImage -email -password -securityCode")
+            .execPopulate();
+          array.push(s);
+          break;
+        }
+      }
+    }
+
+    res.status(200).json(array);
+  }
+);
 
 handler.post<
   NextApiRequest & {
