@@ -10,15 +10,22 @@ import {
   Stack,
   FormErrorMessage,
   Alert,
-  AlertIcon
+  AlertIcon,
+  useToast,
+  Flex,
+  Radio,
+  RadioGroup,
+  GridProps
 } from "@chakra-ui/react";
 import { useEditEventMutation } from "features/events/eventsApi";
 import {
   Button,
   ErrorMessageText,
+  Grid,
   GridHeader,
   GridItem,
   Input,
+  Link,
   Select
 } from "features/common";
 import {
@@ -31,46 +38,76 @@ import { useForm } from "react-hook-form";
 import { handleError } from "utils/form";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRef } from "react";
+import { UrlControl } from "features/common/forms/UrlControl";
+import { urlR } from "utils/url";
 
-type EventConfigBannerPanelProps = Visibility & {
-  event: IEvent;
-  eventQuery: any;
-};
+type EventConfigBannerPanelProps = GridProps &
+  Visibility & {
+    event: IEvent;
+    eventQuery: any;
+  };
 
 export const EventConfigBannerPanel = ({
   event,
   eventQuery,
   isVisible,
-  setIsVisible
+  setIsVisible,
+  ...props
 }: EventConfigBannerPanelProps) => {
+  const toast = useToast({ position: "top" });
   const [editEvent, editEventMutation] = useEditEventMutation();
-  const { register, handleSubmit, setError, errors, clearErrors, watch } =
-    useForm({
-      mode: "onChange"
-    });
-  const height = watch("height");
-  const width = watch("width");
 
+  //#region local state
   const [upImg, setUpImg] = useState<string | File>();
   const setEditorRef = useRef<AvatarEditor | null>(null);
+  //#endregion
+
+  //#region form state
+  const {
+    register,
+    handleSubmit,
+    setError,
+    errors,
+    clearErrors,
+    getValues,
+    watch
+  } = useForm({
+    mode: "onChange"
+  });
+  const uploadType = watch("uploadType");
+  const height = watch("height");
+  const width = watch("width");
+  //#endregion
 
   const onSubmit = async (form: any) => {
     console.log("submitted", form);
 
     try {
-      await editEvent({
-        payload: {
-          ...event,
+      let payload = {};
+
+      if (form.uploadType === "url") {
+        payload = { eventBanner: { url: form.url } };
+      } else {
+        payload = {
           eventBanner: {
             width: form.width,
             height: form.height,
             mode: form.mode,
             base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL()
           }
-        },
+        };
+      }
+
+      await editEvent({
+        payload,
         eventUrl: event.eventUrl
       });
+      toast({
+        title: "L'image de couverture a bien été modifiée !",
+        status: "success"
+      });
       eventQuery.refetch();
+      setIsVisible({ ...isVisible, banner: false });
     } catch (error) {
       handleError(error, (message) =>
         setError("formErrorMessage", {
@@ -82,23 +119,30 @@ export const EventConfigBannerPanel = ({
   };
 
   return (
-    <>
-      <GridHeader
-        borderTopRadius="lg"
-        alignItems="center"
-        cursor="pointer"
+    <Grid {...props}>
+      <Link
+        variant="no-underline"
         onClick={() =>
           setIsVisible({
             ...isVisible,
-            banner: !isVisible.banner
+            banner: !isVisible.banner,
+            logo: false
           })
         }
       >
-        <Heading size="sm" py={3}>
-          Changer l'image de couverture{" "}
-          {isVisible.banner ? <ChevronDownIcon /> : <ChevronRightIcon />}
-        </Heading>
-      </GridHeader>
+        <GridHeader
+          borderTopRadius="lg"
+          borderBottomRadius={!isVisible.banner ? "lg" : undefined}
+          alignItems="center"
+        >
+          <Flex flexDirection="row" alignItems="center">
+            {isVisible.banner ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            <Heading size="sm" py={3}>
+              Changer l'image de couverture
+            </Heading>
+          </Flex>
+        </GridHeader>
+      </Link>
 
       {isVisible.banner && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
@@ -121,12 +165,24 @@ export const EventConfigBannerPanel = ({
                 )}
               />
 
+              <RadioGroup defaultValue="local" mb={3}>
+                <Stack spacing={2}>
+                  <Radio ref={register()} name="uploadType" value="local">
+                    Envoyer une image depuis votre ordinateur
+                  </Radio>
+                  <Radio ref={register()} name="uploadType" value="url">
+                    Utiliser une image en provenance d'une autre adresse
+                  </Radio>
+                </Stack>
+              </RadioGroup>
+
               <FormControl id="width" mb={3}>
                 <FormLabel>Largeur</FormLabel>
                 <Select
                   name="width"
                   ref={register()}
                   defaultValue={event.eventBanner?.width}
+                  isDisabled
                 >
                   <option>1154</option>
                 </Select>
@@ -139,13 +195,30 @@ export const EventConfigBannerPanel = ({
                   ref={register()}
                   defaultValue={event.eventBanner?.height}
                 >
-                  <option>140</option>
-                  <option>240</option>
-                  <option>340</option>
+                  <option value={140}>Petit</option>
+                  <option value={240}>Moyen</option>
+                  <option value={340}>Grand</option>
                 </Select>
               </FormControl>
 
-              <FormControl id="mode" mb={3}>
+              {uploadType === "url" ? (
+                <UrlControl
+                  name="url"
+                  label="Adresse internet de l'image"
+                  defaultValue={event.eventBanner?.url}
+                  errors={errors}
+                  register={register}
+                  mb={3}
+                  onBlur={() => {
+                    const url = getValues("url");
+                    if (urlR.test(url)) {
+                      setUpImg(url);
+                    }
+                  }}
+                />
+              ) : (
+                <>
+                  {/* <FormControl id="mode" mb={3}>
                 <FormLabel>Theme</FormLabel>
                 <Select
                   name="mode"
@@ -155,40 +228,44 @@ export const EventConfigBannerPanel = ({
                   <option value="light">Clair</option>
                   <option value="dark">Sombre</option>
                 </Select>
-              </FormControl>
+              </FormControl> */}
 
-              <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
-                <FormLabel>Image</FormLabel>
-                <Input
-                  name="file"
-                  type="file"
-                  accept="image/*"
-                  onChange={async (e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      if (e.target.files[0].size < 1000000) {
-                        setUpImg(await getBase64(e.target.files[0]));
-                        // const reader = new FileReader();
-                        // reader.addEventListener("load", () =>
-                        //   setUpImg(reader.result)
-                        // );
-                        //reader.readAsDataURL(e.target.files[0]);
-                        clearErrors("file");
-                      }
-                    }
-                  }}
-                  ref={register({
-                    validate: (file) => {
-                      if (file && file[0].size >= 1000000) {
-                        return "L'image ne doit pas dépasser 1Mo.";
-                      }
-                      return true;
-                    }
-                  })}
-                />
-                <FormErrorMessage>
-                  <ErrorMessage errors={errors} name="file" />
-                </FormErrorMessage>
-              </FormControl>
+                  <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
+                    <FormLabel>Image</FormLabel>
+                    <Input
+                      height="auto"
+                      py={3}
+                      name="file"
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          if (e.target.files[0].size < 1000000) {
+                            setUpImg(await getBase64(e.target.files[0]));
+                            // const reader = new FileReader();
+                            // reader.addEventListener("load", () =>
+                            //   setUpImg(reader.result)
+                            // );
+                            //reader.readAsDataURL(e.target.files[0]);
+                            clearErrors("file");
+                          }
+                        }
+                      }}
+                      ref={register({
+                        validate: (file) => {
+                          if (file && file[0] && file[0].size >= 1000000) {
+                            return "L'image ne doit pas dépasser 1Mo.";
+                          }
+                          return true;
+                        }
+                      })}
+                    />
+                    <FormErrorMessage>
+                      <ErrorMessage errors={errors} name="file" />
+                    </FormErrorMessage>
+                  </FormControl>
+                </>
+              )}
 
               {upImg && (
                 <AvatarEditor
@@ -216,6 +293,6 @@ export const EventConfigBannerPanel = ({
           </Box>
         </GridItem>
       )}
-    </>
+    </Grid>
   );
 };

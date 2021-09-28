@@ -1,5 +1,5 @@
-import type { Visibility } from "./OrgPage";
-import { IOrg, orgTypeFull } from "models/Org";
+import type { Visibility } from "./EventPage";
+import { IEvent } from "models/Event";
 import React, { useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import {
@@ -16,7 +16,7 @@ import {
   GridProps,
   useToast
 } from "@chakra-ui/react";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditEventMutation } from "features/events/eventsApi";
 import {
   Button,
   ErrorMessageText,
@@ -37,21 +37,21 @@ import { handleError } from "utils/form";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRef } from "react";
 
-type OrgConfigLogoPanelProps = GridProps &
+type EventConfigLogoPanelProps = GridProps &
   Visibility & {
-    org: IOrg;
-    orgQuery: any;
+    event: IEvent;
+    eventQuery: any;
   };
 
-export const OrgConfigLogoPanel = ({
-  org,
-  orgQuery,
+export const EventConfigLogoPanel = ({
+  event,
+  eventQuery,
   isVisible,
   setIsVisible,
   ...props
-}: OrgConfigLogoPanelProps) => {
+}: EventConfigLogoPanelProps) => {
   const toast = useToast({ position: "top" });
-  const [editOrg, editOrgMutation] = useEditOrgMutation();
+  const [editEvent, editEventMutation] = useEditEventMutation();
   const { register, handleSubmit, setError, errors, clearErrors, watch } =
     useForm({
       mode: "onChange"
@@ -66,23 +66,21 @@ export const OrgConfigLogoPanel = ({
     console.log("submitted", form);
 
     try {
-      await editOrg({
+      await editEvent({
         payload: {
-          ...org,
-          orgLogo: {
+          eventLogo: {
             width,
             height,
             base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL()
           }
         },
-        orgUrl: org.orgUrl
+        eventUrl: event.eventUrl
       });
+      eventQuery.refetch();
       toast({
-        title: `Le logo ${orgTypeFull(org.orgType)} a bien été modifié !`,
+        title: `Le logo de l'événement a bien été modifié !`,
         status: "success"
       });
-      orgQuery.refetch();
-      setIsVisible({ ...isVisible, banner: false });
     } catch (error) {
       handleError(error, (message) =>
         setError("formErrorMessage", {
@@ -101,8 +99,7 @@ export const OrgConfigLogoPanel = ({
           setIsVisible({
             ...isVisible,
             logo: !isVisible.logo,
-            banner: false,
-            subscribers: false
+            banner: false
           })
         }
       >
@@ -193,7 +190,7 @@ export const OrgConfigLogoPanel = ({
               <Button
                 colorScheme="green"
                 type="submit"
-                isLoading={editOrgMutation.isLoading}
+                isLoading={editEventMutation.isLoading}
                 isDisabled={Object.keys(errors).length > 0}
               >
                 Valider

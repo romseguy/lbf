@@ -10,6 +10,7 @@ import { Button, DeleteButton, Input } from "features/common";
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
 import { EventConfigBannerPanel } from "./EventConfigBannerPanel";
+import { EventConfigLogoPanel } from "./EventConfigLogoPanel";
 
 export const EventConfigPanel = ({
   session,
@@ -125,25 +126,23 @@ export const EventConfigPanel = ({
           }}
         />
       ) : (
-        <Grid gridGap={5}>
-          <Grid>
-            <EventConfigBannerPanel
-              event={event}
-              eventQuery={eventQuery}
-              isVisible={isVisible}
-              setIsVisible={setIsVisible}
-            />
-          </Grid>
+        <>
+          <EventConfigLogoPanel
+            event={event}
+            eventQuery={eventQuery}
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
+            mb={3}
+          />
 
-          <Grid>
-            {/* <EventConfigSubscribersPanel
-              event={event}
-              eventQuery={eventQuery}
-              isVisible={isVisible}
-              setIsVisible={setIsVisible}
-            /> */}
-          </Grid>
-        </Grid>
+          <EventConfigBannerPanel
+            event={event}
+            eventQuery={eventQuery}
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
+            mb={3}
+          />
+        </>
       )}
     </>
   );

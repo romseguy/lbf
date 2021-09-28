@@ -130,7 +130,7 @@ export const EventsPage = ({
                 bgColor={
                   bgColor === "transparent"
                     ? isDark
-                      ? "whiteAlpha.100"
+                      ? "whiteAlpha.300"
                       : "blackAlpha.600"
                     : bgColor
                 }

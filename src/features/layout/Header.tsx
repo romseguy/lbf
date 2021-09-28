@@ -12,6 +12,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Tag,
   Text,
   useColorMode
 } from "@chakra-ui/react";
@@ -22,11 +23,9 @@ import { ChatIcon } from "@chakra-ui/icons";
 import { IoIosPeople } from "react-icons/io";
 import { FaRegCalendarCheck, FaRegCalendarTimes } from "react-icons/fa";
 import { IOrg } from "models/Org";
-import { IEvent } from "models/Event";
+import { Category, IEvent } from "models/Event";
 
 type HeaderProps = SpaceProps & {
-  logo?: Base64Image;
-  headerBg?: Base64Image & { url?: string };
   defaultTitle: string;
   defaultTitleColor: string;
   org?: IOrg;
@@ -36,14 +35,12 @@ type HeaderProps = SpaceProps & {
 };
 
 export const Header = ({
-  headerBg,
   defaultTitle,
   defaultTitleColor,
   event,
   org,
   pageTitle,
   pageSubTitle,
-  logo,
   ...props
 }: HeaderProps) => {
   const router = useRouter();
@@ -54,21 +51,21 @@ export const Header = ({
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
 
+  const banner = event?.eventBanner || org?.orgBanner;
+  const logo = event?.eventLogo || org?.orgLogo;
   const [bgHeight, setBgHeight] = useState(
-    headerBg && headerBg.height ? headerBg.height : pageSubTitle ? 180 : 140
+    banner?.height ? banner.height : pageSubTitle ? 180 : 140
   );
-  const [bgWidth, setBgWidth] = useState(headerBg?.width || 0);
-  if (headerBg) {
-    if (headerBg.url) {
-      getMeta(headerBg.url, (width, height) => {
-        setBgHeight(height);
-        setBgWidth(width);
-      });
-    }
+  const [bgWidth, setBgWidth] = useState(banner?.width || 1154);
+  if (banner?.url) {
+    getMeta(banner.url, (width, height) => {
+      setBgHeight(height);
+      setBgWidth(width);
+    });
   }
   //#endregion
 
-  const bgImage = headerBg ? `url("${headerBg.base64 || headerBg.url}")` : "";
+  const bgImage = banner ? `url("${banner.base64 || banner.url}")` : "";
   const logoBgImage = logo ? `url("${logo.base64}")` : "";
   const logoBgWidth = "110px";
   const styles = css`
@@ -94,15 +91,15 @@ export const Header = ({
       }}
       {...props}
     >
-      <Flex direction="column" ml={5}>
-        {logo ? (
+      {logo ? (
+        <Flex alignItems="center">
           <Box
             css={css`
-              margin-top: ${headerBg?.url
+              margin-top: ${banner?.url
                 ? bgHeight - 110
-                : headerBg
-                ? headerBg.height - 110
-                : 180 - 110}px;
+                : banner
+                ? banner.height - 110
+                : 70}px;
               margin-bottom: 12px;
               height: ${logoBgWidth};
               width: ${logoBgWidth};
@@ -114,22 +111,44 @@ export const Header = ({
               setIsLogoModalOpen(true);
             }}
           />
-        ) : (
-          <>
-            <Link
-              variant="no-underline"
-              fontFamily="Aladin"
-              fontSize="x-large"
-              fontStyle="italic"
-              mt={!pageSubTitle ? 5 : undefined}
-              mb={!pageTitle ? 5 : undefined}
-              color={defaultTitleColor}
-              onClick={() => router.push("/", "/", { shallow: true })}
-            >
-              {defaultTitle}
-            </Link>
 
-            {pageTitle ? (
+          <Text ml={5} fontSize="larger" fontWeight="bold">
+            {event?.eventName || org?.orgName}
+          </Text>
+
+          {event?.eventCategory && (
+            <Tag
+              ml={3}
+              bgColor={
+                Category[event.eventCategory || 0].bgColor === "transparent"
+                  ? isDark
+                    ? "whiteAlpha.300"
+                    : "blackAlpha.600"
+                  : Category[event.eventCategory || 0].bgColor
+              }
+              color="white"
+            >
+              {Category[event.eventCategory || 0].label}
+            </Tag>
+          )}
+        </Flex>
+      ) : (
+        <Flex flexDirection="column" ml={5}>
+          <Link
+            variant="no-underline"
+            fontFamily="Aladin"
+            fontSize="x-large"
+            fontStyle="italic"
+            mt={!pageSubTitle ? 5 : undefined}
+            //mb={!pageTitle ? 5 : undefined}
+            color={defaultTitleColor}
+            onClick={() => router.push("/", "/", { shallow: true })}
+          >
+            {defaultTitle}
+          </Link>
+
+          {org || event || pageTitle ? (
+            <>
               <Link href={router.asPath} variant="no-underline">
                 <Text
                   as="h1"
@@ -155,17 +174,34 @@ export const Header = ({
                     pageTitle === "Forum" && <Icon mr={3} as={ChatIcon} />
                   )}
 
-                  {pageTitle}
+                  {org ? org.orgName : event ? event.eventName : pageTitle}
                 </Text>
               </Link>
-            ) : null}
-          </>
-        )}
+              {event ? (
+                <Box>
+                  <Tag
+                    bgColor={
+                      Category[event.eventCategory || 0].bgColor ===
+                      "transparent"
+                        ? isDark
+                          ? "whiteAlpha.300"
+                          : "blackAlpha.600"
+                        : Category[event.eventCategory || 0].bgColor
+                    }
+                    color="white"
+                  >
+                    {Category[event.eventCategory || 0].label}
+                  </Tag>
+                </Box>
+              ) : (
+                pageSubTitle
+              )}
+            </>
+          ) : null}
+        </Flex>
+      )}
 
-        {pageSubTitle && <Text as="h3">{pageSubTitle}</Text>}
-      </Flex>
-
-      {org &&
+      {banner &&
         (isBannerModalOpen ? (
           <Modal
             size="full"
@@ -178,7 +214,7 @@ export const Header = ({
             <ModalOverlay>
               <ModalContent bg="transparent" mt={0} minHeight="auto">
                 <ModalHeader bg="blackAlpha.700" color="white">
-                  Bannière de {org.orgName}
+                  Bannière de {org ? org.orgName : event ? event.eventName : ""}
                 </ModalHeader>
                 <ModalCloseButton color="white" />
                 <ModalBody display="flex" flexDirection="column" p={0}>
@@ -207,7 +243,7 @@ export const Header = ({
               <ModalOverlay>
                 <ModalContent bg="transparent" mt={0} minHeight="auto">
                   <ModalHeader bg="blackAlpha.700" color="white">
-                    Logo de {org.orgName}
+                    Logo de {org ? org.orgName : event ? event.eventName : ""}
                   </ModalHeader>
                   <ModalCloseButton color="white" />
                   <ModalBody display="flex" flexDirection="column" p={0}>

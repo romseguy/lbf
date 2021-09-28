@@ -116,8 +116,6 @@ export const Layout = ({
           event={props.event}
           pageTitle={pageTitle}
           pageSubTitle={pageSubTitle}
-          headerBg={banner}
-          logo={logo}
         />
         <Nav py={hasVerticalScrollbar ? 7 : 0} minH="96px" isLogin={isLogin} />
         <Main {...props}>{children}</Main>
@@ -125,7 +123,7 @@ export const Layout = ({
           <DarkModeSwitch />
         </Footer>
 
-        {true && (
+        {process.env.NODE_ENV === "production" && (
           <Offline>
             <Box
               pointerEvents="none"

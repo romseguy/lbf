@@ -35,7 +35,8 @@ export interface IEvent {
     eventId: string;
     eventUrl?: string;
   };
-  eventBanner?: Base64Image & { mode: "light" | "dark" };
+  eventLogo?: Base64Image;
+  eventBanner?: Base64Image & { mode: "light" | "dark"; url?: string };
   createdBy: IUser | string;
   createdAt?: string;
 }
@@ -149,11 +150,17 @@ export const EventSchema = new Schema<IEvent>(
         }
       }
     ],
+    eventLogo: {
+      base64: String,
+      width: Number,
+      height: Number
+    },
     eventBanner: {
       base64: String,
       width: Number,
       height: Number,
-      mode: String
+      mode: String,
+      url: String
     },
     createdBy: {
       type: Schema.Types.ObjectId,

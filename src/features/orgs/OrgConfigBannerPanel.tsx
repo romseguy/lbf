@@ -60,6 +60,7 @@ export const OrgConfigBannerPanel = ({
   //#region local state
   const [upImg, setUpImg] = useState<string | File>();
   const setEditorRef = useRef<AvatarEditor | null>(null);
+  //#endregion
 
   //#region form state
   const {
@@ -125,6 +126,7 @@ export const OrgConfigBannerPanel = ({
           setIsVisible({
             ...isVisible,
             banner: !isVisible.banner,
+            logo: false,
             subscribers: false
           })
         }
@@ -194,9 +196,9 @@ export const OrgConfigBannerPanel = ({
                   ref={register()}
                   defaultValue={org.orgBanner?.height}
                 >
-                  <option>140</option>
-                  <option>240</option>
-                  <option>340</option>
+                  <option value={140}>Petit</option>
+                  <option value={240}>Moyen</option>
+                  <option value={340}>Grand</option>
                 </Select>
               </FormControl>
 

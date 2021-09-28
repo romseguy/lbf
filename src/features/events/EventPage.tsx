@@ -91,6 +91,7 @@ const timelineStyles = css`
 
 export type Visibility = {
   isVisible: {
+    logo: boolean;
     topics: boolean;
     banner: boolean;
   };
@@ -156,7 +157,8 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   const [isEdit, setIsEdit] = useState(false);
   const [isVisible, setIsVisible] = useState<Visibility["isVisible"]>({
     topics: false,
-    banner: false
+    banner: false,
+    logo: false
   });
   const [showSendForm, setShowSendForm] = useState(false);
   let showAttendingForm = false;
@@ -172,10 +174,8 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   return (
     <Layout
       event={event}
-      pageTitle={event.eventName}
-      pageSubTitle={<DateRange minDate={eventMinDate} maxDate={eventMaxDate} />}
+      //pageSubTitle={<DateRange minDate={eventMinDate} maxDate={eventMaxDate} />}
       isLogin={isLogin}
-      banner={event.eventBanner}
     >
       {isCreator && !isConfig ? (
         <Button
@@ -366,7 +366,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                             <List spacing={3} css={timelineStyles}>
                               {days.map((day) => {
                                 return (
-                                  <ListItem>
+                                  <ListItem key={day}>
                                     <Text fontWeight="bold">{day}</Text>
                                     <Box ml={3}>
                                       {format(

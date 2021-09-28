@@ -119,13 +119,7 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
   };
 
   return (
-    <Layout
-      org={org}
-      pageTitle={org.orgName}
-      isLogin={isLogin}
-      logo={org.orgLogo}
-      banner={org.orgBanner}
-    >
+    <Layout org={org} isLogin={isLogin}>
       {isCreator && !isConfig ? (
         <Button
           aria-label="Paramètres"
