@@ -52,18 +52,17 @@ handler.get<
           );
     }
 
-    const isCreator =
-      session?.user.isAdmin || equals(event.createdBy, session?.user.userId);
     event = event.populate("eventOrgs");
 
-    if (populate) {
-      if (isCreator && populate === "orgSubscriptions") {
-        populate = {
-          path: "eventOrgs",
-          populate: [{ path: "orgSubscriptions" }]
-        };
-      }
+    const isCreator =
+      session?.user.isAdmin || equals(event.createdBy, session?.user.userId);
 
+    // creator needs to subscriptions to send invites
+    if (isCreator) {
+      populate = {
+        path: "eventOrgs",
+        populate: [{ path: "orgSubscriptions" }]
+      };
       event = event.populate(populate);
     }
 

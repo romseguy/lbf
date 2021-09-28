@@ -76,3 +76,13 @@ export const base64ToUint8Array = (base64: string) => {
   }
   return outputArray;
 };
+
+export const isImage = (fileName: string) => {
+  return (
+    fileName.includes(".png") ||
+    fileName.includes(".jpg") ||
+    fileName.includes(".jpeg") ||
+    fileName.includes(".bmp") ||
+    fileName.includes(".webp")
+  );
+};

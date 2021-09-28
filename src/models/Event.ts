@@ -19,6 +19,7 @@ export interface IEvent {
   eventPhone?: string;
   eventWeb?: string;
   eventDescription?: string;
+  eventCategory?: number;
   eventVisibility?: string;
   eventOrgs: IOrg[];
   eventSubscriptions: ISubscription[];
@@ -38,6 +39,19 @@ export interface IEvent {
   createdBy: IUser | string;
   createdAt?: string;
 }
+
+export const Category: { [key: number]: { label: string; bgColor: string } } = [
+  { label: "À définir", bgColor: "gray" },
+  { label: "Atelier", bgColor: "red" },
+  { label: "Chantier participatif", bgColor: "orange" },
+  { label: "Concert", bgColor: "green.300" },
+  { label: "Exposition", bgColor: "green.600" },
+  { label: "Fête", bgColor: "blue.300" },
+  { label: "Festival", bgColor: "blue.600" },
+  { label: "Jam session", bgColor: "purple.300" },
+  { label: "Réunion", bgColor: "purple.600" },
+  { label: "Autre", bgColor: "transparent" }
+].reduce((obj, cat, index) => ({ ...obj, [index]: cat }), {});
 
 export const StatusTypes: { [key: string]: string } = {
   PENDING: "PENDING",
@@ -115,6 +129,7 @@ export const EventSchema = new Schema<IEvent>(
     eventPhone: String,
     eventWeb: String,
     eventDescription: String,
+    eventCategory: Number,
     eventVisibility: {
       type: String,
       enum: Object.keys(Visibility).map((key) => Visibility[key])

@@ -147,30 +147,25 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
       ) : null}
 
       {!isCreator && (
-        <SubscriptionPopover
-          org={org}
-          isFollowed={isFollowed}
-          mySubscription={subQuery.data}
-          isLoading={subQuery.isLoading || subQuery.isFetching}
-          onSubmit={(subscribed: boolean) => {
-            if (subscribed) {
-              toast({
-                title: `Vous êtes maintenant abonné à ${org.orgName}`,
-                status: "success",
-                duration: 9000,
-                isClosable: true
-              });
-            } else {
-              toast({
-                title: `Vous êtes désabonné de ${org.orgName}`,
-                status: "success",
-                duration: 9000,
-                isClosable: true
-              });
-            }
-            subQuery.refetch();
-          }}
-        />
+        <Flex>
+          <Box mr={3}>
+            <SubscriptionPopover
+              org={org}
+              query={orgQuery}
+              subQuery={subQuery}
+              followerSubscription={isFollowed}
+              //isLoading={subQuery.isLoading || subQuery.isFetching}
+            />
+          </Box>
+          <SubscriptionPopover
+            org={org}
+            query={orgQuery}
+            subQuery={subQuery}
+            followerSubscription={isFollowed}
+            notifType="push"
+            //isLoading={subQuery.isLoading || subQuery.isFetching}
+          />
+        </Flex>
       )}
 
       <Box my={3}>

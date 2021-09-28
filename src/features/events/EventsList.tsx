@@ -10,7 +10,8 @@ import {
   useToast,
   IconButton,
   Tag,
-  Button
+  Button,
+  useColorMode
 } from "@chakra-ui/react";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import {
@@ -26,7 +27,7 @@ import {
   getDayOfYear,
   getDay
 } from "date-fns";
-import { IEvent, Visibility } from "models/Event";
+import { Category, IEvent, Visibility } from "models/Event";
 import { fr } from "date-fns/locale";
 import {
   AddIcon,
@@ -92,6 +93,9 @@ export const EventsList = ({
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
   let currentDate: Date | undefined;
@@ -361,6 +365,22 @@ export const EventsList = ({
                       />
                     </Tooltip>
                   </>
+                )}
+
+                {event.eventCategory && (
+                  <Tag
+                    color="white"
+                    bgColor={
+                      Category[event.eventCategory].bgColor === "transparent"
+                        ? isDark
+                          ? "whiteAlpha.100"
+                          : "blackAlpha.600"
+                        : Category[event.eventCategory].bgColor
+                    }
+                    mr={1}
+                  >
+                    {Category[event.eventCategory].label}
+                  </Tag>
                 )}
 
                 <Link

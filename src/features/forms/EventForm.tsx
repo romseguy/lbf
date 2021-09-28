@@ -1,5 +1,5 @@
 import { Session } from "next-auth";
-import { IEvent, VisibilityV } from "models/Event";
+import { Category, IEvent, VisibilityV } from "models/Event";
 import type { IOrg } from "models/Org";
 import { isMobile } from "react-device-detect";
 import React, { forwardRef, Ref, useState } from "react";
@@ -368,7 +368,7 @@ export const EventForm = withGoogleApi({
         isInvalid={!!errors["eventName"]}
         display="flex"
         flexDirection="column"
-        mb={3}
+        mb={!props.event && getValues("eventName") ? 0 : 3}
       >
         <FormLabel>Nom de l'événement</FormLabel>
         <Input
@@ -384,7 +384,7 @@ export const EventForm = withGoogleApi({
           })}
           defaultValue={props.event && props.event.eventName}
         />
-        {getValues("eventName") && (
+        {!props.event && getValues("eventName") && (
           <Tooltip label={`Adresse de la page de l'événement`}>
             <Tag mt={3} alignSelf="flex-end" cursor="help">
               {process.env.NEXT_PUBLIC_URL}/{normalize(getValues("eventName"))}
@@ -393,6 +393,36 @@ export const EventForm = withGoogleApi({
         )}
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="eventName" />
+        </FormErrorMessage>
+      </FormControl>
+
+      <FormControl
+        id="eventCategory"
+        isInvalid={!!errors["eventCategory"]}
+        onChange={async (e) => {
+          clearErrors("eventOrgs");
+        }}
+        mb={3}
+      >
+        <FormLabel>Catégorie</FormLabel>
+        <Select
+          name="eventCategory"
+          defaultValue={props.event ? props.event.eventCategory : undefined}
+          ref={register()}
+          placeholder="Catégorie de l'événement"
+          color="gray.400"
+        >
+          {Object.keys(Category).map((key) => {
+            const k = parseInt(key);
+            return (
+              <option key={key} value={key}>
+                {Category[k].label}
+              </option>
+            );
+          })}
+        </Select>
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="eventCategory" />
         </FormErrorMessage>
       </FormControl>
 
@@ -679,15 +709,11 @@ export const EventForm = withGoogleApi({
           <FormLabel>Visibilité</FormLabel>
           <Select
             name="eventVisibility"
-            defaultValue={
-              props.event
-                ? props.event.eventVisibility
-                : Visibility[Visibility.PUBLIC]
-            }
+            defaultValue={props.event ? props.event.eventVisibility : undefined}
             ref={register({
-              required: "Veuillez sélectionner la visibilité de la discussion"
+              required: "Veuillez sélectionner la visibilité de l'événement"
             })}
-            placeholder="Sélectionnez la visibilité de la discussion..."
+            placeholder="Visibilité de l'événement"
             color="gray.400"
           >
             {visibilityOptions.map((key) => {

@@ -259,18 +259,17 @@ export const TopicMessagesList = ({
         ) : (
           Array.isArray(subQuery.data) &&
           subQuery.data.map((subscription) => {
+            if (typeof subscription.user !== "object") return;
+
             return (
-              <div key={subscription._id}>
-                {typeof subscription.user === "object" && (
-                  <>
-                    <Link href={`/${subscription.user.userName}`}>
-                      <Tag mr={1} mb={1}>
-                        {subscription.user.userName}
-                      </Tag>
-                    </Link>
-                  </>
-                )}
-              </div>
+              <Link
+                key={subscription._id}
+                href={`/${subscription.user.userName}`}
+              >
+                <Tag mr={1} mb={1}>
+                  {subscription.user.userName}
+                </Tag>
+              </Link>
             );
           })
         )}

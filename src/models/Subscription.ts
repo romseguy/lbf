@@ -12,6 +12,11 @@ export interface IOrgSubscription {
   org: IOrg;
   orgId: string;
   type: string;
+  eventCategories?: {
+    catId: number;
+    emailNotif: boolean;
+    pushNotif: boolean;
+  }[];
 }
 export interface ITopicSubscription {
   topic: ITopic;
@@ -66,7 +71,14 @@ export const SubscriptionSchema = new Schema<ISubscription>(
             (key) => SubscriptionTypes[key]
           ),
           required: true
-        }
+        },
+        eventCategories: [
+          {
+            catId: Number,
+            emailNotif: Boolean,
+            pushNotif: Boolean
+          }
+        ]
       }
     ],
     topics: [

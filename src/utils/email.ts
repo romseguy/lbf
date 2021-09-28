@@ -49,14 +49,12 @@ export const sendEventToOrgFollowers = async (
           _id: orgSubscription
         }).populate("user");
 
-        // console.log("orgsub", subscription);
-
         if (!subscription) {
           // shouldn't happen because when user remove subscription to org it is also removed from org.orgSubscriptions
           continue;
         }
 
-        for (const { orgId, type } of subscription.orgs) {
+        for (const { orgId, type, eventCategories = [] } of subscription.orgs) {
           if (
             !equals(eventNotifOrgId, orgId) ||
             type !== SubscriptionTypes.FOLLOWER
@@ -77,8 +75,23 @@ export const sendEventToOrgFollowers = async (
             continue;
 
           const user = await models.User.findOne({ email });
+          const eventCategoriesEmail = eventCategories.filter(
+            ({ emailNotif }) => emailNotif
+          );
+          const eventCategoriesPush = eventCategories.filter(
+            ({ pushNotif }) => pushNotif
+          );
 
-          if (user && user.userSubscription) {
+          if (
+            user &&
+            user.userSubscription &&
+            (eventCategoriesPush.length === 0 ||
+              !!eventCategoriesPush.find(
+                (eventCategory) =>
+                  eventCategory.catId === event.eventCategory &&
+                  eventCategory.pushNotif
+              ))
+          ) {
             await api.post("notification", {
               subscription: user.userSubscription,
               notification: {
@@ -88,6 +101,16 @@ export const sendEventToOrgFollowers = async (
               }
             });
           }
+
+          if (
+            eventCategoriesEmail.length > 0 &&
+            !eventCategoriesEmail.find(
+              (eventCategory) =>
+                eventCategory.catId === event.eventCategory &&
+                eventCategory.emailNotif
+            )
+          )
+            continue;
 
           const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`;
           const mail = {
@@ -107,9 +130,8 @@ export const sendEventToOrgFollowers = async (
 
           if (process.env.NODE_ENV === "production")
             await transport.sendMail(mail);
-          else if (process.env.NODE_ENV === "development") {
+          else if (process.env.NODE_ENV === "development")
             console.log("mail", mail);
-          }
 
           emailList.push(email);
         }

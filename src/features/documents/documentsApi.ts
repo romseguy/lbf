@@ -13,7 +13,7 @@ export const documentApi = createApi({
         body
       })
     }),
-    getDocuments: build.query<string, any>({
+    getDocuments: build.query<string[], string>({
       query: (orgId) => {
         return {
           url: `${process.env.NEXT_PUBLIC_API2}?orgId=${orgId}`

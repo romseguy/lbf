@@ -84,7 +84,8 @@ handler.post<
       const { orgs: newOrgSubscriptions } = body;
 
       if (userSubscription.orgs.length > 0) {
-        const staleOrgSubscriptionOrgIds: string[] = [];
+        console.log("user already got org subscriptions");
+        //const staleOrgSubscriptionOrgIds: string[] = [];
 
         for (const newOrgSubscription of newOrgSubscriptions) {
           const org = await models.Org.findOne({
@@ -92,9 +93,15 @@ handler.post<
           });
 
           if (!org) {
-            // userSub.orgs contains stale org subscription
-            staleOrgSubscriptionOrgIds.push(newOrgSubscription.orgId);
-            continue;
+            return res
+              .status(400)
+              .json(
+                createServerError(
+                  new Error(
+                    "Vous ne pouvez pas vous abonner à une organisation inexistante"
+                  )
+                )
+              );
           }
 
           let isFollower = false;
@@ -104,76 +111,91 @@ handler.post<
             if (equals(org._id, orgSubscription.orgId)) {
               if (orgSubscription.type === SubscriptionTypes.FOLLOWER) {
                 isFollower = true;
+                console.log("user is already following org");
               } else if (
                 orgSubscription.type === SubscriptionTypes.SUBSCRIBER
               ) {
                 isSub = true;
+                console.log("user is already subscribed to org");
               }
               break;
             }
           }
 
-          if (isFollower && isSub) continue;
+          if (newOrgSubscription.type === SubscriptionTypes.FOLLOWER) {
+            if (isFollower) {
+              userSubscription.orgs = userSubscription.orgs.map(
+                (orgSubscription) => {
+                  if (
+                    orgSubscription.type === SubscriptionTypes.FOLLOWER &&
+                    equals(orgSubscription.orgId, newOrgSubscription.orgId)
+                  ) {
+                    return newOrgSubscription;
+                  }
+                  return orgSubscription;
+                }
+              );
+            } else {
+              userSubscription.orgs.push(newOrgSubscription);
+            }
+          }
 
-          if (!isFollower && !isSub)
-            await models.Org.updateOne(
-              { _id: org._id },
-              { $push: { orgSubscriptions: userSubscription } }
-            );
+          if (newOrgSubscription.type === SubscriptionTypes.SUBSCRIBER) {
+            if (isSub) {
+              userSubscription.orgs = userSubscription.orgs.map(
+                (orgSubscription) => {
+                  if (
+                    orgSubscription.type === SubscriptionTypes.SUBSCRIBER &&
+                    equals(orgSubscription.orgId, newOrgSubscription.orgId)
+                  ) {
+                    return newOrgSubscription;
+                  }
+                  return orgSubscription;
+                }
+              );
+            } else {
+              userSubscription.orgs.push(newOrgSubscription);
+            }
+          }
 
-          if (
-            (!isFollower &&
-              newOrgSubscription.type === SubscriptionTypes.FOLLOWER) ||
-            (!isSub && newOrgSubscription.type === SubscriptionTypes.SUBSCRIBER)
-          )
-            userSubscription.orgs.push(newOrgSubscription);
-        }
-
-        if (staleOrgSubscriptionOrgIds.length > 0) {
-          userSubscription.orgs = userSubscription.orgs.filter(
-            (orgSubscription) =>
-              !staleOrgSubscriptionOrgIds.find((id) =>
-                equals(id, orgSubscription.orgId)
-              )
-          );
+          // if (staleOrgSubscriptionOrgIds.length > 0) {
+          //   userSubscription.orgs = userSubscription.orgs.filter(
+          //     (orgSubscription) =>
+          //       !staleOrgSubscriptionOrgIds.find((id) =>
+          //         equals(id, orgSubscription.orgId)
+          //       )
+          //   );
         }
       } else if (userSubscription) {
-        console.log("user subscription", userSubscription);
-
-        const newOrgSubscription = newOrgSubscriptions[0];
-        let org = await models.Org.findOne({
-          _id: newOrgSubscription.org._id
-        }).populate("orgSubscriptions");
-
-        if (!org) {
-          return res
-            .status(400)
-            .json(
-              createServerError(
-                new Error(
-                  "Vous ne pouvez pas vous abonner à une organisation inexistante"
-                )
-              )
-            );
-        }
-
-        // console.log("user subscribing to", org);
+        console.log("first time user subscribes to any org");
         userSubscription.orgs = newOrgSubscriptions;
 
-        let found = false;
+        for (const newOrgSubscription of newOrgSubscriptions) {
+          let org = await models.Org.findOne({
+            _id: newOrgSubscription.org._id
+          }).populate("orgSubscriptions");
 
-        for (const orgSubscription of org.orgSubscriptions) {
-          if (equals(orgSubscription._id, userSubscription._id)) {
-            found = true;
-            break;
+          if (!org) {
+            return res
+              .status(400)
+              .json(
+                createServerError(
+                  new Error(
+                    "Vous ne pouvez pas vous abonner à une organisation inexistante"
+                  )
+                )
+              );
           }
-        }
 
-        if (!found) {
-          // console.log("pushing userSub to orgSubs", userSubscription);
-          org.orgSubscriptions.push(userSubscription);
-          await org.save();
-          // console.log("org updated with new subscription", org);
+          if (
+            !org.orgSubscriptions.find((orgSubscription) =>
+              equals(orgSubscription._id, userSubscription!._id)
+            )
+          ) {
+            org.orgSubscriptions.push(userSubscription);
+            await org.save();
+            console.log("org updated with new subscription");
+          }
         }
       }
     } else if (body.events) {

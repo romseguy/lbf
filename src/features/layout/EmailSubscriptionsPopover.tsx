@@ -65,13 +65,13 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
   const dispatch = useAppDispatch();
 
   //#region sub
-  const userEmail = useSelector(selectUserEmail);
-  const subQuery = useGetSubscriptionQuery(userEmail || session?.user.email);
+  const userEmail = useSelector(selectUserEmail) || session?.user.email;
+  const subQuery = useGetSubscriptionQuery(userEmail);
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     // console.log("refetching subscription");
     subQuery.refetch();
-  }, [subscriptionRefetch, session?.user.email]);
+  }, [subscriptionRefetch, userEmail]);
   const orgFollowerSubscriptions = subQuery.data?.orgs.filter(
     (orgSubscription) => orgSubscription.type === SubscriptionTypes.FOLLOWER
   );
@@ -412,7 +412,7 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
                 {currentOrgSubscription.org?.orgName}
               </Text>{" "}
               <ArrowForwardIcon /> <EmailIcon color="green" />{" "}
-              <ArrowForwardIcon /> {userEmail || session?.user.email}
+              <ArrowForwardIcon /> {userEmail}
             </ModalHeader>
             <ModalCloseButton ml={5} data-cy="subscriptionPopoverCloseButton" />
             <ModalBody>

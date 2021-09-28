@@ -41,15 +41,17 @@ const IndexPage = (props: any) => {
     <Layout isLogin={isLogin} {...props}>
       {true ? (
         <>
-          <Box textAlign="center" mb={3}>
-            <Link
-              className="rainbow-text"
-              size="larger"
-              onClick={() => setIsAbout(!isAbout)}
-            >
-              À propos de {process.env.NEXT_PUBLIC_SHORT_URL}
-            </Link>
-          </Box>
+          {false && (
+            <Box textAlign="center" mb={3}>
+              <Link
+                className="rainbow-text"
+                size="larger"
+                onClick={() => setIsAbout(!isAbout)}
+              >
+                À propos de {process.env.NEXT_PUBLIC_SHORT_URL}
+              </Link>
+            </Box>
+          )}
 
           {isAbout && (
             <Container

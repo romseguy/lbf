@@ -26,6 +26,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaFile, FaImage } from "react-icons/fa";
 import { handleError } from "utils/form";
+import * as stringUtils from "utils/string";
 import { useAddDocumentMutation, useGetDocumentsQuery } from "./documentsApi";
 
 export const DocumentsList = ({
@@ -113,7 +114,7 @@ export const DocumentsList = ({
           }
         }}
       >
-        Ajouter un document
+        Ajouter
       </Button>
 
       {isAdd && (
@@ -136,7 +137,7 @@ export const DocumentsList = ({
           />
 
           <FormControl id="files" isInvalid={!!errors["files"]} mb={3}>
-            <FormLabel>Document à ajouter :</FormLabel>
+            <FormLabel>Sélectionnez un fichier :</FormLabel>
             <Input
               height="auto"
               py={3}
@@ -187,20 +188,22 @@ export const DocumentsList = ({
           <Table>
             <Tbody>
               {query.data.map((fileName) => {
+                const isImage = stringUtils.isImage(fileName);
+                const isPdf = fileName.includes(".pdf");
                 return (
                   <Tr>
                     <Td>
-                      <Link
-                        href={`${process.env.NEXT_PUBLIC_API2}/download?orgId=${org._id}&fileName=${fileName}`}
+                      <a
+                        href={`${process.env.NEXT_PUBLIC_API2}/${
+                          isImage || isPdf ? "view" : "download"
+                        }?orgId=${org._id}&fileName=${fileName}`}
+                        target="_blank"
                       >
                         <Box display="flex" alignItems="center">
-                          <Icon
-                            as={fileName.includes(".png") ? FaImage : FaFile}
-                            mr={3}
-                          />
+                          <Icon as={isImage ? FaImage : FaFile} mr={3} />
                           {fileName}
                         </Box>
-                      </Link>
+                      </a>
                     </Td>
                   </Tr>
                 );

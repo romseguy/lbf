@@ -50,8 +50,6 @@ export async function getSession(
 
 export const useSession = (): { data: Session | null; loading: boolean } => {
   const [session, loading] = useNextAuthSession();
-  // console.log("nextAuthSession", session);
-
   const [dataSession, setDataSession] = useState<Session | null>();
   const dispatch = useAppDispatch();
 
@@ -60,7 +58,6 @@ export const useSession = (): { data: Session | null; loading: boolean } => {
     cachedSession &&
     cachedSession.user.email === session.user.email
   ) {
-    // console.log("returning cached session");
     return { data: cachedSession, loading };
   }
 
@@ -71,12 +68,10 @@ export const useSession = (): { data: Session | null; loading: boolean } => {
 
   const xhr = async () => {
     if (!session.user.email) return;
-    console.log("fetching session");
 
     const userQuery = await dispatch(getUser.initiate(session.user.email));
 
     if (userQuery.data) {
-      console.log("caching fetched session");
       const { _id, userName, userImage, isAdmin } = userQuery.data;
 
       cachedSession = {
@@ -97,8 +92,6 @@ export const useSession = (): { data: Session | null; loading: boolean } => {
   xhr();
 
   if (dataSession) {
-    // console.log("returning fetched session");
-
     return {
       data: dataSession,
       loading: false

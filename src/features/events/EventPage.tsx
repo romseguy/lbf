@@ -109,7 +109,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
 
   //#region event
   const eventQuery = useGetEventQuery(
-    { eventUrl: props.event.eventUrl, populate: "orgSubscriptions" },
+    { eventUrl: props.event.eventUrl },
     {
       selectFromResult: (query) => query
     }
@@ -125,6 +125,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
       : "";
   const isCreator =
     session?.user.userId === eventCreatedByUserId || session?.user.isAdmin;
+
   const eventMinDate = parseISO(event.eventMinDate);
   const eventMaxDate = parseISO(event.eventMaxDate);
   //#endregion
@@ -196,33 +197,15 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
         </Button>
       ) : null}
 
-      {!isCreator && (
+      {/* {!isCreator && (
         <SubscriptionPopover
           event={event}
-          email={email}
-          isFollowed={isFollowed}
-          mySubscription={subQuery.data}
+          query={eventQuery}
+          subQuery={subQuery}
+          followerSubscription={isFollowed}
           isLoading={subQuery.isLoading || subQuery.isFetching}
-          onSubmit={(subscribed: boolean) => {
-            if (subscribed) {
-              toast({
-                title: `Vous êtes maintenant abonné à ${event.eventName}`,
-                status: "success",
-                duration: 9000,
-                isClosable: true
-              });
-            } else {
-              toast({
-                title: `Vous êtes désabonné de ${event.eventName}`,
-                status: "success",
-                duration: 9000,
-                isClosable: true
-              });
-            }
-            subQuery.refetch();
-          }}
         />
-      )}
+      )} */}
 
       <Box mb={3}>
         <Text fontSize="smaller" pt={1}>
@@ -281,7 +264,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
       )}
 
       {!isConfig && (
-        <EventPageTabs>
+        <EventPageTabs isCreator={isCreator}>
           <TabPanels>
             <TabPanel aria-hidden>
               <Grid
@@ -404,9 +387,8 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                         ) : event.repeat ? (
                           <></>
                         ) : (
-                          <>
-                            <Text fontWeight="bold" mb={1}>
-                              <CalendarIcon mr={1} />
+                          <Box pt={3}>
+                            {/* <Text fontWeight="bold">
                               {formatDuration(
                                 intervalToDuration({
                                   start: parseISO(event.eventMinDate),
@@ -414,7 +396,8 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                                 }),
                                 { format: formatArray }
                               )}
-                            </Text>
+                            </Text> */}
+
                             <List spacing={3} css={timelineStyles}>
                               <ListItem>
                                 <Text fontWeight="bold">
@@ -437,7 +420,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                                 </Text>
                               </ListItem>
                             </List>
-                          </>
+                          </Box>
                         )}
                       </Box>
                     </GridItem>

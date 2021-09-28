@@ -1,11 +1,14 @@
-import { Visibility } from "models/Event";
+import { Category, Visibility } from "models/Event";
 import React, { useEffect, useState } from "react";
 import {
+  Box,
   Flex,
   Icon,
   IconButton,
+  Tag,
   Text,
   Tooltip,
+  useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
 import { EventModal } from "features/modals/EventModal";
@@ -38,6 +41,8 @@ export const EventsPage = ({
   });
 
   const { data: session, loading: isSessionLoading } = useSession();
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
 
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const {
@@ -111,6 +116,33 @@ export const EventsPage = ({
           />
         )}
       </>
+
+      <Box mb={3}>
+        {Object.keys(Category).map((key) => {
+          const k = parseInt(key);
+          if (k === 0) return null;
+          const bgColor = Category[k].bgColor;
+
+          return (
+            <Link key={"cat" + key} variant="no-underline" onClick={() => {}}>
+              <Tag
+                color="white"
+                bgColor={
+                  bgColor === "transparent"
+                    ? isDark
+                      ? "whiteAlpha.100"
+                      : "blackAlpha.600"
+                    : bgColor
+                }
+                mr={1}
+                mb={1}
+              >
+                {Category[k].label}
+              </Tag>
+            </Link>
+          );
+        })}
+      </Box>
 
       {eventsQuery.isLoading ? (
         <Text>Chargement des événements publics...</Text>

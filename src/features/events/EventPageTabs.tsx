@@ -14,15 +14,25 @@ import { FaHome, FaTools } from "react-icons/fa";
 import { CalendarIcon, ChatIcon, EmailIcon } from "@chakra-ui/icons";
 
 export const EventPageTabs = ({
+  isCreator,
   children,
   ...props
 }: {
+  isCreator?: boolean;
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
   const StyledTab = chakra("button", { themeKey: "Tabs.Tab" });
   const inactiveTabBg = useColorModeValue("gray.100", "whiteAlpha.300");
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const defaultTabIndex = 0;
+
+  const tabs = [
+    // { name: "Accueil", icon: <FaHome boxSize={6} /> },
+    { name: "Accueil", icon: FaHome },
+    { name: "Discussions", icon: ChatIcon }
+  ];
+
+  if (isCreator) tabs.push({ name: "Invitations", icon: EmailIcon });
 
   const CustomTab = React.forwardRef(
     (
@@ -102,12 +112,7 @@ export const EventPageTabs = ({
         }}
         aria-hidden
       >
-        {[
-          // { name: "Accueil", icon: <FaHome boxSize={6} /> },
-          { name: "Accueil", icon: FaHome },
-          { name: "Discussions", icon: ChatIcon },
-          { name: "Invitations", icon: EmailIcon }
-        ].map(({ name, icon }, tabIndex) => (
+        {tabs.map(({ name, icon }, tabIndex) => (
           <CustomTab
             key={`eventTab-${tabIndex}`}
             tabIndex={tabIndex}
