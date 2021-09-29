@@ -1,11 +1,14 @@
-import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
-import React, { useState } from "react";
-import { useRouter } from "next/router";
-import { useSession } from "hooks/useAuth";
-import { parseISO, format, getHours, intervalToDuration } from "date-fns";
-import { fr } from "date-fns/locale";
-import DOMPurify from "isomorphic-dompurify";
-import { css } from "twin.macro";
+import {
+  ArrowBackIcon,
+  ArrowForwardIcon,
+  AtSignIcon,
+  CalendarIcon,
+  CheckCircleIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  EditIcon,
+  SettingsIcon
+} from "@chakra-ui/icons";
 import {
   Box,
   Text,
@@ -30,17 +33,20 @@ import {
   ListIcon,
   ListItem
 } from "@chakra-ui/react";
+import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
+import React, { useState } from "react";
+import { useRouter } from "next/router";
+import { useSession } from "hooks/useAuth";
 import {
-  ArrowBackIcon,
-  ArrowForwardIcon,
-  AtSignIcon,
-  CalendarIcon,
-  CheckCircleIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-  EditIcon,
-  SettingsIcon
-} from "@chakra-ui/icons";
+  parseISO,
+  format,
+  getHours,
+  intervalToDuration,
+  addHours
+} from "date-fns";
+import { fr } from "date-fns/locale";
+import DOMPurify from "isomorphic-dompurify";
+import { css } from "twin.macro";
 import { IoIosPeople } from "react-icons/io";
 import {
   Button,
@@ -63,12 +69,14 @@ import { EventAttendingForm } from "./EventAttendingForm";
 import { EventSendForm } from "features/common/forms/EventSendForm";
 import { useGetEventQuery } from "./eventsApi";
 import { EventPageTabs } from "./EventPageTabs";
-import { days, formatArray, formatDuration } from "utils/date";
+import * as dateUtils from "utils/date";
+import getDay from "date-fns/getDay";
+import setDay from "date-fns/setDay";
 
 const timelineStyles = css`
   & > li {
     list-style: none;
-    margin-left: 24px;
+    margin-left: 12px;
     margin-top: 0 !important;
     border-left: 2px dashed #3f4e58;
     padding: 0 0 0 20px;
@@ -129,6 +137,43 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
 
   const eventMinDate = parseISO(event.eventMinDate);
   const eventMaxDate = parseISO(event.eventMaxDate);
+  let startDay: number = getDay(eventMinDate);
+  startDay = startDay === 0 ? 6 : startDay - 1;
+  const startHour = getHours(eventMinDate);
+  const endHour = getHours(eventMaxDate);
+  const duration = endHour - startHour;
+  const timeline: { [index: number]: { startDate: Date; endTime: Date } } =
+    dateUtils.days.reduce((obj, label, index) => {
+      if (startDay === index)
+        return {
+          ...obj,
+          [index]: {
+            startDate: eventMinDate,
+            endTime: eventMaxDate
+          }
+        };
+
+      if (event.otherDays) {
+        for (const { dayNumber, startDate } of event.otherDays) {
+          if (dayNumber === index) {
+            return {
+              ...obj,
+              [index]: {
+                startDate: startDate
+                  ? parseISO(startDate)
+                  : setDay(eventMinDate, dayNumber + 1),
+                endTime: startDate
+                  ? addHours(parseISO(startDate), duration)
+                  : setDay(eventMaxDate, dayNumber + 1)
+              }
+            };
+          }
+        }
+      }
+
+      return obj;
+    }, {});
+
   //#endregion
 
   //#region sub
@@ -170,6 +215,24 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   )
     showAttendingForm = true;
   //#endregion
+
+  const renderTimeline = () =>
+    Object.keys(timeline).map((key) => {
+      const dayNumber = parseInt(key);
+      const day = timeline[dayNumber];
+      return (
+        <ListItem>
+          <Text fontWeight="bold">
+            {format(day.startDate, "cccc d MMMM", { locale: fr })}
+            <Box display="flex" alignItems="center" ml={3}>
+              <Text color="green">{format(day.startDate, "H:mm")}</Text>
+              <ArrowForwardIcon />
+              <Text color="red">{format(day.endTime, "H:mm")}</Text>
+            </Box>
+          </Text>
+        </ListItem>
+      );
+    });
 
   return (
     <Layout
@@ -274,7 +337,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                   & {
                     grid-template-columns: minmax(425px, 1fr) minmax(170px, 1fr);
                   }
-                  @media (max-width: 650px) {
+                  @media (max-width: 700px) {
                     & {
                       grid-template-columns: 1fr !important;
                     }
@@ -356,72 +419,18 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                       light={{ bg: "orange.100" }}
                       dark={{ bg: "gray.500" }}
                     >
-                      <Box ml={3}>
-                        {event.repeat === 99 ? (
-                          <>
-                            <Text fontWeight="bold">
-                              <CalendarIcon mr={1} />
-                              Toutes les semaines
-                            </Text>
-                            <List spacing={3} css={timelineStyles}>
-                              {days.map((day) => {
-                                return (
-                                  <ListItem key={day}>
-                                    <Text fontWeight="bold">{day}</Text>
-                                    <Box ml={3}>
-                                      {format(
-                                        parseISO(event.eventMinDate),
-                                        "H:mm"
-                                      )}
-                                      <ArrowForwardIcon />
-                                      {format(
-                                        parseISO(event.eventMaxDate),
-                                        "H:mm"
-                                      )}
-                                    </Box>
-                                  </ListItem>
-                                );
-                              })}
-                            </List>
-                          </>
-                        ) : event.repeat ? (
-                          <></>
-                        ) : (
-                          <Box pt={3}>
-                            {/* <Text fontWeight="bold">
-                              {formatDuration(
-                                intervalToDuration({
-                                  start: parseISO(event.eventMinDate),
-                                  end: parseISO(event.eventMaxDate)
-                                }),
-                                { format: formatArray }
-                              )}
-                            </Text> */}
-
-                            <List spacing={3} css={timelineStyles}>
-                              <ListItem>
-                                <Text fontWeight="bold">
-                                  {format(
-                                    parseISO(event.eventMinDate),
-                                    "EEEE",
-                                    { locale: fr }
-                                  )}
-                                  <Box ml={3}>
-                                    {format(
-                                      parseISO(event.eventMinDate),
-                                      "H:mm"
-                                    )}
-                                    <ArrowForwardIcon />
-                                    {format(
-                                      parseISO(event.eventMaxDate),
-                                      "H:mm"
-                                    )}
-                                  </Box>
-                                </Text>
-                              </ListItem>
-                            </List>
-                          </Box>
+                      <Box ml={3} pt={3}>
+                        {event.repeat && (
+                          <Text fontWeight="bold">
+                            <CalendarIcon mr={1} />
+                            {event.repeat === 99
+                              ? "Toutes les semaines"
+                              : "todo"}
+                          </Text>
                         )}
+                        <List spacing={3} css={timelineStyles}>
+                          {renderTimeline()}
+                        </List>
                       </Box>
                     </GridItem>
                   </Grid>
@@ -489,7 +498,11 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                       overflowX="auto"
                     >
                       <Box p={5}>
-                        {event.eventEmail || (
+                        {event.eventEmail ? (
+                          <a href={`mailto: ${event.eventEmail}`}>
+                            {event.eventEmail}
+                          </a>
+                        ) : (
                           <Text fontStyle="italic">Aucune adresse e-mail.</Text>
                         )}
                         {/* {session ? (

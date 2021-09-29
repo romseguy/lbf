@@ -44,7 +44,8 @@ handler.get<
         .sort({
           eventMinDate: "ascending"
         })
-        .populate(populate);
+        .populate(populate)
+        .populate("createdBy", "userName");
     } else {
       events = await models.Event.find({}).sort({
         eventMinDate: "ascending"

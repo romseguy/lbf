@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Control, Controller } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import {
@@ -47,6 +47,12 @@ export const AddressControl = withGoogleApi({
       required: isRequired && props.google
     };
 
+    let loaded = props.loaded && props.google;
+
+    if (process.env.NODE_ENV === "development") {
+      if (props.loaded && !props.google) loaded = true;
+    }
+
     return (
       <>
         <FormControl
@@ -56,7 +62,7 @@ export const AddressControl = withGoogleApi({
           mb={mb}
         >
           {!noLabel && <FormLabel>Adresse</FormLabel>}
-          {props.loaded ? (
+          {loaded ? (
             <Controller
               name={name}
               control={control}

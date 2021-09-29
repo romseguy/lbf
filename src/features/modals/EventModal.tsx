@@ -31,7 +31,7 @@ export const EventModal = (props: {
       closeOnOverlayClick={false}
     >
       <ModalOverlay>
-        <ModalContent>
+        <ModalContent maxWidth="xl">
           <ModalHeader>Ajouter un événement</ModalHeader>
           <ModalCloseButton />
           <ModalBody>

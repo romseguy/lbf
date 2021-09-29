@@ -75,7 +75,7 @@ export const EventConfigBannerPanel = ({
     mode: "onChange"
   });
   const uploadType = watch("uploadType");
-  const height = watch("height");
+  const height = watch("height") || event.eventBanner?.height;
   const width = watch("width");
   //#endregion
 

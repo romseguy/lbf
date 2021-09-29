@@ -48,15 +48,19 @@ export const Header = ({
   const isDark = colorMode === "dark";
 
   //#region local state
+  const hasTitle = org || event || pageTitle;
+  const [className, setClassName] = useState("");
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
 
   const banner = event?.eventBanner || org?.orgBanner;
   const logo = event?.eventLogo || org?.orgLogo;
-  const [bgHeight, setBgHeight] = useState(
-    banner?.height ? banner.height : pageSubTitle ? 180 : 140
-  );
+
+  const [bgHeight, setBgHeight] = useState<number>();
+  //   banner?.height ? banner.height : pageSubTitle ? 180 : 140
+  // );
   const [bgWidth, setBgWidth] = useState(banner?.width || 1154);
+
   if (banner?.url) {
     getMeta(banner.url, (width, height) => {
       setBgHeight(height);
@@ -69,7 +73,7 @@ export const Header = ({
   const logoBgImage = logo ? `url("${logo.base64}")` : "";
   const logoBgWidth = "110px";
   const styles = css`
-    height: ${bgHeight}px;
+    /*height: ${bgHeight}px;*/
     background-image: ${bgImage};
     background-size: cover;
     background-repeat: no-repeat;
@@ -83,8 +87,8 @@ export const Header = ({
       as="header"
       alignItems="center"
       justifyContent="space-between"
-      css={styles}
       cursor="pointer"
+      css={styles}
       onClick={(e) => {
         e.stopPropagation();
         setIsBannerModalOpen(true);
@@ -93,28 +97,62 @@ export const Header = ({
     >
       {logo ? (
         <Flex alignItems="center">
-          <Box
-            css={css`
-              margin-top: ${banner?.url
-                ? bgHeight - 110
-                : banner
-                ? banner.height - 110
-                : 70}px;
-              margin-bottom: 12px;
-              height: ${logoBgWidth};
-              width: ${logoBgWidth};
-              background-image: ${logoBgImage};
-              background-size: cover;
-            `}
+          <Link
             onClick={(e) => {
               e.stopPropagation();
               setIsLogoModalOpen(true);
             }}
-          />
+          >
+            <Box
+              css={css`
+                margin-top: ${banner?.url && bgHeight
+                  ? bgHeight - 110
+                  : banner
+                  ? banner.height - 110
+                  : 70}px;
+                /*margin-bottom: 12px;*/
+                height: ${logoBgWidth};
+                width: ${logoBgWidth};
+                background-image: ${logoBgImage};
+                background-size: cover;
+                border-top-right-radius: 12px;
+              `}
+            />
+          </Link>
 
-          <Text ml={5} fontSize="larger" fontWeight="bold">
-            {event?.eventName || org?.orgName}
-          </Text>
+          <Box
+            bgColor={isDark ? "black" : "white"}
+            borderRadius="lg"
+            ml={5}
+            px={3}
+          >
+            <Link href={router.asPath} variant="no-underline">
+              <Text
+                as="h1"
+                className="rainbow-text"
+                display="flex"
+                alignItems="center"
+                fontSize={["3xl", "3xl", pageSubTitle ? "3xl" : "3xl"]}
+              >
+                {org || event ? (
+                  <Icon
+                    mr={3}
+                    as={
+                      org
+                        ? IoIosPeople
+                        : event?.isApproved
+                        ? FaRegCalendarCheck
+                        : FaRegCalendarTimes
+                    }
+                  />
+                ) : (
+                  pageTitle === "Forum" && <Icon mr={3} as={ChatIcon} />
+                )}
+
+                {org ? org.orgName : event ? event.eventName : pageTitle}
+              </Text>
+            </Link>
+          </Box>
 
           {event?.eventCategory && (
             <Tag
@@ -133,29 +171,32 @@ export const Header = ({
           )}
         </Flex>
       ) : (
-        <Flex flexDirection="column" ml={5}>
+        <Flex
+          flexDirection="column"
+          ml={5}
+          onMouseEnter={() => setClassName("rainbow-text")}
+          onMouseLeave={() => setClassName("")}
+        >
           <Link
+            className={className}
             variant="no-underline"
             fontFamily="Aladin"
             fontSize="x-large"
             fontStyle="italic"
-            mt={!pageSubTitle ? 5 : undefined}
             //mb={!pageTitle ? 5 : undefined}
             color={defaultTitleColor}
             onClick={() => router.push("/", "/", { shallow: true })}
           >
-            {defaultTitle}
+            <Text as="h1">{defaultTitle}</Text>
           </Link>
 
-          {org || event || pageTitle ? (
+          {hasTitle ? (
             <>
               <Link href={router.asPath} variant="no-underline">
                 <Text
                   as="h1"
                   className="rainbow-text"
-                  fontSize={["3xl", "3xl", pageSubTitle ? "3xl" : "6xl"]}
-                  py={3}
-                  pt={0}
+                  fontSize={["3xl", "3xl", pageSubTitle ? "3xl" : "3xl"]}
                   display="flex"
                   alignItems="center"
                 >

@@ -1,14 +1,12 @@
-import "react-datepicker/dist/react-datepicker.min.css";
-import {
-  BrowserView,
-  MobileView,
-  isBrowser,
-  isMobile
-} from "react-device-detect";
-import React from "react";
+import { TimeIcon } from "@chakra-ui/icons";
+import { Button } from "@chakra-ui/react";
 import { fr } from "date-fns/locale";
+import React, { forwardRef, Ref } from "react";
 import ReactDatePicker, { ReactDatePickerProps } from "react-datepicker";
+import { isBrowser } from "react-device-detect";
 import { styled } from "twin.macro";
+import "react-datepicker/dist/react-datepicker.min.css";
+import { format, parseISO } from "date-fns";
 
 const ReactDatePickerStyles = styled.span(
   ({ isBrowser }: { isBrowser: boolean }) => [
@@ -73,40 +71,59 @@ const ReactDatePickerStyles = styled.span(
   ]
 );
 
-// placeholderText={format(new Date(), "dd/MM/yyyy")}
-type DatePickerProps = ReactDatePickerProps;
-// {
-//       minDate?: Date;
-//       maxDate?: Date;
-//       placeholderText?: string;
-//       value?: string;
-//     }
+export const renderCustomInput = (label: string, timeOnly?: boolean) => {
+  const ExampleCustomInput = forwardRef(
+    (
+      { value, onClick }: { value?: string; onClick?: () => void },
+      ref: Ref<HTMLButtonElement>
+    ) => {
+      let cursor = "pointer";
+      let isDisabled = false;
 
-export const DatePicker = ({
-  // minDate,
-  // maxDate,
-  // onChange,
-  // placeholderText,
-  // selected,
-  //refP,
-  ...datePickerProps
-}: DatePickerProps) => {
+      const day = value?.substr(0, 2);
+      const month = value?.substr(3, 2);
+      const year = value?.substr(6, 4);
+      const hours = value?.substr(12, 2);
+      const minutes = value?.substr(15, 2);
+      const date = parseISO(`${year}-${month}-${day}T${hours}:${minutes}`);
+
+      // if (
+      //   label === "repeat" &&
+      //   (!eventMinDate || !eventMaxDate)
+      // ) {
+      //   cursor = "not-allowed";
+      //   isDisabled = true;
+      // }
+
+      return (
+        <Button
+          aria-label={label}
+          onClick={onClick}
+          ref={ref}
+          isDisabled={isDisabled}
+        >
+          {value ? (
+            format(date, timeOnly ? "H'h'mm" : "cccc d MMMM H'h'mm", {
+              locale: fr
+            })
+          ) : (
+            <TimeIcon cursor={cursor} />
+          )}
+        </Button>
+      );
+    }
+  );
+  return <ExampleCustomInput />;
+};
+
+export const DatePicker = ({ ...datePickerProps }: ReactDatePickerProps) => {
   return (
     <ReactDatePickerStyles isBrowser={isBrowser}>
       <ReactDatePicker
-        // ref={ref}
-        // selected={selected}
-        // onChange={onChange}
-        dateFormat="dd/MM/yyyy"
+        dateFormat="dd/MM"
         locale={fr}
         timeCaption="h"
         onChangeRaw={(e) => e.preventDefault()}
-        // showMonthDropdown
-        // showYearDropdown
-        // dropdownMode="select"
-        // minDate={minDate}
-        // maxDate={maxDate}
-        // placeholderText={placeholderText}
         {...datePickerProps}
       />
     </ReactDatePickerStyles>

@@ -46,9 +46,10 @@ import { ForwardModal } from "features/modals/ForwardModal";
 import { useDeleteEventMutation, useEditEventMutation } from "./eventsApi";
 import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
-import { IoIosPeople, IoMdPerson } from "react-icons/io";
+import { IoIosPeople, IoIosPerson, IoMdPerson } from "react-icons/io";
 import { EventModal } from "features/modals/EventModal";
 import { useRouter } from "next/router";
+import setDay from "date-fns/setDay";
 
 const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
   eventVisibility === Visibility.SUBSCRIBERS ? (
@@ -151,16 +152,31 @@ export const EventsList = ({
         (event.eventVisibility === Visibility.SUBSCRIBERS && isSubscribed)
       ) {
         array.push(event);
+        const start = parseISO(event.eventMinDate);
+        const end = parseISO(event.eventMaxDate);
+        const { days = 0, hours = 0 } = intervalToDuration({
+          start,
+          end
+        });
+
+        if (event.otherDays) {
+          for (const otherDay of event.otherDays) {
+            console.log(otherDay);
+
+            array.push({
+              ...event,
+              eventMinDate: otherDay.startDate
+                ? formatISO(parseISO(otherDay.startDate))
+                : formatISO(setDay(start, otherDay.dayNumber + 1)),
+              eventMaxDate: otherDay.startDate
+                ? formatISO(addHours(parseISO(otherDay.startDate), hours))
+                : formatISO(setDay(end, otherDay.dayNumber + 1))
+            });
+          }
+        }
 
         if (event.repeat) {
           const repeatCount = event.repeat === 99 ? 10 : event.repeat;
-          const start = parseISO(event.eventMinDate);
-          const end = parseISO(event.eventMaxDate);
-
-          const { days = 0, hours = 0 } = intervalToDuration({
-            start,
-            end
-          });
 
           for (let i = 1; i <= repeatCount; i++) {
             const eventMinDate = addWeeks(start, i);
@@ -504,16 +520,28 @@ export const EventsList = ({
                 pl={3}
                 pb={3}
               >
-                {event.eventOrgs.map((eventOrg) => {
-                  return (
-                    <Link key={eventOrg.orgUrl} href={`/${eventOrg.orgUrl}`}>
-                      <Tag>
-                        <Icon as={IoIosPeople} mr={1} />
-                        {eventOrg.orgName}
-                      </Tag>
-                    </Link>
-                  );
-                })}
+                {event.eventOrgs.length > 0
+                  ? event.eventOrgs.map((eventOrg) => {
+                      return (
+                        <Link
+                          key={eventOrg.orgUrl}
+                          href={`/${eventOrg.orgUrl}`}
+                        >
+                          <Tag>
+                            <Icon as={IoIosPeople} mr={1} />
+                            {eventOrg.orgName}
+                          </Tag>
+                        </Link>
+                      );
+                    })
+                  : typeof event.createdBy === "object" && (
+                      <Link href={`/${event.createdBy.userName}`}>
+                        <Tag>
+                          <Icon as={IoIosPerson} mr={1} />
+                          {event.createdBy.userName}
+                        </Tag>
+                      </Link>
+                    )}
               </GridItem>
             )}
           </Grid>

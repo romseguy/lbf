@@ -1,77 +1,74 @@
-import { Session } from "next-auth";
-import { Category, IEvent, VisibilityV } from "models/Event";
-import type { IOrg } from "models/Org";
-import { isMobile } from "react-device-detect";
-import React, { forwardRef, Ref, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import ReactSelect from "react-select";
-import { ErrorMessage } from "@hookform/error-message";
+import { PhoneIcon } from "@chakra-ui/icons";
 import {
   ChakraProps,
   Input,
   Button,
   FormControl,
   FormLabel,
-  Box,
   FormErrorMessage,
   useToast,
   Select,
-  Checkbox,
   Flex,
-  CheckboxGroup,
   useColorMode,
   Alert,
   AlertIcon,
   Tag,
-  Table,
-  Tbody,
-  Tr,
-  Td,
-  Spinner,
   InputGroup,
-  InputLeftAddon,
   InputLeftElement,
-  Tooltip
+  Tooltip,
+  Checkbox,
+  Box,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  PopoverCloseButton,
+  PopoverHeader
 } from "@chakra-ui/react";
-import { EmailIcon, PhoneIcon, TimeIcon } from "@chakra-ui/icons";
+import { ErrorMessage } from "@hookform/error-message";
+import {
+  addHours,
+  addWeeks,
+  format,
+  getDay,
+  getHours,
+  getISODay,
+  intervalToDuration,
+  parseISO,
+  setDay,
+  subHours
+} from "date-fns";
+import { Session } from "next-auth";
+import React, { useEffect, useState } from "react";
+import { isMobile } from "react-device-detect";
+import { Controller, useForm } from "react-hook-form";
+import { FaGlobeEurope } from "react-icons/fa";
+import ReactSelect from "react-select";
+import { css } from "twin.macro";
+import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
+
 import {
   AddressControl,
   DatePicker,
   EmailControl,
   ErrorMessageText,
+  Link,
+  renderCustomInput,
   RTEditor
 } from "features/common";
 import {
   useAddEventMutation,
   useEditEventMutation
 } from "features/events/eventsApi";
-import { handleError } from "utils/form";
-import {
-  addHours,
-  addWeeks,
-  getDay,
-  getHours,
-  intervalToDuration,
-  parseISO,
-  subHours
-} from "date-fns";
-import usePlacesAutocomplete, {
-  getDetails,
-  getGeocode,
-  getLatLng,
-  Suggestion
-} from "use-places-autocomplete";
-import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { css } from "twin.macro";
-import { useEffect } from "react";
-import { SubscriptionTypes } from "models/Subscription";
-import { normalize } from "utils/string";
-import { useSelector } from "react-redux";
-import { refetchOrgs, selectOrgsRefetch } from "features/orgs/orgSlice";
-import { unwrapSuggestion } from "utils/maps";
-import { Visibility } from "models/Topic";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
-import { FaGlobeEurope } from "react-icons/fa";
+import { useGetOrgsQuery } from "features/orgs/orgsApi";
+import { Category, IEvent, VisibilityV } from "models/Event";
+import type { IOrg } from "models/Org";
+import { Visibility } from "models/Topic";
+import * as dateUtils from "utils/date";
+import { handleError } from "utils/form";
+import { unwrapSuggestion } from "utils/maps";
+import { normalize } from "utils/string";
 
 interface EventFormProps extends ChakraProps {
   session: Session;
@@ -89,6 +86,10 @@ for (let i = 1; i <= 10; i++) {
 export const EventForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 })(({ initialEventOrgs = [], ...props }: EventFormProps) => {
+  const toast = useToast({ position: "top" });
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
   //#region event
   const [addEvent, addEventMutation] = useAddEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
@@ -115,15 +116,15 @@ export const EventForm = withGoogleApi({
     clearErrors,
     watch,
     setValue,
-    getValues,
-    trigger
+    getValues
   } = useForm({
     mode: "onChange"
   });
 
   watch(["eventAddress", "eventOrgs"]);
-  const eventAddress = getValues("eventAddress") || props.event?.eventAddress;
+  const eventNotif = watch("eventNotif");
   const eventVisibility = watch("eventVisibility");
+
   const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs || [];
   const eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
   const eventOrgsRules: { required: string | boolean } = {
@@ -147,7 +148,6 @@ export const EventForm = withGoogleApi({
   const visibilityOptions: string[] = eventOrgs
     ? [Visibility.PUBLIC, Visibility.SUBSCRIBERS]
     : [];
-  const eventNotif = watch("eventNotif");
   useEffect(() => {
     if (eventNotif === false) {
       setValue("eventNotif", []);
@@ -156,17 +156,63 @@ export const EventForm = withGoogleApi({
   //#endregion
 
   //#region local state
-  const toast = useToast({ position: "top" });
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
   const [isLoading, setIsLoading] = useState(false);
+  const [isRepeat, setIsRepeat] = useState(
+    props.event?.otherDays ? true : false
+  );
+
+  const [days, setDays] = useState<{
+    [key: number]: {
+      checked: boolean;
+      isDisabled?: boolean;
+      isOpen: boolean;
+      startDate?: Date;
+      endTime?: Date;
+    };
+  }>(
+    dateUtils.days.reduce((obj, day, index) => {
+      const otherDay = props.event?.otherDays?.find(
+        ({ dayNumber }) => dayNumber === index
+      );
+      return {
+        ...obj,
+        [index]: {
+          checked: !!otherDay,
+          isOpen: false,
+          startDate: otherDay?.startDate
+            ? parseISO(otherDay.startDate)
+            : undefined
+        }
+      };
+    }, {})
+  );
+
+  const setDayState = (index: number, match = {}, nomatch = {}) => {
+    return Object.keys(days).reduce(
+      (obj, day, i) =>
+        i === index
+          ? {
+              ...obj,
+              [i]: {
+                ...days[i],
+                ...match
+              }
+            }
+          : {
+              ...obj,
+              [i]: { ...days[i], ...nomatch }
+            },
+      {}
+    );
+  };
+
   const [suggestion, setSuggestion] = useState<Suggestion>();
   const {
-    ready,
-    value: autoCompleteValue,
+    // ready,
+    // value: autoCompleteValue,
     suggestions: { status, data },
-    setValue: setAutoCompleteValue,
-    clearSuggestions
+    setValue: setAutoCompleteValue
+    // clearSuggestions
   } = usePlacesAutocomplete({
     requestOptions: {
       componentRestrictions: {
@@ -175,6 +221,7 @@ export const EventForm = withGoogleApi({
     },
     debounce: 300
   });
+  const eventAddress = getValues("eventAddress") || props.event?.eventAddress;
   useEffect(() => {
     if (!suggestion) setAutoCompleteValue(eventAddress);
   }, [eventAddress]);
@@ -193,6 +240,7 @@ export const EventForm = withGoogleApi({
   const start = eventMinDate || eventMinDefaultDate;
   const end = eventMaxDate || eventMaxDefaultDate;
   let canRepeat = false;
+  let canRepeat1day = false;
   const highlightDatesStart: Date[] = [];
   const highlightDatesEnd: Date[] = [];
 
@@ -201,7 +249,23 @@ export const EventForm = withGoogleApi({
       start,
       end
     });
-    canRepeat = duration && duration.days !== undefined && duration.days < 7;
+
+    if (duration) {
+      if (!duration.days) {
+        let startDay: number = getDay(start);
+        startDay = startDay === 0 ? 6 : startDay - 1;
+
+        if (days[startDay] && !days[startDay].isDisabled) {
+          setDays(setDayState(startDay, { checked: true, isDisabled: true }));
+        }
+
+        canRepeat = true;
+        canRepeat1day = true;
+      } else {
+        if (duration.days < 7) canRepeat = true;
+      }
+    }
+
     for (let i = 1; i <= 10; i++) {
       highlightDatesStart[i] = addWeeks(start, i);
       highlightDatesEnd[i] = addWeeks(end, i);
@@ -247,6 +311,27 @@ export const EventForm = withGoogleApi({
     console.log("submitted", form);
     setIsLoading(true);
 
+    const otherDays: {
+      dayNumber: number;
+      startDate?: string;
+    }[] = Object.keys(days)
+      .filter((key) => {
+        const day = days[parseInt(key)];
+        return !day.isDisabled && day.checked;
+      })
+      .map((key) => {
+        const dayNumber = parseInt(key);
+        const day = days[dayNumber];
+        if (day.startDate)
+          return {
+            dayNumber,
+            startDate: days[dayNumber].startDate?.toISOString()
+          };
+        return { dayNumber };
+      });
+
+    console.log(otherDays);
+
     let payload = {
       ...form,
       eventUrl: normalize(form.eventName),
@@ -259,7 +344,8 @@ export const EventForm = withGoogleApi({
           ? []
           : typeof form.eventNotif === "string"
           ? [form.eventNotif]
-          : form.eventNotif
+          : form.eventNotif,
+      otherDays
     };
 
     try {
@@ -315,38 +401,6 @@ export const EventForm = withGoogleApi({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const renderCustomInput = (label: string) => {
-    const ExampleCustomInput = forwardRef(
-      (
-        { value, onClick }: { value?: string; onClick?: () => void },
-        ref: Ref<HTMLButtonElement>
-      ) => {
-        let cursor = "pointer";
-        let isDisabled = false;
-
-        // if (
-        //   label === "repeat" &&
-        //   (!eventMinDate || !eventMaxDate)
-        // ) {
-        //   cursor = "not-allowed";
-        //   isDisabled = true;
-        // }
-
-        return (
-          <Button
-            aria-label={label}
-            onClick={onClick}
-            ref={ref}
-            isDisabled={isDisabled}
-          >
-            {value ? value : <TimeIcon cursor={cursor} />}
-          </Button>
-        );
-      }
-    );
-    return <ExampleCustomInput />;
   };
 
   return (
@@ -444,13 +498,14 @@ export const EventForm = withGoogleApi({
                 withPortal={isMobile ? true : false}
                 customInput={renderCustomInput("minDate")}
                 selected={props.value}
+                dateFormat="Pp"
+                showTimeSelect
+                timeFormat="p"
+                timeIntervals={60}
                 onChange={(e) => {
                   clearErrors("eventMinDate");
                   props.onChange(e);
                 }}
-                showTimeSelect
-                timeFormat="p"
-                timeIntervals={60}
                 onCalendarClose={() => {
                   if (eventMinDate) {
                     setValue(
@@ -485,7 +540,6 @@ export const EventForm = withGoogleApi({
 
                   return false;
                 }}
-                dateFormat="Pp"
                 {...eventMinDateProps}
               />
             );
@@ -568,34 +622,137 @@ export const EventForm = withGoogleApi({
           // isDisabled={!eventMinDate || !eventMaxDate}
           mb={3}
         >
-          <FormLabel>Répéter</FormLabel>
+          <Checkbox
+            isChecked={isRepeat}
+            onChange={(e) => setIsRepeat(e.target.checked)}
+          >
+            Autres jours
+          </Checkbox>
 
-          <Select
-            name="repeat"
-            ref={register()}
-            defaultValue={props.event?.repeat}
-            placeholder="Ne pas répéter"
-            css={css`
-              ${isDark
-                ? `
+          {isRepeat && (
+            <Box mt={3}>
+              {canRepeat1day &&
+                dateUtils.days.map((label, index) => {
+                  let selected = start;
+
+                  const otherDay = props.event?.otherDays?.find(
+                    ({ dayNumber, startDate }) =>
+                      dayNumber === index && startDate
+                  );
+
+                  if (days[index].startDate) selected = days[index].startDate;
+                  else if (otherDay?.startDate)
+                    selected = parseISO(otherDay.startDate);
+
+                  return (
+                    <Popover
+                      key={"day-" + index}
+                      isOpen={!!days[index].isOpen}
+                      onClose={() =>
+                        setDays(setDayState(index, { isOpen: false }))
+                      }
+                    >
+                      <PopoverTrigger>
+                        <Link
+                          variant="no-underline"
+                          onClick={() => {
+                            const day = days[index];
+
+                            if (day.isDisabled) return;
+
+                            if (day.checked && !day.isOpen) {
+                              setDays(setDayState(index, { checked: false }));
+                            } else {
+                              setDays(
+                                setDayState(
+                                  index,
+                                  {
+                                    checked: true,
+                                    isOpen: true
+                                  },
+                                  { isOpen: false }
+                                )
+                              );
+                            }
+                          }}
+                        >
+                          <Tag
+                            variant={days[index].checked ? "solid" : "outline"}
+                            bgColor={days[index].checked ? "green" : undefined}
+                            cursor={
+                              days[index].isDisabled ? "not-allowed" : "pointer"
+                            }
+                            mr={1}
+                            mb={3}
+                          >
+                            {label}{" "}
+                            {getHours(selected) !== getHours(start)
+                              ? getHours(selected) + "h"
+                              : ""}
+                          </Tag>
+                        </Link>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <PopoverHeader fontWeight="bold">
+                          {dateUtils.days[index]}
+                        </PopoverHeader>
+                        <PopoverCloseButton />
+                        <PopoverBody>
+                          {/* <FormLabel>Heure de début</FormLabel> */}
+                          <DatePicker
+                            //withPortal
+                            customInput={renderCustomInput(
+                              "startDate" + index,
+                              true
+                            )}
+                            selected={selected}
+                            dateFormat="Pp"
+                            showTimeSelect
+                            showTimeSelectOnly
+                            timeFormat="p"
+                            timeIntervals={60}
+                            onChange={(startDate: Date) => {
+                              setDays(
+                                setDayState(index, {
+                                  startDate: setDay(startDate, index + 1)
+                                })
+                              );
+                            }}
+                          />
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  );
+                })}
+
+              <Select
+                name="repeat"
+                ref={register()}
+                defaultValue={props.event?.repeat}
+                placeholder="Ne pas répéter"
+                css={css`
+                  ${isDark
+                    ? `
                 color: white;
               `
-                : `
+                    : `
                 color: black;
               `}
-            `}
-          >
-            <option key="all" value={99}>
-              Répéter toutes les semaines
-            </option>
-            {repeatOptions.map((i) => (
-              <option key={`${i}w`} value={i}>
-                {i > 1
-                  ? `Répéter les ${i} prochaines semaines`
-                  : `Répéter la semaine prochaine`}
-              </option>
-            ))}
-          </Select>
+                `}
+              >
+                <option key="all" value={99}>
+                  Toutes les semaines
+                </option>
+                {repeatOptions.map((i) => (
+                  <option key={`${i}w`} value={i}>
+                    {i > 1
+                      ? `Les ${i} prochaines semaines`
+                      : `La semaine prochaine`}
+                  </option>
+                ))}
+              </Select>
+            </Box>
+          )}
 
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="repeat" />

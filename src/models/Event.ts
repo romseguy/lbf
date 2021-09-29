@@ -30,6 +30,7 @@ export interface IEvent {
   }[]; // list of emails the invitation has been sent to
   eventTopics: ITopic[];
   repeat?: number;
+  otherDays?: { dayNumber: number; startDate?: string }[];
   isApproved?: boolean;
   forwardedFrom: {
     eventId: string;
@@ -167,7 +168,8 @@ export const EventSchema = new Schema<IEvent>(
       ref: "User"
     },
     repeat: Number,
-    isApproved: Schema.Types.Boolean,
+    otherDays: [{ dayNumber: Number, startDate: String }],
+    isApproved: Boolean,
     forwardedFrom: {
       eventId: {
         type: Schema.Types.ObjectId,

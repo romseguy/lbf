@@ -76,11 +76,12 @@ export const EventConfigLogoPanel = ({
         },
         eventUrl: event.eventUrl
       });
-      eventQuery.refetch();
       toast({
         title: `Le logo de l'événement a bien été modifié !`,
         status: "success"
       });
+      eventQuery.refetch();
+      setIsVisible({ ...isVisible, logo: false });
     } catch (error) {
       handleError(error, (message) =>
         setError("formErrorMessage", {

@@ -108,6 +108,7 @@ export const OrgConfigBannerPanel = ({
         status: "success"
       });
       orgQuery.refetch();
+      setIsVisible({ ...isVisible, banner: false });
     } catch (error) {
       handleError(error, (message) =>
         setError("formErrorMessage", {

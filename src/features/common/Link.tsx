@@ -24,7 +24,7 @@ export type LinkProps = ColorProps &
     locale?: string | false;
     className?: string;
     // --
-    onClick?: () => void;
+    onClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
     children: React.ReactNode | React.ReactNodeArray;
     css?: SerializedStyles;
   };

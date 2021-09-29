@@ -37,7 +37,7 @@ export const EventsPage = ({
   const events = eventsQuery.data?.filter((event) => {
     if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
     if (event.eventVisibility !== Visibility.PUBLIC) return false;
-    return true;
+    return event.isApproved;
   });
 
   const { data: session, loading: isSessionLoading } = useSession();

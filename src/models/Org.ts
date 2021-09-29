@@ -109,7 +109,7 @@ export const OrgSchema = new Schema<IOrg>(
       mode: String,
       url: String
     },
-    isApproved: Schema.Types.Boolean,
+    isApproved: Boolean,
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User"

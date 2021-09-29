@@ -30,7 +30,7 @@ export const UserSchema = new Schema<IUser>(
       unique: true
     },
     isOnline: {
-      type: Schema.Types.Boolean
+      type: Boolean
     },
     password: {
       type: String,
@@ -48,7 +48,7 @@ export const UserSchema = new Schema<IUser>(
       height: Number
     },
     userSubscription: Schema.Types.Mixed,
-    isAdmin: Schema.Types.Boolean
+    isAdmin: Boolean
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );
