@@ -158,6 +158,16 @@ handler.post<
             }
           }
 
+          if (
+            !org.orgSubscriptions.find((orgSubscription) =>
+              equals(orgSubscription._id, userSubscription!._id)
+            )
+          ) {
+            org.orgSubscriptions.push(userSubscription);
+            await org.save();
+            console.log("org updated with new subscription");
+          }
+
           // if (staleOrgSubscriptionOrgIds.length > 0) {
           //   userSubscription.orgs = userSubscription.orgs.filter(
           //     (orgSubscription) =>

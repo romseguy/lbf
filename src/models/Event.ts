@@ -158,7 +158,6 @@ export const EventSchema = new Schema<IEvent>(
     },
     eventBanner: {
       base64: String,
-      width: Number,
       height: Number,
       mode: String,
       url: String

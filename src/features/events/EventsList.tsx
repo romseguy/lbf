@@ -25,7 +25,8 @@ import {
   formatISO,
   getMinutes,
   getDayOfYear,
-  getDay
+  getDay,
+  compareDesc
 } from "date-fns";
 import { Category, IEvent, Visibility } from "models/Event";
 import { fr } from "date-fns/locale";
@@ -97,16 +98,18 @@ export const EventsList = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
+  const today = new Date();
+
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
-  let currentDate: Date | undefined;
-  let addGridHeader = true;
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
   const [eventToShow, setEventToShow] = useState<IEvent | null>(null);
   const [eventToForward, setEventToForward] = useState<IEvent | null>(null);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  let currentDate: Date | undefined;
+  let addGridHeader = true;
   //#endregion
 
   //#region org
@@ -143,7 +146,7 @@ export const EventsList = ({
   };
 
   const addRepeatedEvents = (events: IEvent[]) => {
-    let array: IEvent[] = [];
+    let array = [];
 
     for (const event of events) {
       if (
@@ -151,7 +154,6 @@ export const EventsList = ({
         event.eventVisibility === Visibility.PUBLIC ||
         (event.eventVisibility === Visibility.SUBSCRIBERS && isSubscribed)
       ) {
-        array.push(event);
         const start = parseISO(event.eventMinDate);
         const end = parseISO(event.eventMaxDate);
         const { days = 0, hours = 0 } = intervalToDuration({
@@ -159,19 +161,28 @@ export const EventsList = ({
           end
         });
 
+        array.push({
+          ...event,
+          eventMinDate: start,
+          eventMaxDate: end
+        });
+
         if (event.otherDays) {
           for (const otherDay of event.otherDays) {
-            console.log(otherDay);
+            const eventMinDate = otherDay.startDate
+              ? parseISO(otherDay.startDate)
+              : setDay(start, otherDay.dayNumber + 1);
+            const eventMaxDate = otherDay.startDate
+              ? addHours(parseISO(otherDay.startDate), hours)
+              : setDay(end, otherDay.dayNumber + 1);
 
-            array.push({
-              ...event,
-              eventMinDate: otherDay.startDate
-                ? formatISO(parseISO(otherDay.startDate))
-                : formatISO(setDay(start, otherDay.dayNumber + 1)),
-              eventMaxDate: otherDay.startDate
-                ? formatISO(addHours(parseISO(otherDay.startDate), hours))
-                : formatISO(setDay(end, otherDay.dayNumber + 1))
-            });
+            if (compareDesc(today, eventMinDate) !== -1) {
+              array.push({
+                ...event,
+                eventMinDate,
+                eventMaxDate
+              });
+            }
           }
         }
 
@@ -180,13 +191,27 @@ export const EventsList = ({
 
           for (let i = 1; i <= repeatCount; i++) {
             const eventMinDate = addWeeks(start, i);
-            const eventMaxDate = addDays(addHours(eventMinDate, hours), days);
+            const eventMaxDate = addWeeks(end, i);
             array.push({
               ...event,
-              eventMinDate: formatISO(eventMinDate),
-              eventMaxDate: formatISO(eventMaxDate),
+              eventMinDate,
+              eventMaxDate,
               repeat: repeatCount + i
             });
+
+            if (event.otherDays) {
+              for (const otherDay of event.otherDays) {
+                array.push({
+                  ...event,
+                  eventMinDate: otherDay.startDate
+                    ? addWeeks(parseISO(otherDay.startDate), i)
+                    : setDay(eventMinDate, otherDay.dayNumber + 1),
+                  eventMaxDate: otherDay.startDate
+                    ? addWeeks(addHours(parseISO(otherDay.startDate), hours), i)
+                    : setDay(eventMaxDate, otherDay.dayNumber + 1)
+                });
+              }
+            }
           }
         }
       }
@@ -197,13 +222,12 @@ export const EventsList = ({
 
   const events = useMemo(() => {
     const repeatedEvents = addRepeatedEvents(props.events).sort((a, b) =>
-      compareAsc(parseISO(a.eventMinDate), parseISO(b.eventMinDate))
+      compareAsc(a.eventMinDate, b.eventMinDate)
     );
 
     return repeatedEvents.map((event, index) => {
-      const minDate = parseISO(event.eventMinDate);
-      const maxDate = parseISO(event.eventMaxDate);
-
+      const minDate = event.eventMinDate;
+      const maxDate = event.eventMaxDate;
       const isCurrentDateOneDayBeforeMinDate = currentDate
         ? getDayOfYear(currentDate) < getDayOfYear(minDate)
         : true;
@@ -229,7 +253,7 @@ export const EventsList = ({
       }
 
       return (
-        <div key={`${event._id}${event.repeat}`}>
+        <div key={"event-" + index}>
           <Grid
             templateRows="auto auto 4fr auto"
             templateColumns="1fr 6fr minmax(75px, 1fr)"
@@ -345,6 +369,8 @@ export const EventsList = ({
                               eventUrl: event.eventUrl,
                               payload: {
                                 ...event,
+                                eventMinDate: formatISO(minDate),
+                                eventMaxDate: formatISO(maxDate),
                                 eventNotif: [org!._id]
                               }
                             }).unwrap();
@@ -427,7 +453,11 @@ export const EventsList = ({
                         minWidth={0}
                         ml={2}
                         onClick={() => {
-                          setEventToForward(event);
+                          setEventToForward({
+                            ...event,
+                            eventMinDate: formatISO(minDate),
+                            eventMaxDate: formatISO(maxDate)
+                          });
                         }}
                       />
                     </span>
@@ -505,7 +535,16 @@ export const EventsList = ({
               dark={{ bg: "gray.700" }}
             >
               {event.eventDescription && event.eventDescription.length > 0 ? (
-                <Link variant="underline" onClick={() => setEventToShow(event)}>
+                <Link
+                  variant="underline"
+                  onClick={() =>
+                    setEventToShow({
+                      ...event,
+                      eventMinDate: formatISO(minDate),
+                      eventMaxDate: formatISO(maxDate)
+                    })
+                  }
+                >
                   Voir l'affiche de l'événement
                 </Link>
               ) : (

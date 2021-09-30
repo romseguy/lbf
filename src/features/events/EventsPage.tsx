@@ -20,6 +20,7 @@ import { useGetEventsQuery } from "./eventsApi";
 import { EventsList } from "./EventsList";
 import { MapModal } from "features/modals/MapModal";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import { compareAsc, compareDesc, parseISO } from "date-fns";
 
 export const EventsPage = ({
   isLogin,
@@ -37,6 +38,13 @@ export const EventsPage = ({
   const events = eventsQuery.data?.filter((event) => {
     if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
     if (event.eventVisibility !== Visibility.PUBLIC) return false;
+    // today must be before eventMinDate
+    if (
+      event.repeat !== 99 &&
+      compareDesc(new Date(), parseISO(event.eventMinDate)) === -1
+    )
+      return false;
+
     return event.isApproved;
   });
 

@@ -128,7 +128,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
         const user = await models.User.findOne({ userName: body.eventName });
         if (user) throw duplicateError;
 
-        let isApproved = false;
+        let isApproved = session.user.isAdmin;
         for (const eventOrg of body.eventOrgs) {
           const o = await models.Org.findOne({ _id: eventOrg._id });
           if (o && o.isApproved) isApproved = true;

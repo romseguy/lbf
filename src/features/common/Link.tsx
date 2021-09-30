@@ -1,33 +1,32 @@
 // https://raw.githubusercontent.com/chakra-ui/chakra-ui/develop/examples/nextjs-typescript/components/NextChakraLink.tsx
-import NextLink, { LinkProps as NextLinkProps } from "next/link";
+import NextLink from "next/link";
 import {
   ThemingProps,
   Link as ChakraLink,
+  LinkProps as ChakraLinkProps,
   SpaceProps,
   TypographyProps,
-  ColorProps
+  ColorProps,
+  FlexProps
 } from "@chakra-ui/react";
 import { SerializedStyles } from "@emotion/react";
 declare type Url = string;
 
-export type LinkProps = ColorProps &
-  ThemingProps &
-  SpaceProps &
-  TypographyProps & {
-    href?: Url;
-    as?: Url;
-    replace?: boolean;
-    scroll?: boolean;
-    shallow?: boolean;
-    passHref?: boolean;
-    prefetch?: boolean;
-    locale?: string | false;
-    className?: string;
-    // --
-    onClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
-    children: React.ReactNode | React.ReactNodeArray;
-    css?: SerializedStyles;
-  };
+export type LinkProps = ChakraLinkProps & {
+  href?: Url;
+  as?: Url;
+  replace?: boolean;
+  scroll?: boolean;
+  shallow?: boolean;
+  passHref?: boolean;
+  prefetch?: boolean;
+  locale?: string | false;
+  className?: string;
+  // --
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
+  children: React.ReactNode | React.ReactNodeArray;
+  css?: SerializedStyles;
+};
 
 export const Link = ({
   // NextLink

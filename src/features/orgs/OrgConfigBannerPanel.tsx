@@ -1,6 +1,6 @@
 import type { Visibility } from "./OrgPage";
-import { IOrg, orgTypeFull } from "models/Org";
-import React, { useState } from "react";
+import type { IOrg } from "models/Org";
+import React, { useEffect, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import {
   Box,
@@ -11,17 +11,18 @@ import {
   FormErrorMessage,
   Alert,
   AlertIcon,
+  useToast,
   Flex,
-  Grid,
-  GridProps,
   Radio,
   RadioGroup,
-  useToast
+  GridProps,
+  Image
 } from "@chakra-ui/react";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import {
   Button,
   ErrorMessageText,
+  Grid,
   GridHeader,
   GridItem,
   Input,
@@ -33,7 +34,7 @@ import {
   ChevronRightIcon,
   WarningIcon
 } from "@chakra-ui/icons";
-import { getBase64 } from "utils/image";
+import { getBase64, getMeta } from "utils/image";
 import { useForm } from "react-hook-form";
 import { handleError } from "utils/form";
 import { ErrorMessage } from "@hookform/error-message";
@@ -55,10 +56,17 @@ export const OrgConfigBannerPanel = ({
   ...props
 }: OrgConfigBannerPanelProps) => {
   const toast = useToast({ position: "top" });
-  const [editOrg, editOrgMutation] = useEditOrgMutation();
 
   //#region local state
-  const [upImg, setUpImg] = useState<string | File>();
+  const [heights, setHeights] = useState([
+    { label: "Petit", height: 140 },
+    { label: "Moyen", height: 240 },
+    { label: "Grand", height: 340 }
+  ]);
+  const [uploadType, setUploadType] = useState<"url" | "local">(
+    org.orgBanner?.url ? "url" : "local"
+  );
+  const [upImg, setUpImg] = useState<string | File | null>(null);
   const setEditorRef = useRef<AvatarEditor | null>(null);
   //#endregion
 
@@ -69,14 +77,25 @@ export const OrgConfigBannerPanel = ({
     setError,
     errors,
     clearErrors,
-    watch,
-    getValues
+    getValues,
+    setValue,
+    watch
   } = useForm({
     mode: "onChange"
   });
-  const uploadType = watch("uploadType");
-  const height = watch("height");
-  const width = watch("width");
+  const defaultHeight = org.orgBanner?.height || heights[0].height;
+  const formHeight = watch("height") || defaultHeight;
+  //#endregion
+
+  //#region org
+  const [editOrg, editOrgMutation] = useEditOrgMutation();
+  // useEffect(() => {
+  //   if (org.orgBanner?.url)
+  //     getMeta(org.orgBanner.url, (width, height) => {
+  //       console.log("url height", height);
+  //       setHeights(heights.filter(({ height: h }) => h < height));
+  //     });
+  // }, [org.orgBanner?.url]);
   //#endregion
 
   const onSubmit = async (form: any) => {
@@ -85,13 +104,11 @@ export const OrgConfigBannerPanel = ({
     try {
       let payload = {};
 
-      if (form.uploadType === "url") {
-        payload = { ...org, orgBanner: { url: form.url } };
+      if (uploadType === "url") {
+        payload = { orgBanner: { url: form.url, height: form.height } };
       } else {
         payload = {
-          ...org,
           orgBanner: {
-            width: form.width,
             height: form.height,
             mode: form.mode,
             base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL()
@@ -127,8 +144,7 @@ export const OrgConfigBannerPanel = ({
           setIsVisible({
             ...isVisible,
             banner: !isVisible.banner,
-            logo: false,
-            subscribers: false
+            logo: false
           })
         }
       >
@@ -167,39 +183,42 @@ export const OrgConfigBannerPanel = ({
                 )}
               />
 
-              <RadioGroup defaultValue="local" mb={3}>
+              <RadioGroup name="uploadType" mb={3}>
                 <Stack spacing={2}>
-                  <Radio ref={register()} name="uploadType" value="local">
+                  <Radio
+                    isChecked={uploadType === "local"}
+                    onChange={() => {
+                      setUploadType("local");
+                      //setUpImg(org.orgBanner?.base64 || null);
+                    }}
+                  >
                     Envoyer une image depuis votre ordinateur
                   </Radio>
-                  <Radio ref={register()} name="uploadType" value="url">
+                  <Radio
+                    isChecked={uploadType === "url"}
+                    onChange={() => {
+                      setUploadType("url");
+                      //setUpImg(org.orgBanner?.url || null);
+                      //setUpImg(null);
+                    }}
+                  >
                     Utiliser une image en provenance d'une autre adresse
                   </Radio>
                 </Stack>
               </RadioGroup>
-
-              <FormControl id="width" mb={3}>
-                <FormLabel>Largeur</FormLabel>
-                <Select
-                  name="width"
-                  ref={register()}
-                  defaultValue={org.orgBanner?.width}
-                  isDisabled
-                >
-                  <option>1154</option>
-                </Select>
-              </FormControl>
 
               <FormControl id="height" mb={3}>
                 <FormLabel>Hauteur</FormLabel>
                 <Select
                   name="height"
                   ref={register()}
-                  defaultValue={org.orgBanner?.height}
+                  defaultValue={defaultHeight}
                 >
-                  <option value={140}>Petit</option>
-                  <option value={240}>Moyen</option>
-                  <option value={340}>Grand</option>
+                  {heights.map(({ label, height: h }) => (
+                    <option key={"height-" + h} value={h}>
+                      {label}
+                    </option>
+                  ))}
                 </Select>
               </FormControl>
 
@@ -212,25 +231,25 @@ export const OrgConfigBannerPanel = ({
                   register={register}
                   mb={3}
                   onBlur={() => {
-                    const url = getValues("url");
-                    if (urlR.test(url)) {
-                      setUpImg(url);
-                    }
+                    // const url = getValues("url");
+                    // if (urlR.test(url)) {
+                    //   setUpImg(url);
+                    // }
                   }}
                 />
               ) : (
                 <>
-                  {/*  <FormControl id="mode" mb={3}>
-                 <FormLabel>Theme</FormLabel>
-                 <Select
-                   name="mode"
-                   ref={register()}
-                   defaultValue={org.orgBanner?.mode || "light"}
-                 >
-                   <option value="light">Clair</option>
-                   <option value="dark">Sombre</option>
-                 </Select>
-               </FormControl> */}
+                  {/* <FormControl id="mode" mb={3}>
+                <FormLabel>Theme</FormLabel>
+                <Select
+                  name="mode"
+                  ref={register()}
+                  defaultValue={org.orgBanner?.mode || "light"}
+                >
+                  <option value="light">Clair</option>
+                  <option value="dark">Sombre</option>
+                </Select>
+              </FormControl> */}
 
                   <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
                     <FormLabel>Image</FormLabel>
@@ -245,7 +264,7 @@ export const OrgConfigBannerPanel = ({
                           if (e.target.files[0].size < 1000000) {
                             setUpImg(await getBase64(e.target.files[0]));
                             // const reader = new FileReader();
-                            // reader.addEventListener("load", () =>
+                            // reader.addOrgListener("load", () =>
                             //   setUpImg(reader.result)
                             // );
                             //reader.readAsDataURL(e.target.files[0]);
@@ -269,19 +288,24 @@ export const OrgConfigBannerPanel = ({
                 </>
               )}
 
-              {upImg && (
-                <AvatarEditor
-                  ref={setEditorRef}
-                  image={upImg}
-                  width={parseInt(width) * 0.9}
-                  height={parseInt(height)}
-                  border={0}
-                  color={[255, 255, 255, 0.6]} // RGBA
-                  scale={1}
-                  rotate={0}
-                  style={{ marginBottom: "12px" }}
-                />
-              )}
+              <Box mb={3}>
+                {uploadType === "url" ? (
+                  <Image src={getValues("url") || org.orgBanner?.url} />
+                ) : (
+                  upImg && (
+                    <AvatarEditor
+                      ref={setEditorRef}
+                      image={upImg}
+                      width={1154}
+                      height={parseInt(formHeight)}
+                      border={0}
+                      color={[255, 255, 255, 0.6]} // RGBA
+                      scale={1}
+                      rotate={0}
+                    />
+                  )
+                )}
+              </Box>
 
               <Button
                 colorScheme="green"

@@ -221,15 +221,15 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
       const dayNumber = parseInt(key);
       const day = timeline[dayNumber];
       return (
-        <ListItem>
+        <ListItem key={"timeline-item-" + key}>
           <Text fontWeight="bold">
             {format(day.startDate, "cccc d MMMM", { locale: fr })}
-            <Box display="flex" alignItems="center" ml={3}>
-              <Text color="green">{format(day.startDate, "H:mm")}</Text>
-              <ArrowForwardIcon />
-              <Text color="red">{format(day.endTime, "H:mm")}</Text>
-            </Box>
           </Text>
+          <Box display="flex" alignItems="center" ml={3} fontWeight="bold">
+            <Text color="green">{format(day.startDate, "H:mm")}</Text>
+            <ArrowForwardIcon />
+            <Text color="red">{format(day.endTime, "H:mm")}</Text>
+          </Box>
         </ListItem>
       );
     });
@@ -499,9 +499,12 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                     >
                       <Box p={5}>
                         {event.eventEmail ? (
-                          <a href={`mailto: ${event.eventEmail}`}>
+                          <Link
+                            variant="underline"
+                            href={`mailto: ${event.eventEmail}`}
+                          >
                             {event.eventEmail}
-                          </a>
+                          </Link>
                         ) : (
                           <Text fontStyle="italic">Aucune adresse e-mail.</Text>
                         )}

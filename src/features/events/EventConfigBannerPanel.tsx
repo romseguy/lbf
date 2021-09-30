@@ -1,6 +1,6 @@
 import type { Visibility } from "./EventPage";
 import type { IEvent } from "models/Event";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import {
   Box,
@@ -15,7 +15,8 @@ import {
   Flex,
   Radio,
   RadioGroup,
-  GridProps
+  GridProps,
+  Image
 } from "@chakra-ui/react";
 import { useEditEventMutation } from "features/events/eventsApi";
 import {
@@ -33,7 +34,7 @@ import {
   ChevronRightIcon,
   WarningIcon
 } from "@chakra-ui/icons";
-import { getBase64 } from "utils/image";
+import { getBase64, getMeta } from "utils/image";
 import { useForm } from "react-hook-form";
 import { handleError } from "utils/form";
 import { ErrorMessage } from "@hookform/error-message";
@@ -55,10 +56,17 @@ export const EventConfigBannerPanel = ({
   ...props
 }: EventConfigBannerPanelProps) => {
   const toast = useToast({ position: "top" });
-  const [editEvent, editEventMutation] = useEditEventMutation();
 
   //#region local state
-  const [upImg, setUpImg] = useState<string | File>();
+  const [heights, setHeights] = useState([
+    { label: "Petit", height: 140 },
+    { label: "Moyen", height: 240 },
+    { label: "Grand", height: 340 }
+  ]);
+  const [uploadType, setUploadType] = useState<"url" | "local">(
+    event.eventBanner?.url ? "url" : "local"
+  );
+  const [upImg, setUpImg] = useState<string | File | null>(null);
   const setEditorRef = useRef<AvatarEditor | null>(null);
   //#endregion
 
@@ -70,13 +78,24 @@ export const EventConfigBannerPanel = ({
     errors,
     clearErrors,
     getValues,
+    setValue,
     watch
   } = useForm({
     mode: "onChange"
   });
-  const uploadType = watch("uploadType");
-  const height = watch("height") || event.eventBanner?.height;
-  const width = watch("width");
+  const defaultHeight = event.eventBanner?.height || heights[0].height;
+  const formHeight = watch("height") || defaultHeight;
+  //#endregion
+
+  //#region event
+  const [editEvent, editEventMutation] = useEditEventMutation();
+  // useEffect(() => {
+  //   if (event.eventBanner?.url)
+  //     getMeta(event.eventBanner.url, (width, height) => {
+  //       console.log("url height", height);
+  //       setHeights(heights.filter(({ height: h }) => h < height));
+  //     });
+  // }, [event.eventBanner?.url]);
   //#endregion
 
   const onSubmit = async (form: any) => {
@@ -85,12 +104,11 @@ export const EventConfigBannerPanel = ({
     try {
       let payload = {};
 
-      if (form.uploadType === "url") {
-        payload = { eventBanner: { url: form.url } };
+      if (uploadType === "url") {
+        payload = { eventBanner: { url: form.url, height: form.height } };
       } else {
         payload = {
           eventBanner: {
-            width: form.width,
             height: form.height,
             mode: form.mode,
             base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL()
@@ -165,39 +183,42 @@ export const EventConfigBannerPanel = ({
                 )}
               />
 
-              <RadioGroup defaultValue="local" mb={3}>
+              <RadioGroup name="uploadType" mb={3}>
                 <Stack spacing={2}>
-                  <Radio ref={register()} name="uploadType" value="local">
+                  <Radio
+                    isChecked={uploadType === "local"}
+                    onChange={() => {
+                      setUploadType("local");
+                      //setUpImg(event.eventBanner?.base64 || null);
+                    }}
+                  >
                     Envoyer une image depuis votre ordinateur
                   </Radio>
-                  <Radio ref={register()} name="uploadType" value="url">
+                  <Radio
+                    isChecked={uploadType === "url"}
+                    onChange={() => {
+                      setUploadType("url");
+                      //setUpImg(event.eventBanner?.url || null);
+                      //setUpImg(null);
+                    }}
+                  >
                     Utiliser une image en provenance d'une autre adresse
                   </Radio>
                 </Stack>
               </RadioGroup>
-
-              <FormControl id="width" mb={3}>
-                <FormLabel>Largeur</FormLabel>
-                <Select
-                  name="width"
-                  ref={register()}
-                  defaultValue={event.eventBanner?.width}
-                  isDisabled
-                >
-                  <option>1154</option>
-                </Select>
-              </FormControl>
 
               <FormControl id="height" mb={3}>
                 <FormLabel>Hauteur</FormLabel>
                 <Select
                   name="height"
                   ref={register()}
-                  defaultValue={event.eventBanner?.height}
+                  defaultValue={defaultHeight}
                 >
-                  <option value={140}>Petit</option>
-                  <option value={240}>Moyen</option>
-                  <option value={340}>Grand</option>
+                  {heights.map(({ label, height: h }) => (
+                    <option key={"height-" + h} value={h}>
+                      {label}
+                    </option>
+                  ))}
                 </Select>
               </FormControl>
 
@@ -210,10 +231,10 @@ export const EventConfigBannerPanel = ({
                   register={register}
                   mb={3}
                   onBlur={() => {
-                    const url = getValues("url");
-                    if (urlR.test(url)) {
-                      setUpImg(url);
-                    }
+                    // const url = getValues("url");
+                    // if (urlR.test(url)) {
+                    //   setUpImg(url);
+                    // }
                   }}
                 />
               ) : (
@@ -267,19 +288,24 @@ export const EventConfigBannerPanel = ({
                 </>
               )}
 
-              {upImg && (
-                <AvatarEditor
-                  ref={setEditorRef}
-                  image={upImg}
-                  width={parseInt(width) * 0.9}
-                  height={parseInt(height)}
-                  border={0}
-                  color={[255, 255, 255, 0.6]} // RGBA
-                  scale={1}
-                  rotate={0}
-                  style={{ marginBottom: "12px" }}
-                />
-              )}
+              <Box mb={3}>
+                {uploadType === "url" ? (
+                  <Image src={getValues("url") || event.eventBanner?.url} />
+                ) : (
+                  upImg && (
+                    <AvatarEditor
+                      ref={setEditorRef}
+                      image={upImg}
+                      width={1154}
+                      height={parseInt(formHeight)}
+                      border={0}
+                      color={[255, 255, 255, 0.6]} // RGBA
+                      scale={1}
+                      rotate={0}
+                    />
+                  )
+                )}
+              </Box>
 
               <Button
                 colorScheme="green"

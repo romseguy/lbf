@@ -47,48 +47,46 @@ export const Header = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
+  const banner = event?.eventBanner || org?.orgBanner;
+  const bgImage = banner ? `url("${banner.base64 || banner.url}")` : "";
+  const logo = event?.eventLogo || org?.orgLogo;
+  const logoBgImage = logo ? `url("${logo.base64}")` : "";
+  const logoBgSize = "110px";
+
   //#region local state
   const hasTitle = org || event || pageTitle;
   const [className, setClassName] = useState("");
+
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
 
-  const banner = event?.eventBanner || org?.orgBanner;
-  const logo = event?.eventLogo || org?.orgLogo;
-
-  const [bgHeight, setBgHeight] = useState<number>();
-  //   banner?.height ? banner.height : pageSubTitle ? 180 : 140
+  // const [bgHeight, setBgHeight] = useState<number | undefined>(
+  //   banner?.height || 140
   // );
-  const [bgWidth, setBgWidth] = useState(banner?.width || 1154);
+  // const [bgWidth, setBgWidth] = useState(banner?.width || 1154);
 
-  if (banner?.url) {
-    getMeta(banner.url, (width, height) => {
-      setBgHeight(height);
-      setBgWidth(width);
-    });
-  }
+  // if (banner?.url) {
+  //   getMeta(banner.url, (width, height) => {
+  //     setBgHeight(height);
+  //     setBgWidth(width);
+  //   });
+  // }
   //#endregion
-
-  const bgImage = banner ? `url("${banner.base64 || banner.url}")` : "";
-  const logoBgImage = logo ? `url("${logo.base64}")` : "";
-  const logoBgWidth = "110px";
-  const styles = css`
-    /*height: ${bgHeight}px;*/
-    background-image: ${bgImage};
-    background-size: cover;
-    background-repeat: no-repeat;
-    ${isDark ? tw`bg-gray-800` : tw`bg-white`}
-    @media (min-width: ${breakpoints["2xl"]}) {
-    }
-  `;
 
   return (
     <Flex
       as="header"
       alignItems="center"
-      justifyContent="space-between"
-      cursor="pointer"
-      css={styles}
+      cursor={banner ? "pointer" : "default"}
+      height={banner ? banner.height : undefined}
+      css={css`
+        background-image: ${bgImage};
+        background-size: cover;
+        background-repeat: no-repeat;
+        ${isDark ? tw`bg-gray-800` : tw`bg-white`}
+        @media (min-width: ${breakpoints["2xl"]}) {
+        }
+      `}
       onClick={(e) => {
         e.stopPropagation();
         setIsBannerModalOpen(true);
@@ -96,8 +94,9 @@ export const Header = ({
       {...props}
     >
       {logo ? (
-        <Flex alignItems="center">
+        <>
           <Link
+            alignSelf="flex-end"
             onClick={(e) => {
               e.stopPropagation();
               setIsLogoModalOpen(true);
@@ -105,14 +104,9 @@ export const Header = ({
           >
             <Box
               css={css`
-                margin-top: ${banner?.url && bgHeight
-                  ? bgHeight - 110
-                  : banner
-                  ? banner.height - 110
-                  : 70}px;
-                /*margin-bottom: 12px;*/
-                height: ${logoBgWidth};
-                width: ${logoBgWidth};
+                margin: ${!banner ? "12px 0 12px 12px" : 0};
+                height: ${logoBgSize};
+                width: ${logoBgSize};
                 background-image: ${logoBgImage};
                 background-size: cover;
                 border-top-right-radius: 12px;
@@ -169,7 +163,7 @@ export const Header = ({
               {Category[event.eventCategory || 0].label}
             </Tag>
           )}
-        </Flex>
+        </>
       ) : (
         <Flex
           flexDirection="column"
@@ -262,8 +256,9 @@ export const Header = ({
                   <Box
                     bg={bgImage}
                     bgRepeat="no-repeat"
-                    height={bgHeight}
-                    width={bgWidth}
+                    bgSize="contain"
+                    height={banner.height || 140}
+                    width={banner.width || 1154}
                     alignSelf="center"
                   ></Box>
                 </ModalBody>
