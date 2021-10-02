@@ -1,15 +1,14 @@
-import type { Document } from "mongoose";
-import type { IOrg } from "models/Org";
-import type { ITopic } from "models/Topic";
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "database";
-import { createServerError } from "utils/errors";
-import { getSession } from "hooks/useAuth";
-import { equals, normalize } from "utils/string";
+import nodemailer from "nodemailer";
+import nodemailerSendgrid from "nodemailer-sendgrid";
 import { addOrUpdateTopic } from "api";
+import database, { models } from "database";
+import { getSession } from "hooks/useAuth";
+import type { IOrg } from "models/Org";
+import type { ITopic } from "models/Topic";
+import { createServerError } from "utils/errors";
+import { equals, normalize } from "utils/string";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -167,6 +166,23 @@ handler.post<
       }
 
       if (body.topic) {
+        const subject = `Nouvelle discussion : ${body.topic.topicName}`;
+        const mail = {
+          subject,
+          to: org.orgEmail,
+          from: process.env.EMAIL_FROM,
+          html: `
+          <h1>${subject}</h1>
+          <p>Rendez-vous sur la page de l'organisation <a href="${org.orgUrl}">${org.orgName}</a> pour lire la discussion.</p>
+          <p>Vous recevez cette notification car cette adresse e-mail est associée à l'organisation ${org.orgName}.</p>
+          `
+        };
+
+        if (process.env.NODE_ENV === "production")
+          await transport.sendMail(mail);
+        else if (process.env.NODE_ENV === "development")
+          console.log("sent new topic email notif to org email", mail);
+
         const topic = await addOrUpdateTopic({ body, org, transport, res });
         res.status(200).json(topic);
       } else res.status(200).json({});

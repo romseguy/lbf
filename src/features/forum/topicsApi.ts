@@ -1,6 +1,8 @@
 import type { ITopic } from "models/Topic";
 import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
 import baseQuery from "utils/query";
+import { IOrg } from "models/Org";
+import { IEvent } from "models/Event";
 
 //const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
 
@@ -18,27 +20,33 @@ export const topicsApi = createApi({
     //   }),
     //   invalidatesTags: [{ type: "Topics", id: "LIST" }]
     // }),
-    // addTopicDetails: build.mutation<
-    //   ITopic,
-    //   { payload: { topic?: ITopic }; topicUrl?: string }
-    // >({
-    //   query: ({ payload, topicUrl }) => ({
-    //     url: `topic/${topicUrl}`,
-    //     method: "POST",
-    //     body: payload
-    //   })
-    // }),
+    postTopicNotif: build.mutation<
+      string[],
+      {
+        payload: {
+          org?: IOrg;
+          event?: IEvent;
+        };
+        topicId: string;
+      }
+    >({
+      query: ({ payload, topicId }) => ({
+        url: `topic/${topicId}`,
+        method: "POST",
+        body: payload
+      })
+    }),
     deleteTopic: build.mutation<ITopic, string>({
       query: (topicId) => ({ url: `topic/${topicId}`, method: "DELETE" })
     }),
     editTopic: build.mutation<
       ITopic,
-      { payload: Partial<ITopic>; topicId?: string }
+      { payload: Partial<ITopic>; topicId?: string; topicNotif?: boolean }
     >({
-      query: ({ payload, topicId }) => ({
+      query: ({ payload, topicId, topicNotif }) => ({
         url: `topic/${topicId ? topicId : payload._id}`,
         method: "PUT",
-        body: payload
+        body: { ...payload, topicNotif }
       })
     })
     // getTopics: build.query<ITopic[], undefined>({
@@ -56,6 +64,7 @@ export const topicsApi = createApi({
 export const {
   // useAddTopicMutation,
   // useAddTopicDetailsMutation,
+  usePostTopicNotifMutation,
   useDeleteTopicMutation,
   useEditTopicMutation
   // useGetTopicsQuery,

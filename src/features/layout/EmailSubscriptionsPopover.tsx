@@ -219,10 +219,12 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
                         <Link
                           variant="underline"
                           aria-hidden
-                          onClick={() => {
-                            onOpen();
-                            setCurrentOrgSubscription(orgSubscription);
-                          }}
+                          href={`/${orgSubscription.org?.orgName}`}
+                          shallow
+                          // onClick={() => {
+                          //   onOpen();
+                          //   setCurrentOrgSubscription(orgSubscription);
+                          // }}
                         >
                           <Tooltip
                             label="Gérer les préférences de communication"

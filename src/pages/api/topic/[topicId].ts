@@ -1,20 +1,125 @@
+import { Types } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
+import nodemailer from "nodemailer";
+import nodemailerSendgrid from "nodemailer-sendgrid";
 import database, { models } from "database";
-import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { equals } from "utils/string";
-import { ITopicSubscription } from "models/Subscription";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
+import { createServerError } from "utils/errors";
+import { sendTopicToFollowers } from "utils/email";
+import { equals } from "utils/string";
+
+const transport = nodemailer.createTransport(
+  nodemailerSendgrid({
+    apiKey: process.env.EMAIL_API_KEY
+  })
+);
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
+handler.post<
+  NextApiRequest & {
+    query: { topicId: string };
+    body: {
+      org?: IOrg;
+      event?: IEvent;
+    };
+  },
+  NextApiResponse
+>(async function postTopicNotif(req, res) {
+  const session = await getSession({ req });
+
+  if (!session) {
+    return res
+      .status(403)
+      .json(
+        createServerError(
+          new Error("Vous devez être identifié pour accéder à ce contenu")
+        )
+      );
+  }
+
+  try {
+    const { body }: { body: { org?: IOrg; event?: IEvent } } = req;
+    const topicId = req.query.topicId;
+    const topic = await models.Topic.findOne({ _id: topicId });
+
+    if (!topic) {
+      return res
+        .status(404)
+        .json(
+          createServerError(new Error(`La discussion ${topicId} n'existe pas`))
+        );
+    }
+
+    if (
+      !equals(topic.createdBy, session.user.userId) &&
+      !session.user.isAdmin
+    ) {
+      return res
+        .status(403)
+        .json(
+          createServerError(
+            new Error(
+              "Vous ne pouvez pas envoyer des notifications pour une discussion que vous n'avez pas créé."
+            )
+          )
+        );
+    }
+
+    let emailList: string[] = [];
+
+    if (body.event) {
+      // getting subscriptions of users subscribed to this event
+      const subscriptions = await models.Subscription.find({
+        "events.event": Types.ObjectId(body.event._id)
+      }).populate("user");
+
+      emailList = await sendTopicToFollowers({
+        event: body.event,
+        subscriptions,
+        topic,
+        transport
+      });
+    } else if (body.org) {
+      // getting subscriptions of users subscribed to this org
+      const subscriptions = await models.Subscription.find({
+        "orgs.org": Types.ObjectId(body.org._id)
+      }).populate("user");
+
+      emailList = await sendTopicToFollowers({
+        org: body.org,
+        subscriptions,
+        topic,
+        transport
+      });
+    }
+
+    const topicNotified = emailList.map((email) => ({ email }));
+
+    if (topic.topicNotified) {
+      topic.topicNotified = topic.topicNotified.concat(topicNotified);
+    } else {
+      topic.topicNotified = topicNotified;
+    }
+
+    await topic.save();
+
+    res.status(200).json({ emailList });
+  } catch (error) {
+    res.status(500).json(createServerError(error));
+  }
+});
+
 handler.put<
   NextApiRequest & {
     query: { topicId: string };
-    body: ITopic;
+    body: ITopic & { topicNotif?: boolean };
   },
   NextApiResponse
 >(async function editTopic(req, res) {
@@ -30,7 +135,7 @@ handler.put<
       );
   } else {
     try {
-      const { body }: { body: ITopic } = req;
+      const { body }: { body: ITopic & { topicNotif?: boolean } } = req;
       const topicId = req.query.topicId;
       const topic = await models.Topic.findOne({ _id: topicId });
 

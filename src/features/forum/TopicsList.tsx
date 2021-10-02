@@ -1,20 +1,17 @@
 import {
   AddIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
   EditIcon,
   EmailIcon,
-  LockIcon,
   ViewIcon,
   ViewOffIcon
 } from "@chakra-ui/icons";
 import {
+  Alert,
+  AlertIcon,
   Box,
-  Flex,
   GridProps,
   Icon,
   IconButton,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -36,9 +33,6 @@ import React, { useState } from "react";
 import { FaBell, FaBellSlash, FaGlobeEurope } from "react-icons/fa";
 import { IoMdPerson } from "react-icons/io";
 import { useSession } from "hooks/useAuth";
-import { IEvent, StatusTypes } from "models/Event";
-import type { IOrg } from "models/Org";
-import { ITopic, Visibility } from "models/Topic";
 import {
   Button,
   DeleteButton,
@@ -47,16 +41,18 @@ import {
   GridItem,
   Link
 } from "features/common";
-import { TopicForm } from "features/forms/TopicForm";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { TopicModal } from "features/modals/TopicModal";
 import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
 } from "features/subscriptions/subscriptionsApi";
+import { IEvent, StatusTypes } from "models/Event";
+import { IOrg, orgTypeFull } from "models/Org";
+import { ITopic, Visibility } from "models/Topic";
 import * as dateUtils from "utils/date";
 import { TopicMessagesList } from "./TopicMessagesList";
-import { useDeleteTopicMutation } from "./topicsApi";
+import { useDeleteTopicMutation, usePostTopicNotifMutation } from "./topicsApi";
 
 const TopicVisibility = ({ topicVisibility }: { topicVisibility?: string }) =>
   topicVisibility === Visibility.SUBSCRIBERS ? (
@@ -112,6 +108,7 @@ export const TopicsList = ({
   //#endregion
 
   //#region topic
+  const [postTopicNotif, postTopicNotifMutation] = usePostTopicNotifMutation();
   const [deleteTopic, deleteTopicMutation] = useDeleteTopicMutation();
   //#endregion
 
@@ -123,14 +120,12 @@ export const TopicsList = ({
     topic?: ITopic;
   }>({ isOpen: false, isEmailListOpen: false, topic: undefined });
   const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
-  // const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(true);
   const entityName = org ? org.orgName : event?.eventName;
   let entityTopics: ITopic[] = org
     ? org.orgTopics
     : event
     ? event.eventTopics
     : [];
-  //const topicsCount = Array.isArray(entityTopics) ? entityTopics.length : 0;
   //#endregion
 
   return (
@@ -190,7 +185,8 @@ export const TopicsList = ({
       )}
 
       {topicModalState.isEmailListOpen &&
-        Array.isArray(topicModalState.topic?.topicNotified) && (
+        topicModalState.topic &&
+        Array.isArray(topicModalState.topic.topicNotified) && (
           <Modal
             isOpen
             onClose={() =>
@@ -203,13 +199,20 @@ export const TopicsList = ({
           >
             <ModalOverlay>
               <ModalContent>
-                <ModalHeader>
-                  {topicModalState.topic?.topicName} :{" "}
-                  {topicModalState.topic?.topicNotified.length} notifications
-                  envoyées
-                </ModalHeader>
+                <ModalHeader>Liste des notifications</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
+                  <Alert status="info" flexDirection="row">
+                    <AlertIcon />
+                    <Box>
+                      Ci-dessous la liste des abonnés{" "}
+                      {org ? orgTypeFull(org.orgType) : "de l'événément"}{" "}
+                      <b>{org ? org.orgName : event!.eventName}</b> à notifier
+                      de l'ajout de la discussion{" "}
+                      <b>{topicModalState.topic.topicName}</b>.
+                    </Box>
+                  </Alert>
+
                   <Box overflowX="auto">
                     <Table>
                       <Tbody>
@@ -252,6 +255,41 @@ export const TopicsList = ({
                       </Tbody>
                     </Table>
                   </Box>
+
+                  <Button
+                    mt={3}
+                    colorScheme="green"
+                    isLoading={postTopicNotifMutation.isLoading}
+                    onClick={async () => {
+                      const emailList = await postTopicNotif({
+                        topicId: topicModalState.topic?._id!,
+                        payload: {
+                          org,
+                          event
+                        }
+                      }).unwrap();
+
+                      if (emailList.length > 0) {
+                        toast({
+                          status: "success",
+                          title: `${emailList.length} abonnés notifiés !`
+                        });
+                        query.refetch();
+                      } else
+                        toast({
+                          status: "warning",
+                          title: "Aucun abonné notifié"
+                        });
+
+                      setTopicModalState({
+                        ...topicModalState,
+                        topic: null,
+                        isEmailListOpen: false
+                      });
+                    }}
+                  >
+                    Envoyer les notifications manquantes
+                  </Button>
                 </ModalBody>
               </ModalContent>
             </ModalOverlay>

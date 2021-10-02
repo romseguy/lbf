@@ -182,20 +182,8 @@ export const sendTopicToFollowers = async ({
 
   let mail: MailType = {
     from: process.env.EMAIL_FROM,
-    subject,
-    html: `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion : ${topic.topicName}.</p>`
+    subject
   };
-
-  if (process.env.NODE_ENV === "production")
-    await transport.sendMail({
-      ...mail,
-      to: event ? event.eventEmail : org?.orgEmail
-    });
-  else if (process.env.NODE_ENV === "development")
-    console.log("sent new topic email notif to org/event email", {
-      ...mail,
-      to: event ? event.eventEmail : org?.orgEmail
-    });
 
   for (const subscription of subscriptions) {
     const email =
@@ -205,11 +193,12 @@ export const sendTopicToFollowers = async ({
 
     if (!email) continue;
 
+    if (topic.topicNotified?.find(({ email: e }) => e === email)) continue;
+
     mail.to = `<${email}>`;
 
     mail.html = `
     <h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${entityName}</a> pour lire la discussion.</p>
-    <p><a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}&topicId=${topic._id}">Se désabonner de cette discussion</a></p>
     <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${entityName}</a>
     `;
 
