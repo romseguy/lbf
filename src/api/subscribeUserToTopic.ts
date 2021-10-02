@@ -22,7 +22,7 @@ export const subscribeUserToTopic = async (userId: string, topic: ITopic) => {
     );
 
     if (!topicSubscription) {
-      console.log("no sub for this topic");
+      console.log("no sub for this topic => adding one");
       subscription.topics.push({ topic });
       await subscription.save();
     }

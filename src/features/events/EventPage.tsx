@@ -258,7 +258,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
         </Button>
       ) : null}
 
-      {/* {!isCreator && (
+      {!isCreator && (
         <SubscriptionPopover
           event={event}
           query={eventQuery}
@@ -266,7 +266,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
           followerSubscription={isFollowed}
           isLoading={subQuery.isLoading || subQuery.isFetching}
         />
-      )} */}
+      )}
 
       <Box mb={3}>
         <Text fontSize="smaller" pt={1}>

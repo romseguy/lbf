@@ -166,6 +166,11 @@ export const sendTopicToFollowers = async ({
 
   if (!event && !org) return emailList;
 
+  if (!subscriptions.length) {
+    console.log(`nobody subscribed to this ${org ? "org" : "event"}`);
+    return emailList;
+  }
+
   const entityName = event ? event.eventName : org?.orgName;
   const entityUrl = event ? event.eventUrl : org?.orgUrl;
   const subject = `Nouvelle discussion : ${topic.topicName}`;

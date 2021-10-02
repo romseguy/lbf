@@ -18,12 +18,12 @@ export const eventApi = createApi({
     }),
     addEventDetails: build.mutation<
       ITopic,
-      { payload: { topic?: ITopic }; eventUrl?: string }
+      { payload: { topic?: ITopic }; eventUrl?: string; topicNotif?: boolean }
     >({
-      query: ({ payload, eventUrl }) => ({
+      query: ({ payload, eventUrl, topicNotif }) => ({
         url: `event/${eventUrl}`,
         method: "POST",
-        body: payload
+        body: { ...payload, topicNotif }
       })
     }),
     deleteEvent: build.mutation<IEvent, string>({

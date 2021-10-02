@@ -82,12 +82,17 @@ export const addOrUpdateTopic = async ({
         "events.event": Types.ObjectId(event._id)
       }).populate("user");
 
-      sendTopicToFollowers({
-        event,
-        subscriptions,
-        topic,
-        transport
-      });
+      if (body.topicNotif) {
+        const emailList = await sendTopicToFollowers({
+          event,
+          subscriptions,
+          topic,
+          transport
+        });
+
+        topic.topicNotified = emailList.map((email) => ({ email }));
+        await topic.save();
+      }
     } else if (org) {
       org.orgTopics.push(topic);
       await org.save();

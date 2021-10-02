@@ -123,7 +123,8 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         } else if (event) {
           topic = await addEventDetails({
             payload,
-            eventUrl: event.eventUrl
+            eventUrl: event.eventUrl,
+            topicNotif: form.topicNotif
           }).unwrap();
         }
 

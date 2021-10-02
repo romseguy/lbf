@@ -84,14 +84,16 @@ export const SubscriptionPopover = ({
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
-
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
+
+  //#region subscription
   const [addSubscription, addSubscriptionMutation] =
     useAddSubscriptionMutation();
   const [editSubscription, editSubscriptionMutation] =
     useEditSubscriptionMutation();
   const [deleteSubscription, deleteSubscriptionMutation] =
     useDeleteSubscriptionMutation();
+  //#endregion
 
   //#region local state
   const isStep1 = !userEmail;
@@ -391,127 +393,139 @@ export const SubscriptionPopover = ({
         <form onChange={onChange} onSubmit={handleSubmit(onStep2Submit)}>
           <FormControl>
             <>
-              <Checkbox
-                mb={1}
-                isChecked={isAllEventCategories}
-                isIndeterminate={
-                  !isAllEventCategories &&
-                  Object.keys(eventCategories).some(
-                    (key) => eventCategories[parseInt(key)].checked
-                  )
-                }
-                onChange={(e) =>
-                  setEventCategories(setAllItems(e.target.checked))
-                }
-              >
-                Événements
-              </Checkbox>
+              {subQuery.isLoading || subQuery.isFetching ? (
+                <Text>Chargement...</Text>
+              ) : (
+                <>
+                  {org && (
+                    <>
+                      <Checkbox
+                        mb={1}
+                        isChecked={isAllEventCategories}
+                        isIndeterminate={
+                          !isAllEventCategories &&
+                          Object.keys(eventCategories).some(
+                            (key) => eventCategories[parseInt(key)].checked
+                          )
+                        }
+                        onChange={(e) =>
+                          setEventCategories(setAllItems(e.target.checked))
+                        }
+                      >
+                        Événements
+                      </Checkbox>
 
-              <Box ml={3}>
-                <Link
-                  onClick={() => setShowEventCategories(!showEventCategories)}
-                >
-                  <FormLabel mb={1} cursor="pointer">
-                    {showEventCategories ? (
-                      <ChevronDownIcon />
-                    ) : (
-                      <ChevronRightIcon />
-                    )}{" "}
-                    Catégories
-                  </FormLabel>
-                </Link>
+                      <Box ml={3}>
+                        <Link
+                          onClick={() =>
+                            setShowEventCategories(!showEventCategories)
+                          }
+                        >
+                          <FormLabel mb={1} cursor="pointer">
+                            {showEventCategories ? (
+                              <ChevronDownIcon />
+                            ) : (
+                              <ChevronRightIcon />
+                            )}{" "}
+                            Catégories
+                          </FormLabel>
+                        </Link>
 
-                {showEventCategories && (
-                  <>
-                    {subQuery.isLoading || subQuery.isFetching ? (
-                      <Text>Chargement...</Text>
-                    ) : (
-                      <CheckboxGroup>
-                        <VStack alignItems="flex-start">
-                          {Object.keys(eventCategories).map((key) => {
-                            const k = parseInt(key);
-                            const cat = Category[k];
+                        {showEventCategories && (
+                          <>
+                            {subQuery.isLoading || subQuery.isFetching ? (
+                              <Text>Chargement...</Text>
+                            ) : (
+                              <CheckboxGroup>
+                                <VStack alignItems="flex-start">
+                                  {Object.keys(eventCategories).map((key) => {
+                                    const k = parseInt(key);
+                                    const cat = Category[k];
 
-                            return (
-                              <Checkbox
-                                key={k}
-                                isChecked={eventCategories[k].checked}
-                                onChange={(e) =>
-                                  setEventCategories({
-                                    ...eventCategories,
-                                    [k]: { checked: e.target.checked }
-                                  })
-                                }
-                              >
-                                {cat.label}
-                              </Checkbox>
-                            );
-                          })}
-                        </VStack>
-                      </CheckboxGroup>
-                    )}
-                  </>
-                )}
-              </Box>
+                                    return (
+                                      <Checkbox
+                                        key={k}
+                                        isChecked={eventCategories[k].checked}
+                                        onChange={(e) =>
+                                          setEventCategories({
+                                            ...eventCategories,
+                                            [k]: { checked: e.target.checked }
+                                          })
+                                        }
+                                      >
+                                        {cat.label}
+                                      </Checkbox>
+                                    );
+                                  })}
+                                </VStack>
+                              </CheckboxGroup>
+                            )}
+                          </>
+                        )}
+                      </Box>
+                    </>
+                  )}
 
-              <Checkbox
-                mb={1}
-                isChecked={isAllTopics}
-                isIndeterminate={
-                  !isAllTopics &&
-                  Object.keys(topics).some(
-                    (key) => topics[parseInt(key)].checked
-                  )
-                }
-                onChange={(e) =>
-                  setEventCategories(setAllItems(e.target.checked))
-                }
-              >
-                Discussions
-              </Checkbox>
+                  <Checkbox
+                    mb={1}
+                    isChecked={isAllTopics}
+                    isIndeterminate={
+                      !isAllTopics &&
+                      Object.keys(topics).some(
+                        (key) => topics[parseInt(key)].checked
+                      )
+                    }
+                    onChange={(e) =>
+                      setEventCategories(setAllItems(e.target.checked))
+                    }
+                  >
+                    Discussions
+                  </Checkbox>
 
-              <Box ml={3}>
-                <Link onClick={() => setShowTopics(!showTopics)}>
-                  <FormLabel mb={1} cursor="pointer">
-                    {showTopics ? <ChevronDownIcon /> : <ChevronRightIcon />}{" "}
-                    Sujets de discussion
-                  </FormLabel>
-                </Link>
+                  {subQuery.data.topics.length > 0 && (
+                    <Box ml={3}>
+                      <Link onClick={() => setShowTopics(!showTopics)}>
+                        <FormLabel mb={1} cursor="pointer">
+                          {showTopics ? (
+                            <ChevronDownIcon />
+                          ) : (
+                            <ChevronRightIcon />
+                          )}{" "}
+                          Sujets de discussion
+                        </FormLabel>
+                      </Link>
 
-                {showTopics && (
-                  <>
-                    {subQuery.isLoading || subQuery.isFetching ? (
-                      <Text>Chargement...</Text>
-                    ) : (
-                      <CheckboxGroup>
-                        <VStack alignItems="flex-start">
-                          {Object.keys(topics).map((topicId) => {
-                            const checked = topics[topicId].checked;
-                            const topic = topics[topicId].topic;
-                            return (
-                              <Checkbox
-                                key={topicId}
-                                isChecked={checked}
-                                onChange={(e) =>
-                                  setTopics({
-                                    ...topics,
-                                    [topicId]: {
-                                      ...topics[topicId],
-                                      checked: e.target.checked
-                                    }
-                                  })
-                                }
-                              >
-                                {topic.topicName}
-                              </Checkbox>
-                            );
-                          })}
-                        </VStack>
-                      </CheckboxGroup>
-                    )}
-                  </>
-                )}
-              </Box>
+                      {showTopics && (
+                        <CheckboxGroup>
+                          <VStack alignItems="flex-start">
+                            {Object.keys(topics).map((topicId) => {
+                              const checked = topics[topicId].checked;
+                              const topic = topics[topicId].topic;
+                              return (
+                                <Checkbox
+                                  key={topicId}
+                                  isChecked={checked}
+                                  onChange={(e) =>
+                                    setTopics({
+                                      ...topics,
+                                      [topicId]: {
+                                        ...topics[topicId],
+                                        checked: e.target.checked
+                                      }
+                                    })
+                                  }
+                                >
+                                  {topic.topicName}
+                                </Checkbox>
+                              );
+                            })}
+                          </VStack>
+                        </CheckboxGroup>
+                      )}
+                    </Box>
+                  )}
+                </>
+              )}
             </>
           </FormControl>
 
