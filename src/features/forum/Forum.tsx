@@ -22,6 +22,7 @@ export const Forum = ({
 }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
+  const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
 
   //#region org
   const query = useGetOrgQuery({ orgUrl: "aucourant" });
@@ -41,8 +42,7 @@ export const Forum = ({
   //#endregion
 
   //#region subscription
-  const userEmail = useSelector(selectUserEmail);
-  const subQuery = useGetSubscriptionQuery(userEmail || session?.user.userId);
+  const subQuery = useGetSubscriptionQuery(userEmail);
   const [isFollowed, setIsFollowed] = useState(
     !!isFollowedBy({ org, subQuery })
   );
@@ -67,6 +67,7 @@ export const Forum = ({
     <TopicsList
       org={org}
       query={query}
+      subQuery={subQuery}
       isCreator={isCreator}
       isFollowed={isFollowed}
       isSubscribed={isSubscribed}

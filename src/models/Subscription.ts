@@ -72,13 +72,16 @@ export const SubscriptionSchema = new Schema<ISubscription>(
           ),
           required: true
         },
-        eventCategories: [
-          {
-            catId: Number,
-            emailNotif: Boolean,
-            pushNotif: Boolean
-          }
-        ]
+        eventCategories: {
+          type: [
+            {
+              catId: Number,
+              emailNotif: Boolean,
+              pushNotif: Boolean
+            }
+          ],
+          default: undefined
+        }
       }
     ],
     topics: [

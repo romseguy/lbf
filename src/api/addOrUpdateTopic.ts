@@ -16,7 +16,7 @@ export const addOrUpdateTopic = async ({
   transport,
   res
 }: {
-  body: { topic?: ITopic };
+  body: { topic?: ITopic; topicNotif?: boolean };
   event?: IEvent & Document<any, any, any>;
   org?: IOrg & Document<any, any, any>;
   transport: any;
@@ -96,12 +96,17 @@ export const addOrUpdateTopic = async ({
         "orgs.org": Types.ObjectId(org._id)
       }).populate("user");
 
-      sendTopicToFollowers({
-        org,
-        subscriptions,
-        topic,
-        transport
-      });
+      if (body.topicNotif) {
+        const emailList = await sendTopicToFollowers({
+          org,
+          subscriptions,
+          topic,
+          transport
+        });
+
+        topic.topicNotified = emailList.map((email) => ({ email }));
+        await topic.save();
+      }
     }
   }
 

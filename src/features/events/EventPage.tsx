@@ -112,9 +112,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-
-  const storedUserEmail = useSelector(selectUserEmail);
-  const userEmail = storedUserEmail || session?.user.email || "";
+  const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
 
   //#region event
   const eventQuery = useGetEventQuery(
@@ -629,6 +627,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
               <TopicsList
                 event={event}
                 query={eventQuery}
+                subQuery={subQuery}
                 isCreator={isCreator}
                 isFollowed={!!isFollowed}
                 isLogin={isLogin}

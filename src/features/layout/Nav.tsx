@@ -227,7 +227,16 @@ export const Nav = ({
                 command={`${userEmail}`}
                 cursor="default"
                 _hover={{ bg: isDark ? "gray.700" : "white" }}
-              ></MenuItem>
+              />
+
+              {process.env.NODE_ENV === "development" && (
+                <MenuItem
+                  aria-hidden
+                  command={`${session.user.userId}`}
+                  cursor="default"
+                  _hover={{ bg: isDark ? "gray.700" : "white" }}
+                />
+              )}
 
               <Link href={`/${userName}`} aria-hidden>
                 <MenuItem>Ma page</MenuItem>
@@ -313,7 +322,7 @@ export const Nav = ({
                     redirect: false,
                     callbackUrl: "/"
                   });
-                  router.push(url);
+                  if (process.env.NODE_ENV === "production") router.push(url);
                 }}
               >
                 Déconnexion

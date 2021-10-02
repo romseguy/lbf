@@ -115,7 +115,7 @@ handler.delete<
   const session = await getSession({ req });
 
   const {
-    query: { slug },
+    query: { slug: _id },
     body
   }: {
     query: { slug: string };
@@ -129,7 +129,7 @@ handler.delete<
 
   try {
     let subscription = await models.Subscription.findOne({
-      _id: slug
+      _id
     });
 
     if (!subscription) {
@@ -137,7 +137,7 @@ handler.delete<
         .status(404)
         .json(
           createServerError(
-            new Error(`L'abonnement ${slug} n'a pas pu être trouvé`)
+            new Error(`L'abonnement ${_id} n'a pas pu être trouvé`)
           )
         );
     }
@@ -193,7 +193,7 @@ handler.delete<
     } else {
       // console.log("unsubbing user");
       const { deletedCount } = await models.Subscription.deleteOne({
-        _id: slug
+        _id
       });
 
       if (body.orgId) {
@@ -204,7 +204,7 @@ handler.delete<
         if (org) {
           org.orgSubscriptions = org.orgSubscriptions.filter(
             (subscription: ISubscription) => {
-              return !equals(subscription._id, slug);
+              return !equals(subscription._id, _id);
             }
           );
           await org.save();

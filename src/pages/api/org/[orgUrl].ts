@@ -33,7 +33,7 @@ handler.get<
 
     let org = await models.Org.findOne({ orgUrl });
 
-    if (!org) {
+    if (!org)
       return res
         .status(404)
         .json(
@@ -41,47 +41,55 @@ handler.get<
             new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
           )
         );
-    }
-
-    if (populate) {
-      org = org.populate(populate);
-
-      if (populate === "orgProjects")
-        org = await org
-          .populate({
-            path: "orgProjects",
-            populate: [{ path: "projectOrgs createdBy" }]
-          })
-          .execPopulate();
-    }
-
-    const isCreator =
-      equals(org.createdBy, session?.user.userId) || session?.user.isAdmin;
 
     // hand emails to org creator only
-    let select =
-      session && isCreator
-        ? "-password -securityCode"
-        : "-email -password -securityCode";
+    const isCreator =
+      equals(org.createdBy, session?.user.userId) || session?.user.isAdmin;
+    let select = isCreator
+      ? "-password -securityCode"
+      : "-email -password -securityCode";
+
+    if (populate) {
+      if (populate.includes("orgEvents")) {
+        org = org.populate("orgEvents");
+      }
+
+      if (populate.includes("orgProjects"))
+        org = org.populate({
+          path: "orgProjects",
+          populate: [{ path: "projectOrgs createdBy" }]
+        });
+
+      if (populate.includes("orgTopics"))
+        org = org.populate({
+          path: "orgTopics",
+          populate: [
+            {
+              path: "topicMessages",
+              populate: { path: "createdBy" }
+            },
+            { path: "createdBy" }
+          ]
+        });
+
+      if (populate.includes("orgSubscriptions")) {
+        org = org.populate({
+          path: "orgSubscriptions",
+          populate: { path: "user", select }
+        });
+      }
+    }
 
     org = await org
       .populate("createdBy", select + " -userImage")
-      .populate("orgEvents orgSubscriptions orgTopics")
-      .populate({
-        path: "orgTopics",
-        populate: [
-          {
-            path: "topicMessages",
-            populate: { path: "createdBy" }
-          },
-          { path: "createdBy" }
-        ]
-      })
-      .populate({
-        path: "orgSubscriptions",
-        populate: { path: "user", select }
-      })
       .execPopulate();
+
+    if (!populate || !populate.includes("orgLogo")) {
+      org.orgLogo = undefined;
+    }
+    if (!populate || !populate.includes("orgBanner")) {
+      org.orgBanner = undefined;
+    }
 
     for (const orgEvent of org.orgEvents) {
       if (orgEvent.forwardedFrom?.eventId) {
@@ -97,16 +105,18 @@ handler.get<
     }
 
     for (const orgTopic of org.orgTopics) {
-      for (const topicMessage of orgTopic.topicMessages) {
-        if (typeof topicMessage.createdBy === "object") {
-          if (
-            !topicMessage.createdBy.userName &&
-            topicMessage.createdBy.email
-          ) {
-            topicMessage.createdBy.userName =
-              topicMessage.createdBy.email.replace(/@.+/, "");
+      if (orgTopic.topicMessages) {
+        for (const topicMessage of orgTopic.topicMessages) {
+          if (typeof topicMessage.createdBy === "object") {
+            if (
+              !topicMessage.createdBy.userName &&
+              topicMessage.createdBy.email
+            ) {
+              topicMessage.createdBy.userName =
+                topicMessage.createdBy.email.replace(/@.+/, "");
+            }
+            topicMessage.createdBy.email = undefined;
           }
-          topicMessage.createdBy.email = undefined;
         }
       }
     }
@@ -242,7 +252,6 @@ handler.delete<
   NextApiResponse
 >(async function removeOrg(req, res) {
   const session = await getSession({ req });
-  console.log(session);
 
   if (!session) {
     res

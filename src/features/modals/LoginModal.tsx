@@ -28,7 +28,8 @@ import {
   AlertIcon,
   InputGroup,
   InputRightElement,
-  useColorMode
+  useColorMode,
+  Flex
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
@@ -53,6 +54,7 @@ export const LoginModal = (props: {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
+  const [isEmail, setIsEmail] = useState(false);
   const [isForgotten, setIsForgotten] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -93,41 +95,41 @@ export const LoginModal = (props: {
     if (isForgotten) return;
     setIsLoading(true);
 
-    if (isSignup) {
-      const { error } = await api.post("auth/signup", { email, password });
-
-      if (error) {
-        setIsLoading(false);
-        handleError(error, (message, field) => {
-          if (field) {
-            setError(field, { type: "manual", message });
-          } else {
-            setError("formErrorMessage", { type: "manual", message });
-          }
-        });
-      } else {
+    try {
+      if (isSignup) {
+        const { error } = await api.post("auth/signup", { email, password });
         await signIn("credentials", { email, password });
         setIsLoading(false);
         onClose();
         props.onClose && props.onClose();
-      }
-    } else {
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false
-      });
-      setIsLoading(false);
-
-      if (res?.error) {
-        handleError({ message: res.error }, (message) =>
-          setError("formErrorMessage", { type: "manual", message })
-        );
+      } else if (isEmail) {
+        await signIn("email", { email });
       } else {
-        onClose();
-        props.onClose && props.onClose();
-        props.onSubmit && props.onSubmit(res?.url);
+        const res = await signIn("credentials", {
+          email,
+          password,
+          redirect: false
+        });
+
+        if (res) {
+          if (res.error) throw new Error(res.error);
+          else {
+            onClose();
+            props.onClose && props.onClose();
+            props.onSubmit && props.onSubmit(res?.url);
+          }
+        } else throw new Error("Nous n'avons pas pu vous identifier.");
       }
+    } catch (error) {
+      handleError(error, (message, field) => {
+        if (field) {
+          setError(field, { type: "manual", message });
+        } else {
+          setError("formErrorMessage", { type: "manual", message });
+        }
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -188,59 +190,84 @@ export const LoginModal = (props: {
                     </FormErrorMessage>
                   </FormControl>
 
-                  <FormControl
-                    id="password"
-                    mb={3}
-                    isRequired
-                    isInvalid={!!errors["password"]}
-                  >
-                    <FormLabel>Mot de passe</FormLabel>
-                    <InputGroup>
-                      <Input
-                        name="password"
-                        ref={register({
-                          required: "Veuillez saisir un mot de passe"
-                        })}
-                        type={passwordFieldType}
-                      />
-                      <InputRightElement
-                        cursor="pointer"
-                        children={
-                          passwordFieldType === "password" ? (
-                            <ViewOffIcon />
-                          ) : (
-                            <ViewIcon />
-                          )
-                        }
-                        onClick={() => {
-                          if (passwordFieldType === "password")
-                            setPasswordFieldType("text");
-                          else setPasswordFieldType("password");
-                        }}
-                      />
-                    </InputGroup>
-                    <FormErrorMessage>
-                      <ErrorMessage errors={errors} name="password" />
-                    </FormErrorMessage>
-                  </FormControl>
+                  {!isEmail && (
+                    <FormControl
+                      id="password"
+                      mb={3}
+                      isRequired
+                      isInvalid={!!errors["password"]}
+                    >
+                      <FormLabel>Mot de passe</FormLabel>
+                      <InputGroup>
+                        <Input
+                          name="password"
+                          ref={register({
+                            required: "Veuillez saisir un mot de passe"
+                          })}
+                          type={passwordFieldType}
+                        />
+                        <InputRightElement
+                          cursor="pointer"
+                          children={
+                            passwordFieldType === "password" ? (
+                              <ViewOffIcon />
+                            ) : (
+                              <ViewIcon />
+                            )
+                          }
+                          onClick={() => {
+                            if (passwordFieldType === "password")
+                              setPasswordFieldType("text");
+                            else setPasswordFieldType("password");
+                          }}
+                        />
+                      </InputGroup>
+                      <FormErrorMessage>
+                        <ErrorMessage errors={errors} name="password" />
+                      </FormErrorMessage>
+                    </FormControl>
+                  )}
                 </>
               )}
 
               {!isSignup && (
                 <>
-                  <Box textAlign="right">
-                    {!isForgotten && (
-                      <Link
-                        fontSize={12}
-                        onClick={() => {
-                          clearErrors("formErrorMessage");
-                          setIsForgotten(true);
-                        }}
-                      >
-                        Mot de passe oublié ?
-                      </Link>
-                    )}
-                  </Box>
+                  {!isForgotten && (
+                    <Flex justifyContent="space-between">
+                      {isEmail ? (
+                        <Link
+                          fontSize={12}
+                          onClick={() => {
+                            clearErrors("formErrorMessage");
+                            setIsEmail(false);
+                          }}
+                        >
+                          Connexion par mot de passe
+                        </Link>
+                      ) : (
+                        <Link
+                          fontSize={12}
+                          onClick={() => {
+                            clearErrors("formErrorMessage");
+                            setIsEmail(true);
+                          }}
+                        >
+                          Connexion par e-mail
+                        </Link>
+                      )}
+                      {!isEmail && (
+                        <Link
+                          fontSize={12}
+                          onClick={() => {
+                            clearErrors("formErrorMessage");
+                            setIsForgotten(true);
+                          }}
+                        >
+                          Mot de passe oublié ?
+                        </Link>
+                      )}
+                    </Flex>
+                  )}
 
                   <>
                     <Portal containerRef={portalRef}>

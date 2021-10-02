@@ -21,12 +21,12 @@ export const orgApi = createApi({
     }),
     addOrgDetails: build.mutation<
       ITopic,
-      { payload: { topic?: ITopic }; orgUrl?: string }
+      { payload: { topic?: ITopic }; orgUrl?: string; topicNotif?: boolean }
     >({
-      query: ({ payload, orgUrl }) => ({
+      query: ({ payload, orgUrl, topicNotif }) => ({
         url: `org/${orgUrl}`,
         method: "POST",
-        body: payload
+        body: { ...payload, topicNotif }
       })
     }),
     deleteOrg: build.mutation<IOrg, string>({

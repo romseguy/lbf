@@ -13,6 +13,7 @@ export interface ITopic {
   topicVisibility?: string;
   org?: IOrg;
   event?: IEvent;
+  topicNotified?: { email: string }[];
   createdBy: IUser | string;
   createdAt?: string;
 }
@@ -49,6 +50,11 @@ export const TopicSchema = new Schema<ITopic>(
       type: Schema.Types.ObjectId,
       ref: "Event"
     },
+    topicNotified: [
+      {
+        email: String
+      }
+    ],
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User"

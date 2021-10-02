@@ -76,5 +76,5 @@ export const {
   useGetSubscriptionsQuery
 } = subscriptionApi;
 export const {
-  endpoints: { getSubscription }
+  endpoints: { getSubscription, deleteSubscription }
 } = subscriptionApi;

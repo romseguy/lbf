@@ -16,7 +16,6 @@ export const subscribeUserToTopic = async (userId: string, topic: ITopic) => {
       user,
       topics: [{ topic }]
     });
-    console.log(subscription);
   } else {
     const topicSubscription = subscription.topics.find(({ topic: t }) =>
       equals(t._id, topic._id)

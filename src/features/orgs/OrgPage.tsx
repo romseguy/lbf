@@ -57,14 +57,21 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
-export const OrgPage = ({ ...props }: { org: IOrg }) => {
+export const OrgPage = ({
+  populate,
+  ...props
+}: {
+  populate?: string;
+  org: IOrg;
+}) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
+  const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
 
   //#region org
   const orgQuery = useGetOrgQuery(
-    { orgUrl: props.org.orgUrl, populate: "orgProjects" },
+    { orgUrl: props.org.orgUrl, populate },
     {
       selectFromResult: (query) => query
     }
@@ -91,9 +98,8 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
   //#endregion
 
   //#region sub
-  const storedUserEmail = useSelector(selectUserEmail);
-  const userEmail = storedUserEmail || session?.user.email || "";
-  const subQuery = useGetSubscriptionQuery(userEmail || session?.user.userId);
+  const subQuery = useGetSubscriptionQuery(userEmail);
+
   const isFollowed = isFollowedBy({ org, subQuery });
   const isSubscribed = isSubscribedBy(org, subQuery);
   //#endregion
@@ -140,7 +146,7 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
         </Button>
       ) : null}
 
-      {!isCreator && (
+      {!isCreator && !isConfig && (
         <Flex>
           <Box mr={3}>
             <SubscriptionPopover
@@ -412,9 +418,16 @@ export const OrgPage = ({ ...props }: { org: IOrg }) => {
             </TabPanel>
 
             <TabPanel aria-hidden>
+              {(isCreator || isSubscribed) && (
+                <Alert status="info" mb={3}>
+                  <AlertIcon />
+                  Ajoutez une discussion pour notifier les abonnés.
+                </Alert>
+              )}
               <TopicsList
                 org={org}
                 query={orgQuery}
+                subQuery={subQuery}
                 isCreator={isCreator}
                 isFollowed={!!isFollowed}
                 isSubscribed={isSubscribed}

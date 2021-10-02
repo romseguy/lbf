@@ -17,7 +17,8 @@ import {
   Flex,
   Select,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Checkbox
 } from "@chakra-ui/react";
 import { WarningIcon } from "@chakra-ui/icons";
 import { ErrorMessageText, RTEditor } from "features/common";
@@ -74,6 +75,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
     topicName: string;
     topicMessage: string;
     topicVisibility: string;
+    topicNotif?: boolean;
   }) => {
     console.log("submitted", form);
     if (!session) return;
@@ -113,7 +115,11 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         let topic: ITopic | null = null;
 
         if (org) {
-          topic = await addOrgDetails({ payload, orgUrl: org.orgUrl }).unwrap();
+          topic = await addOrgDetails({
+            payload,
+            orgUrl: org.orgUrl,
+            topicNotif: form.topicNotif
+          }).unwrap();
         } else if (event) {
           topic = await addEventDetails({
             payload,
@@ -235,6 +241,12 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
             <ErrorMessage errors={errors} name="topicVisibility" />
           </FormErrorMessage>
         </FormControl>
+      )}
+
+      {!props.topic && (
+        <Checkbox ref={register()} name="topicNotif" mb={3}>
+          Notifier les abonnés
+        </Checkbox>
       )}
 
       <Flex justifyContent="space-between">

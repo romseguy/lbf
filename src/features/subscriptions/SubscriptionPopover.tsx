@@ -1,11 +1,9 @@
-import type { IOrg } from "models/Org";
-import { Category, IEvent } from "models/Event";
-import type {
-  IEventSubscription,
-  IOrgSubscription,
-  ISubscription
-} from "models/Subscription";
-import React, { useEffect, useState } from "react";
+import {
+  BellIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  EmailIcon
+} from "@chakra-ui/icons";
 import {
   Popover,
   PopoverTrigger,
@@ -28,21 +26,30 @@ import {
   PopoverHeader,
   Text
 } from "@chakra-ui/react";
-import { useSession } from "hooks/useAuth";
-import { BellIcon, EmailIcon } from "@chakra-ui/icons";
-import { useForm } from "react-hook-form";
-import { emailR } from "utils/email";
 import { ErrorMessage } from "@hookform/error-message";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
+import { Link } from "features/common";
+import { selectUserEmail, setUserEmail } from "features/users/userSlice";
+import { useSession } from "hooks/useAuth";
+import { Category, IEvent } from "models/Event";
+import type { IOrg } from "models/Org";
+import {
+  IEventSubscription,
+  IOrgSubscription,
+  ISubscription,
+  SubscriptionTypes
+} from "models/Subscription";
+import { useAppDispatch } from "store";
+import { emailR } from "utils/email";
 import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation,
   useEditSubscriptionMutation
 } from "./subscriptionsApi";
-import { SubscriptionTypes } from "models/Subscription";
-import { useAppDispatch } from "store";
-import { selectUserEmail, setUserEmail } from "features/users/userSlice";
-import { useSelector } from "react-redux";
 import { refetchSubscription } from "./subscriptionSlice";
+import { ITopic } from "models/Topic";
 
 const setAllItems = (
   checked: boolean
@@ -107,54 +114,120 @@ export const SubscriptionPopover = ({
     mode: "onChange"
   });
 
-  const [checkedItems, setCheckedItems] = useState<{
+  const [showEventCategories, setShowEventCategories] = useState(false);
+  const [eventCategories, setEventCategories] = useState<{
     [key: number]: {
       checked: boolean;
     };
   }>({});
+  const isAllEventCategories = Object.keys(eventCategories).every(
+    (key) => eventCategories[parseInt(key)].checked
+  );
+
+  const [showTopics, setShowTopics] = useState(false);
+  const [topics, setTopics] = useState<{
+    [key: string]: {
+      checked: boolean;
+      topic: ITopic;
+    };
+  }>({});
+  const isAllTopics = Object.keys(topics).every(
+    (topicId) => topics[topicId].checked
+  );
+
   useEffect(() => {
-    if (subQuery.data)
-      setCheckedItems(
-        Object.keys(Category).reduce((obj, key) => {
-          const k = parseInt(key);
-          if (k === 0) return obj;
-          if (
-            !followerSubscription ||
-            !("eventCategories" in followerSubscription)
-          ) {
-            console.log("no follower subscription => uncheck");
-            return { ...obj, [k]: { checked: false } };
-          }
+    if (!subQuery.data) return;
 
-          if (
-            Array.isArray(followerSubscription.eventCategories) &&
-            followerSubscription.eventCategories.length === 0
-          ) {
-            console.log("follower subscription => no selection => checking");
-            return { ...obj, [k]: { checked: true } };
-          }
+    //#region event categories
+    const newEventCategories: {
+      [key: number]: {
+        checked: boolean;
+      };
+    } = Object.keys(Category).reduce((obj, key) => {
+      const k = parseInt(key);
+      if (k === 0) return obj;
+      if (!followerSubscription) {
+        console.log("no follower subscription => unchecking all");
+        return { ...obj, [k]: { checked: false } };
+      }
 
-          const checked = !!followerSubscription.eventCategories?.find(
-            ({ catId, emailNotif, pushNotif }) => {
-              return notifType === "email"
-                ? catId === k && emailNotif
-                : catId === k && pushNotif;
-            }
-          );
+      if (!("eventCategories" in followerSubscription)) {
+        console.log(
+          "follower subscription => undefined eventCategories => checking all"
+        );
+        return {
+          ...obj,
+          [k]: { checked: true }
+        };
+      }
 
-          return {
-            ...obj,
-            [k]: {
-              checked
-            }
-          };
-        }, {})
+      if (!Array.isArray(followerSubscription.eventCategories)) return obj;
+
+      if (followerSubscription.eventCategories.length === 0) {
+        console.log("follower subscription => no selection => unchecking all");
+        return { ...obj, [k]: { checked: false } };
+      }
+
+      const checked = !!followerSubscription.eventCategories?.find(
+        ({ catId, emailNotif, pushNotif }) => {
+          return notifType === "email"
+            ? catId === k && emailNotif
+            : catId === k && pushNotif;
+        }
       );
+
+      return {
+        ...obj,
+        [k]: {
+          checked
+        }
+      };
+    }, {});
+
+    setEventCategories(newEventCategories);
+
+    if (
+      Object.keys(newEventCategories).some(
+        (key) => newEventCategories[parseInt(key)].checked
+      )
+    )
+      setShowEventCategories(true);
+    //#endregion
+
+    //#region topics
+    const newTopics: {
+      [key: string]: {
+        checked: boolean;
+        topic: ITopic;
+      };
+    } = subQuery.data.topics.reduce(
+      (
+        obj: {
+          [key: string]: {
+            checked: boolean;
+          };
+        },
+        { topic }: { topic: ITopic }
+      ) => {
+        const topicId = topic._id || "";
+        return {
+          ...obj,
+          [topicId]: {
+            topic,
+            checked: true
+          }
+        };
+      },
+      {}
+    );
+
+    setTopics(newTopics);
+
+    if (Object.keys(newTopics).some((topicId) => newTopics[topicId].checked))
+      setShowTopics(true);
+    //#endregion
   }, [subQuery.data]);
 
-  const isAllCheckedItems = Object.keys(checkedItems).every(
-    (key) => checkedItems[parseInt(key)].checked
-  );
   //#endregion
 
   const onChange = () => {
@@ -222,24 +295,24 @@ export const SubscriptionPopover = ({
 
     if (!subQuery.data || !followerSubscription) {
       if (org) {
-        const eventCategories = Object.keys(checkedItems)
-          .filter((key) => checkedItems[parseInt(key)].checked)
-          .map((key) => {
-            const k = parseInt(key);
-            return {
-              catId: k,
-              emailNotif: notifType === "email",
-              pushNotif: notifType === "push"
-            };
-          });
         payload.orgs = [
           {
             org,
             orgId: org._id,
             type: SubscriptionTypes.FOLLOWER,
-            eventCategories
+            eventCategories: Object.keys(eventCategories)
+              .filter((key) => eventCategories[parseInt(key)].checked)
+              .map((key) => {
+                const k = parseInt(key);
+                return {
+                  catId: k,
+                  emailNotif: notifType === "email",
+                  pushNotif: notifType === "push"
+                };
+              })
           }
         ];
+
         await addSubscription({ payload }).unwrap();
         toast({
           title: `Vous êtes maintenant abonné à ${
@@ -248,34 +321,39 @@ export const SubscriptionPopover = ({
           status: "success"
         });
       }
+
       return;
     }
 
     if ("eventCategories" in followerSubscription) {
-      const eventCategories = Object.keys(checkedItems)
-        .filter((key) => checkedItems[parseInt(key)].checked)
-        .map((key) => {
-          const k = parseInt(key);
-          let eventCategory = followerSubscription.eventCategories?.find(
-            ({ catId }) => catId === k
-          );
+      payload.orgs = [
+        {
+          ...followerSubscription,
+          eventCategories: Object.keys(eventCategories)
+            .filter((key) => eventCategories[parseInt(key)].checked)
+            .map((key) => {
+              const k = parseInt(key);
+              let eventCategory = followerSubscription.eventCategories?.find(
+                ({ catId }) => catId === k
+              );
 
-          if (eventCategory) {
-            console.log("already subscribed to category", eventCategory);
-            if (notifType === "email")
-              return { ...eventCategory, emailNotif: true };
-            else if (notifType === "push")
-              return { ...eventCategory, pushNotif: true };
-            return eventCategory;
-          }
+              if (eventCategory) {
+                console.log("already subscribed to category", eventCategory);
+                if (notifType === "email")
+                  return { ...eventCategory, emailNotif: true };
+                else if (notifType === "push")
+                  return { ...eventCategory, pushNotif: true };
+                return eventCategory;
+              }
 
-          return {
-            catId: k,
-            emailNotif: notifType === "email",
-            pushNotif: notifType === "push"
-          };
-        });
-      payload.orgs = [{ ...followerSubscription, eventCategories }];
+              return {
+                catId: k,
+                emailNotif: notifType === "email",
+                pushNotif: notifType === "push"
+              };
+            })
+        }
+      ];
 
       await addSubscription({
         payload,
@@ -294,55 +372,147 @@ export const SubscriptionPopover = ({
   const step2 = (
     <PopoverContent>
       {/* <PopoverCloseButton /> */}
-      <PopoverHeader>{userEmail}</PopoverHeader>
+      <PopoverHeader>
+        <Text>{userEmail}</Text>
+
+        {subQuery.data && followerSubscription && (
+          <Link
+            href={`/unsubscribe/${
+              org ? org.orgUrl : event?.eventUrl
+            }?subscriptionId=${subQuery.data._id}`}
+            fontSize="smaller"
+            variant="underline"
+          >
+            Se désabonner de {org ? org.orgName : event?.eventName}
+          </Link>
+        )}
+      </PopoverHeader>
       <PopoverBody>
         <form onChange={onChange} onSubmit={handleSubmit(onStep2Submit)}>
           <FormControl>
-            <Checkbox
-              mb={1}
-              isChecked={isAllCheckedItems}
-              isIndeterminate={
-                !isAllCheckedItems &&
-                Object.keys(checkedItems).some((key) => {
-                  const k = parseInt(key);
-                  return checkedItems[k].checked;
-                })
-              }
-              onChange={(e) => setCheckedItems(setAllItems(e.target.checked))}
-            >
-              S'abonner à tous les événements
-            </Checkbox>
+            <>
+              <Checkbox
+                mb={1}
+                isChecked={isAllEventCategories}
+                isIndeterminate={
+                  !isAllEventCategories &&
+                  Object.keys(eventCategories).some(
+                    (key) => eventCategories[parseInt(key)].checked
+                  )
+                }
+                onChange={(e) =>
+                  setEventCategories(setAllItems(e.target.checked))
+                }
+              >
+                Événements
+              </Checkbox>
 
-            <Box ml={3}>
-              <FormLabel mb={1}>Catégories</FormLabel>
-              {subQuery.isLoading || subQuery.isFetching ? (
-                <Text>Chargement...</Text>
-              ) : (
-                <CheckboxGroup>
-                  <VStack alignItems="flex-start">
-                    {Object.keys(checkedItems).map((key) => {
-                      const k = parseInt(key);
-                      const cat = Category[k];
+              <Box ml={3}>
+                <Link
+                  onClick={() => setShowEventCategories(!showEventCategories)}
+                >
+                  <FormLabel mb={1} cursor="pointer">
+                    {showEventCategories ? (
+                      <ChevronDownIcon />
+                    ) : (
+                      <ChevronRightIcon />
+                    )}{" "}
+                    Catégories
+                  </FormLabel>
+                </Link>
 
-                      return (
-                        <Checkbox
-                          key={k}
-                          isChecked={checkedItems[k].checked}
-                          onChange={(e) =>
-                            setCheckedItems({
-                              ...checkedItems,
-                              [k]: { checked: e.target.checked }
-                            })
-                          }
-                        >
-                          {cat.label}
-                        </Checkbox>
-                      );
-                    })}
-                  </VStack>
-                </CheckboxGroup>
-              )}
-            </Box>
+                {showEventCategories && (
+                  <>
+                    {subQuery.isLoading || subQuery.isFetching ? (
+                      <Text>Chargement...</Text>
+                    ) : (
+                      <CheckboxGroup>
+                        <VStack alignItems="flex-start">
+                          {Object.keys(eventCategories).map((key) => {
+                            const k = parseInt(key);
+                            const cat = Category[k];
+
+                            return (
+                              <Checkbox
+                                key={k}
+                                isChecked={eventCategories[k].checked}
+                                onChange={(e) =>
+                                  setEventCategories({
+                                    ...eventCategories,
+                                    [k]: { checked: e.target.checked }
+                                  })
+                                }
+                              >
+                                {cat.label}
+                              </Checkbox>
+                            );
+                          })}
+                        </VStack>
+                      </CheckboxGroup>
+                    )}
+                  </>
+                )}
+              </Box>
+
+              <Checkbox
+                mb={1}
+                isChecked={isAllTopics}
+                isIndeterminate={
+                  !isAllTopics &&
+                  Object.keys(topics).some(
+                    (key) => topics[parseInt(key)].checked
+                  )
+                }
+                onChange={(e) =>
+                  setEventCategories(setAllItems(e.target.checked))
+                }
+              >
+                Discussions
+              </Checkbox>
+
+              <Box ml={3}>
+                <Link onClick={() => setShowTopics(!showTopics)}>
+                  <FormLabel mb={1} cursor="pointer">
+                    {showTopics ? <ChevronDownIcon /> : <ChevronRightIcon />}{" "}
+                    Sujets de discussion
+                  </FormLabel>
+                </Link>
+
+                {showTopics && (
+                  <>
+                    {subQuery.isLoading || subQuery.isFetching ? (
+                      <Text>Chargement...</Text>
+                    ) : (
+                      <CheckboxGroup>
+                        <VStack alignItems="flex-start">
+                          {Object.keys(topics).map((topicId) => {
+                            const checked = topics[topicId].checked;
+                            const topic = topics[topicId].topic;
+                            return (
+                              <Checkbox
+                                key={topicId}
+                                isChecked={checked}
+                                onChange={(e) =>
+                                  setTopics({
+                                    ...topics,
+                                    [topicId]: {
+                                      ...topics[topicId],
+                                      checked: e.target.checked
+                                    }
+                                  })
+                                }
+                              >
+                                {topic.topicName}
+                              </Checkbox>
+                            );
+                          })}
+                        </VStack>
+                      </CheckboxGroup>
+                    )}
+                  </>
+                )}
+              </Box>
+            </>
           </FormControl>
 
           {/* <FormControl>

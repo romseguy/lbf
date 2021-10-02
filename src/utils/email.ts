@@ -113,25 +113,32 @@ export const sendEventToOrgFollowers = async (
             continue;
 
           const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`;
+          const orgUrl = `${process.env.NEXT_PUBLIC_URL}/${org.orgUrl}`;
           const mail = {
             from: process.env.EMAIL_FROM,
             to: `<${email}>`,
             subject: `${org.orgName} vous invite à un nouvel événement : ${event.eventName}`,
             html: `
-            <h1>${org.orgName} vous invite à un nouvel événement : ${
-              event.eventName
-            }</h1>
+            <h1><a href="${orgUrl}">${
+              org.orgName
+            }</a> vous invite à un nouvel événement : ${event.eventName}</h1>
             <h2>${toDateRange(
               parseISO(event.eventMinDate),
               parseISO(event.eventMaxDate)
             )}</h2>
-            <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">${eventUrl}</a> pour en savoir plus.</p>`
+            <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">${eventUrl}</a> pour en savoir plus.</p>
+            <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
+              org.orgUrl
+            }?subscriptionId=${subscription._id}">Se désabonner de ${
+              org.orgName
+            }</a>
+            `
           };
 
           if (process.env.NODE_ENV === "production")
             await transport.sendMail(mail);
           else if (process.env.NODE_ENV === "development")
-            console.log("mail", mail);
+            console.log(`sent event email notif to subscriber ${email}`, mail);
 
           emailList.push(email);
         }
@@ -155,26 +162,23 @@ export const sendTopicToFollowers = async ({
   topic: ITopic;
   transport: any;
 }) => {
-  if (!event && !org) return;
+  const emailList: string[] = [];
 
-  const subject = `Nouvelle discussion : ${topic.topicName}`;
-  const name = event ? event.eventName : org?.orgName;
+  if (!event && !org) return emailList;
+
+  const entityName = event ? event.eventName : org?.orgName;
   const entityUrl = event ? event.eventUrl : org?.orgUrl;
+  const subject = `Nouvelle discussion : ${topic.topicName}`;
   const type = event ? "l'événement" : "l'organisation";
+  const url =
+    entityName === "aucourant"
+      ? `${process.env.NEXT_PUBLIC_URL}/forum`
+      : `${process.env.NEXT_PUBLIC_URL}/${entityUrl}`;
 
-  //#region email
-  let url = `${process.env.NEXT_PUBLIC_URL}/${entityUrl}`;
-  let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${name}</a> pour lire la discussion.</p>`;
-
-  if (name === "aucourant") {
-    url = `${process.env.NEXT_PUBLIC_URL}/forum`;
-    html = `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion : ${topic.topicName}.</p>`;
-  }
-
-  const mail: MailType = {
+  let mail: MailType = {
     from: process.env.EMAIL_FROM,
     subject,
-    html
+    html: `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion : ${topic.topicName}.</p>`
   };
 
   if (process.env.NODE_ENV === "production")
@@ -183,7 +187,7 @@ export const sendTopicToFollowers = async ({
       to: event ? event.eventEmail : org?.orgEmail
     });
   else if (process.env.NODE_ENV === "development")
-    console.log("sent mail to creator", {
+    console.log("sent new topic email notif to org/event email", {
       ...mail,
       to: event ? event.eventEmail : org?.orgEmail
     });
@@ -198,10 +202,21 @@ export const sendTopicToFollowers = async ({
 
     mail.to = `<${email}>`;
 
+    mail.html = `
+    <h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${entityName}</a> pour lire la discussion.</p>
+    <p><a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}&topicId=${topic._id}">Se désabonner de cette discussion</a></p>
+    <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${entityName}</a>
+    `;
+
     if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
-    else if (process.env.NODE_ENV === "development")
-      console.log(`sent mail to subscriber ${email}`, mail);
+    else if (process.env.NODE_ENV === "development") {
+      console.log(`sent new topic email notif to subscriber ${email}`, mail);
+    }
+
+    emailList.push(email);
   }
+
+  return emailList;
 };
 
 export const sendMessageToTopicFollowers = async ({
@@ -219,17 +234,22 @@ export const sendMessageToTopicFollowers = async ({
 }) => {
   if (!event && !org) return;
 
-  const subject = `Nouveau commentaire sur la discussion : ${topic.topicName}`;
-  const name = event ? event.eventName : org?.orgName;
+  const entityName = event ? event.eventName : org?.orgName;
   const entityUrl = event ? event.eventUrl : org?.orgUrl;
+  const subject = `Nouveau commentaire sur la discussion : ${topic.topicName}`;
   const type = event ? "l'événement" : "l'organisation";
+  const url =
+    entityName === "aucourant"
+      ? `${process.env.NEXT_PUBLIC_URL}/forum`
+      : `${process.env.NEXT_PUBLIC_URL}/${entityUrl}`;
 
   for (const subscription of subscriptions) {
-    let url = `${process.env.NEXT_PUBLIC_URL}/${entityUrl}`;
-    let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${name}</a> pour lire la discussion.</p>`;
+    let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${entityName}</a> pour lire la discussion.</p>
+    <p><a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}&topicId=${topic._id}">Se désabonner de cette discussion</a></p>
+    <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${entityName}</a>
+    `;
 
-    if (name === "aucourant") {
-      url = `${process.env.NEXT_PUBLIC_URL}/forum`;
+    if (entityName === "aucourant") {
       html = `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion.</p>`;
     }
 
@@ -248,7 +268,9 @@ export const sendMessageToTopicFollowers = async ({
     };
 
     if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
-    else if (process.env.NODE_ENV === "development") console.log("mail", mail);
+    else if (process.env.NODE_ENV === "development") {
+      console.log("sent comment email notif to subscription", mail);
+    }
   }
 };
 

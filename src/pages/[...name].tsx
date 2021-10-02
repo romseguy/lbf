@@ -16,6 +16,8 @@ import { getOrg } from "features/orgs/orgsApi";
 import { getUser } from "features/users/usersApi";
 import { selectOrgRefetch } from "features/orgs/orgSlice";
 
+let populate = "";
+
 const Hash = ({ email, ...props }: { email?: string }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -40,8 +42,13 @@ const Hash = ({ email, ...props }: { email?: string }) => {
       if (eventQuery.data) {
         setEvent(eventQuery.data);
       } else {
+        populate =
+          "orgBanner orgEvents orgLogo orgProjects orgSubscriptions orgTopics";
         const orgQuery = await dispatch(
-          getOrg.initiate({ orgUrl: routeName, populate: "orgProjects" })
+          getOrg.initiate({
+            orgUrl: routeName,
+            populate
+          })
         );
 
         if (orgQuery.data) {
@@ -71,7 +78,7 @@ const Hash = ({ email, ...props }: { email?: string }) => {
   }
 
   if (org) {
-    return <OrgPage org={org} />;
+    return <OrgPage org={org} populate={populate} />;
   }
 
   if (user) {

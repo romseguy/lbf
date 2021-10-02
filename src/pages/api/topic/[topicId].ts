@@ -143,14 +143,11 @@ handler.delete<
         );
       }
 
-      const subscription = await models.Subscription.findOne({
-        user: session.user.userId
-      });
+      const subscriptions = await models.Subscription.find({});
 
-      if (subscription) {
+      for (const subscription of subscriptions) {
         subscription.topics = subscription.topics.filter(
-          (topicSubscription: ITopicSubscription) =>
-            !equals(topicSubscription.topic, topic._id)
+          (topicSubscription) => !equals(topicSubscription.topic._id, topic._id)
         );
         await subscription.save();
       }

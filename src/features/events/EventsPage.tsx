@@ -22,6 +22,8 @@ import { MapModal } from "features/modals/MapModal";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { compareAsc, compareDesc, parseISO } from "date-fns";
 
+let routerAsPath: string;
+
 export const EventsPage = ({
   isLogin,
   setIsLogin
@@ -30,11 +32,17 @@ export const EventsPage = ({
   setIsLogin: (isLogin: number) => void;
 }) => {
   const router = useRouter();
+  routerAsPath = router.asPath;
+
   const eventsQuery = useGetEventsQuery("eventOrgs");
+
   useEffect(() => {
-    console.log("refetching events");
-    eventsQuery.refetch();
+    if (routerAsPath !== router.asPath) {
+      console.log("refetching events");
+      eventsQuery.refetch();
+    }
   }, [router.asPath]);
+
   const events = eventsQuery.data?.filter((event) => {
     if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
     if (event.eventVisibility !== Visibility.PUBLIC) return false;

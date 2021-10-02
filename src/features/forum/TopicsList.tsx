@@ -1,9 +1,5 @@
-import type { IEvent } from "models/Event";
-import type { IOrg } from "models/Org";
-import type { ITopic } from "models/Topic";
-import { Visibility } from "models/Topic";
-import React, { useEffect, useState } from "react";
 import {
+  AddIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   EditIcon,
@@ -12,37 +8,55 @@ import {
   ViewIcon,
   ViewOffIcon
 } from "@chakra-ui/icons";
-import { Box } from "@chakra-ui/layout";
 import {
+  Box,
   Flex,
   GridProps,
   Icon,
   IconButton,
   Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
   Spinner,
+  Table,
+  Tag,
+  Tbody,
+  Td,
   Text,
   Tooltip,
+  Tr,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
-import { DeleteButton, formats, Grid, GridItem, Link } from "features/common";
-import { TopicMessageForm } from "features/forms/TopicMessageForm";
-import { TopicMessagesList } from "./TopicMessagesList";
-import { AddIcon } from "@chakra-ui/icons";
-import { Button } from "features/common";
-import { TopicModal } from "features/modals/TopicModal";
-import { useSession } from "hooks/useAuth";
+import React, { useState } from "react";
 import { FaBell, FaBellSlash, FaGlobeEurope } from "react-icons/fa";
-import * as dateUtils from "utils/date";
+import { IoMdPerson } from "react-icons/io";
+import { useSession } from "hooks/useAuth";
+import { IEvent, StatusTypes } from "models/Event";
+import type { IOrg } from "models/Org";
+import { ITopic, Visibility } from "models/Topic";
+import {
+  Button,
+  DeleteButton,
+  formats,
+  Grid,
+  GridItem,
+  Link
+} from "features/common";
+import { TopicForm } from "features/forms/TopicForm";
+import { TopicMessageForm } from "features/forms/TopicMessageForm";
+import { TopicModal } from "features/modals/TopicModal";
 import {
   useAddSubscriptionMutation,
-  useDeleteSubscriptionMutation,
-  useGetSubscriptionQuery
+  useDeleteSubscriptionMutation
 } from "features/subscriptions/subscriptionsApi";
-import { useSelector } from "react-redux";
-import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
+import * as dateUtils from "utils/date";
+import { TopicMessagesList } from "./TopicMessagesList";
 import { useDeleteTopicMutation } from "./topicsApi";
-import { IoMdPerson } from "react-icons/io";
 
 const TopicVisibility = ({ topicVisibility }: { topicVisibility?: string }) =>
   topicVisibility === Visibility.SUBSCRIBERS ? (
@@ -67,6 +81,7 @@ export const TopicsList = ({
   event,
   org,
   query,
+  subQuery,
   isCreator,
   isFollowed,
   isSubscribed,
@@ -77,6 +92,7 @@ export const TopicsList = ({
   event?: IEvent;
   org?: IOrg;
   query: any;
+  subQuery: any;
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
@@ -89,7 +105,6 @@ export const TopicsList = ({
   const toast = useToast({ position: "top" });
 
   //#region subscription
-  const subQuery = useGetSubscriptionQuery(session?.user.userId);
   const [deleteSubscription, deleteSubscriptionMutation] =
     useDeleteSubscriptionMutation();
   const [addSubscription, addSubscriptionMutation] =
@@ -104,8 +119,9 @@ export const TopicsList = ({
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const [topicModalState, setTopicModalState] = useState<{
     isOpen: boolean;
+    isEmailListOpen: boolean;
     topic?: ITopic;
-  }>({ isOpen: false, topic: undefined });
+  }>({ isOpen: false, isEmailListOpen: false, topic: undefined });
   const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
   // const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(true);
   const entityName = org ? org.orgName : event?.eventName;
@@ -173,6 +189,75 @@ export const TopicsList = ({
         />
       )}
 
+      {topicModalState.isEmailListOpen &&
+        Array.isArray(topicModalState.topic?.topicNotified) && (
+          <Modal
+            isOpen
+            onClose={() =>
+              setTopicModalState({
+                ...topicModalState,
+                isEmailListOpen: false,
+                topic: undefined
+              })
+            }
+          >
+            <ModalOverlay>
+              <ModalContent>
+                <ModalHeader>
+                  {topicModalState.topic?.topicName} :{" "}
+                  {topicModalState.topic?.topicNotified.length} notifications
+                  envoyées
+                </ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <Box overflowX="auto">
+                    <Table>
+                      <Tbody>
+                        {org?.orgSubscriptions
+                          .map((orgSubscription) => {
+                            const e =
+                              typeof orgSubscription.user === "object"
+                                ? orgSubscription.user.email || ""
+                                : orgSubscription.email || "";
+
+                            if (
+                              !topicModalState.topic?.topicNotified?.find(
+                                ({ email }) => email === e
+                              )
+                            )
+                              return { email: e, status: StatusTypes.NOK };
+                          })
+                          .concat(
+                            topicModalState.topic?.topicNotified!.map(
+                              ({ email }) => ({ email, status: StatusTypes.OK })
+                            )
+                          )
+                          .map((item) => {
+                            if (!item) return null;
+                            return (
+                              <Tr key={item.email}>
+                                <Td>{item.email}</Td>
+                                <Td>
+                                  {item.status === StatusTypes.OK ? (
+                                    <Tag>Notifié</Tag>
+                                  ) : (
+                                    <Link onClick={() => alert("Bientôt !")}>
+                                      <Tag>Notifier</Tag>
+                                    </Link>
+                                  )}
+                                </Td>
+                              </Tr>
+                            );
+                          })}
+                      </Tbody>
+                    </Table>
+                  </Box>
+                </ModalBody>
+              </ModalContent>
+            </ModalOverlay>
+          </Modal>
+        )}
+
       <Grid data-cy="topicList" {...props}>
         {query.isLoading ? (
           <Spinner />
@@ -232,7 +317,8 @@ export const TopicsList = ({
 
               if (subQuery.data) {
                 isSubbedToTopic = !!subQuery.data.topics.find(
-                  ({ topic }) => topic._id === entityTopic._id
+                  ({ topic }: { topic: ITopic }) =>
+                    topic._id === entityTopic._id
                 );
               }
 
@@ -289,6 +375,26 @@ export const TopicsList = ({
                               <TopicVisibility
                                 topicVisibility={entityTopic.topicVisibility}
                               />
+                              {isCreator &&
+                                Array.isArray(entityTopic.topicNotified) && (
+                                  <>
+                                    <span aria-hidden> · </span>
+                                    <Link
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setTopicModalState({
+                                          ...topicModalState,
+                                          isOpen: false,
+                                          topic: entityTopic,
+                                          isEmailListOpen: true
+                                        });
+                                      }}
+                                    >
+                                      {entityTopic.topicNotified.length} abonnés
+                                      notifiés
+                                    </Link>
+                                  </>
+                                )}
                             </Box>
                           </Box>
                         </GridItem>
