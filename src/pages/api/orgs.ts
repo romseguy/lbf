@@ -68,7 +68,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrg(req, res) {
         isApproved: false
       });
       res.status(200).json(doc);
-    } catch (error) {
+    } catch (error: any) {
       if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
         res.status(400).json({
           orgName: "Ce nom n'est pas disponible"

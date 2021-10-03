@@ -102,7 +102,7 @@ export const OrgConfigPanel = ({
                       isClosable: true
                     });
                   }
-                } catch (error) {
+                } catch (error: any) {
                   toast({
                     title: error.data ? error.data.message : error.message,
                     status: "error",

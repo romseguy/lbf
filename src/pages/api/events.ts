@@ -171,7 +171,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
       );
 
       res.status(200).json(event);
-    } catch (error) {
+    } catch (error: any) {
       if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
         res.status(400).json({
           eventName: "Ce nom d'événement n'est pas disponible"

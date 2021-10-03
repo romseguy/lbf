@@ -26,7 +26,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function signup(req, res) {
     } else {
       res.status(400).json({ email: "Cette adresse e-mail est invalide" });
     }
-  } catch (error) {
+  } catch (error: any) {
     if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
       res.status(400).json({
         email: "Cette adresse e-mail n'est pas disponible"

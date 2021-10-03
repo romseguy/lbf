@@ -341,7 +341,7 @@ export const ProjectsList = ({
                                     isClosable: true
                                   });
                                 }
-                              } catch (error) {
+                              } catch (error: any) {
                                 toast({
                                   title: error.data
                                     ? error.data.message

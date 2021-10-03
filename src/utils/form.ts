@@ -1,5 +1,5 @@
 export const handleError = (
-  error: { message?: string; status?: number; data?: any },
+  error: any,
   setError: (message: string, field?: string) => void
 ) => {
   console.error(error);

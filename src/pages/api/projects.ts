@@ -155,7 +155,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postProject(
       }
 
       res.status(200).json(project);
-    } catch (error) {
+    } catch (error: any) {
       if (error.errors) {
         res.status(400).json(error.errors);
       } else {

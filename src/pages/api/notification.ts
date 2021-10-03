@@ -23,7 +23,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       res
         .writeHead(response.statusCode, response.headers)
         .end(response.body === "" ? {} : response.body);
-    } catch (err) {
+    } catch (err: any) {
       if ("statusCode" in err) {
         res.writeHead(err.statusCode, err.headers).end(err.body);
       } else {

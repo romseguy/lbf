@@ -530,7 +530,7 @@ export const TopicsList = ({
                                           isClosable: true
                                         });
                                       }
-                                    } catch (error) {
+                                    } catch (error: any) {
                                       toast({
                                         title: error.data
                                           ? error.data.message

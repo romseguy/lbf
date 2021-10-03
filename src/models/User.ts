@@ -70,7 +70,7 @@ UserSchema.pre("save", async function (next: HookNextFunction) {
       const salt = await bcrypt.genSalt(HASH_ROUNDS);
       const hash = await bcrypt.hash(thisObj.password, salt);
       thisObj.password = hash;
-    } catch (error) {
+    } catch (error: any) {
       return next(error);
     }
   }
@@ -80,7 +80,7 @@ UserSchema.pre("save", async function (next: HookNextFunction) {
       // const name = normalize(thisObj.email.replace(/@.+/, ""));
       // const userName = name.match(/[0-9]/) === null ? name + randomNumber(4) : name;
       thisObj.userName = normalize(thisObj.email!.replace(/@.+/, ""));
-    } catch (error) {
+    } catch (error: any) {
       return next(error);
     }
   }
@@ -101,7 +101,7 @@ UserSchema.pre("updateOne", async function (next: HookNextFunction) {
     const hash = await bcrypt.hash(password, salt);
     this.update({}, { password: hash }).exec();
     next();
-  } catch (error) {
+  } catch (error: any) {
     return next(error);
   }
 

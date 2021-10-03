@@ -136,7 +136,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
       }
 
       props.onClose && props.onClose();
-    } catch (error) {
+    } catch (error: any) {
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });

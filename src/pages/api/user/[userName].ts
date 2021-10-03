@@ -110,7 +110,7 @@ handler.put<
             );
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
         res.status(400).json({
           userName: "Ce nom d'utilisateur n'est pas disponible"

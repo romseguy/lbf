@@ -138,11 +138,11 @@ export const Nav = ({
           console.log("reg.pushManager.getSubscription", sub);
 
           if (
-            sub &&
-            !(
-              sub.expirationTime &&
-              Date.now() > sub.expirationTime - 5 * 60 * 1000
-            )
+            sub
+            // !(
+            //   sub.expirationTime &&
+            //   Date.now() > sub.expirationTime - 5 * 60 * 1000
+            // )
           ) {
             setSubscription(sub);
             setIsSubscribed(true);
@@ -297,7 +297,7 @@ export const Nav = ({
                               "Vous recevrez des notifications mobile en plus des e-mails"
                           });
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         toast({ status: "error", title: error.message });
                       }
                     }}

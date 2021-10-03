@@ -49,7 +49,7 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
     const error = await response.json();
     console.log(`API ERROR /${endpoint}`, error);
     return { error, status: response.status };
-  } catch (error) {
+  } catch (error: any) {
     console.error(`API ERROR /${endpoint}`, error);
     return {
       error: {
