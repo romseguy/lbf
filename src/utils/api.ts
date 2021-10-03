@@ -2,6 +2,7 @@ import { databaseErrorCodes } from "utils/errors";
 import { isServer } from "utils/isServer";
 
 type ParamsType = { [key: string]: any };
+export type ResponseType<T> = { data?: T; error?: any; status?: number };
 
 async function request(endpoint: string, params?: ParamsType, method = "GET") {
   console.log(`${method} /${endpoint}`);

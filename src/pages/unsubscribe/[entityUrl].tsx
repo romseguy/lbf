@@ -1,36 +1,47 @@
 import { Alert, AlertIcon } from "@chakra-ui/react";
 import { GetServerSidePropsContext } from "next";
 import { Layout } from "features/layout";
-import { getOrg } from "features/orgs/orgsApi";
-import {
-  deleteSubscription,
-  getSubscription
-} from "features/subscriptions/subscriptionsApi";
-import { SubscriptionTypes } from "models/Subscription";
-import { wrapper } from "store";
+import { deleteSubscription } from "features/subscriptions/subscriptionsApi";
+import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
+import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { ITopic } from "models/Topic";
+import { wrapper } from "store";
+import api, { ResponseType } from "utils/api";
 
 type UnsubscribePageProps = {
   unsubscribed: boolean;
   org?: IOrg;
+  event?: IEvent;
   topic?: ITopic;
+  subscription?: ISubscription;
 };
 
 const UnsubscribePage = ({
   unsubscribed,
+  event,
   org,
-  topic
+  topic,
+  subscription
 }: UnsubscribePageProps) => {
+  const who = subscription
+    ? typeof subscription.user === "object"
+      ? subscription.user.email + " est"
+      : subscription.email + " est"
+    : "Vous êtes";
+
   return (
     <Layout>
       <Alert status={unsubscribed ? "success" : "error"}>
         <AlertIcon />
+
         {unsubscribed
-          ? org
-            ? `Vous avez été désabonné de ${org?.orgName}.`
+          ? org || event
+            ? `${who} désabonné de ${org ? "l'organisation" : "l'événement"} ${
+                org ? org.orgName : event?.eventName
+              }.`
             : topic
-            ? `Vous avez été désabonné de la discussion : ${topic.topicName}`
+            ? `${who} désabonné de la discussion : ${topic.topicName}`
             : "Nous n'avons pas pu vous désabonner."
           : "Nous n'avons pas pu vous désabonner."}
       </Alert>
@@ -51,63 +62,84 @@ export const getServerSideProps = wrapper.getServerSideProps(
         topicId
       }: { subscriptionId?: string; topicId?: string } = ctx.query;
 
-      if (subscriptionId && entityUrl) {
-        const query = await store.dispatch(
-          getOrg.initiate({ orgUrl: entityUrl })
-        );
-        const org = query.data;
+      if (!subscriptionId || !entityUrl)
+        return { props: { unsubscribed: false } };
 
-        if (org) {
-          if (topicId) {
-            const subQuery = await store.dispatch(
-              getSubscription.initiate(subscriptionId)
-            );
-            const subscription = subQuery.data;
+      const { data: subscription }: ResponseType<ISubscription> = await api.get(
+        "subscription/" + subscriptionId + "?populate=user"
+      );
 
-            if (subscription) {
-              const topicSubscription = subscription.topics.find(
-                ({ topic }) => topic._id === topicId
-              );
+      if (!subscription) return { props: { unsubscribed: false } };
 
-              if (topicSubscription) {
-                const q = await store.dispatch(
-                  deleteSubscription.initiate({
-                    subscriptionId,
-                    topicId
-                  })
-                );
+      const { data: org }: ResponseType<IOrg> = await api.get(
+        "org/" + entityUrl
+      );
 
-                if ("data" in q)
-                  return {
-                    props: {
-                      unsubscribed: true,
-                      topic: topicSubscription.topic
-                    }
-                  };
-              }
-            }
-          } else {
-            const subQuery = await store.dispatch(
+      if (org) {
+        if (topicId) {
+          const topicSubscription = subscription.topics.find(
+            ({ topic }) => topic._id === topicId
+          );
+
+          if (topicSubscription) {
+            const q = await store.dispatch(
               deleteSubscription.initiate({
                 subscriptionId,
-                payload: {
-                  orgs: [
-                    {
-                      orgId: org._id,
-                      org,
-                      type: SubscriptionTypes.FOLLOWER
-                    }
-                  ]
-                }
+                topicId
               })
             );
 
-            if ("data" in subQuery)
-              return { props: { unsubscribed: true, org } };
+            if ("data" in q)
+              return {
+                props: {
+                  unsubscribed: true,
+                  topic: topicSubscription.topic,
+                  subscription
+                }
+              };
           }
         } else {
-          // todo: event
+          const subQuery = await store.dispatch(
+            deleteSubscription.initiate({
+              subscriptionId,
+              payload: {
+                orgs: [
+                  {
+                    orgId: org._id,
+                    org,
+                    type: SubscriptionTypes.FOLLOWER
+                  }
+                ]
+              }
+            })
+          );
+
+          if ("data" in subQuery)
+            return { props: { unsubscribed: true, org, subscription } };
         }
+      }
+
+      const { data: event }: ResponseType<IEvent> = await api.get(
+        "event/" + entityUrl
+      );
+
+      if (event) {
+        const q = await store.dispatch(
+          deleteSubscription.initiate({
+            subscriptionId,
+            payload: {
+              events: [
+                {
+                  eventId: event._id,
+                  event
+                }
+              ]
+            }
+          })
+        );
+
+        if ("data" in q)
+          return { props: { unsubscribed: true, event, subscription } };
       }
 
       return { props: { unsubscribed: false } };

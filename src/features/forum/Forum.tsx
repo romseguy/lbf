@@ -25,7 +25,10 @@ export const Forum = ({
   const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
 
   //#region org
-  const query = useGetOrgQuery({ orgUrl: "aucourant" });
+  const query = useGetOrgQuery({
+    orgUrl: "aucourant",
+    populate: "orgTopics orgSubscriptions"
+  });
   const org = query.data;
 
   let isCreator = false;

@@ -199,7 +199,7 @@ export const sendTopicToFollowers = async ({
 
     mail.html = `
     <h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${entityName}</a> pour lire la discussion.</p>
-    <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${entityName}</a>
+    <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${type} ${entityName}</a>
     `;
 
     if (process.env.NODE_ENV === "production") await transport.sendMail(mail);

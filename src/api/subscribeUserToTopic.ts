@@ -12,9 +12,10 @@ export const subscribeUserToTopic = async (userId: string, topic: ITopic) => {
   let subscription = await models.Subscription.findOne({ user });
 
   if (!subscription) {
+    console.log("no sub for this user => adding one");
     subscription = await models.Subscription.create({
       user,
-      topics: [{ topic }]
+      topics: [{ topic, emailNotif: true, pushNotif: true }]
     });
   } else {
     const topicSubscription = subscription.topics.find(({ topic: t }) =>
@@ -23,7 +24,7 @@ export const subscribeUserToTopic = async (userId: string, topic: ITopic) => {
 
     if (!topicSubscription) {
       console.log("no sub for this topic => adding one");
-      subscription.topics.push({ topic });
+      subscription.topics.push({ topic, emailNotif: true, pushNotif: true });
       await subscription.save();
     }
   }

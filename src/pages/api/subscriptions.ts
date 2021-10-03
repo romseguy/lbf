@@ -47,7 +47,11 @@ handler.post<
   const session = await getSession({ req });
 
   try {
-    const { body }: { body: ISubscription } = req;
+    const {
+      body
+    }: {
+      body: ISubscription;
+    } = req;
     const selector: { user?: IUser; email?: string } = {};
 
     if (body.email) {
@@ -286,7 +290,9 @@ handler.post<
           await event.save();
         }
       }
-    } else if (body.topics) {
+    }
+
+    if (body.topics) {
       const topicId = body.topics[0].topic._id;
       const topic = await models.Topic.findOne({ _id: topicId });
 
@@ -306,7 +312,11 @@ handler.post<
             ({ topic }: { topic: ITopic }) => topic._id === topicId
           )
         ) {
-          userSubscription.topics.push({ topic });
+          userSubscription.topics.push({
+            topic,
+            emailNotif: true,
+            pushNotif: true
+          });
         }
       } else {
         userSubscription.topics = body.topics;
@@ -314,16 +324,9 @@ handler.post<
     }
 
     await userSubscription.save();
-    //console.log("user new subscription", userSubscription);
     res.status(200).json(userSubscription);
   } catch (error) {
-    if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
-      res.status(400).json({
-        message: "todo"
-      });
-    } else {
-      res.status(500).json(createServerError(error));
-    }
+    res.status(500).json(createServerError(error));
   }
 });
 

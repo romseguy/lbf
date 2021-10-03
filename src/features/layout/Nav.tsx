@@ -44,6 +44,7 @@ import { isServer } from "utils/isServer";
 import { IoIosPeople } from "react-icons/io";
 import { base64ToUint8Array } from "utils/string";
 import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
+import { refetchSubscription } from "features/subscriptions/subscriptionSlice";
 
 interface customWindow extends Window {
   workbox?: any;
@@ -323,6 +324,9 @@ export const Nav = ({
                     callbackUrl: "/"
                   });
                   if (process.env.NODE_ENV === "production") router.push(url);
+                  else {
+                    dispatch(refetchSubscription());
+                  }
                 }}
               >
                 Déconnexion

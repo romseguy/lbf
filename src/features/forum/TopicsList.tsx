@@ -78,9 +78,6 @@ export const TopicsList = ({
   org,
   query,
   subQuery,
-  isCreator,
-  isFollowed,
-  isSubscribed,
   isLogin,
   setIsLogin,
   ...props
@@ -117,8 +114,8 @@ export const TopicsList = ({
   const [topicModalState, setTopicModalState] = useState<{
     isOpen: boolean;
     isEmailListOpen: boolean;
-    topic?: ITopic;
-  }>({ isOpen: false, isEmailListOpen: false, topic: undefined });
+    topic: ITopic | null;
+  }>({ isOpen: false, isEmailListOpen: false, topic: null });
   const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
   const entityName = org ? org.orgName : event?.eventName;
   let entityTopics: ITopic[] = org
@@ -154,14 +151,14 @@ export const TopicsList = ({
           topic={topicModalState.topic}
           org={org}
           event={event}
-          isCreator={isCreator}
-          isFollowed={isFollowed}
-          isSubscribed={isSubscribed}
+          isCreator={props.isCreator}
+          isFollowed={props.isFollowed}
+          isSubscribed={props.isSubscribed}
           onCancel={() =>
             setTopicModalState({
               ...topicModalState,
               isOpen: false,
-              topic: undefined
+              topic: null
             })
           }
           onSubmit={async (topic) => {
@@ -170,7 +167,7 @@ export const TopicsList = ({
             setTopicModalState({
               ...topicModalState,
               isOpen: false,
-              topic: undefined
+              topic: null
             });
             setCurrentTopic(topic ? topic : null);
           }}
@@ -178,7 +175,7 @@ export const TopicsList = ({
             setTopicModalState({
               ...topicModalState,
               isOpen: false,
-              topic: undefined
+              topic: null
             })
           }
         />
@@ -193,7 +190,7 @@ export const TopicsList = ({
               setTopicModalState({
                 ...topicModalState,
                 isEmailListOpen: false,
-                topic: undefined
+                topic: null
               })
             }
           >
@@ -296,7 +293,7 @@ export const TopicsList = ({
           </Modal>
         )}
 
-      <Grid data-cy="topicList" {...props}>
+      <Grid data-cy="topicList">
         {query.isLoading ? (
           <Spinner />
         ) : (
@@ -309,19 +306,19 @@ export const TopicsList = ({
               if (entityTopic.topicVisibility === Visibility.PUBLIC) {
                 allow = true;
               } else {
-                if (isCreator) {
+                if (props.isCreator) {
                   allow = true;
                 }
 
                 if (
-                  isSubscribed &&
+                  props.isSubscribed &&
                   entityTopic.topicVisibility === Visibility.SUBSCRIBERS
                 ) {
                   allow = true;
                 }
 
                 if (
-                  isFollowed &&
+                  props.isFollowed &&
                   entityTopic.topicVisibility === Visibility.FOLLOWERS
                 ) {
                   allow = true;
@@ -413,8 +410,9 @@ export const TopicsList = ({
                               <TopicVisibility
                                 topicVisibility={entityTopic.topicVisibility}
                               />
-                              {isCreator &&
-                                Array.isArray(entityTopic.topicNotified) && (
+                              {Array.isArray(entityTopic.topicNotified) &&
+                                isCreator &&
+                                (props.isCreator || props.isSubscribed) && (
                                   <>
                                     <span aria-hidden> · </span>
                                     <Link
@@ -512,8 +510,9 @@ export const TopicsList = ({
                                     setIsLoading({
                                       [entityTopic._id!]: true
                                     });
+
                                     try {
-                                      let deletedTopic;
+                                      let deletedTopic: ITopic | null = null;
 
                                       if (entityTopic._id) {
                                         deletedTopic = await deleteTopic(
@@ -558,7 +557,7 @@ export const TopicsList = ({
                               label={
                                 isSubbedToTopic
                                   ? "Vous recevez un e-mail lorsque quelqu'un répond à cette discussion. Cliquez ici pour désactiver ces notifications."
-                                  : "Recevoir un e-mail lorsque quelqu'un répond à cette discussion."
+                                  : "Recevoir un e-mail et une notification lorsque quelqu'un répond à cette discussion."
                               }
                               placement="left"
                             >
@@ -576,11 +575,7 @@ export const TopicsList = ({
                                       <FaBell />
                                     )
                                   }
-                                  isLoading={
-                                    subQuery.isLoading ||
-                                    addSubscriptionMutation.isLoading ||
-                                    deleteSubscriptionMutation.isLoading
-                                  }
+                                  isLoading={isLoading[entityTopic._id!]}
                                   bg="transparent"
                                   height="auto"
                                   minWidth={0}
@@ -590,19 +585,21 @@ export const TopicsList = ({
                                   }}
                                   onClick={async (e) => {
                                     e.stopPropagation();
-
-                                    if (
-                                      subQuery.isLoading ||
-                                      addSubscriptionMutation.isLoading ||
-                                      deleteSubscriptionMutation.isLoading
-                                    )
-                                      return;
+                                    setIsLoading({
+                                      [entityTopic._id!]: true
+                                    });
 
                                     if (!subQuery.data) {
                                       console.log("user got no sub");
                                       await addSubscription({
                                         payload: {
-                                          topics: [{ topic: entityTopic }]
+                                          topics: [
+                                            {
+                                              topic: entityTopic,
+                                              emailNotif: true,
+                                              pushNotif: true
+                                            }
+                                          ]
                                         },
                                         user: session?.user.userId
                                         // email:
@@ -633,7 +630,13 @@ export const TopicsList = ({
                                       console.log("user got no topic sub");
                                       await addSubscription({
                                         payload: {
-                                          topics: [{ topic: entityTopic }]
+                                          topics: [
+                                            {
+                                              topic: entityTopic,
+                                              emailNotif: true,
+                                              pushNotif: true
+                                            }
+                                          ]
                                         },
                                         user: session?.user.userId
                                         // email:
@@ -646,6 +649,9 @@ export const TopicsList = ({
                                     }
 
                                     subQuery.refetch();
+                                    setIsLoading({
+                                      [entityTopic._id!]: false
+                                    });
                                   }}
                                   data-cy={
                                     isSubbedToTopic

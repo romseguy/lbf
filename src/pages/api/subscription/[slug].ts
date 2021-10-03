@@ -17,50 +17,55 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<NextApiRequest & { query: { slug: string } }, NextApiResponse>(
-  async function getSubscription(req, res) {
-    try {
-      const session = await getSession({ req });
-      const {
-        query: { slug }
-      } = req;
+handler.get<
+  NextApiRequest & { query: { slug: string; populate?: string } },
+  NextApiResponse
+>(async function getSubscription(req, res) {
+  try {
+    const {
+      query: { slug, populate }
+    } = req;
 
-      let selector: { user?: IUser; email?: string; _id?: string } = {};
+    let selector: { user?: IUser; email?: string; _id?: string } = {};
 
-      if (emailR.test(slug)) {
-        const user = await models.User.findOne({ email: slug });
-        selector = user ? { user } : { email: slug };
-      } else {
-        const user = await models.User.findOne({ _id: slug });
+    if (emailR.test(slug)) {
+      const user = await models.User.findOne({ email: slug });
+      selector = user ? { user } : { email: slug };
+    } else {
+      const user = await models.User.findOne({ _id: slug });
 
-        if (user) selector = { user };
-        else selector = { _id: slug };
-      }
-
-      let subscription = await models.Subscription.findOne(selector);
-
-      if (!subscription) {
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`L'abonnement ${slug} n'a pas pu être trouvé`)
-            )
-          );
-      }
-
-      subscription = await subscription
-        .populate({ path: "events", populate: { path: "event" } })
-        .populate({ path: "orgs", populate: { path: "org" } })
-        .populate({ path: "topics", populate: { path: "topic" } })
-        .execPopulate();
-
-      res.status(200).json(subscription);
-    } catch (error) {
-      res.status(500).json(createServerError(error));
+      if (user) selector = { user };
+      else selector = { _id: slug };
     }
+
+    let subscription = await models.Subscription.findOne(selector);
+
+    if (!subscription) {
+      return res
+        .status(404)
+        .json(
+          createServerError(
+            new Error(`L'abonnement ${slug} n'a pas pu être trouvé`)
+          )
+        );
+    }
+
+    if (populate) subscription.populate(populate);
+
+    subscription = subscription
+      .populate({ path: "events", populate: { path: "event" } })
+      .populate({ path: "orgs", populate: { path: "org" } })
+      .populate({ path: "topics", populate: { path: "topic" } });
+
+    subscription = await subscription.execPopulate();
+
+    res.status(200).json(subscription);
+  } catch (error) {
+    console.log("error", error);
+
+    res.status(500).json(createServerError(error));
   }
-);
+});
 
 handler.put<NextApiRequest & { query: { slug: string } }, NextApiResponse>(
   async function editSubscription(req, res) {
@@ -112,8 +117,6 @@ handler.delete<
   },
   NextApiResponse
 >(async function removeSubscription(req, res) {
-  const session = await getSession({ req });
-
   const {
     query: { slug: _id },
     body

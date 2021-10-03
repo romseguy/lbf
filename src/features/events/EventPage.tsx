@@ -34,7 +34,7 @@ import {
   ListItem
 } from "@chakra-ui/react";
 import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "hooks/useAuth";
 import {
@@ -61,9 +61,15 @@ import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useSelector } from "react-redux";
-import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import {
+  useAddSubscriptionMutation,
+  useGetSubscriptionQuery
+} from "features/subscriptions/subscriptionsApi";
 import { selectUserEmail } from "features/users/userSlice";
-import { isFollowedBy } from "features/subscriptions/subscriptionSlice";
+import {
+  isFollowedBy,
+  selectSubscriptionRefetch
+} from "features/subscriptions/subscriptionSlice";
 import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
 import { EventAttendingForm } from "./EventAttendingForm";
 import { EventSendForm } from "features/common/forms/EventSendForm";
@@ -175,7 +181,14 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   //#endregion
 
   //#region sub
+  const [addSubscription, addSubscriptionMutation] =
+    useAddSubscriptionMutation();
   const subQuery = useGetSubscriptionQuery(userEmail);
+  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    console.log("refetching subscription");
+    subQuery.refetch();
+  }, [subscriptionRefetch]);
   const isFollowed = isFollowedBy({ event, subQuery });
   const isSubscribedToAtLeastOneOrg =
     isCreator ||
@@ -258,14 +271,43 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
         </Button>
       ) : null}
 
-      {!isCreator && (
-        <SubscriptionPopover
-          event={event}
-          query={eventQuery}
-          subQuery={subQuery}
-          followerSubscription={isFollowed}
-          isLoading={subQuery.isLoading || subQuery.isFetching}
-        />
+      {!subQuery.isLoading && !isCreator && !isConfig && (
+        <>
+          {subQuery.isError ||
+          !subQuery.data?.events.find(
+            (eventSubscription) => eventSubscription.eventId === event._id
+          ) ? (
+            <Button
+              colorScheme="teal"
+              onClick={async () => {
+                const payload = {
+                  events: [
+                    {
+                      event,
+                      eventId: event._id
+                    }
+                  ]
+                };
+                await addSubscription({ payload }).unwrap();
+                toast({
+                  title: `Vous êtes maintenant abonné à ${event.eventName} !`,
+                  status: "success"
+                });
+                subQuery.refetch();
+              }}
+            >
+              S'abonner à {event.eventName}
+            </Button>
+          ) : (
+            <SubscriptionPopover
+              event={event}
+              query={eventQuery}
+              subQuery={subQuery}
+              followerSubscription={isFollowed}
+              isLoading={subQuery.isLoading || subQuery.isFetching}
+            />
+          )}
+        </>
       )}
 
       <Box mb={3}>

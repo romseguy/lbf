@@ -1,17 +1,9 @@
-import type { IEvent } from "models/Event";
-import type { IOrg } from "models/Org";
-import type { ITopic } from "models/Topic";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { ErrorMessage } from "@hookform/error-message";
 import {
   ChakraProps,
   Input,
   Button,
   FormControl,
   FormLabel,
-  Box,
-  Stack,
   FormErrorMessage,
   useToast,
   Flex,
@@ -20,19 +12,23 @@ import {
   AlertIcon,
   Checkbox
 } from "@chakra-ui/react";
-import { WarningIcon } from "@chakra-ui/icons";
+import { ErrorMessage } from "@hookform/error-message";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { ErrorMessageText, RTEditor } from "features/common";
-import { useSession } from "hooks/useAuth";
-import { Visibility, VisibilityV } from "models/Topic";
-import { handleError } from "utils/form";
-import { useAddOrgDetailsMutation } from "features/orgs/orgsApi";
 import { useAddEventDetailsMutation } from "features/events/eventsApi";
 import { useEditTopicMutation } from "features/forum/topicsApi";
+import { useAddOrgDetailsMutation } from "features/orgs/orgsApi";
+import { useSession } from "hooks/useAuth";
+import type { IEvent } from "models/Event";
+import type { IOrg } from "models/Org";
+import { ITopic, Visibility, VisibilityV } from "models/Topic";
+import { handleError } from "utils/form";
 
 interface TopicFormProps extends ChakraProps {
   org?: IOrg;
   event?: IEvent;
-  topic?: ITopic;
+  topic: ITopic | null;
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
@@ -43,12 +39,14 @@ interface TopicFormProps extends ChakraProps {
 
 export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
   const { data: session } = useSession();
-  const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast({ position: "top" });
+
   const [addOrgDetails, addOrgDetailsMutation] = useAddOrgDetailsMutation();
   const [addEventDetails, addEventDetailsMutation] =
     useAddEventDetailsMutation();
   const [editTopic, editTopicMutation] = useEditTopicMutation();
-  const toast = useToast({ position: "top" });
+
+  const [isLoading, setIsLoading] = useState(false);
   const visibilityOptions: string[] = [];
 
   if (org && org.orgName !== "aucourant") {
@@ -177,7 +175,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
           ref={register({
             required: "Veuillez saisir l'objet de la discussion"
           })}
-          defaultValue={props.topic && props.topic.topicName}
+          defaultValue={props.topic ? props.topic.topicName : ""}
         />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="topicName" />
@@ -244,7 +242,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         </FormControl>
       )}
 
-      {!props.topic && (
+      {!props.topic && (props.isCreator || props.isSubscribed) && (
         <Checkbox ref={register()} name="topicNotif" mb={3}>
           Notifier les abonnés
         </Checkbox>

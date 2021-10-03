@@ -9,20 +9,18 @@ import { wrapper } from "store";
 import { isServer } from "utils/isServer";
 import { getSession } from "hooks/useAuth";
 
-import { AbortController } from "abort-controller";
-import fetch, { Headers, Request, Response } from "node-fetch";
+// import { AbortController } from "abort-controller";
+// import fetch, { Headers, Request, Response } from "node-fetch";
 
-Object.assign(globalThis, {
-  fetch,
-  Headers,
-  Request,
-  Response,
-  AbortController
-});
+// Object.assign(globalThis, {
+//   fetch,
+//   Headers,
+//   Request,
+//   Response,
+//   AbortController
+// });
 
-if (isServer()) {
-  React.useLayoutEffect = React.useEffect;
-} else if (process.env.NODE_ENV === "production") {
+if (!isServer() && process.env.NODE_ENV === "production") {
   const CleanConsole = require("@eaboy/clean-console");
   CleanConsole.init({
     initialMessages: [

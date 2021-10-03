@@ -1,4 +1,11 @@
-import React, { useMemo, useState } from "react";
+import {
+  AddIcon,
+  CheckCircleIcon,
+  DeleteIcon,
+  EmailIcon,
+  UpDownIcon,
+  WarningIcon
+} from "@chakra-ui/icons";
 import {
   Box,
   Icon,
@@ -13,11 +20,9 @@ import {
   Button,
   useColorMode
 } from "@chakra-ui/react";
-import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import {
   compareAsc,
   format,
-  addDays,
   addHours,
   addWeeks,
   intervalToDuration,
@@ -26,31 +31,26 @@ import {
   getMinutes,
   getDayOfYear,
   getDay,
-  compareDesc
+  setDay,
+  compareDesc,
+  setHours
 } from "date-fns";
-import { Category, IEvent, Visibility } from "models/Event";
 import { fr } from "date-fns/locale";
-import {
-  AddIcon,
-  CheckCircleIcon,
-  DeleteIcon,
-  EmailIcon,
-  UpDownIcon,
-  WarningIcon
-} from "@chakra-ui/icons";
-import { css } from "twin.macro";
-import { DescriptionModal } from "features/modals/DescriptionModal";
 import DOMPurify from "isomorphic-dompurify";
+import { useRouter } from "next/router";
+import React, { useMemo, useState } from "react";
 import { FaGlobeEurope, FaRetweet } from "react-icons/fa";
-import { useSession } from "hooks/useAuth";
+import { IoIosPeople, IoIosPerson, IoMdPerson } from "react-icons/io";
+import { css } from "twin.macro";
+import { Link, GridHeader, GridItem, Spacer } from "features/common";
+import { DescriptionModal } from "features/modals/DescriptionModal";
+import { EventModal } from "features/modals/EventModal";
 import { ForwardModal } from "features/modals/ForwardModal";
-import { useDeleteEventMutation, useEditEventMutation } from "./eventsApi";
+import { useSession } from "hooks/useAuth";
+import { Category, IEvent, Visibility } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
-import { IoIosPeople, IoIosPerson, IoMdPerson } from "react-icons/io";
-import { EventModal } from "features/modals/EventModal";
-import { useRouter } from "next/router";
-import setDay from "date-fns/setDay";
+import { useDeleteEventMutation, useEditEventMutation } from "./eventsApi";
 
 const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
   eventVisibility === Visibility.SUBSCRIBERS ? (
@@ -72,17 +72,6 @@ const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
     </Tooltip>
   ) : null;
 
-type EventsProps = {
-  events: IEvent[];
-  org?: IOrg;
-  orgQuery?: any;
-  eventHeader?: any;
-  isCreator?: boolean;
-  isSubscribed?: boolean;
-  isLogin?: number;
-  setIsLogin?: (isLogin: number) => void;
-};
-
 export const EventsList = ({
   org,
   orgQuery,
@@ -91,14 +80,23 @@ export const EventsList = ({
   isLogin,
   setIsLogin,
   ...props
-}: EventsProps) => {
+}: {
+  events: IEvent[];
+  org?: IOrg;
+  orgQuery?: any;
+  eventHeader?: any;
+  isCreator?: boolean;
+  isSubscribed?: boolean;
+  isLogin?: number;
+  setIsLogin?: (isLogin: number) => void;
+}) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
-  const today = new Date();
+  const today = setHours(new Date(), 0);
 
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
@@ -126,25 +124,6 @@ export const EventsList = ({
     .reduce((a, b) => a + b, 0);
   //#endregion
 
-  const addEvent = () => {
-    if (!isSessionLoading) {
-      if (session) {
-        if (org) {
-          if (isCreator || isSubscribed) setIsEventModalOpen(true);
-          else
-            toast({
-              status: "error",
-              title: `Vous devez être adhérent ${orgTypeFull(
-                org.orgType
-              )} pour ajouter un événement`
-            });
-        } else setIsEventModalOpen(true);
-      } else if (setIsLogin && isLogin) {
-        setIsLogin(isLogin + 1);
-      }
-    }
-  };
-
   const addRepeatedEvents = (events: IEvent[]) => {
     let array = [];
 
@@ -161,11 +140,13 @@ export const EventsList = ({
           end
         });
 
-        array.push({
-          ...event,
-          eventMinDate: start,
-          eventMaxDate: end
-        });
+        if (compareDesc(today, start) !== -1) {
+          array.push({
+            ...event,
+            eventMinDate: start,
+            eventMaxDate: end
+          });
+        }
 
         if (event.otherDays) {
           for (const otherDay of event.otherDays) {
@@ -597,7 +578,24 @@ export const EventsList = ({
             colorScheme="teal"
             leftIcon={<AddIcon />}
             mb={5}
-            onClick={addEvent}
+            onClick={() => {
+              if (!isSessionLoading) {
+                if (session) {
+                  if (org) {
+                    if (isCreator || isSubscribed) setIsEventModalOpen(true);
+                    else
+                      toast({
+                        status: "error",
+                        title: `Vous devez être adhérent ${orgTypeFull(
+                          org.orgType
+                        )} pour ajouter un événement`
+                      });
+                  } else setIsEventModalOpen(true);
+                } else if (setIsLogin && isLogin) {
+                  setIsLogin(isLogin + 1);
+                }
+              }
+            }}
             data-cy="addEvent"
           >
             Ajouter un événement

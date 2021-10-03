@@ -1874,10 +1874,10 @@
   resolved "https://registry.yarnpkg.com/@react-google-maps/marker-clusterer/-/marker-clusterer-2.2.0.tgz#a1d635ce9a5b55f1e48fddc6acafc0e1128a6476"
   integrity sha512-QaQAfY/FdaSwPmm0JnW9AW+t0ocfUYmuso9WmeIMwTRCqcqNxc4GFe5uT0LDLmsYt/wxAeYoGWVaD8sd/Vquig==
 
-"@reduxjs/toolkit@^1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@reduxjs/toolkit/-/toolkit-1.6.0.tgz#0a17c6941c57341f8b31e982352b495ab69d5add"
-  integrity sha512-eGL50G+Vj5AG5uD0lineb6rRtbs96M8+hxbcwkHpZ8LQcmt0Bm33WyBSnj5AweLkjQ7ZP+KFRDHiLMznljRQ3A==
+"@reduxjs/toolkit@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@reduxjs/toolkit/-/toolkit-1.6.1.tgz#7bc83b47352a663bf28db01e79d17ba54b98ade9"
+  integrity sha512-pa3nqclCJaZPAyBhruQtiRwtTjottRrVJqziVZcWzI73i6L3miLTtUyWfauwv08HWtiXLx1xGyGt+yLFfW/d0A==
   dependencies:
     immer "^9.0.1"
     redux "^4.1.0"
@@ -5543,10 +5543,10 @@ next-pwa@^5.2.21:
     workbox-webpack-plugin "^6.1.5"
     workbox-window "^6.1.5"
 
-next-redux-wrapper@^7.0.2:
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/next-redux-wrapper/-/next-redux-wrapper-7.0.2.tgz#f4bedcd6062beb7b1a72f6b01f9d3626b74b8741"
-  integrity sha512-cEAjgA0QZmY4PtvSGgmmqusGzlTSycICdKRKLWnekvPwwjRGTiJO3ey8kpkmlXMJ98KcBFASspiwvR1A1MnHGQ==
+next-redux-wrapper@^7.0.5:
+  version "7.0.5"
+  resolved "https://registry.yarnpkg.com/next-redux-wrapper/-/next-redux-wrapper-7.0.5.tgz#109cd3fe02183b18fbd094924cfcbd21262039dc"
+  integrity sha512-UFXdAWG5i+GFT8+Hoqpx3GArkPh34fVWF9YoA2VSHlBzsrPtnRd7NWM6FNSYUennpommTpWJ09mu+r/1UxyIkg==
 
 next@^11.0.0:
   version "11.0.1"

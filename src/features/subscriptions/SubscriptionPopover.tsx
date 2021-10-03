@@ -2,7 +2,8 @@ import {
   BellIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  EmailIcon
+  EmailIcon,
+  QuestionIcon
 } from "@chakra-ui/icons";
 import {
   Popover,
@@ -24,7 +25,9 @@ import {
   FormLabel,
   useToast,
   PopoverHeader,
-  Text
+  Text,
+  Alert,
+  AlertIcon
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useEffect, useState } from "react";
@@ -34,11 +37,12 @@ import { Link } from "features/common";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { Category, IEvent } from "models/Event";
-import type { IOrg } from "models/Org";
+import { IOrg, orgTypeFull4 } from "models/Org";
 import {
   IEventSubscription,
   IOrgSubscription,
   ISubscription,
+  ITopicSubscription,
   SubscriptionTypes
 } from "models/Subscription";
 import { useAppDispatch } from "store";
@@ -51,13 +55,14 @@ import {
 import { refetchSubscription } from "./subscriptionSlice";
 import { ITopic } from "models/Topic";
 
-const setAllItems = (
-  checked: boolean
-): { [key: number]: { checked: boolean } } =>
+const setAllItems = (payload: {
+  checked: boolean;
+  topic?: ITopic;
+}): { [key: number]: { checked: boolean } } =>
   Object.keys(Category).reduce((obj, key) => {
     const k = parseInt(key);
     if (k === 0) return obj;
-    return { ...obj, [k]: { checked } };
+    return { ...obj, [k]: payload };
   }, {});
 
 export const SubscriptionPopover = ({
@@ -133,9 +138,10 @@ export const SubscriptionPopover = ({
       topic: ITopic;
     };
   }>({});
-  const isAllTopics = Object.keys(topics).every(
-    (topicId) => topics[topicId].checked
-  );
+  const isDisabled = !Object.keys(topics).length;
+  const isAllTopics =
+    !isDisabled &&
+    Object.keys(topics).every((topicId) => topics[topicId].checked);
 
   useEffect(() => {
     if (!subQuery.data) return;
@@ -212,13 +218,21 @@ export const SubscriptionPopover = ({
         { topic }: { topic: ITopic }
       ) => {
         const topicId = topic._id || "";
-        return {
-          ...obj,
-          [topicId]: {
-            topic,
-            checked: true
-          }
-        };
+
+        if (
+          (org && topic.org?._id === org._id) ||
+          (event && topic.event?._id === event._id)
+        ) {
+          return {
+            ...obj,
+            [topicId]: {
+              topic,
+              checked: true
+            }
+          };
+        }
+
+        return obj;
       },
       {}
     );
@@ -294,6 +308,21 @@ export const SubscriptionPopover = ({
 
   const onStep2Submit = async () => {
     let payload: Partial<ISubscription> = {};
+    let topicSubscriptions: ITopicSubscription[] | undefined = Object.keys(
+      topics
+    )
+      .filter((topicId) => topics[topicId].checked)
+      .map((topicId) => {
+        const { topic } = topics[topicId];
+        return {
+          topic,
+          emailNotif: notifType === "email",
+          pushNotif: notifType === "push"
+        };
+      });
+
+    topicSubscriptions =
+      topicSubscriptions.length > 0 ? topicSubscriptions : undefined;
 
     if (!subQuery.data || !followerSubscription) {
       if (org) {
@@ -315,6 +344,8 @@ export const SubscriptionPopover = ({
           }
         ];
 
+        payload.topics = topicSubscriptions;
+
         await addSubscription({ payload }).unwrap();
         toast({
           title: `Vous êtes maintenant abonné à ${
@@ -323,11 +354,7 @@ export const SubscriptionPopover = ({
           status: "success"
         });
       }
-
-      return;
-    }
-
-    if ("eventCategories" in followerSubscription) {
+    } else if ("orgId" in followerSubscription) {
       payload.orgs = [
         {
           ...followerSubscription,
@@ -356,27 +383,27 @@ export const SubscriptionPopover = ({
             })
         }
       ];
-
-      await addSubscription({
-        payload,
-        email: userEmail
-      }).unwrap();
-      query.refetch();
-      toast({
-        title: `Votre abonnement à ${
-          org ? org.orgName : event!.eventName
-        } a bien été modifié !`,
-        status: "success"
-      });
     }
+
+    payload.topics = topicSubscriptions;
+
+    await addSubscription({
+      payload,
+      email: userEmail
+    }).unwrap();
+    query.refetch();
+    toast({
+      title: `Votre abonnement à ${
+        org ? org.orgName : event!.eventName
+      } a bien été modifié !`,
+      status: "success"
+    });
   };
 
   const step2 = (
     <PopoverContent>
       {/* <PopoverCloseButton /> */}
       <PopoverHeader>
-        <Text>{userEmail}</Text>
-
         {subQuery.data && followerSubscription && (
           <Link
             href={`/unsubscribe/${
@@ -409,7 +436,9 @@ export const SubscriptionPopover = ({
                           )
                         }
                         onChange={(e) =>
-                          setEventCategories(setAllItems(e.target.checked))
+                          setEventCategories(
+                            setAllItems({ checked: e.target.checked })
+                          )
                         }
                       >
                         Événements
@@ -467,22 +496,37 @@ export const SubscriptionPopover = ({
                   )}
 
                   <Checkbox
+                    mt={3}
                     mb={1}
                     isChecked={isAllTopics}
+                    isDisabled={isDisabled}
+                    title={
+                      isDisabled
+                        ? `Vous êtes abonné à aucune discussion`
+                        : undefined
+                    }
                     isIndeterminate={
                       !isAllTopics &&
                       Object.keys(topics).some(
-                        (key) => topics[parseInt(key)].checked
+                        (topicId) => topics[topicId].checked
                       )
                     }
                     onChange={(e) =>
-                      setEventCategories(setAllItems(e.target.checked))
+                      setTopics(
+                        Object.keys(topics).reduce((obj, topicId) => {
+                          const topic = topics[topicId];
+                          return {
+                            ...obj,
+                            [topicId]: { ...topic, checked: e.target.checked }
+                          };
+                        }, {})
+                      )
                     }
                   >
                     Discussions
                   </Checkbox>
 
-                  {subQuery.data.topics.length > 0 && (
+                  {!isDisabled && (
                     <Box ml={3}>
                       <Link onClick={() => setShowTopics(!showTopics)}>
                         <FormLabel mb={1} cursor="pointer">

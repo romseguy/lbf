@@ -1,5 +1,3 @@
-import { Visibility as EventVisibility } from "models/Event";
-import { IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
 import { ArrowBackIcon, EditIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -15,13 +13,12 @@ import {
   AlertIcon,
   IconButton
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useRouter } from "next/router";
-import { useSession } from "hooks/useAuth";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import {
   Button,
@@ -30,22 +27,30 @@ import {
   IconFooter,
   Link
 } from "features/common";
+import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
-import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import { ProjectsList } from "features/projects/ProjectsList";
+import {
+  useAddSubscriptionMutation,
+  useGetSubscriptionQuery
+} from "features/subscriptions/subscriptionsApi";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import {
   isFollowedBy,
-  isSubscribedBy
+  isSubscribedBy,
+  selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
+import { useSession } from "hooks/useAuth";
+import { Visibility as EventVisibility } from "models/Event";
+import { IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
 import { OrgConfigPanel } from "./OrgConfigPanel";
-import { selectOrgRefetch } from "./orgSlice";
 import { OrgPageTabs } from "./OrgPageTabs";
-import { ProjectsList } from "features/projects/ProjectsList";
+import { selectOrgRefetch } from "./orgSlice";
 import { useGetOrgQuery } from "./orgsApi";
-import { DocumentsList } from "features/documents/DocumentsList";
+import { SubscriptionTypes } from "models/Subscription";
 
 export type Visibility = {
   isVisible: {
@@ -80,6 +85,7 @@ export const OrgPage = ({
 
   const refetchOrg = useSelector(selectOrgRefetch);
   useEffect(() => {
+    console.log("refetching org");
     orgQuery.refetch();
     setIsEdit(false);
   }, [router.asPath, refetchOrg]);
@@ -98,8 +104,14 @@ export const OrgPage = ({
   //#endregion
 
   //#region sub
+  const [addSubscription, addSubscriptionMutation] =
+    useAddSubscriptionMutation();
   const subQuery = useGetSubscriptionQuery(userEmail);
-
+  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    console.log("refetching subscription");
+    subQuery.refetch();
+  }, [subscriptionRefetch]);
   const isFollowed = isFollowedBy({ org, subQuery });
   const isSubscribed = isSubscribedBy(org, subQuery);
   //#endregion
@@ -146,25 +158,55 @@ export const OrgPage = ({
         </Button>
       ) : null}
 
-      {!isCreator && !isConfig && (
+      {!subQuery.isLoading && !isCreator && !isConfig && (
         <Flex>
-          <Box mr={3}>
-            <SubscriptionPopover
-              org={org}
-              query={orgQuery}
-              subQuery={subQuery}
-              followerSubscription={isFollowed}
-              //isLoading={subQuery.isLoading || subQuery.isFetching}
-            />
-          </Box>
-          <SubscriptionPopover
-            org={org}
-            query={orgQuery}
-            subQuery={subQuery}
-            followerSubscription={isFollowed}
-            notifType="push"
-            //isLoading={subQuery.isLoading || subQuery.isFetching}
-          />
+          {subQuery.isError ||
+          !subQuery.data?.orgs.find(
+            (orgSubscription) => orgSubscription.orgId === org._id
+          ) ? (
+            <Button
+              colorScheme="teal"
+              onClick={async () => {
+                const payload = {
+                  orgs: [
+                    {
+                      type: SubscriptionTypes.FOLLOWER,
+                      org,
+                      orgId: org._id
+                    }
+                  ]
+                };
+                await addSubscription({ payload }).unwrap();
+                toast({
+                  title: `Vous êtes maintenant abonné à ${org.orgName} !`,
+                  status: "success"
+                });
+                subQuery.refetch();
+              }}
+            >
+              S'abonner à {org.orgName}
+            </Button>
+          ) : (
+            <>
+              <Box mr={3}>
+                <SubscriptionPopover
+                  org={org}
+                  query={orgQuery}
+                  subQuery={subQuery}
+                  followerSubscription={isFollowed}
+                  //isLoading={subQuery.isLoading || subQuery.isFetching}
+                />
+              </Box>
+              <SubscriptionPopover
+                org={org}
+                query={orgQuery}
+                subQuery={subQuery}
+                followerSubscription={isFollowed}
+                notifType="push"
+                //isLoading={subQuery.isLoading || subQuery.isFetching}
+              />
+            </>
+          )}
         </Flex>
       )}
 

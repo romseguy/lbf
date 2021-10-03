@@ -4,10 +4,21 @@ import type { ITopic } from "./Topic";
 import type { IUser } from "models/User";
 import { Schema, Types } from "mongoose";
 
+export interface ISubscription {
+  _id: string;
+  user?: IUser | string;
+  email?: string;
+  events: IEventSubscription[];
+  orgs: IOrgSubscription[];
+  topics: ITopicSubscription[];
+  createdBy: IUser | string;
+}
+
 export interface IEventSubscription {
   event: IEvent;
   eventId: string;
 }
+
 export interface IOrgSubscription {
   org: IOrg;
   orgId: string;
@@ -18,17 +29,11 @@ export interface IOrgSubscription {
     pushNotif: boolean;
   }[];
 }
+
 export interface ITopicSubscription {
+  emailNotif: boolean;
+  pushNotif: boolean;
   topic: ITopic;
-}
-export interface ISubscription {
-  _id: string;
-  user?: IUser | string;
-  email?: string;
-  events: IEventSubscription[];
-  orgs: IOrgSubscription[];
-  topics: ITopicSubscription[];
-  createdBy: IUser | string;
 }
 
 export const SubscriptionTypes: { [key: string]: string } = {
@@ -43,6 +48,7 @@ export const SubscriptionSchema = new Schema<ISubscription>(
       ref: "User"
     },
     email: String,
+    // IEventSubscription
     events: [
       {
         eventId: {
@@ -55,6 +61,7 @@ export const SubscriptionSchema = new Schema<ISubscription>(
         }
       }
     ],
+    // IOrgSubscription
     orgs: [
       {
         orgId: {
@@ -84,8 +91,11 @@ export const SubscriptionSchema = new Schema<ISubscription>(
         }
       }
     ],
+    // ITopicSubscription
     topics: [
       {
+        emailNotif: Boolean,
+        pushNotif: Boolean,
         topic: {
           type: Schema.Types.ObjectId,
           ref: "Topic"
