@@ -5,12 +5,12 @@ import type { IUser } from "models/User";
 import type { Base64Image } from "utils/image";
 import { Schema, Types } from "mongoose";
 
-export interface IEvent {
+export interface IEvent<T = string> {
   _id: string;
   eventName: string;
   eventUrl: string;
-  eventMinDate: string;
-  eventMaxDate: string;
+  eventMinDate: T;
+  eventMaxDate: T;
   eventAddress?: string;
   eventCity?: string;
   eventLat?: number;

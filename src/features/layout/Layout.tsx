@@ -1,15 +1,24 @@
+import {
+  Flex,
+  BoxProps,
+  useColorMode,
+  Box,
+  Button,
+  Icon,
+  Tooltip
+} from "@chakra-ui/react";
+import Head from "next/head";
 import NextNprogress from "nextjs-progressbar";
 import React, { useEffect, useState } from "react";
 import { Offline } from "react-detect-offline";
+import { FaGithub } from "react-icons/fa";
 import { css } from "twin.macro";
-import { Flex, BoxProps, useColorMode, Box, Icon } from "@chakra-ui/react";
-import Head from "next/head";
-import { DarkModeSwitch } from "features/common";
+import { DarkModeSwitch, Link } from "features/common";
 import { Header, Main, Nav, Footer } from "features/layout";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import type { Base64Image } from "utils/image";
 import { breakpoints } from "theme/theme";
+import type { Base64Image } from "utils/image";
 
 const defaultTitle = "Au courant de...";
 
@@ -120,7 +129,31 @@ export const Layout = ({
         <Nav py={hasVerticalScrollbar ? 7 : 0} minH="96px" isLogin={isLogin} />
         <Main {...props}>{children}</Main>
         <Footer>
-          <DarkModeSwitch />
+          <Flex
+            justifyContent="space-between"
+            alignItems="center"
+            pl={5}
+            pr={5}
+            pb={5}
+          >
+            <Tooltip
+              label="Ce projet est open-source, financé par son seul créateur."
+              hasArrow
+            >
+              <span>
+                <Link
+                  onClick={() =>
+                    alert("Bientôt disponible. Merci de l'intention !")
+                  }
+                >
+                  <Button leftIcon={<Icon as={FaGithub} boxSize={6} />}>
+                    Faire un don
+                  </Button>
+                </Link>
+              </span>
+            </Tooltip>
+            <DarkModeSwitch />
+          </Flex>
         </Footer>
 
         {process.env.NODE_ENV === "production" && (

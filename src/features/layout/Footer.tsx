@@ -1,10 +1,10 @@
-import { Flex, FlexProps, useColorMode } from "@chakra-ui/react";
+import { Box, BoxProps, useColorMode } from "@chakra-ui/react";
 import tw, { css } from "twin.macro";
 
 export const Footer = ({
   children,
   ...props
-}: FlexProps & { children: React.ReactNode }) => {
+}: BoxProps & { children: React.ReactNode }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const styles = css`
@@ -12,17 +12,8 @@ export const Footer = ({
   `;
 
   return (
-    <Flex
-      as="footer"
-      css={styles}
-      alignItems="center"
-      justifyContent="flex-end"
-      pr={3}
-      // py={5}
-      // px={10}
-      {...props}
-    >
+    <Box as="footer" css={styles} {...props}>
       {children}
-    </Flex>
+    </Box>
   );
 };
