@@ -26,6 +26,7 @@ import { css } from "twin.macro";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import { Category, IEvent, Visibility } from "models/Event";
 import { IOrg } from "models/Org";
+import { useEditOrgMutation } from "features/orgs/orgsApi";
 
 const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
   eventVisibility === Visibility.SUBSCRIBERS ? (
@@ -50,6 +51,7 @@ const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
 export const EventsListItem = ({
   deleteEvent,
   editEvent,
+  editOrg,
   event,
   index,
   isCreator,
@@ -70,6 +72,7 @@ export const EventsListItem = ({
 }: {
   deleteEvent: any;
   editEvent: any;
+  editOrg: any;
   event: IEvent<Date>;
   eventHeader?: any;
   index: number;
@@ -90,6 +93,12 @@ export const EventsListItem = ({
 }) => {
   const minDate = event.eventMinDate;
   const maxDate = event.eventMaxDate;
+  const showIsApproved = org && isCreator;
+  const showEventCategory: boolean = event.eventCategory ? true : false;
+  const showEventVisiblity = !!org;
+  const extraColumns = [showIsApproved, showEventCategory, showEventVisiblity]
+    .filter((b) => b)
+    .flatMap((b) => "auto ");
 
   let notifiedCount = 0;
   let canSendCount = 0;
@@ -134,9 +143,24 @@ export const EventsListItem = ({
         dark={{ bg: "gray.700" }}
         alignItems="center"
       >
-        <Flex pl={3} alignItems="center">
-          {org && isCreator && (
-            <>
+        {/* <Flex pl={3} alignItems="center"> */}
+        <Grid
+          alignItems="center"
+          css={css`
+            grid-template-columns: auto ${extraColumns[0]} 1fr;
+
+            @media (max-width: 700px) {
+              grid-template-columns: 1fr !important;
+
+              &:first-of-type {
+                padding-top: 4px;
+              }
+            }
+          `}
+        >
+          {/* isApproved */}
+          {showIsApproved && (
+            <GridItem pl={1}>
               {event.isApproved ? (
                 <Tooltip label="Approuvé">
                   <CheckCircleIcon color="green" />
@@ -171,6 +195,7 @@ export const EventsListItem = ({
                       : ""
                   }
                   bg="transparent"
+                  height="auto"
                   minWidth={0}
                   mx={2}
                   _hover={{
@@ -229,88 +254,114 @@ export const EventsListItem = ({
                   }}
                 />
               </Tooltip>
-            </>
+            </GridItem>
           )}
 
+          {/* eventCategory */}
           {event.eventCategory && (
-            <Tag
-              color="white"
-              bgColor={
-                Category[event.eventCategory].bgColor === "transparent"
-                  ? isDark
-                    ? "whiteAlpha.100"
-                    : "blackAlpha.600"
-                  : Category[event.eventCategory].bgColor
-              }
-              mr={1}
-            >
-              {Category[event.eventCategory].label}
-            </Tag>
+            <GridItem pl={1}>
+              <Tag
+                color="white"
+                bgColor={
+                  Category[event.eventCategory].bgColor === "transparent"
+                    ? isDark
+                      ? "whiteAlpha.100"
+                      : "blackAlpha.600"
+                    : Category[event.eventCategory].bgColor
+                }
+                mr={1}
+              >
+                {Category[event.eventCategory].label}
+              </Tag>
+            </GridItem>
           )}
 
-          <Link
-            className="rainbow-text"
-            css={css`
-              letter-spacing: 0.1em;
-            `}
-            mr={1}
-            size="larger"
-            href={`/${encodeURIComponent(event.eventUrl)}`}
-            shallow
-          >
-            {event.eventName}
-          </Link>
+          {/* eventName */}
+          <GridItem pl={1}>
+            <Link
+              className="rainbow-text"
+              css={css`
+                letter-spacing: 0.1em;
+              `}
+              mr={1}
+              size="larger"
+              href={`/${encodeURIComponent(event.eventUrl)}`}
+              shallow
+            >
+              {event.eventName}
+            </Link>
+          </GridItem>
 
-          {org && <EventVisibility eventVisibility={event.eventVisibility} />}
+          <GridItem pl={1}>
+            {/* eventVisibility */}
+            {org && <EventVisibility eventVisibility={event.eventVisibility} />}
 
-          {session && !event.forwardedFrom ? (
-            <Tooltip label="Rediffuser">
-              <span>
+            {/* eventForwardedFrom */}
+            {session && !event.forwardedFrom ? (
+              <Tooltip label="Rediffuser">
+                <span>
+                  <IconButton
+                    aria-label="Rediffuser"
+                    icon={<FaRetweet />}
+                    bg="transparent"
+                    _hover={{ background: "transparent", color: "green" }}
+                    minWidth={0}
+                    height="auto"
+                    onClick={() => {
+                      setEventToForward({
+                        ...event,
+                        eventMinDate: formatISO(minDate),
+                        eventMaxDate: formatISO(maxDate)
+                      });
+                    }}
+                  />
+                </span>
+              </Tooltip>
+            ) : org &&
+              event.forwardedFrom &&
+              event.forwardedFrom.eventId &&
+              session?.user.userId === event.createdBy ? (
+              <Tooltip label="Annuler la rediffusion">
                 <IconButton
-                  aria-label="Rediffuser"
-                  icon={<FaRetweet />}
+                  aria-label="Annuler la rediffusion"
+                  icon={<DeleteIcon />}
                   bg="transparent"
-                  _hover={{ background: "transparent", color: "green" }}
+                  height="auto"
                   minWidth={0}
                   ml={2}
-                  onClick={() => {
-                    setEventToForward({
-                      ...event,
-                      eventMinDate: formatISO(minDate),
-                      eventMaxDate: formatISO(maxDate)
-                    });
-                  }}
-                />
-              </span>
-            </Tooltip>
-          ) : event.forwardedFrom &&
-            event.forwardedFrom.eventId &&
-            session?.user.userId === event.createdBy ? (
-            <Tooltip label="Annuler la rediffusion">
-              <IconButton
-                aria-label="Annuler la rediffusion"
-                icon={<DeleteIcon />}
-                bg="transparent"
-                minWidth={0}
-                ml={2}
-                mr={2}
-                _hover={{ background: "transparent", color: "red" }}
-                onClick={async () => {
-                  if (!event.forwardedFrom.eventUrl) {
-                    console.log(event);
-                    return;
-                  }
+                  mr={2}
+                  _hover={{ background: "transparent", color: "red" }}
+                  onClick={async () => {
+                    const confirmed = confirm(
+                      "Êtes vous sûr de vouloir annuler la rediffusion ?"
+                    );
 
-                  const confirmed = confirm(
-                    "Êtes vous sûr de vouloir annuler la rediffusion ?"
-                  );
+                    if (confirmed) {
+                      if (event.eventOrgs.length <= 1) {
+                        await deleteEvent({
+                          eventUrl: event.forwardedFrom.eventId
+                        }).unwrap();
+                      } else {
+                        await editEvent({
+                          eventUrl: event.forwardedFrom.eventId,
+                          payload: {
+                            eventOrgs: event.eventOrgs.filter((eventOrg) =>
+                              typeof eventOrg === "object"
+                                ? eventOrg._id !== org._id
+                                : eventOrg !== org._id
+                            )
+                          }
+                        });
+                        await editOrg({
+                          orgUrl: org.orgUrl,
+                          payload: {
+                            orgEvents: org.orgEvents.filter(
+                              (orgEvent) => orgEvent._id !== event._id
+                            )
+                          }
+                        });
+                      }
 
-                  if (confirmed) {
-                    const deletedEvent = await deleteEvent(
-                      event.forwardedFrom.eventUrl
-                    ).unwrap();
-
-                    if (deletedEvent) {
                       orgQuery.refetch();
                       toast({
                         title: `La rediffusion a bien été annulée.`,
@@ -318,22 +369,23 @@ export const EventsListItem = ({
                         isClosable: true
                       });
                     }
-                  }
-                }}
-              />
-            </Tooltip>
-          ) : (
-            event.forwardedFrom &&
-            event.forwardedFrom.eventId &&
-            org && (
-              <Tooltip label={`Rediffusé par ${org.orgName}`}>
-                <span>
-                  <Icon as={FaRetweet} color="green" ml={2} />
-                </span>
+                  }}
+                />
               </Tooltip>
-            )
-          )}
-        </Flex>
+            ) : (
+              event.forwardedFrom &&
+              event.forwardedFrom.eventId &&
+              org && (
+                <Tooltip label={`Rediffusé par ${org.orgName}`}>
+                  <span>
+                    <Icon as={FaRetweet} color="green" ml={2} />
+                  </span>
+                </Tooltip>
+              )
+            )}
+          </GridItem>
+        </Grid>
+        {/* </Flex> */}
       </GridItem>
 
       <GridItem

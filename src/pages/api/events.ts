@@ -89,8 +89,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
       const { body }: { body: IEvent } = req;
       const eventUrl = normalize(body.eventName);
 
-      let event: (IEvent & Document<any, any, any>) | null;
-      let eventOrgs: IOrg[] = body.eventOrgs;
+      let event: (IEvent & Document<any, any, any>) | null = null;
+      let eventOrgs: IOrg[] = [];
 
       if (body.forwardedFrom) {
         event = await models.Event.findOne({ eventUrl });
@@ -100,22 +100,21 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
             "orgEvents"
           );
 
-          if (o) {
-            if (
-              !o.orgEvents.find((orgEvent) =>
-                equals(orgEvent.eventUrl, eventUrl)
-              )
-            ) {
-              eventOrgs.push(o._id);
-            }
+          if (
+            o &&
+            !o.orgEvents.find((orgEvent) => equals(orgEvent.eventUrl, eventUrl))
+          ) {
+            eventOrgs.push(o._id);
           }
         }
 
         if (eventOrgs.length > 0) {
           if (event) {
             console.log(
-              "event has been forwarded once, update it with new orgs"
+              "event has already been forwarded => adding new eventOrgs"
             );
+            event.eventOrgs = event.eventOrgs.concat(eventOrgs);
+            await event.save();
           } else {
             event = await models.Event.create({ ...body, eventUrl, eventOrgs });
           }
@@ -161,14 +160,16 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
         }
       }
 
-      await models.Org.updateMany(
-        { _id: eventOrgs },
-        {
-          $push: {
-            orgEvents: event?._id
+      if (event) {
+        await models.Org.updateMany(
+          { _id: eventOrgs },
+          {
+            $push: {
+              orgEvents: event?._id
+            }
           }
-        }
-      );
+        );
+      }
 
       res.status(200).json(event);
     } catch (error: any) {

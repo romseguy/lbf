@@ -1,6 +1,4 @@
-import type { IEvent } from "models/Event";
-import React, { useState } from "react";
-import ReactSelect from "react-select";
+import { ErrorMessage } from "@hookform/error-message";
 import {
   FormControl,
   FormErrorMessage,
@@ -12,14 +10,20 @@ import {
   useToast,
   FormLabel
 } from "@chakra-ui/react";
-import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { useSession } from "hooks/useAuth";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ErrorMessage } from "@hookform/error-message";
-import { IOrg } from "models/Org";
-import { useAddEventMutation } from "features/events/eventsApi";
-import { handleError } from "utils/form";
+import ReactSelect from "react-select";
+import { useSession } from "hooks/useAuth";
 import { ErrorMessageText } from "features/common";
+import {
+  useAddEventMutation,
+  useGetEventQuery
+} from "features/events/eventsApi";
+import { useGetOrgsQuery } from "features/orgs/orgsApi";
+import type { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
+import { handleError } from "utils/form";
 
 export const EventForwardForm = ({
   ...props
@@ -29,25 +33,34 @@ export const EventForwardForm = ({
   onClose: () => void;
   onSubmit?: () => void;
 }) => {
+  const router = useRouter();
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
+
   const [addEvent, addEventMutation] = useAddEventMutation();
+  //const { data: forwardedEvent } = useGetEventQuery({eventUrl: props.event._id})
 
   const [isLoading, setIsLoading] = useState(false);
 
   //#region form state
   const { control, errors, handleSubmit, setError, clearErrors } = useForm();
-  const { data, isLoading: isQueryLoading } = useGetOrgsQuery({
+  const {
+    data: orgs,
+    isLoading: isQueryLoading,
+    refetch: refetchOrgs
+  } = useGetOrgsQuery({
     populate: "orgSubscriptions orgEvents",
     createdBy: session?.user.userId
   });
-  const myOrgs = data?.filter((org) => {
-    if (org.orgEvents.find((orgEvent) => orgEvent._id === props.event._id)) {
-      return false;
-    }
-
-    return true;
-  });
+  const myOrgs = orgs?.filter(
+    (org) =>
+      !org.orgEvents.find(
+        (orgEvent) => orgEvent.forwardedFrom.eventId === props.event._id
+      )
+  );
+  useEffect(() => {
+    refetchOrgs();
+  }, [router.asPath]);
   //#endregion
 
   const onChange = () => {
@@ -75,6 +88,7 @@ export const EventForwardForm = ({
         isClosable: true
       });
 
+      refetchOrgs();
       props.onSubmit && props.onSubmit();
     } catch (error) {
       handleError(error, (message, field) => {

@@ -26,8 +26,8 @@ export const eventApi = createApi({
         body: { ...payload, topicNotif }
       })
     }),
-    deleteEvent: build.mutation<IEvent, string>({
-      query: (eventUrl) => ({ url: `event/${eventUrl}`, method: "DELETE" })
+    deleteEvent: build.mutation<IEvent, { eventUrl: string }>({
+      query: ({ eventUrl }) => ({ url: `event/${eventUrl}`, method: "DELETE" })
     }),
     editEvent: build.mutation<
       { emailList?: string[] },

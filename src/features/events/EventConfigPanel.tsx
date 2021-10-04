@@ -83,9 +83,9 @@ export const EventConfigPanel = ({
               }
               onClick={async () => {
                 try {
-                  const deletedEvent = await deleteEvent(
-                    event.eventUrl
-                  ).unwrap();
+                  const deletedEvent = await deleteEvent({
+                    eventUrl: event.eventUrl
+                  }).unwrap();
 
                   if (deletedEvent) {
                     await router.push(`/`);

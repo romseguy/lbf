@@ -38,7 +38,7 @@ import {
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { useRouter } from "next/router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FaGlobeEurope, FaRetweet } from "react-icons/fa";
 import { IoIosPeople, IoIosPerson, IoMdPerson } from "react-icons/io";
 import { css } from "twin.macro";
@@ -52,11 +52,13 @@ import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { useDeleteEventMutation, useEditEventMutation } from "./eventsApi";
 import { EventsListItem } from "./EventsListItem";
+import { useEditOrgMutation } from "features/orgs/orgsApi";
 
 const ToggleEvents = ({
   previousEvents,
   showPreviousEvents,
   setShowPreviousEvents,
+  currentEvents,
   nextEvents,
   showNextEvents,
   setShowNextEvents
@@ -64,6 +66,7 @@ const ToggleEvents = ({
   previousEvents: IEvent<Date>[];
   showPreviousEvents: boolean;
   setShowPreviousEvents: (show: boolean) => void;
+  currentEvents: IEvent<Date>[];
   nextEvents: IEvent<Date>[];
   showNextEvents: boolean;
   setShowNextEvents: (show: boolean) => void;
@@ -73,7 +76,7 @@ const ToggleEvents = ({
       <Box>
         {!showNextEvents && (
           <>
-            {previousEvents.length > 0 && (
+            {previousEvents.length > 0 && currentEvents.length > 0 && (
               <Link
                 fontSize="smaller"
                 variant="underline"
@@ -118,15 +121,18 @@ const ToggleEvents = ({
 };
 
 export const EventsList = ({
+  eventsQuery,
   org,
   orgQuery,
   isCreator,
   isSubscribed,
   isLogin,
   setIsLogin,
+  selectedCategories,
   ...props
 }: {
   events: IEvent[];
+  eventsQuery?: any;
   org?: IOrg;
   orgQuery?: any;
   eventHeader?: any;
@@ -134,6 +140,7 @@ export const EventsList = ({
   isSubscribed?: boolean;
   isLogin?: number;
   setIsLogin?: (isLogin: number) => void;
+  selectedCategories?: number[];
 }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
@@ -145,6 +152,7 @@ export const EventsList = ({
 
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
+  const [editOrg, editOrgMutation] = useEditOrgMutation();
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
@@ -153,6 +161,10 @@ export const EventsList = ({
   const [eventToForward, setEventToForward] = useState<IEvent | null>(null);
   const [showPreviousEvents, setShowPreviousEvents] = useState(false);
   const [showNextEvents, setShowNextEvents] = useState(false);
+  useEffect(() => {
+    setShowPreviousEvents(false);
+    setShowNextEvents(false);
+  }, [selectedCategories]);
   //#endregion
 
   //#region org
@@ -172,6 +184,7 @@ export const EventsList = ({
   const eventsListItemProps = {
     deleteEvent,
     editEvent,
+    editOrg,
     eventHeader: props.eventHeader,
     isCreator,
     isDark,
@@ -318,9 +331,15 @@ export const EventsList = ({
   const events = useMemo(() => {
     let currentDateP: Date | null = null;
     let currentDate: Date | null = null;
-    const { previousEvents, currentEvents, nextEvents } = getEvents(
-      props.events
-    );
+    let { previousEvents, currentEvents, nextEvents } = getEvents(props.events);
+
+    if (!currentEvents.length) {
+      if (previousEvents.length) {
+        setShowPreviousEvents(true);
+      } else if (nextEvents.length) {
+        setShowNextEvents(true);
+      }
+    }
 
     return (
       <>
@@ -328,6 +347,7 @@ export const EventsList = ({
           previousEvents={previousEvents}
           showPreviousEvents={showPreviousEvents}
           setShowPreviousEvents={setShowPreviousEvents}
+          currentEvents={currentEvents}
           nextEvents={nextEvents}
           showNextEvents={showNextEvents}
           setShowNextEvents={setShowNextEvents}
@@ -507,6 +527,7 @@ export const EventsList = ({
           previousEvents={previousEvents}
           showPreviousEvents={showPreviousEvents}
           setShowPreviousEvents={setShowPreviousEvents}
+          currentEvents={currentEvents}
           nextEvents={nextEvents}
           showNextEvents={showNextEvents}
           setShowNextEvents={setShowNextEvents}

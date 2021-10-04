@@ -38,6 +38,7 @@ handler.get<
     });
 
     if (!event) {
+      // event was forwarded
       event = await models.Event.findOne({
         _id: eventUrl
       });
@@ -266,7 +267,7 @@ handler.put<
 
       let emailList;
 
-      if (body.eventNotif) {
+      if (body.eventNotif && body.eventNotif.length > 0) {
         emailList = await sendEventToOrgFollowers(event, transport);
 
         if (emailList.length > 0) {

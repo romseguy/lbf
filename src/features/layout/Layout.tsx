@@ -146,7 +146,10 @@ export const Layout = ({
                     alert("Bientôt disponible. Merci de l'intention !")
                   }
                 >
-                  <Button leftIcon={<Icon as={FaGithub} boxSize={6} />}>
+                  <Button
+                    leftIcon={<Icon as={FaGithub} boxSize={6} />}
+                    visibility="hidden"
+                  >
                     Faire un don
                   </Button>
                 </Link>
