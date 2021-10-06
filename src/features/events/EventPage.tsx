@@ -3,7 +3,6 @@ import {
   ArrowForwardIcon,
   AtSignIcon,
   CalendarIcon,
-  CheckCircleIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   EditIcon,
@@ -30,32 +29,18 @@ import {
   TabPanels,
   IconButton,
   List,
-  ListIcon,
   ListItem
 } from "@chakra-ui/react";
 import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "hooks/useAuth";
-import {
-  parseISO,
-  format,
-  getHours,
-  intervalToDuration,
-  addHours
-} from "date-fns";
+import { parseISO, format, getHours, addHours } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { css } from "twin.macro";
 import { IoIosPeople } from "react-icons/io";
-import {
-  Button,
-  DateRange,
-  GridHeader,
-  GridItem,
-  IconFooter,
-  Link
-} from "features/common";
+import { Button, GridHeader, GridItem, Link } from "features/common";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
@@ -118,7 +103,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
+  const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region event
   const eventQuery = useGetEventQuery(
@@ -188,7 +173,8 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   useEffect(() => {
     console.log("refetching subscription");
     subQuery.refetch();
-  }, [subscriptionRefetch]);
+  }, [subscriptionRefetch, userEmail]);
+
   const isFollowed = isFollowedBy({ event, subQuery });
   const isSubscribedToAtLeastOneOrg =
     isCreator ||
@@ -203,7 +189,6 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
 
       return false;
     });
-
   //#endregion
 
   //#region local state
@@ -272,42 +257,28 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
       ) : null}
 
       {!subQuery.isLoading && !isCreator && !isConfig && (
-        <>
-          {subQuery.isError ||
-          !subQuery.data?.events.find(
-            (eventSubscription) => eventSubscription.eventId === event._id
-          ) ? (
-            <Button
-              colorScheme="teal"
-              onClick={async () => {
-                const payload = {
-                  events: [
-                    {
-                      event,
-                      eventId: event._id
-                    }
-                  ]
-                };
-                await addSubscription({ payload }).unwrap();
-                toast({
-                  title: `Vous êtes maintenant abonné à ${event.eventName} !`,
-                  status: "success"
-                });
-                subQuery.refetch();
-              }}
-            >
-              S'abonner à {event.eventName}
-            </Button>
-          ) : (
+        <Flex>
+          <>
+            {isFollowed && (
+              <Box mr={3}>
+                <SubscriptionPopover
+                  event={event}
+                  query={eventQuery}
+                  subQuery={subQuery}
+                  followerSubscription={isFollowed}
+                  //isLoading={subQuery.isLoading || subQuery.isFetching}
+                />
+              </Box>
+            )}
             <SubscriptionPopover
               event={event}
               query={eventQuery}
               subQuery={subQuery}
               followerSubscription={isFollowed}
-              isLoading={subQuery.isLoading || subQuery.isFetching}
+              //isLoading={subQuery.isLoading || subQuery.isFetching}
             />
-          )}
-        </>
+          </>
+        </Flex>
       )}
 
       <Box mb={3}>

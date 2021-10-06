@@ -23,7 +23,6 @@ export interface IEvent<T = string> {
   eventVisibility?: string;
   eventOrgs: IOrg[];
   eventSubscriptions: ISubscription[];
-  eventNotif: string[]; // org ids to send an invite to
   eventNotified?: {
     email: string;
     status: string;
@@ -81,10 +80,10 @@ export const isAttending = ({
   email,
   event
 }: {
-  email: string;
+  email?: string;
   event: IEvent;
 }) => {
-  if (email === "") return false;
+  if (!email) return false;
   return !!event.eventNotified?.find(({ email: e, status }) => {
     return e === email && status === StatusTypes.OK;
   });
@@ -94,10 +93,10 @@ export const isNotAttending = ({
   email,
   event
 }: {
-  email: string;
+  email?: string;
   event: IEvent;
 }) => {
-  if (email === "") return false;
+  if (!email) return false;
   return !!event.eventNotified?.find(({ email: e, status }) => {
     return e === email && status === StatusTypes.NOK;
   });
@@ -141,7 +140,6 @@ export const EventSchema = new Schema<IEvent>(
       { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
     ],
     eventTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
-    eventNotif: [{ type: Schema.Types.ObjectId, ref: "Org" }],
     eventNotified: [
       {
         email: String,

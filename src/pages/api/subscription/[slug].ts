@@ -113,12 +113,17 @@ handler.put<NextApiRequest & { query: { slug: string } }, NextApiResponse>(
 handler.delete<
   NextApiRequest & {
     query: { slug: string };
-    body: { orgs?: IOrgSubscription[]; orgId?: string; topicId?: string };
+    body: {
+      events?: IEventSubscription[];
+      orgs?: IOrgSubscription[];
+      orgId?: string;
+      topicId?: string;
+    };
   },
   NextApiResponse
 >(async function removeSubscription(req, res) {
   const {
-    query: { slug: _id },
+    query: { slug: subscriptionId },
     body
   }: {
     query: { slug: string };
@@ -132,7 +137,7 @@ handler.delete<
 
   try {
     let subscription = await models.Subscription.findOne({
-      _id
+      _id: subscriptionId
     });
 
     if (!subscription) {
@@ -140,32 +145,144 @@ handler.delete<
         .status(404)
         .json(
           createServerError(
-            new Error(`L'abonnement ${_id} n'a pas pu être trouvé`)
+            new Error(`L'abonnement ${subscriptionId} n'a pas pu être trouvé`)
           )
         );
     }
 
     if (body.orgs) {
-      // console.log("unsubbing from org", body.orgs[0]);
-      const { orgId, type } = body.orgs[0];
+      let orgSubscription: IOrgSubscription | undefined;
+
+      if (Array.isArray(body.orgs) && body.orgs.length > 0) {
+        orgSubscription = body.orgs[0];
+      }
+
+      // todo http status code unchanged
+      if (!orgSubscription) return res.status(200).json(subscription);
+
+      const { orgId, type } = orgSubscription;
+
+      const org = await models.Org.findOne({ _id: orgId }).populate(
+        "orgSubscriptions"
+      );
+
+      if (!org)
+        return res
+          .status(400)
+          .json(
+            createServerError(
+              new Error(`L'organisation ${orgId} n'a pas pu être trouvé`)
+            )
+          );
+
+      console.log("unsubbing from org", org);
+
+      subscription = await subscription
+        .populate("user", "-securityCode -password")
+        .execPopulate();
+
       subscription.orgs = subscription.orgs.filter(
         (orgSubscription: IOrgSubscription) => {
-          let allow = true;
+          let keep = true;
 
           if (equals(orgSubscription.orgId, orgId)) {
             if (orgSubscription.type === type) {
-              allow = false;
+              keep = false;
             }
           }
 
-          return allow;
+          return keep;
         }
       );
+
+      console.log("saving subscription", subscription);
       await subscription.save();
+
+      res.status(200).json(subscription);
+    } else if (body.orgId) {
+      const org = await models.Org.findOne({ _id: body.orgId }).populate(
+        "orgSubscriptions"
+      );
+
+      if (!org)
+        return res
+          .status(400)
+          .json(
+            createServerError(
+              new Error(`L'organisation ${body.orgId} n'a pas pu être trouvé`)
+            )
+          );
+
+      console.log("unsubbing from org", org);
+
+      org.orgSubscriptions = org.orgSubscriptions.filter((subscription) => {
+        let keep = true;
+
+        if (equals(subscription._id, subscriptionId)) {
+          keep = false;
+        }
+
+        return keep;
+      });
+
+      console.log("saving org", org);
+      await org.save();
+
+      subscription = await subscription
+        .populate("user", "-securityCode -password")
+        .execPopulate();
+
+      subscription.orgs = subscription.orgs.filter(
+        (orgSubscription: IOrgSubscription) => {
+          let keep = true;
+
+          if (equals(orgSubscription.orgId, body.orgId)) {
+            keep = false;
+          }
+
+          return keep;
+        }
+      );
+
+      console.log("saving subscription", subscription);
+      await subscription.save();
+
       res.status(200).json(subscription);
     } else if (body.events) {
-      // console.log("unsubbing from event", body.events[0]);
       const { eventId } = body.events[0];
+      const event = await models.Event.findOne({ _id: eventId }).populate(
+        "eventSubscriptions"
+      );
+
+      if (!event)
+        return res
+          .status(400)
+          .json(
+            createServerError(
+              new Error(`L'événement ${eventId} n'a pas pu être trouvé`)
+            )
+          );
+
+      console.log("unsubbing from event", event);
+
+      subscription = await subscription
+        .populate("user", "-securityCode -password")
+        .execPopulate();
+
+      event.eventSubscriptions = event.eventSubscriptions.filter(
+        (subscription) => {
+          let keep = true;
+          if (
+            subscription.events.find((eventSubscription) =>
+              equals(eventSubscription.eventId, eventId)
+            )
+          )
+            keep = false;
+          return keep;
+        }
+      );
+      await event.save();
+
       subscription.events = subscription.events.filter(
         (eventSubscription: IEventSubscription) => {
           let keep = true;
@@ -177,13 +294,17 @@ handler.delete<
           return keep;
         }
       );
+
+      console.log("saving subscription", subscription);
       await subscription.save();
+
       res.status(200).json(subscription);
     } else if (body.topicId) {
       // console.log("unsubbing from topic", body.topicId);
       subscription = await subscription
         .populate({ path: "topics", populate: { path: "topic" } })
         .execPopulate();
+
       subscription.topics = subscription.topics.filter(
         ({ topic }: { topic: ITopic }) => {
           let allow = false;
@@ -191,32 +312,61 @@ handler.delete<
           return allow;
         }
       );
+
+      console.log("saving subscription", subscription);
       await subscription.save();
+
       res.status(200).json(subscription);
     } else {
-      // console.log("unsubbing user");
-      const { deletedCount } = await models.Subscription.deleteOne({
-        _id
-      });
+      console.log("deleting subscription", subscription);
 
-      if (body.orgId) {
-        const org = await models.Org.findOne({
-          _id: body.orgId
+      for (const eventSubscription of subscription.events) {
+        const event = await models.Event.findOne({
+          _id: eventSubscription.eventId
         });
-
-        if (org) {
-          org.orgSubscriptions = org.orgSubscriptions.filter(
-            (subscription: ISubscription) => {
-              return !equals(subscription._id, _id);
-            }
-          );
-          await org.save();
-        }
+        if (!event) continue;
+        event.eventSubscriptions = event.eventSubscriptions.filter(
+          (subscription) => {
+            let keep = true;
+            if (
+              subscription.events?.find((eventSubscription) =>
+                equals(eventSubscription.eventId, event._id)
+              )
+            )
+              keep = false;
+            return keep;
+          }
+        );
+        await event.save();
       }
+
+      for (const orgSubscription of subscription.orgs) {
+        const org = await models.Org.findOne({ _id: orgSubscription.orgId });
+        if (!org) continue;
+        org.orgSubscriptions = org.orgSubscriptions.filter((subscription) => {
+          let keep = true;
+          if (
+            subscription.orgs?.find((orgSubscription) =>
+              equals(orgSubscription.orgId, org._id)
+            )
+          )
+            keep = false;
+          return keep;
+        });
+        await org.save();
+      }
+
+      const { deletedCount } = await models.Subscription.deleteOne({
+        _id: subscriptionId
+      });
 
       if (deletedCount === 1) {
         res.status(200).json(subscription);
       } else {
+        subscription = await subscription
+          .populate("user", "-securityCode -password")
+          .execPopulate();
+
         const email =
           typeof subscription.user === "object"
             ? subscription.user.email

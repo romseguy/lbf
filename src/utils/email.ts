@@ -21,8 +21,11 @@ export const emailR = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
 export const sendEventToOrgFollowers = async (
   event: IEvent,
+  orgIds: string[],
   transport: any
 ) => {
+  // console.log("sending notifications to event", event);
+
   const emailList: string[] = [];
 
   if (!event.isApproved) {
@@ -33,7 +36,7 @@ export const sendEventToOrgFollowers = async (
     throw new Error("L'événement est organisé par aucune organisation");
   }
 
-  if (!Array.isArray(event.eventNotif) || !event.eventNotif.length) {
+  if (!Array.isArray(orgIds) || !orgIds.length) {
     throw new Error("Aucune organisation spécifiée");
   }
 
@@ -41,8 +44,8 @@ export const sendEventToOrgFollowers = async (
     //console.log("notifying followers from org", org);
     const orgId = typeof org === "object" ? org._id : org;
 
-    for (const eventNotifOrgId of event.eventNotif) {
-      if (!equals(eventNotifOrgId, orgId)) continue;
+    for (const notifOrgId of orgIds) {
+      if (!equals(notifOrgId, orgId)) continue;
 
       for (const orgSubscription of org.orgSubscriptions) {
         const subscription = await models.Subscription.findOne({
@@ -55,10 +58,7 @@ export const sendEventToOrgFollowers = async (
         }
 
         for (const { orgId, type, eventCategories = [] } of subscription.orgs) {
-          if (
-            !equals(eventNotifOrgId, orgId) ||
-            type !== SubscriptionTypes.FOLLOWER
-          )
+          if (!equals(notifOrgId, orgId) || type !== SubscriptionTypes.FOLLOWER)
             continue;
 
           const email =
@@ -126,7 +126,7 @@ export const sendEventToOrgFollowers = async (
               parseISO(event.eventMinDate),
               parseISO(event.eventMaxDate)
             )}</h2>
-            <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">${eventUrl}</a> pour en savoir plus.</p>
+            <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">${eventUrl}</a> pour indiquer si vous souhaitez y participer.</p>
             <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
               org.orgUrl
             }?subscriptionId=${subscription._id}">Se désabonner de ${
@@ -292,7 +292,7 @@ export const sendToAdmin = async ({
       subject: `Un événement attend votre approbation : ${event.eventName}`,
       html: `
         <h1>Nouvel événement : ${event.eventName}</h1>
-        <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}">${process.env.NEXT_PUBLIC_SHORT_URL}/${event.eventUrl}</a> pour en savoir plus.</p>
+        <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}">${process.env.NEXT_PUBLIC_SHORT_URL}/${event.eventUrl}</a> pour l'approuver.</p>
       `
     };
   } else if (project) {
@@ -301,7 +301,7 @@ export const sendToAdmin = async ({
       subject: `Un projet attend votre approbation : ${project.projectName}`,
       html: `
         <h1>Nouveau projet : ${project.projectName}</h1>
-        <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${project.projectOrgs[0].orgName}">${process.env.NEXT_PUBLIC_SHORT_URL}/${project.projectOrgs[0].orgName}</a> pour en savoir plus.</p>
+        <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${project.projectOrgs[0].orgName}">${process.env.NEXT_PUBLIC_SHORT_URL}/${project.projectOrgs[0].orgName}</a> pour l'approuver.</p>
       `
     };
   }

@@ -16,9 +16,14 @@ export const addOrUpdateTopic = async ({
   transport,
   res
 }: {
-  body: { topic?: ITopic; topicNotif?: boolean };
-  event?: IEvent & Document<any, any, any>;
-  org?: IOrg & Document<any, any, any>;
+  body: {
+    topic?: ITopic;
+    topicNotif?: boolean;
+    event?: IEvent;
+    org?: IOrg;
+  };
+  event?: (IEvent & Document<any, any, any>) | null;
+  org?: (IOrg & Document<any, any, any>) | null;
   transport: any;
   res: NextApiResponse;
 }) => {
@@ -62,8 +67,8 @@ export const addOrUpdateTopic = async ({
     }).populate("user");
 
     sendMessageToTopicFollowers({
-      event,
-      org,
+      event: body.event,
+      org: body.org,
       subscriptions,
       topic,
       transport

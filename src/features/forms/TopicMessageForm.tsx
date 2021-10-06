@@ -1,28 +1,24 @@
-import type { IEvent } from "models/Event";
-import type { IOrg } from "models/Org";
-import type { ITopic } from "models/Topic";
-import type { ITopicMessage } from "models/TopicMessage";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { ErrorMessage } from "@hookform/error-message";
 import {
   ChakraProps,
   Button,
   FormControl,
-  Box,
-  Stack,
   FormErrorMessage,
   useToast,
   Flex,
   Alert,
   AlertIcon
 } from "@chakra-ui/react";
-import { WarningIcon } from "@chakra-ui/icons";
+import { ErrorMessage } from "@hookform/error-message";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { ErrorMessageText, RTEditor } from "features/common";
 import { useSession } from "hooks/useAuth";
+import type { IEvent } from "models/Event";
+import type { IOrg } from "models/Org";
+import type { ITopic } from "models/Topic";
+import type { ITopicMessage } from "models/TopicMessage";
 import { handleError } from "utils/form";
-import { useAddOrgDetailsMutation } from "features/orgs/orgsApi";
-import { useAddEventDetailsMutation } from "features/events/eventsApi";
+import { useAddTopicMutation } from "features/forum/topicsApi";
 
 interface TopicMessageFormProps extends ChakraProps {
   org?: IOrg;
@@ -38,9 +34,7 @@ interface TopicMessageFormProps extends ChakraProps {
 export const TopicMessageForm = (props: TopicMessageFormProps) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
-  const [addOrgDetails, addOrgDetailsMutation] = useAddOrgDetailsMutation();
-  const [addEventDetails, addEventDetailsMutation] =
-    useAddEventDetailsMutation();
+  const [addTopic, addTopicMutation] = useAddTopicMutation();
   const toast = useToast({ position: "top" });
   const [topicMessageDefaultValue, setTopicMessageDefaultValue] = useState<
     string | undefined
@@ -74,6 +68,8 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
     );
 
     const payload = {
+      org: props.org,
+      event: props.event,
       topic: {
         ...props.topic,
         topicMessages: [
@@ -83,17 +79,9 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
     };
 
     try {
-      if (props.org && props.org.orgUrl) {
-        await addOrgDetails({
-          payload,
-          orgUrl: props.org.orgUrl
-        }).unwrap();
-      } else if (props.event && props.event.eventUrl) {
-        await addEventDetails({
-          payload,
-          eventUrl: props.event.eventUrl
-        }).unwrap();
-      }
+      await addTopic({
+        payload
+      }).unwrap();
 
       toast({
         title: "Votre message a bien été ajouté !",

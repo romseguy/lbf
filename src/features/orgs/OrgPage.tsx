@@ -50,7 +50,6 @@ import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { selectOrgRefetch } from "./orgSlice";
 import { useGetOrgQuery } from "./orgsApi";
-import { SubscriptionTypes } from "models/Subscription";
 
 export type Visibility = {
   isVisible: {
@@ -72,7 +71,7 @@ export const OrgPage = ({
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
-  const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
+  const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region org
   const orgQuery = useGetOrgQuery(
@@ -111,7 +110,8 @@ export const OrgPage = ({
   useEffect(() => {
     console.log("refetching subscription");
     subQuery.refetch();
-  }, [subscriptionRefetch]);
+  }, [subscriptionRefetch, userEmail]);
+
   const isFollowed = isFollowedBy({ org, subQuery });
   const isSubscribed = isSubscribedBy(org, subQuery);
   //#endregion
@@ -160,34 +160,8 @@ export const OrgPage = ({
 
       {!subQuery.isLoading && !isCreator && !isConfig && (
         <Flex>
-          {subQuery.isError ||
-          !subQuery.data?.orgs.find(
-            (orgSubscription) => orgSubscription.orgId === org._id
-          ) ? (
-            <Button
-              colorScheme="teal"
-              onClick={async () => {
-                const payload = {
-                  orgs: [
-                    {
-                      type: SubscriptionTypes.FOLLOWER,
-                      org,
-                      orgId: org._id
-                    }
-                  ]
-                };
-                await addSubscription({ payload }).unwrap();
-                toast({
-                  title: `Vous êtes maintenant abonné à ${org.orgName} !`,
-                  status: "success"
-                });
-                subQuery.refetch();
-              }}
-            >
-              S'abonner à {org.orgName}
-            </Button>
-          ) : (
-            <>
+          <>
+            {isFollowed && (
               <Box mr={3}>
                 <SubscriptionPopover
                   org={org}
@@ -197,16 +171,17 @@ export const OrgPage = ({
                   //isLoading={subQuery.isLoading || subQuery.isFetching}
                 />
               </Box>
-              <SubscriptionPopover
-                org={org}
-                query={orgQuery}
-                subQuery={subQuery}
-                followerSubscription={isFollowed}
-                notifType="push"
-                //isLoading={subQuery.isLoading || subQuery.isFetching}
-              />
-            </>
-          )}
+            )}
+
+            <SubscriptionPopover
+              org={org}
+              query={orgQuery}
+              subQuery={subQuery}
+              followerSubscription={isFollowed}
+              notifType="push"
+              //isLoading={subQuery.isLoading || subQuery.isFetching}
+            />
+          </>
         </Flex>
       )}
 

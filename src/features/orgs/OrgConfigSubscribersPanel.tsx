@@ -1,7 +1,9 @@
-import { IOrg, orgTypeFull } from "models/Org";
-import type { Visibility } from "./OrgPage";
-import tw, { css } from "twin.macro";
-import React, { useState } from "react";
+import {
+  AddIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  DeleteIcon
+} from "@chakra-ui/icons";
 import {
   Box,
   Heading,
@@ -18,24 +20,19 @@ import {
   FormControl,
   CheckboxGroup,
   Checkbox,
-  VStack,
   Text,
   useColorMode,
   Alert,
   AlertIcon,
   Flex,
   FormErrorMessage,
-  toast,
   useToast,
-  Spinner,
-  RequiredIndicator
+  Spinner
 } from "@chakra-ui/react";
-import {
-  AddIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-  DeleteIcon
-} from "@chakra-ui/icons";
+import { ErrorMessage } from "@hookform/error-message";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { css } from "twin.macro";
 import {
   Button,
   ErrorMessageText,
@@ -44,22 +41,20 @@ import {
   Link,
   Textarea
 } from "features/common";
-import { emailR } from "utils/email";
 import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
 } from "features/subscriptions/subscriptionsApi";
+import { IOrg, orgTypeFull } from "models/Org";
 import {
   IOrgSubscription,
   ISubscription,
   SubscriptionTypes
 } from "models/Subscription";
 import { IUser } from "models/User";
-import { borderRadius } from "react-select/src/theme";
-import { useForm } from "react-hook-form";
-import { ErrorMessage } from "@hookform/error-message";
+import { emailR } from "utils/email";
 import { handleError } from "utils/form";
-import { breakpoints } from "theme/theme";
+import type { Visibility } from "./OrgPage";
 
 type OrgConfigSubscribersPanelProps = Visibility & {
   org: IOrg;
@@ -134,12 +129,6 @@ export const OrgConfigSubscribersPanel = ({
     user?: IUser | string;
     subscription: ISubscription;
   }) => {
-    if (
-      addSubscriptionMutation.isLoading ||
-      deleteSubscriptionMutation.isLoading
-    )
-      return;
-
     setIsLoading(true);
 
     const userEmail = typeof user === "object" ? user.email : email;
@@ -461,6 +450,7 @@ export const OrgConfigSubscribersPanel = ({
             <Table>
               <Tbody
                 css={css`
+                  /*
                   @media (max-width: 452px) {
                     & > tr {
                       td {
@@ -486,6 +476,7 @@ export const OrgConfigSubscribersPanel = ({
                       }
                     }
                   }
+                */
                 `}
               >
                 {org.orgSubscriptions
@@ -521,84 +512,76 @@ export const OrgConfigSubscribersPanel = ({
 
                     return (
                       <Tr key={`email-${index}`}>
-                        <Td>
-                          {isLoading ||
-                          addSubscriptionMutation.isLoading ||
-                          deleteSubscriptionMutation.isLoading ? (
-                            <Spinner mr={3} boxSize={4} />
-                          ) : (
-                            <Box>
-                              <Link
-                                variant="no-underline"
-                                onClick={() =>
-                                  onTagClick({
-                                    type: SubscriptionTypes.FOLLOWER,
-                                    following,
-                                    email,
-                                    user,
-                                    subscription
-                                  })
-                                }
-                                data-cy={
-                                  following
-                                    ? "orgSubscriberUnfollow"
-                                    : "orgSubscriberFollow"
-                                }
+                        <Td whiteSpace="nowrap">
+                          <Link
+                            variant="no-underline"
+                            onClick={() =>
+                              onTagClick({
+                                type: SubscriptionTypes.FOLLOWER,
+                                following,
+                                email,
+                                user,
+                                subscription
+                              })
+                            }
+                            data-cy={
+                              following
+                                ? "orgSubscriberUnfollow"
+                                : "orgSubscriberFollow"
+                            }
+                          >
+                            <Tooltip
+                              placement="top"
+                              hasArrow
+                              label={`${
+                                following ? "Retirer de" : "Ajouter à"
+                              } la liste des abonnés`}
+                            >
+                              <Tag
+                                variant={following ? "solid" : "outline"}
+                                colorScheme="green"
+                                mr={3}
                               >
-                                <Tooltip
-                                  placement="top"
-                                  hasArrow
-                                  label={`${
-                                    following ? "Retirer de" : "Ajouter à"
-                                  } la liste des abonnés`}
-                                >
-                                  <Tag
-                                    variant={following ? "solid" : "outline"}
-                                    colorScheme="green"
-                                    mr={3}
-                                  >
-                                    <TagLabel>Abonné</TagLabel>
-                                  </Tag>
-                                </Tooltip>
-                              </Link>
+                                <TagLabel>Abonné</TagLabel>
+                              </Tag>
+                            </Tooltip>
+                          </Link>
 
-                              <Link
-                                onClick={() =>
-                                  onTagClick({
-                                    type: SubscriptionTypes.SUBSCRIBER,
-                                    subscribing,
-                                    email,
-                                    user,
-                                    subscription
-                                  })
-                                }
-                                data-cy={
-                                  subscribing
-                                    ? "orgSubscriberUnsubscribe"
-                                    : "orgSubscriberSubscribe"
-                                }
+                          <Link
+                            onClick={() =>
+                              onTagClick({
+                                type: SubscriptionTypes.SUBSCRIBER,
+                                subscribing,
+                                email,
+                                user,
+                                subscription
+                              })
+                            }
+                            data-cy={
+                              subscribing
+                                ? "orgSubscriberUnsubscribe"
+                                : "orgSubscriberSubscribe"
+                            }
+                          >
+                            <Tooltip
+                              placement="top"
+                              hasArrow
+                              label={`${
+                                subscribing ? "Retirer de" : "Ajouter à"
+                              } la liste des adhérents`}
+                            >
+                              <Tag
+                                variant={subscribing ? "solid" : "outline"}
+                                colorScheme="purple"
+                                mr={3}
                               >
-                                <Tooltip
-                                  placement="top"
-                                  hasArrow
-                                  label={`${
-                                    subscribing ? "Retirer de" : "Ajouter à"
-                                  } la liste des adhérents`}
-                                >
-                                  <Tag
-                                    variant={subscribing ? "solid" : "outline"}
-                                    colorScheme="purple"
-                                    mr={3}
-                                  >
-                                    <TagLabel>Adhérent</TagLabel>
-                                  </Tag>
-                                </Tooltip>
-                              </Link>
-                            </Box>
-                          )}
+                                <TagLabel>Adhérent</TagLabel>
+                              </Tag>
+                            </Tooltip>
+                          </Link>
                         </Td>
 
-                        <Td>
+                        <Td width="100%">
                           {email || (
                             <Link href={`/${userName}`} variant="underline">
                               {userEmail}
@@ -635,6 +618,11 @@ export const OrgConfigSubscribersPanel = ({
                               bg="transparent"
                               _hover={{ bg: "transparent", color: "red" }}
                               icon={<DeleteIcon />}
+                              isLoading={
+                                isLoading ||
+                                addSubscriptionMutation.isLoading ||
+                                deleteSubscriptionMutation.isLoading
+                              }
                               height="auto"
                               minWidth={0}
                               cursor={

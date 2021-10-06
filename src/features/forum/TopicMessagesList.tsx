@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import DOMPurify from "isomorphic-dompurify";
+import { EditIcon } from "@chakra-ui/icons";
 import {
   Avatar,
   Box,
@@ -8,10 +7,12 @@ import {
   IconButton,
   Spinner,
   Tag,
+  Text,
   Tooltip,
   useColorMode
 } from "@chakra-ui/react";
-import { EditIcon } from "@chakra-ui/icons";
+import DOMPurify from "isomorphic-dompurify";
+import React, { useState } from "react";
 import {
   Container,
   DeleteButton,
@@ -19,11 +20,11 @@ import {
   Link,
   RTEditor
 } from "features/common";
+import { useGetSubscriptionsQuery } from "features/subscriptions/subscriptionsApi";
 import { useSession } from "hooks/useAuth";
 import { ITopic } from "models/Topic";
 import * as dateUtils from "utils/date";
 import { useEditTopicMutation } from "./topicsApi";
-import { useGetSubscriptionsQuery } from "features/subscriptions/subscriptionsApi";
 
 export const TopicMessagesList = ({
   topic,
@@ -253,25 +254,33 @@ export const TopicMessagesList = ({
       </Box>
 
       <Box bg={isDark ? "gray.600" : "gray.200"} borderRadius="lg" p={3}>
-        Abonnés à la discussion :{" "}
         {subQuery.isLoading || subQuery.isFetching ? (
           <Spinner boxSize={4} />
         ) : (
-          Array.isArray(subQuery.data) &&
-          subQuery.data.map((subscription) => {
-            if (typeof subscription.user !== "object") return;
+          <>
+            {Array.isArray(subQuery.data) && subQuery.data.length > 0 ? (
+              <Text>
+                Abonnés à la discussion :{" "}
+                {subQuery.data.map((subscription) => {
+                  if (typeof subscription.user !== "object") return;
 
-            return (
-              <Link
-                key={subscription._id}
-                href={`/${subscription.user.userName}`}
-              >
-                <Tag mr={1} mb={1}>
-                  {subscription.user.userName}
-                </Tag>
-              </Link>
-            );
-          })
+                  const userName =
+                    subscription.user.userName ||
+                    session?.user.email.replace(/@.+/, "");
+
+                  return (
+                    <Link key={subscription._id} href={`/${userName}`}>
+                      <Tag mr={1} mb={1}>
+                        {userName}
+                      </Tag>
+                    </Link>
+                  );
+                })}
+              </Text>
+            ) : (
+              <Text>Aucun abonnés à la discussion.</Text>
+            )}
+          </>
         )}
       </Box>
     </Flex>

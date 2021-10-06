@@ -27,26 +27,8 @@ import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import { Category, IEvent, Visibility } from "models/Event";
 import { IOrg } from "models/Org";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
-
-const EventVisibility = ({ eventVisibility }: { eventVisibility?: string }) =>
-  eventVisibility === Visibility.SUBSCRIBERS ? (
-    <Tooltip label="Événement réservé aux adhérents">
-      <span>
-        <Icon as={IoMdPerson} boxSize={4} />
-      </span>
-    </Tooltip>
-  ) : // : topicVisibility === Visibility.FOLLOWERS ? (
-  //   <Tooltip label="Événement réservé aux abonnés">
-  //     <EmailIcon boxSize={4} />
-  //   </Tooltip>
-  // )
-  eventVisibility === Visibility.PUBLIC ? (
-    <Tooltip label="Événement public">
-      <span>
-        <Icon as={FaGlobeEurope} boxSize={4} />
-      </span>
-    </Tooltip>
-  ) : null;
+import { EventsListItemVisibility } from "./EventsListItemVisibility";
+import { ModalState } from "features/modals/NotifyModal";
 
 export const EventsListItem = ({
   deleteEvent,
@@ -65,6 +47,8 @@ export const EventsListItem = ({
   session,
   eventToForward,
   setEventToForward,
+  notifyModalState,
+  setNotifyModalState,
   eventToShow,
   setEventToShow,
   toast,
@@ -84,6 +68,8 @@ export const EventsListItem = ({
   orgFollowersCount?: number;
   eventToForward: IEvent | null;
   setEventToForward: (event: IEvent | null) => void;
+  notifyModalState: ModalState<IEvent<string | Date>>;
+  setNotifyModalState: (modalState: ModalState<IEvent<string | Date>>) => void;
   eventToShow: IEvent | null;
   setEventToShow: (event: IEvent | null) => void;
   isLoading: boolean;
@@ -122,7 +108,14 @@ export const EventsListItem = ({
         borderBottomLeftRadius={index === length - 1 ? "lg" : undefined}
       >
         <Box pt={2} pl={2} pr={2}>
-          <Text pb={1}>
+          <Text
+            pb={1}
+            title={
+              process.env.NODE_ENV === "development"
+                ? `${event.repeat}`
+                : undefined
+            }
+          >
             {format(minDate, `H'h'${getMinutes(minDate) !== 0 ? "mm" : ""}`, {
               locale: fr
             })}
@@ -147,7 +140,7 @@ export const EventsListItem = ({
         <Grid
           alignItems="center"
           css={css`
-            grid-template-columns: auto ${extraColumns[0]} 1fr;
+            grid-template-columns: auto auto ${extraColumns[0]} 1fr;
 
             @media (max-width: 700px) {
               grid-template-columns: 1fr !important;
@@ -202,56 +195,59 @@ export const EventsListItem = ({
                     background: "transparent",
                     color: "green"
                   }}
-                  onClick={async () => {
-                    setIsLoading(true);
-                    const notify = confirm(
-                      `Êtes-vous sûr de vouloir notifier ${canSendCount} abonné${
-                        canSendCount > 1 ? "s" : ""
-                      } de l'organisation : ${org!.orgName}`
-                    );
-
-                    if (!notify) return;
-
-                    try {
-                      const res = await editEvent({
-                        eventUrl: event.eventUrl,
-                        payload: {
-                          ...event,
-                          eventMinDate: formatISO(minDate),
-                          eventMaxDate: formatISO(maxDate),
-                          eventNotif: [org!._id]
-                        }
-                      }).unwrap();
-
-                      if (
-                        Array.isArray(res.emailList) &&
-                        res.emailList.length > 0
-                      ) {
-                        orgQuery.refetch();
-                        toast({
-                          title: `Une invitation a été envoyée à ${
-                            res.emailList.length
-                          } abonné${res.emailList.length > 1 ? "s" : ""}`,
-                          status: "success",
-                          isClosable: true
-                        });
-                      } else {
-                        toast({
-                          title: "Aucune invitation envoyée",
-                          status: "warning",
-                          isClosable: true
-                        });
-                      }
-                    } catch (error) {
-                      toast({
-                        title: "Une erreur est survenue",
-                        status: "error",
-                        isClosable: true
-                      });
-                    } finally {
-                      setIsLoading(false);
-                    }
+                  onClick={(e) => {
+                    setNotifyModalState({
+                      ...notifyModalState,
+                      entity: event
+                    });
                   }}
+                  // onClick={async () => {
+                  //   setIsLoading(true);
+                  //   const notify = confirm(
+                  //     `Êtes-vous sûr de vouloir notifier ${canSendCount} abonné${
+                  //       canSendCount > 1 ? "s" : ""
+                  //     } de l'organisation : ${org!.orgName}`
+                  //   );
+
+                  //   if (!notify) return;
+
+                  //   try {
+                  //     const res = await editEvent({
+                  //       eventUrl: event.eventUrl,
+                  //       payload: {
+                  //         eventNotif: [org!._id]
+                  //       }
+                  //     }).unwrap();
+
+                  //     if (
+                  //       Array.isArray(res.emailList) &&
+                  //       res.emailList.length > 0
+                  //     ) {
+                  //       orgQuery.refetch();
+                  //       toast({
+                  //         title: `Une invitation a été envoyée à ${
+                  //           res.emailList.length
+                  //         } abonné${res.emailList.length > 1 ? "s" : ""}`,
+                  //         status: "success",
+                  //         isClosable: true
+                  //       });
+                  //     } else {
+                  //       toast({
+                  //         title: "Aucune invitation envoyée",
+                  //         status: "warning",
+                  //         isClosable: true
+                  //       });
+                  //     }
+                  //   } catch (error) {
+                  //     toast({
+                  //       title: "Une erreur est survenue",
+                  //       status: "error",
+                  //       isClosable: true
+                  //     });
+                  //   } finally {
+                  //     setIsLoading(false);
+                  //   }
+                  // }}
                 />
               </Tooltip>
             </GridItem>
@@ -294,7 +290,11 @@ export const EventsListItem = ({
 
           <GridItem pl={1}>
             {/* eventVisibility */}
-            {org && <EventVisibility eventVisibility={event.eventVisibility} />}
+            {org && (
+              <EventsListItemVisibility
+                eventVisibility={event.eventVisibility}
+              />
+            )}
 
             {/* eventForwardedFrom */}
             {session && !event.forwardedFrom ? (
@@ -306,6 +306,7 @@ export const EventsListItem = ({
                     bg="transparent"
                     _hover={{ background: "transparent", color: "green" }}
                     minWidth={0}
+                    ml={2}
                     height="auto"
                     onClick={() => {
                       setEventToForward({
@@ -329,7 +330,6 @@ export const EventsListItem = ({
                   height="auto"
                   minWidth={0}
                   ml={2}
-                  mr={2}
                   _hover={{ background: "transparent", color: "red" }}
                   onClick={async () => {
                     const confirmed = confirm(

@@ -20,7 +20,7 @@ export const EventAttendingForm = ({
   event,
   eventQuery
 }: {
-  email: string;
+  email?: string;
   setEmail: (email: string) => void;
   event: IEvent;
   eventQuery: any;
@@ -32,7 +32,7 @@ export const EventAttendingForm = ({
   const attend = async () => {
     let promptedEmail: string | null = null;
 
-    if (!session && (!email || email === "")) {
+    if (!session && !email) {
       promptedEmail = prompt("Veuillez entrer votre adresse e-mail :");
 
       if (!promptedEmail || !emailR.test(promptedEmail)) {
@@ -43,24 +43,29 @@ export const EventAttendingForm = ({
       setEmail(promptedEmail);
     }
 
-    if (isAttending({ email: promptedEmail || email, event })) {
+    const userEmail = promptedEmail || email;
+
+    if (isAttending({ email: userEmail, event })) {
       toast({ status: "error", title: "Vous participez déjà à cet événement" });
       return;
     }
 
-    let isNew = true;
+    let isFound = false;
 
     let eventNotified = event.eventNotified?.map(({ email: e, status }) => {
-      if ((e === promptedEmail || email) && status !== StatusTypes.OK) {
-        isNew = false;
-        return { email: e, status: StatusTypes.OK };
+      if (e === userEmail) {
+        if (status !== StatusTypes.OK) {
+          isFound = true;
+          return { email: e, status: StatusTypes.OK };
+        }
       }
+
       return { email: e, status };
     });
 
-    if (isNew)
+    if (!isFound && userEmail)
       eventNotified?.push({
-        email: promptedEmail || email,
+        email: userEmail,
         status: StatusTypes.OK
       });
 
@@ -74,7 +79,7 @@ export const EventAttendingForm = ({
   const unattend = async () => {
     let promptedEmail: string | null = null;
 
-    if (!session && (!email || email === "")) {
+    if (!session && !email) {
       promptedEmail = prompt("Veuillez entrer votre adresse e-mail :");
 
       if (!promptedEmail || !emailR.test(promptedEmail)) {
@@ -85,7 +90,9 @@ export const EventAttendingForm = ({
       setEmail(promptedEmail);
     }
 
-    if (isNotAttending({ email: promptedEmail || email, event })) {
+    const userEmail = promptedEmail || email;
+
+    if (isNotAttending({ email: userEmail, event })) {
       toast({
         status: "error",
         title: "Vous avez déjà indiqué ne pas participer à cet événement"
@@ -95,16 +102,16 @@ export const EventAttendingForm = ({
 
     let isNew = true;
     let eventNotified = event.eventNotified?.map(({ email: e, status }) => {
-      if (e === (promptedEmail || email) && status !== StatusTypes.NOK) {
+      if (e === userEmail && status !== StatusTypes.NOK) {
         isNew = false;
         return { email: e, status: StatusTypes.NOK };
       }
       return { email: e, status };
     });
 
-    if (isNew)
+    if (isNew && userEmail)
       eventNotified?.push({
-        email: promptedEmail || email,
+        email: userEmail,
         status: StatusTypes.NOK
       });
 

@@ -1,37 +1,16 @@
+import { AddIcon, EditIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
-  AddIcon,
-  EditIcon,
-  EmailIcon,
-  ViewIcon,
-  ViewOffIcon
-} from "@chakra-ui/icons";
-import {
-  Alert,
-  AlertIcon,
   Box,
   GridProps,
-  Icon,
   IconButton,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
   Spinner,
-  Table,
-  Tag,
-  Tbody,
-  Td,
   Text,
   Tooltip,
-  Tr,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { FaBell, FaBellSlash, FaGlobeEurope } from "react-icons/fa";
-import { IoMdPerson } from "react-icons/io";
+import { FaBell, FaBellSlash } from "react-icons/fa";
 import { useSession } from "hooks/useAuth";
 import {
   Button,
@@ -42,36 +21,19 @@ import {
   Link
 } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
+import { ModalState, NotifyModal } from "features/modals/NotifyModal";
 import { TopicModal } from "features/modals/TopicModal";
 import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
 } from "features/subscriptions/subscriptionsApi";
-import { IEvent, StatusTypes } from "models/Event";
-import { IOrg, orgTypeFull } from "models/Org";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
 import { ITopic, Visibility } from "models/Topic";
 import * as dateUtils from "utils/date";
 import { TopicMessagesList } from "./TopicMessagesList";
 import { useDeleteTopicMutation, usePostTopicNotifMutation } from "./topicsApi";
-
-const TopicVisibility = ({ topicVisibility }: { topicVisibility?: string }) =>
-  topicVisibility === Visibility.SUBSCRIBERS ? (
-    <Tooltip label="Discussion réservée aux adhérents">
-      <span>
-        <Icon as={IoMdPerson} boxSize={4} />
-      </span>
-    </Tooltip>
-  ) : topicVisibility === Visibility.FOLLOWERS ? (
-    <Tooltip label="Discussion réservée aux abonnés">
-      <EmailIcon boxSize={4} />
-    </Tooltip>
-  ) : topicVisibility === Visibility.PUBLIC ? (
-    <Tooltip label="Discussion publique">
-      <span>
-        <Icon as={FaGlobeEurope} boxSize={4} />
-      </span>
-    </Tooltip>
-  ) : null;
+import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
 
 export const TopicsList = ({
   event,
@@ -105,7 +67,7 @@ export const TopicsList = ({
   //#endregion
 
   //#region topic
-  const [postTopicNotif, postTopicNotifMutation] = usePostTopicNotifMutation();
+  const postTopicNotifMutation = usePostTopicNotifMutation();
   const [deleteTopic, deleteTopicMutation] = useDeleteTopicMutation();
   //#endregion
 
@@ -113,16 +75,17 @@ export const TopicsList = ({
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const [topicModalState, setTopicModalState] = useState<{
     isOpen: boolean;
-    isEmailListOpen: boolean;
-    topic: ITopic | null;
-  }>({ isOpen: false, isEmailListOpen: false, topic: null });
+    entity: ITopic | null;
+  }>({
+    isOpen: false,
+    entity: null
+  });
+  const [notifyModalState, setNotifyModalState] = useState<ModalState<ITopic>>({
+    entity: null
+  });
   const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
   const entityName = org ? org.orgName : event?.eventName;
-  let entityTopics: ITopic[] = org
-    ? org.orgTopics
-    : event
-    ? event.eventTopics
-    : [];
+  let topics: ITopic[] = org ? org.orgTopics : event ? event.eventTopics : [];
   //#endregion
 
   return (
@@ -148,7 +111,7 @@ export const TopicsList = ({
 
       {topicModalState.isOpen && (
         <TopicModal
-          topic={topicModalState.topic}
+          topic={topicModalState.entity}
           org={org}
           event={event}
           isCreator={props.isCreator}
@@ -158,7 +121,7 @@ export const TopicsList = ({
             setTopicModalState({
               ...topicModalState,
               isOpen: false,
-              topic: null
+              entity: null
             })
           }
           onSubmit={async (topic) => {
@@ -167,7 +130,7 @@ export const TopicsList = ({
             setTopicModalState({
               ...topicModalState,
               isOpen: false,
-              topic: null
+              entity: null
             });
             setCurrentTopic(topic ? topic : null);
           }}
@@ -175,135 +138,32 @@ export const TopicsList = ({
             setTopicModalState({
               ...topicModalState,
               isOpen: false,
-              topic: null
+              entity: null
             })
           }
         />
       )}
 
-      {topicModalState.isEmailListOpen &&
-        topicModalState.topic &&
-        Array.isArray(topicModalState.topic.topicNotified) && (
-          <Modal
-            isOpen
-            onClose={() =>
-              setTopicModalState({
-                ...topicModalState,
-                isEmailListOpen: false,
-                topic: null
-              })
-            }
-          >
-            <ModalOverlay>
-              <ModalContent>
-                <ModalHeader>Liste des notifications</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                  <Alert status="info" flexDirection="row">
-                    <AlertIcon />
-                    <Box>
-                      Ci-dessous la liste des abonnés{" "}
-                      {org ? orgTypeFull(org.orgType) : "de l'événément"}{" "}
-                      <b>{org ? org.orgName : event!.eventName}</b> à notifier
-                      de l'ajout de la discussion{" "}
-                      <b>{topicModalState.topic.topicName}</b>.
-                    </Box>
-                  </Alert>
-
-                  <Box overflowX="auto">
-                    <Table>
-                      <Tbody>
-                        {org?.orgSubscriptions
-                          .map((orgSubscription) => {
-                            const e =
-                              typeof orgSubscription.user === "object"
-                                ? orgSubscription.user.email || ""
-                                : orgSubscription.email || "";
-
-                            if (
-                              !topicModalState.topic?.topicNotified?.find(
-                                ({ email }) => email === e
-                              )
-                            )
-                              return { email: e, status: StatusTypes.NOK };
-                          })
-                          .concat(
-                            topicModalState.topic?.topicNotified!.map(
-                              ({ email }) => ({ email, status: StatusTypes.OK })
-                            )
-                          )
-                          .map((item) => {
-                            if (!item) return null;
-                            return (
-                              <Tr key={item.email}>
-                                <Td>{item.email}</Td>
-                                <Td>
-                                  {item.status === StatusTypes.OK ? (
-                                    <Tag>Notifié</Tag>
-                                  ) : (
-                                    <Link onClick={() => alert("Bientôt !")}>
-                                      <Tag>Notifier</Tag>
-                                    </Link>
-                                  )}
-                                </Td>
-                              </Tr>
-                            );
-                          })}
-                      </Tbody>
-                    </Table>
-                  </Box>
-
-                  <Button
-                    mt={3}
-                    colorScheme="green"
-                    isLoading={postTopicNotifMutation.isLoading}
-                    onClick={async () => {
-                      const emailList = await postTopicNotif({
-                        topicId: topicModalState.topic?._id!,
-                        payload: {
-                          org,
-                          event
-                        }
-                      }).unwrap();
-
-                      if (emailList.length > 0) {
-                        toast({
-                          status: "success",
-                          title: `${emailList.length} abonnés notifiés !`
-                        });
-                        query.refetch();
-                      } else
-                        toast({
-                          status: "warning",
-                          title: "Aucun abonné notifié"
-                        });
-
-                      setTopicModalState({
-                        ...topicModalState,
-                        topic: null,
-                        isEmailListOpen: false
-                      });
-                    }}
-                  >
-                    Envoyer les notifications manquantes
-                  </Button>
-                </ModalBody>
-              </ModalContent>
-            </ModalOverlay>
-          </Modal>
-        )}
+      <NotifyModal
+        event={event}
+        org={org}
+        query={query}
+        mutation={postTopicNotifMutation}
+        setModalState={setNotifyModalState}
+        modalState={notifyModalState}
+      />
 
       <Grid data-cy="topicList">
         {query.isLoading ? (
           <Spinner />
         ) : (
-          entityTopics
-            .filter((entityTopic) => {
+          topics
+            .filter((topic) => {
               if (entityName === "aucourant") return true;
 
               let allow = false;
 
-              if (entityTopic.topicVisibility === Visibility.PUBLIC) {
+              if (topic.topicVisibility === Visibility.PUBLIC) {
                 allow = true;
               } else {
                 if (props.isCreator) {
@@ -312,59 +172,55 @@ export const TopicsList = ({
 
                 if (
                   props.isSubscribed &&
-                  entityTopic.topicVisibility === Visibility.SUBSCRIBERS
+                  topic.topicVisibility === Visibility.SUBSCRIBERS
                 ) {
                   allow = true;
                 }
 
                 if (
                   props.isFollowed &&
-                  entityTopic.topicVisibility === Visibility.FOLLOWERS
+                  topic.topicVisibility === Visibility.FOLLOWERS
                 ) {
                   allow = true;
                 }
               }
 
-              //console.log(entityTopic.topicVisibility, allow);
+              //console.log(topic.topicVisibility, allow);
               return allow;
             })
-            .map((entityTopic, topicIndex) => {
-              const isCurrent =
-                currentTopic && entityTopic._id === currentTopic._id;
+            .map((topic, topicIndex) => {
+              const isCurrent = currentTopic && topic._id === currentTopic._id;
               const { timeAgo, fullDate } = dateUtils.timeAgo(
-                entityTopic.createdAt,
+                topic.createdAt,
                 true
               );
-              const entityTopicCreatedBy =
-                typeof entityTopic.createdBy === "object"
-                  ? entityTopic.createdBy._id
-                  : entityTopic.createdBy;
-              const entityTopicCreatedByUserName =
-                typeof entityTopic.createdBy === "object"
-                  ? entityTopic.createdBy.userName ||
-                    entityTopic.createdBy.email?.replace(/@.+/, "")
+              const topicCreatedBy =
+                typeof topic.createdBy === "object"
+                  ? topic.createdBy._id
+                  : topic.createdBy;
+              const topicCreatedByUserName =
+                typeof topic.createdBy === "object"
+                  ? topic.createdBy.userName ||
+                    topic.createdBy.email?.replace(/@.+/, "")
                   : "";
               const isCreator =
                 session?.user.isAdmin ||
-                entityTopicCreatedBy === session?.user.userId;
+                topicCreatedBy === session?.user.userId;
 
               let isSubbedToTopic = false;
 
               if (subQuery.data) {
                 isSubbedToTopic = !!subQuery.data.topics.find(
-                  ({ topic }: { topic: ITopic }) =>
-                    topic._id === entityTopic._id
+                  ({ topic: t }: { topic: ITopic }) => t._id === topic._id
                 );
               }
 
               return (
-                <Box key={entityTopic._id} mb={5}>
+                <Box key={topic._id} mb={5}>
                   <GridItem>
                     <Link
                       variant="no-underline"
-                      onClick={() =>
-                        setCurrentTopic(isCurrent ? null : entityTopic)
-                      }
+                      onClick={() => setCurrentTopic(isCurrent ? null : topic)}
                       data-cy="topic"
                     >
                       <Grid
@@ -393,24 +249,22 @@ export const TopicsList = ({
 
                         <GridItem py={3}>
                           <Box lineHeight="1" data-cy="topicHeader">
-                            <Text fontWeight="bold">
-                              {entityTopic.topicName}
-                            </Text>
+                            <Text fontWeight="bold">{topic.topicName}</Text>
                             <Box
                               display="inline"
                               fontSize="smaller"
                               color={isDark ? "white" : "gray.600"}
                             >
-                              {entityTopicCreatedByUserName}
+                              {topicCreatedByUserName}
                               <span aria-hidden> · </span>
                               <Tooltip placement="bottom" label={fullDate}>
                                 <span>{timeAgo}</span>
                               </Tooltip>
                               <span aria-hidden> · </span>
-                              <TopicVisibility
-                                topicVisibility={entityTopic.topicVisibility}
+                              <TopicsListItemVisibility
+                                topicVisibility={topic.topicVisibility}
                               />
-                              {Array.isArray(entityTopic.topicNotified) &&
+                              {Array.isArray(topic.topicNotified) &&
                                 isCreator &&
                                 (props.isCreator || props.isSubscribed) && (
                                   <>
@@ -418,15 +272,13 @@ export const TopicsList = ({
                                     <Link
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        setTopicModalState({
-                                          ...topicModalState,
-                                          isOpen: false,
-                                          topic: entityTopic,
-                                          isEmailListOpen: true
+                                        setNotifyModalState({
+                                          ...notifyModalState,
+                                          entity: topic
                                         });
                                       }}
                                     >
-                                      {entityTopic.topicNotified.length} abonnés
+                                      {topic.topicNotified.length} abonnés
                                       notifiés
                                     </Link>
                                   </>
@@ -456,7 +308,7 @@ export const TopicsList = ({
                                       setTopicModalState({
                                         ...topicModalState,
                                         isOpen: true,
-                                        topic: entityTopic
+                                        entity: topic
                                       });
                                     }}
                                   />
@@ -467,7 +319,10 @@ export const TopicsList = ({
                                 </Box>
                                 <DeleteButton
                                   isIconOnly
-                                  isLoading={isLoading[entityTopic._id!]}
+                                  isLoading={
+                                    isLoading[topic._id!] &&
+                                    deleteTopicMutation.isLoading
+                                  }
                                   placement="bottom"
                                   bg="transparent"
                                   height="auto"
@@ -483,7 +338,7 @@ export const TopicsList = ({
                                         color="red"
                                         fontWeight="bold"
                                       >
-                                        {` ${entityTopic.topicName}`}
+                                        {` ${topic.topicName}`}
                                       </Text>{" "}
                                       ?
                                     </>
@@ -500,7 +355,7 @@ export const TopicsList = ({
                                           onChange={(e) =>
                                             setIsDeleteButtonDisabled(
                                               e.target.value !==
-                                                entityTopic.topicName
+                                                topic.topicName
                                             )
                                           }
                                         /> */}
@@ -508,15 +363,15 @@ export const TopicsList = ({
                                   }
                                   onClick={async () => {
                                     setIsLoading({
-                                      [entityTopic._id!]: true
+                                      [topic._id!]: true
                                     });
 
                                     try {
                                       let deletedTopic: ITopic | null = null;
 
-                                      if (entityTopic._id) {
+                                      if (topic._id) {
                                         deletedTopic = await deleteTopic(
-                                          entityTopic._id
+                                          topic._id
                                         ).unwrap();
                                       }
 
@@ -540,7 +395,7 @@ export const TopicsList = ({
                                       });
                                     } finally {
                                       setIsLoading({
-                                        [entityTopic._id!]: false
+                                        [topic._id!]: false
                                       });
                                     }
                                   }}
@@ -575,7 +430,11 @@ export const TopicsList = ({
                                       <FaBell />
                                     )
                                   }
-                                  isLoading={isLoading[entityTopic._id!]}
+                                  isLoading={
+                                    isLoading[topic._id!] &&
+                                    (addSubscriptionMutation.isLoading ||
+                                      deleteSubscriptionMutation.isLoading)
+                                  }
                                   bg="transparent"
                                   height="auto"
                                   minWidth={0}
@@ -586,71 +445,50 @@ export const TopicsList = ({
                                   onClick={async (e) => {
                                     e.stopPropagation();
                                     setIsLoading({
-                                      [entityTopic._id!]: true
+                                      [topic._id!]: true
                                     });
 
-                                    if (!subQuery.data) {
-                                      console.log("user got no sub");
+                                    if (!subQuery.data || !isSubbedToTopic) {
                                       await addSubscription({
                                         payload: {
                                           topics: [
                                             {
-                                              topic: entityTopic,
+                                              topic: topic,
                                               emailNotif: true,
                                               pushNotif: true
                                             }
                                           ]
                                         },
                                         user: session?.user.userId
-                                        // email:
                                       });
+
                                       toast({
-                                        title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
+                                        title: `Vous avez été abonné à la discussion ${topic.topicName}`,
                                         status: "success",
                                         isClosable: true
                                       });
                                     } else if (isSubbedToTopic) {
                                       const unsubscribe = confirm(
-                                        `Êtes vous sûr de vouloir vous désabonner de la discussion : ${entityTopic.topicName} ?`
+                                        `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
                                       );
 
                                       if (unsubscribe) {
                                         await deleteSubscription({
                                           subscriptionId: subQuery.data._id,
-                                          topicId: entityTopic._id
+                                          topicId: topic._id
                                         });
 
                                         toast({
-                                          title: `Vous avez été désabonné de ${entityTopic.topicName}`,
+                                          title: `Vous avez été désabonné de ${topic.topicName}`,
                                           status: "success",
                                           isClosable: true
                                         });
                                       }
-                                    } else {
-                                      console.log("user got no topic sub");
-                                      await addSubscription({
-                                        payload: {
-                                          topics: [
-                                            {
-                                              topic: entityTopic,
-                                              emailNotif: true,
-                                              pushNotif: true
-                                            }
-                                          ]
-                                        },
-                                        user: session?.user.userId
-                                        // email:
-                                      });
-                                      toast({
-                                        title: `Vous avez été abonné à la discussion ${entityTopic.topicName}`,
-                                        status: "success",
-                                        isClosable: true
-                                      });
                                     }
 
                                     subQuery.refetch();
                                     setIsLoading({
-                                      [entityTopic._id!]: false
+                                      [topic._id!]: false
                                     });
                                   }}
                                   data-cy={
@@ -671,10 +509,7 @@ export const TopicsList = ({
                           light={{ bg: "orange.50" }}
                           dark={{ bg: "gray.700" }}
                         >
-                          <TopicMessagesList
-                            query={query}
-                            topic={entityTopic}
-                          />
+                          <TopicMessagesList query={query} topic={topic} />
                         </GridItem>
 
                         <GridItem
@@ -687,7 +522,7 @@ export const TopicsList = ({
                           <TopicMessageForm
                             event={event}
                             org={org}
-                            topic={entityTopic}
+                            topic={topic}
                             formats={formats.filter((f) => f !== "size")}
                             onLoginClick={() => setIsLogin(isLogin + 1)}
                             onSubmit={() => query.refetch()}

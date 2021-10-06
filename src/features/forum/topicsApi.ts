@@ -12,14 +12,24 @@ export const topicsApi = createApi({
   baseQuery,
   tagTypes: ["Topics"],
   endpoints: (build) => ({
-    // addTopic: build.mutation<ITopic, Partial<ITopic>>({
-    //   query: (body) => ({
-    //     url: `topics`,
-    //     method: "POST",
-    //     body
-    //   }),
-    //   invalidatesTags: [{ type: "Topics", id: "LIST" }]
-    // }),
+    addTopic: build.mutation<
+      ITopic,
+      {
+        payload: {
+          topic: Partial<ITopic>;
+          org?: Partial<IOrg>;
+          event?: Partial<IEvent>;
+        };
+        topicNotif?: boolean;
+      }
+    >({
+      query: ({ payload, topicNotif }) => ({
+        url: `topics`,
+        method: "POST",
+        body: { ...payload, topicNotif }
+      }),
+      invalidatesTags: [{ type: "Topics", id: "LIST" }]
+    }),
     postTopicNotif: build.mutation<
       string[],
       {
@@ -62,7 +72,7 @@ export const topicsApi = createApi({
 });
 
 export const {
-  // useAddTopicMutation,
+  useAddTopicMutation,
   // useAddTopicDetailsMutation,
   usePostTopicNotifMutation,
   useDeleteTopicMutation,

@@ -54,6 +54,7 @@ import {
 } from "./subscriptionsApi";
 import { refetchSubscription } from "./subscriptionSlice";
 import { ITopic } from "models/Topic";
+import { setLoading } from "features/notes/notesSlice";
 
 const setAllItems = (payload: {
   checked: boolean;
@@ -102,7 +103,20 @@ export const SubscriptionPopover = ({
 
   //#region local state
   const isStep1 = !userEmail;
-  const isStep2 = !!userEmail;
+  //const isStep2 =
+
+  // const noSub =
+  //   subQuery.isError ||
+  //   (event &&
+  //     !subQuery.data?.events.find(
+  //       (eventSubscription: IEventSubscription) =>
+  //         eventSubscription.eventId === event._id
+  //     )) ||
+  //   (org &&
+  //     !subQuery.data?.orgs.find(
+  //       (orgSubscription: IOrgSubscription) => orgSubscription.orgId === org._id
+  //     ));
+
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   // const [tooltipProps, setTooltipProps] = useState<{
@@ -147,59 +161,63 @@ export const SubscriptionPopover = ({
     if (!subQuery.data) return;
 
     //#region event categories
-    const newEventCategories: {
-      [key: number]: {
-        checked: boolean;
-      };
-    } = Object.keys(Category).reduce((obj, key) => {
-      const k = parseInt(key);
-      if (k === 0) return obj;
-      if (!followerSubscription) {
-        console.log("no follower subscription => unchecking all");
-        return { ...obj, [k]: { checked: false } };
-      }
+    if (org) {
+      const newEventCategories: {
+        [key: number]: {
+          checked: boolean;
+        };
+      } = Object.keys(Category).reduce((obj, key) => {
+        const k = parseInt(key);
+        if (k === 0) return obj;
+        if (!followerSubscription) {
+          console.log("no follower subscription => unchecking all");
+          return { ...obj, [k]: { checked: false } };
+        }
 
-      if (!("eventCategories" in followerSubscription)) {
-        console.log(
-          "follower subscription => undefined eventCategories => checking all"
+        if (!("eventCategories" in followerSubscription)) {
+          console.log(
+            "follower subscription => undefined eventCategories => checking all"
+          );
+          return {
+            ...obj,
+            [k]: { checked: true }
+          };
+        }
+
+        if (!Array.isArray(followerSubscription.eventCategories)) return obj;
+
+        if (followerSubscription.eventCategories.length === 0) {
+          console.log(
+            "follower subscription => no selection => unchecking all"
+          );
+          return { ...obj, [k]: { checked: false } };
+        }
+
+        const checked = !!followerSubscription.eventCategories?.find(
+          ({ catId, emailNotif, pushNotif }) => {
+            return notifType === "email"
+              ? catId === k && emailNotif
+              : catId === k && pushNotif;
+          }
         );
+
         return {
           ...obj,
-          [k]: { checked: true }
+          [k]: {
+            checked
+          }
         };
-      }
+      }, {});
 
-      if (!Array.isArray(followerSubscription.eventCategories)) return obj;
+      setEventCategories(newEventCategories);
 
-      if (followerSubscription.eventCategories.length === 0) {
-        console.log("follower subscription => no selection => unchecking all");
-        return { ...obj, [k]: { checked: false } };
-      }
-
-      const checked = !!followerSubscription.eventCategories?.find(
-        ({ catId, emailNotif, pushNotif }) => {
-          return notifType === "email"
-            ? catId === k && emailNotif
-            : catId === k && pushNotif;
-        }
-      );
-
-      return {
-        ...obj,
-        [k]: {
-          checked
-        }
-      };
-    }, {});
-
-    setEventCategories(newEventCategories);
-
-    if (
-      Object.keys(newEventCategories).some(
-        (key) => newEventCategories[parseInt(key)].checked
+      if (
+        Object.keys(newEventCategories).some(
+          (key) => newEventCategories[parseInt(key)].checked
+        )
       )
-    )
-      setShowEventCategories(true);
+        setShowEventCategories(true);
+    }
     //#endregion
 
     //#region topics
@@ -295,9 +313,7 @@ export const SubscriptionPopover = ({
           onClick={handleSubmit(onStep1Submit)}
           colorScheme="green"
           type="submit"
-          isLoading={
-            addSubscriptionMutation.isLoading || props.isLoading || isLoading
-          }
+          isLoading={isLoading}
           isDisabled={Object.keys(errors).length > 0}
         >
           Valider
@@ -306,8 +322,8 @@ export const SubscriptionPopover = ({
     </PopoverContent>
   );
 
-  const onStep2Submit = async () => {
-    let payload: Partial<ISubscription> = {};
+  const addEventOrOrgSubscription = async () => {
+    setIsLoading(true);
     let topicSubscriptions: ITopicSubscription[] | undefined = Object.keys(
       topics
     )
@@ -324,6 +340,7 @@ export const SubscriptionPopover = ({
     topicSubscriptions =
       topicSubscriptions.length > 0 ? topicSubscriptions : undefined;
 
+    let payload: Partial<ISubscription> = {};
     if (!subQuery.data || !followerSubscription) {
       if (org) {
         payload.orgs = [
@@ -343,16 +360,8 @@ export const SubscriptionPopover = ({
               })
           }
         ];
-
-        payload.topics = topicSubscriptions;
-
-        await addSubscription({ payload }).unwrap();
-        toast({
-          title: `Vous êtes maintenant abonné à ${
-            org ? org.orgName : event!.eventName
-          } !`,
-          status: "success"
-        });
+      } else if (event) {
+        payload.events = [{ eventId: event._id, event }];
       }
     } else if ("orgId" in followerSubscription) {
       payload.orgs = [
@@ -387,24 +396,36 @@ export const SubscriptionPopover = ({
 
     payload.topics = topicSubscriptions;
 
-    await addSubscription({
-      payload,
-      email: userEmail
-    }).unwrap();
-    query.refetch();
-    toast({
-      title: `Votre abonnement à ${
-        org ? org.orgName : event!.eventName
-      } a bien été modifié !`,
-      status: "success"
-    });
+    try {
+      await addSubscription({
+        payload,
+        email: userEmail
+      }).unwrap();
+
+      query.refetch();
+      subQuery.refetch();
+
+      toast({
+        title: `Votre abonnement à ${
+          org ? org.orgName : event!.eventName
+        } a bien été modifié !`,
+        status: "success"
+      });
+    } catch (error) {
+      toast({
+        status: "error",
+        title: "Nous n'avons pas pu modifier votre abonnement"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const step2 = (
     <PopoverContent>
       {/* <PopoverCloseButton /> */}
-      <PopoverHeader>
-        {subQuery.data && followerSubscription && (
+      {subQuery.data && followerSubscription ? (
+        <PopoverHeader>
           <Link
             href={`/unsubscribe/${
               org ? org.orgUrl : event?.eventUrl
@@ -414,10 +435,19 @@ export const SubscriptionPopover = ({
           >
             Se désabonner de {org ? org.orgName : event?.eventName}
           </Link>
-        )}
-      </PopoverHeader>
+        </PopoverHeader>
+      ) : (
+        userEmail && (
+          <PopoverHeader>
+            <Text>Abonnement de {userEmail}</Text>
+          </PopoverHeader>
+        )
+      )}
       <PopoverBody>
-        <form onChange={onChange} onSubmit={handleSubmit(onStep2Submit)}>
+        <form
+          onChange={onChange}
+          onSubmit={handleSubmit(addEventOrOrgSubscription)}
+        >
           <FormControl>
             <>
               {subQuery.isLoading || subQuery.isFetching ? (
@@ -588,7 +618,7 @@ export const SubscriptionPopover = ({
 
       <PopoverFooter>
         <Button
-          onClick={handleSubmit(onStep2Submit)}
+          onClick={handleSubmit(addEventOrOrgSubscription)}
           colorScheme="green"
           type="submit"
           isDisabled={
@@ -596,9 +626,7 @@ export const SubscriptionPopover = ({
             subQuery.isLoading ||
             subQuery.isFetching
           }
-          isLoading={
-            addSubscriptionMutation.isLoading || props.isLoading || isLoading
-          }
+          isLoading={isLoading}
         >
           Modifier l'abonnement
         </Button>
@@ -606,60 +634,142 @@ export const SubscriptionPopover = ({
     </PopoverContent>
   );
 
+  if (!userEmail)
+    return (
+      <Popover isLazy isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <PopoverTrigger>
+          <Button
+            isLoading={isLoading}
+            leftIcon={notifType === "email" ? <EmailIcon /> : <BellIcon />}
+            colorScheme="teal"
+            onClick={async () => {
+              if (isStep1) {
+                setIsOpen(!isOpen);
+              } else {
+                setIsOpen(!isOpen);
+              }
+            }}
+            data-cy="subscribeToOrg"
+          >
+            S'abonner
+          </Button>
+        </PopoverTrigger>
+
+        {step1}
+      </Popover>
+    );
+
   return (
-    <Popover isLazy isOpen={isOpen} onClose={() => setIsOpen(false)}>
-      {/* <Tooltip {...tooltipProps} placement="top" hasArrow> */}
-      <PopoverTrigger>
+    <>
+      {!followerSubscription ? (
         <Button
-          isLoading={props.isLoading || isLoading}
+          isLoading={isLoading}
           leftIcon={notifType === "email" ? <EmailIcon /> : <BellIcon />}
           colorScheme="teal"
-          onClick={async () => {
-            // delete case
-            // const subscriptionEntitySubscriptions = org
-            //   ? subQuery.data?.orgs
-            //   : subQuery.data?.events;
-            // if (
-            //   followerSubscription &&
-            //   subQuery.data &&
-            //   Array.isArray(subscriptionEntitySubscriptions) &&
-            //   subscriptionEntitySubscriptions.length > 0
-            // ) {
-            //   setIsLoading(true);
-            //   const payload = org
-            //     ? { orgs: [followerSubscription as IOrgSubscription] }
-            //     : { events: [followerSubscription as IEventSubscription] };
-
-            //   await deleteSubscription({
-            //     subscriptionId: subQuery.data._id,
-            //     payload
-            //   });
-            //   dispatch(refetchSubscription());
-            //   setIsLoading(false);
-            //   props.onSubmit && props.onSubmit(false);
-            //   return;
-            // }
-
-            // if (props.email || session) {
-            //   onSubmit({
-            //     email: props.email || session?.user.email
-            //   });
-            // } else
-            if (isStep1) {
-              setIsOpen(!isOpen);
-            } else {
-              setIsOpen(!isOpen);
-            }
-          }}
+          onClick={addEventOrOrgSubscription}
           data-cy="subscribeToOrg"
         >
-          {notifType === "email"
-            ? "Notifications e-mail"
-            : "Notifications mobile"}
+          S'abonner
         </Button>
-      </PopoverTrigger>
-      {/* </Tooltip> */}
-      {isStep1 ? step1 : step2}
-    </Popover>
+      ) : (
+        <Popover isLazy isOpen={isOpen} onClose={() => setIsOpen(false)}>
+          <PopoverTrigger>
+            <Button
+              isLoading={isLoading}
+              leftIcon={notifType === "email" ? <EmailIcon /> : <BellIcon />}
+              colorScheme="teal"
+              onClick={async () => {
+                if (isStep1) {
+                  setIsOpen(!isOpen);
+                } else {
+                  setIsOpen(!isOpen);
+                }
+              }}
+              data-cy="subscribeToOrg"
+            >
+              {notifType === "email"
+                ? "Notifications e-mail"
+                : "Notifications mobile"}
+            </Button>
+          </PopoverTrigger>
+
+          {step2}
+        </Popover>
+      )}
+    </>
   );
 };
+
+//     org ? (
+//       <Button
+//         colorScheme="teal"
+//         onClick={async () => {
+//           const payload = {
+//             orgs: [
+//               {
+//                 type: SubscriptionTypes.FOLLOWER,
+//                 org,
+//                 orgId: org._id
+//               }
+//             ]
+//           };
+//           await addSubscription({ payload }).unwrap();
+//           toast({
+//             title: `Vous êtes maintenant abonné à ${org.orgName} !`,
+//             status: "success"
+//           });
+//           subQuery.refetch();
+//         }}
+//       >
+//         S'abonner à {org.orgName}
+//       </Button>
+//     ) : event ? (
+//       <Button
+//         colorScheme="teal"
+//         onClick={async () => {
+//           const payload = {
+//             events: [
+//               {
+//                 event,
+//                 eventId: event._id
+//               }
+//             ]
+//           };
+//           await addSubscription({ payload }).unwrap();
+//           toast({
+//             title: `Vous êtes maintenant abonné à ${event.eventName} !`,
+//             status: "success"
+//           });
+//           subQuery.refetch();
+//         }}
+//       >
+//         S'abonner à {event.eventName}
+//       </Button>
+//     ) : null
+// ) : (
+//       <Popover isLazy isOpen={isOpen} onClose={() => setIsOpen(false)}>
+//         <PopoverTrigger>
+//           <Button
+//             isLoading={props.isLoading || isLoading}
+//             leftIcon={notifType === "email" ? <EmailIcon /> : <BellIcon />}
+//             colorScheme="teal"
+//             onClick={async () => {
+//               if (isStep1) {
+//                 setIsOpen(!isOpen);
+//               } else {
+//                 setIsOpen(!isOpen);
+//               }
+//             }}
+//             data-cy="subscribeToOrg"
+//           >
+//             {notifType === "email"
+//               ? "Notifications e-mail"
+//               : "Notifications mobile"}
+//           </Button>
+//         </PopoverTrigger>
+
+//         {step1}
+//       </Popover>
+// )}
+
+// </>

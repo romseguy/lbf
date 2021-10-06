@@ -216,18 +216,22 @@ handler.post<
       const { events: newEventSubscriptions } = body;
 
       if (userSubscription.events.length > 0) {
-        const staleEventSubscriptionEventIds: string[] = [];
+        console.log("user already got event subscriptions");
+
+        //const staleEventSubscriptionEventIds: string[] = [];
 
         for (const newEventSubscription of newEventSubscriptions) {
           const event = await models.Event.findOne({
             _id: newEventSubscription.eventId
           });
 
-          if (!event) {
-            // userSub.events contains stale event subscription
-            staleEventSubscriptionEventIds.push(newEventSubscription.eventId);
-            continue;
-          }
+          if (!event) continue;
+
+          // if (!event) {
+          //   // userSub.events contains stale event subscription
+          //   staleEventSubscriptionEventIds.push(newEventSubscription.eventId);
+          //   continue;
+          // }
 
           let isAdded;
 
@@ -242,24 +246,26 @@ handler.post<
 
           await models.Event.updateOne(
             { _id: event._id },
-            { $push: { orgSubscriptions: userSubscription } }
+            { $push: { eventSubscriptions: userSubscription } }
           );
 
           userSubscription.events.push(newEventSubscription);
         }
 
-        if (staleEventSubscriptionEventIds.length > 0) {
-          userSubscription.events = userSubscription.events.filter(
-            (eventSubscription) =>
-              !staleEventSubscriptionEventIds.find((id) =>
-                equals(id, eventSubscription.eventId)
-              )
-          );
-        }
+        // if (staleEventSubscriptionEventIds.length > 0) {
+        //   userSubscription.events = userSubscription.events.filter(
+        //     (eventSubscription) =>
+        //       !staleEventSubscriptionEventIds.find((id) =>
+        //         equals(id, eventSubscription.eventId)
+        //       )
+        //   );
+        // }
       } else if (userSubscription) {
+        console.log("first time user subscribes to any event");
+
         const newEventSubscription = newEventSubscriptions[0];
         let event = await models.Event.findOne({
-          _id: newEventSubscription.event._id
+          _id: newEventSubscription.eventId || newEventSubscription.event._id
         }).populate("eventSubscriptions");
 
         if (!event) {
@@ -268,7 +274,7 @@ handler.post<
             .json(
               createServerError(
                 new Error(
-                  "Vous ne pouvez pas vous abonner à une eventanisation inexistante"
+                  "Vous ne pouvez pas vous abonner à un événement inexistant"
                 )
               )
             );
@@ -306,7 +312,12 @@ handler.post<
           );
       }
 
-      if (userSubscription.topics) {
+      if (
+        Array.isArray(userSubscription.topics) &&
+        userSubscription.topics.length > 0
+      ) {
+        console.log("user already got topic subscriptions");
+
         if (
           !userSubscription.topics.find(
             ({ topic }: { topic: ITopic }) => topic._id === topicId
@@ -319,9 +330,12 @@ handler.post<
           });
         }
       } else {
+        console.log("first time user subscribes to any topic");
         userSubscription.topics = body.topics;
       }
     }
+
+    console.log("saving userSubscription", userSubscription);
 
     await userSubscription.save();
     res.status(200).json(userSubscription);

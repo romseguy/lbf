@@ -82,14 +82,15 @@ export const getServerSideProps = wrapper.getServerSideProps(
           );
 
           if (topicSubscription) {
-            const q = await store.dispatch(
-              deleteSubscription.initiate({
-                subscriptionId,
+            const { data: subscription } = await api.remove(
+              `subscription/${subscriptionId}`,
+              {
+                orgId: org._id,
                 topicId
-              })
+              }
             );
 
-            if ("data" in q)
+            if (subscription)
               return {
                 props: {
                   unsubscribed: true,
@@ -97,12 +98,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
                   subscription
                 }
               };
-          }
-        } else {
-          const subQuery = await store.dispatch(
-            deleteSubscription.initiate({
-              subscriptionId,
-              payload: {
+          } else {
+            const { data: subscription } = await api.remove(
+              `subscription/${subscriptionId}`,
+              {
                 orgs: [
                   {
                     orgId: org._id,
@@ -111,11 +110,11 @@ export const getServerSideProps = wrapper.getServerSideProps(
                   }
                 ]
               }
-            })
-          );
+            );
 
-          if ("data" in subQuery)
-            return { props: { unsubscribed: true, org, subscription } };
+            if (subscription)
+              return { props: { unsubscribed: true, org, subscription } };
+          }
         }
       }
 
@@ -124,21 +123,19 @@ export const getServerSideProps = wrapper.getServerSideProps(
       );
 
       if (event) {
-        const q = await store.dispatch(
-          deleteSubscription.initiate({
-            subscriptionId,
-            payload: {
-              events: [
-                {
-                  eventId: event._id,
-                  event
-                }
-              ]
-            }
-          })
+        const { data: subscription } = await api.remove(
+          `subscription/${subscriptionId}`,
+          {
+            events: [
+              {
+                eventId: event._id,
+                event
+              }
+            ]
+          }
         );
 
-        if ("data" in q)
+        if (subscription)
           return { props: { unsubscribed: true, event, subscription } };
       }
 

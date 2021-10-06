@@ -126,72 +126,6 @@ handler.get<
   }
 });
 
-handler.post<
-  NextApiRequest & {
-    query: { orgUrl: string };
-    body: { topic?: ITopic };
-  },
-  NextApiResponse
->(async function postOrgDetails(req, res) {
-  const session = await getSession({ req });
-
-  if (!session) {
-    res
-      .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu")
-        )
-      );
-  } else {
-    try {
-      const {
-        query: { orgUrl },
-        body
-      }: {
-        query: { orgUrl: string };
-        body: { topic?: ITopic; org?: IOrg };
-      } = req;
-
-      const org = await models.Org.findOne({ orgUrl });
-
-      if (!org) {
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
-            )
-          );
-      }
-
-      if (body.topic) {
-        const subject = `Nouvelle discussion : ${body.topic.topicName}`;
-        const mail = {
-          subject,
-          to: org.orgEmail,
-          from: process.env.EMAIL_FROM,
-          html: `
-          <h1>${subject}</h1>
-          <p>Rendez-vous sur la page de l'organisation <a href="${org.orgUrl}">${org.orgName}</a> pour lire la discussion.</p>
-          <p>Vous recevez cette notification car cette adresse e-mail est associée à l'organisation ${org.orgName}.</p>
-          `
-        };
-
-        if (process.env.NODE_ENV === "production")
-          await transport.sendMail(mail);
-        else if (process.env.NODE_ENV === "development")
-          console.log("sent new topic email notif to org email", mail);
-
-        const topic = await addOrUpdateTopic({ body, org, transport, res });
-        res.status(200).json(topic);
-      } else res.status(200).json({});
-    } catch (error) {
-      res.status(500).json(createServerError(error));
-    }
-  }
-});
-
 handler.put<
   NextApiRequest & {
     query: { orgUrl: string };
@@ -301,13 +235,15 @@ handler.delete<
           .json(
             createServerError(
               new Error(
-                "Vous ne pouvez pas supprimer un organisation que vous n'avez pas créé."
+                "Vous ne pouvez pas supprimer une organisation que vous n'avez pas créé."
               )
             )
           );
       }
 
       const { deletedCount } = await models.Org.deleteOne({ orgUrl });
+
+      // todo delete references to this org
 
       if (deletedCount === 1) {
         res.status(200).json(org);

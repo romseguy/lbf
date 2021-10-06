@@ -1,22 +1,10 @@
-import {
-  AddIcon,
-  CheckCircleIcon,
-  DeleteIcon,
-  EmailIcon,
-  UpDownIcon,
-  WarningIcon
-} from "@chakra-ui/icons";
+import { AddIcon } from "@chakra-ui/icons";
 import {
   Box,
-  Icon,
   Text,
   Grid,
   Heading,
-  Tooltip,
-  Flex,
   useToast,
-  IconButton,
-  Tag,
   Button,
   useColorMode
 } from "@chakra-ui/react";
@@ -27,10 +15,7 @@ import {
   addWeeks,
   intervalToDuration,
   parseISO,
-  formatISO,
-  getMinutes,
   getDayOfYear,
-  getDay,
   setDay,
   compareDesc,
   setHours
@@ -39,86 +24,24 @@ import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
-import { FaGlobeEurope, FaRetweet } from "react-icons/fa";
-import { IoIosPeople, IoIosPerson, IoMdPerson } from "react-icons/io";
 import { css } from "twin.macro";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import { DescriptionModal } from "features/modals/DescriptionModal";
 import { EventModal } from "features/modals/EventModal";
 import { ForwardModal } from "features/modals/ForwardModal";
 import { useSession } from "hooks/useAuth";
-import { Category, IEvent, Visibility } from "models/Event";
+import { IEvent, Visibility } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
-import { useDeleteEventMutation, useEditEventMutation } from "./eventsApi";
+import {
+  useDeleteEventMutation,
+  useEditEventMutation,
+  usePostEventNotifMutation
+} from "./eventsApi";
 import { EventsListItem } from "./EventsListItem";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
-
-const ToggleEvents = ({
-  previousEvents,
-  showPreviousEvents,
-  setShowPreviousEvents,
-  currentEvents,
-  nextEvents,
-  showNextEvents,
-  setShowNextEvents
-}: {
-  previousEvents: IEvent<Date>[];
-  showPreviousEvents: boolean;
-  setShowPreviousEvents: (show: boolean) => void;
-  currentEvents: IEvent<Date>[];
-  nextEvents: IEvent<Date>[];
-  showNextEvents: boolean;
-  setShowNextEvents: (show: boolean) => void;
-}) => {
-  return (
-    <Flex justifyContent="space-between">
-      <Box>
-        {!showNextEvents && (
-          <>
-            {previousEvents.length > 0 && currentEvents.length > 0 && (
-              <Link
-                fontSize="smaller"
-                variant="underline"
-                onClick={() => {
-                  // currentDate = null;
-                  // currentDateP = null;
-                  setShowPreviousEvents(!showPreviousEvents);
-                }}
-              >
-                {showPreviousEvents
-                  ? "Revenir aux événements de cette semaine"
-                  : "Voir les événéments précédents"}
-              </Link>
-            )}
-          </>
-        )}
-      </Box>
-
-      <Box>
-        {!showPreviousEvents && (
-          <>
-            {nextEvents.length > 0 && (
-              <Link
-                fontSize="smaller"
-                variant="underline"
-                onClick={() => {
-                  // currentDate = null;
-                  // currentDateP = null;
-                  setShowNextEvents(!showNextEvents);
-                }}
-              >
-                {showNextEvents
-                  ? "Revenir aux événements de cette semaine"
-                  : "Voir les événéments suivants"}
-              </Link>
-            )}
-          </>
-        )}
-      </Box>
-    </Flex>
-  );
-};
+import { EventsListToggle } from "./EventsListToggle";
+import { ModalState, NotifyModal } from "features/modals/NotifyModal";
 
 export const EventsList = ({
   eventsQuery,
@@ -153,12 +76,18 @@ export const EventsList = ({
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
   const [editOrg, editOrgMutation] = useEditOrgMutation();
+  const postEventNotifMutation = usePostEventNotifMutation();
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [eventToShow, setEventToShow] = useState<IEvent | null>(null);
   const [eventToForward, setEventToForward] = useState<IEvent | null>(null);
+  const [notifyModalState, setNotifyModalState] = useState<
+    ModalState<IEvent<string | Date>>
+  >({
+    entity: null
+  });
   const [showPreviousEvents, setShowPreviousEvents] = useState(false);
   const [showNextEvents, setShowNextEvents] = useState(false);
   useEffect(() => {
@@ -196,6 +125,8 @@ export const EventsList = ({
     session,
     eventToForward,
     setEventToForward,
+    notifyModalState,
+    setNotifyModalState,
     eventToShow,
     setEventToShow,
     toast
@@ -207,10 +138,13 @@ export const EventsList = ({
     let nextEvents: IEvent<Date>[] = [];
 
     for (const event of events) {
+      console.log(event);
+
       if (
         isCreator ||
         event.eventVisibility === Visibility.PUBLIC ||
-        (event.eventVisibility === Visibility.SUBSCRIBERS && isSubscribed)
+        (event.eventVisibility === Visibility.SUBSCRIBERS &&
+          (isSubscribed || isCreator))
       ) {
         const start = parseISO(event.eventMinDate);
         const end = parseISO(event.eventMaxDate);
@@ -256,20 +190,23 @@ export const EventsList = ({
                 nextEvents.push({
                   ...event,
                   eventMinDate,
-                  eventMaxDate
+                  eventMaxDate,
+                  repeat: otherDay.dayNumber + 1
                 });
               // event starts today or after
               else
                 currentEvents.push({
                   ...event,
                   eventMinDate,
-                  eventMaxDate
+                  eventMaxDate,
+                  repeat: otherDay.dayNumber + 1
                 });
             } else
               previousEvents.push({
                 ...event,
                 eventMinDate,
-                eventMaxDate
+                eventMaxDate,
+                repeat: otherDay.dayNumber + 1
               });
           }
         }
@@ -286,16 +223,21 @@ export const EventsList = ({
               nextEvents.push({
                 ...event,
                 eventMinDate,
-                eventMaxDate,
-                repeat: repeatCount + i
+                eventMaxDate
               });
-            } else
+            } else if (compareDesc(today, eventMinDate) !== -1) {
               currentEvents.push({
                 ...event,
                 eventMinDate,
-                eventMaxDate,
-                repeat: repeatCount + i
+                eventMaxDate
               });
+            } else {
+              previousEvents.push({
+                ...event,
+                eventMinDate,
+                eventMaxDate
+              });
+            }
 
             if (event.otherDays) {
               for (const otherDay of event.otherDays) {
@@ -310,14 +252,24 @@ export const EventsList = ({
                   nextEvents.push({
                     ...event,
                     eventMinDate: start,
-                    eventMaxDate: end
+                    eventMaxDate: end,
+                    repeat: otherDay.dayNumber + 1
                   });
-                } else
+                } else if (compareDesc(today, start) !== -1) {
                   currentEvents.push({
                     ...event,
                     eventMinDate: start,
-                    eventMaxDate: end
+                    eventMaxDate: end,
+                    repeat: otherDay.dayNumber + 1
                   });
+                } else {
+                  previousEvents.push({
+                    ...event,
+                    eventMinDate: start,
+                    eventMaxDate: end,
+                    repeat: otherDay.dayNumber + 1
+                  });
+                }
               }
             }
           }
@@ -332,6 +284,13 @@ export const EventsList = ({
     let currentDateP: Date | null = null;
     let currentDate: Date | null = null;
     let { previousEvents, currentEvents, nextEvents } = getEvents(props.events);
+    console.log(props.events);
+    console.log(org);
+    console.log(previousEvents);
+    console.log(currentEvents);
+    console.log(nextEvents);
+    console.log(isSubscribed);
+    console.log(isCreator);
 
     if (!currentEvents.length) {
       if (previousEvents.length) {
@@ -343,7 +302,7 @@ export const EventsList = ({
 
     return (
       <>
-        <ToggleEvents
+        <EventsListToggle
           previousEvents={previousEvents}
           showPreviousEvents={showPreviousEvents}
           setShowPreviousEvents={setShowPreviousEvents}
@@ -523,7 +482,7 @@ export const EventsList = ({
           </Box>
         )}
 
-        <ToggleEvents
+        <EventsListToggle
           previousEvents={previousEvents}
           showPreviousEvents={showPreviousEvents}
           setShowPreviousEvents={setShowPreviousEvents}
@@ -633,6 +592,15 @@ export const EventsList = ({
           }}
         />
       )}
+
+      <NotifyModal
+        event={notifyModalState.entity || undefined}
+        org={org}
+        query={orgQuery}
+        mutation={postEventNotifMutation}
+        setModalState={setNotifyModalState}
+        modalState={notifyModalState}
+      />
     </div>
   );
 };

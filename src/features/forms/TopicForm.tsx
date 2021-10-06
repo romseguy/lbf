@@ -16,9 +16,10 @@ import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessageText, RTEditor } from "features/common";
-import { useAddEventDetailsMutation } from "features/events/eventsApi";
-import { useEditTopicMutation } from "features/forum/topicsApi";
-import { useAddOrgDetailsMutation } from "features/orgs/orgsApi";
+import {
+  useAddTopicMutation,
+  useEditTopicMutation
+} from "features/forum/topicsApi";
 import { useSession } from "hooks/useAuth";
 import type { IEvent } from "models/Event";
 import type { IOrg } from "models/Org";
@@ -41,9 +42,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
 
-  const [addOrgDetails, addOrgDetailsMutation] = useAddOrgDetailsMutation();
-  const [addEventDetails, addEventDetailsMutation] =
-    useAddEventDetailsMutation();
+  const [addTopic, addTopicMutation] = useAddTopicMutation();
   const [editTopic, editTopicMutation] = useEditTopicMutation();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -81,13 +80,13 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
     setIsLoading(true);
 
     const payload = {
+      org,
+      event,
       topic: {
         ...form,
         topicMessages: form.topicMessage
           ? [{ message: form.topicMessage, createdBy: session.user.userId }]
           : [],
-        org,
-        event,
         topicVisibility: !form.topicVisibility
           ? Visibility[Visibility.PUBLIC]
           : form.topicVisibility,
@@ -110,21 +109,10 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
 
         props.onSubmit && props.onSubmit(props.topic);
       } else {
-        let topic: ITopic | null = null;
-
-        if (org) {
-          topic = await addOrgDetails({
-            payload,
-            orgUrl: org.orgUrl,
-            topicNotif: form.topicNotif
-          }).unwrap();
-        } else if (event) {
-          topic = await addEventDetails({
-            payload,
-            eventUrl: event.eventUrl,
-            topicNotif: form.topicNotif
-          }).unwrap();
-        }
+        const topic = await addTopic({
+          payload,
+          topicNotif: form.topicNotif
+        }).unwrap();
 
         toast({
           title: "Votre discussion a bien été ajoutée !",
@@ -242,7 +230,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         </FormControl>
       )}
 
-      {!props.topic && (props.isCreator || props.isSubscribed) && (
+      {!props.topic && props.isCreator && (
         <Checkbox ref={register()} name="topicNotif" mb={3}>
           Notifier les abonnés
         </Checkbox>
@@ -258,8 +246,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
           type="submit"
           isLoading={
             isLoading ||
-            addOrgDetailsMutation.isLoading ||
-            addEventDetailsMutation.isLoading ||
+            addTopicMutation.isLoading ||
             editTopicMutation.isLoading
           }
           isDisabled={Object.keys(errors).length > 0}

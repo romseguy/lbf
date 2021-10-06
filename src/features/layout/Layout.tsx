@@ -147,8 +147,8 @@ export const Layout = ({
                   }
                 >
                   <Button
+                    display="none"
                     leftIcon={<Icon as={FaGithub} boxSize={6} />}
-                    visibility="hidden"
                   >
                     Faire un don
                   </Button>

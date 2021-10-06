@@ -128,14 +128,28 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
         if (user) throw duplicateError;
 
         let isApproved = session.user.isAdmin;
+
         for (const eventOrg of body.eventOrgs) {
           const o = await models.Org.findOne({ _id: eventOrg._id });
-          if (o && o.isApproved) isApproved = true;
+
+          if (!o) {
+            console.log("POST /events: skipping unknown eventOrg");
+            continue;
+          } else {
+            eventOrgs.push(o);
+
+            if (o.isApproved) {
+              isApproved = true;
+            }
+          }
         }
+
+        console.log("POST /events: creating event with eventOrgs", eventOrgs);
 
         event = await models.Event.create({
           ...body,
           eventUrl,
+          eventOrgs,
           isApproved
         });
 
@@ -165,7 +179,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
           { _id: eventOrgs },
           {
             $push: {
-              orgEvents: event?._id
+              orgEvents: event._id
             }
           }
         );

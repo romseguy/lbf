@@ -93,10 +93,6 @@ export const EventForm = withGoogleApi({
   //#region event
   const [addEvent, addEventMutation] = useAddEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
-  const notifiedCount =
-    props.event && Array.isArray(props.event.eventNotified)
-      ? props.event.eventNotified.length
-      : 0;
   //#endregion
 
   //#region myOrgs
@@ -122,7 +118,6 @@ export const EventForm = withGoogleApi({
   });
 
   watch(["eventAddress", "eventOrgs"]);
-  const eventNotif = watch("eventNotif");
   const eventVisibility = watch("eventVisibility");
 
   const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs || [];
@@ -148,11 +143,6 @@ export const EventForm = withGoogleApi({
   const visibilityOptions: string[] = eventOrgs
     ? [Visibility.PUBLIC, Visibility.SUBSCRIBERS]
     : [];
-  useEffect(() => {
-    if (eventNotif === false) {
-      setValue("eventNotif", []);
-    }
-  }, [eventNotif]);
   //#endregion
 
   //#region local state
@@ -339,12 +329,6 @@ export const EventForm = withGoogleApi({
         form.eventDescription === "<p><br></p>"
           ? ""
           : form.eventDescription?.replace(/\&nbsp;/g, " "),
-      eventNotif:
-        typeof form.eventNotif === "boolean"
-          ? []
-          : typeof form.eventNotif === "string"
-          ? [form.eventNotif]
-          : form.eventNotif,
       otherDays
     };
 

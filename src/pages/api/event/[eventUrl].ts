@@ -132,10 +132,10 @@ handler.get<
 handler.post<
   NextApiRequest & {
     query: { eventUrl: string };
-    body: { topic?: ITopic };
+    body: { orgIds: string[] };
   },
   NextApiResponse
->(async function postEventDetails(req, res) {
+>(async function postEventNotif(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -153,7 +153,7 @@ handler.post<
         body
       }: {
         query: { eventUrl: string };
-        body: { topic?: ITopic; event?: IEvent };
+        body: { orgIds: string[] };
       } = req;
 
       let event = await models.Event.findOne({ eventUrl });
@@ -171,10 +171,46 @@ handler.post<
             );
       }
 
-      if (body.topic) {
-        const topic = await addOrUpdateTopic({ body, event, transport, res });
-        res.status(200).json(topic);
+      if (
+        !equals(event.createdBy, session.user.userId) &&
+        !session.user.isAdmin
+      ) {
+        return res
+          .status(403)
+          .json(
+            createServerError(
+              new Error(
+                "Vous ne pouvez pas envoyer des notifications pour un événement que vous n'avez pas créé."
+              )
+            )
+          );
       }
+
+      event = await event
+        .populate({
+          path: "eventOrgs",
+          populate: [{ path: "orgSubscriptions" }]
+        })
+        .execPopulate();
+
+      let emailList: string[] = [];
+
+      emailList = await sendEventToOrgFollowers(event, body.orgIds, transport);
+
+      if (emailList.length > 0) {
+        const newEntries = emailList.map((email) => ({
+          email,
+          status: StatusTypes.PENDING
+        }));
+
+        event.eventNotified = event.eventNotified
+          ? event.eventNotified.concat(newEntries)
+          : newEntries;
+
+        await event.save();
+      }
+
+      res.status(200).json({ emailList });
     } catch (error) {
       res.status(500).json(createServerError(error));
     }
@@ -265,27 +301,10 @@ handler.put<
         }
       }
 
-      let emailList;
-
-      if (body.eventNotif && body.eventNotif.length > 0) {
-        emailList = await sendEventToOrgFollowers(event, transport);
-
-        if (emailList.length > 0) {
-          const newEntries = emailList.map((email) => ({
-            email,
-            status: StatusTypes.PENDING
-          }));
-
-          body.eventNotified = event.eventNotified
-            ? event.eventNotified.concat(newEntries)
-            : newEntries;
-        }
-      }
-
       const { n, nModified } = await models.Event.updateOne({ eventUrl }, body);
 
       if (nModified === 1) {
-        res.status(200).json({ emailList });
+        res.status(200).json({});
       } else {
         res
           .status(400)

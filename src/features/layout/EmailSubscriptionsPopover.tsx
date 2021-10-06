@@ -63,15 +63,16 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
+  const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region sub
-  const userEmail = useSelector(selectUserEmail) || session?.user.email;
   const subQuery = useGetSubscriptionQuery(userEmail);
   const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
-    // console.log("refetching subscription");
+    console.log("refetching subscription");
     subQuery.refetch();
   }, [subscriptionRefetch, userEmail]);
+
   const orgFollowerSubscriptions = subQuery.data?.orgs.filter(
     (orgSubscription) => orgSubscription.type === SubscriptionTypes.FOLLOWER
   );

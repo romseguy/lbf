@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { IoIosPeople, IoIosPerson } from "react-icons/io";
+import { AddIcon } from "@chakra-ui/icons";
 import {
   List,
   ListItem,
@@ -12,13 +11,6 @@ import {
   PopoverBody,
   useColorModeValue,
   Icon,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
   IconButton,
   Spinner,
   Button,
@@ -27,20 +19,21 @@ import {
   BoxProps,
   Text
 } from "@chakra-ui/react";
-import { OrgForm } from "features/forms/OrgForm";
-import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { Link } from "features/common";
-import { useSession } from "hooks/useAuth";
-import { AddIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
-import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import React, { useEffect, useState } from "react";
+import { IoIosPeople, IoIosPerson } from "react-icons/io";
 import { useSelector } from "react-redux";
+import { Link } from "features/common";
+import { OrgModal } from "features/modals/OrgModal";
+import { useGetOrgsQuery } from "features/orgs/orgsApi";
+import { selectOrgsRefetch } from "features/orgs/orgSlice";
+import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import {
   isSubscribedBy,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
-import { selectOrgsRefetch } from "features/orgs/orgSlice";
-import { OrgModal } from "features/modals/OrgModal";
+import { selectUserEmail } from "features/users/userSlice";
+import { useSession } from "hooks/useAuth";
 import { IOrg } from "models/Org";
 
 export const OrgPopover = ({
@@ -52,7 +45,9 @@ export const OrgPopover = ({
 }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
+  const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
+  //#region myOrgs
   const orgsQuery = useGetOrgsQuery({});
   const myOrgs =
     (Array.isArray(orgsQuery.data) &&
@@ -66,8 +61,16 @@ export const OrgPopover = ({
     orgsQuery.refetch();
   }, [refetchOrgs]);
   const hasOrgs = Array.isArray(myOrgs) && myOrgs.length > 0;
+  //#endregion
 
-  const subQuery = useGetSubscriptionQuery(session?.user.userId);
+  //#region sub
+  const subQuery = useGetSubscriptionQuery(userEmail);
+  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    console.log("refetching subscription");
+    subQuery.refetch();
+  }, [subscriptionRefetch, userEmail]);
+
   const subscribedOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&
@@ -75,13 +78,16 @@ export const OrgPopover = ({
     [];
   const hasSubscribedOrgs =
     Array.isArray(subscribedOrgs) && subscribedOrgs.length > 0;
+  //#endregion
 
+  //#region local state
   const [isOpen, setIsOpen] = useState(false);
   const [orgModalState, setOrgModalState] = useState<{
     isOpen: boolean;
     org?: IOrg;
   }>({ isOpen: false, org: undefined });
   const iconHoverColor = useColorModeValue("white", "lightgreen");
+  //#endregion
 
   return (
     <Box {...props}>

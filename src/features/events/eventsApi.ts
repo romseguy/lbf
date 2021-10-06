@@ -2,6 +2,7 @@ import type { IEvent } from "models/Event";
 import type { ITopic } from "models/Topic";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import baseQuery from "utils/query";
+import { IOrg } from "models/Org";
 
 export const eventApi = createApi({
   reducerPath: "eventsApi",
@@ -16,14 +17,17 @@ export const eventApi = createApi({
       }),
       invalidatesTags: [{ type: "Events", id: "LIST" }]
     }),
-    addEventDetails: build.mutation<
-      ITopic,
-      { payload: { topic?: ITopic }; eventUrl?: string; topicNotif?: boolean }
+    postEventNotif: build.mutation<
+      { emailList: string[] },
+      {
+        payload: { orgIds?: string[] };
+        eventUrl?: string;
+      }
     >({
-      query: ({ payload, eventUrl, topicNotif }) => ({
+      query: ({ payload, eventUrl }) => ({
         url: `event/${eventUrl}`,
         method: "POST",
-        body: { ...payload, topicNotif }
+        body: payload
       })
     }),
     deleteEvent: build.mutation<IEvent, { eventUrl: string }>({
@@ -64,7 +68,7 @@ export const eventApi = createApi({
 
 export const {
   useAddEventMutation,
-  useAddEventDetailsMutation,
+  usePostEventNotifMutation,
   useDeleteEventMutation,
   useEditEventMutation,
   useGetEventQuery,

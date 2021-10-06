@@ -1,8 +1,5 @@
-import React, { useState } from "react";
 import {
-  Box,
   Alert,
-  AlertIcon,
   Tr,
   Td,
   Table,
@@ -12,7 +9,6 @@ import {
   Spinner,
   Checkbox,
   useColorMode,
-  FormLabel,
   Button,
   Flex,
   useToast,
@@ -20,11 +16,12 @@ import {
   FormControl
 } from "@chakra-ui/react";
 import { EmailIcon } from "@chakra-ui/icons";
-import { SubscriptionTypes } from "models/Subscription";
-import { IEvent } from "models/Event";
-import { useForm } from "react-hook-form";
-import { useEditEventMutation } from "features/events/eventsApi";
 import { ErrorMessage } from "@hookform/error-message";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { usePostEventNotifMutation } from "features/events/eventsApi";
+import { IEvent } from "models/Event";
+import { SubscriptionTypes } from "models/Subscription";
 
 export const EventSendForm = ({
   event,
@@ -40,7 +37,7 @@ export const EventSendForm = ({
   const isDark = colorMode === "dark";
 
   //#region event
-  const [editEvent, q] = useEditEventMutation();
+  const [postEventNotif, q] = usePostEventNotifMutation();
   const notifiedCount = Array.isArray(event.eventNotified)
     ? event.eventNotified.length
     : 0;
@@ -74,7 +71,7 @@ export const EventSendForm = ({
         setIsLoading(true);
 
         let payload = {
-          eventNotif:
+          orgIds:
             typeof form.eventNotif === "boolean"
               ? []
               : typeof form.eventNotif === "string"
@@ -83,7 +80,7 @@ export const EventSendForm = ({
         };
 
         try {
-          const res = await editEvent({
+          const res = await postEventNotif({
             eventUrl: event.eventUrl,
             payload
           }).unwrap();

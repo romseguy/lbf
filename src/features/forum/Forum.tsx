@@ -22,7 +22,7 @@ export const Forum = ({
 }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
-  const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
+  const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region org
   const query = useGetOrgQuery({
@@ -46,6 +46,12 @@ export const Forum = ({
 
   //#region subscription
   const subQuery = useGetSubscriptionQuery(userEmail);
+  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    console.log("refetching subscription");
+    subQuery.refetch();
+  }, [subscriptionRefetch, userEmail]);
+
   const [isFollowed, setIsFollowed] = useState(
     !!isFollowedBy({ org, subQuery })
   );

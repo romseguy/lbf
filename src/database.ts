@@ -18,6 +18,13 @@ export let models: {
   Topic: Model<ITopic & Document<any, any, any>, {}, {}>;
   User: Model<IUser & Document<any, any, any>, {}, {}>;
 };
+export type AppModel =
+  | IEvent
+  | IOrg
+  | IProject
+  | ISubscription
+  | ITopic
+  | IUser;
 const middleware = nextConnect();
 
 export const connectToDatabase = async () => {

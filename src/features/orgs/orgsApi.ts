@@ -19,16 +19,6 @@ export const orgApi = createApi({
       }),
       invalidatesTags: [{ type: "Orgs", id: "LIST" }]
     }),
-    addOrgDetails: build.mutation<
-      ITopic,
-      { payload: { topic?: ITopic }; orgUrl?: string; topicNotif?: boolean }
-    >({
-      query: ({ payload, orgUrl, topicNotif }) => ({
-        url: `org/${orgUrl}`,
-        method: "POST",
-        body: { ...payload, topicNotif }
-      })
-    }),
     deleteOrg: build.mutation<IOrg, string>({
       query: (orgUrl) => ({ url: `org/${orgUrl}`, method: "DELETE" })
     }),
@@ -66,7 +56,6 @@ export const orgApi = createApi({
 
 export const {
   useAddOrgMutation,
-  useAddOrgDetailsMutation,
   useDeleteOrgMutation,
   useEditOrgMutation,
   useGetOrgQuery,

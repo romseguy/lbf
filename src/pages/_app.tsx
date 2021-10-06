@@ -9,17 +9,6 @@ import { wrapper } from "store";
 import { isServer } from "utils/isServer";
 import { getSession } from "hooks/useAuth";
 
-// import { AbortController } from "abort-controller";
-// import fetch, { Headers, Request, Response } from "node-fetch";
-
-// Object.assign(globalThis, {
-//   fetch,
-//   Headers,
-//   Request,
-//   Response,
-//   AbortController
-// });
-
 if (!isServer() && process.env.NODE_ENV === "production") {
   const CleanConsole = require("@eaboy/clean-console");
   CleanConsole.init({
