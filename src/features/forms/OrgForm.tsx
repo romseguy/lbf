@@ -303,6 +303,8 @@ export const OrgForm = withGoogleApi({
           render={(p) => {
             return (
               <RTEditor
+                org={props.org}
+                session={props.session}
                 defaultValue={props.org?.orgDescription}
                 onChange={p.onChange}
                 placeholder="Décrivez l'organisation, ses activités, etc..."

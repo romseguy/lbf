@@ -1,11 +1,19 @@
+import { Tooltip, useColorMode, useToast } from "@chakra-ui/react";
+import styled from "@emotion/styled";
+import axios from "axios";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
+import { IUser } from "models/User";
+import { Session, User } from "next-auth";
 import type Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { useCallback, useEffect, RefObject } from "react";
-import { useQuill } from "react-quilljs";
-import styled from "@emotion/styled";
-import { Tooltip, useColorMode } from "@chakra-ui/react";
 import { FaHeart } from "react-icons/fa";
+import { useQuill } from "react-quilljs";
+import { pickFile } from "utils/form";
 import { getUniqueId } from "utils/string";
+
+const tempImages = [];
 
 export const formats = [
   "size",
@@ -155,7 +163,17 @@ const ReactQuillStyles = styled("span")(
   }
 );
 
-const CustomToolbar = ({ id, formats }: { id: string; formats: string[] }) => {
+const CustomToolbar = ({
+  id,
+  formats,
+  event,
+  org
+}: {
+  id: string;
+  formats: string[];
+  event?: IEvent;
+  org?: IOrg;
+}) => {
   return (
     <div id={id}>
       {formats.includes("size") && (
@@ -217,12 +235,18 @@ const CustomToolbar = ({ id, formats }: { id: string; formats: string[] }) => {
 
 export const RTEditor = ({
   defaultValue,
+  event,
+  org,
+  session,
   onChange,
   readOnly,
   placeholder,
   ...props
 }: {
   defaultValue?: string;
+  event?: IEvent;
+  org?: IOrg;
+  session?: Session;
   onChange?: (html: string) => void;
   readOnly?: boolean;
   placeholder?: string;
@@ -230,6 +254,7 @@ export const RTEditor = ({
   width?: string;
   formats?: string[];
 }) => {
+  const toast = useToast({ position: "top" });
   const shortId = getUniqueId();
 
   const modules = (id: string) => ({
@@ -238,9 +263,23 @@ export const RTEditor = ({
       maxStack: 50,
       userOnly: false
     },
+    // imageUploader: {
+    //   upload: (file: File) => {
+    //     console.log(file);
+
+    //     return new Promise((resolve, reject) => {
+    //       setTimeout(() => {
+    //         resolve(
+    //           "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/JavaScript-logo.png/480px-JavaScript-logo.png"
+    //         );
+    //       }, 3500);
+    //     });
+    //   }
+    // },
     toolbar: {
       container: "#" + id,
       handlers: {
+        //image: () => {},
         insertHeart: () => {},
         undo: () => {},
         redo: () => {}
@@ -268,6 +307,86 @@ export const RTEditor = ({
     editor: Quill | undefined;
   } = useQuill(options);
 
+  const image = useCallback(() => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    input.onchange = async () => {
+      //@ts-expect-error
+      const file = input.files[0];
+
+      if (/^image\//.test(file.type)) {
+        if (file.size >= 50000000) {
+          toast({
+            status: "error",
+            title: "L'image ne doit pas dépasser 10Mo."
+          });
+          return;
+        }
+        // const range = quill.getSelection();
+        // const blob = window.URL.createObjectURL(file);
+        // quill.insertEmbed(range.index, "image", blob);
+        // tempImages.push({ blob, file });
+
+        const data = new FormData();
+        data.append("file", file);
+
+        if (event) data.append("eventId", event._id);
+        else if (org) data.append("orgId", org._id);
+        else if (session) data.append("userId", session.user.userId);
+
+        const mutation = await axios.post(process.env.NEXT_PUBLIC_API2, data, {
+          onUploadProgress: (ProgressEvent) => {
+            console.log(ProgressEvent);
+            // setLoaded((ProgressEvent.loaded / ProgressEvent.total) * 100);
+          }
+        });
+
+        let url = `${process.env.NEXT_PUBLIC_API2}/view?fileName=${mutation.data.file}`;
+
+        if (event) url += `&eventId=${event._id}`;
+        else if (org) url += `&orgId=${org._id}`;
+        else if (session) url += `&userId=${session.user.userId}`;
+
+        if (mutation.data) {
+          const range = quill.getSelection();
+          quill.insertEmbed(range.index, "image", url);
+        }
+      } else {
+        alert("Vous devez sélectionner une image.");
+      }
+    };
+  }, [quill]);
+
+  // const image = useCallback(() => {
+  //   const input = document.createElement("input");
+
+  //   input.setAttribute("type", "file");
+  //   input.setAttribute("accept", "image/*");
+  //   input.click();
+
+  //   input.onchange = () => {
+  //     //@ts-expect-error
+  //     const [file] = input.files;
+
+  //     console.log(file);
+
+  //     if (/^image\//.test(file.type)) {
+  //       const range = quill.getSelection();
+  //       const blob = URL.createObjectURL(file);
+
+  //       quill.insertEmbed(range.index, "image", blob);
+  //       quill.setSelection(range.index + 1);
+
+  //       tempImage.push({ blob, file });
+  //     } else {
+  //       alert("Vous devez sélectionner une image.");
+  //     }
+  //   };
+  // }, [quill]);
+
   const insertHeart = useCallback(() => {
     const cursorPosition = quill.getSelection().index;
     quill.insertText(cursorPosition, "♥");
@@ -283,6 +402,9 @@ export const RTEditor = ({
   }, [quill]);
 
   if (Quill && !quill) {
+    const Image = Quill.import("formats/image");
+    Image.sanitize = (url: any) => url;
+
     var icons = Quill.import("ui/icons");
     icons[
       "undo"
@@ -296,6 +418,11 @@ export const RTEditor = ({
       <path d="M0 0h24v24H0z" fill="none"/>
       <path class="ql-fill" d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/>
       </svg>`;
+
+    // const ImageCompress = require("quill-image-compress").default; // Install with 'yarn add quill-magic-url'
+    // Quill.register("modules/imageCompress", ImageCompress);
+    // const ImageUploader = require("quill-image-uploader").default; // Install with 'yarn add quill-magic-url'
+    // Quill.register("modules/imageUploader", ImageUploader);
   }
 
   useEffect(() => {
@@ -312,9 +439,10 @@ export const RTEditor = ({
         if (onChange && quill.root) onChange(quill.root.innerHTML);
       });
 
+      quill.getModule("toolbar").addHandler("image", image);
+      quill.getModule("toolbar").addHandler("insertHeart", insertHeart);
       quill.getModule("toolbar").addHandler("undo", undo);
       quill.getModule("toolbar").addHandler("redo", redo);
-      quill.getModule("toolbar").addHandler("insertHeart", insertHeart);
     }
   }, [quill, undo, redo, insertHeart]);
 
@@ -325,8 +453,61 @@ export const RTEditor = ({
 
   return (
     <ReactQuillStyles height={props.height} width={props.width}>
-      <CustomToolbar id={shortId} formats={props.formats || formats} />
+      <CustomToolbar
+        id={shortId}
+        formats={props.formats || formats}
+        event={event}
+        org={org}
+      />
       <div ref={quillRef} />
     </ReactQuillStyles>
   );
 };
+
+// <button
+//   onClick={(e) => {
+//     e.preventDefault();
+//     pickFile(async (file: File) => {
+//       if (file.size >= 50000000) {
+//         toast({
+//           status: "error",
+//           title: "Le fichier ne doit pas dépasser 50Mo."
+//         });
+//       } else {
+//         if (event) {
+//           const data = new FormData();
+//           data.append("file", file, file.name);
+//           data.append("eventId", event._id);
+
+//           const { statusText } = await axios.post(
+//             process.env.NEXT_PUBLIC_API2,
+//             data,
+//             {
+//               onUploadProgress: (ProgressEvent) => {
+//                 console.log(ProgressEvent);
+
+//                 // setLoaded((ProgressEvent.loaded / ProgressEvent.total) * 100);
+//               }
+//             }
+//           );
+
+//           if (statusText === "OK") {
+//             toast({
+//               title: "Votre image a bien été ajoutée !",
+//               status: "success"
+//             });
+//           }
+//         }
+//       }
+//     });
+//   }}
+// >
+//   <svg viewBox="0 0 18 18">
+//     <rect className="ql-stroke" height="10" width="12" x="3" y="4" />
+//     <circle className="ql-fill" cx="6" cy="7" r="1" />
+//     <polyline
+//       className="ql-even ql-fill"
+//       points="5 12 5 11 7 9 8 10 11 7 13 9 13 12 5 12"
+//     />
+//   </svg>
+// </button>

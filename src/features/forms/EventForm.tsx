@@ -823,6 +823,8 @@ export const EventForm = withGoogleApi({
           render={(p) => {
             return (
               <RTEditor
+                event={props.event}
+                session={props.session}
                 defaultValue={props.event?.eventDescription}
                 onChange={(html: string) => {
                   p.onChange(html === "<p><br></p>" ? "" : html);

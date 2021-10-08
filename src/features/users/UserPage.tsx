@@ -30,11 +30,12 @@ import { useGetUserQuery } from "./usersApi";
 import { useAppDispatch } from "store";
 import { signOut } from "next-auth/client";
 
-export const User = ({ ...props }: { user: IUser }) => {
+export const UserPage = ({ ...props }: { user: IUser }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
+  console.log(session);
 
   const userQuery = useGetUserQuery(props.user.userName || props.user._id, {
     selectFromResult: (query) => query

@@ -52,3 +52,26 @@ export const handleError = (
     }
   }
 };
+
+export function pickFile(onFilePicked: (file: File) => void): void {
+  const inputElement = document.createElement("input");
+  inputElement.style.display = "none";
+  inputElement.type = "file";
+
+  inputElement.addEventListener("change", () => {
+    if (inputElement.files) {
+      onFilePicked(inputElement.files[0]);
+    }
+  });
+
+  const teardown = () => {
+    document.body.removeEventListener("focus", teardown, true);
+    setTimeout(() => {
+      document.body.removeChild(inputElement);
+    }, 1000);
+  };
+  document.body.addEventListener("focus", teardown, true);
+
+  document.body.appendChild(inputElement);
+  inputElement.click();
+}

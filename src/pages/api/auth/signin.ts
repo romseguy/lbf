@@ -7,6 +7,13 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
+handler.get<NextApiRequest, NextApiResponse>(async function redirectToHomePage(
+  req,
+  res
+) {
+  res.redirect("/");
+});
+
 handler.post<NextApiRequest, NextApiResponse>(async function signin(req, res) {
   const {
     body: { email, password }

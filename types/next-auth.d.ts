@@ -18,6 +18,7 @@ declare module "next-auth" {
     userName: string;
     userImage?: Base64Image;
     isAdmin: boolean;
+    fromCredentials?: boolean;
   }
 }
 

@@ -1,20 +1,20 @@
+import { Alert, AlertIcon, Spinner } from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { EventPage } from "features/events/EventPage";
+import { getEvent } from "features/events/eventsApi";
+import { Layout } from "features/layout";
+import { OrgPage } from "features/orgs/OrgPage";
+import { getOrg } from "features/orgs/orgsApi";
+import { selectOrgRefetch } from "features/orgs/orgSlice";
+import { UserPage } from "features/users/UserPage";
+import { getUser } from "features/users/usersApi";
+import { setUserEmail } from "features/users/userSlice";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
-import React, { useEffect, useState } from "react";
-import { Alert, AlertIcon, Spinner } from "@chakra-ui/react";
-import { EventPage } from "features/events/EventPage";
-import { Layout } from "features/layout";
-import { OrgPage } from "features/orgs/OrgPage";
-import { User } from "features/users/UserPage";
-import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
-import { setUserEmail } from "features/users/userSlice";
 import { useAppDispatch, wrapper } from "store";
-import { getEvent } from "features/events/eventsApi";
-import { getOrg } from "features/orgs/orgsApi";
-import { getUser } from "features/users/usersApi";
-import { selectOrgRefetch } from "features/orgs/orgSlice";
 
 let populate = "";
 
@@ -82,7 +82,7 @@ const Hash = ({ email, ...props }: { email?: string }) => {
   }
 
   if (user) {
-    return <User user={user} />;
+    return <UserPage user={user} />;
   }
 
   if (error) {

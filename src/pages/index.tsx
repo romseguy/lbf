@@ -17,12 +17,16 @@ import { Layout } from "features/layout";
 import { IoIosChatbubbles, IoIosPeople, IoMdPerson } from "react-icons/io";
 import { Link } from "features/common";
 import { CalendarIcon, ChatIcon, EmailIcon } from "@chakra-ui/icons";
+import { useSession } from "hooks/useAuth";
 
 const IndexPage = (props: any) => {
+  const { data: session, loading: isSessionLoading } = useSession();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const [isLogin, setIsLogin] = useState(0);
   const [isAbout, setIsAbout] = useState(false);
+
+  console.log(session);
 
   const orgs = (plural?: boolean) => (
     <Text color={isDark ? "green.200" : "green"} display="inline">

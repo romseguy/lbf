@@ -33,7 +33,8 @@ const createOptions = (req: NextApiRequest) => ({
             userId: data._id,
             userName: data.userName,
             userImage: data.userImage,
-            isAdmin: data.isAdmin || false
+            isAdmin: data.isAdmin || false,
+            fromCredentials: true
           };
           console.log("AUTHORIZED:", user);
           return user;
@@ -70,13 +71,16 @@ const createOptions = (req: NextApiRequest) => ({
   ],
   database: process.env.DATABASE_URL,
   secret: process.env.SECRET,
-  // JSON Web Tokens can be used for session tokens if enabled with session: { jwt: true }
   session: {
+    // Signin in with credentials is only supported if JSON Web Tokens are enabled!
+    //
+    // Use JSON Web Tokens for session instead of database sessions.
+    // This option can be used with or without a database for users/accounts.
+    // Note: `jwt` is automatically set to `true` if no database is specified.
     jwt: true
   },
   jwt: {
-    secret: process.env.SECRET,
-    encryption: true
+    secret: process.env.SECRET
   },
   callbacks: {
     /*
@@ -91,7 +95,7 @@ const createOptions = (req: NextApiRequest) => ({
       profile?: Profile;
       isNewUser?: boolean;
     }) {
-      //console.log("JWT() PARAMS:", params);
+      console.log("JWT() PARAMS:", params);
 
       if (!params.token) {
         return params;
@@ -122,7 +126,8 @@ const createOptions = (req: NextApiRequest) => ({
      * e.g. getSession(), useSession(), /api/auth/session
      */
     async session(params: { session: Session; token: JWT }) {
-      //console.log("SESSION() PARAMS:", params);
+      console.log("SESSION() PARAMS:", params);
+
       if (!params.token) {
         return params;
       }
@@ -135,11 +140,11 @@ const createOptions = (req: NextApiRequest) => ({
       const { email, userId, userName, userImage, isAdmin } = token;
       session.user = { email, userId, userName, userImage, isAdmin };
 
-      //console.log("SESSION() RETURN", session);
+      console.log("SESSION() RETURN", session);
       return session;
     }
   },
-  debug: true
+  debug: false
 });
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
