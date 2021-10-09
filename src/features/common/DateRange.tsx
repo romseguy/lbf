@@ -12,13 +12,13 @@ const fullMaxDateString = (date: Date) =>
 
 export const toDateRange = (minDate: Date, maxDate: Date) => {
   return `
-      du <b>${format(minDate, "eeee", { locale: fr })}</b>${" "}
+      du <b>${format(minDate, "cccc", { locale: fr })}</b>${" "}
       ${fullMinDateString(minDate)} à${" "}
-      <b>${format(minDate, "H'h'mm", { locale: fr })}</b>
+      <b>${format(minDate, "H:mm", { locale: fr })}</b>
       <br />
-      jusqu'au <b>${format(maxDate, "eeee", { locale: fr })}</b>${" "}
+      jusqu'au <b>${format(maxDate, "cccc", { locale: fr })}</b>${" "}
       ${fullMaxDateString(maxDate)} à${" "}
-      <b>${format(maxDate, "H'h'mm", { locale: fr })}</b>
+      <b>${format(maxDate, "H:mm", { locale: fr })}</b>
       `;
 };
 

@@ -53,7 +53,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrg(req, res) {
       );
   } else {
     try {
-      const { body }: { body: IOrg } = req;
+      let { body }: { body: IOrg } = req;
+      body = { ...body, orgName: body.orgName.trim() };
       const orgUrl = normalize(body.orgName);
 
       const org = await models.Org.findOne({ orgUrl });

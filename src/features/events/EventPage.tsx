@@ -35,12 +35,12 @@ import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "hooks/useAuth";
-import { parseISO, format, getHours, addHours } from "date-fns";
+import { parseISO, format, getHours, addHours, getDate } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { css } from "twin.macro";
 import { IoIosPeople } from "react-icons/io";
-import { Button, GridHeader, GridItem, Link } from "features/common";
+import { Button, DateRange, GridHeader, GridItem, Link } from "features/common";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
@@ -163,7 +163,6 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
 
       return obj;
     }, {});
-
   //#endregion
 
   //#region sub
@@ -217,15 +216,23 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
     Object.keys(timeline).map((key) => {
       const dayNumber = parseInt(key);
       const day = timeline[dayNumber];
+
       return (
         <ListItem key={"timeline-item-" + key}>
           <Text fontWeight="bold">
             {format(day.startDate, "cccc d MMMM", { locale: fr })}
           </Text>
           <Box display="flex" alignItems="center" ml={3} fontWeight="bold">
-            <Text color="green">{format(day.startDate, "H:mm")}</Text>
+            <Text color="green">
+              {format(day.startDate, "H:mm", { locale: fr })}
+            </Text>
             <ArrowForwardIcon />
-            <Text color="red">{format(day.endTime, "H:mm")}</Text>
+            <Text color="red">
+              {getDay(day.startDate) !== getDay(day.endTime)
+                ? format(day.endTime, "cccc", { locale: fr })
+                : ""}{" "}
+              {format(day.endTime, "H:mm", { locale: fr })}
+            </Text>
           </Box>
         </ListItem>
       );
@@ -670,6 +677,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                   <EventSendForm
                     event={event}
                     eventQuery={eventQuery}
+                    session={session}
                     onSubmit={() => setShowSendForm(false)}
                   />
                 )}

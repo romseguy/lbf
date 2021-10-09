@@ -1,16 +1,16 @@
-import type { Document } from "mongoose";
-import { IEvent, StatusTypes, Visibility } from "models/Event";
-import type { ITopic } from "models/Topic";
+import { parseISO } from "date-fns";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "database";
-import { createServerError } from "utils/errors";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
+import database, { models } from "database";
+import { toDateRange } from "features/common";
 import { getSession } from "hooks/useAuth";
-import { sendEventToOrgFollowers } from "utils/email";
+import { IEvent, StatusTypes } from "models/Event";
+import { hasItems } from "utils/array";
+import { createEventNotifEmail, sendEventToOrgFollowers } from "utils/email";
+import { createServerError } from "utils/errors";
 import { equals, normalize } from "utils/string";
-import { addOrUpdateTopic } from "api";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -132,7 +132,7 @@ handler.get<
 handler.post<
   NextApiRequest & {
     query: { eventUrl: string };
-    body: { orgIds: string[] };
+    body: { orgIds: string[]; email?: string };
   },
   NextApiResponse
 >(async function postEventNotif(req, res) {
@@ -153,7 +153,7 @@ handler.post<
         body
       }: {
         query: { eventUrl: string };
-        body: { orgIds: string[] };
+        body: { orgIds: string[]; email?: string };
       } = req;
 
       let event = await models.Event.findOne({ eventUrl });
@@ -195,19 +195,43 @@ handler.post<
 
       let emailList: string[] = [];
 
-      emailList = await sendEventToOrgFollowers(event, body.orgIds, transport);
+      if (body.email && hasItems(body.orgIds)) {
+        const org = await models.Org.findOne({ _id: body.orgIds[0] });
+        const subscription = await models.Subscription.findOne({
+          email: body.email
+        });
 
-      if (emailList.length > 0) {
-        const newEntries = emailList.map((email) => ({
-          email,
-          status: StatusTypes.PENDING
-        }));
+        if (org) {
+          const mail = createEventNotifEmail({
+            email: body.email,
+            event,
+            org,
+            subscription,
+            isPreview: true
+          });
+          await transport.sendMail(mail);
+          emailList.push(body.email);
+          console.log(`sent event email notif to target ${body.email}`, mail);
+        }
+      } else {
+        emailList = await sendEventToOrgFollowers(
+          event,
+          body.orgIds,
+          transport
+        );
 
-        event.eventNotified = event.eventNotified
-          ? event.eventNotified.concat(newEntries)
-          : newEntries;
+        if (emailList.length > 0) {
+          const newEntries = emailList.map((email) => ({
+            email,
+            status: StatusTypes.PENDING
+          }));
 
-        await event.save();
+          event.eventNotified = event.eventNotified
+            ? event.eventNotified.concat(newEntries)
+            : newEntries;
+
+          await event.save();
+        }
       }
 
       res.status(200).json({ emailList });
@@ -225,7 +249,7 @@ handler.put<
   NextApiResponse
 >(async function editEvent(req, res) {
   const session = await getSession({ req });
-  const { body }: { body: IEvent } = req;
+  let { body }: { body: IEvent } = req;
 
   if (!session && !body.eventNotified) {
     res
@@ -269,7 +293,10 @@ handler.put<
         }
       }
 
-      if (body.eventName) body.eventUrl = normalize(body.eventName);
+      if (body.eventName) {
+        body = { ...body, eventName: body.eventName.trim() };
+        body.eventUrl = normalize(body.eventName);
+      }
 
       if (body.eventOrgs) {
         const staleEventOrgsIds: string[] = [];

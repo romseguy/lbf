@@ -1,8 +1,6 @@
-import type { IEvent } from "models/Event";
-import type { ITopic } from "models/Topic";
 import { createApi } from "@reduxjs/toolkit/query/react";
+import type { IEvent } from "models/Event";
 import baseQuery from "utils/query";
-import { IOrg } from "models/Org";
 
 export const eventApi = createApi({
   reducerPath: "eventsApi",
@@ -20,7 +18,7 @@ export const eventApi = createApi({
     postEventNotif: build.mutation<
       { emailList: string[] },
       {
-        payload: { orgIds?: string[] };
+        payload: { orgIds?: string[]; email?: string };
         eventUrl?: string;
       }
     >({

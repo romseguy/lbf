@@ -3,29 +3,36 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Icon,
   Input,
   InputGroup,
-  InputLeftElement
+  InputLeftElement,
+  InputRightElement,
+  SpaceProps
 } from "@chakra-ui/react";
 // import { Input } from "features/common";
-import { EmailIcon } from "@chakra-ui/icons";
+import { AtSignIcon, EmailIcon } from "@chakra-ui/icons";
 
 export const EmailControl = ({
   defaultValue,
   errors,
   name,
+  label = "Adresse e-mail",
+  noLabel,
   register,
   isRequired = false,
-  mb,
+  onRightElementClick,
   ...props
-}: {
+}: SpaceProps & {
   defaultValue?: string;
   errors: { [key: string]: string };
   name: string;
+  label?: string;
+  noLabel?: boolean;
   register: any;
   isRequired?: boolean;
-  mb?: number;
   placeholder?: string;
+  onRightElementClick?: () => void;
 }) => {
   let formRules: { required?: string | boolean } = {};
 
@@ -38,12 +45,12 @@ export const EmailControl = ({
       id={name}
       isRequired={isRequired}
       isInvalid={!!errors[name]}
-      mb={mb}
+      {...props}
     >
-      <FormLabel>Adresse e-mail</FormLabel>
+      {!noLabel && <FormLabel>{label}</FormLabel>}
 
       <InputGroup>
-        <InputLeftElement pointerEvents="none" children={<EmailIcon />} />
+        <InputLeftElement pointerEvents="none" children={<AtSignIcon />} />
         <Input
           name={name}
           placeholder={
@@ -59,6 +66,12 @@ export const EmailControl = ({
           defaultValue={defaultValue}
           pl={10}
         />
+        {noLabel && onRightElementClick && (
+          <InputRightElement
+            pointerEvents="none"
+            children={<Icon as={EmailIcon} onClick={onRightElementClick} />}
+          />
+        )}
       </InputGroup>
 
       <FormErrorMessage>

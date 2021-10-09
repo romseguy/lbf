@@ -74,7 +74,13 @@ handler.get<
       if (populate.includes("orgSubscriptions")) {
         org = org.populate({
           path: "orgSubscriptions",
-          populate: { path: "user", select }
+          select: isCreator ? undefined : "-email",
+          populate: {
+            path: "user",
+            select: isCreator
+              ? "-password -securityCode"
+              : "-email -password -securityCode"
+          }
         });
       }
     }
@@ -145,7 +151,7 @@ handler.put<
       );
   } else {
     try {
-      const { body }: { body: IOrg } = req;
+      let { body }: { body: IOrg } = req;
       const orgUrl = req.query.orgUrl;
       const org = await models.Org.findOne({ orgUrl });
 
@@ -174,7 +180,10 @@ handler.put<
           );
       }
 
-      if (body.orgName) body.orgUrl = normalize(body.orgName);
+      if (body.orgName) {
+        body = { ...body, orgName: body.orgName.trim() };
+        body.orgUrl = normalize(body.orgName);
+      }
 
       const { n, nModified } = await models.Org.updateOne({ orgUrl }, body);
 
