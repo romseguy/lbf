@@ -29,6 +29,7 @@ import { IOrg } from "models/Org";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { EventsListItemVisibility } from "./EventsListItemVisibility";
 import { ModalState } from "features/modals/NotifyModal";
+import { hasItems } from "utils/array";
 
 export const EventsListItem = ({
   deleteEvent,
@@ -288,7 +289,7 @@ export const EventsListItem = ({
             </Link>
           </GridItem>
 
-          <GridItem pl={1}>
+          <GridItem whiteSpace="nowrap" pl={1}>
             {/* eventVisibility */}
             {org && (
               <EventsListItemVisibility
@@ -425,7 +426,7 @@ export const EventsListItem = ({
           pl={3}
           pb={3}
         >
-          {event.eventOrgs.length > 0
+          {hasItems(event.eventOrgs)
             ? event.eventOrgs.map((eventOrg: any) => {
                 return (
                   <Link key={eventOrg.orgUrl} href={`/${eventOrg.orgUrl}`}>

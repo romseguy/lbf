@@ -10,6 +10,7 @@ export function getUniqueId(prefix?: string): string {
 }
 
 export function normalize(str: string, underscores?: boolean): string {
+  str = str.trim();
   // if (underscores)
   str = str.replace(/\ /g, "_");
 

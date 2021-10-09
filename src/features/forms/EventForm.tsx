@@ -29,10 +29,8 @@ import { ErrorMessage } from "@hookform/error-message";
 import {
   addHours,
   addWeeks,
-  format,
   getDay,
   getHours,
-  getISODay,
   intervalToDuration,
   parseISO,
   setDay,
@@ -69,6 +67,7 @@ import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
+import { hasItems } from "utils/array";
 
 interface EventFormProps extends ChakraProps {
   session: Session;
@@ -147,9 +146,7 @@ export const EventForm = withGoogleApi({
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
-  const [isRepeat, setIsRepeat] = useState(
-    props.event?.otherDays ? true : false
-  );
+  const [isRepeat, setIsRepeat] = useState(hasItems(props.event?.otherDays));
 
   const [days, setDays] = useState<{
     [key: number]: {
@@ -320,10 +317,11 @@ export const EventForm = withGoogleApi({
         return { dayNumber };
       });
 
-    console.log(otherDays);
+    console.log("otherDays", otherDays);
 
     let payload = {
       ...form,
+      eventName: form.eventName.trim(),
       eventUrl: normalize(form.eventName),
       eventDescription:
         form.eventDescription === "<p><br></p>"
@@ -345,18 +343,13 @@ export const EventForm = withGoogleApi({
       }
 
       if (props.event) {
-        const res = await editEvent({
+        await editEvent({
           payload,
           eventUrl: props.event.eventUrl
         }).unwrap();
 
         toast({
-          title:
-            Array.isArray(res.emailList) && res.emailList.length > 0
-              ? `Une invitation a été envoyée à ${res.emailList.length} abonné${
-                  res.emailList.length > 1 ? "s" : ""
-                }`
-              : "Votre événement a bien été modifié !",
+          title: "Votre événement a bien été modifié !",
           status: "success",
           isClosable: true
         });
@@ -731,7 +724,7 @@ export const EventForm = withGoogleApi({
                   <option key={`${i}w`} value={i}>
                     {i > 1
                       ? `Les ${i} prochaines semaines`
-                      : `La semaine prochaine`}
+                      : `La semaine d'après`}
                   </option>
                 ))}
               </Select>

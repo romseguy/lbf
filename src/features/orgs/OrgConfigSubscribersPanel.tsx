@@ -55,6 +55,7 @@ import { IUser } from "models/User";
 import { emailR } from "utils/email";
 import { handleError } from "utils/form";
 import type { Visibility } from "./OrgPage";
+import { hasItems } from "utils/array";
 
 type OrgConfigSubscribersPanelProps = Visibility & {
   org: IOrg;
@@ -101,18 +102,6 @@ export const OrgConfigSubscribersPanel = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isAdd, setIsAdd] = useState(false);
   //#endregion
-
-  const hasSubscriptions =
-    Array.isArray(org.orgSubscriptions) && org.orgSubscriptions.length > 0;
-  // !!org.orgSubscriptions.find(
-  //   (orgSubscription) =>
-  //     Array.isArray(orgSubscription.orgs) &&
-  //     !!orgSubscription.orgs.find(
-  //       ({ type }) =>
-  //         type === SubscriptionTypes.SUBSCRIBER ||
-  //         type === SubscriptionTypes.FOLLOWER
-  //     )
-  // );
 
   const onTagClick = async ({
     type,
@@ -208,7 +197,7 @@ export const OrgConfigSubscribersPanel = ({
       <Link
         variant="no-underline"
         onClick={() => {
-          if (!hasSubscriptions) {
+          if (!hasItems(org.orgSubscriptions)) {
             setIsAdd(true);
           } else {
             setIsAdd(false);

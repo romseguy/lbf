@@ -35,6 +35,7 @@ import {
 import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { IOrg } from "models/Org";
+import { hasItems } from "utils/array";
 
 export const OrgPopover = ({
   boxSize,
@@ -76,8 +77,7 @@ export const OrgPopover = ({
       orgsQuery.data.length > 0 &&
       orgsQuery.data.filter((org) => isSubscribedBy(org, subQuery))) ||
     [];
-  const hasSubscribedOrgs =
-    Array.isArray(subscribedOrgs) && subscribedOrgs.length > 0;
+  const hasSubscribedOrgs = hasItems(subscribedOrgs);
   //#endregion
 
   //#region local state

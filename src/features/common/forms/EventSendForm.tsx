@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form";
 import { usePostEventNotifMutation } from "features/events/eventsApi";
 import { IEvent } from "models/Event";
 import { SubscriptionTypes } from "models/Subscription";
+import { hasItems } from "utils/array";
 
 export const EventSendForm = ({
   event,
@@ -84,7 +85,7 @@ export const EventSendForm = ({
             eventUrl: event.eventUrl,
             payload
           }).unwrap();
-          if (Array.isArray(res.emailList) && res.emailList.length > 0) {
+          if (hasItems(res.emailList)) {
             eventQuery.refetch();
             toast({
               title: `Une invitation a été envoyée à ${

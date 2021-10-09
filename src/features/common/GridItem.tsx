@@ -1,6 +1,7 @@
 import React from "react";
 import {
   BorderProps,
+  BoxProps,
   GridItem as ChakraGridItem,
   SpacerProps,
   GridItemProps,
@@ -14,6 +15,7 @@ export const GridItem = ({
   ...props
 }: BorderProps &
   SpacerProps &
+  BoxProps &
   GridItemProps & {
     children: React.ReactNode | React.ReactNodeArray;
     light?: { [key: string]: any };

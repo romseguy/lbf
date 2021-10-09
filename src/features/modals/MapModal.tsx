@@ -19,6 +19,7 @@ import {
 import { Map } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { hasItems } from "utils/array";
 
 export type SizeMap = {
   defaultSize: {
@@ -90,10 +91,7 @@ export const MapModal = withGoogleApi({
               display="flex"
               flexDirection="column"
             >
-              {props.loaded &&
-              props.google &&
-              Array.isArray(items) &&
-              items.length > 0 ? (
+              {props.loaded && props.google && hasItems(items) ? (
                 <>
                   <MapSearch
                     setCenter={setCenter}

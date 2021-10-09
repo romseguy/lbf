@@ -55,6 +55,7 @@ import {
 import { refetchSubscription } from "./subscriptionSlice";
 import { ITopic } from "models/Topic";
 import { setLoading } from "features/notes/notesSlice";
+import { hasItems } from "utils/array";
 
 const setAllItems = (payload: {
   checked: boolean;
@@ -337,8 +338,7 @@ export const SubscriptionPopover = ({
         };
       });
 
-    topicSubscriptions =
-      topicSubscriptions.length > 0 ? topicSubscriptions : undefined;
+    topicSubscriptions = hasItems(topicSubscriptions) ? topicSubscriptions : undefined
 
     let payload: Partial<ISubscription> = {};
     if (!subQuery.data || !followerSubscription) {

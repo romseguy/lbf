@@ -63,6 +63,7 @@ import { EventPageTabs } from "./EventPageTabs";
 import * as dateUtils from "utils/date";
 import getDay from "date-fns/getDay";
 import setDay from "date-fns/setDay";
+import { hasItems } from "utils/array";
 
 const timelineStyles = css`
   & > li {
@@ -601,8 +602,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                       dark={{ bg: "gray.500" }}
                     >
                       <Box p={5}>
-                        {Array.isArray(event.eventOrgs) &&
-                        event.eventOrgs.length > 0 ? (
+                        {hasItems(event.eventOrgs) ? (
                           event.eventOrgs.map((eventOrg, index) => (
                             <Flex key={eventOrg._id} mb={2} alignItems="center">
                               <Icon as={IoIosPeople} mr={2} />

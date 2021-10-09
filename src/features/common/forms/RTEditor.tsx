@@ -318,7 +318,7 @@ export const RTEditor = ({
       const file = input.files[0];
 
       if (/^image\//.test(file.type)) {
-        if (file.size >= 50000000) {
+        if (file.size >= 10000000) {
           toast({
             status: "error",
             title: "L'image ne doit pas dépasser 10Mo."

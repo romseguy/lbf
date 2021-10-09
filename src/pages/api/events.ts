@@ -86,7 +86,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
       );
   } else {
     try {
-      const { body }: { body: IEvent } = req;
+      let { body }: { body: IEvent } = req;
+      body = { ...body, eventName: body.eventName.trim() };
       const eventUrl = normalize(body.eventName);
 
       let event: (IEvent & Document<any, any, any>) | null = null;

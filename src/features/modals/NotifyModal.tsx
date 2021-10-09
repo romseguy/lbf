@@ -21,6 +21,7 @@ import { IEvent, StatusTypes } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { ITopic } from "models/Topic";
 import { SubscriptionTypes } from "models/Subscription";
+import { hasItems } from "utils/array";
 
 export type ModalState<T> = {
   entity: T | null;
@@ -91,7 +92,7 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
 
     console.log(emailList);
 
-    if (emailList.length > 0) {
+    if (hasItems(emailList)) {
       toast({
         status: "success",
         title: `${emailList.length} abonnés notifiés !`

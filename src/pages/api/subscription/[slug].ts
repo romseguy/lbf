@@ -12,6 +12,7 @@ import { getSession } from "hooks/useAuth";
 import { equals } from "utils/string";
 import { emailR } from "utils/email";
 import { IUser } from "models/User";
+import { hasItems } from "utils/array";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -153,7 +154,7 @@ handler.delete<
     if (body.orgs) {
       let orgSubscription: IOrgSubscription | undefined;
 
-      if (Array.isArray(body.orgs) && body.orgs.length > 0) {
+      if (hasItems(body.orgs)) {
         orgSubscription = body.orgs[0];
       }
 
