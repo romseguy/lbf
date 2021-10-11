@@ -53,9 +53,9 @@ export const eventApi = createApi({
           : `event/${eventUrl}`
       })
     }),
-    getEvents: build.query<IEvent[], string | undefined>({
-      query: (populate) => ({
-        url: `events${populate ? `?populate=${populate}` : ""}`
+    getEvents: build.query<IEvent[], void>({
+      query: () => ({
+        url: `events`
       })
     }),
     getEventsByUserId: build.query<IEvent[], string>({

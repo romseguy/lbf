@@ -56,6 +56,8 @@ import { emailR } from "utils/email";
 import { handleError } from "utils/form";
 import type { Visibility } from "./OrgPage";
 import { hasItems } from "utils/array";
+import { useAppDispatch } from "store";
+import { refetchEvent } from "features/events/eventSlice";
 
 type OrgConfigSubscribersPanelProps = Visibility & {
   org: IOrg;
@@ -73,6 +75,7 @@ export const OrgConfigSubscribersPanel = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const toast = useToast();
+  const dispatch = useAppDispatch();
 
   //#region subscription
   const [addSubscription, addSubscriptionMutation] =
@@ -305,6 +308,7 @@ export const OrgConfigSubscribersPanel = ({
                   setIsAdd(false);
                   orgQuery.refetch();
                   subQuery.refetch();
+                  dispatch(refetchEvent());
                 } catch (error) {
                   handleError(error, (message, field) => {
                     if (field) {

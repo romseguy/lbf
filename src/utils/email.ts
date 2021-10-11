@@ -1,3 +1,4 @@
+import axios from "axios";
 import { addHours, parseISO } from "date-fns";
 import nodemailer from "nodemailer";
 import { models } from "database";
@@ -80,7 +81,7 @@ export const createEventNotifEmail = ({
             }
             </h3>
 
-            <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">${eventUrl}</a> pour voir la description complète de l'événement et indiquer si vous souhaitez y participer.</p>
+            <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">la page de l'événement</a> pour voir la description complète de l'événement et indiquer si vous souhaitez y participer.</p>
           </td>
         </tr>
       </table>
@@ -213,27 +214,25 @@ export const sendEventToOrgFollowers = async (
 
           if (process.env.NODE_ENV === "production") {
             try {
-              /*const info =*/ await transport.sendMail(mail);
-              /*
-                info includes the result, the exact format depends on the transport mechanism used
-                  info.messageId most transports should return the final Message-Id value used with this property
-                  info.envelope includes the envelope object for the message
-                  info.accepted is an array returned by SMTP transports (includes recipient addresses that were accepted by the server)
-                  info.rejected is an array returned by SMTP transports (includes recipient addresses that were rejected by the server)
-                  info.pending is an array returned by Direct SMTP transport. Includes recipient addresses that were temporarily rejected together with the server response
-                  response is a string returned by SMTP transports and includes the last SMTP response from the server
-              */
+              const res = await axios.post(
+                process.env.NEXT_PUBLIC_API2 + "/mail",
+                {
+                  eventId: event._id,
+                  mail
+                }
+              );
               console.log(
-                `sent event email notif to subscriber ${email}`,
+                `sent event email notif to subscriber ${res.data.email}`,
                 mail
               );
             } catch (error: any) {
-              console.log("error sending mail");
+              console.log(`error sending mail to ${email}`);
               console.error(error);
               continue;
             }
-          } else if (process.env.NODE_ENV === "development")
+          } else if (process.env.NODE_ENV === "development") {
             console.log(`sent event email notif to subscriber ${email}`, mail);
+          }
 
           emailList.push(email);
         }

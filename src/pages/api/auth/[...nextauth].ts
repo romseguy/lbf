@@ -95,7 +95,7 @@ const createOptions = (req: NextApiRequest) => ({
       profile?: Profile;
       isNewUser?: boolean;
     }) {
-      console.log("JWT() PARAMS:", params);
+      // console.log("JWT() PARAMS:", params);
 
       if (!params.token) {
         return params;
@@ -104,7 +104,7 @@ const createOptions = (req: NextApiRequest) => ({
       const { user, account } = params;
 
       if (user && account) {
-        console.log("JWT() INITIAL SIGN IN");
+        // console.log("JWT() INITIAL SIGN IN");
       }
 
       let token = params.token;
@@ -117,7 +117,7 @@ const createOptions = (req: NextApiRequest) => ({
         token = { ...token, ...user };
       }
 
-      console.log("JWT() RETURN:", token);
+      // console.log("JWT() RETURN:", token);
       return token;
     },
 
@@ -126,7 +126,7 @@ const createOptions = (req: NextApiRequest) => ({
      * e.g. getSession(), useSession(), /api/auth/session
      */
     async session(params: { session: Session; token: JWT }) {
-      console.log("SESSION() PARAMS:", params);
+      // console.log("SESSION() PARAMS:", params);
 
       if (!params.token) {
         return params;
@@ -140,7 +140,7 @@ const createOptions = (req: NextApiRequest) => ({
       const { email, userId, userName, userImage, isAdmin } = token;
       session.user = { email, userId, userName, userImage, isAdmin };
 
-      console.log("SESSION() RETURN", session);
+      // console.log("SESSION() RETURN", session);
       return session;
     }
   },

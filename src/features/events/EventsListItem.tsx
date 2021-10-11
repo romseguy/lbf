@@ -429,7 +429,11 @@ export const EventsListItem = ({
           {hasItems(event.eventOrgs)
             ? event.eventOrgs.map((eventOrg: any) => {
                 return (
-                  <Link key={eventOrg.orgUrl} href={`/${eventOrg.orgUrl}`}>
+                  <Link
+                    key={eventOrg.orgUrl}
+                    href={`/${eventOrg.orgUrl}`}
+                    shallow
+                  >
                     <Tag>
                       <Icon as={IoIosPeople} mr={1} />
                       {eventOrg.orgName}
@@ -438,7 +442,7 @@ export const EventsListItem = ({
                 );
               })
             : typeof event.createdBy === "object" && (
-                <Link href={`/${event.createdBy.userName}`}>
+                <Link href={`/${event.createdBy.userName}`} shallow>
                   <Tag>
                     <Icon as={IoIosPerson} mr={1} />
                     {event.createdBy.userName}

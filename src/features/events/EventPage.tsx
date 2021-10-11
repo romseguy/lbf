@@ -64,6 +64,7 @@ import * as dateUtils from "utils/date";
 import getDay from "date-fns/getDay";
 import setDay from "date-fns/setDay";
 import { hasItems } from "utils/array";
+import { selectEventRefetch } from "./eventSlice";
 
 const timelineStyles = css`
   & > li {
@@ -114,6 +115,14 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
     }
   );
   const event = eventQuery.data || props.event;
+  const refetchEvent = useSelector(selectEventRefetch);
+
+  useEffect(() => {
+    console.log("refetching event");
+    eventQuery.refetch();
+    setIsEdit(false);
+  }, [router.asPath, refetchEvent]);
+
   const eventCreatedByUserName =
     event.createdBy && typeof event.createdBy === "object"
       ? event.createdBy.userName || event.createdBy._id
@@ -206,10 +215,14 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
 
   if (session) {
     if (!isCreator && isSubscribedToAtLeastOneOrg) showAttendingForm = true;
-  } else if (
-    !!event.eventNotified?.find((notified) => notified.email === email)
-  )
-    showAttendingForm = true;
+  } else {
+    if (event.eventVisibility === Visibility.SUBSCRIBERS) {
+      if (!!event.eventNotified?.find((notified) => notified.email === email))
+        showAttendingForm = true;
+    } else {
+      showAttendingForm = true;
+    }
+  }
   //#endregion
 
   const renderTimeline = () =>
@@ -229,7 +242,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
             <ArrowForwardIcon />
             <Text color="red">
               {getDay(day.startDate) !== getDay(day.endTime)
-                ? format(day.endTime, "cccc", { locale: fr })
+                ? format(day.endTime, "cccc d MMMM", { locale: fr })
                 : ""}{" "}
               {format(day.endTime, "H:mm", { locale: fr })}
             </Text>
@@ -617,6 +630,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                                 data-cy={`eventCreatedBy-${eventOrg.orgName}`}
                                 variant="underline"
                                 href={`/${eventOrg.orgUrl}`}
+                                shallow
                               >
                                 {`${eventOrg.orgName}`}
                                 {/* {`${eventOrg.orgName}${

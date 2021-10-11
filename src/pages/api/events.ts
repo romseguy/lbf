@@ -26,31 +26,19 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<
-  NextApiRequest & {
-    query: { populate?: string };
-  },
-  NextApiResponse
->(async function getEvents(req, res) {
+handler.get<NextApiRequest, NextApiResponse>(async function getEvents(
+  req,
+  res
+) {
   try {
-    const {
-      query: { populate }
-    } = req;
-
     let events;
 
-    if (populate) {
-      events = await models.Event.find({})
-        .sort({
-          eventMinDate: "ascending"
-        })
-        .populate(populate)
-        .populate("createdBy", "userName");
-    } else {
-      events = await models.Event.find({}).sort({
+    events = await models.Event.find({})
+      .sort({
         eventMinDate: "ascending"
-      });
-    }
+      })
+      .populate("eventOrgs", "-orgBanner -orgLogo")
+      .populate("createdBy", "userName");
 
     for (const event of events) {
       if (event.forwardedFrom.eventId) {

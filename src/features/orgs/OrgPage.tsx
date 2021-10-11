@@ -81,8 +81,8 @@ export const OrgPage = ({
     }
   );
   const org = orgQuery.data || props.org;
-
   const refetchOrg = useSelector(selectOrgRefetch);
+
   useEffect(() => {
     console.log("refetching org");
     orgQuery.refetch();

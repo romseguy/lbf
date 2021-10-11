@@ -32,7 +32,7 @@ export const EventsPage = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
-  const eventsQuery = useGetEventsQuery("eventOrgs");
+  const eventsQuery = useGetEventsQuery();
   useEffect(() => {
     console.log("refetching events");
     eventsQuery.refetch();

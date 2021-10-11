@@ -25,21 +25,34 @@ export const EventsListToggle = ({
       <Box>
         {!showNextEvents && (
           <>
-            {previousEvents.length > 0 && currentEvents.length > 0 && (
+            {!showPreviousEvents && previousEvents.length > 0 && (
               <Link
                 fontSize="smaller"
                 variant="underline"
                 onClick={() => {
                   // currentDate = null;
                   // currentDateP = null;
-                  setShowPreviousEvents(!showPreviousEvents);
+                  setShowPreviousEvents(true);
                 }}
               >
-                {showPreviousEvents
-                  ? "Revenir aux événements de cette semaine"
-                  : "Voir les événéments précédents"}
+                Voir les événéments précédents
               </Link>
             )}
+
+            {showPreviousEvents &&
+              (currentEvents.length > 0 || nextEvents.length > 0) && (
+                <Link
+                  fontSize="smaller"
+                  variant="underline"
+                  onClick={() => {
+                    // currentDate = null;
+                    // currentDateP = null;
+                    setShowPreviousEvents(false);
+                  }}
+                >
+                  Revenir aux événements de cette semaine
+                </Link>
+              )}
           </>
         )}
       </Box>

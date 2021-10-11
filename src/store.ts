@@ -3,6 +3,7 @@ import { configureStore, ThunkAction } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query/react";
 import { Action } from "redux";
 import { createWrapper } from "next-redux-wrapper";
+import event from "features/events/eventSlice";
 import org from "features/orgs/orgSlice";
 import subscription from "features/subscriptions/subscriptionSlice";
 import user from "features/users/userSlice";
@@ -17,6 +18,7 @@ import { documentApi } from "features/documents/documentsApi";
 const makeStore = () =>
   configureStore({
     reducer: {
+      event,
       org,
       subscription,
       user,

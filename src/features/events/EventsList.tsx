@@ -6,7 +6,9 @@ import {
   Heading,
   useToast,
   Button,
-  useColorMode
+  useColorMode,
+  Alert,
+  AlertIcon
 } from "@chakra-ui/react";
 import {
   compareAsc,
@@ -27,12 +29,15 @@ import React, { useEffect, useMemo, useState } from "react";
 import { css } from "twin.macro";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import { DescriptionModal } from "features/modals/DescriptionModal";
+import { ModalState, NotifyModal } from "features/modals/NotifyModal";
 import { EventModal } from "features/modals/EventModal";
 import { ForwardModal } from "features/modals/ForwardModal";
+import { refetchOrg } from "features/orgs/orgSlice";
 import { useSession } from "hooks/useAuth";
 import { IEvent, Visibility } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
+import { useAppDispatch } from "store";
 import {
   useDeleteEventMutation,
   useEditEventMutation,
@@ -41,7 +46,6 @@ import {
 import { EventsListItem } from "./EventsListItem";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { EventsListToggle } from "./EventsListToggle";
-import { ModalState, NotifyModal } from "features/modals/NotifyModal";
 
 export const EventsList = ({
   eventsQuery,
@@ -70,6 +74,7 @@ export const EventsList = ({
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const dispatch = useAppDispatch();
 
   const today = setHours(new Date(), 0);
 
@@ -138,8 +143,6 @@ export const EventsList = ({
     let nextEvents: IEvent<Date>[] = [];
 
     for (const event of events) {
-      console.log(event);
-
       if (
         isCreator ||
         event.eventVisibility === Visibility.PUBLIC ||
@@ -284,21 +287,6 @@ export const EventsList = ({
     let currentDateP: Date | null = null;
     let currentDate: Date | null = null;
     let { previousEvents, currentEvents, nextEvents } = getEvents(props.events);
-    console.log(props.events);
-    console.log(org);
-    console.log(previousEvents);
-    console.log(currentEvents);
-    console.log(nextEvents);
-    console.log(isSubscribed);
-    console.log(isCreator);
-
-    if (!currentEvents.length) {
-      if (previousEvents.length) {
-        setShowPreviousEvents(true);
-      } else if (nextEvents.length) {
-        setShowNextEvents(true);
-      }
-    }
 
     return (
       <>
@@ -369,61 +357,72 @@ export const EventsList = ({
           </Box>
         )}
 
-        {!showPreviousEvents &&
-          !showNextEvents &&
-          currentEvents
-            .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
-            .map((event, index) => {
-              let addGridHeader = false;
-              const minDate = event.eventMinDate;
+        {!showPreviousEvents && !showNextEvents && (
+          <>
+            {currentEvents.length > 0 ? (
+              currentEvents
+                .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
+                .map((event, index) => {
+                  let addGridHeader = false;
+                  const minDate = event.eventMinDate;
 
-              const isCurrentDateOneDayBeforeMinDate = currentDate
-                ? getDayOfYear(currentDate) < getDayOfYear(minDate)
-                : true;
+                  const isCurrentDateOneDayBeforeMinDate = currentDate
+                    ? getDayOfYear(currentDate) < getDayOfYear(minDate)
+                    : true;
 
-              if (isCurrentDateOneDayBeforeMinDate) {
-                addGridHeader = true;
-                currentDate = minDate;
-                // console.log("currentDate set to", currentDate);
-              } else {
-                addGridHeader = false;
-              }
+                  if (isCurrentDateOneDayBeforeMinDate) {
+                    addGridHeader = true;
+                    currentDate = minDate;
+                    // console.log("currentDate set to", currentDate);
+                  } else {
+                    addGridHeader = false;
+                  }
 
-              return (
-                <Grid
-                  key={"event-" + index}
-                  templateRows="auto auto 4fr auto"
-                  templateColumns="1fr 6fr minmax(75px, 1fr)"
-                >
-                  <>
-                    {addGridHeader ? (
-                      props.eventHeader ? (
-                        props.eventHeader
-                      ) : (
-                        <GridHeader
-                          colSpan={3}
-                          borderTopRadius={index === 0 ? "lg" : undefined}
-                        >
-                          <Heading size="sm" py={3}>
-                            {format(minDate, "cccc d MMMM", { locale: fr })}
-                          </Heading>
-                        </GridHeader>
-                      )
-                    ) : (
-                      <GridItem colSpan={3}>
-                        <Spacer borderWidth={1} />
-                      </GridItem>
-                    )}
-                    <EventsListItem
-                      {...eventsListItemProps}
-                      event={event}
-                      index={index}
-                      length={currentEvents.length}
-                    />
-                  </>
-                </Grid>
-              );
-            })}
+                  return (
+                    <Grid
+                      key={"event-" + index}
+                      templateRows="auto auto 4fr auto"
+                      templateColumns="1fr 6fr minmax(75px, 1fr)"
+                    >
+                      <>
+                        {addGridHeader ? (
+                          props.eventHeader ? (
+                            props.eventHeader
+                          ) : (
+                            <GridHeader
+                              colSpan={3}
+                              borderTopRadius={index === 0 ? "lg" : undefined}
+                            >
+                              <Heading size="sm" py={3}>
+                                {format(minDate, "cccc d MMMM", {
+                                  locale: fr
+                                })}
+                              </Heading>
+                            </GridHeader>
+                          )
+                        ) : (
+                          <GridItem colSpan={3}>
+                            <Spacer borderWidth={1} />
+                          </GridItem>
+                        )}
+                        <EventsListItem
+                          {...eventsListItemProps}
+                          event={event}
+                          index={index}
+                          length={currentEvents.length}
+                        />
+                      </>
+                    </Grid>
+                  );
+                })
+            ) : (
+              <Alert status="info">
+                <AlertIcon />
+                Aucun événement prévu cette semaine.
+              </Alert>
+            )}
+          </>
+        )}
 
         {showNextEvents && (
           <Box>
@@ -482,15 +481,17 @@ export const EventsList = ({
           </Box>
         )}
 
-        <EventsListToggle
-          previousEvents={previousEvents}
-          showPreviousEvents={showPreviousEvents}
-          setShowPreviousEvents={setShowPreviousEvents}
-          currentEvents={currentEvents}
-          nextEvents={nextEvents}
-          showNextEvents={showNextEvents}
-          setShowNextEvents={setShowNextEvents}
-        />
+        {(showPreviousEvents || showNextEvents || currentEvents.length > 0) && (
+          <EventsListToggle
+            previousEvents={previousEvents}
+            showPreviousEvents={showPreviousEvents}
+            setShowPreviousEvents={setShowPreviousEvents}
+            currentEvents={currentEvents}
+            nextEvents={nextEvents}
+            showNextEvents={showNextEvents}
+            setShowNextEvents={setShowNextEvents}
+          />
+        )}
       </>
     );
   }, [props.events, session, isLoading, showPreviousEvents, showNextEvents]);
@@ -532,6 +533,9 @@ export const EventsList = ({
               initialEventOrgs={[org]}
               onCancel={() => setIsEventModalOpen(false)}
               onSubmit={async (eventUrl) => {
+                if (org) {
+                  dispatch(refetchOrg());
+                }
                 await router.push(`/${eventUrl}`, `/${eventUrl}`, {
                   shallow: true
                 });

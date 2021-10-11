@@ -195,7 +195,11 @@ handler.post<
 
       let emailList: string[] = [];
 
-      if (body.email && hasItems(body.orgIds)) {
+      if (
+        typeof body.email === "string" &&
+        body.email.length > 0 &&
+        hasItems(body.orgIds)
+      ) {
         const org = await models.Org.findOne({ _id: body.orgIds[0] });
         const subscription = await models.Subscription.findOne({
           email: body.email
