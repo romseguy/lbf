@@ -52,10 +52,13 @@ export const EventForwardForm = ({
     populate: "orgSubscriptions orgEvents",
     createdBy: session?.user.userId
   });
+
   const myOrgs = orgs?.filter(
     (org) =>
       !org.orgEvents.find(
-        (orgEvent) => orgEvent.forwardedFrom.eventId === props.event._id
+        (orgEvent) =>
+          props.event._id === orgEvent._id ||
+          orgEvent.forwardedFrom?.eventId === props.event._id
       )
   );
   useEffect(() => {

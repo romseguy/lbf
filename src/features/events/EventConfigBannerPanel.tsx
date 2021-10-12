@@ -73,6 +73,7 @@ export const EventConfigBannerPanel = ({
   //#region form state
   const {
     register,
+    control,
     handleSubmit,
     setError,
     errors,
@@ -225,17 +226,12 @@ export const EventConfigBannerPanel = ({
               {uploadType === "url" ? (
                 <UrlControl
                   name="url"
+                  register={register}
+                  control={control}
                   label="Adresse internet de l'image"
                   defaultValue={event.eventBanner?.url}
                   errors={errors}
-                  register={register}
-                  mb={3}
-                  onBlur={() => {
-                    // const url = getValues("url");
-                    // if (urlR.test(url)) {
-                    //   setUpImg(url);
-                    // }
-                  }}
+                  isMultiple={false}
                 />
               ) : (
                 <>

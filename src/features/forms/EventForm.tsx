@@ -1,4 +1,3 @@
-import { PhoneIcon } from "@chakra-ui/icons";
 import {
   ChakraProps,
   Input,
@@ -13,8 +12,6 @@ import {
   Alert,
   AlertIcon,
   Tag,
-  InputGroup,
-  InputLeftElement,
   Tooltip,
   Checkbox,
   Box,
@@ -40,7 +37,6 @@ import { Session } from "next-auth";
 import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { Controller, useForm } from "react-hook-form";
-import { FaGlobeEurope } from "react-icons/fa";
 import ReactSelect from "react-select";
 import { css } from "twin.macro";
 import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
@@ -54,6 +50,8 @@ import {
   renderCustomInput,
   RTEditor
 } from "features/common";
+import { UrlControl } from "features/common/forms/UrlControl";
+import { PhoneControl } from "features/common/forms/PhoneControl";
 import {
   useAddEventMutation,
   useEditEventMutation
@@ -63,12 +61,11 @@ import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { Category, IEvent, VisibilityV } from "models/Event";
 import type { IOrg } from "models/Org";
 import { Visibility } from "models/Topic";
+import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
-import { hasItems } from "utils/array";
-import { UrlControl } from "features/common/forms/UrlControl";
 
 interface EventFormProps extends ChakraProps {
   session: Session;
@@ -113,13 +110,14 @@ export const EventForm = withGoogleApi({
     watch,
     setValue,
     getValues
-  } = useForm({
+  }: { [key: string]: any } = useForm({
+    defaultValues: {
+      eventEmail: props.event?.eventEmail,
+      eventPhone: props.event?.eventPhone,
+      eventWeb: props.event?.eventWeb
+    },
     mode: "onChange"
   });
-
-  const [urlPrefix, setUrlPrefix] = useState<"https://" | "http://">(
-    "https://"
-  );
 
   watch(["eventAddress", "eventOrgs"]);
   const eventVisibility = watch("eventVisibility");
@@ -303,6 +301,10 @@ export const EventForm = withGoogleApi({
     console.log("submitted", form);
     setIsLoading(true);
 
+    const eventEmail = form.eventEmail?.filter(({ email }) => email !== "");
+    const eventPhone = form.eventPhone?.filter(({ phone }) => phone !== "");
+    const eventWeb = form.eventWeb?.filter(({ url }) => url !== "");
+
     const otherDays: {
       dayNumber: number;
       startDate?: string;
@@ -330,7 +332,16 @@ export const EventForm = withGoogleApi({
         form.eventDescription === "<p><br></p>"
           ? ""
           : form.eventDescription?.replace(/\&nbsp;/g, " "),
-      eventWeb: urlPrefix + form.eventWeb,
+      eventEmail:
+        Array.isArray(eventEmail) && eventEmail.length > 0
+          ? eventEmail
+          : undefined,
+      eventPhone:
+        Array.isArray(eventPhone) && eventPhone.length > 0
+          ? eventPhone
+          : undefined,
+      eventWeb:
+        Array.isArray(eventWeb) && eventWeb.length > 0 ? eventWeb : undefined,
       otherDays
     };
 
@@ -360,10 +371,8 @@ export const EventForm = withGoogleApi({
           isClosable: true
         });
       } else {
-        const event = await addEvent({
-          ...payload,
-          createdBy: props.session.user.userId
-        }).unwrap();
+        payload.createdBy = props.session.user.userId;
+        const event = await addEvent(payload).unwrap();
 
         toast({
           title: "Votre événement a bien été ajouté !",
@@ -758,46 +767,26 @@ export const EventForm = withGoogleApi({
 
       <EmailControl
         name="eventEmail"
-        defaultValue={props.event?.eventEmail}
-        errors={errors}
         register={register}
-        mb={3}
+        control={control}
+        errors={errors}
         placeholder="Adresse e-mail de l'événement"
       />
 
-      <FormControl id="eventPhone" isInvalid={!!errors["eventPhone"]} mb={3}>
-        <FormLabel>Numéro de téléphone</FormLabel>
-        <InputGroup>
-          <InputLeftElement pointerEvents="none" children={<PhoneIcon />} />
-          <Input
-            name="eventPhone"
-            placeholder="Numéro de téléphone de l'événement"
-            ref={register({
-              pattern: {
-                value: /^[0-9]{10,}$/i,
-                message: "Numéro de téléphone invalide"
-              }
-            })}
-            defaultValue={props.event?.eventPhone}
-            pl={10}
-          />
-        </InputGroup>
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="eventPhone" />
-        </FormErrorMessage>
-      </FormControl>
+      <PhoneControl
+        name="eventPhone"
+        register={register}
+        control={control}
+        errors={errors}
+        placeholder="Numéro de téléphone de l'événement"
+      />
 
       <UrlControl
         name="eventWeb"
         register={register}
+        control={control}
+        setValue={setValue}
         errors={errors}
-        urlPrefix={urlPrefix}
-        setUrlPrefix={setUrlPrefix}
-        defaultValue={
-          props.event
-            ? props.event.eventWeb?.replace(/http:\/\/|https:\/\//, "")
-            : undefined
-        }
         placeholder="Site internet de l'événement"
       />
 

@@ -15,9 +15,9 @@ export interface IEvent<T = string> {
   eventCity?: string;
   eventLat?: number;
   eventLng?: number;
-  eventEmail?: string;
-  eventPhone?: string;
-  eventWeb?: string;
+  eventEmail?: { email: string }[];
+  eventPhone?: { phone: string }[];
+  eventWeb?: { url: string; prefix: string }[];
   eventDescription?: string;
   eventCategory?: number;
   eventVisibility?: string;
@@ -31,7 +31,7 @@ export interface IEvent<T = string> {
   repeat?: number;
   otherDays?: { dayNumber: number; startDate?: string }[];
   isApproved?: boolean;
-  forwardedFrom: {
+  forwardedFrom?: {
     eventId: string;
     eventUrl?: string;
   };
@@ -126,9 +126,9 @@ export const EventSchema = new Schema<IEvent>(
     eventCity: String,
     eventLat: Number,
     eventLng: Number,
-    eventEmail: String,
-    eventPhone: String,
-    eventWeb: String,
+    eventEmail: [{ email: String }],
+    eventPhone: [{ phone: String }],
+    eventWeb: [{ url: String, prefix: String }],
     eventDescription: String,
     eventCategory: Number,
     eventVisibility: {

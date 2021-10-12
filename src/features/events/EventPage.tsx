@@ -488,34 +488,46 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                     >
                       <Box p={5}>
                         {event.eventAddress && (
-                          <Flex alignItems="center">
-                            <Icon as={FaMapMarkedAlt} mr={3} />
-                            {event.eventAddress}
+                          <Flex flexDirection="column">
+                            <Flex alignItems="center">
+                              <Icon as={FaMapMarkedAlt} mr={3} />
+                              {event.eventAddress}
+                            </Flex>
                           </Flex>
                         )}
+
                         {event.eventEmail && (
-                          <Flex alignItems="center">
-                            <AtSignIcon mr={3} />
-                            <a href={`mailto:${event.eventEmail}`}>
-                              {event.eventEmail}
-                            </a>
+                          <Flex flexDirection="column">
+                            {event.eventEmail?.map(({ email }, index) => (
+                              <Flex key={`phone-${index}`} alignItems="center">
+                                <AtSignIcon mr={3} />
+                                <a href={`mailto:${email}`}>{email}</a>
+                              </Flex>
+                            ))}
                           </Flex>
                         )}
+
                         {event.eventPhone && (
-                          <Flex alignItems="center">
-                            <PhoneIcon mr={3} />
-                            {event.eventPhone}
+                          <Flex flexDirection="column">
+                            {event.eventPhone?.map(({ phone }, index) => (
+                              <Flex key={`phone-${index}`} alignItems="center">
+                                <PhoneIcon mr={3} />
+                                {phone}
+                              </Flex>
+                            ))}
                           </Flex>
                         )}
+
                         {event.eventWeb && (
-                          <Flex alignItems="center">
-                            <Icon as={FaGlobeEurope} mr={3} />
-                            <Link variant="underline" href={event.eventWeb}>
-                              {event.eventWeb.replace(
-                                /http:\/\/|https:\/\//,
-                                ""
-                              )}
-                            </Link>
+                          <Flex flexDirection="column">
+                            {event.eventWeb?.map(({ url, prefix }, index) => (
+                              <Flex key={`phone-${index}`} alignItems="center">
+                                <Icon as={FaGlobeEurope} mr={3} />
+                                <Link variant="underline" href={prefix + url}>
+                                  {url}
+                                </Link>
+                              </Flex>
+                            ))}
                           </Flex>
                         )}
                       </Box>
@@ -558,7 +570,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                             </Flex>
                           ))
                         ) : (
-                          <Box>
+                          <Flex alignItems="center">
                             <Icon as={AtSignIcon} mr={2} />
                             <Link
                               variant="underline"
@@ -566,7 +578,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                             >
                               {eventCreatedByUserName}
                             </Link>
-                          </Box>
+                          </Flex>
                         )}
                       </Box>
                     </GridItem>

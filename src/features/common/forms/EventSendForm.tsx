@@ -91,16 +91,11 @@ export const EventSendForm = ({
 
       if (hasItems(res.emailList)) {
         eventQuery.refetch();
+        const s = res.emailList.length > 1 ? "s" : "";
 
         toast({
           title: `Une invitation a été envoyée à ${
-            form.email
-              ? form.email
-              : `
-                ${res.emailList.length} abonné${
-                  res.emailList.length > 1 ? "s" : ""
-                }
-                `
+            form.email ? form.email : `${res.emailList.length} abonné${s}`
           }`,
           status: "success",
           isClosable: true
@@ -161,6 +156,7 @@ export const EventSendForm = ({
                         .reduce((a, b) => a + b, 0);
 
                       const canSendCount = orgFollowersCount - notifiedCount;
+                      const s = canSendCount > 1 ? "s" : "";
 
                       return (
                         <Tr key={org.orgName} mb={1}>
@@ -179,8 +175,8 @@ export const EventSendForm = ({
                           </Td>
                           <Td textAlign="right">
                             <Tag fontSize="smaller">
-                              {canSendCount} abonnés n'ont pas encore reçu
-                              d'invitation
+                              {canSendCount} abonné{s} n'{s ? "ont" : "a"} pas
+                              été invité{s}
                             </Tag>
                           </Td>
                         </Tr>
@@ -197,11 +193,12 @@ export const EventSendForm = ({
           <EmailControl
             name="email"
             label="(facultatif) envoyer l'invitation seulement à l'adresse e-mail de votre choix :"
+            control={control}
             register={register}
             errors={errors}
             placeholder="Envoyer à cette adresse e-mail uniquement"
             mt={3}
-            mb={3}
+            isMultiple={false}
           />
           <Flex justifyContent="flex-end" mt={3}>
             <Button colorScheme="green" type="submit" isLoading={isLoading}>

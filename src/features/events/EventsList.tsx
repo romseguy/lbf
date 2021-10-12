@@ -93,6 +93,14 @@ export const EventsList = ({
   >({
     entity: null
   });
+  useEffect(() => {
+    if (notifyModalState.entity) {
+      const event = props.events.find(
+        ({ _id }) => _id === notifyModalState.entity!._id
+      );
+      setNotifyModalState({ entity: event || null });
+    }
+  }, [props.events]);
   const [showPreviousEvents, setShowPreviousEvents] = useState(false);
   const [showNextEvents, setShowNextEvents] = useState(false);
   useEffect(() => {

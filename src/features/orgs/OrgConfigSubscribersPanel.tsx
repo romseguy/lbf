@@ -635,6 +635,7 @@ export const OrgConfigSubscribersPanel = ({
                                     subscriptionId: subscription._id,
                                     orgId: org._id
                                   });
+                                  dispatch(refetchEvent());
                                   orgQuery.refetch();
                                   subQuery.refetch();
                                 }

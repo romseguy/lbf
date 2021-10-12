@@ -13,12 +13,12 @@ export interface IOrg {
   orgUrl: string;
   orgType: string;
   orgAddress?: string;
-  orgPhone?: string;
-  orgWeb?: string;
   orgCity?: string;
   orgLat?: number;
   orgLng?: number;
-  orgEmail?: string;
+  orgEmail?: { email: string }[];
+  orgPhone?: { phone: string }[];
+  orgWeb?: { url: string; prefix: string }[];
   orgDescription?: string;
   orgEvents: IEvent[];
   orgProjects: IProject[];
@@ -84,12 +84,12 @@ export const OrgSchema = new Schema<IOrg>(
       required: true
     },
     orgAddress: String,
-    orgPhone: String,
-    orgWeb: String,
     orgCity: String,
     orgLat: Number,
     orgLng: Number,
-    orgEmail: String,
+    orgEmail: [{ email: String }],
+    orgPhone: [{ phone: String }],
+    orgWeb: [{ url: String, prefix: String }],
     orgDescription: String,
     orgEvents: [{ type: Schema.Types.ObjectId, ref: "Event" }],
     orgProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],

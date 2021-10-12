@@ -1,7 +1,3 @@
-import { Session } from "next-auth";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { ErrorMessage } from "@hookform/error-message";
 import {
   ChakraProps,
   FormControl,
@@ -13,12 +9,15 @@ import {
   Alert,
   AlertIcon,
   Select,
-  InputGroup,
-  InputLeftElement,
   Tag,
-  Text,
   Tooltip
 } from "@chakra-ui/react";
+import { ErrorMessage } from "@hookform/error-message";
+import { Session } from "next-auth";
+import React, { useState, useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
+
 import {
   AddressControl,
   EmailControl,
@@ -26,17 +25,14 @@ import {
   ErrorMessageText,
   RTEditor
 } from "features/common";
-import { useAddOrgMutation, useEditOrgMutation } from "features/orgs/orgsApi";
-import { orgTypeFull, OrgTypes, OrgTypesV } from "models/Org";
-import type { IOrg } from "models/Org";
-import { handleError } from "utils/form";
-import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
-import { useEffect } from "react";
-import { normalize } from "utils/string";
-import { unwrapSuggestion } from "utils/maps";
-import { withGoogleApi } from "features/map/GoogleApiWrapper";
-import { AtSignIcon, PhoneIcon } from "@chakra-ui/icons";
+import { PhoneControl } from "features/common/forms/PhoneControl";
 import { UrlControl } from "features/common/forms/UrlControl";
+import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { useAddOrgMutation, useEditOrgMutation } from "features/orgs/orgsApi";
+import { IOrg, orgTypeFull, OrgTypes, OrgTypesV } from "models/Org";
+import { handleError } from "utils/form";
+import { unwrapSuggestion } from "utils/maps";
+import { normalize } from "utils/string";
 
 interface OrgFormProps extends ChakraProps {
   session: Session;
@@ -64,14 +60,16 @@ export const OrgForm = withGoogleApi({
     setError,
     clearErrors,
     watch,
-    getValues
-  } = useForm({
+    getValues,
+    setValue
+  }: { [key: string]: any } = useForm({
+    defaultValues: {
+      orgEmail: props.org?.orgEmail,
+      orgPhone: props.org?.orgPhone,
+      orgWeb: props.org?.orgWeb
+    },
     mode: "onChange"
   });
-
-  const [urlPrefix, setUrlPrefix] = useState<"https://" | "http://">(
-    "https://"
-  );
 
   watch("orgAddress");
   if (props.setOrgType) props.setOrgType(getValues("orgType"));
@@ -112,6 +110,10 @@ export const OrgForm = withGoogleApi({
     console.log("submitted", form);
     setIsLoading(true);
 
+    const orgEmail = form.orgEmail?.filter(({ email }) => email !== "");
+    const orgPhone = form.orgPhone?.filter(({ phone }) => phone !== "");
+    const orgWeb = form.orgWeb?.filter(({ url }) => url !== "");
+
     let payload = {
       ...form,
       orgUrl: normalize(form.orgName),
@@ -119,7 +121,11 @@ export const OrgForm = withGoogleApi({
         form.orgDescription === "<p><br></p>"
           ? ""
           : form.orgDescription?.replace(/\&nbsp;/g, " "),
-      orgWeb: urlPrefix + form.orgWeb
+      orgEmail:
+        Array.isArray(orgEmail) && orgEmail.length > 0 ? orgEmail : undefined,
+      orgPhone:
+        Array.isArray(orgPhone) && orgPhone.length > 0 ? orgPhone : undefined,
+      orgWeb: Array.isArray(orgWeb) && orgWeb.length > 0 ? orgWeb : undefined
     };
 
     try {
@@ -261,48 +267,27 @@ export const OrgForm = withGoogleApi({
 
       <EmailControl
         name="orgEmail"
-        defaultValue={props.org?.orgEmail}
-        errors={errors}
         register={register}
-        mb={3}
+        control={control}
+        errors={errors}
         placeholder={`Adresse e-mail ${orgType}`}
       />
 
-      <FormControl id="orgPhone" isInvalid={!!errors["orgPhone"]} mb={3}>
-        <FormLabel>Numéro de téléphone</FormLabel>
-        <InputGroup>
-          <InputLeftElement pointerEvents="none" children={<PhoneIcon />} />
-          <Input
-            name="orgPhone"
-            placeholder={`Numéro de téléphone ${orgType}`}
-            ref={register({
-              pattern: {
-                value: /^[0-9]{10,}$/i,
-                message: "Numéro de téléphone invalide"
-              }
-            })}
-            defaultValue={props.org?.orgPhone}
-            pl={10}
-          />
-        </InputGroup>
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="orgPhone" />
-        </FormErrorMessage>
-      </FormControl>
+      <PhoneControl
+        name="orgPhone"
+        register={register}
+        control={control}
+        errors={errors}
+        placeholder={`Numéro de téléphone ${orgType}`}
+      />
 
       <UrlControl
         name="orgWeb"
         register={register}
+        control={control}
         errors={errors}
-        urlPrefix={urlPrefix}
-        setUrlPrefix={setUrlPrefix}
-        defaultValue={
-          props.org
-            ? props.org.orgWeb?.replace(/http:\/\/|https:\/\//, "")
-            : undefined
-        }
+        setValue={setValue}
         placeholder={`Site internet ${orgType}`}
-        mb={3}
       />
 
       <FormControl

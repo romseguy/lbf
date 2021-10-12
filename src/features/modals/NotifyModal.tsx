@@ -113,11 +113,12 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
     : isTopic(entity)
     ? entity.topicName
     : "";
-  const entityNotified = isEvent(entity)
-    ? entity.eventNotified || []
-    : isTopic(entity)
-    ? entity.topicNotified || []
-    : [];
+  const entityNotified: { email: string; status?: "PENDING" | "OK" | "NOK" }[] =
+    isEvent(entity)
+      ? entity.eventNotified || []
+      : isTopic(entity)
+      ? entity.topicNotified || []
+      : [];
 
   const name = org ? org.orgName : event ? event.eventName : "";
   const subscriptions = org ? org.orgSubscriptions : [];
@@ -133,13 +134,13 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
     if (hasItems(emailList)) {
       toast({
         status: "success",
-        title: `${emailList.length} abonnés notifiés !`
+        title: `${emailList.length} abonnés invités !`
       });
       query.refetch();
     } else
       toast({
         status: "warning",
-        title: "Aucun abonné notifié"
+        title: "Aucun abonné invité"
       });
 
     setModalState({
@@ -160,69 +161,84 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
     >
       <ModalOverlay>
         <ModalContent>
-          <ModalHeader>Liste des abonnés</ModalHeader>
+          <ModalHeader>Invitations</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Alert status="info" flexDirection="row">
               <AlertIcon />
               <Box>
                 Ci-dessous la liste des abonnés{" "}
-                {org ? orgTypeFull(org.orgType) : ""} <b>{name}</b> à notifier
-                de l'ajout de {entityTypeLabel} <b>{entityName}</b>.
+                {org ? orgTypeFull(org.orgType) : ""} <b>{name}</b> à inviter à{" "}
+                {entityTypeLabel} <b>{entityName}</b>.
               </Box>
             </Alert>
 
             <Box overflowX="auto">
               <Table>
                 <Tbody>
+                  {/* {entityNotified
+                    .map(({ email, status }) => ({
+                      email,
+                      status: status || StatusTypes.PENDING
+                    }))
+                    .concat( */}
                   {subscriptions
+                    .filter((subscription) => {
+                      return (
+                        org &&
+                        subscription.orgs.find((orgSubscription) => {
+                          return (
+                            orgSubscription.orgId === org._id &&
+                            orgSubscription.type === SubscriptionTypes.FOLLOWER
+                          );
+                        })
+                      );
+                    })
                     .map((subscription) => {
                       const e =
                         typeof subscription.user === "object"
                           ? subscription.user.email || ""
                           : subscription.email || "";
 
-                      if (entityNotified.find(({ email }) => email === e))
-                        return;
+                      console.log(entityNotified);
 
-                      if (org) {
-                        if (
-                          !subscription.orgs.find((orgSubscription) => {
-                            return (
-                              orgSubscription.orgId === org._id &&
-                              orgSubscription.type ===
-                                SubscriptionTypes.FOLLOWER
-                            );
-                          })
-                        )
-                          return;
-                      }
+                      if (entityNotified.find(({ email }) => email === e))
+                        return { email: e, status: StatusTypes.PENDING };
 
                       return { email: e, status: StatusTypes.NOK };
                     })
-                    .concat(
-                      entityNotified.map(({ email }) => ({
-                        email,
-                        status: StatusTypes.OK
-                      }))
-                    )
+                    //)
                     .map((item) => {
-                      if (!item) return null;
+                      console.log(item);
+
                       return (
                         <Tr key={item.email}>
                           <Td>{item.email}</Td>
                           <Td>
-                            {item.status === StatusTypes.OK ? (
-                              <Tag colorScheme="green">Notifié</Tag>
+                            {item.status === StatusTypes.PENDING ? (
+                              <Tag colorScheme="green">Invité</Tag>
                             ) : (
                               <Link
-                                onClick={() =>
-                                  alert(
-                                    "Vous pourrez bientôt notifier des abonnés individuellement."
-                                  )
-                                }
+                                onClick={async () => {
+                                  const { emailList } = await postNotif({
+                                    [entityIdKey]: entityId,
+                                    payload: { ...payload, email: item.email }
+                                  }).unwrap();
+
+                                  if (hasItems(emailList)) {
+                                    toast({
+                                      status: "success",
+                                      title: `Une invitation a été envoyée à ${item.email} !`
+                                    });
+                                    query.refetch();
+                                  } else
+                                    toast({
+                                      status: "warning",
+                                      title: "Aucun abonné invité"
+                                    });
+                                }}
                               >
-                                <Tag colorScheme="red">Notifier</Tag>
+                                <Tag colorScheme="red">Inviter</Tag>
                               </Link>
                             )}
                           </Td>

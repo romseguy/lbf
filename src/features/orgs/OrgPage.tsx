@@ -326,31 +326,46 @@ export const OrgPage = ({
                     >
                       <Box p={5}>
                         {org.orgAddress && (
-                          <Flex alignItems="center">
-                            <Icon as={FaMapMarkedAlt} mr={3} />
-                            {org.orgAddress}
+                          <Flex flexDirection="column">
+                            <Flex alignItems="center">
+                              <Icon as={FaMapMarkedAlt} mr={3} />
+                              {org.orgAddress}
+                            </Flex>
                           </Flex>
                         )}
+
                         {org.orgEmail && (
-                          <Flex alignItems="center">
-                            <AtSignIcon mr={3} />
-                            <a href={`mailto:${org.orgEmail}`}>
-                              {org.orgEmail}
-                            </a>
+                          <Flex flexDirection="column">
+                            {org.orgEmail?.map(({ email }, index) => (
+                              <Flex key={`email-${index}`} alignItems="center">
+                                <AtSignIcon mr={3} />
+                                <a href={`mailto:${email}`}>{email}</a>
+                              </Flex>
+                            ))}
                           </Flex>
                         )}
+
                         {org.orgPhone && (
-                          <Flex alignItems="center">
-                            <PhoneIcon mr={3} />
-                            {org.orgPhone}
+                          <Flex flexDirection="column">
+                            {org.orgPhone?.map(({ phone }, index) => (
+                              <Flex key={`phone-${index}`} alignItems="center">
+                                <PhoneIcon mr={3} />
+                                {phone}
+                              </Flex>
+                            ))}
                           </Flex>
                         )}
+
                         {org.orgWeb && (
-                          <Flex alignItems="center">
-                            <Icon as={FaGlobeEurope} mr={3} />
-                            <Link variant="underline" href={org.orgWeb}>
-                              {org.orgWeb.replace(/http:\/\/|https:\/\//, "")}
-                            </Link>
+                          <Flex flexDirection="column">
+                            {org.orgWeb?.map(({ url, prefix }, index) => (
+                              <Flex key={`web-${index}`} alignItems="center">
+                                <Icon as={FaGlobeEurope} mr={3} />
+                                <Link variant="underline" href={prefix + url}>
+                                  {url}
+                                </Link>
+                              </Flex>
+                            ))}
                           </Flex>
                         )}
                       </Box>

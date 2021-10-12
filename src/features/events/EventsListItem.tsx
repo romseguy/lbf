@@ -25,7 +25,7 @@ import { IoIosPeople, IoIosPerson, IoMdPerson } from "react-icons/io";
 import { css } from "twin.macro";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import { Category, IEvent, Visibility } from "models/Event";
-import { IOrg } from "models/Org";
+import { IOrg, orgTypeFull } from "models/Org";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { EventsListItemVisibility } from "./EventsListItemVisibility";
 import { ModalState } from "features/modals/NotifyModal";
@@ -78,6 +78,8 @@ export const EventsListItem = ({
   session: Session | null;
   toast: any;
 }) => {
+  console.log(event);
+
   const minDate = event.eventMinDate;
   const maxDate = event.eventMaxDate;
   const showIsApproved = org && isCreator;
@@ -156,11 +158,11 @@ export const EventsListItem = ({
           {showIsApproved && (
             <GridItem pl={1}>
               {event.isApproved ? (
-                <Tooltip label="Approuvé">
+                <Tooltip label="Événement approuvé">
                   <CheckCircleIcon color="green" />
                 </Tooltip>
               ) : (
-                <Tooltip label="En attente de modération">
+                <Tooltip label="Événement en attente de modération">
                   <WarningIcon color="orange" />
                 </Tooltip>
               )}
@@ -169,19 +171,19 @@ export const EventsListItem = ({
                 <Tooltip
                   label={
                     canSendCount === 0
-                      ? "Aucun abonné à notifier"
+                      ? "Tous les abonnés ont reçu l'invitation"
                       : `${canSendCount} abonné${
                           canSendCount > 1 ? "s" : ""
-                        } de l'organisation : ${
-                          org.orgName
-                        } n'ont pas reçu la notification`
+                        } ${orgTypeFull(org.orgType)} ${org.orgName} n'${
+                          canSendCount > 1 ? "ont" : "a"
+                        } pas encore reçu d'invitation.`
                   }
                 >
                   <IconButton
                     aria-label={
                       canSendCount === 0
-                        ? "Aucun abonné à notifier"
-                        : `Notifier les abonnés de ${org.orgName}`
+                        ? "Aucun abonné à inviter"
+                        : `Inviter les abonnés de ${org.orgName}`
                     }
                     icon={<EmailIcon />}
                     isLoading={isLoading}
@@ -297,11 +299,11 @@ export const EventsListItem = ({
                     if (confirmed) {
                       if (event.eventOrgs.length <= 1) {
                         await deleteEvent({
-                          eventUrl: event.forwardedFrom.eventId
+                          eventUrl: event.forwardedFrom?.eventId
                         }).unwrap();
                       } else {
                         await editEvent({
-                          eventUrl: event.forwardedFrom.eventId,
+                          eventUrl: event.forwardedFrom?.eventId,
                           payload: {
                             eventOrgs: event.eventOrgs.filter((eventOrg) =>
                               typeof eventOrg === "object"
@@ -352,9 +354,9 @@ export const EventsListItem = ({
         dark={{ bg: "gray.500" }}
         borderBottomRightRadius={index === length - 1 ? "lg" : undefined}
       >
-        <Text pt={2} pl={2}>
-          {event.eventCity || "À définir"}
-        </Text>
+        <Box pt={2} pl={2} pr={2}>
+          <Text>{event.eventCity || "À définir"}</Text>
+        </Box>
       </GridItem>
 
       <GridItem pl={3} pb={3} light={{ bg: "white" }} dark={{ bg: "gray.700" }}>

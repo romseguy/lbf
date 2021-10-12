@@ -58,7 +58,7 @@ handler.get<
     const isCreator =
       session?.user.isAdmin || equals(event.createdBy, session?.user.userId);
 
-    // creator needs to subscriptions to send invites
+    // creator needs subscriptions to send invites
     if (isCreator) {
       populate = {
         path: "eventOrgs",
@@ -205,7 +205,7 @@ handler.post<
           email: body.email
         });
 
-        if (org) {
+        if (body.email && org) {
           const mail = createEventNotifEmail({
             email: body.email,
             event,
@@ -213,8 +213,26 @@ handler.post<
             subscription,
             isPreview: true
           });
-          await transport.sendMail(mail);
+
+          if (process.env.NODE_ENV === "production")
+            await transport.sendMail(mail);
+
           emailList.push(body.email);
+
+          const newEntries = emailList.map((email) => ({
+            email,
+            status: StatusTypes.PENDING
+          }));
+
+          if (!event.eventNotified) {
+            event.eventNotified = newEntries;
+          } else if (
+            !event.eventNotified.find(({ email }) => email === body.email)
+          ) {
+            event.eventNotified = event.eventNotified.concat(newEntries);
+          }
+
+          await event.save();
           console.log(`sent event email notif to target ${body.email}`, mail);
         }
       } else {

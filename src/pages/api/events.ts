@@ -41,9 +41,9 @@ handler.get<NextApiRequest, NextApiResponse>(async function getEvents(
       .populate("createdBy", "userName");
 
     for (const event of events) {
-      if (event.forwardedFrom.eventId) {
+      if (event.forwardedFrom?.eventId) {
         const e = await models.Event.findOne({
-          _id: event.forwardedFrom.eventId
+          _id: event.forwardedFrom?.eventId
         });
         if (e) {
           event.eventName = e.eventName;

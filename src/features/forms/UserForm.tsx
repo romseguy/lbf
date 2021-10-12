@@ -185,11 +185,13 @@ export const UserForm = (props: {
 
       <EmailControl
         name="email"
+        control={control}
+        register={register}
         isRequired
         defaultValue={props.user?.email}
         errors={errors}
-        register={register}
         mb={3}
+        isMultiple={false}
       />
 
       <Alert status="info" mb={3}>

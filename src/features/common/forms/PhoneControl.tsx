@@ -1,4 +1,4 @@
-import { AtSignIcon, DeleteIcon, EmailIcon } from "@chakra-ui/icons";
+import { ErrorMessage } from "@hookform/error-message";
 import {
   Box,
   FormControl,
@@ -14,22 +14,20 @@ import {
   SpaceProps
 } from "@chakra-ui/react";
 // import { Input } from "features/common";
-import { ErrorMessage } from "@hookform/error-message";
+import { AtSignIcon, DeleteIcon, PhoneIcon } from "@chakra-ui/icons";
 import React from "react";
 import { useFieldArray } from "react-hook-form";
 import { Link } from "../Link";
 
-export const EmailControl = ({
-  defaultValue,
+export const PhoneControl = ({
+  defaultValue = "",
   errors,
   name,
-  label = "Adresse e-mail",
+  label = "Numéro de téléphone",
   noLabel,
   control,
   register,
   isRequired = false,
-  isMultiple = true,
-  onRightElementClick,
   ...props
 }: SpaceProps & {
   defaultValue?: string;
@@ -40,57 +38,12 @@ export const EmailControl = ({
   control: any;
   register: any;
   isRequired?: boolean;
-  isMultiple?: boolean;
   placeholder?: string;
-  onRightElementClick?: () => void;
 }) => {
   let formRules: { required?: string | boolean } = {};
 
   if (isRequired) {
-    formRules.required = "Veuillez saisir une adresse e-mail";
-  }
-
-  if (!isMultiple) {
-    return (
-      <FormControl
-        id={name}
-        isRequired={isRequired}
-        isInvalid={!!errors[name]}
-        {...props}
-      >
-        {!noLabel && <FormLabel>{label}</FormLabel>}
-
-        <InputGroup>
-          <InputLeftElement pointerEvents="none" children={<AtSignIcon />} />
-          <Input
-            name={name}
-            placeholder={
-              props.placeholder ||
-              "Cliquez ici pour saisir une adresse e-mail..."
-            }
-            ref={register({
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Adresse email invalide"
-              },
-              ...formRules
-            })}
-            defaultValue={defaultValue}
-            pl={10}
-          />
-          {noLabel && onRightElementClick && (
-            <InputRightElement
-              pointerEvents="none"
-              children={<Icon as={EmailIcon} onClick={onRightElementClick} />}
-            />
-          )}
-        </InputGroup>
-
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name={name} />
-        </FormErrorMessage>
-      </FormControl>
-    );
+    formRules.required = "Veuillez saisir un numéro de téléphone";
   }
 
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
@@ -118,21 +71,18 @@ export const EmailControl = ({
               </FormLabel>
             )}
             <InputGroup>
-              <InputLeftElement
-                pointerEvents="none"
-                children={<AtSignIcon />}
-              />
+              <InputLeftElement pointerEvents="none" children={<PhoneIcon />} />
               <Input
-                name={`${name}[${index}].email`}
+                name={`${name}[${index}].phone`}
                 placeholder={
                   props.placeholder ||
-                  "Cliquez ici pour saisir une adresse e-mail..."
+                  "Cliquez ici pour saisir un numéro de téléphone..."
                 }
-                defaultValue={`${field.email}`} // make sure to set up defaultValue
+                defaultValue={`${field.phone}`} // make sure to set up defaultValue
                 ref={register({
                   pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Adresse email invalide"
+                    value: /^[0-9]{10,}$/i,
+                    message: "Numéro de téléphone invalide"
                   },
                   ...formRules
                 })}
@@ -141,7 +91,9 @@ export const EmailControl = ({
                 <InputRightAddon
                   children={
                     <IconButton
-                      aria-label={`Supprimer la ${index + 1}ème adresse e-mail`}
+                      aria-label={`Supprimer le ${
+                        index + 1
+                      }ème numéro de téléphone`}
                       icon={<DeleteIcon />}
                       onClick={() => remove(index)}
                     />
@@ -150,7 +102,7 @@ export const EmailControl = ({
               )}
             </InputGroup>
             <FormErrorMessage>
-              <ErrorMessage errors={errors} name={`${name}[${index}].email`} />
+              <ErrorMessage errors={errors} name={`${name}[${index}].phone`} />
             </FormErrorMessage>
           </FormControl>
         );
@@ -159,10 +111,10 @@ export const EmailControl = ({
       <Link
         fontSize="smaller"
         onClick={() => {
-          append({ email: "" });
+          append({ phone: "" });
         }}
       >
-        <EmailIcon /> Ajouter une adresse e-mail
+        <PhoneIcon /> Ajouter un numéro de téléphone
       </Link>
     </Box>
   );
