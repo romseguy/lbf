@@ -19,8 +19,8 @@ import { IoIosPeople } from "react-icons/io";
 import { css } from "twin.macro";
 
 const defaultCenter = {
-  lat: 42.888663,
-  lng: 1.347818
+  lat: 43.0555331,
+  lng: 2.2126466
 };
 
 export const Map = withGoogleApi({
@@ -28,7 +28,8 @@ export const Map = withGoogleApi({
 })(
   ({
     center,
-    items,
+    events,
+    orgs,
     size,
     onFullscreenControlClick,
     ...props
@@ -36,7 +37,8 @@ export const Map = withGoogleApi({
     google: any;
     loaded: boolean;
     center?: LatLon;
-    items: IEvent[] | IOrg[];
+    events?: IEvent[];
+    orgs?: IOrg[];
     size: SizeMap;
     onGoogleApiLoaded: () => void;
     onFullscreenControlClick?: (isFull: boolean) => void;
@@ -56,28 +58,29 @@ export const Map = withGoogleApi({
 
     const hash: { [key: string]: boolean } = {};
 
+    const mapItem = (item: IOrg | IEvent, index: number) => {
+      const key = `marker-${index}`;
+      let lat = "eventName" in item ? item.eventLat : item.orgLat;
+      let lng = "eventName" in item ? item.eventLng : item.orgLng;
+
+      if (lat && lng) {
+        const latLng = `${lat}_${lng}`;
+
+        if (hash[latLng]) {
+          lat = lat + (Math.random() - 0.5) / 1500;
+          lng = lng + (Math.random() - 0.5) / 1500;
+        } else hash[latLng] = true;
+      }
+
+      return {
+        key,
+        lat,
+        lng,
+        item
+      };
+    };
     const [markers, setMarkers] = useState(
-      items.map((item, index) => {
-        const key = `marker-${index}`;
-        let lat = "eventName" in item ? item.eventLat : item.orgLat;
-        let lng = "eventName" in item ? item.eventLng : item.orgLng;
-
-        if (lat && lng) {
-          const latLng = `${lat}_${lng}`;
-
-          if (hash[latLng]) {
-            lat = lat + (Math.random() - 0.5) / 1500;
-            lng = lng + (Math.random() - 0.5) / 1500;
-          } else hash[latLng] = true;
-        }
-
-        return {
-          key,
-          lat,
-          lng,
-          item
-        };
-      })
+      events ? events.map(mapItem) : orgs ? orgs.map(mapItem) : []
     );
 
     const onGoogleApiLoaded = ({ map, maps: api }: { map: any; maps: any }) => {

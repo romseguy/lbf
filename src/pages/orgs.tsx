@@ -38,10 +38,12 @@ const OrgsPage = (props: any) => {
       {isMapModalOpen && (
         <MapModal
           isOpen={isMapModalOpen}
-          items={
+          orgs={
             orgsQuery.data?.filter(
               (org) =>
-                typeof org.orgLat === "number" && typeof org.orgLng === "number"
+                typeof org.orgLat === "number" &&
+                typeof org.orgLng === "number" &&
+                org.orgName !== "aucourant"
             ) || []
           }
           onClose={closeMapModal}

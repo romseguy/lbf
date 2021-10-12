@@ -23,6 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 
 .next
+.vscode
 **/public/workbox-*.js
 **/public/sw.js
 **/public/worker-*.js

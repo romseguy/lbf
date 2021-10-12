@@ -1,4 +1,11 @@
-import { ArrowBackIcon, EditIcon, SettingsIcon } from "@chakra-ui/icons";
+import {
+  ArrowBackIcon,
+  AtSignIcon,
+  EditIcon,
+  PhoneIcon,
+  QuestionIcon,
+  SettingsIcon
+} from "@chakra-ui/icons";
 import {
   Box,
   Text,
@@ -11,13 +18,15 @@ import {
   Tooltip,
   Alert,
   AlertIcon,
-  IconButton
+  IconButton,
+  Icon
 } from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { FaGlobeEurope, FaMapMarkedAlt } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import {
@@ -242,7 +251,7 @@ export const OrgPage = ({
                 `}
               >
                 <GridItem
-                  rowSpan={4}
+                  rowSpan={1}
                   borderTopRadius="lg"
                   light={{ bg: "orange.100" }}
                   dark={{ bg: "gray.500" }}
@@ -307,7 +316,7 @@ export const OrgPage = ({
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>
-                        Adresse
+                        Coordonnées
                       </Heading>
                     </GridHeader>
 
@@ -316,90 +325,33 @@ export const OrgPage = ({
                       dark={{ bg: "gray.500" }}
                     >
                       <Box p={5}>
-                        {org.orgAddress || (
-                          <Text fontStyle="italic">Aucune adresse.</Text>
+                        {org.orgAddress && (
+                          <Flex alignItems="center">
+                            <Icon as={FaMapMarkedAlt} mr={3} />
+                            {org.orgAddress}
+                          </Flex>
                         )}
-                      </Box>
-                    </GridItem>
-                  </Grid>
-                </GridItem>
-
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  borderTopRadius="lg"
-                >
-                  <Grid templateRows="auto 1fr">
-                    <GridHeader borderTopRadius="lg" alignItems="center">
-                      <Heading size="sm" py={3}>
-                        Adresse e-mail
-                      </Heading>
-                    </GridHeader>
-
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                      overflowX="auto"
-                    >
-                      <Box p={5}>
-                        {org.orgEmail || (
-                          <Text fontStyle="italic">Aucune adresse e-mail.</Text>
+                        {org.orgEmail && (
+                          <Flex alignItems="center">
+                            <AtSignIcon mr={3} />
+                            <a href={`mailto:${org.orgEmail}`}>
+                              {org.orgEmail}
+                            </a>
+                          </Flex>
                         )}
-                      </Box>
-                    </GridItem>
-                  </Grid>
-                </GridItem>
-
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  borderTopRadius="lg"
-                >
-                  <Grid templateRows="auto 1fr">
-                    <GridHeader borderTopRadius="lg" alignItems="center">
-                      <Heading size="sm" py={3}>
-                        Numéro de téléphone
-                      </Heading>
-                    </GridHeader>
-
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                    >
-                      <Box p={5}>
-                        {org.orgPhone || (
-                          <Text fontStyle="italic">
-                            Aucun numéro de téléphone.
-                          </Text>
+                        {org.orgPhone && (
+                          <Flex alignItems="center">
+                            <PhoneIcon mr={3} />
+                            {org.orgPhone}
+                          </Flex>
                         )}
-                      </Box>
-                    </GridItem>
-                  </Grid>
-                </GridItem>
-
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  borderTopRadius="lg"
-                >
-                  <Grid templateRows="auto 1fr">
-                    <GridHeader borderTopRadius="lg" alignItems="center">
-                      <Heading size="sm" py={3}>
-                        Site internet
-                      </Heading>
-                    </GridHeader>
-
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                    >
-                      <Box p={5}>
-                        {org.orgWeb ? (
-                          <Link variant="underline" href={org.orgWeb}>
-                            {org.orgWeb}
-                          </Link>
-                        ) : (
-                          <Text fontStyle="italic">Aucun site internet.</Text>
+                        {org.orgWeb && (
+                          <Flex alignItems="center">
+                            <Icon as={FaGlobeEurope} mr={3} />
+                            <Link variant="underline" href={org.orgWeb}>
+                              {org.orgWeb.replace(/http:\/\/|https:\/\//, "")}
+                            </Link>
+                          </Flex>
                         )}
                       </Box>
                     </GridItem>
@@ -437,8 +389,11 @@ export const OrgPage = ({
             <TabPanel aria-hidden>
               {(isCreator || isSubscribed) && (
                 <Alert status="info" mb={3}>
-                  <AlertIcon />
-                  Ajoutez une discussion pour notifier les abonnés.
+                  <Icon as={QuestionIcon} boxSize={5} color="blue.500" />
+                  <Box ml={3}>
+                    Le saviez-vous ? Vous pouvez notifier vos abonnés de l'ajout
+                    d'une nouvelle discussion.
+                  </Box>
                 </Alert>
               )}
               <TopicsList

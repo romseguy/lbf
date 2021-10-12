@@ -11,7 +11,7 @@ export const MapSearch = ({
   setCenter: (center: LatLon) => void;
   isVisible: boolean;
 }) => {
-  const defaultValue = "Massat, France";
+  const defaultValue = "Limoux, France";
   const [value, setValue] = useState(defaultValue);
 
   const {

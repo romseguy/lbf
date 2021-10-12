@@ -34,14 +34,16 @@ export const MapModal = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 })(
   ({
-    items,
+    events,
+    orgs,
     ...props
   }: {
     google: any;
     loaded: boolean;
     isOpen: boolean;
     onClose: () => void;
-    items: IEvent[] | IOrg[];
+    events?: IEvent[];
+    orgs?: IOrg[];
   }) => {
     const isOffline = props.loaded && !props.google;
 
@@ -76,11 +78,7 @@ export const MapModal = withGoogleApi({
             {size.defaultSize.enabled && (
               <>
                 <ModalHeader>
-                  {items &&
-                    items[0] &&
-                    `Carte des ${
-                      "eventName" in items[0] ? "événements" : "organisations"
-                    }`}
+                  {`Carte des ${events ? "événements" : "organisations"}`}
                 </ModalHeader>
                 <ModalCloseButton />
               </>
@@ -91,7 +89,9 @@ export const MapModal = withGoogleApi({
               display="flex"
               flexDirection="column"
             >
-              {props.loaded && props.google && hasItems(items) ? (
+              {props.loaded &&
+              props.google &&
+              hasItems(events || orgs || []) ? (
                 <>
                   <MapSearch
                     setCenter={setCenter}
@@ -99,7 +99,8 @@ export const MapModal = withGoogleApi({
                   />
                   <Map
                     center={center}
-                    items={items}
+                    events={events}
+                    orgs={orgs}
                     size={size}
                     onFullscreenControlClick={(isFull: boolean) => {
                       setSize({

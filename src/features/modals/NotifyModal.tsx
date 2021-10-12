@@ -27,6 +27,15 @@ export type ModalState<T> = {
   entity: T | null;
 };
 
+const isEvent = (
+  entity: IEvent<string | Date> | ITopic
+): entity is IEvent<string | Date> => {
+  return (entity as IEvent<string | Date>).eventUrl !== undefined;
+};
+const isTopic = (entity: IEvent<string | Date> | ITopic): entity is ITopic => {
+  return (entity as ITopic).topicName !== undefined;
+};
+
 interface NotifyModalProps<T> {
   event?: IEvent<string | Date>;
   org?: IOrg;
@@ -47,8 +56,14 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
   const toast = useToast({ position: "top" });
   const [postNotif, postNotifMutation] = mutation;
 
-  if ((!org && !event) || !modalState.entity) return null;
+  if (
+    (!org && !event) ||
+    !modalState.entity ||
+    (!isEvent(modalState.entity) && !isTopic(modalState.entity))
+  )
+    return null;
 
+  const { entity } = modalState;
   let entityIdKey = "eventUrl";
   let entityTypeLabel = "l'événement";
   let payload: {
@@ -59,7 +74,27 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
     orgIds: org ? [org._id] : undefined
   };
 
-  if ("topicName" in modalState.entity) {
+  let followerCount = org
+    ? org.orgSubscriptions.map(
+        ({ orgs }) =>
+          orgs.filter(
+            ({ orgId, type }) =>
+              orgId === org._id && type === SubscriptionTypes.FOLLOWER
+          ).length
+      ).length
+    : event
+    ? event.eventSubscriptions.length
+    : 0;
+
+  let notifiedCount = 0;
+
+  if (isEvent(entity) && entity.eventNotified) {
+    notifiedCount = entity.eventNotified.length;
+  } else if (isTopic(entity) && entity.topicNotified) {
+    notifiedCount = entity.topicNotified.length;
+  }
+
+  if (isTopic(entity)) {
     entityIdKey = "topicId";
     entityTypeLabel = "la discussion";
     payload = {
@@ -68,18 +103,21 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
     };
   }
 
-  const entityId =
-    "topicName" in modalState.entity
-      ? modalState.entity._id
-      : modalState.entity.eventUrl;
-  const entityName =
-    "topicName" in modalState.entity
-      ? modalState.entity.topicName
-      : modalState.entity.eventName;
-  const entityNotified =
-    "topicName" in modalState.entity
-      ? modalState.entity.topicNotified || []
-      : modalState.entity.eventNotified || [];
+  const entityId = isEvent(entity)
+    ? entity.eventUrl
+    : isTopic(entity)
+    ? entity._id
+    : "";
+  const entityName = isEvent(entity)
+    ? entity.eventName
+    : isTopic(entity)
+    ? entity.topicName
+    : "";
+  const entityNotified = isEvent(entity)
+    ? entity.eventNotified || []
+    : isTopic(entity)
+    ? entity.topicNotified || []
+    : [];
 
   const name = org ? org.orgName : event ? event.eventName : "";
   const subscriptions = org ? org.orgSubscriptions : [];
@@ -122,7 +160,7 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
     >
       <ModalOverlay>
         <ModalContent>
-          <ModalHeader>Liste des notifications</ModalHeader>
+          <ModalHeader>Liste des abonnés</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Alert status="info" flexDirection="row">
@@ -180,7 +218,7 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
                               <Link
                                 onClick={() =>
                                   alert(
-                                    "Vous pourrez notifier des abonnés individuellement."
+                                    "Vous pourrez bientôt notifier des abonnés individuellement."
                                   )
                                 }
                               >
@@ -201,7 +239,7 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
               isLoading={postNotifMutation.isLoading}
               onClick={onSubmit}
             >
-              Envoyer les notifications manquantes
+              Envoyer {followerCount - notifiedCount} notifications
             </Button>
           </ModalBody>
         </ModalContent>

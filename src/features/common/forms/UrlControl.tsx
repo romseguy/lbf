@@ -5,12 +5,14 @@ import {
   FormLabel,
   Input,
   InputGroup,
-  InputLeftElement,
-  InputProps
+  InputLeftAddon,
+  InputProps,
+  Select
 } from "@chakra-ui/react";
 // import { Input } from "features/common";
-import { AtSignIcon } from "@chakra-ui/icons";
-import { urlR } from "utils/url";
+import { optionalProtocolUrlR, urlR } from "utils/url";
+import { css } from "twin.macro";
+import { useState } from "react";
 
 export const UrlControl = ({
   label,
@@ -19,6 +21,8 @@ export const UrlControl = ({
   errors,
   name,
   register,
+  urlPrefix,
+  setUrlPrefix,
   isRequired = false,
   mb,
   ...props
@@ -28,6 +32,8 @@ export const UrlControl = ({
   errors: { [key: string]: string };
   name: string;
   register: any;
+  urlPrefix?: "https://" | "http://";
+  setUrlPrefix?: (prefix: "https://" | "http://") => void;
   isRequired?: boolean;
   mb?: number;
   placeholder?: string;
@@ -48,19 +54,45 @@ export const UrlControl = ({
       <FormLabel>{label || "Site internet"}</FormLabel>
 
       <InputGroup>
-        <InputLeftElement pointerEvents="none" children={<AtSignIcon />} />
+        <InputLeftAddon
+          bg="transparent"
+          border={0}
+          p={0}
+          children={
+            <Select
+              id="noop"
+              defaultValue="https"
+              variant="filled"
+              borderTopRightRadius={0}
+              borderBottomRightRadius={0}
+              css={css`
+                margin: 0 !important;
+              `}
+              onChange={(e) => {
+                if (
+                  setUrlPrefix &&
+                  (e.target.value === "http://" ||
+                    e.target.value === "https://")
+                )
+                  setUrlPrefix(e.target.value);
+              }}
+            >
+              <option value="https://">https://</option>
+              <option value="http://">http://</option>
+            </Select>
+          }
+        />
         <Input
           name={name}
           placeholder={placeholder || "Saisir une adresse internet"}
           ref={register({
             pattern: {
-              value: urlR,
+              value: optionalProtocolUrlR,
               message: "Adresse invalide"
             },
             ...formRules
           })}
           defaultValue={defaultValue}
-          pl={10}
           {...props}
         />
       </InputGroup>

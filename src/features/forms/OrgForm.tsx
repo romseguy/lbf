@@ -68,6 +68,11 @@ export const OrgForm = withGoogleApi({
   } = useForm({
     mode: "onChange"
   });
+
+  const [urlPrefix, setUrlPrefix] = useState<"https://" | "http://">(
+    "https://"
+  );
+
   watch("orgAddress");
   if (props.setOrgType) props.setOrgType(getValues("orgType"));
   const orgAddress = getValues("orgAddress") || props.org?.orgAddress;
@@ -106,13 +111,15 @@ export const OrgForm = withGoogleApi({
   const onSubmit = async (form: IOrg) => {
     console.log("submitted", form);
     setIsLoading(true);
+
     let payload = {
       ...form,
       orgUrl: normalize(form.orgName),
       orgDescription:
         form.orgDescription === "<p><br></p>"
           ? ""
-          : form.orgDescription?.replace(/\&nbsp;/g, " ")
+          : form.orgDescription?.replace(/\&nbsp;/g, " "),
+      orgWeb: urlPrefix + form.orgWeb
     };
 
     try {
@@ -126,6 +133,8 @@ export const OrgForm = withGoogleApi({
         } = await unwrapSuggestion(sugg);
         payload = { ...payload, orgLat, orgLng, orgCity };
       }
+
+      console.log("payload", payload);
 
       if (props.org) {
         await editOrg({ payload, orgUrl: props.org.orgUrl }).unwrap();
@@ -262,7 +271,7 @@ export const OrgForm = withGoogleApi({
       <FormControl id="orgPhone" isInvalid={!!errors["orgPhone"]} mb={3}>
         <FormLabel>Numéro de téléphone</FormLabel>
         <InputGroup>
-          <InputLeftElement pointerOrgs="none" children={<PhoneIcon />} />
+          <InputLeftElement pointerEvents="none" children={<PhoneIcon />} />
           <Input
             name="orgPhone"
             placeholder={`Numéro de téléphone ${orgType}`}
@@ -283,10 +292,16 @@ export const OrgForm = withGoogleApi({
 
       <UrlControl
         name="orgWeb"
-        placeholder={`Site internet ${orgType}`}
-        defaultValue={props.org?.orgWeb}
-        errors={errors}
         register={register}
+        errors={errors}
+        urlPrefix={urlPrefix}
+        setUrlPrefix={setUrlPrefix}
+        defaultValue={
+          props.org
+            ? props.org.orgWeb?.replace(/http:\/\/|https:\/\//, "")
+            : undefined
+        }
+        placeholder={`Site internet ${orgType}`}
         mb={3}
       />
 

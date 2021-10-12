@@ -6,6 +6,7 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   EditIcon,
+  PhoneIcon,
   SettingsIcon
 } from "@chakra-ui/icons";
 import {
@@ -65,6 +66,7 @@ import getDay from "date-fns/getDay";
 import setDay from "date-fns/setDay";
 import { hasItems } from "utils/array";
 import { selectEventRefetch } from "./eventSlice";
+import { FaMapMarkedAlt, FaGlobeEurope } from "react-icons/fa";
 
 const timelineStyles = css`
   & > li {
@@ -377,7 +379,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                 `}
               >
                 <GridItem
-                  rowSpan={5}
+                  rowSpan={3}
                   borderTopRadius="lg"
                   light={{ bg: "orange.100" }}
                   dark={{ bg: "gray.500" }}
@@ -476,7 +478,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>
-                        Adresse
+                        Coordonnées
                       </Heading>
                     </GridHeader>
 
@@ -485,121 +487,37 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                       dark={{ bg: "gray.500" }}
                     >
                       <Box p={5}>
-                        {event.eventAddress || (
-                          <Text fontStyle="italic">Aucune adresse.</Text>
+                        {event.eventAddress && (
+                          <Flex alignItems="center">
+                            <Icon as={FaMapMarkedAlt} mr={3} />
+                            {event.eventAddress}
+                          </Flex>
                         )}
-                        {/* {!session ? (
-                      <Link
-                        variant="underline"
-                        onClick={() => setIsLogin(isLogin + 1)}
-                      >
-                        Connectez-vous pour voir l'adresse
-                      </Link>
-                    ) : !isSubscribedToAtLeastOneOrg &&
-                      event.eventVisibility === Visibility.SUBSCRIBERS &&
-                      !isCreator ? (
-                      <Text>
-                        Vous devez être adhérent pour voir le numéro de
-                        téléphone.
-                      </Text>
-                    ) : (
-                      event.eventAddress || (
-                        <Text fontStyle="italic">Aucune adresse.</Text>
-                      )
-                    )} */}
-                      </Box>
-                    </GridItem>
-                  </Grid>
-                </GridItem>
-
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  borderTopRadius="lg"
-                >
-                  <Grid templateRows="auto 1fr">
-                    <GridHeader borderTopRadius="lg" alignItems="center">
-                      <Heading size="sm" py={3}>
-                        Adresse e-mail
-                      </Heading>
-                    </GridHeader>
-
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                      overflowX="auto"
-                    >
-                      <Box p={5}>
-                        {event.eventEmail ? (
-                          <Link
-                            variant="underline"
-                            href={`mailto: ${event.eventEmail}`}
-                          >
-                            {event.eventEmail}
-                          </Link>
-                        ) : (
-                          <Text fontStyle="italic">Aucune adresse e-mail.</Text>
+                        {event.eventEmail && (
+                          <Flex alignItems="center">
+                            <AtSignIcon mr={3} />
+                            <a href={`mailto:${event.eventEmail}`}>
+                              {event.eventEmail}
+                            </a>
+                          </Flex>
                         )}
-                        {/* {session ? (
-                      event.eventEmail || (
-                        <Text fontStyle="italic">Aucune adresse e-mail.</Text>
-                      )
-                    ) : (
-                      <Link
-                        variant="underline"
-                        onClick={() => setIsLogin(isLogin + 1)}
-                      >
-                        Connectez-vous pour voir l'e-mail de l'événement
-                      </Link>
-                    )} */}
-                      </Box>
-                    </GridItem>
-                  </Grid>
-                </GridItem>
-
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  borderTopRadius="lg"
-                >
-                  <Grid templateRows="auto 1fr">
-                    <GridHeader borderTopRadius="lg" alignItems="center">
-                      <Heading size="sm" py={3}>
-                        Numéro de téléphone
-                      </Heading>
-                    </GridHeader>
-
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                    >
-                      <Box p={5}>
-                        {event.eventPhone || (
-                          <Text fontStyle="italic">
-                            Aucun numéro de téléphone.
-                          </Text>
+                        {event.eventPhone && (
+                          <Flex alignItems="center">
+                            <PhoneIcon mr={3} />
+                            {event.eventPhone}
+                          </Flex>
                         )}
-                        {/* {!session ? (
-                      <Link
-                        variant="underline"
-                        onClick={() => setIsLogin(isLogin + 1)}
-                      >
-                        Connectez-vous pour voir le numéro de téléphone
-                      </Link>
-                    ) : !isSubscribedToAtLeastOneOrg &&
-                      event.eventVisibility === Visibility.SUBSCRIBERS &&
-                      !isCreator ? (
-                      <Text>
-                        Vous devez être adhérent pour voir le numéro de
-                        téléphone.
-                      </Text>
-                    ) : (
-                      event.eventPhone || (
-                        <Text fontStyle="italic">
-                          Aucun numéro de téléphone.
-                        </Text>
-                      )
-                    )} */}
+                        {event.eventWeb && (
+                          <Flex alignItems="center">
+                            <Icon as={FaGlobeEurope} mr={3} />
+                            <Link variant="underline" href={event.eventWeb}>
+                              {event.eventWeb.replace(
+                                /http:\/\/|https:\/\//,
+                                ""
+                              )}
+                            </Link>
+                          </Flex>
+                        )}
                       </Box>
                     </GridItem>
                   </Grid>
@@ -687,7 +605,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                   Envoyer les invitations
                 </Button>
 
-                {showSendForm && (
+                {showSendForm && session && (
                   <EventSendForm
                     event={event}
                     eventQuery={eventQuery}

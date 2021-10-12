@@ -165,92 +165,49 @@ export const EventsListItem = ({
                 </Tooltip>
               )}
 
-              <Tooltip
-                label={
-                  canSendCount === 0
-                    ? "Aucun abonné à notifier"
-                    : `Notifier ${canSendCount} abonné${
-                        canSendCount > 1 ? "s" : ""
-                      } de l'organisation : ${org.orgName}`
-                }
-              >
-                <IconButton
-                  aria-label={
+              {org && isCreator && (
+                <Tooltip
+                  label={
                     canSendCount === 0
                       ? "Aucun abonné à notifier"
-                      : `Notifier les abonnés de ${org.orgName}`
+                      : `${canSendCount} abonné${
+                          canSendCount > 1 ? "s" : ""
+                        } de l'organisation : ${
+                          org.orgName
+                        } n'ont pas reçu la notification`
                   }
-                  icon={<EmailIcon />}
-                  isLoading={isLoading}
-                  isDisabled={!event.isApproved}
-                  title={
-                    !event.isApproved
-                      ? "L'événement est en attente de modération"
-                      : ""
-                  }
-                  bg="transparent"
-                  height="auto"
-                  minWidth={0}
-                  mx={2}
-                  _hover={{
-                    background: "transparent",
-                    color: "green"
-                  }}
-                  onClick={(e) => {
-                    setNotifyModalState({
-                      ...notifyModalState,
-                      entity: event
-                    });
-                  }}
-                  // onClick={async () => {
-                  //   setIsLoading(true);
-                  //   const notify = confirm(
-                  //     `Êtes-vous sûr de vouloir notifier ${canSendCount} abonné${
-                  //       canSendCount > 1 ? "s" : ""
-                  //     } de l'organisation : ${org!.orgName}`
-                  //   );
-
-                  //   if (!notify) return;
-
-                  //   try {
-                  //     const res = await editEvent({
-                  //       eventUrl: event.eventUrl,
-                  //       payload: {
-                  //         eventNotif: [org!._id]
-                  //       }
-                  //     }).unwrap();
-
-                  //     if (
-                  //       Array.isArray(res.emailList) &&
-                  //       res.emailList.length > 0
-                  //     ) {
-                  //       orgQuery.refetch();
-                  //       toast({
-                  //         title: `Une invitation a été envoyée à ${
-                  //           res.emailList.length
-                  //         } abonné${res.emailList.length > 1 ? "s" : ""}`,
-                  //         status: "success",
-                  //         isClosable: true
-                  //       });
-                  //     } else {
-                  //       toast({
-                  //         title: "Aucune invitation envoyée",
-                  //         status: "warning",
-                  //         isClosable: true
-                  //       });
-                  //     }
-                  //   } catch (error) {
-                  //     toast({
-                  //       title: "Une erreur est survenue",
-                  //       status: "error",
-                  //       isClosable: true
-                  //     });
-                  //   } finally {
-                  //     setIsLoading(false);
-                  //   }
-                  // }}
-                />
-              </Tooltip>
+                >
+                  <IconButton
+                    aria-label={
+                      canSendCount === 0
+                        ? "Aucun abonné à notifier"
+                        : `Notifier les abonnés de ${org.orgName}`
+                    }
+                    icon={<EmailIcon />}
+                    isLoading={isLoading}
+                    isDisabled={!event.isApproved}
+                    title={
+                      !event.isApproved
+                        ? "L'événement est en attente de modération"
+                        : ""
+                    }
+                    bg="transparent"
+                    height="auto"
+                    minWidth={0}
+                    mx={2}
+                    _hover={{
+                      background: "transparent",
+                      color: "green"
+                    }}
+                    onClick={(e) => {
+                      setNotifyModalState({
+                        ...notifyModalState,
+                        entity: event
+                      });
+                    }}
+                  />
+                </Tooltip>
+              )}
             </GridItem>
           )}
 

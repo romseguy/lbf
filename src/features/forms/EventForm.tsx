@@ -68,6 +68,7 @@ import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
 import { hasItems } from "utils/array";
+import { UrlControl } from "features/common/forms/UrlControl";
 
 interface EventFormProps extends ChakraProps {
   session: Session;
@@ -115,6 +116,10 @@ export const EventForm = withGoogleApi({
   } = useForm({
     mode: "onChange"
   });
+
+  const [urlPrefix, setUrlPrefix] = useState<"https://" | "http://">(
+    "https://"
+  );
 
   watch(["eventAddress", "eventOrgs"]);
   const eventVisibility = watch("eventVisibility");
@@ -317,8 +322,6 @@ export const EventForm = withGoogleApi({
         return { dayNumber };
       });
 
-    console.log("otherDays", otherDays);
-
     let payload = {
       ...form,
       eventName: form.eventName.trim(),
@@ -327,6 +330,7 @@ export const EventForm = withGoogleApi({
         form.eventDescription === "<p><br></p>"
           ? ""
           : form.eventDescription?.replace(/\&nbsp;/g, " "),
+      eventWeb: urlPrefix + form.eventWeb,
       otherDays
     };
 
@@ -341,6 +345,8 @@ export const EventForm = withGoogleApi({
         } = await unwrapSuggestion(sugg);
         payload = { ...payload, eventLat, eventLng, eventCity };
       }
+
+      console.log("payload", payload);
 
       if (props.event) {
         await editEvent({
@@ -781,27 +787,19 @@ export const EventForm = withGoogleApi({
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl id="eventWeb" isInvalid={!!errors["eventWeb"]} mb={3}>
-        <FormLabel>Site internet</FormLabel>
-        <InputGroup>
-          <InputLeftElement pointerEvents="none" children={<FaGlobeEurope />} />
-          <Input
-            name="eventWeb"
-            placeholder="Site internet de l'événement"
-            ref={register({
-              pattern: {
-                value: /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/i,
-                message: "Adresse invalide"
-              }
-            })}
-            defaultValue={props.event?.eventWeb}
-            pl={10}
-          />
-        </InputGroup>
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="eventWeb" />
-        </FormErrorMessage>
-      </FormControl>
+      <UrlControl
+        name="eventWeb"
+        register={register}
+        errors={errors}
+        urlPrefix={urlPrefix}
+        setUrlPrefix={setUrlPrefix}
+        defaultValue={
+          props.event
+            ? props.event.eventWeb?.replace(/http:\/\/|https:\/\//, "")
+            : undefined
+        }
+        placeholder="Site internet de l'événement"
+      />
 
       <FormControl
         id="eventDescription"

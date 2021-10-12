@@ -161,12 +161,12 @@ export const UserForm = (props: {
           name="userName"
           placeholder="Nom d'utilisateur"
           ref={register({
-            required: "Veuillez saisir le nom de l'utilisateur",
-            pattern: {
-              value: /^[a-z0-9 ]+$/i,
-              message:
-                "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
-            }
+            required: "Veuillez saisir le nom de l'utilisateur"
+            // pattern: {
+            //   value: /^[a-z0-9 ]+$/i,
+            //   message:
+            //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
+            // }
           })}
           defaultValue={props.user?.userName}
         />
