@@ -735,13 +735,14 @@ export const EventForm = withGoogleApi({
                 <option key="all" value={99}>
                   Toutes les semaines
                 </option>
-                {repeatOptions.map((i) => (
-                  <option key={`${i}w`} value={i}>
-                    {i > 1
-                      ? `Les ${i} prochaines semaines`
-                      : `La semaine d'après`}
-                  </option>
-                ))}
+                {repeatOptions.map(
+                  (i) =>
+                    i > 1 && (
+                      <option key={`${i}w`} value={i}>
+                        {`Toutes les ${i} semaines`}
+                      </option>
+                    )
+                )}
               </Select>
             </Box>
           )}

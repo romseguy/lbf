@@ -19,6 +19,7 @@ import { useSession } from "hooks/useAuth";
 import { Category, Visibility } from "models/Event";
 import { useGetEventsQuery } from "./eventsApi";
 import { EventsList } from "./EventsList";
+import { EventCategory } from "./EventCategory";
 
 export const EventsPage = ({
   isLogin,
@@ -132,7 +133,7 @@ export const EventsPage = ({
         )}
       </>
 
-      <Box mb={3}>
+      <Box>
         {Object.keys(Category).map((key) => {
           const k = parseInt(key);
           if (k === 0) return null;
@@ -173,66 +174,19 @@ export const EventsPage = ({
         })}
       </Box>
 
-      {eventsQuery.isLoading ? (
+      {eventsQuery.isLoading || eventsQuery.isFetching ? (
         <Text>Chargement des événements publics...</Text>
-      ) : Array.isArray(events) && events.length > 0 ? (
-        <div>
-          <EventsList
-            events={events}
-            eventsQuery={eventsQuery}
-            selectedCategories={selectedCategories}
-          />
-          <IconFooter />
-        </div>
       ) : (
-        <>
-          {selectedCategories.length === 1 ? (
-            <>
-              Aucun événement public dans la catégorie{" "}
-              <Tag
-                color="white"
-                bgColor={
-                  Category[selectedCategories[0]].bgColor === "transparent"
-                    ? isDark
-                      ? "whiteAlpha.300"
-                      : "blackAlpha.600"
-                    : Category[selectedCategories[0]].bgColor
-                }
-              >
-                {Category[selectedCategories[0]].label}
-              </Tag>
-            </>
-          ) : selectedCategories.length > 1 ? (
-            <>
-              Aucun événement public dans les catégories{" "}
-              {selectedCategories.map((sC) => {
-                return (
-                  <Tag
-                    color="white"
-                    bgColor={
-                      Category[sC].bgColor === "transparent"
-                        ? isDark
-                          ? "whiteAlpha.300"
-                          : "blackAlpha.600"
-                        : Category[sC].bgColor
-                    }
-                    mr={1}
-                  >
-                    {Category[sC].label}
-                  </Tag>
-                );
-              })}
-            </>
-          ) : (
-            <>
-              Aucun événement public{" "}
-              <Link variant="underline" onClick={addEvent}>
-                cliquez ici
-              </Link>{" "}
-              pour en ajouter un.
-            </>
-          )}
-        </>
+        events && (
+          <div>
+            <EventsList
+              events={events}
+              eventsQuery={eventsQuery}
+              selectedCategories={selectedCategories}
+            />
+            <IconFooter />
+          </div>
+        )
       )}
     </>
   );

@@ -214,7 +214,7 @@ export const EventsListItem = ({
           )}
 
           {/* eventCategory */}
-          {event.eventCategory && (
+          {typeof event.eventCategory === "number" && (
             <GridItem pl={1}>
               <Tag
                 color="white"

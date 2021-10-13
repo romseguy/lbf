@@ -314,8 +314,8 @@ export const sendMessageToTopicFollowers = async ({
   topic,
   transport
 }: {
-  event?: IEvent;
-  org?: IOrg;
+  event?: IEvent | null;
+  org?: IOrg | null;
   subscriptions: ISubscription[];
   topic: ITopic;
   transport: any;

@@ -198,6 +198,9 @@ export const OrgPopover = ({
             </Box>
 
             <Button
+              colorScheme="teal"
+              leftIcon={<AddIcon />}
+              mt={1}
               onClick={() => {
                 if (!isSessionLoading) {
                   if (session) {
@@ -207,9 +210,7 @@ export const OrgPopover = ({
                   }
                 }
               }}
-              leftIcon={<AddIcon />}
               data-cy="addOrg"
-              mt={1}
             >
               Ajouter une organisation
             </Button>

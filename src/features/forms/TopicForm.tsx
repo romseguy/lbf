@@ -25,6 +25,7 @@ import type { IEvent } from "models/Event";
 import type { IOrg } from "models/Org";
 import { ITopic, Visibility, VisibilityV } from "models/Topic";
 import { handleError } from "utils/form";
+import { ITopicMessage } from "models/TopicMessage";
 
 interface TopicFormProps extends ChakraProps {
   org?: IOrg;
@@ -79,14 +80,16 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
 
     setIsLoading(true);
 
+    const topicMessages: ITopicMessage[] = form.topicMessage
+      ? [{ message: form.topicMessage, createdBy: session.user.userId }]
+      : [];
+
     const payload = {
       org,
       event,
       topic: {
-        ...form,
-        topicMessages: form.topicMessage
-          ? [{ message: form.topicMessage, createdBy: session.user.userId }]
-          : [],
+        topicName: form.topicName,
+        topicMessages,
         topicVisibility: !form.topicVisibility
           ? Visibility[Visibility.PUBLIC]
           : form.topicVisibility,
@@ -97,7 +100,12 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
     try {
       if (props.topic) {
         await editTopic({
-          payload: payload.topic,
+          payload: {
+            ...payload.topic,
+            topicMessages: payload.topic.topicMessages.concat(
+              props.topic.topicMessages
+            )
+          },
           topicId: props.topic._id
         }).unwrap();
 

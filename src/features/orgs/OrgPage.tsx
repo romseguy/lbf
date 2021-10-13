@@ -121,7 +121,7 @@ export const OrgPage = ({
     subQuery.refetch();
   }, [subscriptionRefetch, userEmail]);
 
-  const isFollowed = isFollowedBy({ org, subQuery });
+  const isFollowed = isFollowedBy({ org, subQuery, isCreator });
   const isSubscribed = isSubscribedBy(org, subQuery);
   //#endregion
 
@@ -167,7 +167,7 @@ export const OrgPage = ({
         </Button>
       ) : null}
 
-      {!subQuery.isLoading && !isCreator && !isConfig && (
+      {!subQuery.isLoading && !isConfig && (
         <Flex>
           <>
             {isFollowed && (

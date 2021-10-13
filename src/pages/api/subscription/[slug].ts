@@ -196,8 +196,8 @@ handler.delete<
         }
       );
 
-      console.log("saving subscription", subscription);
       await subscription.save();
+      console.log("subscription saved", subscription);
 
       res.status(200).json(subscription);
     } else if (body.orgId) {
@@ -226,8 +226,8 @@ handler.delete<
         return keep;
       });
 
-      console.log("saving org", org);
       await org.save();
+      console.log("org saved", org);
 
       subscription = await subscription
         .populate("user", "-securityCode -password")
@@ -245,8 +245,8 @@ handler.delete<
         }
       );
 
-      console.log("saving subscription", subscription);
       await subscription.save();
+      console.log("subscription saved", subscription);
 
       res.status(200).json(subscription);
     } else if (body.events) {
@@ -296,8 +296,8 @@ handler.delete<
         }
       );
 
-      console.log("saving subscription", subscription);
       await subscription.save();
+      console.log("subscription saved", subscription);
 
       res.status(200).json(subscription);
     } else if (body.topicId) {
@@ -314,8 +314,8 @@ handler.delete<
         }
       );
 
-      console.log("saving subscription", subscription);
       await subscription.save();
+      console.log("subscription saved", subscription);
 
       res.status(200).json(subscription);
     } else {

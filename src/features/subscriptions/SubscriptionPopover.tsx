@@ -237,11 +237,19 @@ export const SubscriptionPopover = ({
         { topic }: { topic: ITopic }
       ) => {
         const topicId = topic._id || "";
+        let isChecked = false;
 
-        if (
-          (org && topic.org?._id === org._id) ||
-          (event && topic.event?._id === event._id)
-        ) {
+        if (org) {
+          const orgId =
+            typeof topic.org === "string" ? topic.org : topic.org?._id;
+          isChecked = orgId === org._id;
+        } else if (event) {
+          const eventId =
+            typeof topic.event === "string" ? topic.event : topic.event?._id;
+          isChecked = eventId === event._id;
+        }
+
+        if (isChecked)
           return {
             ...obj,
             [topicId]: {
@@ -249,7 +257,6 @@ export const SubscriptionPopover = ({
               checked: true
             }
           };
-        }
 
         return obj;
       },
@@ -338,7 +345,9 @@ export const SubscriptionPopover = ({
         };
       });
 
-    topicSubscriptions = hasItems(topicSubscriptions) ? topicSubscriptions : undefined
+    topicSubscriptions = hasItems(topicSubscriptions)
+      ? topicSubscriptions
+      : undefined;
 
     let payload: Partial<ISubscription> = {};
     if (!subQuery.data || !followerSubscription) {

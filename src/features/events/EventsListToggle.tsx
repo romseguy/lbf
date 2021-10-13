@@ -1,7 +1,8 @@
-import { Box, Flex } from "@chakra-ui/react";
+import { Box, Button, Flex } from "@chakra-ui/react";
 import React from "react";
 import { Link } from "features/common";
 import { IEvent } from "models/Event";
+import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 
 export const EventsListToggle = ({
   previousEvents,
@@ -26,33 +27,36 @@ export const EventsListToggle = ({
         {!showNextEvents && (
           <>
             {!showPreviousEvents && previousEvents.length > 0 && (
-              <Link
+              <Button
+                colorScheme="pink"
                 fontSize="smaller"
-                variant="underline"
+                height={7}
+                leftIcon={<ArrowBackIcon />}
+                mb={3}
+                mt={2}
                 onClick={() => {
-                  // currentDate = null;
-                  // currentDateP = null;
                   setShowPreviousEvents(true);
                 }}
               >
                 Voir les événéments précédents
-              </Link>
+              </Button>
             )}
 
-            {showPreviousEvents &&
-              (currentEvents.length > 0 || nextEvents.length > 0) && (
-                <Link
-                  fontSize="smaller"
-                  variant="underline"
-                  onClick={() => {
-                    // currentDate = null;
-                    // currentDateP = null;
-                    setShowPreviousEvents(false);
-                  }}
-                >
-                  Revenir aux événements de cette semaine
-                </Link>
-              )}
+            {showPreviousEvents && (
+              <Button
+                colorScheme="pink"
+                fontSize="smaller"
+                height={7}
+                rightIcon={<ArrowForwardIcon />}
+                mb={3}
+                mt={2}
+                onClick={() => {
+                  setShowPreviousEvents(false);
+                }}
+              >
+                Revenir aux événements de cette semaine
+              </Button>
+            )}
           </>
         )}
       </Box>
@@ -61,19 +65,22 @@ export const EventsListToggle = ({
         {!showPreviousEvents && (
           <>
             {nextEvents.length > 0 && (
-              <Link
+              <Button
+                colorScheme="pink"
                 fontSize="smaller"
-                variant="underline"
+                height={7}
+                leftIcon={showNextEvents ? <ArrowBackIcon /> : undefined}
+                rightIcon={!showNextEvents ? <ArrowForwardIcon /> : undefined}
+                mb={3}
+                mt={2}
                 onClick={() => {
-                  // currentDate = null;
-                  // currentDateP = null;
                   setShowNextEvents(!showNextEvents);
                 }}
               >
                 {showNextEvents
                   ? "Revenir aux événements de cette semaine"
                   : "Voir les événéments suivants"}
-              </Link>
+              </Button>
             )}
           </>
         )}

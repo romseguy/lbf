@@ -232,30 +232,52 @@ handler.delete<
           );
       }
 
+      //#region org reference
+      let nModified;
+
       if (topic.org) {
-        await models.Org.updateOne(
+        console.log("deleting org reference to topic", topic.org);
+        const mutation = await models.Org.updateOne(
           { _id: topic.org },
           {
             $pull: { orgTopics: topic._id }
           }
         );
+        nModified = mutation.nModified;
       } else if (topic.event) {
-        await models.Event.updateOne(
+        console.log("deleting event reference to topic", topic.event);
+        const mutation = await models.Event.updateOne(
           { _id: topic.event },
           {
             $pull: { eventTopics: topic._id }
           }
         );
+        nModified = mutation.nModified;
       }
 
+      if (nModified === 1) console.log("org reference to topic deleted");
+      //#endregion
+
+      //#region subscription reference
       const subscriptions = await models.Subscription.find({});
 
+      let count = 0;
       for (const subscription of subscriptions) {
         subscription.topics = subscription.topics.filter(
-          (topicSubscription) => !equals(topicSubscription.topic._id, topic._id)
+          (topicSubscription) => {
+            if (equals(topicSubscription.topic._id, topic._id)) {
+              count++;
+              return false;
+            }
+            return true;
+          }
         );
         await subscription.save();
       }
+      if (count > 0)
+        console.log(count + " subscriptions references to topic deleted");
+
+      //#endregion
 
       const { deletedCount } = await models.Topic.deleteOne({ _id: topicId });
 

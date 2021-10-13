@@ -8,7 +8,8 @@ import {
   Button,
   useColorMode,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Tag
 } from "@chakra-ui/react";
 import {
   compareAsc,
@@ -46,6 +47,7 @@ import {
 import { EventsListItem } from "./EventsListItem";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { EventsListToggle } from "./EventsListToggle";
+import { EventCategory } from "./EventCategory";
 
 export const EventsList = ({
   eventsQuery,
@@ -103,10 +105,13 @@ export const EventsList = ({
   }, [props.events]);
   const [showPreviousEvents, setShowPreviousEvents] = useState(false);
   const [showNextEvents, setShowNextEvents] = useState(false);
-  useEffect(() => {
-    setShowPreviousEvents(false);
-    setShowNextEvents(false);
-  }, [selectedCategories]);
+  const selectedCategoriesCount = selectedCategories
+    ? selectedCategories.length
+    : 0;
+  // useEffect(() => {
+  //   setShowPreviousEvents(false);
+  //   setShowNextEvents(false);
+  // }, [selectedCategories]);
   //#endregion
 
   //#region org
@@ -223,9 +228,8 @@ export const EventsList = ({
         }
 
         if (event.repeat) {
-          const repeatCount = event.repeat > 4 ? 4 : event.repeat;
-
-          for (let i = 1; i <= repeatCount; i++) {
+          for (let i = 1; i <= event.repeat; i++) {
+            if (i % event.repeat !== 0) continue;
             const eventMinDate = addWeeks(start, i);
             const eventMaxDate = addWeeks(end, i);
 
@@ -426,7 +430,33 @@ export const EventsList = ({
             ) : (
               <Alert status="info">
                 <AlertIcon />
-                Aucun événement prévu cette semaine.
+                Aucun événement{" "}
+                {Array.isArray(selectedCategories) &&
+                selectedCategoriesCount === 1 ? (
+                  <>
+                    de la catégorie
+                    <EventCategory
+                      selectedCategory={selectedCategories[0]}
+                      mx={1}
+                    />
+                  </>
+                ) : selectedCategoriesCount > 1 ? (
+                  <>
+                    dans les catégories
+                    {selectedCategories?.map((catNumber, index) => (
+                      <EventCategory
+                        selectedCategory={selectedCategories[index]}
+                        mx={1}
+                      />
+                    ))}
+                  </>
+                ) : (
+                  ""
+                )}{" "}
+                prévu
+                {previousEvents.length > 0 || nextEvents.length > 0
+                  ? " cette semaine."
+                  : "."}
               </Alert>
             )}
           </>
@@ -489,7 +519,9 @@ export const EventsList = ({
           </Box>
         )}
 
-        {(showPreviousEvents || showNextEvents || currentEvents.length > 0) && (
+        {((showPreviousEvents && previousEvents.length > 0) ||
+          showNextEvents ||
+          currentEvents.length > 0) && (
           <EventsListToggle
             previousEvents={previousEvents}
             showPreviousEvents={showPreviousEvents}

@@ -22,7 +22,7 @@ export const OrgsList = ({ orgsQuery }: { orgsQuery: any }) => {
             <Th>Nom</Th>
             {/* <Th>Description</Th> */}
             <Th>Adresse</Th>
-            <Th>E-mail</Th>
+            {/* <Th>E-mail</Th> */}
           </Tr>
         </Thead>
 
@@ -55,7 +55,7 @@ export const OrgsList = ({ orgsQuery }: { orgsQuery: any }) => {
                   )}
                 </Td> */}
                   <Td>{org.orgCity}</Td>
-                  <Td>{org.orgEmail}</Td>
+                  {/* <Td>{org.orgEmail}</Td> */}
                 </Tr>
               );
             })
