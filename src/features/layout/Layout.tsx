@@ -14,6 +14,7 @@ import { Offline } from "react-detect-offline";
 import { FaGithub } from "react-icons/fa";
 import { css } from "twin.macro";
 import { DarkModeSwitch, Link } from "features/common";
+import { PaypalButton } from "features/common/forms/PaypalButton";
 import { Header, Main, Nav, Footer } from "features/layout";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -136,7 +137,7 @@ export const Layout = ({
             pr={5}
             pb={5}
           >
-            <Tooltip
+            {/* <Tooltip
               label="Ce projet est open-source, financé par son seul créateur."
               hasArrow
             >
@@ -147,14 +148,14 @@ export const Layout = ({
                   }
                 >
                   <Button
-                    display="none"
                     leftIcon={<Icon as={FaGithub} boxSize={6} />}
                   >
                     Faire un don
                   </Button>
                 </Link>
               </span>
-            </Tooltip>
+            </Tooltip> */}
+            <PaypalButton />
             <DarkModeSwitch />
           </Flex>
         </Footer>

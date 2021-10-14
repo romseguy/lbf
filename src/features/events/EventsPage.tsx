@@ -1,37 +1,15 @@
-import { AddIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Flex,
-  IconButton,
-  Tag,
-  Text,
-  Tooltip,
-  useColorMode,
-  useDisclosure
-} from "@chakra-ui/react";
+import { Box, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import { FaRegMap } from "react-icons/fa";
 import { Button, IconFooter, Link } from "features/common";
-import { EventModal } from "features/modals/EventModal";
 import { MapModal } from "features/modals/MapModal";
-import { useSession } from "hooks/useAuth";
-import { Category, Visibility } from "models/Event";
+import { Visibility } from "models/Event";
 import { useGetEventsQuery } from "./eventsApi";
 import { EventsList } from "./EventsList";
-import { EventCategory } from "./EventCategory";
 
-export const EventsPage = ({
-  isLogin,
-  setIsLogin
-}: {
-  isLogin: number;
-  setIsLogin: (isLogin: number) => void;
-}) => {
+export const EventsPage = ({}: {}) => {
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
 
   const eventsQuery = useGetEventsQuery();
   useEffect(() => {
@@ -39,139 +17,32 @@ export const EventsPage = ({
     eventsQuery.refetch();
   }, [router.asPath]);
 
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const events = eventsQuery.data?.filter((event) => {
-    if (
-      event.eventCategory &&
-      selectedCategories.length > 0 &&
-      !selectedCategories.includes(event.eventCategory)
-    )
-      return false;
-    if (!event.eventCategory && selectedCategories.length > 0) return false;
     if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
     if (event.eventVisibility !== Visibility.PUBLIC) return false;
-    // today must be before eventMinDate
-    // if (
-    //   event.repeat !== 99 &&
-    //   compareDesc(new Date(), parseISO(event.eventMinDate)) === -1
-    // )
-    //   return false;
-
     return event.isApproved;
   });
 
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const {
     isOpen: isMapModalOpen,
     onOpen: openMapModal,
     onClose: closeMapModal
   } = useDisclosure({ defaultIsOpen: false });
 
-  const addEvent = () => {
-    if (!isSessionLoading) {
-      if (session) {
-        setIsEventModalOpen(true);
-      } else {
-        setIsLogin(isLogin + 1);
-      }
-    }
-  };
-
   return (
     <>
-      <>
-        <Flex justifyContent="space-between">
+      <Box mb={3}>
+        <Tooltip label="Carte des événements">
           <Button
             colorScheme="teal"
-            leftIcon={<AddIcon />}
-            mb={5}
-            onClick={addEvent}
-            data-cy="addEvent"
+            isLoading={eventsQuery.isLoading}
+            isDisabled={!events || !events.length}
+            leftIcon={<FaRegMap />}
+            onClick={openMapModal}
           >
-            Ajouter un événement
+            Carte des événements
           </Button>
-
-          <Tooltip label="Carte des événements">
-            <IconButton
-              aria-label="Carte des événements"
-              colorScheme="teal"
-              isLoading={eventsQuery.isLoading}
-              isDisabled={!events || !events.length}
-              icon={<FaMapMarkerAlt />}
-              onClick={openMapModal}
-            />
-          </Tooltip>
-        </Flex>
-
-        {isEventModalOpen && session && (
-          <EventModal
-            session={session}
-            onCancel={() => setIsEventModalOpen(false)}
-            onSubmit={async (eventUrl) => {
-              await router.push(`/${eventUrl}`, `/${eventUrl}`, {
-                shallow: true
-              });
-            }}
-            onClose={() => setIsEventModalOpen(false)}
-          />
-        )}
-
-        {isMapModalOpen && (
-          <MapModal
-            isOpen={isMapModalOpen}
-            events={
-              events?.filter((event) => {
-                return (
-                  typeof event.eventLat === "number" &&
-                  typeof event.eventLng === "number" &&
-                  event.eventVisibility === Visibility.PUBLIC
-                );
-              }) || []
-            }
-            onClose={closeMapModal}
-          />
-        )}
-      </>
-
-      <Box>
-        {Object.keys(Category).map((key) => {
-          const k = parseInt(key);
-          if (k === 0) return null;
-          const bgColor = Category[k].bgColor;
-          const isSelected = selectedCategories.includes(k);
-
-          return (
-            <Link
-              key={"cat" + key}
-              variant="no-underline"
-              onClick={() => {
-                setSelectedCategories(
-                  selectedCategories.includes(k)
-                    ? selectedCategories.filter((sC) => sC !== k)
-                    : selectedCategories.concat([k])
-                );
-              }}
-            >
-              <Tag
-                variant={isSelected ? "solid" : "outline"}
-                color={isDark ? "white" : isSelected ? "white" : "black"}
-                bgColor={
-                  isSelected
-                    ? bgColor === "transparent"
-                      ? isDark
-                        ? "whiteAlpha.300"
-                        : "blackAlpha.600"
-                      : bgColor
-                    : undefined
-                }
-                mr={1}
-                mb={1}
-              >
-                {Category[k].label}
-              </Tag>
-            </Link>
-          );
-        })}
+        </Tooltip>
       </Box>
 
       {eventsQuery.isLoading || eventsQuery.isFetching ? (
@@ -179,14 +50,26 @@ export const EventsPage = ({
       ) : (
         events && (
           <div>
-            <EventsList
-              events={events}
-              eventsQuery={eventsQuery}
-              selectedCategories={selectedCategories}
-            />
+            <EventsList events={events} eventsQuery={eventsQuery} />
             <IconFooter />
           </div>
         )
+      )}
+
+      {isMapModalOpen && (
+        <MapModal
+          isOpen={isMapModalOpen}
+          events={
+            events?.filter((event) => {
+              return (
+                typeof event.eventLat === "number" &&
+                typeof event.eventLng === "number" &&
+                event.eventVisibility === Visibility.PUBLIC
+              );
+            }) || []
+          }
+          onClose={closeMapModal}
+        />
       )}
     </>
   );

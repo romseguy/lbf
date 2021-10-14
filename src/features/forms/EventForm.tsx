@@ -20,7 +20,8 @@ import {
   PopoverContent,
   PopoverTrigger,
   PopoverCloseButton,
-  PopoverHeader
+  PopoverHeader,
+  IconButton
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import {
@@ -66,6 +67,7 @@ import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
+import { DeleteIcon } from "@chakra-ui/icons";
 
 interface EventFormProps extends ChakraProps {
   session: Session;
@@ -156,8 +158,8 @@ export const EventForm = withGoogleApi({
       checked: boolean;
       isDisabled?: boolean;
       isOpen: boolean;
-      startDate?: Date;
-      endTime?: Date;
+      startDate: Date | null;
+      endTime: Date | null;
     };
   }>(
     dateUtils.days.reduce((obj, day, index) => {
@@ -176,6 +178,8 @@ export const EventForm = withGoogleApi({
       };
     }, {})
   );
+
+  console.log(days);
 
   const setDayState = (index: number, match = {}, nomatch = {}) => {
     return Object.keys(days).reduce(
@@ -224,8 +228,8 @@ export const EventForm = withGoogleApi({
     (props.event && parseISO(props.event.eventMinDate)) || null;
   let eventMaxDefaultDate =
     (props.event && parseISO(props.event.eventMaxDate)) || null;
-  const eventMinDate = watch("eventMinDate");
-  const eventMaxDate = watch("eventMaxDate");
+  const eventMinDate: Date | null = watch("eventMinDate");
+  const eventMaxDate: Date | null = watch("eventMaxDate");
   const eventMinDuration = 1;
   const start = eventMinDate || eventMinDefaultDate;
   const end = eventMaxDate || eventMaxDefaultDate;
@@ -279,17 +283,73 @@ export const EventForm = withGoogleApi({
     eventMaxDefaultDate = parseISO(props.event.eventMaxDate);
   }
 
-  const eventMinDateProps = {
+  const eventMinDatePickerProps = {
     minDate: now,
-    maxDate: end
+    maxDate: end,
+    dateFormat: "Pp",
+    showTimeSelect: true,
+    timeFormat: "p",
+    timeIntervals: 60,
+    filterTime: (time: Date) => {
+      if (end) {
+        if (
+          time.getTime() <= subHours(end, eventMinDuration).getTime() &&
+          time.getTime() > addHours(now, eventMinDuration).getTime()
+        ) {
+          // console.log(
+          //   "allowing",
+          //   getHours(time),
+          //   getHours(subHours(end, eventMinDuration))
+          // );
+          return true;
+        }
+      } else if (getDay(time) === getDay(now)) {
+        if (time.getTime() >= addHours(now, eventMinDuration).getTime())
+          return true;
+      }
+
+      return false;
+    }
   };
 
-  const eventMaxDateProps: { minDate: Date | null } = {
+  const eventMaxDatePickerProps = {
     minDate: eventMinDate
       ? addHours(eventMinDate, eventMinDuration)
       : eventMinDefaultDate
       ? addHours(eventMinDefaultDate, eventMinDuration)
-      : addHours(now, eventMinDuration)
+      : addHours(now, eventMinDuration),
+    dateFormat: "Pp",
+    showTimeSelect: true,
+    timeFormat: "p",
+    timeIntervals: 60,
+    filterTime: (time: Date) => {
+      if (start) {
+        if (
+          getHours(time) >= getHours(addHours(start, eventMinDuration)) ||
+          getDay(time) !== getDay(start)
+        ) {
+          // console.log(
+          //   "allowing",
+          //   getHours(time),
+          //   getHours(addHours(start, eventMinDuration))
+          // );
+          return true;
+        }
+      } else if (
+        time.getTime() >
+        addHours(now, eventMinDuration + eventMinDuration).getTime()
+      ) {
+        // console.log(
+        //   "allowing",
+        //   getHours(time),
+        //   getHours(addHours(now, 2))
+        // );
+
+        return true;
+      }
+
+      return false;
+    }
   };
   //#endregion
 
@@ -308,6 +368,7 @@ export const EventForm = withGoogleApi({
     const otherDays: {
       dayNumber: number;
       startDate?: string;
+      endTime?: string;
     }[] = Object.keys(days)
       .filter((key) => {
         const day = days[parseInt(key)];
@@ -316,12 +377,11 @@ export const EventForm = withGoogleApi({
       .map((key) => {
         const dayNumber = parseInt(key);
         const day = days[dayNumber];
-        if (day.startDate)
-          return {
-            dayNumber,
-            startDate: days[dayNumber].startDate?.toISOString()
-          };
-        return { dayNumber };
+        return {
+          dayNumber,
+          startDate: day.startDate?.toISOString(),
+          endTime: day.endTime?.toISOString()
+        };
       });
 
     let payload = {
@@ -490,49 +550,19 @@ export const EventForm = withGoogleApi({
                 withPortal={isMobile ? true : false}
                 customInput={renderCustomInput("minDate")}
                 selected={props.value}
-                dateFormat="Pp"
-                showTimeSelect
-                timeFormat="p"
-                timeIntervals={60}
                 onChange={(e) => {
                   clearErrors("eventMinDate");
                   props.onChange(e);
                 }}
                 onCalendarClose={() => {
-                  if (eventMinDate) {
+                  if (eventMinDate && !eventMaxDate) {
                     setValue(
                       "eventMaxDate",
                       addHours(eventMinDate, eventMinDuration)
                     );
                   }
                 }}
-                filterTime={(time) => {
-                  if (end) {
-                    if (
-                      time.getTime() <=
-                        subHours(end, eventMinDuration).getTime() &&
-                      time.getTime() > addHours(now, eventMinDuration).getTime()
-                    ) {
-                      // console.log(
-                      //   "allowing",
-                      //   getHours(time),
-                      //   getHours(subHours(end, eventMinDuration))
-                      // );
-                      return true;
-                    }
-                  } else if (getDay(time) === getDay(now)) {
-                    if (
-                      time.getTime() >=
-                      addHours(now, eventMinDuration).getTime()
-                    )
-                      return true;
-                  } else {
-                    return true;
-                  }
-
-                  return false;
-                }}
-                {...eventMinDateProps}
+                {...eventMinDatePickerProps}
               />
             );
           }}
@@ -563,45 +593,24 @@ export const EventForm = withGoogleApi({
                 customInput={renderCustomInput("maxDate")}
                 selected={value}
                 onChange={onChange}
-                showTimeSelect
-                timeFormat="p"
-                timeIntervals={60}
-                filterTime={(time) => {
-                  if (start) {
-                    if (
-                      getHours(time) >=
-                        getHours(addHours(start, eventMinDuration)) ||
-                      getDay(time) !== getDay(start)
-                    ) {
-                      // console.log(
-                      //   "allowing",
-                      //   getHours(time),
-                      //   getHours(addHours(start, eventMinDuration))
-                      // );
-                      return true;
-                    }
-                  } else if (
-                    time.getTime() >
-                    addHours(now, eventMinDuration + eventMinDuration).getTime()
-                  ) {
-                    // console.log(
-                    //   "allowing",
-                    //   getHours(time),
-                    //   getHours(addHours(now, 2))
-                    // );
-
-                    return true;
-                  }
-
-                  return false;
-                }}
-                dateFormat="Pp"
                 highlightDates={highlightDatesStart}
-                {...eventMaxDateProps}
+                {...eventMaxDatePickerProps}
               />
             );
           }}
         />
+
+        {eventMaxDate !== null && (
+          <IconButton
+            aria-label="Date de fin remise à zéro"
+            icon={<DeleteIcon />}
+            ml={3}
+            onClick={() => {
+              setValue("eventMaxDate", null);
+            }}
+          />
+        )}
+
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="eventMaxDate" />
         </FormErrorMessage>
@@ -625,20 +634,35 @@ export const EventForm = withGoogleApi({
             <Box mt={3}>
               {canRepeat1day &&
                 dateUtils.days.map((label, index) => {
-                  let selected = start;
-
+                  const day = days[index];
                   const otherDay = props.event?.otherDays?.find(
                     ({ dayNumber, startDate }) =>
                       dayNumber === index && startDate
                   );
 
-                  if (days[index].startDate) selected = days[index].startDate;
-                  else if (otherDay?.startDate)
-                    selected = parseISO(otherDay.startDate);
+                  let selectedStart = day.startDate || start;
+                  if (otherDay?.startDate)
+                    selectedStart = parseISO(otherDay.startDate);
+
+                  let selectedEnd = day.endTime || end;
+                  if (otherDay?.endTime)
+                    selectedEnd = parseISO(otherDay.endTime);
+
+                  let tagLabel = label;
+
+                  if (day.checked) {
+                    if (selectedStart && selectedEnd)
+                      tagLabel += ` ${getHours(selectedStart)}h - ${getHours(
+                        selectedEnd
+                      )}h`;
+                    else if (selectedStart)
+                      tagLabel += `${getHours(selectedStart)}h`;
+                  }
 
                   return (
                     <Popover
                       key={"day-" + index}
+                      closeOnBlur={false}
                       isOpen={!!days[index].isOpen}
                       onClose={() =>
                         setDays(setDayState(index, { isOpen: false }))
@@ -648,8 +672,6 @@ export const EventForm = withGoogleApi({
                         <Link
                           variant="no-underline"
                           onClick={() => {
-                            const day = days[index];
-
                             if (day.isDisabled) return;
 
                             if (day.checked && !day.isOpen) {
@@ -669,44 +691,86 @@ export const EventForm = withGoogleApi({
                           }}
                         >
                           <Tag
-                            variant={days[index].checked ? "solid" : "outline"}
-                            bgColor={days[index].checked ? "green" : undefined}
-                            cursor={
-                              days[index].isDisabled ? "not-allowed" : "pointer"
-                            }
+                            variant={day.checked ? "solid" : "outline"}
+                            bgColor={day.checked ? "green" : undefined}
+                            cursor={day.isDisabled ? "not-allowed" : "pointer"}
                             mr={1}
                             mb={3}
                           >
-                            {label}{" "}
-                            {getHours(selected) !== getHours(start)
-                              ? getHours(selected) + "h"
-                              : ""}
+                            {tagLabel}
                           </Tag>
                         </Link>
                       </PopoverTrigger>
+
                       <PopoverContent>
                         <PopoverHeader fontWeight="bold">
                           {dateUtils.days[index]}
                         </PopoverHeader>
                         <PopoverCloseButton />
                         <PopoverBody>
-                          {/* <FormLabel>Heure de début</FormLabel> */}
+                          <FormLabel>Heure de début</FormLabel>
                           <DatePicker
                             //withPortal
                             customInput={renderCustomInput(
                               "startDate" + index,
                               true
                             )}
-                            selected={selected}
+                            selected={selectedStart}
                             dateFormat="Pp"
                             showTimeSelect
                             showTimeSelectOnly
                             timeFormat="p"
                             timeIntervals={60}
+                            filterTime={(time) => {
+                              if (
+                                selectedEnd &&
+                                getHours(time) >= getHours(selectedEnd)
+                              )
+                                return false;
+                              return true;
+                            }}
                             onChange={(startDate: Date) => {
+                              let endTime;
+                              if (selectedEnd) {
+                                if (getHours(selectedEnd) > getHours(startDate))
+                                  endTime = selectedEnd;
+                              }
                               setDays(
                                 setDayState(index, {
-                                  startDate: setDay(startDate, index + 1)
+                                  startDate: setDay(startDate, index + 1),
+                                  endTime
+                                })
+                              );
+                            }}
+                          />
+
+                          <FormLabel>Heure de fin</FormLabel>
+                          <DatePicker
+                            //withPortal
+                            customInput={renderCustomInput(
+                              "startDate" + index,
+                              true
+                            )}
+                            selected={selectedEnd}
+                            dateFormat="Pp"
+                            showTimeSelect
+                            showTimeSelectOnly
+                            timeFormat="p"
+                            timeIntervals={60}
+                            filterTime={(time) => {
+                              if (
+                                selectedStart &&
+                                getHours(time) <= getHours(selectedStart)
+                              ) {
+                                return false;
+                              }
+                              // console.log("allowing", time);
+                              return true;
+                            }}
+                            onChange={(endDate: Date) => {
+                              setDays(
+                                setDayState(index, {
+                                  endTime: setDay(endDate, index + 1)
                                 })
                               );
                             }}

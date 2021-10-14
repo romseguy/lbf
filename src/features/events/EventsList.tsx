@@ -35,7 +35,7 @@ import { EventModal } from "features/modals/EventModal";
 import { ForwardModal } from "features/modals/ForwardModal";
 import { refetchOrg } from "features/orgs/orgSlice";
 import { useSession } from "hooks/useAuth";
-import { IEvent, Visibility } from "models/Event";
+import { Category, IEvent, Visibility } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { useAppDispatch } from "store";
@@ -48,6 +48,7 @@ import { EventsListItem } from "./EventsListItem";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { EventsListToggle } from "./EventsListToggle";
 import { EventCategory } from "./EventCategory";
+import { EventsListCategories } from "./EventsListCategories";
 
 export const EventsList = ({
   eventsQuery,
@@ -57,7 +58,6 @@ export const EventsList = ({
   isSubscribed,
   isLogin,
   setIsLogin,
-  selectedCategories,
   ...props
 }: {
   events: IEvent[];
@@ -69,7 +69,6 @@ export const EventsList = ({
   isSubscribed?: boolean;
   isLogin?: number;
   setIsLogin?: (isLogin: number) => void;
-  selectedCategories?: number[];
 }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
@@ -103,15 +102,12 @@ export const EventsList = ({
       setNotifyModalState({ entity: event || null });
     }
   }, [props.events]);
-  const [showPreviousEvents, setShowPreviousEvents] = useState(false);
-  const [showNextEvents, setShowNextEvents] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const selectedCategoriesCount = selectedCategories
     ? selectedCategories.length
     : 0;
-  // useEffect(() => {
-  //   setShowPreviousEvents(false);
-  //   setShowNextEvents(false);
-  // }, [selectedCategories]);
+  const [showPreviousEvents, setShowPreviousEvents] = useState(false);
+  const [showNextEvents, setShowNextEvents] = useState(false);
   //#endregion
 
   //#region org
@@ -156,6 +152,15 @@ export const EventsList = ({
     let nextEvents: IEvent<Date>[] = [];
 
     for (const event of events) {
+      if (
+        event.eventCategory &&
+        selectedCategories.length > 0 &&
+        !selectedCategories.includes(event.eventCategory)
+      )
+        continue;
+
+      if (!event.eventCategory && selectedCategories.length > 0) continue;
+
       if (
         isCreator ||
         event.eventVisibility === Visibility.PUBLIC ||
@@ -310,6 +315,13 @@ export const EventsList = ({
           nextEvents={nextEvents}
           showNextEvents={showNextEvents}
           setShowNextEvents={setShowNextEvents}
+          mb={3}
+        />
+
+        <EventsListCategories
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+          mb={3}
         />
 
         {showPreviousEvents && (
@@ -443,7 +455,7 @@ export const EventsList = ({
                 ) : selectedCategoriesCount > 1 ? (
                   <>
                     dans les catégories
-                    {selectedCategories?.map((catNumber, index) => (
+                    {selectedCategories.map((catNumber, index) => (
                       <EventCategory
                         selectedCategory={selectedCategories[index]}
                         mx={1}
@@ -530,11 +542,19 @@ export const EventsList = ({
             nextEvents={nextEvents}
             showNextEvents={showNextEvents}
             setShowNextEvents={setShowNextEvents}
+            mt={3}
           />
         )}
       </>
     );
-  }, [props.events, session, isLoading, showPreviousEvents, showNextEvents]);
+  }, [
+    props.events,
+    session,
+    isLoading,
+    showPreviousEvents,
+    showNextEvents,
+    selectedCategories
+  ]);
 
   return (
     <div>

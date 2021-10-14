@@ -1,8 +1,9 @@
-import { Box, Button, Flex } from "@chakra-ui/react";
+import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
+import { Box, Button, Flex, SpaceProps } from "@chakra-ui/react";
 import React from "react";
+import { css } from "twin.macro";
 import { Link } from "features/common";
 import { IEvent } from "models/Event";
-import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 
 export const EventsListToggle = ({
   previousEvents,
@@ -11,8 +12,9 @@ export const EventsListToggle = ({
   currentEvents,
   nextEvents,
   showNextEvents,
-  setShowNextEvents
-}: {
+  setShowNextEvents,
+  ...props
+}: SpaceProps & {
   previousEvents: IEvent<Date>[];
   showPreviousEvents: boolean;
   setShowPreviousEvents: (show: boolean) => void;
@@ -22,8 +24,8 @@ export const EventsListToggle = ({
   setShowNextEvents: (show: boolean) => void;
 }) => {
   return (
-    <Flex justifyContent="space-between">
-      <Box>
+    <Flex flexDirection="row" flexWrap="wrap" mt={-3} {...props}>
+      <Box flexGrow={1} mt={3}>
         {!showNextEvents && (
           <>
             {!showPreviousEvents && previousEvents.length > 0 && (
@@ -32,8 +34,6 @@ export const EventsListToggle = ({
                 fontSize="smaller"
                 height={7}
                 leftIcon={<ArrowBackIcon />}
-                mb={3}
-                mt={2}
                 onClick={() => {
                   setShowPreviousEvents(true);
                 }}
@@ -48,8 +48,6 @@ export const EventsListToggle = ({
                 fontSize="smaller"
                 height={7}
                 rightIcon={<ArrowForwardIcon />}
-                mb={3}
-                mt={2}
                 onClick={() => {
                   setShowPreviousEvents(false);
                 }}
@@ -61,7 +59,7 @@ export const EventsListToggle = ({
         )}
       </Box>
 
-      <Box>
+      <Box mt={3}>
         {!showPreviousEvents && (
           <>
             {nextEvents.length > 0 && (
@@ -71,8 +69,6 @@ export const EventsListToggle = ({
                 height={7}
                 leftIcon={showNextEvents ? <ArrowBackIcon /> : undefined}
                 rightIcon={!showNextEvents ? <ArrowForwardIcon /> : undefined}
-                mb={3}
-                mt={2}
                 onClick={() => {
                   setShowNextEvents(!showNextEvents);
                 }}

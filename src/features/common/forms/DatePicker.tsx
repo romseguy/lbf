@@ -11,63 +11,68 @@ import { format, parseISO } from "date-fns";
 const ReactDatePickerStyles = styled.span(
   ({ isBrowser }: { isBrowser: boolean }) => [
     `
-  .react-datepicker {
-  }
+    .react-datepicker {
+    }
+    
+    .react-datepicker__time-list-item--disabled {
+      display: none;
+    }
 
-  // .react-datepicker__navigation-icon--next:before, react-datepicker__navigation-icon--previous:before{
-  //   border: 0 !important;
-  // }
+    .react-datepicker__day {
+      //width: 24px !important;
+      margin: unset;
+    }
+    .react-datepicker__day-name {
+      //width: 24px !important;
+      margin: unset;
+    }
 
-  .react-datepicker__time-list-item--disabled {
-    display: none;
-  }
+    .react-datepicker__month-container {
+      width: 250px !important;
+    }
+    .react-datepicker__month {
+      margin: unset;
+    }
 
-  .react-datepicker__day {
-    //width: 24px !important;
-    margin: unset;
-  }
-  .react-datepicker__day-name {
-    //width: 24px !important;
-    margin: unset;
-  }
-
-  .react-datepicker__month-container {
-    width: 250px !important;
-  }
-  .react-datepicker__month {
-    margin: unset;
-  }
-
-  .react-datepicker__time-container {
-    width: unset !important;
-  }
-  .react-datepicker__time-container
-    .react-datepicker__time
-    .react-datepicker__time-box {
-    width: unset;
-  }
-  // ul.react-datepicker__time-list > li {
-  //   padding: unset !important;
-  // }
-
+    .react-datepicker__time-container {
+      width: unset !important;
+    }
+    .react-datepicker__time-container
+      .react-datepicker__time
+      .react-datepicker__time-box {
+      width: unset;
+    }
+    // ul.react-datepicker__time-list > li {
+    //   padding: unset !important;
+    // }
   `,
     isBrowser &&
       `
-  .react-datepicker__navigation--next {
-    background: url(/images/arrow-right.png) no-repeat;
-  }
-  .react-datepicker__navigation--previous {
-    background: url(/images/arrow-left.png) no-repeat;
-  }
-  .react-datepicker__navigation--previous,
-  .react-datepicker__navigation--next {
-    width: 15px;
-    height: 15px;
-    border: none;
-    top: 12px;
-  }
-
-  `
+      .react-datepicker-popper {
+        z-index: 100 !important;
+      }
+      /* remove default previous/next icons */
+        .react-datepicker__navigation-icon--previous:before {
+          border: 0 !important;
+        }
+        .react-datepicker__navigation-icon--next:before {
+          border: 0 !important;
+        }
+      /* use custom */
+        .react-datepicker__navigation--next {
+          background: url(/images/arrow-right.png) no-repeat;
+        }
+        .react-datepicker__navigation--previous {
+          background: url(/images/arrow-left.png) no-repeat;
+        }
+        .react-datepicker__navigation--previous,
+        .react-datepicker__navigation--next {
+          width: 15px;
+          height: 15px;
+          border: none;
+          top: 12px;
+        }
+      `
   ]
 );
 
