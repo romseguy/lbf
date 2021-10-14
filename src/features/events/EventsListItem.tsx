@@ -78,8 +78,6 @@ export const EventsListItem = ({
   session: Session | null;
   toast: any;
 }) => {
-  console.log(event);
-
   const minDate = event.eventMinDate;
   const maxDate = event.eventMaxDate;
   const showIsApproved = org && isCreator;

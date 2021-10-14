@@ -18,6 +18,7 @@ import { AtSignIcon, DeleteIcon, PhoneIcon } from "@chakra-ui/icons";
 import React from "react";
 import { useFieldArray } from "react-hook-form";
 import { Link } from "../Link";
+import { phoneR } from "utils/string";
 
 export const PhoneControl = ({
   defaultValue = "",
@@ -28,6 +29,7 @@ export const PhoneControl = ({
   control,
   register,
   isRequired = false,
+  isMultiple = true,
   ...props
 }: SpaceProps & {
   defaultValue?: string;
@@ -39,11 +41,46 @@ export const PhoneControl = ({
   register: any;
   isRequired?: boolean;
   placeholder?: string;
+  isMultiple?: boolean;
 }) => {
   let formRules: { required?: string | boolean } = {};
 
   if (isRequired) {
     formRules.required = "Veuillez saisir un numéro de téléphone";
+  }
+
+  if (!isMultiple) {
+    return (
+      <FormControl
+        id={name}
+        isRequired={isRequired}
+        isInvalid={!!errors[name]}
+        {...props}
+      >
+        {!noLabel && <FormLabel m={0}>{label}</FormLabel>}
+        <InputGroup>
+          <InputLeftElement pointerEvents="none" children={<PhoneIcon />} />
+          <Input
+            name={name}
+            placeholder={
+              props.placeholder ||
+              "Cliquez ici pour saisir un numéro de téléphone..."
+            }
+            defaultValue={defaultValue}
+            ref={register({
+              pattern: {
+                value: phoneR,
+                message: "Numéro de téléphone invalide"
+              },
+              ...formRules
+            })}
+          />
+        </InputGroup>
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name={name} />
+        </FormErrorMessage>
+      </FormControl>
+    );
   }
 
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
@@ -81,7 +118,7 @@ export const PhoneControl = ({
                 defaultValue={`${field.phone}`} // make sure to set up defaultValue
                 ref={register({
                   pattern: {
-                    value: /^[0-9]{10,}$/i,
+                    value: phoneR,
                     message: "Numéro de téléphone invalide"
                   },
                   ...formRules

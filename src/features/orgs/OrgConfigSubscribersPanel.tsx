@@ -31,8 +31,10 @@ import {
   Spinner
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { IoIosPerson } from "react-icons/io";
 import { css } from "twin.macro";
 import {
   ErrorMessageText,
@@ -41,10 +43,12 @@ import {
   Link,
   Textarea
 } from "features/common";
+import { refetchEvent } from "features/events/eventSlice";
 import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
 } from "features/subscriptions/subscriptionsApi";
+import { getUser } from "features/users/usersApi";
 import { IOrg, orgTypeFull } from "models/Org";
 import {
   IOrgSubscription,
@@ -52,12 +56,12 @@ import {
   SubscriptionTypes
 } from "models/Subscription";
 import { IUser } from "models/User";
+import { useAppDispatch } from "store";
+import { hasItems } from "utils/array";
 import { emailR } from "utils/email";
 import { handleError } from "utils/form";
-import type { Visibility } from "./OrgPage";
-import { hasItems } from "utils/array";
-import { useAppDispatch } from "store";
-import { refetchEvent } from "features/events/eventSlice";
+import { phoneR } from "utils/string";
+import { Visibility } from "./OrgPage";
 
 type OrgConfigSubscribersPanelProps = Visibility & {
   org: IOrg;
@@ -74,7 +78,8 @@ export const OrgConfigSubscribersPanel = ({
 }: OrgConfigSubscribersPanelProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const toast = useToast();
+  const router = useRouter();
+  const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
 
   //#region subscription
@@ -102,8 +107,15 @@ export const OrgConfigSubscribersPanel = ({
   //#endregion
 
   //#region local state
-  const [isLoading, setIsLoading] = useState(false);
   const [isAdd, setIsAdd] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubscriptionLoading, setIsSubscriptionLoading] = useState<{
+    [key: string]: boolean;
+  }>(
+    org.orgSubscriptions.reduce((obj, subscription) => {
+      return { ...obj, [subscription._id]: false };
+    }, {})
+  );
   //#endregion
 
   const onTagClick = async ({
@@ -111,6 +123,7 @@ export const OrgConfigSubscribersPanel = ({
     following,
     subscribing,
     email,
+    phone,
     user,
     subscription
   }: {
@@ -118,10 +131,16 @@ export const OrgConfigSubscribersPanel = ({
     following?: any;
     subscribing?: any;
     email?: string;
+    phone?: string;
     user?: IUser | string;
     subscription: ISubscription;
   }) => {
-    setIsLoading(true);
+    if (isSubscriptionLoading[subscription._id]) return;
+
+    setIsSubscriptionLoading({
+      ...isSubscriptionLoading,
+      [subscription._id]: true
+    });
 
     const userEmail = typeof user === "object" ? user.email : email;
 
@@ -144,6 +163,7 @@ export const OrgConfigSubscribersPanel = ({
       } else {
         await addSubscription({
           email,
+          phone,
           user,
           payload: {
             orgs: [
@@ -177,6 +197,7 @@ export const OrgConfigSubscribersPanel = ({
       } else {
         await addSubscription({
           email,
+          phone,
           user,
           payload: {
             orgs: [
@@ -192,7 +213,86 @@ export const OrgConfigSubscribersPanel = ({
       }
     }
 
-    setIsLoading(false);
+    setIsSubscriptionLoading({
+      ...isSubscriptionLoading,
+      [subscription._id]: false
+    });
+  };
+
+  const onSubmit = async (form: {
+    emailList: string;
+    phoneList: string;
+    subscriptionType: string;
+  }) => {
+    try {
+      setIsLoading(true);
+      console.log("submitted", form);
+      const { emailList, phoneList, subscriptionType } = form;
+
+      const emailArray: string[] = emailList
+        .split(/(\s+)/)
+        .filter((e: string) => e.trim().length > 0)
+        .filter((email: string) => emailR.test(email));
+
+      const phoneArray: string[] = phoneList
+        .split(/(\s+)/)
+        .filter((e: string) => e.trim().length > 0)
+        .filter((phone: string) => phoneR.test(phone));
+
+      if (!emailArray.length && !phoneArray.length) {
+        throw new Error("Aucune coordonnée valide");
+      }
+
+      for (const email of emailArray) {
+        for (const type of subscriptionType) {
+          await addSubscription({
+            email,
+            payload: {
+              orgs: [
+                {
+                  orgId: org._id,
+                  org,
+                  type
+                }
+              ]
+            }
+          });
+        }
+      }
+
+      for (const phone of phoneArray) {
+        for (const type of subscriptionType) {
+          await addSubscription({
+            phone,
+            payload: {
+              orgs: [
+                {
+                  orgId: org._id,
+                  org,
+                  type
+                }
+              ]
+            }
+          });
+        }
+      }
+
+      setIsVisible({ ...isVisible, subscribers: true });
+      setIsAdd(false);
+      orgQuery.refetch();
+      subQuery.refetch();
+      dispatch(refetchEvent());
+    } catch (error) {
+      handleError(error, (message, field) => {
+        if (field) {
+          setError(field, { type: "manual", message });
+        } else {
+          setError("formErrorMessage", { type: "manual", message });
+        }
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -260,7 +360,7 @@ export const OrgConfigSubscribersPanel = ({
                 m={1}
                 data-cy="orgAddSubscribers"
               >
-                Ajouter des e-mails
+                Ajouter des coordonnées
               </Button>
             </GridItem>
           </Grid>
@@ -268,170 +368,136 @@ export const OrgConfigSubscribersPanel = ({
       </Link>
 
       {isAdd && (
-        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.700" }}>
-          <Box p={5}>
-            <form
-              onChange={() => clearErrors("formErrorMessage")}
-              onSubmit={handleSubmit(async (form) => {
-                try {
-                  setIsLoading(true);
-                  console.log("submitted", form);
-                  const { emailList, subscriptionType } = form;
-
-                  const emailArray: string[] = emailList
-                    .split(/(\s+)/)
-                    .filter((e: string) => e.trim().length > 0)
-                    .filter((email: string) => emailR.test(email));
-
-                  if (!emailArray.length) {
-                    throw new Error("Aucune adresse e-mail valide");
-                  }
-
-                  for (const email of emailArray) {
-                    for (const type of subscriptionType) {
-                      await addSubscription({
-                        email,
-                        payload: {
-                          orgs: [
-                            {
-                              orgId: org._id,
-                              org,
-                              type
-                            }
-                          ]
-                        }
-                      });
-                    }
-                  }
-
-                  setIsVisible({ ...isVisible, subscribers: true });
-                  setIsAdd(false);
-                  orgQuery.refetch();
-                  subQuery.refetch();
-                  dispatch(refetchEvent());
-                } catch (error) {
-                  handleError(error, (message, field) => {
-                    if (field) {
-                      setError(field, { type: "manual", message });
-                    } else {
-                      setError("formErrorMessage", { type: "manual", message });
-                    }
-                  });
-                } finally {
-                  setIsLoading(false);
-                }
-              })}
-            >
-              <ErrorMessage
-                errors={errors}
-                name="formErrorMessage"
-                render={({ message }) => (
-                  <Alert status="error" mb={3}>
-                    <AlertIcon />
-                    <ErrorMessageText>{message}</ErrorMessageText>
-                  </Alert>
-                )}
+        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.700" }} p={5}>
+          <form
+            onChange={() => clearErrors("formErrorMessage")}
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <FormControl id="emailList" isInvalid={!!errors.emailList} mb={3}>
+              <FormLabel>
+                Entrez les e-mails séparées par un espace ou un retour à la
+                ligne :{" "}
+              </FormLabel>
+              <Textarea
+                ref={register()}
+                name="emailList"
+                dark={{ _hover: { borderColor: "white" } }}
               />
+              <FormErrorMessage>
+                <ErrorMessage errors={errors} name="emailList" />
+              </FormErrorMessage>
+            </FormControl>
 
-              <FormControl id="emailList" isInvalid={!!errors.emailList} mb={3}>
-                <FormLabel>
-                  Entrez les e-mails séparées par un espace ou un retour à la
-                  ligne :{" "}
-                  <Text display="inline" color="red">
-                    *
-                  </Text>
-                </FormLabel>
-                <Textarea
-                  ref={register({
-                    required: "Veuillez entrer une adresse e-mail au minimum"
-                  })}
-                  name="emailList"
-                  dark={{ _hover: { borderColor: "white" } }}
-                />
-                <FormErrorMessage>
-                  <ErrorMessage errors={errors} name="emailList" />
-                </FormErrorMessage>
-              </FormControl>
+            <FormControl id="phoneList" isInvalid={!!errors.phoneList} mb={3}>
+              <FormLabel>
+                Entrez les numéros de téléphone mobile séparés par un espace ou
+                un retour à la ligne :{" "}
+              </FormLabel>
+              <Textarea
+                ref={register()}
+                name="phoneList"
+                dark={{ _hover: { borderColor: "white" } }}
+              />
+              <FormErrorMessage>
+                <ErrorMessage errors={errors} name="phoneList" />
+              </FormErrorMessage>
+            </FormControl>
 
-              <FormControl
-                id="subscriptionType"
-                isRequired
-                isInvalid={!!errors.subscriptionType}
-                mb={3}
-              >
-                <FormLabel>Ajouter les e-mails en tant que :</FormLabel>
-                <CheckboxGroup>
-                  <Box
-                    display="flex"
-                    flexDirection="column"
-                    css={css`
-                      .chakra-checkbox__control {
-                        border-color: black;
-                      }
-                    `}
-                    color="black"
-                  >
-                    <Checkbox
-                      ref={register({ required: true })}
-                      name="subscriptionType"
-                      value={SubscriptionTypes.SUBSCRIBER}
-                      bg={"purple.100"}
-                      borderRadius="lg"
-                      p={3}
-                      mb={3}
-                    >
-                      Adhérent
-                      <Text fontSize="smaller">
-                        La personne aura accès aux discussions et événements
-                        réservées aux adhérents.
-                      </Text>
-                    </Checkbox>
-                    <Checkbox
-                      ref={register({ required: true })}
-                      name="subscriptionType"
-                      value={SubscriptionTypes.FOLLOWER}
-                      bg={"green.100"}
-                      borderRadius="lg"
-                      p={3}
-                    >
-                      Abonné
-                      <Text fontSize="smaller">
-                        La personne recevra les e-mails d'invitation aux
-                        événements.
-                      </Text>
-                    </Checkbox>
-                  </Box>
-                </CheckboxGroup>
-
-                <FormErrorMessage>
-                  <ErrorMessage
-                    errors={errors}
-                    name="subscriptionType"
-                    message="Veuillez cocher une case au minimum"
-                  />
-                </FormErrorMessage>
-              </FormControl>
-
-              <Flex>
-                <Button onClick={() => setIsAdd(false)} mr={3}>
-                  Annuler
-                </Button>
-                <Button
-                  colorScheme="green"
-                  type="submit"
-                  isLoading={isLoading || addSubscriptionMutation.isLoading}
-                  data-cy="orgAddSubscribersSubmit"
+            <FormControl
+              id="subscriptionType"
+              isRequired
+              isInvalid={!!errors.subscriptionType}
+              mb={3}
+            >
+              <FormLabel>Ajouter les coordonnées en tant que :</FormLabel>
+              <CheckboxGroup>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  css={css`
+                    .chakra-checkbox__control {
+                      border-color: black;
+                    }
+                  `}
+                  color="black"
                 >
-                  Ajouter
-                </Button>
-              </Flex>
-            </form>
-          </Box>
+                  <Checkbox
+                    ref={register({ required: true })}
+                    name="subscriptionType"
+                    value={SubscriptionTypes.SUBSCRIBER}
+                    bg={"purple.100"}
+                    borderRadius="lg"
+                    p={3}
+                    mb={3}
+                  >
+                    Adhérent
+                    <Text fontSize="smaller">
+                      La personne aura accès aux discussions et événements
+                      réservées aux adhérents.
+                    </Text>
+                  </Checkbox>
+                  <Checkbox
+                    ref={register({ required: true })}
+                    name="subscriptionType"
+                    value={SubscriptionTypes.FOLLOWER}
+                    bg={"green.100"}
+                    borderRadius="lg"
+                    p={3}
+                  >
+                    Abonné
+                    <Text fontSize="smaller">
+                      La personne recevra les e-mails d'invitation aux
+                      événements.
+                    </Text>
+                  </Checkbox>
+                </Box>
+              </CheckboxGroup>
+
+              <FormErrorMessage>
+                <ErrorMessage
+                  errors={errors}
+                  name="subscriptionType"
+                  message="Veuillez cocher une case au minimum"
+                />
+              </FormErrorMessage>
+            </FormControl>
+
+            <ErrorMessage
+              errors={errors}
+              name="formErrorMessage"
+              render={({ message }) => (
+                <Alert status="error" mb={3}>
+                  <AlertIcon />
+                  <ErrorMessageText>{message}</ErrorMessageText>
+                </Alert>
+              )}
+            />
+
+            <Flex>
+              <Button onClick={() => setIsAdd(false)} mr={3}>
+                Annuler
+              </Button>
+              <Button
+                colorScheme="green"
+                type="submit"
+                isDisabled={
+                  Object.keys(errors).length > 0 ||
+                  Object.keys(isSubscriptionLoading).some(
+                    (_id) => !!isSubscriptionLoading[_id]
+                  )
+                }
+                isLoading={isLoading}
+                data-cy="orgAddSubscribersSubmit"
+              >
+                Ajouter
+              </Button>
+            </Flex>
+          </form>
         </GridItem>
       )}
 
       {isVisible.subscribers &&
-        (orgQuery.isLoading || orgQuery.isFetching ? (
+        (orgQuery.isLoading ? (
           <Text>Chargement de la liste des adhérents & abonnés...</Text>
         ) : (
           <GridItem
@@ -472,181 +538,228 @@ export const OrgConfigSubscribersPanel = ({
                 */
                 `}
               >
-                {org.orgSubscriptions
-                  // .filter(
-                  //   ({ orgs = [] }) =>
-                  //     !!orgs.find(
-                  //       ({ orgId, type }) =>
-                  //         orgId === org._id &&
-                  //         (type === SubscriptionTypes.SUBSCRIBER ||
-                  //           type === SubscriptionTypes.FOLLOWER)
-                  //     )
-                  // )
-                  .map((subscription, index) => {
-                    const { email, user, orgs = [] } = subscription;
+                {org.orgSubscriptions.map((subscription, index) => {
+                  let { email, phone, user, orgs = [] } = subscription;
+                  let userEmail: string | undefined,
+                    userName: string | undefined;
 
-                    const userEmail =
-                      typeof user === "object" ? user.email : email;
+                  if (typeof user === "object") {
+                    userEmail = user.email;
+                    userName = user.userName;
+                  }
 
-                    const userName =
-                      typeof user === "object" ? user.userName : "";
-                    let following: IOrgSubscription | null = null;
-                    let subscribing: IOrgSubscription | null = null;
+                  let following: IOrgSubscription | null = null;
+                  let subscribing: IOrgSubscription | null = null;
 
-                    for (const orgSubscription of orgs) {
-                      const { type, orgId } = orgSubscription;
-                      if (orgId !== org._id || !type) continue;
+                  for (const orgSubscription of orgs) {
+                    const { type, orgId } = orgSubscription;
+                    if (orgId !== org._id || !type) continue;
 
-                      if (type === SubscriptionTypes.FOLLOWER)
-                        following = orgSubscription;
-                      else if (type === SubscriptionTypes.SUBSCRIBER)
-                        subscribing = orgSubscription;
-                    }
+                    if (type === SubscriptionTypes.FOLLOWER)
+                      following = orgSubscription;
+                    else if (type === SubscriptionTypes.SUBSCRIBER)
+                      subscribing = orgSubscription;
+                  }
 
-                    return (
-                      <Tr key={`email-${index}`}>
-                        <Td whiteSpace="nowrap">
-                          <Link
-                            variant="no-underline"
-                            onClick={() =>
-                              onTagClick({
-                                type: SubscriptionTypes.FOLLOWER,
-                                following,
-                                email,
-                                user,
-                                subscription
-                              })
-                            }
-                            data-cy={
-                              following
-                                ? "orgSubscriberUnfollow"
-                                : "orgSubscriberFollow"
-                            }
-                          >
-                            <Tooltip
-                              placement="top"
-                              hasArrow
-                              label={`${
-                                following ? "Retirer de" : "Ajouter à"
-                              } la liste des abonnés`}
-                            >
-                              <Tag
-                                variant={following ? "solid" : "outline"}
-                                colorScheme="green"
-                                mr={3}
-                              >
-                                <TagLabel>Abonné</TagLabel>
-                              </Tag>
-                            </Tooltip>
-                          </Link>
-
-                          <Link
-                            onClick={() =>
-                              onTagClick({
-                                type: SubscriptionTypes.SUBSCRIBER,
-                                subscribing,
-                                email,
-                                user,
-                                subscription
-                              })
-                            }
-                            data-cy={
-                              subscribing
-                                ? "orgSubscriberUnsubscribe"
-                                : "orgSubscriberSubscribe"
-                            }
-                          >
-                            <Tooltip
-                              placement="top"
-                              hasArrow
-                              label={`${
-                                subscribing ? "Retirer de" : "Ajouter à"
-                              } la liste des adhérents`}
-                            >
-                              <Tag
-                                variant={subscribing ? "solid" : "outline"}
-                                colorScheme="purple"
-                                mr={3}
-                              >
-                                <TagLabel>Adhérent</TagLabel>
-                              </Tag>
-                            </Tooltip>
-                          </Link>
-                        </Td>
-
-                        <Td width="100%">
-                          {email || (
-                            <Link href={`/${userName}`} variant="underline">
-                              {userEmail}
-                            </Link>
-                          )}
-                        </Td>
-
-                        <Td textAlign="right">
-                          {!user && false && (
-                            <Tooltip
-                              label="Créer un compte"
-                              hasArrow
-                              placement="top"
-                            >
-                              <IconButton
-                                aria-label="Créer un compte"
-                                bg="transparent"
-                                _hover={{ bg: "transparent", color: "green" }}
-                                icon={<AddIcon />}
-                                height="auto"
-                              >
-                                Créer un compte
-                              </IconButton>
-                            </Tooltip>
-                          )}
-
+                  return (
+                    <Tr key={`email-${index}`}>
+                      <Td whiteSpace="nowrap">
+                        <Link
+                          variant="no-underline"
+                          onClick={() =>
+                            onTagClick({
+                              type: SubscriptionTypes.FOLLOWER,
+                              following,
+                              email,
+                              phone,
+                              user,
+                              subscription
+                            })
+                          }
+                          data-cy={
+                            following
+                              ? "orgSubscriberUnfollow"
+                              : "orgSubscriberFollow"
+                          }
+                        >
                           <Tooltip
-                            label="Supprimer de la liste"
-                            hasArrow
                             placement="top"
+                            hasArrow
+                            label={`${
+                              following ? "Retirer de" : "Ajouter à"
+                            } la liste des abonnés`}
                           >
-                            <IconButton
-                              aria-label="Désinscrire"
-                              bg="transparent"
-                              _hover={{ bg: "transparent", color: "red" }}
-                              icon={<DeleteIcon />}
-                              isLoading={
-                                isLoading ||
-                                addSubscriptionMutation.isLoading ||
-                                deleteSubscriptionMutation.isLoading
-                              }
-                              height="auto"
-                              minWidth={0}
-                              cursor={
-                                deleteSubscriptionMutation.isLoading
-                                  ? "not-allowed"
-                                  : "pointer"
-                              }
-                              onClick={async () => {
-                                const unsubscribe = confirm(
-                                  `Êtes vous sûr de vouloir supprimer l'abonnement ${userEmail} de ${orgTypeFull(
-                                    org.orgType
-                                  )} ${org.orgName} ?`
+                            <Tag
+                              variant={following ? "solid" : "outline"}
+                              colorScheme="green"
+                              mr={3}
+                            >
+                              <TagLabel>Abonné</TagLabel>
+                            </Tag>
+                          </Tooltip>
+                        </Link>
+
+                        <Link
+                          variant="no-underline"
+                          onClick={() =>
+                            onTagClick({
+                              type: SubscriptionTypes.SUBSCRIBER,
+                              subscribing,
+                              email,
+                              phone,
+                              user,
+                              subscription
+                            })
+                          }
+                          data-cy={
+                            subscribing
+                              ? "orgSubscriberUnsubscribe"
+                              : "orgSubscriberSubscribe"
+                          }
+                        >
+                          <Tooltip
+                            placement="top"
+                            hasArrow
+                            label={`${
+                              subscribing ? "Retirer de" : "Ajouter à"
+                            } la liste des adhérents`}
+                          >
+                            <Tag
+                              variant={subscribing ? "solid" : "outline"}
+                              colorScheme="purple"
+                              mr={3}
+                            >
+                              <TagLabel>Adhérent</TagLabel>
+                            </Tag>
+                          </Tooltip>
+                        </Link>
+                      </Td>
+
+                      <Td width="100%">{phone || email || userEmail}</Td>
+
+                      <Td whiteSpace="nowrap" textAlign="right">
+                        {/* <Box> */}
+                        <Tooltip
+                          label="Aller à la page de l'utilisateur"
+                          hasArrow
+                          placement="top"
+                        >
+                          <IconButton
+                            aria-label="Aller à la page de l'utilisateur"
+                            bg="transparent"
+                            _hover={{ bg: "transparent", color: "green" }}
+                            icon={<IoIosPerson />}
+                            isLoading={isSubscriptionLoading[subscription._id]}
+                            height="auto"
+                            cursor={
+                              isSubscriptionLoading[subscription._id]
+                                ? "not-allowed"
+                                : undefined
+                            }
+                            onClick={async () => {
+                              setIsSubscriptionLoading({
+                                ...isSubscriptionLoading,
+                                [subscription._id]: true
+                              });
+                              if (userName) {
+                                setIsSubscriptionLoading({
+                                  ...isSubscriptionLoading,
+                                  [subscription._id]: false
+                                });
+                                router.push(`/${userName}`, `/${userName}`, {
+                                  shallow: true
+                                });
+                              } else {
+                                const query = await dispatch(
+                                  getUser.initiate(phone || email || "")
                                 );
 
-                                if (unsubscribe) {
-                                  await deleteSubscription({
-                                    subscriptionId: subscription._id,
-                                    orgId: org._id
+                                if (query.data) {
+                                  setIsSubscriptionLoading({
+                                    ...isSubscriptionLoading,
+                                    [subscription._id]: false
                                   });
-                                  dispatch(refetchEvent());
-                                  orgQuery.refetch();
-                                  subQuery.refetch();
+                                  router.push(
+                                    `/${query.data.userName}`,
+                                    `/${query.data.userName}`,
+                                    {
+                                      shallow: true
+                                    }
+                                  );
+                                } else {
+                                  setIsSubscriptionLoading({
+                                    ...isSubscriptionLoading,
+                                    [subscription._id]: false
+                                  });
+                                  toast({
+                                    status: "warning",
+                                    title: `Aucun utilisateur associé à ${
+                                      phone
+                                        ? "ce numéro de téléphone"
+                                        : "cette adresse-email"
+                                    }`
+                                  });
                                 }
-                              }}
-                              data-cy="orgUnsubscribe"
-                            />
-                          </Tooltip>
-                        </Td>
-                      </Tr>
-                    );
-                  })}
+                              }
+                            }}
+                          />
+                        </Tooltip>
+
+                        <Tooltip
+                          label="Supprimer de la liste"
+                          hasArrow
+                          placement="top"
+                        >
+                          <IconButton
+                            aria-label="Désinscrire"
+                            bg="transparent"
+                            _hover={{ bg: "transparent", color: "red" }}
+                            icon={<DeleteIcon />}
+                            isLoading={isSubscriptionLoading[subscription._id]}
+                            height="auto"
+                            minWidth={0}
+                            cursor={
+                              isSubscriptionLoading[subscription._id]
+                                ? "not-allowed"
+                                : undefined
+                            }
+                            onClick={async () => {
+                              setIsSubscriptionLoading({
+                                ...isSubscriptionLoading,
+                                [subscription._id]: true
+                              });
+
+                              const unsubscribe = confirm(
+                                `Êtes-vous sûr de vouloir supprimer l'abonnement ${
+                                  userEmail || subscription.phone
+                                } de ${orgTypeFull(org.orgType)} ${
+                                  org.orgName
+                                } ?`
+                              );
+
+                              if (unsubscribe) {
+                                await deleteSubscription({
+                                  subscriptionId: subscription._id,
+                                  orgId: org._id
+                                });
+                                dispatch(refetchEvent());
+                                orgQuery.refetch();
+                                subQuery.refetch();
+                              }
+
+                              setIsSubscriptionLoading({
+                                ...isSubscriptionLoading,
+                                [subscription._id]: false
+                              });
+                            }}
+                            data-cy="orgUnsubscribe"
+                          />
+                        </Tooltip>
+                        {/* </Box> */}
+                      </Td>
+                    </Tr>
+                  );
+                })}
               </Tbody>
             </Table>
           </GridItem>

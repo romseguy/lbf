@@ -102,6 +102,7 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
   const { clearErrors, errors, setError, handleSubmit, register } = useForm({
     mode: "onChange"
   });
+  //#endregion
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -373,6 +374,7 @@ export const EmailSubscriptionsPopover = ({ boxSize, ...props }: BoxProps) => {
       <Popover
         isLazy
         isOpen={isOpen}
+        offset={[-140, 0]}
         onClose={() => {
           clearErrors("formErrorMessage");
           setIsOpen(false);

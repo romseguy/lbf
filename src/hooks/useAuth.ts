@@ -4,12 +4,31 @@ import {
   getSession as getNextAuthSession,
   GetSessionOptions
 } from "next-auth/client";
-import { getUser } from "features/users/usersApi";
 import { useAppDispatch } from "store";
-import { useState } from "react";
 import api from "utils/api";
+import { useSelector } from "react-redux";
+import {
+  selectLoading,
+  selectSession,
+  setLoading,
+  setSession
+} from "features/session/sessionSlice";
+import { isServer } from "utils/isServer";
 
 let cachedSession: Session | null;
+
+/*
+export async function getSession(
+  options: GetSessionOptions
+): Promise<Session | null> {
+  return await getNextAuthSession(options);
+}
+
+export const useSession = (): { data: Session | null; loading: boolean } => {
+  const [session, loading] = useNextAuthSession();
+  return { data: session, loading };
+};
+*/
 
 export async function getSession(
   options: GetSessionOptions
@@ -49,35 +68,35 @@ export async function getSession(
 }
 
 export const useSession = (): { data: Session | null; loading: boolean } => {
-  const [session, loading] = useNextAuthSession();
-  const [dataSession, setDataSession] = useState<Session | null>();
   const dispatch = useAppDispatch();
+  const [session, loading] = useNextAuthSession();
 
-  if (
-    session &&
-    cachedSession &&
-    cachedSession.user.email === session.user.email
-  ) {
-    return { data: cachedSession, loading };
-  }
+  if (isServer()) return { data: session, loading };
 
-  if (!session || session.user.userId) {
-    cachedSession = session;
-    return { data: session, loading };
-  }
+  const appSessionLoading = useSelector(selectLoading);
+  const appSession = useSelector(selectSession);
+  if (appSession) return { data: appSession, loading: false };
+  if (!session) return { data: null, loading };
 
   const xhr = async () => {
-    if (!session.user.email) return;
+    dispatch(setLoading(true));
 
-    const userQuery = await dispatch(getUser.initiate(session.user.email));
+    const userQuery = await api.get("user/" + session.user.userId);
 
     if (userQuery.data) {
-      const { _id, userName, userImage, isAdmin } = userQuery.data;
+      const {
+        _id,
+        email = session.user.email,
+        userName = _id,
+        userImage,
+        isAdmin = false
+      } = userQuery.data;
 
-      cachedSession = {
+      const newSession = {
         ...session,
         user: {
           ...session.user,
+          email,
           userId: _id,
           userName: userName ? userName : _id,
           userImage,
@@ -85,18 +104,12 @@ export const useSession = (): { data: Session | null; loading: boolean } => {
         }
       };
 
-      setDataSession(cachedSession);
+      dispatch(setSession(newSession));
+      dispatch(setLoading(false));
     }
   };
 
-  xhr();
+  if (!appSessionLoading) xhr();
 
-  if (dataSession) {
-    return {
-      data: dataSession,
-      loading: false
-    };
-  }
-
-  return { data: session, loading };
+  return { data: null, loading: true };
 };

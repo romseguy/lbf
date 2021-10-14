@@ -134,6 +134,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
           if (topicNotif) {
             // getting subscriptions of users subscribed to this event
             const subscriptions = await models.Subscription.find({
+              phone: { $exists: false },
               "events.event": Types.ObjectId(event._id)
             }).populate("user");
 
@@ -154,6 +155,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
           if (topicNotif) {
             // getting subscriptions of users subscribed to this org
             const subscriptions = await models.Subscription.find({
+              phone: { $exists: false },
               "orgs.org": Types.ObjectId(org._id)
             }).populate("user");
 

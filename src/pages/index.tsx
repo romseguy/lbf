@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { EventsPage } from "features/events/EventsPage";
+import { CalendarIcon, ChatIcon, EmailIcon } from "@chakra-ui/icons";
 import {
   Box,
   Container,
@@ -13,20 +12,18 @@ import {
   Text,
   useColorMode
 } from "@chakra-ui/react";
-import { Layout } from "features/layout";
+import { Session } from "next-auth";
+import React, { useState } from "react";
 import { IoIosChatbubbles, IoIosPeople, IoMdPerson } from "react-icons/io";
 import { Link } from "features/common";
-import { CalendarIcon, ChatIcon, EmailIcon } from "@chakra-ui/icons";
+import { EventsPage } from "features/events/EventsPage";
+import { Layout } from "features/layout";
 import { useSession } from "hooks/useAuth";
 
-const IndexPage = (props: any) => {
-  const { data: session, loading: isSessionLoading } = useSession();
+const IndexPage = (props: { session?: Session }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const [isLogin, setIsLogin] = useState(0);
   const [isAbout, setIsAbout] = useState(false);
-
-  console.log(session);
 
   const orgs = (plural?: boolean) => (
     <Text color={isDark ? "green.200" : "green"} display="inline">
@@ -42,7 +39,7 @@ const IndexPage = (props: any) => {
   );
 
   return (
-    <Layout isLogin={isLogin} {...props}>
+    <Layout {...props}>
       {true ? (
         <>
           {false && (
@@ -137,7 +134,8 @@ const IndexPage = (props: any) => {
       ) : (
         <Heading>Premiers pas</Heading>
       )}
-      <EventsPage isLogin={isLogin} setIsLogin={setIsLogin} />
+
+      <EventsPage />
     </Layout>
   );
 };

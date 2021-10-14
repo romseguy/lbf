@@ -8,6 +8,7 @@ export interface ISubscription {
   _id: string;
   user?: IUser | string;
   email?: string;
+  phone?: string;
   events: IEventSubscription[];
   orgs: IOrgSubscription[];
   topics: ITopicSubscription[];
@@ -48,6 +49,7 @@ export const SubscriptionSchema = new Schema<ISubscription>(
       ref: "User"
     },
     email: String,
+    phone: String,
     // IEventSubscription
     events: [
       {

@@ -31,7 +31,7 @@ export const GlobalStyles = () => (
 
       @media (min-width: ${breakpoints["2xl"]}) {
         .chakra-ui-light {
-          background: white;
+          background: lightblue;
         }
         .chakra-ui-dark {
           background: black;

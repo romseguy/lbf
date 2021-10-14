@@ -30,7 +30,7 @@ export const EventsListToggle = ({
           <>
             {!showPreviousEvents && previousEvents.length > 0 && (
               <Button
-                colorScheme="pink"
+                colorScheme="teal"
                 fontSize="smaller"
                 height={7}
                 leftIcon={<ArrowBackIcon />}
@@ -62,7 +62,22 @@ export const EventsListToggle = ({
       <Box mt={3}>
         {!showPreviousEvents && (
           <>
-            {nextEvents.length > 0 && (
+            {!showNextEvents && nextEvents.length > 0 && (
+              <Button
+                colorScheme="teal"
+                fontSize="smaller"
+                height={7}
+                leftIcon={showNextEvents ? <ArrowBackIcon /> : undefined}
+                rightIcon={!showNextEvents ? <ArrowForwardIcon /> : undefined}
+                onClick={() => {
+                  setShowNextEvents(!showNextEvents);
+                }}
+              >
+                Voir les événéments suivants
+              </Button>
+            )}
+
+            {showNextEvents && (
               <Button
                 colorScheme="pink"
                 fontSize="smaller"
@@ -73,9 +88,7 @@ export const EventsListToggle = ({
                   setShowNextEvents(!showNextEvents);
                 }}
               >
-                {showNextEvents
-                  ? "Revenir aux événements de cette semaine"
-                  : "Voir les événéments suivants"}
+                Revenir aux événements de cette semaine
               </Button>
             )}
           </>

@@ -1,6 +1,6 @@
-import { Box, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
+import { Text, useDisclosure } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { FaRegMap } from "react-icons/fa";
 import { Button, IconFooter, Link } from "features/common";
 import { MapModal } from "features/modals/MapModal";
@@ -31,19 +31,16 @@ export const EventsPage = ({}: {}) => {
 
   return (
     <>
-      <Box mb={3}>
-        <Tooltip label="Carte des événements">
-          <Button
-            colorScheme="teal"
-            isLoading={eventsQuery.isLoading}
-            isDisabled={!events || !events.length}
-            leftIcon={<FaRegMap />}
-            onClick={openMapModal}
-          >
-            Carte des événements
-          </Button>
-        </Tooltip>
-      </Box>
+      <Button
+        colorScheme="teal"
+        isLoading={eventsQuery.isLoading}
+        isDisabled={!events || !events.length}
+        leftIcon={<FaRegMap />}
+        onClick={openMapModal}
+        mb={5}
+      >
+        Carte des événements
+      </Button>
 
       {eventsQuery.isLoading || eventsQuery.isFetching ? (
         <Text>Chargement des événements publics...</Text>

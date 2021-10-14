@@ -159,82 +159,87 @@ export const sendEventToOrgFollowers = async (
               ? subscription.user.email
               : subscription.email;
 
-          if (!email) continue;
+          if (subscription.phone) {
+            // todo
+          } else if (email) {
+            if (
+              Array.isArray(event.eventNotified) &&
+              event.eventNotified.find((m) => m.email === email)
+            )
+              continue;
 
-          if (
-            Array.isArray(event.eventNotified) &&
-            event.eventNotified.find((m) => m.email === email)
-          )
-            continue;
+            const user = await models.User.findOne({ email });
+            const eventCategoriesEmail = eventCategories.filter(
+              ({ emailNotif }) => emailNotif
+            );
+            const eventCategoriesPush = eventCategories.filter(
+              ({ pushNotif }) => pushNotif
+            );
 
-          const user = await models.User.findOne({ email });
-          const eventCategoriesEmail = eventCategories.filter(
-            ({ emailNotif }) => emailNotif
-          );
-          const eventCategoriesPush = eventCategories.filter(
-            ({ pushNotif }) => pushNotif
-          );
+            if (
+              user &&
+              user.userSubscription &&
+              (eventCategoriesPush.length === 0 ||
+                !!eventCategoriesPush.find(
+                  (eventCategory) =>
+                    eventCategory.catId === event.eventCategory &&
+                    eventCategory.pushNotif
+                ))
+            ) {
+              await api.post("notification", {
+                subscription: user.userSubscription,
+                notification: {
+                  title: `Invitation à un événement`,
+                  message: event.eventName,
+                  url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
+                }
+              });
+            }
 
-          if (
-            user &&
-            user.userSubscription &&
-            (eventCategoriesPush.length === 0 ||
-              !!eventCategoriesPush.find(
+            if (
+              eventCategoriesEmail.length > 0 &&
+              !eventCategoriesEmail.find(
                 (eventCategory) =>
                   eventCategory.catId === event.eventCategory &&
-                  eventCategory.pushNotif
-              ))
-          ) {
-            await api.post("notification", {
-              subscription: user.userSubscription,
-              notification: {
-                title: `Invitation à un événement`,
-                message: event.eventName,
-                url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
-              }
-            });
-          }
-
-          if (
-            eventCategoriesEmail.length > 0 &&
-            !eventCategoriesEmail.find(
-              (eventCategory) =>
-                eventCategory.catId === event.eventCategory &&
-                eventCategory.emailNotif
+                  eventCategory.emailNotif
+              )
             )
-          )
-            continue;
+              continue;
 
-          const mail = createEventNotifEmail({
-            email,
-            event,
-            org,
-            subscription
-          });
+            const mail = createEventNotifEmail({
+              email,
+              event,
+              org,
+              subscription
+            });
 
-          if (process.env.NODE_ENV === "production") {
-            try {
-              const res = await axios.post(
-                process.env.NEXT_PUBLIC_API2 + "/mail",
-                {
-                  eventId: event._id,
+            if (process.env.NODE_ENV === "production") {
+              try {
+                const res = await axios.post(
+                  process.env.NEXT_PUBLIC_API2 + "/mail",
+                  {
+                    eventId: event._id,
+                    mail
+                  }
+                );
+                console.log(
+                  `sent event email notif to subscriber ${res.data.email}`,
                   mail
-                }
-              );
+                );
+              } catch (error: any) {
+                console.log(`error sending mail to ${email}`);
+                console.error(error);
+                continue;
+              }
+            } else if (process.env.NODE_ENV === "development") {
               console.log(
-                `sent event email notif to subscriber ${res.data.email}`,
+                `sent event email notif to subscriber ${email}`,
                 mail
               );
-            } catch (error: any) {
-              console.log(`error sending mail to ${email}`);
-              console.error(error);
-              continue;
             }
-          } else if (process.env.NODE_ENV === "development") {
-            console.log(`sent event email notif to subscriber ${email}`, mail);
-          }
 
-          emailList.push(email);
+            emailList.push(email);
+          }
         }
       }
     }

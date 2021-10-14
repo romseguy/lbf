@@ -3,17 +3,13 @@ import styled from "@emotion/styled";
 import axios from "axios";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { IUser } from "models/User";
-import { Session, User } from "next-auth";
+import { Session } from "next-auth";
 import type Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { useCallback, useEffect, RefObject } from "react";
 import { FaHeart } from "react-icons/fa";
 import { useQuill } from "react-quilljs";
-import { pickFile } from "utils/form";
 import { getUniqueId } from "utils/string";
-
-const tempImages = [];
 
 export const formats = [
   "size",
@@ -21,8 +17,9 @@ export const formats = [
   "italic",
   "underline",
   "blockquote",
+  "indent",
   "header",
-  "list",
+  //"list",
   "color",
   "align",
   "link",
@@ -31,6 +28,8 @@ export const formats = [
   "undo",
   "redo"
 ];
+const tabSize = 10;
+const tempImages = [];
 
 const ReactQuillStyles = styled("span")(
   (props: { height?: string; width?: string }) => {
@@ -38,6 +37,11 @@ const ReactQuillStyles = styled("span")(
     const bothColorModes = `
       .ql-editor {
         padding: 12px;
+        tab-size: ${tabSize};
+        -moz-tab-size: ${tabSize};
+        -o-tab-size:  ${tabSize};
+        max-height: 250px;
+  overflow: auto;
       }
 
       &:hover {
@@ -199,6 +203,16 @@ const CustomToolbar = ({
           <button className="ql-blockquote" />
         </Tooltip>
         <select className="ql-align" title="Aligner le texte" />
+      </span>
+      {formats.includes("list") && (
+        <span className="ql-formats">
+          <button className="ql-list" value="ordered"></button>
+          <button className="ql-list" value="bullet"></button>
+        </span>
+      )}
+      <span className="ql-formats">
+        <button className="ql-indent" value="-1"></button>
+        <button className="ql-indent" value="+1"></button>
       </span>
       <span className="ql-formats">
         <Tooltip label="Annuler">

@@ -13,13 +13,14 @@ export const subscriptionApi = createApi({
       {
         payload: Partial<ISubscription>;
         email?: string;
+        phone?: string;
         user?: IUser | string;
       }
     >({
-      query: ({ payload, email, user }) => ({
+      query: ({ payload, email, phone, user }) => ({
         url: `subscriptions`,
         method: "POST",
-        body: { ...payload, email, user }
+        body: { ...payload, email, phone, user }
       }),
       invalidatesTags: [{ type: "Subscriptions", id: "LIST" }]
     }),

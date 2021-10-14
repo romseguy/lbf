@@ -20,6 +20,7 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { breakpoints } from "theme/theme";
 import type { Base64Image } from "utils/image";
+import { Session } from "next-auth";
 
 const defaultTitle = "Au courant de...";
 
@@ -31,6 +32,7 @@ export const Layout = ({
   pageHeader,
   pageTitle,
   pageSubTitle,
+  session,
   title,
   ...props
 }: BoxProps & {
@@ -43,6 +45,7 @@ export const Layout = ({
   event?: IEvent;
   pageTitle?: string;
   pageSubTitle?: React.ReactNode;
+  session?: Session;
   title?: string;
 }) => {
   const { colorMode } = useColorMode();
@@ -155,7 +158,7 @@ export const Layout = ({
                 </Link>
               </span>
             </Tooltip> */}
-            <PaypalButton />
+            {process.env.NODE_ENV === "production" && <PaypalButton />}
             <DarkModeSwitch />
           </Flex>
         </Footer>

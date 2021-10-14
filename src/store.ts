@@ -5,6 +5,7 @@ import { Action } from "redux";
 import { createWrapper } from "next-redux-wrapper";
 import event from "features/events/eventSlice";
 import org from "features/orgs/orgSlice";
+import session from "features/session/sessionSlice";
 import subscription from "features/subscriptions/subscriptionSlice";
 import user from "features/users/userSlice";
 import { eventApi } from "features/events/eventsApi";
@@ -20,6 +21,7 @@ const makeStore = () =>
     reducer: {
       event,
       org,
+      session,
       subscription,
       user,
       [documentApi.reducerPath]: documentApi.reducer,

@@ -52,7 +52,7 @@ handler.post<
     }: {
       body: ISubscription;
     } = req;
-    const selector: { user?: IUser; email?: string } = {};
+    const selector: { user?: IUser; email?: string; phone?: string } = {};
 
     if (body.email) {
       const user = await models.User.findOne({ email: body.email });
@@ -61,6 +61,14 @@ handler.post<
         selector.user = user;
       } else {
         selector.email = body.email;
+      }
+    } else if (body.phone) {
+      const user = await models.User.findOne({ phone: body.phone });
+
+      if (user) {
+        selector.user = user;
+      } else {
+        selector.phone = body.phone;
       }
     } else if (body.user) {
       const user = await models.User.findOne({
@@ -78,16 +86,16 @@ handler.post<
       }
     }
 
-    let userSubscription = await models.Subscription.findOne(selector);
+    let subscription = await models.Subscription.findOne(selector);
 
-    if (!userSubscription) {
-      userSubscription = await models.Subscription.create(selector);
+    if (!subscription) {
+      subscription = await models.Subscription.create(selector);
     }
 
     if (body.orgs) {
       const { orgs: newOrgSubscriptions } = body;
 
-      if (userSubscription.orgs.length > 0) {
+      if (subscription.orgs.length > 0) {
         console.log("user already got org subscriptions");
         //const staleOrgSubscriptionOrgIds: string[] = [];
 
@@ -111,7 +119,7 @@ handler.post<
           let isFollower = false;
           let isSub = false;
 
-          for (const orgSubscription of userSubscription.orgs) {
+          for (const orgSubscription of subscription.orgs) {
             if (equals(org._id, orgSubscription.orgId)) {
               if (orgSubscription.type === SubscriptionTypes.FOLLOWER) {
                 isFollower = true;
@@ -128,61 +136,57 @@ handler.post<
 
           if (newOrgSubscription.type === SubscriptionTypes.FOLLOWER) {
             if (isFollower) {
-              userSubscription.orgs = userSubscription.orgs.map(
-                (orgSubscription) => {
-                  if (
-                    orgSubscription.type === SubscriptionTypes.FOLLOWER &&
-                    equals(orgSubscription.orgId, newOrgSubscription.orgId)
-                  ) {
-                    return newOrgSubscription;
-                  }
-                  return orgSubscription;
+              subscription.orgs = subscription.orgs.map((orgSubscription) => {
+                if (
+                  orgSubscription.type === SubscriptionTypes.FOLLOWER &&
+                  equals(orgSubscription.orgId, newOrgSubscription.orgId)
+                ) {
+                  return newOrgSubscription;
                 }
-              );
+                return orgSubscription;
+              });
             } else {
-              userSubscription.orgs.push(newOrgSubscription);
+              subscription.orgs.push(newOrgSubscription);
             }
           }
 
           if (newOrgSubscription.type === SubscriptionTypes.SUBSCRIBER) {
             if (isSub) {
-              userSubscription.orgs = userSubscription.orgs.map(
-                (orgSubscription) => {
-                  if (
-                    orgSubscription.type === SubscriptionTypes.SUBSCRIBER &&
-                    equals(orgSubscription.orgId, newOrgSubscription.orgId)
-                  ) {
-                    return newOrgSubscription;
-                  }
-                  return orgSubscription;
+              subscription.orgs = subscription.orgs.map((orgSubscription) => {
+                if (
+                  orgSubscription.type === SubscriptionTypes.SUBSCRIBER &&
+                  equals(orgSubscription.orgId, newOrgSubscription.orgId)
+                ) {
+                  return newOrgSubscription;
                 }
-              );
+                return orgSubscription;
+              });
             } else {
-              userSubscription.orgs.push(newOrgSubscription);
+              subscription.orgs.push(newOrgSubscription);
             }
           }
 
           if (
             !org.orgSubscriptions.find((orgSubscription) =>
-              equals(orgSubscription._id, userSubscription!._id)
+              equals(orgSubscription._id, subscription!._id)
             )
           ) {
-            org.orgSubscriptions.push(userSubscription);
+            org.orgSubscriptions.push(subscription);
             await org.save();
             console.log("org updated with new subscription");
           }
 
           // if (staleOrgSubscriptionOrgIds.length > 0) {
-          //   userSubscription.orgs = userSubscription.orgs.filter(
+          //   subscription.orgs = subscription.orgs.filter(
           //     (orgSubscription) =>
           //       !staleOrgSubscriptionOrgIds.find((id) =>
           //         equals(id, orgSubscription.orgId)
           //       )
           //   );
         }
-      } else if (userSubscription) {
+      } else if (subscription) {
         console.log("first time user subscribes to any org");
-        userSubscription.orgs = newOrgSubscriptions;
+        subscription.orgs = newOrgSubscriptions;
 
         for (const newOrgSubscription of newOrgSubscriptions) {
           let org = await models.Org.findOne({
@@ -203,10 +207,10 @@ handler.post<
 
           if (
             !org.orgSubscriptions.find((orgSubscription) =>
-              equals(orgSubscription._id, userSubscription!._id)
+              equals(orgSubscription._id, subscription!._id)
             )
           ) {
-            org.orgSubscriptions.push(userSubscription);
+            org.orgSubscriptions.push(subscription);
             await org.save();
             console.log("org updated with new subscription");
           }
@@ -215,7 +219,7 @@ handler.post<
     } else if (body.events) {
       const { events: newEventSubscriptions } = body;
 
-      if (userSubscription.events.length > 0) {
+      if (subscription.events.length > 0) {
         console.log("user already got event subscriptions");
 
         //const staleEventSubscriptionEventIds: string[] = [];
@@ -235,7 +239,7 @@ handler.post<
 
           let isAdded;
 
-          for (const eventSubscription of userSubscription.events) {
+          for (const eventSubscription of subscription.events) {
             if (equals(event._id, eventSubscription.eventId)) {
               isAdded = true;
               break;
@@ -246,21 +250,21 @@ handler.post<
 
           await models.Event.updateOne(
             { _id: event._id },
-            { $push: { eventSubscriptions: userSubscription } }
+            { $push: { eventSubscriptions: subscription } }
           );
 
-          userSubscription.events.push(newEventSubscription);
+          subscription.events.push(newEventSubscription);
         }
 
         // if (staleEventSubscriptionEventIds.length > 0) {
-        //   userSubscription.events = userSubscription.events.filter(
+        //   subscription.events = subscription.events.filter(
         //     (eventSubscription) =>
         //       !staleEventSubscriptionEventIds.find((id) =>
         //         equals(id, eventSubscription.eventId)
         //       )
         //   );
         // }
-      } else if (userSubscription) {
+      } else if (subscription) {
         console.log("first time user subscribes to any event");
 
         const newEventSubscription = newEventSubscriptions[0];
@@ -280,19 +284,19 @@ handler.post<
             );
         }
 
-        userSubscription.events = newEventSubscriptions;
+        subscription.events = newEventSubscriptions;
 
         let found = false;
 
         for (const eventSubscription of event.eventSubscriptions) {
-          if (equals(eventSubscription._id, userSubscription._id)) {
+          if (equals(eventSubscription._id, subscription._id)) {
             found = true;
             break;
           }
         }
 
         if (!found) {
-          event.eventSubscriptions.push(userSubscription);
+          event.eventSubscriptions.push(subscription);
           await event.save();
         }
       }
@@ -313,17 +317,17 @@ handler.post<
       }
 
       if (
-        Array.isArray(userSubscription.topics) &&
-        userSubscription.topics.length > 0
+        Array.isArray(subscription.topics) &&
+        subscription.topics.length > 0
       ) {
         console.log("user already got topic subscriptions");
 
         if (
-          !userSubscription.topics.find(
+          !subscription.topics.find(
             ({ topic }: { topic: ITopic }) => topic._id === topicId
           )
         ) {
-          userSubscription.topics.push({
+          subscription.topics.push({
             topic,
             emailNotif: true,
             pushNotif: true
@@ -331,14 +335,14 @@ handler.post<
         }
       } else {
         console.log("first time user subscribes to any topic");
-        userSubscription.topics = body.topics;
+        subscription.topics = body.topics;
       }
     }
 
-    console.log("saving userSubscription", userSubscription);
+    console.log("saving subscription", subscription);
 
-    await userSubscription.save();
-    res.status(200).json(userSubscription);
+    await subscription.save();
+    res.status(200).json(subscription);
   } catch (error) {
     res.status(500).json(createServerError(error));
   }

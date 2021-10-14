@@ -51,7 +51,6 @@ import {
   isSubscribedBy,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
-import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { Visibility as EventVisibility } from "models/Event";
 import { IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
@@ -59,6 +58,7 @@ import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { selectOrgRefetch } from "./orgSlice";
 import { useGetOrgQuery } from "./orgsApi";
+import { selectUserEmail } from "features/users/userSlice";
 
 export type Visibility = {
   isVisible: {
@@ -149,8 +149,7 @@ export const OrgPage = ({
     <Layout org={org} isLogin={isLogin}>
       {isCreator && !isConfig ? (
         <Button
-          aria-label="Paramètres"
-          colorScheme="green"
+          colorScheme="teal"
           leftIcon={<SettingsIcon boxSize={6} data-cy="orgSettings" />}
           onClick={() => setIsConfig(true)}
           mb={2}
@@ -159,6 +158,7 @@ export const OrgPage = ({
         </Button>
       ) : isConfig && !isEdit ? (
         <Button
+          colorScheme="pink"
           leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
           mb={2}
@@ -208,25 +208,16 @@ export const OrgPage = ({
         </Text>
       </Box>
 
-      {(isCreator || isSubscribed) && (
+      {isSubscribed && !isConfig && (
         <Alert status="info" mb={3}>
           <AlertIcon />
           <Box>
             <Text>
-              {isCreator ? (
-                <>
-                  Vous êtes administrateur {orgTypeFull(org.orgType)}{" "}
-                  {org.orgName}.
-                </>
-              ) : isSubscribed ? (
-                <>
-                  Vous êtes adhérent {orgTypeFull(org.orgType)} {org.orgName}.
-                  <Text fontSize="smaller">
-                    Vous avez donc accès aux événements et discussions réservées
-                    aux adhérents.
-                  </Text>
-                </>
-              ) : null}
+              Vous êtes adhérent {orgTypeFull(org.orgType)} {org.orgName}.
+              <Text fontSize="smaller">
+                Vous avez donc accès aux événements et discussions réservées aux
+                adhérents.
+              </Text>
             </Text>
           </Box>
         </Alert>

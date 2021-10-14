@@ -24,7 +24,8 @@ export interface IEvent<T = string> {
   eventOrgs: IOrg[];
   eventSubscriptions: ISubscription[];
   eventNotified?: {
-    email: string;
+    email?: string;
+    phone?: string;
     status: string;
   }[]; // list of emails the invitation has been sent to
   eventTopics: ITopic[];
@@ -143,6 +144,7 @@ export const EventSchema = new Schema<IEvent>(
     eventNotified: [
       {
         email: String,
+        phone: String,
         status: {
           type: String,
           enum: Object.keys(StatusTypes).map((key) => StatusTypes[key])

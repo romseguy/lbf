@@ -315,13 +315,13 @@ export const EventsList = ({
           nextEvents={nextEvents}
           showNextEvents={showNextEvents}
           setShowNextEvents={setShowNextEvents}
-          mb={3}
+          mb={5}
         />
 
         <EventsListCategories
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
-          mb={3}
+          mb={5}
         />
 
         {showPreviousEvents && (
@@ -616,9 +616,6 @@ export const EventsList = ({
           header={
             <Link
               href={`/${eventToShow.eventUrl}`}
-              css={css`
-                letter-spacing: 0.1em;
-              `}
               size="larger"
               className="rainbow-text"
             >

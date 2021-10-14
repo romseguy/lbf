@@ -1,3 +1,4 @@
+import { Document } from "mongoose";
 import type { IUser } from "models/User";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
@@ -8,7 +9,8 @@ import {
   duplicateError
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { normalize } from "utils/string";
+import { normalize, phoneR } from "utils/string";
+import { emailR } from "utils/email";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -26,12 +28,20 @@ handler.get<
     query: { userName }
   } = req;
 
+  let user: (IUser & Document<any, any, any>) | null = null;
+  let selector;
+
   try {
-    let user = await models.User.findOne({ userName });
+    if (emailR.test(userName)) {
+      selector = { email: userName };
+    } else if (phoneR.test(userName)) {
+      selector = { phone: userName };
+    }
 
-    if (!user) {
-      user = await models.User.findOne({ email: userName });
-
+    if (selector) {
+      user = await models.User.findOne(selector);
+    } else {
+      user = await models.User.findOne({ userName });
       if (!user) user = await models.User.findOne({ _id: userName });
     }
 

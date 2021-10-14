@@ -120,7 +120,8 @@ handler.get<
               topicMessage.createdBy.userName =
                 topicMessage.createdBy.email.replace(/@.+/, "");
             }
-            topicMessage.createdBy.email = undefined;
+            // todo: check this
+            // topicMessage.createdBy.email = undefined;
           }
         }
       }

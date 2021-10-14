@@ -1,8 +1,4 @@
-import type { IOrg } from "models/Org";
-import React, { useState } from "react";
-import { signOut } from "next-auth/client";
-import { useSession } from "hooks/useAuth";
-import tw, { css } from "twin.macro";
+import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import {
   Button,
   Box,
@@ -12,39 +8,36 @@ import {
   MenuList,
   MenuItem,
   Avatar,
-  Spinner,
   Icon,
-  SpaceProps,
   IconButton,
   useColorMode,
-  useDisclosure,
   BoxProps,
   useToast
 } from "@chakra-ui/react";
-import { Link } from "features/common";
-import { OrgPopover, EmailSubscriptionsPopover } from "features/layout";
-import { LoginModal } from "features/modals/LoginModal";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { breakpoints } from "theme/theme";
-import { useAppDispatch } from "store";
-import {
-  selectUserEmail,
-  selectUserName,
-  setUserEmail
-} from "features/users/userSlice";
-import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
-import { useSelector } from "react-redux";
+import { signOut } from "next-auth/client";
+import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { FaMapMarkerAlt, FaPowerOff } from "react-icons/fa";
-import { MapModal } from "features/modals/MapModal";
-import { getOrgs } from "features/orgs/orgsApi";
-import api from "utils/api";
-import { isServer } from "utils/isServer";
+import { FaPowerOff } from "react-icons/fa";
 import { IoIosPeople } from "react-icons/io";
-import { base64ToUint8Array } from "utils/string";
-import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
+import { useSelector } from "react-redux";
+import tw, { css } from "twin.macro";
+
+import { Link } from "features/common";
+import {
+  EventPopover,
+  OrgPopover,
+  EmailSubscriptionsPopover
+} from "features/layout";
+import { LoginModal } from "features/modals/LoginModal";
 import { refetchSubscription } from "features/subscriptions/subscriptionSlice";
+import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
+import { selectUserEmail, setUserEmail } from "features/users/userSlice";
+import { useSession } from "hooks/useAuth";
+import { useAppDispatch } from "store";
+import { breakpoints } from "theme/theme";
+import { isServer } from "utils/isServer";
+import { base64ToUint8Array } from "utils/string";
 
 interface customWindow extends Window {
   workbox?: any;
@@ -92,10 +85,8 @@ export const Nav = ({
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
 
-  const storedUserEmail = useSelector(selectUserEmail);
-  const userEmail = storedUserEmail || session?.user.email || "";
-  const storedUserName = useSelector(selectUserName);
-  const userName = storedUserName || session?.user.userName || "";
+  const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
+  const userName = session?.user.userName || "";
 
   const [editUser, editUserMutation] = useEditUserMutation();
   const userQuery = useGetUserQuery(userEmail);
@@ -200,10 +191,8 @@ export const Nav = ({
       {session ? (
         <Flex justify="flex-end" css={buttonList}>
           <EmailSubscriptionsPopover mr={[1, 3]} boxSize={[8, 10, 10]} />
-          <OrgPopover
-            boxSize={[8, 10, 12]}
-            setIsLoginModalOpen={setIsLoginModalOpen}
-          />
+          <EventPopover boxSize={[6, 8, 8]} session={session} />
+          <OrgPopover boxSize={[8, 10, 12]} session={session} />
           <Menu>
             <MenuButton mr={[1, 3]}>
               <Avatar

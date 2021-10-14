@@ -1,4 +1,4 @@
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, CalendarIcon } from "@chakra-ui/icons";
 import {
   List,
   ListItem,
@@ -24,20 +24,20 @@ import React, { useEffect, useState } from "react";
 import { IoIosPeople, IoIosPerson } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { Link } from "features/common";
-import { OrgModal } from "features/modals/OrgModal";
-import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { selectOrgsRefetch } from "features/orgs/orgSlice";
+import { EventModal } from "features/modals/EventModal";
+import { useGetEventsQuery } from "features/events/eventsApi";
+import { selectEventsRefetch } from "features/events/eventSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import {
   isSubscribedBy,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
-import { IOrg } from "models/Org";
+import { IEvent } from "models/Event";
 import { hasItems } from "utils/array";
 import { Session } from "next-auth";
 
-export const OrgPopover = ({
+export const EventPopover = ({
   boxSize,
   session,
   ...props
@@ -45,22 +45,18 @@ export const OrgPopover = ({
   session: Session;
 }) => {
   const router = useRouter();
-  const userEmail = useSelector(selectUserEmail) || session?.user.email;
+  const userEmail = useSelector(selectUserEmail) || session.user.email;
 
-  //#region myOrgs
-  const orgsQuery = useGetOrgsQuery({});
-  const myOrgs =
-    (Array.isArray(orgsQuery.data) &&
-      orgsQuery.data.length > 0 &&
-      orgsQuery.data.filter(
-        (org) => session?.user.userId === org?.createdBy
-      )) ||
-    [];
-  const refetchOrgs = useSelector(selectOrgsRefetch);
+  //#region events
+  const eventsQuery = useGetEventsQuery(session.user.userId);
+  const refetchEvents = useSelector(selectEventsRefetch);
   useEffect(() => {
-    orgsQuery.refetch();
-  }, [refetchOrgs]);
-  const hasOrgs = Array.isArray(myOrgs) && myOrgs.length > 0;
+    eventsQuery.refetch();
+  }, [refetchEvents]);
+  const subscribedEvents =
+    eventsQuery.data?.filter((event) => hasItems(event.eventSubscriptions)) ||
+    [];
+  const hasSubscribedEvents = hasItems(subscribedEvents);
   //#endregion
 
   //#region sub
@@ -71,20 +67,14 @@ export const OrgPopover = ({
     subQuery.refetch();
   }, [subscriptionRefetch, userEmail]);
 
-  const subscribedOrgs =
-    (Array.isArray(orgsQuery.data) &&
-      orgsQuery.data.length > 0 &&
-      orgsQuery.data.filter((org) => isSubscribedBy(org, subQuery))) ||
-    [];
-  const hasSubscribedOrgs = hasItems(subscribedOrgs);
   //#endregion
 
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
-  const [orgModalState, setOrgModalState] = useState<{
+  const [eventModalState, setEventModalState] = useState<{
     isOpen: boolean;
-    org?: IOrg;
-  }>({ isOpen: false, org: undefined });
+    event?: IEvent;
+  }>({ isOpen: false, event: undefined });
   const iconHoverColor = useColorModeValue("white", "lightgreen");
   //#endregion
 
@@ -100,40 +90,40 @@ export const OrgPopover = ({
           <IconButton
             onClick={() => {
               if (!isOpen) {
-                orgsQuery.refetch();
+                eventsQuery.refetch();
                 subQuery.refetch();
               }
               setIsOpen(!isOpen);
             }}
             aria-label="Social"
-            mx={[0, 2, 2]}
             bg="transparent"
             _hover={{ bg: "transparent" }}
             icon={
               <Icon
-                as={IoIosPeople}
+                as={CalendarIcon}
                 boxSize={boxSize}
                 _hover={{ color: iconHoverColor }}
               />
             }
-            data-cy="orgPopover"
+            data-cy="eventPopover"
           />
         </PopoverTrigger>
         <PopoverContent>
           <PopoverHeader>
-            <Heading size="md">Les organisations...</Heading>
+            <Heading size="md">Les événements...</Heading>
           </PopoverHeader>
           <PopoverCloseButton />
           <PopoverBody>
             <Box>
               <Heading size="sm" mb={1}>
-                ...où je suis administrateur :
+                ...que j'ai créé :
               </Heading>
-              {orgsQuery.isLoading || orgsQuery.isFetching ? (
+              {eventsQuery.isLoading || eventsQuery.isFetching ? (
                 <Spinner />
-              ) : hasOrgs ? (
+              ) : Array.isArray(eventsQuery.data) &&
+                eventsQuery.data.length > 0 ? (
                 <List ml={3}>
-                  {myOrgs.map((org, index) => (
+                  {eventsQuery.data.map((event, index) => (
                     <ListItem
                       display="flex"
                       alignItems="center"
@@ -142,35 +132,35 @@ export const OrgPopover = ({
                     >
                       <ListIcon
                         boxSize={6}
-                        as={IoIosPeople}
+                        as={CalendarIcon}
                         color="green.500"
                       />{" "}
                       <Link
                         onClick={() => {
                           setIsOpen(false);
                         }}
-                        href={`/${org.orgUrl}`}
+                        href={`/${event.eventUrl}`}
                         shallow
                       >
-                        {org.orgName}
+                        {event.eventName}
                       </Link>
                     </ListItem>
                   ))}
                 </List>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
-                  Vous n'avez ajouté aucune organisation.
+                  Vous n'avez ajouté aucune événement.
                 </Text>
               )}
 
-              <Heading size="sm" mt={hasOrgs ? 2 : 0} mb={1}>
-                ...où je suis adhérent :
+              <Heading size="sm" mt={hasItems(eventsQuery.data) ? 2 : 0} mb={1}>
+                ...où je suis abonné :
               </Heading>
-              {orgsQuery.isLoading || orgsQuery.isFetching ? (
+              {eventsQuery.isLoading || eventsQuery.isFetching ? (
                 <Spinner />
-              ) : hasSubscribedOrgs ? (
+              ) : hasSubscribedEvents ? (
                 <List ml={3} my={3}>
-                  {subscribedOrgs.map((org, index) => (
+                  {subscribedEvents.map((event, index) => (
                     <ListItem
                       display="flex"
                       alignItems="center"
@@ -186,17 +176,16 @@ export const OrgPopover = ({
                         onClick={() => {
                           setIsOpen(false);
                         }}
-                        href={`/${org.orgUrl}`}
+                        href={`/${event.eventUrl}`}
                       >
-                        {org.orgName}
+                        {event.eventName}
                       </Link>
                     </ListItem>
                   ))}
                 </List>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
-                  Personne ne vous a inscrit en tant qu'adhérent, bientôt
-                  peut-être ?
+                  Vous n'êtes abonné à aucun événement
                 </Text>
               )}
             </Box>
@@ -206,23 +195,23 @@ export const OrgPopover = ({
               leftIcon={<AddIcon />}
               mt={1}
               onClick={() => {
-                setOrgModalState({ isOpen: true });
+                setEventModalState({ isOpen: true });
               }}
-              data-cy="addOrg"
+              data-cy="addEvent"
             >
-              Ajouter une organisation
+              Ajouter un événement
             </Button>
           </PopoverBody>
         </PopoverContent>
       </Popover>
 
-      {session && orgModalState.isOpen && (
-        <OrgModal
+      {session && eventModalState.isOpen && (
+        <EventModal
           session={session}
-          onCancel={() => setOrgModalState({ isOpen: false })}
-          onClose={() => setOrgModalState({ isOpen: false })}
-          onSubmit={async (orgUrl: string) => {
-            await router.push(`/${orgUrl}`);
+          onCancel={() => setEventModalState({ isOpen: false })}
+          onClose={() => setEventModalState({ isOpen: false })}
+          onSubmit={async (eventUrl: string) => {
+            await router.push(`/${eventUrl}`);
           }}
         />
       )}

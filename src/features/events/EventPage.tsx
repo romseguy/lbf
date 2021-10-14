@@ -1,8 +1,6 @@
 import {
   ArrowBackIcon,
-  ArrowForwardIcon,
   AtSignIcon,
-  CalendarIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   EditIcon,
@@ -28,20 +26,18 @@ import {
   useColorMode,
   TabPanel,
   TabPanels,
-  IconButton,
-  List,
-  ListItem
+  IconButton
 } from "@chakra-ui/react";
 import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "hooks/useAuth";
-import { parseISO, format, getHours, addHours, getDate } from "date-fns";
+import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { css } from "twin.macro";
 import { IoIosPeople } from "react-icons/io";
-import { Button, DateRange, GridHeader, GridItem, Link } from "features/common";
+import { Button, GridHeader, GridItem, Link } from "features/common";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
@@ -61,36 +57,10 @@ import { EventAttendingForm } from "./EventAttendingForm";
 import { EventSendForm } from "features/common/forms/EventSendForm";
 import { useGetEventQuery } from "./eventsApi";
 import { EventPageTabs } from "./EventPageTabs";
-import * as dateUtils from "utils/date";
-import getDay from "date-fns/getDay";
-import setDay from "date-fns/setDay";
 import { hasItems } from "utils/array";
 import { selectEventRefetch } from "./eventSlice";
 import { FaMapMarkedAlt, FaGlobeEurope } from "react-icons/fa";
-
-const timelineStyles = css`
-  & > li {
-    list-style: none;
-    margin-left: 12px;
-    margin-top: 0 !important;
-    border-left: 2px dashed #3f4e58;
-    padding: 0 0 0 20px;
-    position: relative;
-
-    &::before {
-      position: absolute;
-      left: -14px;
-      top: 0;
-      content: " ";
-      border: 8px solid rgba(255, 255, 255, 0.74);
-      border-radius: 500%;
-      background: #3f4e58;
-      height: 25px;
-      width: 25px;
-      transition: all 500ms ease-in-out;
-    }
-  }
-`;
+import { EventTimeline } from "./EventTimeline";
 
 export type Visibility = {
   isVisible: {
@@ -135,45 +105,6 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
       : "";
   const isCreator =
     session?.user.userId === eventCreatedByUserId || session?.user.isAdmin;
-
-  const eventMinDate = parseISO(event.eventMinDate);
-  const eventMaxDate = parseISO(event.eventMaxDate);
-  let startDay: number = getDay(eventMinDate);
-  startDay = startDay === 0 ? 6 : startDay - 1;
-  const startHour = getHours(eventMinDate);
-  const endHour = getHours(eventMaxDate);
-  const duration = endHour - startHour;
-  const timeline: { [index: number]: { startDate: Date; endTime: Date } } =
-    dateUtils.days.reduce((obj, label, index) => {
-      if (startDay === index)
-        return {
-          ...obj,
-          [index]: {
-            startDate: eventMinDate,
-            endTime: eventMaxDate
-          }
-        };
-
-      if (event.otherDays) {
-        for (const { dayNumber, startDate } of event.otherDays) {
-          if (dayNumber === index) {
-            return {
-              ...obj,
-              [index]: {
-                startDate: startDate
-                  ? parseISO(startDate)
-                  : setDay(eventMinDate, dayNumber + 1),
-                endTime: startDate
-                  ? addHours(parseISO(startDate), duration)
-                  : setDay(eventMaxDate, dayNumber + 1)
-              }
-            };
-          }
-        }
-      }
-
-      return obj;
-    }, {});
   //#endregion
 
   //#region sub
@@ -227,32 +158,6 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   }
   //#endregion
 
-  const renderTimeline = () =>
-    Object.keys(timeline).map((key) => {
-      const dayNumber = parseInt(key);
-      const day = timeline[dayNumber];
-
-      return (
-        <ListItem key={"timeline-item-" + key}>
-          <Text fontWeight="bold">
-            {format(day.startDate, "cccc d MMMM", { locale: fr })}
-          </Text>
-          <Box display="flex" alignItems="center" ml={3} fontWeight="bold">
-            <Text color="green">
-              {format(day.startDate, "H:mm", { locale: fr })}
-            </Text>
-            <ArrowForwardIcon />
-            <Text color="red">
-              {getDay(day.startDate) !== getDay(day.endTime)
-                ? format(day.endTime, "cccc d MMMM", { locale: fr })
-                : ""}{" "}
-              {format(day.endTime, "H:mm", { locale: fr })}
-            </Text>
-          </Box>
-        </ListItem>
-      );
-    });
-
   return (
     <Layout
       event={event}
@@ -261,8 +166,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
     >
       {isCreator && !isConfig ? (
         <Button
-          aria-label="Paramètres"
-          colorScheme="green"
+          colorScheme="teal"
           leftIcon={<SettingsIcon boxSize={6} data-cy="eventSettings" />}
           onClick={() => setIsConfig(true)}
           mb={2}
@@ -271,6 +175,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
         </Button>
       ) : isConfig && !isEdit ? (
         <Button
+          colorScheme="pink"
           leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
           mb={2}
@@ -454,17 +359,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                       dark={{ bg: "gray.500" }}
                     >
                       <Box ml={3} pt={3}>
-                        {event.repeat && (
-                          <Text fontWeight="bold">
-                            <CalendarIcon mr={1} />
-                            {event.repeat === 99
-                              ? "Toutes les semaines"
-                              : "todo"}
-                          </Text>
-                        )}
-                        <List spacing={3} css={timelineStyles}>
-                          {renderTimeline()}
-                        </List>
+                        <EventTimeline event={event} />
                       </Box>
                     </GridItem>
                   </Grid>

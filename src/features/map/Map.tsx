@@ -1,22 +1,24 @@
-import type { LatLon } from "use-places-autocomplete";
-import type { IEvent } from "models/Event";
-import type { IOrg } from "models/Org";
-import type { SizeMap } from "features/modals/MapModal";
+import { CalendarIcon } from "@chakra-ui/icons";
+import { Alert, AlertIcon, Box, Icon, Spinner, Text } from "@chakra-ui/react";
+import MarkerClusterer from "@googlemaps/markerclustererplus";
+import { parseISO } from "date-fns";
+import GoogleMap from "google-map-react";
+import DOMPurify from "isomorphic-dompurify";
 import React, { useRef, useState } from "react";
 import { render } from "react-dom";
-import GoogleMap from "google-map-react";
-import MarkerClusterer from "@googlemaps/markerclustererplus";
-import { Alert, AlertIcon, Box, Icon, Spinner, Text } from "@chakra-ui/react";
-import { withGoogleApi } from "./GoogleApiWrapper";
-import { FullscreenControl } from "./FullscreenControl";
-import { Marker } from "./Marker";
-import { DescriptionModal } from "features/modals/DescriptionModal";
-import { Link } from "features/common";
 import { FaMapMarkerAlt } from "react-icons/fa";
-import DOMPurify from "isomorphic-dompurify";
-import { CalendarIcon } from "@chakra-ui/icons";
 import { IoIosPeople } from "react-icons/io";
+import type { LatLon } from "use-places-autocomplete";
 import { css } from "twin.macro";
+import { DateRange, Link } from "features/common";
+import { DescriptionModal } from "features/modals/DescriptionModal";
+import type { SizeMap } from "features/modals/MapModal";
+import type { IEvent } from "models/Event";
+import type { IOrg } from "models/Org";
+import { FullscreenControl } from "./FullscreenControl";
+import { withGoogleApi } from "./GoogleApiWrapper";
+import { Marker } from "./Marker";
+import { EventTimeline } from "features/events/EventTimeline";
 
 const defaultCenter = {
   lat: 43.0555331,
@@ -231,31 +233,41 @@ export const Map = withGoogleApi({
               </>
             }
           >
-            {"eventName" in itemToShow ? (
-              itemToShow.eventDescription &&
-              itemToShow.eventDescription.length > 0 ? (
-                <div className="ql-editor">
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(itemToShow.eventDescription)
-                    }}
-                  />
-                </div>
-              ) : (
-                <Text fontStyle="italic">Aucune description.</Text>
-              )
-            ) : itemToShow.orgDescription &&
-              itemToShow.orgDescription.length > 0 ? (
-              <div className="ql-editor">
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(itemToShow.orgDescription)
-                  }}
-                />
-              </div>
-            ) : (
-              <Text fontStyle="italic">Aucune description.</Text>
-            )}
+            <>
+              {"eventName" in itemToShow && (
+                <EventTimeline event={itemToShow} />
+              )}
+
+              <Box mt={4}>
+                {"eventName" in itemToShow ? (
+                  itemToShow.eventDescription &&
+                  itemToShow.eventDescription.length > 0 ? (
+                    <div className="ql-editor">
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(
+                            itemToShow.eventDescription
+                          )
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <Text fontStyle="italic">Aucune description.</Text>
+                  )
+                ) : itemToShow.orgDescription &&
+                  itemToShow.orgDescription.length > 0 ? (
+                  <div className="ql-editor">
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(itemToShow.orgDescription)
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <Text fontStyle="italic">Aucune description.</Text>
+                )}
+              </Box>
+            </>
           </DescriptionModal>
         )}
       </>

@@ -5,5 +5,6 @@ export * from "./Layout";
 export * from "./Main";
 export * from "./Footer";
 export * from "./Nav";
+export * from "./EventPopover";
 export * from "./OrgPopover";
 export * from "./EmailSubscriptionsPopover";

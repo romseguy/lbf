@@ -1,46 +1,35 @@
-import React, { useEffect, useRef, useState } from "react";
-import Router from "next/router";
-import { Controller, useForm } from "react-hook-form";
-import { ErrorMessage } from "@hookform/error-message";
 import {
-  ChakraProps,
   Input,
   Button,
   FormControl,
   FormLabel,
   Box,
-  Stack,
   FormErrorMessage,
-  Select,
-  Textarea,
-  useToast,
   Alert,
   AlertIcon,
   Avatar,
   Tooltip
 } from "@chakra-ui/react";
-import { WarningIcon } from "@chakra-ui/icons";
+import { ErrorMessage } from "@hookform/error-message";
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
+import React, { useRef, useState } from "react";
+import AvatarEditor from "react-avatar-editor";
+import { useForm } from "react-hook-form";
 import { EmailControl, ErrorMessageText } from "features/common";
+import { setSession } from "features/session/sessionSlice";
 import {
   useAddUserMutation,
   useEditUserMutation
 } from "features/users/usersApi";
-import { useSession } from "hooks/useAuth";
-import { handleError } from "utils/form";
 import type { IUser } from "models/User";
 import { useAppDispatch } from "store";
-import {
-  setUserEmail,
-  setUserImage,
-  setUserName
-} from "features/users/userSlice";
+import { handleError } from "utils/form";
 import { calculateScale, getBase64, getPicaInstance } from "utils/image";
-import AvatarEditor from "react-avatar-editor";
-import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { normalize } from "utils/string";
+import { PhoneControl } from "features/common/forms/PhoneControl";
 
 export const UserForm = (props: {
-  user: IUser;
+  user: Partial<IUser>;
   onSubmit: (user: Partial<IUser>) => void;
 }) => {
   const dispatch = useAppDispatch();
@@ -112,9 +101,7 @@ export const UserForm = (props: {
           payload,
           userName: props.user.userName || props.user._id
         }).unwrap();
-        dispatch(setUserEmail(payload.email!));
-        dispatch(setUserImage(payload.userImage || null));
-        dispatch(setUserName(payload.userName!));
+        dispatch(setSession(null));
       }
 
       props.onSubmit && props.onSubmit(payload);
@@ -168,7 +155,7 @@ export const UserForm = (props: {
             //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
             // }
           })}
-          defaultValue={props.user?.userName}
+          defaultValue={props.user.userName}
         />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="userName" />
@@ -188,10 +175,11 @@ export const UserForm = (props: {
         control={control}
         register={register}
         isRequired
-        defaultValue={props.user?.email}
+        defaultValue={props.user.email}
         errors={errors}
         mb={3}
         isMultiple={false}
+        placeholder="Cliquez ici pour saisir votre adresse e-mail..."
       />
 
       <Alert status="info" mb={3}>
@@ -199,19 +187,29 @@ export const UserForm = (props: {
         Votre e-mail ne sera jamais affiché publiquement sur le site.
       </Alert>
 
+      <PhoneControl
+        name="phone"
+        register={register}
+        control={control}
+        errors={errors}
+        isMultiple={false}
+        defaultValue={props.user.phone}
+        placeholder="Cliquez ici pour saisir votre numéro de téléphone..."
+      />
+
       <FormControl id="userImage" isInvalid={!!errors["userImage"]} mb={3}>
         <FormLabel>Avatar</FormLabel>
         <Tooltip
           hasArrow
           label={
-            props.user?.userImage ? "Changer l'avatar" : "Définir un avatar"
+            props.user.userImage ? "Changer l'avatar" : "Définir un avatar"
           }
           placement="right"
         >
           <Avatar
             boxSize={10}
-            name={props.user?.userName}
-            src={props.user?.userImage?.base64}
+            name={props.user.userImage ? undefined : props.user.userName}
+            src={props.user.userImage?.base64}
             mb={3}
             cursor="pointer"
             onClick={() => {
@@ -321,7 +319,7 @@ export const UserForm = (props: {
         isDisabled={Object.keys(errors).length > 0}
         mb={2}
       >
-        {props.user ? "Modifier" : "Ajouter"}
+        Modifier
       </Button>
     </form>
   );
