@@ -57,6 +57,8 @@ export const getServerSideProps = wrapper.getServerSideProps(
       }>
     ): Promise<{ props: UnsubscribePageProps }> => {
       const { entityUrl } = ctx.params || {};
+      console.log(entityUrl);
+
       const {
         subscriptionId,
         topicId
@@ -115,6 +117,22 @@ export const getServerSideProps = wrapper.getServerSideProps(
             if (subscription)
               return { props: { unsubscribed: true, org, subscription } };
           }
+        } else {
+          const { data: subscription } = await api.remove(
+            `subscription/${subscriptionId}`,
+            {
+              orgs: [
+                {
+                  orgId: org._id,
+                  org,
+                  type: SubscriptionTypes.FOLLOWER
+                }
+              ]
+            }
+          );
+
+          if (subscription)
+            return { props: { unsubscribed: true, org, subscription } };
         }
       }
 
