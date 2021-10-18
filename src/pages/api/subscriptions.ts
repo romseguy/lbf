@@ -45,6 +45,7 @@ handler.post<
   NextApiResponse
 >(async function postSubscription(req, res) {
   const session = await getSession({ req });
+  console.log("!!", session);
 
   try {
     const {
@@ -84,11 +85,21 @@ handler.post<
       if (user) {
         selector.user = user;
       }
+    } else {
+      return res
+        .status(400)
+        .json(
+          createServerError(
+            new Error("Vous devez fournir une adresse e-mail pour vous abonner")
+          )
+        );
     }
 
+    console.log("looking for subscription", selector);
     let subscription = await models.Subscription.findOne(selector);
 
     if (!subscription) {
+      console.log("creating subscription", selector);
       subscription = await models.Subscription.create(selector);
     }
 
@@ -97,9 +108,10 @@ handler.post<
 
       if (subscription.orgs.length > 0) {
         console.log("user already got org subscriptions");
-        //const staleOrgSubscriptionOrgIds: string[] = [];
 
         for (const newOrgSubscription of newOrgSubscriptions) {
+          console.log("newOrgSubscription", newOrgSubscription);
+
           const org = await models.Org.findOne({
             _id: newOrgSubscription.orgId
           });
@@ -123,12 +135,10 @@ handler.post<
             if (equals(org._id, orgSubscription.orgId)) {
               if (orgSubscription.type === SubscriptionTypes.FOLLOWER) {
                 isFollower = true;
-                console.log("user is already following org");
               } else if (
                 orgSubscription.type === SubscriptionTypes.SUBSCRIBER
               ) {
                 isSub = true;
-                console.log("user is already subscribed to org");
               }
               break;
             }
@@ -136,6 +146,9 @@ handler.post<
 
           if (newOrgSubscription.type === SubscriptionTypes.FOLLOWER) {
             if (isFollower) {
+              console.log(
+                "user is already following org => replacing old subscription with new one"
+              );
               subscription.orgs = subscription.orgs.map((orgSubscription) => {
                 if (
                   orgSubscription.type === SubscriptionTypes.FOLLOWER &&
@@ -152,6 +165,9 @@ handler.post<
 
           if (newOrgSubscription.type === SubscriptionTypes.SUBSCRIBER) {
             if (isSub) {
+              console.log(
+                "user is already subscribed to org => replacing old subscription with new one"
+              );
               subscription.orgs = subscription.orgs.map((orgSubscription) => {
                 if (
                   orgSubscription.type === SubscriptionTypes.SUBSCRIBER &&
@@ -222,38 +238,58 @@ handler.post<
       if (subscription.events.length > 0) {
         console.log("user already got event subscriptions");
 
-        //const staleEventSubscriptionEventIds: string[] = [];
-
         for (const newEventSubscription of newEventSubscriptions) {
+          console.log("newEventSubscription", newEventSubscription);
+
           const event = await models.Event.findOne({
             _id: newEventSubscription.eventId
           });
 
-          if (!event) continue;
+          if (!event) {
+            return res
+              .status(400)
+              .json(
+                createServerError(
+                  new Error(
+                    "Vous ne pouvez pas vous abonner à un événement inexistant"
+                  )
+                )
+              );
+          }
 
-          // if (!event) {
-          //   // userSub.events contains stale event subscription
-          //   staleEventSubscriptionEventIds.push(newEventSubscription.eventId);
-          //   continue;
-          // }
-
-          let isAdded;
+          let isFollower;
 
           for (const eventSubscription of subscription.events) {
             if (equals(event._id, eventSubscription.eventId)) {
-              isAdded = true;
+              isFollower = true;
               break;
             }
           }
 
-          if (isAdded) continue;
+          if (isFollower) {
+            console.log(
+              "user is already following event => replacing old subscription with new one"
+            );
+            subscription.events = subscription.events.map(
+              (eventSubscription) => {
+                if (
+                  equals(
+                    eventSubscription.eventId,
+                    newEventSubscription.eventId
+                  )
+                )
+                  return newEventSubscription;
+                return eventSubscription;
+              }
+            );
+          } else {
+            subscription.events.push(newEventSubscription);
+          }
 
           await models.Event.updateOne(
             { _id: event._id },
             { $push: { eventSubscriptions: subscription } }
           );
-
-          subscription.events.push(newEventSubscription);
         }
 
         // if (staleEventSubscriptionEventIds.length > 0) {
@@ -303,39 +339,49 @@ handler.post<
     }
 
     if (body.topics) {
-      const topicId = body.topics[0].topic._id;
-      const topic = await models.Topic.findOne({ _id: topicId });
-
-      if (!topic) {
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`Vous ne pouvez pas vous abonner à un topic inexistant`)
-            )
-          );
+      if (!body.topics.length) {
+        subscription.topics = [];
       }
 
-      if (
-        Array.isArray(subscription.topics) &&
-        subscription.topics.length > 0
-      ) {
-        console.log("user already got topic subscriptions");
+      for (let i = 0; i < body.topics.length; i++) {
+        const topicId = body.topics[i].topic._id;
+        const topic = await models.Topic.findOne({ _id: topicId });
+
+        if (!topic) {
+          return res
+            .status(404)
+            .json(
+              createServerError(
+                new Error(
+                  `Vous ne pouvez pas vous abonner à un topic inexistant`
+                )
+              )
+            );
+        }
 
         if (
-          !subscription.topics.find(
-            ({ topic }: { topic: ITopic }) => topic._id === topicId
-          )
+          Array.isArray(subscription.topics) &&
+          subscription.topics.length > 0
         ) {
-          subscription.topics.push({
-            topic,
-            emailNotif: true,
-            pushNotif: true
-          });
+          console.log("user already got topic subscriptions");
+
+          if (
+            !subscription.topics.find(({ topic }: { topic: ITopic }) =>
+              typeof topic === "object"
+                ? equals(topic._id, topicId)
+                : equals(topic, topicId)
+            )
+          ) {
+            subscription.topics.push({
+              topic,
+              emailNotif: true,
+              pushNotif: true
+            });
+          }
+        } else {
+          console.log("first time user subscribes to any topic");
+          subscription.topics = body.topics;
         }
-      } else {
-        console.log("first time user subscribes to any topic");
-        subscription.topics = body.topics;
       }
     }
 

@@ -18,22 +18,57 @@ export interface ISubscription {
 export interface IEventSubscription {
   event: IEvent;
   eventId: string;
+  tagTypes?: TagType[];
 }
 
 export interface IOrgSubscription {
   org: IOrg;
   orgId: string;
   type: string;
-  eventCategories?: {
-    catId: number;
-    emailNotif: boolean;
-    pushNotif: boolean;
-  }[];
+  tagTypes?: TagType[];
+  eventCategories?: IOrgSubscriptionEventCategory[];
+}
+
+export const isOrgSubscription = (
+  followerSubscription: IOrgSubscription | IEventSubscription
+): followerSubscription is IOrgSubscription => {
+  return (followerSubscription as IOrgSubscription).orgId !== undefined;
+};
+
+export type TagType = "Events" | "Topics";
+
+export const addTagType = (
+  tagType: TagType,
+  followerSubscription: IOrgSubscription | IEventSubscription
+): TagType[] => {
+  return followerSubscription.tagTypes &&
+    !followerSubscription.tagTypes.includes(tagType)
+    ? [...followerSubscription.tagTypes, tagType]
+    : [tagType];
+};
+
+export const removeTagType = (
+  tagType: TagType,
+  followerSubscription: IOrgSubscription | IEventSubscription
+): TagType[] => {
+  if (followerSubscription.tagTypes) {
+    if (followerSubscription.tagTypes.includes(tagType)) {
+      return followerSubscription.tagTypes.filter((t) => t !== tagType);
+    }
+  }
+
+  return followerSubscription.tagTypes || [];
+};
+
+export interface IOrgSubscriptionEventCategory {
+  catId: number;
+  emailNotif?: boolean;
+  pushNotif?: boolean;
 }
 
 export interface ITopicSubscription {
-  emailNotif: boolean;
-  pushNotif: boolean;
+  emailNotif?: boolean;
+  pushNotif?: boolean;
   topic: ITopic;
 }
 
@@ -60,7 +95,8 @@ export const SubscriptionSchema = new Schema<ISubscription>(
         event: {
           type: Schema.Types.ObjectId,
           ref: "Event"
-        }
+        },
+        tagTypes: [String]
       }
     ],
     // IOrgSubscription
@@ -81,6 +117,7 @@ export const SubscriptionSchema = new Schema<ISubscription>(
           ),
           required: true
         },
+        tagTypes: [String],
         eventCategories: {
           type: [
             {

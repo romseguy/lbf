@@ -411,7 +411,7 @@ export const TopicsList = ({
                             <Tooltip
                               label={
                                 isSubbedToTopic
-                                  ? "Vous recevez un e-mail lorsque quelqu'un répond à cette discussion. Cliquez ici pour désactiver ces notifications."
+                                  ? "Vous recevez une notification lorsque quelqu'un répond à cette discussion."
                                   : "Recevoir un e-mail et une notification lorsque quelqu'un répond à cette discussion."
                               }
                               placement="left"
@@ -463,7 +463,7 @@ export const TopicsList = ({
                                       });
 
                                       toast({
-                                        title: `Vous avez été abonné à la discussion ${topic.topicName}`,
+                                        title: `Vous êtes abonné à la discussion ${topic.topicName}`,
                                         status: "success",
                                         isClosable: true
                                       });
@@ -479,7 +479,7 @@ export const TopicsList = ({
                                         });
 
                                         toast({
-                                          title: `Vous avez été désabonné de ${topic.topicName}`,
+                                          title: `Vous êtes désabonné de ${topic.topicName}`,
                                           status: "success",
                                           isClosable: true
                                         });

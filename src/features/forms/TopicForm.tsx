@@ -49,14 +49,21 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const visibilityOptions: string[] = [];
 
-  if (org && org.orgName !== "aucourant") {
-    visibilityOptions.push(Visibility.PUBLIC);
+  if ((org && org.orgName !== "aucourant") || event) {
+    if (org) {
+      visibilityOptions.push(Visibility.PUBLIC);
 
-    if (props.isCreator) {
-      visibilityOptions.push(Visibility.FOLLOWERS);
-      visibilityOptions.push(Visibility.SUBSCRIBERS);
-    } else if (props.isSubscribed) {
-      visibilityOptions.push(Visibility.SUBSCRIBERS);
+      if (props.isCreator) {
+        visibilityOptions.push(Visibility.FOLLOWERS);
+        visibilityOptions.push(Visibility.SUBSCRIBERS);
+      } else if (props.isSubscribed) {
+        visibilityOptions.push(Visibility.SUBSCRIBERS);
+      }
+    } else if (event) {
+      visibilityOptions.push(Visibility.PUBLIC);
+      if (props.isCreator || props.isFollowed) {
+        visibilityOptions.push(Visibility.FOLLOWERS);
+      }
     }
   }
 

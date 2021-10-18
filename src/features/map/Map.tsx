@@ -200,7 +200,7 @@ export const Map = withGoogleApi({
             }}
             header={
               <>
-                <Box display="inline-flex" alignItems="center">
+                <Box display="inline-flex" alignItems="center" maxWidth="90%">
                   {"eventName" in itemToShow ? (
                     <Icon as={CalendarIcon} mr={1} boxSize={6} />
                   ) : (

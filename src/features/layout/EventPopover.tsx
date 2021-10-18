@@ -17,7 +17,10 @@ import {
   Box,
   Heading,
   BoxProps,
-  Text
+  Text,
+  Tag,
+  VStack,
+  PopoverFooter
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -48,15 +51,11 @@ export const EventPopover = ({
   const userEmail = useSelector(selectUserEmail) || session.user.email;
 
   //#region events
-  const eventsQuery = useGetEventsQuery(session.user.userId);
+  const eventsQuery = useGetEventsQuery({ userId: session.user.userId });
   const refetchEvents = useSelector(selectEventsRefetch);
   useEffect(() => {
     eventsQuery.refetch();
   }, [refetchEvents]);
-  const subscribedEvents =
-    eventsQuery.data?.filter((event) => hasItems(event.eventSubscriptions)) ||
-    [];
-  const hasSubscribedEvents = hasItems(subscribedEvents);
   //#endregion
 
   //#region sub
@@ -66,7 +65,8 @@ export const EventPopover = ({
     console.log("refetching subscription");
     subQuery.refetch();
   }, [subscriptionRefetch, userEmail]);
-
+  const subscribedEvents = subQuery.data?.events || [];
+  const hasSubscribedEvents = hasItems(subscribedEvents);
   //#endregion
 
   //#region local state
@@ -114,82 +114,74 @@ export const EventPopover = ({
           </PopoverHeader>
           <PopoverCloseButton />
           <PopoverBody>
-            <Box>
+            <Box mb={3}>
               <Heading size="sm" mb={1}>
-                ...que j'ai créé :
+                ...que j'ai ajouté :
               </Heading>
+
               {eventsQuery.isLoading || eventsQuery.isFetching ? (
                 <Spinner />
               ) : Array.isArray(eventsQuery.data) &&
                 eventsQuery.data.length > 0 ? (
-                <List ml={3}>
+                <VStack alignItems="flex-start" overflowX="auto" ml={3}>
                   {eventsQuery.data.map((event, index) => (
-                    <ListItem
-                      display="flex"
-                      alignItems="center"
-                      mb={1}
+                    <Link
                       key={index}
+                      href={`/${event.eventUrl}`}
+                      shallow
+                      onClick={() => {
+                        setIsOpen(false);
+                      }}
                     >
-                      <ListIcon
-                        boxSize={6}
-                        as={CalendarIcon}
-                        color="green.500"
-                      />{" "}
-                      <Link
-                        onClick={() => {
-                          setIsOpen(false);
-                        }}
-                        href={`/${event.eventUrl}`}
-                        shallow
+                      <Button
+                        leftIcon={<CalendarIcon color="green.500" />}
+                        p={2}
                       >
                         {event.eventName}
-                      </Link>
-                    </ListItem>
+                      </Button>
+                    </Link>
                   ))}
-                </List>
+                </VStack>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
-                  Vous n'avez ajouté aucune événement.
-                </Text>
-              )}
-
-              <Heading size="sm" mt={hasItems(eventsQuery.data) ? 2 : 0} mb={1}>
-                ...où je suis abonné :
-              </Heading>
-              {eventsQuery.isLoading || eventsQuery.isFetching ? (
-                <Spinner />
-              ) : hasSubscribedEvents ? (
-                <List ml={3} my={3}>
-                  {subscribedEvents.map((event, index) => (
-                    <ListItem
-                      display="flex"
-                      alignItems="center"
-                      mb={1}
-                      key={index}
-                    >
-                      <ListIcon
-                        boxSize={6}
-                        as={IoIosPerson}
-                        color="green.500"
-                      />{" "}
-                      <Link
-                        onClick={() => {
-                          setIsOpen(false);
-                        }}
-                        href={`/${event.eventUrl}`}
-                      >
-                        {event.eventName}
-                      </Link>
-                    </ListItem>
-                  ))}
-                </List>
-              ) : (
-                <Text fontSize="smaller" ml={3} my={2}>
-                  Vous n'êtes abonné à aucun événement
+                  Vous n'avez ajouté aucun événement.
                 </Text>
               )}
             </Box>
 
+            <Heading size="sm" mt={hasItems(eventsQuery.data) ? 2 : 0} mb={1}>
+              ...où je me suis abonné :
+            </Heading>
+
+            {eventsQuery.isLoading || eventsQuery.isFetching ? (
+              <Spinner />
+            ) : hasSubscribedEvents ? (
+              <VStack alignItems="flex-start" overflowX="auto" ml={3}>
+                {subscribedEvents.map(({ event }, index) => (
+                  <Link
+                    key={index}
+                    href={`/${event.eventUrl}`}
+                    shallow
+                    onClick={() => {
+                      setIsOpen(false);
+                    }}
+                  >
+                    <Button
+                      leftIcon={<Icon as={CalendarIcon} color="green.500" />}
+                      p={2}
+                    >
+                      {event.eventName}
+                    </Button>
+                  </Link>
+                ))}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller" ml={3}>
+                Vous n'êtes abonné à aucun événement
+              </Text>
+            )}
+          </PopoverBody>
+          <PopoverFooter>
             <Button
               colorScheme="teal"
               leftIcon={<AddIcon />}
@@ -201,7 +193,7 @@ export const EventPopover = ({
             >
               Ajouter un événement
             </Button>
-          </PopoverBody>
+          </PopoverFooter>
         </PopoverContent>
       </Popover>
 

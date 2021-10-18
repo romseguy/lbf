@@ -17,7 +17,9 @@ import {
   Box,
   Heading,
   BoxProps,
-  Text
+  Text,
+  PopoverFooter,
+  VStack
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -125,82 +127,74 @@ export const OrgPopover = ({
           </PopoverHeader>
           <PopoverCloseButton />
           <PopoverBody>
-            <Box>
+            <Box mb={3}>
               <Heading size="sm" mb={1}>
                 ...où je suis administrateur :
               </Heading>
+
               {orgsQuery.isLoading || orgsQuery.isFetching ? (
                 <Spinner />
               ) : hasOrgs ? (
-                <List ml={3}>
+                <VStack alignItems="flex-start" overflowX="auto" ml={3}>
                   {myOrgs.map((org, index) => (
-                    <ListItem
-                      display="flex"
-                      alignItems="center"
-                      mb={1}
+                    <Link
                       key={index}
+                      href={`/${org.orgUrl}`}
+                      shallow
+                      onClick={() => {
+                        setIsOpen(false);
+                      }}
                     >
-                      <ListIcon
-                        boxSize={6}
-                        as={IoIosPeople}
-                        color="green.500"
-                      />{" "}
-                      <Link
-                        onClick={() => {
-                          setIsOpen(false);
-                        }}
-                        href={`/${org.orgUrl}`}
-                        shallow
+                      <Button
+                        leftIcon={<Icon as={IoIosPeople} color="green.500" />}
+                        p={2}
                       >
                         {org.orgName}
-                      </Link>
-                    </ListItem>
+                      </Button>
+                    </Link>
                   ))}
-                </List>
+                </VStack>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
                   Vous n'avez ajouté aucune organisation.
                 </Text>
               )}
-
-              <Heading size="sm" mt={hasOrgs ? 2 : 0} mb={1}>
-                ...où je suis adhérent :
-              </Heading>
-              {orgsQuery.isLoading || orgsQuery.isFetching ? (
-                <Spinner />
-              ) : hasSubscribedOrgs ? (
-                <List ml={3} my={3}>
-                  {subscribedOrgs.map((org, index) => (
-                    <ListItem
-                      display="flex"
-                      alignItems="center"
-                      mb={1}
-                      key={index}
-                    >
-                      <ListIcon
-                        boxSize={6}
-                        as={IoIosPerson}
-                        color="green.500"
-                      />{" "}
-                      <Link
-                        onClick={() => {
-                          setIsOpen(false);
-                        }}
-                        href={`/${org.orgUrl}`}
-                      >
-                        {org.orgName}
-                      </Link>
-                    </ListItem>
-                  ))}
-                </List>
-              ) : (
-                <Text fontSize="smaller" ml={3} my={2}>
-                  Personne ne vous a inscrit en tant qu'adhérent, bientôt
-                  peut-être ?
-                </Text>
-              )}
             </Box>
 
+            <Heading size="sm" mt={hasOrgs ? 2 : 0} mb={1}>
+              ...où je suis adhérent :
+            </Heading>
+
+            {orgsQuery.isLoading || orgsQuery.isFetching ? (
+              <Spinner />
+            ) : hasSubscribedOrgs ? (
+              <VStack alignItems="flex-start" overflowX="auto" ml={3}>
+                {subscribedOrgs.map((org, index) => (
+                  <Link
+                    key={index}
+                    href={`/${org.orgUrl}`}
+                    shallow
+                    onClick={() => {
+                      setIsOpen(false);
+                    }}
+                  >
+                    <Button
+                      leftIcon={<Icon as={IoIosPeople} color="green.500" />}
+                      p={2}
+                    >
+                      {org.orgName}
+                    </Button>
+                  </Link>
+                ))}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller" ml={3}>
+                Personne ne vous a inscrit en tant qu'adhérent, bientôt
+                peut-être ?
+              </Text>
+            )}
+          </PopoverBody>
+          <PopoverFooter>
             <Button
               colorScheme="teal"
               leftIcon={<AddIcon />}
@@ -212,7 +206,7 @@ export const OrgPopover = ({
             >
               Ajouter une organisation
             </Button>
-          </PopoverBody>
+          </PopoverFooter>
         </PopoverContent>
       </Popover>
 

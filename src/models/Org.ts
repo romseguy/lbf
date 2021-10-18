@@ -26,6 +26,7 @@ export interface IOrg {
   orgTopics: ITopic[];
   orgLogo?: Base64Image;
   orgBanner?: Base64Image & { mode: "light" | "dark"; url?: string };
+  orgVisibility: string;
   isApproved?: boolean;
   createdBy: IUser | string;
   createdAt?: string;
@@ -39,6 +40,16 @@ export const OrgTypes: { [key: string]: string } = {
 export const OrgTypesV: { [key: string]: string } = {
   ASSO: "Association",
   GROUP: "Groupe"
+};
+
+export const Visibility: { [key: string]: string } = {
+  PUBLIC: "PUBLIC",
+  PRIVATE: "PRIVATE"
+};
+
+export const VisibilityV: { [key: string]: string } = {
+  PUBLIC: "Publique",
+  PRIVATE: "Privée"
 };
 
 export const orgTypeFull = (orgType?: string): string => {
@@ -108,6 +119,10 @@ export const OrgSchema = new Schema<IOrg>(
       height: Number,
       mode: String,
       url: String
+    },
+    orgVisibility: {
+      type: String,
+      enum: Object.keys(Visibility).map((key) => Visibility[key])
     },
     isApproved: Boolean,
     createdBy: {

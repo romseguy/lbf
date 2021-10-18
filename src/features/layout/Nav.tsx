@@ -38,6 +38,7 @@ import { useAppDispatch } from "store";
 import { breakpoints } from "theme/theme";
 import { isServer } from "utils/isServer";
 import { base64ToUint8Array } from "utils/string";
+import { setSession } from "features/session/sessionSlice";
 
 interface customWindow extends Window {
   workbox?: any;
@@ -190,7 +191,6 @@ export const Nav = ({
 
       {session ? (
         <Flex justify="flex-end" css={buttonList}>
-          <EmailSubscriptionsPopover mr={[1, 3]} boxSize={[8, 10, 10]} />
           <EventPopover boxSize={[6, 8, 8]} session={session} />
           <OrgPopover boxSize={[8, 10, 12]} session={session} />
           <Menu>
@@ -307,11 +307,13 @@ export const Nav = ({
 
               <MenuItem
                 onClick={async () => {
-                  dispatch(setUserEmail(null));
                   const { url } = await signOut({
                     redirect: false,
                     callbackUrl: "/"
                   });
+                  dispatch(setUserEmail(null));
+                  dispatch(setSession(null));
+
                   if (process.env.NODE_ENV === "production") router.push(url);
                   else {
                     dispatch(refetchSubscription());

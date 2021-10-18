@@ -9,31 +9,14 @@ import { SubscriptionTypes } from "models/Subscription";
 export const isFollowedBy = ({
   event,
   org,
-  subQuery,
-  isCreator
+  subQuery
 }: {
   event?: IEvent;
   org?: IOrg;
   subQuery?: any;
-  isCreator?: boolean;
 }): IOrgSubscription | IEventSubscription | undefined => {
   if (!org && !event) return;
   if (!subQuery || !subQuery.data) return;
-
-  if (isCreator) {
-    if (org) {
-      return {
-        orgId: org._id,
-        org,
-        type: SubscriptionTypes.FOLLOWER
-      };
-    } else if (event) {
-      return {
-        eventId: event._id,
-        event
-      };
-    }
-  }
 
   if (org) {
     return subQuery.data.orgs.find(

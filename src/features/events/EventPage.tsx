@@ -184,28 +184,30 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
         </Button>
       ) : null}
 
-      {!subQuery.isLoading && !isCreator && !isConfig && (
-        <Flex>
-          <>
-            {isFollowed && (
-              <Box mr={3}>
-                <SubscriptionPopover
-                  event={event}
-                  query={eventQuery}
-                  subQuery={subQuery}
-                  followerSubscription={isFollowed}
-                  //isLoading={subQuery.isLoading || subQuery.isFetching}
-                />
-              </Box>
-            )}
+      {!subQuery.isLoading && !isConfig && (
+        <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
+          {isFollowed && (
+            <Box mr={3} mt={3}>
+              <SubscriptionPopover
+                event={event}
+                query={eventQuery}
+                subQuery={subQuery}
+                followerSubscription={isFollowed}
+                //isLoading={subQuery.isLoading || subQuery.isFetching}
+              />
+            </Box>
+          )}
+
+          <Box mt={3}>
             <SubscriptionPopover
               event={event}
               query={eventQuery}
               subQuery={subQuery}
               followerSubscription={isFollowed}
+              notifType="push"
               //isLoading={subQuery.isLoading || subQuery.isFetching}
             />
-          </>
+          </Box>
         </Flex>
       )}
 

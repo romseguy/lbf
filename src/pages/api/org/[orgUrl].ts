@@ -44,6 +44,9 @@ handler.get<
     // hand emails to org creator only
     const isCreator =
       equals(org.createdBy, session?.user.userId) || session?.user.isAdmin;
+
+    console.log(org.orgName, "isCreator", isCreator);
+
     let select = isCreator
       ? "-password -securityCode"
       : "-email -password -securityCode";

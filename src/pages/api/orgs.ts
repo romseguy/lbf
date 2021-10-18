@@ -8,7 +8,7 @@ import {
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import { normalize } from "utils/string";
-import { IOrg } from "models/Org";
+import { IOrg, Visibility } from "models/Org";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -26,7 +26,9 @@ handler.get<
     } = req;
 
     let orgs;
-    let select = createdBy ? { createdBy } : {};
+    let select = createdBy
+      ? { createdBy }
+      : { orgVisibility: Visibility[Visibility.PUBLIC] };
 
     if (populate) {
       orgs = await models.Org.find(select, { orgBanner: 0 }).populate(populate);

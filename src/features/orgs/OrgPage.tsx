@@ -96,7 +96,7 @@ export const OrgPage = ({
     console.log("refetching org");
     orgQuery.refetch();
     setIsEdit(false);
-  }, [router.asPath, refetchOrg]);
+  }, [router.asPath, userEmail, refetchOrg]);
 
   const orgCreatedByUserName =
     typeof org.createdBy === "object"
@@ -121,7 +121,7 @@ export const OrgPage = ({
     subQuery.refetch();
   }, [subscriptionRefetch, userEmail]);
 
-  const isFollowed = isFollowedBy({ org, subQuery, isCreator });
+  const isFollowed = isFollowedBy({ org, subQuery });
   const isSubscribed = isSubscribedBy(org, subQuery);
   //#endregion
 
@@ -168,20 +168,20 @@ export const OrgPage = ({
       ) : null}
 
       {!subQuery.isLoading && !isConfig && (
-        <Flex>
-          <>
-            {isFollowed && (
-              <Box mr={3}>
-                <SubscriptionPopover
-                  org={org}
-                  query={orgQuery}
-                  subQuery={subQuery}
-                  followerSubscription={isFollowed}
-                  //isLoading={subQuery.isLoading || subQuery.isFetching}
-                />
-              </Box>
-            )}
+        <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
+          {isFollowed && (
+            <Box mr={3} mt={3}>
+              <SubscriptionPopover
+                org={org}
+                query={orgQuery}
+                subQuery={subQuery}
+                followerSubscription={isFollowed}
+                //isLoading={subQuery.isLoading || subQuery.isFetching}
+              />
+            </Box>
+          )}
 
+          <Box mt={3}>
             <SubscriptionPopover
               org={org}
               query={orgQuery}
@@ -190,7 +190,7 @@ export const OrgPage = ({
               notifType="push"
               //isLoading={subQuery.isLoading || subQuery.isFetching}
             />
-          </>
+          </Box>
         </Flex>
       )}
 

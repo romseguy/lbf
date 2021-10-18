@@ -29,7 +29,14 @@ import { PhoneControl } from "features/common/forms/PhoneControl";
 import { UrlControl } from "features/common/forms/UrlControl";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { useAddOrgMutation, useEditOrgMutation } from "features/orgs/orgsApi";
-import { IOrg, orgTypeFull, OrgTypes, OrgTypesV } from "models/Org";
+import {
+  IOrg,
+  orgTypeFull,
+  OrgTypes,
+  OrgTypesV,
+  Visibility,
+  VisibilityV
+} from "models/Org";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
@@ -316,6 +323,40 @@ export const OrgForm = withGoogleApi({
 
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="orgDescription" />
+        </FormErrorMessage>
+      </FormControl>
+
+      <FormControl
+        id="orgVisibility"
+        isRequired
+        isInvalid={!!errors["orgVisibility"]}
+        onChange={async (e) => {
+          clearErrors("orgOrgs");
+        }}
+        mb={3}
+      >
+        <FormLabel>Visibilité</FormLabel>
+        <Select
+          name="orgVisibility"
+          defaultValue={
+            props.org?.orgVisibility || Visibility[Visibility.PUBLIC]
+          }
+          ref={register({
+            required: "Veuillez sélectionner la visibilité de l'organisation"
+          })}
+          placeholder="Visibilité de l'organisation"
+          color="gray.400"
+        >
+          {[Visibility.PUBLIC, Visibility.PRIVATE].map((key) => {
+            return (
+              <option key={key} value={key}>
+                {VisibilityV[key]}
+              </option>
+            );
+          })}
+        </Select>
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="orgVisibility" />
         </FormErrorMessage>
       </FormControl>
 
