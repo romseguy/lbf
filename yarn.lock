@@ -6492,6 +6492,13 @@ quill-auto-links@^0.1.3:
   resolved "https://registry.yarnpkg.com/quill-auto-links/-/quill-auto-links-0.1.3.tgz#7da25a6da7140756b8d31cda3c4897ec6a0e76f9"
   integrity sha512-BUXpvYfOE1qAxHWJnswUpVKMYzRQMc7GZ8zUIusMhswb0ZnAxSJWcFLeqJ/0MHUXfNwJS9nvBerOjdvb+vX6nA==
 
+quill-delta-to-html@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/quill-delta-to-html/-/quill-delta-to-html-0.12.0.tgz#ee572cfa208390d99d7646795358ddb81eaea17c"
+  integrity sha512-Yy6U2e7ov+ZlrFbj5/GbqOBCRjyNu+vuphy0Pk+7668zIMTVHJglZY2JNa++1/zkSiqptPBmP/CpsDzC4Wznsw==
+  dependencies:
+    lodash.isequal "^4.5.0"
+
 quill-delta@^3.6.2:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/quill-delta/-/quill-delta-3.6.3.tgz#b19fd2b89412301c60e1ff213d8d860eac0f1032"
