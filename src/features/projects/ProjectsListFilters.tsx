@@ -6,37 +6,36 @@ import {
   Tag,
   useColorMode
 } from "@chakra-ui/react";
-import { Category } from "models/Event";
+import { Status, StatusV } from "models/Project";
 import React from "react";
 
-export const EventsListCategories = ({
-  selectedCategories,
-  setSelectedCategories,
+export const ProjectsListFilters = ({
+  selectedStatuses,
+  setSelectedStatuses,
   ...props
 }: SpaceProps & {
-  selectedCategories: number[];
-  setSelectedCategories: (selectedCategories: number[]) => void;
+  selectedStatuses: string[];
+  setSelectedStatuses: (selectedStatuses: string[]) => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
   return (
     <Flex flexWrap="nowrap" overflowX="auto" {...props}>
-      {Object.keys(Category).map((key) => {
-        const k = parseInt(key);
-        if (k === 0) return null;
-        const bgColor = Category[k].bgColor;
-        const isSelected = selectedCategories.includes(k);
+      {Object.keys(Status).map((k) => {
+        // const bgColor = Status[k].bgColor;
+        const bgColor = "transparent";
+        const isSelected = selectedStatuses.includes(k);
 
         return (
           <Link
-            key={"cat-" + key}
+            key={"status-" + k}
             variant="no-underline"
             onClick={() => {
-              setSelectedCategories(
-                selectedCategories.includes(k)
-                  ? selectedCategories.filter((sC) => sC !== k)
-                  : selectedCategories.concat([k])
+              setSelectedStatuses(
+                selectedStatuses.includes(k)
+                  ? selectedStatuses.filter((sC) => sC !== k)
+                  : [k]
               );
             }}
           >
@@ -55,7 +54,7 @@ export const EventsListCategories = ({
               mr={1}
               whiteSpace="nowrap"
             >
-              {Category[k].label}
+              {StatusV[k]}
             </Tag>
           </Link>
         );

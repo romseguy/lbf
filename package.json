@@ -57,6 +57,7 @@
     "nodemailer-sendgrid": "^1.0.3",
     "pica": "^7.1.0",
     "quill": "^1.3.7",
+    "quill-auto-links": "^0.1.3",
     "react": "17.0.2",
     "react-async-hook": "^3.6.2",
     "react-avatar-editor": "11.1.0",

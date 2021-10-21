@@ -24,11 +24,7 @@ import { useSelector } from "react-redux";
 import tw, { css } from "twin.macro";
 
 import { Link } from "features/common";
-import {
-  EventPopover,
-  OrgPopover,
-  EmailSubscriptionsPopover
-} from "features/layout";
+import { EventPopover, OrgPopover, EmailLoginPopover } from "features/layout";
 import { LoginModal } from "features/modals/LoginModal";
 import { refetchSubscription } from "features/subscriptions/subscriptionSlice";
 import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
@@ -333,7 +329,7 @@ export const Nav = ({
         </Flex>
       ) : (
         <Flex justify="flex-end">
-          <EmailSubscriptionsPopover boxSize={[8, 10, 10]} />
+          <EmailLoginPopover boxSize={[8, 10, 10]} />
 
           {isMobile ? (
             <IconButton

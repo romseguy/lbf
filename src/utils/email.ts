@@ -24,11 +24,12 @@ export const emailR = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 const backgroundColor = "#f9f9f9";
 const textColor = "#444444";
 const mainBackgroundColor = "#ffffff";
+const descriptionBackgroundColor = "#f9f9f9";
 const buttonBackgroundColor = "#346df1";
 const buttonBorderColor = "#346df1";
 const buttonTextColor = "#ffffff";
 
-export const createEventNotifEmail = ({
+export const createEventEmailNotif = ({
   email,
   event,
   org,
@@ -43,6 +44,7 @@ export const createEventNotifEmail = ({
 }) => {
   const orgUrl = `${process.env.NEXT_PUBLIC_URL}/${org.orgUrl}`;
   const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`;
+  const eventDescription = event.eventDescription?.replace(/<p><br><\/p>/g, "");
 
   return {
     from: process.env.EMAIL_FROM,
@@ -81,7 +83,15 @@ export const createEventNotifEmail = ({
             }
             </h3>
 
-            <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">la page de l'événement</a> pour voir la description complète de l'événement et indiquer si vous souhaitez y participer.</p>
+            <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${descriptionBackgroundColor}; border-radius: 10px;">
+              <tr>
+                <td>
+                  ${eventDescription}
+                </td>
+              </tr>
+            </table>
+
+            <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">la page de l'événement</a> pour indiquer si vous souhaitez y participer.</p>
           </td>
         </tr>
       </table>
@@ -134,11 +144,12 @@ export const sendEventToOrgFollowers = async (
   }
 
   for (const org of event.eventOrgs) {
-    //console.log("notifying followers from org", org);
     const orgId = typeof org === "object" ? org._id : org;
 
     for (const notifOrgId of orgIds) {
       if (!equals(notifOrgId, orgId)) continue;
+
+      //console.log("notifying followers from org", org);
 
       for (const orgSubscription of org.orgSubscriptions) {
         const subscription = await models.Subscription.findOne({
@@ -206,7 +217,7 @@ export const sendEventToOrgFollowers = async (
             )
               continue;
 
-            const mail = createEventNotifEmail({
+            const mail = createEventEmailNotif({
               email,
               event,
               org,
@@ -241,6 +252,131 @@ export const sendEventToOrgFollowers = async (
             emailList.push(email);
           }
         }
+      }
+    }
+  }
+
+  return emailList;
+};
+
+export const sendEventEmailNotifToOrgFollowers = async (
+  event: IEvent,
+  orgIds: string[],
+  transport: nodemailer.Transporter<any>
+) => {
+  // console.log("sending notifications to event", event);
+
+  const emailList: string[] = [];
+
+  if (!event.isApproved) {
+    throw new Error("L'événément doit être approuvé");
+  }
+
+  if (!Array.isArray(event.eventOrgs)) {
+    throw new Error("L'événement est organisé par aucune organisation");
+  }
+
+  if (!Array.isArray(orgIds) || !orgIds.length) {
+    throw new Error("Aucune organisation spécifiée");
+  }
+
+  let mails: { email: string; mail: MailType }[] = [];
+
+  for (const org of event.eventOrgs) {
+    const orgId = typeof org === "object" ? org._id : org;
+
+    for (const notifOrgId of orgIds) {
+      if (!equals(notifOrgId, orgId)) continue;
+
+      //console.log("notifying followers from org", org);
+
+      for (const orgSubscription of org.orgSubscriptions) {
+        const subscription = await models.Subscription.findOne({
+          _id: orgSubscription
+        }).populate("user");
+
+        if (!subscription) {
+          // shouldn't happen because when user remove subscription to org it is also removed from org.orgSubscriptions
+          continue;
+        }
+
+        for (const { orgId, type, eventCategories = [] } of subscription.orgs) {
+          if (!equals(notifOrgId, orgId) || type !== SubscriptionTypes.FOLLOWER)
+            continue;
+
+          const email =
+            typeof subscription.user === "object"
+              ? subscription.user.email
+              : subscription.email;
+
+          if (subscription.phone) {
+            // todo
+          } else if (email) {
+            if (
+              Array.isArray(event.eventNotified) &&
+              event.eventNotified.find((m) => m.email === email)
+            )
+              continue;
+
+            // const user = await models.User.findOne({ email });
+            // const eventCategoriesEmail = eventCategories.filter(
+            //   ({ emailNotif }) => emailNotif
+            // );
+            // const eventCategoriesPush = eventCategories.filter(
+            //   ({ pushNotif }) => pushNotif
+            // );
+
+            // if (
+            //   user &&
+            //   user.userSubscription &&
+            //   (eventCategoriesPush.length === 0 ||
+            //     !!eventCategoriesPush.find(
+            //       (eventCategory) =>
+            //         eventCategory.catId === event.eventCategory &&
+            //         eventCategory.pushNotif
+            //     ))
+            // ) {
+            //   await api.post("notification", {
+            //     subscription: user.userSubscription,
+            //     notification: {
+            //       title: `Invitation à un événement`,
+            //       message: event.eventName,
+            //       url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
+            //     }
+            //   });
+            // }
+
+            // if (
+            //   eventCategoriesEmail.length > 0 &&
+            //   !eventCategoriesEmail.find(
+            //     (eventCategory) =>
+            //       eventCategory.catId === event.eventCategory &&
+            //       eventCategory.emailNotif
+            //   )
+            // )
+            //   continue;
+
+            const mail = createEventEmailNotif({
+              email,
+              event,
+              org,
+              subscription
+            });
+
+            mails.push({ email, mail });
+            emailList.push(email);
+          }
+        }
+      }
+
+      try {
+        await axios.post(process.env.NEXT_PUBLIC_API2 + "/mails", {
+          eventId: event._id,
+          mails
+        });
+      } catch (error: any) {
+        console.error(error);
+        continue;
       }
     }
   }

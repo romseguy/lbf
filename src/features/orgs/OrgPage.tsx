@@ -31,6 +31,7 @@ import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import {
   Button,
+  DidYouKnow,
   GridHeader,
   GridItem,
   IconFooter,
@@ -70,6 +71,10 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
+let cachedRefetchOrg = false;
+let cachedRefetchSubscription = false;
+let cachedEmail: string | undefined;
+
 export const OrgPage = ({
   populate,
   ...props
@@ -91,12 +96,25 @@ export const OrgPage = ({
   );
   const org = orgQuery.data || props.org;
   const refetchOrg = useSelector(selectOrgRefetch);
-
   useEffect(() => {
-    console.log("refetching org");
+    if (refetchOrg !== cachedRefetchOrg) {
+      cachedRefetchOrg = refetchOrg;
+      console.log("refetching org");
+      orgQuery.refetch();
+    }
+  }, [refetchOrg]);
+  useEffect(() => {
+    if (userEmail !== cachedEmail) {
+      cachedEmail = userEmail;
+      console.log("refetching org with new email", userEmail);
+      orgQuery.refetch();
+    }
+  }, [userEmail]);
+  useEffect(() => {
+    console.log("refetching org with new route", router.asPath);
     orgQuery.refetch();
     setIsEdit(false);
-  }, [router.asPath, userEmail, refetchOrg]);
+  }, [router.asPath]);
 
   const orgCreatedByUserName =
     typeof org.createdBy === "object"
@@ -115,11 +133,21 @@ export const OrgPage = ({
   const [addSubscription, addSubscriptionMutation] =
     useAddSubscriptionMutation();
   const subQuery = useGetSubscriptionQuery(userEmail);
-  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
-    console.log("refetching subscription");
-    subQuery.refetch();
-  }, [subscriptionRefetch, userEmail]);
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      cachedRefetchSubscription = refetchSubscription;
+      console.log("refetching subscription");
+      subQuery.refetch();
+    }
+  }, [refetchSubscription]);
+  useEffect(() => {
+    if (userEmail !== cachedEmail) {
+      cachedEmail = userEmail;
+      console.log("refetching subscription with new email", userEmail);
+      subQuery.refetch();
+    }
+  }, [userEmail]);
 
   const isFollowed = isFollowedBy({ org, subQuery });
   const isSubscribed = isSubscribedBy(org, subQuery);
@@ -231,9 +259,6 @@ export const OrgPage = ({
                 // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"
                 gridGap={5}
                 css={css`
-                  & {
-                    grid-template-columns: minmax(425px, 1fr) minmax(170px, 1fr);
-                  }
                   @media (max-width: 650px) {
                     & {
                       grid-template-columns: 1fr !important;
@@ -241,6 +266,84 @@ export const OrgPage = ({
                   }
                 `}
               >
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                  borderTopRadius="lg"
+                >
+                  <Grid templateRows="auto 1fr">
+                    <GridHeader borderTopRadius="lg" alignItems="center">
+                      <Heading size="sm" py={3}>
+                        Coordonnées
+                      </Heading>
+                    </GridHeader>
+
+                    <GridItem
+                      light={{ bg: "orange.100" }}
+                      dark={{ bg: "gray.500" }}
+                    >
+                      <Box p={5}>
+                        {org.orgAddress && (
+                          <Flex flexDirection="column">
+                            <Flex alignItems="center">
+                              <Icon as={FaMapMarkedAlt} mr={3} />
+                              {org.orgAddress}
+                            </Flex>
+                          </Flex>
+                        )}
+
+                        {org.orgEmail && (
+                          <Flex flexDirection="column">
+                            {org.orgEmail?.map(({ email }, index) => (
+                              <Flex key={`email-${index}`} alignItems="center">
+                                <AtSignIcon mr={3} />
+                                <Link
+                                  variant="underline"
+                                  href={`mailto:${email}`}
+                                >
+                                  {email}
+                                </Link>
+                              </Flex>
+                            ))}
+                          </Flex>
+                        )}
+
+                        {org.orgPhone && (
+                          <Flex flexDirection="column">
+                            {org.orgPhone?.map(({ phone }, index) => (
+                              <Flex key={`phone-${index}`} alignItems="center">
+                                <PhoneIcon mr={3} />
+                                <Link
+                                  variant="underline"
+                                  href={`tel:+33${phone.substr(
+                                    1,
+                                    phone.length
+                                  )}`}
+                                >
+                                  {phone}
+                                </Link>
+                              </Flex>
+                            ))}
+                          </Flex>
+                        )}
+
+                        {org.orgWeb && (
+                          <Flex flexDirection="column">
+                            {org.orgWeb?.map(({ url, prefix }, index) => (
+                              <Flex key={`web-${index}`} alignItems="center">
+                                <Icon as={FaGlobeEurope} mr={3} />
+                                <Link variant="underline" href={prefix + url}>
+                                  {url}
+                                </Link>
+                              </Flex>
+                            ))}
+                          </Flex>
+                        )}
+                      </Box>
+                    </GridItem>
+                  </Grid>
+                </GridItem>
+
                 <GridItem
                   rowSpan={1}
                   borderTopRadius="lg"
@@ -298,71 +401,6 @@ export const OrgPage = ({
                     </Box>
                   </GridItem>
                 </GridItem>
-
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  borderTopRadius="lg"
-                >
-                  <Grid templateRows="auto 1fr">
-                    <GridHeader borderTopRadius="lg" alignItems="center">
-                      <Heading size="sm" py={3}>
-                        Coordonnées
-                      </Heading>
-                    </GridHeader>
-
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                    >
-                      <Box p={5}>
-                        {org.orgAddress && (
-                          <Flex flexDirection="column">
-                            <Flex alignItems="center">
-                              <Icon as={FaMapMarkedAlt} mr={3} />
-                              {org.orgAddress}
-                            </Flex>
-                          </Flex>
-                        )}
-
-                        {org.orgEmail && (
-                          <Flex flexDirection="column">
-                            {org.orgEmail?.map(({ email }, index) => (
-                              <Flex key={`email-${index}`} alignItems="center">
-                                <AtSignIcon mr={3} />
-                                <a href={`mailto:${email}`}>{email}</a>
-                              </Flex>
-                            ))}
-                          </Flex>
-                        )}
-
-                        {org.orgPhone && (
-                          <Flex flexDirection="column">
-                            {org.orgPhone?.map(({ phone }, index) => (
-                              <Flex key={`phone-${index}`} alignItems="center">
-                                <PhoneIcon mr={3} />
-                                {phone}
-                              </Flex>
-                            ))}
-                          </Flex>
-                        )}
-
-                        {org.orgWeb && (
-                          <Flex flexDirection="column">
-                            {org.orgWeb?.map(({ url, prefix }, index) => (
-                              <Flex key={`web-${index}`} alignItems="center">
-                                <Icon as={FaGlobeEurope} mr={3} />
-                                <Link variant="underline" href={prefix + url}>
-                                  {url}
-                                </Link>
-                              </Flex>
-                            ))}
-                          </Flex>
-                        )}
-                      </Box>
-                    </GridItem>
-                  </Grid>
-                </GridItem>
               </Grid>
             </TabPanel>
 
@@ -394,11 +432,25 @@ export const OrgPage = ({
 
             <TabPanel aria-hidden>
               {(isCreator || isSubscribed) && (
-                <Alert status="info" mb={3}>
-                  <Icon as={QuestionIcon} boxSize={5} color="blue.500" />
-                  <Box ml={3}>
-                    Le saviez-vous ? Vous pouvez notifier vos abonnés de l'ajout
-                    d'une nouvelle discussion.
+                // <DidYouKnow mb={3}>
+                //   Le saviez-vous ? Vous pouvez notifier vos abonnés de l'ajout
+                //   d'une nouvelle discussion.
+                // </DidYouKnow>
+                <Alert status="info" mb={5}>
+                  <AlertIcon />
+                  <Box>
+                    Cette section a pour vocation de proposer une alternative
+                    plus simple et respectueuse des abonnées aux{" "}
+                    <Tooltip label="synonymes : mailing lists, newsletters">
+                      <Text
+                        display="inline"
+                        borderBottom="1px dotted black"
+                        cursor="pointer"
+                      >
+                        listes de diffusion
+                      </Text>
+                    </Tooltip>
+                    .
                   </Box>
                 </Alert>
               )}

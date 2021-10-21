@@ -28,6 +28,7 @@ export const PhoneControl = ({
   noLabel,
   control,
   register,
+  setValue,
   isRequired = false,
   isMultiple = true,
   ...props
@@ -39,6 +40,7 @@ export const PhoneControl = ({
   noLabel?: boolean;
   control: any;
   register: any;
+  setValue?: any;
   isRequired?: boolean;
   placeholder?: string;
   isMultiple?: boolean;
@@ -124,19 +126,24 @@ export const PhoneControl = ({
                   ...formRules
                 })}
               />
-              {index > 0 && (
-                <InputRightAddon
-                  children={
-                    <IconButton
-                      aria-label={`Supprimer le ${
-                        index + 1
-                      }ème numéro de téléphone`}
-                      icon={<DeleteIcon />}
-                      onClick={() => remove(index)}
-                    />
-                  }
-                />
-              )}
+              <InputRightAddon
+                p={0}
+                children={
+                  <IconButton
+                    aria-label={`Supprimer le ${
+                      index + 1
+                    }ème numéro de téléphone`}
+                    icon={<DeleteIcon />}
+                    bg="transparent"
+                    _hover={{ bg: "transparent", color: "red" }}
+                    onClick={() => {
+                      remove(index);
+
+                      if (fields.length === 1) setValue(name, null);
+                    }}
+                  />
+                }
+              />
             </InputGroup>
             <FormErrorMessage>
               <ErrorMessage errors={errors} name={`${name}[${index}].phone`} />

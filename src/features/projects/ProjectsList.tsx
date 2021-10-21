@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   AddIcon,
   EditIcon,
@@ -47,29 +47,10 @@ import { ProjectAttendingForm } from "./ProjectAttendingForm";
 import * as dateUtils from "utils/date";
 import { IoMdPerson } from "react-icons/io";
 import { FaGlobeEurope } from "react-icons/fa";
-
-const ProjectVisibility = ({
-  projectVisibility
-}: {
-  projectVisibility?: string;
-}) =>
-  projectVisibility === Visibility.SUBSCRIBERS ? (
-    <Tooltip label="Projet réservé aux adhérents">
-      <span>
-        <Icon as={IoMdPerson} boxSize={4} />
-      </span>
-    </Tooltip>
-  ) : projectVisibility === Visibility.FOLLOWERS ? (
-    <Tooltip label="Projet réservé aux abonnés">
-      <EmailIcon boxSize={4} />
-    </Tooltip>
-  ) : projectVisibility === Visibility.PUBLIC ? (
-    <Tooltip label="Projet public">
-      <span>
-        <Icon as={FaGlobeEurope} boxSize={4} />
-      </span>
-    </Tooltip>
-  ) : null;
+import { ProjectItemVisibility } from "./ProjectItemVisibility";
+import { ProjectsListFilters } from "./ProjectsListFilters";
+import { ProjectsListOrder } from "./ProjectsListOrder";
+import { hasItems } from "utils/array";
 
 export const ProjectsList = ({
   org,
@@ -96,6 +77,7 @@ export const ProjectsList = ({
 
   //#region project
   const [deleteProject, deleteProjectMutation] = useDeleteProjectMutation();
+  const projects = useMemo(() => [...org.orgProjects], [org]);
   const projectsCount = Array.isArray(org.orgProjects)
     ? org.orgProjects.length
     : 0;
@@ -108,6 +90,10 @@ export const ProjectsList = ({
     project?: IProject;
   }>({ isOpen: false, project: undefined });
   const [currentProject, setCurrentProject] = useState<IProject | null>(null);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [selectedOrder, setSelectedOrder] =
+    useState<{ key: string; order: "asc" | "desc" }>();
+
   //#endregion
 
   return (
@@ -137,6 +123,313 @@ export const ProjectsList = ({
       >
         Ajouter un projet
       </Button>
+
+      <ProjectsListFilters
+        selectedStatuses={selectedStatuses}
+        setSelectedStatuses={setSelectedStatuses}
+        mb={5}
+      />
+
+      <ProjectsListOrder
+        selectedOrder={selectedOrder}
+        setSelectedOrder={setSelectedOrder}
+        mb={5}
+      />
+
+      <Grid data-cy="projectList" {...props}>
+        {orgQuery.isLoading || orgQuery.isFetching ? (
+          <Text>Chargement des projets...</Text>
+        ) : (
+          projects
+            .sort((a, b) => {
+              if (!selectedOrder) return 0;
+
+              if (selectedOrder.order === "asc") {
+                if (a.projectName < b.projectName) return -1;
+                if (a.projectName > b.projectName) return 1;
+              } else if (selectedOrder.order === "desc") {
+                if (a.projectName > b.projectName) return -1;
+                if (a.projectName < b.projectName) return 1;
+              }
+              return 0;
+            })
+            .map((orgProject, projectIndex) => {
+              const {
+                projectName,
+                projectDescription,
+                projectStatus,
+                createdBy,
+                createdAt
+              } = orgProject;
+
+              if (
+                hasItems(selectedStatuses) &&
+                !selectedStatuses.includes(projectStatus)
+              )
+                return null;
+
+              const projectCreatedByUserName =
+                typeof createdBy === "object"
+                  ? createdBy.userName || createdBy.email?.replace(/@.+/, "")
+                  : "";
+              const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt, true);
+              const isCurrent =
+                currentProject && orgProject._id === currentProject._id;
+              const isProjectCreator =
+                typeof createdBy === "object"
+                  ? createdBy._id === session?.user.userId
+                  : "";
+              const bgColor = isDark
+                ? projectIndex % 2 === 0
+                  ? "gray.600"
+                  : "gray.500"
+                : projectIndex % 2 === 0
+                ? "orange.200"
+                : "orange.100";
+
+              return (
+                <Box key={orgProject._id} mb={5}>
+                  <GridItem
+                    minWidth="100%"
+                    p={3}
+                    borderTopRadius="xl"
+                    // borderBottomRadius="xl"
+                    // borderTopRadius={projectIndex === 0 ? "lg" : undefined}
+                    borderBottomRadius={!isCurrent ? "xl" : undefined}
+                    light={{
+                      bg: bgColor,
+                      _hover: {
+                        bg: "orange.300"
+                      }
+                    }}
+                    dark={{
+                      bg: bgColor,
+                      _hover: {
+                        bg: "gray.400"
+                      }
+                    }}
+                  >
+                    <Link
+                      variant="no-underline"
+                      onClick={() =>
+                        setCurrentProject(isCurrent ? null : orgProject)
+                      }
+                      data-cy="project"
+                    >
+                      <Grid templateColumns="auto auto 1fr auto">
+                        <GridItem display="flex" alignItems="center" pr={3}>
+                          {currentProject && isCurrent ? (
+                            <ViewIcon boxSize={6} />
+                          ) : (
+                            <ViewOffIcon boxSize={6} />
+                          )}
+                        </GridItem>
+
+                        <GridItem display="flex" alignItems="center" pr={3}>
+                          <Tag
+                            variant="solid"
+                            colorScheme={
+                              projectStatus === Status.PENDING
+                                ? "red"
+                                : projectStatus === Status.ONGOING
+                                ? "orange"
+                                : "green"
+                            }
+                          >
+                            {StatusV[projectStatus]}
+                          </Tag>
+                        </GridItem>
+
+                        <GridItem>
+                          <Text fontWeight="bold">{projectName}</Text>
+                          <Box
+                            display="inline"
+                            fontSize="smaller"
+                            color={isDark ? "white" : "gray.600"}
+                          >
+                            {projectCreatedByUserName}
+                            <span aria-hidden> · </span>
+                            <Tooltip placement="bottom" label={fullDate}>
+                              <span>{timeAgo}</span>
+                            </Tooltip>
+                            <span aria-hidden> · </span>
+                            <ProjectItemVisibility
+                              projectVisibility={orgProject.projectVisibility}
+                            />
+                          </Box>
+                        </GridItem>
+
+                        {isProjectCreator && (
+                          <GridItem display="flex" alignItems="center">
+                            <Tooltip label="Modifier le projet">
+                              <IconButton
+                                aria-label="Modifier le projet"
+                                icon={<EditIcon />}
+                                bg="transparent"
+                                _hover={{ bg: "transparent", color: "green" }}
+                                height="auto"
+                                minWidth={0}
+                                onClick={() => {
+                                  setProjectModalState({
+                                    isOpen: true,
+                                    project: orgProject
+                                  });
+                                }}
+                              />
+                            </Tooltip>
+
+                            <Box aria-hidden mx={1}>
+                              ·
+                            </Box>
+
+                            <DeleteButton
+                              isIconOnly
+                              isLoading={isLoading[orgProject._id!]}
+                              placement="bottom"
+                              bg="transparent"
+                              height="auto"
+                              minWidth={0}
+                              _hover={{ color: "red" }}
+                              header={
+                                <>
+                                  Êtes vous sûr de vouloir supprimer le projet
+                                  <Text
+                                    display="inline"
+                                    color="red"
+                                    fontWeight="bold"
+                                  >
+                                    {` ${projectName}`}
+                                  </Text>{" "}
+                                  ?
+                                </>
+                              }
+                              onClick={async () => {
+                                setIsLoading({ [orgProject._id!]: true });
+                                try {
+                                  let deletedProject;
+
+                                  if (orgProject._id) {
+                                    deletedProject = await deleteProject(
+                                      orgProject._id
+                                    ).unwrap();
+                                  }
+
+                                  if (deletedProject) {
+                                    // subQuery.refetch();
+                                    orgQuery.refetch();
+
+                                    toast({
+                                      title: `${deletedProject.projectName} a bien été supprimé !`,
+                                      status: "success",
+                                      isClosable: true
+                                    });
+                                  }
+                                } catch (error: any) {
+                                  toast({
+                                    title: error.data
+                                      ? error.data.message
+                                      : error.message,
+                                    status: "error",
+                                    isClosable: true
+                                  });
+                                }
+                              }}
+                              data-cy="deleteTopic"
+                            />
+                          </GridItem>
+                        )}
+                      </Grid>
+                    </Link>
+                  </GridItem>
+
+                  {isCurrent && (
+                    <>
+                      <GridItem
+                        p={3}
+                        light={{ bg: "white" }}
+                        dark={{ bg: "gray.700" }}
+                      >
+                        {projectDescription ? (
+                          <Box className="ql-editor">
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(projectDescription)
+                              }}
+                            />
+                          </Box>
+                        ) : isProjectCreator ? (
+                          <Link
+                            onClick={() => {
+                              setProjectModalState({
+                                isOpen: true,
+                                project: orgProject
+                              });
+                            }}
+                            variant="underline"
+                          >
+                            Cliquez ici pour ajouter la description du projet.
+                          </Link>
+                        ) : (
+                          <Text fontStyle="italic">Aucune description.</Text>
+                        )}
+                      </GridItem>
+                      <GridItem
+                        light={{ bg: bgColor }}
+                        dark={{ bg: bgColor }}
+                        overflowX="auto"
+                        borderBottomRadius="xl"
+                      >
+                        {isProjectCreator ? (
+                          <Table>
+                            <Tbody>
+                              {Array.isArray(orgProject.projectNotified) &&
+                              orgProject.projectNotified.length > 0 ? (
+                                orgProject.projectNotified.map(
+                                  ({ email, status }) => (
+                                    <Tr>
+                                      <Td>{email}</Td>
+                                      <Td>
+                                        <Tag
+                                          variant="solid"
+                                          colorScheme={
+                                            status === StatusTypes.PENDING
+                                              ? "blue"
+                                              : status === StatusTypes.OK
+                                              ? "green"
+                                              : "red"
+                                          }
+                                        >
+                                          {StatusTypesV[status]}
+                                        </Tag>
+                                      </Td>
+                                    </Tr>
+                                  )
+                                )
+                              ) : (
+                                <Tr>
+                                  <Td>
+                                    <Text fontStyle="italic">
+                                      Personne n'a indiqué participer.
+                                    </Text>
+                                  </Td>
+                                </Tr>
+                              )}
+                            </Tbody>
+                          </Table>
+                        ) : (
+                          <ProjectAttendingForm
+                            project={orgProject}
+                            orgQuery={orgQuery}
+                          />
+                        )}
+                      </GridItem>
+                    </>
+                  )}
+                </Box>
+              );
+            })
+        )}
+      </Grid>
 
       {projectModalState.isOpen && session && (
         <ProjectModal
@@ -172,281 +465,6 @@ export const ProjectsList = ({
           }
         />
       )}
-
-      <Grid data-cy="projectList" {...props}>
-        {orgQuery.isLoading || orgQuery.isFetching ? (
-          <Text>Chargement des projets...</Text>
-        ) : (
-          org.orgProjects.map((orgProject, projectIndex) => {
-            const {
-              projectName,
-              projectDescription,
-              projectStatus,
-              createdBy,
-              createdAt
-            } = orgProject;
-            const projectCreatedByUserName =
-              typeof createdBy === "object"
-                ? createdBy.userName || createdBy.email?.replace(/@.+/, "")
-                : "";
-            const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt, true);
-            const isCurrent =
-              currentProject && orgProject._id === currentProject._id;
-            const isProjectCreator =
-              typeof createdBy === "object"
-                ? createdBy._id === session?.user.userId
-                : "";
-            const bgColor = isDark
-              ? projectIndex % 2 === 0
-                ? "gray.600"
-                : "gray.500"
-              : projectIndex % 2 === 0
-              ? "orange.200"
-              : "orange.100";
-
-            return (
-              <Box key={orgProject._id} mb={5}>
-                <GridItem
-                  minWidth="100%"
-                  p={3}
-                  borderTopRadius="xl"
-                  // borderBottomRadius="xl"
-                  // borderTopRadius={projectIndex === 0 ? "lg" : undefined}
-                  borderBottomRadius={!isCurrent ? "xl" : undefined}
-                  light={{
-                    bg: bgColor,
-                    _hover: {
-                      bg: "orange.300"
-                    }
-                  }}
-                  dark={{
-                    bg: bgColor,
-                    _hover: {
-                      bg: "gray.400"
-                    }
-                  }}
-                >
-                  <Link
-                    variant="no-underline"
-                    onClick={() =>
-                      setCurrentProject(isCurrent ? null : orgProject)
-                    }
-                    data-cy="project"
-                  >
-                    <Grid templateColumns="auto auto 1fr auto">
-                      <GridItem display="flex" alignItems="center" pr={3}>
-                        {currentProject && isCurrent ? (
-                          <ViewIcon boxSize={6} />
-                        ) : (
-                          <ViewOffIcon boxSize={6} />
-                        )}
-                      </GridItem>
-
-                      <GridItem display="flex" alignItems="center" pr={3}>
-                        <Tag
-                          variant="solid"
-                          colorScheme={
-                            projectStatus === Status.PENDING
-                              ? "red"
-                              : projectStatus === Status.ONGOING
-                              ? "orange"
-                              : "green"
-                          }
-                        >
-                          {StatusV[projectStatus]}
-                        </Tag>
-                      </GridItem>
-
-                      <GridItem>
-                        <Text fontWeight="bold">{projectName}</Text>
-                        <Box
-                          display="inline"
-                          fontSize="smaller"
-                          color={isDark ? "white" : "gray.600"}
-                        >
-                          {projectCreatedByUserName}
-                          <span aria-hidden> · </span>
-                          <Tooltip placement="bottom" label={fullDate}>
-                            <span>{timeAgo}</span>
-                          </Tooltip>
-                          <span aria-hidden> · </span>
-                          <ProjectVisibility
-                            projectVisibility={orgProject.projectVisibility}
-                          />
-                        </Box>
-                      </GridItem>
-
-                      {isProjectCreator && (
-                        <GridItem display="flex" alignItems="center">
-                          <Tooltip label="Modifier le projet">
-                            <IconButton
-                              aria-label="Modifier le projet"
-                              icon={<EditIcon />}
-                              bg="transparent"
-                              _hover={{ bg: "transparent", color: "green" }}
-                              height="auto"
-                              minWidth={0}
-                              onClick={() => {
-                                setProjectModalState({
-                                  isOpen: true,
-                                  project: orgProject
-                                });
-                              }}
-                            />
-                          </Tooltip>
-
-                          <Box aria-hidden mx={1}>
-                            ·
-                          </Box>
-
-                          <DeleteButton
-                            isIconOnly
-                            isLoading={isLoading[orgProject._id!]}
-                            placement="bottom"
-                            bg="transparent"
-                            height="auto"
-                            minWidth={0}
-                            _hover={{ color: "red" }}
-                            header={
-                              <>
-                                Êtes vous sûr de vouloir supprimer le projet
-                                <Text
-                                  display="inline"
-                                  color="red"
-                                  fontWeight="bold"
-                                >
-                                  {` ${projectName}`}
-                                </Text>{" "}
-                                ?
-                              </>
-                            }
-                            onClick={async () => {
-                              setIsLoading({ [orgProject._id!]: true });
-                              try {
-                                let deletedProject;
-
-                                if (orgProject._id) {
-                                  deletedProject = await deleteProject(
-                                    orgProject._id
-                                  ).unwrap();
-                                }
-
-                                if (deletedProject) {
-                                  // subQuery.refetch();
-                                  orgQuery.refetch();
-
-                                  toast({
-                                    title: `${deletedProject.projectName} a bien été supprimé !`,
-                                    status: "success",
-                                    isClosable: true
-                                  });
-                                }
-                              } catch (error: any) {
-                                toast({
-                                  title: error.data
-                                    ? error.data.message
-                                    : error.message,
-                                  status: "error",
-                                  isClosable: true
-                                });
-                              }
-                            }}
-                            data-cy="deleteTopic"
-                          />
-                        </GridItem>
-                      )}
-                    </Grid>
-                  </Link>
-                </GridItem>
-
-                {isCurrent && (
-                  <>
-                    <GridItem
-                      p={3}
-                      light={{ bg: "white" }}
-                      dark={{ bg: "gray.700" }}
-                    >
-                      {projectDescription ? (
-                        <Box className="ql-editor">
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: DOMPurify.sanitize(projectDescription)
-                            }}
-                          />
-                        </Box>
-                      ) : isProjectCreator ? (
-                        <Link
-                          onClick={() => {
-                            setProjectModalState({
-                              isOpen: true,
-                              project: orgProject
-                            });
-                          }}
-                          variant="underline"
-                        >
-                          Cliquez ici pour ajouter la description du projet.
-                        </Link>
-                      ) : (
-                        <Text fontStyle="italic">Aucune description.</Text>
-                      )}
-                    </GridItem>
-                    <GridItem
-                      light={{ bg: bgColor }}
-                      dark={{ bg: bgColor }}
-                      overflowX="auto"
-                      borderBottomRadius="xl"
-                    >
-                      {isProjectCreator ? (
-                        <Table>
-                          <Tbody>
-                            {Array.isArray(orgProject.projectNotified) &&
-                            orgProject.projectNotified.length > 0 ? (
-                              orgProject.projectNotified.map(
-                                ({ email, status }) => (
-                                  <Tr>
-                                    <Td>{email}</Td>
-                                    <Td>
-                                      <Tag
-                                        variant="solid"
-                                        colorScheme={
-                                          status === StatusTypes.PENDING
-                                            ? "blue"
-                                            : status === StatusTypes.OK
-                                            ? "green"
-                                            : "red"
-                                        }
-                                      >
-                                        {StatusTypesV[status]}
-                                      </Tag>
-                                    </Td>
-                                  </Tr>
-                                )
-                              )
-                            ) : (
-                              <Tr>
-                                <Td>
-                                  <Text fontStyle="italic">
-                                    Personne n'a indiqué participer.
-                                  </Text>
-                                </Td>
-                              </Tr>
-                            )}
-                          </Tbody>
-                        </Table>
-                      ) : (
-                        <ProjectAttendingForm
-                          project={orgProject}
-                          orgQuery={orgQuery}
-                        />
-                      )}
-                    </GridItem>
-                  </>
-                )}
-              </Box>
-            );
-          })
-        )}
-      </Grid>
     </>
   );
 };

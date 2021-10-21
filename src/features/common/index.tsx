@@ -12,6 +12,7 @@ export * from "./Container";
 export * from "./DarkModeSwitch";
 export * from "./DateRange";
 export * from "./DeleteButton";
+export * from "./DidYouKnow";
 export * from "./ErrorMessageText";
 export * from "./Grid";
 export * from "./GridHeader";

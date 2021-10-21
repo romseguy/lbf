@@ -23,6 +23,9 @@ export const EventsListToggle = ({
   showNextEvents: boolean;
   setShowNextEvents: (show: boolean) => void;
 }) => {
+  if (!previousEvents.length && !currentEvents.length && !nextEvents.length)
+    return null;
+
   return (
     <Flex flexDirection="row" flexWrap="wrap" mt={-3} {...props}>
       <Box flexGrow={1} mt={3}>

@@ -124,7 +124,6 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
       notifiedCount = eventNotified.length;
     }
   }
-  //#endregion
 
   const onSubmit = async () => {
     const { emailList } = await postNotif({
@@ -149,6 +148,7 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
       entity: null
     });
   };
+  //#endregion
 
   return (
     <Modal
@@ -186,7 +186,7 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
                         typeof subscription.user === "object"
                           ? subscription.user.email || ""
                           : subscription.email || "";
-                      const p = subscription.phone;
+                      const p = subscription.phone || null;
 
                       if (
                         (isEvent(entity) &&
@@ -195,12 +195,13 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
                           )) ||
                         (isTopic(entity) &&
                           topicNotified.find(({ email }) => email === e))
-                      )
+                      ) {
                         return {
                           email: e,
                           phone: p,
                           status: StatusTypes.PENDING
                         };
+                      }
 
                       return { email: e, phone: p, status: StatusTypes.NOK };
                     })

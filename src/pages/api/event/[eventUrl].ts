@@ -8,7 +8,11 @@ import { toDateRange } from "features/common";
 import { getSession } from "hooks/useAuth";
 import { IEvent, StatusTypes } from "models/Event";
 import { hasItems } from "utils/array";
-import { createEventNotifEmail, sendEventToOrgFollowers } from "utils/email";
+import {
+  createEventEmailNotif,
+  sendEventToOrgFollowers,
+  sendEventEmailNotifToOrgFollowers
+} from "utils/email";
 import { createServerError } from "utils/errors";
 import { equals, normalize } from "utils/string";
 
@@ -206,7 +210,7 @@ handler.post<
         });
 
         if (body.email && org) {
-          const mail = createEventNotifEmail({
+          const mail = createEventEmailNotif({
             email: body.email,
             event,
             org,
@@ -214,29 +218,32 @@ handler.post<
             isPreview: true
           });
 
-          if (process.env.NODE_ENV === "production")
-            await transport.sendMail(mail);
+          //if (process.env.NODE_ENV === "production")
+          await transport.sendMail(mail);
 
-          emailList.push(body.email);
+          if (body.email !== session.user.email) {
+            emailList.push(body.email);
 
-          const newEntries = emailList.map((email) => ({
-            email,
-            status: StatusTypes.PENDING
-          }));
+            const newEntries = emailList.map((email) => ({
+              email,
+              status: StatusTypes.PENDING
+            }));
 
-          if (!event.eventNotified) {
-            event.eventNotified = newEntries;
-          } else if (
-            !event.eventNotified.find(({ email }) => email === body.email)
-          ) {
-            event.eventNotified = event.eventNotified.concat(newEntries);
+            if (!event.eventNotified) {
+              event.eventNotified = newEntries;
+            } else if (
+              !event.eventNotified.find(({ email }) => email === body.email)
+            ) {
+              event.eventNotified = event.eventNotified.concat(newEntries);
+            }
+
+            await event.save();
           }
 
-          await event.save();
           console.log(`sent event email notif to target ${body.email}`, mail);
         }
       } else {
-        emailList = await sendEventToOrgFollowers(
+        emailList = await sendEventEmailNotifToOrgFollowers(
           event,
           body.orgIds,
           transport

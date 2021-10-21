@@ -5,7 +5,7 @@ import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgsList } from "features/orgs/OrgsList";
 import { useEffect } from "react";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import { FaMapMarkerAlt, FaRegMap } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
 const OrgsPage = (props: any) => {
@@ -26,7 +26,7 @@ const OrgsPage = (props: any) => {
       <Button
         colorScheme="teal"
         isDisabled={!orgsQuery.data || !orgsQuery.data.length}
-        leftIcon={<FaMapMarkerAlt />}
+        leftIcon={<FaRegMap />}
         onClick={openMapModal}
         mb={3}
       >

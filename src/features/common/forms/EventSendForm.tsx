@@ -67,7 +67,6 @@ export const EventSendForm = ({
   } = useForm({
     mode: "onChange"
   });
-  //#endregion
 
   const onSubmit = async (form: { email?: string; orgIds: any }) => {
     console.log("submitted", form);
@@ -119,6 +118,7 @@ export const EventSendForm = ({
       setIsLoading(false);
     }
   };
+  //#endregion
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

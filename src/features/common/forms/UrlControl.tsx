@@ -142,17 +142,24 @@ export const UrlControl = ({
                   ...formRules
                 })}
               />
-              {index > 0 && (
-                <InputRightAddon
-                  children={
-                    <IconButton
-                      aria-label={`Supprimer la ${index + 1}ème adresse e-mail`}
-                      icon={<DeleteIcon />}
-                      onClick={() => remove(index)}
-                    />
-                  }
-                />
-              )}
+              <InputRightAddon
+                p={0}
+                children={
+                  <IconButton
+                    aria-label={`Supprimer la ${
+                      index + 1
+                    }ème adresse de site internet`}
+                    icon={<DeleteIcon />}
+                    bg="transparent"
+                    _hover={{ bg: "transparent", color: "red" }}
+                    onClick={() => {
+                      remove(index);
+
+                      if (fields.length === 1) setValue(name, null);
+                    }}
+                  />
+                }
+              />
             </InputGroup>
             <FormErrorMessage>
               <ErrorMessage errors={errors} name={`${name}[${index}].url`} />

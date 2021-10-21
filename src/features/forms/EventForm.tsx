@@ -228,8 +228,6 @@ export const EventForm = withGoogleApi({
     (props.event && parseISO(props.event.eventMaxDate)) || null;
   const eventMinDate: Date | null = watch("eventMinDate");
   const eventMaxDate: Date | null = watch("eventMaxDate");
-  console.log("eventMinDate", eventMinDate);
-  console.log("eventMaxDate", eventMaxDate);
 
   const eventMinDuration = 1;
   const start = eventMinDate || eventMinDefaultDate;
@@ -350,7 +348,7 @@ export const EventForm = withGoogleApi({
   //#endregion
 
   const onChange = () => {
-    clearErrors("formErrorMessage");
+    clearErrors();
   };
 
   const onSubmit = async (form: IEvent) => {
@@ -389,15 +387,10 @@ export const EventForm = withGoogleApi({
           ? ""
           : form.eventDescription?.replace(/\&nbsp;/g, " "),
       eventEmail:
-        Array.isArray(eventEmail) && eventEmail.length > 0
-          ? eventEmail
-          : undefined,
+        Array.isArray(eventEmail) && eventEmail.length > 0 ? eventEmail : [],
       eventPhone:
-        Array.isArray(eventPhone) && eventPhone.length > 0
-          ? eventPhone
-          : undefined,
-      eventWeb:
-        Array.isArray(eventWeb) && eventWeb.length > 0 ? eventWeb : undefined,
+        Array.isArray(eventPhone) && eventPhone.length > 0 ? eventPhone : [],
+      eventWeb: Array.isArray(eventWeb) && eventWeb.length > 0 ? eventWeb : [],
       otherDays
     };
 
@@ -832,6 +825,7 @@ export const EventForm = withGoogleApi({
         register={register}
         control={control}
         errors={errors}
+        setValue={setValue}
         placeholder="Adresse e-mail de l'événement"
       />
 
@@ -840,6 +834,7 @@ export const EventForm = withGoogleApi({
         register={register}
         control={control}
         errors={errors}
+        setValue={setValue}
         placeholder="Numéro de téléphone de l'événement"
       />
 
@@ -847,8 +842,8 @@ export const EventForm = withGoogleApi({
         name="eventWeb"
         register={register}
         control={control}
-        setValue={setValue}
         errors={errors}
+        setValue={setValue}
         placeholder="Site internet de l'événement"
       />
 

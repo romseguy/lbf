@@ -12,7 +12,12 @@ export const databaseErrorCodes = {
 export const duplicateError: Error & { code?: number } = new Error();
 duplicateError.code = databaseErrorCodes.DUPLICATE_KEY;
 
-export const databaseErrorMessages: { [key: number]: any } = {};
+export const databaseErrorMessages: { [key: number]: any } = {
+  [databaseErrorCodes.DUPLICATE_KEY]: {
+    orgUrl: "Ce nom d'organisation n'est pas disponible",
+    eventUrl: "Ce nom d'événement n'est pas disponible"
+  }
+};
 
 /**
  * @param {Error} error
@@ -42,7 +47,11 @@ export const createServerError = (error: any) => {
   if (error.name === "ValidationError") return createValidationError(error);
 
   if (error.code && databaseErrorMessages[error.code]) {
-    return new Error(databaseErrorMessages[error.code]);
+    return {
+      message:
+        databaseErrorMessages[error.code][Object.keys(error.keyPattern)[0]] +
+        "."
+    };
   }
 
   return { message: error.message + "." };

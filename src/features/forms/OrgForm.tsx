@@ -128,11 +128,9 @@ export const OrgForm = withGoogleApi({
         form.orgDescription === "<p><br></p>"
           ? ""
           : form.orgDescription?.replace(/\&nbsp;/g, " "),
-      orgEmail:
-        Array.isArray(orgEmail) && orgEmail.length > 0 ? orgEmail : undefined,
-      orgPhone:
-        Array.isArray(orgPhone) && orgPhone.length > 0 ? orgPhone : undefined,
-      orgWeb: Array.isArray(orgWeb) && orgWeb.length > 0 ? orgWeb : undefined
+      orgEmail: Array.isArray(orgEmail) && orgEmail.length > 0 ? orgEmail : [],
+      orgPhone: Array.isArray(orgPhone) && orgPhone.length > 0 ? orgPhone : [],
+      orgWeb: Array.isArray(orgWeb) && orgWeb.length > 0 ? orgWeb : []
     };
 
     try {
@@ -277,6 +275,7 @@ export const OrgForm = withGoogleApi({
         register={register}
         control={control}
         errors={errors}
+        setValue={setValue}
         placeholder={`Adresse e-mail ${orgType}`}
       />
 
@@ -285,6 +284,7 @@ export const OrgForm = withGoogleApi({
         register={register}
         control={control}
         errors={errors}
+        setValue={setValue}
         placeholder={`Numéro de téléphone ${orgType}`}
       />
 

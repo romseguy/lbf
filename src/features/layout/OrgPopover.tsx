@@ -39,6 +39,10 @@ import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import { Session } from "next-auth";
 
+let cachedRefetchOrgs = false;
+let cachedRefetchSubscription = false;
+let cachedEmail: string | undefined;
+
 export const OrgPopover = ({
   boxSize,
   session,
@@ -51,6 +55,14 @@ export const OrgPopover = ({
 
   //#region myOrgs
   const orgsQuery = useGetOrgsQuery({});
+  const refetchOrgs = useSelector(selectOrgsRefetch);
+  useEffect(() => {
+    if (refetchOrgs !== cachedRefetchOrgs) {
+      cachedRefetchOrgs = refetchOrgs;
+      console.log("refetching orgs");
+      orgsQuery.refetch();
+    }
+  }, [refetchOrgs]);
   const myOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&
@@ -58,20 +70,25 @@ export const OrgPopover = ({
         (org) => session?.user.userId === org?.createdBy
       )) ||
     [];
-  const refetchOrgs = useSelector(selectOrgsRefetch);
-  useEffect(() => {
-    orgsQuery.refetch();
-  }, [refetchOrgs]);
   const hasOrgs = Array.isArray(myOrgs) && myOrgs.length > 0;
   //#endregion
 
   //#region sub
   const subQuery = useGetSubscriptionQuery(userEmail);
-  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
-    console.log("refetching subscription");
-    subQuery.refetch();
-  }, [subscriptionRefetch, userEmail]);
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      console.log("refetching subscription");
+      subQuery.refetch();
+    }
+  }, [refetchSubscription]);
+  useEffect(() => {
+    if (userEmail !== cachedEmail) {
+      cachedEmail = userEmail;
+      console.log("refetching subscription with new email", userEmail);
+      subQuery.refetch();
+    }
+  }, [userEmail]);
 
   const subscribedOrgs =
     (Array.isArray(orgsQuery.data) &&

@@ -71,6 +71,10 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
+let cachedRefetchEvent = false;
+let cachedRefetchSubscription = false;
+let cachedEmail: string | undefined;
+
 export const EventPage = ({ ...props }: { event: IEvent }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
@@ -88,12 +92,25 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   );
   const event = eventQuery.data || props.event;
   const refetchEvent = useSelector(selectEventRefetch);
-
   useEffect(() => {
-    console.log("refetching event");
+    if (refetchEvent !== cachedRefetchEvent) {
+      cachedRefetchEvent = refetchEvent;
+      console.log("refetching event");
+      eventQuery.refetch();
+    }
+  }, [refetchEvent]);
+  useEffect(() => {
+    if (userEmail !== cachedEmail) {
+      cachedEmail = userEmail;
+      console.log("refetching event with new email", userEmail);
+      eventQuery.refetch();
+    }
+  }, [userEmail]);
+  useEffect(() => {
+    console.log("refetching event with new route", router.asPath);
     eventQuery.refetch();
     setIsEdit(false);
-  }, [router.asPath, refetchEvent]);
+  }, [router.asPath]);
 
   const eventCreatedByUserName =
     event.createdBy && typeof event.createdBy === "object"
@@ -111,11 +128,21 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   const [addSubscription, addSubscriptionMutation] =
     useAddSubscriptionMutation();
   const subQuery = useGetSubscriptionQuery(userEmail);
-  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
-    console.log("refetching subscription");
-    subQuery.refetch();
-  }, [subscriptionRefetch, userEmail]);
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      cachedRefetchSubscription = refetchSubscription;
+      console.log("refetching subscription");
+      subQuery.refetch();
+    }
+  }, [refetchSubscription]);
+  useEffect(() => {
+    if (userEmail !== cachedEmail) {
+      cachedEmail = userEmail;
+      console.log("refetching subscription with new email", userEmail);
+      subQuery.refetch();
+    }
+  }, [userEmail]);
 
   const isFollowed = isFollowedBy({ event, subQuery });
   const isSubscribedToAtLeastOneOrg =
@@ -398,7 +425,12 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                             {event.eventEmail?.map(({ email }, index) => (
                               <Flex key={`phone-${index}`} alignItems="center">
                                 <AtSignIcon mr={3} />
-                                <a href={`mailto:${email}`}>{email}</a>
+                                <Link
+                                  variant="underline"
+                                  href={`mailto:${email}`}
+                                >
+                                  {email}
+                                </Link>
                               </Flex>
                             ))}
                           </Flex>
@@ -409,7 +441,15 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
                             {event.eventPhone?.map(({ phone }, index) => (
                               <Flex key={`phone-${index}`} alignItems="center">
                                 <PhoneIcon mr={3} />
-                                {phone}
+                                <Link
+                                  variant="underline"
+                                  href={`tel:+33${phone.substr(
+                                    1,
+                                    phone.length
+                                  )}`}
+                                >
+                                  {phone}
+                                </Link>
                               </Flex>
                             ))}
                           </Flex>

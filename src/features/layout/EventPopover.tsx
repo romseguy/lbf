@@ -40,6 +40,10 @@ import { IEvent } from "models/Event";
 import { hasItems } from "utils/array";
 import { Session } from "next-auth";
 
+let cachedRefetchEvents = false;
+let cachedRefetchSubscription = false;
+let cachedEmail: string | undefined;
+
 export const EventPopover = ({
   boxSize,
   session,
@@ -54,17 +58,31 @@ export const EventPopover = ({
   const eventsQuery = useGetEventsQuery({ userId: session.user.userId });
   const refetchEvents = useSelector(selectEventsRefetch);
   useEffect(() => {
-    eventsQuery.refetch();
+    if (refetchEvents !== cachedRefetchEvents) {
+      cachedRefetchEvents = refetchEvents;
+      console.log("refetching events");
+      eventsQuery.refetch();
+    }
   }, [refetchEvents]);
   //#endregion
 
   //#region sub
   const subQuery = useGetSubscriptionQuery(userEmail);
-  const subscriptionRefetch = useSelector(selectSubscriptionRefetch);
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
-    console.log("refetching subscription");
-    subQuery.refetch();
-  }, [subscriptionRefetch, userEmail]);
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      cachedRefetchSubscription = refetchSubscription;
+      console.log("refetching subscription");
+      subQuery.refetch();
+    }
+  }, [refetchSubscription]);
+  useEffect(() => {
+    if (userEmail !== cachedEmail) {
+      cachedEmail = userEmail;
+      console.log("refetching subscription with new email", userEmail);
+      subQuery.refetch();
+    }
+  }, [userEmail]);
   const subscribedEvents = subQuery.data?.events || [];
   const hasSubscribedEvents = hasItems(subscribedEvents);
   //#endregion

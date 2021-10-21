@@ -7,4 +7,4 @@ export * from "./Footer";
 export * from "./Nav";
 export * from "./EventPopover";
 export * from "./OrgPopover";
-export * from "./EmailSubscriptionsPopover";
+export * from "./EmailLoginPopover";

@@ -27,6 +27,7 @@ export const EmailControl = ({
   noLabel,
   control,
   register,
+  setValue,
   isRequired = false,
   isMultiple = true,
   onRightElementClick,
@@ -37,8 +38,9 @@ export const EmailControl = ({
   name: string;
   label?: string;
   noLabel?: boolean;
-  control: any;
+  control?: any;
   register: any;
+  setValue?: any;
   isRequired?: boolean;
   isMultiple?: boolean;
   placeholder?: string;
@@ -137,17 +139,22 @@ export const EmailControl = ({
                   ...formRules
                 })}
               />
-              {index > 0 && (
-                <InputRightAddon
-                  children={
-                    <IconButton
-                      aria-label={`Supprimer la ${index + 1}ème adresse e-mail`}
-                      icon={<DeleteIcon />}
-                      onClick={() => remove(index)}
-                    />
-                  }
-                />
-              )}
+              <InputRightAddon
+                p={0}
+                children={
+                  <IconButton
+                    aria-label={`Supprimer la ${index + 1}ème adresse e-mail`}
+                    icon={<DeleteIcon />}
+                    bg="transparent"
+                    _hover={{ bg: "transparent", color: "red" }}
+                    onClick={() => {
+                      remove(index);
+
+                      if (fields.length === 1) setValue(name, null);
+                    }}
+                  />
+                }
+              />
             </InputGroup>
             <FormErrorMessage>
               <ErrorMessage errors={errors} name={`${name}[${index}].email`} />
