@@ -88,11 +88,6 @@ export const RTEditor = ({
           return;
         }
 
-        // const range = quill.getSelection();
-        // const blob = window.URL.createObjectURL(file);
-        // quill.insertEmbed(range.index, "image", blob);
-        // tempImages.push({ blob, file });
-
         const data = new FormData();
         data.append("file", file);
 
@@ -100,15 +95,7 @@ export const RTEditor = ({
         else if (org) data.append("orgId", org._id);
         else if (session) data.append("userId", session.user.userId);
 
-        const mutation = await axios.post(
-          process.env.NEXT_PUBLIC_API2,
-          data /*{
-          onUploadProgress: (ProgressEvent) => {
-            console.log(ProgressEvent);
-            setLoaded((ProgressEvent.loaded / ProgressEvent.total) * 100);
-          }
-        }*/
-        );
+        const mutation = await axios.post(process.env.NEXT_PUBLIC_API2, data);
 
         let url = `${process.env.NEXT_PUBLIC_API2}/view?fileName=${mutation.data.file}`;
 
@@ -117,10 +104,6 @@ export const RTEditor = ({
         else if (session) url += `&userId=${session.user.userId}`;
 
         return url;
-        // if (mutation.data) {
-        //   const range = quill.getSelection();
-        //   quill.insertEmbed(range.index, "image", url);
-        // }
       }
     },
     toolbar: {
@@ -187,13 +170,13 @@ export const RTEditor = ({
       </svg>`;
 
     const AutoLinks = require("quill-auto-links").default; // or quill-magic-url
-    Quill.register("modules/autoLinks", AutoLinks);
+    Quill.register("modules/autoLinks", AutoLinks, true);
 
     // const ImageCompress = require("quill-image-compress").default;
     // Quill.register("modules/imageCompress", ImageCompress);
 
     const ImageUploader = require("utils/quill.imageUploader").default;
-    Quill.register("modules/imageUploader", ImageUploader);
+    Quill.register("modules/imageUploader", ImageUploader, true);
   }
 
   useEffect(() => {

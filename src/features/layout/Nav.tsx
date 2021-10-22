@@ -15,6 +15,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { Session } from "next-auth";
 import { signOut } from "next-auth/client";
 import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
@@ -74,44 +75,37 @@ const buttonList = css`
 export const Nav = ({
   isLogin = 0,
   ...props
-}: BoxProps & { isLogin?: number }) => {
+}: BoxProps & { isLogin?: number; session?: Session | null }) => {
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data, loading: isSessionLoading } = useSession();
+  const session = data || props.session;
+  const userName = session?.user.userName || "";
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
 
-  const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
-  const userName = session?.user.userName || "";
-
-  const [editUser, editUserMutation] = useEditUserMutation();
-  const userQuery = useGetUserQuery(userEmail);
-
+  //#region login modal
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
     router.asPath === "/?login" || false
   );
-
-  const styles = css`
-    height: auto !important;
-    ${isDark
-      ? tw`h-24 bg-gradient-to-b from-gray-800 via-green-600 to-gray-800`
-      : tw`h-24 bg-gradient-to-b from-white via-yellow-400 to-white`}
-  `;
-
   useEffect(() => {
     if (isLogin !== 0) {
       setIsLoginModalOpen(true);
     }
   }, [isLogin]);
+  //#endregion
 
+  //#region push subscriptions
+  const [editUser, editUserMutation] = useEditUserMutation();
+  const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
+  const userQuery = useGetUserQuery(userEmail);
   const [registration, setRegistration] =
     useState<ServiceWorkerRegistration | null>(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscription, setSubscription] = useState<PushSubscription | null>(
     null
   );
-
   useEffect(() => {
     if (
       !isServer() &&
@@ -139,12 +133,20 @@ export const Nav = ({
       });
     }
   }, []);
+  //#endregion
+
+  const styles = css`
+    height: auto !important;
+    ${isDark
+      ? tw`h-24 bg-gradient-to-b from-gray-800 via-green-600 to-gray-800`
+      : tw`h-24 bg-gradient-to-b from-white via-yellow-400 to-white`}
+  `;
 
   return (
     <Flex
       as="nav"
       align="center"
-      justify="space-between"
+      justifyContent="space-between"
       wrap="nowrap"
       {...props}
       css={styles}
@@ -185,184 +187,176 @@ export const Nav = ({
         </Button>
       </Box>
 
-      {session ? (
-        <Flex justify="flex-end" css={buttonList}>
-          <EventPopover boxSize={[6, 8, 8]} session={session} />
-          <OrgPopover boxSize={[8, 10, 12]} session={session} />
-          <Menu>
-            <MenuButton mr={[1, 3]}>
-              <Avatar
-                boxSize={10}
-                name={userName}
-                css={css`
-                  // &:focus {
-                  //   box-shadow: var(--chakra-shadows-outline);
-                  // }
-                `}
-                src={
-                  session.user.userImage
-                    ? session.user.userImage.base64
-                    : undefined
-                }
-              />
-            </MenuButton>
+      <Flex justifyContent="flex-end" css={buttonList}>
+        {session ? (
+          <>
+            <EventPopover boxSize={[6, 8, 8]} session={session} />
+            <OrgPopover boxSize={[8, 10, 12]} session={session} />
+            <Menu>
+              <MenuButton mr={[1, 3]}>
+                <Avatar
+                  boxSize={10}
+                  name={userName}
+                  css={css`
+                    // &:focus {
+                    //   box-shadow: var(--chakra-shadows-outline);
+                    // }
+                  `}
+                  src={
+                    session.user.userImage
+                      ? session.user.userImage.base64
+                      : undefined
+                  }
+                />
+              </MenuButton>
 
-            <MenuList mr={[1, 3]}>
-              <MenuItem
-                aria-hidden
-                command={`${userEmail}`}
-                cursor="default"
-                _hover={{ bg: isDark ? "gray.700" : "white" }}
-              />
-
-              {process.env.NODE_ENV === "development" && (
+              <MenuList mr={[1, 3]}>
                 <MenuItem
                   aria-hidden
-                  command={`${session.user.userId}`}
+                  command={`${userEmail}`}
                   cursor="default"
                   _hover={{ bg: isDark ? "gray.700" : "white" }}
                 />
-              )}
 
-              <Link href={`/${userName}`} aria-hidden>
-                <MenuItem>Ma page</MenuItem>
-              </Link>
-
-              {
-                /*isMobile*/ true && (
+                {process.env.NODE_ENV === "development" && (
                   <MenuItem
-                    isDisabled={
-                      registration === null ||
-                      userQuery.isLoading ||
-                      userQuery.isFetching
-                    }
-                    onClick={async () => {
-                      try {
-                        if (isSubscribed && userQuery.data?.userSubscription) {
-                          if (!subscription)
-                            throw new Error("Une erreur est survenue.");
+                    aria-hidden
+                    command={`${session.user.userId}`}
+                    cursor="default"
+                    _hover={{ bg: isDark ? "gray.700" : "white" }}
+                  />
+                )}
 
-                          await subscription.unsubscribe();
-                          await editUser({
-                            payload: { userSubscription: null },
-                            userName
-                          });
-                          setSubscription(null);
-                          setIsSubscribed(false);
+                <Link href={`/${userName}`} aria-hidden>
+                  <MenuItem>Ma page</MenuItem>
+                </Link>
 
-                          userQuery.refetch();
-
-                          toast({
-                            status: "success",
-                            title:
-                              "Vous ne recevrez plus de notifications mobile"
-                          });
-                        } else {
-                          const sub = await registration!.pushManager.subscribe(
-                            {
-                              userVisibleOnly: true,
-                              applicationServerKey: base64ToUint8Array(
-                                process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
-                              )
-                            }
-                          );
-                          setSubscription(sub);
-                          setIsSubscribed(true);
-
-                          await editUser({
-                            payload: { userSubscription: sub },
-                            userName
-                          }).unwrap();
-
-                          userQuery.refetch();
-
-                          toast({
-                            status: "success",
-                            title:
-                              "Vous recevrez des notifications mobile en plus des e-mails"
-                          });
-                        }
-                      } catch (error: any) {
-                        toast({ status: "error", title: error.message });
+                {
+                  /*isMobile*/ true && (
+                    <MenuItem
+                      isDisabled={
+                        registration === null ||
+                        userQuery.isLoading ||
+                        userQuery.isFetching
                       }
-                    }}
-                  >
-                    {isSubscribed && userQuery.data?.userSubscription
-                      ? "Désactiver"
-                      : "Activer"}{" "}
-                    les notifications mobile
-                  </MenuItem>
-                )
-              }
+                      onClick={async () => {
+                        try {
+                          if (
+                            isSubscribed &&
+                            userQuery.data?.userSubscription
+                          ) {
+                            if (!subscription)
+                              throw new Error("Une erreur est survenue.");
 
-              {/* 
-              <NextLink href="/settings" passHref>
-                <MenuItem as={ChakraLink}>Paramètres</MenuItem>
-              </NextLink>
-              */}
+                            await subscription.unsubscribe();
+                            await editUser({
+                              payload: { userSubscription: null },
+                              userName
+                            });
+                            setSubscription(null);
+                            setIsSubscribed(false);
 
-              <MenuItem
-                onClick={async () => {
-                  const { url } = await signOut({
-                    redirect: false,
-                    callbackUrl: "/"
-                  });
-                  dispatch(setUserEmail(null));
-                  dispatch(setSession(null));
+                            userQuery.refetch();
 
-                  if (process.env.NODE_ENV === "production") router.push(url);
-                  else {
-                    dispatch(refetchSubscription());
-                  }
-                }}
-              >
-                Déconnexion
-              </MenuItem>
-            </MenuList>
-          </Menu>
+                            toast({
+                              status: "success",
+                              title:
+                                "Vous ne recevrez plus de notifications mobile"
+                            });
+                          } else {
+                            const sub =
+                              await registration!.pushManager.subscribe({
+                                userVisibleOnly: true,
+                                applicationServerKey: base64ToUint8Array(
+                                  process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
+                                )
+                              });
+                            setSubscription(sub);
+                            setIsSubscribed(true);
 
-          {/* <Menu>
-            <MenuButton mr={3} onClick={() => console.log("yoyo")}>
-              <Icon as={QuestionIcon} w="48px" h="48px" />
-            </MenuButton>
-          </Menu> */}
-        </Flex>
-      ) : (
-        <Flex justify="flex-end">
-          <EmailLoginPopover boxSize={[8, 10, 10]} />
+                            await editUser({
+                              payload: { userSubscription: sub },
+                              userName
+                            }).unwrap();
 
-          {isMobile ? (
-            <IconButton
-              aria-label="Connexion"
-              icon={<Icon as={FaPowerOff} boxSize={[8, 10, 10]} />}
-              isLoading={isSessionLoading}
-              bg="transparent"
-              _hover={{ bg: "transparent" }}
-              mx={3}
-              onClick={() => setIsLoginModalOpen(true)}
-            />
-          ) : (
-            <Box mr={5} ml={5}>
-              <Button
-                variant="outline"
-                colorScheme="purple"
-                isLoading={isSessionLoading}
+                            userQuery.refetch();
+
+                            toast({
+                              status: "success",
+                              title:
+                                "Vous recevrez des notifications mobile en plus des e-mails"
+                            });
+                          }
+                        } catch (error: any) {
+                          toast({ status: "error", title: error.message });
+                        }
+                      }}
+                    >
+                      {isSubscribed && userQuery.data?.userSubscription
+                        ? "Désactiver"
+                        : "Activer"}{" "}
+                      les notifications mobile
+                    </MenuItem>
+                  )
+                }
+
+                {/* <NextLink href="/settings" passHref>
+                  <MenuItem as={ChakraLink}>Paramètres</MenuItem>
+                </NextLink> */}
+
+                <MenuItem
+                  onClick={async () => {
+                    const { url } = await signOut({
+                      redirect: false,
+                      callbackUrl: "/"
+                    });
+                    dispatch(setUserEmail(null));
+                    dispatch(setSession(null));
+
+                    if (process.env.NODE_ENV === "production") router.push(url);
+                    else {
+                      dispatch(refetchSubscription());
+                    }
+                  }}
+                >
+                  Déconnexion
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          </>
+        ) : (
+          <>
+            <EmailLoginPopover boxSize={[8, 10, 10]} />
+
+            {isMobile ? (
+              <IconButton
+                aria-label="Connexion"
+                icon={<Icon as={FaPowerOff} boxSize={[8, 10, 10]} />}
+                bg="transparent"
+                _hover={{ bg: "transparent" }}
+                mx={3}
                 onClick={() => setIsLoginModalOpen(true)}
-                data-cy="login"
-              >
-                Connexion
-              </Button>
-            </Box>
-          )}
-        </Flex>
-      )}
+              />
+            ) : (
+              <Box mr={5} ml={5}>
+                <Button
+                  variant="outline"
+                  colorScheme="purple"
+                  // isLoading={isSessionLoading}
+                  onClick={() => setIsLoginModalOpen(true)}
+                  data-cy="login"
+                >
+                  Connexion
+                </Button>
+              </Box>
+            )}
+          </>
+        )}
+      </Flex>
 
       {isLoginModalOpen && (
         <LoginModal
-          onClose={() => {
-            setIsLoginModalOpen(false);
-            //setIsLogin(false);
-          }}
+          onClose={() => setIsLoginModalOpen(false)}
           onSubmit={async (url) => {
             dispatch(setUserEmail(null));
             const login = `${process.env.NEXT_PUBLIC_URL}/?login`;

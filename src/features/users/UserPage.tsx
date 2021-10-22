@@ -1,8 +1,3 @@
-import { useRouter } from "next/router";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { format } from "date-fns";
-import tw, { css } from "twin.macro";
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Flex,
@@ -11,26 +6,32 @@ import {
   useToast,
   Icon,
   Textarea,
-  Alert,
-  AlertIcon,
   VStack
 } from "@chakra-ui/react";
-import { useSession } from "hooks/useAuth";
-import api from "utils/api";
-import type { IUser } from "models/User";
+import { format } from "date-fns";
+import { Session, User } from "next-auth";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
+import tw, { css } from "twin.macro";
+
 import { Layout } from "features/layout";
 import { UserForm } from "features/forms/UserForm";
-import { useGetUserQuery } from "./usersApi";
+import { useSession } from "hooks/useAuth";
+import { IUser } from "models/User";
 import { useAppDispatch } from "store";
-import { signOut } from "next-auth/client";
-import { User } from "next-auth";
+import api from "utils/api";
 
-export const UserPage = ({ ...props }: { user: IUser }) => {
-  const dispatch = useAppDispatch();
+export const UserPage = ({
+  ...props
+}: {
+  user: IUser;
+  session: Session | null;
+}) => {
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: clientSession } = useSession();
+  const session = clientSession || props.session;
   const toast = useToast({ position: "top" });
-  console.log(session);
+  const dispatch = useAppDispatch();
 
   // const userQuery = useGetUserQuery(props.user.userName || props.user._id);
   const isSelf = props.user._id === session?.user.userId;
@@ -49,7 +50,7 @@ export const UserPage = ({ ...props }: { user: IUser }) => {
   const [isEdit, setIsEdit] = useState(false);
 
   return (
-    <Layout pageTitle={user.userName}>
+    <Layout pageTitle={user.userName} session={session}>
       <>
         <Flex mb={5} flexDirection="column">
           {(isSelf || session?.user.isAdmin) && (

@@ -30,6 +30,7 @@ import {
 } from "@chakra-ui/react";
 import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
 import React, { useEffect, useState } from "react";
+import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import { useSession } from "hooks/useAuth";
 import { parseISO, format } from "date-fns";
@@ -75,9 +76,15 @@ let cachedRefetchEvent = false;
 let cachedRefetchSubscription = false;
 let cachedEmail: string | undefined;
 
-export const EventPage = ({ ...props }: { event: IEvent }) => {
+export const EventPage = ({
+  ...props
+}: {
+  event: IEvent;
+  session: Session | null;
+}) => {
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data, loading: isSessionLoading } = useSession();
+  const session = data || props.session;
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -186,11 +193,7 @@ export const EventPage = ({ ...props }: { event: IEvent }) => {
   //#endregion
 
   return (
-    <Layout
-      event={event}
-      //pageSubTitle={<DateRange minDate={eventMinDate} maxDate={eventMaxDate} />}
-      isLogin={isLogin}
-    >
+    <Layout event={event} isLogin={isLogin} session={props.session}>
       {isCreator && !isConfig ? (
         <Button
           colorScheme="teal"

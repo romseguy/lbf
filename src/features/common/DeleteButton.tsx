@@ -32,7 +32,7 @@ export const DeleteButton = ({
   ...props
 }: any & {
   header: React.ReactNode;
-  body: React.ReactNode;
+  body?: React.ReactNode;
   placement: string;
   onClick: () => void;
   isDisabled?: boolean;

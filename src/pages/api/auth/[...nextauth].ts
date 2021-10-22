@@ -32,7 +32,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
               email,
               userId: data._id,
               userName: data.userName,
-              userImage: data.userImage,
+              // userImage: data.userImage,
               isAdmin: data.isAdmin || false
             };
             //console.log("AUTHORIZED:", user);

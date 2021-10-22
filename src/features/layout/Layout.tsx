@@ -45,7 +45,7 @@ export const Layout = ({
   event?: IEvent;
   pageTitle?: string;
   pageSubTitle?: React.ReactNode;
-  session?: Session;
+  session?: Session | null;
   title?: string;
 }) => {
   const { colorMode } = useColorMode();
@@ -130,7 +130,12 @@ export const Layout = ({
           pageTitle={pageTitle}
           pageSubTitle={pageSubTitle}
         />
-        <Nav py={hasVerticalScrollbar ? 7 : 0} minH="96px" isLogin={isLogin} />
+        <Nav
+          py={hasVerticalScrollbar ? 7 : 0}
+          minH="96px"
+          isLogin={isLogin}
+          session={session}
+        />
         <Main {...props}>{children}</Main>
         <Footer>
           <Flex

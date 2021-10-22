@@ -9,7 +9,8 @@ import {
   Tag,
   Text,
   Tooltip,
-  useColorMode
+  useColorMode,
+  FlexProps
 } from "@chakra-ui/react";
 import DOMPurify from "isomorphic-dompurify";
 import React, { useState } from "react";
@@ -20,7 +21,6 @@ import {
   Link,
   RTEditor
 } from "features/common";
-import { useGetSubscriptionsQuery } from "features/subscriptions/subscriptionsApi";
 import { useSession } from "hooks/useAuth";
 import { ITopic } from "models/Topic";
 import * as dateUtils from "utils/date";
@@ -28,16 +28,15 @@ import { useEditTopicMutation } from "./topicsApi";
 
 export const TopicMessagesList = ({
   topic,
-  query
-}: {
+  query,
+  ...props
+}: FlexProps & {
   topic: ITopic;
   query: any;
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-
-  const subQuery = useGetSubscriptionsQuery({ topicId: topic._id });
 
   const [editTopic, editTopicMutation] = useEditTopicMutation();
 
@@ -52,7 +51,7 @@ export const TopicMessagesList = ({
   if (!topic) return null;
 
   return (
-    <Flex flexDirection="column" pt={3} px={3}>
+    <Flex flexDirection="column" {...props}>
       <Box>
         {topic.topicMessages.map(
           ({ _id, message, createdBy, createdAt }, index) => {
@@ -250,37 +249,6 @@ export const TopicMessagesList = ({
               </Box>
             );
           }
-        )}
-      </Box>
-
-      <Box bg={isDark ? "gray.600" : "gray.200"} borderRadius="lg" p={3}>
-        {subQuery.isLoading || subQuery.isFetching ? (
-          <Spinner boxSize={4} />
-        ) : (
-          <>
-            {Array.isArray(subQuery.data) && subQuery.data.length > 0 ? (
-              <Text>
-                Abonnés à la discussion :{" "}
-                {subQuery.data.map((subscription) => {
-                  if (typeof subscription.user !== "object") return;
-
-                  const userName =
-                    subscription.user.userName ||
-                    session?.user.email.replace(/@.+/, "");
-
-                  return (
-                    <Link key={subscription._id} href={`/${userName}`}>
-                      <Tag mr={1} mb={1}>
-                        {userName}
-                      </Tag>
-                    </Link>
-                  );
-                })}
-              </Text>
-            ) : (
-              <Text>Aucun abonnés à la discussion.</Text>
-            )}
-          </>
         )}
       </Box>
     </Flex>

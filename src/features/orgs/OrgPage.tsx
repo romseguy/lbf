@@ -24,6 +24,7 @@ import {
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
+import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaGlobeEurope, FaMapMarkedAlt } from "react-icons/fa";
@@ -81,9 +82,11 @@ export const OrgPage = ({
 }: {
   populate?: string;
   org: IOrg;
+  session: Session | null;
 }) => {
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data, loading: isSessionLoading } = useSession();
+  const session = data || props.session;
   const toast = useToast({ position: "top" });
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
@@ -174,7 +177,7 @@ export const OrgPage = ({
   };
 
   return (
-    <Layout org={org} isLogin={isLogin}>
+    <Layout org={org} isLogin={isLogin} session={props.session}>
       {isCreator && !isConfig ? (
         <Button
           colorScheme="teal"

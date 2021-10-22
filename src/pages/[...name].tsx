@@ -1,4 +1,5 @@
 import { Alert, AlertIcon, Spinner } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -18,7 +19,13 @@ import { useAppDispatch, wrapper } from "store";
 
 let populate = "";
 
-const Hash = ({ email, ...props }: { email?: string }) => {
+const Hash = ({
+  email,
+  ...props
+}: {
+  email?: string;
+  session: Session | null;
+}) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const routeName = router.asPath.substr(1, router.asPath.length);
@@ -74,15 +81,15 @@ const Hash = ({ email, ...props }: { email?: string }) => {
   }, [router.asPath, refetchOrg]);
 
   if (event) {
-    return <EventPage event={event} />;
+    return <EventPage event={event} {...props} />;
   }
 
   if (org) {
-    return <OrgPage org={org} populate={populate} />;
+    return <OrgPage org={org} populate={populate} {...props} />;
   }
 
   if (user) {
-    return <UserPage user={user} />;
+    return <UserPage user={user} {...props} />;
   }
 
   if (error) {
