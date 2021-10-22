@@ -1,0 +1,100 @@
+{
+  "polyfillFiles": [
+    "static/chunks/polyfills-e7a279300235e161e32a.js"
+  ],
+  "devFiles": [],
+  "ampDevFiles": [],
+  "lowPriorityFiles": [
+    "static/17Yr_1hHCo765C7oVk0DZ/_buildManifest.js",
+    "static/17Yr_1hHCo765C7oVk0DZ/_ssgManifest.js"
+  ],
+  "pages": {
+    "/": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/chunks/775-149387e69425efc6e592.js",
+      "static/chunks/337-3ae03e6dedbc5bd3e554.js",
+      "static/chunks/917-eb11901cfba63f4bc056.js",
+      "static/chunks/494-af218e6a1334e1ac1873.js",
+      "static/chunks/pages/index-694cba52e4965a276444.js"
+    ],
+    "/404": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/chunks/pages/404-448f33d2711b1daea259.js"
+    ],
+    "/[...name]": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/chunks/775-149387e69425efc6e592.js",
+      "static/chunks/507-dc0bbce015dca49c381d.js",
+      "static/chunks/917-eb11901cfba63f4bc056.js",
+      "static/chunks/929-7714f3d9885e3586a670.js",
+      "static/chunks/pages/[...name]-21692c82f375d5fdf1b6.js"
+    ],
+    "/_app": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/css/56dfffa548e43c8c9f0b.css",
+      "static/chunks/pages/_app-3b37ff61679b5ca88260.js"
+    ],
+    "/_error": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/chunks/pages/_error-687e689d75c740faa59c.js"
+    ],
+    "/donate": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/chunks/pages/donate-e1978e23961131916955.js"
+    ],
+    "/forum": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/chunks/775-149387e69425efc6e592.js",
+      "static/chunks/929-7714f3d9885e3586a670.js",
+      "static/chunks/pages/forum-76d82d2bf1a00100decc.js"
+    ],
+    "/orgs": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/chunks/775-149387e69425efc6e592.js",
+      "static/chunks/337-3ae03e6dedbc5bd3e554.js",
+      "static/chunks/494-af218e6a1334e1ac1873.js",
+      "static/chunks/pages/orgs-61f2e47c81e7f77aa1e8.js"
+    ],
+    "/sandbox": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/chunks/pages/sandbox-b523db66829c23e05bfa.js"
+    ],
+    "/subject/[id]": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/chunks/pages/subject/[id]-0655a1cedec337c7d67c.js"
+    ],
+    "/unsubscribe/[entityUrl]": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/chunks/pages/unsubscribe/[entityUrl]-185dc799c7e756920982.js"
+    ],
+    "/verify": [
+      "static/chunks/webpack-9fc9ab40a062a7008df3.js",
+      "static/chunks/framework-a6234239324b2cf63e6a.js",
+      "static/chunks/main-a7c87b5e57c0286b3f77.js",
+      "static/chunks/pages/verify-430f01500b4a617e1230.js"
+    ]
+  },
+  "ampFirstPages": []
+}

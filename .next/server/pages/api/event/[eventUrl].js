@@ -1,0 +1,686 @@
+(function() {
+var exports = {};
+exports.id = 4845;
+exports.ids = [4845];
+exports.modules = {
+
+/***/ 9548:
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var next_connect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9303);
+/* harmony import */ var next_connect__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(next_connect__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var nodemailer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8123);
+/* harmony import */ var nodemailer__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(nodemailer__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var nodemailer_sendgrid__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9619);
+/* harmony import */ var nodemailer_sendgrid__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(nodemailer_sendgrid__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var database__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9163);
+/* harmony import */ var hooks_useAuth__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(8238);
+/* harmony import */ var models_Event__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(7823);
+/* harmony import */ var utils_array__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(1609);
+/* harmony import */ var utils_email__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(9281);
+/* harmony import */ var utils_errors__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(8177);
+/* harmony import */ var utils_string__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(7535);
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+
+
+
+
+
+
+
+
+const transport = nodemailer__WEBPACK_IMPORTED_MODULE_1___default().createTransport(nodemailer_sendgrid__WEBPACK_IMPORTED_MODULE_2___default()({
+  apiKey: process.env.EMAIL_API_KEY
+}));
+const handler = next_connect__WEBPACK_IMPORTED_MODULE_0___default()();
+handler.use(database__WEBPACK_IMPORTED_MODULE_3__/* .default */ .ZP);
+handler.get(async function getEvent(req, res) {
+  try {
+    const session = await (0,hooks_useAuth__WEBPACK_IMPORTED_MODULE_4__/* .getSession */ .G)({
+      req
+    });
+    const {
+      query: {
+        eventUrl
+      }
+    } = req;
+    let populate = req.query.populate;
+    let event = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Event.findOne */ .Cq.Event.findOne({
+      eventUrl
+    });
+
+    if (!event) {
+      // event was forwarded
+      event = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Event.findOne */ .Cq.Event.findOne({
+        _id: eventUrl
+      });
+      if (!event) return res.status(404).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)));
+    }
+
+    event = event.populate("eventOrgs");
+    const isCreator = (session === null || session === void 0 ? void 0 : session.user.isAdmin) || (0,utils_string__WEBPACK_IMPORTED_MODULE_8__/* .equals */ .fS)(event.createdBy, session === null || session === void 0 ? void 0 : session.user.userId); // creator needs subscriptions to send invites
+
+    if (isCreator) {
+      populate = {
+        path: "eventOrgs",
+        populate: [{
+          path: "orgSubscriptions"
+        }]
+      };
+      event = event.populate(populate);
+    } // if (event.eventVisibility === Visibility.SUBSCRIBERS && !isCreator) {
+    //   if (session) {
+    //     const sub = await models.Subscription.findOne({
+    //       user: session.user.userId
+    //     });
+    //     let isSubscribed = false;
+    //     if (sub) {
+    //       for (const eventOrg of event.eventOrgs) {
+    //         for (const org of sub.orgs) {
+    //           if (equals(org.orgId, eventOrg)) {
+    //             isSubscribed = true;
+    //           }
+    //         }
+    //       }
+    //     }
+    //     if (!isSubscribed) {
+    //       return res
+    //         .status(403)
+    //         .json(
+    //           createServerError(
+    //             new Error(
+    //               `Cet événement est réservé aux adhérents des organisateurs`
+    //             )
+    //           )
+    //         );
+    //     }
+    //   }
+    // }
+    // hand emails to event creator only
+
+
+    let select = session && isCreator ? "-password -securityCode" : "-email -password -securityCode";
+    event = await event.populate("createdBy", select + " -userImage").populate("eventTopics").populate({
+      path: "eventTopics",
+      populate: [{
+        path: "topicMessages",
+        populate: {
+          path: "createdBy",
+          select
+        }
+      }, {
+        path: "createdBy",
+        select: select + " -userImage"
+      }]
+    }).execPopulate();
+    res.status(200).json(event);
+  } catch (error) {
+    res.status(500).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(error));
+  }
+});
+handler.post(async function postEventNotif(req, res) {
+  const session = await (0,hooks_useAuth__WEBPACK_IMPORTED_MODULE_4__/* .getSession */ .G)({
+    req
+  });
+
+  if (!session) {
+    res.status(403).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error("Vous devez être identifié pour accéder à ce contenu")));
+  } else {
+    try {
+      const {
+        query: {
+          eventUrl
+        },
+        body
+      } = req;
+      let event = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Event.findOne */ .Cq.Event.findOne({
+        eventUrl
+      });
+
+      if (!event) {
+        event = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Event.findOne */ .Cq.Event.findOne({
+          _id: eventUrl
+        });
+        if (!event) return res.status(404).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)));
+      }
+
+      if (!(0,utils_string__WEBPACK_IMPORTED_MODULE_8__/* .equals */ .fS)(event.createdBy, session.user.userId) && !session.user.isAdmin) {
+        return res.status(403).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error("Vous ne pouvez pas envoyer des notifications pour un événement que vous n'avez pas créé.")));
+      }
+
+      event = await event.populate({
+        path: "eventOrgs",
+        populate: [{
+          path: "orgSubscriptions"
+        }]
+      }).execPopulate();
+      let emailList = [];
+
+      if (typeof body.email === "string" && body.email.length > 0 && (0,utils_array__WEBPACK_IMPORTED_MODULE_9__/* .hasItems */ .t)(body.orgIds)) {
+        const org = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Org.findOne */ .Cq.Org.findOne({
+          _id: body.orgIds[0]
+        });
+        const subscription = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Subscription.findOne */ .Cq.Subscription.findOne({
+          email: body.email
+        });
+
+        if (body.email && org) {
+          const mail = (0,utils_email__WEBPACK_IMPORTED_MODULE_6__/* .createEventEmailNotif */ .SO)({
+            email: body.email,
+            event,
+            org,
+            subscription,
+            isPreview: true
+          }); //if (process.env.NODE_ENV === "production")
+
+          await transport.sendMail(mail);
+
+          if (body.email !== session.user.email) {
+            emailList.push(body.email);
+            const newEntries = emailList.map(email => ({
+              email,
+              status: models_Event__WEBPACK_IMPORTED_MODULE_5__/* .StatusTypes.PENDING */ .Sk.PENDING
+            }));
+
+            if (!event.eventNotified) {
+              event.eventNotified = newEntries;
+            } else if (!event.eventNotified.find(({
+              email
+            }) => email === body.email)) {
+              event.eventNotified = event.eventNotified.concat(newEntries);
+            }
+
+            await event.save();
+          }
+
+          console.log(`sent event email notif to target ${body.email}`, mail);
+        }
+      } else {
+        emailList = await (0,utils_email__WEBPACK_IMPORTED_MODULE_6__/* .sendEventEmailNotifToOrgFollowers */ .rM)(event, body.orgIds, transport);
+
+        if (emailList.length > 0) {
+          const newEntries = emailList.map(email => ({
+            email,
+            status: models_Event__WEBPACK_IMPORTED_MODULE_5__/* .StatusTypes.PENDING */ .Sk.PENDING
+          }));
+          event.eventNotified = event.eventNotified ? event.eventNotified.concat(newEntries) : newEntries;
+          await event.save();
+        }
+      }
+
+      res.status(200).json({
+        emailList
+      });
+    } catch (error) {
+      res.status(500).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(error));
+    }
+  }
+});
+handler.put(async function editEvent(req, res) {
+  const session = await (0,hooks_useAuth__WEBPACK_IMPORTED_MODULE_4__/* .getSession */ .G)({
+    req
+  });
+  let {
+    body
+  } = req;
+
+  if (!session && !body.eventNotified) {
+    res.status(403).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error("Vous devez être identifié pour accéder à ce contenu")));
+  } else {
+    try {
+      const eventUrl = req.query.eventUrl;
+      const event = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Event.findOne */ .Cq.Event.findOne({
+        eventUrl
+      }).populate("eventOrgs");
+
+      if (!event) {
+        return res.status(404).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)));
+      }
+
+      if (!body.eventNotified && session) {
+        if (!(0,utils_string__WEBPACK_IMPORTED_MODULE_8__/* .equals */ .fS)(event.createdBy, session.user.userId) && !session.user.isAdmin) {
+          return res.status(403).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error("Vous ne pouvez pas modifier un événement que vous n'avez pas créé.")));
+        }
+      }
+
+      if (body.eventName) {
+        body = _objectSpread(_objectSpread({}, body), {}, {
+          eventName: body.eventName.trim()
+        });
+        body.eventUrl = (0,utils_string__WEBPACK_IMPORTED_MODULE_8__/* .normalize */ .Fv)(body.eventName);
+      }
+
+      if (body.eventOrgs) {
+        const staleEventOrgsIds = [];
+
+        for (const {
+          _id
+        } of body.eventOrgs) {
+          const org = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Org.findOne */ .Cq.Org.findOne({
+            _id
+          });
+
+          if (!org) {
+            staleEventOrgsIds.push(_id);
+            continue;
+          }
+
+          if (org.orgEvents.indexOf(event._id) === -1) {
+            await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Org.updateOne */ .Cq.Org.updateOne({
+              _id: org._id
+            }, {
+              $push: {
+                orgEvents: event._id
+              }
+            });
+          }
+        }
+
+        if (staleEventOrgsIds.length > 0) {
+          body.eventOrgs = body.eventOrgs.filter(eventOrg => !staleEventOrgsIds.find(id => id === eventOrg._id));
+        }
+      }
+
+      const {
+        n,
+        nModified
+      } = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Event.updateOne */ .Cq.Event.updateOne({
+        eventUrl
+      }, body);
+
+      if (nModified === 1) {
+        res.status(200).json({});
+      } else {
+        res.status(400).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error(`L'événement ${eventUrl} n'a pas pu être modifié`)));
+      }
+    } catch (error) {
+      res.status(500).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(error));
+    }
+  }
+});
+handler.delete(async function removeEvent(req, res) {
+  const session = await (0,hooks_useAuth__WEBPACK_IMPORTED_MODULE_4__/* .getSession */ .G)({
+    req
+  });
+
+  if (!session) {
+    res.status(403).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error("Vous devez être identifié pour accéder à ce contenu")));
+  } else {
+    try {
+      const eventUrl = req.query.eventUrl;
+      let event = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Event.findOne */ .Cq.Event.findOne({
+        eventUrl
+      });
+
+      if (!event) {
+        event = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Event.findOne */ .Cq.Event.findOne({
+          _id: eventUrl
+        });
+
+        if (!event) {
+          return res.status(404).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)));
+        }
+      }
+
+      if (!(0,utils_string__WEBPACK_IMPORTED_MODULE_8__/* .equals */ .fS)(event.createdBy, session.user.userId) && !session.user.isAdmin) {
+        return res.status(403).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error("Vous ne pouvez pas supprimer un événement que vous n'avez pas créé.")));
+      }
+
+      const {
+        deletedCount
+      } = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Event.deleteOne */ .Cq.Event.deleteOne({
+        eventUrl
+      });
+
+      const deleteOrgRef = async () => {
+        if (event && event.eventOrgs) {
+          for (const eventOrg of event.eventOrgs) {
+            const o = await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Org.findOne */ .Cq.Org.findOne({
+              _id: eventOrg
+            });
+
+            if (o) {
+              o.orgEvents = o.orgEvents.filter(orgEvent => {
+                var _event;
+
+                return !(0,utils_string__WEBPACK_IMPORTED_MODULE_8__/* .equals */ .fS)(orgEvent, (_event = event) === null || _event === void 0 ? void 0 : _event._id);
+              });
+              o.save();
+            }
+          }
+        }
+      };
+
+      if (deletedCount === 1) {
+        await deleteOrgRef();
+        res.status(200).json(event);
+      } else {
+        if ((await database__WEBPACK_IMPORTED_MODULE_3__/* .models.Event.deleteOne */ .Cq.Event.deleteOne({
+          _id: eventUrl
+        })).deletedCount === 1) {
+          await deleteOrgRef();
+          res.status(200).json(event);
+        } else {
+          res.status(400).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(new Error(`L'événement ${eventUrl} n'a pas pu être supprimé`)));
+        }
+      }
+    } catch (error) {
+      res.status(500).json((0,utils_errors__WEBPACK_IMPORTED_MODULE_7__/* .createServerError */ .Eh)(error));
+    }
+  }
+});
+/* harmony default export */ __webpack_exports__["default"] = (handler);
+
+/***/ }),
+
+/***/ 1609:
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "t": function() { return /* binding */ hasItems; }
+/* harmony export */ });
+const hasItems = array => Array.isArray(array) && array.length > 0;
+
+/***/ }),
+
+/***/ 3724:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("@chakra-ui/icons");;
+
+/***/ }),
+
+/***/ 3426:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("@chakra-ui/react");;
+
+/***/ }),
+
+/***/ 7381:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("@emotion/react");;
+
+/***/ }),
+
+/***/ 4617:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("@emotion/styled/base");;
+
+/***/ }),
+
+/***/ 5228:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("@hookform/error-message");;
+
+/***/ }),
+
+/***/ 2077:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("@react-icons/all-files/fa/FaHeart.js");;
+
+/***/ }),
+
+/***/ 1631:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("@react-icons/all-files/fa/FaMapMarkedAlt.js");;
+
+/***/ }),
+
+/***/ 1899:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("@react-icons/all-files/fa/FaMoon.js");;
+
+/***/ }),
+
+/***/ 739:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("@react-icons/all-files/fa/FaSun.js");;
+
+/***/ }),
+
+/***/ 6139:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("@reduxjs/toolkit");;
+
+/***/ }),
+
+/***/ 5641:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("@reduxjs/toolkit/query/react");;
+
+/***/ }),
+
+/***/ 2376:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("axios");;
+
+/***/ }),
+
+/***/ 2773:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("bcryptjs");;
+
+/***/ }),
+
+/***/ 3879:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("date-fns");;
+
+/***/ }),
+
+/***/ 5619:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("mongoose");;
+
+/***/ }),
+
+/***/ 8104:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("next-auth/client");;
+
+/***/ }),
+
+/***/ 9303:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("next-connect");;
+
+/***/ }),
+
+/***/ 2744:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("next-redux-wrapper");;
+
+/***/ }),
+
+/***/ 8417:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("next/dist/next-server/lib/router-context.js");;
+
+/***/ }),
+
+/***/ 2238:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("next/dist/next-server/lib/router/utils/get-asset-path-from-route.js");;
+
+/***/ }),
+
+/***/ 8123:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("nodemailer");;
+
+/***/ }),
+
+/***/ 9619:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("nodemailer-sendgrid");;
+
+/***/ }),
+
+/***/ 1191:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("querystring");;
+
+/***/ }),
+
+/***/ 3149:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("quill");;
+
+/***/ }),
+
+/***/ 4404:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("quill-auto-links");;
+
+/***/ }),
+
+/***/ 4657:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("quill-delta-to-html");;
+
+/***/ }),
+
+/***/ 9297:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("react");;
+
+/***/ }),
+
+/***/ 62:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("react-cool-onclickoutside");;
+
+/***/ }),
+
+/***/ 9008:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("react-datepicker");;
+
+/***/ }),
+
+/***/ 2047:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("react-device-detect");;
+
+/***/ }),
+
+/***/ 2662:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("react-hook-form");;
+
+/***/ }),
+
+/***/ 6199:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("react-quilljs");;
+
+/***/ }),
+
+/***/ 79:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("react-redux");;
+
+/***/ }),
+
+/***/ 7405:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("react-toggle");;
+
+/***/ }),
+
+/***/ 632:
+/***/ (function(module) {
+
+"use strict";
+module.exports = require("use-places-autocomplete");;
+
+/***/ })
+
+};
+;
+
+// load runtime
+var __webpack_require__ = require("../../../webpack-runtime.js");
+__webpack_require__.C(exports);
+var __webpack_exec__ = function(moduleId) { return __webpack_require__(__webpack_require__.s = moduleId); }
+var __webpack_exports__ = __webpack_require__.X(0, [1664,5328,8716,9163,8177,6837,4281,8238,3831], function() { return __webpack_exec__(9548); });
+module.exports = __webpack_exports__;
+
+})();
