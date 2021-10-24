@@ -10,9 +10,9 @@ import {
   InputGroup,
   InputLeftAddon,
   InputLeftElement,
-  InputProps,
   InputRightAddon,
-  Select
+  Select,
+  SpaceProps
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
@@ -34,7 +34,7 @@ export const UrlControl = ({
   isRequired = false,
   isMultiple = true,
   ...props
-}: {
+}: SpaceProps & {
   label?: string;
   defaultValue?: string;
   errors: { [key: string]: string };
@@ -45,7 +45,7 @@ export const UrlControl = ({
   isRequired?: boolean;
   placeholder?: string;
   isMultiple?: boolean;
-} & InputProps) => {
+}) => {
   let formRules: { required?: string | boolean } = {};
 
   if (isRequired) {
@@ -91,7 +91,7 @@ export const UrlControl = ({
   );
 
   return (
-    <Box mb={3}>
+    <Box {...props}>
       {fields.map((field, index) => {
         return (
           <FormControl
@@ -99,7 +99,6 @@ export const UrlControl = ({
             id={name}
             isRequired={isRequired}
             isInvalid={!!(errors[name] && errors[name][index])}
-            {...props}
           >
             <FormLabel m={0}>
               {index > 0 ? `${index + 1}ème ${label.toLowerCase()}` : label}
@@ -146,9 +145,13 @@ export const UrlControl = ({
                 p={0}
                 children={
                   <IconButton
-                    aria-label={`Supprimer la ${
-                      index + 1
-                    }ème adresse de site internet`}
+                    aria-label={
+                      index + 1 === 1
+                        ? "Supprimer la 1ère adresse de site internet"
+                        : `Supprimer la ${
+                            index + 1
+                          }ème adresse de site internet`
+                    }
                     icon={<DeleteIcon />}
                     bg="transparent"
                     _hover={{ bg: "transparent", color: "red" }}
@@ -174,7 +177,7 @@ export const UrlControl = ({
           append({ url: "", prefix: "https://" });
         }}
       >
-        <Icon as={FaGlobeEurope} /> Ajouter un site internet
+        <Icon as={FaGlobeEurope} mr={1} /> Ajouter un site internet
       </Link>
     </Box>
   );

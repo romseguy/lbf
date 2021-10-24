@@ -25,17 +25,8 @@ export const ProjectModal = (props: {
   onClose: () => void;
   onSubmit: (project: IProject | null) => void;
 }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
-
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={() => {
-        props.onClose && props.onClose();
-        onClose();
-      }}
-      closeOnOverlayClick={false}
-    >
+    <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
       <ModalOverlay>
         <ModalContent>
           <ModalHeader>

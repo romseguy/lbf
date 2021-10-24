@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   useDisclosure,
   Modal,
@@ -8,9 +7,10 @@ import {
   ModalCloseButton,
   ModalBody
 } from "@chakra-ui/react";
-import { OrgForm } from "features/forms/OrgForm";
 import { Session } from "next-auth";
-import { orgTypeFull2, orgTypeFull3, OrgTypesV } from "models/Org";
+import React, { useState } from "react";
+import { OrgForm } from "features/forms/OrgForm";
+import { orgTypeFull3 } from "models/Org";
 
 export const OrgModal = ({
   session,
@@ -21,26 +21,12 @@ export const OrgModal = ({
   session: Session;
   onCancel: () => void;
   onClose: () => void;
-  onSubmit: (orgUrl: string) => void;
+  onSubmit: (orgUrl: string) => Promise<void>;
 }) => {
-  const {
-    isOpen: isOrgModalOpen,
-    onOpen,
-    onClose: onOrgModalClose
-  } = useDisclosure({ defaultIsOpen: true });
   const [orgType, setOrgType] = useState<string>();
 
-  const onClose = () => {
-    props.onClose();
-    onOrgModalClose();
-  };
-
   return (
-    <Modal
-      isOpen={isOrgModalOpen}
-      onClose={onClose}
-      closeOnOverlayClick={false}
-    >
+    <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Ajouter {orgTypeFull3(orgType)}</ModalHeader>
@@ -49,11 +35,9 @@ export const OrgModal = ({
           <OrgForm
             setOrgType={setOrgType}
             session={session}
-            onCancel={onClose}
-            onClose={onClose}
-            onSubmit={(orgUrl: string) => {
-              onClose();
-              onSubmit(orgUrl);
+            onCancel={onCancel}
+            onSubmit={async (orgUrl: string) => {
+              await onSubmit(orgUrl);
             }}
           />
         </ModalBody>

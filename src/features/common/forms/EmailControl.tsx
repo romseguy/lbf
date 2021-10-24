@@ -1,4 +1,4 @@
-import { AtSignIcon, DeleteIcon, EmailIcon } from "@chakra-ui/icons";
+import { AtSignIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
   Box,
   FormControl,
@@ -83,7 +83,7 @@ export const EmailControl = ({
           {noLabel && onRightElementClick && (
             <InputRightElement
               pointerEvents="none"
-              children={<Icon as={EmailIcon} onClick={onRightElementClick} />}
+              children={<Icon as={AtSignIcon} onClick={onRightElementClick} />}
             />
           )}
         </InputGroup>
@@ -104,7 +104,7 @@ export const EmailControl = ({
   );
 
   return (
-    <Box mb={3}>
+    <Box {...props}>
       {fields.map((field, index) => {
         return (
           <FormControl
@@ -143,7 +143,11 @@ export const EmailControl = ({
                 p={0}
                 children={
                   <IconButton
-                    aria-label={`Supprimer la ${index + 1}ème adresse e-mail`}
+                    aria-label={
+                      index + 1 === 1
+                        ? "Supprimer la 1ère adresse e-mail"
+                        : `Supprimer la ${index + 1}ème adresse e-mail`
+                    }
                     icon={<DeleteIcon />}
                     bg="transparent"
                     _hover={{ bg: "transparent", color: "red" }}
@@ -169,7 +173,7 @@ export const EmailControl = ({
           append({ email: "" });
         }}
       >
-        <EmailIcon /> Ajouter une adresse e-mail
+        <AtSignIcon mr={1} /> Ajouter une adresse e-mail
       </Link>
     </Box>
   );

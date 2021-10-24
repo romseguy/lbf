@@ -4,29 +4,20 @@ import {
   IconButton,
   Link,
   Spinner,
-  Tag,
   Text,
   Tooltip
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FaBellSlash, FaBell } from "react-icons/fa";
 import { DeleteButton, Grid, GridItem, formats } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { ModalState } from "features/modals/NotifyModal";
-import {
-  getSubscription,
-  getSubscriptions
-} from "features/subscriptions/subscriptionsApi";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { useAppDispatch } from "store";
 import * as dateUtils from "utils/date";
 import { TopicMessagesList } from "./TopicMessagesList";
 import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
-import { QueryActionCreatorResult } from "@reduxjs/toolkit/dist/query/core/buildInitiate";
-import api from "utils/api";
 import { TopicsListItemSubscribers } from "./TopicsListItemSubscribers";
 
 export const TopicsListItem = ({
@@ -77,7 +68,7 @@ export const TopicsListItem = ({
   return (
     <Box key={topic._id} mb={5}>
       <GridItem>
-        <Link variant="no-underline" onClick={onClick} data-cy="topic">
+        <Link as="div" variant="no-underline" onClick={onClick} data-cy="topic">
           <Grid
             templateColumns="auto 1fr auto"
             borderTopRadius="xl"
@@ -242,19 +233,15 @@ export const TopicsListItem = ({
         </Link>
         {isCurrent && (
           <>
-            <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.700" }}>
-              <TopicMessagesList query={query} topic={topic} pt={3} px={3} />
-            </GridItem>
-
-            <GridItem
-              bg={isDark ? "gray.600" : "gray.200"}
-              borderRadius="lg"
-              p={3}
-            >
+            <GridItem bg={isDark ? "gray.600" : "gray.200"} px={3} py={2}>
               <TopicsListItemSubscribers
                 topic={topic}
                 isSubbedToTopic={isSubbedToTopic}
               />
+            </GridItem>
+
+            <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.700" }}>
+              <TopicMessagesList query={query} topic={topic} pt={3} px={3} />
             </GridItem>
 
             <GridItem

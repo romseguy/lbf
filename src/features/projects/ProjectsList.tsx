@@ -124,17 +124,21 @@ export const ProjectsList = ({
         Ajouter un projet
       </Button>
 
-      <ProjectsListFilters
-        selectedStatuses={selectedStatuses}
-        setSelectedStatuses={setSelectedStatuses}
-        mb={5}
-      />
+      {Array.isArray(projects) && projects.length > 1 && (
+        <>
+          <ProjectsListFilters
+            selectedStatuses={selectedStatuses}
+            setSelectedStatuses={setSelectedStatuses}
+            mb={5}
+          />
 
-      <ProjectsListOrder
-        selectedOrder={selectedOrder}
-        setSelectedOrder={setSelectedOrder}
-        mb={5}
-      />
+          <ProjectsListOrder
+            selectedOrder={selectedOrder}
+            setSelectedOrder={setSelectedOrder}
+            mb={5}
+          />
+        </>
+      )}
 
       <Grid data-cy="projectList" {...props}>
         {orgQuery.isLoading || orgQuery.isFetching ? (

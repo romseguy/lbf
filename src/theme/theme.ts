@@ -31,6 +31,9 @@ const theme = extendTheme({
     },
     Link: {
       sizes: {
+        smaller: {
+          fontSize: "smaller"
+        },
         larger: {
           fontSize: "2xl",
           fontWeight: "bold"

@@ -89,7 +89,7 @@ export const OrgConfigSubscribersPanel = ({
     useDeleteSubscriptionMutation();
   //#endregion
 
-  //#region form state
+  //#region form
   const {
     control,
     register,

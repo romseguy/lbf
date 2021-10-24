@@ -92,10 +92,10 @@ export const TopicMessagesList = ({
                         <RTEditor
                           formats={formats.filter((f) => f !== "size")}
                           defaultValue={message}
-                          onChange={(html) => {
+                          onChange={({ html, quillHtml }) => {
                             setIsEdit({
                               ...isEdit,
-                              [_id]: { ...isEdit[_id], html }
+                              [_id]: { ...isEdit[_id], html: quillHtml }
                             });
                           }}
                           placeholder="Contenu de votre message"

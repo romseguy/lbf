@@ -232,8 +232,10 @@ export const OrgPopover = ({
           session={session}
           onCancel={() => setOrgModalState({ isOpen: false })}
           onClose={() => setOrgModalState({ isOpen: false })}
-          onSubmit={async (orgUrl: string) => {
-            await router.push(`/${orgUrl}`);
+          onSubmit={async (orgUrl) => {
+            await router.push(`/${orgUrl}`, `/${orgUrl}`, {
+              shallow: true
+            });
           }}
         />
       )}

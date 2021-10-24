@@ -94,7 +94,7 @@ export const PhoneControl = ({
   );
 
   return (
-    <Box mb={3}>
+    <Box {...props}>
       {fields.map((field, index) => {
         return (
           <FormControl
@@ -130,9 +130,11 @@ export const PhoneControl = ({
                 p={0}
                 children={
                   <IconButton
-                    aria-label={`Supprimer le ${
-                      index + 1
-                    }ème numéro de téléphone`}
+                    aria-label={
+                      index + 1 === 1
+                        ? "Supprimer le 1er numéro de téléphone"
+                        : `Supprimer le ${index + 1}ème numéro de téléphone`
+                    }
                     icon={<DeleteIcon />}
                     bg="transparent"
                     _hover={{ bg: "transparent", color: "red" }}
@@ -158,7 +160,7 @@ export const PhoneControl = ({
           append({ phone: "" });
         }}
       >
-        <PhoneIcon /> Ajouter un numéro de téléphone
+        <PhoneIcon mr={1} /> Ajouter un numéro de téléphone
       </Link>
     </Box>
   );

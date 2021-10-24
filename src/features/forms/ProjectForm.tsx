@@ -54,6 +54,9 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
+  const [projectDescriptionHtml, setProjectDescriptionHtml] = useState(
+    props.project?.projectDescriptionHtml
+  );
   //#endregion
 
   //#region myOrgs
@@ -63,7 +66,7 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
   });
   //#endregion
 
-  //#region form state
+  //#region form
   const {
     control,
     register,
@@ -86,7 +89,6 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
   const projectOrgsRules: { required: boolean } = {
     required: projectVisibility === Visibility.SUBSCRIBERS
   };
-  //#endregion
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -101,7 +103,8 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
       projectDescription:
         form.projectDescription === "<p><br></p>"
           ? ""
-          : form.projectDescription?.replace(/\&nbsp;/g, " ")
+          : form.projectDescription?.replace(/\&nbsp;/g, " "),
+      projectDescriptionHtml
     };
 
     try {
@@ -136,9 +139,10 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
         }
       }
 
+      setIsLoading(false);
       props.onSubmit && props.onSubmit(props.project || null);
-      props.onClose && props.onClose();
     } catch (error) {
+      setIsLoading(false);
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });
@@ -146,10 +150,9 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
           setError("formErrorMessage", { type: "manual", message });
         }
       });
-    } finally {
-      setIsLoading(false);
     }
   };
+  //#endregion
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
@@ -194,14 +197,15 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
           name="projectDescription"
           control={control}
           defaultValue={""}
-          render={(p) => {
+          render={(renderProps) => {
             return (
               <RTEditor
                 defaultValue={props.project?.projectDescription}
-                onChange={(html: string) => {
-                  p.onChange(html === "<p><br></p>" ? "" : html);
-                }}
                 placeholder="Description du projet"
+                onChange={({ html, quillHtml }) => {
+                  setProjectDescriptionHtml(html);
+                  renderProps.onChange(quillHtml);
+                }}
               />
             );
           }}

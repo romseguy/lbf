@@ -4,6 +4,7 @@ import { Schema } from "mongoose";
 export interface ITopicMessage {
   _id?: string;
   message: string;
+  messageHtml?: string;
   createdBy: IUser | string;
   createdAt?: string;
 }
@@ -15,6 +16,7 @@ export const TopicMessageSchema = new Schema<ITopicMessage>(
       required: true,
       trim: true
     },
+    messageHtml: String,
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User"

@@ -47,7 +47,6 @@ export const GlobalStyles = () => (
 
       .ql-editor a {
         text-decoration: underline;
-        color: blue;
       }
     `}
   />

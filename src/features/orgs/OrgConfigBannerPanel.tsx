@@ -70,7 +70,7 @@ export const OrgConfigBannerPanel = ({
   const setEditorRef = useRef<AvatarEditor | null>(null);
   //#endregion
 
-  //#region form state
+  //#region form
   const {
     register,
     control,

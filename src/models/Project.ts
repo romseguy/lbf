@@ -6,6 +6,7 @@ export interface IProject {
   _id?: string;
   projectName: string;
   projectDescription: string;
+  projectDescriptionHtml: string;
   projectOrgs: IOrg[];
   projectStatus: string;
   projectVisibility: string;
@@ -77,6 +78,10 @@ export const ProjectSchema = new Schema<IProject>(
       trim: true
     },
     projectDescription: {
+      type: String,
+      trim: true
+    },
+    projectDescriptionHtml: {
       type: String,
       trim: true
     },

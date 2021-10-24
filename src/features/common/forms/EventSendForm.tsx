@@ -52,7 +52,7 @@ export const EventSendForm = ({
 
   //#endregion
 
-  //#region form state
+  //#region form
   const {
     control,
     register,

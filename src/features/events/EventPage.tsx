@@ -203,14 +203,14 @@ export const EventPage = ({
         >
           Paramètres de l'événement
         </Button>
-      ) : isConfig && !isEdit ? (
+      ) : isConfig ? (
         <Button
           colorScheme="pink"
           leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
           mb={2}
         >
-          Revenir à l'événement
+          Revenir à la page de l'événement
         </Button>
       ) : null}
 

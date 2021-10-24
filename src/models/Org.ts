@@ -20,6 +20,7 @@ export interface IOrg {
   orgPhone?: { phone: string }[];
   orgWeb?: { url: string; prefix: string }[];
   orgDescription?: string;
+  orgDescriptionHtml?: string;
   orgEvents: IEvent[];
   orgProjects: IProject[];
   orgSubscriptions: ISubscription[];
@@ -34,12 +35,14 @@ export interface IOrg {
 
 export const OrgTypes: { [key: string]: string } = {
   ASSO: "ASSO",
-  GROUP: "GROUP"
+  GROUP: "GROUP",
+  NETWORK: "NETWORK"
 };
 
 export const OrgTypesV: { [key: string]: string } = {
   ASSO: "Association",
-  GROUP: "Groupe"
+  GROUP: "Groupe",
+  NETWORK: "Réseau"
 };
 
 export const Visibility: { [key: string]: string } = {
@@ -101,7 +104,14 @@ export const OrgSchema = new Schema<IOrg>(
     orgEmail: [{ email: String }],
     orgPhone: [{ phone: String }],
     orgWeb: [{ url: String, prefix: String }],
-    orgDescription: String,
+    orgDescription: {
+      type: String,
+      trim: true
+    },
+    orgDescriptionHtml: {
+      type: String,
+      trim: true
+    },
     orgEvents: [{ type: Schema.Types.ObjectId, ref: "Event" }],
     orgProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
     orgSubscriptions: [

@@ -52,7 +52,7 @@ export const RTEditor = ({
   event?: IEvent;
   org?: IOrg;
   session?: Session;
-  onChange?: (html: string) => void;
+  onChange?: ({ html, quillHtml }: { html: string; quillHtml: string }) => void;
   readOnly?: boolean;
   placeholder?: string;
   height?: string;
@@ -188,7 +188,10 @@ export const RTEditor = ({
       quill.on("text-change", (/*delta, oldDelta, source*/) => {
         if (onChange && quill.root) {
           const delta = quill.getContents();
-          onChange(deltaToHtml(delta.ops));
+          onChange({
+            html: deltaToHtml(delta.ops),
+            quillHtml: quill.root.innerHTML
+          });
         }
       });
 

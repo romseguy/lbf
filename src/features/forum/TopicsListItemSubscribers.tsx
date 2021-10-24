@@ -1,4 +1,4 @@
-import { Spinner, Tag, Text } from "@chakra-ui/react";
+import { Flex, Spinner, Tag, Text } from "@chakra-ui/react";
 import React, { useEffect } from "react";
 import { useSession } from "hooks/useAuth";
 import { ITopic } from "models/Topic";
@@ -19,24 +19,30 @@ export const TopicsListItemSubscribers = ({
   if (query.isLoading || query.isFetching) return <Spinner boxSize={4} />;
 
   return Array.isArray(query.data) && query.data.length > 0 ? (
-    <Text>
-      Abonnés à la discussion :{" "}
-      {query.data.map((subscription) => {
-        if (typeof subscription.user !== "object") return;
+    <Flex alignItems="center">
+      <Text whiteSpace="nowrap" mr={1} fontSize="smaller">
+        Abonnés à la discussion :
+      </Text>
 
-        const userName =
-          subscription.user.userName || session?.user.email.replace(/@.+/, "");
+      <Flex wrap="nowrap">
+        {query.data.map((subscription) => {
+          if (typeof subscription.user !== "object") return;
 
-        return (
-          <Link key={subscription._id} href={`/${userName}`}>
-            <Tag mr={1} mb={1}>
-              {userName}
-            </Tag>
-          </Link>
-        );
-      })}
-    </Text>
+          const userName =
+            subscription.user.userName ||
+            session?.user.email.replace(/@.+/, "");
+
+          return (
+            <Link key={subscription._id} href={`/${userName}`}>
+              <Tag mr={1} fontSize="smaller">
+                {userName}
+              </Tag>
+            </Link>
+          );
+        })}
+      </Flex>
+    </Flex>
   ) : (
-    <Text>Aucun abonnés à la discussion.</Text>
+    <Text fontSize="smaller">Aucun abonnés à la discussion.</Text>
   );
 };

@@ -19,6 +19,7 @@ export interface IEvent<T = string> {
   eventPhone?: { phone: string }[];
   eventWeb?: { url: string; prefix: string }[];
   eventDescription?: string;
+  eventDescriptionHtml?: string;
   eventCategory?: number;
   eventVisibility?: string;
   eventOrgs: IOrg[];
@@ -130,7 +131,14 @@ export const EventSchema = new Schema<IEvent>(
     eventEmail: [{ email: String }],
     eventPhone: [{ phone: String }],
     eventWeb: [{ url: String, prefix: String }],
-    eventDescription: String,
+    eventDescription: {
+      type: String,
+      trim: true
+    },
+    eventDescriptionHtml: {
+      type: String,
+      trim: true
+    },
     eventCategory: Number,
     eventVisibility: {
       type: String,

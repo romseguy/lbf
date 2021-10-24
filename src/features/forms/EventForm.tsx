@@ -101,7 +101,7 @@ export const EventForm = withGoogleApi({
   });
   //#endregion
 
-  //#region form state
+  //#region form
   const {
     control,
     register,
@@ -152,6 +152,9 @@ export const EventForm = withGoogleApi({
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
   const [isRepeat, setIsRepeat] = useState(hasItems(props.event?.otherDays));
+  const [eventDescriptionHtml, setEventDescriptionHtml] = useState(
+    props.event?.eventDescriptionHtml
+  );
 
   const [days, setDays] = useState<{
     [key: number]: {
@@ -386,6 +389,7 @@ export const EventForm = withGoogleApi({
         form.eventDescription === "<p><br></p>"
           ? ""
           : form.eventDescription?.replace(/\&nbsp;/g, " "),
+      eventDescriptionHtml,
       eventEmail:
         Array.isArray(eventEmail) && eventEmail.length > 0 ? eventEmail : [],
       eventPhone:
@@ -435,9 +439,8 @@ export const EventForm = withGoogleApi({
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });
-        } else {
-          setError("formErrorMessage", { type: "manual", message });
         }
+        setError("formErrorMessage", { type: "manual", message });
       });
     } finally {
       setIsLoading(false);
@@ -446,17 +449,6 @@ export const EventForm = withGoogleApi({
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-      <ErrorMessage
-        errors={errors}
-        name="formErrorMessage"
-        render={({ message }) => (
-          <Alert status="error" mb={3}>
-            <AlertIcon />
-            <ErrorMessageText>{message}</ErrorMessageText>
-          </Alert>
-        )}
-      />
-
       <FormControl
         id="eventName"
         isRequired
@@ -479,7 +471,7 @@ export const EventForm = withGoogleApi({
           })}
           defaultValue={props.event && props.event.eventName}
         />
-        {!props.event && getValues("eventName") && (
+        {!errors.eventName && !props.event && getValues("eventName") && (
           <Tooltip label={`Adresse de la page de l'événement`}>
             <Tag mt={3} alignSelf="flex-end" cursor="help">
               {process.env.NEXT_PUBLIC_URL}/{normalize(getValues("eventName"))}
@@ -857,16 +849,17 @@ export const EventForm = withGoogleApi({
           name="eventDescription"
           control={control}
           defaultValue={props.event?.eventDescription || ""}
-          render={(p) => {
+          render={(renderProps) => {
             return (
               <RTEditor
                 event={props.event}
                 session={props.session}
                 defaultValue={props.event?.eventDescription}
-                onChange={(html: string) => {
-                  p.onChange(html === "<p><br></p>" ? "" : html);
-                }}
                 placeholder="Description de l'événement"
+                onChange={({ html, quillHtml }) => {
+                  setEventDescriptionHtml(html);
+                  renderProps.onChange(quillHtml);
+                }}
               />
             );
           }}
@@ -956,6 +949,17 @@ export const EventForm = withGoogleApi({
           <ErrorMessage errors={errors} name="eventOrgs" />
         </FormErrorMessage>
       </FormControl>
+
+      <ErrorMessage
+        errors={errors}
+        name="formErrorMessage"
+        render={({ message }) => (
+          <Alert status="error" mb={3}>
+            <AlertIcon />
+            <ErrorMessageText>{message}</ErrorMessageText>
+          </Alert>
+        )}
+      />
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>

@@ -1,5 +1,6 @@
+import { DeleteIcon, EmailIcon } from "@chakra-ui/icons";
 import {
-  ChakraProps,
+  Box,
   FormControl,
   FormLabel,
   Input,
@@ -10,7 +11,9 @@ import {
   AlertIcon,
   Select,
   Tag,
-  Tooltip
+  Tooltip,
+  IconButton,
+  InputRightAddon
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { Session } from "next-auth";
@@ -23,7 +26,8 @@ import {
   EmailControl,
   Button,
   ErrorMessageText,
-  RTEditor
+  RTEditor,
+  Link
 } from "features/common";
 import { PhoneControl } from "features/common/forms/PhoneControl";
 import { UrlControl } from "features/common/forms/UrlControl";
@@ -41,12 +45,11 @@ import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
 
-interface OrgFormProps extends ChakraProps {
+interface OrgFormProps {
   session: Session;
   org?: IOrg;
   setOrgType?: (orgType: string) => void;
-  onClose?: () => void;
-  onCancel?: () => void;
+  onCancel: () => void;
   onSubmit?: (orgUrl: string) => void;
 }
 
@@ -58,7 +61,7 @@ export const OrgForm = withGoogleApi({
   const [editOrg, editOrgMutation] = useEditOrgMutation();
   //#endregion
 
-  //#region form state
+  //#region form
   const {
     control,
     register,
@@ -89,6 +92,10 @@ export const OrgForm = withGoogleApi({
   //#region local state
   const toast = useToast({ position: "top" });
   const [isLoading, setIsLoading] = useState(false);
+  const [hasAddress, setHasAddress] = useState(false);
+  const [orgDescriptionHtml, setOrgDescriptionHtml] = useState<
+    string | undefined
+  >(props.org?.orgDescriptionHtml);
   const [suggestion, setSuggestion] = useState<Suggestion>();
   const {
     ready,
@@ -128,6 +135,7 @@ export const OrgForm = withGoogleApi({
         form.orgDescription === "<p><br></p>"
           ? ""
           : form.orgDescription?.replace(/\&nbsp;/g, " "),
+      orgDescriptionHtml,
       orgEmail: Array.isArray(orgEmail) && orgEmail.length > 0 ? orgEmail : [],
       orgPhone: Array.isArray(orgPhone) && orgPhone.length > 0 ? orgPhone : [],
       orgWeb: Array.isArray(orgWeb) && orgWeb.length > 0 ? orgWeb : []
@@ -166,9 +174,10 @@ export const OrgForm = withGoogleApi({
         });
       }
 
-      props.onClose && props.onClose();
+      setIsLoading(false);
       props.onSubmit && props.onSubmit(payload.orgUrl);
     } catch (error) {
+      setIsLoading(false);
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });
@@ -176,8 +185,6 @@ export const OrgForm = withGoogleApi({
           setError("formErrorMessage", { type: "manual", message });
         }
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -234,7 +241,7 @@ export const OrgForm = withGoogleApi({
         isInvalid={!!errors["orgType"]}
         mb={3}
       >
-        <FormLabel>Type {orgType}</FormLabel>
+        <FormLabel>Type de l'organisation</FormLabel>
         <Select
           name="orgType"
           ref={register({
@@ -257,18 +264,46 @@ export const OrgForm = withGoogleApi({
         </FormErrorMessage>
       </FormControl>
 
-      <AddressControl
-        name="orgAddress"
-        isRequired
-        defaultValue={props.org?.orgAddress || ""}
-        errors={errors}
-        control={control}
-        mb={3}
-        placeholder={`Adresse ${orgType}`}
-        onSuggestionSelect={(suggestion: Suggestion) => {
-          setSuggestion(suggestion);
-        }}
-      />
+      {hasAddress ? (
+        <AddressControl
+          name="orgAddress"
+          control={control}
+          errors={errors}
+          setValue={setValue}
+          defaultValue={props.org?.orgAddress || ""}
+          placeholder={`Adresse ${orgType}`}
+          mb={3}
+          rightAddon={
+            <InputRightAddon
+              p={0}
+              children={
+                <IconButton
+                  aria-label="Supprimer l'adresse postale"
+                  icon={<DeleteIcon />}
+                  bg="transparent"
+                  _hover={{ bg: "transparent", color: "red" }}
+                  onClick={() => setHasAddress(false)}
+                />
+              }
+            />
+          }
+          isMultiple={false}
+          onSuggestionSelect={(suggestion: Suggestion) => {
+            setSuggestion(suggestion);
+          }}
+        />
+      ) : (
+        <Box mb={3}>
+          <Link
+            fontSize="smaller"
+            onClick={() => {
+              setHasAddress(true);
+            }}
+          >
+            <EmailIcon mr={1} /> Ajouter une adresse postale
+          </Link>
+        </Box>
+      )}
 
       <EmailControl
         name="orgEmail"
@@ -277,6 +312,7 @@ export const OrgForm = withGoogleApi({
         errors={errors}
         setValue={setValue}
         placeholder={`Adresse e-mail ${orgType}`}
+        mb={3}
       />
 
       <PhoneControl
@@ -286,6 +322,7 @@ export const OrgForm = withGoogleApi({
         errors={errors}
         setValue={setValue}
         placeholder={`Numéro de téléphone ${orgType}`}
+        mb={3}
       />
 
       <UrlControl
@@ -295,6 +332,7 @@ export const OrgForm = withGoogleApi({
         errors={errors}
         setValue={setValue}
         placeholder={`Site internet ${orgType}`}
+        mb={3}
       />
 
       <FormControl
@@ -307,15 +345,17 @@ export const OrgForm = withGoogleApi({
           name="orgDescription"
           control={control}
           defaultValue={props.org?.orgDescription || ""}
-          render={(p) => {
+          render={(renderProps) => {
             return (
               <RTEditor
                 org={props.org}
                 session={props.session}
                 defaultValue={props.org?.orgDescription}
-                onChange={p.onChange}
                 placeholder="Décrivez l'organisation, ses activités, etc..."
-                // TODO placeholder={`Description ${orgType}`}
+                onChange={({ html, quillHtml }) => {
+                  setOrgDescriptionHtml(html);
+                  renderProps.onChange(quillHtml);
+                }}
               />
             );
           }}
@@ -362,7 +402,7 @@ export const OrgForm = withGoogleApi({
 
       <Flex justifyContent="space-between">
         <Button
-          onClick={() => props.onCancel && props.onCancel()}
+          onClick={props.onCancel}
           // dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
         >
           Annuler

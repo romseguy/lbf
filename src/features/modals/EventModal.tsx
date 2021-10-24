@@ -12,30 +12,34 @@ import {
 } from "@chakra-ui/react";
 import { EventForm } from "features/forms/EventForm";
 
-export const EventModal = (props: {
+export const EventModal = ({
+  initialEventOrgs,
+  session,
+  onCancel,
+  onSubmit,
+  ...props
+}: {
   session: Session;
   initialEventOrgs?: IOrg[];
   onCancel: () => void;
   onClose: () => void;
-  onSubmit: (eventUrl: string) => void;
+  onSubmit: (eventUrl: string) => Promise<void>;
 }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
-
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={() => {
-        props.onClose && props.onClose();
-        onClose();
-      }}
-      closeOnOverlayClick={false}
-    >
+    <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
       <ModalOverlay>
         <ModalContent maxWidth="xl">
           <ModalHeader>Ajouter un événement</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <EventForm initialEventOrgs={props.initialEventOrgs} {...props} />
+            <EventForm
+              initialEventOrgs={initialEventOrgs}
+              session={session}
+              onCancel={onCancel}
+              onSubmit={async (eventUrl: string) => {
+                await onSubmit(eventUrl);
+              }}
+            />
           </ModalBody>
         </ModalContent>
       </ModalOverlay>

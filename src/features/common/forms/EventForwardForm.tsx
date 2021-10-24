@@ -42,7 +42,7 @@ export const EventForwardForm = ({
 
   const [isLoading, setIsLoading] = useState(false);
 
-  //#region form state
+  //#region form
   const { control, errors, handleSubmit, setError, clearErrors } = useForm();
   const {
     data: orgs,

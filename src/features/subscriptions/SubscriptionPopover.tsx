@@ -79,7 +79,7 @@ export const SubscriptionPopover = ({
   // });
   //#endregion
 
-  //#region form state
+  //#region form
   const { errors, handleSubmit, register } = useForm({
     mode: "onChange"
   });

@@ -15,17 +15,19 @@ let cachedVal = "";
 const acceptedKeys = ["ArrowUp", "ArrowDown", "Escape", "Enter"];
 
 type ControlProps = {
-  onChange: (description: string) => void;
   value?: string;
   placeholder?: string;
+  rightAddon?: React.ReactNode;
+  onChange: (description: string) => void;
   onSuggestionSelect?: (suggestion: Suggestion) => void;
   onClick?: () => void;
 };
 
 export const AutoCompletePlacesControl = ({
-  onChange,
   value,
   placeholder,
+  rightAddon,
+  onChange,
   onSuggestionSelect,
   onClick
 }: ControlProps) => {
@@ -65,7 +67,7 @@ export const AutoCompletePlacesControl = ({
   });
 
   const handleSelect = (suggestion: Suggestion) => () => {
-    const { description } = suggestion;
+    const description = suggestion.description.replace(", France", "");
     setAutoCompleteValue(description, false);
     onChange(description);
     onSuggestionSelect && onSuggestionSelect(suggestion);
@@ -137,10 +139,17 @@ export const AutoCompletePlacesControl = ({
 
             if (e.key === "Enter") {
               e.preventDefault();
-              const newValue =
-                currIndex === null ? cachedVal : data[currIndex].description;
-              setAutoCompleteValue(newValue, false);
-              onChange(newValue);
+              let description = cachedVal;
+
+              if (currIndex) {
+                description = data[currIndex].description.replace(
+                  ", France",
+                  ""
+                );
+              }
+
+              setAutoCompleteValue(description, false);
+              onChange(description);
               dismissSuggestions();
               return;
             }
@@ -162,6 +171,8 @@ export const AutoCompletePlacesControl = ({
             else setAutoCompleteValue(data[nextIndex].description, false);
           }}
         />
+
+        {rightAddon}
       </InputGroup>
 
       {status === "OK" && (

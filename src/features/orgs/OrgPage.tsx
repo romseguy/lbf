@@ -3,7 +3,6 @@ import {
   AtSignIcon,
   EditIcon,
   PhoneIcon,
-  QuestionIcon,
   SettingsIcon
 } from "@chakra-ui/icons";
 import {
@@ -30,9 +29,9 @@ import React, { useEffect, useState } from "react";
 import { FaGlobeEurope, FaMapMarkedAlt } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
+
 import {
   Button,
-  DidYouKnow,
   GridHeader,
   GridItem,
   IconFooter,
@@ -53,14 +52,15 @@ import {
   isSubscribedBy,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
+import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { Visibility as EventVisibility } from "models/Event";
 import { IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
+import { hasItems } from "utils/array";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { selectOrgRefetch } from "./orgSlice";
 import { useGetOrgQuery } from "./orgsApi";
-import { selectUserEmail } from "features/users/userSlice";
 
 export type Visibility = {
   isVisible: {
@@ -187,14 +187,14 @@ export const OrgPage = ({
         >
           Paramètres {orgTypeFull(org.orgType)}
         </Button>
-      ) : isConfig && !isEdit ? (
+      ) : isConfig ? (
         <Button
           colorScheme="pink"
           leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
           mb={2}
         >
-          {`Revenir ${orgTypeFull2(org.orgType)}`}
+          {`Revenir à la page ${orgTypeFull(org.orgType)}`}
         </Button>
       ) : null}
 
@@ -286,6 +286,22 @@ export const OrgPage = ({
                       dark={{ bg: "gray.500" }}
                     >
                       <Box p={5}>
+                        {!org.orgAddress &&
+                          !hasItems(org.orgEmail) &&
+                          !hasItems(org.orgPhone) &&
+                          !hasItems(org.orgWeb) && (
+                            <Link
+                              onClick={() => {
+                                setIsEdit(true);
+                                setIsConfig(true);
+                              }}
+                              variant="underline"
+                            >
+                              Cliquez ici pour ajouter les coordonnées{" "}
+                              {orgTypeFull(org.orgType)}.
+                            </Link>
+                          )}
+
                         {org.orgAddress && (
                           <Flex flexDirection="column">
                             <Flex alignItems="center">
@@ -335,8 +351,15 @@ export const OrgPage = ({
                             {org.orgWeb?.map(({ url, prefix }, index) => (
                               <Flex key={`web-${index}`} alignItems="center">
                                 <Icon as={FaGlobeEurope} mr={3} />
-                                <Link variant="underline" href={prefix + url}>
-                                  {url}
+                                <Link
+                                  variant="underline"
+                                  href={
+                                    !url.includes("http") ? prefix + url : url
+                                  }
+                                >
+                                  {url
+                                    .replace(/\/$/, "")
+                                    .replace(/(https|http):\/\//, "")}
                                 </Link>
                               </Flex>
                             ))}

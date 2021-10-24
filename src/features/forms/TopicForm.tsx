@@ -46,7 +46,9 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
   const [addTopic, addTopicMutation] = useAddTopicMutation();
   const [editTopic, editTopicMutation] = useEditTopicMutation();
 
+  //#region local state
   const [isLoading, setIsLoading] = useState(false);
+  const [messageHtml, setMessageHtml] = useState<string>();
   const visibilityOptions: string[] = [];
 
   if ((org && org.orgName !== "aucourant") || event) {
@@ -66,7 +68,9 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
       }
     }
   }
+  //#endregion
 
+  //#region form
   const { control, register, handleSubmit, errors, setError, clearErrors } =
     useForm({
       mode: "onChange"
@@ -88,7 +92,13 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
     setIsLoading(true);
 
     const topicMessages: ITopicMessage[] = form.topicMessage
-      ? [{ message: form.topicMessage, createdBy: session.user.userId }]
+      ? [
+          {
+            message: form.topicMessage,
+            messageHtml,
+            createdBy: session.user.userId
+          }
+        ]
       : [];
 
     const payload = {
@@ -103,6 +113,8 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         createdBy: session.user.userId
       }
     };
+
+    console.log("payload", payload);
 
     try {
       if (props.topic) {
@@ -122,6 +134,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
           isClosable: true
         });
 
+        setIsLoading(false);
         props.onSubmit && props.onSubmit(props.topic);
       } else {
         const topic = await addTopic({
@@ -135,11 +148,11 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
           isClosable: true
         });
 
+        setIsLoading(false);
         props.onSubmit && props.onSubmit(topic);
       }
-
-      props.onClose && props.onClose();
     } catch (error: any) {
+      setIsLoading(false);
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });
@@ -147,10 +160,9 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
           setError("formErrorMessage", { type: "manual", message });
         }
       });
-    } finally {
-      setIsLoading(false);
     }
   };
+  //#endregion
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
@@ -196,12 +208,15 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
             name="topicMessage"
             control={control}
             defaultValue={""}
-            render={(p) => {
+            render={(renderProps) => {
               return (
                 <RTEditor
                   defaultValue={""}
-                  onChange={p.onChange}
                   placeholder="Contenu de votre message"
+                  onChange={({ html, quillHtml }) => {
+                    setMessageHtml(html);
+                    renderProps.onChange(quillHtml);
+                  }}
                 />
               );
             }}

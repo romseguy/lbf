@@ -220,8 +220,10 @@ export const EventPopover = ({
           session={session}
           onCancel={() => setEventModalState({ isOpen: false })}
           onClose={() => setEventModalState({ isOpen: false })}
-          onSubmit={async (eventUrl: string) => {
-            await router.push(`/${eventUrl}`);
+          onSubmit={async (eventUrl) => {
+            await router.push(`/${eventUrl}`, `/${eventUrl}`, {
+              shallow: true
+            });
           }}
         />
       )}

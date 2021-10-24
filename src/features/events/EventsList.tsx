@@ -318,11 +318,15 @@ export const EventsList = ({
           mb={5}
         />
 
-        <EventsListCategories
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          mb={5}
-        />
+        {(previousEvents.length > 0 ||
+          currentEvents.length > 0 ||
+          nextEvents.length > 0) && (
+          <EventsListCategories
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            mb={5}
+          />
+        )}
 
         {showPreviousEvents && (
           <Box>
@@ -589,8 +593,8 @@ export const EventsList = ({
 
           {session && isEventModalOpen && (
             <EventModal
-              session={session}
               initialEventOrgs={[org]}
+              session={session}
               onCancel={() => setIsEventModalOpen(false)}
               onSubmit={async (eventUrl) => {
                 if (org) {

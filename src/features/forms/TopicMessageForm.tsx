@@ -33,13 +33,19 @@ interface TopicMessageFormProps extends ChakraProps {
 
 export const TopicMessageForm = (props: TopicMessageFormProps) => {
   const { data: session } = useSession();
-  const [isLoading, setIsLoading] = useState(false);
-  const [addTopic, addTopicMutation] = useAddTopicMutation();
   const toast = useToast({ position: "top" });
+
+  const [addTopic, addTopicMutation] = useAddTopicMutation();
+
+  //#region local state
+  const [isLoading, setIsLoading] = useState(false);
+  const [messageHtml, setMessageHtml] = useState<string>();
   const [topicMessageDefaultValue, setTopicMessageDefaultValue] = useState<
     string | undefined
   >();
+  //#endregion
 
+  //#region form
   const {
     control,
     register,
@@ -73,7 +79,11 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
       topic: {
         ...props.topic,
         topicMessages: [
-          { message: form.topicMessage, createdBy: session.user.userId }
+          {
+            message: form.topicMessage,
+            messageHtml,
+            createdBy: session.user.userId
+          }
         ]
       }
     };
@@ -89,9 +99,11 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
         isClosable: true
       });
 
-      props.onSubmit && props.onSubmit(form.topicMessage);
+      setIsLoading(false);
       clearErrors("topicMessage");
+      props.onSubmit && props.onSubmit(form.topicMessage);
     } catch (error) {
+      setIsLoading(false);
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });
@@ -99,10 +111,9 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
           setError("formErrorMessage", { type: "manual", message });
         }
       });
-    } finally {
-      setIsLoading(false);
     }
   };
+  //#endregion
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
@@ -122,22 +133,23 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
         isRequired
         isInvalid={!!errors["topicMessage"]}
         p={3}
-        pb={3}
+        pt={0}
       >
         <Controller
           name="topicMessage"
           control={control}
           defaultValue={topicMessageDefaultValue || ""}
           rules={{ required: "Veuillez saisir un message" }}
-          render={(p) => {
+          render={(renderProps) => {
             return (
               <RTEditor
                 formats={props.formats}
                 readOnly={session === null}
                 defaultValue={topicMessageDefaultValue}
-                onChange={(html: string) => {
+                onChange={({ html, quillHtml }) => {
                   clearErrors("topicMessage");
-                  p.onChange(html === "<p><br></p>" ? "" : html);
+                  setMessageHtml(html);
+                  renderProps.onChange(quillHtml);
                 }}
                 placeholder={
                   session
