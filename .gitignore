@@ -6,6 +6,12 @@
 yarn-debug.log*
 yarn-error.log*
 
+# build
+.next
+**/public/workbox-*.js
+**/public/sw.js
+**/public/worker-*.js
+
 # misc
 playground.mongodb
 TODO
