@@ -9,26 +9,15 @@ import {
   ModalHeader,
   ModalBody,
   ModalCloseButton,
-  useDisclosure,
-  Box,
   Text,
   Alert,
   AlertIcon,
   Spinner
 } from "@chakra-ui/react";
-import { Map } from "features/map/Map";
+import { Map, SizeMap } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { hasItems } from "utils/array";
-
-export type SizeMap = {
-  defaultSize: {
-    enabled: boolean;
-  };
-  fullSize: {
-    enabled: boolean;
-  };
-};
 
 export const MapModal = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -113,8 +102,8 @@ export const MapModal = withGoogleApi({
               ) : isOffline ? (
                 <Alert status="error" mb={3}>
                   <AlertIcon />
-                  Nous n'avons pas pu charger la carte. Êtes-vous connecté à
-                  internet ?
+                  Échec du chargement de la carte. Êtes-vous connecté à internet
+                  ?
                 </Alert>
               ) : !props.loaded ? (
                 <Spinner />

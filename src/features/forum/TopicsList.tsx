@@ -189,6 +189,7 @@ export const TopicsList = ({
               return (
                 <TopicsListItem
                   key={topic._id}
+                  session={session}
                   event={event}
                   org={org}
                   query={query}

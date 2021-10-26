@@ -7,6 +7,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # build
+*.zip
+*.tar.gz
 .next
 **/public/workbox-*.js
 **/public/sw.js

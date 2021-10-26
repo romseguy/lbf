@@ -45,7 +45,6 @@ handler.post<
   NextApiResponse
 >(async function postSubscription(req, res) {
   const session = await getSession({ req });
-  console.log("!!", session);
 
   try {
     const {

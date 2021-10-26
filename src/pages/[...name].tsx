@@ -50,7 +50,7 @@ const Hash = ({
         setEvent(eventQuery.data);
       } else {
         populate =
-          "orgBanner orgEvents orgLogo orgProjects orgSubscriptions orgTopics";
+          "orgBanner orgEvents orgLogo orgProjects orgSubscriptions orgTopics orgs";
         const orgQuery = await dispatch(
           getOrg.initiate({
             orgUrl: routeName,

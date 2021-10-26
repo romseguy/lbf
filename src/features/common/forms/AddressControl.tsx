@@ -15,6 +15,9 @@ import { Control, Controller, useFieldArray } from "react-hook-form";
 import { Suggestion } from "use-places-autocomplete";
 import { AutoCompletePlacesControl, Link } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { StyleProps } from "theme/styles";
+
+type AddressControlValue = [{ address: string }] | null;
 
 export const AddressControl = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -33,6 +36,7 @@ export const AddressControl = withGoogleApi({
     noLabel = false,
     isMultiple = true,
     rightAddon,
+    containerProps = {},
     onSuggestionSelect,
     onClick,
     ...props
@@ -42,7 +46,7 @@ export const AddressControl = withGoogleApi({
     name: string;
     errors: { [key: string]: string };
     control: Control<any>;
-    setValue?: any;
+    setValue: (name: string, value: AddressControlValue) => void;
     defaultValue?: string;
     value?: string;
     placeholder?: string;
@@ -50,6 +54,7 @@ export const AddressControl = withGoogleApi({
     noLabel?: boolean;
     isMultiple?: boolean;
     rightAddon?: React.ReactNode;
+    containerProps?: StyleProps;
     onSuggestionSelect?: (suggestion: Suggestion) => void;
     onClick?: () => void;
   }) => {
@@ -78,7 +83,7 @@ export const AddressControl = withGoogleApi({
             <Controller
               name={name}
               control={control}
-              defaultValue={defaultValue}
+              //defaultValue={defaultValue}
               rules={controlRules}
               render={(renderProps) => {
                 return (
@@ -117,18 +122,14 @@ export const AddressControl = withGoogleApi({
       });
 
     return (
-      <Box mb={3}>
+      <Box mb={3} {...containerProps}>
         {fields.map((field, index) => {
-          let isInvalid = false;
-          if (errors[name] && errors[name][index]) {
-            isInvalid = true;
-          }
           return (
             <FormControl
               key={field.id}
               id={name}
               isRequired={isRequired}
-              isInvalid={isInvalid}
+              isInvalid={!!(errors[name] && errors[name][index])}
               {...props}
             >
               {!noLabel && <FormLabel>Adresse</FormLabel>}
@@ -136,11 +137,9 @@ export const AddressControl = withGoogleApi({
                 <Controller
                   name={`${name}[${index}].address`}
                   control={control}
-                  defaultValue={defaultValue}
+                  defaultValue={field.address}
                   rules={controlRules}
                   render={(renderProps) => {
-                    console.log(renderProps);
-
                     return (
                       <AutoCompletePlacesControl
                         value={
@@ -196,7 +195,7 @@ export const AddressControl = withGoogleApi({
         <Link
           fontSize="smaller"
           onClick={() => {
-            append({ email: "" });
+            append({ address: "" });
           }}
         >
           <EmailIcon mr={1} /> Ajouter une adresse postale

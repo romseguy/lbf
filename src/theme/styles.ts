@@ -1,6 +1,10 @@
 import { mode } from "@chakra-ui/theme-tools";
 import { Dict } from "@chakra-ui/utils";
 
+export type StyleProps = {
+  [key: string]: string | number | { [key: string]: string | number };
+};
+
 const ReactSelectStyles = (props: Dict) => ({
   ".react-select-container": {
     ".react-select__control": {

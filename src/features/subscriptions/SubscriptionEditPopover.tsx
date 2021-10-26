@@ -261,7 +261,7 @@ export const SubscriptionEditPopover = ({
       console.error(error);
       toast({
         status: "error",
-        title: "Nous n'avons pas pu modifier votre abonnement"
+        title: "Échec de la modification de votre abonnement"
       });
     } finally {
       setIsLoading(false);
@@ -374,7 +374,7 @@ export const SubscriptionEditPopover = ({
                             toast({
                               status: "error",
                               title:
-                                "Nous n'avons pas pu modifier votre abonnement"
+                                "Échec de la modification de votre abonnement"
                             });
                           } finally {
                             setIsLoading(false);
@@ -502,7 +502,7 @@ export const SubscriptionEditPopover = ({
                         console.error(error);
                         toast({
                           status: "error",
-                          title: "Nous n'avons pas pu modifier votre abonnement"
+                          title: "Échec de la modification de votre abonnement"
                         });
                       } finally {
                         setIsLoading(false);

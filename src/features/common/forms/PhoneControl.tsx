@@ -19,6 +19,9 @@ import React from "react";
 import { useFieldArray } from "react-hook-form";
 import { Link } from "../Link";
 import { phoneR } from "utils/string";
+import { StyleProps } from "theme/styles";
+
+type PhoneControlValue = [{ address: string }] | null;
 
 export const PhoneControl = ({
   defaultValue = "",
@@ -29,6 +32,7 @@ export const PhoneControl = ({
   control,
   register,
   setValue,
+  containerProps = {},
   isRequired = false,
   isMultiple = true,
   ...props
@@ -40,7 +44,8 @@ export const PhoneControl = ({
   noLabel?: boolean;
   control: any;
   register: any;
-  setValue?: any;
+  setValue: (name: string, value: PhoneControlValue) => void;
+  containerProps?: StyleProps;
   isRequired?: boolean;
   placeholder?: string;
   isMultiple?: boolean;
@@ -94,7 +99,7 @@ export const PhoneControl = ({
   );
 
   return (
-    <Box {...props}>
+    <Box {...containerProps}>
       {fields.map((field, index) => {
         return (
           <FormControl

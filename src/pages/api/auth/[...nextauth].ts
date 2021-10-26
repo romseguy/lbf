@@ -41,7 +41,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
           if (error) {
             console.log("AUTHORIZE ERROR:", error);
-            throw new Error("Nous n'avons pas pu vous identifier.");
+            throw new Error(
+              "Échec de la connexion, vérifiez vos identifiants."
+            );
           }
 
           return null;

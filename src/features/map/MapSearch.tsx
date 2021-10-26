@@ -42,6 +42,7 @@ export const MapSearch = ({
         value={value}
         noLabel
         mb={3}
+        isMultiple={false}
         onChange={(description: string) => {
           setValue(description);
         }}

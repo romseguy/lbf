@@ -19,6 +19,8 @@ import React from "react";
 import { useFieldArray } from "react-hook-form";
 import { Link } from "../Link";
 
+type EmailControlValue = [{ email: string }] | null;
+
 export const EmailControl = ({
   defaultValue,
   errors,
@@ -28,6 +30,7 @@ export const EmailControl = ({
   control,
   register,
   setValue,
+  containerProps = {},
   isRequired = false,
   isMultiple = true,
   onRightElementClick,
@@ -40,7 +43,8 @@ export const EmailControl = ({
   noLabel?: boolean;
   control?: any;
   register: any;
-  setValue?: any;
+  setValue: (name: string, value: EmailControlValue | string) => void;
+  containerProps?: StyleProps;
   isRequired?: boolean;
   isMultiple?: boolean;
   placeholder?: string;
@@ -104,7 +108,7 @@ export const EmailControl = ({
   );
 
   return (
-    <Box {...props}>
+    <Box {...containerProps}>
       {fields.map((field, index) => {
         return (
           <FormControl

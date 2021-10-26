@@ -19,8 +19,11 @@ import React, { useState } from "react";
 import { useFieldArray } from "react-hook-form";
 import { FaGlobeEurope } from "react-icons/fa";
 import { css } from "twin.macro";
+import { StyleProps } from "theme/styles";
 import { optionalProtocolUrlR, urlR } from "utils/url";
 import { Link } from "../Link";
+
+type UrlControlValue = [{ url: string; prefix: string }] | null;
 
 export const UrlControl = ({
   label = "Site internet",
@@ -31,6 +34,7 @@ export const UrlControl = ({
   control,
   register,
   setValue,
+  containerProps = {},
   isRequired = false,
   isMultiple = true,
   ...props
@@ -41,7 +45,8 @@ export const UrlControl = ({
   name: string;
   control: any;
   register: any;
-  setValue?: any;
+  setValue: (name: string, value: UrlControlValue | string) => void;
+  containerProps?: StyleProps;
   isRequired?: boolean;
   placeholder?: string;
   isMultiple?: boolean;
@@ -91,7 +96,7 @@ export const UrlControl = ({
   );
 
   return (
-    <Box {...props}>
+    <Box {...containerProps}>
       {fields.map((field, index) => {
         return (
           <FormControl
@@ -99,6 +104,7 @@ export const UrlControl = ({
             id={name}
             isRequired={isRequired}
             isInvalid={!!(errors[name] && errors[name][index])}
+            {...props}
           >
             <FormLabel m={0}>
               {index > 0 ? `${index + 1}ème ${label.toLowerCase()}` : label}

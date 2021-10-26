@@ -1,24 +1,31 @@
 import { CalendarIcon } from "@chakra-ui/icons";
-import { Alert, AlertIcon, Box, Icon, Spinner, Text } from "@chakra-ui/react";
+import { Box, Icon, Text } from "@chakra-ui/react";
 import MarkerClusterer from "@googlemaps/markerclustererplus";
-import { parseISO } from "date-fns";
 import GoogleMap from "google-map-react";
 import DOMPurify from "isomorphic-dompurify";
 import React, { useRef, useState } from "react";
 import { render } from "react-dom";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { IoIosPeople } from "react-icons/io";
-import type { LatLon } from "use-places-autocomplete";
+import { LatLon } from "use-places-autocomplete";
 import { css } from "twin.macro";
-import { DateRange, Link } from "features/common";
+import { Link } from "features/common";
+import { EventTimeline } from "features/events/EventTimeline";
 import { DescriptionModal } from "features/modals/DescriptionModal";
-import type { SizeMap } from "features/modals/MapModal";
-import type { IEvent } from "models/Event";
-import type { IOrg } from "models/Org";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
 import { FullscreenControl } from "./FullscreenControl";
 import { withGoogleApi } from "./GoogleApiWrapper";
 import { Marker } from "./Marker";
-import { EventTimeline } from "features/events/EventTimeline";
+
+export type SizeMap = {
+  defaultSize: {
+    enabled: boolean;
+  };
+  fullSize: {
+    enabled: boolean;
+  };
+};
 
 const defaultCenter = {
   lat: 43.0555331,
@@ -33,6 +40,8 @@ export const Map = withGoogleApi({
     events,
     orgs,
     size,
+    height,
+    style,
     onFullscreenControlClick,
     ...props
   }: {
@@ -42,6 +51,8 @@ export const Map = withGoogleApi({
     events?: IEvent[];
     orgs?: IOrg[];
     size: SizeMap;
+    height?: string;
+    style: { [key: string]: string | number };
     onGoogleApiLoaded: () => void;
     onFullscreenControlClick?: (isFull: boolean) => void;
   }) => {
@@ -94,7 +105,7 @@ export const Map = withGoogleApi({
       //   console.log(mapRef.current);
       // }
 
-      if (!options.fullscreenControl) {
+      if (onFullscreenControlClick) {
         const controlButtonDiv = document.createElement("div");
         render(
           <FullscreenControl onClick={onFullscreenControlClick} />,
@@ -149,19 +160,6 @@ export const Map = withGoogleApi({
       });
     };
 
-    const isOffline = props.loaded && !props.google;
-
-    if (!props.loaded) {
-      return <Spinner />;
-    } else if (isOffline) {
-      return (
-        <Alert status="error">
-          <AlertIcon />
-          Nous n'avons pas pu charger la carte. Êtes-vous connecté à internet ?
-        </Alert>
-      );
-    }
-
     return (
       <>
         <GoogleMap
@@ -176,10 +174,12 @@ export const Map = withGoogleApi({
           onChange={(e) => {
             setZoomLevel(e.zoom);
           }}
-          style={{
-            position: "relative",
-            flex: 1
-          }}
+          style={
+            style || {
+              position: "relative",
+              flex: 1
+            }
+          }
         >
           {markers.map((marker) => (
             <Marker

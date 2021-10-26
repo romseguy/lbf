@@ -8,6 +8,7 @@ import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { wrapper } from "store";
 import api, { ResponseType } from "utils/api";
+import { Session } from "next-auth";
 
 type UnsubscribePageProps = {
   unsubscribed: boolean;
@@ -15,15 +16,13 @@ type UnsubscribePageProps = {
   event?: IEvent;
   topic?: ITopic;
   subscription?: ISubscription;
+  session?: Session | null;
 };
 
-const UnsubscribePage = ({
-  unsubscribed,
-  event,
-  org,
-  topic,
-  subscription
-}: UnsubscribePageProps) => {
+const UnsubscribePage = (props: UnsubscribePageProps) => {
+  const { unsubscribed, event, org, topic, subscription, session, ...rest } =
+    props;
+
   const who = subscription
     ? typeof subscription.user === "object"
       ? subscription.user.email + " est"
@@ -31,7 +30,7 @@ const UnsubscribePage = ({
     : "Vous êtes";
 
   return (
-    <Layout>
+    <Layout session={session}>
       <Alert status={unsubscribed ? "success" : "error"}>
         <AlertIcon />
 
@@ -42,8 +41,8 @@ const UnsubscribePage = ({
               }.`
             : topic
             ? `${who} désabonné de la discussion : ${topic.topicName}`
-            : "Nous n'avons pas pu vous désabonner."
-          : "Nous n'avons pas pu vous désabonner."}
+            : "Vous n'avez pas pu être désabonné."
+          : "Vous n'avez pas pu être désabonné."}
       </Alert>
     </Layout>
   );
@@ -57,8 +56,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
       }>
     ): Promise<{ props: UnsubscribePageProps }> => {
       const { entityUrl } = ctx.params || {};
-      console.log(entityUrl);
-
       const {
         subscriptionId,
         topicId

@@ -52,6 +52,10 @@ handler.get<
       : "-email -password -securityCode";
 
     if (populate) {
+      if (populate.includes("orgs")) {
+        org = org.populate("orgs");
+      }
+
       if (populate.includes("orgEvents")) {
         org = org.populate("orgEvents");
       }

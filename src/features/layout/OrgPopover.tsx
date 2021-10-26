@@ -54,7 +54,7 @@ export const OrgPopover = ({
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region myOrgs
-  const orgsQuery = useGetOrgsQuery({});
+  const orgsQuery = useGetOrgsQuery();
   const refetchOrgs = useSelector(selectOrgsRefetch);
   useEffect(() => {
     if (refetchOrgs !== cachedRefetchOrgs) {
@@ -163,6 +163,7 @@ export const OrgPopover = ({
                       }}
                     >
                       <Button
+                        aria-hidden
                         leftIcon={<Icon as={IoIosPeople} color="green.500" />}
                         p={2}
                       >

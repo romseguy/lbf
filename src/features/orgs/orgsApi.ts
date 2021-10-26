@@ -34,8 +34,11 @@ export const orgApi = createApi({
         url: populate ? `org/${orgUrl}?populate=${populate}` : `org/${orgUrl}`
       })
     }),
-    getOrgs: build.query<IOrg[], { populate?: string; createdBy?: string }>({
-      query: ({ populate, createdBy }) => {
+    getOrgs: build.query<
+      IOrg[],
+      { populate?: string; createdBy?: string } | void
+    >({
+      query: ({ populate, createdBy } = {}) => {
         let url = "orgs";
 
         if (populate) {

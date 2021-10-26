@@ -117,7 +117,7 @@ export const SubscriptionPopover = ({
     } catch (error) {
       toast({
         status: "error",
-        title: "Nous n'avons pas pu vous abonner"
+        title: "Vous n'avez pas pu être abonné"
       });
     } finally {
       setIsLoading(false);
@@ -197,7 +197,7 @@ export const SubscriptionPopover = ({
 
   return (
     <>
-      {!subQuery.isLoading && !subQuery.isFetching && !followerSubscription ? (
+      {!subQuery.isLoading && !followerSubscription ? (
         <Button
           isLoading={isLoading}
           leftIcon={notifType === "email" ? <EmailIcon /> : <BellIcon />}

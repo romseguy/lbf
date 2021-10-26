@@ -7,6 +7,7 @@ import {
   Text,
   Tooltip
 } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import React from "react";
 import { FaBellSlash, FaBell } from "react-icons/fa";
 import { DeleteButton, Grid, GridItem, formats } from "features/common";
@@ -21,6 +22,7 @@ import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
 import { TopicsListItemSubscribers } from "./TopicsListItemSubscribers";
 
 export const TopicsListItem = ({
+  session,
   event,
   org,
   query,
@@ -40,6 +42,7 @@ export const TopicsListItem = ({
   onSubscribeClick,
   onLoginClick
 }: {
+  session: Session | null;
   event?: IEvent;
   org?: IOrg;
   query: any;
@@ -134,7 +137,7 @@ export const TopicsListItem = ({
             <GridItem display="flex" alignItems="center">
               {isLoading ? (
                 <Spinner mr={3} boxSize={4} />
-              ) : (
+              ) : session ? (
                 <>
                   {isCreator && (
                     <>
@@ -227,7 +230,7 @@ export const TopicsListItem = ({
                     </span>
                   </Tooltip>
                 </>
-              )}
+              ) : null}
             </GridItem>
           </Grid>
         </Link>

@@ -118,7 +118,8 @@ export const LoginModal = (props: {
             props.onClose && props.onClose();
             props.onSubmit && props.onSubmit(res?.url);
           }
-        } else throw new Error("Nous n'avons pas pu vous identifier.");
+        } else
+          throw new Error("Échec de la connexion, vérifiez vos identifiants.");
       }
     } catch (error) {
       handleError(error, (message, field) => {

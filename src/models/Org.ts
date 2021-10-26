@@ -12,7 +12,7 @@ export interface IOrg {
   orgName: string;
   orgUrl: string;
   orgType: string;
-  orgAddress?: string;
+  orgAddress?: { address: string }[];
   orgCity?: string;
   orgLat?: number;
   orgLng?: number;
@@ -28,6 +28,7 @@ export interface IOrg {
   orgLogo?: Base64Image;
   orgBanner?: Base64Image & { mode: "light" | "dark"; url?: string };
   orgVisibility: string;
+  orgs?: IOrg[];
   isApproved?: boolean;
   createdBy: IUser | string;
   createdAt?: string;
@@ -97,7 +98,7 @@ export const OrgSchema = new Schema<IOrg>(
       enum: Object.keys(OrgTypes).map((key) => OrgTypes[key]),
       required: true
     },
-    orgAddress: String,
+    orgAddress: [{ address: String }],
     orgCity: String,
     orgLat: Number,
     orgLng: Number,
@@ -134,6 +135,7 @@ export const OrgSchema = new Schema<IOrg>(
       type: String,
       enum: Object.keys(Visibility).map((key) => Visibility[key])
     },
+    orgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
     isApproved: Boolean,
     createdBy: {
       type: Schema.Types.ObjectId,

@@ -55,12 +55,14 @@ import {
 import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { Visibility as EventVisibility } from "models/Event";
-import { IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
+import { IOrg, orgTypeFull, orgTypeFull2, OrgTypes } from "models/Org";
 import { hasItems } from "utils/array";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { selectOrgRefetch } from "./orgSlice";
 import { useGetOrgQuery } from "./orgsApi";
+import { SizeMap } from "features/map/Map";
+import { MapContainer } from "features/map/MapContainer";
 
 export type Visibility = {
   isVisible: {
@@ -167,14 +169,11 @@ export const OrgPage = ({
     topics: false,
     subscribers: false
   });
+  const [size, setSize] = useState<SizeMap>({
+    defaultSize: { enabled: true },
+    fullSize: { enabled: false }
+  });
   //#endregion
-
-  const addEvent = () => {
-    if (!isSessionLoading) {
-      if (!session) setIsLogin(isLogin + 1);
-      else if (isCreator) setIsEventModalOpen(true);
-    }
-  };
 
   return (
     <Layout org={org} isLogin={isLogin} session={props.session}>
@@ -304,10 +303,12 @@ export const OrgPage = ({
 
                         {org.orgAddress && (
                           <Flex flexDirection="column">
-                            <Flex alignItems="center">
-                              <Icon as={FaMapMarkedAlt} mr={3} />
-                              {org.orgAddress}
-                            </Flex>
+                            {org.orgAddress.map(({ address }) => (
+                              <Flex alignItems="center">
+                                <Icon as={FaMapMarkedAlt} mr={3} />
+                                {address}
+                              </Flex>
+                            ))}
                           </Flex>
                         )}
 
@@ -370,6 +371,53 @@ export const OrgPage = ({
                   </Grid>
                 </GridItem>
 
+                {org.orgType === OrgTypes.NETWORK && (
+                  <GridItem
+                    rowSpan={1}
+                    borderTopRadius="lg"
+                    light={{ bg: "orange.100" }}
+                    dark={{ bg: "gray.500" }}
+                  >
+                    <GridHeader borderTopRadius="lg" alignItems="center">
+                      <Flex alignItems="center">
+                        <Heading size="sm" py={3}>
+                          Carte du réseau
+                        </Heading>
+                        {isCreator && (
+                          <Tooltip
+                            placement="bottom"
+                            label="Ajouter ou supprimer des organisations du réseau"
+                          >
+                            <IconButton
+                              aria-label="Ajouter ou supprimer des organisations du réseau"
+                              icon={<EditIcon />}
+                              bg="transparent"
+                              _hover={{ color: "green" }}
+                              onClick={() => {
+                                setIsConfig(true);
+                                setIsEdit(true);
+                              }}
+                            />
+                          </Tooltip>
+                        )}
+                      </Flex>
+                    </GridHeader>
+                    <GridItem light={{ bg: "white" }}>
+                      <MapContainer
+                        orgs={org.orgs}
+                        center={{
+                          lat:
+                            org.orgLat ||
+                            (Array.isArray(org.orgs) ? org.orgs[0].orgLat : 0),
+                          lng:
+                            org.orgLng ||
+                            (Array.isArray(org.orgs) ? org.orgs[1].orgLng : 0)
+                        }}
+                      />
+                    </GridItem>
+                  </GridItem>
+                )}
+
                 <GridItem
                   rowSpan={1}
                   borderTopRadius="lg"
@@ -377,7 +425,7 @@ export const OrgPage = ({
                   dark={{ bg: "gray.500" }}
                 >
                   <GridHeader borderTopRadius="lg" alignItems="center">
-                    <Flex flexDirection="row" alignItems="center">
+                    <Flex alignItems="center">
                       <Heading size="sm" py={3}>
                         Description {orgTypeFull(org.orgType)}
                       </Heading>
@@ -390,7 +438,6 @@ export const OrgPage = ({
                             aria-label="Modifier la description"
                             icon={<EditIcon />}
                             bg="transparent"
-                            ml={3}
                             _hover={{ color: "green" }}
                             onClick={() => {
                               setIsConfig(true);
