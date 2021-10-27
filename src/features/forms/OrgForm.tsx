@@ -86,7 +86,7 @@ export const OrgForm = withGoogleApi({
     );
     //#endregion
 
-    //#region form
+    //#region form state
     const {
       control,
       register,
@@ -238,17 +238,6 @@ export const OrgForm = withGoogleApi({
 
     return (
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-        <ErrorMessage
-          errors={errors}
-          name="formErrorMessage"
-          render={({ message }) => (
-            <Alert status="error" mb={3}>
-              <AlertIcon />
-              <ErrorMessageText>{message}</ErrorMessageText>
-            </Alert>
-          )}
-        />
-
         <FormControl
           id="orgName"
           isRequired
@@ -423,11 +412,12 @@ export const OrgForm = withGoogleApi({
           control={control}
           errors={errors}
           setValue={setValue}
-          //defaultValue={props.org?.orgAddress || ""}
           placeholder={`Adresse ${orgTypeLabel}`}
           mb={3}
           containerProps={
-            orgAddress[0] ? { ...containerProps, mt: 0 } : { mb: 3 }
+            orgAddress && orgAddress[0]
+              ? { ...containerProps, mt: 0 }
+              : { mb: 3 }
           }
           onSuggestionSelect={(suggestion: Suggestion) => {
             setSuggestion(suggestion);
@@ -443,7 +433,7 @@ export const OrgForm = withGoogleApi({
           placeholder={`Adresse e-mail ${orgTypeLabel}`}
           mb={3}
           containerProps={
-            orgEmail[0] ? { ...containerProps, mt: 0 } : { mb: 3 }
+            orgEmail && orgEmail[0] ? { ...containerProps, mt: 0 } : { mb: 3 }
           }
         />
 
@@ -455,7 +445,7 @@ export const OrgForm = withGoogleApi({
           setValue={setValue}
           placeholder={`Numéro de téléphone ${orgTypeLabel}`}
           mb={3}
-          containerProps={orgPhone[0] ? containerProps : { mb: 3 }}
+          containerProps={orgPhone && orgPhone[0] ? containerProps : { mb: 3 }}
         />
 
         <UrlControl
@@ -466,7 +456,20 @@ export const OrgForm = withGoogleApi({
           setValue={setValue}
           placeholder={`Site internet ${orgTypeLabel}`}
           mb={3}
-          containerProps={orgWeb[0] ? { ...containerProps, mb: 3 } : { mb: 3 }}
+          containerProps={
+            orgWeb && orgWeb[0] ? { ...containerProps, mb: 3 } : { mb: 3 }
+          }
+        />
+
+        <ErrorMessage
+          errors={errors}
+          name="formErrorMessage"
+          render={({ message }) => (
+            <Alert status="error" mb={3}>
+              <AlertIcon />
+              <ErrorMessageText>{message}</ErrorMessageText>
+            </Alert>
+          )}
         />
 
         <Flex justifyContent="space-between">

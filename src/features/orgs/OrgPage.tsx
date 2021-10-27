@@ -285,7 +285,7 @@ export const OrgPage = ({
                       dark={{ bg: "gray.500" }}
                     >
                       <Box p={5}>
-                        {!org.orgAddress &&
+                        {!hasItems(!org.orgAddress) &&
                           !hasItems(org.orgEmail) &&
                           !hasItems(org.orgPhone) &&
                           !hasItems(org.orgWeb) && (

@@ -414,12 +414,30 @@ export const EventPage = ({
                       dark={{ bg: "gray.500" }}
                     >
                       <Box p={5}>
+                        {!hasItems(event.eventAddress) &&
+                          !hasItems(event.eventEmail) &&
+                          !hasItems(event.eventPhone) &&
+                          !hasItems(event.eventWeb) && (
+                            <Link
+                              onClick={() => {
+                                setIsEdit(true);
+                                setIsConfig(true);
+                              }}
+                              variant="underline"
+                            >
+                              Cliquez ici pour ajouter les coordonnées de
+                              l'événement.
+                            </Link>
+                          )}
+
                         {event.eventAddress && (
                           <Flex flexDirection="column">
-                            <Flex alignItems="center">
-                              <Icon as={FaMapMarkedAlt} mr={3} />
-                              {event.eventAddress}
-                            </Flex>
+                            {event.eventAddress.map(({ address }) => (
+                              <Flex alignItems="center">
+                                <Icon as={FaMapMarkedAlt} mr={3} />
+                                {address}
+                              </Flex>
+                            ))}
                           </Flex>
                         )}
 

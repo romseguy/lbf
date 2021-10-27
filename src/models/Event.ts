@@ -11,7 +11,7 @@ export interface IEvent<T = string> {
   eventUrl: string;
   eventMinDate: T;
   eventMaxDate: T;
-  eventAddress?: string;
+  eventAddress?: { address: string }[];
   eventCity?: string;
   eventLat?: number;
   eventLng?: number;
@@ -124,7 +124,7 @@ export const EventSchema = new Schema<IEvent>(
       type: String,
       required: true
     },
-    eventAddress: String,
+    eventAddress: [{ address: String }],
     eventCity: String,
     eventLat: Number,
     eventLng: Number,

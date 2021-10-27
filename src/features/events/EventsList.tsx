@@ -303,7 +303,10 @@ export const EventsList = ({
   const events = useMemo(() => {
     let currentDateP: Date | null = null;
     let currentDate: Date | null = null;
+    let currentDateN: Date | null = null;
     let { previousEvents, currentEvents, nextEvents } = getEvents(props.events);
+
+    console.log(nextEvents);
 
     return (
       <>
@@ -333,18 +336,11 @@ export const EventsList = ({
             {previousEvents
               .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
               .map((event, index) => {
-                let addGridHeader = false;
                 const minDate = event.eventMinDate;
-                const iscurrentDatePOneDayBeforeMinDate = currentDateP
-                  ? getDayOfYear(currentDateP) < getDayOfYear(minDate)
-                  : true;
-
-                if (iscurrentDatePOneDayBeforeMinDate) {
-                  addGridHeader = true;
-                  currentDateP = minDate;
-                } else {
-                  addGridHeader = false;
-                }
+                const addGridHeader =
+                  !currentDateP ||
+                  getDayOfYear(currentDateP) < getDayOfYear(minDate);
+                currentDateP = minDate;
 
                 return (
                   <Grid
@@ -391,20 +387,11 @@ export const EventsList = ({
               currentEvents
                 .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
                 .map((event, index) => {
-                  let addGridHeader = false;
                   const minDate = event.eventMinDate;
-
-                  const isCurrentDateOneDayBeforeMinDate = currentDate
-                    ? getDayOfYear(currentDate) < getDayOfYear(minDate)
-                    : true;
-
-                  if (isCurrentDateOneDayBeforeMinDate) {
-                    addGridHeader = true;
-                    currentDate = minDate;
-                    // console.log("currentDate set to", currentDate);
-                  } else {
-                    addGridHeader = false;
-                  }
+                  const addGridHeader =
+                    !currentDate ||
+                    getDayOfYear(currentDate) < getDayOfYear(minDate);
+                  currentDate = minDate;
 
                   return (
                     <Grid
@@ -483,18 +470,11 @@ export const EventsList = ({
             {nextEvents
               .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
               .map((event, index) => {
-                let addGridHeader = false;
                 const minDate = event.eventMinDate;
-                const iscurrentDatePOneDayBeforeMinDate = currentDateP
-                  ? getDayOfYear(currentDateP) < getDayOfYear(minDate)
-                  : true;
-
-                if (iscurrentDatePOneDayBeforeMinDate) {
-                  addGridHeader = true;
-                  currentDateP = minDate;
-                } else {
-                  addGridHeader = false;
-                }
+                const addGridHeader =
+                  !currentDateN ||
+                  getDayOfYear(currentDateN) < getDayOfYear(minDate);
+                currentDateN = minDate;
 
                 return (
                   <Grid
