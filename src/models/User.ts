@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { randomNumber } from "utils/randomNumber";
 import { Base64Image } from "utils/image";
 import { normalize } from "utils/string";
+import { IProject } from "models/Project";
 
 const HASH_ROUNDS = 10;
 
@@ -18,6 +19,7 @@ export interface IUser {
   userImage?: Base64Image;
   userSubscription?: any;
   isAdmin: boolean;
+  userProjects?: IProject[];
   validatePassword(password: string): boolean;
 }
 
@@ -50,7 +52,8 @@ export const UserSchema = new Schema<IUser>(
       height: Number
     },
     userSubscription: Schema.Types.Mixed,
-    isAdmin: Boolean
+    isAdmin: Boolean,
+    userProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }]
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );

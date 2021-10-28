@@ -671,7 +671,9 @@ export const OrgConfigSubscribersPanel = ({
                                 });
                               } else {
                                 const query = await dispatch(
-                                  getUser.initiate(phone || email || "")
+                                  getUser.initiate({
+                                    slug: phone || email || ""
+                                  })
                                 );
 
                                 if (query.data) {

@@ -61,7 +61,9 @@ const Hash = ({
         if (orgQuery.data) {
           setOrg(orgQuery.data);
         } else {
-          const userQuery = await dispatch(getUser.initiate(routeName));
+          const userQuery = await dispatch(
+            getUser.initiate({ slug: routeName })
+          );
 
           if (userQuery.data) setUser(userQuery.data);
           else

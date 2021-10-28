@@ -51,7 +51,7 @@ export const RTEditor = ({
   defaultValue?: string;
   event?: IEvent;
   org?: IOrg;
-  session?: Session;
+  session?: Session | null;
   onChange?: ({ html, quillHtml }: { html: string; quillHtml: string }) => void;
   readOnly?: boolean;
   placeholder?: string;

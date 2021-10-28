@@ -227,6 +227,7 @@ export const EventConfigBannerPanel = ({
                 <UrlControl
                   name="url"
                   register={register}
+                  setValue={setValue}
                   control={control}
                   label="Adresse internet de l'image"
                   defaultValue={event.eventBanner?.url}

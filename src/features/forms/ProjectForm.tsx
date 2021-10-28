@@ -31,20 +31,23 @@ import {
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
 import { SerializedError } from "@reduxjs/toolkit";
+import { IUser } from "models/User";
 
-interface ProjectFormProps extends ChakraProps {
+export const ProjectForm = ({
+  org,
+  ...props
+}: {
   session: Session;
   org?: IOrg;
   project?: IProject;
+  user?: IUser;
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
   onClose?: () => void;
   onCancel?: () => void;
   onSubmit?: (project: IProject | null) => void;
-}
-
-export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
+}) => {
   const toast = useToast({ position: "top" });
 
   //#region project
@@ -225,7 +228,9 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
           <FormLabel>Statut</FormLabel>
           <Select
             name="projectStatus"
-            defaultValue={Status[Status.PENDING]}
+            defaultValue={
+              props.project?.projectStatus || Status[Status.PENDING]
+            }
             ref={register({
               required: "Veuillez sélectionner le statut du projet"
             })}
@@ -277,50 +282,52 @@ export const ProjectForm = ({ org, ...props }: ProjectFormProps) => {
         </FormControl>
       )}
 
-      <FormControl
-        mb={3}
-        id="projectOrgs"
-        isInvalid={!!errors["projectOrgs"]}
-        isRequired={projectOrgsRules.required}
-      >
-        <FormLabel>Organisateurs</FormLabel>
-        <Controller
-          name="projectOrgs"
-          rules={projectOrgsRules}
-          as={ReactSelect}
-          control={control}
-          defaultValue={props.project?.projectOrgs || [org]}
-          placeholder="Sélectionner..."
-          menuPlacement="top"
-          isClearable
-          isMulti
-          isSearchable
-          closeMenuOnSelect
-          styles={{
-            placeholder: () => {
-              return {
-                color: "#A0AEC0"
-              };
-            },
-            control: (defaultStyles: any) => {
-              return {
-                ...defaultStyles,
-                borderColor: "#e2e8f0",
-                paddingLeft: "8px"
-              };
-            }
-          }}
-          className="react-select-container"
-          classNamePrefix="react-select"
-          options={myOrgs}
-          getOptionLabel={(option: IOrg) => `${option.orgName}`}
-          getOptionValue={(option: IOrg) => option._id}
-          onChange={([option]: [option: IOrg]) => option._id}
-        />
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="projectOrgs" />
-        </FormErrorMessage>
-      </FormControl>
+      {org && (
+        <FormControl
+          mb={3}
+          id="projectOrgs"
+          isInvalid={!!errors["projectOrgs"]}
+          isRequired={projectOrgsRules.required}
+        >
+          <FormLabel>Organisateurs</FormLabel>
+          <Controller
+            name="projectOrgs"
+            rules={projectOrgsRules}
+            as={ReactSelect}
+            control={control}
+            defaultValue={props.project?.projectOrgs || [org]}
+            placeholder="Sélectionner..."
+            menuPlacement="top"
+            isClearable
+            isMulti
+            isSearchable
+            closeMenuOnSelect
+            styles={{
+              placeholder: () => {
+                return {
+                  color: "#A0AEC0"
+                };
+              },
+              control: (defaultStyles: any) => {
+                return {
+                  ...defaultStyles,
+                  borderColor: "#e2e8f0",
+                  paddingLeft: "8px"
+                };
+              }
+            }}
+            className="react-select-container"
+            classNamePrefix="react-select"
+            options={myOrgs}
+            getOptionLabel={(option: IOrg) => `${option.orgName}`}
+            getOptionValue={(option: IOrg) => option._id}
+            onChange={([option]: [option: IOrg]) => option._id}
+          />
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="projectOrgs" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>

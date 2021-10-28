@@ -99,7 +99,7 @@ export const Nav = ({
   //#region push subscriptions
   const [editUser, editUserMutation] = useEditUserMutation();
   const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
-  const userQuery = useGetUserQuery(userEmail);
+  const userQuery = useGetUserQuery({ slug: userEmail });
   const [registration, setRegistration] =
     useState<ServiceWorkerRegistration | null>(null);
   const [isSubscribed, setIsSubscribed] = useState(false);

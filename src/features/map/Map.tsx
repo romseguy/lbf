@@ -224,12 +224,15 @@ export const Map = withGoogleApi({
                   </Link>
                 </Box>
                 <br />
-                <Box display="inline-flex" alignItems="center">
-                  <Icon as={FaMapMarkerAlt} mr={2} color="red" />
-                  {"eventName" in itemToShow
-                    ? itemToShow.eventAddress
-                    : itemToShow.orgAddress}
-                </Box>
+                {("eventName" in itemToShow
+                  ? itemToShow.eventAddress
+                  : itemToShow.orgAddress
+                )?.map(({ address }) => (
+                  <Box display="inline-flex" alignItems="center">
+                    <Icon as={FaMapMarkerAlt} mr={2} color="red" />
+                    {address}
+                  </Box>
+                ))}
               </>
             }
           >

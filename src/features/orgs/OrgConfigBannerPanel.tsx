@@ -227,6 +227,7 @@ export const OrgConfigBannerPanel = ({
                 <UrlControl
                   name="url"
                   register={register}
+                  setValue={setValue}
                   control={control}
                   errors={errors}
                   label="Adresse internet de l'image"

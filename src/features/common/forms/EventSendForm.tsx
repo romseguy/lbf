@@ -195,6 +195,7 @@ export const EventSendForm = ({
             label="(facultatif) envoyer l'invitation seulement à l'adresse e-mail de votre choix :"
             control={control}
             register={register}
+            setValue={setValue}
             errors={errors}
             placeholder="Envoyer à cette adresse e-mail uniquement"
             mt={3}

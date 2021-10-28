@@ -39,9 +39,10 @@ export const EmailLoginPopover = ({ boxSize, ...props }: BoxProps) => {
   //#endregion
 
   //#region form
-  const { clearErrors, errors, setError, handleSubmit, register } = useForm({
-    mode: "onChange"
-  });
+  const { clearErrors, errors, setError, handleSubmit, register, setValue } =
+    useForm({
+      mode: "onChange"
+    });
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -108,6 +109,7 @@ export const EmailLoginPopover = ({ boxSize, ...props }: BoxProps) => {
               <EmailControl
                 name="email"
                 register={register}
+                setValue={setValue}
                 errors={errors}
                 isMultiple={false}
               />

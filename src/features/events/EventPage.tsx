@@ -321,30 +321,32 @@ export const EventPage = ({
                   light={{ bg: "orange.100" }}
                   dark={{ bg: "gray.500" }}
                 >
-                  <GridHeader borderTopRadius="lg" alignItems="center">
-                    <Flex flexDirection="row" alignItems="center">
-                      <Heading size="sm" py={3}>
-                        Description de l'événement
-                      </Heading>
-                      {event.eventDescription && isCreator && (
-                        <Tooltip
-                          placement="bottom"
-                          label="Modifier la description"
-                        >
-                          <IconButton
-                            aria-label="Modifier la description"
-                            icon={<EditIcon />}
-                            bg="transparent"
-                            ml={3}
-                            _hover={{ color: "green" }}
-                            onClick={() => {
-                              setIsConfig(true);
-                              setIsEdit(true);
-                            }}
-                          />
-                        </Tooltip>
-                      )}
-                    </Flex>
+                  <GridHeader
+                    display="flex"
+                    alignItems="center"
+                    borderTopRadius="lg"
+                  >
+                    <Heading size="sm" py={3}>
+                      Description de l'événement
+                    </Heading>
+                    {event.eventDescription && isCreator && (
+                      <Tooltip
+                        placement="bottom"
+                        label="Modifier la description"
+                      >
+                        <IconButton
+                          aria-label="Modifier la description"
+                          icon={<EditIcon />}
+                          bg="transparent"
+                          ml={3}
+                          _hover={{ color: "green" }}
+                          onClick={() => {
+                            setIsConfig(true);
+                            setIsEdit(true);
+                          }}
+                        />
+                      </Tooltip>
+                    )}
                   </GridHeader>
 
                   <GridItem>

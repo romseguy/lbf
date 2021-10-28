@@ -39,10 +39,17 @@ export const UserForm = (props: {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const { control, register, handleSubmit, errors, setError, clearErrors } =
-    useForm({
-      mode: "onChange"
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    errors,
+    setError,
+    clearErrors,
+    setValue
+  } = useForm({
+    mode: "onChange"
+  });
   const [upImg, setUpImg] = useState<string | File>();
   const [scale, setScale] = useState(1);
   const [elementLocked, setElementLocked] = useState<
@@ -174,6 +181,7 @@ export const UserForm = (props: {
         name="email"
         control={control}
         register={register}
+        setValue={setValue}
         isRequired
         defaultValue={props.user.email}
         errors={errors}
@@ -190,6 +198,7 @@ export const UserForm = (props: {
       <PhoneControl
         name="phone"
         register={register}
+        setValue={setValue}
         control={control}
         errors={errors}
         isMultiple={false}

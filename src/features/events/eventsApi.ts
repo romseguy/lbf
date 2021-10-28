@@ -1,5 +1,5 @@
-import querystring from "querystring";
 import { createApi } from "@reduxjs/toolkit/query/react";
+import querystring from "querystring";
 import type { IEvent } from "models/Event";
 import baseQuery from "utils/query";
 
@@ -55,8 +55,8 @@ export const eventApi = createApi({
       })
     }),
     getEvents: build.query<IEvent[], { userId: string } | void>({
-      query: (query: { userId: string }) => ({
-        url: `events?${querystring.stringify(query)}`
+      query: (query) => ({
+        url: `events${query ? "?" + querystring.stringify(query) : ""}`
       })
     }),
     getEventsByUserId: build.query<IEvent[], string>({

@@ -49,8 +49,9 @@ import { IoMdPerson } from "react-icons/io";
 import { FaGlobeEurope } from "react-icons/fa";
 import { ProjectItemVisibility } from "./ProjectItemVisibility";
 import { ProjectsListFilters } from "./ProjectsListFilters";
-import { ProjectsListOrder } from "./ProjectsListOrder";
+import { ISelectedOrder, ProjectsListOrder } from "./ProjectsListOrder";
 import { hasItems } from "utils/array";
+import { IUser } from "models/User";
 
 export const ProjectsList = ({
   org,
@@ -60,27 +61,34 @@ export const ProjectsList = ({
   isSubscribed,
   isLogin,
   setIsLogin,
+  user,
+  userQuery,
   ...props
 }: {
-  org: IOrg;
-  orgQuery: any;
+  org?: IOrg;
+  orgQuery?: any;
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
+  user?: IUser;
+  userQuery?: any;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
+  const query = orgQuery || userQuery;
 
   //#region project
   const [deleteProject, deleteProjectMutation] = useDeleteProjectMutation();
-  const projects = useMemo(() => [...org.orgProjects], [org]);
-  const projectsCount = Array.isArray(org.orgProjects)
-    ? org.orgProjects.length
-    : 0;
+  const projects = useMemo(
+    () => [
+      ...(org ? org.orgProjects || [] : user ? user.userProjects || [] : [])
+    ],
+    [org, user]
+  );
   //#endregion
 
   //#region local state
@@ -91,9 +99,12 @@ export const ProjectsList = ({
   }>({ isOpen: false, project: undefined });
   const [currentProject, setCurrentProject] = useState<IProject | null>(null);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  const [selectedOrder, setSelectedOrder] =
-    useState<{ key: string; order: "asc" | "desc" }>();
-
+  const [selectedOrder, setSelectedOrder] = useState<
+    ISelectedOrder | undefined
+  >({
+    key: "createdAt",
+    order: "desc"
+  });
   //#endregion
 
   return (
@@ -105,16 +116,19 @@ export const ProjectsList = ({
         onClick={() => {
           if (!isSessionLoading) {
             if (session) {
-              if (!isCreator && !isSubscribed) {
-                toast({
-                  status: "error",
-                  title: `Vous devez être adhérent ${orgTypeFull(
-                    org.orgType
-                  )} pour ajouter un projet`
-                });
-              } else {
-                setProjectModalState({ ...projectModalState, isOpen: true });
+              if (org) {
+                if (!isCreator && !isSubscribed) {
+                  toast({
+                    status: "error",
+                    title: `Vous devez être adhérent ${orgTypeFull(
+                      org.orgType
+                    )} pour ajouter un projet`
+                  });
+                  return;
+                }
               }
+
+              setProjectModalState({ ...projectModalState, isOpen: true });
             } else {
               setIsLogin(isLogin + 1);
             }
@@ -141,30 +155,36 @@ export const ProjectsList = ({
       )}
 
       <Grid data-cy="projectList" {...props}>
-        {orgQuery.isLoading || orgQuery.isFetching ? (
+        {query.isLoading || query.isFetching ? (
           <Text>Chargement des projets...</Text>
         ) : (
           projects
             .sort((a, b) => {
               if (!selectedOrder) return 0;
 
+              const valueA = a[selectedOrder.key];
+              const valueB = b[selectedOrder.key];
+
+              if (!valueA || !valueB) return 0;
+
               if (selectedOrder.order === "asc") {
-                if (a.projectName < b.projectName) return -1;
-                if (a.projectName > b.projectName) return 1;
+                if (valueA < valueB) return -1;
+                if (valueA > valueB) return 1;
               } else if (selectedOrder.order === "desc") {
-                if (a.projectName > b.projectName) return -1;
-                if (a.projectName < b.projectName) return 1;
+                if (valueA > valueB) return -1;
+                if (valueA < valueB) return 1;
               }
+
               return 0;
             })
-            .map((orgProject, projectIndex) => {
+            .map((project, projectIndex) => {
               const {
                 projectName,
                 projectDescription,
                 projectStatus,
                 createdBy,
                 createdAt
-              } = orgProject;
+              } = project;
 
               if (
                 hasItems(selectedStatuses) &&
@@ -178,7 +198,7 @@ export const ProjectsList = ({
                   : "";
               const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt, true);
               const isCurrent =
-                currentProject && orgProject._id === currentProject._id;
+                currentProject && project._id === currentProject._id;
               const isProjectCreator =
                 typeof createdBy === "object"
                   ? createdBy._id === session?.user.userId
@@ -192,7 +212,7 @@ export const ProjectsList = ({
                 : "orange.100";
 
               return (
-                <Box key={orgProject._id} mb={5}>
+                <Box key={project._id} mb={5}>
                   <GridItem
                     minWidth="100%"
                     p={3}
@@ -216,7 +236,7 @@ export const ProjectsList = ({
                     <Link
                       variant="no-underline"
                       onClick={() =>
-                        setCurrentProject(isCurrent ? null : orgProject)
+                        setCurrentProject(isCurrent ? null : project)
                       }
                       data-cy="project"
                     >
@@ -258,7 +278,7 @@ export const ProjectsList = ({
                             </Tooltip>
                             <span aria-hidden> · </span>
                             <ProjectItemVisibility
-                              projectVisibility={orgProject.projectVisibility}
+                              projectVisibility={project.projectVisibility}
                             />
                           </Box>
                         </GridItem>
@@ -276,7 +296,7 @@ export const ProjectsList = ({
                                 onClick={() => {
                                   setProjectModalState({
                                     isOpen: true,
-                                    project: orgProject
+                                    project: project
                                   });
                                 }}
                               />
@@ -288,7 +308,7 @@ export const ProjectsList = ({
 
                             <DeleteButton
                               isIconOnly
-                              isLoading={isLoading[orgProject._id!]}
+                              isLoading={isLoading[project._id!]}
                               placement="bottom"
                               bg="transparent"
                               height="auto"
@@ -308,19 +328,19 @@ export const ProjectsList = ({
                                 </>
                               }
                               onClick={async () => {
-                                setIsLoading({ [orgProject._id!]: true });
+                                setIsLoading({ [project._id!]: true });
                                 try {
                                   let deletedProject;
 
-                                  if (orgProject._id) {
+                                  if (project._id) {
                                     deletedProject = await deleteProject(
-                                      orgProject._id
+                                      project._id
                                     ).unwrap();
                                   }
 
                                   if (deletedProject) {
                                     // subQuery.refetch();
-                                    orgQuery.refetch();
+                                    query.refetch();
 
                                     toast({
                                       title: `${deletedProject.projectName} a bien été supprimé !`,
@@ -366,7 +386,7 @@ export const ProjectsList = ({
                             onClick={() => {
                               setProjectModalState({
                                 isOpen: true,
-                                project: orgProject
+                                project: project
                               });
                             }}
                             variant="underline"
@@ -386,9 +406,9 @@ export const ProjectsList = ({
                         {isProjectCreator ? (
                           <Table>
                             <Tbody>
-                              {Array.isArray(orgProject.projectNotified) &&
-                              orgProject.projectNotified.length > 0 ? (
-                                orgProject.projectNotified.map(
+                              {Array.isArray(project.projectNotified) &&
+                              project.projectNotified.length > 0 ? (
+                                project.projectNotified.map(
                                   ({ email, status }) => (
                                     <Tr>
                                       <Td>{email}</Td>
@@ -422,8 +442,8 @@ export const ProjectsList = ({
                           </Table>
                         ) : (
                           <ProjectAttendingForm
-                            project={orgProject}
-                            orgQuery={orgQuery}
+                            project={project}
+                            query={query}
                           />
                         )}
                       </GridItem>
@@ -451,7 +471,7 @@ export const ProjectsList = ({
             })
           }
           onSubmit={async (project) => {
-            orgQuery.refetch();
+            query.refetch();
             // subQuery.refetch();
             setProjectModalState({
               ...projectModalState,

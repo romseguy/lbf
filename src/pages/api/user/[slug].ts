@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import type { IUser } from "models/User";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
@@ -19,40 +19,51 @@ handler.use(database);
 handler.get<
   NextApiRequest & {
     query: {
-      userName: string;
+      slug: string;
     };
   },
   NextApiResponse
 >(async function getUser(req, res) {
   const {
-    query: { userName }
+    query: { slug, populate }
   } = req;
 
   let user: (IUser & Document<any, any, any>) | null = null;
   let selector;
 
   try {
-    if (emailR.test(userName)) {
-      selector = { email: userName };
-    } else if (phoneR.test(userName)) {
-      selector = { phone: userName };
+    if (emailR.test(slug)) {
+      selector = { email: slug };
+    } else if (phoneR.test(slug)) {
+      selector = { phone: slug };
     }
 
     if (selector) {
       user = await models.User.findOne(selector);
     } else {
-      user = await models.User.findOne({ userName });
-      if (!user) user = await models.User.findOne({ _id: userName });
+      user = await models.User.findOne({ userName: slug });
+      if (!user) user = await models.User.findOne({ _id: slug });
     }
 
     if (user) {
+      if (populate) {
+        if (populate.includes("userProjects")) {
+          user = user.populate({
+            path: "userProjects",
+            populate: [{ path: "createdBy" }]
+          });
+        }
+
+        user = await user.execPopulate();
+      }
+
       res.status(200).json(user);
     } else {
       res
         .status(404)
         .json(
           createServerError(
-            new Error(`L'utilisateur ${userName} n'a pas pu être trouvé`)
+            new Error(`L'utilisateur ${slug} n'a pas pu être trouvé`)
           )
         );
     }
@@ -63,7 +74,7 @@ handler.get<
 
 handler.put<
   NextApiRequest & {
-    query: { userName: string };
+    query: { slug: string };
     body: IUser;
   },
   NextApiResponse
@@ -81,11 +92,11 @@ handler.put<
   } else {
     try {
       const {
-        query: { userName },
+        query: { slug },
         body
       }: {
-        query: { userName: string };
-        body: IUser;
+        query: { slug: string };
+        body: Partial<IUser>;
       } = req;
 
       if (body.userName) {
@@ -98,16 +109,24 @@ handler.put<
         }
       }
 
-      const { n, nModified } = await models.User.updateOne({ userName }, body);
+      let selector;
+      if (emailR.test(slug)) {
+        selector = { email: slug };
+      } else if (phoneR.test(slug)) {
+        selector = { phone: slug };
+      } else {
+        selector = { userName: slug };
+      }
+
+      const { n, nModified } = await models.User.updateOne(selector, body);
 
       if (nModified === 1) {
         res.status(200).json({});
       } else {
         const { n, nModified } = await models.User.updateOne(
-          { _id: userName },
+          { _id: slug },
           body
         );
-
         if (nModified === 1) {
           res.status(200).json({});
         } else {
@@ -115,7 +134,7 @@ handler.put<
             .status(400)
             .json(
               createServerError(
-                new Error(`L'utilisateur ${userName} n'a pas pu être modifié`)
+                new Error(`L'utilisateur ${slug} n'a pas pu être modifié`)
               )
             );
         }

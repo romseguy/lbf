@@ -25,8 +25,10 @@ export const userApi = createApi({
         body: payload
       })
     }),
-    getUser: build.query<IUser, string>({
-      query: (userName) => ({ url: `user/${userName}` })
+    getUser: build.query<IUser, { slug: string; populate?: string }>({
+      query: ({ slug, populate }) => ({
+        url: populate ? `user/${slug}?populate=${populate}` : `user/${slug}`
+      })
     }),
     getUserByEmail: build.query<IUser, string>({
       query: (email) => ({ url: `user/${email}` })

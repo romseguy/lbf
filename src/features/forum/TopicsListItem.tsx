@@ -71,7 +71,7 @@ export const TopicsListItem = ({
   return (
     <Box key={topic._id} mb={5}>
       <GridItem>
-        <Link as="div" variant="no-underline" onClick={onClick} data-cy="topic">
+        <Link variant="no-underline" onClick={onClick} data-cy="topic">
           <Grid
             templateColumns="auto 1fr auto"
             borderTopRadius="xl"
@@ -118,6 +118,7 @@ export const TopicsListItem = ({
                       <>
                         <span aria-hidden> · </span>
                         <Link
+                          as="span"
                           onClick={(e) => {
                             e.stopPropagation();
                             setNotifyModalState({

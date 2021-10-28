@@ -1,7 +1,7 @@
 declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: "development" | "production" | "test";
-    DATABASE_URL: string;
+    NEXT_PUBLIC_TITLE: string;
     NEXT_PUBLIC_IS_TEST?: boolean;
     NEXT_PUBLIC_SHORT_URL: string;
     NEXT_PUBLIC_URL: string;
@@ -16,5 +16,6 @@ declare namespace NodeJS {
     EMAIL_ADMIN: string;
     NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY: string;
     WEB_PUSH_PRIVATE_KEY: string;
+    DATABASE_URL: string;
   }
 }

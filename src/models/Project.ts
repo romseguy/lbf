@@ -7,7 +7,7 @@ export interface IProject {
   projectName: string;
   projectDescription: string;
   projectDescriptionHtml: string;
-  projectOrgs: IOrg[];
+  projectOrgs?: IOrg[];
   projectStatus: string;
   projectVisibility: string;
   projectNotified: {

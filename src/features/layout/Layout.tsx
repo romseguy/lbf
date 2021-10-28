@@ -22,7 +22,7 @@ import { breakpoints } from "theme/theme";
 import type { Base64Image } from "utils/image";
 import { Session } from "next-auth";
 
-const defaultTitle = "Au courant de...";
+const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
 
 export const Layout = ({
   logo,

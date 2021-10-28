@@ -79,79 +79,42 @@ handler.post<NextApiRequest, NextApiResponse>(async function postProject(
     try {
       const { body }: { body: IProject } = req;
       let project: (IProject & Document<any, any, any>) | null;
-      let projectOrgs: IOrg[] = body.projectOrgs;
+      let projectOrgs = body.projectOrgs;
 
-      // if (body.forwardedFrom) {
-      //   project = await models.Project.findOne({ projectName });
-
-      //   if (!project)
-      //     return res
-      //       .status(404)
-      //       .json(
-      //         createServerError(
-      //           new Error(`Le projet ${projectName} n'a pas pu être trouvé`)
-      //         )
-      //       );
-
-      //   for (const projectOrg of body.projectOrgs) {
-      //     const o = await models.Org.findOne({ _id: projectOrg._id }).populate(
-      //       "orgProjects"
-      //     );
-
-      //     if (o) {
-      //       if (
-      //         !o.orgProjects.find((orgProject) =>
-      //           equals(orgProject._id, project!._id)
-      //         )
-      //       ) {
-      //         projectOrgs.push(o._id);
-      //       }
-      //     }
-      //   }
-
-      //   if (projectOrgs.length > 0) {
-      //     if (project) {
-      //       console.log(
-      //         "project has been forwarded once, update it with new orgs"
-      //       );
-      //     } else {
-      //       project = await models.Project.create({
-      //         ...body,
-      //         projectOrgs
-      //       });
-      //     }
-      //   }
-      // } else {
       project = await models.Project.create({
         ...body
       });
-      //}
 
-      await models.Org.updateMany(
-        { _id: projectOrgs },
-        {
-          $push: {
-            orgProjects: project?._id
+      if (projectOrgs) {
+        await models.Org.updateMany(
+          { _id: projectOrgs },
+          {
+            $push: {
+              orgProjects: project?._id
+            }
           }
+        );
+        const admin = await models.User.findOne({ isAdmin: true });
+        if (
+          admin &&
+          admin.userSubscription &&
+          project.projectVisibility === Visibility.PUBLIC
+        ) {
+          await api.post("notification", {
+            subscription: admin.userSubscription,
+            notification: {
+              title: "Un projet attend votre approbation",
+              message: "Appuyez pour ouvrir la page de l'organisation",
+              url: `${process.env.NEXT_PUBLIC_URL}/${projectOrgs[0].orgUrl}`
+            }
+          });
+          sendToAdmin({ project: body, transport });
         }
-      );
-
-      const admin = await models.User.findOne({ isAdmin: true });
-
-      if (
-        admin &&
-        admin.userSubscription &&
-        project.projectVisibility === Visibility.PUBLIC
-      ) {
-        await api.post("notification", {
-          subscription: admin.userSubscription,
-          notification: {
-            title: "Un projet attend votre approbation",
-            message: "Appuyez pour ouvrir la page de l'organisation",
-            url: `${process.env.NEXT_PUBLIC_URL}/${projectOrgs[0].orgUrl}`
-          }
-        });
-        sendToAdmin({ project: body, transport });
+      } else {
+        await models.User.updateOne(
+          { _id: body.createdBy },
+          { $push: { userProjects: project._id } }
+        );
       }
 
       res.status(200).json(project);

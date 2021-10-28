@@ -1,53 +1,52 @@
-import { Button } from "@chakra-ui/react";
-import { selectSession, setSession } from "features/session/sessionSlice";
-import { useEditUserMutation } from "features/users/usersApi";
-import { useSession } from "hooks/useAuth";
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { Spinner } from "@chakra-ui/spinner";
+import { MapContainer } from "features/map/MapContainer";
+import { getOrg } from "features/orgs/orgsApi";
+import { IOrg } from "models/Org";
+import React, { useEffect, useState } from "react";
+import { useAppDispatch } from "store";
 
-const reload = () => {
-  const event = new Event("visibilitychange");
-  document.dispatchEvent(event);
-};
+const Sandbox = () => {
+  const dispatch = useAppDispatch();
+  const [org, setOrg] = useState<IOrg | undefined>();
+  const populate =
+    "orgBanner orgEvents orgLogo orgProjects orgSubscriptions orgTopics orgs";
 
-const Sandbox: React.FC = () => {
-  const { data: session, loading: isSessionLoading } = useSession();
-  const dispatch = useDispatch();
-  const appSession = useSelector(selectSession);
-  console.log(isSessionLoading);
-  console.log("s", session?.user.userName);
-  console.log("a", appSession?.user.userName);
+  useEffect(() => {
+    const xhr = async () => {
+      const orgQuery = await dispatch(
+        getOrg.initiate({
+          orgUrl: "reseau_solaris",
+          populate
+        })
+      );
 
-  const [editUser, editUserMutation] = useEditUserMutation();
+      if (orgQuery.data) {
+        setOrg(orgQuery.data);
+      }
+    };
+
+    xhr();
+  }, []);
+
+  if (!org) return <Spinner />;
 
   return (
     <>
-      <Button
-        onClick={async () => {
-          await editUser({
-            payload: {
-              userName:
-                session?.user.userName === "romseguy" ? "romseguyz" : "romseguy"
-            },
-            userName: session?.user.userId
-          }).unwrap();
-          dispatch(setSession(null));
+      <MapContainer
+        orgs={org.orgs}
+        center={{
+          lat:
+            org.orgLat ||
+            (Array.isArray(org.orgs) && org.orgs.length > 0
+              ? org.orgs[0].orgLat
+              : 0),
+          lng:
+            org.orgLng ||
+            (Array.isArray(org.orgs) && org.orgs.length > 0
+              ? org.orgs[0].orgLng
+              : 0)
         }}
-      >
-        Changer
-      </Button>
-      <br />
-      <br />
-      <Button
-        onClick={() => {
-          dispatch(setSession(null));
-        }}
-      >
-        Null
-      </Button>
-      <br />
-      <br />
-      <Button onClick={reload}>Reload</Button>
+      />
     </>
   );
 };

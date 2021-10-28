@@ -18,7 +18,8 @@ import {
   Alert,
   AlertIcon,
   IconButton,
-  Icon
+  Icon,
+  useColorMode
 } from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -90,6 +91,8 @@ export const OrgPage = ({
   const { data, loading: isSessionLoading } = useSession();
   const session = data || props.session;
   const toast = useToast({ position: "top" });
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region org
@@ -285,7 +288,7 @@ export const OrgPage = ({
                       dark={{ bg: "gray.500" }}
                     >
                       <Box p={5}>
-                        {!hasItems(!org.orgAddress) &&
+                        {!hasItems(org.orgAddress) &&
                           !hasItems(org.orgEmail) &&
                           !hasItems(org.orgPhone) &&
                           !hasItems(org.orgWeb) && (
@@ -408,10 +411,14 @@ export const OrgPage = ({
                         center={{
                           lat:
                             org.orgLat ||
-                            (Array.isArray(org.orgs) ? org.orgs[0].orgLat : 0),
+                            (Array.isArray(org.orgs) && org.orgs.length > 0
+                              ? org.orgs[0].orgLat
+                              : 0),
                           lng:
                             org.orgLng ||
-                            (Array.isArray(org.orgs) ? org.orgs[1].orgLng : 0)
+                            (Array.isArray(org.orgs) && org.orgs.length > 0
+                              ? org.orgs[0].orgLng
+                              : 0)
                         }}
                       />
                     </GridItem>
@@ -424,29 +431,31 @@ export const OrgPage = ({
                   light={{ bg: "orange.100" }}
                   dark={{ bg: "gray.500" }}
                 >
-                  <GridHeader borderTopRadius="lg" alignItems="center">
-                    <Flex alignItems="center">
-                      <Heading size="sm" py={3}>
-                        Description {orgTypeFull(org.orgType)}
-                      </Heading>
-                      {org.orgDescription && isCreator && (
-                        <Tooltip
-                          placement="bottom"
-                          label="Modifier la description"
-                        >
-                          <IconButton
-                            aria-label="Modifier la description"
-                            icon={<EditIcon />}
-                            bg="transparent"
-                            _hover={{ color: "green" }}
-                            onClick={() => {
-                              setIsConfig(true);
-                              setIsEdit(true);
-                            }}
-                          />
-                        </Tooltip>
-                      )}
-                    </Flex>
+                  <GridHeader
+                    display="flex"
+                    alignItems="center"
+                    borderTopRadius="lg"
+                  >
+                    <Heading size="sm" py={3}>
+                      Description {orgTypeFull(org.orgType)}
+                    </Heading>
+                    {org.orgDescription && isCreator && (
+                      <Tooltip
+                        placement="bottom"
+                        label="Modifier la description"
+                      >
+                        <IconButton
+                          aria-label="Modifier la description"
+                          icon={<EditIcon />}
+                          bg="transparent"
+                          _hover={{ color: "green" }}
+                          onClick={() => {
+                            setIsConfig(true);
+                            setIsEdit(true);
+                          }}
+                        />
+                      </Tooltip>
+                    )}
                   </GridHeader>
 
                   <GridItem>
@@ -517,7 +526,9 @@ export const OrgPage = ({
                     <Tooltip label="synonymes : mailing lists, newsletters">
                       <Text
                         display="inline"
-                        borderBottom="1px dotted black"
+                        borderBottom={`1px dotted ${
+                          isDark ? "white" : "black"
+                        }`}
                         cursor="pointer"
                       >
                         listes de diffusion

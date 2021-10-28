@@ -19,10 +19,10 @@ import { useSelector } from "react-redux";
 
 export const ProjectAttendingForm = ({
   project,
-  orgQuery
+  query
 }: {
   project: IProject;
-  orgQuery?: any;
+  query?: any;
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
@@ -77,7 +77,7 @@ export const ProjectAttendingForm = ({
       payload: { projectNotified },
       projectId: project._id
     });
-    orgQuery.refetch();
+    query.refetch();
   };
 
   const unattend = async () => {
@@ -106,7 +106,7 @@ export const ProjectAttendingForm = ({
       },
       projectId: project._id
     });
-    orgQuery.refetch();
+    query.refetch();
   };
 
   return (
@@ -115,9 +115,7 @@ export const ProjectAttendingForm = ({
         <Button
           colorScheme="red"
           isLoading={
-            editProjectMutation.isLoading ||
-            orgQuery.isFetching ||
-            orgQuery.isLoading
+            editProjectMutation.isLoading || query.isFetching || query.isLoading
           }
           onClick={async () => {
             const ok = confirm(
@@ -132,8 +130,8 @@ export const ProjectAttendingForm = ({
           Ne plus participer à ce projet
         </Button>
       ) : editProjectMutation.isLoading ||
-        orgQuery.isFetching ||
-        orgQuery.isLoading ? (
+        query.isFetching ||
+        query.isLoading ? (
         <Spinner />
       ) : (
         <Button colorScheme="green" onClick={attend}>

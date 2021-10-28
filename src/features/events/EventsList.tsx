@@ -201,34 +201,37 @@ export const EventsList = ({
             const eventMinDate = otherDay.startDate
               ? parseISO(otherDay.startDate)
               : setDay(start, otherDay.dayNumber + 1);
-            const eventMaxDate = otherDay.startDate
-              ? addHours(parseISO(otherDay.startDate), hours)
+            const eventMaxDate = otherDay.endTime
+              ? parseISO(otherDay.endTime)
               : setDay(end, otherDay.dayNumber + 1);
 
             if (compareDesc(today, eventMinDate) !== -1) {
               // event starts 1 week after today
-              if (compareDesc(addWeeks(today, 1), start) !== -1)
+              if (compareDesc(addWeeks(today, 1), start) !== -1) {
                 nextEvents.push({
                   ...event,
                   eventMinDate,
                   eventMaxDate,
                   repeat: otherDay.dayNumber + 1
                 });
+              }
               // event starts today or after
-              else
+              else {
                 currentEvents.push({
                   ...event,
                   eventMinDate,
                   eventMaxDate,
                   repeat: otherDay.dayNumber + 1
                 });
-            } else
+              }
+            } else {
               previousEvents.push({
                 ...event,
                 eventMinDate,
                 eventMaxDate,
                 repeat: otherDay.dayNumber + 1
               });
+            }
           }
         }
 
@@ -264,8 +267,8 @@ export const EventsList = ({
                 const start = otherDay.startDate
                   ? addWeeks(parseISO(otherDay.startDate), i)
                   : setDay(eventMinDate, otherDay.dayNumber + 1);
-                const end = otherDay.startDate
-                  ? addWeeks(addHours(parseISO(otherDay.startDate), hours), i)
+                const end = otherDay.endTime
+                  ? addWeeks(parseISO(otherDay.endTime), i)
                   : setDay(eventMaxDate, otherDay.dayNumber + 1);
 
                 if (compareDesc(addWeeks(today, 1), start) !== -1) {
@@ -305,8 +308,6 @@ export const EventsList = ({
     let currentDate: Date | null = null;
     let currentDateN: Date | null = null;
     let { previousEvents, currentEvents, nextEvents } = getEvents(props.events);
-
-    console.log(nextEvents);
 
     return (
       <>

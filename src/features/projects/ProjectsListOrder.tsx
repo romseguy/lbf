@@ -1,16 +1,30 @@
 import { Select, SelectProps } from "@chakra-ui/react";
 
-type SelectedOrderType = { key: string; order: "asc" | "desc" } | undefined;
+export interface ISelectedOrder {
+  key: "projectName" | "createdAt";
+  order: "asc" | "desc";
+  label?: string;
+}
 
-const orderList: { key: string; label: string; order: "asc" | "desc" }[] = [
+const orderList: ISelectedOrder[] = [
   {
-    key: "a-z",
-    label: "A-Z",
+    key: "projectName",
+    label: "De A à Z",
     order: "asc"
   },
   {
-    key: "z-a",
-    label: "Z-A",
+    key: "projectName",
+    label: "De Z à A",
+    order: "desc"
+  },
+  {
+    key: "createdAt",
+    label: "Du plus ancien au plus récent",
+    order: "asc"
+  },
+  {
+    key: "createdAt",
+    label: "Du plus récent au plus ancien",
     order: "desc"
   }
 ];
@@ -20,21 +34,28 @@ export const ProjectsListOrder = ({
   setSelectedOrder,
   ...props
 }: SelectProps & {
-  selectedOrder: SelectedOrderType;
-  setSelectedOrder: (selectedOrder: SelectedOrderType) => void;
+  selectedOrder?: ISelectedOrder;
+  setSelectedOrder: React.Dispatch<
+    React.SetStateAction<ISelectedOrder | undefined>
+  >;
 }) => {
   return (
     <Select
       placeholder="Changer l'ordre d'affichage"
       width="fit-content"
+      defaultValue={`${selectedOrder?.key}-${selectedOrder?.order}`}
       onChange={(e) => {
-        setSelectedOrder(orderList.find(({ key }) => key === e.target.value));
+        setSelectedOrder(
+          orderList.find(
+            ({ key, order }) => `${key}-${order}` === e.target.value
+          )
+        );
       }}
       {...props}
     >
       {orderList.map(({ key, label, order }) => {
         return (
-          <option key={key + "-" + order} value={key}>
+          <option key={key + "-" + order} value={`${key}-${order}`}>
             {label}
           </option>
         );
