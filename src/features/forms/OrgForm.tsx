@@ -302,44 +302,75 @@ export const OrgForm = withGoogleApi({
         </FormControl>
 
         {orgType === OrgTypes.NETWORK && (
-          <FormControl mb={3} id="orgs" isInvalid={!!errors["orgs"]}>
-            <FormLabel>Organisations faisant partie du réseau</FormLabel>
-            <Controller
-              name="orgs"
-              as={ReactSelect}
-              control={control}
-              defaultValue={props.org?.orgs || []}
-              placeholder="Sélectionner une ou plusieurs organisations"
-              menuPlacement="top"
-              isClearable
-              isMulti
-              isSearchable
-              closeMenuOnSelect
-              styles={{
-                placeholder: () => {
-                  return {
-                    color: "#A0AEC0"
-                  };
-                },
-                control: (defaultStyles: any) => {
-                  return {
-                    ...defaultStyles,
-                    borderColor: "#e2e8f0",
-                    paddingLeft: "8px"
-                  };
-                }
-              }}
-              className="react-select-container"
-              classNamePrefix="react-select"
-              options={myOrgs}
-              getOptionLabel={(option: IOrg) => `${option.orgName}`}
-              getOptionValue={(option: IOrg) => option._id}
-              onChange={([option]: [option: IOrg]) => option._id}
-            />
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="orgs" />
-            </FormErrorMessage>
-          </FormControl>
+          <>
+            {/* <FormControl
+          id="orgType"
+          isRequired
+          isInvalid={!!errors["orgNetworkType"]}
+          mb={3}
+        >
+          <FormLabel>Type du réseau</FormLabel>
+          <Select
+            name="orgNetworkType"
+            ref={register({
+              required: `Veuillez sélectionner le type ${orgTypeLabel}`
+            })}
+            defaultValue={props.org?.orgType}
+            placeholder={`Type ${orgTypeLabel}`}
+            color="gray.400"
+          >
+            {Object.keys(OrgTypes).map((orgType) => {
+              return (
+                <option key={orgType} value={orgType}>
+                  {OrgTypesV[orgType]}
+                </option>
+              );
+            })}
+          </Select>
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="orgNetworkType" />
+          </FormErrorMessage>
+        </FormControl> */}
+
+            <FormControl mb={3} id="orgs" isInvalid={!!errors["orgs"]}>
+              <FormLabel>Organisations faisant partie du réseau</FormLabel>
+              <Controller
+                name="orgs"
+                as={ReactSelect}
+                control={control}
+                defaultValue={props.org?.orgs || []}
+                placeholder="Sélectionner une ou plusieurs organisations"
+                menuPlacement="top"
+                isClearable
+                isMulti
+                isSearchable
+                closeMenuOnSelect
+                styles={{
+                  placeholder: () => {
+                    return {
+                      color: "#A0AEC0"
+                    };
+                  },
+                  control: (defaultStyles: any) => {
+                    return {
+                      ...defaultStyles,
+                      borderColor: "#e2e8f0",
+                      paddingLeft: "8px"
+                    };
+                  }
+                }}
+                className="react-select-container"
+                classNamePrefix="react-select"
+                options={myOrgs}
+                getOptionLabel={(option: IOrg) => `${option.orgName}`}
+                getOptionValue={(option: IOrg) => option._id}
+                onChange={([option]: [option: IOrg]) => option._id}
+              />
+              <FormErrorMessage>
+                <ErrorMessage errors={errors} name="orgs" />
+              </FormErrorMessage>
+            </FormControl>
+          </>
         )}
 
         <FormControl

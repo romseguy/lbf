@@ -9,11 +9,11 @@ import { useEffect } from "react";
 import { FaMapMarkerAlt, FaRegMap } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
-const OrgsPage = (props: any) => {
+const NetworksPage = (props: any) => {
   const orgsQuery = useGetOrgsQuery(void 0, {
     selectFromResult: (query) => ({
       ...query,
-      data: query.data?.filter((org) => org.orgType !== OrgTypes.NETWORK)
+      data: query.data?.filter((org) => org.orgType === OrgTypes.NETWORK)
     })
   });
 
@@ -37,7 +37,7 @@ const OrgsPage = (props: any) => {
         onClick={openMapModal}
         mb={3}
       >
-        Carte des organisations
+        Carte des réseaux
       </Button>
 
       <OrgsList orgsQuery={orgsQuery} />
@@ -45,6 +45,7 @@ const OrgsPage = (props: any) => {
       {isMapModalOpen && (
         <MapModal
           isOpen={isMapModalOpen}
+          header="Carte des réseaux"
           orgs={
             orgsQuery.data?.filter(
               (org) =>
@@ -60,4 +61,4 @@ const OrgsPage = (props: any) => {
   );
 };
 
-export default OrgsPage;
+export default NetworksPage;

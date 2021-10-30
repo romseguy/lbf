@@ -20,7 +20,7 @@ import { signOut } from "next-auth/client";
 import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { FaPowerOff } from "react-icons/fa";
-import { IoIosPeople } from "react-icons/io";
+import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { useSelector } from "react-redux";
 import tw, { css } from "twin.macro";
 
@@ -162,6 +162,17 @@ export const Nav = ({
           data-cy="homeLink"
         >
           Accueil
+        </Button>
+
+        <Button
+          bg="transparent"
+          _hover={{
+            bg: isDark ? "blackAlpha.400" : "whiteAlpha.600"
+          }}
+          leftIcon={<IoIosGitNetwork />}
+          onClick={() => router.push("/reseaux", "/reseaux", { shallow: true })}
+        >
+          Réseaux
         </Button>
 
         <Button

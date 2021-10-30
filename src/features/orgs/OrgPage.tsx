@@ -306,8 +306,11 @@ export const OrgPage = ({
 
                         {org.orgAddress && (
                           <Flex flexDirection="column">
-                            {org.orgAddress.map(({ address }) => (
-                              <Flex alignItems="center">
+                            {org.orgAddress.map(({ address }, index) => (
+                              <Flex
+                                key={`address-${index}`}
+                                alignItems="center"
+                              >
                                 <Icon as={FaMapMarkedAlt} mr={3} />
                                 {address}
                               </Flex>

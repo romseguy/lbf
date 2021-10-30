@@ -23,6 +23,7 @@ export const MapModal = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 })(
   ({
+    header,
     events,
     orgs,
     ...props
@@ -30,9 +31,10 @@ export const MapModal = withGoogleApi({
     google: any;
     loaded: boolean;
     isOpen: boolean;
-    onClose: () => void;
+    header?: React.ReactNode | React.ReactNodeArray;
     events?: IEvent[];
     orgs?: IOrg[];
+    onClose: () => void;
   }) => {
     const isOffline = props.loaded && !props.google;
 
@@ -67,7 +69,9 @@ export const MapModal = withGoogleApi({
             {size.defaultSize.enabled && (
               <>
                 <ModalHeader>
-                  {`Carte des ${events ? "événements" : "organisations"}`}
+                  {header
+                    ? header
+                    : `Carte des ${events ? "événements" : "organisations"}`}
                 </ModalHeader>
                 <ModalCloseButton />
               </>

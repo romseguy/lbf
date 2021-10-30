@@ -46,6 +46,10 @@ export const OrgTypesV: { [key: string]: string } = {
   NETWORK: "Réseau"
 };
 
+// export const OrgNetworkTypes: { [key: string]: string } = {
+//   RESSOURCES: "RESSOURCES",
+// };
+
 export const Visibility: { [key: string]: string } = {
   PUBLIC: "PUBLIC",
   PRIVATE: "PRIVATE"

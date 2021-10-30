@@ -28,9 +28,10 @@ export type SizeMap = {
 };
 
 const defaultCenter = {
-  lat: 43.0555331,
-  lng: 2.2126466
+  lat: 46.227638,
+  lng: 2.213749
 };
+const defaultZoomLevel = 5;
 
 export const Map = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -57,7 +58,7 @@ export const Map = withGoogleApi({
     onFullscreenControlClick?: (isFull: boolean) => void;
   }) => {
     const [itemToShow, setItemToShow] = useState<IEvent | IOrg | null>(null);
-    const [zoomLevel, setZoomLevel] = useState<number>(10);
+    const [zoomLevel, setZoomLevel] = useState<number>(defaultZoomLevel);
 
     const mapRef = useRef(null);
     const options = {

@@ -434,8 +434,11 @@ export const EventPage = ({
 
                         {event.eventAddress && (
                           <Flex flexDirection="column">
-                            {event.eventAddress.map(({ address }) => (
-                              <Flex alignItems="center">
+                            {event.eventAddress.map(({ address }, index) => (
+                              <Flex
+                                key={`address-${index}`}
+                                alignItems="center"
+                              >
                                 <Icon as={FaMapMarkedAlt} mr={3} />
                                 {address}
                               </Flex>
