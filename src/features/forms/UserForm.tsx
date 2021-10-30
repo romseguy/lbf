@@ -24,7 +24,12 @@ import {
 import type { IUser } from "models/User";
 import { useAppDispatch } from "store";
 import { handleError } from "utils/form";
-import { calculateScale, getBase64, getPicaInstance } from "utils/image";
+import {
+  Base64Image,
+  calculateScale,
+  getBase64,
+  getPicaInstance
+} from "utils/image";
 import { normalize } from "utils/string";
 import { PhoneControl } from "features/common/forms/PhoneControl";
 
@@ -70,14 +75,20 @@ export const UserForm = (props: {
 
   const onSubmit = async (form: IUser) => {
     console.log("submitted", form);
-
     setIsLoading(true);
-    const payload = {
-      ...form,
+
+    const payload: {
+      userName?: string;
+      email?: string;
+      phone?: string;
+      userImage?: Base64Image;
+    } = {
       userName:
         props.user.userName !== form.userName
           ? normalize(form.userName)
-          : undefined
+          : undefined,
+      email: props.user.email !== form.email ? form.email : undefined,
+      phone: props.user.phone !== form.phone ? form.phone : undefined
     };
 
     if (setEditorRef.current) {
@@ -103,16 +114,16 @@ export const UserForm = (props: {
     }
 
     try {
-      if (props.user) {
-        await editUser({
-          payload,
-          userName: props.user.userName || props.user._id
-        }).unwrap();
-        dispatch(setSession(null));
-      }
+      await editUser({
+        payload,
+        userName: props.user.userName || props.user._id
+      }).unwrap();
+      dispatch(setSession(null));
 
+      setIsLoading(false);
       props.onSubmit && props.onSubmit(payload);
     } catch (error) {
+      setIsLoading(false);
       handleError(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });
@@ -120,8 +131,6 @@ export const UserForm = (props: {
           setError("formErrorMessage", { type: "manual", message });
         }
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 

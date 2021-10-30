@@ -328,7 +328,7 @@ export const LoginModal = (props: {
                 {isSignup ? (
                   <Button
                     colorScheme="transparent"
-                    color="black"
+                    color={isDark ? "white" : "black"}
                     size="xs"
                     leftIcon={<ChevronLeftIcon />}
                     onClick={() => {

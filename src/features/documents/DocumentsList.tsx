@@ -19,24 +19,27 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import axios from "axios";
+import React, { useState } from "react";
+import { FaFile, FaImage } from "react-icons/fa";
+import { useForm } from "react-hook-form";
+
 import { DeleteButton, ErrorMessageText, Link } from "features/common";
 import { useSession } from "hooks/useAuth";
 import { IOrg } from "models/Org";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { FaFile, FaImage } from "react-icons/fa";
+import { IUser } from "models/User";
+import api from "utils/api";
 import { handleError } from "utils/form";
 import * as stringUtils from "utils/string";
-import { useAddDocumentMutation, useGetDocumentsQuery } from "./documentsApi";
-import api from "utils/api";
+import { useGetDocumentsQuery } from "./documentsApi";
 
 export const DocumentsList = ({
   org,
+  user,
   isLogin,
-  setIsLogin,
-  ...props
+  setIsLogin
 }: {
-  org: IOrg;
+  org?: IOrg;
+  user?: IUser;
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
@@ -46,13 +49,17 @@ export const DocumentsList = ({
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
 
-  const query = useGetDocumentsQuery(org._id);
-  //const [addDocument, addDocumentMutation] = useAddDocumentMutation();
+  //#region documents
+  const query = useGetDocumentsQuery({ orgId: org?._id, userId: user?._id });
+  //#endregion
 
+  //#region local state
   const [loaded, setLoaded] = useState(0);
   const [isAdd, setIsAdd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  //#endregion
 
+  //#region form state
   const { register, handleSubmit, setError, errors, clearErrors, watch } =
     useForm({
       mode: "onChange"
@@ -66,7 +73,9 @@ export const DocumentsList = ({
       const file = form.files[0];
       const data = new FormData();
       data.append("file", file, file.name);
-      data.append("orgId", org._id);
+
+      if (org) data.append("orgId", org._id);
+      else if (user) data.append("userId", user._id);
 
       const { statusText } = await axios.post(
         process.env.NEXT_PUBLIC_API2,
@@ -97,6 +106,7 @@ export const DocumentsList = ({
       setIsLoading(false);
     }
   };
+  //#endregion
 
   return (
     <>
@@ -196,7 +206,13 @@ export const DocumentsList = ({
                       <a
                         href={`${process.env.NEXT_PUBLIC_API2}/${
                           isImage || isPdf ? "view" : "download"
-                        }?orgId=${org._id}&fileName=${fileName}`}
+                        }?${
+                          org
+                            ? `orgId=${org._id}`
+                            : user
+                            ? `userId=${user._id}`
+                            : ""
+                        }&fileName=${fileName}`}
                         target="_blank"
                       >
                         <Box display="flex" alignItems="center">
@@ -227,13 +243,16 @@ export const DocumentsList = ({
                           </>
                         }
                         onClick={async () => {
-                          let payload: { fileName: string; orgId?: string } = {
+                          let payload: {
+                            fileName: string;
+                            orgId?: string;
+                            userId?: string;
+                          } = {
                             fileName
                           };
 
-                          if (org) {
-                            payload.orgId = org._id;
-                          }
+                          if (org) payload.orgId = org._id;
+                          else if (user) payload.userId = user._id;
 
                           try {
                             await api.remove(

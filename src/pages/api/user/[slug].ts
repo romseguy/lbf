@@ -101,20 +101,37 @@ handler.put<
 
       if (body.userName) {
         body.userName = normalize(body.userName);
-
-        const user = await models.User.findOne({ userName: body.userName });
-
-        if (user) {
-          throw duplicateError;
-        }
       }
 
       let selector;
+
       if (emailR.test(slug)) {
         selector = { email: slug };
       } else if (phoneR.test(slug)) {
         selector = { phone: slug };
-      } else {
+      }
+
+      if (!selector) {
+        let user = await models.User.findOne({ userName: slug });
+
+        if (!user) {
+          user = await models.User.findOne({ _id: slug });
+
+          if (!user)
+            return res
+              .status(400)
+              .json(
+                createServerError(
+                  new Error(`L'utilisateur ${slug} n'existe pas`)
+                )
+              );
+        }
+
+        if (body.userName && body.userName !== user.userName) {
+          const user = await models.User.findOne({ userName: body.userName });
+          if (user) throw duplicateError;
+        }
+
         selector = { userName: slug };
       }
 

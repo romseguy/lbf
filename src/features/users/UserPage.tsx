@@ -1,33 +1,23 @@
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
 import {
-  Flex,
-  Box,
   Button,
   useToast,
   Grid,
   Heading,
   Icon,
-  IconButton,
   Textarea,
   VStack,
   TabPanel,
-  TabPanels,
-  Spinner,
-  Tooltip
+  TabPanels
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { Session, User } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import tw, { css } from "twin.macro";
+import { css } from "twin.macro";
 
-import {
-  GridHeader,
-  GridItem,
-  IconFooter,
-  Link,
-  RTEditor
-} from "features/common";
+import { GridHeader, GridItem, IconFooter } from "features/common";
+import { DocumentsList } from "features/documents/DocumentsList";
 import { UserForm } from "features/forms/UserForm";
 import { Layout } from "features/layout";
 import { ProjectsList } from "features/projects/ProjectsList";
@@ -47,6 +37,8 @@ export const UserPage = ({
   const router = useRouter();
   const { data: clientSession } = useSession();
   const session = clientSession || props.session;
+  console.log(session);
+
   const isSelf = props.user._id === session?.user.userId;
   const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
@@ -58,16 +50,16 @@ export const UserPage = ({
 
   const [editUser, editUserMutation] = useEditUserMutation();
 
-  const user: Partial<IUser> = isSelf
-    ? {
-        ...props.user,
-        _id: session?.user.userId,
-        email: session?.user.email,
-        userName: session?.user.userName,
-        userImage: session?.user.userImage,
-        isAdmin: session?.user.isAdmin
-      }
-    : props.user;
+  // const user: Partial<IUser> = isSelf
+  //   ? {
+  //       ...props.user,
+  //       _id: session?.user.userId,
+  //       email: session?.user.email,
+  //       userName: session?.user.userName,
+  //       userImage: session?.user.userImage,
+  //       isAdmin: session?.user.isAdmin
+  //     }
+  //   : props.user;
 
   const [data, setData] = useState<any>();
   const [isEdit, setIsEdit] = useState(false);
@@ -77,7 +69,11 @@ export const UserPage = ({
   const [description, setDescription] = useState<string | undefined>();
 
   return (
-    <Layout pageTitle={user.userName} session={session}>
+    <Layout
+      pageTitle={userQuery.data?.userName}
+      isLogin={isLogin}
+      session={session}
+    >
       <>
         {(isSelf || session?.user.isAdmin) && (
           <>
@@ -107,8 +103,9 @@ export const UserPage = ({
 
         {isEdit && (
           <UserForm
-            user={user}
+            user={userQuery.data || props.user}
             onSubmit={async ({ userName }) => {
+              userQuery.refetch();
               setIsEdit(false);
               toast({
                 title: "Votre profil a bien été modifié !",
@@ -116,7 +113,7 @@ export const UserPage = ({
                 isClosable: true
               });
 
-              if (userName && userName !== user.userName) {
+              if (userName && userName !== userQuery.data?.userName) {
                 await router.push(`/${userName}`);
               }
             }}
@@ -319,7 +316,7 @@ export const UserPage = ({
                                     status: "success",
                                     title: "Les données ont été importées"
                                   });
-                                } catch (error) {
+                                } catch (error: any) {
                                   console.error(error);
                                   toast({
                                     status: "error",
@@ -346,7 +343,14 @@ export const UserPage = ({
                 />
                 <IconFooter />
               </TabPanel>
-              <TabPanel aria-hidden>Bientôt</TabPanel>
+              <TabPanel aria-hidden>
+                <DocumentsList
+                  user={userQuery.data}
+                  isLogin={isLogin}
+                  setIsLogin={setIsLogin}
+                />
+                <IconFooter />
+              </TabPanel>
             </TabPanels>
           </UserPageTabs>
         )}

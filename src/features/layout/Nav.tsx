@@ -323,11 +323,7 @@ export const Nav = ({
                     });
                     dispatch(setUserEmail(null));
                     dispatch(setSession(null));
-
-                    if (process.env.NODE_ENV === "production") router.push(url);
-                    else {
-                      dispatch(refetchSubscription());
-                    }
+                    router.push(url);
                   }}
                 >
                   Déconnexion

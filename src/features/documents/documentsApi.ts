@@ -13,10 +13,12 @@ export const documentApi = createApi({
         body
       })
     }),
-    getDocuments: build.query<string[], string>({
-      query: (orgId) => {
+    getDocuments: build.query<string[], { orgId?: string; userId?: string }>({
+      query: ({ orgId, userId }) => {
         return {
-          url: `${process.env.NEXT_PUBLIC_API2}?orgId=${orgId}`
+          url: `${process.env.NEXT_PUBLIC_API2}${
+            orgId ? `?orgId=${orgId}` : userId ? `?userId=${userId}` : ""
+          }`
         };
       }
     })
