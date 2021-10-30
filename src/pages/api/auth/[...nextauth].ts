@@ -22,24 +22,25 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         authorize: async (signInOptions) => {
           //console.log("AUTHORIZE:", signInOptions);
           const { email, password } = signInOptions;
-          const { data, error } = await api.post("auth/signin", {
-            email,
-            password
-          });
 
-          if (data) {
-            const user: User = {
+          try {
+            const { data } = await api.post("auth/signin", {
               email,
-              userId: data._id,
-              userName: data.userName,
-              // userImage: data.userImage,
-              isAdmin: data.isAdmin || false
-            };
-            //console.log("AUTHORIZED:", user);
-            return user;
-          }
+              password
+            });
 
-          if (error) {
+            if (data) {
+              const user: User = {
+                email,
+                userId: data._id,
+                userName: data.userName,
+                // userImage: data.userImage,
+                isAdmin: data.isAdmin || false
+              };
+              //console.log("AUTHORIZED:", user);
+              return user;
+            }
+          } catch (error) {
             console.log("AUTHORIZE ERROR:", error);
             throw new Error(
               "Échec de la connexion, vérifiez vos identifiants."

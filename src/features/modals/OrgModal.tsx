@@ -28,7 +28,7 @@ export const OrgModal = ({
   return (
     <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent maxWidth="xl">
         <ModalHeader>Ajouter {orgTypeFull3(orgType)}</ModalHeader>
         <ModalCloseButton data-cy="orgPopoverCloseButton" />
         <ModalBody>

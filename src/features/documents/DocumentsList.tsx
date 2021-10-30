@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import axios from "axios";
-import { ErrorMessageText, Link } from "features/common";
+import { DeleteButton, ErrorMessageText, Link } from "features/common";
 import { useSession } from "hooks/useAuth";
 import { IOrg } from "models/Org";
 import React, { useState } from "react";
@@ -28,6 +28,7 @@ import { FaFile, FaImage } from "react-icons/fa";
 import { handleError } from "utils/form";
 import * as stringUtils from "utils/string";
 import { useAddDocumentMutation, useGetDocumentsQuery } from "./documentsApi";
+import api from "utils/api";
 
 export const DocumentsList = ({
   org,
@@ -36,7 +37,6 @@ export const DocumentsList = ({
   ...props
 }: {
   org: IOrg;
-  query: any;
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
@@ -84,6 +84,7 @@ export const DocumentsList = ({
           status: "success"
         });
         query.refetch();
+        setIsAdd(false);
       }
     } catch (error) {
       handleError(error, (message) =>
@@ -119,7 +120,6 @@ export const DocumentsList = ({
 
       {isAdd && (
         <form
-          method="post"
           onChange={() => {
             clearErrors("formErrorMessage");
           }}
@@ -204,6 +204,58 @@ export const DocumentsList = ({
                           {fileName}
                         </Box>
                       </a>
+                    </Td>
+                    <Td textAlign="right">
+                      <DeleteButton
+                        isIconOnly
+                        placement="bottom"
+                        bg="transparent"
+                        height="auto"
+                        minWidth={0}
+                        _hover={{ color: "red" }}
+                        header={
+                          <>
+                            Êtes vous sûr de vouloir supprimer le fichier{" "}
+                            <Text
+                              display="inline"
+                              color="red"
+                              fontWeight="bold"
+                            >
+                              {fileName}
+                            </Text>{" "}
+                            ?
+                          </>
+                        }
+                        onClick={async () => {
+                          let payload: { fileName: string; orgId?: string } = {
+                            fileName
+                          };
+
+                          if (org) {
+                            payload.orgId = org._id;
+                          }
+
+                          try {
+                            await api.remove(
+                              process.env.NEXT_PUBLIC_API2,
+                              payload
+                            );
+                            toast({
+                              title: `Le document ${fileName} a bien été supprimé !`,
+                              status: "success",
+                              isClosable: true
+                            });
+                            query.refetch();
+                          } catch (error) {
+                            console.error(error);
+                            toast({
+                              title: `Le document ${fileName} n'a pas pu être supprimé.`,
+                              status: "error",
+                              isClosable: true
+                            });
+                          }
+                        }}
+                      />
                     </Td>
                   </Tr>
                 );

@@ -26,12 +26,13 @@ export const AddressControl = withGoogleApi({
     google,
     loaded,
     name,
+    label = "Adresse",
     errors,
     control,
     setValue,
     defaultValue,
     value,
-    placeholder,
+    placeholder = "Saisir une adresse...",
     isRequired = false,
     noLabel = false,
     isMultiple = true,
@@ -44,6 +45,7 @@ export const AddressControl = withGoogleApi({
     google: any;
     loaded: boolean;
     name: string;
+    label?: string;
     errors: { [key: string]: string };
     control: Control<any>;
     setValue: (name: string, value: AddressControlValue) => void;
@@ -91,9 +93,7 @@ export const AddressControl = withGoogleApi({
                     value={
                       typeof value === "string" ? value : renderProps.value
                     }
-                    placeholder={
-                      placeholder || "Cliquez ici pour saisir une adresse..."
-                    }
+                    placeholder={placeholder}
                     rightAddon={rightAddon}
                     onClick={onClick}
                     onChange={(description: string) => {
@@ -132,7 +132,11 @@ export const AddressControl = withGoogleApi({
               isInvalid={!!(errors[name] && errors[name][index])}
               {...props}
             >
-              {!noLabel && <FormLabel>Adresse</FormLabel>}
+              {!noLabel && (
+                <FormLabel m={0}>
+                  {index > 0 ? `${index + 1}ème ${label.toLowerCase()}` : label}
+                </FormLabel>
+              )}
               {isGoogleApiLoaded ? (
                 <Controller
                   name={`${name}[${index}].address`}
@@ -145,10 +149,7 @@ export const AddressControl = withGoogleApi({
                         value={
                           typeof value === "string" ? value : renderProps.value
                         }
-                        placeholder={
-                          placeholder ||
-                          "Cliquez ici pour saisir une adresse..."
-                        }
+                        placeholder={placeholder}
                         rightAddon={
                           <InputRightAddon
                             p={0}

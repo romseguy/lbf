@@ -79,26 +79,31 @@ export const UserPage = ({
   return (
     <Layout pageTitle={user.userName} session={session}>
       <>
-        <Flex mb={5} flexDirection="column">
-          {(isSelf || session?.user.isAdmin) && (
-            <Box>
+        {(isSelf || session?.user.isAdmin) && (
+          <>
+            {!isEdit ? (
               <Button
-                aria-label="Modifier"
+                colorScheme="teal"
                 leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-                mr={3}
                 onClick={() => setIsEdit(!isEdit)}
-                css={css`
-                  &:hover {
-                    ${tw`bg-green-300`}
-                  }
-                `}
+                mb={5}
                 data-cy="userEdit"
               >
-                {isEdit ? "Retour" : "Modifier"}
+                Paramètres de votre compte
               </Button>
-            </Box>
-          )}
-        </Flex>
+            ) : (
+              <Button
+                colorScheme="pink"
+                leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+                mb={5}
+                onClick={() => setIsEdit(!isEdit)}
+                data-cy="userEdit"
+              >
+                Revenir à votre page
+              </Button>
+            )}
+          </>
+        )}
 
         {isEdit && (
           <UserForm
@@ -117,7 +122,8 @@ export const UserPage = ({
             }}
           />
         )}
-        {isSelf && (
+
+        {!isEdit && isSelf && (
           <UserPageTabs>
             <TabPanels>
               <TabPanel aria-hidden>
@@ -273,20 +279,28 @@ export const UserPage = ({
 
                             <Button
                               onClick={async () => {
-                                const { error, data } = await api.get(
-                                  "admin/backup"
-                                );
-                                const a = document.createElement("a");
-                                const href = window.URL.createObjectURL(
-                                  new Blob([JSON.stringify(data)], {
-                                    type: "application/json"
-                                  })
-                                );
-                                a.href = href;
-                                a.download =
-                                  "data-" + format(new Date(), "dd-MM-yyyy");
-                                a.click();
-                                window.URL.revokeObjectURL(href);
+                                try {
+                                  const { data } = await api.get(
+                                    "admin/backup"
+                                  );
+                                  const a = document.createElement("a");
+                                  const href = window.URL.createObjectURL(
+                                    new Blob([JSON.stringify(data)], {
+                                      type: "application/json"
+                                    })
+                                  );
+                                  a.href = href;
+                                  a.download =
+                                    "data-" + format(new Date(), "dd-MM-yyyy");
+                                  a.click();
+                                  window.URL.revokeObjectURL(href);
+                                } catch (error: any) {
+                                  console.error(error);
+                                  toast({
+                                    status: "error",
+                                    title: error
+                                  });
+                                }
                               }}
                             >
                               Exporter les données
@@ -299,20 +313,17 @@ export const UserPage = ({
                             <Button
                               isDisabled={!data}
                               onClick={async () => {
-                                const query = await api.post(
-                                  "admin/backup",
-                                  data
-                                );
-
-                                if (query.error) {
-                                  toast({
-                                    status: "error",
-                                    title: query.error.message
-                                  });
-                                } else {
+                                try {
+                                  await api.post("admin/backup", data);
                                   toast({
                                     status: "success",
                                     title: "Les données ont été importées"
+                                  });
+                                } catch (error) {
+                                  console.error(error);
+                                  toast({
+                                    status: "error",
+                                    title: error.message
                                   });
                                 }
                               }}

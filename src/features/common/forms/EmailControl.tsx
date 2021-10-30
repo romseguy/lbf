@@ -34,6 +34,7 @@ export const EmailControl = ({
   containerProps = {},
   isRequired = false,
   isMultiple = true,
+  placeholder = "Saisir une adresse e-mail...",
   onRightElementClick,
   ...props
 }: SpaceProps & {
@@ -71,10 +72,7 @@ export const EmailControl = ({
           <InputLeftElement pointerEvents="none" children={<AtSignIcon />} />
           <Input
             name={name}
-            placeholder={
-              props.placeholder ||
-              "Cliquez ici pour saisir une adresse e-mail..."
-            }
+            placeholder={placeholder}
             ref={register({
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -131,10 +129,7 @@ export const EmailControl = ({
               />
               <Input
                 name={`${name}[${index}].email`}
-                placeholder={
-                  props.placeholder ||
-                  "Cliquez ici pour saisir une adresse e-mail..."
-                }
+                placeholder={placeholder}
                 defaultValue={`${field.email}`} // make sure to set up defaultValue
                 ref={register({
                   pattern: {

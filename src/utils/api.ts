@@ -27,10 +27,14 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
       }
     }
 
-    console.log(`Fetching /${endpoint}`);
+    console.log(
+      `Fetching ${endpoint.includes("http") ? endpoint : "/" + endpoint}`
+    );
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/${endpoint}`,
+      endpoint.includes("http")
+        ? endpoint
+        : `${process.env.NEXT_PUBLIC_API}/${endpoint}`,
       options
     );
 
@@ -47,17 +51,10 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
     }
 
     const error = await response.json();
-    console.log(`API ERROR /${endpoint}`, error);
-    return { error, status: response.status };
+    throw error;
   } catch (error: any) {
     console.error(`API ERROR /${endpoint}`, error);
-    return {
-      error: {
-        message: error.message
-
-        // "Une erreur inconnue est survenue, merci de contacter le développeur"
-      }
-    };
+    throw error;
   }
 }
 

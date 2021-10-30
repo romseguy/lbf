@@ -185,7 +185,7 @@ export const OrgPage = ({
           colorScheme="teal"
           leftIcon={<SettingsIcon boxSize={6} data-cy="orgSettings" />}
           onClick={() => setIsConfig(true)}
-          mb={2}
+          mb={5}
         >
           Paramètres {orgTypeFull(org.orgType)}
         </Button>
@@ -194,7 +194,7 @@ export const OrgPage = ({
           colorScheme="pink"
           leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
-          mb={2}
+          mb={5}
         >
           {`Revenir à la page ${orgTypeFull(org.orgType)}`}
         </Button>
@@ -557,7 +557,6 @@ export const OrgPage = ({
             <TabPanel aria-hidden>
               <DocumentsList
                 org={org}
-                query={orgQuery}
                 isCreator={isCreator}
                 isSubscribed={isSubscribed}
                 isLogin={isLogin}

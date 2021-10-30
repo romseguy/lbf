@@ -968,7 +968,6 @@ export const EventForm = withGoogleApi({
           control={control}
           errors={errors}
           setValue={setValue}
-          placeholder="Adresse de l'événement"
           mb={3}
           containerProps={
             eventAddress && eventAddress[0]
@@ -986,7 +985,6 @@ export const EventForm = withGoogleApi({
           control={control}
           errors={errors}
           setValue={setValue}
-          placeholder="Adresse e-mail de l'événement"
           mb={3}
           containerProps={
             eventEmail && eventEmail[0]
@@ -1001,7 +999,6 @@ export const EventForm = withGoogleApi({
           control={control}
           errors={errors}
           setValue={setValue}
-          placeholder="Numéro de téléphone de l'événement"
           mb={3}
           containerProps={
             eventPhone && eventPhone[0] ? containerProps : { mb: 3 }
@@ -1014,7 +1011,6 @@ export const EventForm = withGoogleApi({
           control={control}
           errors={errors}
           setValue={setValue}
-          placeholder="Site internet de l'événement"
           mb={3}
           containerProps={
             eventWeb && eventWeb[0] ? { ...containerProps, mb: 3 } : { mb: 3 }

@@ -185,15 +185,9 @@ export const UserForm = (props: {
         isRequired
         defaultValue={props.user.email}
         errors={errors}
-        mb={3}
         isMultiple={false}
-        placeholder="Cliquez ici pour saisir votre adresse e-mail..."
+        mb={3}
       />
-
-      <Alert status="info" mb={3}>
-        <AlertIcon />
-        Votre e-mail ne sera jamais affiché publiquement sur le site.
-      </Alert>
 
       <PhoneControl
         name="phone"
@@ -203,7 +197,7 @@ export const UserForm = (props: {
         errors={errors}
         isMultiple={false}
         defaultValue={props.user.phone}
-        placeholder="Cliquez ici pour saisir votre numéro de téléphone..."
+        mb={3}
       />
 
       <FormControl id="userImage" isInvalid={!!errors["userImage"]} mb={3}>

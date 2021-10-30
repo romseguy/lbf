@@ -69,17 +69,10 @@ export const ForgottenForm = ({
     ]);
 
     if (emailForgotten) {
-      const { error, data } = await api.post("auth/forgotten", {
-        email: emailForgotten
-      });
-
-      if (error) {
-        handleError(error, (message, field) => {
-          if (!field || field === "message") {
-            setError("formErrorMessage", { type: "manual", message });
-          }
+      try {
+        const { data } = await api.post("auth/forgotten", {
+          email: emailForgotten
         });
-      } else {
         setSavedEmail(emailForgotten);
         setSavedSecurityCode(data);
         reset();
@@ -89,6 +82,12 @@ export const ForgottenForm = ({
           status: "success",
           duration: 9000,
           isClosable: true
+        });
+      } catch (error) {
+        handleError(error, (message, field) => {
+          if (!field || field === "message") {
+            setError("formErrorMessage", { type: "manual", message });
+          }
         });
       }
     } else if (securityCode) {
@@ -101,26 +100,24 @@ export const ForgottenForm = ({
         });
       }
     } else if (password) {
-      const { error, data } = await api.post("auth/forgotten", {
-        email: savedEmail,
-        password
-      });
-
-      if (error) {
-        handleError(error, (message, field) => {
-          if (!field || field === "message") {
-            setError("formErrorMessage", { type: "manual", message });
-          }
+      try {
+        const { data } = await api.post("auth/forgotten", {
+          email: savedEmail,
+          password
         });
-      } else {
         toast({
           title: `Le mot de passe du compte ${savedEmail} a bien été changé.`,
           status: "success",
           isClosable: true
         });
         onSuccess && onSuccess();
+      } catch (error) {
+        handleError(error, (message, field) => {
+          if (!field || field === "message") {
+            setError("formErrorMessage", { type: "manual", message });
+          }
+        });
       }
-    } else {
     }
 
     setIsLoading(false);

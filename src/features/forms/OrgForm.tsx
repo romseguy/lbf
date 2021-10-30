@@ -443,7 +443,6 @@ export const OrgForm = withGoogleApi({
           control={control}
           errors={errors}
           setValue={setValue}
-          placeholder={`Adresse ${orgTypeLabel}`}
           mb={3}
           containerProps={
             orgAddress && orgAddress[0]
@@ -461,7 +460,6 @@ export const OrgForm = withGoogleApi({
           control={control}
           errors={errors}
           setValue={setValue}
-          placeholder={`Adresse e-mail ${orgTypeLabel}`}
           mb={3}
           containerProps={
             orgEmail && orgEmail[0] ? { ...containerProps, mt: 0 } : { mb: 3 }
@@ -474,7 +472,6 @@ export const OrgForm = withGoogleApi({
           control={control}
           errors={errors}
           setValue={setValue}
-          placeholder={`Numéro de téléphone ${orgTypeLabel}`}
           mb={3}
           containerProps={orgPhone && orgPhone[0] ? containerProps : { mb: 3 }}
         />
@@ -485,7 +482,6 @@ export const OrgForm = withGoogleApi({
           control={control}
           errors={errors}
           setValue={setValue}
-          placeholder={`Site internet ${orgTypeLabel}`}
           mb={3}
           containerProps={
             orgWeb && orgWeb[0] ? { ...containerProps, mb: 3 } : { mb: 3 }

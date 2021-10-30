@@ -70,7 +70,7 @@ export const OrgsList = ({
             {[
               { key: "orgName", label: "Nom" },
               { key: "orgType", label: "Type" },
-              { key: "orgCity", label: "Ville" }
+              { key: "orgCity", label: "Localité" }
             ].map(({ key, label }) => {
               return (
                 <Th cursor="pointer" onClick={() => setSelectedOrder(key)}>

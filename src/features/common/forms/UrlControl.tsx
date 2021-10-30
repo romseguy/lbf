@@ -27,7 +27,7 @@ type UrlControlValue = [{ url: string; prefix: string }] | null;
 
 export const UrlControl = ({
   label = "Site internet",
-  placeholder,
+  placeholder = "Saisir une adresse internet",
   defaultValue,
   errors,
   name,
@@ -66,7 +66,7 @@ export const UrlControl = ({
           <InputLeftElement pointerEvents="none" children={<AtSignIcon />} />
           <Input
             name={name}
-            placeholder={placeholder || "Saisir une adresse internet"}
+            placeholder={placeholder}
             ref={register({
               pattern: {
                 value: urlR,
@@ -137,7 +137,7 @@ export const UrlControl = ({
               />
               <Input
                 name={`${name}[${index}].url`}
-                placeholder={placeholder || "Saisir une adresse internet"}
+                placeholder={placeholder}
                 defaultValue={field.url}
                 ref={register({
                   pattern: {

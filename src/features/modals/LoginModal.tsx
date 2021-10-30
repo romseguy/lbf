@@ -97,7 +97,7 @@ export const LoginModal = (props: {
 
     try {
       if (isSignup) {
-        const { error } = await api.post("auth/signup", { email, password });
+        await api.post("auth/signup", { email, password });
         await signIn("credentials", { email, password });
         setIsLoading(false);
         onClose();

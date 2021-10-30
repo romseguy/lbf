@@ -22,22 +22,22 @@ import {
 import { DeleteIcon } from "@chakra-ui/icons";
 
 export const DeleteButton = ({
-  onClick,
   isDisabled,
   isLoading,
   isIconOnly,
   header,
   body,
   placement = "left",
+  onClick,
   ...props
 }: any & {
   header: React.ReactNode;
   body?: React.ReactNode;
-  placement: string;
-  onClick: () => void;
+  placement?: string;
   isDisabled?: boolean;
   isLoading?: boolean;
   isIconOnly?: boolean;
+  onClick: () => void;
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const onClose = () => setIsOpen(false);

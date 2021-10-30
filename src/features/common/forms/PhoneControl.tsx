@@ -35,6 +35,7 @@ export const PhoneControl = ({
   containerProps = {},
   isRequired = false,
   isMultiple = true,
+  placeholder = "Saisir un numéro de téléphone...",
   ...props
 }: SpaceProps & {
   defaultValue?: string;
@@ -64,15 +65,12 @@ export const PhoneControl = ({
         isInvalid={!!errors[name]}
         {...props}
       >
-        {!noLabel && <FormLabel m={0}>{label}</FormLabel>}
+        {!noLabel && <FormLabel>{label}</FormLabel>}
         <InputGroup>
           <InputLeftElement pointerEvents="none" children={<PhoneIcon />} />
           <Input
             name={name}
-            placeholder={
-              props.placeholder ||
-              "Cliquez ici pour saisir un numéro de téléphone..."
-            }
+            placeholder={placeholder}
             defaultValue={defaultValue}
             ref={register({
               pattern: {
@@ -118,10 +116,7 @@ export const PhoneControl = ({
               <InputLeftElement pointerEvents="none" children={<PhoneIcon />} />
               <Input
                 name={`${name}[${index}].phone`}
-                placeholder={
-                  props.placeholder ||
-                  "Cliquez ici pour saisir un numéro de téléphone..."
-                }
+                placeholder={placeholder}
                 defaultValue={`${field.phone}`} // make sure to set up defaultValue
                 ref={register({
                   pattern: {
