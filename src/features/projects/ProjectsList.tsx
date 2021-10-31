@@ -276,10 +276,14 @@ export const ProjectsList = ({
                             <Tooltip placement="bottom" label={fullDate}>
                               <span>{timeAgo}</span>
                             </Tooltip>
-                            <span aria-hidden> · </span>
-                            <ProjectItemVisibility
-                              projectVisibility={project.projectVisibility}
-                            />
+                            {org && (
+                              <>
+                                <span aria-hidden> · </span>
+                                <ProjectItemVisibility
+                                  projectVisibility={project.projectVisibility}
+                                />
+                              </>
+                            )}
                           </Box>
                         </GridItem>
 
@@ -402,49 +406,54 @@ export const ProjectsList = ({
                         dark={{ bg: bgColor }}
                         overflowX="auto"
                         borderBottomRadius="xl"
+                        minHeight="12px"
                       >
-                        {isProjectCreator ? (
-                          <Table>
-                            <Tbody>
-                              {Array.isArray(project.projectNotified) &&
-                              project.projectNotified.length > 0 ? (
-                                project.projectNotified.map(
-                                  ({ email, status }) => (
+                        {org && (
+                          <>
+                            {isProjectCreator ? (
+                              <Table>
+                                <Tbody>
+                                  {Array.isArray(project.projectNotified) &&
+                                  project.projectNotified.length > 0 ? (
+                                    project.projectNotified.map(
+                                      ({ email, status }) => (
+                                        <Tr>
+                                          <Td>{email}</Td>
+                                          <Td>
+                                            <Tag
+                                              variant="solid"
+                                              colorScheme={
+                                                status === StatusTypes.PENDING
+                                                  ? "blue"
+                                                  : status === StatusTypes.OK
+                                                  ? "green"
+                                                  : "red"
+                                              }
+                                            >
+                                              {StatusTypesV[status]}
+                                            </Tag>
+                                          </Td>
+                                        </Tr>
+                                      )
+                                    )
+                                  ) : (
                                     <Tr>
-                                      <Td>{email}</Td>
                                       <Td>
-                                        <Tag
-                                          variant="solid"
-                                          colorScheme={
-                                            status === StatusTypes.PENDING
-                                              ? "blue"
-                                              : status === StatusTypes.OK
-                                              ? "green"
-                                              : "red"
-                                          }
-                                        >
-                                          {StatusTypesV[status]}
-                                        </Tag>
+                                        <Text fontStyle="italic">
+                                          Personne n'a indiqué participer.
+                                        </Text>
                                       </Td>
                                     </Tr>
-                                  )
-                                )
-                              ) : (
-                                <Tr>
-                                  <Td>
-                                    <Text fontStyle="italic">
-                                      Personne n'a indiqué participer.
-                                    </Text>
-                                  </Td>
-                                </Tr>
-                              )}
-                            </Tbody>
-                          </Table>
-                        ) : (
-                          <ProjectAttendingForm
-                            project={project}
-                            query={query}
-                          />
+                                  )}
+                                </Tbody>
+                              </Table>
+                            ) : (
+                              <ProjectAttendingForm
+                                project={project}
+                                query={query}
+                              />
+                            )}
+                          </>
                         )}
                       </GridItem>
                     </>

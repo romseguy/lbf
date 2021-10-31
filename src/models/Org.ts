@@ -34,12 +34,12 @@ export interface IOrg {
   createdAt?: string;
 }
 
-export const OrgTypes: { [key: string]: string } = {
+export type OrgType = "ASSO" | "GROUP" | "NETWORK";
+export const OrgTypes: { [key: string]: OrgType } = {
   ASSO: "ASSO",
   GROUP: "GROUP",
   NETWORK: "NETWORK"
 };
-
 export const OrgTypesV: { [key: string]: string } = {
   ASSO: "Association",
   GROUP: "Groupe",

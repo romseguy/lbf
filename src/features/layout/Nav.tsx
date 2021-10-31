@@ -36,6 +36,7 @@ import { breakpoints } from "theme/theme";
 import { isServer } from "utils/isServer";
 import { base64ToUint8Array } from "utils/string";
 import { setSession } from "features/session/sessionSlice";
+import { OrgTypes } from "models/Org";
 
 interface customWindow extends Window {
   workbox?: any;
@@ -44,11 +45,13 @@ interface customWindow extends Window {
 declare const window: customWindow;
 
 const linkList = css`
-  & > button {
-    margin: 0 0 0 12px;
+  white-space: nowrap;
+
+  & > button:first-of-type {
+    margin-left: 12px;
   }
 
-  @media (max-width: ${breakpoints.sm}) {
+  @media (max-width: 730px) {
     margin-left: 0;
 
     button {
@@ -57,8 +60,12 @@ const linkList = css`
 
     & > button {
       display: block;
-      margin: 0 0 0 12px;
     }
+
+    & > button {
+      margin-left: 12px;
+    }
+
     // & > a:not(:first-of-type) {
     //   margin-top: 12px;
     // }
@@ -66,7 +73,8 @@ const linkList = css`
 `;
 
 const buttonList = css`
-  margin-left: 20px;
+  /*margin-left: 20px;*/
+
   @media (max-width: ${breakpoints.sm}) {
     margin-left: 0;
   }
@@ -74,11 +82,12 @@ const buttonList = css`
 
 export const Nav = ({
   isLogin = 0,
+  session: serverSession,
   ...props
 }: BoxProps & { isLogin?: number; session?: Session | null }) => {
   const router = useRouter();
-  const { data, loading: isSessionLoading } = useSession();
-  const session = data || props.session;
+  const { data: clientSession, loading: isSessionLoading } = useSession();
+  const session = clientSession || serverSession;
   const userName = session?.user.userName || "";
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
@@ -161,7 +170,7 @@ export const Nav = ({
           onClick={() => router.push("/", "/", { shallow: true })}
           data-cy="homeLink"
         >
-          Accueil
+          Événements
         </Button>
 
         <Button
@@ -202,7 +211,14 @@ export const Nav = ({
         {session ? (
           <>
             <EventPopover boxSize={[6, 8, 8]} session={session} />
-            <OrgPopover boxSize={[8, 10, 12]} session={session} />
+            <OrgPopover
+              boxSize={[6, 8, 8]}
+              orgType={OrgTypes.NETWORK}
+              ml={2}
+              session={session}
+            />
+            <OrgPopover boxSize={[8, 10, 12]} mr={1} session={session} />
+
             <Menu>
               <MenuButton mr={[1, 3]}>
                 <Avatar

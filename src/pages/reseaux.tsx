@@ -29,7 +29,7 @@ const NetworksPage = (props: any) => {
   } = useDisclosure({ defaultIsOpen: false });
 
   return (
-    <Layout {...props}>
+    <Layout pageTitle="Réseaux" {...props}>
       <Button
         colorScheme="teal"
         isDisabled={!orgsQuery.data || !orgsQuery.data.length}

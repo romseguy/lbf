@@ -33,7 +33,8 @@ export const Layout = ({
   pageTitle,
   pageSubTitle,
   session,
-  title,
+  org,
+  event,
   ...props
 }: BoxProps & {
   logo?: Base64Image;
@@ -46,16 +47,9 @@ export const Layout = ({
   pageTitle?: string;
   pageSubTitle?: React.ReactNode;
   session?: Session | null;
-  title?: string;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-
-  let defaultTitleColor = isDark ? "white" : "black";
-
-  if (banner) {
-    defaultTitleColor = banner.mode === "light" ? "white" : "black";
-  }
 
   const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false);
   // console.log("hasVerticalScrollbar", hasVerticalScrollbar);
@@ -84,10 +78,10 @@ export const Layout = ({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
-          {title
-            ? `${defaultTitle} ${title}`
-            : pageTitle
-            ? `${defaultTitle} ${pageTitle}`
+          {org || event || pageTitle
+            ? `${defaultTitle} – ${
+                org ? org.orgName : event ? event.eventName : pageTitle
+              }`
             : defaultTitle}
         </title>
       </Head>
@@ -124,9 +118,8 @@ export const Layout = ({
         {/* <DarkModeSwitch position="absolute" right="0" top="0" m={3} /> */}
         <Header
           defaultTitle={defaultTitle}
-          defaultTitleColor={defaultTitleColor}
-          org={props.org}
-          event={props.event}
+          org={org}
+          event={event}
           pageTitle={pageTitle}
           pageSubTitle={pageSubTitle}
         />

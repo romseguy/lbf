@@ -29,7 +29,7 @@ const OrgsPage = (props: any) => {
   } = useDisclosure({ defaultIsOpen: false });
 
   return (
-    <Layout {...props}>
+    <Layout pageTitle="Organisations" {...props}>
       <Button
         colorScheme="teal"
         isDisabled={!orgsQuery.data || !orgsQuery.data.length}

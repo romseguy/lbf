@@ -245,12 +245,10 @@ export const OrgPage = ({
         <Alert status="info" mb={3}>
           <AlertIcon />
           <Box>
-            <Text>
-              Vous êtes adhérent {orgTypeFull(org.orgType)} {org.orgName}.
-              <Text fontSize="smaller">
-                Vous avez donc accès aux événements et discussions réservées aux
-                adhérents.
-              </Text>
+            Vous êtes adhérent {orgTypeFull(org.orgType)} {org.orgName}.
+            <Text fontSize="smaller">
+              Vous avez donc accès aux événements et discussions réservées aux
+              adhérents.
             </Text>
           </Box>
         </Alert>

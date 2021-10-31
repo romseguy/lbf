@@ -185,10 +185,14 @@ export const EventsListItem = ({
                     }
                     icon={<EmailIcon />}
                     isLoading={isLoading}
-                    isDisabled={!event.isApproved}
+                    isDisabled={
+                      !event.isApproved || !hasItems(org.orgSubscriptions)
+                    }
                     title={
                       !event.isApproved
                         ? "L'événement est en attente de modération"
+                        : !hasItems(org.orgSubscriptions)
+                        ? "Aucun abonné à inviter"
                         : ""
                     }
                     bg="transparent"

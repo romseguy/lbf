@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { IoIosPeople, IoIosPerson } from "react-icons/io";
+import { IoIosGitNetwork, IoIosPeople, IoIosPerson } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { Link } from "features/common";
 import { OrgModal } from "features/modals/OrgModal";
@@ -35,7 +35,7 @@ import {
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
-import { IOrg } from "models/Org";
+import { IOrg, OrgType, OrgTypes } from "models/Org";
 import { hasItems } from "utils/array";
 import { Session } from "next-auth";
 
@@ -45,16 +45,27 @@ let cachedEmail: string | undefined;
 
 export const OrgPopover = ({
   boxSize,
+  orgType,
   session,
   ...props
 }: BoxProps & {
+  orgType?: OrgType;
   session: Session;
 }) => {
   const router = useRouter();
-  const userEmail = useSelector(selectUserEmail) || session?.user.email;
+  const userEmail = useSelector(selectUserEmail) || session.user.email;
 
   //#region myOrgs
-  const orgsQuery = useGetOrgsQuery();
+  const orgsQuery = useGetOrgsQuery(undefined, {
+    selectFromResult: (query) => ({
+      ...query,
+      data: query.data?.filter((org) =>
+        orgType
+          ? org.orgType === orgType
+          : org.orgType === OrgTypes.ASSO || org.orgType === OrgTypes.GROUP
+      )
+    })
+  });
   const refetchOrgs = useSelector(selectOrgsRefetch);
   useEffect(() => {
     if (refetchOrgs !== cachedRefetchOrgs) {
@@ -66,9 +77,7 @@ export const OrgPopover = ({
   const myOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&
-      orgsQuery.data.filter(
-        (org) => session?.user.userId === org?.createdBy
-      )) ||
+      orgsQuery.data.filter((org) => session.user.userId === org?.createdBy)) ||
     [];
   const hasOrgs = Array.isArray(myOrgs) && myOrgs.length > 0;
   //#endregion
@@ -117,6 +126,19 @@ export const OrgPopover = ({
       >
         <PopoverTrigger>
           <IconButton
+            aria-label="Social"
+            bg="transparent"
+            _hover={{ bg: "transparent" }}
+            icon={
+              <Icon
+                as={
+                  orgType === OrgTypes.NETWORK ? IoIosGitNetwork : IoIosPeople
+                }
+                boxSize={boxSize}
+                _hover={{ color: iconHoverColor }}
+              />
+            }
+            minWidth={0}
             onClick={() => {
               if (!isOpen) {
                 orgsQuery.refetch();
@@ -124,23 +146,15 @@ export const OrgPopover = ({
               }
               setIsOpen(!isOpen);
             }}
-            aria-label="Social"
-            mx={[0, 2, 2]}
-            bg="transparent"
-            _hover={{ bg: "transparent" }}
-            icon={
-              <Icon
-                as={IoIosPeople}
-                boxSize={boxSize}
-                _hover={{ color: iconHoverColor }}
-              />
-            }
             data-cy="orgPopover"
           />
         </PopoverTrigger>
         <PopoverContent>
           <PopoverHeader>
-            <Heading size="md">Les organisations...</Heading>
+            <Heading size="md">
+              Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}
+              ...
+            </Heading>
           </PopoverHeader>
           <PopoverCloseButton />
           <PopoverBody>
@@ -149,9 +163,7 @@ export const OrgPopover = ({
                 ...où je suis administrateur :
               </Heading>
 
-              {orgsQuery.isLoading || orgsQuery.isFetching ? (
-                <Spinner />
-              ) : hasOrgs ? (
+              {hasOrgs ? (
                 <VStack alignItems="flex-start" overflowX="auto" ml={3}>
                   {myOrgs.map((org, index) => (
                     <Link
@@ -183,9 +195,7 @@ export const OrgPopover = ({
               ...où je suis adhérent :
             </Heading>
 
-            {orgsQuery.isLoading || orgsQuery.isFetching ? (
-              <Spinner />
-            ) : hasSubscribedOrgs ? (
+            {hasSubscribedOrgs ? (
               <VStack alignItems="flex-start" overflowX="auto" ml={3}>
                 {subscribedOrgs.map((org, index) => (
                   <Link
@@ -228,7 +238,7 @@ export const OrgPopover = ({
         </PopoverContent>
       </Popover>
 
-      {session && orgModalState.isOpen && (
+      {orgModalState.isOpen && (
         <OrgModal
           session={session}
           onCancel={() => setOrgModalState({ isOpen: false })}

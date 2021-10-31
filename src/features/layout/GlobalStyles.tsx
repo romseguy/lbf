@@ -5,12 +5,12 @@ import tw from "twin.macro";
 export const GlobalStyles = () => (
   <Global
     styles={css`
-      // @font-face {
-      //   font-family: "DancingScript";
-      //   src: url("/fonts/DancingScript-Regular.ttf");
-      //   src: url("/fonts/DancingScript-Bold.ttf");
-      //   src: url("/fonts/DancingScript-SemiBold.ttf");
-      // }
+      @font-face {
+        font-family: "DancingScript";
+        src: url("/fonts/DancingScript-Regular.ttf");
+        src: url("/fonts/DancingScript-Bold.ttf");
+        src: url("/fonts/DancingScript-SemiBold.ttf");
+      }
 
       @font-face {
         font-family: "Aladin";

@@ -251,7 +251,7 @@ export const ProjectForm = ({
         </FormControl>
       )}
 
-      {visibilityOptions.length > 0 && (
+      {org && visibilityOptions.length > 0 && (
         <FormControl
           id="projectVisibility"
           isRequired

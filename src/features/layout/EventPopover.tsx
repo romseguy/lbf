@@ -106,13 +106,6 @@ export const EventPopover = ({
       >
         <PopoverTrigger>
           <IconButton
-            onClick={() => {
-              if (!isOpen) {
-                eventsQuery.refetch();
-                subQuery.refetch();
-              }
-              setIsOpen(!isOpen);
-            }}
             aria-label="Social"
             bg="transparent"
             _hover={{ bg: "transparent" }}
@@ -123,6 +116,14 @@ export const EventPopover = ({
                 _hover={{ color: iconHoverColor }}
               />
             }
+            minWidth={0}
+            onClick={() => {
+              if (!isOpen) {
+                eventsQuery.refetch();
+                subQuery.refetch();
+              }
+              setIsOpen(!isOpen);
+            }}
             data-cy="eventPopover"
           />
         </PopoverTrigger>
@@ -137,10 +138,8 @@ export const EventPopover = ({
                 ...que j'ai ajouté :
               </Heading>
 
-              {eventsQuery.isLoading || eventsQuery.isFetching ? (
-                <Spinner />
-              ) : Array.isArray(eventsQuery.data) &&
-                eventsQuery.data.length > 0 ? (
+              {Array.isArray(eventsQuery.data) &&
+              eventsQuery.data.length > 0 ? (
                 <VStack alignItems="flex-start" overflowX="auto" ml={3}>
                   {eventsQuery.data.map((event, index) => (
                     <Link
@@ -171,9 +170,7 @@ export const EventPopover = ({
               ...où je me suis abonné :
             </Heading>
 
-            {eventsQuery.isLoading || eventsQuery.isFetching ? (
-              <Spinner />
-            ) : hasSubscribedEvents ? (
+            {hasSubscribedEvents ? (
               <VStack alignItems="flex-start" overflowX="auto" ml={3}>
                 {subscribedEvents.map(({ event }, index) => (
                   <Link
@@ -215,7 +212,7 @@ export const EventPopover = ({
         </PopoverContent>
       </Popover>
 
-      {session && eventModalState.isOpen && (
+      {eventModalState.isOpen && (
         <EventModal
           session={session}
           onCancel={() => setEventModalState({ isOpen: false })}

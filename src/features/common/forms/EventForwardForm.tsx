@@ -42,7 +42,7 @@ export const EventForwardForm = ({
 
   const [isLoading, setIsLoading] = useState(false);
 
-  //#region form
+  //#region form state
   const { control, errors, handleSubmit, setError, clearErrors } = useForm();
   const {
     data: orgs,
@@ -55,6 +55,7 @@ export const EventForwardForm = ({
 
   const myOrgs = orgs?.filter(
     (org) =>
+      org.orgName !== "aucourant" &&
       !org.orgEvents.find(
         (orgEvent) =>
           props.event._id === orgEvent._id ||
@@ -64,7 +65,6 @@ export const EventForwardForm = ({
   useEffect(() => {
     refetchOrgs();
   }, [router.asPath]);
-  //#endregion
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -105,6 +105,7 @@ export const EventForwardForm = ({
       setIsLoading(false);
     }
   };
+  //#endregion
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
@@ -123,7 +124,7 @@ export const EventForwardForm = ({
         <Spinner />
       ) : (
         <FormControl mb={3} id="orgs" isInvalid={!!errors.orgs} isRequired>
-          <FormLabel>Organisations</FormLabel>
+          <FormLabel>Organisations où l'événement sera rediffusé</FormLabel>
           <Controller
             name="orgs"
             rules={{
@@ -133,7 +134,7 @@ export const EventForwardForm = ({
             control={control}
             defaultValue={null}
             placeholder="Sélectionner une ou plusieurs organisations"
-            menuPlacement="top"
+            menuPlacement="bottom"
             isClearable
             isMulti
             isSearchable

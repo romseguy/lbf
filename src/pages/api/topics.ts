@@ -1,7 +1,7 @@
 import { Document, Types } from "mongoose";
 import { addOrUpdateTopic } from "api";
 import database, { models } from "database";
-import { getSession } from "hooks/useAuth.test";
+import { getSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";

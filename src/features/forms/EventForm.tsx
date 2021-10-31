@@ -1,3 +1,4 @@
+import { DeleteIcon } from "@chakra-ui/icons";
 import {
   Input,
   Button,
@@ -20,14 +21,17 @@ import {
   PopoverTrigger,
   PopoverCloseButton,
   PopoverHeader,
-  IconButton
+  IconButton,
+  InputGroup
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import {
   addHours,
   addWeeks,
   getDay,
+  getDayOfYear,
   getHours,
+  getMinutes,
   intervalToDuration,
   parseISO,
   setDay,
@@ -66,7 +70,6 @@ import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
-import { DeleteIcon } from "@chakra-ui/icons";
 
 const repeatOptions: number[] = [];
 for (let i = 1; i <= 10; i++) {
@@ -211,7 +214,6 @@ export const EventForm = withGoogleApi({
         {}
       );
     };
-    console.log(days);
 
     const eventOrgsRules: { required: string | boolean } = {
       required:
@@ -427,12 +429,23 @@ export const EventForm = withGoogleApi({
       dateFormat: "Pp",
       showTimeSelect: true,
       timeFormat: "p",
-      timeIntervals: 60,
+      timeIntervals: 30,
       filterTime: (date: Date) => {
         if (end) {
-          if (getDay(end) === getDay(date)) {
-            if (getHours(date) >= getHours(end)) return false;
+          if (getDayOfYear(date) === getDayOfYear(end)) {
+            if (getHours(date) >= getHours(end)) {
+              console.log("filtering out", date);
+              return false;
+            }
           }
+        }
+
+        if (
+          getDayOfYear(date) === getDayOfYear(now) &&
+          getHours(date) < getHours(now) + eventMinDuration
+        ) {
+          //console.log("filtering out", date);
+          return false;
         }
 
         return true;
@@ -448,34 +461,22 @@ export const EventForm = withGoogleApi({
       dateFormat: "Pp",
       showTimeSelect: true,
       timeFormat: "p",
-      timeIntervals: 60,
-      filterTime: (time: Date) => {
+      timeIntervals: 30,
+      filterTime: (date: Date) => {
         if (start) {
-          if (
-            getHours(time) >= getHours(addHours(start, eventMinDuration)) ||
-            getDay(time) !== getDay(start)
-          ) {
-            // console.log(
-            //   "allowing",
-            //   getHours(time),
-            //   getHours(addHours(start, eventMinDuration))
-            // );
-            return true;
+          if (getDayOfYear(date) === getDayOfYear(start)) {
+            if (getHours(date) < getHours(start) + eventMinDuration)
+              return false;
           }
-        } else if (
-          time.getTime() >
-          addHours(now, eventMinDuration + eventMinDuration).getTime()
-        ) {
-          // console.log(
-          //   "allowing",
-          //   getHours(time),
-          //   getHours(addHours(now, 2))
-          // );
-
-          return true;
         }
 
-        return false;
+        if (
+          getDayOfYear(date) === getDayOfYear(now) &&
+          getHours(date) < getHours(now) + eventMinDuration + eventMinDuration
+        )
+          return false;
+
+        return true;
       }
     };
 
@@ -594,37 +595,40 @@ export const EventForm = withGoogleApi({
           mb={3}
         >
           <FormLabel>Date de fin</FormLabel>
-          <Controller
-            name="eventMaxDate"
-            control={control}
-            defaultValue={eventMaxDefaultDate}
-            rules={{ required: "Veuillez saisir une date" }}
-            render={({ onChange, value }) => {
-              return (
-                <DatePicker
-                  // disabled={!eventMinDate}
-                  withPortal={isMobile ? true : false}
-                  customInput={renderCustomInput("maxDate")}
-                  selected={value}
-                  onChange={onChange}
-                  highlightDates={highlightDatesStart}
-                  {...eventMaxDatePickerProps}
-                />
-              );
-            }}
-          />
 
-          {eventMaxDate !== null && (
-            <IconButton
-              aria-label="Date de fin remise à zéro"
-              icon={<DeleteIcon />}
-              ml={3}
-              onClick={() => {
-                setEnd(null);
-                setValue("eventMaxDate", null);
+          <InputGroup>
+            <Controller
+              name="eventMaxDate"
+              control={control}
+              defaultValue={eventMaxDefaultDate}
+              rules={{ required: "Veuillez saisir une date" }}
+              render={({ onChange, value }) => {
+                return (
+                  <DatePicker
+                    // disabled={!eventMinDate}
+                    withPortal={isMobile ? true : false}
+                    customInput={renderCustomInput("maxDate")}
+                    selected={value}
+                    onChange={onChange}
+                    highlightDates={highlightDatesStart}
+                    {...eventMaxDatePickerProps}
+                  />
+                );
               }}
             />
-          )}
+
+            {eventMaxDate !== null && (
+              <IconButton
+                aria-label="Date de fin remise à zéro"
+                icon={<DeleteIcon />}
+                ml={3}
+                onClick={() => {
+                  setEnd(null);
+                  setValue("eventMaxDate", null);
+                }}
+              />
+            )}
+          </InputGroup>
 
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="eventMaxDate" />
@@ -676,12 +680,24 @@ export const EventForm = withGoogleApi({
                     let tagLabel = label;
 
                     if (day.checked) {
-                      if (selectedStart && selectedEnd)
-                        tagLabel += ` ${getHours(selectedStart)}h - ${getHours(
-                          selectedEnd
-                        )}h`;
-                      else if (selectedStart)
-                        tagLabel += `${getHours(selectedStart)}h`;
+                      if (selectedStart) {
+                        const selectedStartHours = getHours(selectedStart);
+                        const selectedStartMinutes =
+                          getMinutes(selectedStart) !== 0
+                            ? getMinutes(selectedStart)
+                            : "";
+
+                        if (selectedEnd) {
+                          const selectedEndHours = getHours(selectedEnd);
+                          const selectedEndMinutes =
+                            getMinutes(selectedEnd) !== 0
+                              ? getMinutes(selectedEnd)
+                              : "";
+
+                          tagLabel += ` ${selectedStartHours}h${selectedStartMinutes} - ${selectedEndHours}h${selectedEndMinutes}`;
+                        } else
+                          tagLabel += ` ${selectedStartHours}h${selectedStartMinutes}`;
+                      }
                     }
 
                     return (
@@ -689,13 +705,19 @@ export const EventForm = withGoogleApi({
                         key={"day-" + index}
                         closeOnBlur={false}
                         isOpen={!!days[index].isOpen}
+                        isLazy
+                        placement="bottom"
                         onClose={() =>
                           setDays(setDayState(index, { isOpen: false }))
                         }
                       >
                         <PopoverTrigger>
-                          <Link
-                            variant="no-underline"
+                          <Tag
+                            variant={day.checked ? "solid" : "outline"}
+                            bgColor={day.checked ? "green" : undefined}
+                            cursor={day.isDisabled ? "not-allowed" : "pointer"}
+                            mr={1}
+                            mb={3}
                             onClick={() => {
                               if (day.isDisabled) return;
 
@@ -715,18 +737,8 @@ export const EventForm = withGoogleApi({
                               }
                             }}
                           >
-                            <Tag
-                              variant={day.checked ? "solid" : "outline"}
-                              bgColor={day.checked ? "green" : undefined}
-                              cursor={
-                                day.isDisabled ? "not-allowed" : "pointer"
-                              }
-                              mr={1}
-                              mb={3}
-                            >
-                              {tagLabel}
-                            </Tag>
-                          </Link>
+                            {tagLabel}
+                          </Tag>
                         </PopoverTrigger>
 
                         <PopoverContent>
@@ -748,7 +760,7 @@ export const EventForm = withGoogleApi({
                                 showTimeSelect
                                 showTimeSelectOnly
                                 timeFormat="p"
-                                timeIntervals={60}
+                                timeIntervals={30}
                                 filterTime={(time) => {
                                   if (
                                     selectedEnd &&
@@ -788,7 +800,7 @@ export const EventForm = withGoogleApi({
                               showTimeSelect
                               showTimeSelectOnly
                               timeFormat="p"
-                              timeIntervals={60}
+                              timeIntervals={30}
                               filterTime={(time) => {
                                 if (
                                   selectedStart &&

@@ -20,7 +20,7 @@ export interface IUser {
   userSubscription?: any;
   isAdmin: boolean;
   userProjects?: IProject[];
-  validatePassword(password: string): boolean;
+  validatePassword(password: string): Promise<boolean>;
 }
 
 export const UserSchema = new Schema<IUser>(
@@ -60,8 +60,8 @@ export const UserSchema = new Schema<IUser>(
 
 UserSchema.index({ email: 1, userName: 1 }, { unique: true });
 
-UserSchema.methods.validatePassword = async function (pass: string) {
-  return bcrypt.compare(pass, this.password);
+UserSchema.methods.validatePassword = async function (password: string) {
+  return bcrypt.compare(password, this.password);
 };
 
 UserSchema.pre("save", async function (next: HookNextFunction) {

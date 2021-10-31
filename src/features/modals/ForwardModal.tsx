@@ -10,6 +10,7 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { EventForwardForm } from "features/common/forms/EventForwardForm";
+import { CalendarIcon } from "@chakra-ui/icons";
 
 export const ForwardModal = (props: {
   event: IEvent;
@@ -30,8 +31,8 @@ export const ForwardModal = (props: {
     >
       <ModalOverlay>
         <ModalContent>
-          <ModalHeader>
-            Rediffuser l'événement : {props.event.eventName}
+          <ModalHeader display="flex" alignItems="center">
+            <CalendarIcon mr={3} /> {props.event.eventName}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>

@@ -73,7 +73,11 @@ export const OrgsList = ({
               { key: "orgCity", label: "Localité" }
             ].map(({ key, label }) => {
               return (
-                <Th cursor="pointer" onClick={() => setSelectedOrder(key)}>
+                <Th
+                  key={key}
+                  cursor="pointer"
+                  onClick={() => setSelectedOrder(key)}
+                >
                   <Flex alignItems="center">
                     {label}
 
@@ -112,7 +116,7 @@ export const OrgsList = ({
               return (
                 <Tr key={`org-${org._id}`}>
                   <Td>
-                    <Link variant="underline" href={`/${org.orgUrl}`}>
+                    <Link variant="underline" href={`/${org.orgUrl}`} shallow>
                       {org.orgName}
                     </Link>
                   </Td>

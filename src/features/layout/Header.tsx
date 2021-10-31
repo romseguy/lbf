@@ -1,10 +1,8 @@
-import { Base64Image, getMeta } from "utils/image";
-import React, { useState } from "react";
-import { useRouter } from "next/router";
-import tw, { css } from "twin.macro";
+import { ChatIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
+  Heading,
   Icon,
   Modal,
   ModalBody,
@@ -13,79 +11,146 @@ import {
   ModalHeader,
   ModalOverlay,
   Tag,
-  Text,
-  useColorMode
+  useColorMode,
+  SpaceProps
 } from "@chakra-ui/react";
-import { SpaceProps } from "@chakra-ui/system";
-import { breakpoints } from "theme/theme";
-import { Link } from "features/common";
-import { ChatIcon } from "@chakra-ui/icons";
-import { IoIosPeople } from "react-icons/io";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { FaRegCalendarCheck, FaRegCalendarTimes } from "react-icons/fa";
-import { IOrg } from "models/Org";
+import tw, { css } from "twin.macro";
+import { Link } from "features/common";
+import { IOrg, OrgTypes } from "models/Org";
 import { Category, IEvent } from "models/Event";
-
-type HeaderProps = SpaceProps & {
-  defaultTitle: string;
-  defaultTitleColor: string;
-  org?: IOrg;
-  event?: IEvent;
-  pageTitle?: string;
-  pageSubTitle?: React.ReactNode;
-};
+import { breakpoints } from "theme/theme";
 
 export const Header = ({
   defaultTitle,
-  defaultTitleColor,
   event,
   org,
   pageTitle,
   pageSubTitle,
   ...props
-}: HeaderProps) => {
+}: SpaceProps & {
+  defaultTitle: string;
+  org?: IOrg;
+  event?: IEvent;
+  pageTitle?: string;
+  pageSubTitle?: React.ReactNode;
+}) => {
   const router = useRouter();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
-  const banner = event?.eventBanner || org?.orgBanner;
-  const bgImage = banner ? `url("${banner.base64 || banner.url}")` : "";
-  const logo = event?.eventLogo || org?.orgLogo;
-  const logoBgImage = logo ? `url("${logo.base64}")` : "";
-  const logoBgSize = "110px";
-
   //#region local state
-  const hasTitle = org || event || pageTitle;
-  const [className, setClassName] = useState("");
+  const [classNameTitle, setClassNameTitle] = useState("");
+  const icon =
+    pageTitle === "Forum"
+      ? ChatIcon
+      : pageTitle === "Organisations"
+      ? IoIosPeople
+      : pageTitle === "Réseaux"
+      ? IoIosGitNetwork
+      : org
+      ? org.orgType === OrgTypes.NETWORK
+        ? IoIosGitNetwork
+        : IoIosPeople
+      : event
+      ? event.isApproved
+        ? FaRegCalendarCheck
+        : FaRegCalendarTimes
+      : null;
 
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
-
-  // const [bgHeight, setBgHeight] = useState<number | undefined>(
-  //   banner?.height || 140
-  // );
-  // const [bgWidth, setBgWidth] = useState(banner?.width || 1154);
-
-  // if (banner?.url) {
-  //   getMeta(banner.url, (width, height) => {
-  //     setBgHeight(height);
-  //     setBgWidth(width);
-  //   });
-  // }
+  const banner = event?.eventBanner || org?.orgBanner;
+  const bgImage = banner ? `url("${banner.base64 || banner.url}")` : undefined;
+  const logo = event?.eventLogo || org?.orgLogo;
+  const logoBgImage = logo ? `url("${logo.base64}")` : "";
+  const logoBgSize = "110px";
   //#endregion
+
+  const HeaderTitle = () => (
+    <>
+      {icon && (
+        <Icon
+          as={icon}
+          boxSize={5}
+          color={
+            event
+              ? event.isApproved
+                ? "green"
+                : "red"
+              : isDark
+              ? "white"
+              : banner
+              ? "white"
+              : "black"
+          }
+          mr={2}
+          title={
+            event?.isApproved
+              ? "Événement approuvé"
+              : event
+              ? "Événement en attente de modération"
+              : undefined
+          }
+        />
+      )}
+
+      <Box
+        display="flex"
+        alignItems="center"
+        color={banner ? "white" : undefined}
+        className={classNameTitle}
+        onMouseEnter={() => setClassNameTitle("rainbow-text")}
+        onMouseLeave={() => setClassNameTitle("")}
+      >
+        <Link href={router.asPath} variant="no-underline">
+          <Heading fontFamily="DancingScript" size="lg">
+            {org
+              ? org.orgName
+              : event
+              ? event.eventName
+              : pageTitle || defaultTitle}
+          </Heading>
+        </Link>
+      </Box>
+    </>
+  );
+
+  const HeaderEventCategory = () => {
+    if (!event || !event.eventCategory) return null;
+    return (
+      <Tag
+        bgColor={
+          Category[event.eventCategory || 0].bgColor === "transparent"
+            ? isDark
+              ? "whiteAlpha.300"
+              : "blackAlpha.600"
+            : Category[event.eventCategory || 0].bgColor
+        }
+        color="white"
+        ml={2}
+      >
+        {Category[event.eventCategory].label}
+      </Tag>
+    );
+  };
 
   return (
     <Flex
       as="header"
       alignItems="center"
+      color={isDark ? "white" : "black"}
       cursor={banner ? "pointer" : "default"}
       height={banner ? banner.height : undefined}
+      p={!banner ? 3 : undefined}
       css={css`
+        ${isDark ? tw`bg-gray-800` : tw`bg-white`}
         background-image: ${bgImage};
         background-size: cover;
         background-repeat: no-repeat;
-        ${isDark ? tw`bg-gray-800` : tw`bg-white`}
-        @media (min-width: ${breakpoints["2xl"]}) {
-        }
       `}
       onClick={(e) => {
         e.stopPropagation();
@@ -113,126 +178,19 @@ export const Header = ({
               `}
             />
           </Link>
-
-          <Box
-            bgColor={isDark ? "black" : "white"}
-            borderRadius="lg"
-            ml={5}
-            px={3}
-          >
-            <Link href={router.asPath} variant="no-underline">
-              <Text
-                as="h1"
-                className="rainbow-text"
-                display="flex"
-                alignItems="center"
-                fontSize={["3xl", "3xl", pageSubTitle ? "3xl" : "3xl"]}
-              >
-                {org || event ? (
-                  <Icon
-                    mr={3}
-                    as={
-                      org
-                        ? IoIosPeople
-                        : event?.isApproved
-                        ? FaRegCalendarCheck
-                        : FaRegCalendarTimes
-                    }
-                  />
-                ) : (
-                  pageTitle === "Forum" && <Icon mr={3} as={ChatIcon} />
-                )}
-
-                {org ? org.orgName : event ? event.eventName : pageTitle}
-              </Text>
-            </Link>
-          </Box>
-
-          {event?.eventCategory && (
-            <Tag
-              ml={3}
-              bgColor={
-                Category[event.eventCategory || 0].bgColor === "transparent"
-                  ? isDark
-                    ? "whiteAlpha.300"
-                    : "blackAlpha.600"
-                  : Category[event.eventCategory || 0].bgColor
-              }
-              color="white"
-            >
-              {Category[event.eventCategory || 0].label}
-            </Tag>
-          )}
+          <HeaderTitle />
+          <HeaderEventCategory />
         </>
       ) : (
         <Flex
-          flexDirection="column"
+          alignItems="center"
+          bg={banner ? "blackAlpha.500" : undefined}
+          borderRadius="lg"
           ml={5}
-          onMouseEnter={() => setClassName("rainbow-text")}
-          onMouseLeave={() => setClassName("")}
+          p={banner ? 3 : undefined}
         >
-          <Link
-            className={className}
-            variant="no-underline"
-            fontFamily="Aladin"
-            fontSize="x-large"
-            fontStyle="italic"
-            //mb={!pageTitle ? 5 : undefined}
-            color={defaultTitleColor}
-            onClick={() => router.push("/", "/", { shallow: true })}
-          >
-            <Text as="h1">{defaultTitle}</Text>
-          </Link>
-
-          {hasTitle ? (
-            <>
-              <Link href={router.asPath} variant="no-underline">
-                <Text
-                  as="h1"
-                  className="rainbow-text"
-                  fontSize={["3xl", "3xl", pageSubTitle ? "3xl" : "3xl"]}
-                  display="flex"
-                  alignItems="center"
-                >
-                  {org || event ? (
-                    <Icon
-                      mr={3}
-                      as={
-                        org
-                          ? IoIosPeople
-                          : event?.isApproved
-                          ? FaRegCalendarCheck
-                          : FaRegCalendarTimes
-                      }
-                    />
-                  ) : (
-                    pageTitle === "Forum" && <Icon mr={3} as={ChatIcon} />
-                  )}
-
-                  {org ? org.orgName : event ? event.eventName : pageTitle}
-                </Text>
-              </Link>
-              {event ? (
-                <Box>
-                  <Tag
-                    bgColor={
-                      Category[event.eventCategory || 0].bgColor ===
-                      "transparent"
-                        ? isDark
-                          ? "whiteAlpha.300"
-                          : "blackAlpha.600"
-                        : Category[event.eventCategory || 0].bgColor
-                    }
-                    color="white"
-                  >
-                    {Category[event.eventCategory || 0].label}
-                  </Tag>
-                </Box>
-              ) : (
-                pageSubTitle
-              )}
-            </>
-          ) : null}
+          <HeaderTitle />
+          <HeaderEventCategory />
         </Flex>
       )}
 
