@@ -79,13 +79,10 @@ export const EventsListItem = ({
 }) => {
   const minDate = event.eventMinDate;
   const maxDate = event.eventMaxDate;
-  const showIsApproved = org && isCreator;
-  const showEventCategory: boolean = event.eventCategory ? true : false;
+  const showIsApproved = !!(org && isCreator);
+  const showEventCategory = !!event.eventCategory;
   const showEventVisiblity = !!org;
-  const extraColumns = [showIsApproved, showEventCategory, showEventVisiblity]
-    .filter((b) => b)
-    .flatMap((b) => "auto ");
-
+  const showSend = !!(org && isCreator);
   let notifiedCount = 0;
   let canSendCount = 0;
 
@@ -140,7 +137,9 @@ export const EventsListItem = ({
         <Grid
           alignItems="center"
           css={css`
-            grid-template-columns: auto auto ${extraColumns[0]} 1fr;
+            grid-template-columns: ${showIsApproved || showSend ? "auto" : ""} ${showEventCategory
+                ? "auto"
+                : ""} 1fr auto;
 
             @media (max-width: 700px) {
               grid-template-columns: 1fr !important;
@@ -215,23 +214,24 @@ export const EventsListItem = ({
           )}
 
           {/* eventCategory */}
-          {typeof event.eventCategory === "number" && (
-            <GridItem pl={1}>
-              <Tag
-                color="white"
-                bgColor={
-                  Category[event.eventCategory].bgColor === "transparent"
-                    ? isDark
-                      ? "whiteAlpha.100"
-                      : "blackAlpha.600"
-                    : Category[event.eventCategory].bgColor
-                }
-                mr={1}
-              >
-                {Category[event.eventCategory].label}
-              </Tag>
-            </GridItem>
-          )}
+          {typeof event.eventCategory === "number" &&
+            event.eventCategory !== 0 && (
+              <GridItem pl={1}>
+                <Tag
+                  color="white"
+                  bgColor={
+                    Category[event.eventCategory].bgColor === "transparent"
+                      ? isDark
+                        ? "whiteAlpha.100"
+                        : "blackAlpha.600"
+                      : Category[event.eventCategory].bgColor
+                  }
+                  mr={1}
+                >
+                  {Category[event.eventCategory].label}
+                </Tag>
+              </GridItem>
+            )}
 
           {/* eventName */}
           <GridItem pl={1}>
@@ -268,6 +268,7 @@ export const EventsListItem = ({
                     _hover={{ background: "transparent", color: "green" }}
                     minWidth={0}
                     ml={2}
+                    mr={3}
                     height="auto"
                     onClick={() => {
                       setEventToForward({
@@ -291,6 +292,7 @@ export const EventsListItem = ({
                   height="auto"
                   minWidth={0}
                   ml={2}
+                  mr={3}
                   _hover={{ background: "transparent", color: "red" }}
                   onClick={async () => {
                     const confirmed = confirm(

@@ -1,10 +1,25 @@
 import {
+  compareDesc,
   format,
   formatDuration as oFormatDuration,
   intervalToDuration,
   parseISO
 } from "date-fns";
 import { fr } from "date-fns/locale";
+
+/*
+compareAsc
+  Compare the two dates and return
+  1 if the first date is after the second
+  -1 if the first date is before the second
+  0 if dates are equal.
+
+compareDesc
+  Compare the two dates and return
+  1 if the first date is before the second 
+  -1 if the first date is after the second
+   0 if dates are equal.
+*/
 
 export const days = [
   "lundi",

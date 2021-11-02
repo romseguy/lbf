@@ -18,6 +18,7 @@ import {
   compareDesc,
   format,
   intervalToDuration,
+  isBefore,
   parseISO,
   getDay,
   getDayOfYear,
@@ -171,34 +172,74 @@ export const EventsList = ({
       ) {
         const start = parseISO(event.eventMinDate);
         const end = parseISO(event.eventMaxDate);
-        const { hours = 0 } = intervalToDuration({
-          start,
-          end
-        });
 
-        if (compareDesc(today, start) !== -1) {
-          // event starts 1 week after today
-          if (compareDesc(addWeeks(today, 1), start) !== -1) {
-            //console.log(event.eventName, event.repeat, start, end);
+        if (isBefore(start, today)) {
+          previousEvents.push({
+            ...event,
+            eventMinDate: start,
+            eventMaxDate: end
+          });
+
+          if (event.repeat === 99) {
+            const eventMinDate = setMinutes(
+              setHours(setDay(today, getDay(start)), getHours(start)),
+              getMinutes(start)
+            );
+            const eventMaxDate = setMinutes(
+              setHours(setDay(today, getDay(end)), getHours(end)),
+              getMinutes(end)
+            );
+
+            currentEvents.push({
+              ...event,
+              eventMinDate,
+              eventMaxDate
+            });
+
+            if (event.otherDays) {
+              for (const otherDay of event.otherDays) {
+                const start = otherDay.startDate
+                  ? setMinutes(
+                      setHours(
+                        setDay(today, getDay(parseISO(otherDay.startDate))),
+                        getHours(parseISO(otherDay.startDate))
+                      ),
+                      getMinutes(parseISO(otherDay.startDate))
+                    )
+                  : setDay(eventMinDate, otherDay.dayNumber + 1);
+                const end = otherDay.endTime
+                  ? setMinutes(
+                      setHours(
+                        setDay(today, getDay(parseISO(otherDay.endTime))),
+                        getHours(parseISO(otherDay.endTime))
+                      ),
+                      getMinutes(parseISO(otherDay.endTime))
+                    )
+                  : setDay(eventMaxDate, otherDay.dayNumber + 1);
+
+                currentEvents.push({
+                  ...event,
+                  eventMinDate: start,
+                  eventMaxDate: end
+                });
+              }
+            }
+          }
+        } else {
+          if (isBefore(start, addWeeks(today, 1))) {
+            currentEvents.push({
+              ...event,
+              eventMinDate: start,
+              eventMaxDate: end
+            });
+          } else {
             nextEvents.push({
               ...event,
               eventMinDate: start,
               eventMaxDate: end
             });
           }
-          // event starts today or after
-          else
-            currentEvents.push({
-              ...event,
-              eventMinDate: start,
-              eventMaxDate: end
-            });
-        } else
-          previousEvents.push({
-            ...event,
-            eventMinDate: start,
-            eventMaxDate: end
-          });
+        }
 
         if (event.otherDays) {
           for (const otherDay of event.otherDays) {
@@ -209,9 +250,22 @@ export const EventsList = ({
               ? parseISO(otherDay.endTime)
               : setDay(end, otherDay.dayNumber + 1);
 
-            if (compareDesc(today, eventMinDate) !== -1) {
-              // event starts 1 week after today
-              if (compareDesc(addWeeks(today, 1), start) !== -1) {
+            if (isBefore(eventMinDate, today)) {
+              previousEvents.push({
+                ...event,
+                eventMinDate,
+                eventMaxDate,
+                repeat: otherDay.dayNumber + 1
+              });
+            } else {
+              if (isBefore(eventMinDate, addWeeks(today, 1))) {
+                currentEvents.push({
+                  ...event,
+                  eventMinDate,
+                  eventMaxDate,
+                  repeat: otherDay.dayNumber + 1
+                });
+              } else {
                 nextEvents.push({
                   ...event,
                   eventMinDate,
@@ -219,22 +273,6 @@ export const EventsList = ({
                   repeat: otherDay.dayNumber + 1
                 });
               }
-              // event starts today or after
-              else {
-                currentEvents.push({
-                  ...event,
-                  eventMinDate,
-                  eventMaxDate,
-                  repeat: otherDay.dayNumber + 1
-                });
-              }
-            } else {
-              previousEvents.push({
-                ...event,
-                eventMinDate,
-                eventMaxDate,
-                repeat: otherDay.dayNumber + 1
-              });
             }
           }
         }
@@ -295,34 +333,26 @@ export const EventsList = ({
               const eventMinDate = addWeeks(start, i);
               const eventMaxDate = addWeeks(end, i);
 
-              if (compareDesc(addWeeks(today, 1), eventMinDate) !== -1) {
-                // repeated event starts 1 week after today
-                console.log(
-                  event.eventName,
-                  event.repeat,
-                  eventMinDate,
-                  eventMaxDate,
-                  start,
-                  i
-                );
-
-                nextEvents.push({
-                  ...event,
-                  eventMinDate,
-                  eventMaxDate
-                });
-              } else if (compareDesc(today, eventMinDate) !== -1) {
-                currentEvents.push({
-                  ...event,
-                  eventMinDate,
-                  eventMaxDate
-                });
-              } else {
+              if (isBefore(today, eventMinDate)) {
                 previousEvents.push({
                   ...event,
                   eventMinDate,
                   eventMaxDate
                 });
+              } else {
+                if (isBefore(addWeeks(today, 1), eventMinDate)) {
+                  currentEvents.push({
+                    ...event,
+                    eventMinDate,
+                    eventMaxDate
+                  });
+                } else {
+                  nextEvents.push({
+                    ...event,
+                    eventMinDate,
+                    eventMaxDate
+                  });
+                }
               }
 
               if (event.otherDays) {
@@ -334,28 +364,29 @@ export const EventsList = ({
                     ? addWeeks(parseISO(otherDay.endTime), i)
                     : setDay(eventMaxDate, otherDay.dayNumber + 1);
 
-                  if (compareDesc(addWeeks(today, 1), start) !== -1) {
-                    console.log(event.eventName, event.repeat, start, end);
-                    nextEvents.push({
-                      ...event,
-                      eventMinDate: start,
-                      eventMaxDate: end,
-                      repeat: otherDay.dayNumber + 1
-                    });
-                  } else if (compareDesc(today, start) !== -1) {
-                    currentEvents.push({
-                      ...event,
-                      eventMinDate: start,
-                      eventMaxDate: end,
-                      repeat: otherDay.dayNumber + 1
-                    });
-                  } else {
+                  if (isBefore(today, eventMinDate)) {
                     previousEvents.push({
                       ...event,
                       eventMinDate: start,
                       eventMaxDate: end,
                       repeat: otherDay.dayNumber + 1
                     });
+                  } else {
+                    if (isBefore(addWeeks(today, 1), eventMinDate)) {
+                      currentEvents.push({
+                        ...event,
+                        eventMinDate: start,
+                        eventMaxDate: end,
+                        repeat: otherDay.dayNumber + 1
+                      });
+                    } else {
+                      nextEvents.push({
+                        ...event,
+                        eventMinDate: start,
+                        eventMaxDate: end,
+                        repeat: otherDay.dayNumber + 1
+                      });
+                    }
                   }
                 }
               }

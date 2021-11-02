@@ -28,11 +28,13 @@ import { ErrorMessage } from "@hookform/error-message";
 import {
   addHours,
   addWeeks,
+  compareDesc,
   getDay,
   getDayOfYear,
   getHours,
   getMinutes,
   intervalToDuration,
+  isBefore,
   parseISO,
   setDay,
   subHours
@@ -96,7 +98,9 @@ export const EventForm = withGoogleApi({
 
     //#region local state
     const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs || [];
-    const [isRepeat, setIsRepeat] = useState(hasItems(props.event?.otherDays));
+    const [isRepeat, setIsRepeat] = useState(
+      !!props.event?.repeat || hasItems(props.event?.otherDays)
+    );
     //#endregion
 
     //#region myOrgs
@@ -238,20 +242,17 @@ export const EventForm = withGoogleApi({
     //#region event
     const [addEvent, addEventMutation] = useAddEventMutation();
     const [editEvent, editEventMutation] = useEditEventMutation();
+
     let eventMinDefaultDate =
       (props.event && parseISO(props.event.eventMinDate)) || null;
     let eventMaxDefaultDate =
       (props.event && parseISO(props.event.eventMaxDate)) || null;
+
     const eventMinDate: Date | null = watch("eventMinDate");
     const eventMaxDate: Date | null = watch("eventMaxDate");
 
     const start = eventMinDate || eventMinDefaultDate;
     const [end, setEnd] = useState(eventMaxDate || eventMaxDefaultDate);
-    useEffect(() => {
-      if (end?.toISOString() !== eventMaxDate?.toISOString()) {
-        setEnd(eventMaxDate);
-      }
-    }, [eventMaxDate]);
 
     // duration
     const eventMinDuration = 1;
@@ -292,17 +293,34 @@ export const EventForm = withGoogleApi({
     }
 
     useEffect(() => {
-      if (eventMinDate && getHours(eventMinDate) !== 0 && !eventMaxDate) {
-        setValue("eventMaxDate", addHours(eventMinDate, eventMinDuration));
-        clearErrors("eventMaxDate");
-      } else if (
-        eventMinDate === undefined &&
-        getHours(addHours(eventMinDate, 2)) === 1
-      ) {
-        setValue("eventMinDate", addHours(now, 12));
+      if (eventMinDate) {
+        if (getHours(addHours(eventMinDate, 2)) === 1) {
+          setValue("eventMinDate", addHours(now, 12));
+          return;
+        }
+
+        if (end) {
+          if (isBefore(end, eventMinDate)) {
+            // console.log("setting end to null");
+            setEnd(null);
+            setValue("eventMaxDate", null);
+          }
+        } else {
+          if (getHours(eventMinDate) !== 0) {
+            setEnd(addHours(eventMinDate, eventMinDuration));
+            setValue("eventMaxDate", addHours(eventMinDate, eventMinDuration));
+            clearErrors("eventMaxDate");
+          }
+        }
       }
     }, [eventMinDate]);
 
+    useEffect(() => {
+      if (end?.toISOString() !== eventMaxDate?.toISOString()) {
+        // console.log("setting end to", eventMaxDate);
+        setEnd(eventMaxDate);
+      }
+    }, [eventMaxDate]);
     //#endregion
 
     const onChange = () => {
@@ -425,7 +443,7 @@ export const EventForm = withGoogleApi({
 
     const eventMinDatePickerProps = {
       minDate: now,
-      maxDate: end,
+      maxDate: end && compareDesc(end, now) === 1 ? undefined : end,
       dateFormat: "Pp",
       showTimeSelect: true,
       timeFormat: "p",
@@ -434,7 +452,7 @@ export const EventForm = withGoogleApi({
         if (end) {
           if (getDayOfYear(date) === getDayOfYear(end)) {
             if (getHours(date) >= getHours(end)) {
-              console.log("filtering out", date);
+              //console.log("filtering out", date);
               return false;
             }
           }
@@ -448,22 +466,27 @@ export const EventForm = withGoogleApi({
           return false;
         }
 
+        //console.log("allowing", date);
         return true;
       }
     };
 
+    const eventMaxDateMinDate = eventMinDate
+      ? addHours(eventMinDate, eventMinDuration)
+      : eventMinDefaultDate
+      ? addHours(eventMinDefaultDate, eventMinDuration)
+      : addHours(now, eventMinDuration);
     const eventMaxDatePickerProps = {
-      minDate: eventMinDate
-        ? addHours(eventMinDate, eventMinDuration)
-        : eventMinDefaultDate
-        ? addHours(eventMinDefaultDate, eventMinDuration)
-        : addHours(now, eventMinDuration),
+      minDate:
+        compareDesc(eventMaxDateMinDate, now) === 1 ? now : eventMaxDateMinDate,
       dateFormat: "Pp",
       showTimeSelect: true,
       timeFormat: "p",
       timeIntervals: 30,
       filterTime: (date: Date) => {
         if (start) {
+          if (isBefore(date, start)) return false;
+
           if (getDayOfYear(date) === getDayOfYear(start)) {
             if (getHours(date) < getHours(start) + eventMinDuration)
               return false;
@@ -606,7 +629,7 @@ export const EventForm = withGoogleApi({
                 return (
                   <DatePicker
                     // disabled={!eventMinDate}
-                    withPortal={isMobile ? true : false}
+                    withPortal={isMobile}
                     customInput={renderCustomInput("maxDate")}
                     selected={value}
                     onChange={onChange}
@@ -617,7 +640,7 @@ export const EventForm = withGoogleApi({
               }}
             />
 
-            {eventMaxDate !== null && (
+            {end !== null && (
               <IconButton
                 aria-label="Date de fin remise à zéro"
                 icon={<DeleteIcon />}
