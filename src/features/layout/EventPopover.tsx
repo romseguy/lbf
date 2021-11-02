@@ -1,44 +1,47 @@
-import { AddIcon, CalendarIcon } from "@chakra-ui/icons";
+import { AddIcon, CalendarIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import {
   List,
   ListItem,
   ListIcon,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverCloseButton,
-  PopoverHeader,
-  PopoverBody,
-  useColorModeValue,
+  Box,
+  BoxProps,
+  Button,
+  Heading,
   Icon,
   IconButton,
+  Popover,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  PopoverFooter,
+  Select,
   Spinner,
-  Button,
-  Box,
-  Heading,
-  BoxProps,
   Text,
   Tag,
   VStack,
-  PopoverFooter
+  useColorModeValue
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { IoIosPeople, IoIosPerson } from "react-icons/io";
 import { useSelector } from "react-redux";
+import { css } from "twin.macro";
 import { Link } from "features/common";
 import { EventModal } from "features/modals/EventModal";
 import { useGetEventsQuery } from "features/events/eventsApi";
 import { selectEventsRefetch } from "features/events/eventSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import {
-  isSubscribedBy,
+  isFollowedBy,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
 import { IEvent } from "models/Event";
 import { hasItems } from "utils/array";
 import { Session } from "next-auth";
+import { FaBell } from "react-icons/fa";
 
 let cachedRefetchEvents = false;
 let cachedRefetchSubscription = false;
@@ -83,12 +86,15 @@ export const EventPopover = ({
       subQuery.refetch();
     }
   }, [userEmail]);
-  const subscribedEvents = subQuery.data?.events || [];
-  const hasSubscribedEvents = hasItems(subscribedEvents);
+  const followedEvents = subQuery.data?.events || [];
+  const hasFollowedEvents = hasItems(followedEvents);
   //#endregion
 
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
+  const [showEvents, setShowEvents] = useState<
+    "showEventsAdded" | "showEventsFollowed"
+  >("showEventsAdded");
   const [eventModalState, setEventModalState] = useState<{
     isOpen: boolean;
     event?: IEvent;
@@ -128,79 +134,109 @@ export const EventPopover = ({
           />
         </PopoverTrigger>
         <PopoverContent>
-          <PopoverHeader>
-            <Heading size="md">Les événements...</Heading>
+          {/* <PopoverHeader>
           </PopoverHeader>
-          <PopoverCloseButton />
+          <PopoverCloseButton /> */}
           <PopoverBody>
-            <Box mb={3}>
-              <Heading size="sm" mb={1}>
-                ...que j'ai ajouté :
-              </Heading>
+            <Select
+              fontSize="sm"
+              height="auto"
+              lineHeight={2}
+              mb={2}
+              defaultValue={showEvents}
+              onChange={(e) =>
+                setShowEvents(
+                  e.target.value as "showEventsAdded" | "showEventsFollowed"
+                )
+              }
+            >
+              <option value="showEventsAdded">
+                Les événements que j'ai ajouté
+              </option>
+              <option value="showEventsFollowed">
+                Les événements où je suis abonné
+              </option>
+            </Select>
 
-              {Array.isArray(eventsQuery.data) &&
+            {showEvents === "showEventsAdded" &&
+              (Array.isArray(eventsQuery.data) &&
               eventsQuery.data.length > 0 ? (
-                <VStack alignItems="flex-start" overflowX="auto" ml={3}>
+                <VStack
+                  alignItems="flex-start"
+                  overflow="auto"
+                  height="170px"
+                  spacing={2}
+                >
                   {eventsQuery.data.map((event, index) => (
-                    <Link
+                    <Button
                       key={index}
-                      href={`/${event.eventUrl}`}
-                      shallow
+                      fontSize="sm"
+                      leftIcon={<CalendarIcon color="green.500" />}
+                      height="auto"
+                      p={1}
                       onClick={() => {
+                        router.push(
+                          `/${event.eventUrl}`,
+                          `/${event.eventUrl}`,
+                          {
+                            shallow: true
+                          }
+                        );
                         setIsOpen(false);
                       }}
                     >
-                      <Button
-                        leftIcon={<CalendarIcon color="green.500" />}
-                        p={2}
-                      >
-                        {event.eventName}
-                      </Button>
-                    </Link>
+                      {event.eventName}
+                    </Button>
                   ))}
                 </VStack>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
                   Vous n'avez ajouté aucun événement.
                 </Text>
-              )}
-            </Box>
+              ))}
 
-            <Heading size="sm" mt={hasItems(eventsQuery.data) ? 2 : 0} mb={1}>
-              ...où je me suis abonné :
-            </Heading>
-
-            {hasSubscribedEvents ? (
-              <VStack alignItems="flex-start" overflowX="auto" ml={3}>
-                {subscribedEvents.map(({ event }, index) => (
-                  <Link
-                    key={index}
-                    href={`/${event.eventUrl}`}
-                    shallow
-                    onClick={() => {
-                      setIsOpen(false);
-                    }}
-                  >
+            {showEvents === "showEventsFollowed" &&
+              (hasFollowedEvents ? (
+                <VStack
+                  alignItems="flex-start"
+                  overflow="auto"
+                  height="170px"
+                  spacing={2}
+                >
+                  {followedEvents.map(({ event }, index) => (
                     <Button
+                      key={index}
+                      fontSize="sm"
                       leftIcon={<Icon as={CalendarIcon} color="green.500" />}
-                      p={2}
+                      height="auto"
+                      p={1}
+                      onClick={() => {
+                        router.push(
+                          `/${event.eventUrl}`,
+                          `/${event.eventUrl}`,
+                          {
+                            shallow: true
+                          }
+                        );
+                        setIsOpen(false);
+                      }}
                     >
                       {event.eventName}
                     </Button>
-                  </Link>
-                ))}
-              </VStack>
-            ) : (
-              <Text fontSize="smaller" ml={3}>
-                Vous n'êtes abonné à aucun événement
-              </Text>
-            )}
+                  ))}
+                </VStack>
+              ) : (
+                <Text fontSize="smaller" ml={3}>
+                  Vous n'êtes abonné à aucun événement
+                </Text>
+              ))}
           </PopoverBody>
           <PopoverFooter>
             <Button
               colorScheme="teal"
               leftIcon={<AddIcon />}
               mt={1}
+              size="sm"
               onClick={() => {
                 setEventModalState({ isOpen: true });
               }}

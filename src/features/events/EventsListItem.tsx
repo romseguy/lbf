@@ -59,7 +59,6 @@ export const EventsListItem = ({
   editEvent: any;
   editOrg: any;
   event: IEvent<Date>;
-  eventHeader?: any;
   index: number;
   isCreator?: boolean;
   isDark: boolean;

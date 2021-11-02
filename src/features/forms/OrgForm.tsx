@@ -57,6 +57,7 @@ export const OrgForm = withGoogleApi({
   (props: {
     session: Session;
     org?: IOrg;
+    orgType?: string;
     setOrgType?: (orgType: string) => void;
     onCancel: () => void;
     onSubmit?: (orgUrl: string) => void;
@@ -107,10 +108,13 @@ export const OrgForm = withGoogleApi({
       mode: "onChange"
     });
 
-    if (props.setOrgType) props.setOrgType(getValues("orgType"));
+    //if (props.setOrgType) props.setOrgType(getValues("orgType"));
 
-    const orgType = getValues("orgType") || props.org?.orgType;
+    const defaultOrgType = props.org?.orgType || props.orgType;
+    const orgType = getValues("orgType");
     const orgTypeLabel = orgTypeFull(orgType) || "de l'organisation";
+    console.log(orgTypeLabel);
+
     const orgAddress = watch("orgAddress");
     const orgEmail = watch("orgEmail");
     const orgPhone = watch("orgPhone");
@@ -249,7 +253,7 @@ export const OrgForm = withGoogleApi({
           <FormLabel>Nom {orgTypeLabel}</FormLabel>
           <Input
             name="orgName"
-            placeholder={`Nom ${orgTypeLabel}`}
+            placeholder={`Saisir le nom ${orgTypeLabel}`}
             ref={register({
               required: `Veuillez saisir le nom ${orgTypeLabel}`
               // pattern: {
@@ -282,10 +286,10 @@ export const OrgForm = withGoogleApi({
           <Select
             name="orgType"
             ref={register({
-              required: `Veuillez sélectionner le type ${orgTypeLabel}`
+              required: `Veuillez sélectionner le type de l'organisation`
             })}
-            defaultValue={props.org?.orgType}
-            placeholder={`Type ${orgTypeLabel}`}
+            defaultValue={defaultOrgType}
+            placeholder={`Type de l'organisation`}
             color="gray.400"
           >
             {Object.keys(OrgTypes).map((orgType) => {
@@ -389,7 +393,7 @@ export const OrgForm = withGoogleApi({
                   org={props.org}
                   session={props.session}
                   defaultValue={props.org?.orgDescription}
-                  placeholder="Décrivez l'organisation, ses activités, etc..."
+                  placeholder={`Écrire la description ${orgTypeLabel}`}
                   onChange={({ html, quillHtml }) => {
                     setOrgDescriptionHtml(html);
                     renderProps.onChange(quillHtml);

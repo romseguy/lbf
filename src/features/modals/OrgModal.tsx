@@ -18,12 +18,13 @@ export const OrgModal = ({
   onSubmit,
   ...props
 }: {
+  orgType?: string;
   session: Session;
   onCancel: () => void;
   onClose: () => void;
   onSubmit: (orgUrl: string) => Promise<void>;
 }) => {
-  const [orgType, setOrgType] = useState<string>();
+  const [orgType, setOrgType] = useState<string | undefined>(props.orgType);
 
   return (
     <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
@@ -33,6 +34,7 @@ export const OrgModal = ({
         <ModalCloseButton data-cy="orgPopoverCloseButton" />
         <ModalBody>
           <OrgForm
+            orgType={orgType}
             setOrgType={setOrgType}
             session={session}
             onCancel={onCancel}

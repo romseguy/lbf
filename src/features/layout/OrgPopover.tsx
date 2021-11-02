@@ -12,6 +12,7 @@ import {
   useColorModeValue,
   Icon,
   IconButton,
+  Select,
   Spinner,
   Button,
   Box,
@@ -109,6 +110,9 @@ export const OrgPopover = ({
 
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
+  const [showOrgs, setShowOrgs] = useState<
+    "showOrgsAdded" | "showOrgsSubscribed"
+  >("showOrgsAdded");
   const [orgModalState, setOrgModalState] = useState<{
     isOpen: boolean;
     org?: IOrg;
@@ -150,89 +154,114 @@ export const OrgPopover = ({
           />
         </PopoverTrigger>
         <PopoverContent>
-          <PopoverHeader>
+          {/* <PopoverHeader>
             <Heading size="md">
               Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}
               ...
             </Heading>
           </PopoverHeader>
-          <PopoverCloseButton />
+          <PopoverCloseButton /> */}
           <PopoverBody>
-            <Box mb={3}>
-              <Heading size="sm" mb={1}>
-                ...où je suis administrateur :
-              </Heading>
+            <Select
+              fontSize="sm"
+              height="auto"
+              lineHeight={2}
+              mb={2}
+              defaultValue={showOrgs}
+              onChange={(e) =>
+                setShowOrgs(
+                  e.target.value as "showOrgsAdded" | "showOrgsSubscribed"
+                )
+              }
+            >
+              <option value="showOrgsAdded">
+                Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}{" "}
+                que j'ai ajouté
+              </option>
+              <option value="showOrgsSubscribed">
+                Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}{" "}
+                où je suis abonné
+              </option>
+            </Select>
 
-              {hasOrgs ? (
-                <VStack alignItems="flex-start" overflowX="auto" ml={3}>
+            {showOrgs === "showOrgsAdded" &&
+              (hasOrgs ? (
+                <VStack
+                  alignItems="flex-start"
+                  overflow="auto"
+                  height="170px"
+                  spacing={2}
+                >
                   {myOrgs.map((org, index) => (
-                    <Link
+                    <Button
                       key={index}
-                      href={`/${org.orgUrl}`}
-                      shallow
+                      fontSize="sm"
+                      leftIcon={<Icon as={IoIosPeople} color="green.500" />}
+                      height="auto"
+                      p={1}
                       onClick={() => {
+                        router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
+                          shallow: true
+                        });
                         setIsOpen(false);
                       }}
                     >
-                      <Button
-                        aria-hidden
-                        leftIcon={<Icon as={IoIosPeople} color="green.500" />}
-                        p={2}
-                      >
-                        {org.orgName}
-                      </Button>
-                    </Link>
+                      {org.orgName}
+                    </Button>
                   ))}
                 </VStack>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
                   Vous n'avez ajouté aucune organisation.
                 </Text>
-              )}
-            </Box>
+              ))}
 
-            <Heading size="sm" mt={hasOrgs ? 2 : 0} mb={1}>
-              ...où je suis adhérent :
-            </Heading>
-
-            {hasSubscribedOrgs ? (
-              <VStack alignItems="flex-start" overflowX="auto" ml={3}>
-                {subscribedOrgs.map((org, index) => (
-                  <Link
-                    key={index}
-                    href={`/${org.orgUrl}`}
-                    shallow
-                    onClick={() => {
-                      setIsOpen(false);
-                    }}
-                  >
+            {showOrgs === "showOrgsSubscribed" &&
+              (hasSubscribedOrgs ? (
+                <VStack
+                  alignItems="flex-start"
+                  overflowX="auto"
+                  height="170px"
+                  spacing={2}
+                >
+                  {subscribedOrgs.map((org, index) => (
                     <Button
+                      key={index}
+                      fontSize="sm"
                       leftIcon={<Icon as={IoIosPeople} color="green.500" />}
-                      p={2}
+                      height="auto"
+                      p={1}
+                      onClick={() => {
+                        router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
+                          shallow: true
+                        });
+                        setIsOpen(false);
+                      }}
                     >
                       {org.orgName}
                     </Button>
-                  </Link>
-                ))}
-              </VStack>
-            ) : (
-              <Text fontSize="smaller" ml={3}>
-                Personne ne vous a inscrit en tant qu'adhérent, bientôt
-                peut-être ?
-              </Text>
-            )}
+                  ))}
+                </VStack>
+              ) : (
+                <Text fontSize="smaller" ml={3}>
+                  Personne ne vous a inscrit en tant qu'adhérent, bientôt
+                  peut-être ?
+                </Text>
+              ))}
           </PopoverBody>
           <PopoverFooter>
             <Button
               colorScheme="teal"
               leftIcon={<AddIcon />}
               mt={1}
+              size="sm"
               onClick={() => {
                 setOrgModalState({ isOpen: true });
               }}
               data-cy="addOrg"
             >
-              Ajouter une organisation
+              Ajouter{" "}
+              {orgType === OrgTypes.NETWORK ? "un réseau" : "une organisation"}
             </Button>
           </PopoverFooter>
         </PopoverContent>
@@ -241,6 +270,7 @@ export const OrgPopover = ({
       {orgModalState.isOpen && (
         <OrgModal
           session={session}
+          orgType={orgType}
           onCancel={() => setOrgModalState({ isOpen: false })}
           onClose={() => setOrgModalState({ isOpen: false })}
           onSubmit={async (orgUrl) => {

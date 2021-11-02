@@ -12,16 +12,20 @@ import {
   Tag
 } from "@chakra-ui/react";
 import {
-  compareAsc,
-  format,
   addHours,
   addWeeks,
+  compareAsc,
+  compareDesc,
+  format,
   intervalToDuration,
   parseISO,
+  getDay,
   getDayOfYear,
   setDay,
-  compareDesc,
-  setHours
+  getHours,
+  getMinutes,
+  setHours,
+  setMinutes
 } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
@@ -64,7 +68,6 @@ export const EventsList = ({
   eventsQuery?: any;
   org?: IOrg;
   orgQuery?: any;
-  eventHeader?: any;
   isCreator?: boolean;
   isSubscribed?: boolean;
   isLogin?: number;
@@ -128,7 +131,6 @@ export const EventsList = ({
     deleteEvent,
     editEvent,
     editOrg,
-    eventHeader: props.eventHeader,
     isCreator,
     isDark,
     isLoading,
@@ -176,12 +178,14 @@ export const EventsList = ({
 
         if (compareDesc(today, start) !== -1) {
           // event starts 1 week after today
-          if (compareDesc(addWeeks(today, 1), start) !== -1)
+          if (compareDesc(addWeeks(today, 1), start) !== -1) {
+            //console.log(event.eventName, event.repeat, start, end);
             nextEvents.push({
               ...event,
               eventMinDate: start,
               eventMaxDate: end
             });
+          }
           // event starts today or after
           else
             currentEvents.push({
@@ -236,62 +240,123 @@ export const EventsList = ({
         }
 
         if (event.repeat) {
-          for (let i = 1; i <= event.repeat; i++) {
-            if (i % event.repeat !== 0) continue;
-            const eventMinDate = addWeeks(start, i);
-            const eventMaxDate = addWeeks(end, i);
-
-            if (compareDesc(addWeeks(today, 1), eventMinDate) !== -1) {
-              // repeated event starts 1 week after today
-              nextEvents.push({
-                ...event,
-                eventMinDate,
-                eventMaxDate
-              });
-            } else if (compareDesc(today, eventMinDate) !== -1) {
-              currentEvents.push({
-                ...event,
-                eventMinDate,
-                eventMaxDate
-              });
-            } else {
-              previousEvents.push({
-                ...event,
-                eventMinDate,
-                eventMaxDate
-              });
-            }
+          if (event.repeat === 99) {
+            const eventMinDate = setMinutes(
+              setHours(
+                setDay(addWeeks(today, 1), getDay(start)),
+                getHours(start)
+              ),
+              getMinutes(start)
+            );
+            const eventMaxDate = setMinutes(
+              setHours(setDay(addWeeks(today, 1), getDay(end)), getHours(end)),
+              getMinutes(end)
+            );
+            nextEvents.push({
+              ...event,
+              eventMinDate,
+              eventMaxDate
+            });
 
             if (event.otherDays) {
               for (const otherDay of event.otherDays) {
-                const start = otherDay.startDate
-                  ? addWeeks(parseISO(otherDay.startDate), i)
-                  : setDay(eventMinDate, otherDay.dayNumber + 1);
-                const end = otherDay.endTime
-                  ? addWeeks(parseISO(otherDay.endTime), i)
-                  : setDay(eventMaxDate, otherDay.dayNumber + 1);
+                const startDate = otherDay.startDate
+                  ? parseISO(otherDay.startDate)
+                  : setDay(start, otherDay.dayNumber + 1);
+                const endDate = otherDay.endTime
+                  ? parseISO(otherDay.endTime)
+                  : setDay(end, otherDay.dayNumber + 1);
 
-                if (compareDesc(addWeeks(today, 1), start) !== -1) {
-                  nextEvents.push({
-                    ...event,
-                    eventMinDate: start,
-                    eventMaxDate: end,
-                    repeat: otherDay.dayNumber + 1
-                  });
-                } else if (compareDesc(today, start) !== -1) {
-                  currentEvents.push({
-                    ...event,
-                    eventMinDate: start,
-                    eventMaxDate: end,
-                    repeat: otherDay.dayNumber + 1
-                  });
-                } else {
-                  previousEvents.push({
-                    ...event,
-                    eventMinDate: start,
-                    eventMaxDate: end,
-                    repeat: otherDay.dayNumber + 1
-                  });
+                const eventMinDate = setMinutes(
+                  setHours(
+                    setDay(addWeeks(today, 1), getDay(startDate)),
+                    getHours(startDate)
+                  ),
+                  getMinutes(startDate)
+                );
+                const eventMaxDate = setMinutes(
+                  setHours(
+                    setDay(addWeeks(today, 1), getDay(endDate)),
+                    getHours(endDate)
+                  ),
+                  getMinutes(endDate)
+                );
+
+                nextEvents.push({
+                  ...event,
+                  eventMinDate,
+                  eventMaxDate
+                });
+              }
+            }
+          } else {
+            for (let i = 1; i <= event.repeat; i++) {
+              if (i % event.repeat !== 0) continue;
+              const eventMinDate = addWeeks(start, i);
+              const eventMaxDate = addWeeks(end, i);
+
+              if (compareDesc(addWeeks(today, 1), eventMinDate) !== -1) {
+                // repeated event starts 1 week after today
+                console.log(
+                  event.eventName,
+                  event.repeat,
+                  eventMinDate,
+                  eventMaxDate,
+                  start,
+                  i
+                );
+
+                nextEvents.push({
+                  ...event,
+                  eventMinDate,
+                  eventMaxDate
+                });
+              } else if (compareDesc(today, eventMinDate) !== -1) {
+                currentEvents.push({
+                  ...event,
+                  eventMinDate,
+                  eventMaxDate
+                });
+              } else {
+                previousEvents.push({
+                  ...event,
+                  eventMinDate,
+                  eventMaxDate
+                });
+              }
+
+              if (event.otherDays) {
+                for (const otherDay of event.otherDays) {
+                  const start = otherDay.startDate
+                    ? addWeeks(parseISO(otherDay.startDate), i)
+                    : setDay(eventMinDate, otherDay.dayNumber + 1);
+                  const end = otherDay.endTime
+                    ? addWeeks(parseISO(otherDay.endTime), i)
+                    : setDay(eventMaxDate, otherDay.dayNumber + 1);
+
+                  if (compareDesc(addWeeks(today, 1), start) !== -1) {
+                    console.log(event.eventName, event.repeat, start, end);
+                    nextEvents.push({
+                      ...event,
+                      eventMinDate: start,
+                      eventMaxDate: end,
+                      repeat: otherDay.dayNumber + 1
+                    });
+                  } else if (compareDesc(today, start) !== -1) {
+                    currentEvents.push({
+                      ...event,
+                      eventMinDate: start,
+                      eventMaxDate: end,
+                      repeat: otherDay.dayNumber + 1
+                    });
+                  } else {
+                    previousEvents.push({
+                      ...event,
+                      eventMinDate: start,
+                      eventMaxDate: end,
+                      repeat: otherDay.dayNumber + 1
+                    });
+                  }
                 }
               }
             }
@@ -351,18 +416,14 @@ export const EventsList = ({
                   >
                     <>
                       {addGridHeader ? (
-                        props.eventHeader ? (
-                          props.eventHeader
-                        ) : (
-                          <GridHeader
-                            colSpan={3}
-                            borderTopRadius={index === 0 ? "lg" : undefined}
-                          >
-                            <Heading size="sm" py={3}>
-                              {format(minDate, "cccc d MMMM", { locale: fr })}
-                            </Heading>
-                          </GridHeader>
-                        )
+                        <GridHeader
+                          colSpan={3}
+                          borderTopRadius={index === 0 ? "lg" : undefined}
+                        >
+                          <Heading size="sm" py={3}>
+                            {format(minDate, "cccc d MMMM", { locale: fr })}
+                          </Heading>
+                        </GridHeader>
                       ) : (
                         <GridItem colSpan={3}>
                           <Spacer borderWidth={1} />
@@ -402,20 +463,16 @@ export const EventsList = ({
                     >
                       <>
                         {addGridHeader ? (
-                          props.eventHeader ? (
-                            props.eventHeader
-                          ) : (
-                            <GridHeader
-                              colSpan={3}
-                              borderTopRadius={index === 0 ? "lg" : undefined}
-                            >
-                              <Heading size="sm" py={3}>
-                                {format(minDate, "cccc d MMMM", {
-                                  locale: fr
-                                })}
-                              </Heading>
-                            </GridHeader>
-                          )
+                          <GridHeader
+                            colSpan={3}
+                            borderTopRadius={index === 0 ? "lg" : undefined}
+                          >
+                            <Heading size="sm" py={3}>
+                              {format(minDate, "cccc d MMMM", {
+                                locale: fr
+                              })}
+                            </Heading>
+                          </GridHeader>
                         ) : (
                           <GridItem colSpan={3}>
                             <Spacer borderWidth={1} />
@@ -485,18 +542,23 @@ export const EventsList = ({
                   >
                     <>
                       {addGridHeader ? (
-                        props.eventHeader ? (
-                          props.eventHeader
-                        ) : (
-                          <GridHeader
-                            colSpan={3}
-                            borderTopRadius={index === 0 ? "lg" : undefined}
-                          >
-                            <Heading size="sm" py={3}>
-                              {format(minDate, "cccc d MMMM", { locale: fr })}
-                            </Heading>
-                          </GridHeader>
-                        )
+                        <GridHeader
+                          colSpan={3}
+                          borderTopRadius={index === 0 ? "lg" : undefined}
+                        >
+                          <Heading size="sm" py={3}>
+                            {format(
+                              event.repeat
+                                ? addWeeks(
+                                    minDate,
+                                    event.repeat === 99 ? 1 : event.repeat
+                                  )
+                                : minDate,
+                              "cccc d MMMM",
+                              { locale: fr }
+                            )}
+                          </Heading>
+                        </GridHeader>
                       ) : (
                         <GridItem colSpan={3}>
                           <Spacer borderWidth={1} />
