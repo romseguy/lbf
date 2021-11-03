@@ -1,13 +1,9 @@
-import type { Visibility } from "./OrgPage";
-import { IOrg, orgTypeFull } from "models/Org";
-import React, { useState } from "react";
-import AvatarEditor from "react-avatar-editor";
+import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import {
   Box,
   Heading,
   FormLabel,
   FormControl,
-  Stack,
   FormErrorMessage,
   Alert,
   AlertIcon,
@@ -16,26 +12,24 @@ import {
   GridProps,
   useToast
 } from "@chakra-ui/react";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { ErrorMessage } from "@hookform/error-message";
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
+import React, { useState, useRef } from "react";
+import AvatarEditor from "react-avatar-editor";
+import { useForm } from "react-hook-form";
 import {
   Button,
   ErrorMessageText,
   GridHeader,
   GridItem,
   Input,
-  Link,
-  Select
+  Link
 } from "features/common";
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  WarningIcon
-} from "@chakra-ui/icons";
-import { getBase64 } from "utils/image";
-import { useForm } from "react-hook-form";
+import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { handleError } from "utils/form";
-import { ErrorMessage } from "@hookform/error-message";
-import { useRef } from "react";
+import { IOrg, orgTypeFull } from "models/Org";
+import { calculateScale, getBase64 } from "utils/image";
+import { Visibility } from "./OrgPage";
 
 type OrgConfigLogoPanelProps = GridProps &
   Visibility & {
@@ -51,19 +45,32 @@ export const OrgConfigLogoPanel = ({
   ...props
 }: OrgConfigLogoPanelProps) => {
   const toast = useToast({ position: "top" });
+
   const [editOrg, editOrgMutation] = useEditOrgMutation();
+
+  //#region form state
   const { register, handleSubmit, setError, errors, clearErrors, watch } =
     useForm({
       mode: "onChange"
     });
   const height = 220;
   const width = 220;
-
   const [upImg, setUpImg] = useState<string | File>();
+  const [scale, setScale] = useState(1);
+  const [elementLocked, setElementLocked] = useState<
+    { el: HTMLElement; locked: boolean } | undefined
+  >();
+  const disableScroll = (target: HTMLElement) => {
+    disableBodyScroll(target);
+  };
+  const enableScroll = (target: HTMLElement) => {
+    enableBodyScroll(target);
+  };
   const setEditorRef = useRef<AvatarEditor | null>(null);
 
   const onSubmit = async (form: any) => {
     console.log("submitted", form);
+    if (elementLocked) enableScroll(elementLocked.el);
 
     try {
       await editOrg({
@@ -79,6 +86,7 @@ export const OrgConfigLogoPanel = ({
       });
       toast({
         title: `Le logo ${orgTypeFull(org.orgType)} a bien été modifié !`,
+        isClosable: true,
         status: "success"
       });
       orgQuery.refetch();
@@ -92,6 +100,7 @@ export const OrgConfigLogoPanel = ({
       );
     }
   };
+  //#endregion
 
   return (
     <Grid {...props}>
@@ -129,6 +138,9 @@ export const OrgConfigLogoPanel = ({
                 clearErrors("formErrorMessage");
               }}
               onSubmit={handleSubmit(onSubmit)}
+              onWheel={(e) => {
+                if (elementLocked) enableScroll(elementLocked.el);
+              }}
             >
               <ErrorMessage
                 errors={errors}
@@ -177,17 +189,31 @@ export const OrgConfigLogoPanel = ({
               </FormControl>
 
               {upImg && (
-                <AvatarEditor
-                  ref={setEditorRef}
-                  image={upImg}
+                <Box
                   width={width}
-                  height={height}
-                  border={0}
-                  color={[255, 255, 255, 0.6]} // RGBA
-                  scale={1}
-                  rotate={0}
-                  style={{ marginBottom: "12px" }}
-                />
+                  onWheel={(e) => {
+                    e.stopPropagation();
+                    console.log(scale);
+
+                    setScale(calculateScale(scale, e.deltaY));
+
+                    const el = e.target as HTMLElement;
+                    disableScroll(el);
+                    if (!elementLocked) setElementLocked({ el, locked: true });
+                  }}
+                >
+                  <AvatarEditor
+                    ref={setEditorRef}
+                    image={upImg}
+                    width={width}
+                    height={height}
+                    border={0}
+                    color={[255, 255, 255, 0.6]} // RGBA
+                    scale={scale}
+                    rotate={0}
+                    style={{ marginBottom: "12px" }}
+                  />
+                </Box>
               )}
 
               <Button

@@ -21,10 +21,11 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { EmailControl } from "features/common";
 import { usePostEventNotifMutation } from "features/events/eventsApi";
-import { IEvent } from "models/Event";
+import { IEvent, StatusTypes } from "models/Event";
 import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { Session } from "next-auth";
+import { orgTypeFull4 } from "models/Org";
 
 export const EventSendForm = ({
   event,
@@ -41,18 +42,17 @@ export const EventSendForm = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
+  console.log(event);
+
   //#region event
   const [postEventNotif, q] = usePostEventNotifMutation();
-  const notifiedCount = Array.isArray(event.eventNotified)
-    ? event.eventNotified.length
-    : 0;
   //#endregion
+
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
-
   //#endregion
 
-  //#region form
+  //#region form state
   const {
     control,
     register,
@@ -143,20 +143,30 @@ export const EventSendForm = ({
                     </Tr>
                   ) : (
                     event.eventOrgs.map((org) => {
-                      const orgFollowersCount = org.orgSubscriptions
-                        .map((subscription) => {
-                          return subscription.orgs.filter((orgSubscription) => {
+                      const followerSubscriptions = org.orgSubscriptions.filter(
+                        (subscription) => {
+                          return subscription.orgs.find((orgSubscription) => {
                             return (
                               orgSubscription.orgId === org._id &&
                               orgSubscription.type ===
                                 SubscriptionTypes.FOLLOWER
                             );
-                          }).length;
-                        })
-                        .reduce((a, b) => a + b, 0);
+                          });
+                        }
+                      );
+                      const followerSubscriptionsCount =
+                        followerSubscriptions.length;
+                      const s = followerSubscriptionsCount > 1 ? "s" : "";
 
-                      const canSendCount = orgFollowersCount - notifiedCount;
-                      const s = canSendCount > 1 ? "s" : "";
+                      const notifiedCount = event.eventNotified?.filter(
+                        ({ email, status }) =>
+                          status === StatusTypes.OK &&
+                          followerSubscriptions.find((followerSubscription) =>
+                            typeof followerSubscription.user === "object"
+                              ? followerSubscription.user.email === email
+                              : followerSubscription.email === email
+                          )
+                      ).length;
 
                       return (
                         <Tr key={org.orgName} mb={1}>
@@ -175,8 +185,11 @@ export const EventSendForm = ({
                           </Td>
                           <Td textAlign="right">
                             <Tag fontSize="smaller">
-                              {canSendCount} abonné{s} n'{s ? "ont" : "a"} pas
-                              été invité{s}
+                              {!followerSubscriptionsCount
+                                ? `Personne n'est abonné à ${orgTypeFull4(
+                                    org.orgType
+                                  )}`
+                                : `${notifiedCount}/${followerSubscriptionsCount} abonné${s} invité${s}`}
                             </Tag>
                           </Td>
                         </Tr>

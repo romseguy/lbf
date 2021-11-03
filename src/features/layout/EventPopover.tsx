@@ -1,47 +1,33 @@
-import { AddIcon, CalendarIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { AddIcon, CalendarIcon } from "@chakra-ui/icons";
 import {
-  List,
-  ListItem,
-  ListIcon,
   Box,
   BoxProps,
   Button,
-  Heading,
   Icon,
   IconButton,
   Popover,
   PopoverBody,
-  PopoverCloseButton,
   PopoverContent,
-  PopoverHeader,
   PopoverTrigger,
   PopoverFooter,
   Select,
-  Spinner,
   Text,
-  Tag,
   VStack,
   useColorModeValue
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { ChangeEventHandler, useEffect, useState } from "react";
-import { IoIosPeople, IoIosPerson } from "react-icons/io";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { css } from "twin.macro";
-import { Link } from "features/common";
+import { EntityBadge } from "features/common";
 import { EventModal } from "features/modals/EventModal";
 import { useGetEventsQuery } from "features/events/eventsApi";
 import { selectEventsRefetch } from "features/events/eventSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import {
-  isFollowedBy,
-  selectSubscriptionRefetch
-} from "features/subscriptions/subscriptionSlice";
+import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
-import { IEvent } from "models/Event";
+import { IEvent, StatusTypes } from "models/Event";
 import { hasItems } from "utils/array";
 import { Session } from "next-auth";
-import { FaBell } from "react-icons/fa";
 
 let cachedRefetchEvents = false;
 let cachedRefetchSubscription = false;
@@ -57,14 +43,27 @@ export const EventPopover = ({
   const router = useRouter();
   const userEmail = useSelector(selectUserEmail) || session.user.email;
 
-  //#region events
-  const eventsQuery = useGetEventsQuery({ userId: session.user.userId });
+  //#region my events
+  const { attendedEvents } = useGetEventsQuery(void 0, {
+    selectFromResult: ({ data: events }) => ({
+      attendedEvents: events?.filter(({ eventNotified }) =>
+        eventNotified?.find(
+          ({ email, status }) =>
+            email === userEmail && status === StatusTypes.OK
+        )
+      )
+    })
+  });
+  //#endregion
+
+  //#region my events
+  const myEventsQuery = useGetEventsQuery({ userId: session.user.userId });
   const refetchEvents = useSelector(selectEventsRefetch);
   useEffect(() => {
     if (refetchEvents !== cachedRefetchEvents) {
       cachedRefetchEvents = refetchEvents;
       console.log("refetching events");
-      eventsQuery.refetch();
+      myEventsQuery.refetch();
     }
   }, [refetchEvents]);
   //#endregion
@@ -93,7 +92,7 @@ export const EventPopover = ({
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
   const [showEvents, setShowEvents] = useState<
-    "showEventsAdded" | "showEventsFollowed"
+    "showEventsAdded" | "showEventsFollowed" | "showEventsAttended"
   >("showEventsAdded");
   const [eventModalState, setEventModalState] = useState<{
     isOpen: boolean;
@@ -125,7 +124,7 @@ export const EventPopover = ({
             minWidth={0}
             onClick={() => {
               if (!isOpen) {
-                eventsQuery.refetch();
+                myEventsQuery.refetch();
                 subQuery.refetch();
               }
               setIsOpen(!isOpen);
@@ -146,7 +145,10 @@ export const EventPopover = ({
               defaultValue={showEvents}
               onChange={(e) =>
                 setShowEvents(
-                  e.target.value as "showEventsAdded" | "showEventsFollowed"
+                  e.target.value as
+                    | "showEventsAdded"
+                    | "showEventsFollowed"
+                    | "showEventsAttended"
                 )
               }
             >
@@ -156,23 +158,24 @@ export const EventPopover = ({
               <option value="showEventsFollowed">
                 Les événements où je suis abonné
               </option>
+              <option value="showEventsAttended">
+                Les événements où je participe
+              </option>
             </Select>
 
             {showEvents === "showEventsAdded" &&
-              (Array.isArray(eventsQuery.data) &&
-              eventsQuery.data.length > 0 ? (
+              (Array.isArray(myEventsQuery.data) &&
+              myEventsQuery.data.length > 0 ? (
                 <VStack
                   alignItems="flex-start"
                   overflow="auto"
                   height="170px"
                   spacing={2}
                 >
-                  {eventsQuery.data.map((event, index) => (
-                    <Button
-                      key={index}
-                      fontSize="sm"
-                      leftIcon={<CalendarIcon color="green.500" />}
-                      height="auto"
+                  {myEventsQuery.data.map((event, index) => (
+                    <EntityBadge
+                      key={event._id}
+                      event={event}
                       p={1}
                       onClick={() => {
                         router.push(
@@ -184,9 +187,7 @@ export const EventPopover = ({
                         );
                         setIsOpen(false);
                       }}
-                    >
-                      {event.eventName}
-                    </Button>
+                    />
                   ))}
                 </VStack>
               ) : (
@@ -203,12 +204,10 @@ export const EventPopover = ({
                   height="170px"
                   spacing={2}
                 >
-                  {followedEvents.map(({ event }, index) => (
-                    <Button
-                      key={index}
-                      fontSize="sm"
-                      leftIcon={<Icon as={CalendarIcon} color="green.500" />}
-                      height="auto"
+                  {followedEvents.map(({ event }) => (
+                    <EntityBadge
+                      key={event._id}
+                      event={event}
                       p={1}
                       onClick={() => {
                         router.push(
@@ -220,14 +219,44 @@ export const EventPopover = ({
                         );
                         setIsOpen(false);
                       }}
-                    >
-                      {event.eventName}
-                    </Button>
+                    />
                   ))}
                 </VStack>
               ) : (
                 <Text fontSize="smaller" ml={3}>
-                  Vous n'êtes abonné à aucun événement
+                  Vous n'êtes abonné à aucun événement.
+                </Text>
+              ))}
+
+            {showEvents === "showEventsAttended" &&
+              (Array.isArray(attendedEvents) && attendedEvents.length > 0 ? (
+                <VStack
+                  alignItems="flex-start"
+                  overflow="auto"
+                  height="170px"
+                  spacing={2}
+                >
+                  {attendedEvents.map((event) => (
+                    <EntityBadge
+                      key={event._id}
+                      event={event}
+                      p={1}
+                      onClick={() => {
+                        router.push(
+                          `/${event.eventUrl}`,
+                          `/${event.eventUrl}`,
+                          {
+                            shallow: true
+                          }
+                        );
+                        setIsOpen(false);
+                      }}
+                    />
+                  ))}
+                </VStack>
+              ) : (
+                <Text fontSize="smaller" ml={3}>
+                  Vous ne participez à aucun événement.
                 </Text>
               ))}
           </PopoverBody>

@@ -39,14 +39,15 @@ export const EventConfigPanel = ({
   return (
     <>
       <Box mb={3}>
-        {!isEdit && (
+        {isConfig && !isEdit && (
           <>
             <Button
               aria-label="Modifier"
               leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
               mr={3}
               onClick={() => {
-                setIsEdit(!isEdit);
+                setIsEdit(true);
+                setIsConfig(false);
                 setIsVisible({ ...isVisible, banner: false });
               }}
               css={css`
@@ -108,11 +109,14 @@ export const EventConfigPanel = ({
         )}
       </Box>
 
-      {isEdit ? (
+      {isEdit && (
         <EventForm
           session={session}
           event={event}
-          onCancel={() => setIsEdit(false)}
+          onCancel={() => {
+            setIsEdit(false);
+            setIsConfig(true);
+          }}
           onSubmit={async (eventUrl: string) => {
             if (event && eventUrl !== event.eventUrl) {
               await router.push(`/${eventUrl}`, `/${eventUrl}`, {
@@ -121,11 +125,12 @@ export const EventConfigPanel = ({
             } else {
               eventQuery.refetch();
               setIsEdit(false);
-              setIsConfig(false);
             }
           }}
         />
-      ) : (
+      )}
+
+      {isConfig && (
         <>
           <EventConfigLogoPanel
             event={event}

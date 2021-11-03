@@ -280,7 +280,13 @@ export const SubscriptionEditPopover = ({
     >
       <PopoverTrigger>
         <Button
-          leftIcon={notifType === "email" ? <EmailIcon /> : <BellIcon />}
+          leftIcon={
+            notifType === "email" ? (
+              <EmailIcon boxSize={6} />
+            ) : (
+              <BellIcon boxSize={6} />
+            )
+          }
           colorScheme="teal"
           onClick={async () => {
             setIsOpen(!isOpen);

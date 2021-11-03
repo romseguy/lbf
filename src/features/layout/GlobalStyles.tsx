@@ -48,6 +48,15 @@ export const GlobalStyles = () => (
       .ql-editor a {
         text-decoration: underline;
       }
+
+      .ql-editor a.clip {
+        text-overflow: ellipsis;
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 75px;
+        vertical-align: top;
+      }
     `}
   />
 );

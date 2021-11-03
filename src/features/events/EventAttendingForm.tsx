@@ -1,17 +1,19 @@
-import { IEvent, isAttending, isNotAttending, StatusTypes } from "models/Event";
-import React from "react";
-import { useSession } from "hooks/useAuth";
+import { QuestionIcon } from "@chakra-ui/icons";
 import {
-  Box,
-  Text,
-  Flex,
   Alert,
   AlertIcon,
-  useToast,
-  Spinner
+  Box,
+  Flex,
+  Icon,
+  Spinner,
+  Text,
+  useToast
 } from "@chakra-ui/react";
+import React from "react";
 import { Button } from "features/common";
 import { useEditEventMutation } from "features/events/eventsApi";
+import { useSession } from "hooks/useAuth";
+import { IEvent, isAttending, isNotAttending, StatusTypes } from "models/Event";
 import { emailR } from "utils/email";
 
 export const EventAttendingForm = ({
@@ -27,7 +29,13 @@ export const EventAttendingForm = ({
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
+
   const [editEvent, editEventMutation] = useEditEventMutation();
+  const status = isAttending({ email, event })
+    ? "success"
+    : isNotAttending({ email, event })
+    ? "error"
+    : "info";
 
   const attend = async () => {
     let promptedEmail: string | null = null;
@@ -125,17 +133,13 @@ export const EventAttendingForm = ({
   };
 
   return (
-    <Alert
-      mb={3}
-      status={
-        isAttending({ email, event })
-          ? "success"
-          : isNotAttending({ email, event })
-          ? "error"
-          : "info"
-      }
-    >
-      <AlertIcon />
+    <Alert mb={3} status={status}>
+      {status === "info" ? (
+        <Icon as={QuestionIcon} boxSize={5} color="blue.500" mr={3} />
+      ) : (
+        <AlertIcon />
+      )}
+
       {isAttending({ email, event }) ? (
         <Flex flexDirection="column">
           <Text as="h3">Vous participez à cet événement.</Text>

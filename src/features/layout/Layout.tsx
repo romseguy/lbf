@@ -3,24 +3,23 @@ import {
   BoxProps,
   useColorMode,
   Box,
-  Button,
   Icon,
   Tooltip
 } from "@chakra-ui/react";
 import Head from "next/head";
+import { Session } from "next-auth";
 import NextNprogress from "nextjs-progressbar";
 import React, { useEffect, useState } from "react";
 import { Offline } from "react-detect-offline";
 import { FaGithub } from "react-icons/fa";
 import { css } from "twin.macro";
-import { DarkModeSwitch, Link } from "features/common";
+import { DarkModeSwitch } from "features/common";
 import { PaypalButton } from "features/common/forms/PaypalButton";
 import { Header, Main, Nav, Footer } from "features/layout";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { breakpoints } from "theme/theme";
 import type { Base64Image } from "utils/image";
-import { Session } from "next-auth";
 
 const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
 
@@ -115,7 +114,53 @@ export const Layout = ({
           height={3}
           showOnShallow={true}
         />
-        {/* <DarkModeSwitch position="absolute" right="0" top="0" m={3} /> */}
+
+        {process.env.NODE_ENV === "production" && (
+          <Offline>
+            <Box
+              position="fixed"
+              right={3}
+              top={3}
+              bg={isDark ? "whiteAlpha.400" : "blackAlpha.300"}
+              borderRadius="lg"
+            >
+              <Tooltip
+                label="Vérifiez votre connexion à internet pour continuer à utiliser l'application dans de bonnes conditions."
+                placement="top-start"
+                hasArrow
+              >
+                <Icon viewBox="0 0 256 256" boxSize={8}>
+                  <line
+                    x1="48"
+                    x2="208"
+                    y1="40"
+                    y2="216"
+                    fill="none"
+                    stroke="red"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="16"
+                  />
+                  <path
+                    fill="none"
+                    stroke={isDark ? "#fff" : "#000"}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="16"
+                    d="M107.12984 57.47077a148.358 148.358 0 0 1 20.86235-1.46787 145.90176 145.90176 0 0 1 102.9284 42.17662M25.06379 98.17952A145.88673 145.88673 0 0 1 72.42537 66.8671M152.11967 106.95874a97.88568 97.88568 0 0 1 44.88614 25.1619M58.97857 132.12064a97.89874 97.89874 0 0 1 49.03639-26.105M92.91969 166.06177a50.81565 50.81565 0 0 1 67.576-2.317"
+                  />
+                  <circle
+                    cx="128"
+                    cy="200"
+                    r="12"
+                    fill={isDark ? "#fff" : "#000"}
+                  />
+                </Icon>
+              </Tooltip>
+            </Box>
+          </Offline>
+        )}
+
         <Header
           defaultTitle={defaultTitle}
           org={org}
@@ -130,86 +175,43 @@ export const Layout = ({
           session={session}
         />
         <Main {...props}>{children}</Main>
-        <Footer>
-          <Flex
-            justifyContent="space-between"
-            alignItems="center"
-            pl={5}
-            pr={5}
-            pb={5}
-          >
-            {/* <Tooltip
-              label="Ce projet est open-source, financé par son seul créateur."
+        <Footer display="flex" alignItems="center" pl={5} pr={5} pb={3}>
+          {(true || process.env.NODE_ENV === "production") && (
+            <Flex alignItems="center" flexGrow={1}>
+              <Tooltip
+                label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
+                placement="top-end"
+                hasArrow
+              >
+                <div>
+                  <PaypalButton />
+                </div>
+              </Tooltip>
+
+              <Tooltip
+                label="Ce projet est open-source, financé par son seul créateur."
+                placement="top-end"
+                hasArrow
+              >
+                <a href="https://github.com/romseguy">
+                  <Icon as={FaGithub} boxSize={6} ml={3} />
+                </a>
+              </Tooltip>
+            </Flex>
+          )}
+
+          <Flex alignItems="center">
+            <Tooltip
+              placement="top-start"
+              label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
               hasArrow
             >
-              <span>
-                <Link
-                  onClick={() =>
-                    alert("Bientôt disponible. Merci de l'intention !")
-                  }
-                >
-                  <Button
-                    leftIcon={<Icon as={FaGithub} boxSize={6} />}
-                  >
-                    Faire un don
-                  </Button>
-                </Link>
-              </span>
-            </Tooltip> */}
-            {process.env.NODE_ENV === "production" && <PaypalButton />}
-            <DarkModeSwitch />
+              <Box mt={3}>
+                <DarkModeSwitch />
+              </Box>
+            </Tooltip>
           </Flex>
         </Footer>
-
-        {process.env.NODE_ENV === "production" && (
-          <Offline>
-            <Box
-              pointerEvents="none"
-              position="fixed"
-              bottom="40px"
-              right="20px"
-              bg={isDark ? "whiteAlpha.300" : "blackAlpha.200"}
-              borderRadius="lg"
-              p={3}
-            >
-              <Icon
-                viewBox="0 0 256 256"
-                boxSize={10}
-                mr={3}
-                //h="48px"
-                //w="48px"
-              >
-                <line
-                  x1="48"
-                  x2="208"
-                  y1="40"
-                  y2="216"
-                  fill="none"
-                  stroke="red"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="16"
-                />
-                <path
-                  fill="none"
-                  stroke={isDark ? "#fff" : "#000"}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="16"
-                  d="M107.12984 57.47077a148.358 148.358 0 0 1 20.86235-1.46787 145.90176 145.90176 0 0 1 102.9284 42.17662M25.06379 98.17952A145.88673 145.88673 0 0 1 72.42537 66.8671M152.11967 106.95874a97.88568 97.88568 0 0 1 44.88614 25.1619M58.97857 132.12064a97.89874 97.89874 0 0 1 49.03639-26.105M92.91969 166.06177a50.81565 50.81565 0 0 1 67.576-2.317"
-                />
-                <circle
-                  cx="128"
-                  cy="200"
-                  r="12"
-                  fill={isDark ? "#fff" : "#000"}
-                />
-              </Icon>
-              Vérifiez votre connexion à internet pour continuer à utiliser
-              l'application.
-            </Box>
-          </Offline>
-        )}
       </Flex>
     </>
   );

@@ -38,19 +38,19 @@ export const OrgConfigPanel = ({
   const toast = useToast({ position: "top" });
   const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
   const [isDisabled, setIsDisabled] = useState(true);
-  const [orgType, setOrgType] = useState<string>();
 
   return (
     <>
       <Box mb={3}>
-        {!isEdit && (
+        {isConfig && !isEdit && (
           <>
             <Button
               aria-label="Modifier"
               leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
               mr={3}
               onClick={() => {
-                setIsEdit(!isEdit);
+                setIsEdit(true);
+                setIsConfig(false);
                 setIsVisible({
                   ...isVisible,
                   banner: false,
@@ -115,25 +115,28 @@ export const OrgConfigPanel = ({
         )}
       </Box>
 
-      {isEdit ? (
+      {isEdit && (
         <OrgForm
           session={session}
           org={org}
-          onCancel={() => setIsEdit(false)}
+          onCancel={() => {
+            setIsEdit(false);
+            setIsConfig(true);
+          }}
           onSubmit={async (orgUrl: string) => {
-            orgQuery.refetch();
-
             if (org && orgUrl !== org.orgUrl) {
               await router.push(`/${orgUrl}`, `/${orgUrl}`, {
                 shallow: true
               });
             } else {
+              orgQuery.refetch();
               setIsEdit(false);
-              setIsConfig(false);
             }
           }}
         />
-      ) : (
+      )}
+
+      {isConfig && (
         <>
           <OrgConfigLogoPanel
             org={org}

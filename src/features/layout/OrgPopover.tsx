@@ -1,44 +1,38 @@
 import { AddIcon } from "@chakra-ui/icons";
 import {
-  List,
-  ListItem,
-  ListIcon,
   Popover,
   PopoverTrigger,
   PopoverContent,
-  PopoverCloseButton,
-  PopoverHeader,
   PopoverBody,
   useColorModeValue,
   Icon,
   IconButton,
   Select,
-  Spinner,
   Button,
   Box,
-  Heading,
   BoxProps,
   Text,
   PopoverFooter,
   VStack
 } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { IoIosGitNetwork, IoIosPeople, IoIosPerson } from "react-icons/io";
+import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { Link } from "features/common";
+import { EntityBadge, Link } from "features/common";
 import { OrgModal } from "features/modals/OrgModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import {
+  isFollowedBy,
   isSubscribedBy,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
 import { IOrg, OrgType, OrgTypes } from "models/Org";
 import { hasItems } from "utils/array";
-import { Session } from "next-auth";
 
 let cachedRefetchOrgs = false;
 let cachedRefetchSubscription = false;
@@ -56,7 +50,7 @@ export const OrgPopover = ({
   const router = useRouter();
   const userEmail = useSelector(selectUserEmail) || session.user.email;
 
-  //#region myOrgs
+  //#region orgs
   const orgsQuery = useGetOrgsQuery(undefined, {
     selectFromResult: (query) => ({
       ...query,
@@ -75,6 +69,9 @@ export const OrgPopover = ({
       orgsQuery.refetch();
     }
   }, [refetchOrgs]);
+  //#endregion
+
+  //#region my orgs
   const myOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&
@@ -83,7 +80,7 @@ export const OrgPopover = ({
   const hasOrgs = Array.isArray(myOrgs) && myOrgs.length > 0;
   //#endregion
 
-  //#region sub
+  //#region my sub
   const subQuery = useGetSubscriptionQuery(userEmail);
   const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
@@ -100,6 +97,13 @@ export const OrgPopover = ({
     }
   }, [userEmail]);
 
+  const followedOrgs =
+    (Array.isArray(orgsQuery.data) &&
+      orgsQuery.data.length > 0 &&
+      orgsQuery.data.filter((org) => isFollowedBy({ org, subQuery }))) ||
+    [];
+  const hasFollowedOrgs = hasItems(followedOrgs);
+
   const subscribedOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&
@@ -111,7 +115,7 @@ export const OrgPopover = ({
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
   const [showOrgs, setShowOrgs] = useState<
-    "showOrgsAdded" | "showOrgsSubscribed"
+    "showOrgsAdded" | "showOrgsFollowed" | "showOrgsSubscribed"
   >("showOrgsAdded");
   const [orgModalState, setOrgModalState] = useState<{
     isOpen: boolean;
@@ -170,7 +174,10 @@ export const OrgPopover = ({
               defaultValue={showOrgs}
               onChange={(e) =>
                 setShowOrgs(
-                  e.target.value as "showOrgsAdded" | "showOrgsSubscribed"
+                  e.target.value as
+                    | "showOrgsAdded"
+                    | "showOrgsFollowed"
+                    | "showOrgsSubscribed"
                 )
               }
             >
@@ -178,9 +185,13 @@ export const OrgPopover = ({
                 Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}{" "}
                 que j'ai ajouté
               </option>
-              <option value="showOrgsSubscribed">
+              <option value="showOrgsFollowed">
                 Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}{" "}
                 où je suis abonné
+              </option>
+              <option value="showOrgsSubscribed">
+                Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}{" "}
+                où je suis adhérent
               </option>
             </Select>
 
@@ -192,12 +203,10 @@ export const OrgPopover = ({
                   height="170px"
                   spacing={2}
                 >
-                  {myOrgs.map((org, index) => (
-                    <Button
-                      key={index}
-                      fontSize="sm"
-                      leftIcon={<Icon as={IoIosPeople} color="green.500" />}
-                      height="auto"
+                  {myOrgs.map((org) => (
+                    <EntityBadge
+                      key={org._id}
+                      org={org}
                       p={1}
                       onClick={() => {
                         router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
@@ -205,14 +214,40 @@ export const OrgPopover = ({
                         });
                         setIsOpen(false);
                       }}
-                    >
-                      {org.orgName}
-                    </Button>
+                    />
                   ))}
                 </VStack>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
                   Vous n'avez ajouté aucune organisation.
+                </Text>
+              ))}
+
+            {showOrgs === "showOrgsFollowed" &&
+              (hasFollowedOrgs ? (
+                <VStack
+                  alignItems="flex-start"
+                  overflowX="auto"
+                  height="170px"
+                  spacing={2}
+                >
+                  {followedOrgs.map((org, index) => (
+                    <EntityBadge
+                      key={org._id}
+                      org={org}
+                      p={1}
+                      onClick={() => {
+                        router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
+                          shallow: true
+                        });
+                        setIsOpen(false);
+                      }}
+                    />
+                  ))}
+                </VStack>
+              ) : (
+                <Text fontSize="smaller" ml={3}>
+                  Vous n'êtes abonné à aucune organisation.
                 </Text>
               ))}
 
@@ -225,11 +260,9 @@ export const OrgPopover = ({
                   spacing={2}
                 >
                   {subscribedOrgs.map((org, index) => (
-                    <Button
-                      key={index}
-                      fontSize="sm"
-                      leftIcon={<Icon as={IoIosPeople} color="green.500" />}
-                      height="auto"
+                    <EntityBadge
+                      key={org._id}
+                      org={org}
                       p={1}
                       onClick={() => {
                         router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
@@ -237,9 +270,7 @@ export const OrgPopover = ({
                         });
                         setIsOpen(false);
                       }}
-                    >
-                      {org.orgName}
-                    </Button>
+                    />
                   ))}
                 </VStack>
               ) : (

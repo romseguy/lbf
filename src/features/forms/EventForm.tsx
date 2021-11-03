@@ -130,8 +130,13 @@ export const EventForm = withGoogleApi({
       mode: "onChange"
     });
 
-    watch("eventOrgs");
-    const eventOrgs = getValues("eventOrgs") || defaultEventOrgs;
+    const eventAddress = watch("eventAddress");
+    const eventOrgs = watch("eventOrgs") || defaultEventOrgs;
+    useEffect(() => {
+      if (!eventAddress && hasItems(eventOrgs))
+        setValue("eventAddress", eventOrgs[0].orgAddress);
+    }, [eventOrgs]);
+
     const eventVisibility = watch("eventVisibility");
     const visibilityOptions: string[] = eventOrgs
       ? [Visibility.PUBLIC, Visibility.SUBSCRIBERS]
@@ -147,7 +152,6 @@ export const EventForm = withGoogleApi({
       string | undefined
     >(props.event?.eventDescriptionHtml);
 
-    const eventAddress = watch("eventAddress");
     const [suggestion, setSuggestion] = useState<Suggestion>();
     // const {
     //   ready,
@@ -447,8 +451,10 @@ export const EventForm = withGoogleApi({
       dateFormat: "Pp",
       showTimeSelect: true,
       timeFormat: "p",
-      timeIntervals: 30,
+      timeIntervals: 15,
       filterTime: (date: Date) => {
+        if (getHours(date) < 5) return false;
+
         if (end) {
           if (getDayOfYear(date) === getDayOfYear(end)) {
             if (getHours(date) >= getHours(end)) {
@@ -482,8 +488,10 @@ export const EventForm = withGoogleApi({
       dateFormat: "Pp",
       showTimeSelect: true,
       timeFormat: "p",
-      timeIntervals: 30,
+      timeIntervals: 15,
       filterTime: (date: Date) => {
+        if (getHours(date) < 5) return false;
+
         if (start) {
           if (isBefore(date, start)) return false;
 

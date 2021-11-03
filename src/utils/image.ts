@@ -28,7 +28,7 @@ export const getBase64 = (file: File): Promise<string> =>
 export function calculateScale(scale: number, delta: number): number {
   const zoomFactor = Math.max(Math.abs(delta) / 1000, 0.1);
   const nextScale = delta > 0 ? scale - zoomFactor : scale + zoomFactor;
-  const clamped = Math.min(10, Math.max(1, nextScale));
+  const clamped = Math.min(10, Math.max(0.5, nextScale));
 
   return clamped;
 }

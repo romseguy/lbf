@@ -39,7 +39,7 @@ const IndexPage = (props: { session?: Session }) => {
   );
 
   return (
-    <Layout {...props}>
+    <Layout pageTitle="Événements" {...props}>
       {true ? (
         <>
           {false && (

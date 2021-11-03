@@ -8,25 +8,26 @@ import {
   SettingsIcon
 } from "@chakra-ui/icons";
 import {
-  Box,
-  Text,
-  Flex,
-  Heading,
-  Icon,
-  Grid,
   Alert,
   AlertIcon,
-  useToast,
-  Tooltip,
-  Tr,
-  Td,
+  Box,
+  Flex,
+  Heading,
+  Grid,
+  Icon,
+  IconButton,
   Table,
   Tbody,
+  Tr,
+  Td,
   Tag,
-  useColorMode,
+  Text,
   TabPanel,
   TabPanels,
-  IconButton
+  Tooltip,
+  VStack,
+  useColorMode,
+  useToast
 } from "@chakra-ui/react";
 import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
 import React, { useEffect, useState } from "react";
@@ -44,6 +45,7 @@ import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useSelector } from "react-redux";
+import { EntityBadge, EventSendForm } from "features/common";
 import {
   useAddSubscriptionMutation,
   useGetSubscriptionQuery
@@ -55,13 +57,13 @@ import {
 } from "features/subscriptions/subscriptionSlice";
 import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
 import { EventAttendingForm } from "./EventAttendingForm";
-import { EventSendForm } from "features/common/forms/EventSendForm";
 import { useGetEventQuery } from "./eventsApi";
 import { EventPageTabs } from "./EventPageTabs";
 import { hasItems } from "utils/array";
 import { selectEventRefetch } from "./eventSlice";
 import { FaMapMarkedAlt, FaGlobeEurope } from "react-icons/fa";
 import { EventTimeline } from "./EventTimeline";
+import { EventInfo } from "./EventInfo";
 
 export type Visibility = {
   isVisible: {
@@ -132,8 +134,6 @@ export const EventPage = ({
   //#endregion
 
   //#region sub
-  const [addSubscription, addSubscriptionMutation] =
-    useAddSubscriptionMutation();
   const subQuery = useGetSubscriptionQuery(userEmail);
   const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
@@ -180,41 +180,59 @@ export const EventPage = ({
   const [showSendForm, setShowSendForm] = useState(false);
   let showAttendingForm = false;
 
-  if (session) {
-    if (!isCreator && isSubscribedToAtLeastOneOrg) showAttendingForm = true;
-  } else {
-    if (event.eventVisibility === Visibility.SUBSCRIBERS) {
-      if (!!event.eventNotified?.find((notified) => notified.email === email))
-        showAttendingForm = true;
+  if (!isConfig && !isEdit) {
+    if (session) {
+      if (isSubscribedToAtLeastOneOrg) showAttendingForm = true;
     } else {
-      showAttendingForm = true;
+      if (event.eventVisibility === Visibility.SUBSCRIBERS) {
+        if (!!event.eventNotified?.find((notified) => notified.email === email))
+          showAttendingForm = true;
+      } else {
+        showAttendingForm = true;
+      }
     }
   }
   //#endregion
 
   return (
     <Layout event={event} isLogin={isLogin} session={props.session}>
-      {isCreator && !isConfig ? (
+      {isCreator && !isConfig && !isEdit && (
         <Button
           colorScheme="teal"
           leftIcon={<SettingsIcon boxSize={6} data-cy="eventSettings" />}
-          onClick={() => setIsConfig(true)}
-          mb={2}
+          onClick={() => {
+            setIsConfig(true);
+          }}
+          mb={5}
         >
-          Paramètres de l'événement
+          Configuration de l'événement
         </Button>
-      ) : isConfig ? (
+      )}
+
+      {isConfig && !isEdit && (
         <Button
-          colorScheme="pink"
+          colorScheme="teal"
           leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
-          mb={2}
         >
           Revenir à la page de l'événement
         </Button>
-      ) : null}
+      )}
 
-      {!subQuery.isLoading && !isConfig && (
+      {!isConfig && isEdit && (
+        <Button
+          colorScheme="teal"
+          leftIcon={<ArrowBackIcon boxSize={6} />}
+          onClick={() => {
+            setIsConfig(true);
+            setIsEdit(false);
+          }}
+        >
+          Revenir à la configuration de l'événement
+        </Button>
+      )}
+
+      {!isConfig && !isEdit && !subQuery.isLoading && (
         <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
           {isFollowed && (
             <Box mr={3} mt={3}>
@@ -268,25 +286,34 @@ export const EventPage = ({
         </Alert>
       )}
 
-      {event.eventVisibility === Visibility.SUBSCRIBERS && !isConfig && (
-        <Alert
-          status={isSubscribedToAtLeastOneOrg ? "success" : "warning"}
-          mb={3}
-        >
-          <AlertIcon />
-          <Box>
-            <Text as="h3">
-              Cet événement est reservé aux adhérents des organisations
-              suivantes :{" "}
-              {event.eventOrgs.map((org) => (
-                <Link key={org._id} href={org.orgUrl} shallow>
-                  <Tag mx={1}>{org.orgName}</Tag>
-                </Link>
-              ))}
-            </Text>
-          </Box>
-        </Alert>
-      )}
+      {event.eventVisibility === Visibility.SUBSCRIBERS &&
+        !isConfig &&
+        !isEdit &&
+        !isSubscribedToAtLeastOneOrg && (
+          <Alert status="warning" mb={3}>
+            <AlertIcon />
+            <Box>
+              <Text as="h3">
+                Cet événement est réservé aux adhérents des organisations
+                suivantes :
+                {event.eventOrgs.map((org) => (
+                  <EntityBadge
+                    key={org._id}
+                    org={org}
+                    ml={3}
+                    mb={1}
+                    p={1}
+                    onClick={() => {
+                      router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
+                        shallow: true
+                      });
+                    }}
+                  />
+                ))}
+              </Text>
+            </Box>
+          </Alert>
+        )}
 
       {showAttendingForm && (
         <EventAttendingForm
@@ -297,7 +324,7 @@ export const EventPage = ({
         />
       )}
 
-      {!isConfig && (
+      {!isConfig && !isEdit && (
         <EventPageTabs isCreator={isCreator}>
           <TabPanels>
             <TabPanel aria-hidden>
@@ -341,7 +368,6 @@ export const EventPage = ({
                           ml={3}
                           _hover={{ color: "green" }}
                           onClick={() => {
-                            setIsConfig(true);
                             setIsEdit(true);
                           }}
                         />
@@ -361,7 +387,6 @@ export const EventPage = ({
                       ) : isCreator ? (
                         <Link
                           onClick={() => {
-                            setIsConfig(true);
                             setIsEdit(true);
                           }}
                           variant="underline"
@@ -423,7 +448,6 @@ export const EventPage = ({
                             <Link
                               onClick={() => {
                                 setIsEdit(true);
-                                setIsConfig(true);
                               }}
                               variant="underline"
                             >
@@ -432,67 +456,7 @@ export const EventPage = ({
                             </Link>
                           )}
 
-                        {event.eventAddress && (
-                          <Flex flexDirection="column">
-                            {event.eventAddress.map(({ address }, index) => (
-                              <Flex
-                                key={`address-${index}`}
-                                alignItems="center"
-                              >
-                                <Icon as={FaMapMarkedAlt} mr={3} />
-                                {address}
-                              </Flex>
-                            ))}
-                          </Flex>
-                        )}
-
-                        {event.eventEmail && (
-                          <Flex flexDirection="column">
-                            {event.eventEmail?.map(({ email }, index) => (
-                              <Flex key={`phone-${index}`} alignItems="center">
-                                <AtSignIcon mr={3} />
-                                <Link
-                                  variant="underline"
-                                  href={`mailto:${email}`}
-                                >
-                                  {email}
-                                </Link>
-                              </Flex>
-                            ))}
-                          </Flex>
-                        )}
-
-                        {event.eventPhone && (
-                          <Flex flexDirection="column">
-                            {event.eventPhone?.map(({ phone }, index) => (
-                              <Flex key={`phone-${index}`} alignItems="center">
-                                <PhoneIcon mr={3} />
-                                <Link
-                                  variant="underline"
-                                  href={`tel:+33${phone.substr(
-                                    1,
-                                    phone.length
-                                  )}`}
-                                >
-                                  {phone}
-                                </Link>
-                              </Flex>
-                            ))}
-                          </Flex>
-                        )}
-
-                        {event.eventWeb && (
-                          <Flex flexDirection="column">
-                            {event.eventWeb?.map(({ url, prefix }, index) => (
-                              <Flex key={`phone-${index}`} alignItems="center">
-                                <Icon as={FaGlobeEurope} mr={3} />
-                                <Link variant="underline" href={prefix + url}>
-                                  {url}
-                                </Link>
-                              </Flex>
-                            ))}
-                          </Flex>
-                        )}
+                        <EventInfo event={event} />
                       </Box>
                     </GridItem>
                   </Grid>
@@ -516,22 +480,24 @@ export const EventPage = ({
                     >
                       <Box p={5}>
                         {hasItems(event.eventOrgs) ? (
-                          event.eventOrgs.map((eventOrg, index) => (
-                            <Flex key={eventOrg._id} mb={2} alignItems="center">
-                              <Icon as={IoIosPeople} mr={2} />
-                              <Link
-                                data-cy={`eventCreatedBy-${eventOrg.orgName}`}
-                                variant="underline"
-                                href={`/${eventOrg.orgUrl}`}
-                                shallow
-                              >
-                                {`${eventOrg.orgName}`}
-                                {/* {`${eventOrg.orgName}${
-                            index < event.eventOrgs!.length - 1 ? ", " : ""
-                          }`} */}
-                              </Link>
-                            </Flex>
-                          ))
+                          <VStack alignItems="flex-start" spacing={2}>
+                            {event.eventOrgs.map((eventOrg) => (
+                              <EntityBadge
+                                key={eventOrg._id}
+                                org={eventOrg}
+                                p={1}
+                                onClick={() => {
+                                  router.push(
+                                    `/${eventOrg.orgUrl}`,
+                                    `/${eventOrg.orgUrl}`,
+                                    {
+                                      shallow: true
+                                    }
+                                  );
+                                }}
+                              />
+                            ))}
+                          </VStack>
                         ) : (
                           <Flex alignItems="center">
                             <Icon as={AtSignIcon} mr={2} />
@@ -633,7 +599,7 @@ export const EventPage = ({
         </EventPageTabs>
       )}
 
-      {session && isConfig && (
+      {session && (
         <EventConfigPanel
           session={session}
           event={event}

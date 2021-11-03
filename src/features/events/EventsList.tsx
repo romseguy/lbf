@@ -9,7 +9,8 @@ import {
   useColorMode,
   Alert,
   AlertIcon,
-  Tag
+  Tag,
+  Flex
 } from "@chakra-ui/react";
 import {
   addHours,
@@ -26,7 +27,9 @@ import {
   getHours,
   getMinutes,
   setHours,
-  setMinutes
+  setMinutes,
+  getSeconds,
+  setSeconds
 } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
@@ -54,6 +57,11 @@ import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { EventsListToggle } from "./EventsListToggle";
 import { EventCategory } from "./EventCategory";
 import { EventsListCategories } from "./EventsListCategories";
+import { hasItems } from "utils/array";
+import { moveDateToCurrentWeek } from "utils/date";
+import { EventInfo } from "./EventInfo";
+import { EventTimeline } from "./EventTimeline";
+import { breakpoints } from "theme/theme";
 
 export const EventsList = ({
   eventsQuery,
@@ -63,6 +71,7 @@ export const EventsList = ({
   isSubscribed,
   isLogin,
   setIsLogin,
+  setTitle,
   ...props
 }: {
   events: IEvent[];
@@ -73,6 +82,7 @@ export const EventsList = ({
   isSubscribed?: boolean;
   isLogin?: number;
   setIsLogin?: (isLogin: number) => void;
+  setTitle?: (title?: string) => void;
 }) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
@@ -112,6 +122,13 @@ export const EventsList = ({
     : 0;
   const [showPreviousEvents, setShowPreviousEvents] = useState(false);
   const [showNextEvents, setShowNextEvents] = useState(false);
+  useEffect(() => {
+    if (setTitle) {
+      if (showPreviousEvents) setTitle("Événements précédents");
+      else if (showNextEvents) setTitle("Événements suivants");
+      else setTitle();
+    }
+  }, [showPreviousEvents, showNextEvents]);
   //#endregion
 
   //#region org
@@ -173,124 +190,84 @@ export const EventsList = ({
         const start = parseISO(event.eventMinDate);
         const end = parseISO(event.eventMaxDate);
 
-        if (isBefore(start, today)) {
-          previousEvents.push({
-            ...event,
-            eventMinDate: start,
-            eventMaxDate: end
-          });
-
-          if (event.repeat === 99) {
-            const eventMinDate = setMinutes(
-              setHours(setDay(today, getDay(start)), getHours(start)),
-              getMinutes(start)
-            );
-            const eventMaxDate = setMinutes(
-              setHours(setDay(today, getDay(end)), getHours(end)),
-              getMinutes(end)
-            );
-
-            currentEvents.push({
-              ...event,
-              eventMinDate,
-              eventMaxDate
-            });
-
-            if (event.otherDays) {
-              for (const otherDay of event.otherDays) {
-                const start = otherDay.startDate
-                  ? setMinutes(
-                      setHours(
-                        setDay(today, getDay(parseISO(otherDay.startDate))),
-                        getHours(parseISO(otherDay.startDate))
-                      ),
-                      getMinutes(parseISO(otherDay.startDate))
-                    )
-                  : setDay(eventMinDate, otherDay.dayNumber + 1);
-                const end = otherDay.endTime
-                  ? setMinutes(
-                      setHours(
-                        setDay(today, getDay(parseISO(otherDay.endTime))),
-                        getHours(parseISO(otherDay.endTime))
-                      ),
-                      getMinutes(parseISO(otherDay.endTime))
-                    )
-                  : setDay(eventMaxDate, otherDay.dayNumber + 1);
-
-                currentEvents.push({
-                  ...event,
-                  eventMinDate: start,
-                  eventMaxDate: end
-                });
-              }
-            }
-          }
-        } else {
-          if (isBefore(start, addWeeks(today, 1))) {
-            currentEvents.push({
+        if (!event.repeat) {
+          if (isBefore(start, today)) {
+            console.log("previousEvents.push", event.eventName);
+            previousEvents.push({
               ...event,
               eventMinDate: start,
               eventMaxDate: end
             });
           } else {
-            nextEvents.push({
-              ...event,
-              eventMinDate: start,
-              eventMaxDate: end
-            });
-          }
-        }
-
-        if (event.otherDays) {
-          for (const otherDay of event.otherDays) {
-            const eventMinDate = otherDay.startDate
-              ? parseISO(otherDay.startDate)
-              : setDay(start, otherDay.dayNumber + 1);
-            const eventMaxDate = otherDay.endTime
-              ? parseISO(otherDay.endTime)
-              : setDay(end, otherDay.dayNumber + 1);
-
-            if (isBefore(eventMinDate, today)) {
-              previousEvents.push({
+            if (isBefore(start, addWeeks(today, 1))) {
+              console.log("currentEvents.push", event.eventName);
+              currentEvents.push({
                 ...event,
-                eventMinDate,
-                eventMaxDate,
-                repeat: otherDay.dayNumber + 1
+                eventMinDate: start,
+                eventMaxDate: end
               });
             } else {
-              if (isBefore(eventMinDate, addWeeks(today, 1))) {
-                currentEvents.push({
+              console.log("nextEvents.push", event.eventName);
+              nextEvents.push({
+                ...event,
+                eventMinDate: start,
+                eventMaxDate: end
+              });
+            }
+          }
+
+          if (event.otherDays) {
+            for (const otherDay of event.otherDays) {
+              const eventMinDate = otherDay.startDate
+                ? parseISO(otherDay.startDate)
+                : setDay(start, otherDay.dayNumber + 1);
+              const eventMaxDate = otherDay.endTime
+                ? parseISO(otherDay.endTime)
+                : setDay(end, otherDay.dayNumber + 1);
+
+              if (isBefore(eventMinDate, today)) {
+                console.log("previousEvents.otherDay.push", event.eventName);
+                previousEvents.push({
                   ...event,
                   eventMinDate,
-                  eventMaxDate,
-                  repeat: otherDay.dayNumber + 1
+                  eventMaxDate
                 });
               } else {
-                nextEvents.push({
-                  ...event,
-                  eventMinDate,
-                  eventMaxDate,
-                  repeat: otherDay.dayNumber + 1
-                });
+                if (isBefore(eventMinDate, addWeeks(today, 1))) {
+                  console.log("currentEvents.otherDay.push", event.eventName);
+                  currentEvents.push({
+                    ...event,
+                    eventMinDate,
+                    eventMaxDate
+                  });
+                } else {
+                  console.log("nextEvents.otherDay.push", event.eventName);
+                  nextEvents.push({
+                    ...event,
+                    eventMinDate,
+                    eventMaxDate
+                  });
+                }
               }
             }
           }
-        }
-
-        if (event.repeat) {
+        } else {
           if (event.repeat === 99) {
-            const eventMinDate = setMinutes(
-              setHours(
-                setDay(addWeeks(today, 1), getDay(start)),
-                getHours(start)
-              ),
-              getMinutes(start)
+            let eventMinDate = moveDateToCurrentWeek(start);
+            let eventMaxDate = moveDateToCurrentWeek(end);
+
+            if (isBefore(eventMinDate, today)) {
+              eventMinDate = addWeeks(eventMinDate, 1);
+              eventMaxDate = addWeeks(eventMaxDate, 1);
+            }
+
+            console.log(
+              "currentEvents.repeat99.push",
+              event.eventName,
+              eventMinDate,
+              eventMaxDate
             );
-            const eventMaxDate = setMinutes(
-              setHours(setDay(addWeeks(today, 1), getDay(end)), getHours(end)),
-              getMinutes(end)
-            );
-            nextEvents.push({
+            currentEvents.push({
               ...event,
               eventMinDate,
               eventMaxDate
@@ -298,29 +275,27 @@ export const EventsList = ({
 
             if (event.otherDays) {
               for (const otherDay of event.otherDays) {
-                const startDate = otherDay.startDate
-                  ? parseISO(otherDay.startDate)
-                  : setDay(start, otherDay.dayNumber + 1);
-                const endDate = otherDay.endTime
-                  ? parseISO(otherDay.endTime)
-                  : setDay(end, otherDay.dayNumber + 1);
-
-                const eventMinDate = setMinutes(
-                  setHours(
-                    setDay(addWeeks(today, 1), getDay(startDate)),
-                    getHours(startDate)
-                  ),
-                  getMinutes(startDate)
+                let eventMinDate = moveDateToCurrentWeek(
+                  otherDay.startDate
+                    ? parseISO(otherDay.startDate)
+                    : setDay(start, otherDay.dayNumber + 1)
                 );
-                const eventMaxDate = setMinutes(
-                  setHours(
-                    setDay(addWeeks(today, 1), getDay(endDate)),
-                    getHours(endDate)
-                  ),
-                  getMinutes(endDate)
+                let eventMaxDate = moveDateToCurrentWeek(
+                  otherDay.endTime
+                    ? parseISO(otherDay.endTime)
+                    : setDay(end, otherDay.dayNumber + 1)
                 );
-
-                nextEvents.push({
+                if (isBefore(eventMinDate, today)) {
+                  eventMinDate = addWeeks(eventMinDate, 1);
+                  eventMaxDate = addWeeks(eventMaxDate, 1);
+                }
+                console.log(
+                  "currentEvents.repeat99.otherDay.push",
+                  event.eventName,
+                  eventMinDate,
+                  eventMaxDate
+                );
+                currentEvents.push({
                   ...event,
                   eventMinDate,
                   eventMaxDate
@@ -334,6 +309,7 @@ export const EventsList = ({
               const eventMaxDate = addWeeks(end, i);
 
               if (isBefore(today, eventMinDate)) {
+                console.log(`previousEvents.repeat${i}.push`, event.eventName);
                 previousEvents.push({
                   ...event,
                   eventMinDate,
@@ -341,6 +317,7 @@ export const EventsList = ({
                 });
               } else {
                 if (isBefore(addWeeks(today, 1), eventMinDate)) {
+                  console.log(`currentEvents.repeat${i}.push`, event.eventName);
                   currentEvents.push({
                     ...event,
                     eventMinDate,
@@ -365,6 +342,10 @@ export const EventsList = ({
                     : setDay(eventMaxDate, otherDay.dayNumber + 1);
 
                   if (isBefore(today, eventMinDate)) {
+                    console.log(
+                      `previousEvents.repeat${i}.otherDay.push`,
+                      event.eventName
+                    );
                     previousEvents.push({
                       ...event,
                       eventMinDate: start,
@@ -373,6 +354,10 @@ export const EventsList = ({
                     });
                   } else {
                     if (isBefore(addWeeks(today, 1), eventMinDate)) {
+                      console.log(
+                        `currentEvents.repeat${i}.otherDay.push`,
+                        event.eventName
+                      );
                       currentEvents.push({
                         ...event,
                         eventMinDate: start,
@@ -443,7 +428,7 @@ export const EventsList = ({
                   <Grid
                     key={"event-" + index}
                     templateRows="auto auto 4fr auto"
-                    templateColumns="1fr 6fr minmax(75px, 1fr)"
+                    templateColumns="auto 6fr minmax(75px, 1fr)"
                   >
                     <>
                       {addGridHeader ? (
@@ -688,9 +673,6 @@ export const EventsList = ({
 
       {eventToShow && (
         <DescriptionModal
-          onClose={() => {
-            setEventToShow(null);
-          }}
           header={
             <Link
               href={`/${eventToShow.eventUrl}`}
@@ -700,20 +682,30 @@ export const EventsList = ({
               {eventToShow.eventName}
             </Link>
           }
+          onClose={() => {
+            setEventToShow(null);
+          }}
         >
-          {eventToShow.eventDescription &&
-          eventToShow.eventDescription.length > 0 &&
-          eventToShow.eventDescription !== "<p><br></p>" ? (
-            <div className="ql-editor">
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(eventToShow.eventDescription)
-                }}
-              />
-            </div>
-          ) : (
-            <Text fontStyle="italic">Aucune description.</Text>
-          )}
+          <>
+            <Flex flexDirection="row" flexWrap="wrap" mt={-3} mb={3}>
+              <EventInfo event={eventToShow} flexGrow={1} mt={3} />
+              <EventTimeline event={eventToShow} mt={3} />
+            </Flex>
+
+            {eventToShow.eventDescription &&
+            eventToShow.eventDescription.length > 0 &&
+            eventToShow.eventDescription !== "<p><br></p>" ? (
+              <div className="ql-editor">
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(eventToShow.eventDescription)
+                  }}
+                />
+              </div>
+            ) : (
+              <Text fontStyle="italic">Aucune description.</Text>
+            )}
+          </>
         </DescriptionModal>
       )}
 

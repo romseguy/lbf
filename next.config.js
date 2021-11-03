@@ -4,12 +4,36 @@ const {
   PHASE_DEVELOPMENT_SERVER,
   PHASE_PRODUCTION_BUILD
 } = require("next/constants");
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
-  enabled: process.env.ANALYZE === "true"
-});
 const withCustomBabelConfigFile = require("next-plugin-custom-babel-config");
-//const withPreact = require("next-plugin-preact");
 const withPWA = require("next-pwa");
+//const withPreact = require("next-plugin-preact");
+
+let plugins = [
+  [
+    withPWA,
+    {
+      pwa: {
+        dest: "public",
+        runtimeCaching: require("next-pwa/cache")
+      }
+    },
+    [PHASE_PRODUCTION_BUILD]
+  ],
+  //[withPreact],
+  [
+    withCustomBabelConfigFile,
+    {
+      babelConfigFile: path.resolve("./babel.config.js")
+    }
+  ]
+]
+
+if (process.env.NODE_ENV === "development") {
+  const withBundleAnalyzer = require("@next/bundle-analyzer")({
+    enabled: process.env.ANALYZE === "true"
+  });
+  plugins.unshift([withBundleAnalyzer])
+}
 
 const nextConfig = {
   i18n: {
@@ -26,25 +50,6 @@ const nextConfig = {
 };
 
 module.exports = withPlugins(
-  [
-    [withBundleAnalyzer],
-    [
-      withPWA,
-      {
-        pwa: {
-          dest: "public",
-          runtimeCaching: require("next-pwa/cache")
-        }
-      },
-      [PHASE_PRODUCTION_BUILD]
-    ],
-    //[withPreact],
-    [
-      withCustomBabelConfigFile,
-      {
-        babelConfigFile: path.resolve("./babel.config.js")
-      }
-    ]
-  ],
+  plugins,
   nextConfig
 );

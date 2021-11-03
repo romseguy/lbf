@@ -3,7 +3,7 @@ import axios from "axios";
 import Quill, { DeltaOperation } from "quill";
 import { QuillDeltaToHtmlConverter } from "quill-delta-to-html";
 import { Session } from "next-auth";
-import { useCallback, useEffect, RefObject } from "react";
+import { useCallback, useEffect, RefObject, useState } from "react";
 import { useQuill } from "react-quilljs";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -45,7 +45,6 @@ export const RTEditor = ({
   session,
   onChange,
   readOnly,
-  placeholder,
   ...props
 }: {
   defaultValue?: string;
@@ -61,6 +60,11 @@ export const RTEditor = ({
 }) => {
   const toast = useToast({ position: "top" });
   const shortId = getUniqueId();
+
+  const [placeholder, setPlaceholder] = useState(props.placeholder);
+  useEffect(() => {
+    if (placeholder !== props.placeholder) setPlaceholder(placeholder);
+  }, [props.placeholder]);
 
   const modules = (id: string) => ({
     history: {

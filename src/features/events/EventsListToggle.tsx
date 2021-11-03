@@ -55,7 +55,7 @@ export const EventsListToggle = ({
                   setShowPreviousEvents(false);
                 }}
               >
-                Revenir aux événements de cette semaine
+                Revenir aux événements des 7 prochains jours
               </Button>
             )}
           </>
@@ -91,7 +91,7 @@ export const EventsListToggle = ({
                   setShowNextEvents(!showNextEvents);
                 }}
               >
-                Revenir aux événements de cette semaine
+                Revenir aux événements des 7 prochains jours
               </Button>
             )}
           </>

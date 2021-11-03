@@ -2,15 +2,15 @@ import {
   CheckCircleIcon,
   DeleteIcon,
   EmailIcon,
+  InfoIcon,
   UpDownIcon,
   WarningIcon
 } from "@chakra-ui/icons";
 import {
-  Box,
+  Button,
   Icon,
   Text,
   Grid,
-  Heading,
   Tooltip,
   Flex,
   IconButton,
@@ -20,7 +20,7 @@ import { format, formatISO, getMinutes, getDayOfYear, getDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Session } from "next-auth";
 import React from "react";
-import { FaGlobeEurope, FaRetweet } from "react-icons/fa";
+import { FaGlobeEurope, FaRetweet, FaSign } from "react-icons/fa";
 import { IoIosPeople, IoIosPerson, IoMdPerson } from "react-icons/io";
 import { css } from "twin.macro";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
@@ -103,10 +103,10 @@ export const EventsListItem = ({
         light={{ bg: "orange.100" }}
         dark={{ bg: "gray.500" }}
         borderBottomLeftRadius={index === length - 1 ? "lg" : undefined}
+        minWidth="60px"
       >
-        <Box pt={2} pl={2} pr={2}>
+        <Flex flexDirection="column" alignItems="center" pt={1}>
           <Text
-            pb={1}
             title={
               process.env.NODE_ENV === "development"
                 ? `${event.repeat}`
@@ -117,15 +117,15 @@ export const EventsListItem = ({
               locale: fr
             })}
           </Text>
-          <Icon as={UpDownIcon} />
-          <Text pt={2}>
+          <Icon as={UpDownIcon} my={3} />
+          <Text>
             {getDay(minDate) !== getDay(maxDate) &&
               format(maxDate, `EEEE`, { locale: fr })}{" "}
             {format(maxDate, `H'h'${getMinutes(maxDate) !== 0 ? "mm" : ""}`, {
               locale: fr
             })}
           </Text>
-        </Box>
+        </Flex>
       </GridItem>
 
       <GridItem
@@ -133,7 +133,6 @@ export const EventsListItem = ({
         dark={{ bg: "gray.700" }}
         alignItems="center"
       >
-        {/* <Flex pl={3} alignItems="center"> */}
         <Grid
           alignItems="center"
           css={css`
@@ -227,6 +226,12 @@ export const EventsListItem = ({
                       : Category[event.eventCategory].bgColor
                   }
                   mr={1}
+                  css={css`
+                    font-size: 0.8rem;
+                    @media (min-width: 730px) {
+                      font-size: 0.9rem;
+                    }
+                  `}
                 >
                   {Category[event.eventCategory].label}
                 </Tag>
@@ -238,9 +243,12 @@ export const EventsListItem = ({
             <Link
               className="rainbow-text"
               css={css`
-                letter-spacing: 0.1em;
+                font-size: 1.1rem;
+                @media (min-width: 730px) {
+                  font-size: 1.5rem;
+                  letter-spacing: 0.1em;
+                }
               `}
-              mr={1}
               size="larger"
               href={`/${encodeURIComponent(event.eventUrl)}`}
               shallow
@@ -348,7 +356,6 @@ export const EventsListItem = ({
             )}
           </GridItem>
         </Grid>
-        {/* </Flex> */}
       </GridItem>
 
       <GridItem
@@ -357,15 +364,20 @@ export const EventsListItem = ({
         dark={{ bg: "gray.500" }}
         borderBottomRightRadius={index === length - 1 ? "lg" : undefined}
       >
-        <Box pt={2} pl={2} pr={2}>
-          <Text>{event.eventCity || "À définir"}</Text>
-        </Box>
+        <Text align="center" pt={1}>
+          {event.eventCity || "À définir"}
+        </Text>
       </GridItem>
 
-      <GridItem pl={3} pb={3} light={{ bg: "white" }} dark={{ bg: "gray.700" }}>
+      <GridItem pl={3} light={{ bg: "white" }} dark={{ bg: "gray.700" }}>
         {event.eventDescription && event.eventDescription.length > 0 ? (
-          <Link
-            variant="underline"
+          <Button
+            colorScheme="teal"
+            leftIcon={<InfoIcon />}
+            height="auto"
+            p={1}
+            fontSize="small"
+            fontWeight="normal"
             onClick={() =>
               setEventToShow({
                 ...event,
@@ -375,7 +387,7 @@ export const EventsListItem = ({
             }
           >
             Voir l'affiche de l'événement
-          </Link>
+          </Button>
         ) : (
           <Text fontSize="smaller">Aucune affiche disponible.</Text>
         )}
@@ -386,7 +398,7 @@ export const EventsListItem = ({
           light={{ bg: "white" }}
           dark={{ bg: "gray.700" }}
           pl={3}
-          pb={3}
+          py={2}
         >
           {hasItems(event.eventOrgs)
             ? event.eventOrgs.map((eventOrg: any) => {

@@ -1,20 +1,27 @@
+import useScript, { ScriptStatus } from "@charlietango/use-script";
+import { useState } from "react";
+import { renderDonationButton } from "utils/paypal";
+
 export const PaypalButton = () => {
+  const [rendered, setRendered] = useState(false);
+  const [ready, status] = useScript(
+    "https://www.paypalobjects.com/donate/sdk/donate-sdk.js"
+  );
+
+  if (status === ScriptStatus.ERROR) {
+    if (process.env.NODE_ENV === "production")
+      console.error("Failed to load Paypal API");
+    return null;
+  }
+
+  if (ready && !rendered) {
+    renderDonationButton();
+    setRendered(true);
+  }
+
   return (
-    <form action="https://www.paypal.com/donate" method="post" target="_top">
-      <input type="hidden" name="hosted_button_id" value="Z59K3UWBJDUS8" />
-      <input
-        type="image"
-        src="https://www.paypalobjects.com/fr_FR/FR/i/btn/btn_donate_LG.gif"
-        name="submit"
-        title="PayPal - The safer, easier way to pay online!"
-        alt="Donate with PayPal button"
-      />
-      <img
-        alt=""
-        src="https://www.paypal.com/fr_FR/i/scr/pixel.gif"
-        width="1"
-        height="1"
-      />
-    </form>
+    <div id="donate-button-container">
+      <div id="donate-button"></div>
+    </div>
   );
 };

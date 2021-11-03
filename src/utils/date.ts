@@ -2,8 +2,16 @@ import {
   compareDesc,
   format,
   formatDuration as oFormatDuration,
+  getDay,
+  getHours,
+  getMinutes,
+  getSeconds,
   intervalToDuration,
-  parseISO
+  parseISO,
+  setDay,
+  setHours,
+  setMinutes,
+  setSeconds
 } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -94,4 +102,15 @@ export const timeAgo = (date?: string | Date, isShort?: boolean) => {
   });
 
   return { timeAgo: formatted === "" ? "1m" : formatted, fullDate };
+};
+
+export const moveDateToCurrentWeek = (date: Date) => {
+  const today = new Date();
+  return setSeconds(
+    setMinutes(
+      setHours(setDay(today, getDay(date)), getHours(date)),
+      getMinutes(date)
+    ),
+    getSeconds(date)
+  );
 };

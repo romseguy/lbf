@@ -113,7 +113,6 @@ export const OrgForm = withGoogleApi({
     const defaultOrgType = props.org?.orgType || props.orgType;
     const orgType = getValues("orgType");
     const orgTypeLabel = orgTypeFull(orgType) || "de l'organisation";
-    console.log(orgTypeLabel);
 
     const orgAddress = watch("orgAddress");
     const orgEmail = watch("orgEmail");
@@ -504,12 +503,7 @@ export const OrgForm = withGoogleApi({
         />
 
         <Flex justifyContent="space-between">
-          <Button
-            onClick={props.onCancel}
-            // dark={{ bg: "gray.700", _hover: { bg: "gray.600" } }}
-          >
-            Annuler
-          </Button>
+          <Button onClick={props.onCancel}>Annuler</Button>
 
           <Button
             colorScheme="green"

@@ -1,6 +1,6 @@
-import { Text, useDisclosure } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text, useDisclosure } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaRegMap } from "react-icons/fa";
 import { Button, IconFooter, Link } from "features/common";
 import { MapModal } from "features/modals/MapModal";
@@ -29,25 +29,42 @@ export const EventsPage = ({}: {}) => {
     onClose: closeMapModal
   } = useDisclosure({ defaultIsOpen: false });
 
+  const [title = "Événements des 7 prochains jours", setTitle] = useState<
+    string | undefined
+  >();
+
   return (
     <>
-      <Button
-        colorScheme="teal"
-        isLoading={eventsQuery.isLoading}
-        isDisabled={!events || !events.length}
-        leftIcon={<FaRegMap />}
-        onClick={openMapModal}
-        mb={5}
-      >
-        Carte des événements
-      </Button>
+      <Flex flexWrap="wrap" mt={-3}>
+        <Box flexGrow={1} mt={3}>
+          <Heading className="rainbow-text" fontFamily="DancingScript">
+            {title}
+          </Heading>
+        </Box>
+        <Box mt={3}>
+          <Button
+            colorScheme="teal"
+            isLoading={eventsQuery.isLoading}
+            isDisabled={!events || !events.length}
+            leftIcon={<FaRegMap />}
+            onClick={openMapModal}
+            mb={3}
+          >
+            Carte des événements
+          </Button>
+        </Box>
+      </Flex>
 
       {eventsQuery.isLoading || eventsQuery.isFetching ? (
         <Text>Chargement des événements publics...</Text>
       ) : (
         events && (
           <div>
-            <EventsList events={events} eventsQuery={eventsQuery} />
+            <EventsList
+              events={events}
+              eventsQuery={eventsQuery}
+              setTitle={setTitle}
+            />
             <IconFooter />
           </div>
         )

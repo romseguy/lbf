@@ -1490,6 +1490,18 @@
   dependencies:
     "@chakra-ui/utils" "1.8.1"
 
+"@charlietango/use-client-hydrated@^1.9.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@charlietango/use-client-hydrated/-/use-client-hydrated-1.9.0.tgz#e348536f1a3a8fbd66f77e6ac97018a5f5e456dd"
+  integrity sha512-QLM2B+B9jTl9UGZ03IMHC6G7JZRCD71G8iWG92i2WUTnYylsYjccfECIxAR+KcCVU6te8w0DxcHx/n6cMNDbpA==
+
+"@charlietango/use-script@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@charlietango/use-script/-/use-script-2.2.0.tgz#6aaa06e5f245e295048dc79bbc43f5141c2c804a"
+  integrity sha512-TVmovh1l5Ye0HfXwvbcJdpxdR6TdjaeVfJCDDv4xD+/1u6+cuIDnEWCjT4e69Jim3nqNsGXbw4Ds8+y0nxBM6g==
+  dependencies:
+    "@charlietango/use-client-hydrated" "^1.9.0"
+
 "@cypress/request@^2.88.5":
   version "2.88.5"
   resolved "https://registry.yarnpkg.com/@cypress/request/-/request-2.88.5.tgz#8d7ecd17b53a849cfd5ab06d5abe7d84976375d7"

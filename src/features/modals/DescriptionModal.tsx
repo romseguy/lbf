@@ -31,8 +31,8 @@ export const DescriptionModal = ({
       closeOnOverlayClick={closeOnOverlayClick}
     >
       <ModalOverlay>
-        <ModalContent>
-          <ModalHeader px={3} pt={1}>
+        <ModalContent maxWidth="xl">
+          <ModalHeader px={3} pt={1} pb={0}>
             {props.header}
           </ModalHeader>
           <ModalCloseButton />

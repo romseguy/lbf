@@ -71,7 +71,7 @@ export const Header = ({
   //#endregion
 
   const HeaderTitle = () => (
-    <>
+    <Flex alignItems="center" ml={logo ? 5 : undefined}>
       {icon && (
         <Icon
           as={icon}
@@ -116,7 +116,7 @@ export const Header = ({
           </Heading>
         </Link>
       </Box>
-    </>
+    </Flex>
   );
 
   const HeaderEventCategory = () => {
@@ -145,7 +145,7 @@ export const Header = ({
       color={isDark ? "white" : "black"}
       cursor={banner ? "pointer" : "default"}
       height={banner ? banner.height : undefined}
-      p={!banner ? 3 : undefined}
+      p={!banner && !logo ? 3 : undefined}
       css={css`
         ${isDark ? tw`bg-gray-800` : tw`bg-white`}
         background-image: ${bgImage};
@@ -169,7 +169,7 @@ export const Header = ({
           >
             <Box
               css={css`
-                margin: ${!banner ? "12px 0 12px 12px" : 0};
+                margin: ${!banner ? "12px 0 0 0" : 0};
                 height: ${logoBgSize};
                 width: ${logoBgSize};
                 background-image: ${logoBgImage};

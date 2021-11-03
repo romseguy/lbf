@@ -31,11 +31,11 @@ export const ForwardModal = (props: {
     >
       <ModalOverlay>
         <ModalContent>
-          <ModalHeader display="flex" alignItems="center">
+          <ModalHeader display="flex" alignItems="center" pb={3}>
             <CalendarIcon mr={3} /> {props.event.eventName}
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody pt={0}>
             <EventForwardForm {...props} />
           </ModalBody>
         </ModalContent>

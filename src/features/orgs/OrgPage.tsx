@@ -56,12 +56,12 @@ import {
 import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { Visibility as EventVisibility } from "models/Event";
-import { IOrg, orgTypeFull, orgTypeFull2, OrgTypes } from "models/Org";
+import { IOrg, orgTypeFull, orgTypeFull4, OrgTypes } from "models/Org";
 import { hasItems } from "utils/array";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { selectOrgRefetch } from "./orgSlice";
-import { useGetOrgQuery } from "./orgsApi";
+import { useGetOrgQuery, useGetOrgsQuery } from "./orgsApi";
 import { SizeMap } from "features/map/Map";
 import { MapContainer } from "features/map/MapContainer";
 
@@ -103,6 +103,7 @@ export const OrgPage = ({
     }
   );
   const org = orgQuery.data || props.org;
+  const [description, setDescription] = useState<string | undefined>();
   const refetchOrg = useSelector(selectOrgRefetch);
   useEffect(() => {
     if (refetchOrg !== cachedRefetchOrg) {
@@ -123,6 +124,37 @@ export const OrgPage = ({
     orgQuery.refetch();
     setIsEdit(false);
   }, [router.asPath]);
+  useEffect(() => {
+    if (!description && org) {
+      if (org.orgDescription && org.orgDescription.length > 0) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(org.orgDescription, "text/html");
+
+        //@ts-expect-error
+        const links = doc.firstChild.getElementsByTagName("a");
+        for (let i = 0; i < links.length; i++) {
+          if (links[i].innerText.includes("http"))
+            links[i].classList.add("clip");
+          links[i].setAttribute("title", links[i].innerText);
+        }
+        setDescription(doc.body.innerHTML);
+      }
+    }
+  }, [org]);
+
+  const { networks } = useGetOrgsQuery(
+    { populate: "orgs" },
+    {
+      selectFromResult: (query) => ({
+        networks: query.data?.filter(
+          (o) =>
+            o.orgName !== org.orgName &&
+            o.orgType === OrgTypes.NETWORK &&
+            !!o.orgs?.find(({ orgName }) => orgName === org.orgName)
+        )
+      })
+    }
+  );
 
   const orgCreatedByUserName =
     typeof org.createdBy === "object"
@@ -162,7 +194,6 @@ export const OrgPage = ({
   //#endregion
 
   //#region local state
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -180,27 +211,45 @@ export const OrgPage = ({
 
   return (
     <Layout org={org} isLogin={isLogin} session={props.session}>
-      {isCreator && !isConfig ? (
+      {isCreator && !isConfig && !isEdit && (
         <Button
           colorScheme="teal"
           leftIcon={<SettingsIcon boxSize={6} data-cy="orgSettings" />}
-          onClick={() => setIsConfig(true)}
+          onClick={() => {
+            setIsConfig(true);
+          }}
           mb={5}
         >
-          Paramètres {orgTypeFull(org.orgType)}
+          Configuration {orgTypeFull(org.orgType)}
         </Button>
-      ) : isConfig ? (
+      )}
+
+      {isConfig && !isEdit && (
         <Button
-          colorScheme="pink"
+          colorScheme="teal"
           leftIcon={<ArrowBackIcon boxSize={6} />}
-          onClick={() => setIsConfig(false)}
-          mb={5}
+          onClick={() => {
+            setIsConfig(false);
+          }}
         >
           {`Revenir à la page ${orgTypeFull(org.orgType)}`}
         </Button>
-      ) : null}
+      )}
 
-      {!subQuery.isLoading && !isConfig && (
+      {!isConfig && isEdit && (
+        <Button
+          colorScheme="teal"
+          leftIcon={<ArrowBackIcon boxSize={6} />}
+          onClick={() => {
+            setIsConfig(true);
+            setIsEdit(false);
+          }}
+        >
+          {`Revenir à la configuration ${orgTypeFull(org.orgType)}`}
+        </Button>
+      )}
+
+      {!isConfig && !isEdit && !subQuery.isLoading && (
         <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
           {isFollowed && (
             <Box mr={3} mt={3}>
@@ -254,7 +303,7 @@ export const OrgPage = ({
         </Alert>
       )}
 
-      {!isConfig && (
+      {!isConfig && !isEdit && (
         <OrgPageTabs>
           <TabPanels>
             <TabPanel aria-hidden>
@@ -293,7 +342,6 @@ export const OrgPage = ({
                             <Link
                               onClick={() => {
                                 setIsEdit(true);
-                                setIsConfig(true);
                               }}
                               variant="underline"
                             >
@@ -324,6 +372,16 @@ export const OrgPage = ({
                                 <Link
                                   variant="underline"
                                   href={`mailto:${email}`}
+                                  css={css`
+                                    @media (min-width: 685px) and (max-width: 900px) {
+                                      text-overflow: ellipsis;
+                                      display: inline-block;
+                                      white-space: nowrap;
+                                      overflow: hidden;
+                                      vertical-align: top;
+                                      max-width: 100px;
+                                    }
+                                  `}
                                 >
                                   {email}
                                 </Link>
@@ -361,6 +419,16 @@ export const OrgPage = ({
                                   href={
                                     !url.includes("http") ? prefix + url : url
                                   }
+                                  css={css`
+                                    @media (min-width: 685px) and (max-width: 900px) {
+                                      text-overflow: ellipsis;
+                                      display: inline-block;
+                                      white-space: nowrap;
+                                      overflow: hidden;
+                                      vertical-align: top;
+                                      max-width: 100px;
+                                    }
+                                  `}
                                 >
                                   {url
                                     .replace(/\/$/, "")
@@ -374,6 +442,40 @@ export const OrgPage = ({
                     </GridItem>
                   </Grid>
                 </GridItem>
+
+                {Array.isArray(networks) && networks.length > 0 && (
+                  <GridItem
+                    light={{ bg: "orange.100" }}
+                    dark={{ bg: "gray.500" }}
+                    borderTopRadius="lg"
+                  >
+                    <Grid templateRows="auto 1fr">
+                      <GridHeader borderTopRadius="lg" alignItems="center">
+                        <Heading size="sm" py={3}>
+                          Cette organisation fait partie des réseaux suivant :
+                        </Heading>
+                      </GridHeader>
+
+                      <GridItem
+                        light={{ bg: "orange.100" }}
+                        dark={{ bg: "gray.500" }}
+                      >
+                        <Box p={5}>
+                          {networks.map((network) => (
+                            <Link
+                              key={network._id}
+                              href={`/${network.orgUrl}`}
+                              shallow
+                              variant="underline"
+                            >
+                              {network.orgName}
+                            </Link>
+                          ))}
+                        </Box>
+                      </GridItem>
+                    </Grid>
+                  </GridItem>
+                )}
 
                 {org.orgType === OrgTypes.NETWORK && (
                   <GridItem
@@ -398,7 +500,6 @@ export const OrgPage = ({
                               bg="transparent"
                               _hover={{ color: "green" }}
                               onClick={() => {
-                                setIsConfig(true);
                                 setIsEdit(true);
                               }}
                             />
@@ -451,7 +552,6 @@ export const OrgPage = ({
                           bg="transparent"
                           _hover={{ color: "green" }}
                           onClick={() => {
-                            setIsConfig(true);
                             setIsEdit(true);
                           }}
                         />
@@ -461,17 +561,16 @@ export const OrgPage = ({
 
                   <GridItem>
                     <Box className="ql-editor" p={5}>
-                      {org.orgDescription && org.orgDescription.length > 0 ? (
+                      {description && description.length > 0 ? (
                         <div
                           dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(org.orgDescription)
+                            __html: DOMPurify.sanitize(description)
                           }}
                         />
                       ) : isCreator ? (
                         <Link
                           onClick={() => {
                             setIsEdit(true);
-                            setIsConfig(true);
                           }}
                           variant="underline"
                         >
@@ -566,7 +665,7 @@ export const OrgPage = ({
         </OrgPageTabs>
       )}
 
-      {isConfig && session && (
+      {session && (
         <OrgConfigPanel
           session={session}
           org={org}
