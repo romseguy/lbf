@@ -1,8 +1,10 @@
 import useScript, { ScriptStatus } from "@charlietango/use-script";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { renderDonationButton } from "utils/paypal";
 
 export const PaypalButton = () => {
+  const router = useRouter();
   const [rendered, setRendered] = useState(false);
   const [ready, status] = useScript(
     "https://www.paypalobjects.com/donate/sdk/donate-sdk.js"
@@ -18,6 +20,10 @@ export const PaypalButton = () => {
     renderDonationButton();
     setRendered(true);
   }
+
+  useEffect(() => {
+    setRendered(false);
+  }, [router.asPath]);
 
   return (
     <div id="donate-button-container">

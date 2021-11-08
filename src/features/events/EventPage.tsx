@@ -1,4 +1,5 @@
 import {
+  AddIcon,
   ArrowBackIcon,
   AtSignIcon,
   ChevronDownIcon,
@@ -385,15 +386,15 @@ export const EventPage = ({
                           }}
                         />
                       ) : isCreator ? (
-                        <Link
+                        <Button
+                          colorScheme="teal"
+                          leftIcon={<AddIcon />}
                           onClick={() => {
                             setIsEdit(true);
                           }}
-                          variant="underline"
                         >
-                          Cliquez ici pour ajouter la description de
-                          l'événement.
-                        </Link>
+                          Ajouter
+                        </Button>
                       ) : (
                         <Text fontStyle="italic">Aucune description.</Text>
                       )}
@@ -445,15 +446,15 @@ export const EventPage = ({
                           !hasItems(event.eventEmail) &&
                           !hasItems(event.eventPhone) &&
                           !hasItems(event.eventWeb) && (
-                            <Link
+                            <Button
+                              colorScheme="teal"
+                              leftIcon={<AddIcon />}
                               onClick={() => {
                                 setIsEdit(true);
                               }}
-                              variant="underline"
                             >
-                              Cliquez ici pour ajouter les coordonnées de
-                              l'événement.
-                            </Link>
+                              Ajouter
+                            </Button>
                           )}
 
                         <EventInfo event={event} />

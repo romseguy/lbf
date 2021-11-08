@@ -12,11 +12,11 @@ import { format, getDay, getHours, parseISO, setDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import React from "react";
 import { css } from "twin.macro";
-import { IEvent } from "models/Event";
+import { IEvent, monthRepeatOptions } from "models/Event";
 import * as dateUtils from "utils/date";
 
 export type EventTimelineType = {
-  [index: number]: { startDate: Date; endTime: Date };
+  [index: number]: { startDate: Date; endTime: Date; monthRepeat?: number[] };
 };
 
 export const EventTimeline = ({
@@ -33,21 +33,14 @@ export const EventTimeline = ({
 
   const timeline: EventTimelineType = dateUtils.days.reduce(
     (obj, label, index) => {
-      if (startDay === index)
-        return {
-          ...obj,
-          [index]: {
-            startDate: eventMinDate,
-            endTime: eventMaxDate
-          }
-        };
-
-      if (event.otherDays) {
-        for (const { dayNumber, startDate, endTime } of event.otherDays) {
+      if (Array.isArray(event.otherDays) && event.otherDays.length > 0) {
+        for (const day of event.otherDays) {
+          const { dayNumber, startDate, endTime } = day;
           if (dayNumber === index) {
             return {
               ...obj,
               [index]: {
+                ...day,
                 startDate: startDate
                   ? parseISO(startDate)
                   : setDay(eventMinDate, dayNumber + 1),
@@ -58,7 +51,14 @@ export const EventTimeline = ({
             };
           }
         }
-      }
+      } else if (startDay === index)
+        return {
+          ...obj,
+          [index]: {
+            startDate: eventMinDate,
+            endTime: eventMaxDate
+          }
+        };
 
       return obj;
     },
@@ -72,11 +72,20 @@ export const EventTimeline = ({
 
       return (
         <ListItem key={"timeline-item-" + key}>
-          <Text fontWeight="bold">
+          <Box fontWeight="bold">
             {event.repeat === 99
               ? format(day.startDate, "cccc", { locale: fr })
+              : day.monthRepeat
+              ? day.monthRepeat.map((monthRepeatOption) => (
+                  <div key={`monthRepeat-${monthRepeatOption}`}>
+                    Le {monthRepeatOptions[monthRepeatOption]}{" "}
+                    {format(day.startDate, "cccc", { locale: fr })} de chaque
+                    mois
+                  </div>
+                ))
               : format(day.startDate, "cccc d MMMM", { locale: fr })}
-          </Text>
+          </Box>
+
           <Box display="flex" alignItems="center" ml={3} fontWeight="bold">
             <Text color="green">
               {format(day.startDate, "H:mm", { locale: fr })}

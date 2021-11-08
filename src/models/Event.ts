@@ -31,7 +31,12 @@ export interface IEvent<T = string> {
   }[]; // list of emails the invitation has been sent to
   eventTopics: ITopic[];
   repeat?: number;
-  otherDays?: { dayNumber: number; startDate?: string; endTime?: string }[];
+  otherDays?: {
+    dayNumber: number;
+    startDate?: string;
+    endTime?: string;
+    monthRepeat?: number[];
+  }[];
   isApproved?: boolean;
   forwardedFrom?: {
     eventId: string;
@@ -55,6 +60,13 @@ export const Category: { [key: number]: { label: string; bgColor: string } } = [
   { label: "Réunion", bgColor: "purple.600" },
   { label: "Autre", bgColor: "transparent" }
 ].reduce((obj, cat, index) => ({ ...obj, [index]: cat }), {});
+
+export const monthRepeatOptions: { [key: number]: string } = {
+  0: "premier",
+  1: "2ème",
+  2: "3ème",
+  3: "dernier"
+};
 
 export const StatusTypes: { [key: string]: string } = {
   PENDING: "PENDING",
@@ -175,7 +187,14 @@ export const EventSchema = new Schema<IEvent>(
       ref: "User"
     },
     repeat: Number,
-    otherDays: [{ dayNumber: Number, startDate: String, endTime: String }],
+    otherDays: [
+      {
+        dayNumber: Number,
+        startDate: String,
+        endTime: String,
+        monthRepeat: [Number]
+      }
+    ],
     isApproved: Boolean,
     forwardedFrom: {
       eventId: {

@@ -57,7 +57,23 @@ export const EventPopover = ({
   //#endregion
 
   //#region my events
-  const myEventsQuery = useGetEventsQuery({ userId: session.user.userId });
+  const myEventsQuery = useGetEventsQuery(
+    { userId: session.user.userId },
+    {
+      selectFromResult: (query) => ({
+        ...query,
+        data: query.data
+          ? [...query.data].sort((a, b) => {
+              if (a.createdAt && b.createdAt) {
+                if (a.createdAt < b.createdAt) return 1;
+                else if (a.createdAt > b.createdAt) return -1;
+              }
+              return 0;
+            })
+          : undefined
+      })
+    }
+  );
   const refetchEvents = useSelector(selectEventsRefetch);
   useEffect(() => {
     if (refetchEvents !== cachedRefetchEvents) {

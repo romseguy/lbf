@@ -1,8 +1,10 @@
 import {
+  addDays,
   compareDesc,
   format,
   formatDuration as oFormatDuration,
   getDay,
+  getDaysInMonth,
   getHours,
   getMinutes,
   getSeconds,
@@ -11,7 +13,8 @@ import {
   setDay,
   setHours,
   setMinutes,
-  setSeconds
+  setSeconds,
+  startOfMonth
 } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -38,6 +41,50 @@ export const days = [
   "samedi",
   "dimanche"
 ];
+
+var DAYS_IN_A_WEEK = 7;
+
+/**
+ * @name getNthDayOfMonth
+ * @category Month Helpers
+ * @summary Get the nth weekday for a date
+ *
+ * @description
+ * Get then nth weekday in a month of the given date, day and week.
+ *
+ * @param {Date|Number} date - the given date
+ * @param {Number} day - the given day to be found in the month
+ * @param {Date|Number} week - the given week to be calculated *
+ * @returns {Date} the date of nth day of the month
+ * @throws {TypeError} 3 argument required
+ * @throws {RangeError}  day is between 0 and 6 _and_ is not NaN
+ * @throws {RangeError}  the day calulated should not exceed the given month
+ *
+ *
+ *
+ * @example
+ * // What is the 4th Wednesday of 1st July, 2020?
+ * var result = getNthDayOfMonth(new Date(2020, 6, 1), 3, 4)
+ * //=> Wed Jul 22 2020 00:00:00 (4th Wednesday of the month)
+ */
+export function getNthDayOfMonth(date: Date, day: number, week: number) {
+  if (!(day >= 0 && day <= 6)) {
+    throw new RangeError("day must be between 0 and 6 inclusively");
+  }
+
+  const startOfMonthVal = startOfMonth(date);
+  const daysToBeAdded =
+    (week - 1) * DAYS_IN_A_WEEK +
+    ((DAYS_IN_A_WEEK + day - getDay(startOfMonthVal)) % DAYS_IN_A_WEEK);
+  const nthDayOfMonth = addDays(startOfMonthVal, daysToBeAdded);
+
+  //Test if the days to be added excees the current month
+  if (daysToBeAdded >= getDaysInMonth(date)) {
+    throw new RangeError("the nth day exceeds the month");
+  }
+
+  return nthDayOfMonth;
+}
 
 export const formatArray = [
   "years",

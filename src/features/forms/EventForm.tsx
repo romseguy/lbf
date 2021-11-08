@@ -2,6 +2,8 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import {
   Input,
   Button,
+  Checkbox,
+  CheckboxGroup,
   FormControl,
   FormLabel,
   FormErrorMessage,
@@ -13,7 +15,6 @@ import {
   AlertIcon,
   Tag,
   Tooltip,
-  Checkbox,
   Box,
   Popover,
   PopoverBody,
@@ -64,7 +65,12 @@ import {
 } from "features/events/eventsApi";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { Category, IEvent, VisibilityV } from "models/Event";
+import {
+  Category,
+  IEvent,
+  monthRepeatOptions,
+  VisibilityV
+} from "models/Event";
 import type { IOrg } from "models/Org";
 import { Visibility } from "models/Topic";
 import { hasItems } from "utils/array";
@@ -179,34 +185,57 @@ export const EventForm = withGoogleApi({
     //   if (!suggestion) setSuggestion(data);
     // }, [data]);
 
-    const [days, setDays] = useState<{
-      [key: number]: {
-        checked: boolean;
-        isDisabled?: boolean;
-        isOpen: boolean;
-        startDate: Date | null;
-        endTime: Date | null;
-      };
-    }>(
+    type DaysMap = { [key: number]: DayState };
+    type DayState = {
+      checked: boolean;
+      isDisabled?: boolean;
+      isOpen: boolean;
+      dayNumber: number;
+      startDate: Date | null;
+      endTime: Date | null;
+      monthRepeat?: number[];
+    };
+
+    let hasMonthRepeat = false;
+    const [days, setDays] = useState<DaysMap>(
       dateUtils.days.reduce((obj, day, index) => {
         const otherDay = props.event?.otherDays?.find(
           ({ dayNumber }) => dayNumber === index
         );
+
+        if (otherDay?.monthRepeat) hasMonthRepeat = true;
+
         return {
           ...obj,
           [index]: {
+            ...otherDay,
             checked: !!otherDay,
+            isDisabled: !otherDay?.monthRepeat && hasMonthRepeat,
             isOpen: false,
             startDate: otherDay?.startDate
               ? parseISO(otherDay.startDate)
-              : undefined
+              : undefined,
+            endTime: otherDay?.endTime ? parseISO(otherDay.endTime) : undefined
           }
         };
       }, {})
     );
-    const setDayState = (index: number, match = {}, nomatch = {}) => {
+    useEffect(() => {
+      let i = 0;
+      while (!hasMonthRepeat && i < dateUtils.days.length) {
+        const day = days[i];
+        if (Array.isArray(day.monthRepeat) && day.monthRepeat.length > 0)
+          hasMonthRepeat = true;
+        i++;
+      }
+    }, [days]);
+    const setDayState = (
+      index: number,
+      match: Partial<DayState> = {},
+      nomatch: Partial<DayState> = {}
+    ) => {
       return Object.keys(days).reduce(
-        (obj, day, i) =>
+        (obj, key, i) =>
           i === index
             ? {
                 ...obj,
@@ -270,17 +299,9 @@ export const EventForm = withGoogleApi({
         if (newDuration !== duration) {
           setDuration(newDuration);
 
-          if (!newDuration.days) {
-            let startDay: number = getDay(start);
-            startDay = startDay === 0 ? 6 : startDay - 1;
-
-            if (days[startDay] && !days[startDay].isDisabled) {
-              setDays(
-                setDayState(startDay, { checked: true, isDisabled: true })
-              );
-            }
-          } else {
-            if (newDuration.days >= 7) setCanRepeat(false);
+          if (newDuration.days !== undefined) {
+            setCanRepeat1day(newDuration.days === 0);
+            setCanRepeat(newDuration.days === 0 ? true : newDuration.days < 6);
           }
         }
       }
@@ -298,11 +319,6 @@ export const EventForm = withGoogleApi({
 
     useEffect(() => {
       if (eventMinDate) {
-        if (getHours(addHours(eventMinDate, 2)) === 1) {
-          setValue("eventMinDate", addHours(now, 12));
-          return;
-        }
-
         if (end) {
           if (isBefore(end, eventMinDate)) {
             // console.log("setting end to null");
@@ -339,32 +355,6 @@ export const EventForm = withGoogleApi({
       const eventPhone = form.eventPhone?.filter(({ phone }) => phone !== "");
       const eventWeb = form.eventWeb?.filter(({ url }) => url !== "");
 
-      const otherDays: {
-        dayNumber: number;
-        startDate?: string;
-        endTime?: string;
-      }[] = Object.keys(days)
-        .filter((key) => {
-          const day = days[parseInt(key)];
-          return !day.isDisabled && day.checked;
-        })
-        .map((key) => {
-          const dayNumber = parseInt(key);
-          const day = days[dayNumber];
-          return {
-            dayNumber,
-            startDate: day.startDate?.toISOString(),
-            endTime: day.endTime
-              ? day.endTime.toISOString()
-              : day.startDate
-              ? addHours(
-                  day.startDate,
-                  duration?.hours || eventMinDuration
-                ).toISOString()
-              : undefined
-          };
-        });
-
       let payload = {
         ...form,
         eventName: form.eventName.trim(),
@@ -378,10 +368,33 @@ export const EventForm = withGoogleApi({
           Array.isArray(eventEmail) && eventEmail.length > 0 ? eventEmail : [],
         eventPhone:
           Array.isArray(eventPhone) && eventPhone.length > 0 ? eventPhone : [],
-        eventWeb:
-          Array.isArray(eventWeb) && eventWeb.length > 0 ? eventWeb : [],
-        otherDays
+        eventWeb: Array.isArray(eventWeb) && eventWeb.length > 0 ? eventWeb : []
       };
+
+      payload.otherDays = isRepeat
+        ? Object.keys(days)
+            .filter((key) => {
+              const day = days[parseInt(key)];
+              return !day.isDisabled && day.checked;
+            })
+            .map((key) => {
+              const dayNumber = parseInt(key);
+              const day = days[dayNumber];
+              return {
+                ...day,
+                dayNumber,
+                startDate: day.startDate?.toISOString(),
+                endTime: day.endTime
+                  ? day.endTime.toISOString()
+                  : day.startDate
+                  ? addHours(
+                      day.startDate,
+                      duration?.hours || eventMinDuration
+                    ).toISOString()
+                  : undefined
+              };
+            })
+        : [];
 
       try {
         //const sugg = suggestion || data[0];
@@ -420,16 +433,16 @@ export const EventForm = withGoogleApi({
           });
         }
 
+        setIsLoading(false);
         props.onSubmit && props.onSubmit(payload.eventUrl);
       } catch (error) {
+        setIsLoading(false);
         handleError(error, (message, field) => {
           if (field) {
             setError(field, { type: "manual", message });
           }
           setError("formErrorMessage", { type: "manual", message });
         });
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -666,10 +679,10 @@ export const EventForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {canRepeat && (
+        {canRepeat1day && (
           <FormControl
-            id="repeat"
-            isInvalid={!!errors["repeat"]}
+            id="otherDays"
+            isInvalid={!!errors["otherDays"]}
             // isDisabled={!eventMinDate || !eventMaxDate}
             mb={3}
           >
@@ -682,143 +695,176 @@ export const EventForm = withGoogleApi({
 
             {isRepeat && (
               <Box mt={3}>
-                {canRepeat1day &&
-                  dateUtils.days.map((label, index) => {
-                    const day = days[index];
+                {dateUtils.days.map((label, index) => {
+                  const day = days[index];
 
-                    const otherDay = props.event?.otherDays?.find(
-                      ({ dayNumber, startDate }) =>
-                        dayNumber === index && startDate
-                    );
+                  const otherDay = props.event?.otherDays?.find(
+                    ({ dayNumber, startDate }) =>
+                      dayNumber === index && startDate
+                  );
 
-                    let selectedStart: Date | undefined;
-                    if (day.startDate) {
-                      selectedStart = day.startDate;
-                    } else {
-                      if (otherDay?.startDate)
-                        selectedStart = parseISO(otherDay.startDate);
-                      else if (start) selectedStart = setDay(start, index + 1);
-                    }
+                  let selectedStart: Date | undefined;
+                  if (day.startDate) {
+                    selectedStart = day.startDate;
+                  } else {
+                    if (otherDay?.startDate)
+                      selectedStart = parseISO(otherDay.startDate);
+                    else if (start) selectedStart = setDay(start, index + 1);
+                  }
 
-                    let selectedEnd: Date | undefined;
-                    if (day.endTime) {
-                      selectedEnd = day.endTime;
-                    } else {
-                      if (otherDay?.endTime)
-                        selectedEnd = parseISO(otherDay.endTime);
-                    }
+                  let selectedEnd: Date | undefined;
+                  if (day.endTime) {
+                    selectedEnd = day.endTime;
+                  } else {
+                    if (otherDay?.endTime)
+                      selectedEnd = parseISO(otherDay.endTime);
+                    else if (end) selectedEnd = setDay(end, index + 1);
+                  }
 
-                    let tagLabel = label;
+                  let tagLabel = label;
 
-                    if (day.checked) {
-                      if (selectedStart) {
-                        const selectedStartHours = getHours(selectedStart);
-                        const selectedStartMinutes =
-                          getMinutes(selectedStart) !== 0
-                            ? getMinutes(selectedStart)
+                  if (day.checked) {
+                    if (selectedStart) {
+                      const selectedStartHours = getHours(selectedStart);
+                      const selectedStartMinutes =
+                        getMinutes(selectedStart) !== 0
+                          ? getMinutes(selectedStart)
+                          : "";
+
+                      if (selectedEnd) {
+                        const selectedEndHours = getHours(selectedEnd);
+                        const selectedEndMinutes =
+                          getMinutes(selectedEnd) !== 0
+                            ? getMinutes(selectedEnd)
                             : "";
 
-                        if (selectedEnd) {
-                          const selectedEndHours = getHours(selectedEnd);
-                          const selectedEndMinutes =
-                            getMinutes(selectedEnd) !== 0
-                              ? getMinutes(selectedEnd)
-                              : "";
-
-                          tagLabel += ` ${selectedStartHours}h${selectedStartMinutes} - ${selectedEndHours}h${selectedEndMinutes}`;
-                        } else
-                          tagLabel += ` ${selectedStartHours}h${selectedStartMinutes}`;
-                      }
+                        tagLabel += ` ${selectedStartHours}h${selectedStartMinutes} - ${selectedEndHours}h${selectedEndMinutes}`;
+                      } else
+                        tagLabel += ` ${selectedStartHours}h${selectedStartMinutes}`;
                     }
+                  }
 
-                    return (
-                      <Popover
-                        key={"day-" + index}
-                        closeOnBlur={false}
-                        isOpen={!!days[index].isOpen}
-                        isLazy
-                        placement="bottom"
-                        onClose={() =>
-                          setDays(setDayState(index, { isOpen: false }))
-                        }
-                      >
-                        <PopoverTrigger>
-                          <Tag
-                            variant={day.checked ? "solid" : "outline"}
-                            bgColor={day.checked ? "green" : undefined}
-                            cursor={day.isDisabled ? "not-allowed" : "pointer"}
-                            mr={1}
-                            mb={3}
-                            onClick={() => {
-                              if (day.isDisabled) return;
+                  return (
+                    <Popover
+                      key={"day-" + index}
+                      closeOnBlur
+                      isOpen={!!days[index].isOpen}
+                      isLazy
+                      placement="bottom"
+                      onClose={() =>
+                        setDays(setDayState(index, { isOpen: false }))
+                      }
+                    >
+                      <PopoverTrigger>
+                        <Tag
+                          variant={day.checked ? "solid" : "outline"}
+                          bgColor={day.checked ? "green" : undefined}
+                          cursor={day.isDisabled ? "not-allowed" : "pointer"}
+                          mr={1}
+                          mb={3}
+                          onClick={() => {
+                            if (day.isDisabled) return;
 
-                              if (day.checked && !day.isOpen) {
-                                setDays(setDayState(index, { checked: false }));
-                              } else {
-                                setDays(
-                                  setDayState(
-                                    index,
-                                    {
-                                      checked: true,
-                                      isOpen: true
-                                    },
-                                    { isOpen: false }
-                                  )
-                                );
-                              }
-                            }}
-                          >
-                            {tagLabel}
-                          </Tag>
-                        </PopoverTrigger>
+                            let newDays: DaysMap;
 
-                        <PopoverContent>
-                          <PopoverHeader fontWeight="bold">
-                            {dateUtils.days[index]}
-                          </PopoverHeader>
-                          <PopoverCloseButton />
-                          <PopoverBody>
-                            <FormControl mb={3}>
-                              <FormLabel>Heure de début</FormLabel>
-                              <DatePicker
-                                //withPortal
-                                customInput={renderCustomInput(
-                                  "startDate" + index,
-                                  true
-                                )}
-                                selected={selectedStart}
-                                dateFormat="Pp"
-                                showTimeSelect
-                                showTimeSelectOnly
-                                timeFormat="p"
-                                timeIntervals={30}
-                                filterTime={(time) => {
+                            if (day.checked && !day.isOpen) {
+                              newDays = setDayState(index, { checked: false });
+                              newDays = Object.keys(days).reduce(
+                                (obj, key, i) => {
+                                  const dayNumber = parseInt(key);
+                                  return {
+                                    ...obj,
+                                    [i]: {
+                                      ...newDays[i],
+                                      isDisabled: false
+                                    }
+                                  };
+                                },
+                                {}
+                              );
+                            } else {
+                              newDays = setDayState(
+                                index,
+                                {
+                                  checked: true,
+                                  isOpen: true
+                                },
+                                { isOpen: false }
+                              );
+                              newDays = Object.keys(days).reduce(
+                                (obj, key, i) => {
+                                  const dayNumber = parseInt(key);
+                                  let isDisabled = false;
+
+                                  if (hasMonthRepeat && !newDays[i].monthRepeat)
+                                    isDisabled = true;
+
+                                  return {
+                                    ...obj,
+                                    [i]: {
+                                      ...newDays[i],
+                                      isDisabled
+                                    }
+                                  };
+                                },
+                                {}
+                              );
+                            }
+
+                            setDays(newDays);
+                          }}
+                        >
+                          {tagLabel}
+                        </Tag>
+                      </PopoverTrigger>
+
+                      <PopoverContent>
+                        <PopoverHeader fontWeight="bold">
+                          {dateUtils.days[index]}
+                        </PopoverHeader>
+                        <PopoverCloseButton />
+                        <PopoverBody>
+                          <FormControl mb={3}>
+                            <FormLabel>Heure de début</FormLabel>
+                            <DatePicker
+                              //withPortal
+                              customInput={renderCustomInput(
+                                "startDate" + index,
+                                true
+                              )}
+                              selected={selectedStart}
+                              dateFormat="Pp"
+                              showTimeSelect
+                              showTimeSelectOnly
+                              timeFormat="p"
+                              timeIntervals={30}
+                              filterTime={(time) => {
+                                if (
+                                  selectedEnd &&
+                                  getHours(time) >= getHours(selectedEnd)
+                                )
+                                  return false;
+                                return true;
+                              }}
+                              onChange={(startDate: Date) => {
+                                let endTime;
+                                if (selectedEnd) {
                                   if (
-                                    selectedEnd &&
-                                    getHours(time) >= getHours(selectedEnd)
+                                    getHours(selectedEnd) > getHours(startDate)
                                   )
-                                    return false;
-                                  return true;
-                                }}
-                                onChange={(startDate: Date) => {
-                                  let endTime;
-                                  if (selectedEnd) {
-                                    if (
-                                      getHours(selectedEnd) >
-                                      getHours(startDate)
-                                    )
-                                      endTime = selectedEnd;
-                                  }
-                                  setDays(
-                                    setDayState(index, {
-                                      startDate: setDay(startDate, index + 1),
-                                      endTime
-                                    })
-                                  );
-                                }}
-                              />
-                            </FormControl>
+                                    endTime = selectedEnd;
+                                }
+                                setDays(
+                                  setDayState(index, {
+                                    startDate: setDay(startDate, index + 1),
+                                    endTime
+                                  })
+                                );
+                              }}
+                            />
+                          </FormControl>
 
+                          <FormControl mb={3}>
                             <FormLabel>Heure de fin</FormLabel>
                             <DatePicker
                               //withPortal
@@ -849,42 +895,119 @@ export const EventForm = withGoogleApi({
                                 setDays(newDays);
                               }}
                             />
-                          </PopoverBody>
-                        </PopoverContent>
-                      </Popover>
-                    );
-                  })}
+                          </FormControl>
 
-                <Select
-                  name="repeat"
-                  ref={register()}
-                  defaultValue={props.event?.repeat}
-                  placeholder="Ne pas répéter"
-                  css={css`
-                    ${isDark
-                      ? `
-                color: white;
-              `
-                      : `
-                color: black;
-              `}
-                  `}
-                >
-                  <option key="all" value={99}>
-                    Toutes les semaines
-                  </option>
-                  {repeatOptions.map(
-                    (i) =>
-                      i > 1 && (
-                        <option key={`${i}w`} value={i}>
-                          {`Toutes les ${i} semaines`}
-                        </option>
-                      )
-                  )}
-                </Select>
+                          {start &&
+                            day.checked &&
+                            getDay(start) === day.dayNumber + 1 && (
+                              <FormControl>
+                                <CheckboxGroup>
+                                  {Object.keys(monthRepeatOptions).map(
+                                    (key) => {
+                                      const monthRepeatOption = parseInt(key);
+
+                                      if (
+                                        day.monthRepeat?.length === 3 &&
+                                        !day.monthRepeat.includes(
+                                          monthRepeatOption
+                                        )
+                                      )
+                                        return null;
+
+                                      return (
+                                        <Checkbox
+                                          key={monthRepeatOption}
+                                          isChecked={day.monthRepeat?.includes(
+                                            monthRepeatOption
+                                          )}
+                                          onChange={(e) => {
+                                            let monthRepeat: number[];
+
+                                            if (!e.target.checked) {
+                                              monthRepeat =
+                                                day.monthRepeat?.filter(
+                                                  (i) => i !== monthRepeatOption
+                                                ) || [];
+                                            } else {
+                                              monthRepeat = [monthRepeatOption];
+
+                                              if (day.monthRepeat)
+                                                monthRepeat =
+                                                  day.monthRepeat.concat([
+                                                    monthRepeatOption
+                                                  ]);
+                                            }
+
+                                            setDays(
+                                              setDayState(index, {
+                                                monthRepeat
+                                              })
+                                            );
+                                          }}
+                                        >
+                                          Le{" "}
+                                          {
+                                            monthRepeatOptions[
+                                              monthRepeatOption
+                                            ]
+                                          }{" "}
+                                          {label} de chaque mois
+                                        </Checkbox>
+                                      );
+                                    }
+                                  )}
+                                </CheckboxGroup>
+                              </FormControl>
+                            )}
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  );
+                })}
               </Box>
             )}
 
+            <FormErrorMessage>
+              <ErrorMessage errors={errors} name="otherDays" />
+            </FormErrorMessage>
+          </FormControl>
+        )}
+
+        {canRepeat && !hasMonthRepeat && (
+          <FormControl
+            id="repeat"
+            isInvalid={!!errors["repeat"]}
+            // isDisabled={!eventMinDate || !eventMaxDate}
+            mb={3}
+          >
+            <FormLabel>Fréquence</FormLabel>
+            <Select
+              name="repeat"
+              ref={register()}
+              defaultValue={props.event?.repeat}
+              placeholder="Ne pas répéter"
+              css={css`
+                ${isDark
+                  ? `
+                color: white;
+              `
+                  : `
+                color: black;
+              `}
+              `}
+            >
+              <option key="all" value={99}>
+                Toutes les semaines
+              </option>
+              {repeatOptions.map(
+                (i) =>
+                  i > 1 && (
+                    <option key={`${i}w`} value={i}>
+                      {`Toutes les ${i} semaines`}
+                    </option>
+                  )
+              )}
+            </Select>
             <FormErrorMessage>
               <ErrorMessage errors={errors} name="repeat" />
             </FormErrorMessage>
