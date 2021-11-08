@@ -69,7 +69,8 @@ var DAYS_IN_A_WEEK = 7;
  */
 export function getNthDayOfMonth(date: Date, day: number, week: number) {
   if (!(day >= 0 && day <= 6)) {
-    throw new RangeError("day must be between 0 and 6 inclusively");
+    console.error("day must be between 0 and 6 inclusively", day);
+    return date;
   }
 
   const startOfMonthVal = startOfMonth(date);
@@ -80,7 +81,8 @@ export function getNthDayOfMonth(date: Date, day: number, week: number) {
 
   //Test if the days to be added excees the current month
   if (daysToBeAdded >= getDaysInMonth(date)) {
-    throw new RangeError("the nth day exceeds the month");
+    console.error("the nth day exceeds the month");
+    return date;
   }
 
   return nthDayOfMonth;

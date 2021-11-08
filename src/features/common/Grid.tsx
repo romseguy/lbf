@@ -12,13 +12,10 @@ export const Grid = ({
   light,
   dark,
   ...props
-}: BorderProps &
-  SpacerProps &
-  GridProps & {
-    children: React.ReactNode | React.ReactNodeArray;
-    light?: { [key: string]: any };
-    dark?: { [key: string]: any };
-  }) => {
+}: GridProps & {
+  light?: { [key: string]: any };
+  dark?: { [key: string]: any };
+}) => {
   const styles = useColorModeValue(light, dark);
   return (
     <ChakraGrid {...styles} {...props}>

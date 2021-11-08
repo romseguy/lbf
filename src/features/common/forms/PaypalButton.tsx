@@ -9,6 +9,9 @@ export const PaypalButton = () => {
   const [ready, status] = useScript(
     "https://www.paypalobjects.com/donate/sdk/donate-sdk.js"
   );
+  useEffect(() => {
+    setRendered(false);
+  }, [router.asPath]);
 
   if (status === ScriptStatus.ERROR) {
     if (process.env.NODE_ENV === "production")
@@ -20,10 +23,6 @@ export const PaypalButton = () => {
     renderDonationButton();
     setRendered(true);
   }
-
-  useEffect(() => {
-    setRendered(false);
-  }, [router.asPath]);
 
   return (
     <div id="donate-button-container">

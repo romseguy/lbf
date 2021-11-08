@@ -86,3 +86,11 @@ handler.post(async function importData(req, res) {
 });
 
 export default handler;
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "50mb"
+    }
+  }
+}

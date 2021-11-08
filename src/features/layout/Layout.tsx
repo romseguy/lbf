@@ -169,10 +169,14 @@ export const Layout = ({
           pageSubTitle={pageSubTitle}
         />
         <Nav
-          py={hasVerticalScrollbar ? 7 : 0}
           minH="96px"
           isLogin={isLogin}
           session={session}
+          css={css`
+            @media (min-width: 700px) {
+              ${hasVerticalScrollbar && "padding: 28px 0;"}
+            }
+          `}
         />
         <Main {...props}>{children}</Main>
         <Footer display="flex" alignItems="center" pl={5} pr={5} pb={3}>

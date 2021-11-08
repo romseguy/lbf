@@ -35,8 +35,10 @@ export const EventsListToggle = ({
               <Button
                 colorScheme="teal"
                 fontSize="smaller"
-                height={7}
+                height="auto"
+                py={2}
                 leftIcon={<ArrowBackIcon />}
+                whiteSpace="normal"
                 onClick={() => {
                   setShowPreviousEvents(true);
                 }}
@@ -49,8 +51,10 @@ export const EventsListToggle = ({
               <Button
                 colorScheme="pink"
                 fontSize="smaller"
-                height={7}
+                height="auto"
+                py={2}
                 rightIcon={<ArrowForwardIcon />}
+                whiteSpace="normal"
                 onClick={() => {
                   setShowPreviousEvents(false);
                 }}
@@ -69,9 +73,11 @@ export const EventsListToggle = ({
               <Button
                 colorScheme="teal"
                 fontSize="smaller"
-                height={7}
+                height="auto"
+                py={2}
                 leftIcon={showNextEvents ? <ArrowBackIcon /> : undefined}
                 rightIcon={!showNextEvents ? <ArrowForwardIcon /> : undefined}
+                whiteSpace="normal"
                 onClick={() => {
                   setShowNextEvents(!showNextEvents);
                 }}
@@ -84,9 +90,11 @@ export const EventsListToggle = ({
               <Button
                 colorScheme="pink"
                 fontSize="smaller"
-                height={7}
+                height="auto"
+                py={2}
                 leftIcon={showNextEvents ? <ArrowBackIcon /> : undefined}
                 rightIcon={!showNextEvents ? <ArrowForwardIcon /> : undefined}
+                whiteSpace="normal"
                 onClick={() => {
                   setShowNextEvents(!showNextEvents);
                 }}

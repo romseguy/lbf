@@ -82,33 +82,41 @@ export const EventInfo = ({
 
       {event.eventWeb && (
         <Flex flexDirection="column">
-          {event.eventWeb?.map(({ url, prefix }, index) => (
-            <Flex key={`web-${index}`} alignItems="center">
-              <Icon as={FaGlobeEurope} mr={3} />
-              <Link variant="underline" href={prefix + url}>
-                {webCollapsed ? url.substr(0, 9) + "..." : url}
-              </Link>
+          {event.eventWeb?.map((eventWeb, index) => {
+            const { prefix } = eventWeb;
+            const url = eventWeb.url.includes("http")
+              ? eventWeb.url
+              : prefix + eventWeb.url;
+            return (
+              <Flex key={`web-${index}`} alignItems="center">
+                <Icon as={FaGlobeEurope} mr={3} />
+                <Link variant="underline" href={url}>
+                  {webCollapsed
+                    ? eventWeb.url.substr(0, 9) + "..."
+                    : eventWeb.url}
+                </Link>
 
-              {webCollapsed ? (
-                <Tooltip
-                  label="Voir en entier l'adresse du site internet"
-                  placement="top"
-                >
-                  <ViewIcon
+                {webCollapsed ? (
+                  <Tooltip
+                    label="Voir en entier l'adresse du site internet"
+                    placement="top"
+                  >
+                    <ViewIcon
+                      cursor="pointer"
+                      ml={2}
+                      onClick={() => setWebCollapsed(false)}
+                    />
+                  </Tooltip>
+                ) : (
+                  <ViewOffIcon
                     cursor="pointer"
                     ml={2}
-                    onClick={() => setWebCollapsed(false)}
+                    onClick={() => setWebCollapsed(true)}
                   />
-                </Tooltip>
-              ) : (
-                <ViewOffIcon
-                  cursor="pointer"
-                  ml={2}
-                  onClick={() => setWebCollapsed(true)}
-                />
-              )}
-            </Flex>
-          ))}
+                )}
+              </Flex>
+            );
+          })}
         </Flex>
       )}
     </Flex>

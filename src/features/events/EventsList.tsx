@@ -1,43 +1,36 @@
 import { AddIcon } from "@chakra-ui/icons";
 import {
-  Box,
   Text,
-  Grid,
   Heading,
   useToast,
   Button,
   useColorMode,
   Alert,
   AlertIcon,
-  Tag,
+  Table,
+  Tbody,
+  Tr,
+  Td,
   Flex
 } from "@chakra-ui/react";
 import {
-  addHours,
   addWeeks,
   compareAsc,
-  compareDesc,
   format,
-  intervalToDuration,
   isBefore,
   parseISO,
-  getDay,
   getDayOfYear,
   setDay,
   getHours,
   getMinutes,
   setHours,
   setMinutes,
-  getSeconds,
-  setSeconds,
-  getWeekOfMonth,
-  startOfMonth
+  setSeconds
 } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { useRouter } from "next/router";
-import React, { useEffect, useMemo, useState } from "react";
-import { css } from "twin.macro";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { Link, GridHeader, GridItem, Spacer } from "features/common";
 import { DescriptionModal } from "features/modals/DescriptionModal";
 import { ModalState, NotifyModal } from "features/modals/NotifyModal";
@@ -45,7 +38,7 @@ import { EventModal } from "features/modals/EventModal";
 import { ForwardModal } from "features/modals/ForwardModal";
 import { refetchOrg } from "features/orgs/orgSlice";
 import { useSession } from "hooks/useAuth";
-import { Category, IEvent, Visibility } from "models/Event";
+import { IEvent, Visibility } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { useAppDispatch } from "store";
@@ -59,11 +52,9 @@ import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { EventsListToggle } from "./EventsListToggle";
 import { EventCategory } from "./EventCategory";
 import { EventsListCategories } from "./EventsListCategories";
-import { hasItems } from "utils/array";
 import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
 import { EventInfo } from "./EventInfo";
 import { EventTimeline } from "./EventTimeline";
-import { breakpoints } from "theme/theme";
 
 export const EventsList = ({
   eventsQuery,
@@ -234,7 +225,7 @@ export const EventsList = ({
                 for (const monthRepeat of otherDay.monthRepeat) {
                   const NthDayOfMonth = getNthDayOfMonth(
                     new Date(),
-                    otherDay.dayNumber + 1,
+                    otherDay.dayNumber,
                     monthRepeat + 1
                   );
 
@@ -278,31 +269,31 @@ export const EventsList = ({
                     }
                   }
                 }
-              }
-
-              if (isBefore(eventMinDate, today)) {
-                // console.log("previousEvents.otherDay.push", event.eventName);
-                previousEvents.push({
-                  ...event,
-                  eventMinDate,
-                  eventMaxDate
-                });
               } else {
-                if (isBefore(eventMinDate, addWeeks(today, 1))) {
-                  // console.log("currentEvents.otherDay.push", event.eventName);
-
-                  currentEvents.push({
+                if (isBefore(eventMinDate, today)) {
+                  // console.log("previousEvents.otherDay.push", event.eventName);
+                  previousEvents.push({
                     ...event,
                     eventMinDate,
                     eventMaxDate
                   });
                 } else {
-                  // console.log("nextEvents.otherDay.push", event.eventName);
-                  nextEvents.push({
-                    ...event,
-                    eventMinDate,
-                    eventMaxDate
-                  });
+                  if (isBefore(eventMinDate, addWeeks(today, 1))) {
+                    // console.log("currentEvents.otherDay.push", event.eventName);
+
+                    currentEvents.push({
+                      ...event,
+                      eventMinDate,
+                      eventMaxDate
+                    });
+                  } else {
+                    // console.log("nextEvents.otherDay.push", event.eventName);
+                    nextEvents.push({
+                      ...event,
+                      eventMinDate,
+                      eventMaxDate
+                    });
+                  }
                 }
               }
             }
@@ -459,195 +450,207 @@ export const EventsList = ({
           mb={5}
         />
 
-        {(previousEvents.length > 0 ||
-          currentEvents.length > 0 ||
-          nextEvents.length > 0) && (
-          <EventsListCategories
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            mb={5}
-          />
-        )}
+        <EventsListCategories
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+          mb={5}
+        />
 
         {showPreviousEvents && (
-          <Box>
-            {previousEvents
-              .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
-              .map((event, index) => {
-                const minDate = event.eventMinDate;
-                const addGridHeader =
-                  !currentDateP ||
-                  getDayOfYear(currentDateP) < getDayOfYear(minDate);
-                currentDateP = minDate;
-
-                return (
-                  <Grid
-                    key={"event-" + index}
-                    templateColumns="auto 1fr"
-                    templateRow="auto auto"
-                  >
-                    <>
-                      {addGridHeader ? (
-                        <GridHeader
-                          colSpan={2}
-                          borderTopRadius={index === 0 ? "lg" : undefined}
-                        >
-                          <Heading size="sm" py={3}>
-                            {format(minDate, "cccc d MMMM", { locale: fr })}
-                          </Heading>
-                        </GridHeader>
-                      ) : (
-                        <GridItem colSpan={2}>
-                          <Spacer borderWidth={1} />
-                        </GridItem>
-                      )}
-
-                      <EventsListItem
-                        {...eventsListItemProps}
-                        event={event}
-                        index={index}
-                        length={previousEvents.length}
-                      />
-                    </>
-                  </Grid>
-                );
-              })}
-          </Box>
-        )}
-
-        {!showPreviousEvents && !showNextEvents && (
-          <>
-            {currentEvents.length > 0 ? (
-              currentEvents
+          <Table>
+            <Tbody>
+              {previousEvents
                 .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
                 .map((event, index) => {
                   const minDate = event.eventMinDate;
                   const addGridHeader =
-                    !currentDate ||
-                    getDayOfYear(currentDate) < getDayOfYear(minDate);
-                  currentDate = minDate;
+                    !currentDateP ||
+                    getDayOfYear(currentDateP) < getDayOfYear(minDate);
+                  currentDateP = minDate;
 
                   return (
-                    <Grid
-                      key={"event-" + index}
-                      templateColumns="auto 1fr"
-                      templateRow="auto auto"
-                    >
-                      <>
-                        {addGridHeader ? (
-                          <GridHeader
-                            colSpan={3}
-                            borderTopRadius={index === 0 ? "lg" : undefined}
-                          >
-                            <Heading size="sm" py={3}>
-                              {format(minDate, "cccc d MMMM", {
-                                locale: fr
-                              })}
-                            </Heading>
-                          </GridHeader>
-                        ) : (
-                          <GridItem colSpan={3}>
-                            <Spacer borderWidth={1} />
-                          </GridItem>
-                        )}
+                    <Fragment key={"event-" + index}>
+                      <Tr>
+                        <Td border={0} colSpan={3} p={0}>
+                          {addGridHeader ? (
+                            <GridHeader
+                              borderTopRadius={index === 0 ? "lg" : undefined}
+                            >
+                              <Heading size="sm" py={3}>
+                                {format(minDate, "cccc d MMMM", { locale: fr })}
+                              </Heading>
+                            </GridHeader>
+                          ) : (
+                            <GridItem></GridItem>
+                          )}
+                        </Td>
+                      </Tr>
+
+                      <Tr
+                        bg={
+                          isDark
+                            ? "gray.300"
+                            : index % 2 === 0
+                            ? "orange.50"
+                            : "orange.100"
+                        }
+                      >
                         <EventsListItem
                           {...eventsListItemProps}
                           event={event}
                           index={index}
-                          length={currentEvents.length}
+                          length={previousEvents.length}
                         />
-                      </>
-                    </Grid>
+                      </Tr>
+                    </Fragment>
                   );
-                })
-            ) : (
-              <Alert status="info">
-                <AlertIcon />
-                Aucun événement{" "}
-                {Array.isArray(selectedCategories) &&
-                selectedCategoriesCount === 1 ? (
-                  <>
-                    de la catégorie
-                    <EventCategory
-                      selectedCategory={selectedCategories[0]}
-                      mx={1}
-                    />
-                  </>
-                ) : selectedCategoriesCount > 1 ? (
-                  <>
-                    dans les catégories
-                    {selectedCategories.map((catNumber, index) => (
+                })}
+            </Tbody>
+          </Table>
+        )}
+
+        {!showPreviousEvents && !showNextEvents && (
+          <Table>
+            <Tbody>
+              {currentEvents.length > 0 ? (
+                currentEvents
+                  .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
+                  .map((event, index) => {
+                    const minDate = event.eventMinDate;
+                    const addGridHeader =
+                      !currentDate ||
+                      getDayOfYear(currentDate) < getDayOfYear(minDate);
+                    currentDate = minDate;
+
+                    return (
+                      <Fragment key={"event-" + index}>
+                        <Tr>
+                          <Td border={0} colSpan={3} p={0}>
+                            {addGridHeader ? (
+                              <GridHeader
+                                borderTopRadius={index === 0 ? "lg" : undefined}
+                              >
+                                <Heading size="sm" py={3}>
+                                  {format(minDate, "cccc d MMMM", {
+                                    locale: fr
+                                  })}
+                                </Heading>
+                              </GridHeader>
+                            ) : (
+                              <GridItem></GridItem>
+                            )}
+                          </Td>
+                        </Tr>
+
+                        <Tr
+                          bg={
+                            isDark
+                              ? "gray.300"
+                              : index % 2 === 0
+                              ? "orange.50"
+                              : "orange.100"
+                          }
+                        >
+                          <EventsListItem
+                            {...eventsListItemProps}
+                            event={event}
+                            index={index}
+                            length={currentEvents.length}
+                          />
+                        </Tr>
+                      </Fragment>
+                    );
+                  })
+              ) : (
+                <Alert status="info">
+                  <AlertIcon />
+                  Aucun événement{" "}
+                  {Array.isArray(selectedCategories) &&
+                  selectedCategoriesCount === 1 ? (
+                    <>
+                      de la catégorie
                       <EventCategory
-                        selectedCategory={selectedCategories[index]}
+                        selectedCategory={selectedCategories[0]}
                         mx={1}
                       />
-                    ))}
-                  </>
-                ) : (
-                  ""
-                )}{" "}
-                prévu
-                {previousEvents.length > 0 || nextEvents.length > 0
-                  ? " cette semaine."
-                  : "."}
-              </Alert>
-            )}
-          </>
+                    </>
+                  ) : selectedCategoriesCount > 1 ? (
+                    <>
+                      dans les catégories
+                      {selectedCategories.map((catNumber, index) => (
+                        <EventCategory
+                          selectedCategory={selectedCategories[index]}
+                          mx={1}
+                        />
+                      ))}
+                    </>
+                  ) : (
+                    ""
+                  )}{" "}
+                  prévu
+                  {previousEvents.length > 0 || nextEvents.length > 0
+                    ? " cette semaine."
+                    : "."}
+                </Alert>
+              )}
+            </Tbody>
+          </Table>
         )}
 
         {showNextEvents && (
-          <Box>
-            {nextEvents
-              .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
-              .map((event, index) => {
-                const minDate = event.eventMinDate;
-                const addGridHeader =
-                  !currentDateN ||
-                  getDayOfYear(currentDateN) < getDayOfYear(minDate);
-                currentDateN = minDate;
+          <Table>
+            <Tbody>
+              {nextEvents
+                .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
+                .map((event, index) => {
+                  const minDate = event.eventMinDate;
+                  const addGridHeader =
+                    !currentDateN ||
+                    getDayOfYear(currentDateN) < getDayOfYear(minDate);
+                  currentDateN = minDate;
 
-                return (
-                  <Grid
-                    key={"event-" + index}
-                    templateColumns="auto 1fr"
-                    templateRow="auto auto"
-                  >
-                    <>
-                      {addGridHeader ? (
-                        <GridHeader
-                          colSpan={3}
-                          borderTopRadius={index === 0 ? "lg" : undefined}
-                        >
-                          <Heading size="sm" py={3}>
-                            {format(
-                              event.repeat
-                                ? addWeeks(
-                                    minDate,
-                                    event.repeat === 99 ? 1 : event.repeat
-                                  )
-                                : minDate,
-                              "cccc d MMMM",
-                              { locale: fr }
-                            )}
-                          </Heading>
-                        </GridHeader>
-                      ) : (
-                        <GridItem colSpan={3}>
-                          <Spacer borderWidth={1} />
-                        </GridItem>
-                      )}
+                  return (
+                    <Fragment key={"event-" + index}>
+                      <Tr key={"event-" + index}>
+                        <Td colSpan={3} p={0}>
+                          {addGridHeader ? (
+                            <GridHeader
+                              colSpan={3}
+                              borderTopRadius={index === 0 ? "lg" : undefined}
+                            >
+                              <Heading size="sm" py={3}>
+                                {format(minDate, "cccc d MMMM", { locale: fr })}
+                              </Heading>
+                            </GridHeader>
+                          ) : (
+                            <GridItem>
+                              <Spacer borderWidth={1} />
+                            </GridItem>
+                          )}
+                        </Td>
+                      </Tr>
 
-                      <EventsListItem
-                        {...eventsListItemProps}
-                        event={event}
-                        index={index}
-                        length={nextEvents.length}
-                      />
-                    </>
-                  </Grid>
-                );
-              })}
-          </Box>
+                      <Tr
+                        bg={
+                          isDark
+                            ? "gray.300"
+                            : index % 2 === 0
+                            ? "orange.50"
+                            : "orange.100"
+                        }
+                      >
+                        <EventsListItem
+                          {...eventsListItemProps}
+                          event={event}
+                          index={index}
+                          length={nextEvents.length}
+                        />
+                      </Tr>
+                    </Fragment>
+                  );
+                })}
+            </Tbody>
+          </Table>
         )}
 
         {((showPreviousEvents && previousEvents.length > 0) ||

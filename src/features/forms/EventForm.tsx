@@ -285,6 +285,11 @@ export const EventForm = withGoogleApi({
     const eventMaxDate: Date | null = watch("eventMaxDate");
 
     const start = eventMinDate || eventMinDefaultDate;
+    const startDay = start
+      ? getDay(start) === 0
+        ? 6
+        : getDay(start) - 1
+      : undefined;
     const [end, setEnd] = useState(eventMaxDate || eventMaxDefaultDate);
 
     // duration
@@ -897,68 +902,57 @@ export const EventForm = withGoogleApi({
                             />
                           </FormControl>
 
-                          {start &&
-                            day.checked &&
-                            getDay(start) === day.dayNumber + 1 && (
-                              <FormControl>
-                                <CheckboxGroup>
-                                  {Object.keys(monthRepeatOptions).map(
-                                    (key) => {
-                                      const monthRepeatOption = parseInt(key);
+                          {day.checked && startDay === index && (
+                            <FormControl>
+                              <CheckboxGroup>
+                                {Object.keys(monthRepeatOptions).map((key) => {
+                                  const monthRepeatOption = parseInt(key);
 
-                                      if (
-                                        day.monthRepeat?.length === 3 &&
-                                        !day.monthRepeat.includes(
-                                          monthRepeatOption
-                                        )
-                                      )
-                                        return null;
+                                  if (
+                                    day.monthRepeat?.length === 3 &&
+                                    !day.monthRepeat.includes(monthRepeatOption)
+                                  )
+                                    return null;
 
-                                      return (
-                                        <Checkbox
-                                          key={monthRepeatOption}
-                                          isChecked={day.monthRepeat?.includes(
-                                            monthRepeatOption
-                                          )}
-                                          onChange={(e) => {
-                                            let monthRepeat: number[];
+                                  return (
+                                    <Checkbox
+                                      key={monthRepeatOption}
+                                      isChecked={day.monthRepeat?.includes(
+                                        monthRepeatOption
+                                      )}
+                                      onChange={(e) => {
+                                        let monthRepeat: number[];
 
-                                            if (!e.target.checked) {
-                                              monthRepeat =
-                                                day.monthRepeat?.filter(
-                                                  (i) => i !== monthRepeatOption
-                                                ) || [];
-                                            } else {
-                                              monthRepeat = [monthRepeatOption];
+                                        if (!e.target.checked) {
+                                          monthRepeat =
+                                            day.monthRepeat?.filter(
+                                              (i) => i !== monthRepeatOption
+                                            ) || [];
+                                        } else {
+                                          monthRepeat = [monthRepeatOption];
 
-                                              if (day.monthRepeat)
-                                                monthRepeat =
-                                                  day.monthRepeat.concat([
-                                                    monthRepeatOption
-                                                  ]);
-                                            }
+                                          if (day.monthRepeat)
+                                            monthRepeat =
+                                              day.monthRepeat.concat([
+                                                monthRepeatOption
+                                              ]);
+                                        }
 
-                                            setDays(
-                                              setDayState(index, {
-                                                monthRepeat
-                                              })
-                                            );
-                                          }}
-                                        >
-                                          Le{" "}
-                                          {
-                                            monthRepeatOptions[
-                                              monthRepeatOption
-                                            ]
-                                          }{" "}
-                                          {label} de chaque mois
-                                        </Checkbox>
-                                      );
-                                    }
-                                  )}
-                                </CheckboxGroup>
-                              </FormControl>
-                            )}
+                                        setDays(
+                                          setDayState(index, {
+                                            monthRepeat
+                                          })
+                                        );
+                                      }}
+                                    >
+                                      Le {monthRepeatOptions[monthRepeatOption]}{" "}
+                                      {label} de chaque mois
+                                    </Checkbox>
+                                  );
+                                })}
+                              </CheckboxGroup>
+                            </FormControl>
+                          )}
                         </PopoverBody>
                       </PopoverContent>
                     </Popover>

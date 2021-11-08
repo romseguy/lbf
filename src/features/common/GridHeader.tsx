@@ -13,14 +13,10 @@ export const GridHeader = ({
   dark = { bg: "gray.600" },
   pl = 3,
   ...props
-}: BoxProps &
-  BorderProps &
-  SpacerProps &
-  GridItemProps & {
-    children: React.ReactNode | React.ReactNodeArray;
-    light?: { [key: string]: any };
-    dark?: { [key: string]: any };
-  }) => {
+}: GridItemProps & {
+  light?: { [key: string]: any };
+  dark?: { [key: string]: any };
+}) => {
   return (
     <GridItem light={light} dark={dark} pl={pl} {...props}>
       {children}
