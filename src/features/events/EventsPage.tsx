@@ -35,7 +35,7 @@ export const EventsPage = ({}: {}) => {
 
   return (
     <>
-      <Flex flexWrap="wrap" mt={-3}>
+      <Flex flexWrap="wrap" margin="0 auto" maxWidth="4xl">
         <Box flexGrow={1} mt={3}>
           <Heading className="rainbow-text" fontFamily="DancingScript">
             {title}
@@ -53,22 +53,22 @@ export const EventsPage = ({}: {}) => {
             Carte des événements
           </Button>
         </Box>
-      </Flex>
 
-      {eventsQuery.isLoading || eventsQuery.isFetching ? (
-        <Text>Chargement des événements publics...</Text>
-      ) : (
-        events && (
-          <div>
-            <EventsList
-              events={events}
-              eventsQuery={eventsQuery}
-              setTitle={setTitle}
-            />
-            <IconFooter />
-          </div>
-        )
-      )}
+        {eventsQuery.isLoading || eventsQuery.isFetching ? (
+          <Text>Chargement des événements publics...</Text>
+        ) : (
+          events && (
+            <Box width="100%">
+              <EventsList
+                events={events}
+                eventsQuery={eventsQuery}
+                setTitle={setTitle}
+              />
+              <IconFooter />
+            </Box>
+          )
+        )}
+      </Flex>
 
       {isMapModalOpen && (
         <MapModal

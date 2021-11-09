@@ -55,7 +55,7 @@ export const UserForm = (props: {
   } = useForm({
     mode: "onChange"
   });
-  const [upImg, setUpImg] = useState<string | File>();
+  const [upImg, setUpImg] = useState<Base64Image | undefined>();
   const [scale, setScale] = useState(1);
   const [elementLocked, setElementLocked] = useState<
     { el: HTMLElement; locked: boolean } | undefined
@@ -260,7 +260,7 @@ export const UserForm = (props: {
         </FormErrorMessage>
       </FormControl>
 
-      {upImg && (
+      {upImg && upImg.base64 && (
         <Box
           width="200px"
           onWheel={(e) => {
@@ -274,7 +274,7 @@ export const UserForm = (props: {
         >
           <AvatarEditor
             ref={setEditorRef}
-            image={upImg}
+            image={upImg.base64}
             border={0}
             borderRadius={100}
             color={[255, 255, 255, 0.6]} // RGBA

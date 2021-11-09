@@ -75,7 +75,7 @@ export const Header = ({
   const HeaderTitle = () => (
     <Flex
       alignItems="center"
-      bg={"whiteAlpha.400"}
+      bg={isDark ? "whiteAlpha.400" : "blackAlpha.100"}
       borderRadius="lg"
       p={4}
       ml={logo ? 5 : undefined}
@@ -205,6 +205,7 @@ export const Header = ({
                 <ModalCloseButton color="white" />
                 <ModalBody display="flex" flexDirection="column" p={0}>
                   <Image
+                    alignSelf="center"
                     src={banner.url || banner.base64}
                     height={banner.height || 140}
                     width={banner.width || 1154}
@@ -232,11 +233,11 @@ export const Header = ({
                   <ModalCloseButton color="white" />
                   <ModalBody display="flex" flexDirection="column" p={0}>
                     <Box
+                      alignSelf="center"
                       bg={logoBgImage}
                       bgRepeat="no-repeat"
                       height={logo.height}
                       width={logo.width}
-                      alignSelf="center"
                     ></Box>
                   </ModalBody>
                 </ModalContent>

@@ -20,6 +20,7 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { breakpoints } from "theme/theme";
 import type { Base64Image } from "utils/image";
+import { isMobile } from "react-device-detect";
 
 const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
 
@@ -84,6 +85,7 @@ export const Layout = ({
             : defaultTitle}
         </title>
       </Head>
+
       <Flex
         css={css`
           flex-direction: column;
@@ -114,6 +116,44 @@ export const Layout = ({
           height={3}
           showOnShallow={true}
         />
+
+        {!isMobile && (
+          <Box position="fixed" right={3} bottom={3}>
+            <Tooltip
+              placement="top-start"
+              label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
+              hasArrow
+            >
+              <Box>
+                <DarkModeSwitch />
+              </Box>
+            </Tooltip>
+          </Box>
+        )}
+
+        {!isMobile && (true || process.env.NODE_ENV === "production") && (
+          <Box position="fixed" left={3} bottom={3}>
+            <Tooltip
+              label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
+              placement="top-end"
+              hasArrow
+            >
+              <div>
+                <PaypalButton />
+              </div>
+            </Tooltip>
+
+            <Tooltip
+              label="Ce projet est open-source, financé par son seul créateur."
+              placement="top-end"
+              hasArrow
+            >
+              <a href="https://github.com/romseguy">
+                <Icon as={FaGithub} boxSize={6} ml={3} />
+              </a>
+            </Tooltip>
+          </Box>
+        )}
 
         {process.env.NODE_ENV === "production" && (
           <Offline>
@@ -168,6 +208,7 @@ export const Layout = ({
           pageTitle={pageTitle}
           pageSubTitle={pageSubTitle}
         />
+
         <Nav
           minH="96px"
           isLogin={isLogin}
@@ -178,9 +219,11 @@ export const Layout = ({
             }
           `}
         />
+
         <Main {...props}>{children}</Main>
+
         <Footer display="flex" alignItems="center" pl={5} pr={5} pb={3}>
-          {(true || process.env.NODE_ENV === "production") && (
+          {isMobile && (true || process.env.NODE_ENV === "production") && (
             <Flex alignItems="center" flexGrow={1}>
               <Tooltip
                 label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
@@ -204,17 +247,19 @@ export const Layout = ({
             </Flex>
           )}
 
-          <Flex alignItems="center">
-            <Tooltip
-              placement="top-start"
-              label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
-              hasArrow
-            >
-              <Box mt={3}>
-                <DarkModeSwitch />
-              </Box>
-            </Tooltip>
-          </Flex>
+          {isMobile && (
+            <Flex alignItems="center">
+              <Tooltip
+                placement="top-start"
+                label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
+                hasArrow
+              >
+                <Box mt={3}>
+                  <DarkModeSwitch />
+                </Box>
+              </Tooltip>
+            </Flex>
+          )}
         </Footer>
       </Flex>
     </>

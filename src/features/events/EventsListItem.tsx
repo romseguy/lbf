@@ -10,7 +10,6 @@ import {
   Box,
   Button,
   Flex,
-  Grid,
   Icon,
   IconButton,
   Tag,
@@ -21,16 +20,17 @@ import {
 import { format, formatISO, getMinutes, getDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Session } from "next-auth";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
-import { IoIosPeople, IoIosPerson } from "react-icons/io";
+import { IoIosPerson } from "react-icons/io";
 import { css } from "twin.macro";
-import { Link, GridItem } from "features/common";
+import { Link, GridItem, EntityBadge } from "features/common";
+import { ModalState } from "features/modals/NotifyModal";
 import { Category, IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
-import { EventsListItemVisibility } from "./EventsListItemVisibility";
-import { ModalState } from "features/modals/NotifyModal";
 import { hasItems } from "utils/array";
+import { EventsListItemVisibility } from "./EventsListItemVisibility";
 
 export const EventsListItem = ({
   deleteEvent,
@@ -78,6 +78,9 @@ export const EventsListItem = ({
   session: Session | null;
   toast: any;
 }) => {
+  const router = useRouter();
+  const [eventNameClassName, setEventNameClassName] = useState("");
+
   const minDate = event.eventMinDate;
   const maxDate = event.eventMaxDate;
   const showIsApproved = !!(org && isCreator);
@@ -103,7 +106,33 @@ export const EventsListItem = ({
         borderBottomLeftRadius={index === length - 1 ? "lg" : undefined}
         borderWidth={0}
         p={2}
+        pl={3}
+        textAlign="center"
       >
+        {/* eventCategory */}
+        {typeof event.eventCategory === "number" && event.eventCategory !== 0 && (
+          <GridItem mb={2}>
+            <Tag
+              color="white"
+              bgColor={
+                Category[event.eventCategory].bgColor === "transparent"
+                  ? isDark
+                    ? "whiteAlpha.100"
+                    : "blackAlpha.600"
+                  : Category[event.eventCategory].bgColor
+              }
+              css={css`
+                font-size: 0.8rem;
+                @media (min-width: 730px) {
+                  font-size: 0.9rem;
+                }
+              `}
+            >
+              {Category[event.eventCategory].label}
+            </Tag>
+          </GridItem>
+        )}
+
         {/* eventCity */}
         {event.eventCity && event.eventAddress && (
           <Tooltip
@@ -133,7 +162,7 @@ export const EventsListItem = ({
           })}
         </Text>
 
-        <Icon as={UpDownIcon} my={3} />
+        <Icon as={UpDownIcon} mt={2} mb={3} />
 
         {/* eventMaxDate */}
         <Text mb={1}>
@@ -216,54 +245,85 @@ export const EventsListItem = ({
                 )}
               </GridItem>
             )}
-
-            {/* eventCategory */}
-            {typeof event.eventCategory === "number" &&
-              event.eventCategory !== 0 && (
-                <GridItem pl={showIsApproved ? 1 : 0}>
-                  <Tag
-                    color="white"
-                    bgColor={
-                      Category[event.eventCategory].bgColor === "transparent"
-                        ? isDark
-                          ? "whiteAlpha.100"
-                          : "blackAlpha.600"
-                        : Category[event.eventCategory].bgColor
-                    }
-                    css={css`
-                      font-size: 0.8rem;
-                      @media (min-width: 730px) {
-                        font-size: 0.9rem;
-                      }
-                    `}
-                  >
-                    {Category[event.eventCategory].label}
-                  </Tag>
-                </GridItem>
-              )}
           </Box>
 
-          <Box flexGrow={1} textAlign="center" px={2}>
+          <Box flexGrow={1} px={2}>
             {/* eventName */}
-            <GridItem
-              css={css`
-                @media (max-width: 700px) {
-                  margin-top: 6px;
-                  margin-bottom: 3px;
-                }
-                @media (min-width: 700px) {
-                }
-              `}
-            >
+            <GridItem mb={2}>
               <Link
-                className="rainbow-text"
+                className={eventNameClassName}
                 fontSize={["sm", "lg"]}
                 href={`/${encodeURIComponent(event.eventUrl)}`}
                 shallow
+                onMouseEnter={() => setEventNameClassName("rainbow-text")}
+                onMouseLeave={() => setEventNameClassName("")}
               >
                 {event.eventName}
               </Link>
             </GridItem>
+            <GridItem mb={2}>
+              {event.eventDescription && event.eventDescription.length > 0 ? (
+                <Box>
+                  <Button
+                    colorScheme="teal"
+                    leftIcon={<InfoIcon />}
+                    fontSize="small"
+                    fontWeight="normal"
+                    height="auto"
+                    py={2}
+                    whiteSpace="normal"
+                    onClick={() =>
+                      setEventToShow({
+                        ...event,
+                        eventMinDate: formatISO(minDate),
+                        eventMaxDate: formatISO(maxDate)
+                      })
+                    }
+                  >
+                    Voir l'affiche de l'événement
+                  </Button>
+                </Box>
+              ) : (
+                <Text fontSize="smaller">Aucune affiche disponible.</Text>
+              )}
+            </GridItem>
+
+            {!org && (
+              <GridItem mb={2}>
+                {hasItems(event.eventOrgs)
+                  ? event.eventOrgs.map((eventOrg: any) => {
+                      return (
+                        <EntityBadge
+                          key={eventOrg._id}
+                          org={eventOrg}
+                          px={2}
+                          py={1}
+                          bg={isDark ? "whiteAlpha.400" : "blackAlpha.200"}
+                          onClick={() => {
+                            router.push(
+                              `/${eventOrg.orgUrl}`,
+                              `/${eventOrg.orgUrl}`,
+                              {
+                                shallow: true
+                              }
+                            );
+                          }}
+                        />
+                      );
+                    })
+                  : typeof event.createdBy === "object" && (
+                      <Link href={`/${event.createdBy.userName}`} shallow>
+                        <Tag
+                          bg={isDark ? "whiteAlpha.500" : "blackAlpha.200"}
+                          color="black"
+                        >
+                          <Icon as={IoIosPerson} mr={1} />
+                          {event.createdBy.userName}
+                        </Tag>
+                      </Link>
+                    )}
+              </GridItem>
+            )}
           </Box>
 
           <Box>
@@ -287,7 +347,6 @@ export const EventsListItem = ({
                       minWidth={0}
                       ml={org ? 2 : 0}
                       height="auto"
-                      verticalAlign="inherit"
                       onClick={() => {
                         setEventToForward({
                           ...event,
@@ -367,66 +426,6 @@ export const EventsListItem = ({
             </GridItem>
           </Box>
         </Flex>
-
-        <GridItem pb={2} textAlign="center">
-          {event.eventDescription && event.eventDescription.length > 0 ? (
-            <Box>
-              <Button
-                colorScheme="teal"
-                leftIcon={<InfoIcon />}
-                fontSize="small"
-                fontWeight="normal"
-                height="auto"
-                py={2}
-                onClick={() =>
-                  setEventToShow({
-                    ...event,
-                    eventMinDate: formatISO(minDate),
-                    eventMaxDate: formatISO(maxDate)
-                  })
-                }
-              >
-                Voir l'affiche de l'événement
-              </Button>
-            </Box>
-          ) : (
-            <Text fontSize="smaller">Aucune affiche disponible.</Text>
-          )}
-        </GridItem>
-
-        {!org && (
-          <GridItem pb={2} textAlign="center">
-            {hasItems(event.eventOrgs)
-              ? event.eventOrgs.map((eventOrg: any) => {
-                  return (
-                    <Link
-                      key={eventOrg.orgUrl}
-                      href={`/${eventOrg.orgUrl}`}
-                      shallow
-                    >
-                      <Tag
-                        bg={isDark ? "whiteAlpha.500" : "blackAlpha.200"}
-                        color="black"
-                      >
-                        <Icon as={IoIosPeople} mr={1} />
-                        {eventOrg.orgName}
-                      </Tag>
-                    </Link>
-                  );
-                })
-              : typeof event.createdBy === "object" && (
-                  <Link href={`/${event.createdBy.userName}`} shallow>
-                    <Tag
-                      bg={isDark ? "whiteAlpha.500" : "blackAlpha.200"}
-                      color="black"
-                    >
-                      <Icon as={IoIosPerson} mr={1} />
-                      {event.createdBy.userName}
-                    </Tag>
-                  </Link>
-                )}
-          </GridItem>
-        )}
       </Td>
     </>
   );

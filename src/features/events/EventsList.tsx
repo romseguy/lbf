@@ -1,17 +1,19 @@
 import { AddIcon } from "@chakra-ui/icons";
 import {
-  Text,
-  Heading,
-  useToast,
-  Button,
-  useColorMode,
   Alert,
   AlertIcon,
+  Button,
+  Flex,
+  Box,
+  BoxProps,
+  Heading,
+  Text,
   Table,
   Tbody,
   Tr,
   Td,
-  Flex
+  useColorMode,
+  useToast
 } from "@chakra-ui/react";
 import {
   addWeeks,
@@ -58,6 +60,7 @@ import { EventInfo } from "./EventInfo";
 import { EventTimeline } from "./EventTimeline";
 
 export const EventsList = ({
+  events,
   eventsQuery,
   org,
   orgQuery,
@@ -67,7 +70,7 @@ export const EventsList = ({
   setIsLogin,
   setTitle,
   ...props
-}: {
+}: BoxProps & {
   events: IEvent[];
   eventsQuery?: any;
   org?: IOrg;
@@ -85,44 +88,11 @@ export const EventsList = ({
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
 
-  const today = setSeconds(setMinutes(setHours(new Date(), 0), 0), 0);
-
+  //#region event
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const [editEvent, editEventMutation] = useEditEventMutation();
   const [editOrg, editOrgMutation] = useEditOrgMutation();
   const postEventNotifMutation = usePostEventNotifMutation();
-
-  //#region local state
-  const [isLoading, setIsLoading] = useState(false);
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
-  const [eventToShow, setEventToShow] = useState<IEvent | null>(null);
-  const [eventToForward, setEventToForward] = useState<IEvent | null>(null);
-  const [notifyModalState, setNotifyModalState] = useState<
-    ModalState<IEvent<string | Date>>
-  >({
-    entity: null
-  });
-  useEffect(() => {
-    if (notifyModalState.entity) {
-      const event = props.events.find(
-        ({ _id }) => _id === notifyModalState.entity!._id
-      );
-      setNotifyModalState({ entity: event || null });
-    }
-  }, [props.events]);
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const selectedCategoriesCount = selectedCategories
-    ? selectedCategories.length
-    : 0;
-  const [showPreviousEvents, setShowPreviousEvents] = useState(false);
-  const [showNextEvents, setShowNextEvents] = useState(false);
-  useEffect(() => {
-    if (setTitle) {
-      if (showPreviousEvents) setTitle("Événements précédents");
-      else if (showNextEvents) setTitle("Événements suivants");
-      else setTitle();
-    }
-  }, [showPreviousEvents, showNextEvents]);
   //#endregion
 
   //#region org
@@ -139,26 +109,39 @@ export const EventsList = ({
     .reduce((a, b) => a + b, 0);
   //#endregion
 
-  const eventsListItemProps = {
-    deleteEvent,
-    editEvent,
-    editOrg,
-    isCreator,
-    isDark,
-    isLoading,
-    setIsLoading,
-    org,
-    orgQuery,
-    orgFollowersCount,
-    session,
-    eventToForward,
-    setEventToForward,
-    notifyModalState,
-    setNotifyModalState,
-    eventToShow,
-    setEventToShow,
-    toast
-  };
+  //#region local state
+  const today = setSeconds(setMinutes(setHours(new Date(), 0), 0), 0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [eventToShow, setEventToShow] = useState<IEvent | null>(null);
+  const [eventToForward, setEventToForward] = useState<IEvent | null>(null);
+  const [notifyModalState, setNotifyModalState] = useState<
+    ModalState<IEvent<string | Date>>
+  >({
+    entity: null
+  });
+  useEffect(() => {
+    if (notifyModalState.entity) {
+      const event = events.find(
+        ({ _id }) => _id === notifyModalState.entity!._id
+      );
+      setNotifyModalState({ entity: event || null });
+    }
+  }, [events]);
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+  const selectedCategoriesCount = selectedCategories
+    ? selectedCategories.length
+    : 0;
+  const [showPreviousEvents, setShowPreviousEvents] = useState(false);
+  const [showNextEvents, setShowNextEvents] = useState(false);
+  useEffect(() => {
+    if (setTitle) {
+      if (showPreviousEvents) setTitle("Événements précédents");
+      else if (showNextEvents) setTitle("Événements suivants");
+      else setTitle();
+    }
+  }, [showPreviousEvents, showNextEvents]);
+  //#endregion
 
   const getEvents = (events: IEvent[]) => {
     let previousEvents: IEvent<Date>[] = [];
@@ -237,12 +220,10 @@ export const EventsList = ({
                   const eventMaxDate = end;
 
                   if (getDayOfYear(NthDayOfMonth) < getDayOfYear(today)) {
-                    console.log(
-                      "previousEvents.monthRepeat.push",
-                      event.eventName,
-                      eventMinDate,
-                      NthDayOfMonth
-                    );
+                    // console.log(
+                    //   "previousEvents.monthRepeat.push",
+                    //   event.eventName
+                    // );
                     previousEvents.push({
                       ...event,
                       eventMinDate,
@@ -250,20 +231,20 @@ export const EventsList = ({
                     });
                   } else {
                     if (isBefore(eventMinDate, addWeeks(today, 1))) {
-                      console.log(
-                        "currentEvents.monthRepeat.push",
-                        event.eventName
-                      );
+                      // console.log(
+                      //   "currentEvents.monthRepeat.push",
+                      //   event.eventName
+                      // );
                       currentEvents.push({
                         ...event,
                         eventMinDate,
                         eventMaxDate
                       });
                     } else {
-                      console.log(
-                        "nextEvents.monthRepeat.push",
-                        event.eventName
-                      );
+                      // console.log(
+                      //   "nextEvents.monthRepeat.push",
+                      //   event.eventName
+                      // );
                       nextEvents.push({
                         ...event,
                         eventMinDate,
@@ -383,8 +364,6 @@ export const EventsList = ({
               }
 
               if (event.otherDays) {
-                console.log(event);
-
                 for (const otherDay of event.otherDays) {
                   const start = otherDay.startDate
                     ? addWeeks(parseISO(otherDay.startDate), i)
@@ -434,11 +413,32 @@ export const EventsList = ({
     return { previousEvents, currentEvents, nextEvents };
   };
 
-  const events = useMemo(() => {
+  const eventsListItemProps = {
+    deleteEvent,
+    editEvent,
+    editOrg,
+    isCreator,
+    isDark,
+    isLoading,
+    setIsLoading,
+    org,
+    orgQuery,
+    orgFollowersCount,
+    session,
+    eventToForward,
+    setEventToForward,
+    notifyModalState,
+    setNotifyModalState,
+    eventToShow,
+    setEventToShow,
+    toast
+  };
+
+  const eventsList = useMemo(() => {
     let currentDateP: Date | null = null;
     let currentDate: Date | null = null;
     let currentDateN: Date | null = null;
-    let { previousEvents, currentEvents, nextEvents } = getEvents(props.events);
+    let { previousEvents, currentEvents, nextEvents } = getEvents(events);
 
     return (
       <>
@@ -492,7 +492,9 @@ export const EventsList = ({
                       <Tr
                         bg={
                           isDark
-                            ? "gray.300"
+                            ? index % 2 === 0
+                              ? "gray.400"
+                              : "gray.500"
                             : index % 2 === 0
                             ? "orange.50"
                             : "orange.100"
@@ -548,7 +550,9 @@ export const EventsList = ({
                         <Tr
                           bg={
                             isDark
-                              ? "gray.300"
+                              ? index % 2 === 0
+                                ? "gray.400"
+                                : "gray.500"
                               : index % 2 === 0
                               ? "orange.50"
                               : "orange.100"
@@ -636,7 +640,9 @@ export const EventsList = ({
                       <Tr
                         bg={
                           isDark
-                            ? "gray.300"
+                            ? index % 2 === 0
+                              ? "gray.400"
+                              : "gray.500"
                             : index % 2 === 0
                             ? "orange.50"
                             : "orange.100"
@@ -673,7 +679,7 @@ export const EventsList = ({
       </>
     );
   }, [
-    props.events,
+    events,
     session,
     isLoading,
     showPreviousEvents,
@@ -682,7 +688,7 @@ export const EventsList = ({
   ]);
 
   return (
-    <div>
+    <>
       {org && (
         <>
           <Button
@@ -731,7 +737,7 @@ export const EventsList = ({
         </>
       )}
 
-      {events}
+      {eventsList}
 
       {eventToShow && (
         <DescriptionModal
@@ -794,6 +800,6 @@ export const EventsList = ({
         setModalState={setNotifyModalState}
         modalState={notifyModalState}
       />
-    </div>
+    </>
   );
 };

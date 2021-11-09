@@ -25,7 +25,6 @@ export const EntityBadge = ({
       }
       height="auto"
       m={0}
-      p={0}
       onClick={onClick}
       {...props}
     >
