@@ -4,6 +4,7 @@ import {
   Flex,
   Heading,
   Icon,
+  Image,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -64,29 +65,26 @@ export const Header = ({
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
   const banner = event?.eventBanner || org?.orgBanner;
+
   const bgImage = banner ? `url("${banner.base64 || banner.url}")` : undefined;
   const logo = event?.eventLogo || org?.orgLogo;
-  const logoBgImage = logo ? `url("${logo.base64}")` : "";
+  const logoBgImage = logo ? `url("${logo.url || logo.base64}")` : "";
   const logoBgSize = "110px";
   //#endregion
 
   const HeaderTitle = () => (
-    <Flex alignItems="center" ml={logo ? 5 : undefined}>
+    <Flex
+      alignItems="center"
+      bg={"whiteAlpha.400"}
+      borderRadius="lg"
+      p={4}
+      ml={logo ? 5 : undefined}
+    >
       {icon && (
         <Icon
           as={icon}
           boxSize={5}
-          color={
-            event
-              ? event.isApproved
-                ? "green"
-                : "red"
-              : isDark
-              ? "white"
-              : banner
-              ? "white"
-              : "black"
-          }
+          color={event ? (event.isApproved ? "green" : "red") : "green"}
           mr={2}
           title={
             event?.isApproved
@@ -144,7 +142,7 @@ export const Header = ({
       alignItems="center"
       color={isDark ? "white" : "black"}
       cursor={banner ? "pointer" : "default"}
-      height={banner ? banner.height : undefined}
+      height={banner ? banner.headerHeight : undefined}
       p={!banner && !logo ? 3 : undefined}
       css={css`
         ${isDark ? tw`bg-gray-800` : tw`bg-white`}
@@ -167,15 +165,10 @@ export const Header = ({
               setIsLogoModalOpen(true);
             }}
           >
-            <Box
-              css={css`
-                margin: ${!banner ? "12px 0 0 0" : 0};
-                height: ${logoBgSize};
-                width: ${logoBgSize};
-                background-image: ${logoBgImage};
-                background-size: cover;
-                border-top-right-radius: 12px;
-              `}
+            <Image
+              src={logo.url || logo.base64}
+              borderTopRightRadius="lg"
+              height={logoBgSize}
             />
           </Link>
           <HeaderTitle />
@@ -184,7 +177,7 @@ export const Header = ({
       ) : (
         <Flex
           alignItems="center"
-          bg={banner ? "blackAlpha.500" : undefined}
+          bg={banner ? "whiteAlpha.400" : undefined}
           borderRadius="lg"
           ml={5}
           p={banner ? 3 : undefined}
@@ -211,14 +204,11 @@ export const Header = ({
                 </ModalHeader>
                 <ModalCloseButton color="white" />
                 <ModalBody display="flex" flexDirection="column" p={0}>
-                  <Box
-                    bg={bgImage}
-                    bgRepeat="no-repeat"
-                    bgSize="contain"
+                  <Image
+                    src={banner.url || banner.base64}
                     height={banner.height || 140}
                     width={banner.width || 1154}
-                    alignSelf="center"
-                  ></Box>
+                  />
                 </ModalBody>
               </ModalContent>
             </ModalOverlay>

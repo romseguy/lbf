@@ -34,7 +34,7 @@ import {
   ChevronRightIcon,
   WarningIcon
 } from "@chakra-ui/icons";
-import { getBase64, getMeta } from "utils/image";
+import { Base64Image, getBase64, getMeta } from "utils/image";
 import { useForm } from "react-hook-form";
 import { handleError } from "utils/form";
 import { ErrorMessage } from "@hookform/error-message";
@@ -57,20 +57,11 @@ export const EventConfigBannerPanel = ({
 }: EventConfigBannerPanelProps) => {
   const toast = useToast({ position: "top" });
 
-  //#region local state
-  const [heights, setHeights] = useState([
-    { label: "Petit", height: 140 },
-    { label: "Moyen", height: 240 },
-    { label: "Grand", height: 340 }
-  ]);
-  const [uploadType, setUploadType] = useState<"url" | "local">(
-    event.eventBanner?.url ? "url" : "local"
-  );
-  const [upImg, setUpImg] = useState<string | File | null>(null);
-  const setEditorRef = useRef<AvatarEditor | null>(null);
+  //#region event
+  const [editEvent, editEventMutation] = useEditEventMutation();
   //#endregion
 
-  //#region form
+  //#region form state
   const {
     register,
     control,
@@ -84,19 +75,20 @@ export const EventConfigBannerPanel = ({
   } = useForm({
     mode: "onChange"
   });
-  const defaultHeight = event.eventBanner?.height || heights[0].height;
+  const [heights, setHeights] = useState([
+    { label: "Petit", height: 140 },
+    { label: "Moyen", height: 240 },
+    { label: "Grand", height: 340 }
+  ]);
+  const { height: defaultHeight } =
+    heights.find(({ height }) => height === event.eventBanner?.headerHeight) ||
+    heights[0];
   const formHeight = watch("height") || defaultHeight;
-  //#endregion
-
-  //#region event
-  const [editEvent, editEventMutation] = useEditEventMutation();
-  // useEffect(() => {
-  //   if (event.eventBanner?.url)
-  //     getMeta(event.eventBanner.url, (width, height) => {
-  //       console.log("url height", height);
-  //       setHeights(heights.filter(({ height: h }) => h < height));
-  //     });
-  // }, [event.eventBanner?.url]);
+  const [uploadType, setUploadType] = useState<"url" | "local">(
+    event.eventBanner?.url ? "url" : "local"
+  );
+  const [upImg, setUpImg] = useState<Base64Image>();
+  const setEditorRef = useRef<AvatarEditor | null>(null);
   //#endregion
 
   const onSubmit = async (form: any) => {
@@ -104,15 +96,24 @@ export const EventConfigBannerPanel = ({
 
     try {
       let payload = {};
+      const { height, width } = await getMeta(form.url);
 
       if (uploadType === "url") {
-        payload = { eventBanner: { url: form.url, height: form.height } };
+        payload = {
+          eventBanner: {
+            url: form.url,
+            height,
+            headerHeight: form.height,
+            width
+          }
+        };
       } else {
         payload = {
           eventBanner: {
-            height: form.height,
-            mode: form.mode,
-            base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL()
+            base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL(),
+            height,
+            headerHeight: form.height,
+            mode: form.mode
           }
         };
       }
@@ -136,6 +137,7 @@ export const EventConfigBannerPanel = ({
       );
     }
   };
+  //#endregion
 
   return (
     <Grid {...props}>
@@ -190,7 +192,6 @@ export const EventConfigBannerPanel = ({
                     isChecked={uploadType === "local"}
                     onChange={() => {
                       setUploadType("local");
-                      //setUpImg(event.eventBanner?.base64 || null);
                     }}
                   >
                     Envoyer une image depuis votre ordinateur
@@ -199,8 +200,6 @@ export const EventConfigBannerPanel = ({
                     isChecked={uploadType === "url"}
                     onChange={() => {
                       setUploadType("url");
-                      //setUpImg(event.eventBanner?.url || null);
-                      //setUpImg(null);
                     }}
                   >
                     Utiliser une image en provenance d'une autre adresse
@@ -233,72 +232,65 @@ export const EventConfigBannerPanel = ({
                   defaultValue={event.eventBanner?.url}
                   errors={errors}
                   isMultiple={false}
+                  isRequired
                 />
               ) : (
-                <>
-                  {/* <FormControl id="mode" mb={3}>
-                <FormLabel>Theme</FormLabel>
-                <Select
-                  name="mode"
-                  ref={register()}
-                  defaultValue={event.eventBanner?.mode || "light"}
-                >
-                  <option value="light">Clair</option>
-                  <option value="dark">Sombre</option>
-                </Select>
-              </FormControl> */}
-
-                  <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
-                    <FormLabel>Image</FormLabel>
-                    <Input
-                      height="auto"
-                      py={3}
-                      name="file"
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          if (e.target.files[0].size < 1000000) {
-                            setUpImg(await getBase64(e.target.files[0]));
-                            // const reader = new FileReader();
-                            // reader.addEventListener("load", () =>
-                            //   setUpImg(reader.result)
-                            // );
-                            //reader.readAsDataURL(e.target.files[0]);
-                            clearErrors("file");
-                          }
+                <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
+                  <FormLabel>Image</FormLabel>
+                  <Input
+                    height="auto"
+                    py={3}
+                    name="file"
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        if (e.target.files[0].size < 1000000) {
+                          setUpImg(await getBase64(e.target.files[0]));
+                          clearErrors("file");
                         }
-                      }}
-                      ref={register({
-                        validate: (file) => {
-                          if (file && file[0] && file[0].size >= 1000000) {
-                            return "L'image ne doit pas dépasser 1Mo.";
-                          }
-                          return true;
+                      }
+                    }}
+                    ref={register({
+                      validate: (file) => {
+                        if (file && file[0] && file[0].size >= 1000000) {
+                          return "L'image ne doit pas dépasser 1Mo.";
                         }
-                      })}
-                    />
-                    <FormErrorMessage>
-                      <ErrorMessage errors={errors} name="file" />
-                    </FormErrorMessage>
-                  </FormControl>
-                </>
+                        return true;
+                      }
+                    })}
+                  />
+                  <FormErrorMessage>
+                    <ErrorMessage errors={errors} name="file" />
+                  </FormErrorMessage>
+                </FormControl>
               )}
 
               <Box mb={3}>
                 {uploadType === "url" ? (
-                  <Image src={getValues("url") || event.eventBanner?.url} />
+                  <AvatarEditor
+                    ref={setEditorRef}
+                    border={0}
+                    color={[255, 255, 255, 0.6]} // RGBA
+                    height={parseInt(formHeight)}
+                    image={getValues("url") || event.eventBanner?.url}
+                    rotate={0}
+                    scale={1}
+                    width={1154}
+                    position={{ x: 0, y: 0 }}
+                  />
                 ) : (
-                  upImg && (
+                  upImg &&
+                  upImg.base64 && (
                     <AvatarEditor
                       ref={setEditorRef}
-                      image={upImg}
-                      width={1154}
-                      height={parseInt(formHeight)}
                       border={0}
                       color={[255, 255, 255, 0.6]} // RGBA
-                      scale={1}
+                      height={parseInt(formHeight)}
+                      image={upImg.base64}
                       rotate={0}
+                      scale={1}
+                      width={1154}
                     />
                   )
                 )}

@@ -25,8 +25,14 @@ export interface IOrg {
   orgProjects: IProject[];
   orgSubscriptions: ISubscription[];
   orgTopics: ITopic[];
-  orgLogo?: Base64Image;
-  orgBanner?: Base64Image & { mode: "light" | "dark"; url?: string };
+  orgLogo?: Base64Image & {
+    url?: string;
+  };
+  orgBanner?: Base64Image & {
+    headerHeight: number;
+    mode?: "light" | "dark";
+    url?: string;
+  };
   orgVisibility: string;
   orgs?: IOrg[];
   isApproved?: boolean;
@@ -126,12 +132,14 @@ export const OrgSchema = new Schema<IOrg>(
     orgLogo: {
       base64: String,
       width: Number,
-      height: Number
+      height: Number,
+      url: String
     },
     orgBanner: {
       base64: String,
-      width: Number,
       height: Number,
+      headerHeight: Number,
+      width: Number,
       mode: String,
       url: String
     },

@@ -19,6 +19,7 @@ import {
   format,
   isBefore,
   parseISO,
+  getDay,
   getDayOfYear,
   setDay,
   getHours,
@@ -225,7 +226,7 @@ export const EventsList = ({
                 for (const monthRepeat of otherDay.monthRepeat) {
                   const NthDayOfMonth = getNthDayOfMonth(
                     new Date(),
-                    otherDay.dayNumber,
+                    otherDay.dayNumber === 6 ? 0 : otherDay.dayNumber - 1,
                     monthRepeat + 1
                   );
 
@@ -238,7 +239,9 @@ export const EventsList = ({
                   if (getDayOfYear(NthDayOfMonth) < getDayOfYear(today)) {
                     console.log(
                       "previousEvents.monthRepeat.push",
-                      event.eventName
+                      event.eventName,
+                      eventMinDate,
+                      NthDayOfMonth
                     );
                     previousEvents.push({
                       ...event,

@@ -13,14 +13,27 @@ export function getPicaInstance() {
 
 export type Base64Image = { base64?: string; width: number; height: number };
 
-export const getBase64 = (file: File): Promise<string> =>
+export const getBase64 = (file: File): Promise<Base64Image> =>
   new Promise(function (resolve, reject) {
     let reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onloadend = () =>
-      typeof reader.result === "string"
-        ? resolve(reader.result)
-        : reject("invalid type");
+
+    reader.onloadend = () => {
+      if (typeof reader.result === "string") {
+        const img = new Image();
+        img.src = reader.result;
+
+        img.onload = () => {
+          if (typeof reader.result === "string")
+            resolve({
+              base64: reader.result,
+              height: img.height,
+              width: img.width
+            });
+        };
+      } else reject("invalid type");
+    };
+
     reader.onerror = (error) => reject(error);
   });
 
@@ -33,14 +46,15 @@ export function calculateScale(scale: number, delta: number): number {
   return clamped;
 }
 
-export function getMeta(
-  url: string,
-  callback: (width: number, height: number) => void
-) {
-  var img = new Image();
-  img.src = url;
-  img.onload = function () {
-    //@ts-expect-error
-    callback(this.width, this.height);
-  };
-}
+export const getMeta = async (
+  url: string
+): Promise<{ height: number; width: number }> => {
+  return new Promise((resolve, reject) => {
+    var img = new Image();
+    img.src = url;
+    img.onload = function () {
+      //@ts-expect-error
+      resolve({ width: this.width, height: this.height });
+    };
+  });
+};

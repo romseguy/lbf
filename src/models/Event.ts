@@ -42,8 +42,14 @@ export interface IEvent<T = string> {
     eventId: string;
     eventUrl?: string;
   };
-  eventLogo?: Base64Image;
-  eventBanner?: Base64Image & { mode: "light" | "dark"; url?: string };
+  eventLogo?: Base64Image & {
+    url?: string;
+  };
+  eventBanner?: Base64Image & {
+    headerHeight: number;
+    mode: "light" | "dark";
+    url?: string;
+  };
   createdBy: IUser | string;
   createdAt?: string;
 }
@@ -174,11 +180,14 @@ export const EventSchema = new Schema<IEvent>(
     eventLogo: {
       base64: String,
       width: Number,
-      height: Number
+      height: Number,
+      url: String
     },
     eventBanner: {
       base64: String,
       height: Number,
+      headerHeight: Number,
+      width: Number,
       mode: String,
       url: String
     },

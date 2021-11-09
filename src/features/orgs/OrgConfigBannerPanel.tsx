@@ -1,6 +1,6 @@
 import type { Visibility } from "./OrgPage";
 import type { IOrg } from "models/Org";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import {
   Box,
@@ -15,8 +15,7 @@ import {
   Flex,
   Radio,
   RadioGroup,
-  GridProps,
-  Image
+  GridProps
 } from "@chakra-ui/react";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import {
@@ -29,18 +28,13 @@ import {
   Link,
   Select
 } from "features/common";
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  WarningIcon
-} from "@chakra-ui/icons";
-import { getBase64, getMeta } from "utils/image";
+import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { Base64Image, getBase64, getMeta } from "utils/image";
 import { useForm } from "react-hook-form";
 import { handleError } from "utils/form";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRef } from "react";
 import { UrlControl } from "features/common/forms/UrlControl";
-import { urlR } from "utils/url";
 
 type OrgConfigBannerPanelProps = GridProps &
   Visibility & {
@@ -57,20 +51,11 @@ export const OrgConfigBannerPanel = ({
 }: OrgConfigBannerPanelProps) => {
   const toast = useToast({ position: "top" });
 
-  //#region local state
-  const [heights, setHeights] = useState([
-    { label: "Petit", height: 140 },
-    { label: "Moyen", height: 240 },
-    { label: "Grand", height: 340 }
-  ]);
-  const [uploadType, setUploadType] = useState<"url" | "local">(
-    org.orgBanner?.url ? "url" : "local"
-  );
-  const [upImg, setUpImg] = useState<string | File | null>(null);
-  const setEditorRef = useRef<AvatarEditor | null>(null);
+  //#region org
+  const [editOrg, editOrgMutation] = useEditOrgMutation();
   //#endregion
 
-  //#region form
+  //#region form state
   const {
     register,
     control,
@@ -84,35 +69,43 @@ export const OrgConfigBannerPanel = ({
   } = useForm({
     mode: "onChange"
   });
-  const defaultHeight = org.orgBanner?.height || heights[0].height;
+  const [heights, setHeights] = useState([
+    { label: "Petit", height: 140 },
+    { label: "Moyen", height: 240 },
+    { label: "Grand", height: 340 }
+  ]);
+  const { height: defaultHeight } =
+    heights.find(({ height }) => height === org.orgBanner?.headerHeight) ||
+    heights[0];
   const formHeight = watch("height") || defaultHeight;
-  //#endregion
-
-  //#region org
-  const [editOrg, editOrgMutation] = useEditOrgMutation();
-  // useEffect(() => {
-  //   if (org.orgBanner?.url)
-  //     getMeta(org.orgBanner.url, (width, height) => {
-  //       console.log("url height", height);
-  //       setHeights(heights.filter(({ height: h }) => h < height));
-  //     });
-  // }, [org.orgBanner?.url]);
-  //#endregion
+  const [uploadType, setUploadType] = useState<"url" | "local">(
+    org.orgBanner?.url ? "url" : "local"
+  );
+  const [upImg, setUpImg] = useState<Base64Image>();
+  const setEditorRef = useRef<AvatarEditor | null>(null);
 
   const onSubmit = async (form: any) => {
     console.log("submitted", form);
 
     try {
       let payload = {};
+      const { height } = await getMeta(form.url);
 
       if (uploadType === "url") {
-        payload = { orgBanner: { url: form.url, height: form.height } };
+        payload = {
+          orgBanner: {
+            url: form.url,
+            height,
+            headerHeight: form.height
+          }
+        };
       } else {
         payload = {
           orgBanner: {
-            height: form.height,
-            mode: form.mode,
-            base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL()
+            base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL(),
+            height,
+            headerHeight: form.height,
+            mode: form.mode
           }
         };
       }
@@ -136,6 +129,7 @@ export const OrgConfigBannerPanel = ({
       );
     }
   };
+  //#endregion
 
   return (
     <Grid {...props}>
@@ -190,7 +184,6 @@ export const OrgConfigBannerPanel = ({
                     isChecked={uploadType === "local"}
                     onChange={() => {
                       setUploadType("local");
-                      //setUpImg(org.orgBanner?.base64 || null);
                     }}
                   >
                     Envoyer une image depuis votre ordinateur
@@ -199,8 +192,6 @@ export const OrgConfigBannerPanel = ({
                     isChecked={uploadType === "url"}
                     onChange={() => {
                       setUploadType("url");
-                      //setUpImg(org.orgBanner?.url || null);
-                      //setUpImg(null);
                     }}
                   >
                     Utiliser une image en provenance d'une autre adresse
@@ -233,72 +224,65 @@ export const OrgConfigBannerPanel = ({
                   label="Adresse internet de l'image"
                   defaultValue={org.orgBanner?.url}
                   isMultiple={false}
+                  isRequired
                 />
               ) : (
-                <>
-                  {/* <FormControl id="mode" mb={3}>
-                <FormLabel>Theme</FormLabel>
-                <Select
-                  name="mode"
-                  ref={register()}
-                  defaultValue={org.orgBanner?.mode || "light"}
-                >
-                  <option value="light">Clair</option>
-                  <option value="dark">Sombre</option>
-                </Select>
-              </FormControl> */}
-
-                  <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
-                    <FormLabel>Image</FormLabel>
-                    <Input
-                      height="auto"
-                      py={3}
-                      name="file"
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          if (e.target.files[0].size < 1000000) {
-                            setUpImg(await getBase64(e.target.files[0]));
-                            // const reader = new FileReader();
-                            // reader.addOrgListener("load", () =>
-                            //   setUpImg(reader.result)
-                            // );
-                            //reader.readAsDataURL(e.target.files[0]);
-                            clearErrors("file");
-                          }
+                <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
+                  <FormLabel>Image</FormLabel>
+                  <Input
+                    height="auto"
+                    py={3}
+                    name="file"
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        if (e.target.files[0].size < 1000000) {
+                          setUpImg(await getBase64(e.target.files[0]));
+                          clearErrors("file");
                         }
-                      }}
-                      ref={register({
-                        validate: (file) => {
-                          if (file && file[0] && file[0].size >= 1000000) {
-                            return "L'image ne doit pas dépasser 1Mo.";
-                          }
-                          return true;
+                      }
+                    }}
+                    ref={register({
+                      validate: (file) => {
+                        if (file && file[0] && file[0].size >= 1000000) {
+                          return "L'image ne doit pas dépasser 1Mo.";
                         }
-                      })}
-                    />
-                    <FormErrorMessage>
-                      <ErrorMessage errors={errors} name="file" />
-                    </FormErrorMessage>
-                  </FormControl>
-                </>
+                        return true;
+                      }
+                    })}
+                  />
+                  <FormErrorMessage>
+                    <ErrorMessage errors={errors} name="file" />
+                  </FormErrorMessage>
+                </FormControl>
               )}
 
               <Box mb={3}>
                 {uploadType === "url" ? (
-                  <Image src={getValues("url") || org.orgBanner?.url} />
+                  <AvatarEditor
+                    ref={setEditorRef}
+                    border={0}
+                    color={[255, 255, 255, 0.6]} // RGBA
+                    height={parseInt(formHeight)}
+                    image={getValues("url") || org.orgBanner?.url}
+                    rotate={0}
+                    scale={1}
+                    width={1154}
+                    position={{ x: 0, y: 0 }}
+                  />
                 ) : (
-                  upImg && (
+                  upImg &&
+                  upImg.base64 && (
                     <AvatarEditor
                       ref={setEditorRef}
-                      image={upImg}
-                      width={1154}
-                      height={parseInt(formHeight)}
                       border={0}
                       color={[255, 255, 255, 0.6]} // RGBA
-                      scale={1}
+                      height={parseInt(formHeight)}
+                      image={upImg.base64}
                       rotate={0}
+                      scale={1}
+                      width={1154}
                     />
                   )
                 )}

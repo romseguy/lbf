@@ -33,12 +33,23 @@ export const EventTimeline = ({
 
   const timeline: EventTimelineType = dateUtils.days.reduce(
     (obj, label, index) => {
+      let ret = { ...obj };
+
+      if (startDay === index)
+        ret = {
+          ...ret,
+          [index]: {
+            startDate: eventMinDate,
+            endTime: eventMaxDate
+          }
+        };
+
       if (Array.isArray(event.otherDays) && event.otherDays.length > 0) {
         for (const day of event.otherDays) {
           const { dayNumber, startDate, endTime } = day;
           if (dayNumber === index) {
-            return {
-              ...obj,
+            ret = {
+              ...ret,
               [index]: {
                 ...day,
                 startDate: startDate
@@ -51,24 +62,20 @@ export const EventTimeline = ({
             };
           }
         }
-      } else if (startDay === index)
-        return {
-          ...obj,
-          [index]: {
-            startDate: eventMinDate,
-            endTime: eventMaxDate
-          }
-        };
+      }
 
-      return obj;
+      return ret;
     },
     {}
   );
+
+  console.log(timeline);
 
   const renderTimeline = () =>
     Object.keys(timeline).map((key) => {
       const dayNumber = parseInt(key);
       const day = timeline[dayNumber];
+      //console.log(day, dayNumber);
 
       return (
         <ListItem key={"timeline-item-" + key}>

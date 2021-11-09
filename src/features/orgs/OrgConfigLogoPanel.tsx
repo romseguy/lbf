@@ -10,11 +10,14 @@ import {
   Flex,
   Grid,
   GridProps,
-  useToast
+  useToast,
+  Radio,
+  RadioGroup,
+  Stack
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
 import {
@@ -28,8 +31,9 @@ import {
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { handleError } from "utils/form";
 import { IOrg, orgTypeFull } from "models/Org";
-import { calculateScale, getBase64 } from "utils/image";
+import { Base64Image, calculateScale, getBase64, getMeta } from "utils/image";
 import { Visibility } from "./OrgPage";
+import { UrlControl } from "features/common/forms/UrlControl";
 
 type OrgConfigLogoPanelProps = GridProps &
   Visibility & {
@@ -46,16 +50,44 @@ export const OrgConfigLogoPanel = ({
 }: OrgConfigLogoPanelProps) => {
   const toast = useToast({ position: "top" });
 
+  //#region org
   const [editOrg, editOrgMutation] = useEditOrgMutation();
+  //#endregion
 
   //#region form state
-  const { register, handleSubmit, setError, errors, clearErrors, watch } =
-    useForm({
-      mode: "onChange"
-    });
-  const height = 220;
-  const width = 220;
-  const [upImg, setUpImg] = useState<string | File>();
+  const {
+    register,
+    control,
+    handleSubmit,
+    getValues,
+    setValue,
+    setError,
+    errors,
+    clearErrors,
+    watch
+  } = useForm({
+    mode: "onChange"
+  });
+
+  const [logoHeight, setLogoHeight] = useState<number | undefined>();
+  const [logoWidth, setLogoWidth] = useState<number | undefined>();
+  const url = watch("url");
+  useEffect(() => {
+    const xhr = async () => {
+      const { height, width } = await getMeta(url);
+      if (height !== logoHeight) setLogoHeight(height);
+      if (width !== logoWidth) setLogoWidth(width);
+    };
+    if (typeof url === "string" && url.length > 0) {
+      xhr();
+    }
+  }, [url]);
+
+  const [uploadType, setUploadType] = useState<"url" | "local">(
+    org.orgLogo?.url ? "url" : "local"
+  );
+
+  const [upImg, setUpImg] = useState<Base64Image>();
   const [scale, setScale] = useState(1);
   const [elementLocked, setElementLocked] = useState<
     { el: HTMLElement; locked: boolean } | undefined
@@ -73,15 +105,32 @@ export const OrgConfigLogoPanel = ({
     if (elementLocked) enableScroll(elementLocked.el);
 
     try {
-      await editOrg({
-        payload: {
-          ...org,
+      let payload = {};
+
+      if (uploadType === "url") {
+        payload = {
           orgLogo: {
-            width,
-            height,
-            base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL()
+            url,
+            height: logoHeight,
+            width: logoWidth
           }
-        },
+        };
+      } else {
+        if (!upImg) throw new Error("Vous devez choisir un logo");
+
+        payload = {
+          orgLogo: {
+            base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL(),
+            height: upImg?.height,
+            width: upImg?.width
+          }
+        };
+      }
+
+      console.log("payload", payload);
+
+      await editOrg({
+        payload,
         orgUrl: org.orgUrl
       });
       toast({
@@ -153,67 +202,110 @@ export const OrgConfigLogoPanel = ({
                 )}
               />
 
-              <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
-                <FormLabel>Image</FormLabel>
-                <Input
-                  height="auto"
-                  py={3}
-                  name="file"
-                  type="file"
-                  accept="image/*"
-                  onChange={async (e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      if (e.target.files[0].size < 1000000) {
-                        setUpImg(await getBase64(e.target.files[0]));
-                        // const reader = new FileReader();
-                        // reader.addEventListener("load", () =>
-                        //   setUpImg(reader.result)
-                        // );
-                        //reader.readAsDataURL(e.target.files[0]);
-                        clearErrors("file");
-                      }
-                    }
-                  }}
-                  ref={register({
-                    validate: (file) => {
-                      if (file && file[0] && file[0].size >= 1000000) {
-                        return "L'image ne doit pas dépasser 1Mo.";
-                      }
-                      return true;
-                    }
-                  })}
+              <RadioGroup name="uploadType" mb={3}>
+                <Stack spacing={2}>
+                  <Radio
+                    isChecked={uploadType === "local"}
+                    onChange={() => {
+                      setUploadType("local");
+                    }}
+                  >
+                    Envoyer une image depuis votre ordinateur
+                  </Radio>
+                  <Radio
+                    isChecked={uploadType === "url"}
+                    onChange={() => {
+                      setUploadType("url");
+                    }}
+                  >
+                    Utiliser une image en provenance d'une autre adresse
+                  </Radio>
+                </Stack>
+              </RadioGroup>
+
+              {uploadType === "url" ? (
+                <UrlControl
+                  name="url"
+                  register={register}
+                  setValue={setValue}
+                  control={control}
+                  errors={errors}
+                  label="Adresse internet de l'image"
+                  defaultValue={org.orgLogo?.url}
+                  isMultiple={false}
+                  isRequired
                 />
-                <FormErrorMessage>
-                  <ErrorMessage errors={errors} name="file" />
-                </FormErrorMessage>
-              </FormControl>
-
-              {upImg && (
-                <Box
-                  width={width}
-                  onWheel={(e) => {
-                    e.stopPropagation();
-                    console.log(scale);
-
-                    setScale(calculateScale(scale, e.deltaY));
-
-                    const el = e.target as HTMLElement;
-                    disableScroll(el);
-                    if (!elementLocked) setElementLocked({ el, locked: true });
-                  }}
-                >
-                  <AvatarEditor
-                    ref={setEditorRef}
-                    image={upImg}
-                    width={width}
-                    height={height}
-                    border={0}
-                    color={[255, 255, 255, 0.6]} // RGBA
-                    scale={scale}
-                    rotate={0}
-                    style={{ marginBottom: "12px" }}
+              ) : (
+                <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
+                  <FormLabel>Image</FormLabel>
+                  <Input
+                    height="auto"
+                    py={3}
+                    name="file"
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        if (e.target.files[0].size < 1000000) {
+                          setUpImg(await getBase64(e.target.files[0]));
+                          clearErrors("file");
+                        }
+                      }
+                    }}
+                    ref={register({
+                      validate: (file) => {
+                        if (file && file[0] && file[0].size >= 1000000) {
+                          return "L'image ne doit pas dépasser 1Mo.";
+                        }
+                        return true;
+                      }
+                    })}
                   />
-                </Box>
+                  <FormErrorMessage>
+                    <ErrorMessage errors={errors} name="file" />
+                  </FormErrorMessage>
+                </FormControl>
+              )}
+
+              {uploadType === "url" ? (
+                <AvatarEditor
+                  ref={setEditorRef}
+                  border={0}
+                  color={[255, 255, 255, 0.6]} // RGBA
+                  height={logoHeight || 0}
+                  image={getValues("url") || org.orgLogo?.url}
+                  rotate={0}
+                  scale={1}
+                  width={logoWidth}
+                  position={{ x: 0, y: 0 }}
+                />
+              ) : (
+                upImg &&
+                upImg.base64 && (
+                  <Box
+                    width={upImg.width || 220}
+                    // onWheel={(e) => {
+                    //   e.stopPropagation();
+                    //   setScale(calculateScale(scale, e.deltaY));
+                    //   const el = e.target as HTMLElement;
+                    //   disableScroll(el);
+                    //   if (!elementLocked)
+                    //     setElementLocked({ el, locked: true });
+                    // }}
+                  >
+                    <AvatarEditor
+                      ref={setEditorRef}
+                      image={upImg.base64}
+                      height={upImg.height}
+                      width={upImg.width}
+                      border={1}
+                      color={[255, 255, 255, 0.6]} // RGBA
+                      scale={scale}
+                      rotate={0}
+                      style={{ marginBottom: "12px" }}
+                    />
+                  </Box>
+                )
               )}
 
               <Button
@@ -221,6 +313,7 @@ export const OrgConfigLogoPanel = ({
                 type="submit"
                 isLoading={editOrgMutation.isLoading}
                 isDisabled={Object.keys(errors).length > 0}
+                mt={3}
               >
                 Valider
               </Button>
