@@ -2055,6 +2055,11 @@
   dependencies:
     "@types/react" "*"
 
+"@types/google.maps@^3.46.1":
+  version "3.46.1"
+  resolved "https://registry.yarnpkg.com/@types/google.maps/-/google.maps-3.46.1.tgz#a1a3bf99402022ea0039cc8c3230a1f9a216e46e"
+  integrity sha512-GAa5ZWYgXG50yLXybb7A824esGm/L0LKHS7qD0qkP0IA/Qp5r922P9tmYcbCkGEf3Zgf7Ukbp7l08/IGIJuQwQ==
+
 "@types/hoist-non-react-statics@^3.3.0":
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/@types/hoist-non-react-statics/-/hoist-non-react-statics-3.3.1.tgz#1124aafe5118cb591977aeb1ceaaed1070eb039f"
@@ -6641,6 +6646,13 @@ react-focus-lock@2.5.0:
     react-clientside-effect "^1.2.2"
     use-callback-ref "^1.2.1"
     use-sidecar "^1.0.1"
+
+react-geolocated@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/react-geolocated/-/react-geolocated-3.2.0.tgz#13caabaed7f35b899b542526d50058650d2b4c25"
+  integrity sha512-jfuCTK3XD/PE2yDVIq4j2fTQOSJOhb79LLrf8cQRQcyv3FhFarlfvAyqCHND1BcbXm0Zj305ZLQBEI5+8PVNwA==
+  dependencies:
+    prop-types "^15.5.8"
 
 react-hook-form@^6.8.2:
   version "6.15.8"

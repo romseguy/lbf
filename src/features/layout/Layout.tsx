@@ -52,7 +52,6 @@ export const Layout = ({
   const isDark = colorMode === "dark";
 
   const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false);
-  // console.log("hasVerticalScrollbar", hasVerticalScrollbar);
   const handleResize = () => {
     let scrollHeight = Math.max(
       document.body.scrollHeight,
@@ -118,7 +117,7 @@ export const Layout = ({
         />
 
         {!isMobile && (
-          <Box position="fixed" right={3} bottom={3}>
+          <Box position="fixed" right={3} bottom={2}>
             <Tooltip
               placement="top-start"
               label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
@@ -133,25 +132,28 @@ export const Layout = ({
 
         {!isMobile && (true || process.env.NODE_ENV === "production") && (
           <Box position="fixed" left={3} bottom={3}>
-            <Tooltip
-              label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
-              placement="top-end"
-              hasArrow
-            >
-              <div>
-                <PaypalButton />
-              </div>
-            </Tooltip>
+            <Flex alignItems="center">
+              <Tooltip
+                label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
+                placement="top-end"
+                hasArrow
+              >
+                <Box>
+                  <PaypalButton />
+                </Box>
+              </Tooltip>
 
-            <Tooltip
-              label="Ce projet est open-source, financé par son seul créateur."
-              placement="top-end"
-              hasArrow
-            >
-              <a href="https://github.com/romseguy">
-                <Icon as={FaGithub} boxSize={6} ml={3} />
-              </a>
-            </Tooltip>
+              <Tooltip
+                label="Ce projet est open-source, financé par son seul créateur."
+                placement="right"
+              >
+                <Box>
+                  <a href="https://github.com/romseguy">
+                    <Icon as={FaGithub} boxSize={6} ml={3} />
+                  </a>
+                </Box>
+              </Tooltip>
+            </Flex>
           </Box>
         )}
 
@@ -213,11 +215,11 @@ export const Layout = ({
           minH="96px"
           isLogin={isLogin}
           session={session}
-          css={css`
-            @media (min-width: 700px) {
-              ${hasVerticalScrollbar && "padding: 28px 0;"}
-            }
-          `}
+          // css={css`
+          //   @media (min-width: 700px) {
+          //     ${hasVerticalScrollbar && "padding: 28px 0;"}
+          //   }
+          // `}
         />
 
         <Main {...props}>{children}</Main>

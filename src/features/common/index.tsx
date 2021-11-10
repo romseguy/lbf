@@ -21,4 +21,5 @@ export * from "./GridHeader";
 export * from "./GridItem";
 export * from "./IconFooter";
 export * from "./Link";
+export * from "./LocationButton";
 export * from "./Spacer";

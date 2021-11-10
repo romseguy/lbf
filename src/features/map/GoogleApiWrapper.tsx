@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 
 import { ScriptCache } from "./ScriptCache";
 import GoogleApi from "./GoogleApi";
+import { isServer } from "utils/isServer";
 
 const defaultMapConfig = {};
 
@@ -37,8 +38,8 @@ const defaultCreateCache = (options) => {
 export const withGoogleApi =
   (input) => (WrappedComponent: React.ComponentType<any>) => {
     return class Wrapper extends React.Component<any, any> {
-      constructor(props, context) {
-        super(props, context);
+      constructor(props) {
+        super(props);
 
         // Build options from input
         const options = typeof input === "function" ? input(props) : input;
@@ -113,6 +114,8 @@ export const withGoogleApi =
       }
 
       render() {
+        if (isServer()) return <WrappedComponent {...this.props} />;
+
         const props = Object.assign({}, this.props, {
           loaded: this.state.loaded,
           google: window.google

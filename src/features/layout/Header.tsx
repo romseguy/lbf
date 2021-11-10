@@ -179,7 +179,6 @@ export const Header = ({
           alignItems="center"
           bg={banner ? "whiteAlpha.400" : undefined}
           borderRadius="lg"
-          ml={5}
           p={banner ? 3 : undefined}
         >
           <HeaderTitle />

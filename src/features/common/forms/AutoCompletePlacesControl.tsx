@@ -2,10 +2,13 @@ import React, { KeyboardEvent, useEffect, useState } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";
 import {
   Input,
+  InputProps,
   InputGroup,
   InputLeftElement,
   List,
+  ListProps,
   ListItem,
+  SpaceProps,
   useColorMode
 } from "@chakra-ui/react";
 import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
@@ -14,23 +17,26 @@ import { FaMapMarkedAlt } from "react-icons/fa";
 let cachedVal = "";
 const acceptedKeys = ["ArrowUp", "ArrowDown", "Escape", "Enter"];
 
-type ControlProps = {
-  value?: string;
-  placeholder?: string;
-  rightAddon?: React.ReactNode;
-  onChange: (description: string) => void;
-  onSuggestionSelect?: (suggestion: Suggestion) => void;
-  onClick?: () => void;
-};
-
 export const AutoCompletePlacesControl = ({
   value,
   placeholder,
   rightAddon,
+  inputProps,
+  suggestionsListProps,
   onChange,
   onSuggestionSelect,
-  onClick
-}: ControlProps) => {
+  onClick,
+  ...props
+}: SpaceProps & {
+  value?: string;
+  placeholder?: string;
+  rightAddon?: React.ReactNode;
+  inputProps?: InputProps;
+  suggestionsListProps?: ListProps;
+  onChange: (description: string) => void;
+  onSuggestionSelect?: (suggestion: Suggestion) => void;
+  onClick?: () => void;
+}) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
@@ -114,7 +120,7 @@ export const AutoCompletePlacesControl = ({
 
   return (
     <div ref={ref}>
-      <InputGroup>
+      <InputGroup {...props}>
         <InputLeftElement pointerEvents="none" children={<FaMapMarkedAlt />} />
 
         <Input
@@ -170,13 +176,20 @@ export const AutoCompletePlacesControl = ({
             if (nextIndex === null) setAutoCompleteValue(cachedVal);
             else setAutoCompleteValue(data[nextIndex].description, false);
           }}
+          {...inputProps}
         />
 
         {rightAddon}
       </InputGroup>
 
       {status === "OK" && (
-        <List className="suggestions" spacing={3} pt={2} px={5}>
+        <List
+          className="suggestions"
+          spacing={3}
+          pt={2}
+          px={5}
+          {...suggestionsListProps}
+        >
           {renderSuggestions()}
         </List>
       )}

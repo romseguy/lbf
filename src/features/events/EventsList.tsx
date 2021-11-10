@@ -7,6 +7,7 @@ import {
   Box,
   BoxProps,
   Heading,
+  Tag,
   Text,
   Table,
   Tbody,
@@ -34,7 +35,14 @@ import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { useRouter } from "next/router";
 import React, { Fragment, useEffect, useMemo, useState } from "react";
-import { Link, GridHeader, GridItem, Spacer } from "features/common";
+import {
+  Link,
+  GridHeader,
+  GridItem,
+  Spacer,
+  LocationButton
+} from "features/common";
+import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { DescriptionModal } from "features/modals/DescriptionModal";
 import { ModalState, NotifyModal } from "features/modals/NotifyModal";
 import { EventModal } from "features/modals/EventModal";
@@ -56,8 +64,12 @@ import { EventsListToggle } from "./EventsListToggle";
 import { EventCategory } from "./EventCategory";
 import { EventsListCategories } from "./EventsListCategories";
 import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
+import { getDistance } from "utils/maps";
 import { EventInfo } from "./EventInfo";
 import { EventTimeline } from "./EventTimeline";
+import { EventsListDistance } from "./EventsListDistance";
+import { LatLon } from "use-places-autocomplete";
+import { Logger } from "mongodb";
 
 export const EventsList = ({
   events,
@@ -109,9 +121,71 @@ export const EventsList = ({
     .reduce((a, b) => a + b, 0);
   //#endregion
 
+  //#region local storage sync
+  const [city, setCity] = useState<string | null>(null);
+  useEffect(() => {
+    if (city) localStorage.setItem("city", city);
+  }, [city]);
+  const [distance, setDistance] = useState<number>(0);
+
+  useEffect(() => {
+    if (distance) localStorage.setItem("distance", "" + distance);
+  }, [distance]);
+  const [origin, setOrigin] = useState<LatLon | undefined>();
+  useEffect(() => {
+    if (origin) {
+      localStorage.setItem("lat", origin.lat.toFixed(6));
+      localStorage.setItem("lng", origin.lng.toFixed(6));
+    }
+  }, [origin]);
+
+  useEffect(() => {
+    const storedCity = localStorage.getItem("city");
+    const storedDistance = localStorage.getItem("distance");
+    const storedLat = localStorage.getItem("lat");
+    const storedLng = localStorage.getItem("lng");
+
+    if (storedCity && storedCity !== city) setCity(storedCity);
+
+    if (storedDistance && parseInt(storedDistance) !== distance)
+      setDistance(parseInt(storedDistance));
+
+    if (storedLat && storedLng) {
+      if (!origin)
+        setOrigin({
+          lat: parseFloat(storedLat),
+          lng: parseFloat(storedLng)
+        });
+      else if (
+        origin.lat !== parseFloat(storedLat) ||
+        origin.lng !== parseFloat(storedLng)
+      )
+        setOrigin({
+          lat: parseFloat(storedLat),
+          lng: parseFloat(storedLng)
+        });
+    }
+  }, []);
+  //#endregion
+
   //#region local state
-  const today = setSeconds(setMinutes(setHours(new Date(), 0), 0), 0);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+  const selectedCategoriesCount = selectedCategories
+    ? selectedCategories.length
+    : 0;
+
+  const [showPreviousEvents, setShowPreviousEvents] = useState(false);
+  const [showNextEvents, setShowNextEvents] = useState(false);
+  useEffect(() => {
+    if (setTitle) {
+      if (showPreviousEvents) setTitle("Événements précédents");
+      else if (showNextEvents) setTitle("Événements suivants");
+      else setTitle();
+    }
+  }, [showPreviousEvents, showNextEvents]);
+
+  const today = setSeconds(setMinutes(setHours(new Date(), 0), 0), 0);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [eventToShow, setEventToShow] = useState<IEvent | null>(null);
   const [eventToForward, setEventToForward] = useState<IEvent | null>(null);
@@ -128,19 +202,6 @@ export const EventsList = ({
       setNotifyModalState({ entity: event || null });
     }
   }, [events]);
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const selectedCategoriesCount = selectedCategories
-    ? selectedCategories.length
-    : 0;
-  const [showPreviousEvents, setShowPreviousEvents] = useState(false);
-  const [showNextEvents, setShowNextEvents] = useState(false);
-  useEffect(() => {
-    if (setTitle) {
-      if (showPreviousEvents) setTitle("Événements précédents");
-      else if (showNextEvents) setTitle("Événements suivants");
-      else setTitle();
-    }
-  }, [showPreviousEvents, showNextEvents]);
   //#endregion
 
   const getEvents = (events: IEvent[]) => {
@@ -148,7 +209,7 @@ export const EventsList = ({
     let currentEvents: IEvent<Date>[] = [];
     let nextEvents: IEvent<Date>[] = [];
 
-    for (const event of events) {
+    for (let event of events) {
       if (
         event.eventCategory &&
         selectedCategories.length > 0 &&
@@ -164,6 +225,23 @@ export const EventsList = ({
         (event.eventVisibility === Visibility.SUBSCRIBERS &&
           (isSubscribed || isCreator))
       ) {
+        if (origin && event.eventLat && event.eventLng) {
+          const d = getDistance(origin, {
+            lat: event.eventLat,
+            lng: event.eventLng
+          });
+
+          if (distance > 0 && d / 1000 > distance) continue;
+
+          const eventDistance =
+            d > 1000 ? Math.round(d / 1000) + "km" : d + "m";
+
+          event = {
+            ...event,
+            eventDistance
+          };
+        }
+
         const start = parseISO(event.eventMinDate);
         const end = parseISO(event.eventMaxDate);
 
@@ -431,6 +509,7 @@ export const EventsList = ({
     setNotifyModalState,
     eventToShow,
     setEventToShow,
+    city,
     toast
   };
 
@@ -459,6 +538,26 @@ export const EventsList = ({
           mb={5}
         />
 
+        <Flex alignItems="center" mb={5}>
+          <LocationButton
+            colorScheme="purple"
+            color="white"
+            mr={3}
+            size="sm"
+            city={city}
+            setCity={setCity}
+            location={origin}
+            setLocation={setOrigin}
+            //onLocationChange={(coordinates) => setOrigin(coordinates)}
+          />
+          <EventsListDistance
+            distance={distance}
+            setDistance={setDistance}
+            borderRadius="md"
+            size="sm"
+          />
+        </Flex>
+
         {showPreviousEvents && (
           <Table>
             <Tbody>
@@ -480,7 +579,9 @@ export const EventsList = ({
                               borderTopRadius={index === 0 ? "lg" : undefined}
                             >
                               <Heading size="sm" py={3}>
-                                {format(minDate, "cccc d MMMM", { locale: fr })}
+                                {format(minDate, "cccc d MMMM", {
+                                  locale: fr
+                                })}
                               </Heading>
                             </GridHeader>
                           ) : (
@@ -626,7 +727,9 @@ export const EventsList = ({
                               borderTopRadius={index === 0 ? "lg" : undefined}
                             >
                               <Heading size="sm" py={3}>
-                                {format(minDate, "cccc d MMMM", { locale: fr })}
+                                {format(minDate, "cccc d MMMM", {
+                                  locale: fr
+                                })}
                               </Heading>
                             </GridHeader>
                           ) : (
@@ -684,7 +787,10 @@ export const EventsList = ({
     isLoading,
     showPreviousEvents,
     showNextEvents,
-    selectedCategories
+    selectedCategories,
+    origin,
+    distance,
+    city
   ]);
 
   return (

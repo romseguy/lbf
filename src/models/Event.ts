@@ -15,6 +15,7 @@ export interface IEvent<T = string> {
   eventCity?: string;
   eventLat?: number;
   eventLng?: number;
+  eventDistance?: string;
   eventEmail?: { email: string }[];
   eventPhone?: { phone: string }[];
   eventWeb?: { url: string; prefix: string }[];

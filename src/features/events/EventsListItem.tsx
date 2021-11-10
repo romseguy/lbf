@@ -53,6 +53,7 @@ export const EventsListItem = ({
   setNotifyModalState,
   eventToShow,
   setEventToShow,
+  city,
   toast,
   ...props
 }: {
@@ -76,6 +77,7 @@ export const EventsListItem = ({
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   session: Session | null;
+  city: string | null;
   toast: any;
 }) => {
   const router = useRouter();
@@ -135,17 +137,34 @@ export const EventsListItem = ({
 
         {/* eventCity */}
         {event.eventCity && event.eventAddress && (
-          <Tooltip
-            hasArrow
-            label={event.eventAddress[0].address}
-            placement="right"
-          >
-            <span>
-              <Link variant="underline" fontWeight="bold">
-                {event.eventCity}
-              </Link>
-            </span>
-          </Tooltip>
+          <GridItem mb={2}>
+            <Tooltip
+              hasArrow
+              label={event.eventAddress[0].address}
+              placement="right"
+            >
+              <span>
+                <Link variant="underline" fontWeight="bold">
+                  {event.eventCity}
+                </Link>
+              </span>
+            </Tooltip>
+          </GridItem>
+        )}
+
+        {/* eventDistance */}
+        {event.eventDistance && (
+          <GridItem mb={2}>
+            <Tooltip
+              hasArrow
+              label={`Événement à ${event.eventDistance} de ${city}`}
+              placement="right"
+            >
+              <Tag colorScheme="purple" color="white">
+                {event.eventDistance}
+              </Tag>
+            </Tooltip>
+          </GridItem>
         )}
 
         {/* eventMinDate */}

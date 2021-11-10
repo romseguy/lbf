@@ -7,7 +7,8 @@ import {
   SpaceProps,
   Box,
   IconButton,
-  InputRightAddon
+  InputRightAddon,
+  useColorMode
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React from "react";
@@ -40,14 +41,15 @@ export const AddressControl = withGoogleApi({
     containerProps = {},
     onSuggestionSelect,
     onClick,
+    onChange,
     ...props
   }: SpaceProps & {
     google: any;
     loaded: boolean;
-    name: string;
+    name?: string;
     label?: string;
     errors: { [key: string]: string };
-    control: Control<any>;
+    control?: Control<any>;
     setValue: (name: string, value: AddressControlValue) => void;
     defaultValue?: string;
     value?: string;
@@ -59,7 +61,11 @@ export const AddressControl = withGoogleApi({
     containerProps?: StyleProps;
     onSuggestionSelect?: (suggestion: Suggestion) => void;
     onClick?: () => void;
+    onChange?: (description: string) => void;
   }) => {
+    const { colorMode } = useColorMode();
+    const isDark = colorMode === "dark";
+
     const controlRules: {
       required?: boolean;
     } = {
@@ -73,46 +79,71 @@ export const AddressControl = withGoogleApi({
     }
 
     if (!isMultiple) {
-      return (
-        <FormControl
-          id={name}
-          isRequired={!!controlRules.required}
-          isInvalid={!!errors[name]}
-          {...props}
-        >
-          {!noLabel && <FormLabel>Adresse</FormLabel>}
-          {isGoogleApiLoaded ? (
-            <Controller
-              name={name}
-              control={control}
-              //defaultValue={defaultValue}
-              rules={controlRules}
-              render={(renderProps) => {
-                return (
-                  <AutoCompletePlacesControl
-                    value={
-                      typeof value === "string" ? value : renderProps.value
-                    }
-                    placeholder={placeholder}
-                    rightAddon={rightAddon}
-                    onClick={onClick}
-                    onChange={(description: string) => {
-                      renderProps.onChange(description);
-                    }}
-                    onSuggestionSelect={onSuggestionSelect}
-                  />
-                );
-              }}
-            />
-          ) : (
-            <Spinner />
-          )}
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name={name} />
-          </FormErrorMessage>
-        </FormControl>
-      );
+      if (errors && name) {
+        return (
+          <FormControl
+            id={name}
+            isRequired={!!controlRules.required}
+            isInvalid={!!errors[name]}
+            {...props}
+          >
+            {!noLabel && <FormLabel>Adresse</FormLabel>}
+
+            {isGoogleApiLoaded ? (
+              <Controller
+                name={name}
+                control={control}
+                //defaultValue={defaultValue}
+                rules={controlRules}
+                render={(renderProps) => {
+                  return (
+                    <AutoCompletePlacesControl
+                      value={
+                        typeof value === "string" ? value : renderProps.value
+                      }
+                      placeholder={placeholder}
+                      rightAddon={rightAddon}
+                      onClick={onClick}
+                      onChange={(description: string) => {
+                        renderProps.onChange(description);
+                      }}
+                      onSuggestionSelect={onSuggestionSelect}
+                    />
+                  );
+                }}
+              />
+            ) : (
+              <Spinner />
+            )}
+
+            <FormErrorMessage>
+              <ErrorMessage errors={errors} name={name} />
+            </FormErrorMessage>
+          </FormControl>
+        );
+      } else {
+        return (
+          <AutoCompletePlacesControl
+            value={value}
+            placeholder={placeholder}
+            rightAddon={rightAddon}
+            suggestionsListProps={{
+              position: "absolute",
+              zIndex: 9999,
+              bg: isDark ? "whiteAlpha.400" : "blackAlpha.600",
+              borderRadius: "lg",
+              py: 5
+            }}
+            onClick={onClick}
+            onChange={onChange || (() => {})}
+            onSuggestionSelect={onSuggestionSelect}
+            {...props}
+          />
+        );
+      }
     }
+
+    if (!errors || !name) return null;
 
     const { fields, append, prepend, remove, swap, move, insert } =
       useFieldArray({

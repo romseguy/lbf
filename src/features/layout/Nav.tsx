@@ -3,6 +3,7 @@ import {
   Button,
   Box,
   Flex,
+  FlexProps,
   Menu,
   MenuButton,
   MenuList,
@@ -11,7 +12,6 @@ import {
   Icon,
   IconButton,
   useColorMode,
-  BoxProps,
   useToast
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -19,12 +19,12 @@ import { Session } from "next-auth";
 import { signOut } from "next-auth/client";
 import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { FaPowerOff } from "react-icons/fa";
+import { FaMapMarkerAlt, FaPowerOff } from "react-icons/fa";
 import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { useSelector } from "react-redux";
 import tw, { css } from "twin.macro";
 
-import { Link } from "features/common";
+import { Link, LocationButton } from "features/common";
 import { EventPopover, OrgPopover, EmailLoginPopover } from "features/layout";
 import { LoginModal } from "features/modals/LoginModal";
 import { refetchSubscription } from "features/subscriptions/subscriptionSlice";
@@ -44,47 +44,11 @@ interface customWindow extends Window {
 
 declare const window: customWindow;
 
-const linkList = css`
-  white-space: nowrap;
-
-  & > button:first-of-type {
-    margin-left: 12px;
-  }
-
-  @media (max-width: 730px) {
-    margin-left: 0;
-
-    button {
-      font-size: 0.8rem;
-    }
-
-    & > button {
-      display: block;
-    }
-
-    & > button {
-      margin-left: 12px;
-    }
-
-    // & > a:not(:first-of-type) {
-    //   margin-top: 12px;
-    // }
-  }
-`;
-
-const buttonList = css`
-  /*margin-left: 20px;*/
-
-  @media (max-width: ${breakpoints.sm}) {
-    margin-left: 0;
-  }
-`;
-
 export const Nav = ({
   isLogin = 0,
   session: serverSession,
   ...props
-}: BoxProps & { isLogin?: number; session?: Session | null }) => {
+}: FlexProps & { isLogin?: number; session?: Session | null }) => {
   const router = useRouter();
   const { data: clientSession, loading: isSessionLoading } = useSession();
   const session = clientSession || serverSession;
@@ -144,23 +108,33 @@ export const Nav = ({
   }, []);
   //#endregion
 
-  const styles = css`
-    height: auto !important;
-    ${isDark
-      ? tw`h-24 bg-gradient-to-b from-gray-800 via-green-600 to-gray-800`
-      : tw`h-24 bg-gradient-to-b from-white via-yellow-400 to-white`}
-  `;
-
   return (
     <Flex
       as="nav"
-      align="center"
-      justifyContent="space-between"
-      wrap="nowrap"
+      alignItems="center"
+      css={css`
+        ${isDark
+          ? tw`bg-gradient-to-b from-gray-800 via-green-600 to-gray-800`
+          : tw`bg-gradient-to-b from-white via-yellow-400 to-white`}
+      `}
       {...props}
-      css={styles}
     >
-      <Box css={linkList}>
+      <Flex
+        flexWrap="wrap"
+        css={css`
+          button {
+            margin-left: 12px;
+            padding-left: 5px;
+            padding-right: 6px;
+          }
+          @media (max-width: 840px) {
+            button {
+              flex-basis: 100%;
+              justify-content: flex-start;
+            }
+          }
+        `}
+      >
         <Button
           bg="transparent"
           _hover={{
@@ -205,9 +179,9 @@ export const Nav = ({
         >
           Forum
         </Button>
-      </Box>
+      </Flex>
 
-      <Flex justifyContent="flex-end" css={buttonList}>
+      <Flex flexGrow={1} justifyContent="flex-end">
         {session ? (
           <>
             <EventPopover boxSize={[6, 8, 8]} session={session} />

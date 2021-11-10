@@ -1,4 +1,5 @@
 import {
+  GeocodeResult,
   getDetails,
   getGeocode,
   getLatLng,
@@ -6,22 +7,32 @@ import {
   Suggestion
 } from "use-places-autocomplete";
 
+export const getCity = (
+  placeResult: google.maps.places.PlaceResult | string
+) => {
+  if (typeof placeResult === "string") return;
+  let city;
+
+  placeResult.address_components?.forEach(
+    (address_component: google.maps.GeocoderAddressComponent) => {
+      if (address_component.types.indexOf("locality") !== -1) {
+        city = address_component.long_name || address_component.short_name;
+      } else {
+        city = "Paris";
+      }
+    }
+  );
+
+  return city;
+};
+
 export const unwrapSuggestion = async (suggestion: Suggestion) => {
-  const details: any = await getDetails({
+  const placeResult = await getDetails({
     placeId: suggestion.place_id,
     fields: ["address_component"]
   });
 
-  let city;
-
-  details.address_components.forEach((component: any) => {
-    const types = component.types;
-
-    if (types.indexOf("locality") > -1) {
-      city = component.long_name;
-    }
-  });
-
+  const city = getCity(placeResult);
   const results = await getGeocode({ address: suggestion.description });
   const { lat, lng } = await getLatLng(results[0]);
 
@@ -51,3 +62,22 @@ export function world2Screen({ x, y }: { x: number; y: number }, zoom: number) {
     y: y * scale * TILE_SIZE
   };
 }
+
+const rad = function (x: number) {
+  return (x * Math.PI) / 180;
+};
+
+export const getDistance = function (p1: LatLon, p2: LatLon) {
+  const R = 6378137; // Earth's mean radius in meter
+  const dLat = rad(p2.lat - p1.lat);
+  const dLong = rad(p2.lng - p1.lng);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(rad(p1.lat)) *
+      Math.cos(rad(p2.lat)) *
+      Math.sin(dLong / 2) *
+      Math.sin(dLong / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c;
+  return Math.round(d); // returns the distance in meter
+};
