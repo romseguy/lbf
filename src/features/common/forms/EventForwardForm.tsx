@@ -133,8 +133,9 @@ export const EventForwardForm = ({
             as={ReactSelect}
             control={control}
             defaultValue={null}
-            placeholder="Sélectionner une ou plusieurs organisations"
+            placeholder="Rechercher une organisation..."
             menuPlacement="bottom"
+            noOptionsMessage={() => "Aucune organisation trouvée"}
             isClearable
             isMulti
             isSearchable

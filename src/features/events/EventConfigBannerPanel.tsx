@@ -1,24 +1,24 @@
-import type { Visibility } from "./EventPage";
-import type { IEvent } from "models/Event";
-import React, { useEffect, useState } from "react";
-import AvatarEditor from "react-avatar-editor";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
-  Box,
-  Heading,
-  FormLabel,
-  FormControl,
-  Stack,
-  FormErrorMessage,
   Alert,
   AlertIcon,
-  useToast,
+  Box,
   Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  GridProps,
+  Heading,
   Radio,
   RadioGroup,
-  GridProps,
-  Image
+  Select,
+  Stack,
+  useToast
 } from "@chakra-ui/react";
-import { useEditEventMutation } from "features/events/eventsApi";
+import { ErrorMessage } from "@hookform/error-message";
+import React, { useRef, useState } from "react";
+import AvatarEditor from "react-avatar-editor";
+import { useForm } from "react-hook-form";
 import {
   Button,
   DeleteButton,
@@ -28,20 +28,13 @@ import {
   GridItem,
   Input,
   Link,
-  Select
+  UrlControl
 } from "features/common";
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  WarningIcon
-} from "@chakra-ui/icons";
-import { Base64Image, getBase64, getMeta } from "utils/image";
-import { useForm } from "react-hook-form";
+import { useEditEventMutation } from "features/events/eventsApi";
+import { IEvent } from "models/Event";
 import { handleError } from "utils/form";
-import { ErrorMessage } from "@hookform/error-message";
-import { useRef } from "react";
-import { UrlControl } from "features/common/forms/UrlControl";
-import { urlR } from "utils/url";
+import { Base64Image, getBase64, getMeta } from "utils/image";
+import { Visibility } from "./EventPage";
 
 type EventConfigBannerPanelProps = GridProps &
   Visibility & {
@@ -128,7 +121,7 @@ export const EventConfigBannerPanel = ({
         status: "success"
       });
       eventQuery.refetch();
-      setIsVisible({ ...isVisible, banner: false });
+      setIsVisible({ ...isVisible, banner: !isVisible.banner, logo: false });
     } catch (error) {
       handleError(error, (message) =>
         setError("formErrorMessage", {
@@ -157,10 +150,10 @@ export const EventConfigBannerPanel = ({
           borderBottomRadius={!isVisible.banner ? "lg" : undefined}
           alignItems="center"
         >
-          <Flex flexDirection="row" alignItems="center">
-            {isVisible.banner ? <ChevronDownIcon /> : <ChevronRightIcon />}
-            <Heading size="sm" py={3}>
-              Changer l'image de couverture
+          <Flex alignItems="center">
+            {isVisible.banner ? <ViewIcon /> : <ViewOffIcon />}
+            <Heading size="sm" ml={2} py={3}>
+              Bannière
             </Heading>
           </Flex>
         </GridHeader>
@@ -185,7 +178,7 @@ export const EventConfigBannerPanel = ({
                   });
                   eventQuery.refetch();
                   toast({
-                    title: "La bannière a bien été supprimée",
+                    title: "La bannière a bien été supprimée !",
                     status: "success"
                   });
                 } catch (error) {

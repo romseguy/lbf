@@ -69,8 +69,6 @@ export const EventTimeline = ({
     {}
   );
 
-  console.log(timeline);
-
   const renderTimeline = () =>
     Object.keys(timeline).map((key) => {
       const dayNumber = parseInt(key);

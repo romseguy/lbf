@@ -127,9 +127,9 @@ export const Nav = ({
             padding-left: 5px;
             padding-right: 6px;
           }
-          @media (min-width: 840px) {
+          @media (min-width: ${breakpoints.nav}) {
           }
-          @media (max-width: 840px) {
+          @media (max-width: ${breakpoints.nav}) {
             margin: 12px 0;
 
             button {

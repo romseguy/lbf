@@ -12,6 +12,7 @@ import { OrgForm } from "features/forms/OrgForm";
 import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
 import { OrgConfigLogoPanel } from "./OrgConfigLogoPanel";
+import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 
 export const OrgConfigPanel = ({
   session,
@@ -52,8 +53,9 @@ export const OrgConfigPanel = ({
                 setIsEdit(true);
                 setIsConfig(false);
                 setIsVisible({
-                  ...isVisible,
                   banner: false,
+                  lists: false,
+                  logo: false,
                   subscribers: false
                 });
               }}
@@ -158,6 +160,14 @@ export const OrgConfigPanel = ({
             org={org}
             orgQuery={orgQuery}
             subQuery={subQuery}
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
+            mb={3}
+          />
+
+          <OrgConfigListsPanel
+            org={org}
+            orgQuery={orgQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
           />

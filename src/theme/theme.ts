@@ -9,7 +9,8 @@ export const breakpoints = createBreakpoints({
   md: "40em",
   lg: "52em",
   xl: "64em",
-  "2xl": "80em"
+  "2xl": "80em",
+  nav: "700px"
 });
 
 const theme = extendTheme({

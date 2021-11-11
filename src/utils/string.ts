@@ -1,3 +1,7 @@
+export const log = (message: string, object: any) => {
+  console.log(message, JSON.stringify(object, null, 2));
+};
+
 export const phoneR = /^[0-9]{10,}$/i;
 
 export function capitalize(string: string): string {

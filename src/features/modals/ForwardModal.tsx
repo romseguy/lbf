@@ -27,7 +27,7 @@ export const ForwardModal = (props: {
         props.onClose && props.onClose();
         onClose();
       }}
-      closeOnOverlayClick={false}
+      closeOnOverlayClick
     >
       <ModalOverlay>
         <ModalContent>

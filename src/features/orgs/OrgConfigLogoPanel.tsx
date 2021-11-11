@@ -1,19 +1,18 @@
-import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
-  Box,
-  Heading,
-  FormLabel,
-  FormControl,
-  FormErrorMessage,
   Alert,
   AlertIcon,
+  Box,
   Flex,
-  Grid,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
   GridProps,
-  useToast,
+  Heading,
   Radio,
   RadioGroup,
-  Stack
+  Stack,
+  useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
@@ -24,23 +23,18 @@ import {
   Button,
   DeleteButton,
   ErrorMessageText,
+  Grid,
   GridHeader,
   GridItem,
   Input,
-  Link
+  Link,
+  UrlControl
 } from "features/common";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
-import { handleError } from "utils/form";
 import { IOrg, orgTypeFull } from "models/Org";
-import { Base64Image, calculateScale, getBase64, getMeta } from "utils/image";
+import { handleError } from "utils/form";
+import { Base64Image, getBase64, getMeta } from "utils/image";
 import { Visibility } from "./OrgPage";
-import { UrlControl } from "features/common/forms/UrlControl";
-
-type OrgConfigLogoPanelProps = GridProps &
-  Visibility & {
-    org: IOrg;
-    orgQuery: any;
-  };
 
 export const OrgConfigLogoPanel = ({
   org,
@@ -48,7 +42,11 @@ export const OrgConfigLogoPanel = ({
   isVisible,
   setIsVisible,
   ...props
-}: OrgConfigLogoPanelProps) => {
+}: GridProps &
+  Visibility & {
+    org: IOrg;
+    orgQuery: any;
+  }) => {
   const toast = useToast({ position: "top" });
 
   //#region org
@@ -138,7 +136,7 @@ export const OrgConfigLogoPanel = ({
         status: "success"
       });
       orgQuery.refetch();
-      setIsVisible({ ...isVisible, banner: false });
+      setIsVisible({ ...isVisible, logo: false });
     } catch (error) {
       handleError(error, (message) =>
         setError("formErrorMessage", {
@@ -157,8 +155,9 @@ export const OrgConfigLogoPanel = ({
         onClick={() =>
           setIsVisible({
             ...isVisible,
-            logo: !isVisible.logo,
             banner: false,
+            lists: false,
+            logo: !isVisible.logo,
             subscribers: false
           })
         }
@@ -168,9 +167,9 @@ export const OrgConfigLogoPanel = ({
           borderBottomRadius={!isVisible.logo ? "lg" : undefined}
           alignItems="center"
         >
-          <Flex flexDirection="row" alignItems="center">
-            {isVisible.logo ? <ChevronDownIcon /> : <ChevronRightIcon />}
-            <Heading size="sm" py={3}>
+          <Flex alignItems="center">
+            {isVisible.logo ? <ViewIcon /> : <ViewOffIcon />}
+            <Heading size="sm" ml={2} py={3}>
               Logo
             </Heading>
           </Flex>
@@ -195,7 +194,7 @@ export const OrgConfigLogoPanel = ({
                   });
                   orgQuery.refetch();
                   toast({
-                    title: "Le logo a bien été supprimé",
+                    title: "Le logo a bien été supprimé !",
                     status: "success"
                   });
                 } catch (error) {

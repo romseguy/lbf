@@ -31,7 +31,6 @@ export const AddressControl = withGoogleApi({
     errors,
     control,
     setValue,
-    defaultValue,
     value,
     placeholder = "Saisir une adresse...",
     isRequired = false,
@@ -51,7 +50,6 @@ export const AddressControl = withGoogleApi({
     errors: { [key: string]: string };
     control?: Control<any>;
     setValue: (name: string, value: AddressControlValue) => void;
-    defaultValue?: string;
     value?: string;
     placeholder?: string;
     isRequired?: boolean;
@@ -93,7 +91,6 @@ export const AddressControl = withGoogleApi({
               <Controller
                 name={name}
                 control={control}
-                //defaultValue={defaultValue}
                 rules={controlRules}
                 render={(renderProps) => {
                   return (

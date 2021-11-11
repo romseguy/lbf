@@ -68,10 +68,11 @@ import { MapContainer } from "features/map/MapContainer";
 
 export type Visibility = {
   isVisible: {
-    logo: boolean;
-    banner: boolean;
-    subscribers: boolean;
-    topics: boolean;
+    banner?: boolean;
+    logo?: boolean;
+    lists?: boolean;
+    subscribers?: boolean;
+    topics?: boolean;
   };
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };

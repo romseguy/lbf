@@ -9,7 +9,7 @@ import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { equals } from "utils/string";
+import { equals, log } from "utils/string";
 import { emailR } from "utils/email";
 import { IUser } from "models/User";
 import { hasItems } from "utils/array";
@@ -136,6 +136,8 @@ handler.delete<
     };
   } = req;
 
+  console.log(`DELETE /subscription/${subscriptionId}: body`, body);
+
   try {
     let subscription = await models.Subscription.findOne({
       _id: subscriptionId
@@ -199,12 +201,11 @@ handler.delete<
       await subscription.save();
       console.log("subscription saved", subscription);
 
-      res.status(200).json(subscription);
-    } else if (body.orgId) {
-      const org = await models.Org.findOne({ _id: body.orgId }).populate(
-        "orgSubscriptions"
-      );
+      return res.status(200).json(subscription);
+    }
 
+    if (body.orgId) {
+      let org = await models.Org.findOne({ _id: body.orgId });
       if (!org)
         return res
           .status(400)
@@ -213,43 +214,49 @@ handler.delete<
               new Error(`L'organisation ${body.orgId} n'a pas pu être trouvé`)
             )
           );
-
-      console.log("unsubbing from org", org);
-
-      org.orgSubscriptions = org.orgSubscriptions.filter((subscription) => {
-        let keep = true;
-
-        if (equals(subscription._id, subscriptionId)) {
-          keep = false;
-        }
-
-        return keep;
+      org = org.populate("orgSubscriptions");
+      org = org.populate({
+        path: "orgLists",
+        populate: [{ path: "subscriptions" }]
       });
+      org = await org.execPopulate();
+
+      //log("> org.orgSubscriptions", org.orgSubscriptions);
+      org.orgSubscriptions = org.orgSubscriptions.filter(
+        ({ _id }) => !equals(_id, subscriptionId)
+      );
+      //log("> org.orgSubscriptions", org.orgSubscriptions);
+
+      log("> org.orgLists", org.orgLists);
+      org.orgLists = org.orgLists?.map((orgList) => ({
+        listName: orgList.listName,
+        subscriptions: orgList.subscriptions.filter(
+          ({ _id }) => !equals(_id, subscriptionId)
+        )
+      }));
+      log("> org.orgLists", org.orgLists);
 
       await org.save();
-      console.log("org saved", org);
 
-      subscription = await subscription
-        .populate("user", "-securityCode -password")
-        .execPopulate();
-
+      //console.log("> subscription.orgs", subscription.orgs);
       subscription.orgs = subscription.orgs.filter(
-        (orgSubscription: IOrgSubscription) => {
-          let keep = true;
-
-          if (equals(orgSubscription.orgId, body.orgId)) {
-            keep = false;
-          }
-
-          return keep;
-        }
+        (orgSubscription: IOrgSubscription) =>
+          !equals(orgSubscription.orgId, body.orgId)
       );
+      //console.log("> subscription.orgs", subscription.orgs);
 
       await subscription.save();
-      console.log("subscription saved", subscription);
 
-      res.status(200).json(subscription);
-    } else if (body.events) {
+      return res
+        .status(200)
+        .json(
+          await subscription
+            .populate("user", "-securityCode -password")
+            .execPopulate()
+        );
+    }
+
+    if (body.events) {
       const { eventId } = body.events[0];
       const event = await models.Event.findOne({ _id: eventId }).populate(
         "eventSubscriptions"
@@ -299,8 +306,10 @@ handler.delete<
       await subscription.save();
       console.log("subscription saved", subscription);
 
-      res.status(200).json(subscription);
-    } else if (body.topicId) {
+      return res.status(200).json(subscription);
+    }
+
+    if (body.topicId) {
       // console.log("unsubbing from topic", body.topicId);
       subscription = await subscription
         .populate({ path: "topics", populate: { path: "topic" } })
@@ -317,71 +326,69 @@ handler.delete<
       await subscription.save();
       console.log("subscription saved", subscription);
 
-      res.status(200).json(subscription);
-    } else {
-      console.log("deleting subscription", subscription);
+      return res.status(200).json(subscription);
+    }
 
-      for (const eventSubscription of subscription.events) {
-        const event = await models.Event.findOne({
-          _id: eventSubscription.eventId
-        });
-        if (!event) continue;
-        event.eventSubscriptions = event.eventSubscriptions.filter(
-          (subscription) => {
-            let keep = true;
-            if (
-              subscription.events?.find((eventSubscription) =>
-                equals(eventSubscription.eventId, event._id)
-              )
-            )
-              keep = false;
-            return keep;
-          }
-        );
-        await event.save();
-      }
+    console.log("deleting subscription", subscription);
 
-      for (const orgSubscription of subscription.orgs) {
-        const org = await models.Org.findOne({ _id: orgSubscription.orgId });
-        if (!org) continue;
-        org.orgSubscriptions = org.orgSubscriptions.filter((subscription) => {
+    for (const eventSubscription of subscription.events) {
+      const event = await models.Event.findOne({
+        _id: eventSubscription.eventId
+      });
+      if (!event) continue;
+      event.eventSubscriptions = event.eventSubscriptions.filter(
+        (subscription) => {
           let keep = true;
           if (
-            subscription.orgs?.find((orgSubscription) =>
-              equals(orgSubscription.orgId, org._id)
+            subscription.events?.find((eventSubscription) =>
+              equals(eventSubscription.eventId, event._id)
             )
           )
             keep = false;
           return keep;
-        });
-        await org.save();
-      }
+        }
+      );
+      await event.save();
+    }
 
-      const { deletedCount } = await models.Subscription.deleteOne({
-        _id: subscriptionId
+    for (const orgSubscription of subscription.orgs) {
+      const org = await models.Org.findOne({ _id: orgSubscription.orgId });
+      if (!org) continue;
+      org.orgSubscriptions = org.orgSubscriptions.filter((subscription) => {
+        let keep = true;
+        if (
+          subscription.orgs?.find((orgSubscription) =>
+            equals(orgSubscription.orgId, org._id)
+          )
+        )
+          keep = false;
+        return keep;
       });
+      await org.save();
+    }
 
-      if (deletedCount === 1) {
-        res.status(200).json(subscription);
-      } else {
-        subscription = await subscription
-          .populate("user", "-securityCode -password")
-          .execPopulate();
+    const { deletedCount } = await models.Subscription.deleteOne({
+      _id: subscriptionId
+    });
 
-        const email =
-          typeof subscription.user === "object"
-            ? subscription.user.email
-            : subscription.email;
-        res
-          .status(400)
-          .json(
-            createServerError(
-              new Error(
-                `Les abonnements de ${email} n'ont pas pu être supprimés`
-              )
-            )
-          );
-      }
+    if (deletedCount === 1) {
+      res.status(200).json(subscription);
+    } else {
+      subscription = await subscription
+        .populate("user", "-securityCode -password")
+        .execPopulate();
+
+      const email =
+        typeof subscription.user === "object"
+          ? subscription.user.email
+          : subscription.email;
+      res
+        .status(400)
+        .json(
+          createServerError(
+            new Error(`Les abonnements de ${email} n'ont pas pu être supprimés`)
+          )
+        );
     }
   } catch (error) {
     res.status(500).json(createServerError(error));

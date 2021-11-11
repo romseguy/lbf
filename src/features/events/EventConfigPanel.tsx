@@ -48,7 +48,7 @@ export const EventConfigPanel = ({
               onClick={() => {
                 setIsEdit(true);
                 setIsConfig(false);
-                setIsVisible({ ...isVisible, banner: false });
+                setIsVisible({ banner: false, logo: false });
               }}
               css={css`
                 &:hover {

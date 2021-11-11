@@ -1,8 +1,9 @@
 import {
-  AddIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  DeleteIcon
+  DeleteIcon,
+  ViewIcon,
+  ViewOffIcon
 } from "@chakra-ui/icons";
 import {
   Box,
@@ -10,6 +11,7 @@ import {
   Heading,
   IconButton,
   Grid,
+  GridProps,
   FormLabel,
   Tag,
   TagLabel,
@@ -27,12 +29,11 @@ import {
   AlertIcon,
   Flex,
   FormErrorMessage,
-  useToast,
-  Spinner
+  useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { IoIosPerson } from "react-icons/io";
 import { css } from "twin.macro";
@@ -62,20 +63,21 @@ import { emailR } from "utils/email";
 import { handleError } from "utils/form";
 import { phoneR } from "utils/string";
 import { Visibility } from "./OrgPage";
-
-type OrgConfigSubscribersPanelProps = Visibility & {
-  org: IOrg;
-  orgQuery: any;
-  subQuery: any;
-};
+import { breakpoints } from "theme/theme";
 
 export const OrgConfigSubscribersPanel = ({
   org,
   orgQuery,
   subQuery,
   isVisible,
-  setIsVisible
-}: OrgConfigSubscribersPanelProps) => {
+  setIsVisible,
+  ...props
+}: GridProps &
+  Visibility & {
+    org: IOrg;
+    orgQuery: any;
+    subQuery: any;
+  }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -116,6 +118,10 @@ export const OrgConfigSubscribersPanel = ({
       return { ...obj, [subscription._id]: false };
     }, {})
   );
+  useEffect(() => {
+    if (!hasItems(org.orgSubscriptions))
+      setIsVisible({ ...isVisible, subscribers: false });
+  }, [org.orgSubscriptions]);
   //#endregion
 
   const onTagClick = async ({
@@ -296,18 +302,24 @@ export const OrgConfigSubscribersPanel = ({
   };
 
   return (
-    <Grid>
+    <Grid {...props}>
       <Link
         variant="no-underline"
         onClick={() => {
           if (!hasItems(org.orgSubscriptions)) {
-            setIsAdd(true);
+            setIsAdd(!isAdd);
+            setIsVisible({
+              banner: false,
+              lists: false,
+              logo: false
+            });
           } else {
             setIsAdd(false);
             setIsVisible({
-              ...isVisible,
-              subscribers: !isVisible.subscribers,
-              banner: false
+              banner: false,
+              lists: false,
+              logo: false,
+              subscribers: !isVisible.subscribers
             });
           }
         }}
@@ -319,7 +331,7 @@ export const OrgConfigSubscribersPanel = ({
           <Grid templateColumns="1fr auto" alignItems="center">
             <GridItem
               css={css`
-                @media (max-width: 730px) {
+                @media (max-width: ${breakpoints.nav}) {
                   & {
                     padding-top: 12px;
                     padding-bottom: 12px;
@@ -327,19 +339,17 @@ export const OrgConfigSubscribersPanel = ({
                 }
               `}
             >
-              <Flex flexDirection="row" alignItems="center">
-                {isVisible.subscribers ? (
-                  <ChevronDownIcon />
-                ) : (
-                  <ChevronRightIcon />
-                )}
-                <Heading size="sm">Adhérents & Abonnés</Heading>
+              <Flex alignItems="center">
+                {isVisible.subscribers ? <ViewIcon /> : <ViewOffIcon />}
+                <Heading size="sm" ml={2}>
+                  Adhérents & Abonnés
+                </Heading>
               </Flex>
             </GridItem>
 
             <GridItem
               css={css`
-                @media (max-width: 730px) {
+                @media (max-width: ${breakpoints.nav}) {
                   & {
                     grid-column: 1;
                     padding-bottom: 12px;
@@ -360,7 +370,7 @@ export const OrgConfigSubscribersPanel = ({
                 m={1}
                 data-cy="orgAddSubscribers"
               >
-                Ajouter des coordonnées
+                Ajouter
               </Button>
             </GridItem>
           </Grid>
@@ -382,6 +392,7 @@ export const OrgConfigSubscribersPanel = ({
                 ref={register()}
                 name="emailList"
                 dark={{ _hover: { borderColor: "white" } }}
+                onChange={() => clearErrors("formErrorMessage")}
               />
               <FormErrorMessage>
                 <ErrorMessage errors={errors} name="emailList" />
@@ -397,6 +408,7 @@ export const OrgConfigSubscribersPanel = ({
                 ref={register()}
                 name="phoneList"
                 dark={{ _hover: { borderColor: "white" } }}
+                onChange={() => clearErrors("formErrorMessage")}
               />
               <FormErrorMessage>
                 <ErrorMessage errors={errors} name="phoneList" />
@@ -733,10 +745,8 @@ export const OrgConfigSubscribersPanel = ({
 
                               const unsubscribe = confirm(
                                 `Êtes-vous sûr de vouloir supprimer l'abonnement ${
-                                  userEmail || subscription.phone
-                                } de ${orgTypeFull(org.orgType)} ${
-                                  org.orgName
-                                } ?`
+                                  phone || email || userEmail
+                                } ${orgTypeFull(org.orgType)} ${org.orgName} ?`
                               );
 
                               if (unsubscribe) {

@@ -22,6 +22,7 @@ export interface IOrg {
   orgDescription?: string;
   orgDescriptionHtml?: string;
   orgEvents: IEvent[];
+  orgLists?: IOrgList[];
   orgProjects: IProject[];
   orgSubscriptions: ISubscription[];
   orgTopics: ITopic[];
@@ -38,6 +39,11 @@ export interface IOrg {
   isApproved?: boolean;
   createdBy: IUser | string;
   createdAt?: string;
+}
+
+export interface IOrgList {
+  listName: string;
+  subscriptions: ISubscription[];
 }
 
 export type OrgType = "ASSO" | "GROUP" | "NETWORK";
@@ -124,6 +130,17 @@ export const OrgSchema = new Schema<IOrg>(
       trim: true
     },
     orgEvents: [{ type: Schema.Types.ObjectId, ref: "Event" }],
+    orgLists: [
+      {
+        listName: { type: String, required: true, trim: true },
+        subscriptions: [
+          {
+            type: Schema.Types.ObjectId,
+            ref: "Subscription"
+          }
+        ]
+      }
+    ],
     orgProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
     orgSubscriptions: [
       { type: Schema.Types.ObjectId, ref: "Subscription", required: true }

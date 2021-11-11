@@ -1,23 +1,24 @@
-import type { Visibility } from "./OrgPage";
-import type { IOrg } from "models/Org";
-import React, { useState } from "react";
-import AvatarEditor from "react-avatar-editor";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
-  Box,
-  Heading,
-  FormLabel,
-  FormControl,
-  Stack,
-  FormErrorMessage,
   Alert,
   AlertIcon,
-  useToast,
+  Box,
   Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  GridProps,
+  Heading,
   Radio,
   RadioGroup,
-  GridProps
+  Select,
+  Stack,
+  useToast
 } from "@chakra-ui/react";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { ErrorMessage } from "@hookform/error-message";
+import React, { useRef, useState } from "react";
+import AvatarEditor from "react-avatar-editor";
+import { useForm } from "react-hook-form";
 import {
   Button,
   DeleteButton,
@@ -27,21 +28,13 @@ import {
   GridItem,
   Input,
   Link,
-  Select
+  UrlControl
 } from "features/common";
-import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { Base64Image, getBase64, getMeta } from "utils/image";
-import { useForm } from "react-hook-form";
+import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { IOrg } from "models/Org";
 import { handleError } from "utils/form";
-import { ErrorMessage } from "@hookform/error-message";
-import { useRef } from "react";
-import { UrlControl } from "features/common/forms/UrlControl";
-
-type OrgConfigBannerPanelProps = GridProps &
-  Visibility & {
-    org: IOrg;
-    orgQuery: any;
-  };
+import { Base64Image, getBase64, getMeta } from "utils/image";
+import { Visibility } from "./OrgPage";
 
 export const OrgConfigBannerPanel = ({
   org,
@@ -49,7 +42,11 @@ export const OrgConfigBannerPanel = ({
   isVisible,
   setIsVisible,
   ...props
-}: OrgConfigBannerPanelProps) => {
+}: GridProps &
+  Visibility & {
+    org: IOrg;
+    orgQuery: any;
+  }) => {
   const toast = useToast({ position: "top" });
 
   //#region org
@@ -140,7 +137,9 @@ export const OrgConfigBannerPanel = ({
           setIsVisible({
             ...isVisible,
             banner: !isVisible.banner,
-            logo: false
+            lists: false,
+            logo: false,
+            subscribers: false
           })
         }
       >
@@ -150,8 +149,8 @@ export const OrgConfigBannerPanel = ({
           alignItems="center"
         >
           <Flex flexDirection="row" alignItems="center">
-            {isVisible.banner ? <ChevronDownIcon /> : <ChevronRightIcon />}
-            <Heading size="sm" py={3}>
+            {isVisible.banner ? <ViewIcon /> : <ViewOffIcon />}
+            <Heading size="sm" ml={2} py={3}>
               Bannière
             </Heading>
           </Flex>
@@ -178,7 +177,7 @@ export const OrgConfigBannerPanel = ({
                     });
                     orgQuery.refetch();
                     toast({
-                      title: "La bannière a bien été supprimée",
+                      title: "La bannière a bien été supprimée !",
                       status: "success"
                     });
                   } catch (error) {

@@ -441,10 +441,10 @@ export const EventForm = withGoogleApi({
       } catch (error) {
         setIsLoading(false);
         handleError(error, (message, field) => {
-          if (field) {
-            setError(field, { type: "manual", message });
-          }
-          setError("formErrorMessage", { type: "manual", message });
+          setError(field || "formErrorMessage", {
+            type: "manual",
+            message
+          });
         });
       }
     };
@@ -1089,8 +1089,9 @@ export const EventForm = withGoogleApi({
             as={ReactSelect}
             control={control}
             defaultValue={defaultEventOrgs}
-            placeholder="Sélectionner une ou plusieurs organisations"
+            placeholder="Rechercher une organisation..."
             menuPlacement="top"
+            noOptionsMessage={() => "Aucune organisation trouvée"}
             isClearable
             isMulti
             isSearchable

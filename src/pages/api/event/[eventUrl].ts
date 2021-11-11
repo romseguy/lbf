@@ -42,7 +42,7 @@ handler.get<
     });
 
     if (!event) {
-      // event was forwarded
+      // maybe event was forwarded
       event = await models.Event.findOne({
         _id: eventUrl
       });

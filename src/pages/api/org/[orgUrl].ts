@@ -8,7 +8,7 @@ import { getSession } from "hooks/useAuth";
 import type { IOrg } from "models/Org";
 import type { ITopic } from "models/Topic";
 import { createServerError } from "utils/errors";
-import { equals, normalize } from "utils/string";
+import { equals, log, normalize } from "utils/string";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -50,13 +50,15 @@ handler.get<
       : "-email -password -securityCode";
 
     if (populate) {
-      if (populate.includes("orgs")) {
-        org = org.populate("orgs");
-      }
+      if (populate.includes("orgs")) org = org.populate("orgs");
 
-      if (populate.includes("orgEvents")) {
-        org = org.populate("orgEvents");
-      }
+      if (populate.includes("orgEvents")) org = org.populate("orgEvents");
+
+      if (populate.includes("orgLists"))
+        org = org.populate({
+          path: "orgLists",
+          populate: [{ path: "subscriptions" }]
+        });
 
       if (populate.includes("orgProjects"))
         org = org.populate({
@@ -76,7 +78,7 @@ handler.get<
           ]
         });
 
-      if (populate.includes("orgSubscriptions")) {
+      if (populate.includes("orgSubscriptions"))
         org = org.populate({
           path: "orgSubscriptions",
           select: isCreator ? undefined : "-email",
@@ -87,7 +89,6 @@ handler.get<
               : "-email -password -securityCode"
           }
         });
-      }
     }
 
     org = await org
@@ -159,6 +160,9 @@ handler.put<
     try {
       let { body }: { body: Partial<IOrg> | string[] } = req;
       const orgUrl = req.query.orgUrl;
+
+      console.log(`PUT /org/${orgUrl}: body`, body);
+
       const org = await models.Org.findOne({ orgUrl });
 
       if (!org) {
@@ -186,12 +190,24 @@ handler.put<
           );
       }
 
-      let update: [{ $unset: string[] }] | undefined;
+      let update:
+        | {
+            $unset?: { [key: string]: number };
+            $pull?: { [key: string]: { [key: string]: string } };
+          }
+        | undefined;
 
       if (Array.isArray(body)) {
-        update = [{ $unset: [] }];
         for (const key of body) {
-          update[0].$unset.push(key);
+          if (key.includes(".") && key.includes("=")) {
+            const matches = key.match(/([^\.]+)\.([^=]+)=(.+)/);
+
+            if (matches && matches.length === 4) {
+              update = {
+                $pull: { [matches[1]]: { [matches[2]]: matches[3] } }
+              };
+            }
+          } else update = { $unset: { [key]: 1 } };
         }
       } else {
         if (body.orgName) {
@@ -201,8 +217,20 @@ handler.put<
             orgUrl: normalize(body.orgName.trim())
           };
         }
+
+        if (body.orgLists) {
+          const org = await models.Org.findOne({ orgUrl });
+
+          if (org && org.orgLists) {
+            for (const orgList of org.orgLists) {
+              if (orgList.listName === body.orgLists[0].listName) {
+              }
+            }
+          }
+        }
       }
 
+      log(`PUT /org/${orgUrl}:`, update || body);
       const { n, nModified } = await models.Org.updateOne(
         { orgUrl },
         update || body

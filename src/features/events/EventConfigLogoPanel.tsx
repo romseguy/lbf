@@ -1,19 +1,18 @@
-import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
-  Box,
-  Heading,
-  FormLabel,
-  FormControl,
-  FormErrorMessage,
   Alert,
   AlertIcon,
+  Box,
   Flex,
-  Grid,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
   GridProps,
-  useToast,
+  Heading,
   Radio,
   RadioGroup,
-  Stack
+  Stack,
+  useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
@@ -24,17 +23,18 @@ import {
   Button,
   DeleteButton,
   ErrorMessageText,
+  Grid,
   GridHeader,
   GridItem,
   Input,
-  Link
+  Link,
+  UrlControl
 } from "features/common";
 import { useEditEventMutation } from "features/events/eventsApi";
-import { handleError } from "utils/form";
 import { IEvent } from "models/Event";
-import { Base64Image, calculateScale, getBase64, getMeta } from "utils/image";
+import { handleError } from "utils/form";
+import { Base64Image, getBase64, getMeta } from "utils/image";
 import { Visibility } from "./EventPage";
-import { UrlControl } from "features/common/forms/UrlControl";
 
 type EventConfigLogoPanelProps = GridProps &
   Visibility & {
@@ -155,8 +155,8 @@ export const EventConfigLogoPanel = ({
         onClick={() =>
           setIsVisible({
             ...isVisible,
-            logo: !isVisible.logo,
-            banner: false
+            banner: false,
+            logo: !isVisible.logo
           })
         }
       >
@@ -165,9 +165,9 @@ export const EventConfigLogoPanel = ({
           borderBottomRadius={!isVisible.logo ? "lg" : undefined}
           alignItems="center"
         >
-          <Flex flexDirection="row" alignItems="center">
-            {isVisible.logo ? <ChevronDownIcon /> : <ChevronRightIcon />}
-            <Heading size="sm" py={3}>
+          <Flex alignItems="center">
+            {isVisible.logo ? <ViewIcon /> : <ViewOffIcon />}
+            <Heading size="sm" ml={2} py={3}>
               Changer le logo
             </Heading>
           </Flex>
@@ -193,7 +193,7 @@ export const EventConfigLogoPanel = ({
                   });
                   eventQuery.refetch();
                   toast({
-                    title: "Le logo a bien été supprimé",
+                    title: "Le logo a bien été supprimé !",
                     status: "success"
                   });
                 } catch (error) {

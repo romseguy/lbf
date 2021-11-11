@@ -130,7 +130,7 @@ export const Layout = ({
           </Box>
         )}
 
-        {!isMobile && (true || process.env.NODE_ENV === "production") && (
+        {!isMobile && /*true ||*/ process.env.NODE_ENV === "production" && (
           <Box position="fixed" left={3} bottom={3}>
             <Flex alignItems="center">
               <Tooltip

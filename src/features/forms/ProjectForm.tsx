@@ -296,8 +296,9 @@ export const ProjectForm = ({
             as={ReactSelect}
             control={control}
             defaultValue={props.project?.projectOrgs || [org]}
-            placeholder="Sélectionner..."
+            placeholder="Rechercher une organisation..."
             menuPlacement="top"
+            noOptionsMessage={() => "Aucune organisation trouvée"}
             isClearable
             isMulti
             isSearchable

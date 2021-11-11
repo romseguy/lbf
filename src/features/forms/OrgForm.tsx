@@ -215,11 +215,10 @@ export const OrgForm = withGoogleApi({
       } catch (error) {
         setIsLoading(false);
         handleError(error, (message, field) => {
-          if (field) {
-            setError(field, { type: "manual", message });
-          } else {
-            setError("formErrorMessage", { type: "manual", message });
-          }
+          setError(field || "formErrorMessage", {
+            type: "manual",
+            message
+          });
         });
       }
     };
@@ -250,7 +249,6 @@ export const OrgForm = withGoogleApi({
           <FormLabel>Nom {orgTypeLabel}</FormLabel>
           <Input
             name="orgName"
-            placeholder={`Saisir le nom ${orgTypeLabel}`}
             ref={register({
               required: `Veuillez saisir le nom ${orgTypeLabel}`
               // pattern: {
@@ -260,6 +258,7 @@ export const OrgForm = withGoogleApi({
               // }
             })}
             defaultValue={props.org?.orgName}
+            placeholder={`Saisir le nom ${orgTypeLabel}`}
           />
           {getValues("orgName") && (
             <Tooltip label={`Adresse de la page de ${orgTypeLabel}`}>
@@ -340,8 +339,9 @@ export const OrgForm = withGoogleApi({
                 as={ReactSelect}
                 control={control}
                 defaultValue={props.org?.orgs || []}
-                placeholder="Sélectionner une ou plusieurs organisations"
+                placeholder="Rechercher une organisation..."
                 menuPlacement="top"
+                noOptionsMessage={() => "Aucune organisation trouvée"}
                 isClearable
                 isMulti
                 isSearchable

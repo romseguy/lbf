@@ -42,15 +42,16 @@ const Hash = ({
 
   useEffect(() => {
     const xhr = async () => {
+      populate = "orgSubscriptions";
       const eventQuery = await dispatch(
-        getEvent.initiate({ eventUrl: routeName, populate: "orgSubscriptions" })
+        getEvent.initiate({ eventUrl: routeName, populate })
       );
 
       if (eventQuery.data) {
         setEvent(eventQuery.data);
       } else {
         populate =
-          "orgBanner orgEvents orgLogo orgProjects orgSubscriptions orgTopics orgs";
+          "orgBanner orgEvents orgLogo orgLists orgProjects orgSubscriptions orgTopics orgs";
         const orgQuery = await dispatch(
           getOrg.initiate({
             orgUrl: routeName,
@@ -83,7 +84,7 @@ const Hash = ({
   }, [router.asPath, refetchOrg]);
 
   if (event) {
-    return <EventPage event={event} {...props} />;
+    return <EventPage event={event} populate={populate} {...props} />;
   }
 
   if (org) {

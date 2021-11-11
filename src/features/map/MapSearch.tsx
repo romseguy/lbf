@@ -24,6 +24,9 @@ export const MapSearch = ({
     watch,
     getValues
   } = useForm({
+    defaultValues: {
+      eventAddress: defaultValue
+    },
     mode: "onChange"
   });
 
@@ -38,7 +41,6 @@ export const MapSearch = ({
         name="eventAddress"
         control={control}
         errors={errors}
-        defaultValue={defaultValue}
         value={value}
         noLabel
         mb={3}

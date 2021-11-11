@@ -137,8 +137,8 @@ export const Map = withGoogleApi({
 
         const positions = markersGrouped.map((markers) =>
           markers.map((marker) => ({
-            lat: marker.getPosition().lat(),
-            lng: marker.getPosition().lng()
+            lat: marker.getPosition()?.lat(),
+            lng: marker.getPosition()?.lng()
           }))
         )[0];
 
@@ -146,9 +146,11 @@ export const Map = withGoogleApi({
 
         for (const marker of markers) {
           if (
+            marker.lat &&
+            marker.lng &&
             positions &&
             positions.find(
-              (position: { lat: number; lng: number }) =>
+              (position) =>
                 position.lat === marker.lat && position.lng === marker.lng
             )
           )

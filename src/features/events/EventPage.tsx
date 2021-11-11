@@ -68,9 +68,9 @@ import { EventInfo } from "./EventInfo";
 
 export type Visibility = {
   isVisible: {
-    logo: boolean;
-    topics: boolean;
-    banner: boolean;
+    banner?: boolean;
+    logo?: boolean;
+    topics?: boolean;
   };
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
@@ -80,8 +80,10 @@ let cachedRefetchSubscription = false;
 let cachedEmail: string | undefined;
 
 export const EventPage = ({
+  populate,
   ...props
 }: {
+  populate?: string;
   event: IEvent;
   session: Session | null;
 }) => {
@@ -95,7 +97,7 @@ export const EventPage = ({
 
   //#region event
   const eventQuery = useGetEventQuery(
-    { eventUrl: props.event.eventUrl },
+    { eventUrl: props.event.eventUrl, populate },
     {
       selectFromResult: (query) => query
     }
