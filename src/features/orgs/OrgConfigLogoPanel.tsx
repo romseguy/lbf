@@ -22,6 +22,7 @@ import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
 import {
   Button,
+  DeleteButton,
   ErrorMessageText,
   GridHeader,
   GridItem,
@@ -127,8 +128,6 @@ export const OrgConfigLogoPanel = ({
         };
       }
 
-      console.log("payload", payload);
-
       await editOrg({
         payload,
         orgUrl: org.orgUrl
@@ -172,7 +171,7 @@ export const OrgConfigLogoPanel = ({
           <Flex flexDirection="row" alignItems="center">
             {isVisible.logo ? <ChevronDownIcon /> : <ChevronRightIcon />}
             <Heading size="sm" py={3}>
-              Changer le logo
+              Logo
             </Heading>
           </Flex>
         </GridHeader>
@@ -181,6 +180,33 @@ export const OrgConfigLogoPanel = ({
       {isVisible.logo && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Box p={5}>
+            <DeleteButton
+              header={
+                <>
+                  Êtes vous sûr de vouloir supprimer le logo de {org.orgName} ?
+                </>
+              }
+              mb={3}
+              onClick={async () => {
+                try {
+                  await editOrg({
+                    payload: ["orgLogo"],
+                    orgUrl: org.orgUrl
+                  });
+                  orgQuery.refetch();
+                  toast({
+                    title: "Le logo a bien été supprimé",
+                    status: "success"
+                  });
+                } catch (error) {
+                  toast({
+                    title: "Le logo n'a pas pu être supprimé",
+                    status: "error"
+                  });
+                }
+              }}
+            />
+
             <form
               method="post"
               onChange={() => {

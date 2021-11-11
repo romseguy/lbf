@@ -1,33 +1,43 @@
-import type { IOrg } from "models/Org";
-import type { ITopic } from "models/Topic";
-import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import baseQuery from "utils/query";
-
-//const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
+import { IOrg } from "models/Org";
 
 export const orgApi = createApi({
-  reducerPath: "orgsApi", // We only specify this because there are many services. This would not be common in most applications
-  //baseQuery: baseQueryWithRetry,
+  reducerPath: "orgsApi",
   baseQuery,
   tagTypes: ["Orgs"],
   endpoints: (build) => ({
     addOrg: build.mutation<IOrg, Partial<IOrg>>({
-      query: (body) => ({
-        url: `orgs`,
-        method: "POST",
-        body
-      }),
+      query: (body) => {
+        console.log("addOrg: payload", body);
+
+        return {
+          url: `orgs`,
+          method: "POST",
+          body
+        };
+      },
       invalidatesTags: [{ type: "Orgs", id: "LIST" }]
     }),
     deleteOrg: build.mutation<IOrg, string>({
       query: (orgUrl) => ({ url: `org/${orgUrl}`, method: "DELETE" })
     }),
-    editOrg: build.mutation<IOrg, { payload: Partial<IOrg>; orgUrl?: string }>({
-      query: ({ payload, orgUrl }) => ({
-        url: `org/${orgUrl || payload.orgUrl}`,
-        method: "PUT",
-        body: payload
-      })
+    editOrg: build.mutation<
+      {},
+      { payload: Partial<IOrg> | string[]; orgUrl?: string }
+    >({
+      query: ({ payload, orgUrl }) => {
+        console.log("editOrg: orgUrl", orgUrl);
+        console.log("editOrg: payload", payload);
+
+        return {
+          url: `org/${
+            orgUrl ? orgUrl : "orgUrl" in payload ? payload.orgUrl : undefined
+          }`,
+          method: "PUT",
+          body: payload
+        };
+      }
     }),
     getOrg: build.query<IOrg, { orgUrl: string; populate?: string }>({
       query: ({ orgUrl, populate }) => ({

@@ -11,7 +11,7 @@ import { Session } from "next-auth";
 import NextNprogress from "nextjs-progressbar";
 import React, { useEffect, useState } from "react";
 import { Offline } from "react-detect-offline";
-import { FaGithub } from "react-icons/fa";
+import { FaGithub, FaTwitter } from "react-icons/fa";
 import { css } from "twin.macro";
 import { DarkModeSwitch } from "features/common";
 import { PaypalButton } from "features/common/forms/PaypalButton";
@@ -134,9 +134,9 @@ export const Layout = ({
           <Box position="fixed" left={3} bottom={3}>
             <Flex alignItems="center">
               <Tooltip
+                hasArrow
                 label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
                 placement="top-end"
-                hasArrow
               >
                 <Box>
                   <PaypalButton />
@@ -144,12 +144,13 @@ export const Layout = ({
               </Tooltip>
 
               <Tooltip
-                label="Ce projet est open-source, financé par son seul créateur."
-                placement="right"
+                hasArrow
+                label="Contacter le développeur  ͡❛ ͜ʖ ͡❛"
+                placement="top-end"
               >
                 <Box>
-                  <a href="https://github.com/romseguy">
-                    <Icon as={FaGithub} boxSize={6} ml={3} />
+                  <a href="https://twitter.com/romseguy" target="_blank">
+                    <Icon as={FaTwitter} boxSize={6} color="cyan.600" ml={3} />
                   </a>
                 </Box>
               </Tooltip>

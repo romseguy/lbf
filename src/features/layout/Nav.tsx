@@ -127,10 +127,15 @@ export const Nav = ({
             padding-left: 5px;
             padding-right: 6px;
           }
+          @media (min-width: 840px) {
+          }
           @media (max-width: 840px) {
+            margin: 12px 0;
+
             button {
               flex-basis: 100%;
               justify-content: flex-start;
+              margin: 0 12px;
             }
           }
         `}

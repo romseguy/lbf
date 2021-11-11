@@ -114,24 +114,28 @@ export const EventsListItem = ({
         {/* eventCategory */}
         {typeof event.eventCategory === "number" && event.eventCategory !== 0 && (
           <GridItem mb={2}>
-            <Tag
+            <Button
               color="white"
-              bgColor={
+              colorScheme={
                 Category[event.eventCategory].bgColor === "transparent"
                   ? isDark
-                    ? "whiteAlpha.100"
-                    : "blackAlpha.600"
+                    ? "whiteAlpha"
+                    : "blackAlpha"
                   : Category[event.eventCategory].bgColor
               }
-              css={css`
-                font-size: 0.8rem;
-                @media (min-width: 730px) {
-                  font-size: 0.9rem;
-                }
-              `}
+              fontSize="small"
+              fontWeight="normal"
+              height="auto"
+              p={1}
+              // css={css`
+              //   font-size: 0.8rem;
+              //   @media (min-width: 730px) {
+              //     font-size: 0.9rem;
+              //   }
+              // `}
             >
               {Category[event.eventCategory].label}
-            </Tag>
+            </Button>
           </GridItem>
         )}
 
@@ -160,22 +164,23 @@ export const EventsListItem = ({
               label={`Événement à ${event.eventDistance} de ${city}`}
               placement="right"
             >
-              <Tag colorScheme="purple" color="white">
+              <Button
+                colorScheme="purple"
+                color="white"
+                fontWeight="normal"
+                fontSize="small"
+                height="auto"
+                p={1}
+                size="sm"
+              >
                 {event.eventDistance}
-              </Tag>
+              </Button>
             </Tooltip>
           </GridItem>
         )}
 
         {/* eventMinDate */}
-        <Text
-          mt={1}
-          title={
-            process.env.NODE_ENV === "development"
-              ? `${event.repeat}`
-              : undefined
-          }
-        >
+        <Text fontWeight="bold" mt={1}>
           {format(minDate, `H'h'${getMinutes(minDate) !== 0 ? "mm" : ""}`, {
             locale: fr
           })}
@@ -184,7 +189,7 @@ export const EventsListItem = ({
         <Icon as={UpDownIcon} mt={2} mb={3} />
 
         {/* eventMaxDate */}
-        <Text mb={1}>
+        <Text fontWeight="bold" mb={1}>
           {getDay(minDate) !== getDay(maxDate) &&
             format(maxDate, `EEEE`, { locale: fr })}{" "}
           {format(maxDate, `H'h'${getMinutes(maxDate) !== 0 ? "mm" : ""}`, {
@@ -272,6 +277,7 @@ export const EventsListItem = ({
               <Link
                 className={eventNameClassName}
                 fontSize={["sm", "lg"]}
+                fontWeight="bold"
                 href={`/${encodeURIComponent(event.eventUrl)}`}
                 shallow
                 onMouseEnter={() => setEventNameClassName("rainbow-text")}
@@ -331,15 +337,24 @@ export const EventsListItem = ({
                       );
                     })
                   : typeof event.createdBy === "object" && (
-                      <Link href={`/${event.createdBy.userName}`} shallow>
-                        <Tag
-                          bg={isDark ? "whiteAlpha.500" : "blackAlpha.200"}
-                          color="black"
-                        >
-                          <Icon as={IoIosPerson} mr={1} />
-                          {event.createdBy.userName}
-                        </Tag>
-                      </Link>
+                      <EntityBadge
+                        key={event.createdBy._id}
+                        user={event.createdBy}
+                        px={2}
+                        py={1}
+                        bg={isDark ? "whiteAlpha.500" : "blackAlpha.200"}
+                        onClick={() => {
+                          if (typeof event.createdBy === "object") {
+                            router.push(
+                              `/${event.createdBy.userName}`,
+                              `/${event.createdBy.userName}`,
+                              {
+                                shallow: true
+                              }
+                            );
+                          }
+                        }}
+                      />
                     )}
               </GridItem>
             )}

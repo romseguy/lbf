@@ -1,4 +1,5 @@
 import {
+  AddIcon,
   ArrowBackIcon,
   AtSignIcon,
   EditIcon,
@@ -339,15 +340,15 @@ export const OrgPage = ({
                           !hasItems(org.orgEmail) &&
                           !hasItems(org.orgPhone) &&
                           !hasItems(org.orgWeb) && (
-                            <Link
+                            <Button
+                              colorScheme="teal"
+                              leftIcon={<AddIcon />}
                               onClick={() => {
                                 setIsEdit(true);
                               }}
-                              variant="underline"
                             >
-                              Cliquez ici pour ajouter les coordonnées{" "}
-                              {orgTypeFull(org.orgType)}.
-                            </Link>
+                              Ajouter
+                            </Button>
                           )}
 
                         {org.orgAddress && (
@@ -568,15 +569,15 @@ export const OrgPage = ({
                           }}
                         />
                       ) : isCreator ? (
-                        <Link
+                        <Button
+                          colorScheme="teal"
+                          leftIcon={<AddIcon />}
                           onClick={() => {
                             setIsEdit(true);
                           }}
-                          variant="underline"
                         >
-                          Cliquez ici pour ajouter la description{" "}
-                          {orgTypeFull(org.orgType)}.
-                        </Link>
+                          Ajouter
+                        </Button>
                       ) : (
                         <Text fontStyle="italic">Aucune description.</Text>
                       )}

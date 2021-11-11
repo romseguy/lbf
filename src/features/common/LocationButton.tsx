@@ -71,10 +71,10 @@ export const LocationButton = withGoogleApi({
       const isOffline = loaded && !google;
 
       useEffect(() => {
-        if (coords) {
+        if (coords && !location) {
           setLocation({ lat: coords.latitude, lng: coords.longitude });
         }
-      }, [coords]);
+      }, [coords, location]);
 
       const [showAddressControl, setShowAddressControl] = useState(false);
 
@@ -91,8 +91,6 @@ export const LocationButton = withGoogleApi({
                   country: "FR"
                 }
               });
-              console.log(results);
-
               const city = getCity(results[0]);
               if (city) setCity(city);
             } catch (error) {
@@ -128,13 +126,9 @@ export const LocationButton = withGoogleApi({
               }}
               onSuggestionSelect={async (suggestion: Suggestion) => {
                 const { lat, lng, city } = await unwrapSuggestion(suggestion);
-                console.log(suggestion, lat, lng, city);
-
                 if (lat && lng) setLocation({ lat, lng });
-                if (city) {
-                  setCity(city);
-                  setShowAddressControl(false);
-                }
+                if (city) setCity(city);
+                setShowAddressControl(false);
               }}
             />
           )}

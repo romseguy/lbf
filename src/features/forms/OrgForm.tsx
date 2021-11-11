@@ -191,8 +191,6 @@ export const OrgForm = withGoogleApi({
           payload = { ...payload, orgLat, orgLng, orgCity };
         }
 
-        console.log("payload", payload);
-
         if (props.org) {
           await editOrg({ payload, orgUrl: props.org.orgUrl }).unwrap();
 

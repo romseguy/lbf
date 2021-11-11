@@ -114,8 +114,6 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
       }
     };
 
-    console.log("payload", payload);
-
     try {
       if (props.topic) {
         await editTopic({

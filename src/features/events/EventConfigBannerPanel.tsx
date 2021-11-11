@@ -21,6 +21,7 @@ import {
 import { useEditEventMutation } from "features/events/eventsApi";
 import {
   Button,
+  DeleteButton,
   ErrorMessageText,
   Grid,
   GridHeader,
@@ -96,9 +97,9 @@ export const EventConfigBannerPanel = ({
 
     try {
       let payload = {};
-      const { height, width } = await getMeta(form.url);
 
       if (uploadType === "url") {
+        const { height, width } = await getMeta(form.url);
         payload = {
           eventBanner: {
             url: form.url,
@@ -111,7 +112,7 @@ export const EventConfigBannerPanel = ({
         payload = {
           eventBanner: {
             base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL(),
-            height,
+            height: form.height, // todo actual height
             headerHeight: form.height,
             mode: form.mode
           }
@@ -123,7 +124,7 @@ export const EventConfigBannerPanel = ({
         eventUrl: event.eventUrl
       });
       toast({
-        title: "L'image de couverture a bien été modifiée !",
+        title: "La bannière a bien été modifiée !",
         status: "success"
       });
       eventQuery.refetch();
@@ -168,6 +169,34 @@ export const EventConfigBannerPanel = ({
       {isVisible.banner && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Box p={5}>
+            <DeleteButton
+              header={
+                <>
+                  Êtes vous sûr de vouloir supprimer la bannière de{" "}
+                  {event.eventName} ?
+                </>
+              }
+              mb={3}
+              onClick={async () => {
+                try {
+                  await editEvent({
+                    payload: ["eventBanner"],
+                    eventUrl: event.eventUrl
+                  });
+                  eventQuery.refetch();
+                  toast({
+                    title: "La bannière a bien été supprimée",
+                    status: "success"
+                  });
+                } catch (error) {
+                  toast({
+                    title: "La bannière n'a pas pu être supprimée",
+                    status: "error"
+                  });
+                }
+              }}
+            />
+
             <form
               method="post"
               onChange={() => {

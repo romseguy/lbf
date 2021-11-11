@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import querystring from "querystring";
-import type { IEvent } from "models/Event";
+import { IEvent } from "models/Event";
 import baseQuery from "utils/query";
 
 export const eventApi = createApi({
@@ -9,38 +9,40 @@ export const eventApi = createApi({
   tagTypes: ["Events"],
   endpoints: (build) => ({
     addEvent: build.mutation<IEvent, Partial<IEvent>>({
-      query: (body) => ({
-        url: `events`,
-        method: "POST",
-        body
-      }),
+      query: (body) => {
+        console.log("addEvent: payload", body);
+
+        return {
+          url: `events`,
+          method: "POST",
+          body
+        };
+      },
       invalidatesTags: [{ type: "Events", id: "LIST" }]
-    }),
-    postEventNotif: build.mutation<
-      { emailList: string[] },
-      {
-        payload: { orgIds?: string[]; email?: string };
-        eventUrl?: string;
-      }
-    >({
-      query: ({ payload, eventUrl }) => ({
-        url: `event/${eventUrl}`,
-        method: "POST",
-        body: payload
-      })
     }),
     deleteEvent: build.mutation<IEvent, { eventUrl: string }>({
       query: ({ eventUrl }) => ({ url: `event/${eventUrl}`, method: "DELETE" })
     }),
     editEvent: build.mutation<
-      { emailList?: string[] },
-      { payload: Partial<IEvent>; eventUrl?: string }
+      {},
+      { payload: Partial<IEvent> | string[]; eventUrl?: string }
     >({
-      query: ({ payload, eventUrl }) => ({
-        url: `event/${eventUrl || payload.eventUrl}`,
-        method: "PUT",
-        body: payload
-      })
+      query: ({ payload, eventUrl }) => {
+        console.log("editEvent: eventUrl", eventUrl);
+        console.log("editEvent: payload", payload);
+
+        return {
+          url: `event/${
+            eventUrl
+              ? eventUrl
+              : "eventUrl" in payload
+              ? payload.eventUrl
+              : undefined
+          }`,
+          method: "PUT",
+          body: payload
+        };
+      }
     }),
     getEvent: build.query<
       IEvent,
@@ -61,6 +63,19 @@ export const eventApi = createApi({
     }),
     getEventsByUserId: build.query<IEvent[], string>({
       query: (userId) => ({ url: `events/${userId}` })
+    }),
+    postEventNotif: build.mutation<
+      { emailList: string[] },
+      {
+        payload: { orgIds?: string[]; email?: string };
+        eventUrl?: string;
+      }
+    >({
+      query: ({ payload, eventUrl }) => ({
+        url: `event/${eventUrl}`,
+        method: "POST",
+        body: payload
+      })
     })
   })
 });

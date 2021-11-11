@@ -8,17 +8,17 @@ import {
 } from "use-places-autocomplete";
 
 export const getCity = (
-  placeResult: google.maps.places.PlaceResult | string
+  result: google.maps.places.PlaceResult | google.maps.GeocoderResult | string
 ) => {
-  if (typeof placeResult === "string") return;
-  let city;
+  //console.log("getCity: result", result);
+  let city = "Paris";
 
-  placeResult.address_components?.forEach(
+  if (typeof result === "string") return city;
+
+  result.address_components?.forEach(
     (address_component: google.maps.GeocoderAddressComponent) => {
       if (address_component.types.indexOf("locality") !== -1) {
         city = address_component.long_name || address_component.short_name;
-      } else {
-        city = "Paris";
       }
     }
   );
@@ -27,14 +27,22 @@ export const getCity = (
 };
 
 export const unwrapSuggestion = async (suggestion: Suggestion) => {
-  const placeResult = await getDetails({
-    placeId: suggestion.place_id,
-    fields: ["address_component"]
-  });
+  //console.log("unwrapSuggestion: Suggestion", suggestion);
 
-  const city = getCity(placeResult);
+  // const placeResult = await getDetails({
+  //   placeId: suggestion.place_id,
+  //   fields: ["address_component"]
+  // });
+  // console.log("unwrapSuggestion: PlaceResult", placeResult);
+
   const results = await getGeocode({ address: suggestion.description });
+  //console.log("unwrapSuggestion: GeocoderResult[]", results);
+
   const { lat, lng } = await getLatLng(results[0]);
+  //console.log("unwrapSuggestion: lat, lng", lat, lng);
+
+  const city = getCity(results[0]);
+  //console.log("unwrapSuggestion: city", city);
 
   return { lat, lng, city };
 };

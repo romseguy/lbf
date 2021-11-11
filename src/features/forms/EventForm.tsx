@@ -414,8 +414,6 @@ export const EventForm = withGoogleApi({
           payload = { ...payload, eventLat, eventLng, eventCity };
         }
 
-        console.log("payload", payload);
-
         if (props.event) {
           await editEvent({
             payload,

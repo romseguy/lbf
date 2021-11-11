@@ -141,7 +141,7 @@ handler.get<
 handler.put<
   NextApiRequest & {
     query: { orgUrl: string };
-    body: IOrg;
+    body: Partial<IOrg> | string[];
   },
   NextApiResponse
 >(async function editOrg(req, res) {
@@ -157,7 +157,7 @@ handler.put<
       );
   } else {
     try {
-      let { body }: { body: IOrg } = req;
+      let { body }: { body: Partial<IOrg> | string[] } = req;
       const orgUrl = req.query.orgUrl;
       const org = await models.Org.findOne({ orgUrl });
 
@@ -186,12 +186,27 @@ handler.put<
           );
       }
 
-      if (body.orgName) {
-        body = { ...body, orgName: body.orgName.trim() };
-        body.orgUrl = normalize(body.orgName);
+      let update: [{ $unset: string[] }] | undefined;
+
+      if (Array.isArray(body)) {
+        update = [{ $unset: [] }];
+        for (const key of body) {
+          update[0].$unset.push(key);
+        }
+      } else {
+        if (body.orgName) {
+          body = {
+            ...body,
+            orgName: body.orgName.trim(),
+            orgUrl: normalize(body.orgName.trim())
+          };
+        }
       }
 
-      const { n, nModified } = await models.Org.updateOne({ orgUrl }, body);
+      const { n, nModified } = await models.Org.updateOne(
+        { orgUrl },
+        update || body
+      );
 
       if (nModified === 1) {
         res.status(200).json({});

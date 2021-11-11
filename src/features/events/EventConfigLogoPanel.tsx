@@ -22,6 +22,7 @@ import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
 import {
   Button,
+  DeleteButton,
   ErrorMessageText,
   GridHeader,
   GridItem,
@@ -125,8 +126,6 @@ export const EventConfigLogoPanel = ({
         };
       }
 
-      console.log("payload", payload);
-
       await editEvent({
         payload,
         eventUrl: event.eventUrl
@@ -178,6 +177,34 @@ export const EventConfigLogoPanel = ({
       {isVisible.logo && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Box p={5}>
+            <DeleteButton
+              header={
+                <>
+                  Êtes vous sûr de vouloir supprimer le logo de{" "}
+                  {event.eventName} ?
+                </>
+              }
+              mb={3}
+              onClick={async () => {
+                try {
+                  await editEvent({
+                    payload: ["eventLogo"],
+                    eventUrl: event.eventUrl
+                  });
+                  eventQuery.refetch();
+                  toast({
+                    title: "Le logo a bien été supprimé",
+                    status: "success"
+                  });
+                } catch (error) {
+                  toast({
+                    title: "Le logo n'a pas pu être supprimé",
+                    status: "error"
+                  });
+                }
+              }}
+            />
+
             <form
               method="post"
               onChange={() => {

@@ -23,12 +23,36 @@ export const topicsApi = createApi({
         topicNotif?: boolean;
       }
     >({
-      query: ({ payload, topicNotif }) => ({
-        url: `topics`,
-        method: "POST",
-        body: { ...payload, topicNotif }
-      }),
+      query: ({ payload, topicNotif }) => {
+        console.log("addTopic: payload", payload);
+        console.log("addTopic: topicNotif", topicNotif);
+
+        return {
+          url: `topics`,
+          method: "POST",
+          body: { ...payload, topicNotif }
+        };
+      },
       invalidatesTags: [{ type: "Topics", id: "LIST" }]
+    }),
+    deleteTopic: build.mutation<ITopic, string>({
+      query: (topicId) => ({ url: `topic/${topicId}`, method: "DELETE" })
+    }),
+    editTopic: build.mutation<
+      {},
+      { payload: Partial<ITopic>; topicId?: string; topicNotif?: boolean }
+    >({
+      query: ({ payload, topicId, topicNotif }) => {
+        console.log("editTopic: topicId", topicId);
+        console.log("editTopic: topicNotif", topicNotif);
+        console.log("editTopic: payload", payload);
+
+        return {
+          url: `topic/${topicId ? topicId : payload._id}`,
+          method: "PUT",
+          body: { ...payload, topicNotif }
+        };
+      }
     }),
     postTopicNotif: build.mutation<
       string[],
@@ -44,19 +68,6 @@ export const topicsApi = createApi({
         url: `topic/${topicId}`,
         method: "POST",
         body: payload
-      })
-    }),
-    deleteTopic: build.mutation<ITopic, string>({
-      query: (topicId) => ({ url: `topic/${topicId}`, method: "DELETE" })
-    }),
-    editTopic: build.mutation<
-      ITopic,
-      { payload: Partial<ITopic>; topicId?: string; topicNotif?: boolean }
-    >({
-      query: ({ payload, topicId, topicNotif }) => ({
-        url: `topic/${topicId ? topicId : payload._id}`,
-        method: "PUT",
-        body: { ...payload, topicNotif }
       })
     })
     // getTopics: build.query<ITopic[], undefined>({

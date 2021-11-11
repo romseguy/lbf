@@ -20,6 +20,7 @@ import {
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import {
   Button,
+  DeleteButton,
   ErrorMessageText,
   Grid,
   GridHeader,
@@ -89,9 +90,9 @@ export const OrgConfigBannerPanel = ({
 
     try {
       let payload = {};
-      const { height } = await getMeta(form.url);
 
       if (uploadType === "url") {
+        const { height } = await getMeta(form.url);
         payload = {
           orgBanner: {
             url: form.url,
@@ -103,7 +104,7 @@ export const OrgConfigBannerPanel = ({
         payload = {
           orgBanner: {
             base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL(),
-            height,
+            height: form.height, // todo actual height
             headerHeight: form.height,
             mode: form.mode
           }
@@ -115,7 +116,7 @@ export const OrgConfigBannerPanel = ({
         orgUrl: org.orgUrl
       });
       toast({
-        title: "L'image de couverture a bien été modifiée !",
+        title: "La bannière a bien été modifiée !",
         status: "success"
       });
       orgQuery.refetch();
@@ -151,7 +152,7 @@ export const OrgConfigBannerPanel = ({
           <Flex flexDirection="row" alignItems="center">
             {isVisible.banner ? <ChevronDownIcon /> : <ChevronRightIcon />}
             <Heading size="sm" py={3}>
-              Changer l'image de couverture
+              Bannière
             </Heading>
           </Flex>
         </GridHeader>
@@ -160,6 +161,36 @@ export const OrgConfigBannerPanel = ({
       {isVisible.banner && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Box p={5}>
+            {org.orgBanner && (
+              <DeleteButton
+                header={
+                  <>
+                    Êtes vous sûr de vouloir supprimer la bannière de{" "}
+                    {org.orgName} ?
+                  </>
+                }
+                mb={3}
+                onClick={async () => {
+                  try {
+                    await editOrg({
+                      payload: ["orgBanner"],
+                      orgUrl: org.orgUrl
+                    });
+                    orgQuery.refetch();
+                    toast({
+                      title: "La bannière a bien été supprimée",
+                      status: "success"
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "La bannière n'a pas pu être supprimée",
+                      status: "error"
+                    });
+                  }
+                }}
+              />
+            )}
+
             <form
               method="post"
               onChange={() => {

@@ -273,14 +273,15 @@ handler.post<
 handler.put<
   NextApiRequest & {
     query: { eventUrl: string };
-    body: IEvent;
+    body: Partial<IEvent> | string[];
   },
   NextApiResponse
 >(async function editEvent(req, res) {
   const session = await getSession({ req });
-  let { body }: { body: IEvent } = req;
+  let { body }: { body: Partial<IEvent> | string[] } = req;
+  const eventNotified = !Array.isArray(body) && body.eventNotified;
 
-  if (!session && !body.eventNotified) {
+  if (!session && !eventNotified) {
     res
       .status(403)
       .json(
@@ -305,7 +306,7 @@ handler.put<
           );
       }
 
-      if (!body.eventNotified && session) {
+      if (!eventNotified && session) {
         if (
           !equals(event.createdBy, session.user.userId) &&
           !session.user.isAdmin
@@ -322,42 +323,57 @@ handler.put<
         }
       }
 
-      if (body.eventName) {
-        body = { ...body, eventName: body.eventName.trim() };
-        body.eventUrl = normalize(body.eventName);
-      }
+      let update: [{ $unset: string[] }] | undefined;
 
-      if (body.eventOrgs) {
-        const staleEventOrgsIds: string[] = [];
+      if (Array.isArray(body)) {
+        update = [{ $unset: [] }];
+        for (const key of body) {
+          update[0].$unset.push(key);
+        }
+      } else {
+        if (body.eventName) {
+          body = {
+            ...body,
+            eventName: body.eventName.trim(),
+            eventUrl: normalize(body.eventName.trim())
+          };
+        }
 
-        for (const { _id } of body.eventOrgs) {
-          const org = await models.Org.findOne({ _id });
+        if (body.eventOrgs) {
+          const staleEventOrgsIds: string[] = [];
 
-          if (!org) {
-            staleEventOrgsIds.push(_id);
-            continue;
+          for (const { _id } of body.eventOrgs) {
+            const org = await models.Org.findOne({ _id });
+
+            if (!org) {
+              staleEventOrgsIds.push(_id);
+              continue;
+            }
+
+            if (org.orgEvents.indexOf(event._id) === -1) {
+              await models.Org.updateOne(
+                { _id: org._id },
+                {
+                  $push: {
+                    orgEvents: event._id
+                  }
+                }
+              );
+            }
           }
 
-          if (org.orgEvents.indexOf(event._id) === -1) {
-            await models.Org.updateOne(
-              { _id: org._id },
-              {
-                $push: {
-                  orgEvents: event._id
-                }
-              }
+          if (staleEventOrgsIds.length > 0) {
+            body.eventOrgs = body.eventOrgs.filter(
+              (eventOrg) => !staleEventOrgsIds.find((id) => id === eventOrg._id)
             );
           }
         }
-
-        if (staleEventOrgsIds.length > 0) {
-          body.eventOrgs = body.eventOrgs.filter(
-            (eventOrg) => !staleEventOrgsIds.find((id) => id === eventOrg._id)
-          );
-        }
       }
 
-      const { n, nModified } = await models.Event.updateOne({ eventUrl }, body);
+      const { n, nModified } = await models.Event.updateOne(
+        { eventUrl },
+        update || body
+      );
 
       if (nModified === 1) {
         res.status(200).json({});
