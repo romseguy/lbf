@@ -157,9 +157,9 @@ export const EventForwardForm = ({
             className="react-select-container"
             classNamePrefix="react-select"
             options={myOrgs}
-            getOptionLabel={(option: IOrg) => `${option.orgName}`}
-            getOptionValue={(option: IOrg) => option._id}
-            onChange={([option]: [option: IOrg]) => option._id}
+            getOptionLabel={(option: any) => `${option.orgName}`}
+            getOptionValue={(option: any) => option._id}
+            onChange={(option: any) => option._id}
           />
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="orgs" />

@@ -32,7 +32,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { css } from "twin.macro";
 import { EntityListForm, GridHeader, GridItem, Link } from "features/common";
-import { IOrg, IOrgList, orgTypeFull } from "models/Org";
+import { getSubscriptions, IOrg, IOrgList, orgTypeFull } from "models/Org";
 import { hasItems } from "utils/array";
 import { Visibility } from "./OrgPage";
 import { useEditOrgMutation } from "./orgsApi";
@@ -40,6 +40,7 @@ import { breakpoints } from "theme/theme";
 import { refetchEvent } from "features/events/eventSlice";
 import { deleteSubscription } from "features/subscriptions/subscriptionsApi";
 import subscription from "pages/api/subscription";
+import { SubscriptionTypes } from "models/Subscription";
 
 export const OrgConfigListsPanel = ({
   org,
@@ -58,11 +59,22 @@ export const OrgConfigListsPanel = ({
   //#endregion
 
   //#region local state
+  const lists = (org.orgLists || []).concat([
+    {
+      listName: "Liste des abonnés",
+      subscriptions: getSubscriptions(org, SubscriptionTypes.FOLLOWER)
+    },
+    {
+      listName: "Liste des adhérents",
+      subscriptions: getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
+    }
+  ]);
   const [isAdd, setIsAdd] = useState(false);
+  const [listToEdit, setListToEdit] = useState<IOrgList>();
   const [listToShow, setListToShow] = useState<IOrgList>();
   useEffect(() => {
-    if (!hasItems(org.orgLists)) setIsVisible({ ...isVisible, lists: false });
-  }, [org.orgLists]);
+    if (!hasItems(lists)) setIsVisible({ ...isVisible, lists: false });
+  }, [lists]);
   //#endregion
 
   const onSubmit = async (payload: IOrgList) => {
@@ -75,8 +87,8 @@ export const OrgConfigListsPanel = ({
             Array.isArray(org.orgLists) && org.orgLists.length > 0
               ? org.orgLists.map((orgList) => {
                   if (
-                    listToShow?.listName !== payload.listName &&
-                    orgList.listName === listToShow?.listName
+                    listToEdit?.listName !== payload.listName &&
+                    orgList.listName === listToEdit?.listName
                   ) {
                     return payload;
                   }
@@ -109,7 +121,7 @@ export const OrgConfigListsPanel = ({
       <Link
         variant="no-underline"
         onClick={() => {
-          if (!hasItems(org.orgLists)) {
+          if (!hasItems(lists)) {
             setIsAdd(!isAdd);
             setIsVisible({
               banner: false,
@@ -143,7 +155,7 @@ export const OrgConfigListsPanel = ({
               `}
             >
               <Flex alignItems="center">
-                {hasItems(org.orgLists) &&
+                {hasItems(lists) &&
                   (isVisible.lists ? <ViewIcon /> : <ViewOffIcon />)}
                 <Heading size="sm" ml={2}>
                   Listes de diffusion
@@ -210,61 +222,80 @@ export const OrgConfigListsPanel = ({
               </Thead>
 
               <Tbody>
-                {org.orgLists?.map((list, index) => {
+                {lists.map((list, index) => {
                   const { listName, subscriptions } = list;
-                  const s = subscriptions.length > 1 ? "s" : "";
+                  const s =
+                    subscriptions.length > 1 || !subscriptions.length
+                      ? "s"
+                      : "";
 
                   return (
                     <Tr key={`list-${index}`}>
                       <Td>{listName}</Td>
                       <Td>
-                        {subscriptions.length} adhérent{s}
+                        <Link
+                          variant="underline"
+                          onClick={() => {
+                            setListToShow(list);
+                          }}
+                        >
+                          {subscriptions.length} membre{s}
+                        </Link>
                       </Td>
+
                       <Td textAlign="right">
-                        <Tooltip
-                          label="Modifier la liste de diffusion"
-                          hasArrow
-                          placement="top"
-                        >
-                          <IconButton
-                            aria-label="Modifier la liste de diffusion"
-                            bg="transparent"
-                            _hover={{ bg: "transparent", color: "green" }}
-                            icon={<EditIcon />}
-                            height="auto"
-                            onClick={async () => {
-                              setListToShow(list);
-                            }}
-                          />
-                        </Tooltip>
+                        {!["Liste des abonnés", "Liste des adhérents"].includes(
+                          list.listName
+                        ) && (
+                          <>
+                            <Tooltip
+                              label="Modifier la liste de diffusion"
+                              hasArrow
+                              placement="top"
+                            >
+                              <IconButton
+                                aria-label="Modifier la liste de diffusion"
+                                bg="transparent"
+                                _hover={{ bg: "transparent", color: "green" }}
+                                icon={<EditIcon />}
+                                height="auto"
+                                onClick={async () => {
+                                  setListToEdit(list);
+                                }}
+                              />
+                            </Tooltip>
 
-                        <Tooltip
-                          label="Supprimer la liste"
-                          hasArrow
-                          placement="top"
-                        >
-                          <IconButton
-                            aria-label="Désinscrire"
-                            bg="transparent"
-                            _hover={{ bg: "transparent", color: "red" }}
-                            icon={<DeleteIcon />}
-                            height="auto"
-                            minWidth={0}
-                            onClick={async () => {
-                              const remove = confirm(
-                                `Êtes-vous sûr de vouloir supprimer la liste ${listName} ?`
-                              );
+                            <Tooltip
+                              label="Supprimer la liste"
+                              hasArrow
+                              placement="top"
+                            >
+                              <IconButton
+                                aria-label="Supprimer la liste"
+                                bg="transparent"
+                                _hover={{ bg: "transparent", color: "red" }}
+                                icon={<DeleteIcon />}
+                                height="auto"
+                                minWidth={0}
+                                onClick={async () => {
+                                  const remove = confirm(
+                                    `Êtes-vous sûr de vouloir supprimer la liste ${listName} ?`
+                                  );
 
-                              if (remove) {
-                                await editOrg({
-                                  payload: [`orgLists.listName=${listName}`],
-                                  orgUrl: org.orgUrl
-                                });
-                                orgQuery.refetch();
-                              }
-                            }}
-                          />
-                        </Tooltip>
+                                  if (remove) {
+                                    await editOrg({
+                                      payload: [
+                                        `orgLists.listName=${listName}`
+                                      ],
+                                      orgUrl: org.orgUrl
+                                    });
+                                    orgQuery.refetch();
+                                  }
+                                }}
+                              />
+                            </Tooltip>
+                          </>
+                        )}
                       </Td>
                     </Tr>
                   );
@@ -272,22 +303,56 @@ export const OrgConfigListsPanel = ({
               </Tbody>
             </Table>
 
-            {listToShow && (
-              <Modal isOpen onClose={() => setListToShow(undefined)}>
+            {(listToEdit || listToShow) && (
+              <Modal
+                isOpen
+                onClose={() => {
+                  setListToEdit(undefined);
+                  setListToShow(undefined);
+                }}
+              >
                 <ModalOverlay />
-                <ModalContent maxWidth="xl">
-                  <ModalHeader>Modifier la liste de diffusion : </ModalHeader>
+                <ModalContent maxWidth={listToEdit && "xl"}>
+                  <ModalHeader>
+                    {listToEdit &&
+                      `Modifier la liste de diffusion : ${listToEdit.listName}`}
+                    {listToShow &&
+                      `Liste de diffusion : ${listToShow.listName}`}
+                  </ModalHeader>
                   <ModalCloseButton />
                   <ModalBody>
-                    <EntityListForm
-                      list={listToShow}
-                      org={org}
-                      onCancel={() => setListToShow(undefined)}
-                      onSubmit={(payload) => {
-                        onSubmit(payload);
-                        setListToShow(undefined);
-                      }}
-                    />
+                    {listToEdit && (
+                      <EntityListForm
+                        list={listToEdit}
+                        org={org}
+                        onCancel={() => setListToEdit(undefined)}
+                        onSubmit={(payload) => {
+                          onSubmit(payload);
+                          setListToEdit(undefined);
+                        }}
+                      />
+                    )}
+
+                    {listToShow && (
+                      <Table>
+                        <Tbody>
+                          {listToShow.subscriptions.map((subscription) => {
+                            const label =
+                              subscription.email ||
+                              subscription.phone ||
+                              (typeof subscription.user === "object"
+                                ? subscription.user.email
+                                : "");
+
+                            return (
+                              <Tr>
+                                <Td>{label}</Td>
+                              </Tr>
+                            );
+                          })}
+                        </Tbody>
+                      </Table>
+                    )}
                   </ModalBody>
                 </ModalContent>
               </Modal>

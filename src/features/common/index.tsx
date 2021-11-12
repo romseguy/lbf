@@ -6,6 +6,7 @@ export * from "./forms/EventSendForm";
 export * from "./forms/Input";
 export * from "./forms/RTEditor";
 export * from "./forms/Select";
+export * from "./forms/SubscriptionForm";
 export * from "./forms/Textarea";
 export * from "./forms/UrlControl";
 export * from "./Button";

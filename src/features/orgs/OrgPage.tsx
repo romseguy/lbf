@@ -50,8 +50,8 @@ import {
 } from "features/subscriptions/subscriptionsApi";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import {
-  isFollowedBy,
-  isSubscribedBy,
+  getFollowerSubscription,
+  getSubscriberSubscription,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
@@ -191,8 +191,8 @@ export const OrgPage = ({
     }
   }, [userEmail]);
 
-  const isFollowed = isFollowedBy({ org, subQuery });
-  const isSubscribed = isSubscribedBy(org, subQuery);
+  const followerSubscription = getFollowerSubscription({ org, subQuery });
+  const subscriberSubscription = getSubscriberSubscription({ org, subQuery });
   //#endregion
 
   //#region local state
@@ -253,13 +253,13 @@ export const OrgPage = ({
 
       {!isConfig && !isEdit && !subQuery.isLoading && (
         <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
-          {isFollowed && (
+          {followerSubscription && (
             <Box mr={3} mt={3}>
               <SubscriptionPopover
                 org={org}
                 query={orgQuery}
                 subQuery={subQuery}
-                followerSubscription={isFollowed}
+                followerSubscription={followerSubscription}
                 //isLoading={subQuery.isLoading || subQuery.isFetching}
               />
             </Box>
@@ -270,7 +270,7 @@ export const OrgPage = ({
               org={org}
               query={orgQuery}
               subQuery={subQuery}
-              followerSubscription={isFollowed}
+              followerSubscription={followerSubscription}
               notifType="push"
               //isLoading={subQuery.isLoading || subQuery.isFetching}
             />
@@ -292,7 +292,7 @@ export const OrgPage = ({
         </Text>
       </Box>
 
-      {isSubscribed && !isConfig && (
+      {subscriberSubscription && !isConfig && (
         <Alert status="info" mb={3}>
           <AlertIcon />
           <Box>
@@ -594,7 +594,7 @@ export const OrgPage = ({
                 org={org}
                 orgQuery={orgQuery}
                 isCreator={isCreator}
-                isSubscribed={isSubscribed}
+                isSubscribed={!!subscriberSubscription}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
               />
@@ -606,8 +606,8 @@ export const OrgPage = ({
                 org={org}
                 orgQuery={orgQuery}
                 isCreator={isCreator}
-                isFollowed={!!isFollowed}
-                isSubscribed={isSubscribed}
+                isFollowed={!!followerSubscription}
+                isSubscribed={!!subscriberSubscription}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
               />
@@ -615,38 +615,31 @@ export const OrgPage = ({
             </TabPanel>
 
             <TabPanel aria-hidden>
-              {(isCreator || isSubscribed) && (
-                // <DidYouKnow mb={3}>
-                //   Le saviez-vous ? Vous pouvez notifier vos abonnés de l'ajout
-                //   d'une nouvelle discussion.
-                // </DidYouKnow>
-                <Alert status="info" mb={5}>
-                  <AlertIcon />
-                  <Box>
-                    Cette section a pour vocation de proposer une alternative
-                    plus simple et respectueuse des abonnées aux{" "}
-                    <Tooltip label="synonymes : mailing lists, newsletters">
-                      <Text
-                        display="inline"
-                        borderBottom={`1px dotted ${
-                          isDark ? "white" : "black"
-                        }`}
-                        cursor="pointer"
-                      >
-                        listes de diffusion
-                      </Text>
-                    </Tooltip>
-                    .
-                  </Box>
-                </Alert>
-              )}
+              <Alert status="info" mb={5}>
+                <AlertIcon />
+                <Box>
+                  Cette section a pour vocation de proposer une alternative plus
+                  simple et respectueuse des abonnées aux{" "}
+                  <Tooltip label="synonymes : mailing lists, newsletters">
+                    <Text
+                      display="inline"
+                      borderBottom={`1px dotted ${isDark ? "white" : "black"}`}
+                      cursor="pointer"
+                    >
+                      listes de diffusion
+                    </Text>
+                  </Tooltip>
+                  .
+                </Box>
+              </Alert>
+
               <TopicsList
                 org={org}
                 query={orgQuery}
                 subQuery={subQuery}
                 isCreator={isCreator}
-                isFollowed={!!isFollowed}
-                isSubscribed={isSubscribed}
+                isFollowed={!!followerSubscription}
+                isSubscribed={!!subscriberSubscription}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
               />
@@ -657,7 +650,7 @@ export const OrgPage = ({
               <DocumentsList
                 org={org}
                 isCreator={isCreator}
-                isSubscribed={isSubscribed}
+                isSubscribed={!!subscriberSubscription}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
               />

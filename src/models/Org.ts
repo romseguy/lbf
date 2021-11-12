@@ -1,10 +1,19 @@
 import type { IEvent } from "./Event";
-import type { ISubscription } from "./Subscription";
+import { ISubscription, SubscriptionTypes } from "./Subscription";
 import type { ITopic } from "./Topic";
 import type { IUser } from "models/User";
 import type { Base64Image } from "utils/image";
 import { Schema, Types } from "mongoose";
 import { IProject } from "./Project";
+
+export const getSubscriptions = (org: IOrg, type: string) => {
+  return org.orgSubscriptions.filter((subscription) =>
+    subscription.orgs.find(
+      (orgSubscription) =>
+        orgSubscription.orgId === org._id && orgSubscription.type === type
+    )
+  );
+};
 
 export interface IOrg {
   _id: string;

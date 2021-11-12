@@ -5,8 +5,8 @@ import { useGetOrgQuery } from "features/orgs/orgsApi";
 import { TopicsList } from "./TopicsList";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import {
-  isFollowedBy,
-  isSubscribedBy,
+  getFollowerSubscription,
+  getSubscriberSubscription,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { useSelector } from "react-redux";
@@ -47,15 +47,15 @@ export const Forum = ({
   //#region subscription
   const subQuery = useGetSubscriptionQuery(userEmail);
   const [isFollowed, setIsFollowed] = useState(
-    !!isFollowedBy({ org, subQuery })
+    !!getFollowerSubscription({ org, subQuery })
   );
   const [isSubscribed, setIsSubscribed] = useState(
-    isSubscribedBy(org, subQuery)
+    getSubscriberSubscription({ org, subQuery })
   );
   useEffect(() => {
     if (org && subQuery.data) {
-      setIsFollowed(!!isFollowedBy({ org, subQuery }));
-      setIsSubscribed(isSubscribedBy(org, subQuery));
+      setIsFollowed(!!getFollowerSubscription({ org, subQuery }));
+      setIsSubscribed(!!getSubscriberSubscription({ org, subQuery }));
     }
   }, [org, subQuery.data]);
   //#endregion

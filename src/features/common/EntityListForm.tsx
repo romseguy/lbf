@@ -7,24 +7,26 @@ import {
   Flex
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
+import { getFollowerSubscription } from "features/subscriptions/subscriptionSlice";
 import { IOrg, IOrgList } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import ReactSelect from "react-select";
-// import { MultiSelect } from "react-multi-select-component";
 import { handleError } from "utils/form";
 import { Input, ErrorMessageText, Button } from ".";
+import { MultiSelect } from "./forms/MultiSelect";
 
-// const overrideStrings = {
-//   allItemsAreSelected: "Tous les adhérents sont sélectionnés",
-//   clearSearch: "Effacer la recherche",
-//   noOptions: "Aucun adhérent",
-//   search: "Rechercher un adhérent...",
-//   selectAll: "Sélectionner tous les adhérents",
-//   selectAllFiltered: "Tout sélectionner (Filtré)",
-//   selectSomeItems: "Sélectionner..."
-// };
+const subscriptionsToOptions = (subscriptions: ISubscription[]) =>
+  subscriptions.map((subscription) => {
+    let label = subscription.email || subscription.phone || "";
+    if (label === "" && typeof subscription.user === "object")
+      label = subscription.user.email;
+
+    return {
+      label,
+      value: subscription
+    };
+  });
 
 export const EntityListForm = ({
   org,
@@ -55,8 +57,7 @@ export const EntityListForm = ({
   });
 
   const defaultSubscriptions = props.list?.subscriptions || [];
-  const subscriptions: ISubscription[] =
-    watch("subscriptions") || defaultSubscriptions;
+  //const subscriptions: ISubscription[] = watch("subscriptions") || defaultSubscriptions;
 
   const onSubmit = async (form: {
     listName: string;
@@ -88,6 +89,9 @@ export const EntityListForm = ({
   };
   //#endregion
 
+  const [selected, setSelected] = useState([]);
+  console.log(selected);
+
   return (
     <form
       onChange={() => clearErrors("formErrorMessage")}
@@ -109,104 +113,65 @@ export const EntityListForm = ({
       </FormControl>
 
       <FormControl mb={3}>
-        <FormLabel>Adhérents</FormLabel>
+        <FormLabel>Membres</FormLabel>
 
         <Controller
           name="subscriptions"
-          as={ReactSelect}
           control={control}
-          defaultValue={defaultSubscriptions}
-          closeMenuOnSelect={false}
-          placeholder="Rechercher un adhérent..."
-          menuPlacement="top"
-          noOptionsMessage={() => "Aucun adhérent trouvé"}
-          isClearable
-          isMulti
-          isSearchable
-          styles={{
-            placeholder: () => {
-              return {
-                color: "#A0AEC0"
-              };
-            },
-            control: (defaultStyles: any) => {
-              return {
-                ...defaultStyles,
-                borderColor: "#e2e8f0",
-                paddingLeft: "8px"
-              };
-            }
-          }}
-          className="react-select-container"
-          classNamePrefix="react-select"
-          options={org.orgSubscriptions.filter(
-            (subscription) =>
-              !subscriptions.find(({ _id }) => _id === subscription._id) &&
-              subscription.orgs.find(
-                (orgSubscription) =>
-                  orgSubscription.orgId === org._id &&
-                  orgSubscription.type === SubscriptionTypes.SUBSCRIBER
-              )
-          )}
-          getOptionLabel={(subscription: ISubscription) => {
-            let label = subscription.email || subscription.phone || "";
-            if (label === "" && typeof subscription.user === "object")
-              label = subscription.user.email;
-            return label;
-          }}
-          getOptionValue={(option: ISubscription) => option}
-          onChange={([option]: [option: ISubscription]) => option}
-        />
-
-        {/* <Controller
-          name="subscriptions"
-          control={control}
-          defaultValue={list.subscriptions.map((subscription) => {
-            let label = subscription.email || subscription.phone || "";
-            if (label === "" && typeof subscription.user === "object")
-              label = subscription.user.email;
-
-            return {
-              label,
-              value: subscription
-            };
-          })}
-          render={({ onChange, value }) => {
+          defaultValue={subscriptionsToOptions(defaultSubscriptions)}
+          render={(renderProps) => {
             return (
               <MultiSelect
-                value={value}
-                options={org.orgSubscriptions
-                  .filter((subscription) =>
+                options={subscriptionsToOptions(
+                  org.orgSubscriptions.filter((subscription) =>
                     subscription.orgs.find(
-                      (orgSubscription) =>
-                        orgSubscription.orgId === org._id &&
-                        orgSubscription.type === SubscriptionTypes.SUBSCRIBER
+                      (orgSubscription) => orgSubscription.orgId === org._id
                     )
                   )
-                  .map((subscription) => {
-                    let label = subscription.email || subscription.phone || "";
-                    if (label === "" && typeof subscription.user === "object")
-                      label = subscription.user.email;
+                )}
+                value={renderProps.value}
+                onChange={renderProps.onChange}
+                closeMenuOnSelect={false}
+                placeholder="Rechercher un e-mail ou un numéro de téléphone..."
+                menuPlacement="top"
+                noOptionsMessage={() => "Aucun résultat"}
+                isClearable
+                isMulti
+                isSearchable
+                styles={{
+                  control: (defaultStyles: any) => {
+                    return {
+                      ...defaultStyles,
+                      borderColor: "#e2e8f0",
+                      paddingLeft: "8px"
+                    };
+                  },
+                  multiValue: (defaultStyles: any, option: any) => {
+                    const subscription: ISubscription = option.data.value;
+                    const followerSubscription = getFollowerSubscription({
+                      org,
+                      subscription
+                    });
 
                     return {
-                      label,
-                      value: subscription
+                      ...defaultStyles,
+                      backgroundColor: `${
+                        !!followerSubscription ? "green" : "purple"
+                      } !important`
                     };
-                  })}
-                // isCreatable
-                labelledBy="Sélectionner un ou plusieurs adhérents"
-                overrideStrings={overrideStrings}
-                onChange={onChange}
-                // onCreateOption={(value: string) => {
-                //   return {
-                //     label: value,
-                //     value: value.toUpperCase()
-                //   };
-                // }}
+                  },
+                  placeholder: () => {
+                    return {
+                      color: "#A0AEC0"
+                    };
+                  }
+                }}
+                className="react-select-container"
+                classNamePrefix="react-select"
               />
             );
           }}
-        /> */}
+        />
       </FormControl>
 
       <ErrorMessage
@@ -236,3 +201,67 @@ export const EntityListForm = ({
     </form>
   );
 };
+
+/*
+ import { MultiSelect } from "react-multi-select-component";
+
+ const overrideStrings = {
+   allItemsAreSelected: "Tous les adhérents sont sélectionnés",
+   clearSearch: "Effacer la recherche",
+   noOptions: "Aucun adhérent",
+   search: "Rechercher un adhérent...",
+   selectAll: "Sélectionner tous les adhérents",
+   selectAllFiltered: "Tout sélectionner (Filtré)",
+   selectSomeItems: "Sélectionner..."
+ };
+
+<Controller
+  name="subscriptions"
+  control={control}
+  defaultValue={list.subscriptions.map((subscription) => {
+    let label = subscription.email || subscription.phone || "";
+    if (label === "" && typeof subscription.user === "object")
+      label = subscription.user.email;
+
+    return {
+      label,
+      value: subscription
+    };
+  })}
+  render={({ onChange, value }) => {
+    return (
+      <MultiSelect
+        value={value}
+        options={org.orgSubscriptions
+          .filter((subscription) =>
+            subscription.orgs.find(
+              (orgSubscription) =>
+                orgSubscription.orgId === org._id &&
+                orgSubscription.type === SubscriptionTypes.SUBSCRIBER
+            )
+          )
+          .map((subscription) => {
+            let label = subscription.email || subscription.phone || "";
+            if (label === "" && typeof subscription.user === "object")
+              label = subscription.user.email;
+
+            return {
+              label,
+              value: subscription
+            };
+          })}
+        // isCreatable
+        labelledBy="Sélectionner un ou plusieurs adhérents"
+        overrideStrings={overrideStrings}
+        onChange={onChange}
+        // onCreateOption={(value: string) => {
+        //   return {
+        //     label: value,
+        //     value: value.toUpperCase()
+        //   };
+        // }}
+      />
+    );
+  }}
+/>
+*/

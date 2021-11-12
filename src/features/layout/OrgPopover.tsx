@@ -26,8 +26,8 @@ import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import {
-  isFollowedBy,
-  isSubscribedBy,
+  getFollowerSubscription,
+  getSubscriberSubscription,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
@@ -100,14 +100,18 @@ export const OrgPopover = ({
   const followedOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&
-      orgsQuery.data.filter((org) => isFollowedBy({ org, subQuery }))) ||
+      orgsQuery.data.filter(
+        (org) => !!getFollowerSubscription({ org, subQuery })
+      )) ||
     [];
   const hasFollowedOrgs = hasItems(followedOrgs);
 
   const subscribedOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&
-      orgsQuery.data.filter((org) => isSubscribedBy(org, subQuery))) ||
+      orgsQuery.data.filter(
+        (org) => !!getSubscriberSubscription({ org, subQuery })
+      )) ||
     [];
   const hasSubscribedOrgs = hasItems(subscribedOrgs);
   //#endregion

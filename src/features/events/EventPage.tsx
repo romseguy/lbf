@@ -53,7 +53,7 @@ import {
 } from "features/subscriptions/subscriptionsApi";
 import { selectUserEmail } from "features/users/userSlice";
 import {
-  isFollowedBy,
+  getFollowerSubscription,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
 import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
@@ -154,7 +154,7 @@ export const EventPage = ({
     }
   }, [userEmail]);
 
-  const isFollowed = isFollowedBy({ event, subQuery });
+  const isFollowed = getFollowerSubscription({ event, subQuery });
   const isSubscribedToAtLeastOneOrg =
     isCreator ||
     !!subQuery.data?.orgs.find((orgSubscription: IOrgSubscription) => {

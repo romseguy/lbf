@@ -2,46 +2,63 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import type { AppState } from "store";
 import type { IEvent } from "models/Event";
 import type { IOrg } from "models/Org";
-import type { IEventSubscription, IOrgSubscription } from "models/Subscription";
+import type {
+  IEventSubscription,
+  IOrgSubscription,
+  ISubscription
+} from "models/Subscription";
 import { createSlice } from "@reduxjs/toolkit";
 import { SubscriptionTypes } from "models/Subscription";
 
-export const isFollowedBy = ({
+export const getFollowerSubscription = ({
   event,
   org,
-  subQuery
+  subQuery,
+  subscription
 }: {
   event?: IEvent;
   org?: IOrg;
   subQuery?: any;
+  subscription?: ISubscription;
 }): IOrgSubscription | IEventSubscription | undefined => {
   if (!org && !event) return;
-  if (!subQuery || !subQuery.data) return;
 
-  if (org) {
-    return subQuery.data.orgs.find(
-      (orgSubscription: IOrgSubscription) =>
-        orgSubscription.orgId === org._id &&
-        orgSubscription.type === SubscriptionTypes.FOLLOWER
-    );
-  }
+  if (subQuery?.data || subscription) {
+    if (org) {
+      return (subQuery?.data || subscription).orgs?.find(
+        (orgSubscription: IOrgSubscription) =>
+          orgSubscription.orgId === org._id &&
+          orgSubscription.type === SubscriptionTypes.FOLLOWER
+      );
+    }
 
-  if (event) {
-    return subQuery.data.events.find(
-      (eventSubscription: IEventSubscription) =>
-        eventSubscription.eventId === event._id
-    );
+    if (event) {
+      return (subQuery?.data || subscription).events?.find(
+        (eventSubscription: IEventSubscription) =>
+          eventSubscription.eventId === event._id
+      );
+    }
   }
 };
 
-export const isSubscribedBy = (org?: IOrg, subQuery?: any) => {
-  if (!org || !subQuery || !subQuery.data) return false;
+export const getSubscriberSubscription = ({
+  org,
+  subQuery,
+  subscription
+}: {
+  org?: IOrg;
+  subQuery?: any;
+  subscription?: ISubscription;
+}) => {
+  if (!org) return;
 
-  return !!subQuery.data.orgs?.find(
-    (orgSubscription: IOrgSubscription) =>
-      orgSubscription.orgId === org._id &&
-      orgSubscription.type === SubscriptionTypes.SUBSCRIBER
-  );
+  if (subQuery?.data || subscription) {
+    return (subQuery?.data || subscription).orgs?.find(
+      (orgSubscription: IOrgSubscription) =>
+        orgSubscription.orgId === org._id &&
+        orgSubscription.type === SubscriptionTypes.SUBSCRIBER
+    );
+  }
 };
 
 type SubscriptionState = {
