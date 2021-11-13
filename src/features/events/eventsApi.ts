@@ -67,7 +67,7 @@ export const eventApi = createApi({
     postEventNotif: build.mutation<
       { emailList: string[] },
       {
-        payload: { orgIds?: string[]; email?: string };
+        payload: { lists?: string[]; email?: string };
         eventUrl?: string;
       }
     >({

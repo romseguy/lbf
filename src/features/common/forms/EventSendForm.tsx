@@ -1,10 +1,9 @@
 import {
-  Alert,
+  Box,
   Tr,
   Td,
   Table,
   Tbody,
-  Tag,
   CheckboxGroup,
   Spinner,
   Checkbox,
@@ -13,36 +12,43 @@ import {
   Flex,
   useToast,
   FormErrorMessage,
-  FormControl
+  FormControl,
+  Radio,
+  RadioGroup,
+  Stack,
+  Alert,
+  AlertIcon,
+  Heading
 } from "@chakra-ui/react";
 import { EmailIcon } from "@chakra-ui/icons";
 import { ErrorMessage } from "@hookform/error-message";
-import React, { useState } from "react";
+import { Session } from "next-auth";
+import React, { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
-import { EmailControl } from "features/common";
+import { EmailControl, EntityButton, ErrorMessageText } from "features/common";
 import { usePostEventNotifMutation } from "features/events/eventsApi";
-import { IEvent, StatusTypes } from "models/Event";
+import { IEvent } from "models/Event";
 import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
-import { Session } from "next-auth";
-import { orgTypeFull4 } from "models/Org";
+import { getSubscriptions } from "models/Org";
+import { handleError } from "utils/form";
 
 export const EventSendForm = ({
   event,
   eventQuery,
   session,
+  onCancel,
   ...props
 }: {
-  event: IEvent;
+  event: IEvent<any>;
   eventQuery: any;
   session: Session;
-  onSubmit: () => void;
+  onCancel: () => void;
+  onSubmit?: () => void;
 }) => {
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-
-  console.log(event);
 
   //#region event
   const [postEventNotif, q] = usePostEventNotifMutation();
@@ -50,6 +56,7 @@ export const EventSendForm = ({
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
+  const [type, setType] = useState<"multi" | "single">();
   //#endregion
 
   //#region form state
@@ -68,18 +75,15 @@ export const EventSendForm = ({
     mode: "onChange"
   });
 
-  const onSubmit = async (form: { email?: string; orgIds: any }) => {
+  const onSubmit = async (form: {
+    email?: string;
+    orgListsNames: string[];
+  }) => {
     console.log("submitted", form);
     setIsLoading(true);
 
     let payload = {
-      ...form,
-      orgIds:
-        typeof form.orgIds === "boolean"
-          ? []
-          : typeof form.orgIds === "string"
-          ? [form.orgIds]
-          : form.orgIds
+      ...form
     };
 
     try {
@@ -106,121 +110,175 @@ export const EventSendForm = ({
           isClosable: true
         });
       }
+
+      setIsLoading(false);
       props.onSubmit && props.onSubmit();
     } catch (error) {
       console.error(error);
-      toast({
-        title: "Une erreur est survenue",
-        status: "error",
-        isClosable: true
-      });
-    } finally {
       setIsLoading(false);
+      handleError(error, (message, field) => {
+        setError(field || "formErrorMessage", {
+          type: "manual",
+          message
+        });
+      });
     }
   };
   //#endregion
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Alert status="info" mt={3}>
-        <Flex flexDirection="column">
-          Pour envoyer un e-mail d'invitation aux abonnés des organisations de
-          cet événément, cochez une ou plusieurs des cases correspondantes :
-          <FormControl isInvalid={!!errors.orgIds}>
-            <CheckboxGroup>
-              <Table
-                backgroundColor={isDark ? "whiteAlpha.100" : "blackAlpha.100"}
-                borderWidth="1px"
-                borderRadius="lg"
-                mt={2}
-              >
-                <Tbody>
-                  {eventQuery.isLoading || eventQuery.isFetching ? (
-                    <Tr>
-                      <Td colSpan={3}>
-                        <Spinner />
-                      </Td>
-                    </Tr>
-                  ) : (
-                    event.eventOrgs.map((org) => {
-                      const followerSubscriptions = org.orgSubscriptions.filter(
-                        (subscription) => {
-                          return subscription.orgs.find((orgSubscription) => {
-                            return (
-                              orgSubscription.orgId === org._id &&
-                              orgSubscription.type ===
-                                SubscriptionTypes.FOLLOWER
-                            );
-                          });
-                        }
-                      );
-                      const followerSubscriptionsCount =
-                        followerSubscriptions.length;
-                      const s = followerSubscriptionsCount > 1 ? "s" : "";
+      <RadioGroup name="type" my={3}>
+        <Stack spacing={2}>
+          <Radio
+            isChecked={type === "multi"}
+            onChange={() => {
+              setType("multi");
+            }}
+          >
+            Envoyer l'invitation à une ou plusieurs listes de diffusion des
+            organisateurs de <EntityButton event={event} p={1} />
+          </Radio>
+          <Radio
+            isChecked={type === "single"}
+            onChange={() => {
+              setType("single");
+            }}
+          >
+            Envoyer l'invitation à une seule adresse e-mail
+          </Radio>
+        </Stack>
+      </RadioGroup>
 
-                      const notifiedCount = event.eventNotified?.filter(
-                        ({ email, status }) =>
-                          status === StatusTypes.OK &&
-                          followerSubscriptions.find((followerSubscription) =>
-                            typeof followerSubscription.user === "object"
-                              ? followerSubscription.user.email === email
-                              : followerSubscription.email === email
-                          )
-                      ).length;
+      {type === "single" && (
+        <EmailControl
+          name="email"
+          noLabel
+          control={control}
+          register={register}
+          setValue={setValue}
+          errors={errors}
+          placeholder="Envoyer à cette adresse e-mail uniquement"
+          mt={3}
+          isMultiple={false}
+        />
+      )}
 
-                      return (
-                        <Tr key={org.orgName} mb={1}>
-                          <Td>
-                            <Checkbox
-                              icon={<EmailIcon />}
-                              name="orgIds"
-                              ref={register({
-                                required:
-                                  "Veuillez sélectionner une organisation au minimum"
-                              })}
-                              value={org._id}
+      {type === "multi" && (
+        <FormControl isInvalid={!!errors.orgListsNames} isRequired>
+          <CheckboxGroup>
+            <Table bg={isDark ? "gray.500" : "orange.100"} borderRadius="lg">
+              <Tbody>
+                {eventQuery.isLoading || eventQuery.isFetching ? (
+                  <Tr>
+                    <Td colSpan={2}>
+                      <Spinner />
+                    </Td>
+                  </Tr>
+                ) : (
+                  event.eventOrgs.map((org) => {
+                    const lists = (org.orgLists || []).concat([
+                      {
+                        listName: "Liste des abonnés",
+                        subscriptions: getSubscriptions(
+                          org,
+                          SubscriptionTypes.FOLLOWER
+                        )
+                      },
+                      {
+                        listName: "Liste des adhérents",
+                        subscriptions: getSubscriptions(
+                          org,
+                          SubscriptionTypes.SUBSCRIBER
+                        )
+                      }
+                    ]);
+
+                    return (
+                      <Fragment key={org._id}>
+                        <Tr>
+                          <Td colSpan={2}>
+                            <Heading
+                              display="flex"
+                              alignItems="center"
+                              size="sm"
                             >
-                              {org.orgName}
-                            </Checkbox>
-                          </Td>
-                          <Td textAlign="right">
-                            <Tag fontSize="smaller">
-                              {!followerSubscriptionsCount
-                                ? `Personne n'est abonné à ${orgTypeFull4(
-                                    org.orgType
-                                  )}`
-                                : `${notifiedCount}/${followerSubscriptionsCount} abonné${s} invité${s}`}
-                            </Tag>
+                              Listes de diffusion de l'organisateur
+                              <EntityButton org={org} ml={2} />
+                            </Heading>
                           </Td>
                         </Tr>
-                      );
-                    })
-                  )}
-                </Tbody>
-              </Table>
-            </CheckboxGroup>
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="orgIds" />
-            </FormErrorMessage>
-          </FormControl>
-          <EmailControl
-            name="email"
-            label="(facultatif) envoyer l'invitation seulement à l'adresse e-mail de votre choix :"
-            control={control}
-            register={register}
-            setValue={setValue}
-            errors={errors}
-            placeholder="Envoyer à cette adresse e-mail uniquement"
-            mt={3}
-            isMultiple={false}
-          />
-          <Flex justifyContent="flex-end" mt={3}>
-            <Button colorScheme="green" type="submit" isLoading={isLoading}>
-              Envoyer {!!getValues("email") ? "une invitation" : ""}
-            </Button>
-          </Flex>
+
+                        {lists.map((orgList) => {
+                          let i = 0;
+                          for (const subscription of orgList.subscriptions) {
+                            if (
+                              event.eventNotified?.find(({ email, phone }) => {
+                                return (
+                                  email === subscription.email ||
+                                  phone === subscription.phone
+                                );
+                              })
+                            )
+                              continue;
+
+                            i++;
+                          }
+                          const s = i !== 1 ? "s" : "";
+
+                          return (
+                            <Tr key={orgList.listName}>
+                              <Td>
+                                <Checkbox
+                                  name="orgListsNames"
+                                  ref={register({
+                                    required:
+                                      "Veuillez sélectionner une liste au minimum"
+                                  })}
+                                  value={orgList.listName + "." + org._id}
+                                  icon={<EmailIcon />}
+                                >
+                                  {orgList.listName}
+                                </Checkbox>
+                              </Td>
+                              <Td>
+                                {i} membre{s} n'{s ? "ont" : "a"} pas été invité
+                              </Td>
+                            </Tr>
+                          );
+                        })}
+                      </Fragment>
+                    );
+                  })
+                )}
+              </Tbody>
+            </Table>
+          </CheckboxGroup>
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="orgListsNames" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
+
+      <ErrorMessage
+        errors={errors}
+        name="formErrorMessage"
+        render={({ message }) => (
+          <Alert status="error" mb={3}>
+            <AlertIcon />
+            <ErrorMessageText>{message}</ErrorMessageText>
+          </Alert>
+        )}
+      />
+
+      {(type === "multi" || type === "single") && (
+        <Flex justifyContent="space-between" mt={3}>
+          <Button onClick={onCancel}>Annuler</Button>
+          <Button colorScheme="green" type="submit" isLoading={isLoading}>
+            Envoyer {type === "single" ? "l'invitation" : "les invitations"}
+          </Button>
         </Flex>
-      </Alert>
+      )}
     </form>
   );
 };

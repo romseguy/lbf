@@ -20,7 +20,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { EntityBadge, Link } from "features/common";
+import { EntityButton, Link } from "features/common";
 import { OrgModal } from "features/modals/OrgModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { selectOrgsRefetch } from "features/orgs/orgSlice";
@@ -75,7 +75,15 @@ export const OrgPopover = ({
   const myOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&
-      orgsQuery.data.filter((org) => session.user.userId === org?.createdBy)) ||
+      orgsQuery.data
+        .filter((org) => session.user.userId === org?.createdBy)
+        .sort((a, b) => {
+          if (a.createdAt && b.createdAt) {
+            if (a.createdAt < b.createdAt) return 1;
+            else if (a.createdAt > b.createdAt) return -1;
+          }
+          return 0;
+        })) ||
     [];
   const hasOrgs = Array.isArray(myOrgs) && myOrgs.length > 0;
   //#endregion
@@ -208,7 +216,7 @@ export const OrgPopover = ({
                   spacing={2}
                 >
                   {myOrgs.map((org) => (
-                    <EntityBadge
+                    <EntityButton
                       key={org._id}
                       org={org}
                       p={1}
@@ -236,7 +244,7 @@ export const OrgPopover = ({
                   spacing={2}
                 >
                   {followedOrgs.map((org, index) => (
-                    <EntityBadge
+                    <EntityButton
                       key={org._id}
                       org={org}
                       p={1}
@@ -264,7 +272,7 @@ export const OrgPopover = ({
                   spacing={2}
                 >
                   {subscribedOrgs.map((org, index) => (
-                    <EntityBadge
+                    <EntityButton
                       key={org._id}
                       org={org}
                       p={1}

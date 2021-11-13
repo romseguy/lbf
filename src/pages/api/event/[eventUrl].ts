@@ -14,7 +14,9 @@ import {
   sendEventEmailNotifToOrgFollowers
 } from "utils/email";
 import { createServerError } from "utils/errors";
-import { equals, normalize } from "utils/string";
+import { equals, log, normalize } from "utils/string";
+import { getSubscriptions } from "models/Org";
+import { SubscriptionTypes } from "models/Subscription";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -136,7 +138,7 @@ handler.get<
 handler.post<
   NextApiRequest & {
     query: { eventUrl: string };
-    body: { orgIds: string[]; email?: string };
+    body: { orgListsNames: string[]; email?: string };
   },
   NextApiResponse
 >(async function postEventNotif(req, res) {
@@ -157,7 +159,7 @@ handler.post<
         body
       }: {
         query: { eventUrl: string };
-        body: { orgIds: string[]; email?: string };
+        body: { orgListsNames: string[]; email?: string };
       } = req;
 
       let event = await models.Event.findOne({ eventUrl });
@@ -190,77 +192,132 @@ handler.post<
           );
       }
 
-      event = await event
-        .populate({
-          path: "eventOrgs",
-          populate: [{ path: "orgSubscriptions" }]
-        })
-        .execPopulate();
-
+      event = await event.populate("eventOrgs").execPopulate();
       let emailList: string[] = [];
 
-      if (
-        typeof body.email === "string" &&
-        body.email.length > 0 &&
-        hasItems(body.orgIds)
-      ) {
-        const org = await models.Org.findOne({ _id: body.orgIds[0] });
+      if (typeof body.email === "string" && body.email.length > 0) {
         const subscription = await models.Subscription.findOne({
           email: body.email
         });
 
-        if (body.email && org) {
-          const mail = createEventEmailNotif({
-            email: body.email,
-            event,
-            org,
-            subscription,
-            isPreview: true
-          });
-
-          //if (process.env.NODE_ENV === "production")
-          await transport.sendMail(mail);
-
-          if (body.email !== session.user.email) {
-            emailList.push(body.email);
-
-            const newEntries = emailList.map((email) => ({
-              email,
-              status: StatusTypes.PENDING
-            }));
-
-            if (!event.eventNotified) {
-              event.eventNotified = newEntries;
-            } else if (
-              !event.eventNotified.find(({ email }) => email === body.email)
-            ) {
-              event.eventNotified = event.eventNotified.concat(newEntries);
-            }
-
-            await event.save();
-          }
-
-          console.log(`sent event email notif to target ${body.email}`, mail);
-        }
-      } else {
-        emailList = await sendEventEmailNotifToOrgFollowers(
+        const mail = createEventEmailNotif({
+          email: body.email,
           event,
-          body.orgIds,
-          transport
-        );
+          org: event.eventOrgs[0],
+          subscription,
+          isPreview: true
+        });
 
-        if (emailList.length > 0) {
+        if (process.env.NODE_ENV === "production")
+          await transport.sendMail(mail);
+        else console.log(mail);
+
+        if (body.email !== session.user.email) {
           const newEntries = emailList.map((email) => ({
             email,
             status: StatusTypes.PENDING
           }));
 
-          event.eventNotified = event.eventNotified
-            ? event.eventNotified.concat(newEntries)
-            : newEntries;
+          if (!event.eventNotified) {
+            event.eventNotified = newEntries;
+          } else if (
+            !event.eventNotified.find(({ email }) => email === body.email)
+          ) {
+            event.eventNotified = event.eventNotified.concat(newEntries);
+          }
 
           await event.save();
         }
+
+        emailList.push(body.email);
+      } else if (body.orgListsNames) {
+        for (const orgListName of body.orgListsNames) {
+          const [_, listName, orgId] =
+            orgListName.match(/([^\.]+)\.(.+)/) || [];
+
+          console.log("listName", listName);
+          console.log("orgId", orgId);
+
+          let org = await models.Org.findOne({ _id: orgId });
+
+          if (!org) return res.status(400).json("Organisation introuvable");
+
+          let subscriptions;
+
+          if (listName === "Liste des abonnés") {
+            org = await org
+              .populate({
+                path: "orgSubscriptions",
+                populate: {
+                  path: "user"
+                }
+              })
+              .execPopulate();
+
+            subscriptions = getSubscriptions(org, SubscriptionTypes.FOLLOWER);
+          } else if (listName === "Liste des adhérents") {
+            org = await org
+              .populate({
+                path: "orgSubscriptions",
+                populate: {
+                  path: "user"
+                }
+              })
+              .execPopulate();
+            subscriptions = getSubscriptions(org, SubscriptionTypes.SUBSCRIBER);
+          } else {
+            org = await org
+              .populate({
+                path: "orgLists",
+                populate: [
+                  { path: "subscriptions", populate: { path: "user" } }
+                ]
+              })
+              .execPopulate();
+
+            const list = org.orgLists?.find(
+              (orgList) => orgList.listName === listName
+            );
+
+            if (list) subscriptions = list.subscriptions;
+          }
+
+          if (subscriptions) {
+            log(`POST /event/${eventUrl}: subscriptions`, subscriptions);
+            for (const subscription of subscriptions) {
+              const email =
+                subscription.email ||
+                (typeof subscription.user === "object"
+                  ? subscription.user.email
+                  : "");
+              const mail = createEventEmailNotif({
+                email,
+                event,
+                org,
+                subscription
+              });
+
+              if (process.env.NODE_ENV === "production")
+                await transport.sendMail(mail);
+              else console.log(mail);
+
+              emailList.push(email);
+            }
+          }
+        }
+      }
+
+      if (emailList.length > 0) {
+        const newEntries = emailList.map((email) => ({
+          email,
+          status: StatusTypes.PENDING
+        }));
+
+        event.eventNotified = event.eventNotified
+          ? event.eventNotified.concat(newEntries)
+          : newEntries;
+
+        await event.save();
       }
 
       res.status(200).json({ emailList });

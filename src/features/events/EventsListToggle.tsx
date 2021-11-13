@@ -33,7 +33,7 @@ export const EventsListToggle = ({
           <>
             {!showPreviousEvents && previousEvents.length > 0 && (
               <Button
-                colorScheme="teal"
+                colorScheme="pink"
                 fontSize="smaller"
                 height="auto"
                 py={2}
@@ -71,7 +71,7 @@ export const EventsListToggle = ({
           <>
             {!showNextEvents && nextEvents.length > 0 && (
               <Button
-                colorScheme="teal"
+                colorScheme="pink"
                 fontSize="smaller"
                 height="auto"
                 py={2}

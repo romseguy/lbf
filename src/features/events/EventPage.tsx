@@ -5,6 +5,7 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   EditIcon,
+  EmailIcon,
   PhoneIcon,
   SettingsIcon
 } from "@chakra-ui/icons";
@@ -46,7 +47,7 @@ import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useSelector } from "react-redux";
-import { EntityBadge, EventSendForm } from "features/common";
+import { EntityButton, EventSendForm } from "features/common";
 import {
   useAddSubscriptionMutation,
   useGetSubscriptionQuery
@@ -58,7 +59,7 @@ import {
 } from "features/subscriptions/subscriptionSlice";
 import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
 import { EventAttendingForm } from "./EventAttendingForm";
-import { useGetEventQuery } from "./eventsApi";
+import { useEditEventMutation, useGetEventQuery } from "./eventsApi";
 import { EventPageTabs } from "./EventPageTabs";
 import { hasItems } from "utils/array";
 import { selectEventRefetch } from "./eventSlice";
@@ -96,6 +97,7 @@ export const EventPage = ({
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region event
+  const [editEvent, editEventMutation] = useEditEventMutation();
   const eventQuery = useGetEventQuery(
     { eventUrl: props.event.eventUrl, populate },
     {
@@ -300,7 +302,7 @@ export const EventPage = ({
                 Cet événement est réservé aux adhérents des organisations
                 suivantes :
                 {event.eventOrgs.map((org) => (
-                  <EntityBadge
+                  <EntityButton
                     key={org._id}
                     org={org}
                     ml={3}
@@ -485,7 +487,7 @@ export const EventPage = ({
                         {hasItems(event.eventOrgs) ? (
                           <VStack alignItems="flex-start" spacing={2}>
                             {event.eventOrgs.map((eventOrg) => (
-                              <EntityBadge
+                              <EntityButton
                                 key={eventOrg._id}
                                 org={eventOrg}
                                 p={1}
@@ -533,69 +535,100 @@ export const EventPage = ({
 
             {isCreator && (
               <TabPanel aria-hidden>
-                <Button
-                  colorScheme="teal"
-                  rightIcon={
-                    showSendForm ? <ChevronDownIcon /> : <ChevronRightIcon />
-                  }
-                  onClick={() => {
-                    if (!event.isApproved)
-                      alert(
-                        "L'événement doit être vérifié par un modérateur avant de pouvoir envoyer des invitations."
-                      );
-                    else setShowSendForm(!showSendForm);
-                  }}
-                >
-                  Envoyer les invitations
-                </Button>
+                {!showSendForm && (
+                  <Button
+                    colorScheme="teal"
+                    leftIcon={<EmailIcon />}
+                    onClick={() => {
+                      if (!event.isApproved)
+                        alert(
+                          "L'événement doit être vérifié par un modérateur avant de pouvoir envoyer des invitations."
+                        );
+                      else setShowSendForm(!showSendForm);
+                    }}
+                  >
+                    Envoyer des invitations à{" "}
+                    <EntityButton event={event} bg="whiteAlpha.500" ml={2} />
+                  </Button>
+                )}
+
+                {showSendForm && (
+                  <Button
+                    colorScheme="teal"
+                    leftIcon={<ArrowBackIcon />}
+                    onClick={() => setShowSendForm(false)}
+                  >
+                    Revenir à la liste des invitations envoyées
+                  </Button>
+                )}
 
                 {showSendForm && session && (
                   <EventSendForm
                     event={event}
                     eventQuery={eventQuery}
                     session={session}
+                    onCancel={() => setShowSendForm(false)}
                     onSubmit={() => setShowSendForm(false)}
                   />
                 )}
 
-                <Box
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  overflowX="auto"
-                  mt={5}
-                >
-                  {!event.eventNotified ||
-                  (Array.isArray(event.eventNotified) &&
-                    !event.eventNotified.length) ? (
-                    <Text>Aucune invitation envoyée.</Text>
-                  ) : (
-                    <Table>
-                      <Tbody>
-                        {event.eventNotified?.map(({ email: e, status }) => {
-                          return (
-                            <Tr key={e}>
-                              <Td>{e}</Td>
-                              <Td>
-                                <Tag
-                                  variant="solid"
-                                  colorScheme={
-                                    status === StatusTypes.PENDING
-                                      ? "blue"
-                                      : status === StatusTypes.OK
-                                      ? "green"
-                                      : "red"
-                                  }
-                                >
-                                  {StatusTypesV[status]}
-                                </Tag>
-                              </Td>
-                            </Tr>
-                          );
-                        })}
-                      </Tbody>
-                    </Table>
-                  )}
-                </Box>
+                {!showSendForm && (
+                  <Box
+                    light={{ bg: "orange.100" }}
+                    dark={{ bg: "gray.500" }}
+                    overflowX="auto"
+                    mt={5}
+                  >
+                    {!event.eventNotified ||
+                    (Array.isArray(event.eventNotified) &&
+                      !event.eventNotified.length) ? (
+                      <Text>Aucune invitation envoyée.</Text>
+                    ) : (
+                      <>
+                        {session.user.isAdmin && (
+                          <Button
+                            onClick={async () => {
+                              await editEvent({
+                                eventUrl: event.eventUrl,
+                                payload: { eventNotified: [] }
+                              }).unwrap();
+                              eventQuery.refetch();
+                            }}
+                          >
+                            RAZ
+                          </Button>
+                        )}
+                        <Table>
+                          <Tbody>
+                            {event.eventNotified?.map(
+                              ({ email: e, status }) => {
+                                return (
+                                  <Tr key={e}>
+                                    <Td>{e}</Td>
+                                    <Td>
+                                      <Tag
+                                        variant="solid"
+                                        colorScheme={
+                                          status === StatusTypes.PENDING
+                                            ? "blue"
+                                            : status === StatusTypes.OK
+                                            ? "green"
+                                            : "red"
+                                        }
+                                      >
+                                        {StatusTypesV[status]}
+                                      </Tag>
+                                    </Td>
+                                  </Tr>
+                                );
+                              }
+                            )}
+                          </Tbody>
+                        </Table>
+                      </>
+                    )}
+                  </Box>
+                )}
               </TabPanel>
             )}
           </TabPanels>

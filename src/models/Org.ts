@@ -5,12 +5,13 @@ import type { IUser } from "models/User";
 import type { Base64Image } from "utils/image";
 import { Schema, Types } from "mongoose";
 import { IProject } from "./Project";
+import { equals } from "utils/string";
 
 export const getSubscriptions = (org: IOrg, type: string) => {
   return org.orgSubscriptions.filter((subscription) =>
     subscription.orgs.find(
       (orgSubscription) =>
-        orgSubscription.orgId === org._id && orgSubscription.type === type
+        equals(orgSubscription.orgId, org._id) && orgSubscription.type === type
     )
   );
 };

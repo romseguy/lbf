@@ -18,7 +18,7 @@ import {
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { EntityBadge } from "features/common";
+import { EntityButton } from "features/common";
 import { EventModal } from "features/modals/EventModal";
 import { useGetEventsQuery } from "features/events/eventsApi";
 import { selectEventsRefetch } from "features/events/eventSlice";
@@ -189,7 +189,7 @@ export const EventPopover = ({
                   spacing={2}
                 >
                   {myEventsQuery.data.map((event, index) => (
-                    <EntityBadge
+                    <EntityButton
                       key={event._id}
                       event={event}
                       p={1}
@@ -221,7 +221,7 @@ export const EventPopover = ({
                   spacing={2}
                 >
                   {followedEvents.map(({ event }) => (
-                    <EntityBadge
+                    <EntityButton
                       key={event._id}
                       event={event}
                       p={1}
@@ -253,7 +253,7 @@ export const EventPopover = ({
                   spacing={2}
                 >
                   {attendedEvents.map((event) => (
-                    <EntityBadge
+                    <EntityButton
                       key={event._id}
                       event={event}
                       p={1}

@@ -1,24 +1,17 @@
 import {
-  Alert,
-  AlertIcon,
-  Box,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Table,
-  Tag,
-  Tbody,
-  Td,
-  Tr,
   useToast
 } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import React from "react";
-import { Button, Link } from "features/common";
-import { IEvent, StatusTypes } from "models/Event";
-import { IOrg, orgTypeFull } from "models/Org";
+import { EntityButton, OrgNotifForm } from "features/common";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
@@ -43,6 +36,7 @@ interface NotifyModalProps<T> {
   mutation: any;
   setModalState: (modalState: ModalState<T>) => void;
   modalState: ModalState<T>;
+  session: Session;
 }
 
 export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
@@ -51,11 +45,15 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
   query,
   mutation,
   setModalState,
-  modalState
+  modalState,
+  session
 }: NotifyModalProps<T>) => {
+  //#region hooks must be defined here
   const toast = useToast({ position: "top" });
   const [postNotif, postNotifMutation] = mutation;
   const { entity } = modalState;
+
+  //#endregion
 
   if ((!org && !event) || !entity || (!isEvent(entity) && !isTopic(entity)))
     return null;
@@ -74,13 +72,6 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
   let entityIdKey = "eventUrl";
   let entityName: string = "";
   let entityTypeLabel = "l'événement";
-  let payload: {
-    org?: IOrg;
-    event?: IEvent<string | Date>;
-    orgIds?: string[];
-  } = {
-    orgIds: org ? [org._id] : undefined
-  };
   let topicNotified: { email: string }[];
   let eventNotified: {
     email?: string | undefined;
@@ -94,10 +85,6 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
     entityIdKey = "topicId";
     entityName = entity.topicName;
     entityTypeLabel = "la discussion";
-    payload = {
-      org,
-      event
-    };
     subscriptions = subscriptions.filter(({ phone }) => phone === undefined);
 
     if (entity.topicNotified) {
@@ -125,30 +112,61 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
     }
   }
 
-  const onSubmit = async () => {
-    const { emailList } = await postNotif({
-      [entityIdKey]: entityId,
-      payload
-    }).unwrap();
+  const onSubmit = async (
+    form: { email?: string; orgListsNames?: string[] },
+    type: "single" | "multi"
+  ) => {
+    console.log("submitted", form);
 
-    if (hasItems(emailList)) {
-      toast({
-        status: "success",
-        title: `${emailList.length} abonnés invités !`
-      });
-      query.refetch();
-    } else
-      toast({
-        status: "warning",
-        title: "Aucun abonné invité"
-      });
+    let payload: {
+      org?: IOrg;
+      event?: IEvent<string | Date>;
+      email?: string;
+      orgListsNames?: string[];
+    } = {
+      org,
+      event
+    };
 
-    setModalState({
-      ...modalState,
-      entity: null
-    });
+    if (isEvent(entity)) {
+      if (type === "multi")
+        payload.orgListsNames = hasItems(form.orgListsNames)
+          ? form.orgListsNames
+          : undefined;
+      else payload.email = form.email;
+    }
+
+    try {
+      const { emailList } = await postNotif({
+        [entityIdKey]: entityId,
+        payload
+      }).unwrap();
+
+      if (hasItems(emailList)) {
+        const s = emailList.length > 1 && "s";
+        toast({
+          status: "success",
+          title: `${emailList.length} invitation${s} envoyée${s} !`
+        });
+        query.refetch();
+      } else
+        toast({
+          status: "warning",
+          title: "Aucun invitation envoyée"
+        });
+
+      setModalState({
+        ...modalState,
+        entity: null
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        status: "error",
+        title: "Une erreur est survenue"
+      });
+    }
   };
-  //#endregion
 
   return (
     <Modal
@@ -161,108 +179,25 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
       }
     >
       <ModalOverlay>
-        <ModalContent>
-          <ModalHeader>
-            {isTopic(entity) ? "Notifications" : "Invitations"}
+        <ModalContent maxWidth="xl">
+          <ModalHeader display="flex" alignItems="center" pb={0}>
+            {isTopic(entity) ? (
+              "Notifications"
+            ) : (
+              <EntityButton event={entity} p={2} />
+            )}
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
-            <Alert status="info" flexDirection="row">
-              <AlertIcon />
-              <Box>
-                Ci-dessous la liste des abonnés{" "}
-                {org ? orgTypeFull(org.orgType) : ""} <b>{name}</b> à{" "}
-                {isTopic(entity) ? "notifier de " : "inviter à "}
-                {entityTypeLabel} <b>{entityName}</b>.
-              </Box>
-            </Alert>
-
-            <Box overflowX="auto">
-              <Table>
-                <Tbody>
-                  {subscriptions
-                    .map((subscription) => {
-                      const e =
-                        typeof subscription.user === "object"
-                          ? subscription.user.email || ""
-                          : subscription.email || "";
-                      const p = subscription.phone || null;
-
-                      if (
-                        (isEvent(entity) &&
-                          eventNotified.find(
-                            ({ email, phone }) => email === e || phone === p
-                          )) ||
-                        (isTopic(entity) &&
-                          topicNotified.find(({ email }) => email === e))
-                      ) {
-                        return {
-                          email: e,
-                          phone: p,
-                          status: StatusTypes.PENDING
-                        };
-                      }
-
-                      return { email: e, phone: p, status: StatusTypes.NOK };
-                    })
-                    .map((item) => {
-                      return (
-                        <Tr key={item.phone || item.email}>
-                          <Td>{item.phone || item.email}</Td>
-                          <Td>
-                            {item.status === StatusTypes.PENDING ? (
-                              <Tag colorScheme="green">
-                                {isTopic(entity) ? "Notifié" : "Invité"}
-                              </Tag>
-                            ) : (
-                              <Link
-                                onClick={async () => {
-                                  const { emailList } = await postNotif({
-                                    [entityIdKey]: entityId,
-                                    payload: { ...payload, email: item.email }
-                                  }).unwrap();
-
-                                  if (hasItems(emailList)) {
-                                    toast({
-                                      status: "success",
-                                      title: `Une ${
-                                        isTopic(entity)
-                                          ? "notification"
-                                          : "invitation"
-                                      } a été envoyée à ${item.email} !`
-                                    });
-                                    query.refetch();
-                                  } else
-                                    toast({
-                                      status: "warning",
-                                      title: `Aucun abonné ${
-                                        isTopic(entity) ? "notifié" : "invité"
-                                      }`
-                                    });
-                                }}
-                              >
-                                <Tag colorScheme="red">
-                                  {isTopic(entity) ? "Notifier" : "Inviter"}
-                                </Tag>
-                              </Link>
-                            )}
-                          </Td>
-                        </Tr>
-                      );
-                    })}
-                </Tbody>
-              </Table>
-            </Box>
-
-            <Button
-              mt={3}
-              colorScheme="green"
-              isLoading={postNotifMutation.isLoading}
-              onClick={onSubmit}
-            >
-              Envoyer {subscriptions.length - notifiedCount}{" "}
-              {isTopic(entity) ? "notifications" : "invitations"}
-            </Button>
+          <ModalBody pt={0}>
+            {isEvent(entity) && org && (
+              <OrgNotifForm
+                entity={entity}
+                org={org}
+                query={query}
+                onCancel={() => setModalState({ ...modalState, entity: null })}
+                onSubmit={onSubmit}
+              />
+            )}
           </ModalBody>
         </ModalContent>
       </ModalOverlay>

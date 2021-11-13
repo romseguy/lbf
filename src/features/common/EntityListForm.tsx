@@ -61,13 +61,16 @@ export const EntityListForm = ({
 
   const onSubmit = async (form: {
     listName: string;
-    subscriptions: ISubscription[];
+    subscriptions: { label: string; value: ISubscription }[];
   }) => {
     console.log("submitted", form);
     setIsLoading(true);
 
     const payload = {
-      ...form
+      ...form,
+      subscriptions: form.subscriptions.map(({ value }) => {
+        return value;
+      })
     };
 
     if (props.list) {

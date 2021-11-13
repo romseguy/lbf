@@ -12,7 +12,6 @@ import {
   Flex,
   Icon,
   IconButton,
-  Tag,
   Td,
   Text,
   Tooltip
@@ -23,12 +22,10 @@ import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
-import { IoIosPerson } from "react-icons/io";
-import { css } from "twin.macro";
-import { Link, GridItem, EntityBadge } from "features/common";
+import { Link, GridItem, EntityButton } from "features/common";
 import { ModalState } from "features/modals/NotifyModal";
 import { Category, IEvent } from "models/Event";
-import { IOrg, orgTypeFull } from "models/Org";
+import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import { EventsListItemVisibility } from "./EventsListItemVisibility";
 
@@ -222,15 +219,16 @@ export const EventsListItem = ({
 
                 {org && isCreator && (
                   <Tooltip
-                    label={
-                      canSendCount === 0
-                        ? "Tous les abonnés ont reçu l'invitation"
-                        : `${canSendCount} abonné${
-                            canSendCount > 1 ? "s" : ""
-                          } ${orgTypeFull(org.orgType)} ${org.orgName} n'${
-                            canSendCount > 1 ? "ont" : "a"
-                          } pas encore reçu d'invitation.`
-                    }
+                    // label={
+                    //   canSendCount === 0
+                    //     ? "Tous les abonnés ont reçu l'invitation"
+                    //     : `${canSendCount} abonné${
+                    //         canSendCount > 1 ? "s" : ""
+                    //       } ${orgTypeFull(org.orgType)} ${org.orgName} n'${
+                    //         canSendCount > 1 ? "ont" : "a"
+                    //       } pas encore reçu d'invitation.`
+                    // }
+                    label="Envoyer des invitations"
                   >
                     <IconButton
                       aria-label={
@@ -318,7 +316,7 @@ export const EventsListItem = ({
                 {hasItems(event.eventOrgs)
                   ? event.eventOrgs.map((eventOrg: any) => {
                       return (
-                        <EntityBadge
+                        <EntityButton
                           key={eventOrg._id}
                           org={eventOrg}
                           px={2}
@@ -337,7 +335,7 @@ export const EventsListItem = ({
                       );
                     })
                   : typeof event.createdBy === "object" && (
-                      <EntityBadge
+                      <EntityButton
                         key={event.createdBy._id}
                         user={event.createdBy}
                         px={2}

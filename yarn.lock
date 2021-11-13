@@ -1779,10 +1779,10 @@
     require_optional "^1.0.1"
     typeorm "^0.2.30"
 
-"@next/bundle-analyzer@^11.0.1":
-  version "11.0.1"
-  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-11.0.1.tgz#6f5d617ae861346ac9bf6a1e7bd05444a7fedcc1"
-  integrity sha512-/+VqZsEu1Q19PlJyNrXJ0qNuYVH1ZiA9fz3G1tiTLdJmHHt4SeAqiBejHvuy8nkttGnHg7uUTdycvVujK0IcQQ==
+"@next/bundle-analyzer@^12.0.3":
+  version "12.0.3"
+  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-12.0.3.tgz#a7f63387f2fde8f6554d8616b5a738ca803a1090"
+  integrity sha512-gvQC91wIG2/YQvC7nEiPJOegXaqViNHjizaQZ6njljdCn2R74MpnJuBqwYkT1WKSj3xxgoq9rOLKY0jN04oiCQ==
   dependencies:
     webpack-bundle-analyzer "4.3.0"
 
@@ -1844,10 +1844,10 @@
   resolved "https://registry.yarnpkg.com/@panva/asn1.js/-/asn1.js-1.0.0.tgz#dd55ae7b8129e02049f009408b97c61ccf9032f6"
   integrity sha512-UdkG3mLEqXgnlKsWanWcgb6dOjUzJ+XC5f+aWw30qrtjxeNUSfKX1cd5FBzOaXQumoe9nIqeZUvrRJS03HCCtw==
 
-"@polka/url@^1.0.0-next.15":
-  version "1.0.0-next.15"
-  resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.15.tgz#6a9d143f7f4f49db2d782f9e1c8839a29b43ae23"
-  integrity sha512-15spi3V28QdevleWBNXE4pIls3nFZmBbUGrW9IVPwiQczuSb9n76TCB4bsk8TSel+I1OkHEdPhu5QKMfY6rQHA==
+"@polka/url@^1.0.0-next.20":
+  version "1.0.0-next.21"
+  resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
+  integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
 
 "@popperjs/core@2.4.4":
   version "2.4.4"
@@ -2358,16 +2358,21 @@ acorn-walk@^7.0.0, acorn-walk@^7.1.1:
   integrity sha512-OPdCF6GsMIP+Az+aWfAAOEt2/+iVDKE7oy6lJ098aoe59oAmK76qV6Gw60SbZ8jHuG2wH058GF4pLFbYamYrVA==
 
 acorn-walk@^8.0.0:
-  version "8.1.1"
-  resolved "https://registry.yarnpkg.com/acorn-walk/-/acorn-walk-8.1.1.tgz#3ddab7f84e4a7e2313f6c414c5b7dac85f4e3ebc"
-  integrity sha512-FbJdceMlPHEAWJOILDk1fXD8lnTlEIWFkqtfk+MvmL5q/qlHfN7GEHcsFZWt/Tea9jRNPWUZG4G976nqAAmU9w==
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/acorn-walk/-/acorn-walk-8.2.0.tgz#741210f2e2426454508853a2f44d0ab83b7f69c1"
+  integrity sha512-k+iyHEuPgSw6SbuDpGQM+06HQUa04DZ3o+F6CSzXMvvI5KMvnaEqXe+YVe555R9nn6GPt404fos4wcgpw12SDA==
 
 acorn@^7.0.0, acorn@^7.1.1:
   version "7.4.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.4.1.tgz#feaed255973d2e77555b83dbc08851a6c63520fa"
   integrity sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==
 
-acorn@^8.0.4, acorn@^8.2.4:
+acorn@^8.0.4:
+  version "8.5.0"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.5.0.tgz#4512ccb99b3698c752591e9bb4472e38ad43cee2"
+  integrity sha512-yXbYeFy+jUuYd3/CDcg2NkIYE991XYX/bje7LmjJigUciaeO1JR4XxXgCIV1/Zc/dRuFEyw1L0pbA+qynJkW5Q==
+
+acorn@^8.2.4:
   version "8.4.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.4.1.tgz#56c36251fc7cabc7096adc18f05afe814321a28c"
   integrity sha512-asabaBSkEKosYKMITunzX177CXxQ4Q8BSSzMTKD+FefUhipQC70gfW5SiUDhYQ3vk8G+81HqQk7Fv9OXwwn9KA==
@@ -5396,9 +5401,9 @@ mime-types@^2.1.12, mime-types@~2.1.19:
     mime-db "1.48.0"
 
 mime@^2.3.1:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/mime/-/mime-2.5.2.tgz#6e3dc6cc2b9510643830e5f19d5cb753da5eeabe"
-  integrity sha512-tqkh47FzKeCPD2PUiPB6pkbMzsCasjxAfC62/Wap5qrUWcb+sFasXUC5I3gYM5iBM8v/Qpn4UK0x+j0iHyFPDg==
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/mime/-/mime-2.6.0.tgz#a2a682a95cd4d0cb1d6257e28f83da7e35800367"
+  integrity sha512-USPkMeET31rOMiarsBNIHZKLGgvKc/LrjofAnBlOttf5ajRvqiRA8QsenbcooctK6d6Ts6aqZXBA+XbkKthiQg==
 
 mimic-fn@^2.1.0:
   version "2.1.0"
@@ -7189,11 +7194,11 @@ simple-swizzle@^0.2.2:
     is-arrayish "^0.3.1"
 
 sirv@^1.0.7:
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/sirv/-/sirv-1.0.12.tgz#d816c882b35489b3c63290e2f455ae3eccd5f652"
-  integrity sha512-+jQoCxndz7L2tqQL4ZyzfDhky0W/4ZJip3XoOuxyQWnAwMxindLl3Xv1qT4x1YX/re0leShvTm8Uk0kQspGhBg==
+  version "1.0.18"
+  resolved "https://registry.yarnpkg.com/sirv/-/sirv-1.0.18.tgz#105fab52fb656ce8a2bebbf36b11052005952899"
+  integrity sha512-f2AOPogZmXgJ9Ma2M22ZEhc1dNtRIzcEkiflMFeVTRq+OViOZMvH1IPMVOwrKaxpSaHioBJiDR0SluRqGa7atA==
   dependencies:
-    "@polka/url" "^1.0.0-next.15"
+    "@polka/url" "^1.0.0-next.20"
     mime "^2.3.1"
     totalist "^1.0.0"
 
@@ -7828,10 +7833,10 @@ typeorm@^0.2.30:
     yargs "^17.0.1"
     zen-observable-ts "^1.0.0"
 
-typescript@^4.4.3:
-  version "4.4.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.4.3.tgz#bdc5407caa2b109efd4f82fe130656f977a29324"
-  integrity sha512-4xfscpisVgqqDfPaJo5vkd+Qd/ItkoagnHpufr+i2QCHBsNYp+G7UAoyFl8aPtx879u38wPV65rZ8qbGZijalA==
+typescript@^4.4.4:
+  version "4.4.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.4.4.tgz#2cd01a1a1f160704d3101fd5a58ff0f9fcb8030c"
+  integrity sha512-DqGhF5IKoBl8WNf8C1gu8q0xZSInh9j1kJJMqT3a94w1JzVaBU4EXOSMrz9yDqMT0xt3selp83fuFMQ0uzv6qA==
 
 ua-parser-js@^0.7.24:
   version "0.7.28"
@@ -8365,7 +8370,12 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
 
-ws@^7.3.1, ws@^7.4.6:
+ws@^7.3.1:
+  version "7.5.5"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.5.tgz#8b4bc4af518cfabd0473ae4f99144287b33eb881"
+  integrity sha512-BAkMFcAzl8as1G/hArkxOxq3G7pjUqQ3gzYbLL0/5zNkph70e+lCoxBGnm6AW1+/aiNeV4fnKqZ8m4GZewmH2w==
+
+ws@^7.4.6:
   version "7.5.3"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.3.tgz#160835b63c7d97bfab418fc1b8a9fced2ac01a74"
   integrity sha512-kQ/dHIzuLrS6Je9+uv81ueZomEwH0qVYstcAQ4/Z93K8zeko9gtAbttJWzoC5ukqXY1PpoouV3+VSOqEAFt5wg==

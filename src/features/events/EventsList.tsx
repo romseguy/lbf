@@ -4,10 +4,8 @@ import {
   AlertIcon,
   Button,
   Flex,
-  Box,
   BoxProps,
   Heading,
-  Tag,
   Text,
   Table,
   Tbody,
@@ -22,7 +20,6 @@ import {
   format,
   isBefore,
   parseISO,
-  getDay,
   getDayOfYear,
   setDay,
   getHours,
@@ -42,7 +39,6 @@ import {
   Spacer,
   LocationButton
 } from "features/common";
-import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { DescriptionModal } from "features/modals/DescriptionModal";
 import { ModalState, NotifyModal } from "features/modals/NotifyModal";
 import { EventModal } from "features/modals/EventModal";
@@ -69,7 +65,6 @@ import { EventInfo } from "./EventInfo";
 import { EventTimeline } from "./EventTimeline";
 import { EventsListDistance } from "./EventsListDistance";
 import { LatLon } from "use-places-autocomplete";
-import { Logger } from "mongodb";
 
 export const EventsList = ({
   events,
@@ -783,14 +778,15 @@ export const EventsList = ({
     );
   }, [
     events,
-    session,
-    isLoading,
-    showPreviousEvents,
-    showNextEvents,
-    selectedCategories,
-    origin,
+    city,
     distance,
-    city
+    isDark,
+    isLoading,
+    origin,
+    selectedCategories,
+    session,
+    showNextEvents,
+    showPreviousEvents
   ]);
 
   return (
@@ -898,14 +894,17 @@ export const EventsList = ({
         />
       )}
 
-      <NotifyModal
-        event={notifyModalState.entity || undefined}
-        org={org}
-        query={orgQuery}
-        mutation={postEventNotifMutation}
-        setModalState={setNotifyModalState}
-        modalState={notifyModalState}
-      />
+      {session && (
+        <NotifyModal
+          event={notifyModalState.entity || undefined}
+          org={org}
+          query={orgQuery}
+          mutation={postEventNotifMutation}
+          setModalState={setNotifyModalState}
+          modalState={notifyModalState}
+          session={session}
+        />
+      )}
     </>
   );
 };

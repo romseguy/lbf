@@ -1,14 +1,16 @@
 const path = require("path");
 const withPlugins = require("next-compose-plugins");
-const {
-  PHASE_DEVELOPMENT_SERVER,
-  PHASE_PRODUCTION_BUILD
-} = require("next/constants");
 const withCustomBabelConfigFile = require("next-plugin-custom-babel-config");
 const withPWA = require("next-pwa");
 //const withPreact = require("next-plugin-preact");
 
+const {
+  PHASE_DEVELOPMENT_SERVER,
+  PHASE_PRODUCTION_BUILD
+} = require("next/constants");
+
 let plugins = [
+  //[withPreact],
   [
     withPWA,
     {
@@ -19,7 +21,6 @@ let plugins = [
     },
     [PHASE_PRODUCTION_BUILD]
   ],
-  //[withPreact],
   [
     withCustomBabelConfigFile,
     {
@@ -28,9 +29,9 @@ let plugins = [
   ]
 ]
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.ANALYZE) {
   const withBundleAnalyzer = require("@next/bundle-analyzer")({
-    enabled: process.env.ANALYZE === "true"
+    enabled: true
   });
   plugins.unshift([withBundleAnalyzer])
 }
@@ -41,10 +42,6 @@ const nextConfig = {
     defaultLocale: "fr-FR"
   },
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
     ignoreBuildErrors: true
   }
 };

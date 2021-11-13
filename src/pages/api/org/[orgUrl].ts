@@ -217,17 +217,6 @@ handler.put<
             orgUrl: normalize(body.orgName.trim())
           };
         }
-
-        if (body.orgLists) {
-          const org = await models.Org.findOne({ orgUrl });
-
-          if (org && org.orgLists) {
-            for (const orgList of org.orgLists) {
-              if (orgList.listName === body.orgLists[0].listName) {
-              }
-            }
-          }
-        }
       }
 
       log(`PUT /org/${orgUrl}:`, update || body);
