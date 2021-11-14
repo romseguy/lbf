@@ -439,7 +439,7 @@ export const sendTopicToFollowers = async ({
 
     if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
     else if (process.env.NODE_ENV === "development") {
-      console.log(`sent new topic email notif to subscriber ${email}`, mail);
+      console.log(`sent new topic email notif to ${email}`, mail);
     }
 
     emailList.push(email);

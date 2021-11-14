@@ -6,11 +6,13 @@ import nodemailerSendgrid from "nodemailer-sendgrid";
 import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { getSubscriptions, IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { createServerError } from "utils/errors";
 import { sendTopicToFollowers } from "utils/email";
-import { equals } from "utils/string";
+import { equals, log } from "utils/string";
+import { SubscriptionTypes } from "models/Subscription";
+import { hasItems } from "utils/array";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -28,6 +30,8 @@ handler.post<
     body: {
       org?: IOrg;
       event?: IEvent;
+      orgListsNames?: string[];
+      email?: string;
     };
   },
   NextApiResponse
@@ -45,7 +49,16 @@ handler.post<
   }
 
   try {
-    const { body }: { body: { org?: IOrg; event?: IEvent } } = req;
+    const {
+      body
+    }: {
+      body: {
+        org?: IOrg;
+        event?: IEvent;
+        orgListsNames?: string[];
+        email?: string;
+      };
+    } = req;
     const topicId = req.query.topicId;
     const topic = await models.Topic.findOne({ _id: topicId });
 
@@ -86,18 +99,40 @@ handler.post<
         topic,
         transport
       });
-    } else if (body.org) {
-      // getting subscriptions of users subscribed to this org
-      const subscriptions = await models.Subscription.find({
-        "orgs.org": Types.ObjectId(body.org._id)
-      }).populate("user");
+    } else if (body.org && body.orgListsNames) {
+      console.log(`POST /topic/${topicId}: orgListsNames`, body.orgListsNames);
+      const org = body.org;
 
-      emailList = await sendTopicToFollowers({
-        org: body.org,
-        subscriptions,
-        topic,
-        transport
-      });
+      let subscriptions = (org.orgLists || [])
+        .filter((orgList) =>
+          topic.topicVisibility?.find(
+            (listName) => listName === orgList.listName
+          )
+        )
+        .flatMap(({ subscriptions }) => subscriptions);
+
+      for (const orgListName of body.orgListsNames) {
+        const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
+
+        if (["Abonnés", "Adhérents"].includes(listName))
+          subscriptions = subscriptions.concat(
+            getSubscriptions(
+              org,
+              listName === "Abonnés"
+                ? SubscriptionTypes.FOLLOWER
+                : SubscriptionTypes.SUBSCRIBER
+            )
+          );
+      }
+
+      if (hasItems(subscriptions)) {
+        emailList = await sendTopicToFollowers({
+          org: body.org,
+          subscriptions,
+          topic,
+          transport
+        });
+      }
     }
 
     const topicNotified = emailList.map((email) => ({ email }));

@@ -7,7 +7,6 @@ import {
   FormErrorMessage,
   useToast,
   Flex,
-  Select,
   Alert,
   AlertIcon,
   Checkbox
@@ -22,10 +21,13 @@ import {
 } from "features/forum/topicsApi";
 import { useSession } from "hooks/useAuth";
 import type { IEvent } from "models/Event";
-import type { IOrg } from "models/Org";
-import { ITopic, Visibility, VisibilityV } from "models/Topic";
+import { getSubscriptions, IOrg, IOrgList } from "models/Org";
+import { ITopic } from "models/Topic";
 import { handleError } from "utils/form";
 import { ITopicMessage } from "models/TopicMessage";
+import { MultiSelect } from "features/common/forms/MultiSelect";
+import { SubscriptionTypes } from "models/Subscription";
+import { hasItems } from "utils/array";
 
 interface TopicFormProps extends ChakraProps {
   org?: IOrg;
@@ -48,33 +50,41 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
-  const [messageHtml, setMessageHtml] = useState<string>();
-  const visibilityOptions: string[] = [];
-
-  if ((org && org.orgName !== "aucourant") || event) {
-    if (org) {
-      visibilityOptions.push(Visibility.PUBLIC);
-
-      if (props.isCreator) {
-        visibilityOptions.push(Visibility.FOLLOWERS);
-        visibilityOptions.push(Visibility.SUBSCRIBERS);
-      } else if (props.isSubscribed) {
-        visibilityOptions.push(Visibility.SUBSCRIBERS);
+  let lists: IOrgList[] | undefined;
+  if (org) {
+    lists = (org.orgLists || []).concat([
+      {
+        listName: "Abonnés",
+        subscriptions: getSubscriptions(org, SubscriptionTypes.FOLLOWER)
+      },
+      {
+        listName: "Adhérents",
+        subscriptions: getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
       }
-    } else if (event) {
-      visibilityOptions.push(Visibility.PUBLIC);
-      if (props.isCreator || props.isFollowed) {
-        visibilityOptions.push(Visibility.FOLLOWERS);
-      }
-    }
+    ]);
   }
+  const [messageHtml, setMessageHtml] = useState<string>();
   //#endregion
 
   //#region form
-  const { control, register, handleSubmit, errors, setError, clearErrors } =
-    useForm({
-      mode: "onChange"
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    errors,
+    setError,
+    clearErrors,
+    setValue,
+    watch
+  } = useForm({
+    mode: "onChange"
+  });
+
+  const topicVisibility = watch("topicVisibility");
+  const topicNotif = watch("topicNotif");
+
+  if (topicNotif && org && !hasItems(topicVisibility))
+    setValue("topicNotif", false);
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -83,7 +93,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
   const onSubmit = async (form: {
     topicName: string;
     topicMessage: string;
-    topicVisibility: string;
+    topicVisibility?: [{ label: string; value: string }];
     topicNotif?: boolean;
   }) => {
     console.log("submitted", form);
@@ -101,20 +111,20 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         ]
       : [];
 
-    const payload = {
-      org,
-      event,
-      topic: {
-        topicName: form.topicName,
-        topicMessages,
-        topicVisibility: !form.topicVisibility
-          ? Visibility[Visibility.PUBLIC]
-          : form.topicVisibility,
-        createdBy: session.user.userId
-      }
-    };
-
     try {
+      const payload = {
+        org,
+        event,
+        topic: {
+          topicName: form.topicName,
+          topicMessages,
+          topicVisibility: form.topicVisibility?.map(
+            ({ label, value }) => value
+          ),
+          createdBy: session.user.userId
+        }
+      };
+
       if (props.topic) {
         await editTopic({
           payload: {
@@ -225,44 +235,81 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         </FormControl>
       )}
 
-      {visibilityOptions.length > 0 && (
+      {!props.topic && props.isCreator && lists && (
         <FormControl
           id="topicVisibility"
           isRequired
           isInvalid={!!errors["topicVisibility"]}
           mb={3}
         >
-          <FormLabel>Visibilité</FormLabel>
-          <Select
+          <FormLabel>Listes de diffusion</FormLabel>
+          <Controller
             name="topicVisibility"
-            defaultValue={
-              props.topic?.topicVisibility || Visibility[Visibility.PUBLIC]
-            }
-            ref={register({
-              required: "Veuillez sélectionner la visibilité de la discussion"
-            })}
-            placeholder="Sélectionnez la visibilité de la discussion..."
-            color="gray.400"
-          >
-            {visibilityOptions.map((key) => {
+            control={control}
+            defaultValue={[]}
+            render={(renderProps) => {
               return (
-                <option key={key} value={key}>
-                  {VisibilityV[key]}
-                </option>
+                <MultiSelect
+                  value={renderProps.value}
+                  onChange={renderProps.onChange}
+                  options={
+                    lists?.map(({ listName }) => ({
+                      label: listName,
+                      value: listName
+                    })) || []
+                  }
+                  allOptionLabel="Toutes les listes"
+                  placeholder="Sélectionner une ou plusieurs listes"
+                  noOptionsMessage={() => "Aucun résultat"}
+                  isClearable
+                  isSearchable={false}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (defaultStyles: any) => {
+                      return {
+                        ...defaultStyles,
+                        borderColor: "#e2e8f0",
+                        paddingLeft: "8px"
+                      };
+                    },
+                    placeholder: () => {
+                      return {
+                        color: "#A0AEC0"
+                      };
+                    }
+                  }}
+                />
               );
-            })}
-          </Select>
+            }}
+          />
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="topicVisibility" />
           </FormErrorMessage>
         </FormControl>
       )}
 
-      {!props.topic && props.isCreator && (
-        <Checkbox ref={register()} name="topicNotif" mb={3}>
-          Notifier les abonnés
-        </Checkbox>
-      )}
+      {!props.topic &&
+        (lists ? (
+          <Checkbox
+            ref={register()}
+            name="topicNotif"
+            mb={3}
+            isChecked={topicNotif}
+            isDisabled={!hasItems(topicVisibility)}
+          >
+            Notifier les membres des listes de diffusions sélectionnées
+          </Checkbox>
+        ) : (
+          <Checkbox
+            ref={register()}
+            name="topicNotif"
+            mb={3}
+            isChecked={topicNotif}
+          >
+            Notifier les personnes abonnées à l'événement
+          </Checkbox>
+        ))}
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>
@@ -280,7 +327,9 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
           isDisabled={Object.keys(errors).length > 0}
           data-cy="addTopic"
         >
-          {props.topic ? "Modifier" : "Ajouter"}
+          {props.topic
+            ? "Modifier"
+            : `Ajouter ${topicNotif ? "& Notifier" : ""}`}
         </Button>
       </Flex>
     </form>

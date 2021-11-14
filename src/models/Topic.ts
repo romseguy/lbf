@@ -10,13 +10,19 @@ export interface ITopic {
   id?: string;
   topicName: string;
   topicMessages: ITopicMessage[];
-  topicVisibility?: string;
+  topicVisibility?: string[];
   org?: IOrg;
   event?: IEvent;
-  topicNotified?: { email: string }[];
+  topicNotified?: ITopicNotified;
   createdBy: IUser | string;
   createdAt?: string;
 }
+
+export type ITopicNotified = {
+  email?: string;
+  phone?: string;
+  status?: string;
+}[];
 
 export const Visibility: { [key: string]: string } = {
   PUBLIC: "PUBLIC",
@@ -38,10 +44,7 @@ export const TopicSchema = new Schema<ITopic>(
       trim: true
     },
     topicMessages: [TopicMessageSchema],
-    topicVisibility: {
-      type: String,
-      enum: Object.keys(Visibility).map((key) => Visibility[key])
-    },
+    topicVisibility: [String],
     org: {
       type: Schema.Types.ObjectId,
       ref: "Org"
@@ -52,7 +55,8 @@ export const TopicSchema = new Schema<ITopic>(
     },
     topicNotified: [
       {
-        email: String
+        email: String,
+        phone: String
       }
     ],
     createdBy: {

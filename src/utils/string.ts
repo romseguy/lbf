@@ -26,7 +26,7 @@ export function normalize(str: string, underscores?: boolean): string {
 }
 
 export function equals(a: any, b: any): boolean {
-  if (typeof a === "string" && typeof b === "string") a === b;
+  if (typeof a === "string" && typeof b === "string") return a === b;
 
   let aa = a;
   let bb = b;
@@ -35,6 +35,11 @@ export function equals(a: any, b: any): boolean {
   if (typeof b === "object" && b.toString) bb = b.toString();
 
   return aa === bb;
+}
+
+export function equalsValue(a: string | undefined, b: string | undefined) {
+  if (typeof a === "string" && typeof b === "string") return a === b;
+  return false;
 }
 
 export function toString(a: any): string {

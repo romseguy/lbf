@@ -1,17 +1,18 @@
 import { Document, Types } from "mongoose";
-import { addOrUpdateTopic } from "api";
-import database, { models } from "database";
-import { getSession } from "hooks/useAuth";
-import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
-import { ITopic } from "models/Topic";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
-import { createServerError } from "utils/errors";
+import database, { models } from "database";
+import { getSession } from "hooks/useAuth";
+import { IEvent } from "models/Event";
+import { getSubscriptions, IOrg } from "models/Org";
+import { SubscriptionTypes } from "models/Subscription";
+import { ITopic } from "models/Topic";
+import { hasItems } from "utils/array";
 import { sendMessageToTopicFollowers, sendTopicToFollowers } from "utils/email";
-import { equals, toString } from "utils/string";
+import { createServerError } from "utils/errors";
+import { equals, log, toString } from "utils/string";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -75,8 +76,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
       let doc: (ITopic & Document<any, any, any>) | null = null;
 
       if (topic._id) {
-        // existing topic: must have a message to add
-        console.log("existing topic");
+        console.log(`POST /topics: existing topic`);
 
         if (
           !Array.isArray(topic.topicMessages) ||
@@ -119,7 +119,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
           transport
         });
       } else {
-        console.log("new topic");
+        log(`POST /topics: new topic`, topic);
+
         doc = await models.Topic.create({
           ...topic,
           event: event || undefined,
@@ -152,22 +153,59 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
           org.orgTopics.push(doc);
           await org.save();
 
-          if (topicNotif) {
-            // getting subscriptions of users subscribed to this org
-            const subscriptions = await models.Subscription.find({
-              phone: { $exists: false },
-              "orgs.org": Types.ObjectId(org._id)
-            }).populate("user");
-
-            const emailList = await sendTopicToFollowers({
-              org,
-              subscriptions,
-              topic: doc,
-              transport
+          if (topicNotif && body.topic.topicVisibility) {
+            org = org.populate({
+              path: "orgLists",
+              populate: {
+                path: "subscriptions",
+                populate: { path: "user", select: "-password -securityCode" }
+              }
             });
 
-            doc.topicNotified = emailList.map((email) => ({ email }));
-            await doc.save();
+            if (
+              body.topic.topicVisibility.find((listName) =>
+                ["Abonnés", "Adhérents"].includes(listName)
+              )
+            )
+              org = org.populate({
+                path: "orgSubscriptions",
+                populate: {
+                  path: "user"
+                }
+              });
+
+            org = await org.execPopulate();
+
+            let subscriptions = (org.orgLists || [])
+              .filter((orgList) =>
+                body.topic.topicVisibility?.find(
+                  (listName) => listName === orgList.listName
+                )
+              )
+              .flatMap(({ subscriptions }) => subscriptions);
+
+            for (const listName of body.topic.topicVisibility)
+              if (["Abonnés", "Adhérents"].includes(listName))
+                subscriptions = subscriptions.concat(
+                  getSubscriptions(
+                    org,
+                    listName === "Abonnés"
+                      ? SubscriptionTypes.FOLLOWER
+                      : SubscriptionTypes.SUBSCRIBER
+                  )
+                );
+
+            if (hasItems(subscriptions)) {
+              const emailList = await sendTopicToFollowers({
+                org,
+                subscriptions,
+                topic: doc,
+                transport
+              });
+
+              doc.topicNotified = emailList.map((email) => ({ email }));
+              await doc.save();
+            }
           }
         }
       }
@@ -178,7 +216,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
         const subscription = await models.Subscription.findOne({ user });
 
         if (!subscription) {
-          console.log("no sub for this user => adding one");
+          // console.log("no sub for this user => adding one");
           await models.Subscription.create({
             user,
             topics: [{ topic, emailNotif: true, pushNotif: true }]
@@ -189,7 +227,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
           );
 
           if (!topicSubscription) {
-            console.log("no sub for this topic => adding one", subscription);
+            // console.log("no sub for this topic => adding one", subscription);
             subscription.topics = subscription.topics.concat([
               {
                 topic: doc._id,
@@ -198,7 +236,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
               }
             ]);
             await subscription.save();
-            console.log("subscription saved", subscription);
+            // console.log("subscription saved", subscription);
           }
         }
       }

@@ -27,7 +27,7 @@ export const TopicModal = (props: {
   return (
     <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
       <ModalOverlay>
-        <ModalContent>
+        <ModalContent maxWidth="xl">
           <ModalHeader>
             {props.topic ? "Modifier la discussion" : "Ajouter une discussion"}
           </ModalHeader>

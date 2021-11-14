@@ -62,7 +62,7 @@ import { hasItems } from "utils/array";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { selectOrgRefetch } from "./orgSlice";
-import { useGetOrgQuery, useGetOrgsQuery } from "./orgsApi";
+import { useEditOrgMutation, useGetOrgQuery, useGetOrgsQuery } from "./orgsApi";
 import { SizeMap } from "features/map/Map";
 import { MapContainer } from "features/map/MapContainer";
 
@@ -98,6 +98,7 @@ export const OrgPage = ({
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region org
+  const [editOrg, _] = useEditOrgMutation();
   const orgQuery = useGetOrgQuery(
     { orgUrl: props.org.orgUrl, populate },
     {
@@ -341,15 +342,23 @@ export const OrgPage = ({
                           !hasItems(org.orgEmail) &&
                           !hasItems(org.orgPhone) &&
                           !hasItems(org.orgWeb) && (
-                            <Button
-                              colorScheme="teal"
-                              leftIcon={<AddIcon />}
-                              onClick={() => {
-                                setIsEdit(true);
-                              }}
-                            >
-                              Ajouter
-                            </Button>
+                            <>
+                              {session ? (
+                                <Button
+                                  colorScheme="teal"
+                                  leftIcon={<AddIcon />}
+                                  onClick={() => {
+                                    setIsEdit(true);
+                                  }}
+                                >
+                                  Ajouter
+                                </Button>
+                              ) : (
+                                <Text fontStyle="italic">
+                                  Aucunes coordonnées.
+                                </Text>
+                              )}
+                            </>
                           )}
 
                         {org.orgAddress && (
@@ -628,10 +637,26 @@ export const OrgPage = ({
                     >
                       listes de diffusion
                     </Text>
-                  </Tooltip>
-                  .
+                  </Tooltip>{" "}
+                  traditionnelles.
                 </Box>
               </Alert>
+
+              {session?.user.isAdmin && (
+                <Box mb={5}>
+                  <Button
+                    onClick={async () => {
+                      await editOrg({
+                        orgUrl: org.orgUrl,
+                        payload: { orgTopics: [] }
+                      }).unwrap();
+                      orgQuery.refetch();
+                    }}
+                  >
+                    RAZ
+                  </Button>
+                </Box>
+              )}
 
               <TopicsList
                 org={org}

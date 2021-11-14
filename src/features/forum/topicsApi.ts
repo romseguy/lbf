@@ -60,15 +60,21 @@ export const topicsApi = createApi({
         payload: {
           org?: IOrg;
           event?: IEvent;
+          orgListsNames?: string[];
         };
         topicId: string;
       }
     >({
-      query: ({ payload, topicId }) => ({
-        url: `topic/${topicId}`,
-        method: "POST",
-        body: payload
-      })
+      query: ({ payload, topicId }) => {
+        console.log("postTopicNotif: topicId", topicId);
+        console.log("postTopicNotif: payload", payload);
+
+        return {
+          url: `topic/${topicId}`,
+          method: "POST",
+          body: payload
+        };
+      }
     })
     // getTopics: build.query<ITopic[], undefined>({
     //   query: () => ({ url: `topics` })

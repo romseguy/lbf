@@ -25,11 +25,7 @@ export interface IEvent<T = string> {
   eventVisibility?: string;
   eventOrgs: IOrg[];
   eventSubscriptions: ISubscription[];
-  eventNotified?: {
-    email?: string;
-    phone?: string;
-    status: string;
-  }[]; // list of emails the invitation has been sent to
+  eventNotified?: IEventNotified; // list of emails the invitation has been sent to
   eventTopics: ITopic[];
   repeat?: number;
   otherDays?: {
@@ -54,6 +50,12 @@ export interface IEvent<T = string> {
   createdBy: IUser | string;
   createdAt?: string;
 }
+
+export type IEventNotified = {
+  email?: string;
+  phone?: string;
+  status?: string;
+}[];
 
 export const Category: { [key: number]: { label: string; bgColor: string } } = [
   { label: "À définir", bgColor: "gray" },

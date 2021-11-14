@@ -63,53 +63,32 @@ handler.get<
 
     const isCreator =
       session?.user.isAdmin || equals(event.createdBy, session?.user.userId);
-
-    // creator needs subscriptions to send invites
-    if (isCreator) {
-      populate = {
-        path: "eventOrgs",
-        populate: [{ path: "orgSubscriptions" }]
-      };
-      event = event.populate(populate);
-    }
-
-    // if (event.eventVisibility === Visibility.SUBSCRIBERS && !isCreator) {
-    //   if (session) {
-    //     const sub = await models.Subscription.findOne({
-    //       user: session.user.userId
-    //     });
-
-    //     let isSubscribed = false;
-
-    //     if (sub) {
-    //       for (const eventOrg of event.eventOrgs) {
-    //         for (const org of sub.orgs) {
-    //           if (equals(org.orgId, eventOrg)) {
-    //             isSubscribed = true;
-    //           }
-    //         }
-    //       }
-    //     }
-
-    //     if (!isSubscribed) {
-    //       return res
-    //         .status(403)
-    //         .json(
-    //           createServerError(
-    //             new Error(
-    //               `Cet événement est réservé aux adhérents des organisateurs`
-    //             )
-    //           )
-    //         );
-    //     }
-    //   }
-    // }
-
-    // hand emails to event creator only
-    let select =
+    const select =
       session && isCreator
         ? "-password -securityCode"
         : "-email -password -securityCode";
+
+    if (isCreator) {
+      event = event.populate({
+        path: "eventOrgs",
+        populate: [
+          {
+            path: "orgLists",
+            populate: {
+              path: "subscriptions",
+              populate: { path: "user", select }
+            }
+          },
+          {
+            path: "orgSubscriptions",
+            populate: {
+              path: "user",
+              select
+            }
+          }
+        ]
+      });
+    }
 
     event = await event
       .populate("createdBy", select + " -userImage")
@@ -138,7 +117,7 @@ handler.get<
 handler.post<
   NextApiRequest & {
     query: { eventUrl: string };
-    body: { orgListsNames: string[]; email?: string };
+    body: { orgListsNames?: string[]; email?: string };
   },
   NextApiResponse
 >(async function postEventNotif(req, res) {
@@ -159,7 +138,7 @@ handler.post<
         body
       }: {
         query: { eventUrl: string };
-        body: { orgListsNames: string[]; email?: string };
+        body: { orgListsNames?: string[]; email?: string };
       } = req;
 
       let event = await models.Event.findOne({ eventUrl });
@@ -244,7 +223,7 @@ handler.post<
 
           let subscriptions;
 
-          if (listName === "Liste des abonnés") {
+          if (listName === "Abonnés") {
             org = await org
               .populate({
                 path: "orgSubscriptions",
@@ -255,7 +234,7 @@ handler.post<
               .execPopulate();
 
             subscriptions = getSubscriptions(org, SubscriptionTypes.FOLLOWER);
-          } else if (listName === "Liste des adhérents") {
+          } else if (listName === "Adhérents") {
             org = await org
               .populate({
                 path: "orgSubscriptions",

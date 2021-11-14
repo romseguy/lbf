@@ -4,11 +4,13 @@ import ReactSelect, { ActionMeta, MultiValue, Props } from "react-select";
 export const MultiSelect = ({
   value,
   options,
+  allOptionLabel = "Tous",
   onChange,
   ...props
 }: Props & {
   value: any;
   options: MultiValue<any>;
+  allOptionLabel?: string;
   onChange: (newValue: MultiValue<any>, meta: ActionMeta<any>) => void;
 }) => {
   // isOptionSelected sees previous value after onChange
@@ -17,7 +19,7 @@ export const MultiSelect = ({
 
   const selectAllOption = {
     value: "<SELECT_ALL>",
-    label: "Tous les adhérents & abonnés"
+    label: allOptionLabel
   };
 
   const isSelectAllSelected = () => valueRef.current.length === options.length;
@@ -30,8 +32,6 @@ export const MultiSelect = ({
   const getOptions = () => [selectAllOption, ...options];
 
   const getValue = () => (isSelectAllSelected() ? [selectAllOption] : value);
-
-  console.log(props);
 
   return (
     <ReactSelect

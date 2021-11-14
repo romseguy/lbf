@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
-import { addOrUpdateTopic } from "api";
 import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
 import type { IOrg } from "models/Org";
@@ -57,7 +56,10 @@ handler.get<
       if (populate.includes("orgLists"))
         org = org.populate({
           path: "orgLists",
-          populate: [{ path: "subscriptions" }]
+          populate: {
+            path: "subscriptions",
+            populate: { path: "user", select }
+          }
         });
 
       if (populate.includes("orgProjects"))
@@ -84,9 +86,7 @@ handler.get<
           select: isCreator ? undefined : "-email",
           populate: {
             path: "user",
-            select: isCreator
-              ? "-password -securityCode"
-              : "-email -password -securityCode"
+            select
           }
         });
     }

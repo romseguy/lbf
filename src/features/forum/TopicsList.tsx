@@ -14,6 +14,7 @@ import { IOrg } from "models/Org";
 import { ITopic, Visibility } from "models/Topic";
 import { useDeleteTopicMutation, usePostTopicNotifMutation } from "./topicsApi";
 import { TopicsListItem } from "./TopicsListItem";
+import { hasItems } from "utils/array";
 
 export const TopicsList = ({
   event,
@@ -124,14 +125,17 @@ export const TopicsList = ({
         />
       )}
 
-      <NotifyModal
-        event={event}
-        org={org}
-        query={query}
-        mutation={postTopicNotifMutation}
-        setModalState={setNotifyModalState}
-        modalState={notifyModalState}
-      />
+      {session && (
+        <NotifyModal
+          event={event}
+          org={org}
+          query={query}
+          mutation={postTopicNotifMutation}
+          setModalState={setNotifyModalState}
+          modalState={notifyModalState}
+          session={session}
+        />
+      )}
 
       <Grid data-cy="topicList">
         {query.isLoading ? (
@@ -143,7 +147,7 @@ export const TopicsList = ({
 
               let allow = false;
 
-              if (topic.topicVisibility === Visibility.PUBLIC) {
+              if (!hasItems(topic.topicVisibility)) {
                 allow = true;
               } else {
                 if (props.isCreator) {
@@ -152,14 +156,14 @@ export const TopicsList = ({
 
                 if (
                   props.isSubscribed &&
-                  topic.topicVisibility === Visibility.SUBSCRIBERS
+                  topic.topicVisibility?.includes("Adhérents")
                 ) {
                   allow = true;
                 }
 
                 if (
                   props.isFollowed &&
-                  topic.topicVisibility === Visibility.FOLLOWERS
+                  topic.topicVisibility?.includes("Abonnés")
                 ) {
                   allow = true;
                 }

@@ -9,24 +9,18 @@ import {
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React from "react";
-import { EntityButton, OrgNotifForm } from "features/common";
-import { IEvent } from "models/Event";
+import { EntityButton, EntityNotified, OrgNotifForm } from "features/common";
+import { useEditEventMutation } from "features/events/eventsApi";
+import { useEditTopicMutation } from "features/forum/topicsApi";
+import { IEvent, IEventNotified } from "models/Event";
 import { IOrg } from "models/Org";
-import { ITopic } from "models/Topic";
+import { ITopic, ITopicNotified } from "models/Topic";
 import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
+import { isEvent, isTopic } from "utils/models";
 
 export type ModalState<T> = {
   entity: T | null;
-};
-
-const isEvent = (
-  entity: IEvent<string | Date> | ITopic
-): entity is IEvent<string | Date> => {
-  return (entity as IEvent<string | Date>).eventUrl !== undefined;
-};
-const isTopic = (entity: IEvent<string | Date> | ITopic): entity is ITopic => {
-  return (entity as ITopic).topicName !== undefined;
 };
 
 interface NotifyModalProps<T> {
@@ -52,6 +46,8 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
   const toast = useToast({ position: "top" });
   const [postNotif, postNotifMutation] = mutation;
   const { entity } = modalState;
+  const [editEvent, _] = useEditEventMutation();
+  const [editTopic, __] = useEditTopicMutation();
 
   //#endregion
 
@@ -72,12 +68,8 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
   let entityIdKey = "eventUrl";
   let entityName: string = "";
   let entityTypeLabel = "l'événement";
-  let topicNotified: { email: string }[];
-  let eventNotified: {
-    email?: string | undefined;
-    phone?: string | undefined;
-    status: string;
-  }[];
+  let topicNotified: ITopicNotified | undefined;
+  let eventNotified: IEventNotified | undefined;
   let notifiedCount = 0;
 
   if (isTopic(entity)) {
@@ -114,7 +106,7 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
 
   const onSubmit = async (
     form: { email?: string; orgListsNames?: string[] },
-    type: "single" | "multi"
+    type?: "single" | "multi"
   ) => {
     console.log("submitted", form);
 
@@ -128,13 +120,11 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
       event
     };
 
-    if (isEvent(entity)) {
-      if (type === "multi")
-        payload.orgListsNames = hasItems(form.orgListsNames)
-          ? form.orgListsNames
-          : undefined;
-      else payload.email = form.email;
-    }
+    if (type === "multi")
+      payload.orgListsNames = hasItems(form.orgListsNames)
+        ? form.orgListsNames
+        : undefined;
+    else payload.email = form.email;
 
     try {
       const { emailList } = await postNotif({
@@ -189,13 +179,30 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody pt={0}>
-            {isEvent(entity) && org && (
+            {org && (
               <OrgNotifForm
                 entity={entity}
                 org={org}
                 query={query}
-                onCancel={() => setModalState({ ...modalState, entity: null })}
                 onSubmit={onSubmit}
+              />
+            )}
+
+            {isEvent(entity) && (
+              <EntityNotified
+                event={entity}
+                query={query}
+                mutation={editEvent}
+                session={session}
+              />
+            )}
+
+            {isTopic(entity) && (
+              <EntityNotified
+                topic={entity}
+                query={query}
+                mutation={editTopic}
+                session={session}
               />
             )}
           </ModalBody>

@@ -2,27 +2,20 @@ import {
   AddIcon,
   ArrowBackIcon,
   AtSignIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
   EditIcon,
   EmailIcon,
-  PhoneIcon,
   SettingsIcon
 } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
   Box,
+  Button,
   Flex,
   Heading,
   Grid,
   Icon,
   IconButton,
-  Table,
-  Tbody,
-  Tr,
-  Td,
-  Tag,
   Text,
   TabPanel,
   TabPanels,
@@ -31,41 +24,43 @@ import {
   useColorMode,
   useToast
 } from "@chakra-ui/react";
-import { IEvent, StatusTypes, StatusTypesV, Visibility } from "models/Event";
-import React, { useEffect, useState } from "react";
-import { Session } from "next-auth";
-import { useRouter } from "next/router";
-import { useSession } from "hooks/useAuth";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
+import { Session } from "next-auth";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { css } from "twin.macro";
-import { IoIosPeople } from "react-icons/io";
-import { Button, GridHeader, GridItem, Link } from "features/common";
+
+import { useSession } from "hooks/useAuth";
+import {
+  EntityButton,
+  EntityNotified,
+  EventSendForm,
+  GridHeader,
+  GridItem,
+  Link
+} from "features/common";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { EventConfigPanel } from "./EventConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
-import { useSelector } from "react-redux";
-import { EntityButton, EventSendForm } from "features/common";
-import {
-  useAddSubscriptionMutation,
-  useGetSubscriptionQuery
-} from "features/subscriptions/subscriptionsApi";
+import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectUserEmail } from "features/users/userSlice";
 import {
   getFollowerSubscription,
   selectSubscriptionRefetch
 } from "features/subscriptions/subscriptionSlice";
+import { IEvent, Visibility } from "models/Event";
 import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
-import { EventAttendingForm } from "./EventAttendingForm";
-import { useEditEventMutation, useGetEventQuery } from "./eventsApi";
-import { EventPageTabs } from "./EventPageTabs";
 import { hasItems } from "utils/array";
-import { selectEventRefetch } from "./eventSlice";
-import { FaMapMarkedAlt, FaGlobeEurope } from "react-icons/fa";
-import { EventTimeline } from "./EventTimeline";
+import { EventAttendingForm } from "./EventAttendingForm";
 import { EventInfo } from "./EventInfo";
+import { EventPageTabs } from "./EventPageTabs";
+import { useEditEventMutation, useGetEventQuery } from "./eventsApi";
+import { selectEventRefetch } from "./eventSlice";
+import { EventTimeline } from "./EventTimeline";
 
 export type Visibility = {
   isVisible: {
@@ -97,7 +92,7 @@ export const EventPage = ({
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region event
-  const [editEvent, editEventMutation] = useEditEventMutation();
+  const [editEvent, _] = useEditEventMutation();
   const eventQuery = useGetEventQuery(
     { eventUrl: props.event.eventUrl, populate },
     {
@@ -533,12 +528,15 @@ export const EventPage = ({
               />
             </TabPanel>
 
-            {isCreator && (
+            {session && isCreator && (
               <TabPanel aria-hidden>
                 {!showSendForm && (
                   <Button
+                    as="div"
                     colorScheme="teal"
+                    cursor="pointer"
                     leftIcon={<EmailIcon />}
+                    mb={5}
                     onClick={() => {
                       if (!event.isApproved)
                         alert(
@@ -562,7 +560,7 @@ export const EventPage = ({
                   </Button>
                 )}
 
-                {showSendForm && session && (
+                {showSendForm && (
                   <EventSendForm
                     event={event}
                     eventQuery={eventQuery}
@@ -573,61 +571,12 @@ export const EventPage = ({
                 )}
 
                 {!showSendForm && (
-                  <Box
-                    light={{ bg: "orange.100" }}
-                    dark={{ bg: "gray.500" }}
-                    overflowX="auto"
-                    mt={5}
-                  >
-                    {!event.eventNotified ||
-                    (Array.isArray(event.eventNotified) &&
-                      !event.eventNotified.length) ? (
-                      <Text>Aucune invitation envoyée.</Text>
-                    ) : (
-                      <>
-                        {session.user.isAdmin && (
-                          <Button
-                            onClick={async () => {
-                              await editEvent({
-                                eventUrl: event.eventUrl,
-                                payload: { eventNotified: [] }
-                              }).unwrap();
-                              eventQuery.refetch();
-                            }}
-                          >
-                            RAZ
-                          </Button>
-                        )}
-                        <Table>
-                          <Tbody>
-                            {event.eventNotified?.map(
-                              ({ email: e, status }) => {
-                                return (
-                                  <Tr key={e}>
-                                    <Td>{e}</Td>
-                                    <Td>
-                                      <Tag
-                                        variant="solid"
-                                        colorScheme={
-                                          status === StatusTypes.PENDING
-                                            ? "blue"
-                                            : status === StatusTypes.OK
-                                            ? "green"
-                                            : "red"
-                                        }
-                                      >
-                                        {StatusTypesV[status]}
-                                      </Tag>
-                                    </Td>
-                                  </Tr>
-                                );
-                              }
-                            )}
-                          </Tbody>
-                        </Table>
-                      </>
-                    )}
-                  </Box>
+                  <EntityNotified
+                    event={event}
+                    query={eventQuery}
+                    mutation={editEvent}
+                    session={session}
+                  />
                 )}
               </TabPanel>
             )}

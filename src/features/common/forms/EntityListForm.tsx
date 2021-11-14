@@ -4,17 +4,19 @@ import {
   FormErrorMessage,
   Alert,
   AlertIcon,
-  Flex
+  Flex,
+  Button,
+  Input
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { getFollowerSubscription } from "features/subscriptions/subscriptionSlice";
 import { IOrg, IOrgList } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
 import { handleError } from "utils/form";
-import { Input, ErrorMessageText, Button } from ".";
-import { MultiSelect } from "./forms/MultiSelect";
+import { ErrorMessageText } from "..";
+import { MultiSelect } from "./MultiSelect";
 
 const subscriptionsToOptions = (subscriptions: ISubscription[]) =>
   subscriptions.map((subscription) => {
@@ -125,6 +127,8 @@ export const EntityListForm = ({
           render={(renderProps) => {
             return (
               <MultiSelect
+                value={renderProps.value}
+                onChange={renderProps.onChange}
                 options={subscriptionsToOptions(
                   org.orgSubscriptions.filter((subscription) =>
                     subscription.orgs.find(
@@ -132,8 +136,7 @@ export const EntityListForm = ({
                     )
                   )
                 )}
-                value={renderProps.value}
-                onChange={renderProps.onChange}
+                allOptionLabel="Tous les adhérents et abonnés"
                 closeMenuOnSelect={false}
                 placeholder="Rechercher un e-mail ou un numéro de téléphone..."
                 menuPlacement="top"

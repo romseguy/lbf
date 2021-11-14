@@ -61,11 +61,11 @@ export const OrgConfigListsPanel = ({
   //#region local state
   const lists = (org.orgLists || []).concat([
     {
-      listName: "Liste des abonnés",
+      listName: "Abonnés",
       subscriptions: getSubscriptions(org, SubscriptionTypes.FOLLOWER)
     },
     {
-      listName: "Liste des adhérents",
+      listName: "Adhérents",
       subscriptions: getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
     }
   ]);
@@ -244,9 +244,7 @@ export const OrgConfigListsPanel = ({
                       </Td>
 
                       <Td textAlign="right">
-                        {!["Liste des abonnés", "Liste des adhérents"].includes(
-                          list.listName
-                        ) && (
+                        {!["Abonnés", "Adhérents"].includes(list.listName) && (
                           <>
                             <Tooltip
                               label="Modifier la liste de diffusion"

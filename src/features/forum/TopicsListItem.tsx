@@ -1,6 +1,7 @@
 import { ViewIcon, ViewOffIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Flex,
   IconButton,
   Link,
   Spinner,
@@ -98,27 +99,37 @@ export const TopicsListItem = ({
             <GridItem py={3}>
               <Box lineHeight="1" data-cy="topicHeader">
                 <Text fontWeight="bold">{topic.topicName}</Text>
-                <Box
-                  display="inline"
+                <Flex
+                  alignItems="center"
                   fontSize="smaller"
                   color={isDark ? "white" : "gray.600"}
                 >
-                  {topicCreatedByUserName}
-                  <span aria-hidden> · </span>
+                  <Text mr={1}>{topicCreatedByUserName}</Text>
+
+                  <span aria-hidden>·</span>
+
                   <Tooltip placement="bottom" label={fullDate}>
-                    <span>{timeAgo}</span>
+                    <Text mx={1}>{timeAgo}</Text>
                   </Tooltip>
-                  <span aria-hidden> · </span>
+
+                  <span aria-hidden>·</span>
+
                   <TopicsListItemVisibility
+                    event={event}
+                    org={org}
                     topicVisibility={topic.topicVisibility}
+                    ml={1}
                   />
+
                   {Array.isArray(topic.topicNotified) &&
                     isCreator &&
                     (isCreator || isSubscribed) && (
                       <>
-                        <span aria-hidden> · </span>
+                        <span aria-hidden>·</span>
+
                         <Link
                           as="span"
+                          ml={1}
                           onClick={(e) => {
                             e.stopPropagation();
                             setNotifyModalState({
@@ -131,7 +142,7 @@ export const TopicsListItem = ({
                         </Link>
                       </>
                     )}
-                </Box>
+                </Flex>
               </Box>
             </GridItem>
 
