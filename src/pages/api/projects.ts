@@ -14,6 +14,9 @@ import { sendToAdmin } from "utils/email";
 import { IProject, Visibility } from "models/Project";
 import { IOrg } from "models/Org";
 import api from "utils/api";
+import { log } from "utils/string";
+import axios from "axios";
+import { hasItems } from "utils/array";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -79,7 +82,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postProject(
     try {
       const { body }: { body: IProject } = req;
       let project: (IProject & Document<any, any, any>) | null;
-      let projectOrgs = body.projectOrgs;
+      const projectOrgs = body.projectOrgs;
 
       project = await models.Project.create({
         ...body
@@ -94,21 +97,33 @@ handler.post<NextApiRequest, NextApiResponse>(async function postProject(
             }
           }
         );
+
         const admin = await models.User.findOne({ isAdmin: true });
+
         if (
           admin &&
-          admin.userSubscription &&
-          project.projectVisibility === Visibility.PUBLIC
+          (!project.projectVisibility || !hasItems(project.projectVisibility))
         ) {
-          await api.post("notification", {
-            subscription: admin.userSubscription,
-            notification: {
-              title: "Un projet attend votre approbation",
-              message: "Appuyez pour ouvrir la page de l'organisation",
-              url: `${process.env.NEXT_PUBLIC_URL}/${projectOrgs[0].orgUrl}`
-            }
-          });
           sendToAdmin({ project: body, transport });
+
+          if (admin.userSubscription)
+            await axios.post(
+              process.env.NEXT_PUBLIC_API + "/notification",
+              {
+                subscription: admin.userSubscription,
+                notification: {
+                  title: "Un projet attend votre approbation",
+                  message: "Appuyez pour ouvrir la page de l'organisation",
+                  url: `${process.env.NEXT_PUBLIC_URL}/${projectOrgs[0].orgUrl}`
+                }
+              },
+              {
+                headers: {
+                  Accept: "application/json, text/plain, */*",
+                  "User-Agent": "*"
+                }
+              }
+            );
         }
       } else {
         await models.User.updateOne(

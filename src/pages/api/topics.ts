@@ -10,7 +10,10 @@ import { getSubscriptions, IOrg } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
-import { sendMessageToTopicFollowers, sendTopicToFollowers } from "utils/email";
+import {
+  sendTopicMessageEmailNotifications,
+  sendTopicEmailNotifications
+} from "utils/email";
 import { createServerError } from "utils/errors";
 import { equals, log, toString } from "utils/string";
 
@@ -111,7 +114,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
           user: { $ne: newMessage.createdBy }
         }).populate("user");
 
-        sendMessageToTopicFollowers({
+        sendTopicMessageEmailNotifications({
           event,
           org,
           subscriptions,
@@ -139,7 +142,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
               "events.event": Types.ObjectId(event._id)
             }).populate("user");
 
-            const emailList = await sendTopicToFollowers({
+            const emailList = await sendTopicEmailNotifications({
               event,
               subscriptions,
               topic: doc,
@@ -196,7 +199,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
                 );
 
             if (hasItems(subscriptions)) {
-              const emailList = await sendTopicToFollowers({
+              const emailList = await sendTopicEmailNotifications({
                 org,
                 subscriptions,
                 topic: doc,

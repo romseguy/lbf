@@ -9,7 +9,7 @@ export interface IProject {
   projectDescriptionHtml: string;
   projectOrgs?: IOrg[];
   projectStatus: string;
-  projectVisibility?: string;
+  projectVisibility?: string[];
   projectNotified: {
     email: string;
     status: string;
@@ -90,10 +90,7 @@ export const ProjectSchema = new Schema<IProject>(
       type: String,
       enum: Object.keys(Status).map((key) => Status[key])
     },
-    projectVisibility: {
-      type: String,
-      enum: Object.keys(Visibility).map((key) => Visibility[key])
-    },
+    projectVisibility: [String],
     projectNotified: [
       {
         email: String,

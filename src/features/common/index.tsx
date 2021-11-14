@@ -5,6 +5,7 @@ export * from "./forms/EmailControl";
 export * from "./forms/EntityListForm";
 export * from "./forms/EventSendForm";
 export * from "./forms/Input";
+export * from "./forms/MultiSelect";
 export * from "./forms/OrgNotifForm";
 export * from "./forms/RTEditor";
 export * from "./forms/Select";

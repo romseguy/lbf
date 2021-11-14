@@ -1091,7 +1091,7 @@ export const EventForm = withGoogleApi({
             defaultValue={defaultEventOrgs}
             placeholder="Rechercher une organisation..."
             menuPlacement="top"
-            noOptionsMessage={() => "Aucune organisation trouvée"}
+            noOptionsMessage={() => "Aucun résultat"}
             isClearable
             isMulti
             isSearchable

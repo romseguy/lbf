@@ -68,7 +68,7 @@ export const SubscriptionForm = ({
         .filter((phone: string) => phoneR.test(phone));
 
       if (!emailArray.length && !phoneArray.length) {
-        throw new Error("Aucune coordonnée valide");
+        throw new Error("Aucunes coordonnées valide");
       }
 
       for (const email of emailArray) {

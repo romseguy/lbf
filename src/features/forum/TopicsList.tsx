@@ -1,5 +1,12 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { GridProps, Spinner, useColorMode, useToast } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  GridProps,
+  Spinner,
+  useColorMode,
+  useToast
+} from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useSession } from "hooks/useAuth";
 import { Button, Grid } from "features/common";
@@ -10,11 +17,12 @@ import {
   useDeleteSubscriptionMutation
 } from "features/subscriptions/subscriptionsApi";
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { IOrg, IOrgList } from "models/Org";
 import { ITopic, Visibility } from "models/Topic";
 import { useDeleteTopicMutation, usePostTopicNotifMutation } from "./topicsApi";
 import { TopicsListItem } from "./TopicsListItem";
 import { hasItems } from "utils/array";
+import { TopicsListOrgLists } from "./TopicsListOrgLists";
 
 export const TopicsList = ({
   event,
@@ -54,6 +62,7 @@ export const TopicsList = ({
 
   //#region local state
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
+  const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
   const [topicModalState, setTopicModalState] = useState<{
     isOpen: boolean;
     entity: ITopic | null;
@@ -69,6 +78,7 @@ export const TopicsList = ({
   let topics: ITopic[] = org ? org.orgTopics : event ? event.eventTopics : [];
   //#endregion
 
+  let counter = false;
   return (
     <>
       <Button
@@ -137,40 +147,69 @@ export const TopicsList = ({
         />
       )}
 
+      {session &&
+        org &&
+        org.orgName !== "aucourant" &&
+        (props.isSubscribed || props.isCreator) && (
+          <TopicsListOrgLists
+            org={org}
+            selectedLists={selectedLists}
+            setSelectedLists={setSelectedLists}
+            mb={5}
+          />
+        )}
+
       <Grid data-cy="topicList">
         {query.isLoading ? (
           <Spinner />
+        ) : !topics.length ? (
+          <Alert status="info">
+            <AlertIcon /> Aucune discussion.
+          </Alert>
         ) : (
           topics
             .filter((topic) => {
               if (entityName === "aucourant") return true;
 
-              let allow = false;
-
-              if (!hasItems(topic.topicVisibility)) {
-                allow = true;
-              } else {
-                if (props.isCreator) {
-                  allow = true;
-                }
-
+              if (Array.isArray(selectedLists) && selectedLists.length > 0) {
                 if (
-                  props.isSubscribed &&
-                  topic.topicVisibility?.includes("Adhérents")
+                  Array.isArray(topic.topicVisibility) &&
+                  topic.topicVisibility.length > 0
                 ) {
-                  allow = true;
-                }
+                  let found = false;
 
-                if (
-                  props.isFollowed &&
-                  topic.topicVisibility?.includes("Abonnés")
-                ) {
-                  allow = true;
-                }
-              }
+                  for (let i = 0; i < topic.topicVisibility.length; i++)
+                    for (let j = 0; j < selectedLists.length; j++)
+                      if (
+                        selectedLists[j].listName === topic.topicVisibility[i]
+                      )
+                        found = true;
 
-              //console.log(topic.topicVisibility, allow);
-              return allow;
+                  console.log(found);
+
+                  return found;
+                } else return false;
+              } else if (
+                !topic.topicVisibility ||
+                !topic.topicVisibility.length
+              )
+                return true;
+
+              if (props.isCreator) return true;
+
+              if (
+                props.isSubscribed &&
+                topic.topicVisibility?.includes("Adhérents")
+              )
+                return true;
+
+              if (
+                props.isFollowed &&
+                topic.topicVisibility?.includes("Abonnés")
+              )
+                return true;
+
+              return false;
             })
             .map((topic, topicIndex) => {
               const isCurrent = topic._id === currentTopic?._id;

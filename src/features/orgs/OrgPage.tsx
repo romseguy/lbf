@@ -1,9 +1,7 @@
 import {
   AddIcon,
   ArrowBackIcon,
-  AtSignIcon,
   EditIcon,
-  PhoneIcon,
   SettingsIcon
 } from "@chakra-ui/icons";
 import {
@@ -19,7 +17,6 @@ import {
   Alert,
   AlertIcon,
   IconButton,
-  Icon,
   useColorMode
 } from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
@@ -28,7 +25,6 @@ import DOMPurify from "isomorphic-dompurify";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaGlobeEurope, FaMapMarkedAlt } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 
@@ -57,7 +53,7 @@ import {
 import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { Visibility as EventVisibility } from "models/Event";
-import { IOrg, orgTypeFull, orgTypeFull4, OrgTypes } from "models/Org";
+import { IOrg, orgTypeFull, OrgTypes } from "models/Org";
 import { hasItems } from "utils/array";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
@@ -65,6 +61,7 @@ import { selectOrgRefetch } from "./orgSlice";
 import { useEditOrgMutation, useGetOrgQuery, useGetOrgsQuery } from "./orgsApi";
 import { SizeMap } from "features/map/Map";
 import { MapContainer } from "features/map/MapContainer";
+import { OrgInfo } from "./OrgInfo";
 
 export type Visibility = {
   isVisible: {
@@ -339,115 +336,28 @@ export const OrgPage = ({
                     >
                       <Box p={5}>
                         {!hasItems(org.orgAddress) &&
-                          !hasItems(org.orgEmail) &&
-                          !hasItems(org.orgPhone) &&
-                          !hasItems(org.orgWeb) && (
-                            <>
-                              {session ? (
-                                <Button
-                                  colorScheme="teal"
-                                  leftIcon={<AddIcon />}
-                                  onClick={() => {
-                                    setIsEdit(true);
-                                  }}
-                                >
-                                  Ajouter
-                                </Button>
-                              ) : (
-                                <Text fontStyle="italic">
-                                  Aucunes coordonnées.
-                                </Text>
-                              )}
-                            </>
-                          )}
-
-                        {org.orgAddress && (
-                          <Flex flexDirection="column">
-                            {org.orgAddress.map(({ address }, index) => (
-                              <Flex
-                                key={`address-${index}`}
-                                alignItems="center"
+                        !hasItems(org.orgEmail) &&
+                        !hasItems(org.orgPhone) &&
+                        !hasItems(org.orgWeb) ? (
+                          <>
+                            {session ? (
+                              <Button
+                                colorScheme="teal"
+                                leftIcon={<AddIcon />}
+                                onClick={() => {
+                                  setIsEdit(true);
+                                }}
                               >
-                                <Icon as={FaMapMarkedAlt} mr={3} />
-                                {address}
-                              </Flex>
-                            ))}
-                          </Flex>
-                        )}
-
-                        {org.orgEmail && (
-                          <Flex flexDirection="column">
-                            {org.orgEmail?.map(({ email }, index) => (
-                              <Flex key={`email-${index}`} alignItems="center">
-                                <AtSignIcon mr={3} />
-                                <Link
-                                  variant="underline"
-                                  href={`mailto:${email}`}
-                                  css={css`
-                                    @media (min-width: 685px) and (max-width: 900px) {
-                                      text-overflow: ellipsis;
-                                      display: inline-block;
-                                      white-space: nowrap;
-                                      overflow: hidden;
-                                      vertical-align: top;
-                                      max-width: 100px;
-                                    }
-                                  `}
-                                >
-                                  {email}
-                                </Link>
-                              </Flex>
-                            ))}
-                          </Flex>
-                        )}
-
-                        {org.orgPhone && (
-                          <Flex flexDirection="column">
-                            {org.orgPhone?.map(({ phone }, index) => (
-                              <Flex key={`phone-${index}`} alignItems="center">
-                                <PhoneIcon mr={3} />
-                                <Link
-                                  variant="underline"
-                                  href={`tel:+33${phone.substr(
-                                    1,
-                                    phone.length
-                                  )}`}
-                                >
-                                  {phone}
-                                </Link>
-                              </Flex>
-                            ))}
-                          </Flex>
-                        )}
-
-                        {org.orgWeb && (
-                          <Flex flexDirection="column">
-                            {org.orgWeb?.map(({ url, prefix }, index) => (
-                              <Flex key={`web-${index}`} alignItems="center">
-                                <Icon as={FaGlobeEurope} mr={3} />
-                                <Link
-                                  variant="underline"
-                                  href={
-                                    !url.includes("http") ? prefix + url : url
-                                  }
-                                  css={css`
-                                    @media (min-width: 685px) and (max-width: 900px) {
-                                      text-overflow: ellipsis;
-                                      display: inline-block;
-                                      white-space: nowrap;
-                                      overflow: hidden;
-                                      vertical-align: top;
-                                      max-width: 100px;
-                                    }
-                                  `}
-                                >
-                                  {url
-                                    .replace(/\/$/, "")
-                                    .replace(/(https|http):\/\//, "")}
-                                </Link>
-                              </Flex>
-                            ))}
-                          </Flex>
+                                Ajouter
+                              </Button>
+                            ) : (
+                              <Text fontStyle="italic">
+                                Aucunes coordonnées.
+                              </Text>
+                            )}
+                          </>
+                        ) : (
+                          <OrgInfo org={org} />
                         )}
                       </Box>
                     </GridItem>

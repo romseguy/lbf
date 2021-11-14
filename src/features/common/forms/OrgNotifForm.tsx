@@ -27,14 +27,8 @@ import { orgTypeFull, getSubscriptions, IOrg } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
-import {
-  Spacer,
-  EmailControl,
-  EntityButton,
-  Button,
-  ErrorMessageText
-} from "..";
-import { isEvent } from "utils/models";
+import { EmailControl, EntityButton, Button, ErrorMessageText } from "..";
+import { isTopic } from "utils/models";
 import { equalsValue } from "utils/string";
 
 export const OrgNotifForm = ({
@@ -74,6 +68,7 @@ export const OrgNotifForm = ({
   const orgListsNames = watch("orgListsNames");
   const [isLoading, setIsLoading] = useState(false);
   const [type, setType] = useState<"multi" | "single" | undefined>();
+  const isT = isTopic(entity);
 
   return (
     <Box
@@ -100,7 +95,8 @@ export const OrgNotifForm = ({
                 setType("multi");
               }}
             >
-              Envoyer l'invitation à une ou plusieurs listes de diffusion
+              Envoyer {isT ? "la notification" : "l'invitation"} à une ou
+              plusieurs listes de diffusion
             </Radio>
             <Radio
               isChecked={type === "single"}
@@ -108,7 +104,8 @@ export const OrgNotifForm = ({
                 setType("single");
               }}
             >
-              Envoyer l'invitation à une seule adresse e-mail
+              Envoyer {isT ? "la notification" : "l'invitation"} à une seule
+              adresse e-mail
             </Radio>
           </Stack>
         </RadioGroup>
@@ -172,9 +169,9 @@ export const OrgNotifForm = ({
                       .map((list) => {
                         let i = 0;
                         for (const subscription of list.subscriptions) {
-                          const notified = isEvent(entity)
-                            ? entity.eventNotified
-                            : entity.topicNotified;
+                          const notified = isT
+                            ? entity.topicNotified
+                            : entity.eventNotified;
 
                           if (
                             notified?.find(({ email, phone }) =>
@@ -208,7 +205,8 @@ export const OrgNotifForm = ({
                               </Checkbox>
                             </Td>
                             <Td>
-                              {i} membre{s} n'{s ? "ont" : "a"} pas été invité
+                              {i} membre{s} n'{s ? "ont" : "a"} pas été{" "}
+                              {isT ? "notifié" : "invité"}
                             </Td>
                           </Tr>
                         );
@@ -248,7 +246,14 @@ export const OrgNotifForm = ({
                 (type === "multi" && !hasItems(orgListsNames))
               }
             >
-              Envoyer {type === "single" ? "l'invitation" : "les invitations"}
+              Envoyer{" "}
+              {isT
+                ? type === "single"
+                  ? "la notification"
+                  : "les notifications"
+                : type === "single"
+                ? "l'invitation"
+                : "les invitations"}
             </Button>
           )}
         </Flex>

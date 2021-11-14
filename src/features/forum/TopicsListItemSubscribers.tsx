@@ -43,6 +43,6 @@ export const TopicsListItemSubscribers = ({
       </Flex>
     </Flex>
   ) : (
-    <Text fontSize="smaller">Aucun abonnés à la discussion.</Text>
+    <Text fontSize="smaller">Aucun abonné à la discussion.</Text>
   );
 };

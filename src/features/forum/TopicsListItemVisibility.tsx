@@ -1,8 +1,8 @@
 import { EmailIcon, HamburgerIcon, IconProps } from "@chakra-ui/icons";
 import {
   ComponentWithAs,
-  Box,
-  BoxProps,
+  Flex,
+  FlexProps,
   Icon,
   Tooltip
 } from "@chakra-ui/react";
@@ -19,7 +19,7 @@ export const TopicsListItemVisibility = ({
   org,
   topicVisibility,
   ...props
-}: BoxProps & {
+}: FlexProps & {
   event?: IEvent;
   org?: IOrg;
   topicVisibility?: string[];
@@ -44,7 +44,7 @@ export const TopicsListItemVisibility = ({
   ) {
     icons = [
       {
-        label: `Discussion réservée aux membres de listes de diffusions ${suffix}`,
+        label: `Discussion réservée aux membres d'une liste de diffusion ${suffix}`,
         icon: HamburgerIcon
       }
     ];
@@ -55,7 +55,9 @@ export const TopicsListItemVisibility = ({
       label: `Discussion réservée aux adhérents ${suffix}`,
       icon: IoMdPerson
     });
-  } else if (topicVisibility?.includes("Abonnés")) {
+  }
+
+  if (topicVisibility?.includes("Abonnés")) {
     icons.push({
       label: `Discussion réservée aux abonnés ${suffix}`,
       icon: EmailIcon
@@ -71,7 +73,7 @@ export const TopicsListItemVisibility = ({
     ];
 
   return (
-    <Box {...props}>
+    <Flex alignItems="center" {...props}>
       {icons.map(({ label, icon }, index) => (
         <Tooltip key={index} label={label}>
           <span>
@@ -79,6 +81,6 @@ export const TopicsListItemVisibility = ({
           </span>
         </Tooltip>
       ))}
-    </Box>
+    </Flex>
   );
 };

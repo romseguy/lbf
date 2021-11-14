@@ -135,7 +135,7 @@ export const EventForwardForm = ({
             defaultValue={null}
             placeholder="Rechercher une organisation..."
             menuPlacement="bottom"
-            noOptionsMessage={() => "Aucune organisation trouvée"}
+            noOptionsMessage={() => "Aucun résultat"}
             isClearable
             isMulti
             isSearchable

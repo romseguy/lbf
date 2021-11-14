@@ -238,7 +238,6 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
       {!props.topic && props.isCreator && lists && (
         <FormControl
           id="topicVisibility"
-          isRequired
           isInvalid={!!errors["topicVisibility"]}
           mb={3}
         >
@@ -287,6 +286,14 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
             <ErrorMessage errors={errors} name="topicVisibility" />
           </FormErrorMessage>
         </FormControl>
+      )}
+
+      {hasItems(topicVisibility) && (
+        <Alert status="info" mb={3}>
+          <AlertIcon />
+          La discussion ne sera visible que par les membres des listes de
+          diffusion sélectionnées.
+        </Alert>
       )}
 
       {!props.topic &&

@@ -7,6 +7,8 @@ import {
   ViewOffIcon
 } from "@chakra-ui/icons";
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Flex,
@@ -157,6 +159,10 @@ export const ProjectsList = ({
       <Grid data-cy="projectList" {...props}>
         {query.isLoading || query.isFetching ? (
           <Text>Chargement des projets...</Text>
+        ) : !projects.length ? (
+          <Alert status="info">
+            <AlertIcon /> Aucun projet.
+          </Alert>
         ) : (
           projects
             .sort((a, b) => {
@@ -213,26 +219,7 @@ export const ProjectsList = ({
 
               return (
                 <Box key={project._id} mb={5}>
-                  <GridItem
-                    minWidth="100%"
-                    p={3}
-                    borderTopRadius="xl"
-                    // borderBottomRadius="xl"
-                    // borderTopRadius={projectIndex === 0 ? "lg" : undefined}
-                    borderBottomRadius={!isCurrent ? "xl" : undefined}
-                    light={{
-                      bg: bgColor,
-                      _hover: {
-                        bg: "orange.300"
-                      }
-                    }}
-                    dark={{
-                      bg: bgColor,
-                      _hover: {
-                        bg: "gray.400"
-                      }
-                    }}
-                  >
+                  <GridItem>
                     <Link
                       variant="no-underline"
                       onClick={() =>
@@ -240,12 +227,28 @@ export const ProjectsList = ({
                       }
                       data-cy="project"
                     >
-                      <Grid templateColumns="auto auto 1fr auto">
-                        <GridItem display="flex" alignItems="center" pr={3}>
+                      <Grid
+                        templateColumns="auto auto 1fr auto"
+                        borderTopRadius="xl"
+                        borderBottomRadius={!isCurrent ? "xl" : undefined}
+                        light={{
+                          bg: bgColor,
+                          _hover: {
+                            bg: "orange.300"
+                          }
+                        }}
+                        dark={{
+                          bg: bgColor,
+                          _hover: {
+                            bg: "gray.400"
+                          }
+                        }}
+                      >
+                        <GridItem display="flex" alignItems="center" p={3}>
                           {currentProject && isCurrent ? (
-                            <ViewIcon boxSize={6} />
-                          ) : (
                             <ViewOffIcon boxSize={6} />
+                          ) : (
+                            <ViewIcon boxSize={6} />
                           )}
                         </GridItem>
 
@@ -264,27 +267,39 @@ export const ProjectsList = ({
                           </Tag>
                         </GridItem>
 
-                        <GridItem>
-                          <Text fontWeight="bold">{projectName}</Text>
-                          <Box
-                            display="inline"
-                            fontSize="smaller"
-                            color={isDark ? "white" : "gray.600"}
-                          >
-                            {projectCreatedByUserName}
-                            <span aria-hidden> · </span>
-                            <Tooltip placement="bottom" label={fullDate}>
-                              <span>{timeAgo}</span>
-                            </Tooltip>
-                            {org && (
-                              <>
-                                <span aria-hidden> · </span>
-                                <ProjectItemVisibility
-                                  projectVisibility={project.projectVisibility}
-                                />
-                              </>
-                            )}
-                          </Box>
+                        <GridItem lineHeight={1} py={3}>
+                          <Flex flexDirection="column">
+                            <Text fontWeight="bold">{projectName}</Text>
+                            <Flex
+                              alignItems="center"
+                              flexWrap="wrap"
+                              fontSize="smaller"
+                              color={isDark ? "white" : "gray.600"}
+                              mt={1}
+                            >
+                              <Text mr={1}>{projectCreatedByUserName}</Text>
+
+                              <span aria-hidden> · </span>
+
+                              <Tooltip placement="bottom" label={fullDate}>
+                                <Text mx={1}>{timeAgo}</Text>
+                              </Tooltip>
+
+                              {org && (
+                                <>
+                                  <span aria-hidden> · </span>
+
+                                  <ProjectItemVisibility
+                                    org={org}
+                                    projectVisibility={
+                                      project.projectVisibility
+                                    }
+                                    ml={1}
+                                  />
+                                </>
+                              )}
+                            </Flex>
+                          </Flex>
                         </GridItem>
 
                         {isProjectCreator && (
@@ -317,6 +332,7 @@ export const ProjectsList = ({
                               bg="transparent"
                               height="auto"
                               minWidth={0}
+                              mr={3}
                               _hover={{ color: "red" }}
                               header={
                                 <>

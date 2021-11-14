@@ -384,7 +384,7 @@ export const sendEventEmailNotifToOrgFollowers = async (
   return emailList;
 };
 
-export const sendTopicToFollowers = async ({
+export const sendTopicEmailNotifications = async ({
   event,
   org,
   subscriptions,
@@ -439,7 +439,7 @@ export const sendTopicToFollowers = async ({
 
     if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
     else if (process.env.NODE_ENV === "development") {
-      console.log(`sent new topic email notif to ${email}`, mail);
+      console.log(`sent topic email notif to ${email}`, mail);
     }
 
     emailList.push(email);
@@ -448,7 +448,7 @@ export const sendTopicToFollowers = async ({
   return emailList;
 };
 
-export const sendMessageToTopicFollowers = async ({
+export const sendTopicMessageEmailNotifications = async ({
   event,
   org,
   subscriptions,
@@ -498,7 +498,7 @@ export const sendMessageToTopicFollowers = async ({
 
     if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
     else if (process.env.NODE_ENV === "development") {
-      console.log("sent comment email notif to subscription", mail);
+      console.log(`sent topic message email notif to ${email}`, mail);
     }
   }
 };
@@ -544,6 +544,6 @@ export const sendToAdmin = async ({
   if (process.env.NODE_ENV === "production") {
     await transport.sendMail(mail);
   } else if (process.env.NODE_ENV === "development") {
-    console.log("mail", mail);
+    console.log(`sent project email notif to ${mail.to}`, mail);
   }
 };

@@ -1,17 +1,8 @@
-import type { IOrg } from "models/Org";
-import { IProject, Status, StatusV } from "models/Project";
-import React, { useState } from "react";
-import ReactSelect from "react-select";
-import { Controller, useForm } from "react-hook-form";
-import { ErrorMessage } from "@hookform/error-message";
 import {
-  ChakraProps,
   Input,
   Button,
   FormControl,
   FormLabel,
-  Box,
-  Stack,
   FormErrorMessage,
   useToast,
   Flex,
@@ -19,19 +10,25 @@ import {
   Alert,
   AlertIcon
 } from "@chakra-ui/react";
-import { WarningIcon } from "@chakra-ui/icons";
-import { ErrorMessageText, RTEditor } from "features/common";
+import { ErrorMessage } from "@hookform/error-message";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
+import { SerializedError } from "@reduxjs/toolkit";
 import { Session } from "next-auth";
-import { Visibility, VisibilityV } from "models/Project";
-import { handleError } from "utils/form";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import ReactSelect from "react-select";
+import { ErrorMessageText, MultiSelect, RTEditor } from "features/common";
+import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import {
   useAddProjectMutation,
   useEditProjectMutation
 } from "features/projects/projectsApi";
-import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
-import { SerializedError } from "@reduxjs/toolkit";
+import { getSubscriptions, IOrg, IOrgList } from "models/Org";
+import { IProject, Status, StatusV, Visibility } from "models/Project";
 import { IUser } from "models/User";
+import { handleError } from "utils/form";
+import { SubscriptionTypes } from "models/Subscription";
+import { hasItems } from "utils/array";
 
 export const ProjectForm = ({
   org,
@@ -57,6 +54,19 @@ export const ProjectForm = ({
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
+  let lists: IOrgList[] | undefined;
+  if (org) {
+    lists = (org.orgLists || []).concat([
+      {
+        listName: "Abonnés",
+        subscriptions: getSubscriptions(org, SubscriptionTypes.FOLLOWER)
+      },
+      {
+        listName: "Adhérents",
+        subscriptions: getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
+      }
+    ]);
+  }
   const [projectDescriptionHtml, setProjectDescriptionHtml] = useState(
     props.project?.projectDescriptionHtml
   );
@@ -89,9 +99,6 @@ export const ProjectForm = ({
     (key) => Visibility[key]
   );
   const projectVisibility = watch("projectVisibility");
-  const projectOrgsRules: { required: boolean } = {
-    required: projectVisibility === Visibility.SUBSCRIBERS
-  };
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -159,17 +166,6 @@ export const ProjectForm = ({
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-      <ErrorMessage
-        errors={errors}
-        name="formErrorMessage"
-        render={({ message }) => (
-          <Alert status="error" mb={3}>
-            <AlertIcon />
-            <ErrorMessageText>{message}</ErrorMessageText>
-          </Alert>
-        )}
-      />
-
       <FormControl
         id="projectName"
         isRequired
@@ -251,7 +247,7 @@ export const ProjectForm = ({
         </FormControl>
       )}
 
-      {org && visibilityOptions.length > 0 && (
+      {/* {org && visibilityOptions.length > 0 && (
         <FormControl
           id="projectVisibility"
           isRequired
@@ -280,25 +276,85 @@ export const ProjectForm = ({
             <ErrorMessage errors={errors} name="projectVisibility" />
           </FormErrorMessage>
         </FormControl>
+      )} */}
+
+      {props.isCreator && lists && (
+        <FormControl
+          id="projectVisibility"
+          isInvalid={!!errors["projectVisibility"]}
+          mb={3}
+        >
+          <FormLabel>Listes de diffusion</FormLabel>
+          <Controller
+            name="projectVisibility"
+            control={control}
+            defaultValue={[]}
+            render={(renderProps) => {
+              return (
+                <MultiSelect
+                  value={renderProps.value}
+                  onChange={renderProps.onChange}
+                  options={
+                    lists?.map(({ listName }) => ({
+                      label: listName,
+                      value: listName
+                    })) || []
+                  }
+                  allOptionLabel="Toutes les listes"
+                  placeholder="Sélectionner une ou plusieurs listes"
+                  noOptionsMessage={() => "Aucun résultat"}
+                  isClearable
+                  isSearchable={false}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (defaultStyles: any) => {
+                      return {
+                        ...defaultStyles,
+                        borderColor: "#e2e8f0",
+                        paddingLeft: "8px"
+                      };
+                    },
+                    placeholder: () => {
+                      return {
+                        color: "#A0AEC0"
+                      };
+                    }
+                  }}
+                />
+              );
+            }}
+          />
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="projectVisibility" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
+
+      {hasItems(projectVisibility) && (
+        <Alert status="info" mb={3}>
+          <AlertIcon />
+          La discussion ne sera visible que par les membres des listes de
+          diffusion sélectionnées.
+        </Alert>
       )}
 
       {org && (
         <FormControl
+          display="none"
           mb={3}
           id="projectOrgs"
           isInvalid={!!errors["projectOrgs"]}
-          isRequired={projectOrgsRules.required}
         >
           <FormLabel>Organisateurs</FormLabel>
           <Controller
             name="projectOrgs"
-            rules={projectOrgsRules}
             as={ReactSelect}
             control={control}
             defaultValue={props.project?.projectOrgs || [org]}
             placeholder="Rechercher une organisation..."
             menuPlacement="top"
-            noOptionsMessage={() => "Aucune organisation trouvée"}
+            noOptionsMessage={() => "Aucun résultat"}
             isClearable
             isMulti
             isSearchable
@@ -329,6 +385,17 @@ export const ProjectForm = ({
           </FormErrorMessage>
         </FormControl>
       )}
+
+      <ErrorMessage
+        errors={errors}
+        name="formErrorMessage"
+        render={({ message }) => (
+          <Alert status="error" mb={3}>
+            <AlertIcon />
+            <ErrorMessageText>{message}</ErrorMessageText>
+          </Alert>
+        )}
+      />
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>

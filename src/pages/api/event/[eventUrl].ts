@@ -189,7 +189,7 @@ handler.post<
 
         if (process.env.NODE_ENV === "production")
           await transport.sendMail(mail);
-        else console.log(mail);
+        else console.log(`sent event invite to ${body.email}`, mail);
 
         if (body.email !== session.user.email) {
           const newEntries = emailList.map((email) => ({
@@ -278,7 +278,7 @@ handler.post<
 
               if (process.env.NODE_ENV === "production")
                 await transport.sendMail(mail);
-              else console.log(mail);
+              else console.log(`sent event invite to ${email}`, mail);
 
               emailList.push(email);
             }

@@ -11,11 +11,15 @@ export const projectApi = createApi({
   tagTypes: ["Projects"],
   endpoints: (build) => ({
     addProject: build.mutation<IProject, Partial<IProject>>({
-      query: (body) => ({
-        url: `projects`,
-        method: "POST",
-        body
-      }),
+      query: (body) => {
+        console.log("addProject: payload", body);
+
+        return {
+          url: `projects`,
+          method: "POST",
+          body
+        };
+      },
       invalidatesTags: [{ type: "Projects", id: "LIST" }]
     }),
     deleteProject: build.mutation<IProject, string>({
@@ -25,11 +29,16 @@ export const projectApi = createApi({
       IProject,
       { payload: Partial<IProject>; projectId?: string }
     >({
-      query: ({ payload, projectId }) => ({
-        url: `project/${projectId ? projectId : payload._id}`,
-        method: "PUT",
-        body: payload
-      })
+      query: ({ payload, projectId }) => {
+        console.log("editProject: projectId", projectId);
+        console.log("editProject: payload", payload);
+
+        return {
+          url: `project/${projectId ? projectId : payload._id}`,
+          method: "PUT",
+          body: payload
+        };
+      }
     })
     // getProjects: build.query<IProject[], undefined>({
     //   query: () => ({ url: `projects` })

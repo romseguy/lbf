@@ -9,7 +9,7 @@ import { IEvent } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { createServerError } from "utils/errors";
-import { sendTopicToFollowers } from "utils/email";
+import { sendTopicEmailNotifications } from "utils/email";
 import { equals, log } from "utils/string";
 import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
@@ -93,7 +93,7 @@ handler.post<
         "events.event": Types.ObjectId(body.event._id)
       }).populate("user");
 
-      emailList = await sendTopicToFollowers({
+      emailList = await sendTopicEmailNotifications({
         event: body.event,
         subscriptions,
         topic,
@@ -126,7 +126,7 @@ handler.post<
       }
 
       if (hasItems(subscriptions)) {
-        emailList = await sendTopicToFollowers({
+        emailList = await sendTopicEmailNotifications({
           org: body.org,
           subscriptions,
           topic,

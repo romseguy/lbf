@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import nextConnect from "next-connect";
 import { createServerError } from "utils/errors";
+import { log } from "utils/string";
 import webPush from "web-push";
 
 webPush.setVapidDetails(
@@ -18,19 +18,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         subscription,
         JSON.stringify(notification)
       );
-      console.log(typeof response.body, response.body);
+      log(`POST /notification: response`, response);
 
-      res
+      return res
         .writeHead(response.statusCode, response.headers)
-        .end(response.body === "" ? {} : response.body);
+        .end(typeof response.body === "string" ? response.body : "");
     } catch (err: any) {
-      if ("statusCode" in err) {
-        res.writeHead(err.statusCode, err.headers).end(err.body);
-      } else {
-        console.error(err);
-        res.statusCode = 500;
-        res.end();
-      }
+      if ("statusCode" in err)
+        return res.writeHead(err.statusCode, err.headers).end(err.body);
+
+      res.statusCode = 500;
+      return res.end(typeof err.body === "string" ? err.body : "");
     }
   }
 };

@@ -442,21 +442,29 @@ export const EventPage = ({
                     >
                       <Box p={5}>
                         {!hasItems(event.eventAddress) &&
-                          !hasItems(event.eventEmail) &&
-                          !hasItems(event.eventPhone) &&
-                          !hasItems(event.eventWeb) && (
-                            <Button
-                              colorScheme="teal"
-                              leftIcon={<AddIcon />}
-                              onClick={() => {
-                                setIsEdit(true);
-                              }}
-                            >
-                              Ajouter
-                            </Button>
-                          )}
-
-                        <EventInfo event={event} />
+                        !hasItems(event.eventEmail) &&
+                        !hasItems(event.eventPhone) &&
+                        !hasItems(event.eventWeb) ? (
+                          <>
+                            {session ? (
+                              <Button
+                                colorScheme="teal"
+                                leftIcon={<AddIcon />}
+                                onClick={() => {
+                                  setIsEdit(true);
+                                }}
+                              >
+                                Ajouter
+                              </Button>
+                            ) : (
+                              <Text fontStyle="italic">
+                                Aucunes coordonnées.
+                              </Text>
+                            )}
+                          </>
+                        ) : (
+                          <EventInfo event={event} />
+                        )}
                       </Box>
                     </GridItem>
                   </Grid>

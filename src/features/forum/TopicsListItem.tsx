@@ -76,8 +76,6 @@ export const TopicsListItem = ({
           <Grid
             templateColumns="auto 1fr auto"
             borderTopRadius="xl"
-            //borderBottomRadius="xl"
-            // borderTopRadius={topicIndex === 0 ? "lg" : undefined}
             borderBottomRadius={!isCurrent ? "lg" : undefined}
             light={{
               bg: topicIndex % 2 === 0 ? "orange.200" : "orange.100",
@@ -90,19 +88,22 @@ export const TopicsListItem = ({
           >
             <GridItem display="flex" alignItems="center" p={3}>
               {isCurrent ? (
-                <ViewIcon boxSize={6} />
-              ) : (
                 <ViewOffIcon boxSize={6} />
+              ) : (
+                <ViewIcon boxSize={6} />
               )}
             </GridItem>
 
-            <GridItem py={3}>
-              <Box lineHeight="1" data-cy="topicHeader">
+            <GridItem lineHeight={1} py={3} data-cy="topicHeader">
+              <Flex flexDirection="column">
                 <Text fontWeight="bold">{topic.topicName}</Text>
+
                 <Flex
                   alignItems="center"
+                  flexWrap="wrap"
                   fontSize="smaller"
-                  color={isDark ? "white" : "gray.600"}
+                  color={isDark ? "white" : "purple"}
+                  mt={1}
                 >
                   <Text mr={1}>{topicCreatedByUserName}</Text>
 
@@ -143,7 +144,7 @@ export const TopicsListItem = ({
                       </>
                     )}
                 </Flex>
-              </Box>
+              </Flex>
             </GridItem>
 
             <GridItem display="flex" alignItems="center">

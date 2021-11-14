@@ -341,7 +341,7 @@ export const OrgForm = withGoogleApi({
                 defaultValue={props.org?.orgs || []}
                 placeholder="Rechercher une organisation..."
                 menuPlacement="top"
-                noOptionsMessage={() => "Aucune organisation trouvée"}
+                noOptionsMessage={() => "Aucun résultat"}
                 isClearable
                 isMulti
                 isSearchable
