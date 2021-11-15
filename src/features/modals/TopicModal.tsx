@@ -18,6 +18,7 @@ export const TopicModal = (props: {
   event?: IEvent;
   query: any;
   mutation: any;
+  subQuery: any;
   topic: ITopic | null;
   isCreator?: boolean;
   isFollowed?: boolean;

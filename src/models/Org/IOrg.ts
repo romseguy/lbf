@@ -43,7 +43,7 @@ export interface IOrg {
 
 export interface IOrgList {
   listName: string;
-  subscriptions: ISubscription[];
+  subscriptions?: ISubscription[];
 }
 
 export type OrgType = "ASSO" | "GROUP" | "NETWORK";

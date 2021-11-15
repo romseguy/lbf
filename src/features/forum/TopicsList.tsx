@@ -2,15 +2,20 @@ import { AddIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
+  Box,
+  Flex,
   GridProps,
+  List,
+  ListItem,
   Spinner,
+  Tag,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useSession } from "hooks/useAuth";
 import { Button, Grid } from "features/common";
-import { ModalState, NotifyModal } from "features/modals/NotifyModal";
+import { ModalState, EntityNotifModal } from "features/modals/EntityNotifModal";
 import { TopicModal } from "features/modals/TopicModal";
 import {
   useAddSubscriptionMutation,
@@ -40,7 +45,7 @@ export const TopicsList = ({
   query: any;
   mutation: any;
   subQuery: any;
-  isCreator?: boolean;
+  isCreator: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
   isLogin: number;
@@ -79,30 +84,98 @@ export const TopicsList = ({
   });
   const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
   const entityName = org ? org.orgName : event?.eventName;
-  let topics: ITopic[] = org ? org.orgTopics : event ? event.eventTopics : [];
-  //#endregion
+  let topics: ITopic[] = org
+    ? org.orgTopics.filter((topic) => {
+        if (entityName === "aucourant") return true;
 
-  let counter = false;
-  return (
-    <>
-      <Button
-        colorScheme="teal"
-        leftIcon={<AddIcon />}
-        mb={5}
-        onClick={() => {
-          if (!isSessionLoading) {
-            if (session) {
-              //setCurrentTopic(null);
-              setTopicModalState({ ...topicModalState, isOpen: true });
-            } else {
-              setIsLogin(isLogin + 1);
+        if (hasItems(selectedCategories) || hasItems(selectedLists)) {
+          let belongsToCategory = false;
+          let belongsToList = false;
+
+          if (
+            Array.isArray(selectedCategories) &&
+            selectedCategories.length > 0
+          ) {
+            if (
+              topic.topicCategory &&
+              selectedCategories.find(
+                (selectedCategory) => selectedCategory === topic.topicCategory
+              )
+            )
+              belongsToCategory = true;
+          }
+
+          if (Array.isArray(selectedLists) && selectedLists.length > 0) {
+            if (
+              Array.isArray(topic.topicVisibility) &&
+              topic.topicVisibility.length > 0
+            ) {
+              let found = false;
+
+              for (let i = 0; i < topic.topicVisibility.length; i++)
+                for (let j = 0; j < selectedLists.length; j++)
+                  if (selectedLists[j].listName === topic.topicVisibility[i])
+                    found = true;
+
+              if (found) belongsToList = true;
             }
           }
-        }}
-        data-cy="addTopicForm"
-      >
-        Ajouter une discussion
-      </Button>
+
+          return belongsToCategory || belongsToList;
+        }
+
+        if (props.isCreator) return true;
+
+        if (!topic.topicVisibility || !topic.topicVisibility.length)
+          return true;
+
+        if (props.isSubscribed && topic.topicVisibility?.includes("Adhérents"))
+          return true;
+
+        if (props.isFollowed && topic.topicVisibility?.includes("Abonnés"))
+          return true;
+
+        if (
+          topic.topicVisibility.find((listName) => {
+            const orgList = org.orgLists?.find(
+              (orgList) => orgList.listName === listName
+            );
+            return !!orgList?.subscriptions?.find(
+              (subscription) => subscription._id === subQuery.data?._id
+            );
+          })
+        )
+          return true;
+
+        return false;
+      })
+    : event
+    ? event.eventTopics
+    : [];
+  //#endregion
+
+  return (
+    <>
+      <Box>
+        <Button
+          colorScheme="teal"
+          leftIcon={<AddIcon />}
+          mb={5}
+          onClick={() => {
+            if (!isSessionLoading) {
+              if (session) {
+                //setCurrentTopic(null);
+                setTopicModalState({ ...topicModalState, isOpen: true });
+              } else {
+                setIsLogin(isLogin + 1);
+              }
+            }
+          }}
+          data-cy="addTopicForm"
+        >
+          Ajouter une discussion
+        </Button>
+      </Box>
 
       {topicModalState.isOpen && (
         <TopicModal
@@ -111,6 +184,7 @@ export const TopicsList = ({
           event={event}
           query={query}
           mutation={mutation}
+          subQuery={subQuery}
           isCreator={props.isCreator}
           isFollowed={props.isFollowed}
           isSubscribed={props.isSubscribed}
@@ -142,7 +216,7 @@ export const TopicsList = ({
       )}
 
       {session && (
-        <NotifyModal
+        <EntityNotifModal
           event={event}
           org={org}
           query={query}
@@ -153,25 +227,36 @@ export const TopicsList = ({
         />
       )}
 
-      {org && org.orgTopicsCategories && (
-        <TopicsListCategories
-          org={org}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          mb={3}
-        />
-      )}
+      {(topics.length > 0 || selectedCategories || selectedLists) &&
+        org &&
+        org.orgTopicsCategories && (
+          <>
+            Catégories :
+            <TopicsListCategories
+              org={org}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              mb={3}
+            />
+          </>
+        )}
 
-      {session &&
+      {(topics.length > 0 || selectedLists || selectedCategories) &&
+        session &&
         org &&
         org.orgName !== "aucourant" &&
         (props.isSubscribed || props.isCreator) && (
-          <TopicsListOrgLists
-            org={org}
-            selectedLists={selectedLists}
-            setSelectedLists={setSelectedLists}
-            mb={5}
-          />
+          <>
+            Listes de diffusion :
+            <TopicsListOrgLists
+              org={org}
+              isCreator={props.isCreator}
+              selectedLists={selectedLists}
+              setSelectedLists={setSelectedLists}
+              subQuery={subQuery}
+              mb={5}
+            />
+          </>
         )}
 
       <Grid data-cy="topicList">
@@ -179,197 +264,249 @@ export const TopicsList = ({
           <Spinner />
         ) : !topics.length ? (
           <Alert status="info">
-            <AlertIcon /> Aucune discussion.
+            <AlertIcon />
+            <Flex flexDirection="column">
+              {((selectedCategories && selectedCategories.length >= 1) ||
+                (selectedLists && selectedLists.length >= 1)) && (
+                <>
+                  {selectedLists &&
+                  selectedLists.length >= 1 &&
+                  selectedCategories &&
+                  selectedCategories.length >= 1 ? (
+                    <>
+                      Aucune discussion appartenant :
+                      <List listStyleType="square" ml={5}>
+                        <ListItem mb={1}>
+                          aux catégories :
+                          {selectedCategories.map((category, index) => (
+                            <>
+                              <Tag mx={1}>{category}</Tag>
+                              {index !== selectedCategories.length - 1 && "ou"}
+                            </>
+                          ))}
+                        </ListItem>
+                        <ListItem>
+                          aux listes :
+                          {selectedLists.map(({ listName }, index) => (
+                            <>
+                              <Tag mx={1}>{listName}</Tag>
+                              {index !== selectedLists.length - 1 && "ou"}
+                            </>
+                          ))}
+                        </ListItem>
+                      </List>
+                    </>
+                  ) : selectedCategories && selectedCategories.length >= 1 ? (
+                    <Box>
+                      {selectedCategories.length === 1 ? (
+                        <>
+                          Aucune discussion appartenant à la catégorie{" "}
+                          <Tag>{selectedCategories[0]}</Tag>
+                        </>
+                      ) : (
+                        <>
+                          Aucune discussion appartenant aux catégories
+                          {selectedCategories.map((category, index) => (
+                            <>
+                              <Tag mx={1}>{category}</Tag>
+                              {index !== selectedCategories.length - 1 && "ou"}
+                            </>
+                          ))}
+                        </>
+                      )}
+                    </Box>
+                  ) : selectedLists && selectedLists.length >= 1 ? (
+                    <Box>
+                      {selectedLists.length === 1 ? (
+                        <>
+                          Aucune discussion appartenant à la liste{" "}
+                          <Tag>{selectedLists[0].listName}</Tag>
+                        </>
+                      ) : (
+                        <>
+                          Aucune discussion appartenant aux listes
+                          {selectedLists.map(({ listName }, index) => (
+                            <>
+                              <Tag mx={1}>{listName}</Tag>
+                              {index !== selectedLists.length - 1 && "ou"}
+                            </>
+                          ))}
+                        </>
+                      )}
+                    </Box>
+                  ) : (
+                    <>4</>
+                  )}
+                </>
+              )}
+              {/*
+<>
+                {" "}
+                appartenant{" "}
+
+{selectedLists && selectedLists.length >= 1 && selectedCategories && selectedCategories.length >= 1 ? (
+<>
+wkghxkugfd
+<>
+) : (
+  <>
+  wtf
+  </>
+)}
+
+               
+              </>
+            )}
+            {selectedCategories && selectedCategories.length >= 1 ? (
+              <>
+                {" "}
+                appartenant{" "}
+                {selectedCategories.length === 1
+                  ? "à la catégorie"
+                  : "aux catégorie"}{" "}
+                {selectedCategories.map((category, index) => (
+                  <>
+                    <Tag mx={1}>{category}</Tag>
+                    {index !== selectedCategories.length - 1 && "ou"}
+                  </>
+                ))}
+              </>
+            ) : (
+              ""
+            )} */}
+            </Flex>
           </Alert>
         ) : (
-          topics
-            .filter((topic) => {
-              if (entityName === "aucourant") return true;
+          topics.map((topic, topicIndex) => {
+            const isCurrent = topic._id === currentTopic?._id;
+            const topicCreatedBy =
+              typeof topic.createdBy === "object"
+                ? topic.createdBy._id
+                : topic.createdBy;
+            const isTopicCreator =
+              session?.user.isAdmin || topicCreatedBy === session?.user.userId;
 
-              if (hasItems(selectedCategories) || hasItems(selectedLists)) {
-                let belongsToCategory = false;
-                let belongsToList = false;
+            let isSubbedToTopic = false;
 
-                if (
-                  Array.isArray(selectedCategories) &&
-                  selectedCategories.length > 0
-                ) {
-                  if (
-                    topic.topicCategory &&
-                    selectedCategories.find(
-                      (selectedCategory) =>
-                        selectedCategory === topic.topicCategory
-                    )
-                  )
-                    belongsToCategory = true;
+            if (subQuery.data) {
+              isSubbedToTopic = !!subQuery.data.topics.find(
+                ({ topic: t }: { topic: ITopic }) => t._id === topic._id
+              );
+            }
+
+            return (
+              <TopicsListItem
+                key={topic._id}
+                session={session}
+                event={event}
+                org={org}
+                query={query}
+                isSubscribed={props.isSubscribed || false}
+                topic={topic}
+                topicIndex={topicIndex}
+                isSubbedToTopic={isSubbedToTopic}
+                isCurrent={isCurrent}
+                isTopicCreator={isTopicCreator}
+                isDark={isDark}
+                isLoading={isLoading[topic._id!] || query.isLoading}
+                notifyModalState={notifyModalState}
+                setNotifyModalState={setNotifyModalState}
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                onClick={() => setCurrentTopic(isCurrent ? null : topic)}
+                onEditClick={() =>
+                  setTopicModalState({
+                    ...topicModalState,
+                    isOpen: true,
+                    entity: topic
+                  })
                 }
+                onDeleteClick={async () => {
+                  setIsLoading({
+                    [topic._id!]: true
+                  });
 
-                if (Array.isArray(selectedLists) && selectedLists.length > 0) {
-                  if (
-                    Array.isArray(topic.topicVisibility) &&
-                    topic.topicVisibility.length > 0
-                  ) {
-                    let found = false;
+                  try {
+                    let deletedTopic: ITopic | null = null;
 
-                    for (let i = 0; i < topic.topicVisibility.length; i++)
-                      for (let j = 0; j < selectedLists.length; j++)
-                        if (
-                          selectedLists[j].listName === topic.topicVisibility[i]
-                        )
-                          found = true;
-
-                    if (found) belongsToList = true;
-                  }
-                }
-
-                return belongsToCategory || belongsToList;
-              }
-
-              if (props.isCreator) return true;
-
-              if (
-                props.isSubscribed &&
-                topic.topicVisibility?.includes("Adhérents")
-              )
-                return true;
-
-              if (
-                props.isFollowed &&
-                topic.topicVisibility?.includes("Abonnés")
-              )
-                return true;
-
-              return false;
-            })
-            .map((topic, topicIndex) => {
-              const isCurrent = topic._id === currentTopic?._id;
-              const topicCreatedBy =
-                typeof topic.createdBy === "object"
-                  ? topic.createdBy._id
-                  : topic.createdBy;
-              const isCreator =
-                session?.user.isAdmin ||
-                topicCreatedBy === session?.user.userId;
-
-              let isSubbedToTopic = false;
-
-              if (subQuery.data) {
-                isSubbedToTopic = !!subQuery.data.topics.find(
-                  ({ topic: t }: { topic: ITopic }) => t._id === topic._id
-                );
-              }
-
-              return (
-                <TopicsListItem
-                  key={topic._id}
-                  session={session}
-                  event={event}
-                  org={org}
-                  query={query}
-                  isSubscribed={props.isSubscribed || false}
-                  topic={topic}
-                  topicIndex={topicIndex}
-                  isSubbedToTopic={isSubbedToTopic}
-                  isCurrent={isCurrent}
-                  isCreator={isCreator}
-                  isDark={isDark}
-                  isLoading={isLoading[topic._id!] || query.isLoading}
-                  notifyModalState={notifyModalState}
-                  setNotifyModalState={setNotifyModalState}
-                  onClick={() => setCurrentTopic(isCurrent ? null : topic)}
-                  onEditClick={() =>
-                    setTopicModalState({
-                      ...topicModalState,
-                      isOpen: true,
-                      entity: topic
-                    })
-                  }
-                  onDeleteClick={async () => {
-                    setIsLoading({
-                      [topic._id!]: true
-                    });
-
-                    try {
-                      let deletedTopic: ITopic | null = null;
-
-                      if (topic._id) {
-                        deletedTopic = await deleteTopic(topic._id).unwrap();
-                      }
-
-                      if (deletedTopic) {
-                        subQuery.refetch();
-                        query.refetch();
-
-                        toast({
-                          title: `${deletedTopic.topicName} a bien été supprimé !`,
-                          status: "success",
-                          isClosable: true
-                        });
-                      }
-                    } catch (error: any) {
-                      toast({
-                        title: error.data ? error.data.message : error.message,
-                        status: "error",
-                        isClosable: true
-                      });
-                    } finally {
-                      setIsLoading({
-                        [topic._id!]: false
-                      });
+                    if (topic._id) {
+                      deletedTopic = await deleteTopic(topic._id).unwrap();
                     }
-                  }}
-                  onSubscribeClick={async () => {
-                    setIsLoading({
-                      [topic._id!]: true
-                    });
 
-                    if (!subQuery.data || !isSubbedToTopic) {
-                      await addSubscription({
-                        payload: {
-                          topics: [
-                            {
-                              topic: topic,
-                              emailNotif: true,
-                              pushNotif: true
-                            }
-                          ]
-                        },
-                        user: session?.user.userId
-                      });
+                    if (deletedTopic) {
+                      subQuery.refetch();
+                      query.refetch();
 
                       toast({
-                        title: `Vous êtes abonné à la discussion ${topic.topicName}`,
+                        title: `${deletedTopic.topicName} a bien été supprimé !`,
                         status: "success",
                         isClosable: true
                       });
-                    } else if (isSubbedToTopic) {
-                      const unsubscribe = confirm(
-                        `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
-                      );
-
-                      if (unsubscribe) {
-                        await deleteSubscription({
-                          subscriptionId: subQuery.data._id,
-                          topicId: topic._id
-                        });
-
-                        toast({
-                          title: `Vous êtes désabonné de ${topic.topicName}`,
-                          status: "success",
-                          isClosable: true
-                        });
-                      }
                     }
-
-                    subQuery.refetch();
+                  } catch (error: any) {
+                    toast({
+                      title: error.data ? error.data.message : error.message,
+                      status: "error",
+                      isClosable: true
+                    });
+                  } finally {
                     setIsLoading({
                       [topic._id!]: false
                     });
-                  }}
-                  onLoginClick={() => setIsLogin(isLogin + 1)}
-                />
-              );
-            })
+                  }
+                }}
+                onSubscribeClick={async () => {
+                  setIsLoading({
+                    [topic._id!]: true
+                  });
+
+                  if (!subQuery.data || !isSubbedToTopic) {
+                    await addSubscription({
+                      payload: {
+                        topics: [
+                          {
+                            topic: topic,
+                            emailNotif: true,
+                            pushNotif: true
+                          }
+                        ]
+                      },
+                      user: session?.user.userId
+                    });
+
+                    toast({
+                      title: `Vous êtes abonné à la discussion ${topic.topicName}`,
+                      status: "success",
+                      isClosable: true
+                    });
+                  } else if (isSubbedToTopic) {
+                    const unsubscribe = confirm(
+                      `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
+                    );
+
+                    if (unsubscribe) {
+                      await deleteSubscription({
+                        subscriptionId: subQuery.data._id,
+                        topicId: topic._id
+                      });
+
+                      toast({
+                        title: `Vous êtes désabonné de ${topic.topicName}`,
+                        status: "success",
+                        isClosable: true
+                      });
+                    }
+                  }
+
+                  subQuery.refetch();
+                  setIsLoading({
+                    [topic._id!]: false
+                  });
+                }}
+                onLoginClick={() => setIsLogin(isLogin + 1)}
+              />
+            );
+          })
         )}
       </Grid>
     </>

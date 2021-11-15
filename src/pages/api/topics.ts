@@ -7,7 +7,7 @@ import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
-import { SubscriptionTypes } from "models/Subscription";
+import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import {
@@ -182,10 +182,13 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
             let subscriptions = (org.orgLists || [])
               .filter((orgList) =>
                 body.topic.topicVisibility?.find(
-                  (listName) => listName === orgList.listName
+                  (listName) =>
+                    listName === orgList.listName &&
+                    Array.isArray(orgList.subscriptions) &&
+                    orgList.subscriptions.length > 0
                 )
               )
-              .flatMap(({ subscriptions }) => subscriptions);
+              .flatMap(({ subscriptions }) => subscriptions) as ISubscription[];
 
             for (const listName of body.topic.topicVisibility)
               if (["Abonnés", "Adhérents"].includes(listName))
@@ -198,7 +201,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
                   )
                 );
 
-            if (hasItems(subscriptions)) {
+            if (Array.isArray(subscriptions) && subscriptions.length > 0) {
               const emailList = await sendTopicEmailNotifications({
                 org,
                 subscriptions,

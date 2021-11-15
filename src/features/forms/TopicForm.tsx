@@ -15,7 +15,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Creatable from "react-select/creatable";
-import { ErrorMessageText, RTEditor } from "features/common";
+import { ErrorMessageText, MultiSelect, RTEditor } from "features/common";
 import {
   useAddTopicMutation,
   useEditTopicMutation
@@ -23,18 +23,29 @@ import {
 import { useSession } from "hooks/useAuth";
 import type { IEvent } from "models/Event";
 import { getSubscriptions, IOrg, IOrgList } from "models/Org";
+import {
+  getFollowerSubscription,
+  getSubscriberSubscription,
+  SubscriptionTypes
+} from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { handleError } from "utils/form";
 import { ITopicMessage } from "models/TopicMessage";
-import { MultiSelect } from "features/common/forms/MultiSelect";
-import { SubscriptionTypes } from "models/Subscription";
+import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
 
-interface TopicFormProps extends ChakraProps {
+export const TopicForm = ({
+  org,
+  event,
+  query,
+  mutation,
+  subQuery,
+  ...props
+}: ChakraProps & {
   org?: IOrg;
   event?: IEvent;
   query: any;
   mutation: any;
+  subQuery: any;
   topic: ITopic | null;
   isCreator?: boolean;
   isFollowed?: boolean;
@@ -42,15 +53,7 @@ interface TopicFormProps extends ChakraProps {
   onClose?: () => void;
   onCancel?: () => void;
   onSubmit?: (topic: ITopic | null) => void;
-}
-
-export const TopicForm = ({
-  org,
-  event,
-  query,
-  mutation,
-  ...props
-}: TopicFormProps) => {
+}) => {
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
 
@@ -60,21 +63,40 @@ export const TopicForm = ({
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
+
   let categories: string[] | undefined;
   let lists: IOrgList[] | undefined;
   if (org) {
     categories = org.orgTopicsCategories || [];
-    lists = (org.orgLists || []).concat([
-      {
+    lists =
+      org.orgLists?.filter((orgList) => {
+        if (
+          props.isSubscribed &&
+          !orgList.subscriptions?.find(
+            (subscription) => subscription._id === subQuery.data?._id
+          )
+        )
+          return false;
+
+        return true;
+      }) || [];
+
+    const followerSubscription = getFollowerSubscription({ org, subQuery });
+    const subscriberSubscription = getSubscriberSubscription({ org, subQuery });
+
+    if (props.isCreator || followerSubscription)
+      lists.push({
         listName: "Abonnés",
         subscriptions: getSubscriptions(org, SubscriptionTypes.FOLLOWER)
-      },
-      {
+      });
+
+    if (props.isCreator || subscriberSubscription)
+      lists.push({
         listName: "Adhérents",
         subscriptions: getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
-      }
-    ]);
+      });
   }
+
   const [messageHtml, setMessageHtml] = useState<string>();
   //#endregion
 
@@ -330,7 +352,7 @@ export const TopicForm = ({
         </FormControl>
       )}
 
-      {!props.topic && props.isCreator && lists && (
+      {(props.isCreator || props.isSubscribed) && lists && (
         <FormControl
           id="topicVisibility"
           isInvalid={!!errors["topicVisibility"]}
@@ -340,7 +362,12 @@ export const TopicForm = ({
           <Controller
             name="topicVisibility"
             control={control}
-            defaultValue={[]}
+            defaultValue={
+              props.topic?.topicVisibility?.map((listName) => ({
+                label: listName,
+                value: listName
+              })) || []
+            }
             render={(renderProps) => {
               return (
                 <MultiSelect
@@ -353,6 +380,7 @@ export const TopicForm = ({
                     })) || []
                   }
                   allOptionLabel="Toutes les listes"
+                  //closeMenuOnSelect={false}
                   placeholder="Sélectionner une liste"
                   noOptionsMessage={() => "Aucun résultat"}
                   isClearable

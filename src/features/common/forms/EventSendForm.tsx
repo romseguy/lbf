@@ -226,7 +226,8 @@ export const EventSendForm = ({
 
                           {lists.map((list) => {
                             let i = 0;
-                            for (const subscription of list.subscriptions) {
+                            for (const subscription of list.subscriptions ||
+                              []) {
                               if (
                                 event.eventNotified?.find(({ email, phone }) =>
                                   typeof subscription.user === "object"

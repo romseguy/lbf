@@ -33,7 +33,7 @@ interface NotifyModalProps<T> {
   session: Session;
 }
 
-export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
+export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
   event,
   org,
   query,
@@ -172,9 +172,9 @@ export const NotifyModal = <T extends IEvent<string | Date> | ITopic>({
         <ModalContent maxWidth="xl">
           <ModalHeader display="flex" alignItems="center" pb={0}>
             {isTopic(entity) ? (
-              <EntityButton topic={entity} p={2} />
+              <EntityButton topic={entity} p={2} onClick={null} />
             ) : (
-              <EntityButton event={entity} p={2} />
+              <EntityButton event={entity} p={2} onClick={null} />
             )}
           </ModalHeader>
           <ModalCloseButton />

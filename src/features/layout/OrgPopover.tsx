@@ -25,13 +25,13 @@ import { OrgModal } from "features/modals/OrgModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import {
-  getFollowerSubscription,
-  getSubscriberSubscription,
-  selectSubscriptionRefetch
-} from "features/subscriptions/subscriptionSlice";
+import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
 import { IOrg, OrgType, OrgTypes } from "models/Org";
+import {
+  getFollowerSubscription,
+  getSubscriberSubscription
+} from "models/Subscription";
 import { hasItems } from "utils/array";
 
 let cachedRefetchOrgs = false;

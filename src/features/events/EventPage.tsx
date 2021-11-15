@@ -48,12 +48,13 @@ import { EventConfigPanel } from "./EventConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectUserEmail } from "features/users/userSlice";
+import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
+import { IEvent, Visibility } from "models/Event";
 import {
   getFollowerSubscription,
-  selectSubscriptionRefetch
-} from "features/subscriptions/subscriptionSlice";
-import { IEvent, Visibility } from "models/Event";
-import { IOrgSubscription, SubscriptionTypes } from "models/Subscription";
+  IOrgSubscription,
+  SubscriptionTypes
+} from "models/Subscription";
 import { hasItems } from "utils/array";
 import { EventAttendingForm } from "./EventAttendingForm";
 import { EventInfo } from "./EventInfo";
@@ -130,7 +131,9 @@ export const EventPage = ({
       ? event.createdBy._id
       : "";
   const isCreator =
-    session?.user.userId === eventCreatedByUserId || session?.user.isAdmin;
+    session?.user.userId === eventCreatedByUserId ||
+    session?.user.isAdmin ||
+    false;
   //#endregion
 
   //#region sub

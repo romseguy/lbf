@@ -230,7 +230,7 @@ handler.delete<
       log("> org.orgLists", org.orgLists);
       org.orgLists = org.orgLists?.map((orgList) => ({
         listName: orgList.listName,
-        subscriptions: orgList.subscriptions.filter(
+        subscriptions: orgList.subscriptions?.filter(
           ({ _id }) => !equals(_id, subscriptionId)
         )
       }));

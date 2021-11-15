@@ -1,4 +1,4 @@
-import { ViewIcon, ViewOffIcon, EditIcon } from "@chakra-ui/icons";
+import { ViewIcon, ViewOffIcon, EditIcon, EmailIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -14,7 +14,7 @@ import React from "react";
 import { FaBellSlash, FaBell } from "react-icons/fa";
 import { DeleteButton, Grid, GridItem, formats } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
-import { ModalState } from "features/modals/NotifyModal";
+import { ModalState } from "features/modals/EntityNotifModal";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
@@ -33,11 +33,13 @@ export const TopicsListItem = ({
   topicIndex,
   isSubbedToTopic,
   isCurrent,
-  isCreator,
+  isTopicCreator,
   isDark,
   isLoading,
   notifyModalState,
   setNotifyModalState,
+  selectedCategories,
+  setSelectedCategories,
   onClick,
   onEditClick,
   onDeleteClick,
@@ -53,11 +55,15 @@ export const TopicsListItem = ({
   topicIndex: number;
   isSubbedToTopic: boolean;
   isCurrent: boolean;
-  isCreator: boolean;
+  isTopicCreator: boolean;
   isDark: boolean;
   isLoading: boolean;
   notifyModalState: ModalState<ITopic>;
   setNotifyModalState: React.Dispatch<React.SetStateAction<ModalState<ITopic>>>;
+  selectedCategories?: string[];
+  setSelectedCategories: React.Dispatch<
+    React.SetStateAction<string[] | undefined>
+  >;
   onClick: () => void;
   onEditClick: () => void;
   onDeleteClick: () => void;
@@ -73,7 +79,7 @@ export const TopicsListItem = ({
   return (
     <Box key={topic._id} mb={5}>
       <GridItem>
-        <Link variant="no-underline" onClick={onClick} data-cy="topic">
+        <Link as="div" variant="no-underline" onClick={onClick} data-cy="topic">
           <Grid
             templateColumns="auto 1fr auto"
             borderTopRadius="xl"
@@ -99,20 +105,49 @@ export const TopicsListItem = ({
               <Flex flexDirection="column">
                 <Flex alignItems="center">
                   {topic.topicCategory && (
-                    <Tooltip label="Catégorie de la discussion" hasArrow>
+                    <Tooltip
+                      label={`Afficher les discussions de la catégorie ${topic.topicCategory}`}
+                      hasArrow
+                    >
                       <Button
+                        colorScheme={
+                          selectedCategories?.find(
+                            (category) => category === topic.topicCategory
+                          )
+                            ? "pink"
+                            : undefined
+                        }
                         fontSize="small"
                         fontWeight="normal"
                         height="auto"
                         mr={2}
                         p={1}
+                        onClick={(e) => {
+                          e.stopPropagation();
+
+                          if (
+                            selectedCategories?.find(
+                              (category) => category === topic.topicCategory
+                            )
+                          )
+                            setSelectedCategories(
+                              selectedCategories.filter(
+                                (category) => category !== topic.topicCategory
+                              )
+                            );
+                          else if (topic.topicCategory)
+                            setSelectedCategories([
+                              ...(selectedCategories || []),
+                              topic.topicCategory
+                            ]);
+                        }}
                       >
                         {topic.topicCategory}
                       </Button>
                     </Tooltip>
                   )}
 
-                  <Text fontWeight="bold">{topic.topicName}</Text>
+                  <Link fontWeight="bold">{topic.topicName}</Link>
                 </Flex>
 
                 <Flex
@@ -122,7 +157,9 @@ export const TopicsListItem = ({
                   color={isDark ? "white" : "purple"}
                   mt={1}
                 >
-                  <Text mr={1}>{topicCreatedByUserName}</Text>
+                  <Link href={`/${topicCreatedByUserName}`}>
+                    {topicCreatedByUserName}
+                  </Link>
 
                   <span aria-hidden>·</span>
 
@@ -139,27 +176,25 @@ export const TopicsListItem = ({
                     ml={1}
                   />
 
-                  {Array.isArray(topic.topicNotified) &&
-                    isCreator &&
-                    (isCreator || isSubscribed) && (
-                      <>
-                        <span aria-hidden>·</span>
+                  {topic.topicNotified && isTopicCreator && (
+                    <>
+                      <span aria-hidden>·</span>
 
-                        <Link
-                          as="span"
-                          ml={1}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setNotifyModalState({
-                              ...notifyModalState,
-                              entity: topic
-                            });
-                          }}
-                        >
-                          {topic.topicNotified.length} abonnés notifiés
-                        </Link>
-                      </>
-                    )}
+                      <Link
+                        as="span"
+                        ml={1}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setNotifyModalState({
+                            ...notifyModalState,
+                            entity: topic
+                          });
+                        }}
+                      >
+                        {topic.topicNotified.length} personnes invitées
+                      </Link>
+                    </>
+                  )}
                 </Flex>
               </Flex>
             </GridItem>
@@ -169,8 +204,37 @@ export const TopicsListItem = ({
                 <Spinner mr={3} boxSize={4} />
               ) : session ? (
                 <>
-                  {isCreator && (
+                  {isTopicCreator && (
                     <>
+                      {topic.topicVisibility && isTopicCreator && (
+                        <>
+                          <Tooltip
+                            placement="bottom"
+                            label="Envoyer des invitations"
+                          >
+                            <IconButton
+                              aria-label="Envoyer des invitations"
+                              icon={<EmailIcon />}
+                              bg="transparent"
+                              height="auto"
+                              minWidth={0}
+                              _hover={{ color: "green" }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setNotifyModalState({
+                                  ...notifyModalState,
+                                  entity: topic
+                                });
+                              }}
+                            />
+                          </Tooltip>
+
+                          <Box aria-hidden mx={1}>
+                            ·{" "}
+                          </Box>
+                        </>
+                      )}
+
                       <Tooltip
                         placement="bottom"
                         label="Modifier la discussion"

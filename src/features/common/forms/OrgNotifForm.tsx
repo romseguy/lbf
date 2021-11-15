@@ -95,8 +95,8 @@ export const OrgNotifForm = ({
                 setType("multi");
               }}
             >
-              Envoyer {isT ? "la notification" : "l'invitation"} à une ou
-              plusieurs listes de diffusion
+              Inviter les membres de listes de diffusion à participer à{" "}
+              {isT ? "cette discussion" : "cet événement"}
             </Radio>
             <Radio
               isChecked={type === "single"}
@@ -104,8 +104,8 @@ export const OrgNotifForm = ({
                 setType("single");
               }}
             >
-              Envoyer {isT ? "la notification" : "l'invitation"} à une seule
-              adresse e-mail
+              Inviter une personne à participer à{" "}
+              {isT ? "cette discussion" : "cet événement"}
             </Radio>
           </Stack>
         </RadioGroup>
@@ -168,7 +168,7 @@ export const OrgNotifForm = ({
                       ])
                       .map((list) => {
                         let i = 0;
-                        for (const subscription of list.subscriptions) {
+                        for (const subscription of list.subscriptions || []) {
                           const notified = isT
                             ? entity.topicNotified
                             : entity.eventNotified;
@@ -246,14 +246,7 @@ export const OrgNotifForm = ({
                 (type === "multi" && !hasItems(orgListsNames))
               }
             >
-              Envoyer{" "}
-              {isT
-                ? type === "single"
-                  ? "la notification"
-                  : "les notifications"
-                : type === "single"
-                ? "l'invitation"
-                : "les invitations"}
+              Envoyer {type === "single" ? "l'invitation" : "les invitations"}
             </Button>
           )}
         </Flex>

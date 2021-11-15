@@ -29,28 +29,28 @@ import {
   Tooltip,
   useToast
 } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import React, { useEffect, useState } from "react";
 import { css } from "twin.macro";
 import { EntityListForm, GridHeader, GridItem, Link } from "features/common";
-import { getSubscriptions, IOrg, IOrgList, orgTypeFull } from "models/Org";
+import { getSubscriptions, IOrg, IOrgList } from "models/Org";
 import { hasItems } from "utils/array";
 import { Visibility } from "./OrgPage";
 import { useEditOrgMutation } from "./orgsApi";
 import { breakpoints } from "theme/theme";
-import { refetchEvent } from "features/events/eventSlice";
-import { deleteSubscription } from "features/subscriptions/subscriptionsApi";
-import subscription from "pages/api/subscription";
-import { SubscriptionTypes } from "models/Subscription";
+import { ISubscription, SubscriptionTypes } from "models/Subscription";
 
 export const OrgConfigListsPanel = ({
   org,
   orgQuery,
   isVisible,
-  setIsVisible
+  setIsVisible,
+  session
 }: GridProps &
   Visibility & {
     org: IOrg;
     orgQuery: any;
+    session: Session;
   }) => {
   const toast = useToast({ position: "top" });
 
@@ -77,42 +77,51 @@ export const OrgConfigListsPanel = ({
   }, [lists]);
   //#endregion
 
-  const onSubmit = async (payload: IOrgList) => {
-    console.log("submitted", payload);
+  const onSubmit = async (form: {
+    listName: string;
+    subscriptions?: ISubscription[];
+  }) => {
+    if (form.listName === "Abonnés" || form.listName === "Adhérents")
+      throw { listName: "Ce nom n'est pas disponible." };
+
+    let orgLists = [...(org.orgLists || [])];
+
+    if (listToEdit?.listName !== form.listName)
+      for (const orgList of orgLists)
+        if (orgList.listName === form.listName)
+          throw { listName: "Ce nom n'est pas disponible." };
 
     try {
+      let found = false;
+      orgLists = orgLists.map((orgList) => {
+        if (orgList.listName === form.listName) {
+          found = true;
+          return { ...orgList, subscriptions: form.subscriptions };
+        }
+        return orgList;
+      });
+      if (!found) orgLists = [...orgLists, form];
+
       await editOrg({
         payload: {
-          orgLists:
-            Array.isArray(org.orgLists) && org.orgLists.length > 0
-              ? org.orgLists.map((orgList) => {
-                  if (
-                    listToEdit?.listName !== payload.listName &&
-                    orgList.listName === listToEdit?.listName
-                  ) {
-                    return payload;
-                  }
-
-                  if (orgList.listName === payload.listName) {
-                    return {
-                      listName: orgList.listName,
-                      subscriptions: payload.subscriptions
-                    };
-                  }
-
-                  return orgList;
-                })
-              : [payload]
+          orgLists
         },
         orgUrl: org.orgUrl
       }).unwrap();
       orgQuery.refetch();
       setIsAdd(false);
       setIsVisible({ ...isVisible, lists: true });
-      toast({ status: "success", title: "La liste a bien été modifiée !" });
+
+      if (listToEdit)
+        toast({ status: "success", title: "La liste a bien été modifiée !" });
+      else toast({ status: "success", title: "La liste a bien été ajoutée !" });
     } catch (error) {
-      console.error(error);
-      toast({ status: "error", title: "La liste n'a pas pu être modifiée" });
+      if (listToEdit)
+        toast({ status: "error", title: "La liste n'a pas pu être modifiée" });
+      else
+        toast({ status: "error", title: "La liste n'a pas pu être ajoutée" });
+
+      throw error;
     }
   };
 
@@ -205,17 +214,40 @@ export const OrgConfigListsPanel = ({
       {isVisible.lists &&
         (orgQuery.isLoading ? (
           <Text>Chargement des listes de diffusion...</Text>
-        ) : (
+        ) : lists.length > 0 ? (
           <GridItem
             light={{ bg: "orange.100" }}
             dark={{ bg: "gray.500" }}
             overflowX="auto"
             aria-hidden
           >
-            <Table>
+            {session.user.isAdmin && (
+              <Button
+                onClick={async () => {
+                  await editOrg({
+                    orgUrl: org.orgUrl,
+                    payload: { orgLists: [] }
+                  }).unwrap();
+
+                  orgQuery.refetch();
+                }}
+              >
+                RAZ
+              </Button>
+            )}
+
+            <Table
+              css={css`
+                @media (max-width: 700px) {
+                  td {
+                    padding: 6px;
+                  }
+                }
+              `}
+            >
               <Thead>
                 <Tr>
-                  <Th>Nom de la liste</Th>
+                  <Th>Nom</Th>
                   <Th></Th>
                   <Th></Th>
                 </Tr>
@@ -224,26 +256,30 @@ export const OrgConfigListsPanel = ({
               <Tbody>
                 {lists.map((list, index) => {
                   const { listName, subscriptions } = list;
-                  const s =
-                    subscriptions.length > 1 || !subscriptions.length
-                      ? "s"
-                      : "";
+                  const hasSubscriptions =
+                    subscriptions && subscriptions.length > 0;
+                  const s = hasSubscriptions ? "s" : "";
 
                   return (
                     <Tr key={`list-${index}`}>
                       <Td>{listName}</Td>
-                      <Td>
+
+                      <Td whiteSpace="nowrap">
                         <Link
-                          variant="underline"
+                          cursor={hasSubscriptions ? "pointer" : "default"}
+                          variant={
+                            hasSubscriptions ? "underline" : "no-underline"
+                          }
                           onClick={() => {
-                            setListToShow(list);
+                            if (hasSubscriptions) setListToShow(list);
                           }}
                         >
-                          {subscriptions.length} membre{s}
+                          {hasSubscriptions ? subscriptions.length : 0} membre
+                          {hasSubscriptions ? s : "s"}
                         </Link>
                       </Td>
 
-                      <Td textAlign="right">
+                      <Td textAlign="right" whiteSpace="nowrap">
                         {!["Abonnés", "Adhérents"].includes(list.listName) && (
                           <>
                             <Tooltip
@@ -324,14 +360,14 @@ export const OrgConfigListsPanel = ({
                         list={listToEdit}
                         org={org}
                         onCancel={() => setListToEdit(undefined)}
-                        onSubmit={(payload) => {
-                          onSubmit(payload);
+                        onSubmit={async (payload) => {
+                          await onSubmit(payload);
                           setListToEdit(undefined);
                         }}
                       />
                     )}
 
-                    {listToShow && (
+                    {listToShow && listToShow.subscriptions && (
                       <Table>
                         <Tbody>
                           {listToShow.subscriptions.map((subscription) => {
@@ -343,7 +379,7 @@ export const OrgConfigListsPanel = ({
                                 : "");
 
                             return (
-                              <Tr>
+                              <Tr key={subscription._id}>
                                 <Td>{label}</Td>
                               </Tr>
                             );
@@ -356,6 +392,8 @@ export const OrgConfigListsPanel = ({
               </Modal>
             )}
           </GridItem>
+        ) : (
+          <Text>Aucune liste de diffusion.</Text>
         ))}
     </Grid>
   );

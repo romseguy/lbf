@@ -6,6 +6,7 @@ import {
 } from "@chakra-ui/icons";
 import {
   Box,
+  Button,
   Text,
   Heading,
   Grid,
@@ -28,13 +29,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 
-import {
-  Button,
-  GridHeader,
-  GridItem,
-  IconFooter,
-  Link
-} from "features/common";
+import { GridHeader, GridItem, IconFooter, Link } from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
 import { TopicsList } from "features/forum/TopicsList";
@@ -45,15 +40,15 @@ import {
   useGetSubscriptionQuery
 } from "features/subscriptions/subscriptionsApi";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
-import {
-  getFollowerSubscription,
-  getSubscriberSubscription,
-  selectSubscriptionRefetch
-} from "features/subscriptions/subscriptionSlice";
+import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { Visibility as EventVisibility } from "models/Event";
 import { IOrg, orgTypeFull, OrgTypes } from "models/Org";
+import {
+  getFollowerSubscription,
+  getSubscriberSubscription
+} from "models/Subscription";
 import { hasItems } from "utils/array";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
@@ -104,6 +99,20 @@ export const OrgPage = ({
   );
   const org = orgQuery.data || props.org;
   const [description, setDescription] = useState<string | undefined>();
+  useEffect(() => {
+    if (org.orgDescription && org.orgDescription.length > 0) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(org.orgDescription, "text/html");
+
+      //@ts-expect-error
+      const links = doc.firstChild.getElementsByTagName("a");
+      for (let i = 0; i < links.length; i++) {
+        if (links[i].innerText.includes("http")) links[i].classList.add("clip");
+        links[i].setAttribute("title", links[i].innerText);
+      }
+      setDescription(doc.body.innerHTML);
+    }
+  }, [org]);
   const refetchOrg = useSelector(selectOrgRefetch);
   useEffect(() => {
     if (refetchOrg !== cachedRefetchOrg) {
@@ -124,23 +133,6 @@ export const OrgPage = ({
     orgQuery.refetch();
     setIsEdit(false);
   }, [router.asPath]);
-  useEffect(() => {
-    if (!description && org) {
-      if (org.orgDescription && org.orgDescription.length > 0) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(org.orgDescription, "text/html");
-
-        //@ts-expect-error
-        const links = doc.firstChild.getElementsByTagName("a");
-        for (let i = 0; i < links.length; i++) {
-          if (links[i].innerText.includes("http"))
-            links[i].classList.add("clip");
-          links[i].setAttribute("title", links[i].innerText);
-        }
-        setDescription(doc.body.innerHTML);
-      }
-    }
-  }, [org]);
 
   const { networks } = useGetOrgsQuery(
     { populate: "orgs" },
@@ -163,7 +155,9 @@ export const OrgPage = ({
   const orgCreatedByUserId =
     typeof org.createdBy === "object" ? org.createdBy._id : "";
   const isCreator =
-    session?.user.userId === orgCreatedByUserId || session?.user.isAdmin;
+    session?.user.userId === orgCreatedByUserId ||
+    session?.user.isAdmin ||
+    false;
   const publicEvents = org.orgEvents.filter(
     (orgEvent) => orgEvent.eventVisibility === EventVisibility.PUBLIC
   );
@@ -296,8 +290,8 @@ export const OrgPage = ({
           <Box>
             Vous êtes adhérent {orgTypeFull(org.orgType)} {org.orgName}.
             <Text fontSize="smaller">
-              Vous avez donc accès aux événements et discussions réservées aux
-              adhérents.
+              Vous avez donc accès aux événements et aux discussions réservées
+              aux adhérents.
             </Text>
           </Box>
         </Alert>
@@ -340,7 +334,7 @@ export const OrgPage = ({
                         !hasItems(org.orgPhone) &&
                         !hasItems(org.orgWeb) ? (
                           <>
-                            {session ? (
+                            {isCreator ? (
                               <Button
                                 colorScheme="teal"
                                 leftIcon={<AddIcon />}
@@ -448,6 +442,7 @@ export const OrgPage = ({
                   </GridItem>
                 )}
 
+                {/* org.orgDescription */}
                 <GridItem
                   rowSpan={1}
                   borderTopRadius="lg"
@@ -485,7 +480,9 @@ export const OrgPage = ({
                       {description && description.length > 0 ? (
                         <div
                           dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(description)
+                            __html: DOMPurify.sanitize(description, {
+                              ADD_TAGS: ["iframe"]
+                            })
                           }}
                         />
                       ) : isCreator ? (
@@ -538,7 +535,7 @@ export const OrgPage = ({
                 <AlertIcon />
                 <Box>
                   Cette section a pour vocation de proposer une alternative plus
-                  simple et respectueuse des abonnées aux{" "}
+                  pratique et respectueuse aux{" "}
                   <Tooltip label="synonymes : mailing lists, newsletters">
                     <Text
                       display="inline"

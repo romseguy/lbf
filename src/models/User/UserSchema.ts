@@ -1,27 +1,9 @@
-import type { HookNextFunction } from "mongoose";
-import { Schema, Types } from "mongoose";
+import { HookNextFunction, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
-import { randomNumber } from "utils/randomNumber";
-import { Base64Image } from "utils/image";
 import { normalize } from "utils/string";
-import { IProject } from "models/Project";
+import { IUser } from "./IUser";
 
 const HASH_ROUNDS = 10;
-
-export interface IUser {
-  _id: string;
-  email: string;
-  phone?: string;
-  isOnline: boolean;
-  password: string;
-  securityCode: string;
-  userName: string;
-  userImage?: Base64Image;
-  userSubscription?: any;
-  isAdmin: boolean;
-  userProjects?: IProject[];
-  validatePassword(password: string): Promise<boolean>;
-}
 
 export const UserSchema = new Schema<IUser>(
   {
@@ -82,8 +64,6 @@ UserSchema.pre("save", async function (next: HookNextFunction) {
 
   if (this.isModified("email")) {
     try {
-      // const name = normalize(thisObj.email.replace(/@.+/, ""));
-      // const userName = name.match(/[0-9]/) === null ? name + randomNumber(4) : name;
       thisObj.userName = normalize(thisObj.email!.replace(/@.+/, ""));
     } catch (error: any) {
       return next(error);

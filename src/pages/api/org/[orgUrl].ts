@@ -6,7 +6,11 @@ import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
 import type { IOrg } from "models/Org";
 import type { ITopic } from "models/Topic";
-import { createServerError } from "utils/errors";
+import {
+  createServerError,
+  databaseErrorCodes,
+  duplicateError
+} from "utils/errors";
 import { equals, log, normalize } from "utils/string";
 
 const transport = nodemailer.createTransport(
@@ -216,7 +220,24 @@ handler.put<
             orgName: body.orgName.trim(),
             orgUrl: normalize(body.orgName.trim())
           };
+
+          if (
+            body.orgName !== org.orgName &&
+            (await models.Org.findOne({ orgName: body.orgName }))
+          )
+            throw duplicateError();
         }
+
+        // if (
+        //   Array.isArray(body.orgLists) &&
+        //   body.orgLists.length > 0 &&
+        //   org.orgLists
+        // ) {
+        //   for (const orgList of body.orgLists)
+        //     for (const { listName } of org.orgLists)
+        //       if (orgList.listName === listName)
+        //         throw duplicateError({ field: "listName" });
+        // }
       }
 
       log(`PUT /org/${orgUrl}:`, update || body);
@@ -236,8 +257,12 @@ handler.put<
             )
           );
       }
-    } catch (error) {
-      res.status(500).json(createServerError(error));
+    } catch (error: any) {
+      if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY)
+        res.status(400).json({
+          [error.field || "orgName"]: "Ce nom n'est pas disponible"
+        });
+      else res.status(500).json(createServerError(error));
     }
   }
 });

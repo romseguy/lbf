@@ -23,7 +23,7 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
 import { Link, GridItem, EntityButton } from "features/common";
-import { ModalState } from "features/modals/NotifyModal";
+import { ModalState } from "features/modals/EntityNotifModal";
 import { Category, IEvent } from "models/Event";
 import { IOrg, orgTypeFull2 } from "models/Org";
 import { hasItems } from "utils/array";

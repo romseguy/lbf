@@ -170,6 +170,7 @@ export const OrgConfigPanel = ({
             orgQuery={orgQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
+            session={session}
           />
         </>
       )}

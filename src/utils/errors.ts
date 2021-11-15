@@ -1,3 +1,5 @@
+export type FormFieldError = Error & { [key: string]: string };
+
 export interface ServerError {
   status: number;
   data: {
@@ -9,8 +11,20 @@ export const databaseErrorCodes = {
   DUPLICATE_KEY: 11000
 };
 
-export const duplicateError: Error & { code?: number } = new Error();
-duplicateError.code = databaseErrorCodes.DUPLICATE_KEY;
+type DuplicateError = Error & { code?: number; field?: string };
+
+export const duplicateError = ({
+  code = databaseErrorCodes.DUPLICATE_KEY,
+  field
+}: {
+  code?: number;
+  field?: string;
+} = {}): DuplicateError => {
+  const error: DuplicateError = new Error();
+  if (code) error.code = code;
+  if (field) error.field = field;
+  return error;
+};
 
 export const databaseErrorMessages: { [key: number]: any } = {
   [databaseErrorCodes.DUPLICATE_KEY]: {

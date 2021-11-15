@@ -60,11 +60,11 @@ handler.post<NextApiRequest, NextApiResponse>(async function postOrg(req, res) {
       const orgUrl = normalize(body.orgName);
 
       const org = await models.Org.findOne({ orgUrl });
-      if (org) throw duplicateError;
+      if (org) throw duplicateError();
       const user = await models.User.findOne({ userName: body.orgName });
-      if (user) throw duplicateError;
+      if (user) throw duplicateError();
       const event = await models.Event.findOne({ eventUrl: orgUrl });
-      if (event) throw duplicateError;
+      if (event) throw duplicateError();
       const doc = await models.Org.create({
         ...req.body,
         orgUrl,

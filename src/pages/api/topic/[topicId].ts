@@ -11,7 +11,7 @@ import { ITopic } from "models/Topic";
 import { createServerError } from "utils/errors";
 import { sendTopicEmailNotifications } from "utils/email";
 import { equals, log } from "utils/string";
-import { SubscriptionTypes } from "models/Subscription";
+import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
 
 const transport = nodemailer.createTransport(
@@ -106,10 +106,13 @@ handler.post<
       let subscriptions = (org.orgLists || [])
         .filter((orgList) =>
           topic.topicVisibility?.find(
-            (listName) => listName === orgList.listName
+            (listName) =>
+              listName === orgList.listName &&
+              Array.isArray(orgList.subscriptions) &&
+              orgList.subscriptions.length > 0
           )
         )
-        .flatMap(({ subscriptions }) => subscriptions);
+        .flatMap(({ subscriptions }) => subscriptions) as ISubscription[];
 
       for (const orgListName of body.orgListsNames) {
         const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
@@ -125,7 +128,7 @@ handler.post<
           );
       }
 
-      if (hasItems(subscriptions)) {
+      if (Array.isArray(subscriptions) && subscriptions.length > 0) {
         emailList = await sendTopicEmailNotifications({
           org: body.org,
           subscriptions,

@@ -129,7 +129,7 @@ handler.put<
 
         if (body.userName && body.userName !== user.userName) {
           const user = await models.User.findOne({ userName: body.userName });
-          if (user) throw duplicateError;
+          if (user) throw duplicateError();
         }
 
         selector = { userName: slug };

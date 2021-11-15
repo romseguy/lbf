@@ -115,11 +115,11 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
         }
       } else {
         event = await models.Event.findOne({ eventUrl });
-        if (event) throw duplicateError;
+        if (event) throw duplicateError();
         const org = await models.Org.findOne({ orgUrl: eventUrl });
-        if (org) throw duplicateError;
+        if (org) throw duplicateError();
         const user = await models.User.findOne({ userName: body.eventName });
-        if (user) throw duplicateError;
+        if (user) throw duplicateError();
 
         let isApproved = session.user.isAdmin;
 

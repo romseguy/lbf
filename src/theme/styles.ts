@@ -13,6 +13,18 @@ const ReactSelectStyles = (props: Dict) => ({
         borderColor: mode("#CBD5E0", "#5F6774")(props)
       },
       borderColor: mode("gray.200", "#4F5765")(props),
+      ".react-select__single-value": {
+        color: mode("black", "white")(props),
+        px: 2,
+        py: 1
+      },
+      ".react-select__input-container": {
+        color: mode("black", "white")(props),
+        bgColor: mode("blackAlpha.100", "whiteAlpha.300")(props),
+        borderRadius: "lg",
+        px: 2,
+        py: 1
+      },
       ".react-select__placeholder": {
         color: mode("gray.400", "gray.400")(props)
       }
@@ -53,6 +65,7 @@ const ReactSelectStyles = (props: Dict) => ({
         color: mode("black", "white")(props),
         ".react-select__option": {
           backgroundColor: mode("white", "transparent")(props),
+          color: mode("black", "white")(props),
           "&:hover": {
             cursor: "pointer",
             backgroundColor: mode("orange.100", "whiteAlpha.400")(props),

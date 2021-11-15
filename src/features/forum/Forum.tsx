@@ -6,9 +6,8 @@ import { TopicsList } from "./TopicsList";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import {
   getFollowerSubscription,
-  getSubscriberSubscription,
-  selectSubscriptionRefetch
-} from "features/subscriptions/subscriptionSlice";
+  getSubscriberSubscription
+} from "models/Subscription";
 import { useSelector } from "react-redux";
 import { Spinner } from "@chakra-ui/react";
 import { selectUserEmail } from "features/users/userSlice";

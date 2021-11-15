@@ -40,7 +40,7 @@ import {
   LocationButton
 } from "features/common";
 import { DescriptionModal } from "features/modals/DescriptionModal";
-import { ModalState, NotifyModal } from "features/modals/NotifyModal";
+import { ModalState, EntityNotifModal } from "features/modals/EntityNotifModal";
 import { EventModal } from "features/modals/EventModal";
 import { ForwardModal } from "features/modals/ForwardModal";
 import { refetchOrg } from "features/orgs/orgSlice";
@@ -892,7 +892,7 @@ export const EventsList = ({
       )}
 
       {session && (
-        <NotifyModal
+        <EntityNotifModal
           event={notifyModalState.entity || undefined}
           org={org}
           query={orgQuery}

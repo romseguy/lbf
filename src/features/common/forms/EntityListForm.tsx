@@ -11,12 +11,13 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { getFollowerSubscription } from "features/subscriptions/subscriptionSlice";
+import { getFollowerSubscription } from "models/Subscription";
 import { IOrg, IOrgList } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { handleError } from "utils/form";
 import { ErrorMessageText } from "..";
 import { MultiSelect } from "./MultiSelect";
+import { hasItems } from "utils/array";
 
 const subscriptionsToOptions = (subscriptions: ISubscription[]) =>
   subscriptions.map((subscription) => {
@@ -38,7 +39,10 @@ export const EntityListForm = ({
   list?: IOrgList;
   org: IOrg;
   onCancel: () => void;
-  onSubmit: (payload: IOrgList) => void;
+  onSubmit: (payload: {
+    listName: string;
+    subscriptions?: ISubscription[];
+  }) => Promise<void>;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -63,39 +67,30 @@ export const EntityListForm = ({
 
   const onSubmit = async (form: {
     listName: string;
-    subscriptions: { label: string; value: ISubscription }[];
+    subscriptions?: { label: string; value: ISubscription }[];
   }) => {
     console.log("submitted", form);
-    setIsLoading(true);
 
-    const payload = {
-      ...form,
-      subscriptions: form.subscriptions.map(({ value }) => {
-        return value;
-      })
-    };
+    if (props.onSubmit) {
+      setIsLoading(true);
 
-    if (props.list) {
-      // todo if (props.list.listName !== list.listName)
-    }
-
-    try {
-      setIsLoading(false);
-      props.onSubmit && props.onSubmit(payload);
-    } catch (error) {
-      setIsLoading(false);
-      handleError(error, (message, field) => {
-        setError(field || "formErrorMessage", {
-          type: "manual",
-          message
+      try {
+        await props.onSubmit({
+          ...form,
+          subscriptions: form.subscriptions?.map(({ value }) => {
+            return value;
+          })
         });
-      });
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        handleError(error, (message, field) => {
+          setError(field || "formErrorMessage", { type: "manual", message });
+        });
+      }
     }
   };
   //#endregion
-
-  const [selected, setSelected] = useState([]);
-  console.log(selected);
 
   return (
     <form
@@ -117,68 +112,70 @@ export const EntityListForm = ({
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl mb={3}>
-        <FormLabel>Membres</FormLabel>
+      {hasItems(org.orgSubscriptions) && (
+        <FormControl mb={3}>
+          <FormLabel>Membres</FormLabel>
 
-        <Controller
-          name="subscriptions"
-          control={control}
-          defaultValue={subscriptionsToOptions(defaultSubscriptions)}
-          render={(renderProps) => {
-            return (
-              <MultiSelect
-                value={renderProps.value}
-                onChange={renderProps.onChange}
-                options={subscriptionsToOptions(
-                  org.orgSubscriptions.filter((subscription) =>
-                    subscription.orgs.find(
-                      (orgSubscription) => orgSubscription.orgId === org._id
+          <Controller
+            name="subscriptions"
+            control={control}
+            defaultValue={subscriptionsToOptions(defaultSubscriptions)}
+            render={(renderProps) => {
+              return (
+                <MultiSelect
+                  value={renderProps.value}
+                  onChange={renderProps.onChange}
+                  options={subscriptionsToOptions(
+                    org.orgSubscriptions.filter((subscription) =>
+                      subscription.orgs.find(
+                        (orgSubscription) => orgSubscription.orgId === org._id
+                      )
                     )
-                  )
-                )}
-                allOptionLabel="Tous les adhérents et abonnés"
-                closeMenuOnSelect={false}
-                placeholder="Rechercher un e-mail ou un numéro de téléphone..."
-                menuPlacement="top"
-                noOptionsMessage={() => "Aucun résultat"}
-                isClearable
-                isMulti
-                isSearchable
-                styles={{
-                  control: (defaultStyles: any) => {
-                    return {
-                      ...defaultStyles,
-                      borderColor: "#e2e8f0",
-                      paddingLeft: "8px"
-                    };
-                  },
-                  multiValue: (defaultStyles: any, option: any) => {
-                    const subscription: ISubscription = option.data.value;
-                    const followerSubscription = getFollowerSubscription({
-                      org,
-                      subscription
-                    });
+                  )}
+                  allOptionLabel="Tous les adhérents et abonnés"
+                  closeMenuOnSelect={false}
+                  placeholder="Rechercher un e-mail ou un numéro de téléphone..."
+                  menuPlacement="top"
+                  noOptionsMessage={() => "Aucun résultat"}
+                  isClearable
+                  isMulti
+                  isSearchable
+                  styles={{
+                    control: (defaultStyles: any) => {
+                      return {
+                        ...defaultStyles,
+                        borderColor: "#e2e8f0",
+                        paddingLeft: "8px"
+                      };
+                    },
+                    multiValue: (defaultStyles: any, option: any) => {
+                      const subscription: ISubscription = option.data.value;
+                      const followerSubscription = getFollowerSubscription({
+                        org,
+                        subscription
+                      });
 
-                    return {
-                      ...defaultStyles,
-                      backgroundColor: `${
-                        !!followerSubscription ? "green" : "purple"
-                      } !important`
-                    };
-                  },
-                  placeholder: () => {
-                    return {
-                      color: "#A0AEC0"
-                    };
-                  }
-                }}
-                className="react-select-container"
-                classNamePrefix="react-select"
-              />
-            );
-          }}
-        />
-      </FormControl>
+                      return {
+                        ...defaultStyles,
+                        backgroundColor: `${
+                          !!followerSubscription ? "green" : "purple"
+                        } !important`
+                      };
+                    },
+                    placeholder: () => {
+                      return {
+                        color: "#A0AEC0"
+                      };
+                    }
+                  }}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                />
+              );
+            }}
+          />
+        </FormControl>
+      )}
 
       <ErrorMessage
         errors={errors}
@@ -195,6 +192,7 @@ export const EntityListForm = ({
         <Button onClick={onCancel} mr={3}>
           Annuler
         </Button>
+
         <Button
           colorScheme="green"
           type="submit"
