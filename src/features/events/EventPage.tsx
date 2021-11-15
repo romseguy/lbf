@@ -92,7 +92,7 @@ export const EventPage = ({
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region event
-  const [editEvent, _] = useEditEventMutation();
+  const [editEvent, editEventMutation] = useEditEventMutation();
   const eventQuery = useGetEventQuery(
     { eventUrl: props.event.eventUrl, populate },
     {
@@ -528,6 +528,7 @@ export const EventPage = ({
               <TopicsList
                 event={event}
                 query={eventQuery}
+                mutation={[editEvent, editEventMutation]}
                 subQuery={subQuery}
                 isCreator={isCreator}
                 isFollowed={!!isFollowed}
@@ -554,7 +555,12 @@ export const EventPage = ({
                     }}
                   >
                     Envoyer des invitations à{" "}
-                    <EntityButton event={event} bg="whiteAlpha.500" ml={2} />
+                    <EntityButton
+                      event={event}
+                      bg="whiteAlpha.500"
+                      ml={2}
+                      onClick={null}
+                    />
                   </Button>
                 )}
 

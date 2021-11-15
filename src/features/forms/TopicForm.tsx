@@ -14,6 +14,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import Creatable from "react-select/creatable";
 import { ErrorMessageText, RTEditor } from "features/common";
 import {
   useAddTopicMutation,
@@ -32,6 +33,8 @@ import { hasItems } from "utils/array";
 interface TopicFormProps extends ChakraProps {
   org?: IOrg;
   event?: IEvent;
+  query: any;
+  mutation: any;
   topic: ITopic | null;
   isCreator?: boolean;
   isFollowed?: boolean;
@@ -41,17 +44,26 @@ interface TopicFormProps extends ChakraProps {
   onSubmit?: (topic: ITopic | null) => void;
 }
 
-export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
+export const TopicForm = ({
+  org,
+  event,
+  query,
+  mutation,
+  ...props
+}: TopicFormProps) => {
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
 
   const [addTopic, addTopicMutation] = useAddTopicMutation();
   const [editTopic, editTopicMutation] = useEditTopicMutation();
+  const [editEntity, _] = mutation;
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
+  let categories: string[] | undefined;
   let lists: IOrgList[] | undefined;
   if (org) {
+    categories = org.orgTopicsCategories || [];
     lists = (org.orgLists || []).concat([
       {
         listName: "Abonnés",
@@ -93,6 +105,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
   const onSubmit = async (form: {
     topicName: string;
     topicMessage: string;
+    topicCategory?: { label: string; value: string };
     topicVisibility?: [{ label: string; value: string }];
     topicNotif?: boolean;
   }) => {
@@ -118,6 +131,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         topic: {
           topicName: form.topicName,
           topicMessages,
+          topicCategory: form.topicCategory?.value,
           topicVisibility: form.topicVisibility?.map(
             ({ label, value }) => value
           ),
@@ -205,6 +219,87 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
         </FormErrorMessage>
       </FormControl>
 
+      <FormControl
+        id="topicCategory"
+        isInvalid={!!errors["topicCategory"]}
+        mb={3}
+      >
+        <FormLabel>Catégories</FormLabel>
+        <Controller
+          name="topicCategory"
+          control={control}
+          defaultValue={[]}
+          render={(renderProps) => {
+            return (
+              <Creatable
+                value={renderProps.value}
+                onChange={renderProps.onChange}
+                options={
+                  categories?.map((label) => ({
+                    label,
+                    value: label
+                  })) || []
+                }
+                allowCreateWhileLoading
+                formatCreateLabel={(inputValue: string) =>
+                  `Créer la catégorie "${inputValue}"`
+                }
+                onCreateOption={async (inputValue: string) => {
+                  try {
+                    let props = {};
+                    if (org)
+                      props = {
+                        orgUrl: org.orgUrl,
+                        payload: {
+                          orgTopicsCategories: [
+                            ...(org.orgTopicsCategories || []),
+                            inputValue
+                          ]
+                        }
+                      };
+                    await editEntity(props);
+                    query.refetch();
+                    toast({
+                      status: "success",
+                      title: "La catégorie a bien été ajoutée !",
+                      isClosable: true
+                    });
+                  } catch (error) {
+                    console.error(error);
+                    toast({
+                      status: "error",
+                      title: "La catégorie n'a pas pu être ajoutée",
+                      isClosable: true
+                    });
+                  }
+                }}
+                placeholder="Rechercher ou créer une catégorie"
+                noOptionsMessage={() => "Aucun résultat"}
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={{
+                  control: (defaultStyles: any) => {
+                    return {
+                      ...defaultStyles,
+                      borderColor: "#e2e8f0",
+                      paddingLeft: "8px"
+                    };
+                  },
+                  placeholder: () => {
+                    return {
+                      color: "#A0AEC0"
+                    };
+                  }
+                }}
+              />
+            );
+          }}
+        />
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="topicCategory" />
+        </FormErrorMessage>
+      </FormControl>
+
       {!props.topic && (
         <FormControl
           id="topicMessage"
@@ -258,7 +353,7 @@ export const TopicForm = ({ org, event, ...props }: TopicFormProps) => {
                     })) || []
                   }
                   allOptionLabel="Toutes les listes"
-                  placeholder="Sélectionner une ou plusieurs listes"
+                  placeholder="Sélectionner une liste"
                   noOptionsMessage={() => "Aucun résultat"}
                   isClearable
                   isSearchable={false}

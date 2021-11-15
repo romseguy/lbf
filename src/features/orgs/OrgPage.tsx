@@ -95,7 +95,7 @@ export const OrgPage = ({
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region org
-  const [editOrg, _] = useEditOrgMutation();
+  const [editOrg, editOrgMutation] = useEditOrgMutation();
   const orgQuery = useGetOrgQuery(
     { orgUrl: props.org.orgUrl, populate },
     {
@@ -571,6 +571,7 @@ export const OrgPage = ({
               <TopicsList
                 org={org}
                 query={orgQuery}
+                mutation={[editOrg, editOrgMutation]}
                 subQuery={subQuery}
                 isCreator={isCreator}
                 isFollowed={!!followerSubscription}

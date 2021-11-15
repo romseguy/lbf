@@ -148,7 +148,8 @@ export const EventSendForm = ({
               }}
             >
               Envoyer l'invitation à une ou plusieurs listes de diffusion des
-              organisateurs de <EntityButton event={event} p={1} />
+              organisateurs de{" "}
+              <EntityButton event={event} p={1} onClick={null} />
             </Radio>
             <Radio
               isChecked={type === "single"}

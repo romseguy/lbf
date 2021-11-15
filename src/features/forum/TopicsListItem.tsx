@@ -1,6 +1,7 @@
 import { ViewIcon, ViewOffIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Button,
   Flex,
   IconButton,
   Link,
@@ -96,7 +97,23 @@ export const TopicsListItem = ({
 
             <GridItem lineHeight={1} py={3} data-cy="topicHeader">
               <Flex flexDirection="column">
-                <Text fontWeight="bold">{topic.topicName}</Text>
+                <Flex alignItems="center">
+                  {topic.topicCategory && (
+                    <Tooltip label="Catégorie de la discussion" hasArrow>
+                      <Button
+                        fontSize="small"
+                        fontWeight="normal"
+                        height="auto"
+                        mr={2}
+                        p={1}
+                      >
+                        {topic.topicCategory}
+                      </Button>
+                    </Tooltip>
+                  )}
+
+                  <Text fontWeight="bold">{topic.topicName}</Text>
+                </Flex>
 
                 <Flex
                   alignItems="center"

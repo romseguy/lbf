@@ -80,15 +80,19 @@ export const OrgInfo = ({
             const { prefix } = orgWeb;
             const url = orgWeb.url.includes("http")
               ? orgWeb.url
+                  .replace("https://", "")
+                  .replace("http://", "")
+                  .replace("www.", "")
               : prefix + orgWeb.url;
             return (
               <Flex key={`web-${index}`} alignItems="center">
                 <Icon as={FaGlobeEurope} mr={3} />
-                <Link variant="underline" href={url}>
-                  {webCollapsed ? orgWeb.url.substr(0, 9) + "..." : orgWeb.url}
+                <Link variant="underline" href={orgWeb.url}>
+                  {/* {webCollapsed ? url.substr(0, 9) + "..." : url} */}
+                  {url}
                 </Link>
 
-                {webCollapsed ? (
+                {/* {webCollapsed ? (
                   <Tooltip
                     label="Voir en entier l'adresse du site internet"
                     placement="top"
@@ -105,7 +109,7 @@ export const OrgInfo = ({
                     ml={2}
                     onClick={() => setWebCollapsed(true)}
                   />
-                )}
+                )} */}
               </Flex>
             );
           })}

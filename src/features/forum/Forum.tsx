@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "hooks/useAuth";
-import { useGetOrgQuery } from "features/orgs/orgsApi";
+import { useEditOrgMutation, useGetOrgQuery } from "features/orgs/orgsApi";
 import { TopicsList } from "./TopicsList";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import {
@@ -25,6 +25,7 @@ export const Forum = ({
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region org
+  const mutation = useEditOrgMutation();
   const query = useGetOrgQuery({
     orgUrl: "aucourant",
     populate: "orgTopics orgSubscriptions"
@@ -70,6 +71,7 @@ export const Forum = ({
     <TopicsList
       org={org}
       query={query}
+      mutation={mutation}
       subQuery={subQuery}
       isCreator={isCreator}
       isFollowed={isFollowed}

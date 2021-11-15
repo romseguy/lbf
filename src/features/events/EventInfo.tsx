@@ -86,14 +86,15 @@ export const EventInfo = ({
             const { prefix } = eventWeb;
             const url = eventWeb.url.includes("http")
               ? eventWeb.url
+                  .replace("https://", "")
+                  .replace("http://", "")
+                  .replace("www.", "")
               : prefix + eventWeb.url;
             return (
               <Flex key={`web-${index}`} alignItems="center">
                 <Icon as={FaGlobeEurope} mr={3} />
-                <Link variant="underline" href={url}>
-                  {webCollapsed
-                    ? eventWeb.url.substr(0, 9) + "..."
-                    : eventWeb.url}
+                <Link variant="underline" href={eventWeb.url}>
+                  {webCollapsed ? url.substr(0, 9) + "..." : url}
                 </Link>
 
                 {webCollapsed ? (

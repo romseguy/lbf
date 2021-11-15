@@ -1,35 +1,12 @@
-import type { IEvent } from "models/Event";
-import type { IOrg } from "models/Org";
-import type { ITopicMessage } from "models/TopicMessage";
-import type { IUser } from "models/User";
-import { Schema, Types } from "mongoose";
 import { TopicMessageSchema } from "models/TopicMessage";
-
-export interface ITopic {
-  _id?: string;
-  id?: string;
-  topicName: string;
-  topicMessages: ITopicMessage[];
-  topicVisibility?: string[];
-  org?: IOrg;
-  event?: IEvent;
-  topicNotified?: ITopicNotified;
-  createdBy: IUser | string;
-  createdAt?: string;
-}
-
-export type ITopicNotified = {
-  email?: string;
-  phone?: string;
-  status?: string;
-}[];
+import { Schema } from "mongoose";
+import { ITopic } from "./ITopic";
 
 export const Visibility: { [key: string]: string } = {
   PUBLIC: "PUBLIC",
   SUBSCRIBERS: "SUBSCRIBERS",
   FOLLOWERS: "FOLLOWERS"
 };
-
 export const VisibilityV: { [key: string]: string } = {
   PUBLIC: "Publique",
   SUBSCRIBERS: "Adhérents",
@@ -44,6 +21,7 @@ export const TopicSchema = new Schema<ITopic>(
       trim: true
     },
     topicMessages: [TopicMessageSchema],
+    topicCategory: { type: String, trim: true },
     topicVisibility: [String],
     org: {
       type: Schema.Types.ObjectId,

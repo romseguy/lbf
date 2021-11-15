@@ -29,22 +29,26 @@ export const TopicsListItemVisibility = ({
     icon: IconType | ComponentWithAs<"svg", IconProps>;
   }[] = [];
 
+  const customLists = topicVisibility?.filter(
+    (listName) => !["Adhérents", "Abonnés"].includes(listName)
+  );
+
   const suffix = org
-    ? "de " + org.orgName
+    ? `${orgTypeFull(org.orgType)} "${org.orgName}"`
     : event
     ? "de " + event.eventName
     : "";
 
-  if (
-    hasItems(
-      topicVisibility?.filter(
-        (listName) => !["Adhérents", "Abonnés"].includes(listName)
-      )
-    )
-  ) {
+  if (Array.isArray(customLists) && customLists.length > 0) {
     icons = [
       {
-        label: `Discussion réservée aux membres d'une liste de diffusion ${suffix}`,
+        label: `Discussion réservée aux membres ${
+          customLists.length === 1
+            ? `de la liste de diffusion "${customLists[0]}"`
+            : `des listes de diffusion ${customLists.map((listName, index) =>
+                index !== listName.length ? `"${listName}", ` : `"${listName}"`
+              )}`
+        }`,
         icon: HamburgerIcon
       }
     ];

@@ -565,46 +565,45 @@ export const EventsList = ({
                     getDayOfYear(currentDateP) < getDayOfYear(minDate);
                   currentDateP = minDate;
 
-                  return (
-                    <Fragment key={"event-" + index}>
-                      <Tr>
-                        <Td border={0} colSpan={3} p={0}>
-                          {addGridHeader ? (
-                            <GridHeader
-                              borderTopRadius={index === 0 ? "lg" : undefined}
-                            >
-                              <Heading size="sm" py={3}>
-                                {format(minDate, "cccc d MMMM", {
-                                  locale: fr
-                                })}
-                              </Heading>
-                            </GridHeader>
-                          ) : (
-                            <GridItem></GridItem>
-                          )}
-                        </Td>
-                      </Tr>
+                  return [
+                    <Tr key={`eventsList-header-${index}`}>
+                      <Td border={0} colSpan={3} p={0}>
+                        {addGridHeader ? (
+                          <GridHeader
+                            borderTopRadius={index === 0 ? "lg" : undefined}
+                          >
+                            <Heading size="sm" py={3}>
+                              {format(minDate, "cccc d MMMM", {
+                                locale: fr
+                              })}
+                            </Heading>
+                          </GridHeader>
+                        ) : (
+                          <GridItem></GridItem>
+                        )}
+                      </Td>
+                    </Tr>,
 
-                      <Tr
-                        bg={
-                          isDark
-                            ? index % 2 === 0
-                              ? "gray.400"
-                              : "gray.500"
-                            : index % 2 === 0
-                            ? "orange.50"
-                            : "orange.100"
-                        }
-                      >
-                        <EventsListItem
-                          {...eventsListItemProps}
-                          event={event}
-                          index={index}
-                          length={previousEvents.length}
-                        />
-                      </Tr>
-                    </Fragment>
-                  );
+                    <Tr
+                      key={`eventsList-item-${index}`}
+                      bg={
+                        isDark
+                          ? index % 2 === 0
+                            ? "gray.400"
+                            : "gray.500"
+                          : index % 2 === 0
+                          ? "orange.50"
+                          : "orange.100"
+                      }
+                    >
+                      <EventsListItem
+                        {...eventsListItemProps}
+                        event={event}
+                        index={index}
+                        length={previousEvents.length}
+                      />
+                    </Tr>
+                  ];
                 })}
             </Tbody>
           </Table>
@@ -623,46 +622,45 @@ export const EventsList = ({
                       getDayOfYear(currentDate) < getDayOfYear(minDate);
                     currentDate = minDate;
 
-                    return (
-                      <Fragment key={"event-" + index}>
-                        <Tr>
-                          <Td border={0} colSpan={3} p={0}>
-                            {addGridHeader ? (
-                              <GridHeader
-                                borderTopRadius={index === 0 ? "lg" : undefined}
-                              >
-                                <Heading size="sm" py={3}>
-                                  {format(minDate, "cccc d MMMM", {
-                                    locale: fr
-                                  })}
-                                </Heading>
-                              </GridHeader>
-                            ) : (
-                              <GridItem></GridItem>
-                            )}
-                          </Td>
-                        </Tr>
+                    return [
+                      <Tr key={`eventsList-header-${index}`}>
+                        <Td border={0} colSpan={3} p={0}>
+                          {addGridHeader ? (
+                            <GridHeader
+                              borderTopRadius={index === 0 ? "lg" : undefined}
+                            >
+                              <Heading size="sm" py={3}>
+                                {format(minDate, "cccc d MMMM", {
+                                  locale: fr
+                                })}
+                              </Heading>
+                            </GridHeader>
+                          ) : (
+                            <GridItem></GridItem>
+                          )}
+                        </Td>
+                      </Tr>,
 
-                        <Tr
-                          bg={
-                            isDark
-                              ? index % 2 === 0
-                                ? "gray.400"
-                                : "gray.500"
-                              : index % 2 === 0
-                              ? "orange.50"
-                              : "orange.100"
-                          }
-                        >
-                          <EventsListItem
-                            {...eventsListItemProps}
-                            event={event}
-                            index={index}
-                            length={currentEvents.length}
-                          />
-                        </Tr>
-                      </Fragment>
-                    );
+                      <Tr
+                        key={`eventsList-item-${index}`}
+                        bg={
+                          isDark
+                            ? index % 2 === 0
+                              ? "gray.400"
+                              : "gray.500"
+                            : index % 2 === 0
+                            ? "orange.50"
+                            : "orange.100"
+                        }
+                      >
+                        <EventsListItem
+                          {...eventsListItemProps}
+                          event={event}
+                          index={index}
+                          length={currentEvents.length}
+                        />
+                      </Tr>
+                    ];
                   })
               ) : (
                 <Alert status="info">
@@ -712,49 +710,48 @@ export const EventsList = ({
                     getDayOfYear(currentDateN) < getDayOfYear(minDate);
                   currentDateN = minDate;
 
-                  return (
-                    <Fragment key={"event-" + index}>
-                      <Tr key={"event-" + index}>
-                        <Td colSpan={3} p={0}>
-                          {addGridHeader ? (
-                            <GridHeader
-                              colSpan={3}
-                              borderTopRadius={index === 0 ? "lg" : undefined}
-                            >
-                              <Heading size="sm" py={3}>
-                                {format(minDate, "cccc d MMMM", {
-                                  locale: fr
-                                })}
-                              </Heading>
-                            </GridHeader>
-                          ) : (
-                            <GridItem>
-                              <Spacer borderWidth={1} />
-                            </GridItem>
-                          )}
-                        </Td>
-                      </Tr>
+                  return [
+                    <Tr key={`eventsList-header-${index}`}>
+                      <Td colSpan={3} p={0}>
+                        {addGridHeader ? (
+                          <GridHeader
+                            colSpan={3}
+                            borderTopRadius={index === 0 ? "lg" : undefined}
+                          >
+                            <Heading size="sm" py={3}>
+                              {format(minDate, "cccc d MMMM", {
+                                locale: fr
+                              })}
+                            </Heading>
+                          </GridHeader>
+                        ) : (
+                          <GridItem>
+                            <Spacer borderWidth={1} />
+                          </GridItem>
+                        )}
+                      </Td>
+                    </Tr>,
 
-                      <Tr
-                        bg={
-                          isDark
-                            ? index % 2 === 0
-                              ? "gray.400"
-                              : "gray.500"
-                            : index % 2 === 0
-                            ? "orange.50"
-                            : "orange.100"
-                        }
-                      >
-                        <EventsListItem
-                          {...eventsListItemProps}
-                          event={event}
-                          index={index}
-                          length={nextEvents.length}
-                        />
-                      </Tr>
-                    </Fragment>
-                  );
+                    <Tr
+                      key={`eventsList-item-${index}`}
+                      bg={
+                        isDark
+                          ? index % 2 === 0
+                            ? "gray.400"
+                            : "gray.500"
+                          : index % 2 === 0
+                          ? "orange.50"
+                          : "orange.100"
+                      }
+                    >
+                      <EventsListItem
+                        {...eventsListItemProps}
+                        event={event}
+                        index={index}
+                        length={nextEvents.length}
+                      />
+                    </Tr>
+                  ];
                 })}
             </Tbody>
           </Table>

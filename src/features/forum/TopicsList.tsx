@@ -23,11 +23,13 @@ import { useDeleteTopicMutation, usePostTopicNotifMutation } from "./topicsApi";
 import { TopicsListItem } from "./TopicsListItem";
 import { hasItems } from "utils/array";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
+import { TopicsListCategories } from "./TopicsListCategories";
 
 export const TopicsList = ({
   event,
   org,
   query,
+  mutation,
   subQuery,
   isLogin,
   setIsLogin,
@@ -36,6 +38,7 @@ export const TopicsList = ({
   event?: IEvent;
   org?: IOrg;
   query: any;
+  mutation: any;
   subQuery: any;
   isCreator?: boolean;
   isFollowed?: boolean;
@@ -62,6 +65,7 @@ export const TopicsList = ({
 
   //#region local state
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
+  const [selectedCategories, setSelectedCategories] = useState<string[]>();
   const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
   const [topicModalState, setTopicModalState] = useState<{
     isOpen: boolean;
@@ -105,6 +109,8 @@ export const TopicsList = ({
           topic={topicModalState.entity}
           org={org}
           event={event}
+          query={query}
+          mutation={mutation}
           isCreator={props.isCreator}
           isFollowed={props.isFollowed}
           isSubscribed={props.isSubscribed}
@@ -147,6 +153,15 @@ export const TopicsList = ({
         />
       )}
 
+      {org && org.orgTopicsCategories && (
+        <TopicsListCategories
+          org={org}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+          mb={3}
+        />
+      )}
+
       {session &&
         org &&
         org.orgName !== "aucourant" &&
@@ -171,29 +186,44 @@ export const TopicsList = ({
             .filter((topic) => {
               if (entityName === "aucourant") return true;
 
-              if (Array.isArray(selectedLists) && selectedLists.length > 0) {
+              if (hasItems(selectedCategories) || hasItems(selectedLists)) {
+                let belongsToCategory = false;
+                let belongsToList = false;
+
                 if (
-                  Array.isArray(topic.topicVisibility) &&
-                  topic.topicVisibility.length > 0
+                  Array.isArray(selectedCategories) &&
+                  selectedCategories.length > 0
                 ) {
-                  let found = false;
+                  if (
+                    topic.topicCategory &&
+                    selectedCategories.find(
+                      (selectedCategory) =>
+                        selectedCategory === topic.topicCategory
+                    )
+                  )
+                    belongsToCategory = true;
+                }
 
-                  for (let i = 0; i < topic.topicVisibility.length; i++)
-                    for (let j = 0; j < selectedLists.length; j++)
-                      if (
-                        selectedLists[j].listName === topic.topicVisibility[i]
-                      )
-                        found = true;
+                if (Array.isArray(selectedLists) && selectedLists.length > 0) {
+                  if (
+                    Array.isArray(topic.topicVisibility) &&
+                    topic.topicVisibility.length > 0
+                  ) {
+                    let found = false;
 
-                  console.log(found);
+                    for (let i = 0; i < topic.topicVisibility.length; i++)
+                      for (let j = 0; j < selectedLists.length; j++)
+                        if (
+                          selectedLists[j].listName === topic.topicVisibility[i]
+                        )
+                          found = true;
 
-                  return found;
-                } else return false;
-              } else if (
-                !topic.topicVisibility ||
-                !topic.topicVisibility.length
-              )
-                return true;
+                    if (found) belongsToList = true;
+                  }
+                }
+
+                return belongsToCategory || belongsToList;
+              }
 
               if (props.isCreator) return true;
 

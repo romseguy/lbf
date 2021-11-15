@@ -134,12 +134,6 @@ export const EventsListItem = ({
                   fontWeight="normal"
                   height="auto"
                   p={1}
-                  // css={css`
-                  //   font-size: 0.8rem;
-                  //   @media (min-width: 730px) {
-                  //     font-size: 0.9rem;
-                  //   }
-                  // `}
                 >
                   {Category[event.eventCategory].label}
                 </Button>

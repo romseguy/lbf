@@ -1,6 +1,10 @@
-import { Tag, useColorMode } from "@chakra-ui/react";
-import { Flex, FlexProps } from "@chakra-ui/layout";
-import { Link } from "features/common";
+import {
+  Button,
+  Flex,
+  FlexProps,
+  Tooltip,
+  useColorMode
+} from "@chakra-ui/react";
 import React from "react";
 import { getSubscriptions, IOrg, IOrgList } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
@@ -38,37 +42,35 @@ export const TopicsListOrgLists = ({
         );
 
         return (
-          <Link
+          <Tooltip
             key={"orgList-" + index}
-            variant="no-underline"
-            onClick={() => {
-              selectedLists?.find(
-                ({ listName }) => listName === orgList.listName
-              )
-                ? setSelectedLists(
-                    selectedLists.filter(
-                      ({ listName }) => listName !== orgList.listName
-                    )
-                  )
-                : setSelectedLists((selectedLists || []).concat([orgList]));
-            }}
+            label={`Afficher les discussions réservées aux membres de la liste de diffusion "${orgList.listName}"`}
+            hasArrow
           >
-            <Tag
+            <Button
               variant={isSelected ? "solid" : "outline"}
-              color="white"
-              bgColor={
-                isSelected
-                  ? "pink.600"
-                  : isDark
-                  ? "whiteAlpha.300"
-                  : "blackAlpha.600"
-              }
+              colorScheme={isSelected ? "pink" : undefined}
+              fontSize="small"
+              fontWeight="normal"
+              height="auto"
               mr={1}
-              whiteSpace="nowrap"
+              p={1}
+              //whiteSpace="nowrap"
+              onClick={() => {
+                selectedLists?.find(
+                  ({ listName }) => listName === orgList.listName
+                )
+                  ? setSelectedLists(
+                      selectedLists.filter(
+                        ({ listName }) => listName !== orgList.listName
+                      )
+                    )
+                  : setSelectedLists((selectedLists || []).concat([orgList]));
+              }}
             >
               {orgList.listName}
-            </Tag>
-          </Link>
+            </Button>
+          </Tooltip>
         );
       })}
     </Flex>
