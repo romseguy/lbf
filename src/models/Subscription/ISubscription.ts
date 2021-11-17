@@ -2,7 +2,6 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
-import { TagType } from ".";
 
 export interface ISubscription {
   _id: string;
@@ -14,6 +13,12 @@ export interface ISubscription {
   topics: ITopicSubscription[];
   createdBy: IUser | string;
 }
+
+export type TagType = {
+  type: "Events" | "Topics";
+  emailNotif?: boolean;
+  pushNotif?: boolean;
+};
 
 export interface IEventSubscription {
   event: IEvent;

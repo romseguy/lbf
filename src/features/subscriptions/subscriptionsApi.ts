@@ -17,11 +17,17 @@ export const subscriptionApi = createApi({
         user?: IUser | string;
       }
     >({
-      query: ({ payload, email, phone, user }) => ({
-        url: `subscriptions`,
-        method: "POST",
-        body: { ...payload, email, phone, user }
-      }),
+      query: ({ payload, email, phone, user }) => {
+        console.log("addSubscription: email", email);
+        console.log("addSubscription: phone", phone);
+        console.log("addSubscription: user", user);
+        console.log("addSubscription: payload", payload);
+        return {
+          url: `subscriptions`,
+          method: "POST",
+          body: { ...payload, email, phone, user }
+        };
+      },
       invalidatesTags: [{ type: "Subscriptions", id: "LIST" }]
     }),
     deleteSubscription: build.mutation<

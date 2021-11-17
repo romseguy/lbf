@@ -90,7 +90,13 @@ handler.post<NextApiRequest, NextApiResponse>(async function postProject(
 
       if (projectOrgs) {
         await models.Org.updateMany(
-          { _id: projectOrgs },
+          {
+            _id: {
+              $in: projectOrgs.map((projectOrg) =>
+                typeof projectOrg === "object" ? projectOrg._id : projectOrg
+              )
+            }
+          },
           {
             $push: {
               orgProjects: project?._id
@@ -127,7 +133,12 @@ handler.post<NextApiRequest, NextApiResponse>(async function postProject(
         }
       } else {
         await models.User.updateOne(
-          { _id: body.createdBy },
+          {
+            _id:
+              typeof body.createdBy === "object"
+                ? body.createdBy._id
+                : body.createdBy
+          },
           { $push: { userProjects: project._id } }
         );
       }

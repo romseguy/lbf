@@ -84,8 +84,8 @@ export const EventsList = ({
   orgQuery?: any;
   isCreator?: boolean;
   isSubscribed?: boolean;
-  isLogin?: number;
-  setIsLogin?: (isLogin: number) => void;
+  isLogin: number;
+  setIsLogin: (isLogin: number) => void;
   setTitle?: (title?: string) => void;
 }) => {
   const router = useRouter();
@@ -530,6 +530,9 @@ export const EventsList = ({
         <EventsListCategories
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
+          session={session}
+          isLogin={isLogin}
+          setIsLogin={setIsLogin}
           mb={5}
         />
 
@@ -610,92 +613,100 @@ export const EventsList = ({
         )}
 
         {!showPreviousEvents && !showNextEvents && (
-          <Table>
-            <Tbody>
-              {currentEvents.length > 0 ? (
-                currentEvents
-                  .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
-                  .map((event, index) => {
-                    const minDate = event.eventMinDate;
-                    const addGridHeader =
-                      !currentDate ||
-                      getDayOfYear(currentDate) < getDayOfYear(minDate);
-                    currentDate = minDate;
+          <>
+            {currentEvents.length > 0 ? (
+              <>
+                <Table>
+                  <Tbody>
+                    {currentEvents
+                      .sort((a, b) =>
+                        compareAsc(a.eventMinDate, b.eventMinDate)
+                      )
+                      .map((event, index) => {
+                        const minDate = event.eventMinDate;
+                        const addGridHeader =
+                          !currentDate ||
+                          getDayOfYear(currentDate) < getDayOfYear(minDate);
+                        currentDate = minDate;
 
-                    return [
-                      <Tr key={`eventsList-header-${index}`}>
-                        <Td border={0} colSpan={3} p={0}>
-                          {addGridHeader ? (
-                            <GridHeader
-                              borderTopRadius={index === 0 ? "lg" : undefined}
-                            >
-                              <Heading size="sm" py={3}>
-                                {format(minDate, "cccc d MMMM", {
-                                  locale: fr
-                                })}
-                              </Heading>
-                            </GridHeader>
-                          ) : (
-                            <GridItem></GridItem>
-                          )}
-                        </Td>
-                      </Tr>,
+                        return [
+                          <Tr key={`eventsList-header-${index}`}>
+                            <Td border={0} colSpan={3} p={0}>
+                              {addGridHeader ? (
+                                <GridHeader
+                                  borderTopRadius={
+                                    index === 0 ? "lg" : undefined
+                                  }
+                                >
+                                  <Heading size="sm" py={3}>
+                                    {format(minDate, "cccc d MMMM", {
+                                      locale: fr
+                                    })}
+                                  </Heading>
+                                </GridHeader>
+                              ) : (
+                                <GridItem></GridItem>
+                              )}
+                            </Td>
+                          </Tr>,
 
-                      <Tr
-                        key={`eventsList-item-${index}`}
-                        bg={
-                          isDark
-                            ? index % 2 === 0
-                              ? "gray.400"
-                              : "gray.500"
-                            : index % 2 === 0
-                            ? "orange.50"
-                            : "orange.100"
-                        }
-                      >
-                        <EventsListItem
-                          {...eventsListItemProps}
-                          event={event}
-                          index={index}
-                          length={currentEvents.length}
-                        />
-                      </Tr>
-                    ];
-                  })
-              ) : (
-                <Alert status="info">
-                  <AlertIcon />
-                  Aucun événement{" "}
-                  {Array.isArray(selectedCategories) &&
-                  selectedCategoriesCount === 1 ? (
-                    <>
-                      de la catégorie
+                          <Tr
+                            key={`eventsList-item-${index}`}
+                            bg={
+                              isDark
+                                ? index % 2 === 0
+                                  ? "gray.400"
+                                  : "gray.500"
+                                : index % 2 === 0
+                                ? "orange.50"
+                                : "orange.100"
+                            }
+                          >
+                            <EventsListItem
+                              {...eventsListItemProps}
+                              event={event}
+                              index={index}
+                              length={currentEvents.length}
+                            />
+                          </Tr>
+                        ];
+                      })}
+                  </Tbody>
+                </Table>
+              </>
+            ) : (
+              <Alert status="info">
+                <AlertIcon />
+                Aucun événement{" "}
+                {Array.isArray(selectedCategories) &&
+                selectedCategoriesCount === 1 ? (
+                  <>
+                    de la catégorie
+                    <EventCategory
+                      selectedCategory={selectedCategories[0]}
+                      mx={1}
+                    />
+                  </>
+                ) : selectedCategoriesCount > 1 ? (
+                  <>
+                    dans les catégories
+                    {selectedCategories.map((catNumber, index) => (
                       <EventCategory
-                        selectedCategory={selectedCategories[0]}
+                        selectedCategory={selectedCategories[index]}
                         mx={1}
                       />
-                    </>
-                  ) : selectedCategoriesCount > 1 ? (
-                    <>
-                      dans les catégories
-                      {selectedCategories.map((catNumber, index) => (
-                        <EventCategory
-                          selectedCategory={selectedCategories[index]}
-                          mx={1}
-                        />
-                      ))}
-                    </>
-                  ) : (
-                    ""
-                  )}{" "}
-                  prévu
-                  {previousEvents.length > 0 || nextEvents.length > 0
-                    ? " cette semaine."
-                    : "."}
-                </Alert>
-              )}
-            </Tbody>
-          </Table>
+                    ))}
+                  </>
+                ) : (
+                  ""
+                )}{" "}
+                prévu
+                {previousEvents.length > 0 || nextEvents.length > 0
+                  ? " cette semaine."
+                  : "."}
+              </Alert>
+            )}
+          </>
         )}
 
         {showNextEvents && (

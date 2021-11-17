@@ -90,7 +90,6 @@ export const SubscriptionPopover = ({
   };
 
   const addFollowerSubscription = async (email?: string) => {
-    setIsLoading(true);
     let payload: Partial<ISubscription> = {};
 
     if (org) {
@@ -99,11 +98,20 @@ export const SubscriptionPopover = ({
           org,
           orgId: org._id,
           type: SubscriptionTypes.FOLLOWER,
-          tagTypes: ["Events", "Topics"]
+          tagTypes: [
+            { type: "Events", emailNotif: true, pushNotif: true },
+            { type: "Topics", emailNotif: true, pushNotif: true }
+          ]
         }
       ];
     } else if (event) {
-      payload.events = [{ event, eventId: event._id, tagTypes: ["Topics"] }];
+      payload.events = [
+        {
+          event,
+          eventId: event._id,
+          tagTypes: [{ type: "Topics", emailNotif: true, pushNotif: true }]
+        }
+      ];
     }
 
     try {
@@ -115,12 +123,11 @@ export const SubscriptionPopover = ({
       query.refetch();
       subQuery.refetch();
     } catch (error) {
+      console.error(error);
       toast({
         status: "error",
         title: "Vous n'avez pas pu être abonné"
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -214,7 +221,11 @@ export const SubscriptionPopover = ({
             )
           }
           colorScheme="teal"
-          onClick={() => addFollowerSubscription()}
+          onClick={async () => {
+            setIsLoading(true);
+            await addFollowerSubscription();
+            setIsLoading(false);
+          }}
           data-cy="subscribeToOrg"
         >
           S'abonner

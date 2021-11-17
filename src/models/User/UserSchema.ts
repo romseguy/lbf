@@ -35,6 +35,7 @@ export const UserSchema = new Schema<IUser>(
     },
     userSubscription: Schema.Types.Mixed,
     isAdmin: Boolean,
+    suggestedCategoryAt: String,
     userProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }]
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }

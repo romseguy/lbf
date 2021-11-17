@@ -42,7 +42,6 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
 
     if (response.status === 200) {
       const data = await response.json();
-      // if (!process.env.NEXT_PUBLIC_IS_TEST)
       if (
         !isServer() /*  && process.env.NEXT_PUBLIC_VERCEL_ENV !== "production" */
       )

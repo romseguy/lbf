@@ -4,7 +4,8 @@ import {
   IOrgSubscription,
   IEventSubscription,
   ISubscription,
-  SubscriptionTypes
+  SubscriptionTypes,
+  TagType
 } from "./ISubscription";
 
 export * from "./ISubscription";
@@ -16,29 +17,43 @@ export const isOrgSubscription = (
   return (followerSubscription as IOrgSubscription).orgId !== undefined;
 };
 
-export type TagType = "Events" | "Topics";
-
 export const addTagType = (
-  tagType: TagType,
+  tagTypeToAdd: TagType,
   followerSubscription: IOrgSubscription | IEventSubscription
 ): TagType[] => {
-  return followerSubscription.tagTypes &&
-    !followerSubscription.tagTypes.includes(tagType)
-    ? [...followerSubscription.tagTypes, tagType]
-    : [tagType];
+  if (!followerSubscription.tagTypes) return [tagTypeToAdd];
+
+  if (
+    !followerSubscription.tagTypes.find(({ type, emailNotif, pushNotif }) => {
+      if (type !== tagTypeToAdd.type) return false;
+      if (tagTypeToAdd.emailNotif) return !!emailNotif;
+      return !!pushNotif;
+    })
+  )
+    return [...followerSubscription.tagTypes, tagTypeToAdd];
+
+  return followerSubscription.tagTypes;
 };
 
 export const removeTagType = (
-  tagType: TagType,
+  tagTypeToRemove: TagType,
   followerSubscription: IOrgSubscription | IEventSubscription
 ): TagType[] => {
-  if (followerSubscription.tagTypes) {
-    if (followerSubscription.tagTypes.includes(tagType)) {
-      return followerSubscription.tagTypes.filter((t) => t !== tagType);
-    }
+  if (!followerSubscription.tagTypes) return [];
+
+  if (
+    followerSubscription.tagTypes.find(({ type, emailNotif, pushNotif }) => {
+      if (type !== tagTypeToRemove.type) return false;
+      if (tagTypeToRemove.emailNotif) return !!emailNotif;
+      return !!pushNotif;
+    })
+  ) {
+    return followerSubscription.tagTypes.filter(
+      ({ type }) => type !== tagTypeToRemove.type
+    );
   }
 
-  return followerSubscription.tagTypes || [];
+  return followerSubscription.tagTypes;
 };
 
 export const getFollowerSubscription = ({

@@ -115,8 +115,8 @@ export const UserForm = (props: {
 
     try {
       await editUser({
-        payload,
-        userName: props.user.userName || props.user._id
+        userName: props.user.userName || props.user._id,
+        payload
       }).unwrap();
       dispatch(setSession(null));
 

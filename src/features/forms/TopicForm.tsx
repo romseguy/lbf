@@ -241,86 +241,94 @@ export const TopicForm = ({
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl
-        id="topicCategory"
-        isInvalid={!!errors["topicCategory"]}
-        mb={3}
-      >
-        <FormLabel>Catégories</FormLabel>
-        <Controller
-          name="topicCategory"
-          control={control}
-          defaultValue={[]}
-          render={(renderProps) => {
-            return (
-              <Creatable
-                value={renderProps.value}
-                onChange={renderProps.onChange}
-                options={
-                  categories?.map((label) => ({
-                    label,
-                    value: label
-                  })) || []
-                }
-                allowCreateWhileLoading
-                formatCreateLabel={(inputValue: string) =>
-                  `Créer la catégorie "${inputValue}"`
-                }
-                onCreateOption={async (inputValue: string) => {
-                  try {
-                    let props = {};
-                    if (org)
-                      props = {
-                        orgUrl: org.orgUrl,
-                        payload: {
-                          orgTopicsCategories: [
-                            ...(org.orgTopicsCategories || []),
-                            inputValue
-                          ]
-                        }
+      {org && (
+        <FormControl
+          id="topicCategory"
+          isInvalid={!!errors["topicCategory"]}
+          mb={3}
+        >
+          <FormLabel>Catégories</FormLabel>
+          <Controller
+            name="topicCategory"
+            control={control}
+            defaultValue={
+              props.topic
+                ? {
+                    label: props.topic.topicCategory,
+                    value: props.topic.topicCategory
+                  }
+                : {}
+            }
+            render={(renderProps) => {
+              return (
+                <Creatable
+                  value={renderProps.value}
+                  onChange={renderProps.onChange}
+                  options={
+                    categories?.map((label) => ({
+                      label,
+                      value: label
+                    })) || []
+                  }
+                  allowCreateWhileLoading
+                  formatCreateLabel={(inputValue: string) =>
+                    `Créer la catégorie "${inputValue}"`
+                  }
+                  onCreateOption={async (inputValue: string) => {
+                    try {
+                      let props = {};
+                      if (org)
+                        props = {
+                          orgUrl: org.orgUrl,
+                          payload: {
+                            orgTopicsCategories: [
+                              ...(org.orgTopicsCategories || []),
+                              inputValue
+                            ]
+                          }
+                        };
+                      await editEntity(props);
+                      query.refetch();
+                      toast({
+                        status: "success",
+                        title: "La catégorie a bien été ajoutée !",
+                        isClosable: true
+                      });
+                    } catch (error) {
+                      console.error(error);
+                      toast({
+                        status: "error",
+                        title: "La catégorie n'a pas pu être ajoutée",
+                        isClosable: true
+                      });
+                    }
+                  }}
+                  placeholder="Rechercher ou créer une catégorie"
+                  noOptionsMessage={() => "Aucun résultat"}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (defaultStyles: any) => {
+                      return {
+                        ...defaultStyles,
+                        borderColor: "#e2e8f0"
                       };
-                    await editEntity(props);
-                    query.refetch();
-                    toast({
-                      status: "success",
-                      title: "La catégorie a bien été ajoutée !",
-                      isClosable: true
-                    });
-                  } catch (error) {
-                    console.error(error);
-                    toast({
-                      status: "error",
-                      title: "La catégorie n'a pas pu être ajoutée",
-                      isClosable: true
-                    });
-                  }
-                }}
-                placeholder="Rechercher ou créer une catégorie"
-                noOptionsMessage={() => "Aucun résultat"}
-                className="react-select-container"
-                classNamePrefix="react-select"
-                styles={{
-                  control: (defaultStyles: any) => {
-                    return {
-                      ...defaultStyles,
-                      borderColor: "#e2e8f0",
-                      paddingLeft: "8px"
-                    };
-                  },
-                  placeholder: () => {
-                    return {
-                      color: "#A0AEC0"
-                    };
-                  }
-                }}
-              />
-            );
-          }}
-        />
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="topicCategory" />
-        </FormErrorMessage>
-      </FormControl>
+                    },
+                    placeholder: () => {
+                      return {
+                        color: "#A0AEC0"
+                      };
+                    }
+                  }}
+                />
+              );
+            }}
+          />
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="topicCategory" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
 
       {!props.topic && (
         <FormControl
@@ -391,8 +399,7 @@ export const TopicForm = ({
                     control: (defaultStyles: any) => {
                       return {
                         ...defaultStyles,
-                        borderColor: "#e2e8f0",
-                        paddingLeft: "8px"
+                        borderColor: "#e2e8f0"
                       };
                     },
                     placeholder: () => {
@@ -411,7 +418,7 @@ export const TopicForm = ({
         </FormControl>
       )}
 
-      {hasItems(topicVisibility) && (
+      {!props.topic && hasItems(topicVisibility) && (
         <Alert status="info" mb={3}>
           <AlertIcon />
           La discussion ne sera visible que par les membres des listes de

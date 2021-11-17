@@ -20,7 +20,9 @@ export const SubscriptionSchema = new Schema<ISubscription>(
           type: Schema.Types.ObjectId,
           ref: "Event"
         },
-        tagTypes: [String]
+        tagTypes: [
+          { type: { type: String }, emailNotif: Boolean, pushNotif: Boolean }
+        ]
       }
     ],
     // IOrgSubscription
@@ -41,7 +43,9 @@ export const SubscriptionSchema = new Schema<ISubscription>(
           ),
           required: true
         },
-        tagTypes: [String],
+        tagTypes: [
+          { type: { type: String }, emailNotif: Boolean, pushNotif: Boolean }
+        ],
         eventCategories: {
           type: [
             {

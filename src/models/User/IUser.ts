@@ -12,6 +12,7 @@ export interface IUser {
   userImage?: Base64Image;
   userSubscription?: any;
   isAdmin: boolean;
+  suggestedCategoryAt?: string;
   userProjects?: IProject[];
   validatePassword(password: string): Promise<boolean>;
 }

@@ -17,7 +17,8 @@ import {
   AlertDialogHeader,
   AlertDialogBody,
   AlertDialogFooter,
-  Tooltip
+  Tooltip,
+  useColorMode
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 
@@ -32,13 +33,15 @@ export const DeleteButton = ({
   ...props
 }: any & {
   header: React.ReactNode;
-  body?: React.ReactNode;
+  body: React.ReactNode;
   placement?: string;
   isDisabled?: boolean;
   isLoading?: boolean;
   isIconOnly?: boolean;
   onClick: () => void;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const [isOpen, setIsOpen] = React.useState(false);
   const onClose = () => setIsOpen(false);
   const cancelRef = React.useRef<HTMLButtonElement | null>(null);
@@ -49,6 +52,8 @@ export const DeleteButton = ({
         <Tooltip label="Supprimer" placement={placement}>
           <IconButton
             aria-label="Supprimer"
+            color={isDark ? "white" : "black"}
+            colorScheme="red"
             icon={<DeleteIcon />}
             isLoading={isLoading}
             {...props}

@@ -35,7 +35,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 userId: data._id,
                 userName: data.userName,
                 // userImage: data.userImage,
-                isAdmin: data.isAdmin || false
+                isAdmin: data.isAdmin || false,
+                suggestedCategoryAt: data.suggestedCategoryAt
               };
               //console.log("AUTHORIZED:", user);
               return user;

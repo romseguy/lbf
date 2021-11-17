@@ -98,7 +98,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
             o &&
             !o.orgEvents.find((orgEvent) => equals(orgEvent.eventUrl, eventUrl))
           ) {
-            eventOrgs.push(o._id);
+            eventOrgs.push(o);
           }
         }
 
@@ -170,7 +170,13 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
 
       if (event) {
         await models.Org.updateMany(
-          { _id: eventOrgs },
+          {
+            _id: {
+              $in: eventOrgs.map((eventOrg) =>
+                typeof eventOrg === "object" ? eventOrg._id : eventOrg
+              )
+            }
+          },
           {
             $push: {
               orgEvents: event._id

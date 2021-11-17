@@ -9,6 +9,7 @@ import {
   ListItem,
   Spinner,
   Tag,
+  Text,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
@@ -203,7 +204,7 @@ export const TopicsList = ({
               isOpen: false,
               entity: null
             });
-            setCurrentTopic(topic ? topic : null);
+            // setCurrentTopic(topic ? topic : null);
           }}
           onClose={() =>
             setTopicModalState({
@@ -229,11 +230,13 @@ export const TopicsList = ({
 
       {(topics.length > 0 || selectedCategories || selectedLists) &&
         org &&
-        org.orgTopicsCategories && (
+        hasItems(org.orgTopicsCategories) && (
           <>
             Catégories :
             <TopicsListCategories
               org={org}
+              orgQuery={query}
+              mutation={mutation}
               selectedCategories={selectedCategories}
               setSelectedCategories={setSelectedCategories}
               mb={3}
@@ -266,8 +269,8 @@ export const TopicsList = ({
           <Alert status="info">
             <AlertIcon />
             <Flex flexDirection="column">
-              {((selectedCategories && selectedCategories.length >= 1) ||
-                (selectedLists && selectedLists.length >= 1)) && (
+              {(selectedCategories && selectedCategories.length >= 1) ||
+              (selectedLists && selectedLists.length >= 1) ? (
                 <>
                   {selectedLists &&
                   selectedLists.length >= 1 &&
@@ -338,42 +341,9 @@ export const TopicsList = ({
                     <>4</>
                   )}
                 </>
+              ) : (
+                <Text>Aucune discussion.</Text>
               )}
-              {/*
-<>
-                {" "}
-                appartenant{" "}
-
-{selectedLists && selectedLists.length >= 1 && selectedCategories && selectedCategories.length >= 1 ? (
-<>
-wkghxkugfd
-<>
-) : (
-  <>
-  wtf
-  </>
-)}
-
-               
-              </>
-            )}
-            {selectedCategories && selectedCategories.length >= 1 ? (
-              <>
-                {" "}
-                appartenant{" "}
-                {selectedCategories.length === 1
-                  ? "à la catégorie"
-                  : "aux catégorie"}{" "}
-                {selectedCategories.map((category, index) => (
-                  <>
-                    <Tag mx={1}>{category}</Tag>
-                    {index !== selectedCategories.length - 1 && "ou"}
-                  </>
-                ))}
-              </>
-            ) : (
-              ""
-            )} */}
             </Flex>
           </Alert>
         ) : (

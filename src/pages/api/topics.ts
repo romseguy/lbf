@@ -139,8 +139,13 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
             // getting subscriptions of users subscribed to this event
             const subscriptions = await models.Subscription.find({
               phone: { $exists: false },
-              "events.event": Types.ObjectId(event._id)
+              "events.event": Types.ObjectId(event._id),
+              "events.tagTypes": {
+                $elemMatch: { type: "Topics", emailNotif: true }
+              }
             }).populate("user");
+
+            log("subs", subscriptions);
 
             const emailList = await sendTopicEmailNotifications({
               event,

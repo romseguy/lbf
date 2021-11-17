@@ -276,7 +276,7 @@ handler.delete<
       if (topic.org) {
         console.log("deleting org reference to topic", topic.org);
         const mutation = await models.Org.updateOne(
-          { _id: topic.org },
+          { _id: typeof topic.org === "object" ? topic.org._id : topic.org },
           {
             $pull: { orgTopics: topic._id }
           }
@@ -285,7 +285,9 @@ handler.delete<
       } else if (topic.event) {
         console.log("deleting event reference to topic", topic.event);
         const mutation = await models.Event.updateOne(
-          { _id: topic.event },
+          {
+            _id: typeof topic.event === "object" ? topic.event._id : topic.event
+          },
           {
             $pull: { eventTopics: topic._id }
           }

@@ -11,7 +11,7 @@ import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import api from "./api";
 import { equals } from "./string";
 
-type MailType = {
+export type Mail = {
   from?: string;
   subject?: string;
   to?: string;
@@ -20,10 +20,9 @@ type MailType = {
 
 export const emailR = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
-// Some simple styling options
-const backgroundColor = "#f9f9f9";
-const textColor = "#444444";
-const mainBackgroundColor = "#ffffff";
+export const backgroundColor = "#f9f9f9";
+export const textColor = "#444444";
+export const mainBackgroundColor = "#ffffff";
 const descriptionBackgroundColor = "#f9f9f9";
 const buttonBackgroundColor = "#346df1";
 const buttonBorderColor = "#346df1";
@@ -41,7 +40,7 @@ export const createEventEmailNotif = ({
   org: IOrg;
   subscription: ISubscription | null;
   isPreview?: boolean;
-}) => {
+}): Mail => {
   const orgUrl = `${process.env.NEXT_PUBLIC_URL}/${org.orgUrl}`;
   const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`;
   const eventDescription = event.eventDescription?.replace(/<p><br><\/p>/g, "");
@@ -153,7 +152,10 @@ export const sendEventToOrgFollowers = async (
 
       for (const orgSubscription of org.orgSubscriptions) {
         const subscription = await models.Subscription.findOne({
-          _id: orgSubscription
+          _id:
+            typeof orgSubscription === "object"
+              ? orgSubscription._id
+              : orgSubscription
         }).populate("user");
 
         if (!subscription) {
@@ -280,7 +282,7 @@ export const sendEventEmailNotifToOrgFollowers = async (
     throw new Error("Aucune organisation spécifiée");
   }
 
-  let mails: { email: string; mail: MailType }[] = [];
+  let mails: { email: string; mail: Mail }[] = [];
 
   for (const org of event.eventOrgs) {
     const orgId = typeof org === "object" ? org._id : org;
@@ -292,7 +294,10 @@ export const sendEventEmailNotifToOrgFollowers = async (
 
       for (const orgSubscription of org.orgSubscriptions) {
         const subscription = await models.Subscription.findOne({
-          _id: orgSubscription
+          _id:
+            typeof orgSubscription === "object"
+              ? orgSubscription._id
+              : orgSubscription
         }).populate("user");
 
         if (!subscription) {
@@ -415,7 +420,7 @@ export const sendTopicEmailNotifications = async ({
       ? `${process.env.NEXT_PUBLIC_URL}/forum`
       : `${process.env.NEXT_PUBLIC_URL}/${entityUrl}`;
 
-  let mail: MailType = {
+  let mail: Mail = {
     from: process.env.EMAIL_FROM,
     subject
   };
@@ -514,7 +519,7 @@ export const sendToAdmin = async ({
 }) => {
   if (!event && !project) return;
 
-  let mail: MailType = {
+  let mail: Mail = {
     from: process.env.EMAIL_FROM,
     to: process.env.EMAIL_ADMIN
   };

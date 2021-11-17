@@ -18,12 +18,12 @@ import { IoIosChatbubbles, IoIosPeople, IoMdPerson } from "react-icons/io";
 import { Link } from "features/common";
 import { EventsPage } from "features/events/EventsPage";
 import { Layout } from "features/layout";
-import { useSession } from "hooks/useAuth";
 
 const IndexPage = (props: { session?: Session }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const [isAbout, setIsAbout] = useState(false);
+  const [isLogin, setIsLogin] = useState(0);
 
   const orgs = (plural?: boolean) => (
     <Text color={isDark ? "green.200" : "green"} display="inline">
@@ -39,7 +39,7 @@ const IndexPage = (props: { session?: Session }) => {
   );
 
   return (
-    <Layout pageTitle="Événements" {...props}>
+    <Layout pageTitle="Événements" isLogin={isLogin} {...props}>
       {true ? (
         <>
           {false && (
@@ -135,7 +135,7 @@ const IndexPage = (props: { session?: Session }) => {
         <Heading>Premiers pas</Heading>
       )}
 
-      <EventsPage />
+      <EventsPage isLogin={isLogin} setIsLogin={setIsLogin} />
     </Layout>
   );
 };

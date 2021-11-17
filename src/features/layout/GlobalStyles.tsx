@@ -29,6 +29,22 @@ export const GlobalStyles = () => (
         flex-direction: column;
       }
 
+      .chakra-ui-light {
+        .chakra-toast {
+          .chakra-alert {
+            background: rgba(255, 255, 255, 0.66);
+          }
+        }
+      }
+
+      .chakra-ui-dark {
+        .chakra-toast {
+          .chakra-alert {
+            background: rgba(0, 0, 0, 0.66);
+          }
+        }
+      }
+
       @media (min-width: ${breakpoints["2xl"]}) {
         .chakra-ui-light {
           background: lightblue;

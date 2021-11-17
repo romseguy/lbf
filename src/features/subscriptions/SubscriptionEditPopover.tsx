@@ -99,7 +99,7 @@ export const SubscriptionEditPopover = ({
   const [topics, setTopics] = useState<ITopicSubscriptionCheckboxes>({});
   const [isAllTopics, setIsAllTopics] = useState(
     !followerSubscription.tagTypes ||
-      followerSubscription.tagTypes.includes("Topics")
+      !!followerSubscription.tagTypes.find(({ type }) => type === "Topics")
   );
 
   useEffect(() => {
@@ -148,7 +148,7 @@ export const SubscriptionEditPopover = ({
     useAddSubscriptionMutation();
   const [isAllEvents, setIsAllEvents] = useState(
     !followerSubscription.tagTypes ||
-      followerSubscription.tagTypes.includes("Events")
+      !!followerSubscription.tagTypes.find(({ type }) => type === "Events")
   );
   const [showEventCategories, setShowEventCategories] = useState(false);
   const [eventCategories, setEventCategories] = useState<EventCategoriesType>(
@@ -358,11 +358,21 @@ export const SubscriptionEditPopover = ({
                                     ...followerSubscription,
                                     tagTypes: e.target.checked
                                       ? addTagType(
-                                          "Events",
+                                          {
+                                            type: "Events",
+                                            [notifType === "email"
+                                              ? "emailNotif"
+                                              : "pushNotif"]: true
+                                          },
                                           followerSubscription
                                         )
                                       : removeTagType(
-                                          "Events",
+                                          {
+                                            type: "Events",
+                                            [notifType === "email"
+                                              ? "emailNotif"
+                                              : "pushNotif"]: true
+                                          },
                                           followerSubscription
                                         )
                                   }
@@ -475,9 +485,22 @@ export const SubscriptionEditPopover = ({
                               {
                                 ...followerSubscription,
                                 tagTypes: e.target.checked
-                                  ? addTagType("Topics", followerSubscription)
+                                  ? addTagType(
+                                      {
+                                        type: "Topics",
+                                        [notifType === "email"
+                                          ? "emailNotif"
+                                          : "pushNotif"]: true
+                                      },
+                                      followerSubscription
+                                    )
                                   : removeTagType(
-                                      "Topics",
+                                      {
+                                        type: "Topics",
+                                        [notifType === "email"
+                                          ? "emailNotif"
+                                          : "pushNotif"]: true
+                                      },
                                       followerSubscription
                                     )
                               }
@@ -489,9 +512,22 @@ export const SubscriptionEditPopover = ({
                               {
                                 ...followerSubscription,
                                 tagTypes: e.target.checked
-                                  ? addTagType("Topics", followerSubscription)
+                                  ? addTagType(
+                                      {
+                                        type: "Topics",
+                                        [notifType === "email"
+                                          ? "emailNotif"
+                                          : "pushNotif"]: true
+                                      },
+                                      followerSubscription
+                                    )
                                   : removeTagType(
-                                      "Topics",
+                                      {
+                                        type: "Topics",
+                                        [notifType === "email"
+                                          ? "emailNotif"
+                                          : "pushNotif"]: true
+                                      },
                                       followerSubscription
                                     )
                               }

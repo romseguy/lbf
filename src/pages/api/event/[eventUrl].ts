@@ -482,7 +482,9 @@ handler.delete<
       const deleteOrgRef = async () => {
         if (event && event.eventOrgs) {
           for (const eventOrg of event.eventOrgs) {
-            const o = await models.Org.findOne({ _id: eventOrg });
+            const o = await models.Org.findOne({
+              _id: typeof eventOrg === "object" ? eventOrg._id : eventOrg
+            });
 
             if (o) {
               o.orgEvents = o.orgEvents.filter(

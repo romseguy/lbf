@@ -197,18 +197,28 @@ handler.put<
       let update:
         | {
             $unset?: { [key: string]: number };
-            $pull?: { [key: string]: { [key: string]: string } };
+            $pull?: { [key: string]: { [key: string]: string } | string };
           }
         | undefined;
 
       if (Array.isArray(body)) {
         for (const key of body) {
           if (key.includes(".") && key.includes("=")) {
+            // orgLists.listName=string
             const matches = key.match(/([^\.]+)\.([^=]+)=(.+)/);
 
             if (matches && matches.length === 4) {
               update = {
                 $pull: { [matches[1]]: { [matches[2]]: matches[3] } }
+              };
+            }
+          } else if (key.includes("=")) {
+            // orgTopicsCategories=string
+            const matches = key.match(/([^=]+)=(.+)/);
+
+            if (matches && matches.length === 3) {
+              update = {
+                $pull: { [matches[1]]: matches[2] }
               };
             }
           } else update = { $unset: { [key]: 1 } };

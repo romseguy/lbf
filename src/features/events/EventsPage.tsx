@@ -8,7 +8,13 @@ import { Visibility } from "models/Event";
 import { useGetEventsQuery } from "./eventsApi";
 import { EventsList } from "./EventsList";
 
-export const EventsPage = ({}: {}) => {
+export const EventsPage = ({
+  isLogin,
+  setIsLogin
+}: {
+  isLogin: number;
+  setIsLogin: (isLogin: number) => void;
+}) => {
   const router = useRouter();
 
   const eventsQuery = useGetEventsQuery();
@@ -41,18 +47,20 @@ export const EventsPage = ({}: {}) => {
             {title}
           </Heading>
         </Box>
-        <Box mt={3}>
-          <Button
-            colorScheme="teal"
-            isLoading={eventsQuery.isLoading}
-            isDisabled={!events || !events.length}
-            leftIcon={<FaRegMap />}
-            onClick={openMapModal}
-            mb={3}
-          >
-            Carte des événements
-          </Button>
-        </Box>
+
+        {!eventsQuery.isLoading && (
+          <Box mt={3}>
+            <Button
+              colorScheme="teal"
+              isDisabled={!events || !events.length}
+              leftIcon={<FaRegMap />}
+              onClick={openMapModal}
+              mb={3}
+            >
+              Carte des événements
+            </Button>
+          </Box>
+        )}
 
         <Box width="100%">
           {eventsQuery.isLoading || eventsQuery.isFetching ? (
@@ -62,6 +70,8 @@ export const EventsPage = ({}: {}) => {
               <EventsList
                 events={events}
                 eventsQuery={eventsQuery}
+                isLogin={isLogin}
+                setIsLogin={setIsLogin}
                 setTitle={setTitle}
               />
             )

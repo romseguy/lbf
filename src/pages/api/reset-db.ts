@@ -1,26 +1,18 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { db } from "database";
-import { createServerError } from "utils/errors";
+import database, { collectionKeys, db } from "database";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
 handler.get<NextApiRequest, NextApiResponse>(async function resetDb(req, res) {
-  if (!process.env.NEXT_PUBLIC_IS_TEST) {
-    res.status(404).send("Not Found");
-    return;
-  }
+  if (process.env.NODE_ENV === "production")
+    return res.status(404).send("Not Found");
 
   try {
-    await Promise.all([
-      db.dropCollection("events"),
-      db.dropCollection("orgs"),
-      db.dropCollection("subscriptions"),
-      db.dropCollection("topics")
-    ]);
-    res.status(200).send("Database reset");
+    for (const key of collectionKeys) await db.dropCollection(key);
+    return res.status(200).send("Database reset");
   } catch (error) {
     res.status(200).send("Database already reset");
   }

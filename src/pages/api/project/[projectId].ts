@@ -198,7 +198,9 @@ handler.delete<
       if (deletedCount === 1) {
         if (project && project.projectOrgs) {
           for (const projectOrg of project.projectOrgs) {
-            const o = await models.Org.findOne({ _id: projectOrg });
+            const o = await models.Org.findOne({
+              _id: typeof projectOrg === "object" ? projectOrg._id : projectOrg
+            });
 
             if (o) {
               o.orgProjects = o.orgProjects.filter(

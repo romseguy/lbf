@@ -1,4 +1,4 @@
-import { Session } from "next-auth";
+import { Session, User } from "next-auth";
 import {
   useSession as useNextAuthSession,
   getSession as getNextAuthSession,
@@ -14,53 +14,35 @@ import {
   setSession
 } from "features/session/sessionSlice";
 import { isServer } from "utils/isServer";
-
-let cachedSession: Session | null;
-
-/*
-export async function getSession(
-  options: GetSessionOptions
-): Promise<Session | null> {
-  return await getNextAuthSession(options);
-}
-
-export const useSession = (): { data: Session | null; loading: boolean } => {
-  const [session, loading] = useNextAuthSession();
-  return { data: session, loading };
-};
-*/
+import { IUser } from "models/User";
 
 export async function getSession(
   options: GetSessionOptions
 ): Promise<Session | null> {
   const session = await getNextAuthSession(options);
 
-  if (!session || !session.user || session.user.userId) return session;
-
-  if (!session.user.userId) {
-    if (cachedSession) {
-      // console.log("returning cachedSession");
-      return cachedSession;
-    }
-
+  if (
+    session &&
+    session.user &&
+    (!session.user.userId || session.user.suggestedCategoryAt === undefined)
+  ) {
     const { data } = await api.get(`user/${session.user.email}`);
 
     if (data) {
-      const { _id, userName, userImage, isAdmin } = data;
-      cachedSession = {
+      const { _id, userName, suggestedCategoryAt = null, isAdmin } = data;
+
+      return {
         ...session,
         user: {
           ...session.user,
           userId: _id,
-          userName: userName
-            ? userName
-            : session.user.email?.replace(/@.+/, ""),
-          userImage,
+          // userName: userName
+          //   ? userName
+          //   : session.user.email?.replace(/@.+/, ""),
+          suggestedCategoryAt,
           isAdmin: isAdmin || false
         }
       };
-
-      return cachedSession;
     }
   }
 
@@ -89,19 +71,23 @@ export const useSession = (): { data: Session | null; loading: boolean } => {
         email = session.user.email,
         userName = _id,
         userImage,
+        suggestedCategoryAt,
         isAdmin = false
-      } = userQuery.data;
+      }: IUser = userQuery.data;
+
+      const user: User = {
+        ...session.user,
+        email,
+        userId: _id,
+        userName: userName ? userName : _id,
+        userImage,
+        suggestedCategoryAt,
+        isAdmin: isAdmin || false
+      };
 
       const newSession = {
         ...session,
-        user: {
-          ...session.user,
-          email,
-          userId: _id,
-          userName: userName ? userName : _id,
-          userImage,
-          isAdmin: isAdmin || false
-        }
+        user
       };
 
       dispatch(setSession(newSession));
@@ -113,3 +99,16 @@ export const useSession = (): { data: Session | null; loading: boolean } => {
 
   return { data: null, loading: true };
 };
+
+/*
+export async function getSession(
+  options: GetSessionOptions
+): Promise<Session | null> {
+  return await getNextAuthSession(options);
+}
+
+export const useSession = (): { data: Session | null; loading: boolean } => {
+  const [session, loading] = useNextAuthSession();
+  return { data: session, loading };
+};
+*/
