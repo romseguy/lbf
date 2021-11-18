@@ -8,8 +8,8 @@ export interface ISubscription {
   user?: IUser | string;
   email?: string;
   phone?: string;
-  events: IEventSubscription[];
-  orgs: IOrgSubscription[];
+  events?: IEventSubscription[];
+  orgs?: IOrgSubscription[];
   topics: ITopicSubscription[];
   createdBy: IUser | string;
 }

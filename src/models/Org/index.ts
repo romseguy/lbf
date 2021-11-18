@@ -7,7 +7,7 @@ export * from "./OrgSchema";
 
 export const getSubscriptions = (org: IOrg, type: string) => {
   return org.orgSubscriptions.filter((subscription) =>
-    subscription.orgs.find(
+    subscription.orgs?.find(
       (orgSubscription) =>
         equals(orgSubscription.orgId, org._id) && orgSubscription.type === type
     )

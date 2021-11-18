@@ -22,7 +22,7 @@ import {
 } from "features/forum/topicsApi";
 import { useSession } from "hooks/useAuth";
 import type { IEvent } from "models/Event";
-import { getSubscriptions, IOrg, IOrgList } from "models/Org";
+import { getSubscriptions, IOrg, IOrgList, orgTypeFull4 } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription,
@@ -117,8 +117,8 @@ export const TopicForm = ({
   const topicVisibility = watch("topicVisibility");
   const topicNotif = watch("topicNotif");
 
-  if (topicNotif && org && !hasItems(topicVisibility))
-    setValue("topicNotif", false);
+  // if (topicNotif && org && !hasItems(topicVisibility))
+  //   setValue("topicNotif", false);
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -426,27 +426,32 @@ export const TopicForm = ({
         </Alert>
       )}
 
-      {!props.topic &&
-        (lists ? (
-          <Checkbox
-            ref={register()}
-            name="topicNotif"
-            mb={3}
-            isChecked={topicNotif}
-            isDisabled={!hasItems(topicVisibility)}
-          >
-            Notifier les membres des listes de diffusions sélectionnées
-          </Checkbox>
-        ) : (
-          <Checkbox
-            ref={register()}
-            name="topicNotif"
-            mb={3}
-            isChecked={topicNotif}
-          >
-            Notifier les personnes abonnées à l'événement
-          </Checkbox>
-        ))}
+      {!props.topic && (
+        <FormControl id="topicNotif" mb={3}>
+          <FormLabel>Notifications</FormLabel>
+
+          {hasItems(topicVisibility) ? (
+            <Checkbox
+              ref={register()}
+              name="topicNotif"
+              mb={3}
+              isChecked={topicNotif}
+            >
+              Notifier les membres des listes de diffusions sélectionnées
+            </Checkbox>
+          ) : (
+            <Checkbox
+              ref={register()}
+              name="topicNotif"
+              mb={3}
+              isChecked={topicNotif}
+            >
+              Notifier les personnes abonnées à{" "}
+              {org ? orgTypeFull4(org.orgType) : "cet événement"}
+            </Checkbox>
+          )}
+        </FormControl>
+      )}
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>

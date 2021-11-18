@@ -1,5 +1,6 @@
-export const log = (message: string, object: any) => {
-  console.log(message, JSON.stringify(object, null, 2));
+export const log = (message: string, object?: any) => {
+  if (object) console.log(message, JSON.stringify(object, null, 2));
+  else console.log(message);
 };
 
 export const phoneR = /^[0-9]{10,}$/i;

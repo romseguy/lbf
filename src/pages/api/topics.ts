@@ -9,7 +9,6 @@ import { IEvent } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { hasItems } from "utils/array";
 import {
   sendTopicMessageEmailNotifications,
   sendTopicEmailNotifications
@@ -34,134 +33,149 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
   const session = await getSession({ req });
 
   if (!session) {
-    res
+    return res
       .status(403)
       .json(
         createServerError(
           new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
-  } else {
-    try {
-      const {
-        body
-      }: {
-        body: {
-          topic: Partial<ITopic>;
-          topicNotif?: boolean;
-          event?: IEvent;
-          org?: IOrg;
-        };
-      } = req;
-      const topic = body.topic;
-      const topicNotif = body.topicNotif || false;
+  }
 
-      let event: (IEvent & Document<any, any, any>) | null = null;
-      let org: (IOrg & Document<any, any, any>) | null = null;
+  try {
+    const {
+      body
+    }: {
+      body: {
+        topic: Partial<ITopic>;
+        topicNotif?: boolean;
+        event?: IEvent;
+        org?: IOrg;
+      };
+    } = req;
 
-      if (body.event) {
-        event = await models.Event.findOne({ _id: body.event._id });
-      } else if (body.org) {
-        org = await models.Org.findOne({ _id: body.org._id });
-      } else {
+    let event: (IEvent & Document<any, any, IEvent>) | null | undefined;
+    let org: (IOrg & Document<any, any, IOrg>) | null | undefined;
+
+    if (body.event) {
+      event = await models.Event.findOne({ _id: body.event._id });
+    } else if (body.org) {
+      org = await models.Org.findOne({ _id: body.org._id });
+    }
+
+    if (!event && !org) {
+      return res
+        .status(400)
+        .json(
+          createServerError(
+            new Error(
+              "Le sujet de discussion doit être associé à une organisation ou à un événément"
+            )
+          )
+        );
+    }
+
+    const topicNotif = body.topicNotif || false;
+    let createdBy: string;
+    let topic: (ITopic & Document<any, any, ITopic>) | null | undefined;
+
+    if (body.topic._id) {
+      if (
+        !Array.isArray(body.topic.topicMessages) ||
+        !body.topic.topicMessages.length
+      ) {
         return res
           .status(400)
           .json(
             createServerError(
               new Error(
-                "Le sujet de discussion doit être associé à une organisation ou à un événément"
+                "Vous devez indiquer la réponse à ajouter à cette discussion"
               )
             )
           );
       }
 
-      let createdBy: string;
-      let doc: (ITopic & Document<any, any, any>) | null = null;
+      topic = await models.Topic.findOne({ _id: body.topic._id });
 
-      if (topic._id) {
-        console.log(`POST /topics: existing topic`);
-
-        if (
-          !Array.isArray(topic.topicMessages) ||
-          !topic.topicMessages.length
-        ) {
-          return res.status(200).json({});
-        }
-
-        const newMessage = topic.topicMessages[0];
-
-        doc = await models.Topic.findOne({ _id: topic._id });
-
-        if (!doc) {
-          return res
-            .status(404)
-            .json(
-              createServerError(
-                new Error(
-                  "Impossible d'ajouter un message à un topic inexistant"
-                )
+      if (!topic) {
+        return res
+          .status(404)
+          .json(
+            createServerError(
+              new Error(
+                "Impossible d'ajouter une réponse à une discussion inexistante"
               )
-            );
+            )
+          );
+      }
+
+      log(`POST /topics: found topic`, topic);
+
+      const newMessage = body.topic.topicMessages[0];
+      createdBy = toString(topic.createdBy);
+      topic.topicMessages.push(newMessage);
+      await topic.save();
+
+      // getting subscriptions of users subscribed to this topic
+      const subscriptions = await models.Subscription.find({
+        "topics.topic": Types.ObjectId(body.topic._id),
+        user: { $ne: newMessage.createdBy }
+      }).populate("user");
+
+      log(`POST /topics: topic subscriptions`, subscriptions);
+
+      sendTopicMessageEmailNotifications({
+        event,
+        org,
+        subscriptions,
+        topic: topic,
+        transport
+      });
+    } else {
+      topic = await models.Topic.create({
+        ...body.topic,
+        event,
+        org
+      });
+
+      createdBy = toString(topic.createdBy);
+
+      if (event) {
+        event.eventTopics.push(topic);
+        await event.save();
+        //log(`POST /topics: event`, event);
+
+        if (topicNotif) {
+          const subscriptions = await models.Subscription.find({
+            phone: { $exists: false },
+            "events.event": Types.ObjectId(event._id),
+            "events.tagTypes": {
+              $elemMatch: { type: "Topics", emailNotif: true }
+            }
+          }).populate("user");
+
+          log(`POST /topics: event subscriptions`, subscriptions);
+
+          const emailList = await sendTopicEmailNotifications({
+            event,
+            subscriptions,
+            topic,
+            transport
+          });
+
+          topic.topicNotified = emailList.map((email) => ({ email }));
+          await topic.save();
         }
+      } else if (org) {
+        org.orgTopics.push(topic);
+        await org.save();
+        //log(`POST /topics: org`, org);
 
-        createdBy = toString(doc.createdBy);
-        doc.topicMessages.push(newMessage);
-        await doc.save();
-
-        // getting subscriptions of users subscribed to this topic
-        const subscriptions = await models.Subscription.find({
-          "topics.topic": Types.ObjectId(topic._id),
-          user: { $ne: newMessage.createdBy }
-        }).populate("user");
-
-        sendTopicMessageEmailNotifications({
-          event,
-          org,
-          subscriptions,
-          topic: doc,
-          transport
-        });
-      } else {
-        log(`POST /topics: new topic`, topic);
-
-        doc = await models.Topic.create({
-          ...topic,
-          event: event || undefined,
-          org: org || undefined
-        });
-        createdBy = toString(doc.createdBy);
-
-        if (event) {
-          event.eventTopics.push(doc);
-          await event.save();
-
-          if (topicNotif) {
-            // getting subscriptions of users subscribed to this event
-            const subscriptions = await models.Subscription.find({
-              phone: { $exists: false },
-              "events.event": Types.ObjectId(event._id),
-              "events.tagTypes": {
-                $elemMatch: { type: "Topics", emailNotif: true }
-              }
-            }).populate("user");
-
-            log("subs", subscriptions);
-
-            const emailList = await sendTopicEmailNotifications({
-              event,
-              subscriptions,
-              topic: doc,
-              transport
-            });
-
-            doc.topicNotified = emailList.map((email) => ({ email }));
-            await doc.save();
-          }
-        } else if (org) {
-          org.orgTopics.push(doc);
-          await org.save();
-
-          if (topicNotif && body.topic.topicVisibility) {
+        if (topicNotif) {
+          if (
+            Array.isArray(body.topic.topicVisibility) &&
+            body.topic.topicVisibility.length > 0
+          ) {
             org = org.populate({
               path: "orgLists",
               populate: {
@@ -210,52 +224,71 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
               const emailList = await sendTopicEmailNotifications({
                 org,
                 subscriptions,
-                topic: doc,
+                topic,
                 transport
               });
 
-              doc.topicNotified = emailList.map((email) => ({ email }));
-              await doc.save();
+              topic.topicNotified = emailList.map((email) => ({ email }));
+              await topic.save();
             }
-          }
-        }
-      }
-
-      const user = await models.User.findOne({ _id: createdBy });
-
-      if (user) {
-        const subscription = await models.Subscription.findOne({ user });
-
-        if (!subscription) {
-          // console.log("no sub for this user => adding one");
-          await models.Subscription.create({
-            user,
-            topics: [{ topic, emailNotif: true, pushNotif: true }]
-          });
-        } else {
-          const topicSubscription = subscription.topics.find(({ topic: t }) =>
-            equals(t._id, topic!._id)
-          );
-
-          if (!topicSubscription) {
-            // console.log("no sub for this topic => adding one", subscription);
-            subscription.topics = subscription.topics.concat([
-              {
-                topic: doc._id,
-                emailNotif: true,
-                pushNotif: true
+          } else {
+            const subscriptions = await models.Subscription.find({
+              phone: { $exists: false },
+              "orgs.org": Types.ObjectId(org._id),
+              "orgs.tagTypes": {
+                $elemMatch: { type: "Topics", emailNotif: true }
               }
-            ]);
-            await subscription.save();
-            // console.log("subscription saved", subscription);
+            }).populate("user");
+
+            log(`POST /topics: org subscriptions`, subscriptions);
+
+            const emailList = await sendTopicEmailNotifications({
+              org,
+              subscriptions,
+              topic: topic,
+              transport
+            });
+
+            topic.topicNotified = emailList.map((email) => ({ email }));
+            await topic.save();
           }
         }
       }
-
-      res.status(200).json(topic);
-    } catch (error: any) {
-      res.status(500).json(createServerError(error));
     }
+
+    const user = await models.User.findOne({ _id: createdBy });
+
+    if (user) {
+      let subscription = await models.Subscription.findOne({ user });
+
+      if (!subscription) {
+        subscription = await models.Subscription.create({
+          user,
+          topics: [{ topic: topic._id, emailNotif: true, pushNotif: true }]
+        });
+      }
+
+      const topicSubscription = subscription.topics.find(({ topic: t }) =>
+        equals(t._id, body.topic!._id)
+      );
+
+      if (!topicSubscription) {
+        // console.log("no sub for this topic => adding one", subscription);
+        subscription.topics = subscription.topics.concat([
+          {
+            topic: topic._id,
+            emailNotif: true,
+            pushNotif: true
+          }
+        ]);
+        await subscription.save();
+        // console.log("subscription saved", subscription);
+      }
+    }
+
+    res.status(200).json(body.topic);
+  } catch (error: any) {
+    res.status(500).json(createServerError(error));
   }
 });
 
