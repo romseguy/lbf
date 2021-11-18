@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -10,7 +10,7 @@ import {
   duplicateError
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { sendToAdmin, sendEventToOrgFollowers } from "utils/email";
+import { sendToAdmin } from "utils/email";
 import { equals, normalize } from "utils/string";
 import { IEvent, Visibility } from "models/Event";
 import { IOrg } from "models/Org";
@@ -37,7 +37,7 @@ handler.get<NextApiRequest & { query: { userId?: string } }, NextApiResponse>(
     if (userId) selector = { createdBy: userId };
 
     try {
-      events = await models.Event.find(selector)
+      events = await models.Event.find(selector, "-eventBanner -eventLogo")
         .sort({
           eventMinDate: "ascending"
         })
@@ -155,13 +155,11 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
             admin.userSubscription &&
             event.eventVisibility === Visibility.PUBLIC
           ) {
-            await api.post("notification", {
+            await api.sendPushNotification({
               subscription: admin.userSubscription,
-              notification: {
-                title: "Un événement attend votre approbation",
-                message: "Appuyez pour ouvrir la page de l'événement",
-                url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
-              }
+              message: "Appuyez pour ouvrir la page de l'événement",
+              title: "Un événement attend votre approbation",
+              url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
             });
             sendToAdmin({ event: body, transport });
           }

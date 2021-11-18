@@ -199,7 +199,7 @@ export const OrgConfigSubscribersPanel = ({
               `}
             >
               <Flex alignItems="center">
-                {isVisible.subscribers ? <ViewIcon /> : <ViewOffIcon />}
+                {isVisible.subscribers ? <ViewOffIcon /> : <ViewIcon />}
                 <Heading size="sm" ml={2}>
                   Adhérents & Abonnés
                 </Heading>

@@ -166,7 +166,7 @@ export const EventConfigLogoPanel = ({
           alignItems="center"
         >
           <Flex alignItems="center">
-            {isVisible.logo ? <ViewIcon /> : <ViewOffIcon />}
+            {isVisible.logo ? <ViewOffIcon /> : <ViewIcon />}
             <Heading size="sm" ml={2} py={3}>
               Changer le logo
             </Heading>

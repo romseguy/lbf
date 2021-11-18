@@ -81,8 +81,7 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
         topicMessages: [
           {
             message: form.topicMessage,
-            messageHtml,
-            createdBy: session.user.userId
+            messageHtml
           }
         ]
       }

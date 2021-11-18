@@ -88,14 +88,9 @@ handler.post<
     let emailList: string[] = [];
 
     if (body.event) {
-      // getting subscriptions of users subscribed to this event
-      const subscriptions = await models.Subscription.find({
-        "events.event": Types.ObjectId(body.event._id)
-      }).populate("user");
-
       emailList = await sendTopicNotifications({
         event: body.event,
-        subscriptions,
+        subscriptions: body.event.eventSubscriptions,
         topic,
         transport
       });

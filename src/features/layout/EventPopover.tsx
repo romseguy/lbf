@@ -189,21 +189,7 @@ export const EventPopover = ({
                   spacing={2}
                 >
                   {myEventsQuery.data.map((event, index) => (
-                    <EntityButton
-                      key={event._id}
-                      event={event}
-                      p={1}
-                      onClick={() => {
-                        router.push(
-                          `/${event.eventUrl}`,
-                          `/${event.eventUrl}`,
-                          {
-                            shallow: true
-                          }
-                        );
-                        setIsOpen(false);
-                      }}
-                    />
+                    <EntityButton key={event._id} event={event} p={1} />
                   ))}
                 </VStack>
               ) : (
@@ -221,21 +207,7 @@ export const EventPopover = ({
                   spacing={2}
                 >
                   {followedEvents.map(({ event }) => (
-                    <EntityButton
-                      key={event._id}
-                      event={event}
-                      p={1}
-                      onClick={() => {
-                        router.push(
-                          `/${event.eventUrl}`,
-                          `/${event.eventUrl}`,
-                          {
-                            shallow: true
-                          }
-                        );
-                        setIsOpen(false);
-                      }}
-                    />
+                    <EntityButton key={event._id} event={event} p={1} />
                   ))}
                 </VStack>
               ) : (
@@ -253,21 +225,7 @@ export const EventPopover = ({
                   spacing={2}
                 >
                   {attendedEvents.map((event) => (
-                    <EntityButton
-                      key={event._id}
-                      event={event}
-                      p={1}
-                      onClick={() => {
-                        router.push(
-                          `/${event.eventUrl}`,
-                          `/${event.eventUrl}`,
-                          {
-                            shallow: true
-                          }
-                        );
-                        setIsOpen(false);
-                      }}
-                    />
+                    <EntityButton key={event._id} event={event} p={1} />
                   ))}
                 </VStack>
               ) : (

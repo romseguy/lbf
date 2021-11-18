@@ -300,18 +300,7 @@ export const EventPage = ({
                 Cet événement est réservé aux adhérents des organisations
                 suivantes :
                 {event.eventOrgs.map((org) => (
-                  <EntityButton
-                    key={org._id}
-                    org={org}
-                    ml={3}
-                    mb={1}
-                    p={1}
-                    onClick={() => {
-                      router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
-                        shallow: true
-                      });
-                    }}
-                  />
+                  <EntityButton key={org._id} org={org} ml={3} mb={1} p={1} />
                 ))}
               </Text>
             </Box>
@@ -497,15 +486,6 @@ export const EventPage = ({
                                 key={eventOrg._id}
                                 org={eventOrg}
                                 p={1}
-                                onClick={() => {
-                                  router.push(
-                                    `/${eventOrg.orgUrl}`,
-                                    `/${eventOrg.orgUrl}`,
-                                    {
-                                      shallow: true
-                                    }
-                                  );
-                                }}
                               />
                             ))}
                           </VStack>

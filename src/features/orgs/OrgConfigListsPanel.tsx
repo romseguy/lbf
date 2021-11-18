@@ -165,7 +165,7 @@ export const OrgConfigListsPanel = ({
             >
               <Flex alignItems="center">
                 {hasItems(lists) &&
-                  (isVisible.lists ? <ViewIcon /> : <ViewOffIcon />)}
+                  (isVisible.lists ? <ViewOffIcon /> : <ViewIcon />)}
                 <Heading size="sm" ml={2}>
                   Listes de diffusion
                 </Heading>

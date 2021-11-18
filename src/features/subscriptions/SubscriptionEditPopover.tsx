@@ -337,8 +337,8 @@ export const SubscriptionEditPopover = ({
                         alignItems="center"
                         cursor="pointer"
                         my={3}
-                        isChecked={isAllEvents}
-                        isDisabled={isLoading}
+                        isChecked={isAllEvents && !showEventCategories}
+                        isDisabled={isLoading || showEventCategories}
                         onChange={async (e) => {
                           try {
                             console.log(

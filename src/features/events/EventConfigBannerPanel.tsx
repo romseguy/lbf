@@ -151,7 +151,7 @@ export const EventConfigBannerPanel = ({
           alignItems="center"
         >
           <Flex alignItems="center">
-            {isVisible.banner ? <ViewIcon /> : <ViewOffIcon />}
+            {isVisible.banner ? <ViewOffIcon /> : <ViewIcon />}
             <Heading size="sm" ml={2} py={3}>
               Bannière
             </Heading>

@@ -76,9 +76,9 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
     }
 
     const topicNotif = body.topicNotif || false;
-    let createdBy: string;
     let topic: (ITopic & Document<any, any, ITopic>) | null | undefined;
 
+    //#region existing topic
     if (body.topic._id) {
       if (
         !Array.isArray(body.topic.topicMessages) ||
@@ -112,7 +112,6 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
       log(`POST /topics: found topic`, topic);
 
       const newMessage = body.topic.topicMessages[0];
-      createdBy = toString(topic.createdBy);
       topic.topicMessages.push(newMessage);
       await topic.save();
 
@@ -131,16 +130,21 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
         topic: topic,
         transport
       });
-    } else {
+    }
+    //#endregion
+    //#region new topic
+    else {
       topic = await models.Topic.create({
         ...body.topic,
+        topicMessages: (body.topic.topicMessages || []).map((topicMessage) => ({
+          ...topicMessage,
+          createdBy: session.user.userId
+        })),
         event,
         org
       });
 
       if (!topic) throw new Error("La discussion n'a pas pu être créée");
-
-      createdBy = toString(topic.createdBy);
 
       if (event) {
         event.eventTopics.push(topic);
@@ -148,19 +152,16 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
         //log(`POST /topics: event`, event);
 
         if (topicNotif) {
-          const subscriptions = await models.Subscription.find({
-            //phone: { $exists: false },
-            "events.event": Types.ObjectId(event._id),
-            "events.tagTypes": {
-              $elemMatch: { type: "Topics", emailNotif: true }
-            }
-          }).populate("user");
-
-          log(`POST /topics: event subscriptions`, subscriptions);
+          event = await event
+            .populate({
+              path: "eventSubscriptions",
+              populate: { path: "user" }
+            })
+            .execPopulate();
 
           const emailList = await sendTopicNotifications({
             event,
-            subscriptions,
+            subscriptions: event.eventSubscriptions,
             topic,
             transport
           });
@@ -223,7 +224,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
             if (Array.isArray(subscriptions) && subscriptions.length > 0) {
               const emailList = await sendTopicNotifications({
                 org,
-                subscriptions,
+                subscriptions: org.orgSubscriptions,
                 topic,
                 transport
               });
@@ -232,19 +233,15 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
           //#endregion
           //#region orgSubscriptions
           else {
-            const subscriptions = await models.Subscription.find({
-              //phone: { $exists: false },
-              "orgs.org": Types.ObjectId(org._id),
-              "orgs.tagTypes": {
-                $elemMatch: { type: "Topics", emailNotif: true }
-              }
-            }).populate("user");
-
-            //log(`POST /topics: org subscriptions`, subscriptions);
-
+            org = await org
+              .populate({
+                path: "orgSubscriptions",
+                populate: { path: "user" }
+              })
+              .execPopulate();
             const emailList = await sendTopicNotifications({
               org,
-              subscriptions,
+              subscriptions: org.orgSubscriptions,
               topic,
               transport
             });
@@ -253,8 +250,9 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
         }
       }
     }
+    //#endregion
 
-    const user = await models.User.findOne({ _id: createdBy });
+    const user = await models.User.findOne({ _id: toString(topic.createdBy) });
 
     if (user) {
       let subscription = await models.Subscription.findOne({ user });

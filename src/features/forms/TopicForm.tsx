@@ -136,23 +136,20 @@ export const TopicForm = ({
 
     setIsLoading(true);
 
-    const topicMessages: ITopicMessage[] = form.topicMessage
-      ? [
-          {
-            message: form.topicMessage,
-            messageHtml,
-            createdBy: session.user.userId
-          }
-        ]
-      : [];
-
     try {
       const payload = {
         org,
         event,
         topic: {
           topicName: form.topicName,
-          topicMessages,
+          topicMessages: form.topicMessage
+            ? [
+                {
+                  message: form.topicMessage,
+                  messageHtml
+                }
+              ]
+            : [],
           topicCategory: form.topicCategory?.value,
           topicVisibility: form.topicVisibility?.map(
             ({ label, value }) => value
@@ -165,9 +162,10 @@ export const TopicForm = ({
         await editTopic({
           payload: {
             ...payload.topic,
-            topicMessages: payload.topic.topicMessages.concat(
-              props.topic.topicMessages
-            )
+            topicMessages: [
+              ...props.topic.topicMessages,
+              ...payload.topic.topicMessages
+            ]
           },
           topicId: props.topic._id
         }).unwrap();

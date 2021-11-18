@@ -57,7 +57,8 @@ export const TopicMessagesList = ({
           ({ _id, message, createdBy, createdAt }, index) => {
             let userName = "";
             let userImage;
-            let userId: string = createdBy as string;
+            let userId =
+              typeof createdBy === "object" ? createdBy._id : createdBy;
 
             if (typeof createdBy === "object") {
               userName = createdBy.userName;

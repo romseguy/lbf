@@ -136,8 +136,6 @@ handler.delete<
     };
   } = req;
 
-  console.log(`DELETE /subscription/${subscriptionId}: body`, body);
-
   try {
     let subscription = await models.Subscription.findOne({
       _id: subscriptionId
@@ -154,16 +152,8 @@ handler.delete<
     }
 
     if (body.orgs) {
-      let orgSubscription: IOrgSubscription | undefined;
-
-      if (hasItems(body.orgs)) {
-        orgSubscription = body.orgs[0];
-      }
-
-      // todo http status code unchanged
-      if (!orgSubscription) return res.status(200).json(subscription);
-
-      const { orgId, type } = orgSubscription;
+      const { orgId, type } = body.orgs[0];
+      log(`DELETE /subscription/${subscriptionId}: orgId`, orgId);
 
       const org = await models.Org.findOne({ _id: orgId }).populate(
         "orgSubscriptions"
@@ -178,28 +168,28 @@ handler.delete<
             )
           );
 
-      console.log("unsubbing from org", org);
-
       subscription = await subscription
         .populate("user", "-securityCode -password")
         .execPopulate();
 
+      log(`DELETE /subscription/${subscriptionId}: subscription`, subscription);
       subscription.orgs = subscription.orgs?.filter(
         (orgSubscription: IOrgSubscription) => {
           let keep = true;
-
-          if (equals(orgSubscription.orgId, orgId)) {
-            if (orgSubscription.type === type) {
-              keep = false;
-            }
+          if (
+            equals(orgSubscription.orgId, orgId) &&
+            orgSubscription.type === type
+          ) {
+            keep = false;
           }
-
           return keep;
         }
       );
-
       await subscription.save();
-      console.log("subscription saved", subscription);
+      log(
+        `DELETE /subscription/${subscriptionId}: subscription saved`,
+        subscription
+      );
 
       return res.status(200).json(subscription);
     }
@@ -258,6 +248,8 @@ handler.delete<
 
     if (body.events) {
       const { eventId } = body.events[0];
+      log(`DELETE /subscription/${subscriptionId}: eventId`, eventId);
+
       const event = await models.Event.findOne({ _id: eventId }).populate(
         "eventSubscriptions"
       );
@@ -271,60 +263,60 @@ handler.delete<
             )
           );
 
-      console.log("unsubbing from event", event);
-
       subscription = await subscription
         .populate("user", "-securityCode -password")
         .execPopulate();
 
-      event.eventSubscriptions = event.eventSubscriptions.filter(
-        (subscription) => {
-          let keep = true;
-          if (
-            subscription.events?.find((eventSubscription) =>
-              equals(eventSubscription.eventId, eventId)
-            )
-          )
-            keep = false;
-          return keep;
-        }
-      );
-      await event.save();
-
+      log(`DELETE /subscription/${subscriptionId}: subscription`, subscription);
       subscription.events = subscription.events?.filter(
         (eventSubscription: IEventSubscription) => {
           let keep = true;
-
           if (equals(eventSubscription.eventId, eventId)) {
             keep = false;
           }
-
           return keep;
         }
       );
-
       await subscription.save();
-      console.log("subscription saved", subscription);
+      log(
+        `DELETE /subscription/${subscriptionId}: subscription saved`,
+        subscription
+      );
+
+      log(
+        `DELETE /subscription/${subscriptionId}: event.eventSubscriptions`,
+        event.eventSubscriptions
+      );
+      event.eventSubscriptions = event.eventSubscriptions.filter(
+        (s) => !equals(s._id, subscription!._id)
+      );
+      await event.save();
+      log(
+        `DELETE /subscription/${subscriptionId}: event.eventSubscriptions`,
+        event.eventSubscriptions
+      );
 
       return res.status(200).json(subscription);
     }
 
     if (body.topicId) {
-      // console.log("unsubbing from topic", body.topicId);
       subscription = await subscription
         .populate({ path: "topics", populate: { path: "topic" } })
         .execPopulate();
 
-      subscription.topics = subscription.topics.filter(
-        ({ topic }: { topic: ITopic }) => {
-          let allow = false;
-          allow = !equals(topic._id, body.topicId);
-          return allow;
-        }
-      );
+      log(`DELETE /subscription/${subscriptionId}: body.topicId`, body.topicId);
+      log(`DELETE /subscription/${subscriptionId}: subscription`, subscription);
+
+      subscription.topics = subscription.topics.filter((topicSubscription) => {
+        if (!topicSubscription.topic) return false;
+        return !equals(topicSubscription.topic._id, body.topicId);
+      });
 
       await subscription.save();
-      console.log("subscription saved", subscription);
+      log(
+        `DELETE /subscription/${subscriptionId}: subscription saved`,
+        subscription
+      );
 
       return res.status(200).json(subscription);
     }

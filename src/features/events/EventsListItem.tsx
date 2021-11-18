@@ -301,15 +301,6 @@ export const EventsListItem = ({
                           px={2}
                           py={1}
                           bg={isDark ? "whiteAlpha.400" : "blackAlpha.200"}
-                          onClick={() => {
-                            router.push(
-                              `/${eventOrg.orgUrl}`,
-                              `/${eventOrg.orgUrl}`,
-                              {
-                                shallow: true
-                              }
-                            );
-                          }}
                         />
                       );
                     })
@@ -320,17 +311,6 @@ export const EventsListItem = ({
                         px={2}
                         py={1}
                         bg={isDark ? "whiteAlpha.500" : "blackAlpha.200"}
-                        onClick={() => {
-                          if (typeof event.createdBy === "object") {
-                            router.push(
-                              `/${event.createdBy.userName}`,
-                              `/${event.createdBy.userName}`,
-                              {
-                                shallow: true
-                              }
-                            );
-                          }
-                        }}
                       />
                     )}
               </GridItem>

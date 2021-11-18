@@ -210,23 +210,14 @@ export const OrgPopover = ({
             {showOrgs === "showOrgsAdded" &&
               (hasOrgs ? (
                 <VStack
+                  aria-hidden
                   alignItems="flex-start"
                   overflow="auto"
                   height="170px"
                   spacing={2}
                 >
                   {myOrgs.map((org) => (
-                    <EntityButton
-                      key={org._id}
-                      org={org}
-                      p={1}
-                      onClick={() => {
-                        router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
-                          shallow: true
-                        });
-                        setIsOpen(false);
-                      }}
-                    />
+                    <EntityButton key={org._id} org={org} p={1} />
                   ))}
                 </VStack>
               ) : (
@@ -244,17 +235,7 @@ export const OrgPopover = ({
                   spacing={2}
                 >
                   {followedOrgs.map((org, index) => (
-                    <EntityButton
-                      key={org._id}
-                      org={org}
-                      p={1}
-                      onClick={() => {
-                        router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
-                          shallow: true
-                        });
-                        setIsOpen(false);
-                      }}
-                    />
+                    <EntityButton key={org._id} org={org} p={1} />
                   ))}
                 </VStack>
               ) : (
@@ -272,17 +253,7 @@ export const OrgPopover = ({
                   spacing={2}
                 >
                   {subscribedOrgs.map((org, index) => (
-                    <EntityButton
-                      key={org._id}
-                      org={org}
-                      p={1}
-                      onClick={() => {
-                        router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
-                          shallow: true
-                        });
-                        setIsOpen(false);
-                      }}
-                    />
+                    <EntityButton key={org._id} org={org} p={1} />
                   ))}
                 </VStack>
               ) : (

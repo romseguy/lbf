@@ -121,7 +121,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
               orgs: [
                 {
                   orgId: org._id,
-                  org,
                   type: SubscriptionTypes.FOLLOWER
                 }
               ]
@@ -143,8 +142,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
           {
             events: [
               {
-                eventId: event._id,
-                event
+                eventId: event._id
               }
             ]
           }

@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { IoIosPeople, IoIosPerson } from "react-icons/io";
+import { Link } from "features/common";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IEvent } from "models/Event";
 import { IUser } from "models/User";
@@ -37,7 +38,7 @@ export const EntityButton = ({
     <Tooltip
       label={
         onClick !== null &&
-        `Aller à la page de ${
+        `Aller à la page ${
           org
             ? orgTypeFull(org.orgType)
             : event
@@ -49,51 +50,59 @@ export const EntityButton = ({
       }
       hasArrow
     >
-      <Button
-        fontSize="sm"
-        leftIcon={
-          <Icon
-            as={
-              org
-                ? IoIosPeople
-                : event
-                ? CalendarIcon
-                : user
-                ? IoIosPerson
-                : ChatIcon
+      <span>
+        <Link
+          href={
+            onClick !== null && !topic
+              ? `/${
+                  org
+                    ? org.orgUrl
+                    : event
+                    ? event.eventUrl
+                    : typeof user === "object"
+                    ? user.userName
+                    : ""
+                }`
+              : undefined
+          }
+          shallow
+          onClick={() => {
+            if (onClick) onClick();
+          }}
+        >
+          <Button
+            aria-hidden
+            fontSize="sm"
+            leftIcon={
+              <Icon
+                as={
+                  org
+                    ? IoIosPeople
+                    : event
+                    ? CalendarIcon
+                    : user
+                    ? IoIosPerson
+                    : ChatIcon
+                }
+                color={org ? "green.500" : event ? "green.500" : "blue.500"}
+              />
             }
-            color={org ? "green.500" : event ? "green.500" : "blue.500"}
-          />
-        }
-        height="auto"
-        m={0}
-        p={1}
-        pr={2}
-        onClick={() => {
-          if (onClick) onClick();
-          else if (onClick !== null && !topic)
-            router.push(
-              `/${
-                org
-                  ? org.orgUrl
-                  : event
-                  ? event.eventUrl
-                  : user
-                  ? user.userName
-                  : ""
-              }`
-            );
-        }}
-        {...props}
-      >
-        {org
-          ? org.orgName
-          : event
-          ? event.eventName
-          : user
-          ? user.userName
-          : topic?.topicName}
-      </Button>
+            height="auto"
+            m={0}
+            p={1}
+            pr={2}
+            {...props}
+          >
+            {org
+              ? org.orgName
+              : event
+              ? event.eventName
+              : user
+              ? user.userName
+              : topic?.topicName}
+          </Button>
+        </Link>
+      </span>
     </Tooltip>
   );
 };

@@ -9,7 +9,7 @@ import { IEvent, StatusTypes } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
-import { createEventEmailNotif } from "utils/email";
+import { createEventEmailNotif, sendEventNotifications } from "utils/email";
 import { createServerError } from "utils/errors";
 import { equals, log, normalize } from "utils/string";
 
@@ -264,42 +264,13 @@ handler.post<
             subscriptions = [...subscriptions, ...list.subscriptions];
         }
 
-        if (hasItems(subscriptions)) {
-          log(`POST /event/${eventUrl}: subscriptions`, subscriptions);
-
-          for (const subscription of subscriptions) {
-            const email =
-              subscription.email ||
-              (typeof subscription.user === "object"
-                ? subscription.user.email
-                : "");
-
-            const mail = createEventEmailNotif({
-              email,
-              event,
-              org,
-              subscription
-            });
-
-            if (process.env.NODE_ENV === "production")
-              await transport.sendMail(mail);
-            else console.log(`sent event invite to ${email}`, mail);
-
-            emailList.push(email);
-          }
-        }
+        emailList = await sendEventNotifications({
+          event,
+          org,
+          subscriptions,
+          transport
+        });
       }
-    }
-
-    if (emailList.length > 0) {
-      event.eventNotified = [
-        ...(event.eventNotified || []),
-        ...emailList.map((email) => ({
-          email,
-          status: StatusTypes.PENDING
-        }))
-      ];
-      await event.save();
     }
 
     res.status(200).json({ emailList });

@@ -31,9 +31,11 @@ handler.get<
       : { orgVisibility: Visibility[Visibility.PUBLIC] };
 
     if (populate) {
-      orgs = await models.Org.find(select, { orgBanner: 0 }).populate(populate);
+      orgs = await models.Org.find(select, "-orgBanner -orgLogo").populate(
+        populate
+      );
     } else {
-      orgs = await models.Org.find(select, { orgBanner: 0 });
+      orgs = await models.Org.find(select, "-orgBanner -orgLogo");
     }
 
     res.status(200).json(orgs);
