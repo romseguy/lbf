@@ -157,7 +157,7 @@ export const EventPage = ({
   const isFollowed = getFollowerSubscription({ event, subQuery });
   const isSubscribedToAtLeastOneOrg =
     isCreator ||
-    !!subQuery.data?.orgs.find((orgSubscription: IOrgSubscription) => {
+    !!subQuery.data?.orgs?.find((orgSubscription: IOrgSubscription) => {
       for (const org of event.eventOrgs) {
         if (
           org._id === orgSubscription.orgId &&

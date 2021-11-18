@@ -127,7 +127,7 @@ export const EntityListForm = ({
                   onChange={renderProps.onChange}
                   options={subscriptionsToOptions(
                     org.orgSubscriptions.filter((subscription) =>
-                      subscription.orgs.find(
+                      subscription.orgs?.find(
                         (orgSubscription) => orgSubscription.orgId === org._id
                       )
                     )

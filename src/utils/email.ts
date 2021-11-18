@@ -4,12 +4,14 @@ import nodemailer from "nodemailer";
 import { models } from "database";
 import { toDateRange } from "features/common";
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { IOrg, orgTypeFull } from "models/Org";
 import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import api from "./api";
 import { equals } from "./string";
+import { Document } from "mongoose";
+import { IUser } from "models/User";
 
 export type Mail = {
   from?: string;
@@ -163,97 +165,105 @@ export const sendEventToOrgFollowers = async (
           continue;
         }
 
-        for (const { orgId, type, eventCategories = [] } of subscription.orgs) {
-          if (!equals(notifOrgId, orgId) || type !== SubscriptionTypes.FOLLOWER)
-            continue;
-
-          const email =
-            typeof subscription.user === "object"
-              ? subscription.user.email
-              : subscription.email;
-
-          if (subscription.phone) {
-            // todo
-          } else if (email) {
+        if (subscription.orgs)
+          for (const {
+            orgId,
+            type,
+            eventCategories = []
+          } of subscription.orgs) {
             if (
-              Array.isArray(event.eventNotified) &&
-              event.eventNotified.find((m) => m.email === email)
+              !equals(notifOrgId, orgId) ||
+              type !== SubscriptionTypes.FOLLOWER
             )
               continue;
 
-            const user = await models.User.findOne({ email });
-            const eventCategoriesEmail = eventCategories.filter(
-              ({ emailNotif }) => emailNotif
-            );
-            const eventCategoriesPush = eventCategories.filter(
-              ({ pushNotif }) => pushNotif
-            );
+            const email =
+              typeof subscription.user === "object"
+                ? subscription.user.email
+                : subscription.email;
 
-            if (
-              user &&
-              user.userSubscription &&
-              (eventCategoriesPush.length === 0 ||
-                !!eventCategoriesPush.find(
+            if (subscription.phone) {
+              // todo
+            } else if (email) {
+              if (
+                Array.isArray(event.eventNotified) &&
+                event.eventNotified.find((m) => m.email === email)
+              )
+                continue;
+
+              const user = await models.User.findOne({ email });
+              const eventCategoriesEmail = eventCategories.filter(
+                ({ emailNotif }) => emailNotif
+              );
+              const eventCategoriesPush = eventCategories.filter(
+                ({ pushNotif }) => pushNotif
+              );
+
+              if (
+                user &&
+                user.userSubscription &&
+                (eventCategoriesPush.length === 0 ||
+                  !!eventCategoriesPush.find(
+                    (eventCategory) =>
+                      eventCategory.catId === event.eventCategory &&
+                      eventCategory.pushNotif
+                  ))
+              ) {
+                await api.post("notification", {
+                  subscription: user.userSubscription,
+                  notification: {
+                    title: `Invitation à un événement`,
+                    message: event.eventName,
+                    url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
+                  }
+                });
+              }
+
+              if (
+                eventCategoriesEmail.length > 0 &&
+                !eventCategoriesEmail.find(
                   (eventCategory) =>
                     eventCategory.catId === event.eventCategory &&
-                    eventCategory.pushNotif
-                ))
-            ) {
-              await api.post("notification", {
-                subscription: user.userSubscription,
-                notification: {
-                  title: `Invitation à un événement`,
-                  message: event.eventName,
-                  url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
-                }
-              });
-            }
-
-            if (
-              eventCategoriesEmail.length > 0 &&
-              !eventCategoriesEmail.find(
-                (eventCategory) =>
-                  eventCategory.catId === event.eventCategory &&
-                  eventCategory.emailNotif
+                    eventCategory.emailNotif
+                )
               )
-            )
-              continue;
+                continue;
 
-            const mail = createEventEmailNotif({
-              email,
-              event,
-              org,
-              subscription
-            });
+              const mail = createEventEmailNotif({
+                email,
+                event,
+                org,
+                subscription
+              });
 
-            if (process.env.NODE_ENV === "production") {
-              try {
-                const res = await axios.post(
-                  process.env.NEXT_PUBLIC_API2 + "/mail",
-                  {
-                    eventId: event._id,
+              if (process.env.NODE_ENV === "production") {
+                try {
+                  const res = await axios.post(
+                    process.env.NEXT_PUBLIC_API2 + "/mail",
+                    {
+                      eventId: event._id,
+                      mail
+                    }
+                  );
+                  console.log(
+                    `sent event email notif to subscriber ${res.data.email}`,
                     mail
-                  }
-                );
+                  );
+                } catch (error: any) {
+                  console.log(`error sending mail to ${email}`);
+                  console.error(error);
+                  continue;
+                }
+              } else if (process.env.NODE_ENV === "development") {
                 console.log(
-                  `sent event email notif to subscriber ${res.data.email}`,
+                  `sent event email notif to subscriber ${email}`,
                   mail
                 );
-              } catch (error: any) {
-                console.log(`error sending mail to ${email}`);
-                console.error(error);
-                continue;
               }
-            } else if (process.env.NODE_ENV === "development") {
-              console.log(
-                `sent event email notif to subscriber ${email}`,
-                mail
-              );
+
+              emailList.push(email);
             }
-
-            emailList.push(email);
           }
-        }
       }
     }
   }
@@ -261,135 +271,7 @@ export const sendEventToOrgFollowers = async (
   return emailList;
 };
 
-export const sendEventEmailNotifToOrgFollowers = async (
-  event: IEvent,
-  orgIds: string[],
-  transport: nodemailer.Transporter<any>
-) => {
-  // console.log("sending notifications to event", event);
-
-  const emailList: string[] = [];
-
-  if (!event.isApproved) {
-    throw new Error("L'événément doit être approuvé");
-  }
-
-  if (!Array.isArray(event.eventOrgs)) {
-    throw new Error("L'événement est organisé par aucune organisation");
-  }
-
-  if (!Array.isArray(orgIds) || !orgIds.length) {
-    throw new Error("Aucune organisation spécifiée");
-  }
-
-  let mails: { email: string; mail: Mail }[] = [];
-
-  for (const org of event.eventOrgs) {
-    const orgId = typeof org === "object" ? org._id : org;
-
-    for (const notifOrgId of orgIds) {
-      if (!equals(notifOrgId, orgId)) continue;
-
-      //console.log("notifying followers from org", org);
-
-      for (const orgSubscription of org.orgSubscriptions) {
-        const subscription = await models.Subscription.findOne({
-          _id:
-            typeof orgSubscription === "object"
-              ? orgSubscription._id
-              : orgSubscription
-        }).populate("user");
-
-        if (!subscription) {
-          // shouldn't happen because when user remove subscription to org it is also removed from org.orgSubscriptions
-          continue;
-        }
-
-        for (const { orgId, type, eventCategories = [] } of subscription.orgs) {
-          if (!equals(notifOrgId, orgId) || type !== SubscriptionTypes.FOLLOWER)
-            continue;
-
-          const email =
-            typeof subscription.user === "object"
-              ? subscription.user.email
-              : subscription.email;
-
-          if (subscription.phone) {
-            // todo
-          } else if (email) {
-            if (
-              Array.isArray(event.eventNotified) &&
-              event.eventNotified.find((m) => m.email === email)
-            )
-              continue;
-
-            // const user = await models.User.findOne({ email });
-            // const eventCategoriesEmail = eventCategories.filter(
-            //   ({ emailNotif }) => emailNotif
-            // );
-            // const eventCategoriesPush = eventCategories.filter(
-            //   ({ pushNotif }) => pushNotif
-            // );
-
-            // if (
-            //   user &&
-            //   user.userSubscription &&
-            //   (eventCategoriesPush.length === 0 ||
-            //     !!eventCategoriesPush.find(
-            //       (eventCategory) =>
-            //         eventCategory.catId === event.eventCategory &&
-            //         eventCategory.pushNotif
-            //     ))
-            // ) {
-            //   await api.post("notification", {
-            //     subscription: user.userSubscription,
-            //     notification: {
-            //       title: `Invitation à un événement`,
-            //       message: event.eventName,
-            //       url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
-            //     }
-            //   });
-            // }
-
-            // if (
-            //   eventCategoriesEmail.length > 0 &&
-            //   !eventCategoriesEmail.find(
-            //     (eventCategory) =>
-            //       eventCategory.catId === event.eventCategory &&
-            //       eventCategory.emailNotif
-            //   )
-            // )
-            //   continue;
-
-            const mail = createEventEmailNotif({
-              email,
-              event,
-              org,
-              subscription
-            });
-
-            mails.push({ email, mail });
-            emailList.push(email);
-          }
-        }
-      }
-
-      try {
-        await axios.post(process.env.NEXT_PUBLIC_API2 + "/mails", {
-          eventId: event._id,
-          mails
-        });
-      } catch (error: any) {
-        console.error(error);
-        continue;
-      }
-    }
-  }
-
-  return emailList;
-};
-
-export const sendTopicEmailNotifications = async ({
+export const sendTopicNotifications = async ({
   event,
   org,
   subscriptions,
@@ -399,7 +281,7 @@ export const sendTopicEmailNotifications = async ({
   event?: IEvent;
   org?: IOrg;
   subscriptions: ISubscription[];
-  topic: ITopic;
+  topic: ITopic & Document<any, any, ITopic>;
   transport: nodemailer.Transporter<any>;
 }) => {
   const emailList: string[] = [];
@@ -407,7 +289,11 @@ export const sendTopicEmailNotifications = async ({
   if (!event && !org) return emailList;
 
   if (!subscriptions.length) {
-    console.log(`nobody subscribed to this ${org ? "org" : "event"}`);
+    console.log(
+      `sendTopicNotifications: nobody subscribed to this ${
+        org ? "org" : "event"
+      }`
+    );
     return emailList;
   }
 
@@ -430,25 +316,116 @@ export const sendTopicEmailNotifications = async ({
       typeof subscription.user === "object"
         ? subscription.user.email
         : subscription.email;
-
-    if (!email) continue;
-
-    if (topic.topicNotified?.find(({ email: e }) => e === email)) continue;
-
     mail.to = `<${email}>`;
 
-    mail.html = `
-    <h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${entityName}</a> pour lire la discussion.</p>
-    <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${type} ${entityName}</a>
-    `;
+    if (org) {
+      const orgSubscription = subscription.orgs?.find(
+        ({ orgId, type }) =>
+          equals(orgId, org._id) && type === SubscriptionTypes.FOLLOWER
+      );
 
-    if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
-    else if (process.env.NODE_ENV === "development") {
-      console.log(`sent topic email notif to ${email}`, mail);
+      if (!orgSubscription) continue;
+
+      const tagType = orgSubscription.tagTypes?.find(
+        ({ type }) => type === "Topics"
+      );
+
+      if (!tagType) continue;
+
+      if (tagType.emailNotif) {
+        if (!email || topic.topicNotified?.find(({ email: e }) => e === email))
+          continue;
+
+        mail.html = `
+          <h1>${subject}</h1>
+          <p>Rendez-vous sur la page de ${type} <a href="${url}">${entityName}</a> pour lire la discussion.</p>
+          <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${type} ${entityName}</a>
+        `;
+
+        if (process.env.NODE_ENV === "production")
+          await transport.sendMail(mail);
+        else if (process.env.NODE_ENV === "development") {
+          console.log(`sent topic email notif to ${mail.to}`, mail);
+        }
+
+        emailList.push(email);
+      }
+
+      if (tagType.pushNotif) {
+        if (!subscription.user) continue;
+
+        const user = await models.User.findOne({
+          _id:
+            typeof subscription.user === "string"
+              ? subscription.user
+              : subscription.user._id
+        });
+
+        if (user && user.userSubscription) {
+          api.sendPushNotification({
+            message: `Appuyez pour ouvrir la page ${orgTypeFull(org.orgType)}`,
+            title: "Vous êtes invité à une nouvelle discussion",
+            url: org.orgUrl,
+            subscription: user.userSubscription
+          });
+        }
+      }
+    } else if (event) {
+      const eventSubscription = subscription.events?.find(
+        ({ eventId }) => eventId === event._id
+      );
+
+      if (!eventSubscription) continue;
+
+      const tagType = eventSubscription.tagTypes?.find(
+        ({ type }) => type === "Topics"
+      );
+
+      if (!tagType) continue;
+
+      if (tagType.emailNotif) {
+        if (!email || topic.topicNotified?.find(({ email: e }) => e === email))
+          continue;
+
+        mail.html = `
+          <h1>${subject}</h1>
+          <p>Rendez-vous sur la page de ${type} <a href="${url}">${entityName}</a> pour lire la discussion.</p>
+          <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${type} ${entityName}</a>
+        `;
+
+        if (process.env.NODE_ENV === "production")
+          await transport.sendMail(mail);
+        else if (process.env.NODE_ENV === "development") {
+          console.log(`sent topic email notif to ${mail.to}`, mail);
+        }
+
+        emailList.push(email);
+      }
+
+      if (tagType.pushNotif) {
+        if (!subscription.user) continue;
+
+        const user = await models.User.findOne({
+          _id:
+            typeof subscription.user === "string"
+              ? subscription.user
+              : subscription.user._id
+        });
+
+        if (user && user.userSubscription) {
+          api.sendPushNotification({
+            message: `Appuyez pour ouvrir la page de l'événement`,
+            title: "Vous êtes invité à une nouvelle discussion",
+            url: event.eventUrl,
+            subscription: user.userSubscription
+          });
+        }
+      }
     }
-
-    emailList.push(email);
   }
+
+  topic.topicNotified = emailList.map((email) => ({ email }));
+  await topic.save();
 
   return emailList;
 };

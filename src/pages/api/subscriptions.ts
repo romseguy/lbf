@@ -105,7 +105,7 @@ handler.post<
     if (body.orgs) {
       const { orgs: newOrgSubscriptions } = body;
 
-      if (subscription.orgs.length > 0) {
+      if (subscription.orgs && subscription.orgs.length > 0) {
         console.log("user already got org subscriptions");
 
         for (const newOrgSubscription of newOrgSubscriptions) {
@@ -234,7 +234,7 @@ handler.post<
     } else if (body.events) {
       const { events: newEventSubscriptions } = body;
 
-      if (subscription.events.length > 0) {
+      if (subscription.events && subscription.events.length > 0) {
         console.log("user already got event subscriptions");
 
         for (const newEventSubscription of newEventSubscriptions) {

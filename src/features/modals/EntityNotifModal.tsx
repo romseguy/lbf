@@ -89,7 +89,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
     subscriptions = subscriptions.filter((subscription) => {
       return (
         org &&
-        subscription.orgs.find((orgSubscription) => {
+        subscription.orgs?.find((orgSubscription) => {
           return (
             orgSubscription.orgId === org._id &&
             orgSubscription.type === SubscriptionTypes.FOLLOWER

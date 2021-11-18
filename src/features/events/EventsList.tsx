@@ -106,7 +106,7 @@ export const EventsList = ({
   const orgFollowersCount = org?.orgSubscriptions
     .map(
       (subscription) =>
-        subscription.orgs.filter((orgSubscription) => {
+        (subscription.orgs || []).filter((orgSubscription) => {
           return (
             orgSubscription.orgId === org?._id &&
             orgSubscription.type === SubscriptionTypes.FOLLOWER

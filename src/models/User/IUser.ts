@@ -10,7 +10,7 @@ export interface IUser {
   securityCode: string;
   userName: string;
   userImage?: Base64Image;
-  userSubscription?: any;
+  userSubscription?: unknown;
   isAdmin: boolean;
   suggestedCategoryAt?: string;
   userProjects?: IProject[];

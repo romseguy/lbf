@@ -11,7 +11,7 @@ import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import {
   sendTopicMessageEmailNotifications,
-  sendTopicEmailNotifications
+  sendTopicNotifications
 } from "utils/email";
 import { createServerError } from "utils/errors";
 import { equals, log, toString } from "utils/string";
@@ -138,6 +138,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
         org
       });
 
+      if (!topic) throw new Error("La discussion n'a pas pu être créée");
+
       createdBy = toString(topic.createdBy);
 
       if (event) {
@@ -147,7 +149,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
 
         if (topicNotif) {
           const subscriptions = await models.Subscription.find({
-            phone: { $exists: false },
+            //phone: { $exists: false },
             "events.event": Types.ObjectId(event._id),
             "events.tagTypes": {
               $elemMatch: { type: "Topics", emailNotif: true }
@@ -156,15 +158,12 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
 
           log(`POST /topics: event subscriptions`, subscriptions);
 
-          const emailList = await sendTopicEmailNotifications({
+          const emailList = await sendTopicNotifications({
             event,
             subscriptions,
             topic,
             transport
           });
-
-          topic.topicNotified = emailList.map((email) => ({ email }));
-          await topic.save();
         }
       } else if (org) {
         org.orgTopics.push(topic);
@@ -172,6 +171,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
         //log(`POST /topics: org`, org);
 
         if (topicNotif) {
+          //#region orgLists
           if (
             Array.isArray(body.topic.topicVisibility) &&
             body.topic.topicVisibility.length > 0
@@ -221,37 +221,35 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
                 );
 
             if (Array.isArray(subscriptions) && subscriptions.length > 0) {
-              const emailList = await sendTopicEmailNotifications({
+              const emailList = await sendTopicNotifications({
                 org,
                 subscriptions,
                 topic,
                 transport
               });
-
-              topic.topicNotified = emailList.map((email) => ({ email }));
-              await topic.save();
             }
-          } else {
+          }
+          //#endregion
+          //#region orgSubscriptions
+          else {
             const subscriptions = await models.Subscription.find({
-              phone: { $exists: false },
+              //phone: { $exists: false },
               "orgs.org": Types.ObjectId(org._id),
               "orgs.tagTypes": {
                 $elemMatch: { type: "Topics", emailNotif: true }
               }
             }).populate("user");
 
-            log(`POST /topics: org subscriptions`, subscriptions);
+            //log(`POST /topics: org subscriptions`, subscriptions);
 
-            const emailList = await sendTopicEmailNotifications({
+            const emailList = await sendTopicNotifications({
               org,
               subscriptions,
-              topic: topic,
+              topic,
               transport
             });
-
-            topic.topicNotified = emailList.map((email) => ({ email }));
-            await topic.save();
           }
+          //#endregion
         }
       }
     }

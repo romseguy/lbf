@@ -1,3 +1,6 @@
+import axios from "axios";
+import { IEvent } from "models/Event";
+import { IOrg, orgTypeFull } from "models/Org";
 import { databaseErrorCodes } from "utils/errors";
 import { isServer } from "utils/isServer";
 
@@ -79,10 +82,44 @@ function remove(endpoint: string, params: ParamsType) {
   return request(endpoint, params, "DELETE");
 }
 
+export async function sendPushNotification({
+  message = "",
+  title = "Vous avez reçu une notification",
+  url = "",
+  subscription
+}: {
+  message?: string;
+  title?: string;
+  url?: string;
+  subscription: unknown;
+}) {
+  if (!subscription)
+    throw new Error("api/sendPushNotification: must provide subscription");
+
+  return axios.post(
+    process.env.NEXT_PUBLIC_API + "/notification",
+    {
+      subscription,
+      notification: {
+        title,
+        message,
+        url: `${process.env.NEXT_PUBLIC_URL}/${url}`
+      }
+    },
+    {
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        "User-Agent": "*"
+      }
+    }
+  );
+}
+
 export default {
   get,
   post,
   update,
   remove,
-  databaseErrorCodes
+  databaseErrorCodes,
+  sendPushNotification
 };

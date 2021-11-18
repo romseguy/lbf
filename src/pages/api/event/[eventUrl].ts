@@ -1,22 +1,17 @@
-import { parseISO } from "date-fns";
+import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import database, { models } from "database";
-import { toDateRange } from "features/common";
 import { getSession } from "hooks/useAuth";
 import { IEvent, StatusTypes } from "models/Event";
+import { getSubscriptions, IOrg } from "models/Org";
+import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
-import {
-  createEventEmailNotif,
-  sendEventToOrgFollowers,
-  sendEventEmailNotifToOrgFollowers
-} from "utils/email";
+import { createEventEmailNotif } from "utils/email";
 import { createServerError } from "utils/errors";
 import { equals, log, normalize } from "utils/string";
-import { getSubscriptions } from "models/Org";
-import { SubscriptionTypes } from "models/Subscription";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -123,186 +118,193 @@ handler.post<
 >(async function postEventNotif(req, res) {
   const session = await getSession({ req });
 
-  if (!session) {
-    res
+  if (!session)
+    return res
       .status(403)
       .json(
         createServerError(
           new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
-  } else {
-    try {
-      const {
-        query: { eventUrl },
-        body
-      }: {
-        query: { eventUrl: string };
-        body: { orgListsNames?: string[]; email?: string };
-      } = req;
 
-      let event = await models.Event.findOne({ eventUrl });
+  try {
+    const {
+      query: { eventUrl },
+      body
+    }: {
+      query: { eventUrl: string };
+      body: { orgListsNames?: string[]; email?: string };
+    } = req;
 
-      if (!event) {
-        event = await models.Event.findOne({ _id: eventUrl });
+    let event = await models.Event.findOne({ eventUrl });
 
-        if (!event)
-          return res
-            .status(404)
-            .json(
-              createServerError(
-                new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
-              )
-            );
-      }
+    if (!event) {
+      event = await models.Event.findOne({ _id: eventUrl });
 
-      if (
-        !equals(event.createdBy, session.user.userId) &&
-        !session.user.isAdmin
-      ) {
+      if (!event)
         return res
-          .status(403)
+          .status(404)
           .json(
             createServerError(
-              new Error(
-                "Vous ne pouvez pas envoyer des notifications pour un événement que vous n'avez pas créé."
-              )
+              new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
             )
           );
-      }
+    }
 
-      event = await event.populate("eventOrgs").execPopulate();
-      let emailList: string[] = [];
+    if (!equals(event.createdBy, session.user.userId) && !session.user.isAdmin)
+      return res
+        .status(403)
+        .json(
+          createServerError(
+            new Error(
+              "Vous ne pouvez pas envoyer des notifications pour un événement que vous n'avez pas créé"
+            )
+          )
+        );
 
-      if (typeof body.email === "string" && body.email.length > 0) {
-        const subscription = await models.Subscription.findOne({
-          email: body.email
-        });
+    if (!event.isApproved)
+      return res
+        .status(403)
+        .json(
+          createServerError(
+            new Error(
+              "Vous ne pouvez pas envoyer des notifications pour un événement qui n'est pas approuvé"
+            )
+          )
+        );
 
-        const mail = createEventEmailNotif({
-          email: body.email,
-          event,
-          org: event.eventOrgs[0],
-          subscription,
-          isPreview: true
-        });
+    event = await event.populate("eventOrgs").execPopulate();
 
-        if (process.env.NODE_ENV === "production")
-          await transport.sendMail(mail);
-        else console.log(`sent event invite to ${body.email}`, mail);
+    let emailList: string[] = [];
 
-        if (body.email !== session.user.email) {
-          const newEntries = emailList.map((email) => ({
-            email,
-            status: StatusTypes.PENDING
-          }));
+    if (typeof body.email === "string" && body.email.length > 0) {
+      const subscription = await models.Subscription.findOne({
+        email: body.email
+      });
 
-          if (!event.eventNotified) {
-            event.eventNotified = newEntries;
-          } else if (
-            !event.eventNotified.find(({ email }) => email === body.email)
-          ) {
-            event.eventNotified = event.eventNotified.concat(newEntries);
-          }
+      const mail = createEventEmailNotif({
+        email: body.email,
+        event,
+        org: event.eventOrgs[0],
+        subscription,
+        isPreview: true
+      });
 
-          await event.save();
-        }
+      if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
+      else console.log(`sent event invite to ${body.email}`, mail);
 
-        emailList.push(body.email);
-      } else if (body.orgListsNames) {
-        for (const orgListName of body.orgListsNames) {
-          const [_, listName, orgId] =
-            orgListName.match(/([^\.]+)\.(.+)/) || [];
-
-          console.log("listName", listName);
-          console.log("orgId", orgId);
-
-          let org = await models.Org.findOne({ _id: orgId });
-
-          if (!org) return res.status(400).json("Organisation introuvable");
-
-          let subscriptions;
-
-          if (listName === "Abonnés") {
-            org = await org
-              .populate({
-                path: "orgSubscriptions",
-                populate: {
-                  path: "user"
-                }
-              })
-              .execPopulate();
-
-            subscriptions = getSubscriptions(org, SubscriptionTypes.FOLLOWER);
-          } else if (listName === "Adhérents") {
-            org = await org
-              .populate({
-                path: "orgSubscriptions",
-                populate: {
-                  path: "user"
-                }
-              })
-              .execPopulate();
-            subscriptions = getSubscriptions(org, SubscriptionTypes.SUBSCRIBER);
-          } else {
-            org = await org
-              .populate({
-                path: "orgLists",
-                populate: [
-                  { path: "subscriptions", populate: { path: "user" } }
-                ]
-              })
-              .execPopulate();
-
-            const list = org.orgLists?.find(
-              (orgList) => orgList.listName === listName
-            );
-
-            if (list) subscriptions = list.subscriptions;
-          }
-
-          if (subscriptions) {
-            log(`POST /event/${eventUrl}: subscriptions`, subscriptions);
-            for (const subscription of subscriptions) {
-              const email =
-                subscription.email ||
-                (typeof subscription.user === "object"
-                  ? subscription.user.email
-                  : "");
-              const mail = createEventEmailNotif({
-                email,
-                event,
-                org,
-                subscription
-              });
-
-              if (process.env.NODE_ENV === "production")
-                await transport.sendMail(mail);
-              else console.log(`sent event invite to ${email}`, mail);
-
-              emailList.push(email);
-            }
-          }
-        }
-      }
-
-      if (emailList.length > 0) {
+      if (body.email !== session.user.email) {
         const newEntries = emailList.map((email) => ({
           email,
           status: StatusTypes.PENDING
         }));
 
-        event.eventNotified = event.eventNotified
-          ? event.eventNotified.concat(newEntries)
-          : newEntries;
+        if (!event.eventNotified) {
+          event.eventNotified = newEntries;
+        } else if (
+          !event.eventNotified.find(({ email }) => email === body.email)
+        ) {
+          event.eventNotified = event.eventNotified.concat(newEntries);
+        }
 
         await event.save();
       }
 
-      res.status(200).json({ emailList });
-    } catch (error) {
-      res.status(500).json(createServerError(error));
+      emailList.push(body.email);
+    } else if (body.orgListsNames) {
+      for (const orgListName of body.orgListsNames) {
+        const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
+        let org: (IOrg & Document<any, any, IOrg>) | null | undefined;
+        org = await models.Org.findOne({ _id: orgId });
+
+        if (!org) return res.status(400).json("Organisation introuvable");
+
+        let subscriptions: ISubscription[] = [];
+
+        if (listName === "Abonnés") {
+          org = await org
+            .populate({
+              path: "orgSubscriptions",
+              populate: {
+                path: "user"
+              }
+            })
+            .execPopulate();
+
+          subscriptions = [
+            ...subscriptions,
+            ...getSubscriptions(org, SubscriptionTypes.FOLLOWER)
+          ];
+        } else if (listName === "Adhérents") {
+          org = await org
+            .populate({
+              path: "orgSubscriptions",
+              populate: {
+                path: "user"
+              }
+            })
+            .execPopulate();
+          subscriptions = [
+            ...subscriptions,
+            ...getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
+          ];
+        } else {
+          org = await org
+            .populate({
+              path: "orgLists",
+              populate: [{ path: "subscriptions", populate: { path: "user" } }]
+            })
+            .execPopulate();
+
+          const list = org.orgLists?.find(
+            (orgList) => orgList.listName === listName
+          );
+
+          if (list && list.subscriptions)
+            subscriptions = [...subscriptions, ...list.subscriptions];
+        }
+
+        if (hasItems(subscriptions)) {
+          log(`POST /event/${eventUrl}: subscriptions`, subscriptions);
+
+          for (const subscription of subscriptions) {
+            const email =
+              subscription.email ||
+              (typeof subscription.user === "object"
+                ? subscription.user.email
+                : "");
+
+            const mail = createEventEmailNotif({
+              email,
+              event,
+              org,
+              subscription
+            });
+
+            if (process.env.NODE_ENV === "production")
+              await transport.sendMail(mail);
+            else console.log(`sent event invite to ${email}`, mail);
+
+            emailList.push(email);
+          }
+        }
+      }
     }
+
+    if (emailList.length > 0) {
+      event.eventNotified = [
+        ...(event.eventNotified || []),
+        ...emailList.map((email) => ({
+          email,
+          status: StatusTypes.PENDING
+        }))
+      ];
+      await event.save();
+    }
+
+    res.status(200).json({ emailList });
+  } catch (error) {
+    res.status(500).json(createServerError(error));
   }
 });
 
