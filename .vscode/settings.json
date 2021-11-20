@@ -1,3 +1,3 @@
 {
-  "typescript.tsdk": "/home/x240/n/lib/node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

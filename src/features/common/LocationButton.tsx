@@ -24,7 +24,6 @@ export const LocationButton = withGoogleApi({
   })(
     ({
       loaded,
-      google,
       coords,
       timestamp,
       isGeolocationAvailable,
@@ -38,7 +37,7 @@ export const LocationButton = withGoogleApi({
       ...props
     }: ButtonProps & {
       loaded: boolean;
-      google: any;
+      google: typeof google;
       /**
        * The Geolocation API's coords object containing latitude, longitude, and accuracy and also optionally containing altitude, altitudeAccuracy, heading and speed.
        */
@@ -68,7 +67,7 @@ export const LocationButton = withGoogleApi({
       const toast = useToast();
       const { colorMode } = useColorMode();
       const isDark = colorMode === "dark";
-      const isOffline = loaded && !google;
+      const isOffline = loaded && !props.google;
 
       useEffect(() => {
         if (coords && !location) {
@@ -80,11 +79,10 @@ export const LocationButton = withGoogleApi({
 
       useEffect(() => {
         const xhr = async () => {
-          console.log(city, loaded, google, location);
-
-          if (!city && loaded && google && location) {
+          if (!city && loaded && props.google && location) {
             try {
-              const geocoder: google.maps.Geocoder = new google.maps.Geocoder();
+              const geocoder: google.maps.Geocoder =
+                new props.google.maps.Geocoder();
               const { results } = await geocoder.geocode({
                 location: { lat: location.lat, lng: location.lng },
                 componentRestrictions: {
@@ -103,7 +101,7 @@ export const LocationButton = withGoogleApi({
           }
         };
         xhr();
-      }, [loaded, google, location]);
+      }, [loaded, props.google, location]);
 
       return (
         <Flex alignItems="center">

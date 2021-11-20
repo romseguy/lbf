@@ -362,7 +362,6 @@ export const TopicsList = ({
             if (subQuery.data) {
               isSubbedToTopic = !!subQuery.data.topics.find(
                 (topicSubscription) => {
-                  console.log(topicSubscription);
                   if (!topicSubscription.topic) return false;
                   return topicSubscription.topic._id === topic._id;
                 }

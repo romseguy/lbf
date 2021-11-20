@@ -12,12 +12,14 @@ import {
   Text,
   Alert,
   AlertIcon,
-  Spinner
+  Spinner,
+  Tooltip
 } from "@chakra-ui/react";
 import { Map, SizeMap } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { hasItems } from "utils/array";
+import { MapStyles } from "features/map/MapStyles";
 
 export const MapModal = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -28,7 +30,7 @@ export const MapModal = withGoogleApi({
     orgs,
     ...props
   }: {
-    google: any;
+    google: typeof google;
     loaded: boolean;
     isOpen: boolean;
     header?: React.ReactNode | React.ReactNodeArray;

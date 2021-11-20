@@ -1,11 +1,12 @@
 import { CalendarIcon } from "@chakra-ui/icons";
-import { Box, Icon, Text } from "@chakra-ui/react";
-import MarkerClusterer from "@googlemaps/markerclustererplus";
+import { Box, Icon, Text, useColorMode } from "@chakra-ui/react";
+import MarkerClusterer, {
+  ClusterIconStyle
+} from "@googlemaps/markerclustererplus";
 import GoogleMap from "google-map-react";
 import DOMPurify from "isomorphic-dompurify";
 import React, { useRef, useState } from "react";
 import { render } from "react-dom";
-import { FaMapMarkerAlt } from "react-icons/fa";
 import { IoIosPeople } from "react-icons/io";
 import { LatLon } from "use-places-autocomplete";
 import { css } from "twin.macro";
@@ -17,6 +18,9 @@ import { IOrg } from "models/Org";
 import { FullscreenControl } from "./FullscreenControl";
 import { withGoogleApi } from "./GoogleApiWrapper";
 import { Marker } from "./Marker";
+import { OrgInfo } from "features/orgs/OrgInfo";
+import { EventInfo } from "features/events/EventInfo";
+import { getMarkerUrl } from "utils/maps";
 
 export type SizeMap = {
   defaultSize: {
@@ -46,7 +50,7 @@ export const Map = withGoogleApi({
     onFullscreenControlClick,
     ...props
   }: {
-    google: any;
+    google: typeof google;
     loaded: boolean;
     center?: LatLon;
     events?: IEvent[];
@@ -57,21 +61,15 @@ export const Map = withGoogleApi({
     onGoogleApiLoaded: () => void;
     onFullscreenControlClick?: (isFull: boolean) => void;
   }) => {
+    const { colorMode } = useColorMode();
+    const isDark = colorMode === "dark";
+
+    const mapRef = useRef(null);
+
     const [itemToShow, setItemToShow] = useState<IEvent | IOrg | null>(null);
     const [zoomLevel, setZoomLevel] = useState<number>(defaultZoomLevel);
 
-    const mapRef = useRef(null);
-    const options = {
-      fullscreenControl: false
-      // zoomControl: boolean,
-      // mapTypeControl: boolean,
-      // scaleControl: boolean,
-      // streetViewControl: boolean,
-      // rotateControl: boolean,
-    };
-
     const hash: { [key: string]: boolean } = {};
-
     const mapItem = (item: IOrg | IEvent, index: number) => {
       const key = `marker-${index}`;
       let lat = "eventName" in item ? item.eventLat : item.orgLat;
@@ -93,18 +91,21 @@ export const Map = withGoogleApi({
         item
       };
     };
+
     const [markers, setMarkers] = useState(
       events ? events.map(mapItem) : orgs ? orgs.map(mapItem) : []
     );
 
-    const onGoogleApiLoaded = ({ map, maps: api }: { map: any; maps: any }) => {
+    const onGoogleApiLoaded = ({
+      map,
+      maps: api
+    }: {
+      map: google.maps.Map;
+      maps: typeof google.maps;
+    }) => {
       if (!map || !api) return;
 
       props.onGoogleApiLoaded && props.onGoogleApiLoaded();
-
-      // if (mapRef.current) {
-      //   console.log(mapRef.current);
-      // }
 
       if (onFullscreenControlClick) {
         const controlButtonDiv = document.createElement("div");
@@ -115,51 +116,67 @@ export const Map = withGoogleApi({
         map.controls[api.ControlPosition.TOP_RIGHT].push(controlButtonDiv);
       }
 
-      const gMarkers = markers.map(({ lat, lng }) => {
+      const gMarkers: google.maps.Marker[] = markers.map(({ lat, lng }) => {
         const gMarker = new api.Marker({
-          position: { lat, lng }
+          position: lat && lng ? { lat, lng } : null
         });
         gMarker.setVisible(false);
         return gMarker;
       });
 
-      const cluster = new MarkerClusterer(map, gMarkers, {
-        imagePath:
-          "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
-        minimumClusterSize: 2
+      const styles: ClusterIconStyle[] = [
+        {
+          url: getMarkerUrl({
+            id: orgs ? "org" : "event",
+            fill: "green",
+            height: 25,
+            width: 25
+          }),
+          anchorText: [17, 0],
+          height: 25,
+          width: 25
+        }
+      ];
+      console.log(styles);
+
+      const clusterer = new MarkerClusterer(map, gMarkers, {
+        calculator: (gMarkers, clusterIconStylesCount) => {
+          return {
+            text: `${gMarkers.length}`,
+            index: clusterIconStylesCount + 1,
+            title: `${gMarkers.length} ${
+              orgs ? "organisations" : "événements"
+            } à cet endroit`
+          };
+        },
+        minimumClusterSize: 2,
+        styles
       });
 
-      api.event.addListener(cluster, "clusteringend", () => {
-        const markersGrouped = cluster
-          .getClusters()
-          .map((cl) => cl.getMarkers())
-          .filter((marker) => marker.length > 1);
+      api.event.addListener(clusterer, "clusteringend", () => {
+        const clusters = clusterer.getClusters();
+        const gMarkerGroups: { lat?: number; lng?: number }[][] = [];
 
-        const positions = markersGrouped.map((markers) =>
-          markers.map((marker) => ({
-            lat: marker.getPosition()?.lat(),
-            lng: marker.getPosition()?.lng()
-          }))
-        )[0];
-
-        const newMarkers = [];
-
-        for (const marker of markers) {
-          if (
-            marker.lat &&
-            marker.lng &&
-            positions &&
-            positions.find(
-              (position) =>
-                position.lat === marker.lat && position.lng === marker.lng
-            )
-          )
-            continue;
-
-          newMarkers.push(marker);
+        for (const cluster of clusters) {
+          if (cluster.getSize() > 1)
+            gMarkerGroups.push(
+              cluster.getMarkers().map((gMarker) => ({
+                lat: gMarker.getPosition()?.lat(),
+                lng: gMarker.getPosition()?.lng()
+              }))
+            );
         }
 
-        setMarkers(newMarkers);
+        const gMarkers = gMarkerGroups.flat();
+
+        setMarkers(
+          markers.filter(
+            (marker) =>
+              !gMarkers.find(
+                ({ lat, lng }) => lat === marker.lat && lng === marker.lng
+              )
+          )
+        );
       });
     };
 
@@ -171,7 +188,14 @@ export const Map = withGoogleApi({
           defaultZoom={10}
           center={center}
           zoom={zoomLevel}
-          options={(maps) => options}
+          options={(maps) => ({
+            fullscreenControl: false
+            // zoomControl: boolean,
+            // mapTypeControl: boolean,
+            // scaleControl: boolean,
+            // streetViewControl: boolean,
+            // rotateControl: boolean,
+          })}
           yesIWantToUseGoogleMapApiInternals
           onGoogleApiLoaded={onGoogleApiLoaded}
           onChange={(e) => {
@@ -202,49 +226,47 @@ export const Map = withGoogleApi({
               setItemToShow(null);
             }}
             header={
-              <>
-                <Box display="inline-flex" alignItems="center" maxWidth="90%">
-                  {"eventName" in itemToShow ? (
-                    <Icon as={CalendarIcon} mr={1} boxSize={6} />
-                  ) : (
-                    <Icon as={IoIosPeople} mr={1} boxSize={6} />
-                  )}{" "}
-                  <Link
-                    href={`/${
-                      "eventName" in itemToShow
-                        ? itemToShow.eventUrl
-                        : itemToShow.orgUrl
-                    }`}
-                    css={css`
-                      letter-spacing: 0.1em;
-                    `}
-                    size="larger"
-                    className="rainbow-text"
-                  >
-                    {"eventName" in itemToShow
-                      ? itemToShow.eventName
-                      : itemToShow.orgName}
-                  </Link>
-                </Box>
-                <br />
-                {("eventName" in itemToShow
-                  ? itemToShow.eventAddress
-                  : itemToShow.orgAddress
-                )?.map(({ address }) => (
-                  <Box display="inline-flex" alignItems="center">
-                    <Icon as={FaMapMarkerAlt} mr={2} color="red" />
-                    {address}
-                  </Box>
-                ))}
-              </>
+              <Box display="inline-flex" alignItems="center" maxWidth="90%">
+                {"eventName" in itemToShow ? (
+                  <Icon as={CalendarIcon} mr={1} boxSize={6} />
+                ) : (
+                  <Icon as={IoIosPeople} mr={1} boxSize={6} />
+                )}{" "}
+                <Link
+                  href={`/${
+                    "eventName" in itemToShow
+                      ? itemToShow.eventUrl
+                      : itemToShow.orgUrl
+                  }`}
+                  css={css`
+                    letter-spacing: 0.1em;
+                  `}
+                  size="larger"
+                  className="rainbow-text"
+                >
+                  {"eventName" in itemToShow
+                    ? itemToShow.eventName
+                    : itemToShow.orgName}
+                </Link>
+              </Box>
             }
           >
             <>
-              {"eventName" in itemToShow && (
-                <EventTimeline event={itemToShow} />
+              {"eventName" in itemToShow ? (
+                <>
+                  <EventInfo event={itemToShow} my={3} />
+                  <EventTimeline event={itemToShow} />
+                </>
+              ) : (
+                <OrgInfo org={itemToShow} />
               )}
 
-              <Box mt={4}>
+              <Box
+                mt={4}
+                border={isDark ? "1px solid white" : "1px solid black"}
+                borderRadius="lg"
+                p={3}
+              >
                 {"eventName" in itemToShow ? (
                   itemToShow.eventDescription &&
                   itemToShow.eventDescription.length > 0 ? (

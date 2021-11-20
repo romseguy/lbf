@@ -6,6 +6,7 @@ import {
   Spinner,
   FormControl,
   CheckboxGroup,
+  Text,
   Table,
   Tbody,
   Tr,
@@ -205,8 +206,20 @@ export const OrgNotifForm = ({
                               </Checkbox>
                             </Td>
                             <Td>
-                              {i} membre{s} n'{s ? "ont" : "a"} pas été{" "}
-                              {isT ? "notifié" : "invité"}
+                              {!hasItems(list.subscriptions) ? (
+                                list.listName === "Abonnés" ? (
+                                  "0 abonnés"
+                                ) : list.listName === "Adhérents" ? (
+                                  "0 adhérents"
+                                ) : (
+                                  "0 membres"
+                                )
+                              ) : (
+                                <Text>
+                                  {i} membre{s} n'{s ? "ont" : "a"} pas été{" "}
+                                  {isT ? "notifié" : "invité"}
+                                </Text>
+                              )}
                             </Td>
                           </Tr>
                         );

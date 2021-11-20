@@ -1,10 +1,11 @@
+import { Box, Image, Tooltip } from "@chakra-ui/react";
+import React, { useState } from "react";
+import { css } from "twin.macro";
+import { Link } from "features/common";
 import type { IEvent } from "models/Event";
 import type { IOrg } from "models/Org";
-import React from "react";
-import { css } from "twin.macro";
-import { Box, Tooltip } from "@chakra-ui/react";
 import { getStyleObjectFromString } from "utils/string";
-import { Link } from "features/common";
+import { getMarkerUrl } from "utils/maps";
 
 const defaultStyles = `
   position: absolute;
@@ -15,6 +16,22 @@ const defaultStyles = `
   background-color: red;
   border: 2px solid #fff;
   border-radius: 100%;
+  user-select: none;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+`;
+
+const wideStyles = `
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: auto;
+  height: auto;
+  padding: 8px;
+  color: black;
+  background-color: white;
+  border: 2px solid black;
+  border-radius: 12px;
   user-select: none;
   transform: translate(-50%, -50%);
   cursor: pointer;
@@ -36,56 +53,51 @@ export const Marker = ({
   setItemToShow: (item: IEvent | IOrg | null) => void;
 }) => {
   const name = "eventName" in item ? item.eventName : item.orgName;
+  const [fill, setFill] = useState("green");
 
   // if (lat && lng) {
   // const world = latLng2World({ lat, lng });
   // const screen = world2Screen({ x: world.x, y: world.y }, zoomLevel);
   // }
 
-  let wideStyles;
-  const isWide = zoomLevel > 16;
-
-  if (isWide) {
-    // console.log(getStyleObjectFromString(styles));
-    wideStyles = `
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: auto;
-    height: auto;
-    padding: 8px;
-    color: black;
-    background-color: white;
-    border: 2px solid black;
-    border-radius: 12px;
-    user-select: none;
-    transform: translate(-50%, -50%);
-    cursor: pointer;
-    `;
-  }
+  // const isWide = zoomLevel > 16;
+  // const m = (
+  //   <Box
+  //     css={css(isWide ? wideStyles : defaultStyles)}
+  //     _hover={{
+  //       bgColor: "green",
+  //       zIndex: 1
+  //     }}
+  //     onClick={() => setItemToShow(item)}
+  //   >
+  //     {isWide ? (
+  //       <Link className="rainbow-text" size="larger">
+  //         {name}
+  //       </Link>
+  //     ) : (
+  //       ""
+  //     )}
+  //   </Box>
+  // );
 
   const m = (
-    <Box
-      css={css(wideStyles || defaultStyles)}
-      _hover={{
-        bgColor: "green",
-        zIndex: 1
-      }}
+    <Image
+      cursor="pointer"
+      src={getMarkerUrl({
+        id: "eventName" in item ? "event" : "org",
+        fill,
+        height: 25,
+        width: 25
+      })}
+      onMouseEnter={() => setFill("blue")}
+      onMouseLeave={() => setFill("green")}
       onClick={() => setItemToShow(item)}
-    >
-      {isWide ? (
-        <Link className="rainbow-text" size="larger">
-          {name}
-        </Link>
-      ) : (
-        ""
-      )}
-    </Box>
+    />
   );
 
   return (
     <div key={key}>
-      {isWide ? m : <Tooltip label={name}>{m}</Tooltip>}
+      <Tooltip label={name}>{m}</Tooltip>
 
       {/* <Button
         cursor="pointer"

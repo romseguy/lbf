@@ -54,6 +54,7 @@ export const GlobalStyles = () => (
         }
       }
 
+      ${GoogleMapStyles}
       ${RainbowTextStyles}
       ${ReactToggleStyles}
 
@@ -76,6 +77,14 @@ export const GlobalStyles = () => (
     `}
   />
 );
+
+const GoogleMapStyles = `
+  .cluster > div {
+    background: green;
+    border-radius: 50%;
+    color: white;
+  }
+`;
 
 const RainbowTextStyles = `
   .rainbow-text {

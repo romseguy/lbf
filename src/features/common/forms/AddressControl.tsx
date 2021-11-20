@@ -24,7 +24,6 @@ export const AddressControl = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 })(
   ({
-    google,
     loaded,
     name,
     label = "Adresse",
@@ -43,7 +42,7 @@ export const AddressControl = withGoogleApi({
     onChange,
     ...props
   }: SpaceProps & {
-    google: any;
+    google: typeof google;
     loaded: boolean;
     name?: string;
     label?: string;
@@ -67,13 +66,13 @@ export const AddressControl = withGoogleApi({
     const controlRules: {
       required?: boolean;
     } = {
-      required: isRequired && google
+      required: isRequired && !!props.google
     };
 
-    let isGoogleApiLoaded = loaded && google;
+    let isGoogleApiLoaded = loaded && !!props.google;
 
     if (process.env.NODE_ENV === "development") {
-      if (loaded && !google) isGoogleApiLoaded = true;
+      if (loaded && !props.google) isGoogleApiLoaded = true;
     }
 
     if (!isMultiple) {

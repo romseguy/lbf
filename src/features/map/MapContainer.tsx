@@ -16,7 +16,7 @@ export const MapContainer = withGoogleApi({
     orgs,
     ...props
   }: {
-    google: any;
+    google: typeof google;
     loaded: boolean;
     events?: IEvent[];
     orgs?: IOrg[];

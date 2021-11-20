@@ -1,13 +1,14 @@
-import { Button, useDisclosure } from "@chakra-ui/react";
+import { Button, Tooltip, useDisclosure } from "@chakra-ui/react";
+import { useEffect } from "react";
+import { Detector } from "react-detect-offline";
+import { FaRegMap } from "react-icons/fa";
+import { useSelector } from "react-redux";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgsList } from "features/orgs/OrgsList";
+import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgTypes } from "models/Org";
-import { useEffect } from "react";
-import { FaMapMarkerAlt, FaRegMap } from "react-icons/fa";
-import { useSelector } from "react-redux";
 
 const OrgsPage = (props: any) => {
   const orgsQuery = useGetOrgsQuery(void 0, {
@@ -30,15 +31,35 @@ const OrgsPage = (props: any) => {
 
   return (
     <Layout pageTitle="Organisations" {...props}>
-      <Button
-        colorScheme="teal"
-        isDisabled={!orgsQuery.data || !orgsQuery.data.length}
-        leftIcon={<FaRegMap />}
-        onClick={openMapModal}
-        mb={3}
-      >
-        Carte des organisations
-      </Button>
+      <Detector
+        render={({ online }) => (
+          <Tooltip
+            label={
+              !orgsQuery.data || !orgsQuery.data.length
+                ? "Aucune organisations"
+                : !online
+                ? "Vous devez être connecté à internet pour afficher la carte"
+                : ""
+            }
+            placement="right"
+            hasArrow
+          >
+            <span>
+              <Button
+                colorScheme="teal"
+                isDisabled={
+                  !online || !orgsQuery.data || !orgsQuery.data.length
+                }
+                leftIcon={<FaRegMap />}
+                onClick={openMapModal}
+                mb={3}
+              >
+                Carte des organisations
+              </Button>
+            </span>
+          </Tooltip>
+        )}
+      />
 
       <OrgsList orgsQuery={orgsQuery} />
 
