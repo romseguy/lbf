@@ -22,3 +22,14 @@ export type ITopicNotified = {
   phone?: string;
   status?: string;
 }[];
+
+export const Visibility: { [key: string]: string } = {
+  PUBLIC: "PUBLIC",
+  SUBSCRIBERS: "SUBSCRIBERS",
+  FOLLOWERS: "FOLLOWERS"
+};
+export const VisibilityV: { [key: string]: string } = {
+  PUBLIC: "Publique",
+  SUBSCRIBERS: "Adhérents",
+  FOLLOWERS: "Abonnés"
+};

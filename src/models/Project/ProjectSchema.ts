@@ -1,38 +1,5 @@
 import { Schema } from "mongoose";
-import { IProject } from "./IProject";
-
-export const Status: { [key: string]: string } = {
-  PENDING: "PENDING",
-  ONGOING: "ONGOING",
-  FINISHED: "FINISHED"
-};
-export const StatusV: { [key: string]: string } = {
-  PENDING: "En attente",
-  ONGOING: "En cours",
-  FINISHED: "Terminé"
-};
-
-export const StatusTypes: { [key: string]: string } = {
-  PENDING: "PENDING",
-  OK: "OK",
-  NOK: "NOK"
-};
-export const StatusTypesV: { [key: string]: string } = {
-  PENDING: "Invitation envoyée",
-  OK: "Participant",
-  NOK: "Invitation refusée"
-};
-
-export const Visibility: { [key: string]: string } = {
-  PUBLIC: "PUBLIC",
-  SUBSCRIBERS: "SUBSCRIBERS",
-  FOLLOWERS: "FOLLOWERS"
-};
-export const VisibilityV: { [key: string]: string } = {
-  PUBLIC: "Publique",
-  SUBSCRIBERS: "Adhérents",
-  FOLLOWERS: "Abonnés"
-};
+import { IProject, Status, StatusTypes } from "./IProject";
 
 export const ProjectSchema = new Schema<IProject>(
   {

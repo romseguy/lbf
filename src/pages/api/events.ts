@@ -10,7 +10,7 @@ import {
   duplicateError
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { sendToAdmin } from "utils/email";
+import { sendToAdmin } from "api/email";
 import { equals, normalize } from "utils/string";
 import { IEvent, Visibility } from "models/Event";
 import { IOrg } from "models/Org";

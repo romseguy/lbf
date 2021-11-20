@@ -7,7 +7,7 @@ import { createServerError } from "utils/errors";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import { getSession } from "hooks/useAuth";
-// import { sendProjectToOrgFollowers } from "utils/email";
+// import { sendProjectToOrgFollowers } from "api/email";
 import { equals, normalize } from "utils/string";
 
 const transport = nodemailer.createTransport(

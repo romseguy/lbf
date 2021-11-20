@@ -1,25 +1,5 @@
 import { Schema } from "mongoose";
-import { IOrg, OrgType } from "./IOrg";
-
-export const OrgTypes: { [key: string]: OrgType } = {
-  ASSO: "ASSO",
-  GROUP: "GROUP",
-  NETWORK: "NETWORK"
-};
-export const OrgTypesV: { [key: string]: string } = {
-  ASSO: "Association",
-  GROUP: "Groupe",
-  NETWORK: "Réseau"
-};
-
-export const Visibility: { [key: string]: string } = {
-  PUBLIC: "PUBLIC",
-  PRIVATE: "PRIVATE"
-};
-export const VisibilityV: { [key: string]: string } = {
-  PUBLIC: "Publique",
-  PRIVATE: "Privée"
-};
+import { IOrg, OrgTypes, Visibility } from "./IOrg";
 
 export const OrgSchema = new Schema<IOrg>(
   {

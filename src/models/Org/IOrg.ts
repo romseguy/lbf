@@ -47,3 +47,23 @@ export interface IOrgList {
 }
 
 export type OrgType = "ASSO" | "GROUP" | "NETWORK";
+
+export const OrgTypes: { [key: string]: OrgType } = {
+  ASSO: "ASSO",
+  GROUP: "GROUP",
+  NETWORK: "NETWORK"
+};
+export const OrgTypesV: { [key: string]: string } = {
+  ASSO: "Association",
+  GROUP: "Groupe",
+  NETWORK: "Réseau"
+};
+
+export const Visibility: { [key: string]: string } = {
+  PUBLIC: "PUBLIC",
+  PRIVATE: "PRIVATE"
+};
+export const VisibilityV: { [key: string]: string } = {
+  PUBLIC: "Publique",
+  PRIVATE: "Privée"
+};

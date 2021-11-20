@@ -1,8 +1,6 @@
-import { StatusTypes } from "./EventSchema";
-import { IEvent } from "./IEvent";
+import { IEvent, StatusTypes } from "./IEvent";
 
 export * from "./IEvent";
-export * from "./EventSchema";
 
 export const Category: { [key: number]: { label: string; bgColor: string } } = [
   { label: "À définir", bgColor: "gray" },

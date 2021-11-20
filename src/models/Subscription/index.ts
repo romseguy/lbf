@@ -9,7 +9,6 @@ import {
 } from "./ISubscription";
 
 export * from "./ISubscription";
-export * from "./SubscriptionSchema";
 
 export const isOrgSubscription = (
   followerSubscription: IOrgSubscription | IEventSubscription

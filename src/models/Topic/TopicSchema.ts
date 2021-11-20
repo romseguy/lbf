@@ -2,17 +2,6 @@ import { TopicMessageSchema } from "models/TopicMessage";
 import { Schema } from "mongoose";
 import { ITopic } from "./ITopic";
 
-export const Visibility: { [key: string]: string } = {
-  PUBLIC: "PUBLIC",
-  SUBSCRIBERS: "SUBSCRIBERS",
-  FOLLOWERS: "FOLLOWERS"
-};
-export const VisibilityV: { [key: string]: string } = {
-  PUBLIC: "Publique",
-  SUBSCRIBERS: "Adhérents",
-  FOLLOWERS: "Abonnés"
-};
-
 export const TopicSchema = new Schema<ITopic>(
   {
     topicName: {

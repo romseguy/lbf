@@ -1,12 +1,18 @@
 import mongodb from "mongodb";
 import mongoose, { Connection, Document, Model } from "mongoose";
 import nextConnect from "next-connect";
-import { IEvent, EventSchema } from "models/Event";
-import { IOrg, OrgSchema } from "models/Org";
-import { IProject, ProjectSchema } from "models/Project";
-import { ISubscription, SubscriptionSchema } from "models/Subscription";
-import { ITopic, TopicSchema } from "models/Topic";
-import { IUser, UserSchema } from "models/User";
+import { IEvent } from "models/Event";
+import { EventSchema } from "models/Event/EventSchema";
+import { IOrg } from "models/Org";
+import { OrgSchema } from "models/Org/OrgSchema";
+import { IProject } from "models/Project";
+import { ProjectSchema } from "models/Project/ProjectSchema";
+import { ISubscription } from "models/Subscription";
+import { SubscriptionSchema } from "models/Subscription/SubscriptionSchema";
+import { ITopic } from "models/Topic";
+import { TopicSchema } from "models/Topic/TopicSchema";
+import { IUser } from "models/User";
+import { UserSchema } from "models/User/UserSchema";
 
 export type IEntity = IEvent | IOrg | IProject | ISubscription | ITopic | IUser;
 export type AppModelKey =

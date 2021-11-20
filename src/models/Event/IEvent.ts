@@ -55,3 +55,23 @@ export type IEventNotified = {
   phone?: string;
   status?: string;
 }[];
+
+export const StatusTypes: { [key: string]: string } = {
+  PENDING: "PENDING",
+  OK: "OK",
+  NOK: "NOK"
+};
+export const StatusTypesV: { [key: string]: string } = {
+  PENDING: "Invitation envoyée",
+  OK: "Participant",
+  NOK: "Invitation refusée"
+};
+
+export const Visibility: { [key: string]: string } = {
+  PUBLIC: "PUBLIC",
+  SUBSCRIBERS: "SUBSCRIBERS"
+};
+export const VisibilityV: { [key: string]: string } = {
+  PUBLIC: "Publique",
+  SUBSCRIBERS: "Adhérents"
+};

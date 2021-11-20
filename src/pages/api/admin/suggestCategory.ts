@@ -10,7 +10,7 @@ import {
   Mail,
   mainBackgroundColor,
   textColor
-} from "utils/email";
+} from "api/email";
 import { createServerError } from "utils/errors";
 
 const transport = nodemailer.createTransport(

@@ -9,7 +9,7 @@ import { IEvent, StatusTypes } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
-import { createEventEmailNotif, sendEventNotifications } from "utils/email";
+import { createEventEmailNotif, sendEventNotifications } from "api/email";
 import { createServerError } from "utils/errors";
 import { equals, log, normalize } from "utils/string";
 

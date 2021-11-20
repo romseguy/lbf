@@ -12,7 +12,7 @@ import { ITopic } from "models/Topic";
 import {
   sendTopicMessageEmailNotifications,
   sendTopicNotifications
-} from "utils/email";
+} from "api/email";
 import { createServerError } from "utils/errors";
 import { equals, log, toString } from "utils/string";
 

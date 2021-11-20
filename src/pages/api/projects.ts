@@ -10,7 +10,7 @@ import {
   duplicateError
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { sendToAdmin } from "utils/email";
+import { sendToAdmin } from "api/email";
 import { IProject, Visibility } from "models/Project";
 import { IOrg } from "models/Org";
 import api from "utils/api";

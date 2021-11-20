@@ -1,9 +1,7 @@
 import { equals } from "utils/string";
-import { IOrg } from "./IOrg";
-import { OrgTypes, OrgTypesV } from "./OrgSchema";
+import { IOrg, OrgTypes, OrgTypesV } from "./IOrg";
 
 export * from "./IOrg";
-export * from "./OrgSchema";
 
 export const getSubscriptions = (org: IOrg, type: string) => {
   return org.orgSubscriptions.filter((subscription) =>
