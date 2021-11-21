@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
-import type { IOrg } from "models/Org";
+import { IOrg, orgTypeFull } from "models/Org";
 import type { ITopic } from "models/Topic";
 import {
   createServerError,
@@ -12,6 +12,7 @@ import {
   duplicateError
 } from "utils/errors";
 import { equals, log, normalize } from "utils/string";
+import { getSubscriberSubscription } from "models/Subscription";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -69,7 +70,10 @@ handler.get<
       if (populate.includes("orgProjects"))
         org = org.populate({
           path: "orgProjects",
-          populate: [{ path: "projectOrgs createdBy" }]
+          populate: [
+            { path: "projectOrgs" },
+            { path: "createdBy", select: "_id userName" }
+          ]
         });
 
       if (populate.includes("orgTopics"))
@@ -78,9 +82,9 @@ handler.get<
           populate: [
             {
               path: "topicMessages",
-              populate: { path: "createdBy" }
+              populate: { path: "createdBy", select: "_id userName" }
             },
-            { path: "createdBy" }
+            { path: "createdBy", select: "_id userName" }
           ]
         });
 
@@ -163,11 +167,7 @@ handler.put<
   }
 
   try {
-    let { body }: { body: Partial<IOrg> | string[] } = req;
     const orgUrl = req.query.orgUrl;
-
-    console.log(`PUT /org/${orgUrl}: body`, body);
-
     const org = await models.Org.findOne({ orgUrl });
 
     if (!org)
@@ -179,16 +179,22 @@ handler.put<
           )
         );
 
-    if (!equals(org.createdBy, session.user.userId) && !session.user.isAdmin)
-      return res
-        .status(403)
-        .json(
-          createServerError(
-            new Error(
-              "Vous ne pouvez pas modifier un organisation que vous n'avez pas créé."
+    let { body }: { body: Partial<IOrg> | string[] } = req;
+    const orgTopicsCategories =
+      !Array.isArray(body) && body.orgTopicsCategories;
+
+    if (!orgTopicsCategories) {
+      if (!equals(org.createdBy, session.user.userId) && !session.user.isAdmin)
+        return res
+          .status(403)
+          .json(
+            createServerError(
+              new Error(
+                "Vous ne pouvez pas modifier un organisation que vous n'avez pas créé."
+              )
             )
-          )
-        );
+          );
+    }
 
     let update:
       | {
@@ -241,28 +247,38 @@ handler.put<
           throw duplicateError();
       }
 
-      // if (
-      //   Array.isArray(body.orgLists) &&
-      //   body.orgLists.length > 0 &&
-      //   org.orgLists
-      // ) {
-      //   for (const orgList of body.orgLists)
-      //     for (const { listName } of org.orgLists)
-      //       if (orgList.listName === listName)
-      //         throw duplicateError({ field: "listName" });
-      // }
+      if (orgTopicsCategories) {
+        const subscription = await models.Subscription.findOne({
+          email: session?.user.email
+        });
+
+        if (
+          !session.user.isAdmin &&
+          (!subscription || !getSubscriberSubscription({ org, subscription }))
+        )
+          return res
+            .status(400)
+            .json(
+              createServerError(
+                new Error(
+                  `Vous devez être adhérent ${orgTypeFull(org.orgType)} "${
+                    org.orgName
+                  }" pour créer une catégorie de discussions`
+                )
+              )
+            );
+      }
     }
 
     log(`PUT /org/${orgUrl}:`, update || body);
+
     const { n, nModified } = await models.Org.updateOne(
       { orgUrl },
       update || body
     );
 
-    if (nModified === 1) {
-      res.status(200).json({});
-    } else {
-      res
+    if (nModified !== 1) {
+      return res
         .status(400)
         .json(
           createServerError(
@@ -270,12 +286,15 @@ handler.put<
           )
         );
     }
+
+    res.status(200).json({});
   } catch (error: any) {
     if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY)
-      res.status(400).json({
+      return res.status(400).json({
         [error.field || "orgName"]: "Ce nom n'est pas disponible"
       });
-    else res.status(500).json(createServerError(error));
+
+    res.status(500).json(createServerError(error));
   }
 });
 

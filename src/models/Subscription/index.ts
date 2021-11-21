@@ -94,10 +94,8 @@ export const getSubscriberSubscription = ({
   org?: IOrg;
   subQuery?: any;
   subscription?: ISubscription;
-}) => {
-  if (!org) return;
-
-  if (subQuery?.data || subscription) {
+}): IOrgSubscription | undefined => {
+  if (org && (subQuery?.data || subscription)) {
     return (subQuery?.data || subscription).orgs?.find(
       (orgSubscription: IOrgSubscription) =>
         orgSubscription.orgId === org._id &&

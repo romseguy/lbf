@@ -50,7 +50,7 @@ export const Forum = ({
     !!getFollowerSubscription({ org, subQuery })
   );
   const [isSubscribed, setIsSubscribed] = useState(
-    getSubscriberSubscription({ org, subQuery })
+    !!getSubscriberSubscription({ org, subQuery })
   );
   useEffect(() => {
     if (org && subQuery.data) {

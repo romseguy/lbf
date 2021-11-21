@@ -52,6 +52,7 @@ export const EventSchema = new Schema<IEvent>(
       { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
     ],
     eventTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
+    orgTopicsCategories: [String],
     eventNotified: [
       {
         email: String,

@@ -7,7 +7,11 @@ import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import {
+  getSubscriberSubscription,
+  ISubscription,
+  SubscriptionTypes
+} from "models/Subscription";
 import { ITopic } from "models/Topic";
 import {
   sendTopicMessageEmailNotifications,
@@ -141,7 +145,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
           createdBy: session.user.userId
         })),
         event,
-        org
+        org,
+        createdBy: session.user.userId
       });
 
       if (!topic) throw new Error("La discussion n'a pas pu être créée");
@@ -177,6 +182,25 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
             Array.isArray(body.topic.topicVisibility) &&
             body.topic.topicVisibility.length > 0
           ) {
+            const subscription = await models.Subscription.findOne({
+              email: session.user.email
+            });
+
+            if (
+              !session.user.isAdmin &&
+              (!subscription ||
+                !getSubscriberSubscription({ org, subscription }))
+            )
+              return res
+                .status(400)
+                .json(
+                  createServerError(
+                    new Error(
+                      "Vous devez être adhérent pour inviter des personnes à votre discussion"
+                    )
+                  )
+                );
+
             org = org.populate({
               path: "orgLists",
               populate: {

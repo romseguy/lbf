@@ -7,7 +7,11 @@ import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
 import { IEvent, StatusTypes } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import {
+  getSubscriberSubscription,
+  ISubscription,
+  SubscriptionTypes
+} from "models/Subscription";
 import { hasItems } from "utils/array";
 import { createEventEmailNotif, sendEventNotifications } from "api/email";
 import { createServerError } from "utils/errors";
@@ -289,115 +293,116 @@ handler.put<
   const session = await getSession({ req });
   let { body }: { body: Partial<IEvent> | string[] } = req;
   const eventNotified = !Array.isArray(body) && body.eventNotified;
+  const eventTopicsCategories =
+    !Array.isArray(body) && body.eventTopicsCategories;
 
   if (!session && !eventNotified) {
-    res
+    return res
       .status(403)
       .json(
         createServerError(
           new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
-  } else {
-    try {
-      const eventUrl = req.query.eventUrl;
-      const event = await models.Event.findOne({ eventUrl }).populate(
-        "eventOrgs"
-      );
+  }
 
-      if (!event) {
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
-            )
-          );
-      }
+  try {
+    const eventUrl = req.query.eventUrl;
+    const event = await models.Event.findOne({ eventUrl }).populate(
+      "eventOrgs"
+    );
 
-      if (!eventNotified && session) {
-        if (
-          !equals(event.createdBy, session.user.userId) &&
-          !session.user.isAdmin
-        ) {
-          return res
-            .status(403)
-            .json(
-              createServerError(
-                new Error(
-                  "Vous ne pouvez pas modifier un événement que vous n'avez pas créé."
-                )
-              )
-            );
-        }
-      }
-
-      let update: [{ $unset: string[] }] | undefined;
-
-      if (Array.isArray(body)) {
-        update = [{ $unset: [] }];
-        for (const key of body) {
-          update[0].$unset.push(key);
-        }
-      } else {
-        if (body.eventName) {
-          body = {
-            ...body,
-            eventName: body.eventName.trim(),
-            eventUrl: normalize(body.eventName.trim())
-          };
-        }
-
-        if (body.eventOrgs) {
-          const staleEventOrgsIds: string[] = [];
-
-          for (const { _id } of body.eventOrgs) {
-            const org = await models.Org.findOne({ _id });
-
-            if (!org) {
-              staleEventOrgsIds.push(_id);
-              continue;
-            }
-
-            if (org.orgEvents.indexOf(event._id) === -1) {
-              await models.Org.updateOne(
-                { _id: org._id },
-                {
-                  $push: {
-                    orgEvents: event._id
-                  }
-                }
-              );
-            }
-          }
-
-          if (staleEventOrgsIds.length > 0) {
-            body.eventOrgs = body.eventOrgs.filter(
-              (eventOrg) => !staleEventOrgsIds.find((id) => id === eventOrg._id)
-            );
-          }
-        }
-      }
-
-      const { n, nModified } = await models.Event.updateOne(
-        { eventUrl },
-        update || body
-      );
-
-      if (nModified === 1) {
-        res.status(200).json({});
-      } else {
-        res
-          .status(400)
-          .json(
-            createServerError(
-              new Error(`L'événement ${eventUrl} n'a pas pu être modifié`)
-            )
-          );
-      }
-    } catch (error) {
-      res.status(500).json(createServerError(error));
+    if (!event) {
+      return res
+        .status(404)
+        .json(
+          createServerError(
+            new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
+          )
+        );
     }
+
+    if (!eventNotified && !eventTopicsCategories && session) {
+      if (
+        !equals(event.createdBy, session.user.userId) &&
+        !session.user.isAdmin
+      ) {
+        return res
+          .status(403)
+          .json(
+            createServerError(
+              new Error(
+                "Vous ne pouvez pas modifier un événement que vous n'avez pas créé."
+              )
+            )
+          );
+      }
+    }
+
+    let update: [{ $unset: string[] }] | undefined;
+
+    if (Array.isArray(body)) {
+      update = [{ $unset: [] }];
+      for (const key of body) {
+        update[0].$unset.push(key);
+      }
+    } else {
+      if (body.eventName) {
+        body = {
+          ...body,
+          eventName: body.eventName.trim(),
+          eventUrl: normalize(body.eventName.trim())
+        };
+      }
+
+      if (body.eventOrgs) {
+        const staleEventOrgsIds: string[] = [];
+
+        for (const { _id } of body.eventOrgs) {
+          const org = await models.Org.findOne({ _id });
+
+          if (!org) {
+            staleEventOrgsIds.push(_id);
+            continue;
+          }
+
+          if (org.orgEvents.indexOf(event._id) === -1) {
+            await models.Org.updateOne(
+              { _id: org._id },
+              {
+                $push: {
+                  orgEvents: event._id
+                }
+              }
+            );
+          }
+        }
+
+        if (staleEventOrgsIds.length > 0) {
+          body.eventOrgs = body.eventOrgs.filter(
+            (eventOrg) => !staleEventOrgsIds.find((id) => id === eventOrg._id)
+          );
+        }
+      }
+    }
+
+    const { n, nModified } = await models.Event.updateOne(
+      { eventUrl },
+      update || body
+    );
+
+    if (nModified !== 1)
+      return res
+        .status(400)
+        .json(
+          createServerError(
+            new Error(`L'événement ${eventUrl} n'a pas pu être modifié`)
+          )
+        );
+
+    res.status(200).json({});
+  } catch (error) {
+    res.status(500).json(createServerError(error));
   }
 });
 

@@ -22,10 +22,18 @@ import {
 } from "features/forum/topicsApi";
 import { useSession } from "hooks/useAuth";
 import type { IEvent } from "models/Event";
-import { getSubscriptions, IOrg, IOrgList, orgTypeFull4 } from "models/Org";
+import {
+  getSubscriptions,
+  IOrg,
+  IOrgList,
+  orgTypeFull,
+  orgTypeFull4
+} from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription,
+  IEventSubscription,
+  IOrgSubscription,
   SubscriptionTypes
 } from "models/Subscription";
 import { ITopic } from "models/Topic";
@@ -66,6 +74,9 @@ export const TopicForm = ({
 
   let categories: string[] | undefined;
   let lists: IOrgList[] | undefined;
+  let followerSubscription: IOrgSubscription | IEventSubscription | undefined;
+  let subscriberSubscription: IOrgSubscription | undefined;
+
   if (org) {
     categories = org.orgTopicsCategories || [];
     lists =
@@ -81,8 +92,8 @@ export const TopicForm = ({
         return true;
       }) || [];
 
-    const followerSubscription = getFollowerSubscription({ org, subQuery });
-    const subscriberSubscription = getSubscriberSubscription({ org, subQuery });
+    followerSubscription = getFollowerSubscription({ org, subQuery });
+    subscriberSubscription = getSubscriberSubscription({ org, subQuery });
 
     if (props.isCreator || followerSubscription)
       lists.push({
@@ -153,8 +164,7 @@ export const TopicForm = ({
           topicCategory: form.topicCategory ? form.topicCategory.value : null,
           topicVisibility: form.topicVisibility?.map(
             ({ label, value }) => value
-          ),
-          createdBy: session.user.userId
+          )
         }
       };
 
@@ -273,10 +283,20 @@ export const TopicForm = ({
                     `Créer la catégorie "${inputValue}"`
                   }
                   onCreateOption={async (inputValue: string) => {
+                    if (org && !props.isSubscribed && !props.isCreator) {
+                      toast({
+                        status: "error",
+                        title: `Vous devez être adhérent ${orgTypeFull(
+                          org.orgType
+                        )} ${org.orgName} pour créer une catégorie`,
+                        isClosable: true
+                      });
+                      return;
+                    }
+
                     try {
-                      let props = {};
                       if (org)
-                        props = {
+                        await editEntity({
                           orgUrl: org.orgUrl,
                           payload: {
                             orgTopicsCategories: [
@@ -284,8 +304,8 @@ export const TopicForm = ({
                               inputValue
                             ]
                           }
-                        };
-                      await editEntity(props);
+                        });
+
                       query.refetch();
                       toast({
                         status: "success",
@@ -425,7 +445,7 @@ export const TopicForm = ({
         </Alert>
       )}
 
-      {!props.topic && (
+      {!props.topic && (event || props.isSubscribed) && (
         <FormControl id="topicNotif" mb={3}>
           <FormLabel>Notifications</FormLabel>
 

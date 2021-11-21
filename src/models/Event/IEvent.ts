@@ -26,6 +26,7 @@ export interface IEvent<T = string> {
   eventSubscriptions: ISubscription[];
   eventNotified?: IEventNotified; // list of emails the invitation has been sent to
   eventTopics: ITopic[];
+  eventTopicsCategories?: string[];
   repeat?: number;
   otherDays?: {
     dayNumber: number;
