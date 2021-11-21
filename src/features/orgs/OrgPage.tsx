@@ -166,7 +166,7 @@ export const OrgPage = ({
   //#region sub
   const [addSubscription, addSubscriptionMutation] =
     useAddSubscriptionMutation();
-  const subQuery = useGetSubscriptionQuery(userEmail);
+  const subQuery = useGetSubscriptionQuery({ email: userEmail });
   const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     if (refetchSubscription !== cachedRefetchSubscription) {

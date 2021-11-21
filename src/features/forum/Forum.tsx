@@ -45,7 +45,7 @@ export const Forum = ({
   //#endregion
 
   //#region subscription
-  const subQuery = useGetSubscriptionQuery(userEmail);
+  const subQuery = useGetSubscriptionQuery({ email: userEmail });
   const [isFollowed, setIsFollowed] = useState(
     !!getFollowerSubscription({ org, subQuery })
   );

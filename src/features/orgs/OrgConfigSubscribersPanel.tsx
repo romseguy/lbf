@@ -243,11 +243,11 @@ export const OrgConfigSubscribersPanel = ({
               setIsAdd(false);
             }}
             onSubmit={() => {
-              setIsVisible({ ...isVisible, subscribers: true });
-              setIsAdd(false);
               orgQuery.refetch();
               subQuery.refetch();
               dispatch(refetchEvent());
+              setIsAdd(false);
+              setIsVisible({ ...isVisible, subscribers: true });
             }}
           />
         </GridItem>

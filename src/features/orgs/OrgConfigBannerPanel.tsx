@@ -255,6 +255,7 @@ export const OrgConfigBannerPanel = ({
                   defaultValue={org.orgBanner?.url}
                   isMultiple={false}
                   isRequired
+                  mb={3}
                 />
               ) : (
                 <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
@@ -288,35 +289,37 @@ export const OrgConfigBannerPanel = ({
                 </FormControl>
               )}
 
-              <Box mb={3}>
-                {uploadType === "url" ? (
-                  <AvatarEditor
-                    ref={setEditorRef}
-                    border={0}
-                    color={[255, 255, 255, 0.6]} // RGBA
-                    height={parseInt(formHeight)}
-                    image={getValues("url") || org.orgBanner?.url}
-                    rotate={0}
-                    scale={1}
-                    width={1154}
-                    position={{ x: 0, y: 0 }}
-                  />
-                ) : (
-                  upImg &&
-                  upImg.base64 && (
+              {(getValues("url") || org.orgBanner?.url) && (
+                <Box mb={3}>
+                  {uploadType === "url" ? (
                     <AvatarEditor
                       ref={setEditorRef}
                       border={0}
                       color={[255, 255, 255, 0.6]} // RGBA
                       height={parseInt(formHeight)}
-                      image={upImg.base64}
+                      image={getValues("url") || org.orgBanner?.url}
                       rotate={0}
                       scale={1}
                       width={1154}
+                      position={{ x: 0, y: 0 }}
                     />
-                  )
-                )}
-              </Box>
+                  ) : (
+                    upImg &&
+                    upImg.base64 && (
+                      <AvatarEditor
+                        ref={setEditorRef}
+                        border={0}
+                        color={[255, 255, 255, 0.6]} // RGBA
+                        height={parseInt(formHeight)}
+                        image={upImg.base64}
+                        rotate={0}
+                        scale={1}
+                        width={1154}
+                      />
+                    )
+                  )}
+                </Box>
+              )}
 
               <Button
                 colorScheme="green"

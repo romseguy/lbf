@@ -158,64 +158,53 @@ handler.put<
 >(async function editTopic(req, res) {
   const session = await getSession({ req });
 
-  if (!session) {
-    res
+  if (!session)
+    return res
       .status(403)
       .json(
         createServerError(
           new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
-  } else {
-    try {
-      const { body }: { body: ITopic & { topicNotif?: boolean } } = req;
-      const topicId = req.query.topicId;
-      const topic = await models.Topic.findOne({ _id: topicId });
 
-      if (!topic) {
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`La discussion ${topicId} n'existe pas`)
+  try {
+    const { body }: { body: ITopic & { topicNotif?: boolean } } = req;
+    const topicId = req.query.topicId;
+    const topic = await models.Topic.findOne({ _id: topicId });
+
+    if (!topic)
+      return res
+        .status(404)
+        .json(
+          createServerError(new Error(`La discussion ${topicId} n'existe pas`))
+        );
+
+    if (!equals(topic.createdBy, session.user.userId) && !session.user.isAdmin)
+      return res
+        .status(403)
+        .json(
+          createServerError(
+            new Error(
+              "Vous ne pouvez pas modifier une discussion que vous n'avez pas créé."
             )
-          );
-      }
+          )
+        );
 
-      if (
-        !equals(topic.createdBy, session.user.userId) &&
-        !session.user.isAdmin
-      ) {
-        return res
-          .status(403)
-          .json(
-            createServerError(
-              new Error(
-                "Vous ne pouvez pas modifier une discussion que vous n'avez pas créé."
-              )
-            )
-          );
-      }
+    const { n, nModified } = await models.Topic.updateOne(
+      { _id: topicId },
+      body
+    );
 
-      const { n, nModified } = await models.Topic.updateOne(
-        { _id: topicId },
-        body
-      );
+    if (nModified !== 1)
+      return res
+        .status(400)
+        .json(
+          createServerError(new Error("La discussion n'a pas pu être modifié"))
+        );
 
-      if (nModified === 1) {
-        res.status(200).json({});
-      } else {
-        res
-          .status(400)
-          .json(
-            createServerError(
-              new Error("La discussion n'a pas pu être modifié")
-            )
-          );
-      }
-    } catch (error) {
-      res.status(500).json(createServerError(error));
-    }
+    res.status(200).json({});
+  } catch (error) {
+    res.status(500).json(createServerError(error));
   }
 });
 

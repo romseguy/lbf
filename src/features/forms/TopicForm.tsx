@@ -127,7 +127,7 @@ export const TopicForm = ({
   const onSubmit = async (form: {
     topicName: string;
     topicMessage: string;
-    topicCategory?: { label: string; value: string };
+    topicCategory?: { label: string; value: string } | null;
     topicVisibility?: [{ label: string; value: string }];
     topicNotif?: boolean;
   }) => {
@@ -150,7 +150,7 @@ export const TopicForm = ({
                 }
               ]
             : [],
-          topicCategory: form.topicCategory?.value,
+          topicCategory: form.topicCategory ? form.topicCategory.value : null,
           topicVisibility: form.topicVisibility?.map(
             ({ label, value }) => value
           ),
@@ -301,6 +301,7 @@ export const TopicForm = ({
                       });
                     }
                   }}
+                  isClearable
                   placeholder="Rechercher ou créer une catégorie"
                   noOptionsMessage={() => "Aucun résultat"}
                   className="react-select-container"

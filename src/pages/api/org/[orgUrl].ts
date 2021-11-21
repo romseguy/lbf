@@ -153,127 +153,129 @@ handler.put<
   const session = await getSession({ req });
 
   if (!session) {
-    res
+    return res
       .status(403)
       .json(
         createServerError(
           new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
-  } else {
-    try {
-      let { body }: { body: Partial<IOrg> | string[] } = req;
-      const orgUrl = req.query.orgUrl;
+  }
 
-      console.log(`PUT /org/${orgUrl}: body`, body);
+  try {
+    let { body }: { body: Partial<IOrg> | string[] } = req;
+    const orgUrl = req.query.orgUrl;
 
-      const org = await models.Org.findOne({ orgUrl });
+    console.log(`PUT /org/${orgUrl}: body`, body);
 
-      if (!org) {
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
-            )
-          );
-      }
+    const org = await models.Org.findOne({ orgUrl });
 
-      if (
-        !equals(org.createdBy, session.user.userId) &&
-        !session.user.isAdmin
-      ) {
-        return res
-          .status(403)
-          .json(
-            createServerError(
-              new Error(
-                "Vous ne pouvez pas modifier un organisation que vous n'avez pas créé."
-              )
-            )
-          );
-      }
-
-      let update:
-        | {
-            $unset?: { [key: string]: number };
-            $pull?: { [key: string]: { [key: string]: string } | string };
-          }
-        | undefined;
-
-      if (Array.isArray(body)) {
-        for (const key of body) {
-          if (key.includes(".") && key.includes("=")) {
-            // orgLists.listName=string
-            const matches = key.match(/([^\.]+)\.([^=]+)=(.+)/);
-
-            if (matches && matches.length === 4) {
-              update = {
-                $pull: { [matches[1]]: { [matches[2]]: matches[3] } }
-              };
-            }
-          } else if (key.includes("=")) {
-            // orgTopicsCategories=string
-            const matches = key.match(/([^=]+)=(.+)/);
-
-            if (matches && matches.length === 3) {
-              update = {
-                $pull: { [matches[1]]: matches[2] }
-              };
-            }
-          } else update = { $unset: { [key]: 1 } };
-        }
-      } else {
-        if (body.orgName) {
-          body = {
-            ...body,
-            orgName: body.orgName.trim(),
-            orgUrl: normalize(body.orgName.trim())
-          };
-
-          if (
-            body.orgName !== org.orgName &&
-            (await models.Org.findOne({ orgName: body.orgName }))
+    if (!org)
+      return res
+        .status(404)
+        .json(
+          createServerError(
+            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
           )
-            throw duplicateError();
-        }
+        );
 
-        // if (
-        //   Array.isArray(body.orgLists) &&
-        //   body.orgLists.length > 0 &&
-        //   org.orgLists
-        // ) {
-        //   for (const orgList of body.orgLists)
-        //     for (const { listName } of org.orgLists)
-        //       if (orgList.listName === listName)
-        //         throw duplicateError({ field: "listName" });
-        // }
-      }
-
-      log(`PUT /org/${orgUrl}:`, update || body);
-      const { n, nModified } = await models.Org.updateOne(
-        { orgUrl },
-        update || body
-      );
-
-      if (nModified === 1) {
-        res.status(200).json({});
-      } else {
-        res
-          .status(400)
-          .json(
-            createServerError(
-              new Error(`L'organisation ${orgUrl} n'a pas pu être modifiée`)
+    if (!equals(org.createdBy, session.user.userId) && !session.user.isAdmin)
+      return res
+        .status(403)
+        .json(
+          createServerError(
+            new Error(
+              "Vous ne pouvez pas modifier un organisation que vous n'avez pas créé."
             )
-          );
+          )
+        );
+
+    let update:
+      | {
+          $unset?: { [key: string]: number };
+          $pull?: { [key: string]: { [key: string]: string } | string };
+        }
+      | undefined;
+
+    if (Array.isArray(body)) {
+      for (const key of body) {
+        if (key.includes(".") && key.includes("=")) {
+          // orgLists.listName=string
+          const matches = key.match(/([^\.]+)\.([^=]+)=(.+)/);
+
+          if (matches && matches.length === 4) {
+            update = {
+              $pull: { [matches[1]]: { [matches[2]]: matches[3] } }
+            };
+          }
+        } else if (key.includes("=")) {
+          // orgTopicsCategories=string
+          const matches = key.match(/([^=]+)=(.+)/);
+
+          if (matches && matches.length === 3) {
+            update = {
+              $pull: { [matches[1]]: matches[2] }
+            };
+
+            if (matches[1] === "orgTopicsCategories") {
+              await models.Topic.updateMany(
+                { topicCategory: matches[2] },
+                { topicCategory: null }
+              );
+            }
+          }
+        } else update = { $unset: { [key]: 1 } };
       }
-    } catch (error: any) {
-      if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY)
-        res.status(400).json({
-          [error.field || "orgName"]: "Ce nom n'est pas disponible"
-        });
-      else res.status(500).json(createServerError(error));
+    } else {
+      if (body.orgName) {
+        body = {
+          ...body,
+          orgName: body.orgName.trim(),
+          orgUrl: normalize(body.orgName.trim())
+        };
+
+        if (
+          body.orgName !== org.orgName &&
+          (await models.Org.findOne({ orgName: body.orgName }))
+        )
+          throw duplicateError();
+      }
+
+      // if (
+      //   Array.isArray(body.orgLists) &&
+      //   body.orgLists.length > 0 &&
+      //   org.orgLists
+      // ) {
+      //   for (const orgList of body.orgLists)
+      //     for (const { listName } of org.orgLists)
+      //       if (orgList.listName === listName)
+      //         throw duplicateError({ field: "listName" });
+      // }
     }
+
+    log(`PUT /org/${orgUrl}:`, update || body);
+    const { n, nModified } = await models.Org.updateOne(
+      { orgUrl },
+      update || body
+    );
+
+    if (nModified === 1) {
+      res.status(200).json({});
+    } else {
+      res
+        .status(400)
+        .json(
+          createServerError(
+            new Error(`L'organisation ${orgUrl} n'a pas pu être modifiée`)
+          )
+        );
+    }
+  } catch (error: any) {
+    if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY)
+      res.status(400).json({
+        [error.field || "orgName"]: "Ce nom n'est pas disponible"
+      });
+    else res.status(500).json(createServerError(error));
   }
 });
 

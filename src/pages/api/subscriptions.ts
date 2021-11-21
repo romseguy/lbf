@@ -7,7 +7,8 @@ import database, { models } from "database";
 import { createServerError, databaseErrorCodes } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import { ITopic } from "models/Topic";
-import { equals } from "utils/string";
+import { equals, log } from "utils/string";
+import { getSubscriptions } from "models/Org";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -94,142 +95,84 @@ handler.post<
         );
     }
 
-    console.log("looking for subscription", selector);
+    log(`POST /subscriptions: selector`, selector);
     let subscription = await models.Subscription.findOne(selector);
 
-    if (!subscription) {
-      console.log("creating subscription", selector);
+    if (!subscription)
       subscription = await models.Subscription.create(selector);
-    }
+
+    if (!subscription) throw new Error("Impossible de créer un abonnement");
+
+    log(`POST /subscriptions: subscription`, subscription);
 
     if (body.orgs) {
-      const { orgs: newOrgSubscriptions } = body;
+      let firstOrgSubscriptions = false;
 
-      if (subscription.orgs && subscription.orgs.length > 0) {
-        console.log("user already got org subscriptions");
+      if (!subscription.orgs || !subscription.orgs.length) {
+        firstOrgSubscriptions = true;
+        subscription.orgs = [];
+      }
 
-        for (const newOrgSubscription of newOrgSubscriptions) {
-          console.log("newOrgSubscription", newOrgSubscription);
+      for (const newOrgSubscription of body.orgs) {
+        let org = await models.Org.findOne({
+          _id: newOrgSubscription.orgId
+        });
 
-          const org = await models.Org.findOne({
-            _id: newOrgSubscription.orgId
-          });
-
-          if (!org) {
-            return res
-              .status(400)
-              .json(
-                createServerError(
-                  new Error(
-                    "Vous ne pouvez pas vous abonner à une organisation inexistante"
-                  )
+        if (!org)
+          return res
+            .status(400)
+            .json(
+              createServerError(
+                new Error(
+                  "Vous ne pouvez pas vous abonner à une organisation inexistante"
                 )
-              );
-          }
+              )
+            );
 
-          let isFollower = false;
-          let isSub = false;
-
-          for (const orgSubscription of subscription.orgs) {
-            if (equals(org._id, orgSubscription.orgId)) {
-              if (orgSubscription.type === SubscriptionTypes.FOLLOWER) {
-                isFollower = true;
-              } else if (
-                orgSubscription.type === SubscriptionTypes.SUBSCRIBER
-              ) {
-                isSub = true;
-              }
-              break;
-            }
-          }
+        if (firstOrgSubscriptions) subscription.orgs.push(newOrgSubscription);
+        else {
+          org = await org.populate("orgSubscriptions").execPopulate();
+          const followerSubscriptions = getSubscriptions(
+            org,
+            SubscriptionTypes.FOLLOWER
+          );
+          const subscriberSubscriptions = getSubscriptions(
+            org,
+            SubscriptionTypes.SUBSCRIBER
+          );
 
           if (newOrgSubscription.type === SubscriptionTypes.FOLLOWER) {
-            if (isFollower) {
-              console.log(
-                "user is already following org => replacing old subscription with new one"
-              );
-              subscription.orgs = subscription.orgs.map((orgSubscription) => {
-                if (
-                  orgSubscription.type === SubscriptionTypes.FOLLOWER &&
-                  equals(orgSubscription.orgId, newOrgSubscription.orgId)
-                ) {
-                  return newOrgSubscription;
-                }
-                return orgSubscription;
-              });
-            } else {
+            if (
+              !followerSubscriptions.find(({ _id }) =>
+                equals(_id, subscription!._id)
+              )
+            )
               subscription.orgs.push(newOrgSubscription);
-            }
           }
 
           if (newOrgSubscription.type === SubscriptionTypes.SUBSCRIBER) {
-            if (isSub) {
-              console.log(
-                "user is already subscribed to org => replacing old subscription with new one"
-              );
-              subscription.orgs = subscription.orgs.map((orgSubscription) => {
-                if (
-                  orgSubscription.type === SubscriptionTypes.SUBSCRIBER &&
-                  equals(orgSubscription.orgId, newOrgSubscription.orgId)
-                ) {
-                  return newOrgSubscription;
-                }
-                return orgSubscription;
-              });
-            } else {
+            if (
+              !subscriberSubscriptions.find(({ _id }) =>
+                equals(_id, subscription!._id)
+              )
+            )
               subscription.orgs.push(newOrgSubscription);
-            }
-          }
-
-          if (
-            !org.orgSubscriptions.find((orgSubscription) =>
-              equals(orgSubscription._id, subscription!._id)
-            )
-          ) {
-            org.orgSubscriptions.push(subscription);
-            await org.save();
-            console.log("org updated with new subscription");
-          }
-
-          // if (staleOrgSubscriptionOrgIds.length > 0) {
-          //   subscription.orgs = subscription.orgs.filter(
-          //     (orgSubscription) =>
-          //       !staleOrgSubscriptionOrgIds.find((id) =>
-          //         equals(id, orgSubscription.orgId)
-          //       )
-          //   );
-        }
-      } else if (subscription) {
-        console.log("first time user subscribes to any org");
-        subscription.orgs = newOrgSubscriptions;
-
-        for (const newOrgSubscription of newOrgSubscriptions) {
-          let org = await models.Org.findOne({
-            _id: newOrgSubscription.org._id
-          }).populate("orgSubscriptions");
-
-          if (!org) {
-            return res
-              .status(400)
-              .json(
-                createServerError(
-                  new Error(
-                    "Vous ne pouvez pas vous abonner à une organisation inexistante"
-                  )
-                )
-              );
-          }
-
-          if (
-            !org.orgSubscriptions.find((orgSubscription) =>
-              equals(orgSubscription._id, subscription!._id)
-            )
-          ) {
-            org.orgSubscriptions.push(subscription);
-            await org.save();
-            console.log("org updated with new subscription");
           }
         }
+
+        if (
+          !org.orgSubscriptions.find((orgSubscription) =>
+            equals(orgSubscription._id, subscription!._id)
+          )
+        ) {
+          org.orgSubscriptions.push(subscription);
+          await org.save();
+        }
+
+        log(
+          `POST /subscriptions: org.orgSubscriptions`,
+          org.orgSubscriptions.map((subscription) => subscription._id)
+        );
       }
     } else if (body.events) {
       const { events: newEventSubscriptions } = body;
@@ -384,9 +327,9 @@ handler.post<
       }
     }
 
-    console.log("saving subscription", subscription);
-
+    log(`POST /subscriptions: saving subscription`, subscription);
     await subscription.save();
+
     res.status(200).json(subscription);
   } catch (error) {
     res.status(500).json(createServerError(error));

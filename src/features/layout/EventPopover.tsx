@@ -85,7 +85,10 @@ export const EventPopover = ({
   //#endregion
 
   //#region sub
-  const subQuery = useGetSubscriptionQuery(userEmail);
+  const subQuery = useGetSubscriptionQuery({
+    email: userEmail,
+    populate: "events"
+  });
   const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     if (refetchSubscription !== cachedRefetchSubscription) {

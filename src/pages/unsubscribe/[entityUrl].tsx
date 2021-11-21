@@ -1,14 +1,13 @@
 import { Alert, AlertIcon } from "@chakra-ui/react";
 import { GetServerSidePropsContext } from "next";
+import { Session } from "next-auth";
 import { Layout } from "features/layout";
-import { deleteSubscription } from "features/subscriptions/subscriptionsApi";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { wrapper } from "store";
 import api, { ResponseType } from "utils/api";
-import { Session } from "next-auth";
 
 type UnsubscribePageProps = {
   unsubscribed: boolean;

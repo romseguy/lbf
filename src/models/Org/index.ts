@@ -4,6 +4,12 @@ import { IOrg, OrgTypes, OrgTypesV } from "./IOrg";
 export * from "./IOrg";
 
 export const getSubscriptions = (org: IOrg, type: string) => {
+  if (!Array.isArray(org.orgSubscriptions) || !org.orgSubscriptions.length)
+    return [];
+
+  if (typeof org.orgSubscriptions[0] === "string")
+    throw new Error("getSubscriptions: org.orgSubscriptions must be populated");
+
   return org.orgSubscriptions.filter((subscription) =>
     subscription.orgs?.find(
       (orgSubscription) =>

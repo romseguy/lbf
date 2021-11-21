@@ -89,7 +89,10 @@ export const OrgPopover = ({
   //#endregion
 
   //#region my sub
-  const subQuery = useGetSubscriptionQuery(userEmail);
+  const subQuery = useGetSubscriptionQuery({
+    email: userEmail,
+    populate: "orgs"
+  });
   const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     if (refetchSubscription !== cachedRefetchSubscription) {

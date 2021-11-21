@@ -137,7 +137,7 @@ export const EventPage = ({
   //#endregion
 
   //#region sub
-  const subQuery = useGetSubscriptionQuery(userEmail);
+  const subQuery = useGetSubscriptionQuery({ email: userEmail });
   const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     if (refetchSubscription !== cachedRefetchSubscription) {

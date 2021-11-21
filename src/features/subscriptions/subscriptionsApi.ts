@@ -39,11 +39,18 @@ export const subscriptionApi = createApi({
         topicId?: string;
       }
     >({
-      query: ({ payload, subscriptionId, orgId, topicId }) => ({
-        url: `subscription/${subscriptionId}`,
-        method: "DELETE",
-        body: payload ? payload : { orgId, topicId }
-      })
+      query: ({ payload, subscriptionId, orgId, topicId }) => {
+        console.log("deleteSubscription: subscriptionId", subscriptionId);
+        console.log("deleteSubscription: orgId", orgId);
+        console.log("deleteSubscription: topicId", topicId);
+        console.log("deleteSubscription: payload", payload);
+
+        return {
+          url: `subscription/${subscriptionId}`,
+          method: "DELETE",
+          body: payload ? payload : { orgId, topicId }
+        };
+      }
     }),
     editSubscription: build.mutation<
       ISubscription,
@@ -55,14 +62,17 @@ export const subscriptionApi = createApi({
         body: payload
       })
     }),
-    getSubscription: build.query<ISubscription, string | null | undefined>({
-      // slug is either :
-      // - email
-      // - user._id
-      // - subscription._id
-      query: (slug) => ({
-        url: `subscription/${slug || ""}`
-      })
+    getSubscription: build.query<
+      ISubscription,
+      { email?: string; populate?: string }
+    >({
+      query: ({ email, populate }) => {
+        if (!email) return "";
+        console.log("getSubscription: email", email);
+        return {
+          url: `subscription/${email}${populate ? `?populate=${populate}` : ""}`
+        };
+      }
     }),
     getSubscriptions: build.query<ISubscription[], { topicId?: string }>({
       query: ({ topicId }) => ({
@@ -82,6 +92,7 @@ export const {
   useGetSubscriptionQuery,
   useGetSubscriptionsQuery
 } = subscriptionApi;
-export const {
-  endpoints: { getSubscription, getSubscriptions, deleteSubscription }
-} = subscriptionApi;
+
+// export const {
+//   endpoints: { getSubscription, getSubscriptions, deleteSubscription }
+// } = subscriptionApi;

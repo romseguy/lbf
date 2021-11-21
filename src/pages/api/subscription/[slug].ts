@@ -51,15 +51,40 @@ handler.get<
         );
     }
 
-    if (populate) subscription.populate(populate);
+    if (populate) {
+      if (populate.includes("events"))
+        subscription = subscription.populate({
+          path: "events",
+          populate: { path: "event" }
+        });
 
-    subscription = subscription
-      .populate({ path: "events", populate: { path: "event" } })
-      .populate({ path: "orgs", populate: { path: "org" } })
-      .populate({ path: "topics", populate: { path: "topic" } });
+      if (populate.includes("orgs"))
+        subscription = subscription.populate({
+          path: "orgs",
+          populate: { path: "org" }
+        });
+
+      if (populate.includes("topics"))
+        subscription = subscription.populate({
+          path: "topics",
+          populate: { path: "topic" }
+        });
+    } else
+      subscription = subscription
+        .populate({
+          path: "events",
+          populate: { path: "event" }
+        })
+        .populate({
+          path: "orgs",
+          populate: { path: "org" }
+        })
+        .populate({
+          path: "topics",
+          populate: { path: "topic" }
+        });
 
     subscription = await subscription.execPopulate();
-
     res.status(200).json(subscription);
   } catch (error) {
     console.log("error", error);
@@ -194,8 +219,10 @@ handler.delete<
       return res.status(200).json(subscription);
     }
 
+    //#region remove subscription from org
     if (body.orgId) {
       let org = await models.Org.findOne({ _id: body.orgId });
+
       if (!org)
         return res
           .status(400)
@@ -204,6 +231,7 @@ handler.delete<
               new Error(`L'organisation ${body.orgId} n'a pas pu être trouvé`)
             )
           );
+
       org = org.populate("orgSubscriptions");
       org = org.populate({
         path: "orgLists",
@@ -217,14 +245,14 @@ handler.delete<
       );
       //log("> org.orgSubscriptions", org.orgSubscriptions);
 
-      log("> org.orgLists", org.orgLists);
+      //log("> org.orgLists", org.orgLists);
       org.orgLists = org.orgLists?.map((orgList) => ({
         listName: orgList.listName,
         subscriptions: orgList.subscriptions?.filter(
           ({ _id }) => !equals(_id, subscriptionId)
         )
       }));
-      log("> org.orgLists", org.orgLists);
+      //log("> org.orgLists", org.orgLists);
 
       await org.save();
 
@@ -237,14 +265,14 @@ handler.delete<
 
       await subscription.save();
 
-      return res
-        .status(200)
-        .json(
-          await subscription
-            .populate("user", "-securityCode -password")
-            .execPopulate()
-        );
+      return res.status(200).json(subscription);
+      // .json(
+      //   await subscription
+      //     .populate("user", "-securityCode -password")
+      //     .execPopulate()
+      // );
     }
+    //#endregion
 
     if (body.events) {
       const { eventId } = body.events[0];
@@ -321,7 +349,7 @@ handler.delete<
       return res.status(200).json(subscription);
     }
 
-    console.log("deleting subscription", subscription);
+    log(`DELETE /subscription/${subscription._id}: subscription`, subscription);
 
     if (subscription.events)
       for (const eventSubscription of subscription.events) {
@@ -341,6 +369,10 @@ handler.delete<
             return keep;
           }
         );
+        log(
+          `DELETE /subscription/${subscription._id}: event.eventSubscriptions`,
+          event.eventSubscriptions
+        );
         await event.save();
       }
 
@@ -358,6 +390,10 @@ handler.delete<
             keep = false;
           return keep;
         });
+        log(
+          `DELETE /subscription/${subscription._id}: org.orgSubscriptions`,
+          org.orgSubscriptions
+        );
         await org.save();
       }
 
@@ -365,9 +401,7 @@ handler.delete<
       _id: subscriptionId
     });
 
-    if (deletedCount === 1) {
-      res.status(200).json(subscription);
-    } else {
+    if (deletedCount !== 1) {
       subscription = await subscription
         .populate("user", "-securityCode -password")
         .execPopulate();
@@ -376,14 +410,17 @@ handler.delete<
         typeof subscription.user === "object"
           ? subscription.user.email
           : subscription.email;
-      res
+
+      return res
         .status(400)
         .json(
           createServerError(
-            new Error(`Les abonnements de ${email} n'ont pas pu être supprimés`)
+            new Error(`L'abonnement de ${email} n'a pas pu être supprimé`)
           )
         );
     }
+
+    res.status(200).json(subscription);
   } catch (error) {
     res.status(500).json(createServerError(error));
   }

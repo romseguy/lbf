@@ -179,32 +179,35 @@ export const OrgConfigLogoPanel = ({
       {isVisible.logo && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Box p={5}>
-            <DeleteButton
-              header={
-                <>
-                  Êtes vous sûr de vouloir supprimer le logo de {org.orgName} ?
-                </>
-              }
-              mb={3}
-              onClick={async () => {
-                try {
-                  await editOrg({
-                    payload: ["orgLogo"],
-                    orgUrl: org.orgUrl
-                  });
-                  orgQuery.refetch();
-                  toast({
-                    title: "Le logo a bien été supprimé !",
-                    status: "success"
-                  });
-                } catch (error) {
-                  toast({
-                    title: "Le logo n'a pas pu être supprimé",
-                    status: "error"
-                  });
+            {org.orgLogo && (
+              <DeleteButton
+                header={
+                  <>
+                    Êtes vous sûr de vouloir supprimer le logo de {org.orgName}{" "}
+                    ?
+                  </>
                 }
-              }}
-            />
+                mb={3}
+                onClick={async () => {
+                  try {
+                    await editOrg({
+                      payload: ["orgLogo"],
+                      orgUrl: org.orgUrl
+                    });
+                    orgQuery.refetch();
+                    toast({
+                      title: "Le logo a bien été supprimé !",
+                      status: "success"
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "Le logo n'a pas pu être supprimé",
+                      status: "error"
+                    });
+                  }
+                }}
+              />
+            )}
 
             <form
               method="post"

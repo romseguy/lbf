@@ -1,7 +1,9 @@
 import { DeleteIcon } from "@chakra-ui/icons";
 import {
+  Box,
   IconButton,
   Link,
+  Spinner,
   Tag,
   TagLabel,
   Td,
@@ -142,118 +144,112 @@ export const SubscriptionsListItem = ({
       <Td width="100%">{phone || email || userEmail}</Td>
 
       <Td whiteSpace="nowrap" textAlign="right">
-        {/* <Box> */}
-        <Tooltip
-          label="Aller à la page de l'utilisateur"
-          hasArrow
-          placement="top"
-        >
-          <IconButton
-            aria-label="Aller à la page de l'utilisateur"
-            bg="transparent"
-            _hover={{ bg: "transparent", color: "green" }}
-            icon={<IoIosPerson />}
-            isLoading={isSubscriptionLoading[subscription._id]}
-            height="auto"
-            cursor={
-              isSubscriptionLoading[subscription._id]
-                ? "not-allowed"
-                : undefined
-            }
-            onClick={async () => {
-              setIsSubscriptionLoading({
-                ...isSubscriptionLoading,
-                [subscription._id]: true
-              });
-              if (userName) {
-                setIsSubscriptionLoading({
-                  ...isSubscriptionLoading,
-                  [subscription._id]: false
-                });
-                router.push(`/${userName}`, `/${userName}`, {
-                  shallow: true
-                });
-              } else {
-                const query = await dispatch(
-                  getUser.initiate({
-                    slug: phone || email || ""
-                  })
-                );
-
-                if (query.data) {
+        {isSubscriptionLoading[subscription._id] ? (
+          <Spinner boxSize={4} />
+        ) : (
+          <Box>
+            <Tooltip
+              label="Aller à la page de l'utilisateur"
+              hasArrow
+              placement="top"
+            >
+              <IconButton
+                aria-label="Aller à la page de l'utilisateur"
+                bg="transparent"
+                _hover={{ bg: "transparent", color: "green" }}
+                icon={<IoIosPerson />}
+                height="auto"
+                onClick={async () => {
                   setIsSubscriptionLoading({
                     ...isSubscriptionLoading,
-                    [subscription._id]: false
+                    [subscription._id]: true
                   });
-                  router.push(
-                    `/${query.data.userName}`,
-                    `/${query.data.userName}`,
-                    {
+                  if (userName) {
+                    setIsSubscriptionLoading({
+                      ...isSubscriptionLoading,
+                      [subscription._id]: false
+                    });
+                    router.push(`/${userName}`, `/${userName}`, {
                       shallow: true
+                    });
+                  } else {
+                    const query = await dispatch(
+                      getUser.initiate({
+                        slug: phone || email || ""
+                      })
+                    );
+
+                    if (query.data) {
+                      setIsSubscriptionLoading({
+                        ...isSubscriptionLoading,
+                        [subscription._id]: false
+                      });
+                      router.push(
+                        `/${query.data.userName}`,
+                        `/${query.data.userName}`,
+                        {
+                          shallow: true
+                        }
+                      );
+                    } else {
+                      setIsSubscriptionLoading({
+                        ...isSubscriptionLoading,
+                        [subscription._id]: false
+                      });
+                      toast({
+                        status: "warning",
+                        title: `Aucun utilisateur associé à ${
+                          phone
+                            ? "ce numéro de téléphone"
+                            : "cette adresse-email"
+                        }`
+                      });
                     }
+                  }
+                }}
+              />
+            </Tooltip>
+
+            <Tooltip label="Supprimer de la liste" hasArrow placement="top">
+              <IconButton
+                aria-label="Désinscrire"
+                bg="transparent"
+                _hover={{ bg: "transparent", color: "red" }}
+                icon={<DeleteIcon />}
+                height="auto"
+                minWidth={0}
+                onClick={async () => {
+                  setIsSubscriptionLoading({
+                    ...isSubscriptionLoading,
+                    [subscription._id]: true
+                  });
+
+                  const unsubscribe = confirm(
+                    `Êtes-vous sûr de vouloir supprimer l'abonnement ${
+                      phone || email || userEmail
+                    } ${orgTypeFull(org.orgType)} ${org.orgName} ?`
                   );
-                } else {
+
+                  if (unsubscribe) {
+                    await deleteSubscription({
+                      subscriptionId: subscription._id,
+                      orgId: org._id
+                    });
+                    dispatch(refetchEvent());
+                    orgQuery.refetch();
+                    subQuery.refetch();
+                  }
+
                   setIsSubscriptionLoading({
                     ...isSubscriptionLoading,
                     [subscription._id]: false
                   });
-                  toast({
-                    status: "warning",
-                    title: `Aucun utilisateur associé à ${
-                      phone ? "ce numéro de téléphone" : "cette adresse-email"
-                    }`
-                  });
-                }
-              }
-            }}
-          />
-        </Tooltip>
-
-        <Tooltip label="Supprimer de la liste" hasArrow placement="top">
-          <IconButton
-            aria-label="Désinscrire"
-            bg="transparent"
-            _hover={{ bg: "transparent", color: "red" }}
-            icon={<DeleteIcon />}
-            isLoading={isSubscriptionLoading[subscription._id]}
-            height="auto"
-            minWidth={0}
-            cursor={
-              isSubscriptionLoading[subscription._id]
-                ? "not-allowed"
-                : undefined
-            }
-            onClick={async () => {
-              setIsSubscriptionLoading({
-                ...isSubscriptionLoading,
-                [subscription._id]: true
-              });
-
-              const unsubscribe = confirm(
-                `Êtes-vous sûr de vouloir supprimer l'abonnement ${
-                  phone || email || userEmail
-                } ${orgTypeFull(org.orgType)} ${org.orgName} ?`
-              );
-
-              if (unsubscribe) {
-                await deleteSubscription({
-                  subscriptionId: subscription._id,
-                  orgId: org._id
-                });
-                dispatch(refetchEvent());
-                orgQuery.refetch();
-                subQuery.refetch();
-              }
-
-              setIsSubscriptionLoading({
-                ...isSubscriptionLoading,
-                [subscription._id]: false
-              });
-            }}
-            data-cy="orgUnsubscribe"
-          />
-        </Tooltip>
-        {/* </Box> */}
+                }}
+                data-cy="orgUnsubscribe"
+              />
+            </Tooltip>
+          </Box>
+        )}
       </Td>
     </Tr>
   );
