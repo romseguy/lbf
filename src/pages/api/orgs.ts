@@ -1,3 +1,4 @@
+import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
@@ -25,17 +26,17 @@ handler.get<
       query: { populate, createdBy }
     } = req;
 
-    let orgs;
-    let select = createdBy
+    let orgs: (IOrg & Document<any, any, IOrg>)[] = [];
+    const selector = createdBy
       ? { createdBy }
       : { orgVisibility: Visibility[Visibility.PUBLIC] };
 
     if (populate) {
-      orgs = await models.Org.find(select, "-orgBanner -orgLogo").populate(
+      orgs = await models.Org.find(selector, "-orgBanner -orgLogo").populate(
         populate
       );
     } else {
-      orgs = await models.Org.find(select, "-orgBanner -orgLogo");
+      orgs = await models.Org.find(selector, "-orgBanner -orgLogo");
     }
 
     res.status(200).json(orgs);

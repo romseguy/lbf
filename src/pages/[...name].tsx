@@ -42,7 +42,7 @@ const Hash = ({
 
   useEffect(() => {
     const xhr = async () => {
-      populate = "orgSubscriptions";
+      populate = "";
       const eventQuery = await dispatch(
         getEvent.initiate({ eventUrl: routeName, populate })
       );

@@ -18,7 +18,7 @@ import {
   sendTopicNotifications
 } from "api/email";
 import { createServerError } from "utils/errors";
-import { equals, log, toString } from "utils/string";
+import { equals, logJson, toString } from "utils/string";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -113,7 +113,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
           );
       }
 
-      log(`POST /topics: found topic`, topic);
+      logJson(`POST /topics: found topic`, topic);
 
       const newMessage = body.topic.topicMessages[0];
       topic.topicMessages.push(newMessage);
@@ -125,7 +125,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
         user: { $ne: newMessage.createdBy }
       }).populate("user");
 
-      log(`POST /topics: topic subscriptions`, subscriptions);
+      logJson(`POST /topics: topic subscriptions`, subscriptions);
 
       sendTopicMessageEmailNotifications({
         event,

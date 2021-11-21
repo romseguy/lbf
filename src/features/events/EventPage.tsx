@@ -37,7 +37,7 @@ import { useSession } from "hooks/useAuth";
 import {
   EntityButton,
   EntityNotified,
-  EventSendForm,
+  EventNotifForm,
   GridHeader,
   GridItem,
   Link
@@ -74,7 +74,6 @@ export type Visibility = {
 
 let cachedRefetchEvent = false;
 let cachedRefetchSubscription = false;
-let cachedEmail: string | undefined;
 
 export const EventPage = ({
   populate,
@@ -85,12 +84,14 @@ export const EventPage = ({
   session: Session | null;
 }) => {
   const router = useRouter();
+  const [asPath, setAsPath] = useState(router.asPath);
   const { data, loading: isSessionLoading } = useSession();
   const session = data || props.session;
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const userEmail = useSelector(selectUserEmail) || session?.user.email;
+  const storedUserEmail = useSelector(selectUserEmail);
+  const [email, setEmail] = useState(storedUserEmail || session?.user.email);
 
   //#region event
   const [editEvent, editEventMutation] = useEditEventMutation();
@@ -101,27 +102,6 @@ export const EventPage = ({
     }
   );
   const event = eventQuery.data || props.event;
-  const refetchEvent = useSelector(selectEventRefetch);
-  useEffect(() => {
-    if (refetchEvent !== cachedRefetchEvent) {
-      cachedRefetchEvent = refetchEvent;
-      console.log("refetching event");
-      eventQuery.refetch();
-    }
-  }, [refetchEvent]);
-  useEffect(() => {
-    if (userEmail !== cachedEmail) {
-      cachedEmail = userEmail;
-      console.log("refetching event with new email", userEmail);
-      eventQuery.refetch();
-    }
-  }, [userEmail]);
-  useEffect(() => {
-    console.log("refetching event with new route", router.asPath);
-    eventQuery.refetch();
-    setIsEdit(false);
-  }, [router.asPath]);
-
   const eventCreatedByUserName =
     event.createdBy && typeof event.createdBy === "object"
       ? event.createdBy.userName || event.createdBy._id
@@ -137,24 +117,8 @@ export const EventPage = ({
   //#endregion
 
   //#region sub
-  const subQuery = useGetSubscriptionQuery({ email: userEmail });
-  const refetchSubscription = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    if (refetchSubscription !== cachedRefetchSubscription) {
-      cachedRefetchSubscription = refetchSubscription;
-      console.log("refetching subscription");
-      subQuery.refetch();
-    }
-  }, [refetchSubscription]);
-  useEffect(() => {
-    if (userEmail !== cachedEmail) {
-      cachedEmail = userEmail;
-      console.log("refetching subscription with new email", userEmail);
-      subQuery.refetch();
-    }
-  }, [userEmail]);
-
-  const isFollowed = getFollowerSubscription({ event, subQuery });
+  const subQuery = useGetSubscriptionQuery({ email });
+  const followerSubscription = getFollowerSubscription({ event, subQuery });
   const isSubscribedToAtLeastOneOrg =
     isCreator ||
     !!subQuery.data?.orgs?.find((orgSubscription: IOrgSubscription) => {
@@ -171,7 +135,6 @@ export const EventPage = ({
   //#endregion
 
   //#region local state
-  const [email, setEmail] = useState(userEmail);
   const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -196,6 +159,47 @@ export const EventPage = ({
     }
   }
   //#endregion
+
+  useEffect(() => {
+    if (router.asPath !== asPath) {
+      setAsPath(router.asPath);
+      console.log("refetching event with new route", router.asPath);
+      eventQuery.refetch();
+      setIsEdit(false);
+    }
+  }, [router.asPath]);
+
+  const refetchEvent = useSelector(selectEventRefetch);
+  useEffect(() => {
+    if (refetchEvent !== cachedRefetchEvent) {
+      cachedRefetchEvent = refetchEvent;
+      console.log("refetching event");
+      eventQuery.refetch();
+    }
+  }, [refetchEvent]);
+
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      cachedRefetchSubscription = refetchSubscription;
+      console.log("refetching subscription");
+      subQuery.refetch();
+    }
+  }, [refetchSubscription]);
+
+  useEffect(() => {
+    const newEmail = storedUserEmail || session?.user.email;
+
+    if (newEmail !== email) {
+      setEmail(newEmail);
+      console.log(
+        "refetching event and subscription because of new email",
+        newEmail
+      );
+      eventQuery.refetch();
+      subQuery.refetch();
+    }
+  }, [storedUserEmail, session]);
 
   return (
     <Layout event={event} isLogin={isLogin} session={props.session}>
@@ -237,13 +241,13 @@ export const EventPage = ({
 
       {!isConfig && !isEdit && !subQuery.isLoading && (
         <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
-          {isFollowed && (
+          {followerSubscription && (
             <Box mr={3} mt={3}>
               <SubscriptionPopover
                 event={event}
                 query={eventQuery}
                 subQuery={subQuery}
-                followerSubscription={isFollowed}
+                followerSubscription={followerSubscription}
                 //isLoading={subQuery.isLoading || subQuery.isFetching}
               />
             </Box>
@@ -254,7 +258,7 @@ export const EventPage = ({
               event={event}
               query={eventQuery}
               subQuery={subQuery}
-              followerSubscription={isFollowed}
+              followerSubscription={followerSubscription}
               notifType="push"
               //isLoading={subQuery.isLoading || subQuery.isFetching}
             />
@@ -514,7 +518,7 @@ export const EventPage = ({
                 mutation={[editEvent, editEventMutation]}
                 subQuery={subQuery}
                 isCreator={isCreator}
-                isFollowed={!!isFollowed}
+                isFollowed={!!followerSubscription}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
               />
@@ -558,7 +562,7 @@ export const EventPage = ({
                 )}
 
                 {showSendForm && (
-                  <EventSendForm
+                  <EventNotifForm
                     event={event}
                     eventQuery={eventQuery}
                     session={session}

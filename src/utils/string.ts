@@ -1,4 +1,4 @@
-export const log = (message: string, object?: any) => {
+export const logJson = (message: string, object?: any) => {
   if (object) console.log(message, JSON.stringify(object, null, 2));
   else console.log(message);
 };

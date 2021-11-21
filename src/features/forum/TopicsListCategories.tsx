@@ -1,12 +1,14 @@
 import {
+  Box,
   Button,
   Flex,
   FlexProps,
   Tag,
   TagCloseButton,
-  Tooltip
+  Tooltip,
+  useColorMode
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useState } from "react";
 import { IOrg } from "models/Org";
 import { DeleteButton } from "features/common";
 
@@ -14,6 +16,8 @@ export const TopicsListCategories = ({
   org,
   orgQuery,
   mutation,
+  isCreator,
+  isSubscribed,
   selectedCategories,
   setSelectedCategories,
   ...props
@@ -21,17 +25,25 @@ export const TopicsListCategories = ({
   org: IOrg;
   orgQuery: any;
   mutation: any;
+  isCreator?: boolean;
+  isSubscribed?: boolean;
   selectedCategories?: string[];
   setSelectedCategories: React.Dispatch<
     React.SetStateAction<string[] | undefined>
   >;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
   return (
     <Flex {...props}>
       {org.orgTopicsCategories?.map((category, index) => {
         const isSelected = selectedCategories?.find(
           (selectedCategory) => selectedCategory === category
         );
+        const topicsCount = org.orgTopics.filter(
+          (topic) => topic.topicCategory === category
+        ).length;
 
         return (
           <Tag
@@ -41,9 +53,8 @@ export const TopicsListCategories = ({
             cursor="pointer"
             fontSize="small"
             fontWeight="normal"
-            height="auto"
-            mr={2}
-            p={1}
+            ml={index !== 0 ? 1 : undefined}
+            px={0}
             onClick={() => {
               selectedCategories?.find(
                 (selectedCategory) => selectedCategory === category
@@ -59,45 +70,50 @@ export const TopicsListCategories = ({
             }}
           >
             <Tooltip
-              key={"topicCategory-" + index}
               label={`Afficher les discussions de la catégorie "${category}"`}
               hasArrow
             >
-              {category}
+              <Box mx={2}>
+                {category} {topicsCount > 0 && `(${topicsCount})`}
+              </Box>
             </Tooltip>
-            <TagCloseButton
-              as="span"
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log("d");
-              }}
-            >
-              <DeleteButton
-                isIconOnly
-                bg="transparent"
-                _hover={{ bg: "transparent", color: "red" }}
-                header={
-                  <>
-                    Êtes vous sûr de vouloir supprimer la catégorie {category} ?
-                  </>
-                }
-                height="auto"
-                minWidth={0}
-                placement="right"
-                onClick={async () => {
-                  const [editOrg, _] = mutation;
-                  try {
-                    await editOrg({
-                      orgUrl: org.orgUrl,
-                      payload: [`orgTopicsCategories=${category}`]
-                    });
-                    orgQuery.refetch();
-                  } catch (error) {
-                    console.error(error);
-                  }
-                }}
-              />
-            </TagCloseButton>
+
+            {(isCreator || isSubscribed) && (
+              <Box
+                borderColor={isDark ? "#BAC1CB" : "gray.500"}
+                borderLeftWidth="1px"
+                mr={2}
+              >
+                <TagCloseButton as="span">
+                  <DeleteButton
+                    isIconOnly
+                    // tooltip props
+                    hasArrow
+                    label="Supprimer la catégorie"
+                    placement="right"
+                    // other props
+                    header={
+                      <>
+                        Êtes vous sûr de vouloir supprimer la catégorie{" "}
+                        {category} ?
+                      </>
+                    }
+                    onClick={async () => {
+                      const [editOrg, _] = mutation;
+                      try {
+                        await editOrg({
+                          orgUrl: org.orgUrl,
+                          payload: [`orgTopicsCategories=${category}`]
+                        });
+                        orgQuery.refetch();
+                      } catch (error) {
+                        console.error(error);
+                      }
+                    }}
+                  />
+                </TagCloseButton>
+              </Box>
+            )}
           </Tag>
         );
       })}

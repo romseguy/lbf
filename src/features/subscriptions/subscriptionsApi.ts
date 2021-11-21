@@ -18,10 +18,12 @@ export const subscriptionApi = createApi({
       }
     >({
       query: ({ payload, email, phone, user }) => {
-        console.log("addSubscription: email", email);
-        console.log("addSubscription: phone", phone);
-        console.log("addSubscription: user", user);
-        console.log("addSubscription: payload", payload);
+        console.group("addSubscription");
+        console.log("email", email);
+        console.log("phone", phone);
+        console.log("user", user);
+        console.log("payload", payload);
+        console.groupEnd();
         return {
           url: `subscriptions`,
           method: "POST",
@@ -40,10 +42,12 @@ export const subscriptionApi = createApi({
       }
     >({
       query: ({ payload, subscriptionId, orgId, topicId }) => {
-        console.log("deleteSubscription: subscriptionId", subscriptionId);
-        console.log("deleteSubscription: orgId", orgId);
-        console.log("deleteSubscription: topicId", topicId);
-        console.log("deleteSubscription: payload", payload);
+        console.group("deleteSubscription");
+        console.log("subscriptionId", subscriptionId);
+        console.log("orgId", orgId);
+        console.log("topicId", topicId);
+        console.log("payload", payload);
+        console.groupEnd();
 
         return {
           url: `subscription/${subscriptionId}`,
@@ -68,7 +72,11 @@ export const subscriptionApi = createApi({
     >({
       query: ({ email, populate }) => {
         if (!email) return "";
-        console.log("getSubscription: email", email);
+
+        console.group("getSubscription");
+        console.log("email", email);
+        console.groupEnd();
+
         return {
           url: `subscription/${email}${populate ? `?populate=${populate}` : ""}`
         };

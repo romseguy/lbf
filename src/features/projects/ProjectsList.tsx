@@ -1,20 +1,11 @@
-import React, { useMemo, useState } from "react";
-import {
-  AddIcon,
-  EditIcon,
-  EmailIcon,
-  ViewIcon,
-  ViewOffIcon
-} from "@chakra-ui/icons";
+import { AddIcon, EditIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
   Box,
   Button,
   Flex,
-  Icon,
   IconButton,
-  Spinner,
   Table,
   Tag,
   Tbody,
@@ -25,39 +16,32 @@ import {
   useColorMode,
   useToast
 } from "@chakra-ui/react";
+import DOMPurify from "isomorphic-dompurify";
+import React, { useMemo, useState } from "react";
 import { useSession } from "hooks/useAuth";
+import { DeleteButton, Grid, GridItem, Link } from "features/common";
+import { ProjectModal } from "features/modals/ProjectModal";
+import { IOrg, orgTypeFull } from "models/Org";
 import {
   IProject,
   Status,
   StatusTypes,
   StatusTypesV,
-  StatusV,
-  Visibility
+  StatusV
 } from "models/Project";
-import { ProjectModal } from "features/modals/ProjectModal";
-import { IOrg, orgTypeFull } from "models/Org";
-import {
-  DeleteButton,
-  Grid,
-  GridHeader,
-  GridItem,
-  Link
-} from "features/common";
-import { useDeleteProjectMutation } from "./projectsApi";
-import DOMPurify from "isomorphic-dompurify";
-import { ProjectAttendingForm } from "./ProjectAttendingForm";
+import { IUser } from "models/User";
 import * as dateUtils from "utils/date";
-import { IoMdPerson } from "react-icons/io";
-import { FaGlobeEurope } from "react-icons/fa";
-import { ProjectItemVisibility } from "./ProjectItemVisibility";
+import { hasItems } from "utils/array";
+import { ProjectAttendingForm } from "./ProjectAttendingForm";
+import { ProjectsListItemVisibility } from "./ProjectsListItemVisibility";
+import { useDeleteProjectMutation } from "./projectsApi";
 import { ProjectsListFilters } from "./ProjectsListFilters";
 import { ISelectedOrder, ProjectsListOrder } from "./ProjectsListOrder";
-import { hasItems } from "utils/array";
-import { IUser } from "models/User";
 
 export const ProjectsList = ({
   org,
   orgQuery,
+  subQuery,
   isCreator,
   isFollowed,
   isSubscribed,
@@ -69,6 +53,7 @@ export const ProjectsList = ({
 }: {
   org?: IOrg;
   orgQuery?: any;
+  subQuery?: any;
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
@@ -188,6 +173,7 @@ export const ProjectsList = ({
                 projectName,
                 projectDescription,
                 projectStatus,
+                projectVisibility,
                 createdBy,
                 createdAt
               } = project;
@@ -197,6 +183,16 @@ export const ProjectsList = ({
                 !selectedStatuses.includes(projectStatus)
               )
                 return null;
+
+              if (
+                Array.isArray(projectVisibility) &&
+                projectVisibility.length > 0
+              ) {
+                if (projectVisibility.includes("Adhérents") && !isSubscribed)
+                  return null;
+                if (projectVisibility.includes("Abonnés") && !isFollowed)
+                  return null;
+              }
 
               const projectCreatedByUserName =
                 typeof createdBy === "object"
@@ -289,7 +285,7 @@ export const ProjectsList = ({
                                 <>
                                   <span aria-hidden> · </span>
 
-                                  <ProjectItemVisibility
+                                  <ProjectsListItemVisibility
                                     org={org}
                                     projectVisibility={
                                       project.projectVisibility
@@ -329,11 +325,7 @@ export const ProjectsList = ({
                               isIconOnly
                               isLoading={isLoading[project._id!]}
                               placement="bottom"
-                              bg="transparent"
-                              height="auto"
-                              minWidth={0}
                               mr={3}
-                              _hover={{ color: "red" }}
                               header={
                                 <>
                                   Êtes vous sûr de vouloir supprimer le projet

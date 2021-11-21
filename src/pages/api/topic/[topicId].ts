@@ -10,7 +10,7 @@ import { getSubscriptions, IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { createServerError } from "utils/errors";
 import { sendTopicNotifications } from "api/email";
-import { equals, log } from "utils/string";
+import { equals, logJson } from "utils/string";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
 

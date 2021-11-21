@@ -38,11 +38,14 @@ handler.get<
       selector = { phone: slug };
     }
 
+    const select =
+      "_id suggestedCategoryAt userName userImage userSubscription";
+
     if (selector) {
-      user = await models.User.findOne(selector);
+      user = await models.User.findOne(selector, select);
     } else {
-      user = await models.User.findOne({ userName: slug });
-      if (!user) user = await models.User.findOne({ _id: slug });
+      user = await models.User.findOne({ userName: slug }, select);
+      if (!user) user = await models.User.findOne({ _id: slug }, select);
     }
 
     if (user) {

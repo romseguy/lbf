@@ -25,7 +25,7 @@ import { useForm } from "react-hook-form";
 
 import { DeleteButton, ErrorMessageText, Link } from "features/common";
 import { useSession } from "hooks/useAuth";
-import { IOrg } from "models/Org";
+import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
 import api from "utils/api";
 import { handleError } from "utils/form";
@@ -36,7 +36,8 @@ export const DocumentsList = ({
   org,
   user,
   isLogin,
-  setIsLogin
+  setIsLogin,
+  ...props
 }: {
   org?: IOrg;
   user?: IUser;
@@ -118,7 +119,14 @@ export const DocumentsList = ({
         onClick={() => {
           if (!isSessionLoading) {
             if (session) {
-              setIsAdd(!isAdd);
+              if (org && !props.isSubscribed && !props.isCreator)
+                toast({
+                  status: "error",
+                  title: `Vous devez être adhérent ${orgTypeFull(
+                    org.orgType
+                  )} pour ajouter un document`
+                });
+              else setIsAdd(!isAdd);
             } else {
               setIsLogin(isLogin + 1);
             }
@@ -225,10 +233,6 @@ export const DocumentsList = ({
                       <DeleteButton
                         isIconOnly
                         placement="bottom"
-                        bg="transparent"
-                        height="auto"
-                        minWidth={0}
-                        _hover={{ color: "red" }}
                         header={
                           <>
                             Êtes vous sûr de vouloir supprimer le fichier{" "}

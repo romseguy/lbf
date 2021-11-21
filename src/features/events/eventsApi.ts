@@ -10,7 +10,9 @@ export const eventApi = createApi({
   endpoints: (build) => ({
     addEvent: build.mutation<IEvent, Partial<IEvent>>({
       query: (body) => {
-        console.log("addEvent: payload", body);
+        console.group("addEvent");
+        console.log("payload", body);
+        console.groupEnd();
 
         return {
           url: `events`,
@@ -28,8 +30,10 @@ export const eventApi = createApi({
       { payload: Partial<IEvent> | string[]; eventUrl?: string }
     >({
       query: ({ payload, eventUrl }) => {
-        console.log("editEvent: eventUrl", eventUrl);
-        console.log("editEvent: payload", payload);
+        console.group("editEvent");
+        console.log("eventUrl", eventUrl);
+        console.log("payload", payload);
+        console.groupEnd();
 
         return {
           url: `event/${
@@ -48,18 +52,34 @@ export const eventApi = createApi({
       IEvent,
       { eventUrl: string; email?: string; populate?: string }
     >({
-      query: ({ eventUrl, email, populate }) => ({
-        url: email
-          ? `event/${eventUrl}/${email}`
-          : populate
-          ? `event/${eventUrl}?populate=${populate}`
-          : `event/${eventUrl}`
-      })
+      query: ({ eventUrl, email, populate }) => {
+        console.group("getEvent");
+        console.log("eventUrl", eventUrl);
+        console.log("email", email);
+        console.log("populate", populate);
+        console.groupEnd();
+
+        return {
+          url: email
+            ? `event/${eventUrl}/${email}`
+            : populate
+            ? `event/${eventUrl}?populate=${populate}`
+            : `event/${eventUrl}`
+        };
+      }
     }),
-    getEvents: build.query<IEvent[], { userId: string } | void>({
-      query: (query) => ({
-        url: `events${query ? "?" + querystring.stringify(query) : ""}`
-      })
+    getEvents: build.query<IEvent[], { createdBy: string } | void>({
+      query: (query) => {
+        if (query) {
+          console.group("getEvents");
+          console.log("createdBy", query.createdBy);
+          console.groupEnd();
+        }
+
+        return {
+          url: `events${query ? "?" + querystring.stringify(query) : ""}`
+        };
+      }
     }),
     getEventsByUserId: build.query<IEvent[], string>({
       query: (userId) => ({ url: `events/${userId}` })

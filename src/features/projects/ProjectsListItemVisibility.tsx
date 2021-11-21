@@ -14,7 +14,7 @@ import { Visibility } from "models/Project";
 import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 
-export const ProjectItemVisibility = ({
+export const ProjectsListItemVisibility = ({
   org,
   projectVisibility,
   ...props

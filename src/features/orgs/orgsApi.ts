@@ -1,4 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
+import querystring from "querystring";
 import baseQuery from "utils/query";
 import { IOrg } from "models/Org";
 
@@ -27,8 +28,10 @@ export const orgApi = createApi({
       { payload: Partial<IOrg> | string[]; orgUrl?: string }
     >({
       query: ({ payload, orgUrl }) => {
-        console.log("editOrg: orgUrl", orgUrl);
-        console.log("editOrg: payload", payload);
+        console.group("editOrg");
+        console.log("orgUrl", orgUrl);
+        console.log("payload", payload);
+        console.groupEnd();
 
         return {
           url: `org/${
@@ -40,24 +43,31 @@ export const orgApi = createApi({
       }
     }),
     getOrg: build.query<IOrg, { orgUrl: string; populate?: string }>({
-      query: ({ orgUrl, populate }) => ({
-        url: populate ? `org/${orgUrl}?populate=${populate}` : `org/${orgUrl}`
-      })
+      query: ({ orgUrl, populate }) => {
+        console.group("getOrg");
+        console.log("orgUrl", orgUrl);
+        console.log("populate", populate);
+        console.groupEnd();
+
+        return {
+          url: populate ? `org/${orgUrl}?populate=${populate}` : `org/${orgUrl}`
+        };
+      }
     }),
     getOrgs: build.query<
       IOrg[],
       { populate?: string; createdBy?: string } | void
     >({
-      query: ({ populate, createdBy } = {}) => {
-        let url = "orgs";
-
-        if (populate) {
-          url += `?populate=${populate}`;
-          if (createdBy) url += `&createdBy=${createdBy}`;
-        } else if (createdBy) url += `?createdBy=${createdBy}`;
+      query: (query) => {
+        if (query) {
+          console.group("getOrgs");
+          console.log("createdBy", query.createdBy);
+          console.log("populate", query.populate);
+          console.groupEnd();
+        }
 
         return {
-          url
+          url: `orgs${query ? "?" + querystring.stringify(query) : ""}`
         };
       }
     }),

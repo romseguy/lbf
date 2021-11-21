@@ -28,12 +28,16 @@ export const DeleteButton = ({
   isIconOnly,
   header,
   body,
+  hasArrow,
+  label = "Supprimer",
   placement = "left",
   onClick,
   ...props
 }: any & {
   header: React.ReactNode;
   body: React.ReactNode;
+  hasArrow?: boolean;
+  label?: string;
   placement?: string;
   isDisabled?: boolean;
   isLoading?: boolean;
@@ -49,11 +53,15 @@ export const DeleteButton = ({
   return (
     <>
       {isIconOnly ? (
-        <Tooltip label="Supprimer" placement={placement}>
+        <Tooltip label={label} placement={placement} hasArrow={hasArrow}>
           <IconButton
             aria-label="Supprimer"
-            color={isDark ? "white" : "black"}
             colorScheme="red"
+            color={isDark ? "white" : "black"}
+            bg="transparent"
+            _hover={{ bg: "transparent", color: "red" }}
+            height="auto"
+            minWidth={0}
             icon={<DeleteIcon />}
             isLoading={isLoading}
             {...props}
@@ -83,40 +91,43 @@ export const DeleteButton = ({
           Supprimer
         </Button>
       )}
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              {header}
-            </AlertDialogHeader>
 
-            <AlertDialogBody>{body}</AlertDialogBody>
+      {isOpen && (
+        <AlertDialog
+          isOpen={isOpen}
+          leastDestructiveRef={cancelRef}
+          onClose={onClose}
+        >
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                {header}
+              </AlertDialogHeader>
 
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
-                Annuler
-              </Button>
-              <Button
-                isDisabled={isDisabled}
-                isLoading={isLoading}
-                colorScheme="red"
-                onClick={() => {
-                  onClick();
-                  onClose();
-                }}
-                ml={3}
-                data-cy="deleteButtonSubmit"
-              >
-                Supprimer
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+              <AlertDialogBody>{body}</AlertDialogBody>
+
+              <AlertDialogFooter>
+                <Button ref={cancelRef} onClick={onClose}>
+                  Annuler
+                </Button>
+                <Button
+                  isDisabled={isDisabled}
+                  isLoading={isLoading}
+                  colorScheme="red"
+                  onClick={() => {
+                    onClick();
+                    onClose();
+                  }}
+                  ml={3}
+                  data-cy="deleteButtonSubmit"
+                >
+                  Supprimer
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
+      )}
     </>
   );
 

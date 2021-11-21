@@ -1,16 +1,16 @@
-import { Session } from "next-auth";
-import type { IOrg } from "models/Org";
-import React from "react";
+import { CalendarIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton,
-  useDisclosure
+  ModalCloseButton
 } from "@chakra-ui/react";
+import { Session } from "next-auth";
+import React from "react";
 import { EventForm } from "features/forms/EventForm";
+import type { IOrg } from "models/Org";
 
 export const EventModal = ({
   initialEventOrgs,
@@ -29,7 +29,9 @@ export const EventModal = ({
     <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
       <ModalOverlay>
         <ModalContent maxWidth="xl">
-          <ModalHeader>Ajouter un événement</ModalHeader>
+          <ModalHeader display="flex" alignItems="center">
+            <CalendarIcon color="green" mr={3} /> Ajouter un événement
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <EventForm

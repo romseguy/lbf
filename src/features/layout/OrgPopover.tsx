@@ -36,7 +36,6 @@ import { hasItems } from "utils/array";
 
 let cachedRefetchOrgs = false;
 let cachedRefetchSubscription = false;
-let cachedEmail: string | undefined;
 
 export const OrgPopover = ({
   boxSize,
@@ -48,7 +47,8 @@ export const OrgPopover = ({
   session: Session;
 }) => {
   const router = useRouter();
-  const userEmail = useSelector(selectUserEmail) || session.user.email;
+  const storedUserEmail = useSelector(selectUserEmail);
+  const [email, setEmail] = useState(storedUserEmail || session.user.email);
 
   //#region orgs
   const orgsQuery = useGetOrgsQuery(undefined, {
@@ -61,14 +61,6 @@ export const OrgPopover = ({
       )
     })
   });
-  const refetchOrgs = useSelector(selectOrgsRefetch);
-  useEffect(() => {
-    if (refetchOrgs !== cachedRefetchOrgs) {
-      cachedRefetchOrgs = refetchOrgs;
-      console.log("refetching orgs");
-      orgsQuery.refetch();
-    }
-  }, [refetchOrgs]);
   //#endregion
 
   //#region my orgs
@@ -85,29 +77,13 @@ export const OrgPopover = ({
           return 0;
         })) ||
     [];
-  const hasOrgs = Array.isArray(myOrgs) && myOrgs.length > 0;
   //#endregion
 
   //#region my sub
   const subQuery = useGetSubscriptionQuery({
-    email: userEmail,
+    email,
     populate: "orgs"
   });
-  const refetchSubscription = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    if (refetchSubscription !== cachedRefetchSubscription) {
-      console.log("refetching subscription");
-      subQuery.refetch();
-    }
-  }, [refetchSubscription]);
-  useEffect(() => {
-    if (userEmail !== cachedEmail) {
-      cachedEmail = userEmail;
-      console.log("refetching subscription with new email", userEmail);
-      subQuery.refetch();
-    }
-  }, [userEmail]);
-
   const followedOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&
@@ -115,8 +91,6 @@ export const OrgPopover = ({
         (org) => !!getFollowerSubscription({ org, subQuery })
       )) ||
     [];
-  const hasFollowedOrgs = hasItems(followedOrgs);
-
   const subscribedOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&
@@ -124,7 +98,6 @@ export const OrgPopover = ({
         (org) => !!getSubscriberSubscription({ org, subQuery })
       )) ||
     [];
-  const hasSubscribedOrgs = hasItems(subscribedOrgs);
   //#endregion
 
   //#region local state
@@ -138,6 +111,33 @@ export const OrgPopover = ({
   }>({ isOpen: false, org: undefined });
   const iconHoverColor = useColorModeValue("white", "lightgreen");
   //#endregion
+
+  const refetchOrgs = useSelector(selectOrgsRefetch);
+  useEffect(() => {
+    if (refetchOrgs !== cachedRefetchOrgs) {
+      cachedRefetchOrgs = refetchOrgs;
+      console.log("refetching orgs");
+      orgsQuery.refetch();
+    }
+  }, [refetchOrgs]);
+
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      console.log("refetching subscription");
+      subQuery.refetch();
+    }
+  }, [refetchSubscription]);
+
+  useEffect(() => {
+    const newEmail = storedUserEmail || session.user.email;
+
+    if (newEmail !== email) {
+      setEmail(newEmail);
+      console.log("refetching subscription because of new email", newEmail);
+      subQuery.refetch();
+    }
+  }, [storedUserEmail, session]);
 
   return (
     <Box {...props}>
@@ -211,7 +211,7 @@ export const OrgPopover = ({
             </Select>
 
             {showOrgs === "showOrgsAdded" &&
-              (hasOrgs ? (
+              (hasItems(myOrgs) ? (
                 <VStack
                   aria-hidden
                   alignItems="flex-start"
@@ -230,7 +230,7 @@ export const OrgPopover = ({
               ))}
 
             {showOrgs === "showOrgsFollowed" &&
-              (hasFollowedOrgs ? (
+              (hasItems(followedOrgs) ? (
                 <VStack
                   alignItems="flex-start"
                   overflowX="auto"
@@ -248,7 +248,7 @@ export const OrgPopover = ({
               ))}
 
             {showOrgs === "showOrgsSubscribed" &&
-              (hasSubscribedOrgs ? (
+              (hasItems(subscribedOrgs) ? (
                 <VStack
                   alignItems="flex-start"
                   overflowX="auto"

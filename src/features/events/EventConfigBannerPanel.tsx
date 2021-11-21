@@ -85,13 +85,13 @@ export const EventConfigBannerPanel = ({
   const setEditorRef = useRef<AvatarEditor | null>(null);
   //#endregion
 
-  const onSubmit = async (form: any) => {
+  const onSubmit = async (form: { url?: string; height: number }) => {
     console.log("submitted", form);
 
     try {
       let payload = {};
 
-      if (uploadType === "url") {
+      if (uploadType === "url" && form.url) {
         const { height, width } = await getMeta(form.url);
         payload = {
           eventBanner: {
@@ -102,14 +102,17 @@ export const EventConfigBannerPanel = ({
           }
         };
       } else {
+        if (!upImg) throw new Error("Vous devez choisir une bannière");
+
         payload = {
           eventBanner: {
             base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL(),
             height: form.height, // todo actual height
-            headerHeight: form.height,
-            mode: form.mode
+            headerHeight: form.height
           }
         };
+
+        setUpImg(undefined);
       }
 
       await editEvent({
@@ -118,7 +121,8 @@ export const EventConfigBannerPanel = ({
       });
       toast({
         title: "La bannière a bien été modifiée !",
-        status: "success"
+        status: "success",
+        isClosable: true
       });
       eventQuery.refetch();
       setIsVisible({ ...isVisible, banner: !isVisible.banner, logo: false });
@@ -162,33 +166,37 @@ export const EventConfigBannerPanel = ({
       {isVisible.banner && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Box p={5}>
-            <DeleteButton
-              header={
-                <>
-                  Êtes vous sûr de vouloir supprimer la bannière de{" "}
-                  {event.eventName} ?
-                </>
-              }
-              mb={3}
-              onClick={async () => {
-                try {
-                  await editEvent({
-                    payload: ["eventBanner"],
-                    eventUrl: event.eventUrl
-                  });
-                  eventQuery.refetch();
-                  toast({
-                    title: "La bannière a bien été supprimée !",
-                    status: "success"
-                  });
-                } catch (error) {
-                  toast({
-                    title: "La bannière n'a pas pu être supprimée",
-                    status: "error"
-                  });
+            {event.eventBanner && (
+              <DeleteButton
+                header={
+                  <>
+                    Êtes vous sûr de vouloir supprimer la bannière de{" "}
+                    {event.eventName} ?
+                  </>
                 }
-              }}
-            />
+                mb={3}
+                onClick={async () => {
+                  try {
+                    await editEvent({
+                      payload: ["eventBanner"],
+                      eventUrl: event.eventUrl
+                    });
+                    eventQuery.refetch();
+                    toast({
+                      title: "La bannière a bien été supprimée !",
+                      status: "success",
+                      isClosable: true
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "La bannière n'a pas pu être supprimée",
+                      status: "error",
+                      isClosable: true
+                    });
+                  }
+                }}
+              />
+            )}
 
             <form
               method="post"
@@ -289,7 +297,7 @@ export const EventConfigBannerPanel = ({
               )}
 
               <Box mb={3}>
-                {uploadType === "url" ? (
+                {(getValues("url") || event.eventBanner?.url) && (
                   <AvatarEditor
                     ref={setEditorRef}
                     border={0}
@@ -301,20 +309,19 @@ export const EventConfigBannerPanel = ({
                     width={1154}
                     position={{ x: 0, y: 0 }}
                   />
-                ) : (
-                  upImg &&
-                  upImg.base64 && (
-                    <AvatarEditor
-                      ref={setEditorRef}
-                      border={0}
-                      color={[255, 255, 255, 0.6]} // RGBA
-                      height={parseInt(formHeight)}
-                      image={upImg.base64}
-                      rotate={0}
-                      scale={1}
-                      width={1154}
-                    />
-                  )
+                )}
+
+                {upImg && upImg.base64 && (
+                  <AvatarEditor
+                    ref={setEditorRef}
+                    border={0}
+                    color={[255, 255, 255, 0.6]} // RGBA
+                    height={parseInt(formHeight)}
+                    image={upImg.base64}
+                    rotate={0}
+                    scale={1}
+                    width={1154}
+                  />
                 )}
               </Box>
 

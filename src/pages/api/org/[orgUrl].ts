@@ -11,7 +11,7 @@ import {
   databaseErrorCodes,
   duplicateError
 } from "utils/errors";
-import { equals, log, normalize } from "utils/string";
+import { equals, logJson, normalize } from "utils/string";
 import { getSubscriberSubscription } from "models/Subscription";
 
 const transport = nodemailer.createTransport(
@@ -91,17 +91,17 @@ handler.get<
       if (populate.includes("orgSubscriptions"))
         org = org.populate({
           path: "orgSubscriptions",
-          select: isCreator ? undefined : "-email",
+          select: isCreator
+            ? "_id email phone events orgs topics"
+            : "_id events orgs topics",
           populate: {
             path: "user",
-            select
+            select: isCreator ? "_id userName email" : "_id userName"
           }
         });
     }
 
-    org = await org
-      .populate("createdBy", select + " -userImage")
-      .execPopulate();
+    org = await org.populate("createdBy", "_id userName").execPopulate();
 
     if (!populate || !populate.includes("orgLogo")) {
       org.orgLogo = undefined;
@@ -270,7 +270,7 @@ handler.put<
       }
     }
 
-    log(`PUT /org/${orgUrl}:`, update || body);
+    logJson(`PUT /org/${orgUrl}:`, update || body);
 
     const { n, nModified } = await models.Org.updateOne(
       { orgUrl },

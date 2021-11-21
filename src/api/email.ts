@@ -8,7 +8,7 @@ import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import api from "utils/api";
-import { equals, log } from "utils/string";
+import { equals, logJson } from "utils/string";
 import { Document } from "mongoose";
 
 export const backgroundColor = "#f9f9f9";
@@ -369,7 +369,7 @@ export const sendTopicNotifications = async ({
   const emailList: string[] = [];
 
   if (!event && !org) {
-    log(`sendTopicNotifications: neither org or event`);
+    logJson(`sendTopicNotifications: neither org or event`);
     return [];
   }
 
@@ -539,7 +539,7 @@ export const sendToAdmin = async ({
   transport
 }: {
   event?: IEvent;
-  project?: IProject;
+  project?: Partial<IProject>;
   transport: any;
 }) => {
   if (!event && !project) return;

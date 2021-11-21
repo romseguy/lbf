@@ -31,7 +31,6 @@ import { Session } from "next-auth";
 
 let cachedRefetchEvents = false;
 let cachedRefetchSubscription = false;
-let cachedEmail: string | undefined;
 
 export const EventPopover = ({
   boxSize,
@@ -41,24 +40,22 @@ export const EventPopover = ({
   session: Session;
 }) => {
   const router = useRouter();
-  const userEmail = useSelector(selectUserEmail) || session.user.email;
+  const storedUserEmail = useSelector(selectUserEmail);
+  const [email, setEmail] = useState(storedUserEmail || session.user.email);
 
   //#region my events
   const { attendedEvents } = useGetEventsQuery(void 0, {
     selectFromResult: ({ data: events }) => ({
       attendedEvents: events?.filter(({ eventNotified }) =>
         eventNotified?.find(
-          ({ email, status }) =>
-            email === userEmail && status === StatusTypes.OK
+          ({ email, status }) => email === email && status === StatusTypes.OK
         )
       )
     })
   });
-  //#endregion
 
-  //#region my events
   const myEventsQuery = useGetEventsQuery(
-    { userId: session.user.userId },
+    { createdBy: session.user.userId },
     {
       selectFromResult: (query) => ({
         ...query,
@@ -74,38 +71,14 @@ export const EventPopover = ({
       })
     }
   );
-  const refetchEvents = useSelector(selectEventsRefetch);
-  useEffect(() => {
-    if (refetchEvents !== cachedRefetchEvents) {
-      cachedRefetchEvents = refetchEvents;
-      console.log("refetching events");
-      myEventsQuery.refetch();
-    }
-  }, [refetchEvents]);
   //#endregion
 
   //#region sub
   const subQuery = useGetSubscriptionQuery({
-    email: userEmail,
+    email: email,
     populate: "events"
   });
-  const refetchSubscription = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    if (refetchSubscription !== cachedRefetchSubscription) {
-      cachedRefetchSubscription = refetchSubscription;
-      console.log("refetching subscription");
-      subQuery.refetch();
-    }
-  }, [refetchSubscription]);
-  useEffect(() => {
-    if (userEmail !== cachedEmail) {
-      cachedEmail = userEmail;
-      console.log("refetching subscription with new email", userEmail);
-      subQuery.refetch();
-    }
-  }, [userEmail]);
   const followedEvents = subQuery.data?.events || [];
-  const hasFollowedEvents = hasItems(followedEvents);
   //#endregion
 
   //#region local state
@@ -119,6 +92,34 @@ export const EventPopover = ({
   }>({ isOpen: false, event: undefined });
   const iconHoverColor = useColorModeValue("white", "lightgreen");
   //#endregion
+
+  const refetchEvents = useSelector(selectEventsRefetch);
+  useEffect(() => {
+    if (refetchEvents !== cachedRefetchEvents) {
+      cachedRefetchEvents = refetchEvents;
+      console.log("refetching events");
+      myEventsQuery.refetch();
+    }
+  }, [refetchEvents]);
+
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      cachedRefetchSubscription = refetchSubscription;
+      console.log("refetching subscription");
+      subQuery.refetch();
+    }
+  }, [refetchSubscription]);
+
+  useEffect(() => {
+    const newEmail = storedUserEmail || session.user.email;
+
+    if (newEmail !== email) {
+      setEmail(newEmail);
+      console.log("refetching subscription because of new email", newEmail);
+      subQuery.refetch();
+    }
+  }, [storedUserEmail, session]);
 
   return (
     <Box {...props}>
@@ -202,7 +203,7 @@ export const EventPopover = ({
               ))}
 
             {showEvents === "showEventsFollowed" &&
-              (hasFollowedEvents ? (
+              (hasItems(followedEvents) ? (
                 <VStack
                   alignItems="flex-start"
                   overflow="auto"

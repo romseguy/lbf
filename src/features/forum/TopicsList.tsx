@@ -238,6 +238,8 @@ export const TopicsList = ({
               org={org}
               orgQuery={query}
               mutation={mutation}
+              isCreator={props.isCreator}
+              isSubscribed={props.isSubscribed}
               selectedCategories={selectedCategories}
               setSelectedCategories={setSelectedCategories}
               mb={3}
@@ -355,7 +357,7 @@ export const TopicsList = ({
                 ? topic.createdBy._id
                 : topic.createdBy;
             const isTopicCreator =
-              session?.user.isAdmin || topicCreatedBy === session?.user.userId;
+              props.isCreator || topicCreatedBy === session?.user.userId;
 
             let isSubbedToTopic = false;
 

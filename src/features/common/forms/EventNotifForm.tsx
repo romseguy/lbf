@@ -1,3 +1,4 @@
+import { EmailIcon, HamburgerIcon } from "@chakra-ui/icons";
 import {
   Box,
   Tr,
@@ -20,7 +21,6 @@ import {
   AlertIcon,
   Heading
 } from "@chakra-ui/react";
-import { EmailIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { ErrorMessage } from "@hookform/error-message";
 import { Session } from "next-auth";
 import React, { Fragment, useState } from "react";
@@ -28,13 +28,13 @@ import { useForm } from "react-hook-form";
 import { EmailControl, EntityButton, ErrorMessageText } from "features/common";
 import { usePostEventNotifMutation } from "features/events/eventsApi";
 import { IEvent } from "models/Event";
+import { getSubscriptions, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
-import { getSubscriptions, orgTypeFull } from "models/Org";
 import { handleError } from "utils/form";
 import { equalsValue } from "utils/string";
 
-export const EventSendForm = ({
+export const EventNotifForm = ({
   event,
   eventQuery,
   session,

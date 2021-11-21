@@ -1,6 +1,4 @@
-import { DeleteIcon, EmailIcon } from "@chakra-ui/icons";
 import {
-  Box,
   FormControl,
   FormLabel,
   Input,
@@ -12,8 +10,6 @@ import {
   Select,
   Tag,
   Tooltip,
-  IconButton,
-  InputRightAddon,
   useColorMode
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
@@ -26,13 +22,12 @@ import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
 import {
   AddressControl,
   EmailControl,
+  PhoneControl,
+  UrlControl,
   Button,
   ErrorMessageText,
-  RTEditor,
-  Link
+  RTEditor
 } from "features/common";
-import { PhoneControl } from "features/common/forms/PhoneControl";
-import { UrlControl } from "features/common/forms/UrlControl";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import {
   useAddOrgMutation,
@@ -50,6 +45,7 @@ import {
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
+import { hasItems } from "utils/array";
 
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -108,7 +104,7 @@ export const OrgForm = withGoogleApi({
       mode: "onChange"
     });
 
-    //if (props.setOrgType) props.setOrgType(getValues("orgType"));
+    if (props.setOrgType) props.setOrgType(getValues("orgType"));
 
     const defaultOrgType = props.org?.orgType || props.orgType;
     const orgType = getValues("orgType");
@@ -301,78 +297,57 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {orgType === OrgTypes.NETWORK && (
-          <>
-            {/* <FormControl
-          id="orgType"
-          isRequired
-          isInvalid={!!errors["orgNetworkType"]}
+        <FormControl
           mb={3}
+          isInvalid={!!errors["orgs"]}
+          isRequired={orgType === OrgTypes.NETWORK}
+          display={orgType !== OrgTypes.NETWORK ? "none" : undefined}
         >
-          <FormLabel>Type du réseau</FormLabel>
-          <Select
-            name="orgNetworkType"
-            ref={register({
-              required: `Veuillez sélectionner le type ${orgTypeLabel}`
-            })}
-            defaultValue={props.org?.orgType}
-            placeholder={`Type ${orgTypeLabel}`}
-            color="gray.400"
-          >
-            {Object.keys(OrgTypes).map((orgType) => {
-              return (
-                <option key={orgType} value={orgType}>
-                  {OrgTypesV[orgType]}
-                </option>
-              );
-            })}
-          </Select>
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="orgNetworkType" />
-          </FormErrorMessage>
-        </FormControl> */}
-
-            <FormControl mb={3} id="orgs" isInvalid={!!errors["orgs"]}>
-              <FormLabel>Organisations faisant partie du réseau</FormLabel>
-              <Controller
-                name="orgs"
-                as={ReactSelect}
-                control={control}
-                defaultValue={props.org?.orgs || []}
-                placeholder="Rechercher une organisation..."
-                menuPlacement="top"
-                noOptionsMessage={() => "Aucun résultat"}
-                isClearable
-                isMulti
-                isSearchable
-                closeMenuOnSelect
-                styles={{
-                  placeholder: () => {
-                    return {
-                      color: "#A0AEC0"
-                    };
-                  },
-                  control: (defaultStyles: any) => {
-                    return {
-                      ...defaultStyles,
-                      borderColor: "#e2e8f0",
-                      paddingLeft: "8px"
-                    };
+          <FormLabel>Organisations faisant partie du réseau</FormLabel>
+          <Controller
+            name="orgs"
+            as={ReactSelect}
+            control={control}
+            defaultValue={props.org?.orgs || null}
+            rules={
+              orgType === OrgTypes.NETWORK
+                ? {
+                    required:
+                      "Veuillez sélectionner une organisation au minimum"
                   }
-                }}
-                className="react-select-container"
-                classNamePrefix="react-select"
-                options={myOrgs}
-                getOptionLabel={(option: any) => `${option.orgName}`}
-                getOptionValue={(option: any) => option._id}
-                onChange={(option: any) => option._id}
-              />
-              <FormErrorMessage>
-                <ErrorMessage errors={errors} name="orgs" />
-              </FormErrorMessage>
-            </FormControl>
-          </>
-        )}
+                : undefined
+            }
+            closeMenuOnSelect
+            isClearable
+            isMulti
+            isSearchable
+            menuPlacement="top"
+            noOptionsMessage={() => "Aucun résultat"}
+            options={myOrgs}
+            getOptionLabel={(option: any) => option.orgName}
+            getOptionValue={(option: any) => option._id}
+            placeholder={
+              hasItems(myOrgs)
+                ? "Rechercher une organisation..."
+                : "Vous n'avez créé aucune organisations"
+            }
+            styles={{
+              control: (defaultStyles: any) => {
+                return {
+                  ...defaultStyles,
+                  borderColor: "#e2e8f0",
+                  paddingLeft: "8px"
+                };
+              }
+            }}
+            className="react-select-container"
+            classNamePrefix="react-select"
+            onChange={(newValue: any /*, actionMeta*/) => newValue._id}
+          />
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="orgs" />
+          </FormErrorMessage>
+        </FormControl>
 
         <FormControl
           id="orgDescription"

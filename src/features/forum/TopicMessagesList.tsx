@@ -198,10 +198,6 @@ export const TopicMessagesList = ({
                           !query.isLoading &&
                           !query.isFetching
                         }
-                        bg="transparent"
-                        height="auto"
-                        minWidth={0}
-                        _hover={{ color: "red" }}
                         placement="bottom"
                         header={
                           <>Êtes vous sûr de vouloir supprimer ce message ?</>

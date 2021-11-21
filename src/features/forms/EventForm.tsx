@@ -1089,19 +1089,21 @@ export const EventForm = withGoogleApi({
             as={ReactSelect}
             control={control}
             defaultValue={defaultEventOrgs}
-            placeholder="Rechercher une organisation..."
-            menuPlacement="top"
-            noOptionsMessage={() => "Aucun résultat"}
+            closeMenuOnSelect
             isClearable
             isMulti
             isSearchable
-            closeMenuOnSelect
+            menuPlacement="top"
+            noOptionsMessage={() => "Aucun résultat"}
+            options={myOrgs}
+            getOptionLabel={(option: any) => option.orgName}
+            getOptionValue={(option: any) => option._id}
+            placeholder={
+              hasItems(myOrgs)
+                ? "Rechercher une organisation..."
+                : "Vous n'avez créé aucune organisations"
+            }
             styles={{
-              placeholder: () => {
-                return {
-                  color: "#A0AEC0"
-                };
-              },
               control: (defaultStyles: any) => {
                 return {
                   ...defaultStyles,
@@ -1112,10 +1114,7 @@ export const EventForm = withGoogleApi({
             }}
             className="react-select-container"
             classNamePrefix="react-select"
-            options={myOrgs}
-            getOptionLabel={(option: any) => `${option.orgName}`}
-            getOptionValue={(option: any) => option._id}
-            onChange={(option: any) => option._id}
+            onChange={(newValue: any /*, actionMeta*/) => newValue._id}
           />
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="eventOrgs" />

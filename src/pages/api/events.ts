@@ -26,42 +26,43 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.get<NextApiRequest & { query: { userId?: string } }, NextApiResponse>(
-  async function getEvents(req, res) {
-    const {
-      query: { userId }
-    } = req;
-    let events;
-    let selector = {};
+handler.get<
+  NextApiRequest & { query: { createdBy?: string } },
+  NextApiResponse
+>(async function getEvents(req, res) {
+  const {
+    query: { createdBy }
+  } = req;
+  let events;
+  let selector = {};
 
-    if (userId) selector = { createdBy: userId };
+  if (createdBy) selector = { createdBy };
 
-    try {
-      events = await models.Event.find(selector, "-eventBanner -eventLogo")
-        .sort({
-          eventMinDate: "ascending"
-        })
-        .populate("eventOrgs", "-orgBanner -orgLogo")
-        .populate("createdBy", "userName");
+  try {
+    events = await models.Event.find(selector, "-eventBanner -eventLogo")
+      .sort({
+        eventMinDate: "ascending"
+      })
+      .populate("eventOrgs", "-orgBanner -orgLogo")
+      .populate("createdBy", "userName");
 
-      for (const event of events) {
-        if (event.forwardedFrom?.eventId) {
-          const e = await models.Event.findOne({
-            _id: event.forwardedFrom?.eventId
-          });
-          if (e) {
-            event.eventName = e.eventName;
-            event.eventUrl = e.eventUrl;
-          }
+    for (const event of events) {
+      if (event.forwardedFrom?.eventId) {
+        const e = await models.Event.findOne({
+          _id: event.forwardedFrom?.eventId
+        });
+        if (e) {
+          event.eventName = e.eventName;
+          event.eventUrl = e.eventUrl;
         }
       }
-
-      res.status(200).json(events);
-    } catch (error) {
-      res.status(500).json(createServerError(error));
     }
+
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json(createServerError(error));
   }
-);
+});
 
 handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
   req,

@@ -124,6 +124,8 @@ export const OrgConfigLogoPanel = ({
             width: upImg?.width
           }
         };
+
+        setUpImg(undefined);
       }
 
       await editOrg({
@@ -197,12 +199,14 @@ export const OrgConfigLogoPanel = ({
                     orgQuery.refetch();
                     toast({
                       title: "Le logo a bien été supprimé !",
-                      status: "success"
+                      status: "success",
+                      isClosable: true
                     });
                   } catch (error) {
                     toast({
                       title: "Le logo n'a pas pu être supprimé",
-                      status: "error"
+                      status: "error",
+                      isClosable: true
                     });
                   }
                 }}

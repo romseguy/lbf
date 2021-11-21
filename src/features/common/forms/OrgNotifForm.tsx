@@ -28,9 +28,9 @@ import { orgTypeFull, getSubscriptions, IOrg } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
-import { EmailControl, EntityButton, Button, ErrorMessageText } from "..";
 import { isTopic } from "utils/models";
 import { equalsValue } from "utils/string";
+import { EmailControl, EntityButton, Button, ErrorMessageText } from "..";
 
 export const OrgNotifForm = ({
   entity,
@@ -51,6 +51,13 @@ export const OrgNotifForm = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
+  //#region local state
+  const isT = isTopic(entity);
+  const [isLoading, setIsLoading] = useState(false);
+  const [type, setType] = useState<"multi" | "single">();
+  //#endregion
+
+  //#region form state
   const {
     control,
     register,
@@ -67,9 +74,7 @@ export const OrgNotifForm = ({
   });
   const email = watch("email");
   const orgListsNames = watch("orgListsNames");
-  const [isLoading, setIsLoading] = useState(false);
-  const [type, setType] = useState<"multi" | "single" | undefined>();
-  const isT = isTopic(entity);
+  //#endregion
 
   return (
     <Box

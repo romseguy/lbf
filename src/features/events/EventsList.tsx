@@ -528,6 +528,14 @@ export const EventsList = ({
         />
 
         <EventsListCategories
+          events={
+            showPreviousEvents
+              ? previousEvents
+              : showNextEvents
+              ? nextEvents
+              : currentEvents
+          }
+          org={org}
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
           session={session}

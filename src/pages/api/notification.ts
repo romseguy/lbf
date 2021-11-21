@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { createServerError } from "utils/errors";
-import { log } from "utils/string";
+import { logJson } from "utils/string";
 import webPush from "web-push";
 
 webPush.setVapidDetails(
@@ -18,7 +18,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         subscription,
         JSON.stringify(notification)
       );
-      log(`POST /notification: response`, response);
+      logJson(`POST /notification: response`, response);
 
       return res
         .writeHead(response.statusCode, response.headers)
@@ -27,7 +27,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       if ("statusCode" in err)
         return res.writeHead(err.statusCode, err.headers).end(err.body);
 
-      res.statusCode = 500;
+      if (err.code === "ENOTFOUND") res.statusCode = 404;
+      else res.statusCode = 500;
+
       return res.end(typeof err.body === "string" ? err.body : "");
     }
   }

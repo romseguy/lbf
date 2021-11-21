@@ -1,16 +1,17 @@
 import {
-  useDisclosure,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalCloseButton,
-  ModalBody
+  ModalBody,
+  Icon
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React, { useState } from "react";
 import { OrgForm } from "features/forms/OrgForm";
 import { orgTypeFull3 } from "models/Org";
+import { IoIosPeople } from "react-icons/io";
 
 export const OrgModal = ({
   session,
@@ -30,7 +31,10 @@ export const OrgModal = ({
     <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
       <ModalOverlay />
       <ModalContent maxWidth="xl">
-        <ModalHeader>Ajouter {orgTypeFull3(orgType)}</ModalHeader>
+        <ModalHeader display="flex" alignItems="center">
+          <Icon as={IoIosPeople} color="green" mr={3} />
+          Ajouter {orgTypeFull3(orgType)}
+        </ModalHeader>
         <ModalCloseButton data-cy="orgPopoverCloseButton" />
         <ModalBody>
           <OrgForm

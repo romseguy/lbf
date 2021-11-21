@@ -15,7 +15,7 @@ import {
 import { hasItems } from "utils/array";
 import { createEventEmailNotif, sendEventNotifications } from "api/email";
 import { createServerError } from "utils/errors";
-import { equals, log, normalize } from "utils/string";
+import { equals, logJson, normalize } from "utils/string";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -36,8 +36,6 @@ handler.get<
     const {
       query: { eventUrl }
     } = req;
-    let populate: any = req.query.populate;
-
     let event = await models.Event.findOne({
       eventUrl
     });
@@ -58,14 +56,8 @@ handler.get<
           );
     }
 
-    event = event.populate("eventOrgs");
-
     const isCreator =
       session?.user.isAdmin || equals(event.createdBy, session?.user.userId);
-    const select =
-      session && isCreator
-        ? "-password -securityCode"
-        : "-email -password -securityCode";
 
     if (isCreator) {
       event = event.populate({
@@ -75,23 +67,27 @@ handler.get<
             path: "orgLists",
             populate: {
               path: "subscriptions",
-              populate: { path: "user", select }
+              populate: {
+                path: "user",
+                select: isCreator ? "_id email userName" : "_id userName"
+              }
             }
           },
           {
             path: "orgSubscriptions",
             populate: {
               path: "user",
-              select
+              select: isCreator ? "_id email userName" : "_id userName"
             }
           }
         ]
       });
+    } else {
+      event = event.populate("eventOrgs");
     }
 
     event = await event
-      .populate("createdBy", select + " -userImage")
-      .populate("eventTopics")
+      .populate("createdBy", isCreator ? "_id email userName" : "_id userName")
       .populate({
         path: "eventTopics",
         populate: [
@@ -99,10 +95,10 @@ handler.get<
             path: "topicMessages",
             populate: {
               path: "createdBy",
-              select
+              select: "_id userName"
             }
           },
-          { path: "createdBy", select: select + " -userImage" }
+          { path: "createdBy", select: "_id userName" }
         ]
       })
       .execPopulate();

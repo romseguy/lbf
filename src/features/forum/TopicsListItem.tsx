@@ -260,10 +260,6 @@ export const TopicsListItem = ({
                       <DeleteButton
                         isIconOnly
                         placement="bottom"
-                        bg="transparent"
-                        height="auto"
-                        minWidth={0}
-                        _hover={{ color: "red" }}
                         // isDisabled={isDeleteButtonDisabled}
                         header={
                           <>

@@ -82,13 +82,13 @@ export const OrgConfigBannerPanel = ({
   const [upImg, setUpImg] = useState<Base64Image>();
   const setEditorRef = useRef<AvatarEditor | null>(null);
 
-  const onSubmit = async (form: any) => {
+  const onSubmit = async (form: { url?: string; height: number }) => {
     console.log("submitted", form);
 
     try {
       let payload = {};
 
-      if (uploadType === "url") {
+      if (uploadType === "url" && form.url) {
         const { height } = await getMeta(form.url);
         payload = {
           orgBanner: {
@@ -98,14 +98,17 @@ export const OrgConfigBannerPanel = ({
           }
         };
       } else {
+        if (!upImg) throw new Error("Vous devez choisir une bannière");
+
         payload = {
           orgBanner: {
             base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL(),
             height: form.height, // todo actual height
-            headerHeight: form.height,
-            mode: form.mode
+            headerHeight: form.height
           }
         };
+
+        setUpImg(undefined);
       }
 
       await editOrg({
@@ -114,7 +117,8 @@ export const OrgConfigBannerPanel = ({
       });
       toast({
         title: "La bannière a bien été modifiée !",
-        status: "success"
+        status: "success",
+        isClosable: true
       });
       orgQuery.refetch();
       setIsVisible({ ...isVisible, banner: false });
@@ -178,12 +182,14 @@ export const OrgConfigBannerPanel = ({
                     orgQuery.refetch();
                     toast({
                       title: "La bannière a bien été supprimée !",
-                      status: "success"
+                      status: "success",
+                      isClosable: true
                     });
                   } catch (error) {
                     toast({
                       title: "La bannière n'a pas pu être supprimée",
-                      status: "error"
+                      status: "error",
+                      isClosable: true
                     });
                   }
                 }}
@@ -289,37 +295,34 @@ export const OrgConfigBannerPanel = ({
                 </FormControl>
               )}
 
-              {(getValues("url") || org.orgBanner?.url) && (
-                <Box mb={3}>
-                  {uploadType === "url" ? (
-                    <AvatarEditor
-                      ref={setEditorRef}
-                      border={0}
-                      color={[255, 255, 255, 0.6]} // RGBA
-                      height={parseInt(formHeight)}
-                      image={getValues("url") || org.orgBanner?.url}
-                      rotate={0}
-                      scale={1}
-                      width={1154}
-                      position={{ x: 0, y: 0 }}
-                    />
-                  ) : (
-                    upImg &&
-                    upImg.base64 && (
-                      <AvatarEditor
-                        ref={setEditorRef}
-                        border={0}
-                        color={[255, 255, 255, 0.6]} // RGBA
-                        height={parseInt(formHeight)}
-                        image={upImg.base64}
-                        rotate={0}
-                        scale={1}
-                        width={1154}
-                      />
-                    )
-                  )}
-                </Box>
-              )}
+              <Box mb={3}>
+                {(getValues("url") || org.orgBanner?.url) && (
+                  <AvatarEditor
+                    ref={setEditorRef}
+                    border={0}
+                    color={[255, 255, 255, 0.6]} // RGBA
+                    height={parseInt(formHeight)}
+                    image={getValues("url") || org.orgBanner?.url}
+                    rotate={0}
+                    scale={1}
+                    width={1154}
+                    position={{ x: 0, y: 0 }}
+                  />
+                )}
+
+                {upImg && upImg.base64 && (
+                  <AvatarEditor
+                    ref={setEditorRef}
+                    border={0}
+                    color={[255, 255, 255, 0.6]} // RGBA
+                    height={parseInt(formHeight)}
+                    image={upImg.base64}
+                    rotate={0}
+                    scale={1}
+                    width={1154}
+                  />
+                )}
+              </Box>
 
               <Button
                 colorScheme="green"

@@ -3,20 +3,14 @@ import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "database";
-import {
-  createServerError,
-  databaseErrorCodes,
-  duplicateError
-} from "utils/errors";
-import { getSession } from "hooks/useAuth";
 import { sendToAdmin } from "api/email";
-import { IProject, Visibility } from "models/Project";
-import { IOrg } from "models/Org";
+import database, { models } from "database";
+import { getSession } from "hooks/useAuth";
+import { IProject } from "models/Project";
 import api from "utils/api";
-import { log } from "utils/string";
-import axios from "axios";
 import { hasItems } from "utils/array";
+import { createServerError } from "utils/errors";
+import { logJson } from "utils/string";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -64,31 +58,32 @@ handler.get<
   }
 });
 
-handler.post<NextApiRequest, NextApiResponse>(async function postProject(
-  req,
-  res
-) {
-  const session = await getSession({ req });
+handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
+  async function postProject(req, res) {
+    const session = await getSession({ req });
 
-  if (!session) {
-    res
-      .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu")
-        )
-      );
-  } else {
+    if (!session) {
+      return res
+        .status(403)
+        .json(
+          createServerError(
+            new Error("Vous devez être identifié pour accéder à ce contenu")
+          )
+        );
+    }
+
     try {
-      const { body }: { body: IProject } = req;
-      let project: (IProject & Document<any, any, any>) | null;
-      const projectOrgs = body.projectOrgs;
+      const { body }: { body: Partial<IProject> } = req;
+      let project: (IProject & Document<any, any, IProject>) | null;
 
       project = await models.Project.create({
-        ...body
+        ...body,
+        createdBy: session.user.userId
       });
 
-      if (projectOrgs) {
+      if (body.projectOrgs) {
+        const projectOrgs = body.projectOrgs;
+
         await models.Org.updateMany(
           {
             _id: {
@@ -112,24 +107,19 @@ handler.post<NextApiRequest, NextApiResponse>(async function postProject(
         ) {
           sendToAdmin({ project: body, transport });
 
-          if (admin.userSubscription)
-            await axios.post(
-              process.env.NEXT_PUBLIC_API + "/notification",
-              {
+          if (admin.userSubscription) {
+            try {
+              const data = await api.sendPushNotification({
+                message: "Appuyez pour ouvrir la page de l'organisation",
                 subscription: admin.userSubscription,
-                notification: {
-                  title: "Un projet attend votre approbation",
-                  message: "Appuyez pour ouvrir la page de l'organisation",
-                  url: `${process.env.NEXT_PUBLIC_URL}/${projectOrgs[0].orgUrl}`
-                }
-              },
-              {
-                headers: {
-                  Accept: "application/json, text/plain, */*",
-                  "User-Agent": "*"
-                }
-              }
-            );
+                title: "Un projet attend votre approbation",
+                url: `${process.env.NEXT_PUBLIC_URL}/${projectOrgs[0].orgUrl}`
+              });
+              console.log("sent push notif", data);
+            } catch (error: any) {
+              console.log("could not send push notif", error.message);
+            }
+          }
         }
       } else {
         await models.User.updateOne(
@@ -145,13 +135,11 @@ handler.post<NextApiRequest, NextApiResponse>(async function postProject(
 
       res.status(200).json(project);
     } catch (error: any) {
-      if (error.errors) {
-        res.status(400).json(error.errors);
-      } else {
-        res.status(500).json(createServerError(error));
-      }
+      if (error.errors) return res.status(400).json(error.errors);
+
+      res.status(500).json(createServerError(error));
     }
   }
-});
+);
 
 export default handler;

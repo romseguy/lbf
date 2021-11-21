@@ -265,7 +265,7 @@ export const TopicForm = ({
                     label: props.topic.topicCategory,
                     value: props.topic.topicCategory
                   }
-                : {}
+                : null
             }
             render={(renderProps) => {
               return (
@@ -307,6 +307,10 @@ export const TopicForm = ({
                         });
 
                       query.refetch();
+                      setValue("topicCategory", {
+                        label: inputValue,
+                        value: inputValue
+                      });
                       toast({
                         status: "success",
                         title: "La catégorie a bien été ajoutée !",

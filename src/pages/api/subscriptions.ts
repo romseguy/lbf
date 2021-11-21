@@ -7,7 +7,7 @@ import database, { models } from "database";
 import { createServerError, databaseErrorCodes } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import { ITopic } from "models/Topic";
-import { equals, log } from "utils/string";
+import { equals, logJson } from "utils/string";
 import { getSubscriptions } from "models/Org";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -95,7 +95,7 @@ handler.post<
         );
     }
 
-    log(`POST /subscriptions: selector`, selector);
+    logJson(`POST /subscriptions: selector`, selector);
     let subscription = await models.Subscription.findOne(selector);
 
     if (!subscription)
@@ -103,7 +103,7 @@ handler.post<
 
     if (!subscription) throw new Error("Impossible de créer un abonnement");
 
-    log(`POST /subscriptions: subscription`, subscription);
+    logJson(`POST /subscriptions: subscription`, subscription);
 
     if (body.orgs) {
       let firstOrgSubscriptions = false;
@@ -169,7 +169,7 @@ handler.post<
           await org.save();
         }
 
-        log(
+        logJson(
           `POST /subscriptions: org.orgSubscriptions`,
           org.orgSubscriptions.map((subscription) => subscription._id)
         );
@@ -327,7 +327,7 @@ handler.post<
       }
     }
 
-    log(`POST /subscriptions: saving subscription`, subscription);
+    logJson(`POST /subscriptions: saving subscription`, subscription);
     await subscription.save();
 
     res.status(200).json(subscription);

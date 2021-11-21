@@ -9,7 +9,7 @@ import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { equals, log } from "utils/string";
+import { equals, logJson } from "utils/string";
 import { emailR } from "utils/email";
 import { IUser } from "models/User";
 import { hasItems } from "utils/array";
@@ -178,7 +178,7 @@ handler.delete<
 
     if (body.orgs) {
       const { orgId, type } = body.orgs[0];
-      log(`DELETE /subscription/${subscriptionId}: orgId`, orgId);
+      logJson(`DELETE /subscription/${subscriptionId}: orgId`, orgId);
 
       const org = await models.Org.findOne({ _id: orgId }).populate(
         "orgSubscriptions"
@@ -197,7 +197,10 @@ handler.delete<
         .populate("user", "-securityCode -password")
         .execPopulate();
 
-      log(`DELETE /subscription/${subscriptionId}: subscription`, subscription);
+      logJson(
+        `DELETE /subscription/${subscriptionId}: subscription`,
+        subscription
+      );
       subscription.orgs = subscription.orgs?.filter(
         (orgSubscription: IOrgSubscription) => {
           let keep = true;
@@ -211,7 +214,7 @@ handler.delete<
         }
       );
       await subscription.save();
-      log(
+      logJson(
         `DELETE /subscription/${subscriptionId}: subscription saved`,
         subscription
       );
@@ -276,7 +279,7 @@ handler.delete<
 
     if (body.events) {
       const { eventId } = body.events[0];
-      log(`DELETE /subscription/${subscriptionId}: eventId`, eventId);
+      logJson(`DELETE /subscription/${subscriptionId}: eventId`, eventId);
 
       const event = await models.Event.findOne({ _id: eventId }).populate(
         "eventSubscriptions"
@@ -295,7 +298,10 @@ handler.delete<
         .populate("user", "-securityCode -password")
         .execPopulate();
 
-      log(`DELETE /subscription/${subscriptionId}: subscription`, subscription);
+      logJson(
+        `DELETE /subscription/${subscriptionId}: subscription`,
+        subscription
+      );
       subscription.events = subscription.events?.filter(
         (eventSubscription: IEventSubscription) => {
           let keep = true;
@@ -306,12 +312,12 @@ handler.delete<
         }
       );
       await subscription.save();
-      log(
+      logJson(
         `DELETE /subscription/${subscriptionId}: subscription saved`,
         subscription
       );
 
-      log(
+      logJson(
         `DELETE /subscription/${subscriptionId}: event.eventSubscriptions`,
         event.eventSubscriptions
       );
@@ -319,7 +325,7 @@ handler.delete<
         (s) => !equals(s._id, subscription!._id)
       );
       await event.save();
-      log(
+      logJson(
         `DELETE /subscription/${subscriptionId}: event.eventSubscriptions`,
         event.eventSubscriptions
       );
@@ -332,8 +338,14 @@ handler.delete<
         .populate({ path: "topics", populate: { path: "topic" } })
         .execPopulate();
 
-      log(`DELETE /subscription/${subscriptionId}: body.topicId`, body.topicId);
-      log(`DELETE /subscription/${subscriptionId}: subscription`, subscription);
+      logJson(
+        `DELETE /subscription/${subscriptionId}: body.topicId`,
+        body.topicId
+      );
+      logJson(
+        `DELETE /subscription/${subscriptionId}: subscription`,
+        subscription
+      );
 
       subscription.topics = subscription.topics.filter((topicSubscription) => {
         if (!topicSubscription.topic) return false;
@@ -341,7 +353,7 @@ handler.delete<
       });
 
       await subscription.save();
-      log(
+      logJson(
         `DELETE /subscription/${subscriptionId}: subscription saved`,
         subscription
       );
@@ -349,7 +361,10 @@ handler.delete<
       return res.status(200).json(subscription);
     }
 
-    log(`DELETE /subscription/${subscription._id}: subscription`, subscription);
+    logJson(
+      `DELETE /subscription/${subscription._id}: subscription`,
+      subscription
+    );
 
     if (subscription.events)
       for (const eventSubscription of subscription.events) {
@@ -369,7 +384,7 @@ handler.delete<
             return keep;
           }
         );
-        log(
+        logJson(
           `DELETE /subscription/${subscription._id}: event.eventSubscriptions`,
           event.eventSubscriptions
         );
@@ -390,7 +405,7 @@ handler.delete<
             keep = false;
           return keep;
         });
-        log(
+        logJson(
           `DELETE /subscription/${subscription._id}: org.orgSubscriptions`,
           org.orgSubscriptions
         );

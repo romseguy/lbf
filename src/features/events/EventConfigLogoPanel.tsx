@@ -124,6 +124,8 @@ export const EventConfigLogoPanel = ({
             width: upImg?.width
           }
         };
+
+        setUpImg(undefined);
       }
 
       await editEvent({
@@ -177,33 +179,37 @@ export const EventConfigLogoPanel = ({
       {isVisible.logo && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Box p={5}>
-            <DeleteButton
-              header={
-                <>
-                  Êtes vous sûr de vouloir supprimer le logo de{" "}
-                  {event.eventName} ?
-                </>
-              }
-              mb={3}
-              onClick={async () => {
-                try {
-                  await editEvent({
-                    payload: ["eventLogo"],
-                    eventUrl: event.eventUrl
-                  });
-                  eventQuery.refetch();
-                  toast({
-                    title: "Le logo a bien été supprimé !",
-                    status: "success"
-                  });
-                } catch (error) {
-                  toast({
-                    title: "Le logo n'a pas pu être supprimé",
-                    status: "error"
-                  });
+            {event.eventLogo && (
+              <DeleteButton
+                header={
+                  <>
+                    Êtes vous sûr de vouloir supprimer le logo de{" "}
+                    {event.eventName} ?
+                  </>
                 }
-              }}
-            />
+                mb={3}
+                onClick={async () => {
+                  try {
+                    await editEvent({
+                      payload: ["eventLogo"],
+                      eventUrl: event.eventUrl
+                    });
+                    eventQuery.refetch();
+                    toast({
+                      title: "Le logo a bien été supprimé !",
+                      status: "success",
+                      isClosable: true
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "Le logo n'a pas pu être supprimé",
+                      status: "error",
+                      isClosable: true
+                    });
+                  }
+                }}
+              />
+            )}
 
             <form
               method="post"

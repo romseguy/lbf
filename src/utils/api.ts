@@ -1,6 +1,4 @@
-import axios from "axios";
-import { IEvent } from "models/Event";
-import { IOrg, orgTypeFull } from "models/Org";
+import axios, { AxiosResponse } from "axios";
 import { databaseErrorCodes } from "utils/errors";
 import { isServer } from "utils/isServer";
 
@@ -92,7 +90,7 @@ export async function sendPushNotification({
   title?: string;
   url?: string;
   subscription: unknown;
-}) {
+}): Promise<AxiosResponse<string>> {
   if (!subscription)
     throw new Error("api/sendPushNotification: must provide subscription");
 

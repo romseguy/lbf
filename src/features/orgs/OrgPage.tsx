@@ -290,8 +290,8 @@ export const OrgPage = ({
           <Box>
             Vous êtes adhérent {orgTypeFull(org.orgType)} {org.orgName}.
             <Text fontSize="smaller">
-              Vous avez donc accès aux événements et aux discussions réservées
-              aux adhérents.
+              Vous avez donc accès aux événements, discussions et projets
+              réservés aux adhérents.
             </Text>
           </Box>
         </Alert>
@@ -521,6 +521,7 @@ export const OrgPage = ({
               <ProjectsList
                 org={org}
                 orgQuery={orgQuery}
+                subQuery={subQuery}
                 isCreator={isCreator}
                 isFollowed={!!followerSubscription}
                 isSubscribed={!!subscriberSubscription}

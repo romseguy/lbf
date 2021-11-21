@@ -104,7 +104,12 @@ export const ProjectForm = ({
     clearErrors("formErrorMessage");
   };
 
-  const onSubmit = async (form: IProject) => {
+  const onSubmit = async (form: {
+    projectName: string;
+    projectDescription: string;
+    projectOrgs?: IOrg[];
+    projectVisibility?: { label: string; value: string }[];
+  }) => {
     console.log("submitted", form);
     setIsLoading(true);
 
@@ -114,7 +119,8 @@ export const ProjectForm = ({
         form.projectDescription === "<p><br></p>"
           ? ""
           : form.projectDescription?.replace(/\&nbsp;/g, " "),
-      projectDescriptionHtml
+      projectDescriptionHtml,
+      projectVisibility: form.projectVisibility?.map(({ value }) => value)
     };
 
     try {
@@ -130,23 +136,15 @@ export const ProjectForm = ({
           isClosable: true
         });
       } else {
-        const res: {
-          data?: IProject;
-          error?: FetchBaseQueryError | SerializedError;
-        } = await addProject({
-          ...payload,
-          createdBy: props.session.user.userId
+        await addProject({
+          ...payload
         });
 
-        if (res.error) {
-          throw res.error;
-        } else {
-          toast({
-            title: "Votre projet a bien été ajouté !",
-            status: "success",
-            isClosable: true
-          });
-        }
+        toast({
+          title: "Votre projet a bien été ajouté !",
+          status: "success",
+          isClosable: true
+        });
       }
 
       setIsLoading(false);
@@ -246,37 +244,6 @@ export const ProjectForm = ({
           </FormErrorMessage>
         </FormControl>
       )}
-
-      {/* {org && visibilityOptions.length > 0 && (
-        <FormControl
-          id="projectVisibility"
-          isRequired
-          isInvalid={!!errors["projectVisibility"]}
-          mb={3}
-        >
-          <FormLabel>Visibilité</FormLabel>
-          <Select
-            name="projectVisibility"
-            defaultValue={Visibility[Visibility.PUBLIC]}
-            ref={register({
-              required: "Veuillez sélectionner la visibilité du projet"
-            })}
-            placeholder="Sélectionnez la visibilité du projet..."
-            color="gray.400"
-          >
-            {visibilityOptions.map((key) => {
-              return (
-                <option key={key} value={key}>
-                  {VisibilityV[key]}
-                </option>
-              );
-            })}
-          </Select>
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="projectVisibility" />
-          </FormErrorMessage>
-        </FormControl>
-      )} */}
 
       {props.isCreator && lists && (
         <FormControl
