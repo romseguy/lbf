@@ -58,12 +58,12 @@ export const orgApi = createApi({
       { populate?: string; createdBy?: string } | void
     >({
       query: (query) => {
+        console.group("getOrgs");
         if (query) {
-          console.group("getOrgs");
           console.log("createdBy", query.createdBy);
           console.log("populate", query.populate);
-          console.groupEnd();
         }
+        console.groupEnd();
 
         return {
           url: `orgs${query ? `?${objectToQueryString(query)}` : ""}`

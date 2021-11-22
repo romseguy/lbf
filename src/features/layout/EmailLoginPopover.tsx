@@ -17,7 +17,8 @@ import {
   BoxProps,
   useToast,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Tooltip
 } from "@chakra-ui/react";
 import { EmailControl, ErrorMessageText, Link } from "features/common";
 import { useSession } from "hooks/useAuth";
@@ -72,21 +73,23 @@ export const EmailLoginPopover = ({ boxSize, ...props }: BoxProps) => {
         }}
       >
         <PopoverTrigger>
-          <IconButton
-            onClick={() => {
-              setIsOpen(!isOpen);
-            }}
-            aria-label="Connexion par e-mail"
-            bg="transparent"
-            _hover={{ bg: "transparent" }}
-            icon={
-              <Icon
-                as={EmailIcon}
-                _hover={{ color: iconHoverColor }}
-                boxSize={boxSize}
-              />
-            }
-          />
+          <Tooltip label="Connexion par e-mail">
+            <IconButton
+              onClick={() => {
+                setIsOpen(!isOpen);
+              }}
+              aria-label="Connexion par e-mail"
+              bg="transparent"
+              _hover={{ bg: "transparent" }}
+              icon={
+                <Icon
+                  as={EmailIcon}
+                  _hover={{ color: iconHoverColor }}
+                  boxSize={boxSize}
+                />
+              }
+            />
+          </Tooltip>
         </PopoverTrigger>
 
         <PopoverContent>

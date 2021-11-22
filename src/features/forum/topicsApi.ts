@@ -1,6 +1,6 @@
 import type { ITopic } from "models/Topic";
 import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
-import baseQuery from "utils/query";
+import baseQuery, { objectToQueryString } from "utils/query";
 import { IOrg } from "models/Org";
 import { IEvent } from "models/Event";
 
@@ -75,16 +75,26 @@ export const topicsApi = createApi({
           body: payload
         };
       }
+    }),
+    getTopics: build.query<
+      ITopic[],
+      { createdBy?: string; populate?: string } | void
+    >({
+      query: (query) => {
+        console.group("getTopics");
+        if (query) {
+          console.log("query", query);
+        }
+        console.groupEnd();
+
+        return {
+          url: `topics${query ? `?${objectToQueryString(query)}` : ""}`
+        };
+      }
     })
-    // getTopics: build.query<ITopic[], undefined>({
-    //   query: () => ({ url: `topics` })
-    // }),
     // getTopicByName: build.query<ITopic, string>({
     //   query: (topicUrl) => ({ url: `topic/${topicUrl}` })
     // }),
-    // getTopicsByCreator: build.query<ITopic[], string>({
-    //   query: (createdBy) => ({ url: `topics/${createdBy}` })
-    // })
   })
 });
 
@@ -93,11 +103,12 @@ export const {
   // useAddTopicDetailsMutation,
   usePostTopicNotifMutation,
   useDeleteTopicMutation,
-  useEditTopicMutation
-  // useGetTopicsQuery,
+  useEditTopicMutation,
+  useGetTopicsQuery
   // useGetTopicByNameQuery,
   // useGetTopicsByCreatorQuery
 } = topicsApi;
+
 export const {
   endpoints: {
     /* getTopicByName, getTopics, getTopicsByCreator */

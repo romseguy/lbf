@@ -69,13 +69,20 @@ export const OrgPopover = ({
       selectFromResult: (query) => ({
         ...query,
         data:
-          [...(query.data || [])].sort((a, b) => {
-            if (a.createdAt && b.createdAt) {
-              if (a.createdAt < b.createdAt) return 1;
-              else if (a.createdAt > b.createdAt) return -1;
-            }
-            return 0;
-          }) || []
+          [...(query.data || [])]
+            .sort((a, b) => {
+              if (a.createdAt && b.createdAt) {
+                if (a.createdAt < b.createdAt) return 1;
+                else if (a.createdAt > b.createdAt) return -1;
+              }
+              return 0;
+            })
+            .filter((org) =>
+              orgType
+                ? org.orgType === orgType
+                : org.orgType === OrgTypes.ASSO ||
+                  org.orgType === OrgTypes.GROUP
+            ) || []
       })
     }
   );
@@ -148,7 +155,7 @@ export const OrgPopover = ({
       >
         <PopoverTrigger>
           <IconButton
-            aria-label="Social"
+            aria-label="Organisations"
             bg="transparent"
             _hover={{ bg: "transparent" }}
             icon={
@@ -164,6 +171,7 @@ export const OrgPopover = ({
             onClick={() => {
               if (!isOpen) {
                 orgsQuery.refetch();
+                myOrgsQuery.refetch();
                 subQuery.refetch();
               }
               setIsOpen(!isOpen);
@@ -215,7 +223,7 @@ export const OrgPopover = ({
                   aria-hidden
                   alignItems="flex-start"
                   overflow="auto"
-                  height="170px"
+                  height="200px"
                   spacing={2}
                 >
                   {myOrgsQuery.data.map((org) => (
@@ -224,7 +232,7 @@ export const OrgPopover = ({
                 </VStack>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
-                  Vous n'avez ajouté aucune organisation.
+                  Vous n'avez ajouté aucune organisations.
                 </Text>
               ))}
 
@@ -233,7 +241,7 @@ export const OrgPopover = ({
                 <VStack
                   alignItems="flex-start"
                   overflowX="auto"
-                  height="170px"
+                  height="200px"
                   spacing={2}
                 >
                   {followedOrgs.map((org, index) => (
@@ -251,7 +259,7 @@ export const OrgPopover = ({
                 <VStack
                   alignItems="flex-start"
                   overflowX="auto"
-                  height="170px"
+                  height="200px"
                   spacing={2}
                 >
                   {subscribedOrgs.map((org, index) => (

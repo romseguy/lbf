@@ -11,6 +11,7 @@ import {
   Avatar,
   Icon,
   IconButton,
+  Tooltip,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
@@ -37,6 +38,7 @@ import { isServer } from "utils/isServer";
 import { base64ToUint8Array } from "utils/string";
 import { setSession } from "features/session/sessionSlice";
 import { OrgTypes } from "models/Org";
+import { TopicPopover } from "./TopicPopover";
 
 interface customWindow extends Window {
   workbox?: any;
@@ -197,24 +199,27 @@ export const Nav = ({
               session={session}
             />
             <OrgPopover boxSize={[8, 10, 12]} mr={1} session={session} />
+            <TopicPopover boxSize={[6, 8, 8]} mr={2} session={session} />
 
             <Menu>
-              <MenuButton mr={[1, 3]}>
-                <Avatar
-                  boxSize={10}
-                  name={userName}
-                  css={css`
-                    // &:focus {
-                    //   box-shadow: var(--chakra-shadows-outline);
-                    // }
-                  `}
-                  src={
-                    session.user.userImage
-                      ? session.user.userImage.base64
-                      : undefined
-                  }
-                />
-              </MenuButton>
+              <Tooltip label={`Connecté en tant que ${userEmail}`}>
+                <MenuButton mr={[1, 3]}>
+                  <Avatar
+                    boxSize={10}
+                    name={userName}
+                    css={css`
+                      // &:focus {
+                      //   box-shadow: var(--chakra-shadows-outline);
+                      // }
+                    `}
+                    src={
+                      session.user.userImage
+                        ? session.user.userImage.base64
+                        : undefined
+                    }
+                  />
+                </MenuButton>
+              </Tooltip>
 
               <MenuList mr={[1, 3]}>
                 <MenuItem

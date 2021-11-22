@@ -29,17 +29,15 @@ handler.get<
     let orgs: (IOrg & Document<any, any, IOrg>)[] = [];
     const selector = createdBy
       ? { createdBy }
-      : { "orgVisibility.visibility": Visibility[Visibility.PUBLIC] };
+      : { orgVisibility: Visibility[Visibility.PUBLIC] };
 
     logJson(`GET /orgs: selector`, selector);
 
-    if (populate) {
+    if (populate)
       orgs = await models.Org.find(selector, "-orgBanner -orgLogo").populate(
         populate
       );
-    } else {
-      orgs = await models.Org.find(selector, "-orgBanner -orgLogo");
-    }
+    else orgs = await models.Org.find(selector, "-orgBanner -orgLogo");
 
     res.status(200).json(orgs);
   } catch (error) {

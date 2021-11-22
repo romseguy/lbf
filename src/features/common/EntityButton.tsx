@@ -7,9 +7,9 @@ import {
   Tooltip
 } from "@chakra-ui/react";
 import React from "react";
-import { IoIosPeople, IoIosPerson } from "react-icons/io";
+import { IoIosGitNetwork, IoIosPeople, IoIosPerson } from "react-icons/io";
 import { Link } from "features/common";
-import { IOrg, orgTypeFull } from "models/Org";
+import { IOrg, orgTypeFull, OrgTypes } from "models/Org";
 import { IEvent } from "models/Event";
 import { IUser } from "models/User";
 import { ITopic } from "models/Topic";
@@ -77,7 +77,11 @@ export const EntityButton = ({
               <Icon
                 as={
                   org
-                    ? IoIosPeople
+                    ? org.orgName === "aucourant"
+                      ? ChatIcon
+                      : org.orgType === OrgTypes.NETWORK
+                      ? IoIosGitNetwork
+                      : IoIosPeople
                     : event
                     ? CalendarIcon
                     : user
@@ -94,7 +98,9 @@ export const EntityButton = ({
             {...props}
           >
             {org
-              ? org.orgName
+              ? org.orgName === "aucourant"
+                ? "Forum"
+                : org.orgName
               : event
               ? event.eventName
               : user

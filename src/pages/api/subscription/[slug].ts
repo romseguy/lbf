@@ -67,8 +67,37 @@ handler.get<
       if (populate.includes("topics"))
         subscription = subscription.populate({
           path: "topics",
-          populate: { path: "topic" }
+          populate: {
+            path: "topic"
+          }
         });
+
+      const subPopulate = [];
+
+      if (populate.includes("topics.topic.org"))
+        subPopulate.push({ path: "org" });
+      if (populate.includes("topics.topic.event"))
+        subPopulate.push({ path: "event" });
+
+      if (subPopulate.length > 0)
+        subscription = subscription.populate({
+          path: "topics",
+          populate: {
+            path: "topic",
+            populate: subPopulate
+          }
+        });
+
+      // if (populate.includes("topics.topic.event"))
+      //   subscription = subscription.populate({
+      //     path: "topics",
+      //     populate: {
+      //       path: "topic",
+      //       populate: {
+      //         path: "event"
+      //       }
+      //     }
+      //   });
     } else
       subscription = subscription
         .populate({

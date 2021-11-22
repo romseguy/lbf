@@ -30,6 +30,31 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
+handler.get<
+  NextApiRequest & {
+    query: { createdBy?: string };
+  },
+  NextApiResponse
+>(async function getTopics(req, res) {
+  try {
+    const {
+      query: { populate, createdBy }
+    } = req;
+
+    let topics: (ITopic & Document<any, any, ITopic>)[] = [];
+    const selector = createdBy ? { createdBy } : {};
+
+    logJson(`GET /topics: selector`, selector);
+
+    if (populate) topics = await models.Topic.find(selector).populate(populate);
+    else topics = await models.Topic.find(selector);
+
+    res.status(200).json(topics);
+  } catch (error) {
+    res.status(500).json(createServerError(error));
+  }
+});
+
 handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
   req,
   res

@@ -131,7 +131,7 @@ export const EventPopover = ({
       >
         <PopoverTrigger>
           <IconButton
-            aria-label="Social"
+            aria-label="Événements"
             bg="transparent"
             _hover={{ bg: "transparent" }}
             icon={
@@ -189,7 +189,7 @@ export const EventPopover = ({
                 <VStack
                   alignItems="flex-start"
                   overflow="auto"
-                  height="170px"
+                  height="200px"
                   spacing={2}
                 >
                   {myEventsQuery.data.map((event, index) => (
@@ -198,7 +198,7 @@ export const EventPopover = ({
                 </VStack>
               ) : (
                 <Text fontSize="smaller" ml={3} my={2}>
-                  Vous n'avez ajouté aucun événement.
+                  Vous n'avez ajouté aucun événements.
                 </Text>
               ))}
 
@@ -207,7 +207,7 @@ export const EventPopover = ({
                 <VStack
                   alignItems="flex-start"
                   overflow="auto"
-                  height="170px"
+                  height="200px"
                   spacing={2}
                 >
                   {followedEvents.map(({ event }) => (
@@ -225,7 +225,7 @@ export const EventPopover = ({
                 <VStack
                   alignItems="flex-start"
                   overflow="auto"
-                  height="170px"
+                  height="200px"
                   spacing={2}
                 >
                   {attendedEvents.map((event) => (
