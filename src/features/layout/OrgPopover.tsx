@@ -4,7 +4,6 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  useColorModeValue,
   Icon,
   IconButton,
   Select,
@@ -13,7 +12,8 @@ import {
   BoxProps,
   Text,
   PopoverFooter,
-  VStack
+  VStack,
+  useColorMode
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
@@ -27,7 +27,7 @@ import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
-import { IOrg, OrgType, OrgTypes } from "models/Org";
+import { OrgType, OrgTypes } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription
@@ -47,6 +47,8 @@ export const OrgPopover = ({
   session: Session;
 }) => {
   const router = useRouter();
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const storedUserEmail = useSelector(selectUserEmail);
   const [email, setEmail] = useState(storedUserEmail || session.user.email);
 
@@ -61,22 +63,22 @@ export const OrgPopover = ({
       )
     })
   });
-  //#endregion
-
-  //#region my orgs
-  const myOrgs =
-    (Array.isArray(orgsQuery.data) &&
-      orgsQuery.data.length > 0 &&
-      orgsQuery.data
-        .filter((org) => session.user.userId === org?.createdBy)
-        .sort((a, b) => {
-          if (a.createdAt && b.createdAt) {
-            if (a.createdAt < b.createdAt) return 1;
-            else if (a.createdAt > b.createdAt) return -1;
-          }
-          return 0;
-        })) ||
-    [];
+  const myOrgsQuery = useGetOrgsQuery(
+    { createdBy: session.user.userId },
+    {
+      selectFromResult: (query) => ({
+        ...query,
+        data:
+          [...(query.data || [])].sort((a, b) => {
+            if (a.createdAt && b.createdAt) {
+              if (a.createdAt < b.createdAt) return 1;
+              else if (a.createdAt > b.createdAt) return -1;
+            }
+            return 0;
+          }) || []
+      })
+    }
+  );
   //#endregion
 
   //#region my sub
@@ -102,14 +104,10 @@ export const OrgPopover = ({
 
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
+  const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
   const [showOrgs, setShowOrgs] = useState<
     "showOrgsAdded" | "showOrgsFollowed" | "showOrgsSubscribed"
   >("showOrgsAdded");
-  const [orgModalState, setOrgModalState] = useState<{
-    isOpen: boolean;
-    org?: IOrg;
-  }>({ isOpen: false, org: undefined });
-  const iconHoverColor = useColorModeValue("white", "lightgreen");
   //#endregion
 
   const refetchOrgs = useSelector(selectOrgsRefetch);
@@ -118,6 +116,7 @@ export const OrgPopover = ({
       cachedRefetchOrgs = refetchOrgs;
       console.log("refetching orgs");
       orgsQuery.refetch();
+      myOrgsQuery.refetch();
     }
   }, [refetchOrgs]);
 
@@ -158,7 +157,7 @@ export const OrgPopover = ({
                   orgType === OrgTypes.NETWORK ? IoIosGitNetwork : IoIosPeople
                 }
                 boxSize={boxSize}
-                _hover={{ color: iconHoverColor }}
+                _hover={{ color: isDark ? "lightgreen" : "white" }}
               />
             }
             minWidth={0}
@@ -211,7 +210,7 @@ export const OrgPopover = ({
             </Select>
 
             {showOrgs === "showOrgsAdded" &&
-              (hasItems(myOrgs) ? (
+              (hasItems(myOrgsQuery.data) ? (
                 <VStack
                   aria-hidden
                   alignItems="flex-start"
@@ -219,7 +218,7 @@ export const OrgPopover = ({
                   height="170px"
                   spacing={2}
                 >
-                  {myOrgs.map((org) => (
+                  {myOrgsQuery.data.map((org) => (
                     <EntityButton key={org._id} org={org} p={1} />
                   ))}
                 </VStack>
@@ -272,9 +271,7 @@ export const OrgPopover = ({
               leftIcon={<AddIcon />}
               mt={1}
               size="sm"
-              onClick={() => {
-                setOrgModalState({ isOpen: true });
-              }}
+              onClick={() => setIsOrgModalOpen(true)}
               data-cy="addOrg"
             >
               Ajouter{" "}
@@ -284,12 +281,12 @@ export const OrgPopover = ({
         </PopoverContent>
       </Popover>
 
-      {orgModalState.isOpen && (
+      {isOrgModalOpen && (
         <OrgModal
           session={session}
           orgType={orgType}
-          onCancel={() => setOrgModalState({ isOpen: false })}
-          onClose={() => setOrgModalState({ isOpen: false })}
+          onCancel={() => setIsOrgModalOpen(false)}
+          onClose={() => setIsOrgModalOpen(false)}
           onSubmit={async (orgUrl) => {
             await router.push(`/${orgUrl}`, `/${orgUrl}`, {
               shallow: true

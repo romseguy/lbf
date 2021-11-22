@@ -14,11 +14,10 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { Session } from "next-auth";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import ReactSelect from "react-select";
 import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
-
 import {
   AddressControl,
   EmailControl,
@@ -26,7 +25,9 @@ import {
   UrlControl,
   Button,
   ErrorMessageText,
-  RTEditor
+  RTEditor,
+  PasswordControl,
+  PasswordConfirmControl
 } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import {
@@ -42,10 +43,10 @@ import {
   Visibility,
   VisibilityV
 } from "models/Org";
+import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
-import { hasItems } from "utils/array";
 
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -83,6 +84,36 @@ export const OrgForm = withGoogleApi({
     );
     //#endregion
 
+    //#region local state
+    const containerProps = {
+      backgroundColor: isDark ? "gray.700" : "white",
+      _hover: {
+        borderColor: isDark ? "#5F6774" : "#CBD5E0"
+      },
+      borderColor: isDark ? "#4F5765" : "gray.200",
+      borderWidth: "1px",
+      borderRadius: "lg",
+      mt: 3,
+      p: 3
+    };
+    const [isLoading, setIsLoading] = useState(false);
+    const [suggestion, setSuggestion] = useState<Suggestion>();
+    const {
+      ready,
+      value: autoCompleteValue,
+      suggestions: { status, data },
+      setValue: setAutoCompleteValue,
+      clearSuggestions
+    } = usePlacesAutocomplete({
+      requestOptions: {
+        componentRestrictions: {
+          country: "fr"
+        }
+      },
+      debounce: 300
+    });
+    //#endregion
+
     //#region form state
     const {
       control,
@@ -104,44 +135,18 @@ export const OrgForm = withGoogleApi({
       mode: "onChange"
     });
 
-    if (props.setOrgType) props.setOrgType(getValues("orgType"));
-
-    const defaultOrgType = props.org?.orgType || props.orgType;
-    const orgType = getValues("orgType");
-    const orgTypeLabel = orgTypeFull(orgType) || "de l'organisation";
-
     const orgAddress = watch("orgAddress");
-    const orgEmail = watch("orgEmail");
-    const orgPhone = watch("orgPhone");
-    const orgWeb = watch("orgWeb");
-
-    const [isLoading, setIsLoading] = useState(false);
     const [orgDescriptionHtml, setOrgDescriptionHtml] = useState<
       string | undefined
     >(props.org?.orgDescriptionHtml);
-    const [suggestion, setSuggestion] = useState<Suggestion>();
-    const {
-      ready,
-      value: autoCompleteValue,
-      suggestions: { status, data },
-      setValue: setAutoCompleteValue,
-      clearSuggestions
-    } = usePlacesAutocomplete({
-      requestOptions: {
-        componentRestrictions: {
-          country: "fr"
-        }
-      },
-      debounce: 300
-    });
-    useEffect(() => {
-      if (
-        Array.isArray(orgAddress) &&
-        orgAddress[0] &&
-        orgAddress[0].address !== ""
-      )
-        if (!suggestion) setAutoCompleteValue(orgAddress[0].address);
-    }, [orgAddress]);
+    const orgEmail = watch("orgEmail");
+    const orgPhone = watch("orgPhone");
+    const orgType = watch("orgType");
+    const orgTypeLabel = orgTypeFull(orgType) || "de l'organisation";
+    const orgVisibility = watch("orgVisibility");
+    const password = useRef({});
+    password.current = watch("password", "");
+    const orgWeb = watch("orgWeb");
 
     const onChange = () => {
       clearErrors("formErrorMessage");
@@ -219,18 +224,20 @@ export const OrgForm = withGoogleApi({
       }
     };
 
-    const containerProps = {
-      backgroundColor: isDark ? "gray.700" : "white",
-      _hover: {
-        borderColor: isDark ? "#5F6774" : "#CBD5E0"
-      },
-      borderColor: isDark ? "#4F5765" : "gray.200",
-      borderWidth: "1px",
-      borderRadius: "lg",
-      mt: 3,
-      p: 3
-    };
     //#endregion
+
+    useEffect(() => {
+      if (
+        Array.isArray(orgAddress) &&
+        orgAddress[0] &&
+        orgAddress[0].address !== ""
+      )
+        if (!suggestion) setAutoCompleteValue(orgAddress[0].address);
+    }, [orgAddress]);
+
+    useEffect(() => {
+      if (props.setOrgType) props.setOrgType(orgType);
+    }, [orgType]);
 
     return (
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
@@ -280,7 +287,7 @@ export const OrgForm = withGoogleApi({
             ref={register({
               required: `Veuillez sélectionner le type de l'organisation`
             })}
-            defaultValue={defaultOrgType}
+            defaultValue={props.org?.orgType || props.orgType}
             placeholder={`Type de l'organisation`}
             color="gray.400"
           >
@@ -381,7 +388,6 @@ export const OrgForm = withGoogleApi({
         </FormControl>
 
         <FormControl
-          id="orgVisibility"
           isRequired
           isInvalid={!!errors["orgVisibility"]}
           onChange={async (e) => {
@@ -413,6 +419,25 @@ export const OrgForm = withGoogleApi({
             <ErrorMessage errors={errors} name="orgVisibility" />
           </FormErrorMessage>
         </FormControl>
+
+        {orgVisibility === Visibility.PRIVATE && (
+          <>
+            <PasswordControl
+              name="orgPassword"
+              errors={errors}
+              register={register}
+              mb={3}
+              //isRequired={orgVisibility === Visibility.PRIVATE}
+            />
+            <PasswordConfirmControl
+              name="orgPasswordConfirm"
+              errors={errors}
+              register={register}
+              password={password}
+              mb={3}
+            />
+          </>
+        )}
 
         <AddressControl
           name="orgAddress"

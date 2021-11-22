@@ -1,16 +1,10 @@
-import React, { useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/router";
-import { signIn, signOut } from "next-auth/client";
-import { ErrorMessage } from "@hookform/error-message";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Icon,
   Input,
   Link,
   Modal,
@@ -22,45 +16,43 @@ import {
   ModalCloseButton,
   Portal,
   useDisclosure,
-  Stack,
-  useToast,
   Alert,
   AlertIcon,
-  InputGroup,
-  InputRightElement,
   useColorMode,
   Flex
 } from "@chakra-ui/react";
+import { ErrorMessage } from "@hookform/error-message";
+import bcrypt from "bcryptjs";
+import { useRouter } from "next/router";
+import { signIn, SignInAuthorisationParams } from "next-auth/client";
+import React, { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import {
-  ArrowBackIcon,
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ViewIcon,
-  ViewOffIcon,
-  WarningIcon
-} from "@chakra-ui/icons";
-import { ErrorMessageText } from "features/common";
-import api from "utils/api";
-import { handleError as handleError } from "utils/form";
-import { emailR } from "utils/email";
+  ErrorMessageText,
+  PasswordConfirmControl,
+  PasswordControl
+} from "features/common";
 import { ForgottenForm } from "features/forms/ForgottenForm";
+import api from "utils/api";
+import { emailR } from "utils/email";
+import { handleError as handleError } from "utils/form";
+import { useAppDispatch } from "store";
+import { getUser } from "features/users/usersApi";
+import { logJson } from "utils/string";
 
 export const LoginModal = (props: {
   onClose: () => void;
-  onSubmit: (url?: string | null) => void;
+  onSubmit: (url?: string) => void;
 }) => {
   const router = useRouter();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const dispatch = useAppDispatch();
 
   const [isEmail, setIsEmail] = useState(false);
   const [isForgotten, setIsForgotten] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [passwordFieldType, setPasswordFieldType] = useState("password");
-  const [passwordConfirmFieldType, setPasswordConfirmFieldType] =
-    useState("password");
 
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
   const portalRef = useRef(null);
@@ -86,8 +78,8 @@ export const LoginModal = (props: {
   };
 
   const onSubmit = async ({
-    password,
-    email
+    email,
+    password
   }: {
     password: string;
     email: string;
@@ -96,41 +88,48 @@ export const LoginModal = (props: {
     setIsLoading(true);
 
     try {
-      if (isSignup) {
-        await api.post("auth/signup", { email, password });
-        await signIn("credentials", { email, password });
-        setIsLoading(false);
-        onClose();
-        props.onClose && props.onClose();
-      } else if (isEmail) {
+      if (isEmail) {
         await signIn("email", { email });
-      } else {
-        const res = await signIn("credentials", {
-          email,
-          password,
-          redirect: false
-        });
-
-        if (res) {
-          if (res.error) throw new Error(res.error);
-          else {
-            onClose();
-            props.onClose && props.onClose();
-            props.onSubmit && props.onSubmit(res?.url);
-          }
-        } else
-          throw new Error("Échec de la connexion, vérifiez vos identifiants.");
+        return;
       }
-    } catch (error) {
-      handleError(error, (message, field) => {
-        if (field) {
-          setError(field, { type: "manual", message });
-        } else {
-          setError("formErrorMessage", { type: "manual", message });
-        }
-      });
-    } finally {
+
+      if (isSignup) {
+        const salt = await bcrypt.genSalt(10);
+        const { data: user } = await api.post("auth/signup", {
+          email,
+          password: await bcrypt.hash(password, salt)
+        });
+        await signIn("credentials", { email, user });
+        setIsLoading(false);
+        props.onClose && props.onClose();
+        onClose();
+        return;
+      }
+
+      const userQuery = await dispatch(
+        getUser.initiate({ slug: email, select: "password" })
+      );
+
+      if (
+        !userQuery.data ||
+        !(await bcrypt.compare(password, userQuery.data.password))
+      )
+        throw new Error(
+          "Échec de la connexion, veuillez vérifier vos identifiants."
+        );
+
+      await signIn("credentials", { email, user: userQuery.data });
+
       setIsLoading(false);
+      props.onClose && props.onClose();
+      props.onSubmit && props.onSubmit();
+      onClose();
+    } catch (error) {
+      setIsLoading(false);
+      handleError(error, (message, field) => {
+        if (field) setError(field, { type: "manual", message });
+        else setError("formErrorMessage", { type: "manual", message });
+      });
     }
   };
 
@@ -192,41 +191,12 @@ export const LoginModal = (props: {
                   </FormControl>
 
                   {!isEmail && (
-                    <FormControl
-                      id="password"
+                    <PasswordControl
+                      name="password"
+                      errors={errors}
+                      register={register}
                       mb={3}
-                      isRequired
-                      isInvalid={!!errors["password"]}
-                    >
-                      <FormLabel>Mot de passe</FormLabel>
-                      <InputGroup>
-                        <Input
-                          name="password"
-                          ref={register({
-                            required: "Veuillez saisir un mot de passe"
-                          })}
-                          type={passwordFieldType}
-                        />
-                        <InputRightElement
-                          cursor="pointer"
-                          children={
-                            passwordFieldType === "password" ? (
-                              <ViewOffIcon />
-                            ) : (
-                              <ViewIcon />
-                            )
-                          }
-                          onClick={() => {
-                            if (passwordFieldType === "password")
-                              setPasswordFieldType("text");
-                            else setPasswordFieldType("password");
-                          }}
-                        />
-                      </InputGroup>
-                      <FormErrorMessage>
-                        <ErrorMessage errors={errors} name="password" />
-                      </FormErrorMessage>
-                    </FormControl>
+                    />
                   )}
                 </>
               )}
@@ -284,42 +254,12 @@ export const LoginModal = (props: {
               )}
 
               {isSignup && (
-                <FormControl
-                  id="passwordConfirm"
-                  isRequired
-                  isInvalid={!!errors["passwordConfirm"]}
-                >
-                  <FormLabel>Confirmation du mot de passe</FormLabel>
-                  <InputGroup>
-                    <Input
-                      name="passwordConfirm"
-                      ref={register({
-                        validate: (value) =>
-                          value === password.current ||
-                          "Les mots de passe ne correspondent pas"
-                      })}
-                      type={passwordConfirmFieldType}
-                    />
-                    <InputRightElement
-                      cursor="pointer"
-                      children={
-                        passwordConfirmFieldType === "password" ? (
-                          <ViewOffIcon />
-                        ) : (
-                          <ViewIcon />
-                        )
-                      }
-                      onClick={() => {
-                        if (passwordConfirmFieldType === "password")
-                          setPasswordConfirmFieldType("text");
-                        else setPasswordConfirmFieldType("password");
-                      }}
-                    />
-                  </InputGroup>
-                  <FormErrorMessage>
-                    <ErrorMessage errors={errors} name="passwordConfirm" />
-                  </FormErrorMessage>
-                </FormControl>
+                <PasswordConfirmControl
+                  name="passwordConfirm"
+                  errors={errors}
+                  register={register}
+                  password={password}
+                />
               )}
             </ModalBody>
 

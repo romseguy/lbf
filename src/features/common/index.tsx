@@ -7,6 +7,8 @@ export * from "./forms/EventNotifForm";
 export * from "./forms/Input";
 export * from "./forms/MultiSelect";
 export * from "./forms/OrgNotifForm";
+export * from "./forms/PasswordControl";
+export * from "./forms/PasswordConfirmControl";
 export * from "./forms/PhoneControl";
 export * from "./forms/RTEditor";
 export * from "./forms/Select";

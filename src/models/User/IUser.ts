@@ -14,5 +14,4 @@ export interface IUser {
   isAdmin: boolean;
   suggestedCategoryAt?: string;
   userProjects?: IProject[];
-  validatePassword(password: string): Promise<boolean>;
 }

@@ -20,12 +20,14 @@ handler.get<
   NextApiRequest & {
     query: {
       slug: string;
+      populate: string;
+      select: string;
     };
   },
   NextApiResponse
 >(async function getUser(req, res) {
   const {
-    query: { slug, populate }
+    query: { slug, populate, ...query }
   } = req;
 
   let user: (IUser & Document<any, any, any>) | null = null;
@@ -38,8 +40,9 @@ handler.get<
       selector = { phone: slug };
     }
 
-    const select =
-      "_id suggestedCategoryAt userName userImage userSubscription";
+    let select = "_id suggestedCategoryAt userName userImage userSubscription";
+
+    if (query.select) select += ` ${query.select}`;
 
     if (selector) {
       user = await models.User.findOne(selector, select);

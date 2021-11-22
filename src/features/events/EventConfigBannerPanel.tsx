@@ -19,6 +19,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import React, { useRef, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
+import { FaMinusSquare, FaPlusSquare } from "react-icons/fa";
 import {
   Button,
   DeleteButton,
@@ -155,7 +156,7 @@ export const EventConfigBannerPanel = ({
           alignItems="center"
         >
           <Flex alignItems="center">
-            {isVisible.banner ? <ViewOffIcon /> : <ViewIcon />}
+            {isVisible.banner ? <FaMinusSquare /> : <FaPlusSquare />}
             <Heading size="sm" ml={2} py={3}>
               Bannière
             </Heading>

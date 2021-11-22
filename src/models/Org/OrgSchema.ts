@@ -71,9 +71,11 @@ export const OrgSchema = new Schema<IOrg>(
       mode: String,
       url: { type: String, trim: true }
     },
+    orgPassword: String,
     orgVisibility: {
       type: String,
-      enum: Object.keys(Visibility).map((key) => Visibility[key])
+      enum: Object.keys(Visibility).map((key) => Visibility[key]),
+      required: true
     },
     orgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
     isApproved: Boolean,

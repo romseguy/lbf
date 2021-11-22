@@ -43,25 +43,11 @@ export const UserSchema = new Schema<IUser>(
 
 UserSchema.index({ email: 1, userName: 1 }, { unique: true });
 
-UserSchema.methods.validatePassword = async function (password: string) {
-  return bcrypt.compare(password, this.password);
-};
-
 UserSchema.pre("save", async function (next: HookNextFunction) {
   // here we need to retype 'this' because by default it is
   // of type Document from which the 'IUser' interface is inheriting
   // but the Document does not know about our password property
   const thisObj = this as IUser;
-
-  if (this.isModified("password")) {
-    try {
-      const salt = await bcrypt.genSalt(HASH_ROUNDS);
-      const hash = await bcrypt.hash(thisObj.password, salt);
-      thisObj.password = hash;
-    } catch (error: any) {
-      return next(error);
-    }
-  }
 
   if (this.isModified("email")) {
     try {
@@ -69,26 +55,6 @@ UserSchema.pre("save", async function (next: HookNextFunction) {
     } catch (error: any) {
       return next(error);
     }
-  }
-
-  return next();
-});
-
-UserSchema.pre("updateOne", async function (next: HookNextFunction) {
-  // this.set({ updatedAt: new Date() });
-  const { password } = this.getUpdate();
-
-  if (!password) {
-    return next();
-  }
-
-  try {
-    const salt = await bcrypt.genSalt(HASH_ROUNDS);
-    const hash = await bcrypt.hash(password, salt);
-    this.update({}, { password: hash }).exec();
-    next();
-  } catch (error: any) {
-    return next(error);
   }
 
   return next();

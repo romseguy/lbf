@@ -34,6 +34,7 @@ export interface IOrg {
     mode?: "light" | "dark";
     url?: string;
   };
+  orgPassword: string;
   orgVisibility: string;
   orgs?: IOrg[];
   isApproved?: boolean;
@@ -65,5 +66,5 @@ export const Visibility: { [key: string]: string } = {
 };
 export const VisibilityV: { [key: string]: string } = {
   PUBLIC: "Publique",
-  PRIVATE: "Privée"
+  PRIVATE: "Protégée par un mot de passe"
 };

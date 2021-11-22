@@ -19,6 +19,7 @@ import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import React, { useState, useRef, useEffect } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
+import { FaMinusSquare, FaPlusSquare } from "react-icons/fa";
 import {
   Button,
   DeleteButton,
@@ -170,7 +171,7 @@ export const OrgConfigLogoPanel = ({
           alignItems="center"
         >
           <Flex alignItems="center">
-            {isVisible.logo ? <ViewOffIcon /> : <ViewIcon />}
+            {isVisible.logo ? <FaMinusSquare /> : <FaPlusSquare />}
             <Heading size="sm" ml={2} py={3}>
               Logo
             </Heading>

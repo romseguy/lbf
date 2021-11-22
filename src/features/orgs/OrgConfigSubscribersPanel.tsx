@@ -1,11 +1,7 @@
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  ViewIcon,
-  ViewOffIcon
-} from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Button, Heading, Grid, GridProps, Text, Flex } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
+import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
 import { GridHeader, GridItem, Link, SubscriptionForm } from "features/common";
 import { refetchEvent } from "features/events/eventSlice";
@@ -13,14 +9,14 @@ import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
 } from "features/subscriptions/subscriptionsApi";
+import { SubscriptionsList } from "features/subscriptions/SubscriptionsList";
 import { IOrg, orgTypeFull } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { IUser } from "models/User";
 import { useAppDispatch } from "store";
+import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
 import { Visibility } from "./OrgPage";
-import { breakpoints } from "theme/theme";
-import { SubscriptionsList } from "features/subscriptions/SubscriptionsList";
 
 export const OrgConfigSubscribersPanel = ({
   org,
@@ -199,7 +195,7 @@ export const OrgConfigSubscribersPanel = ({
               `}
             >
               <Flex alignItems="center">
-                {isVisible.subscribers ? <ViewOffIcon /> : <ViewIcon />}
+                {isVisible.subscribers ? <FaFolderOpen /> : <FaFolder />}
                 <Heading size="sm" ml={2}>
                   Adhérents & Abonnés
                 </Heading>

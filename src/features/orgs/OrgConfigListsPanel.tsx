@@ -2,9 +2,7 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   DeleteIcon,
-  EditIcon,
-  ViewIcon,
-  ViewOffIcon
+  EditIcon
 } from "@chakra-ui/icons";
 import {
   Button,
@@ -31,14 +29,15 @@ import {
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React, { useEffect, useState } from "react";
+import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
 import { EntityListForm, GridHeader, GridItem, Link } from "features/common";
 import { getSubscriptions, IOrg, IOrgList } from "models/Org";
+import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
+import { breakpoints } from "theme/theme";
 import { Visibility } from "./OrgPage";
 import { useEditOrgMutation } from "./orgsApi";
-import { breakpoints } from "theme/theme";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
 
 export const OrgConfigListsPanel = ({
   org,
@@ -165,7 +164,7 @@ export const OrgConfigListsPanel = ({
             >
               <Flex alignItems="center">
                 {hasItems(lists) &&
-                  (isVisible.lists ? <ViewOffIcon /> : <ViewIcon />)}
+                  (isVisible.lists ? <FaFolderOpen /> : <FaFolder />)}
                 <Heading size="sm" ml={2}>
                   Listes de diffusion
                 </Heading>

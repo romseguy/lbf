@@ -8,7 +8,7 @@ import {
   duplicateError
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { normalize } from "utils/string";
+import { logJson, normalize } from "utils/string";
 import { IOrg, Visibility } from "models/Org";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -29,7 +29,9 @@ handler.get<
     let orgs: (IOrg & Document<any, any, IOrg>)[] = [];
     const selector = createdBy
       ? { createdBy }
-      : { orgVisibility: Visibility[Visibility.PUBLIC] };
+      : { "orgVisibility.visibility": Visibility[Visibility.PUBLIC] };
+
+    logJson(`GET /orgs: selector`, selector);
 
     if (populate) {
       orgs = await models.Org.find(selector, "-orgBanner -orgLogo").populate(

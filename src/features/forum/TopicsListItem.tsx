@@ -1,8 +1,9 @@
-import { ViewIcon, ViewOffIcon, EditIcon, EmailIcon } from "@chakra-ui/icons";
+import { EditIcon, EmailIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
   Flex,
+  Icon,
   IconButton,
   Link,
   Spinner,
@@ -11,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React from "react";
-import { FaBellSlash, FaBell } from "react-icons/fa";
+import { FaBellSlash, FaBell, FaFolder, FaFolderOpen } from "react-icons/fa";
 import { DeleteButton, Grid, GridItem, formats } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { ModalState } from "features/modals/EntityNotifModal";
@@ -95,9 +96,9 @@ export const TopicsListItem = ({
           >
             <GridItem display="flex" alignItems="center" p={3}>
               {isCurrent ? (
-                <ViewOffIcon boxSize={6} />
+                <Icon as={FaFolderOpen} boxSize={6} />
               ) : (
-                <ViewIcon boxSize={6} />
+                <Icon as={FaFolder} boxSize={6} />
               )}
             </GridItem>
 

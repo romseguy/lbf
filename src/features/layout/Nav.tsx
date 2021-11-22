@@ -361,12 +361,15 @@ export const Nav = ({
           onClose={() => setIsLoginModalOpen(false)}
           onSubmit={async (url) => {
             dispatch(setUserEmail(null));
-            const login = `${process.env.NEXT_PUBLIC_URL}/?login`;
 
-            if (url === "/?login" || url === login) {
-              await router.push("/");
-            } else {
-              await router.push(url || "/");
+            if (url) {
+              if (
+                url === "/?login" ||
+                url === `${process.env.NEXT_PUBLIC_URL}/?login`
+              ) {
+                url = "/";
+              }
+              await router.push(url, url, { shallow: true });
             }
           }}
         />

@@ -1,10 +1,11 @@
-import { AddIcon, EditIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { AddIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
   Box,
   Button,
   Flex,
+  Icon,
   IconButton,
   Table,
   Tag,
@@ -18,6 +19,7 @@ import {
 } from "@chakra-ui/react";
 import DOMPurify from "isomorphic-dompurify";
 import React, { useMemo, useState } from "react";
+import { FaFolderOpen, FaFolder } from "react-icons/fa";
 import { useSession } from "hooks/useAuth";
 import { DeleteButton, Grid, GridItem, Link } from "features/common";
 import { ProjectModal } from "features/modals/ProjectModal";
@@ -242,9 +244,9 @@ export const ProjectsList = ({
                       >
                         <GridItem display="flex" alignItems="center" p={3}>
                           {currentProject && isCurrent ? (
-                            <ViewOffIcon boxSize={6} />
+                            <Icon as={FaFolderOpen} boxSize={6} />
                           ) : (
-                            <ViewIcon boxSize={6} />
+                            <Icon as={FaFolder} boxSize={6} />
                           )}
                         </GridItem>
 

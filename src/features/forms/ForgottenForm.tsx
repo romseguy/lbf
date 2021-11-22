@@ -1,8 +1,5 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { ErrorMessage } from "@hookform/error-message";
+import { EmailIcon } from "@chakra-ui/icons";
 import {
-  Box,
   Button,
   FormControl,
   FormErrorMessage,
@@ -10,17 +7,18 @@ import {
   Input,
   InputLeftElement,
   InputGroup,
-  RequiredIndicator,
-  Stack,
   useToast,
   Alert,
   AlertIcon,
   Flex
 } from "@chakra-ui/react";
-import { EmailIcon, WarningIcon } from "@chakra-ui/icons";
+import { ErrorMessage } from "@hookform/error-message";
+import bcrypt from "bcryptjs";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { ErrorMessageText } from "features/common";
-import { emailR } from "utils/email";
 import api from "utils/api";
+import { emailR } from "utils/email";
 import { handleError } from "utils/form";
 
 export const ForgottenForm = ({
@@ -101,9 +99,10 @@ export const ForgottenForm = ({
       }
     } else if (password) {
       try {
+        const salt = await bcrypt.genSalt(10);
         const { data } = await api.post("auth/forgotten", {
           email: savedEmail,
-          password
+          password: await bcrypt.hash(password, salt)
         });
         toast({
           title: `Le mot de passe du compte ${savedEmail} a bien été changé.`,

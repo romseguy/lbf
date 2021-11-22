@@ -58,9 +58,16 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
   }
 }
 
-function objectToQueryString(obj: { [key: string]: string }) {
-  return Object.keys(obj)
-    .map((key) => key + "=" + obj[key])
+function objectToQueryString(obj: { [key: string]: string } | {}) {
+  const keys = Object.keys(obj);
+
+  if (!keys.length) return "";
+
+  return keys
+    .map((key) => {
+      //@ts-expect-error
+      return `${key}=${obj[key]}`;
+    })
     .join("&");
 }
 
@@ -119,5 +126,6 @@ export default {
   update,
   remove,
   databaseErrorCodes,
+  objectToQueryString,
   sendPushNotification
 };

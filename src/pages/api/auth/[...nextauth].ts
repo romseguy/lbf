@@ -1,3 +1,6 @@
+import bcrypt from "bcryptjs";
+import { models } from "database";
+import { IUser } from "models/User";
 import NextAuth, { User } from "next-auth";
 import type {
   NextApiRequest,
@@ -6,6 +9,7 @@ import type {
 import Providers from "next-auth/providers";
 import nodemailer from "nodemailer";
 import api from "utils/api";
+import { logJson } from "utils/string";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   return NextAuth(req, res, {
@@ -20,35 +24,26 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           password: { label: "Mot de passe", type: "password" }
         },
         authorize: async (signInOptions) => {
-          //console.log("AUTHORIZE:", signInOptions);
-          const { email, password } = signInOptions;
+          logJson(
+            "POST /auth/callback/credentials: signInOptions",
+            signInOptions
+          );
 
           try {
-            const { data } = await api.post("auth/signin", {
+            //@ts-expect-error
+            const { email, user } = signInOptions;
+
+            return {
               email,
-              password
-            });
-
-            if (data) {
-              const user: User = {
-                email,
-                userId: data._id,
-                userName: data.userName,
-                // userImage: data.userImage,
-                isAdmin: data.isAdmin || false,
-                suggestedCategoryAt: data.suggestedCategoryAt
-              };
-              //console.log("AUTHORIZED:", user);
-              return user;
-            }
+              isAdmin: user.isAdmin || false,
+              suggestedCategoryAt: user.suggestedCategoryAt,
+              userId: user._id,
+              userName: user.userName
+              // userImage: data.userImage,
+            };
           } catch (error) {
-            console.log("AUTHORIZE ERROR:", error);
-            throw new Error(
-              "Échec de la connexion, vérifiez vos identifiants."
-            );
+            return null;
           }
-
-          return null;
         }
       }),
       Providers.Email({
