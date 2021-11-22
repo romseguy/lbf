@@ -26,7 +26,7 @@ export async function getSession(
     session.user &&
     (!session.user.userId || session.user.suggestedCategoryAt === undefined)
   ) {
-    const { data } = await api.get(`user/${session.user.email}`);
+    const { data } = await api.get(`user/${session.user.email}?select=isAdmin`);
 
     if (data) {
       const { _id, userName, suggestedCategoryAt = null, isAdmin } = data;
@@ -63,7 +63,9 @@ export const useSession = (): { data: Session | null; loading: boolean } => {
   const xhr = async () => {
     dispatch(setLoading(true));
 
-    const userQuery = await api.get("user/" + session.user.userId);
+    const userQuery = await api.get(
+      `user/${session.user.userId}?select=isAdmin`
+    );
 
     if (userQuery.data) {
       const {

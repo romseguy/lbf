@@ -65,6 +65,7 @@ import { EventInfo } from "./EventInfo";
 import { EventTimeline } from "./EventTimeline";
 import { EventsListDistance } from "./EventsListDistance";
 import { LatLon } from "use-places-autocomplete";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
 export const EventsList = ({
   events,
@@ -165,6 +166,9 @@ export const EventsList = ({
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
+  const [showLocationButton, setShowLocationButton] = useState(!!city);
+  console.log(showLocationButton, city);
+
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const selectedCategoriesCount = selectedCategories
     ? selectedCategories.length
@@ -545,17 +549,32 @@ export const EventsList = ({
         />
 
         <Flex alignItems="center" mb={5}>
-          <LocationButton
-            colorScheme="purple"
-            color="white"
-            mr={3}
-            size="sm"
-            city={city}
-            setCity={setCity}
-            location={origin}
-            setLocation={setOrigin}
-            //onLocationChange={(coordinates) => setOrigin(coordinates)}
-          />
+          {!showLocationButton ? (
+            <Button
+              colorScheme="purple"
+              color="white"
+              leftIcon={<FaMapMarkerAlt />}
+              mr={3}
+              size="sm"
+              onClick={() => {
+                setShowLocationButton(!showLocationButton);
+              }}
+            >
+              Définir la ville
+            </Button>
+          ) : (
+            <LocationButton
+              colorScheme="purple"
+              color="white"
+              mr={3}
+              size="sm"
+              city={city}
+              setCity={setCity}
+              location={origin}
+              setLocation={setOrigin}
+              //onLocationChange={(coordinates) => setOrigin(coordinates)}
+            />
+          )}
           <EventsListDistance
             distance={distance}
             setDistance={setDistance}
@@ -801,6 +820,7 @@ export const EventsList = ({
     origin,
     selectedCategories,
     session,
+    showLocationButton,
     showNextEvents,
     showPreviousEvents
   ]);

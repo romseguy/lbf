@@ -64,6 +64,8 @@ export const LocationButton = withGoogleApi({
       setLocation: (location: LatLon) => void;
       onLocationChange?: (coordinates?: LatLon) => void;
     }) => {
+      console.log(coords);
+
       const toast = useToast();
       const { colorMode } = useColorMode();
       const isDark = colorMode === "dark";
@@ -74,8 +76,6 @@ export const LocationButton = withGoogleApi({
           setLocation({ lat: coords.latitude, lng: coords.longitude });
         }
       }, [coords, location]);
-
-      const [showAddressControl, setShowAddressControl] = useState(false);
 
       useEffect(() => {
         const xhr = async () => {
@@ -105,31 +105,22 @@ export const LocationButton = withGoogleApi({
 
       return (
         <Flex alignItems="center">
-          <Button
-            leftIcon={<FaMapMarkerAlt />}
-            onClick={() => {
-              setShowAddressControl(!showAddressControl);
-            }}
-            {...props}
-          >
+          <Button leftIcon={<FaMapMarkerAlt />} {...props}>
             {city || "Définir la ville"}
           </Button>
-          {showAddressControl && (
-            <AddressControl
-              isMultiple={false}
-              size="sm"
-              inputProps={{
-                borderRadius: "lg",
-                mr: 3
-              }}
-              onSuggestionSelect={async (suggestion: Suggestion) => {
-                const { lat, lng, city } = await unwrapSuggestion(suggestion);
-                if (lat && lng) setLocation({ lat, lng });
-                if (city) setCity(city);
-                setShowAddressControl(false);
-              }}
-            />
-          )}
+          <AddressControl
+            isMultiple={false}
+            size="sm"
+            inputProps={{
+              borderRadius: "lg",
+              mr: 3
+            }}
+            onSuggestionSelect={async (suggestion: Suggestion) => {
+              const { lat, lng, city } = await unwrapSuggestion(suggestion);
+              if (lat && lng) setLocation({ lat, lng });
+              if (city) setCity(city);
+            }}
+          />
         </Flex>
       );
     }

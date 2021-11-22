@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   Button,
   Flex,
@@ -74,7 +75,12 @@ export const TopicsListCategories = ({
               hasArrow
             >
               <Box mx={2}>
-                {category} {topicsCount > 0 && `(${topicsCount})`}
+                {category}
+                {topicsCount > 0 && (
+                  <Badge colorScheme="green" ml={1}>
+                    {topicsCount}
+                  </Badge>
+                )}
               </Box>
             </Tooltip>
 

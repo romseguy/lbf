@@ -1,7 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import querystring from "querystring";
-import baseQuery from "utils/query";
 import { IOrg } from "models/Org";
+import baseQuery, { objectToQueryString } from "utils/query";
 
 export const orgApi = createApi({
   reducerPath: "orgsApi",
@@ -67,7 +66,7 @@ export const orgApi = createApi({
         }
 
         return {
-          url: `orgs${query ? "?" + querystring.stringify(query) : ""}`
+          url: `orgs${query ? `?${objectToQueryString(query)}` : ""}`
         };
       }
     }),

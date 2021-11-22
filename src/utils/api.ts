@@ -1,12 +1,16 @@
 import axios, { AxiosResponse } from "axios";
 import { databaseErrorCodes } from "utils/errors";
 import { isServer } from "utils/isServer";
+import { objectToQueryString } from "./query";
 
 type ParamsType = { [key: string]: any };
 export type ResponseType<T> = { data?: T; error?: any; status?: number };
 
 async function request(endpoint: string, params?: ParamsType, method = "GET") {
-  console.log(`${method} /${endpoint}`);
+  console.log(
+    `${method} ${endpoint.includes("http") ? endpoint : "/" + endpoint}`
+  );
+
   if (params) console.log(params);
   try {
     const options: {
@@ -20,17 +24,9 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
       }
     };
 
-    if (params) {
-      if (method === "GET") {
-        endpoint += "?" + objectToQueryString(params);
-      } else {
-        options.body = JSON.stringify(params);
-      }
-    }
-
-    console.log(
-      `Fetching ${endpoint.includes("http") ? endpoint : "/" + endpoint}`
-    );
+    if (params)
+      if (method === "GET") endpoint += "?" + objectToQueryString(params);
+      else options.body = JSON.stringify(params);
 
     const response = await fetch(
       endpoint.includes("http")
@@ -39,36 +35,38 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
       options
     );
 
-    console.log(`Fulfilled /${endpoint}`);
-
     if (response.status === 200) {
       const data = await response.json();
       if (
         !isServer() /*  && process.env.NEXT_PUBLIC_VERCEL_ENV !== "production" */
       )
-        console.log(`Result /${endpoint}`, data);
+        console.log(
+          `${method} ${
+            endpoint.includes("http") ? endpoint : "/" + endpoint
+          }: data`,
+          data
+        );
       return { data };
     }
 
     const error = await response.json();
+    console.error(
+      `${method} ${
+        endpoint.includes("http") ? endpoint : "/" + endpoint
+      }: error`,
+      error
+    );
+
     return { status: response.status, error };
   } catch (error: any) {
-    console.error(`API ERROR /${endpoint}`, error);
+    console.error(
+      `${method} ${
+        endpoint.includes("http") ? endpoint : "/" + endpoint
+      }: error`,
+      error
+    );
     throw error;
   }
-}
-
-function objectToQueryString(obj: { [key: string]: string } | {}) {
-  const keys = Object.keys(obj);
-
-  if (!keys.length) return "";
-
-  return keys
-    .map((key) => {
-      //@ts-expect-error
-      return `${key}=${obj[key]}`;
-    })
-    .join("&");
 }
 
 function get(endpoint: string, params?: ParamsType) {
@@ -87,7 +85,7 @@ function remove(endpoint: string, params: ParamsType) {
   return request(endpoint, params, "DELETE");
 }
 
-export async function sendPushNotification({
+async function sendPushNotification({
   message = "",
   title = "Vous avez reçu une notification",
   url = "",
@@ -126,6 +124,5 @@ export default {
   update,
   remove,
   databaseErrorCodes,
-  objectToQueryString,
   sendPushNotification
 };

@@ -1,7 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import querystring from "querystring";
 import { IEvent } from "models/Event";
-import baseQuery from "utils/query";
+import baseQuery, { objectToQueryString } from "utils/query";
 
 export const eventApi = createApi({
   reducerPath: "eventsApi",
@@ -77,7 +76,7 @@ export const eventApi = createApi({
         }
 
         return {
-          url: `events${query ? "?" + querystring.stringify(query) : ""}`
+          url: `events${query ? `?${objectToQueryString(query)}` : ""}`
         };
       }
     }),

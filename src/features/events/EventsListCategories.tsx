@@ -1,5 +1,6 @@
 import { AddIcon } from "@chakra-ui/icons";
 import {
+  Badge,
   Flex,
   IconButton,
   Link,
@@ -80,7 +81,12 @@ export const EventsListCategories = ({
               mr={1}
               whiteSpace="nowrap"
             >
-              {Category[k].label} {eventsCount > 0 && `(${eventsCount})`}
+              {Category[k].label}{" "}
+              {eventsCount > 0 && (
+                <Badge colorScheme="green" ml={1}>
+                  {eventsCount}
+                </Badge>
+              )}
             </Tag>
           </Link>
         );

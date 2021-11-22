@@ -54,7 +54,6 @@ export const LoginModal = (props: {
   const [isSignup, setIsSignup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
   const portalRef = useRef(null);
 
   const {
@@ -102,12 +101,11 @@ export const LoginModal = (props: {
         await signIn("credentials", { email, user });
         setIsLoading(false);
         props.onClose && props.onClose();
-        onClose();
         return;
       }
 
       const userQuery = await dispatch(
-        getUser.initiate({ slug: email, select: "password" })
+        getUser.initiate({ slug: email, select: "password isAdmin" })
       );
 
       if (
@@ -120,10 +118,10 @@ export const LoginModal = (props: {
 
       await signIn("credentials", { email, user: userQuery.data });
 
-      setIsLoading(false);
-      props.onClose && props.onClose();
-      props.onSubmit && props.onSubmit();
-      onClose();
+      // setIsLoading(false);
+      // props.onClose && props.onClose();
+      // props.onSubmit && props.onSubmit();
+      // onClose();
     } catch (error) {
       setIsLoading(false);
       handleError(error, (message, field) => {
@@ -135,11 +133,10 @@ export const LoginModal = (props: {
 
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={true}
       onClose={() => {
         setIsLoading(false);
         props.onClose && props.onClose();
-        onClose();
       }}
       closeOnOverlayClick={false}
     >

@@ -23,6 +23,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           email: { label: "Adresse e-mail", type: "text" },
           password: { label: "Mot de passe", type: "password" }
         },
+        //@ts-expect-error
         authorize: async (signInOptions) => {
           logJson(
             "POST /auth/callback/credentials: signInOptions",
@@ -35,11 +36,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
             return {
               email,
-              isAdmin: user.isAdmin || false,
-              suggestedCategoryAt: user.suggestedCategoryAt,
               userId: user._id,
               userName: user.userName
-              // userImage: data.userImage,
             };
           } catch (error) {
             return null;

@@ -7,23 +7,33 @@ import {
   databaseErrorCodes,
   duplicateError
 } from "utils/errors";
+import { normalize } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.post<NextApiRequest, NextApiResponse>(async function signup(req, res) {
-  const {
-    body: { email, password }
-  } = req;
-
-  if (!emailR.test(email))
-    return res.status(400).json({ email: "Cette adresse e-mail est invalide" });
-
+handler.post<
+  NextApiRequest & { body: { email: string; password: string } },
+  NextApiResponse
+>(async function signup(req, res) {
   try {
+    const {
+      body: { email, password }
+    }: { body: { email: string; password: string } } = req;
+
+    if (!emailR.test(email))
+      return res
+        .status(400)
+        .json({ email: "Cette adresse e-mail est invalide" });
+
     if (await models.User.findOne({ email })) throw duplicateError();
 
-    const user = await models.User.create({ email, password });
+    const user = await models.User.create({
+      email,
+      password,
+      userName: normalize(email.replace(/@.+/, ""))
+    });
 
     res.status(200).json(user);
   } catch (error: any) {

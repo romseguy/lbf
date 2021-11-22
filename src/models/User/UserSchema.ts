@@ -42,20 +42,3 @@ export const UserSchema = new Schema<IUser>(
 );
 
 UserSchema.index({ email: 1, userName: 1 }, { unique: true });
-
-UserSchema.pre("save", async function (next: HookNextFunction) {
-  // here we need to retype 'this' because by default it is
-  // of type Document from which the 'IUser' interface is inheriting
-  // but the Document does not know about our password property
-  const thisObj = this as IUser;
-
-  if (this.isModified("email")) {
-    try {
-      thisObj.userName = normalize(thisObj.email!.replace(/@.+/, ""));
-    } catch (error: any) {
-      return next(error);
-    }
-  }
-
-  return next();
-});
