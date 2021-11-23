@@ -23,7 +23,6 @@ import { Layout } from "features/layout";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { useSession } from "hooks/useAuth";
 import { IUser } from "models/User";
-import { useAppDispatch } from "store";
 import api from "utils/api";
 import { UserPageTabs } from "./UserPageTabs";
 import { useGetUserQuery, useEditUserMutation } from "./usersApi";
@@ -37,30 +36,44 @@ export const UserPage = ({
   const router = useRouter();
   const { data: clientSession } = useSession();
   const session = clientSession || props.session;
-  console.log(session);
-
+  console.groupCollapsed("UserPage");
+  console.log("session", session);
   const isSelf = props.user._id === session?.user.userId;
-  const toast = useToast({ position: "top" });
-  const dispatch = useAppDispatch();
+  console.log("isSelf", isSelf);
+  console.log("props.user", props.user);
 
-  const userQuery = useGetUserQuery({
-    slug: props.user.userName || props.user._id,
-    populate: isSelf ? "userProjects" : undefined
-  });
+  const toast = useToast({ position: "top" });
+
+  const userQuery = useGetUserQuery(
+    {
+      slug: props.user.email || session?.user.email || "",
+      populate: isSelf ? "userProjects" : undefined,
+      select: isSelf ? "userProjects" : undefined
+    },
+    {
+      selectFromResult: (query) => {
+        if (query.data) {
+          return {
+            ...query,
+            data: {
+              ...query.data,
+              email:
+                query.data.email ||
+                props.user.email ||
+                session?.user.email ||
+                ""
+            }
+          };
+        }
+        return query;
+      }
+    }
+  );
+
+  console.log("user", userQuery.data);
+  console.groupEnd();
 
   const [editUser, editUserMutation] = useEditUserMutation();
-
-  // const user: Partial<IUser> = isSelf
-  //   ? {
-  //       ...props.user,
-  //       _id: session?.user.userId,
-  //       email: session?.user.email,
-  //       userName: session?.user.userName,
-  //       userImage: session?.user.userImage,
-  //       isAdmin: session?.user.isAdmin
-  //     }
-  //   : props.user;
-
   const [data, setData] = useState<any>();
   const [isEdit, setIsEdit] = useState(false);
   const [isDescriptionEdit, setIsDescriptionEdit] = useState(false);
@@ -75,7 +88,7 @@ export const UserPage = ({
       session={session}
     >
       <>
-        {(isSelf || session?.user.isAdmin) && (
+        {session && (isSelf || session.user.isAdmin) && (
           <>
             {!isEdit ? (
               <Button
@@ -83,7 +96,7 @@ export const UserPage = ({
                 leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
                 onClick={() => setIsEdit(!isEdit)}
                 mb={5}
-                data-cy="userEdit"
+                data-cy="user-edit"
               >
                 Paramètres de votre compte
               </Button>
@@ -93,7 +106,7 @@ export const UserPage = ({
                 leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
                 mb={5}
                 onClick={() => setIsEdit(!isEdit)}
-                data-cy="userEdit"
+                data-cy="user-edit"
               >
                 Revenir à votre page
               </Button>
@@ -101,8 +114,9 @@ export const UserPage = ({
           </>
         )}
 
-        {isEdit && (
+        {session && isEdit && (
           <UserForm
+            session={session}
             user={userQuery.data || props.user}
             onSubmit={async ({ userName }) => {
               userQuery.refetch();
@@ -120,7 +134,7 @@ export const UserPage = ({
           />
         )}
 
-        {!isEdit && isSelf && (
+        {session && !isEdit && isSelf && (
           <UserPageTabs>
             <TabPanels>
               <TabPanel aria-hidden>
@@ -134,7 +148,112 @@ export const UserPage = ({
                     }
                   `}
                 >
-                  {/* <GridItem
+                  {isSelf && session.user.isAdmin && !isEdit && (
+                    <GridItem
+                      light={{ bg: "orange.100" }}
+                      dark={{ bg: "gray.500" }}
+                      borderTopRadius="lg"
+                    >
+                      <Grid templateRows="auto 1fr">
+                        <GridHeader borderTopRadius="lg" alignItems="center">
+                          <Heading size="sm" py={3}>
+                            Administration
+                          </Heading>
+                        </GridHeader>
+                        <GridItem>
+                          <VStack spacing={5} p={5}>
+                            <Button onClick={() => router.push("/sandbox")}>
+                              Sandbox
+                            </Button>
+
+                            <Button
+                              onClick={async () => {
+                                try {
+                                  const { data } = await api.get(
+                                    "admin/backup"
+                                  );
+                                  const a = document.createElement("a");
+                                  const href = window.URL.createObjectURL(
+                                    new Blob([JSON.stringify(data)], {
+                                      type: "application/json"
+                                    })
+                                  );
+                                  a.href = href;
+                                  a.download =
+                                    "data-" + format(new Date(), "dd-MM-yyyy");
+                                  a.click();
+                                  window.URL.revokeObjectURL(href);
+                                } catch (error: any) {
+                                  console.error(error);
+                                  toast({
+                                    status: "error",
+                                    title: error
+                                  });
+                                }
+                              }}
+                            >
+                              Exporter les données
+                            </Button>
+
+                            <Textarea
+                              onChange={(e) => setData(e.target.value)}
+                              placeholder="Copiez ici les données exportées précédemment"
+                            />
+                            <Button
+                              isDisabled={!data}
+                              onClick={async () => {
+                                try {
+                                  await api.post("admin/backup", data);
+                                  toast({
+                                    status: "success",
+                                    title: "Les données ont été importées"
+                                  });
+                                } catch (error: any) {
+                                  console.error(error);
+                                  toast({
+                                    status: "error",
+                                    title: error.message
+                                  });
+                                }
+                              }}
+                            >
+                              Importer les données
+                            </Button>
+                          </VStack>
+                        </GridItem>
+                      </Grid>
+                    </GridItem>
+                  )}
+                </Grid>
+              </TabPanel>
+
+              <TabPanel aria-hidden>
+                <ProjectsList
+                  user={userQuery.data}
+                  userQuery={userQuery}
+                  isLogin={isLogin}
+                  setIsLogin={setIsLogin}
+                />
+                <IconFooter />
+              </TabPanel>
+
+              <TabPanel aria-hidden>
+                <DocumentsList
+                  user={userQuery.data}
+                  isLogin={isLogin}
+                  setIsLogin={setIsLogin}
+                />
+                <IconFooter />
+              </TabPanel>
+            </TabPanels>
+          </UserPageTabs>
+        )}
+      </>
+    </Layout>
+  );
+};
+{
+  /* <GridItem
                   light={{ bg: "orange.100" }}
                   dark={{ bg: "gray.500" }}
                   borderTopRadius="lg"
@@ -254,107 +373,5 @@ export const UserPage = ({
                       </Box>
                     </GridItem>
                   </Grid>
-                </GridItem> */}
-
-                  {isSelf && session?.user.isAdmin && !isEdit && (
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                      borderTopRadius="lg"
-                    >
-                      <Grid templateRows="auto 1fr">
-                        <GridHeader borderTopRadius="lg" alignItems="center">
-                          <Heading size="sm" py={3}>
-                            Administration
-                          </Heading>
-                        </GridHeader>
-                        <GridItem>
-                          <VStack spacing={5} p={5}>
-                            <Button onClick={() => router.push("/sandbox")}>
-                              Sandbox
-                            </Button>
-
-                            <Button
-                              onClick={async () => {
-                                try {
-                                  const { data } = await api.get(
-                                    "admin/backup"
-                                  );
-                                  const a = document.createElement("a");
-                                  const href = window.URL.createObjectURL(
-                                    new Blob([JSON.stringify(data)], {
-                                      type: "application/json"
-                                    })
-                                  );
-                                  a.href = href;
-                                  a.download =
-                                    "data-" + format(new Date(), "dd-MM-yyyy");
-                                  a.click();
-                                  window.URL.revokeObjectURL(href);
-                                } catch (error: any) {
-                                  console.error(error);
-                                  toast({
-                                    status: "error",
-                                    title: error
-                                  });
-                                }
-                              }}
-                            >
-                              Exporter les données
-                            </Button>
-
-                            <Textarea
-                              onChange={(e) => setData(e.target.value)}
-                              placeholder="Copiez ici les données exportées précédemment"
-                            />
-                            <Button
-                              isDisabled={!data}
-                              onClick={async () => {
-                                try {
-                                  await api.post("admin/backup", data);
-                                  toast({
-                                    status: "success",
-                                    title: "Les données ont été importées"
-                                  });
-                                } catch (error: any) {
-                                  console.error(error);
-                                  toast({
-                                    status: "error",
-                                    title: error.message
-                                  });
-                                }
-                              }}
-                            >
-                              Importer les données
-                            </Button>
-                          </VStack>
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                  )}
-                </Grid>
-              </TabPanel>
-              <TabPanel aria-hidden>
-                <ProjectsList
-                  user={userQuery.data}
-                  userQuery={userQuery}
-                  isLogin={isLogin}
-                  setIsLogin={setIsLogin}
-                />
-                <IconFooter />
-              </TabPanel>
-              <TabPanel aria-hidden>
-                <DocumentsList
-                  user={userQuery.data}
-                  isLogin={isLogin}
-                  setIsLogin={setIsLogin}
-                />
-                <IconFooter />
-              </TabPanel>
-            </TabPanels>
-          </UserPageTabs>
-        )}
-      </>
-    </Layout>
-  );
-};
+                </GridItem> */
+}

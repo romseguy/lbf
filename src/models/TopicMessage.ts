@@ -5,7 +5,7 @@ export interface ITopicMessage {
   _id?: string;
   message: string;
   messageHtml?: string;
-  createdBy?: IUser;
+  createdBy: IUser | string;
   createdAt?: string;
 }
 

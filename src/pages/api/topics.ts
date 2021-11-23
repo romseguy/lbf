@@ -140,7 +140,10 @@ handler.post<NextApiRequest, NextApiResponse>(async function postTopic(
 
       logJson(`POST /topics: found topic`, topic);
 
-      const newMessage = body.topic.topicMessages[0];
+      const newMessage = {
+        ...body.topic.topicMessages[0],
+        createdBy: session.user.userId
+      };
       topic.topicMessages.push(newMessage);
       await topic.save();
 

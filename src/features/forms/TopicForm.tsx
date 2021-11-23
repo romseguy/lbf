@@ -157,7 +157,8 @@ export const TopicForm = ({
             ? [
                 {
                   message: form.topicMessage,
-                  messageHtml
+                  messageHtml,
+                  createdBy: session.user.userId
                 }
               ]
             : [],

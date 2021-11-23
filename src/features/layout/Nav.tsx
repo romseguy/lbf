@@ -20,24 +20,22 @@ import { Session } from "next-auth";
 import { signOut } from "next-auth/client";
 import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { FaMapMarkerAlt, FaPowerOff } from "react-icons/fa";
+import { FaPowerOff } from "react-icons/fa";
 import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { useSelector } from "react-redux";
 import tw, { css } from "twin.macro";
-
-import { Link, LocationButton } from "features/common";
+import { Link } from "features/common";
 import { EventPopover, OrgPopover, EmailLoginPopover } from "features/layout";
 import { LoginModal } from "features/modals/LoginModal";
-import { refetchSubscription } from "features/subscriptions/subscriptionSlice";
+import { setSession } from "features/session/sessionSlice";
 import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
+import { OrgTypes } from "models/Org";
 import { useAppDispatch } from "store";
 import { breakpoints } from "theme/theme";
 import { isServer } from "utils/isServer";
 import { base64ToUint8Array } from "utils/string";
-import { setSession } from "features/session/sessionSlice";
-import { OrgTypes } from "models/Org";
 import { TopicPopover } from "./TopicPopover";
 
 interface customWindow extends Window {
@@ -61,8 +59,8 @@ export const Nav = ({
   const dispatch = useAppDispatch();
 
   //#region login modal
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
-    router.asPath === "/?login" || false
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(
+    router.asPath === "/?login"
   );
   useEffect(() => {
     if (isLogin !== 0) {
@@ -203,7 +201,7 @@ export const Nav = ({
 
             <Menu>
               <Tooltip label={`Connecté en tant que ${userEmail}`}>
-                <MenuButton mr={[1, 3]}>
+                <MenuButton mr={[1, 3]} data-cy="avatar-button">
                   <Avatar
                     boxSize={10}
                     name={userName}
@@ -238,7 +236,7 @@ export const Nav = ({
                   />
                 )}
 
-                <Link href={`/${userName}`} aria-hidden>
+                <Link href={`/${userName}`} aria-hidden data-cy="my-page">
                   <MenuItem>Ma page</MenuItem>
                 </Link>
 
@@ -262,7 +260,7 @@ export const Nav = ({
                             await subscription.unsubscribe();
                             await editUser({
                               payload: { userSubscription: null },
-                              userName
+                              slug: userName
                             });
                             setSubscription(null);
                             setIsSubscribed(false);
@@ -287,7 +285,7 @@ export const Nav = ({
 
                             await editUser({
                               payload: { userSubscription: sub },
-                              userName
+                              slug: userName
                             }).unwrap();
 
                             userQuery.refetch();
@@ -325,6 +323,7 @@ export const Nav = ({
                     dispatch(setSession(null));
                     router.push(url);
                   }}
+                  data-cy="logout"
                 >
                   Déconnexion
                 </MenuItem>
@@ -364,18 +363,11 @@ export const Nav = ({
       {isLoginModalOpen && (
         <LoginModal
           onClose={() => setIsLoginModalOpen(false)}
-          onSubmit={async (url) => {
+          onSubmit={async () => {
+            setIsLoginModalOpen(false);
             dispatch(setUserEmail(null));
-
-            if (url) {
-              if (
-                url === "/?login" ||
-                url === `${process.env.NEXT_PUBLIC_URL}/?login`
-              ) {
-                url = "/";
-              }
-              await router.push(url, url, { shallow: true });
-            }
+            const url = router.asPath.includes("/?login") ? "/" : router.asPath;
+            await router.push(url);
           }}
         />
       )}

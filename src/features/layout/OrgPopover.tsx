@@ -225,13 +225,15 @@ export const OrgPopover = ({
                   overflow="auto"
                   height="200px"
                   spacing={2}
+                  py={1}
+                  pl={1}
                 >
                   {myOrgsQuery.data.map((org) => (
                     <EntityButton key={org._id} org={org} p={1} />
                   ))}
                 </VStack>
               ) : (
-                <Text fontSize="smaller" ml={3} my={2}>
+                <Text fontSize="smaller">
                   Vous n'avez ajouté aucune organisations.
                 </Text>
               ))}
@@ -249,8 +251,8 @@ export const OrgPopover = ({
                   ))}
                 </VStack>
               ) : (
-                <Text fontSize="smaller" ml={3}>
-                  Vous n'êtes abonné à aucune organisation.
+                <Text fontSize="smaller">
+                  Vous n'êtes abonné à aucune organisations.
                 </Text>
               ))}
 
@@ -267,7 +269,7 @@ export const OrgPopover = ({
                   ))}
                 </VStack>
               ) : (
-                <Text fontSize="smaller" ml={3}>
+                <Text fontSize="smaller">
                   Personne ne vous a inscrit en tant qu'adhérent, bientôt
                   peut-être ?
                 </Text>

@@ -27,7 +27,7 @@ export const orgApi = createApi({
       { payload: Partial<IOrg> | string[]; orgUrl?: string }
     >({
       query: ({ payload, orgUrl }) => {
-        console.group("editOrg");
+        console.groupCollapsed("editOrg");
         console.log("orgUrl", orgUrl);
         console.log("payload", payload);
         console.groupEnd();
@@ -43,7 +43,7 @@ export const orgApi = createApi({
     }),
     getOrg: build.query<IOrg, { orgUrl: string; populate?: string }>({
       query: ({ orgUrl, populate }) => {
-        console.group("getOrg");
+        console.groupCollapsed("getOrg");
         console.log("orgUrl", orgUrl);
         console.log("populate", populate);
         console.groupEnd();
@@ -58,7 +58,7 @@ export const orgApi = createApi({
       { populate?: string; createdBy?: string } | void
     >({
       query: (query) => {
-        console.group("getOrgs");
+        console.groupCollapsed("getOrgs");
         if (query) {
           console.log("createdBy", query.createdBy);
           console.log("populate", query.populate);

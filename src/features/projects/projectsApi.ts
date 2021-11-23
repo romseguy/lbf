@@ -12,7 +12,7 @@ export const projectApi = createApi({
   endpoints: (build) => ({
     addProject: build.mutation<IProject, Partial<IProject>>({
       query: (body) => {
-        console.group("addProject");
+        console.groupCollapsed("addProject");
         console.log("payload", body);
         console.groupEnd();
 

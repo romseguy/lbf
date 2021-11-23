@@ -20,3 +20,5 @@
 // require('./commands')
 
 // import "cypress-promise/register";
+
+require("./commands");

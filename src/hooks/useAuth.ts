@@ -19,19 +19,20 @@ import { IUser } from "models/User";
 export async function getSession(
   options: GetSessionOptions
 ): Promise<Session | null> {
-  const session = await getNextAuthSession(options);
+  let session = await getNextAuthSession(options);
+  if (!session) return session;
 
   if (
-    session &&
     session.user &&
     (!session.user.userId || session.user.suggestedCategoryAt === undefined)
   ) {
+    console.log("getSession: fetching", session);
     const { data } = await api.get(`user/${session.user.email}?select=isAdmin`);
 
     if (data) {
       const { _id, userName, suggestedCategoryAt = null, isAdmin } = data;
 
-      return {
+      session = {
         ...session,
         user: {
           ...session.user,
@@ -43,6 +44,7 @@ export async function getSession(
           isAdmin: isAdmin || false
         }
       };
+      console.log("getSession: fetched", session);
     }
   }
 
@@ -62,9 +64,8 @@ export const useSession = (): { data: Session | null; loading: boolean } => {
 
   const xhr = async () => {
     dispatch(setLoading(true));
-
     const userQuery = await api.get(
-      `user/${session.user.userId}?select=isAdmin`
+      `user/${session.user.email}?select=isAdmin`
     );
 
     if (userQuery.data) {

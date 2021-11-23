@@ -5,7 +5,7 @@ import { IUser } from "models/User";
 
 export interface ISubscription {
   _id: string;
-  user?: IUser;
+  user?: IUser | string;
   email?: string;
   phone?: string;
   events?: IEventSubscription[];

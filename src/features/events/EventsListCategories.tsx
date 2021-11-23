@@ -12,11 +12,9 @@ import {
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React from "react";
-import { setSession } from "features/session/sessionSlice";
 import { useEditUserMutation } from "features/users/usersApi";
 import { Category, IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { useAppDispatch } from "store";
 import api from "utils/api";
 
 export const EventsListCategories = ({
@@ -38,7 +36,6 @@ export const EventsListCategories = ({
   setIsLogin: (isLogin: number) => void;
 }) => {
   const { colorMode } = useColorMode();
-  const dispatch = useAppDispatch();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
   const [editUser, editUserMutation] = useEditUserMutation();
@@ -103,37 +100,24 @@ export const EventsListCategories = ({
               if (!session) {
                 setIsLogin(isLogin + 1);
               } else {
-                // if (
-                //   session.user.suggestedCategoryAt &&
-                //   isBefore(
-                //     new Date(),
-                //     addDays(parseISO(session.user.suggestedCategoryAt), 1)
-                //   )
-                // )
-                //   return toast({
-                //     status: "warning",
-                //     title: `Vous devez attendre le ${format(
-                //       parseISO(session.user.suggestedCategoryAt),
-                //       "cccc d MMMM H'h'mm",
-                //       { locale: fr }
-                //     )} pour proposer une nouvelle catégorie`
-                //   });
-
                 const category = prompt(
                   "Entrez le nom de la nouvelle catégorie que vous voulez proposer"
                 );
 
                 if (category) {
                   try {
-                    await api.post(`admin/suggestCategory`, { category });
+                    const { error } = await api.post(`admin/suggestCategory`, {
+                      category
+                    });
+
+                    if (error) throw error;
 
                     await editUser({
-                      userName: session.user.userName,
+                      slug: session.user.userName,
                       payload: {
                         suggestedCategoryAt: new Date().toISOString()
                       }
                     });
-                    dispatch(setSession(null));
 
                     toast({
                       status: "success",

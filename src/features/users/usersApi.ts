@@ -15,12 +15,9 @@ export const userApi = createApi({
       }),
       invalidatesTags: [{ type: "Users", id: "LIST" }]
     }),
-    editUser: build.mutation<
-      IUser,
-      { payload: Partial<IUser>; userName?: string }
-    >({
-      query: ({ payload, userName }) => ({
-        url: `user/${userName || payload.userName}`,
+    editUser: build.mutation<IUser, { payload: Partial<IUser>; slug: string }>({
+      query: ({ payload, slug }) => ({
+        url: `user/${slug}`,
         method: "PUT",
         body: payload
       })

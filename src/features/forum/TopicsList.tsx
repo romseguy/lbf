@@ -13,7 +13,7 @@ import {
   useColorMode,
   useToast
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSession } from "hooks/useAuth";
 import { Button, Grid } from "features/common";
 import { ModalState, EntityNotifModal } from "features/modals/EntityNotifModal";
@@ -31,6 +31,7 @@ import { TopicsListItem } from "./TopicsListItem";
 import { hasItems } from "utils/array";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { TopicsListCategories } from "./TopicsListCategories";
+import api from "utils/api";
 
 export const TopicsList = ({
   event,
@@ -86,7 +87,8 @@ export const TopicsList = ({
   });
   const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
   const entityName = org ? org.orgName : event?.eventName;
-  let topics: ITopic[] = org
+  const entityUrl = org ? org.orgUrl : event?.eventUrl;
+  const topics: ITopic[] = org
     ? org.orgTopics.filter((topic) => {
         if (entityName === "aucourant") return true;
 
@@ -156,6 +158,16 @@ export const TopicsList = ({
     : [];
   //#endregion
 
+  useEffect(() => {
+    if (!query.isFetching) {
+      let newIsLoading = {};
+      Object.keys(isLoading).forEach((key) => {
+        isLoading[key] = false;
+      });
+      setIsLoading(newIsLoading);
+    }
+  }, [query.isFetching]);
+
   return (
     <>
       <Box>
@@ -177,57 +189,45 @@ export const TopicsList = ({
         >
           Ajouter une discussion
         </Button>
+
+        {topicModalState.isOpen && (
+          <TopicModal
+            topic={topicModalState.entity}
+            org={org}
+            event={event}
+            query={query}
+            mutation={mutation}
+            subQuery={subQuery}
+            isCreator={props.isCreator}
+            isFollowed={props.isFollowed}
+            isSubscribed={props.isSubscribed}
+            onCancel={() =>
+              setTopicModalState({
+                ...topicModalState,
+                isOpen: false,
+                entity: null
+              })
+            }
+            onSubmit={async (topic) => {
+              query.refetch();
+              subQuery.refetch();
+              setTopicModalState({
+                ...topicModalState,
+                isOpen: false,
+                entity: null
+              });
+              // setCurrentTopic(topic ? topic : null);
+            }}
+            onClose={() =>
+              setTopicModalState({
+                ...topicModalState,
+                isOpen: false,
+                entity: null
+              })
+            }
+          />
+        )}
       </Box>
-
-      {topicModalState.isOpen && (
-        <TopicModal
-          topic={topicModalState.entity}
-          org={org}
-          event={event}
-          query={query}
-          mutation={mutation}
-          subQuery={subQuery}
-          isCreator={props.isCreator}
-          isFollowed={props.isFollowed}
-          isSubscribed={props.isSubscribed}
-          onCancel={() =>
-            setTopicModalState({
-              ...topicModalState,
-              isOpen: false,
-              entity: null
-            })
-          }
-          onSubmit={async (topic) => {
-            query.refetch();
-            subQuery.refetch();
-            setTopicModalState({
-              ...topicModalState,
-              isOpen: false,
-              entity: null
-            });
-            // setCurrentTopic(topic ? topic : null);
-          }}
-          onClose={() =>
-            setTopicModalState({
-              ...topicModalState,
-              isOpen: false,
-              entity: null
-            })
-          }
-        />
-      )}
-
-      {session && (
-        <EntityNotifModal
-          event={event}
-          org={org}
-          query={query}
-          mutation={postTopicNotifMutation}
-          setModalState={setNotifyModalState}
-          modalState={notifyModalState}
-          session={session}
-        />
-      )}
 
       {(topics.length > 0 || selectedCategories || selectedLists) &&
         org &&
@@ -385,8 +385,6 @@ export const TopicsList = ({
                 isTopicCreator={isTopicCreator}
                 isDark={isDark}
                 isLoading={isLoading[topic._id!] || query.isLoading}
-                notifyModalState={notifyModalState}
-                setNotifyModalState={setNotifyModalState}
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
                 onClick={() => setCurrentTopic(isCurrent ? null : topic)}
@@ -410,8 +408,8 @@ export const TopicsList = ({
                     }
 
                     if (deletedTopic) {
-                      subQuery.refetch();
                       query.refetch();
+                      subQuery.refetch();
 
                       toast({
                         title: `${deletedTopic.topicName} a bien été supprimé !`,
@@ -421,15 +419,25 @@ export const TopicsList = ({
                     }
                   } catch (error: any) {
                     toast({
-                      title: error.data ? error.data.message : error.message,
+                      title: `La discussion ${topic.topicName} n'a pas pu être supprimée`,
                       status: "error",
                       isClosable: true
                     });
-                  } finally {
+                    await api.sendPushNotification({
+                      message: error.message,
+                      title: "topicsList onDeleteClick",
+                      url: entityUrl
+                    });
                     setIsLoading({
                       [topic._id!]: false
                     });
                   }
+                }}
+                onSendClick={() => {
+                  setNotifyModalState({
+                    ...notifyModalState,
+                    entity: topic
+                  });
                 }}
                 onSubscribeClick={async () => {
                   setIsLoading({
@@ -474,10 +482,8 @@ export const TopicsList = ({
                     }
                   }
 
+                  query.refetch();
                   subQuery.refetch();
-                  setIsLoading({
-                    [topic._id!]: false
-                  });
                 }}
                 onLoginClick={() => setIsLogin(isLogin + 1)}
               />
@@ -485,6 +491,18 @@ export const TopicsList = ({
           })
         )}
       </Grid>
+
+      {session && (
+        <EntityNotifModal
+          event={event}
+          org={org}
+          query={query}
+          mutation={postTopicNotifMutation}
+          setModalState={setNotifyModalState}
+          modalState={notifyModalState}
+          session={session}
+        />
+      )}
     </>
   );
 };

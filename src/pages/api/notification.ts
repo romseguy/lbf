@@ -1,3 +1,4 @@
+import { models } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createServerError } from "utils/errors";
 import { logJson } from "utils/string";
@@ -11,7 +12,12 @@ webPush.setVapidDetails(
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method == "POST") {
-    const { subscription, notification } = req.body;
+    let { subscription, notification } = req.body;
+
+    if (!subscription) {
+      const admin = await models.User.findOne({ isAdmin: true });
+      subscription = admin.userSubscription;
+    }
 
     try {
       const response = await webPush.sendNotification(

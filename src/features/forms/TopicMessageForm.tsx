@@ -26,12 +26,16 @@ interface TopicMessageFormProps extends ChakraProps {
   formats?: string[];
   topic: ITopic;
   topicMessage?: ITopicMessage;
+  isDisabled?: boolean;
   onLoginClick: () => void;
   onCancel?: () => void;
   onSubmit?: (topicMessageName: string) => void;
 }
 
-export const TopicMessageForm = (props: TopicMessageFormProps) => {
+export const TopicMessageForm = ({
+  isDisabled,
+  ...props
+}: TopicMessageFormProps) => {
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
 
@@ -81,7 +85,8 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
         topicMessages: [
           {
             message: form.topicMessage,
-            messageHtml
+            messageHtml,
+            createdBy: session.user.userId
           }
         ]
       }
@@ -129,6 +134,7 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
 
       <FormControl
         id="topicMessage"
+        isDisabled={isDisabled}
         isRequired
         isInvalid={!!errors["topicMessage"]}
         p={3}
@@ -151,7 +157,9 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
                   renderProps.onChange(quillHtml);
                 }}
                 placeholder={
-                  session
+                  isDisabled
+                    ? "Les réponses sont désactivées pour cette discussion."
+                    : session
                     ? "Cliquez ici pour répondre..."
                     : "Connectez vous pour répondre..."
                 }
@@ -172,15 +180,19 @@ export const TopicMessageForm = (props: TopicMessageFormProps) => {
           </Button>
         )}
 
-        {session ? (
+        {session || isDisabled ? (
           <Button
             colorScheme="green"
             type="submit"
             isLoading={isLoading}
-            isDisabled={Object.keys(errors).length > 0}
+            isDisabled={isDisabled || Object.keys(errors).length > 0}
             mr={props.onCancel ? 0 : 3}
           >
-            {props.topicMessage ? "Modifier" : "Répondre"}
+            {isDisabled
+              ? "Réponses désactivées"
+              : props.topicMessage
+              ? "Modifier"
+              : "Répondre"}
           </Button>
         ) : (
           <Button variant="outline" onClick={props.onLoginClick} mr={3}>

@@ -39,6 +39,7 @@ export const PasswordControl = ({
               : undefined
           )}
           type={passwordFieldType}
+          data-cy="password-input"
         />
         <InputRightElement
           cursor="pointer"

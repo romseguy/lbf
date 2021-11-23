@@ -1,0 +1,14 @@
+{
+  "user": {
+    "email": "rom.seguy@lilo.org",
+    "isAdmin": true,
+    "userId": "60e340cb56ef290008d2e75d",
+    "userImage": {
+      "width": 40,
+      "height": 40,
+      "base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgA…9QFBTZne3jVee289afgv/HwSTuR0+Z1sOAAAAAElFTkSuQmCC"
+    },
+    "userName": "romain"
+  },
+  "expires": "3000-01-01T00:00:00.000Z"
+}

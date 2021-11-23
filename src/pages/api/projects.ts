@@ -113,7 +113,7 @@ handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
                 message: "Appuyez pour ouvrir la page de l'organisation",
                 subscription: admin.userSubscription,
                 title: "Un projet attend votre approbation",
-                url: `${process.env.NEXT_PUBLIC_URL}/${projectOrgs[0].orgUrl}`
+                url: projectOrgs[0].orgUrl
               });
               console.log("sent push notif", data);
             } catch (error: any) {
@@ -124,10 +124,7 @@ handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
       } else {
         await models.User.updateOne(
           {
-            _id:
-              typeof body.createdBy === "object"
-                ? body.createdBy._id
-                : body.createdBy
+            _id: session.user.userId
           },
           { $push: { userProjects: project._id } }
         );

@@ -160,7 +160,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
               subscription: admin.userSubscription,
               message: "Appuyez pour ouvrir la page de l'événement",
               title: "Un événement attend votre approbation",
-              url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
+              url: event.eventUrl
             });
             sendToAdmin({ event: body, transport });
           }

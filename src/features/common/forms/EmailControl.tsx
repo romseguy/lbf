@@ -2,6 +2,7 @@ import { AtSignIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
   Box,
   FormControl,
+  FormControlProps,
   FormErrorMessage,
   FormLabel,
   Icon,
@@ -10,10 +11,8 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightAddon,
-  InputRightElement,
-  SpaceProps
+  InputRightElement
 } from "@chakra-ui/react";
-// import { Input } from "features/common";
 import { ErrorMessage } from "@hookform/error-message";
 import React from "react";
 import { useFieldArray } from "react-hook-form";
@@ -23,13 +22,13 @@ import { Link } from "../Link";
 type EmailControlValue = [{ email: string }] | null;
 
 export const EmailControl = ({
-  defaultValue,
-  errors,
   name,
+  errors,
+  register,
+  defaultValue,
   label = "Adresse e-mail",
   noLabel,
   control,
-  register,
   setValue,
   containerProps = {},
   isRequired = false,
@@ -37,15 +36,15 @@ export const EmailControl = ({
   placeholder = "Saisir une adresse e-mail...",
   onRightElementClick,
   ...props
-}: SpaceProps & {
-  defaultValue?: string;
-  errors: any;
+}: FormControlProps & {
   name: string;
+  errors: any;
+  register: any;
+  defaultValue?: string;
   label?: string;
   noLabel?: boolean;
   control?: any;
-  register: any;
-  setValue: (name: string, value: EmailControlValue | string) => void;
+  setValue?: (name: string, value: EmailControlValue | string) => void;
   containerProps?: StyleProps;
   isRequired?: boolean;
   isMultiple?: boolean;
@@ -61,7 +60,6 @@ export const EmailControl = ({
   if (!isMultiple) {
     return (
       <FormControl
-        id={name}
         isRequired={isRequired}
         isInvalid={!!errors[name]}
         {...props}
@@ -82,6 +80,7 @@ export const EmailControl = ({
             })}
             defaultValue={defaultValue}
             pl={10}
+            data-cy="email-input"
           />
           {noLabel && onRightElementClick && (
             <InputRightElement
@@ -154,7 +153,7 @@ export const EmailControl = ({
                     onClick={() => {
                       remove(index);
 
-                      if (fields.length === 1) setValue(name, null);
+                      if (fields.length === 1) setValue && setValue(name, null);
                     }}
                   />
                 }

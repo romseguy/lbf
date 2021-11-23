@@ -37,13 +37,12 @@ export const TopicsListItem = ({
   isTopicCreator,
   isDark,
   isLoading,
-  notifyModalState,
-  setNotifyModalState,
   selectedCategories,
   setSelectedCategories,
   onClick,
   onEditClick,
   onDeleteClick,
+  onSendClick,
   onSubscribeClick,
   onLoginClick
 }: {
@@ -59,8 +58,6 @@ export const TopicsListItem = ({
   isTopicCreator: boolean;
   isDark: boolean;
   isLoading: boolean;
-  notifyModalState: ModalState<ITopic>;
-  setNotifyModalState: React.Dispatch<React.SetStateAction<ModalState<ITopic>>>;
   selectedCategories?: string[];
   setSelectedCategories: React.Dispatch<
     React.SetStateAction<string[] | undefined>
@@ -68,9 +65,13 @@ export const TopicsListItem = ({
   onClick: () => void;
   onEditClick: () => void;
   onDeleteClick: () => void;
+  onSendClick: () => void;
   onSubscribeClick: () => void;
   onLoginClick: () => void;
 }) => {
+  const hasCategorySelected = !!selectedCategories?.find(
+    (category) => category === topic.topicCategory
+  );
   const { timeAgo, fullDate } = dateUtils.timeAgo(topic.createdAt, true);
   const topicCreatedByUserName =
     typeof topic.createdBy === "object"
@@ -107,17 +108,15 @@ export const TopicsListItem = ({
                 <Flex alignItems="center">
                   {topic.topicCategory && (
                     <Tooltip
-                      label={`Afficher les discussions de la catégorie ${topic.topicCategory}`}
+                      label={
+                        !hasCategorySelected
+                          ? `Afficher les discussions de la catégorie ${topic.topicCategory}`
+                          : ""
+                      }
                       hasArrow
                     >
                       <Button
-                        colorScheme={
-                          selectedCategories?.find(
-                            (category) => category === topic.topicCategory
-                          )
-                            ? "pink"
-                            : undefined
-                        }
+                        colorScheme={hasCategorySelected ? "pink" : undefined}
                         fontSize="small"
                         fontWeight="normal"
                         height="auto"
@@ -126,13 +125,9 @@ export const TopicsListItem = ({
                         onClick={(e) => {
                           e.stopPropagation();
 
-                          if (
-                            selectedCategories?.find(
-                              (category) => category === topic.topicCategory
-                            )
-                          )
+                          if (hasCategorySelected)
                             setSelectedCategories(
-                              selectedCategories.filter(
+                              selectedCategories!.filter(
                                 (category) => category !== topic.topicCategory
                               )
                             );
@@ -186,10 +181,7 @@ export const TopicsListItem = ({
                         ml={1}
                         onClick={(e) => {
                           e.stopPropagation();
-                          setNotifyModalState({
-                            ...notifyModalState,
-                            entity: topic
-                          });
+                          onSendClick();
                         }}
                       >
                         {topic.topicNotified.length} personnes invitées
@@ -222,10 +214,7 @@ export const TopicsListItem = ({
                               _hover={{ color: "green" }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setNotifyModalState({
-                                  ...notifyModalState,
-                                  entity: topic
-                                });
+                                onSendClick();
                               }}
                             />
                           </Tooltip>
@@ -314,8 +303,8 @@ export const TopicsListItem = ({
                         }}
                         data-cy={
                           isSubbedToTopic
-                            ? "topicUnsubscribe"
-                            : "topicSubscribe"
+                            ? "topic-unsubscribe"
+                            : "topic-subscribe"
                         }
                       />
                     </span>
@@ -349,6 +338,7 @@ export const TopicsListItem = ({
                 org={org}
                 topic={topic}
                 formats={formats.filter((f) => f !== "size")}
+                isDisabled={topic.topicMessagesDisabled}
                 onLoginClick={onLoginClick}
                 onSubmit={() => query.refetch()}
               />

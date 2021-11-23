@@ -81,7 +81,7 @@ export const topicsApi = createApi({
       { createdBy?: string; populate?: string } | void
     >({
       query: (query) => {
-        console.group("getTopics");
+        console.groupCollapsed("getTopics");
         if (query) {
           console.log("query", query);
         }

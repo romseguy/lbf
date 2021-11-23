@@ -9,7 +9,7 @@ export const eventApi = createApi({
   endpoints: (build) => ({
     addEvent: build.mutation<IEvent, Partial<IEvent>>({
       query: (body) => {
-        console.group("addEvent");
+        console.groupCollapsed("addEvent");
         console.log("payload", body);
         console.groupEnd();
 
@@ -29,7 +29,7 @@ export const eventApi = createApi({
       { payload: Partial<IEvent> | string[]; eventUrl?: string }
     >({
       query: ({ payload, eventUrl }) => {
-        console.group("editEvent");
+        console.groupCollapsed("editEvent");
         console.log("eventUrl", eventUrl);
         console.log("payload", payload);
         console.groupEnd();
@@ -52,7 +52,7 @@ export const eventApi = createApi({
       { eventUrl: string; email?: string; populate?: string }
     >({
       query: ({ eventUrl, email, populate }) => {
-        console.group("getEvent");
+        console.groupCollapsed("getEvent");
         console.log("eventUrl", eventUrl);
         console.log("email", email);
         console.log("populate", populate);
@@ -70,7 +70,7 @@ export const eventApi = createApi({
     getEvents: build.query<IEvent[], { createdBy: string } | void>({
       query: (query) => {
         if (query) {
-          console.group("getEvents");
+          console.groupCollapsed("getEvents");
           console.log("createdBy", query.createdBy);
           console.groupEnd();
         }

@@ -31,7 +31,7 @@ import {
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import { useRouter } from "next/router";
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Link,
   GridHeader,
@@ -166,14 +166,11 @@ export const EventsList = ({
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
-  const [showLocationButton, setShowLocationButton] = useState(!!city);
-  console.log(showLocationButton, city);
-
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const selectedCategoriesCount = selectedCategories
     ? selectedCategories.length
     : 0;
-
+  const [showLocationButton, setShowLocationButton] = useState(!!city);
   const [showPreviousEvents, setShowPreviousEvents] = useState(false);
   const [showNextEvents, setShowNextEvents] = useState(false);
   useEffect(() => {

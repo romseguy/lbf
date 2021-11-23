@@ -2,10 +2,6 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
   Link,
   Modal,
   ModalOverlay,
@@ -15,7 +11,6 @@ import {
   ModalBody,
   ModalCloseButton,
   Portal,
-  useDisclosure,
   Alert,
   AlertIcon,
   useColorMode,
@@ -24,25 +19,24 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/router";
-import { signIn, SignInAuthorisationParams } from "next-auth/client";
+import { signIn } from "next-auth/client";
 import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
+  EmailControl,
   ErrorMessageText,
   PasswordConfirmControl,
   PasswordControl
 } from "features/common";
 import { ForgottenForm } from "features/forms/ForgottenForm";
 import api from "utils/api";
-import { emailR } from "utils/email";
 import { handleError as handleError } from "utils/form";
 import { useAppDispatch } from "store";
 import { getUser } from "features/users/usersApi";
-import { logJson } from "utils/string";
 
 export const LoginModal = (props: {
   onClose: () => void;
-  onSubmit: (url?: string) => void;
+  onSubmit: () => void;
 }) => {
   const router = useRouter();
   const { colorMode } = useColorMode();
@@ -99,29 +93,27 @@ export const LoginModal = (props: {
           password: await bcrypt.hash(password, salt)
         });
         await signIn("credentials", { email, user });
-        setIsLoading(false);
-        props.onClose && props.onClose();
-        return;
-      }
-
-      const userQuery = await dispatch(
-        getUser.initiate({ slug: email, select: "password isAdmin" })
-      );
-
-      if (
-        !userQuery.data ||
-        !(await bcrypt.compare(password, userQuery.data.password))
-      )
-        throw new Error(
-          "Échec de la connexion, veuillez vérifier vos identifiants."
+      } else {
+        const userQuery = await dispatch(
+          getUser.initiate({ slug: email, select: "password isAdmin" })
         );
 
-      await signIn("credentials", { email, user: userQuery.data });
+        if (
+          !userQuery.data ||
+          !(await bcrypt.compare(password, userQuery.data.password))
+        )
+          throw new Error(
+            "Échec de la connexion, veuillez vérifier vos identifiants."
+          );
 
-      // setIsLoading(false);
-      // props.onClose && props.onClose();
-      // props.onSubmit && props.onSubmit();
-      // onClose();
+        await signIn("credentials", {
+          email,
+          user: userQuery.data,
+          redirect: false
+        });
+      }
+
+      props.onSubmit && props.onSubmit();
     } catch (error) {
       setIsLoading(false);
       handleError(error, (message, field) => {
@@ -165,27 +157,13 @@ export const LoginModal = (props: {
 
               {!isForgotten && (
                 <>
-                  <FormControl
-                    id="email"
+                  <EmailControl
+                    name="email"
+                    errors={errors}
+                    register={register}
+                    isMultiple={false}
                     isRequired
-                    isInvalid={!!errors["email"]}
-                    mb={3}
-                  >
-                    <FormLabel>Adresse e-mail</FormLabel>
-                    <Input
-                      name="email"
-                      ref={register({
-                        required: "Veuillez saisir une adresse e-mail",
-                        pattern: {
-                          value: emailR,
-                          message: "Adresse e-mail invalide"
-                        }
-                      })}
-                    />
-                    <FormErrorMessage>
-                      <ErrorMessage errors={errors} name="email" />
-                    </FormErrorMessage>
-                  </FormControl>
+                  />
 
                   {!isEmail && (
                     <PasswordControl
@@ -291,13 +269,13 @@ export const LoginModal = (props: {
                     S'inscrire
                   </Button>
                 )}
+
                 <Button
-                  ml={3}
-                  colorScheme="green"
                   type="submit"
-                  isLoading={isLoading}
                   isDisabled={Object.keys(errors).length > 0}
-                  data-cy="loginFormSubmit"
+                  isLoading={isLoading}
+                  colorScheme="green"
+                  data-cy="submit-button"
                 >
                   {isSignup ? "Inscription" : "Connexion"}
                 </Button>

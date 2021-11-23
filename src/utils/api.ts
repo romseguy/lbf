@@ -7,11 +7,13 @@ type ParamsType = { [key: string]: any };
 export type ResponseType<T> = { data?: T; error?: any; status?: number };
 
 async function request(endpoint: string, params?: ParamsType, method = "GET") {
-  console.log(
-    `${method} ${endpoint.includes("http") ? endpoint : "/" + endpoint}`
-  );
+  if (!isServer()) {
+    console.log(
+      `${method} ${endpoint.includes("http") ? endpoint : "/" + endpoint}`
+    );
+    if (params) console.log(params);
+  }
 
-  if (params) console.log(params);
   try {
     const options: {
       method: string;
@@ -37,34 +39,37 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
 
     if (response.status === 200) {
       const data = await response.json();
-      if (
-        !isServer() /*  && process.env.NEXT_PUBLIC_VERCEL_ENV !== "production" */
-      )
+      if (!isServer())
         console.log(
           `${method} ${
             endpoint.includes("http") ? endpoint : "/" + endpoint
           }: data`,
           data
         );
+
       return { data };
     }
 
     const error = await response.json();
-    console.error(
-      `${method} ${
-        endpoint.includes("http") ? endpoint : "/" + endpoint
-      }: error`,
-      error
-    );
+
+    if (!isServer())
+      console.log(
+        `${method} ${
+          endpoint.includes("http") ? endpoint : "/" + endpoint
+        }: error`,
+        error
+      );
 
     return { status: response.status, error };
   } catch (error: any) {
-    console.error(
-      `${method} ${
-        endpoint.includes("http") ? endpoint : "/" + endpoint
-      }: error`,
-      error
-    );
+    if (!isServer())
+      console.log(
+        `${method} ${
+          endpoint.includes("http") ? endpoint : "/" + endpoint
+        }: error`,
+        error
+      );
+
     throw error;
   }
 }
@@ -94,7 +99,7 @@ async function sendPushNotification({
   message?: string;
   title?: string;
   url?: string;
-  subscription: unknown;
+  subscription?: unknown;
 }): Promise<AxiosResponse<string>> {
   if (!subscription)
     throw new Error("api/sendPushNotification: must provide subscription");

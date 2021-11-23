@@ -9,7 +9,7 @@ import {
   Tooltip,
   useColorMode
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IOrg } from "models/Org";
 import { DeleteButton } from "features/common";
 
@@ -35,6 +35,17 @@ export const TopicsListCategories = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
+
+  useEffect(() => {
+    if (!orgQuery.isFetching) {
+      let newIsLoading = {};
+      Object.keys(isLoading).forEach((key) => {
+        isLoading[key] = false;
+      });
+      setIsLoading(newIsLoading);
+    }
+  }, [orgQuery.isFetching]);
 
   return (
     <Flex {...props}>
@@ -104,7 +115,9 @@ export const TopicsListCategories = ({
                         {category} ?
                       </>
                     }
+                    isLoading={isLoading[`category-${index}`]}
                     onClick={async () => {
+                      setIsLoading({ [`category-${index}`]: true });
                       const [editOrg, _] = mutation;
                       try {
                         await editOrg({
@@ -113,6 +126,7 @@ export const TopicsListCategories = ({
                         });
                         orgQuery.refetch();
                       } catch (error) {
+                        setIsLoading({ [`category-${index}`]: false });
                         console.error(error);
                       }
                     }}

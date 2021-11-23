@@ -61,7 +61,7 @@ export const ProjectsList = ({
   isSubscribed?: boolean;
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
-  user?: IUser;
+  user?: Partial<IUser>;
   userQuery?: any;
 }) => {
   const { colorMode } = useColorMode();

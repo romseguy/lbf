@@ -10,6 +10,7 @@ export const TopicSchema = new Schema<ITopic>(
       trim: true
     },
     topicMessages: [TopicMessageSchema],
+    topicMessagesDisabled: Boolean,
     topicCategory: { type: String, trim: true },
     topicVisibility: [String],
     org: {

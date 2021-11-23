@@ -24,7 +24,6 @@ const handler = nextConnect();
 handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
   async function suggestCategory(req, res) {
     const session = await getSession({ req });
-    console.log(session);
 
     if (!session) {
       return res

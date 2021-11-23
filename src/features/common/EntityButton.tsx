@@ -34,27 +34,31 @@ export const EntityButton = ({
 
   if (!org && !event && !user && !topic) return null;
 
+  const hasLink = org || event || user || !!onClick;
+
   return (
     <Tooltip
       label={
-        onClick !== null &&
-        `Aller à la page ${
-          org
-            ? orgTypeFull(org.orgType)
+        hasLink
+          ? org
+            ? `Aller à la page ${orgTypeFull(org.orgType)}`
             : event
-            ? "l'événement"
+            ? "Aller à la page de l'événement"
             : user
-            ? "l'utilisateur"
+            ? "Aller à la page de l'utilisateur"
             : ""
-        }`
+          : ""
       }
       hasArrow
     >
       <span>
         <Link
-          href={
-            onClick !== null && !topic
-              ? `/${
+          variant={hasLink ? undefined : "no-underline"}
+          onClick={() => {
+            if (onClick) onClick();
+            else if (hasLink && onClick !== null)
+              router.push(
+                `/${
                   org
                     ? org.orgUrl
                     : event
@@ -63,15 +67,12 @@ export const EntityButton = ({
                     ? user.userName
                     : ""
                 }`
-              : undefined
-          }
-          shallow
-          onClick={() => {
-            if (onClick) onClick();
+              );
           }}
         >
           <Button
             aria-hidden
+            cursor={hasLink ? "pointer" : "default"}
             fontSize="sm"
             leftIcon={
               <Icon

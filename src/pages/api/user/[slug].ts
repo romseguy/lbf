@@ -26,6 +26,7 @@ handler.get<
   },
   NextApiResponse
 >(async function getUser(req, res) {
+  const session = await getSession({ req });
   const {
     query: { slug, populate, ...query }
   } = req;
@@ -34,13 +35,14 @@ handler.get<
   let selector;
 
   try {
+    let select = "_id suggestedCategoryAt userName userImage userSubscription";
+
     if (emailR.test(slug)) {
       selector = { email: slug };
+      if (session?.user.email === slug) select += " email";
     } else if (phoneR.test(slug)) {
       selector = { phone: slug };
     }
-
-    let select = "_id suggestedCategoryAt userName userImage userSubscription";
 
     if (query.select) select += ` ${query.select}`;
 
@@ -87,89 +89,83 @@ handler.put<
 >(async function editUser(req, res) {
   const session = await getSession({ req });
 
-  if (!session) {
-    res
+  if (!session)
+    return res
       .status(403)
       .json(
         createServerError(
           new Error("Vous devez être identifié pour accéder à ce contenu")
         )
       );
-  } else {
-    try {
-      const {
-        query: { slug },
-        body
-      }: {
-        query: { slug: string };
-        body: Partial<IUser>;
-      } = req;
 
-      if (body.userName) {
-        body.userName = normalize(body.userName);
+  try {
+    const {
+      query: { slug },
+      body
+    }: {
+      query: { slug: string };
+      body: Partial<IUser>;
+    } = req;
+
+    if (body.userName) {
+      body.userName = normalize(body.userName);
+    }
+
+    let selector;
+
+    if (emailR.test(slug)) {
+      selector = { email: slug };
+    } else if (phoneR.test(slug)) {
+      selector = { phone: slug };
+    }
+
+    if (!selector) {
+      let user = await models.User.findOne({ userName: slug });
+
+      if (!user) {
+        user = await models.User.findOne({ _id: slug });
+
+        if (!user)
+          return res
+            .status(400)
+            .json(
+              createServerError(new Error(`L'utilisateur ${slug} n'existe pas`))
+            );
       }
 
-      let selector;
-
-      if (emailR.test(slug)) {
-        selector = { email: slug };
-      } else if (phoneR.test(slug)) {
-        selector = { phone: slug };
+      if (body.userName && body.userName !== user.userName) {
+        const user = await models.User.findOne({ userName: body.userName });
+        if (user) throw duplicateError();
       }
 
-      if (!selector) {
-        let user = await models.User.findOne({ userName: slug });
+      selector = { userName: slug };
+    }
 
-        if (!user) {
-          user = await models.User.findOne({ _id: slug });
+    const { n, nModified } = await models.User.updateOne(selector, body);
 
-          if (!user)
-            return res
-              .status(400)
-              .json(
-                createServerError(
-                  new Error(`L'utilisateur ${slug} n'existe pas`)
-                )
-              );
-        }
-
-        if (body.userName && body.userName !== user.userName) {
-          const user = await models.User.findOne({ userName: body.userName });
-          if (user) throw duplicateError();
-        }
-
-        selector = { userName: slug };
-      }
-
-      const { n, nModified } = await models.User.updateOne(selector, body);
-
+    if (nModified === 1) {
+      res.status(200).json({});
+    } else {
+      const { n, nModified } = await models.User.updateOne({ _id: slug }, body);
       if (nModified === 1) {
         res.status(200).json({});
       } else {
-        const { n, nModified } = await models.User.updateOne(
-          { _id: slug },
-          body
-        );
-        if (nModified === 1) {
-          res.status(200).json({});
-        } else {
-          res
-            .status(400)
-            .json(
-              createServerError(
-                new Error(`L'utilisateur ${slug} n'a pas pu être modifié`)
-              )
-            );
-        }
+        res
+          .status(400)
+          .json(
+            createServerError(
+              new Error(`L'utilisateur ${slug} n'a pas pu être modifié`)
+            )
+          );
       }
-    } catch (error: any) {
-      if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
-        res.status(400).json({
-          userName: "Ce nom d'utilisateur n'est pas disponible"
-        });
-      } else {
-        res.status(500).json(createServerError(error));
-      }
+    }
+  } catch (error: any) {
+    if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
+      res.status(400).json({
+        userName: "Ce nom d'utilisateur n'est pas disponible"
+      });
+    } else {
+      res.status(500).json(createServerError(error));
     }
   }
 });

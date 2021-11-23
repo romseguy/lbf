@@ -44,7 +44,7 @@ export const EventPopover = ({
   const [email, setEmail] = useState(storedUserEmail || session.user.email);
 
   //#region my events
-  const { attendedEvents } = useGetEventsQuery(void 0, {
+  const attendedEventsQuery = useGetEventsQuery(void 0, {
     selectFromResult: ({ data: events }) => ({
       attendedEvents: events?.filter(({ eventNotified }) =>
         eventNotified?.find(
@@ -53,6 +53,7 @@ export const EventPopover = ({
       )
     })
   });
+  const { attendedEvents } = attendedEventsQuery;
 
   const myEventsQuery = useGetEventsQuery(
     { createdBy: session.user.userId },
@@ -145,11 +146,12 @@ export const EventPopover = ({
             onClick={() => {
               if (!isOpen) {
                 myEventsQuery.refetch();
+                attendedEventsQuery.refetch();
                 subQuery.refetch();
               }
               setIsOpen(!isOpen);
             }}
-            data-cy="eventPopover"
+            data-cy="event-popover-button"
           />
         </PopoverTrigger>
         <PopoverContent>
@@ -197,7 +199,7 @@ export const EventPopover = ({
                   ))}
                 </VStack>
               ) : (
-                <Text fontSize="smaller" ml={3} my={2}>
+                <Text fontSize="smaller">
                   Vous n'avez ajouté aucun événements.
                 </Text>
               ))}
@@ -215,8 +217,8 @@ export const EventPopover = ({
                   ))}
                 </VStack>
               ) : (
-                <Text fontSize="smaller" ml={3}>
-                  Vous n'êtes abonné à aucun événement.
+                <Text fontSize="smaller">
+                  Vous n'êtes abonné à aucun événements.
                 </Text>
               ))}
 
@@ -233,8 +235,8 @@ export const EventPopover = ({
                   ))}
                 </VStack>
               ) : (
-                <Text fontSize="smaller" ml={3}>
-                  Vous ne participez à aucun événement.
+                <Text fontSize="smaller">
+                  Vous ne participez à aucun événements.
                 </Text>
               ))}
           </PopoverBody>

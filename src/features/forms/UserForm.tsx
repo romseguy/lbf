@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
+import { Session } from "next-auth";
 import React, { useRef, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
@@ -34,7 +35,8 @@ import { normalize } from "utils/string";
 import { PhoneControl } from "features/common/forms/PhoneControl";
 
 export const UserForm = (props: {
-  user: Partial<IUser>;
+  user: IUser;
+  session: Session;
   onSubmit: (user: Partial<IUser>) => void;
 }) => {
   const dispatch = useAppDispatch();
@@ -115,7 +117,7 @@ export const UserForm = (props: {
 
     try {
       await editUser({
-        userName: props.user.userName || props.user._id,
+        slug: props.user.email,
         payload
       }).unwrap();
       dispatch(setSession(null));
@@ -153,12 +155,7 @@ export const UserForm = (props: {
         )}
       />
 
-      <FormControl
-        id="userName"
-        isRequired
-        isInvalid={!!errors["userName"]}
-        mb={3}
-      >
+      <FormControl isRequired isInvalid={!!errors["userName"]} mb={3}>
         <FormLabel>Nom d'utilisateur</FormLabel>
         <Input
           name="userName"
@@ -172,6 +169,7 @@ export const UserForm = (props: {
             // }
           })}
           defaultValue={props.user.userName}
+          data-cy="username-input"
         />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="userName" />
@@ -191,7 +189,7 @@ export const UserForm = (props: {
         control={control}
         register={register}
         setValue={setValue}
-        isRequired
+        isDisabled
         defaultValue={props.user.email}
         errors={errors}
         isMultiple={false}

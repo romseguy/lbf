@@ -415,7 +415,7 @@ export const sendTopicNotifications = async ({
 
       if (
         tagType.pushNotif &&
-        subscription.user &&
+        typeof subscription.user === "object" &&
         subscription.user.userSubscription
       )
         await api.sendPushNotification({
@@ -459,7 +459,7 @@ export const sendTopicNotifications = async ({
 
       if (
         tagType.pushNotif &&
-        subscription.user &&
+        typeof subscription.user === "object" &&
         subscription.user.userSubscription
       )
         await api.sendPushNotification({

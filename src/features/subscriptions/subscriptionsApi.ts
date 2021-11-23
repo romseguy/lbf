@@ -18,7 +18,7 @@ export const subscriptionApi = createApi({
       }
     >({
       query: ({ payload, email, phone, user }) => {
-        console.group("addSubscription");
+        console.groupCollapsed("addSubscription");
         console.log("email", email);
         console.log("phone", phone);
         console.log("user", user);
@@ -42,7 +42,7 @@ export const subscriptionApi = createApi({
       }
     >({
       query: ({ payload, subscriptionId, orgId, topicId }) => {
-        console.group("deleteSubscription");
+        console.groupCollapsed("deleteSubscription");
         console.log("subscriptionId", subscriptionId);
         console.log("orgId", orgId);
         console.log("topicId", topicId);
@@ -73,7 +73,7 @@ export const subscriptionApi = createApi({
       query: ({ email, populate }) => {
         if (!email) return "";
 
-        console.group("getSubscription");
+        console.groupCollapsed("getSubscription");
         console.log("email", email);
         console.groupEnd();
 

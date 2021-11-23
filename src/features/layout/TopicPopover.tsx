@@ -59,6 +59,28 @@ export const TopicPopover = ({
       })
     }
   );
+
+  const topicsQuery = useGetTopicsQuery(
+    { populate: "org event" },
+    {
+      selectFromResult: (query) => ({
+        ...query,
+        answeredTopics:
+          query.data?.filter((topic) => {
+            if (topic.org === null || topic.event === null) return false;
+
+            return !!topic.topicMessages.find((topicMessage) => {
+              const createdBy =
+                typeof topicMessage.createdBy === "object"
+                  ? topicMessage.createdBy._id
+                  : topicMessage.createdBy;
+              return createdBy === session.user.userId;
+            });
+          }) || []
+      })
+    }
+  );
+  const { answeredTopics } = topicsQuery;
   //#endregion
 
   //#region my sub
@@ -80,7 +102,7 @@ export const TopicPopover = ({
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
   const [showTopics, setShowTopics] = useState<
-    "showTopicsAdded" | "showTopicsFollowed"
+    "showTopicsAdded" | "showTopicsFollowed" | "showTopicsAnswered"
   >("showTopicsAdded");
   //#endregion
 
@@ -125,6 +147,7 @@ export const TopicPopover = ({
             onClick={() => {
               if (!isOpen) {
                 myTopicsQuery.refetch();
+                topicsQuery.refetch();
                 subQuery.refetch();
               }
               setIsOpen(!isOpen);
@@ -151,6 +174,9 @@ export const TopicPopover = ({
               </option>
               <option value="showTopicsFollowed">
                 Les discussions où je suis abonné
+              </option>
+              <option value="showTopicsAnswered">
+                Les discussions où je participe
               </option>
             </Select>
 
@@ -226,7 +252,7 @@ export const TopicPopover = ({
                   })}
                 </VStack>
               ) : (
-                <Text fontSize="smaller" ml={3} my={2}>
+                <Text fontSize="smaller">
                   Vous n'avez ajouté aucune discussions.
                 </Text>
               ))}
@@ -242,7 +268,7 @@ export const TopicPopover = ({
                 >
                   {followedTopics.map((topic, index) => (
                     <Box
-                      key={topic._id}
+                      key={`followed-${topic._id}`}
                       alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
                       borderColor={isDark ? "gray.600" : "gray.300"}
                       borderRadius="lg"
@@ -274,8 +300,56 @@ export const TopicPopover = ({
                   ))}
                 </VStack>
               ) : (
-                <Text fontSize="smaller" ml={3}>
-                  Vous n'êtes abonné à aucune topicanisation.
+                <Text fontSize="smaller">
+                  Vous n'êtes abonné à aucune discussions.
+                </Text>
+              ))}
+
+            {showTopics === "showTopicsAnswered" &&
+              (hasItems(answeredTopics) ? (
+                <VStack
+                  alignItems="flex-start"
+                  overflowX="auto"
+                  height="250px"
+                  spacing={2}
+                  pr={1}
+                >
+                  {answeredTopics.map((topic, index) => (
+                    <Box
+                      key={`answered-${topic._id}`}
+                      alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
+                      borderColor={isDark ? "gray.600" : "gray.300"}
+                      borderRadius="lg"
+                      borderStyle="solid"
+                      borderWidth="1px"
+                      p={1}
+                    >
+                      <Box
+                        display="flex"
+                        justifyContent={
+                          index % 2 === 0 ? "flex-start" : "flex-end"
+                        }
+                      >
+                        <EntityButton topic={topic} p={1} />
+                      </Box>
+                      {(topic.event || topic.org) && (
+                        <Box display="flex" alignItems="center" mt={1}>
+                          <Text fontSize="smaller" mx={1}>
+                            dans
+                          </Text>
+                          <EntityButton
+                            event={topic.event}
+                            org={topic.org}
+                            p={1}
+                          />
+                        </Box>
+                      )}
+                    </Box>
+                  ))}
+                </VStack>
+              ) : (
+                <Text fontSize="smaller">
+                  Vous n'êtes abonné à aucune discussions.
                 </Text>
               ))}
           </PopoverBody>
