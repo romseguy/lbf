@@ -1,35 +1,35 @@
 import { EmailIcon, HamburgerIcon, IconProps } from "@chakra-ui/icons";
 import {
   ComponentWithAs,
-  Flex,
-  FlexProps,
-  Icon,
+  IconButton,
+  IconButtonProps,
   Tooltip
 } from "@chakra-ui/react";
-import { IEvent } from "models/Event";
-import { IOrg, orgTypeFull } from "models/Org";
 import React from "react";
 import { IconType } from "react-icons";
 import { FaGlobeEurope } from "react-icons/fa";
 import { IoMdPerson } from "react-icons/io";
+import { IEvent } from "models/Event";
+import { IOrg, orgTypeFull } from "models/Org";
+import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 
 export const TopicsListItemVisibility = ({
   event,
   org,
-  topicVisibility,
+  topic,
   ...props
-}: FlexProps & {
+}: Partial<IconButtonProps> & {
   event?: IEvent;
   org?: IOrg;
-  topicVisibility?: string[];
+  topic: ITopic;
 }) => {
   let icons: {
     label: string;
     icon: IconType | ComponentWithAs<"svg", IconProps>;
   }[] = [];
 
-  const customLists = topicVisibility?.filter(
+  const customLists = topic.topicVisibility?.filter(
     (listName) => !["Adhérents", "Abonnés"].includes(listName)
   );
 
@@ -54,17 +54,17 @@ export const TopicsListItemVisibility = ({
     ];
   }
 
-  if (topicVisibility?.includes("Adhérents")) {
-    icons.push({
-      label: `Discussion réservée aux adhérents ${suffix}`,
-      icon: IoMdPerson
-    });
-  }
-
-  if (topicVisibility?.includes("Abonnés")) {
+  if (topic.topicVisibility?.includes("Abonnés")) {
     icons.push({
       label: `Discussion réservée aux abonnés ${suffix}`,
       icon: EmailIcon
+    });
+  }
+
+  if (topic.topicVisibility?.includes("Adhérents")) {
+    icons.push({
+      label: `Discussion réservée aux adhérents ${suffix}`,
+      icon: IoMdPerson
     });
   }
 
@@ -77,14 +77,22 @@ export const TopicsListItemVisibility = ({
     ];
 
   return (
-    <Flex alignItems="center" {...props}>
+    <>
       {icons.map(({ label, icon }, index) => (
         <Tooltip key={index} label={label}>
-          <span>
-            <Icon as={icon} boxSize={4} mr={1} />
-          </span>
+          <IconButton
+            aria-label={label}
+            icon={React.createElement(icon)}
+            boxSize={4}
+            bg="transparent"
+            _hover={{ bg: "transparent", color: "white" }}
+            height="auto"
+            minWidth={0}
+            cursor="default"
+            {...props}
+          />
         </Tooltip>
       ))}
-    </Flex>
+    </>
   );
 };

@@ -211,7 +211,12 @@ export const TopicPopover = ({
                             index % 2 === 0 ? "flex-start" : "flex-end"
                           }
                         >
-                          <EntityButton topic={topic} p={1} />
+                          <EntityButton
+                            topic={topic}
+                            org={topic.org}
+                            event={topic.event}
+                            p={1}
+                          />
                         </Box>
 
                         {(topic.event || topic.org) && (

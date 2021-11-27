@@ -6,10 +6,12 @@ import {
   FormErrorMessage,
   InputGroup,
   Input,
-  InputRightElement
+  InputRightElement,
+  InputLeftElement
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
+import { FaKey } from "react-icons/fa";
 
 export const PasswordControl = ({
   errors,
@@ -29,6 +31,7 @@ export const PasswordControl = ({
     <FormControl isRequired={isRequired} isInvalid={!!errors[name]} {...props}>
       <FormLabel>Mot de passe</FormLabel>
       <InputGroup>
+        <InputLeftElement pointerEvents="none" children={<FaKey />} />
         <Input
           name="password"
           ref={register(
@@ -39,6 +42,7 @@ export const PasswordControl = ({
               : undefined
           )}
           type={passwordFieldType}
+          placeholder="Saisir un mot de passe..."
           data-cy="password-input"
         />
         <InputRightElement

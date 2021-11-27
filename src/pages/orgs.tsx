@@ -32,6 +32,12 @@ const OrgsPage = (props: any) => {
   return (
     <Layout pageTitle="Organisations" {...props}>
       <Detector
+        polling={{
+          enabled: true,
+          interval: 10000,
+          timeout: 5000,
+          url: `${process.env.NEXT_PUBLIC_API}/check`
+        }}
         render={({ online }) => (
           <Tooltip
             label={

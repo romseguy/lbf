@@ -6,10 +6,12 @@ import {
   FormErrorMessage,
   InputGroup,
   Input,
-  InputRightElement
+  InputRightElement,
+  InputLeftElement
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
+import { FaKey } from "react-icons/fa";
 
 export const PasswordConfirmControl = ({
   errors,
@@ -32,6 +34,7 @@ export const PasswordConfirmControl = ({
     <FormControl isRequired isInvalid={!!errors[name]} {...props}>
       <FormLabel>Confirmation du mot de passe</FormLabel>
       <InputGroup>
+        <InputLeftElement pointerEvents="none" children={<FaKey />} />
         <Input
           name={name}
           ref={register({
@@ -40,6 +43,7 @@ export const PasswordConfirmControl = ({
               "Les mots de passe ne correspondent pas"
           })}
           type={passwordConfirmFieldType}
+          placeholder="Saisir un mot de passe..."
         />
         <InputRightElement
           cursor="pointer"

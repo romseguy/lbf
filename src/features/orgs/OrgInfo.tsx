@@ -87,7 +87,7 @@ export const OrgInfo = ({
             return (
               <Flex key={`web-${index}`} alignItems="center">
                 <Icon as={FaGlobeEurope} mr={3} />
-                <Link variant="underline" href={orgWeb.url}>
+                <Link variant="underline" href={url}>
                   {/* {webCollapsed ? url.substr(0, 9) + "..." : url} */}
                   {url}
                 </Link>

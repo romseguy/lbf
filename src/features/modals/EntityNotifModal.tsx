@@ -142,7 +142,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
       } else
         toast({
           status: "warning",
-          title: "Aucune invitation envoyée"
+          title: "Aucune invitations envoyée"
         });
 
       setModalState({
@@ -178,7 +178,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
             )}
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody pb={4}>
             {org && (
               <OrgNotifForm
                 entity={entity}

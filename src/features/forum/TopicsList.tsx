@@ -41,6 +41,7 @@ export const TopicsList = ({
   subQuery,
   isLogin,
   setIsLogin,
+  currentTopicName,
   ...props
 }: GridProps & {
   event?: IEvent;
@@ -53,6 +54,7 @@ export const TopicsList = ({
   isSubscribed?: boolean;
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
+  currentTopicName?: string;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -85,7 +87,6 @@ export const TopicsList = ({
   const [notifyModalState, setNotifyModalState] = useState<ModalState<ITopic>>({
     entity: null
   });
-  const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
   const entityName = org ? org.orgName : event?.eventName;
   const entityUrl = org ? org.orgUrl : event?.eventUrl;
   const topics: ITopic[] = org
@@ -156,6 +157,11 @@ export const TopicsList = ({
     : event
     ? event.eventTopics
     : [];
+  const [currentTopic, setCurrentTopic] = useState<ITopic | null>(
+    currentTopicName
+      ? topics.find((topic) => topic.topicName === currentTopicName) || null
+      : null
+  );
   //#endregion
 
   useEffect(() => {

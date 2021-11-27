@@ -34,13 +34,29 @@ export const EntityButton = ({
 
   if (!org && !event && !user && !topic) return null;
 
-  const hasLink = org || event || user || !!onClick;
+  let hasLink = org || event || user || topic || null;
+
+  if (onClick === null) hasLink = null;
+
+  let entityUrl = org
+    ? org.orgUrl
+    : event
+    ? event.eventUrl
+    : typeof user === "object"
+    ? `/${user.userName}`
+    : "";
+
+  if (topic) {
+    entityUrl = `/${entityUrl}/discussions/${topic.topicName}`;
+  }
 
   return (
     <Tooltip
       label={
         hasLink
-          ? org
+          ? topic
+            ? "Aller à la discussion"
+            : org
             ? `Aller à la page ${orgTypeFull(org.orgType)}`
             : event
             ? "Aller à la page de l'événement"
@@ -56,18 +72,7 @@ export const EntityButton = ({
           variant={hasLink ? undefined : "no-underline"}
           onClick={() => {
             if (onClick) onClick();
-            else if (hasLink && onClick !== null)
-              router.push(
-                `/${
-                  org
-                    ? org.orgUrl
-                    : event
-                    ? event.eventUrl
-                    : typeof user === "object"
-                    ? user.userName
-                    : ""
-                }`
-              );
+            else if (entityUrl && onClick !== null) router.push(entityUrl);
           }}
         >
           <Button
@@ -77,7 +82,9 @@ export const EntityButton = ({
             leftIcon={
               <Icon
                 as={
-                  org
+                  topic
+                    ? ChatIcon
+                    : org
                     ? org.orgName === "aucourant"
                       ? ChatIcon
                       : org.orgType === OrgTypes.NETWORK
@@ -89,7 +96,15 @@ export const EntityButton = ({
                     ? IoIosPerson
                     : ChatIcon
                 }
-                color={org ? "green.500" : event ? "green.500" : "blue.500"}
+                color={
+                  topic
+                    ? "blue.500"
+                    : org
+                    ? "green.500"
+                    : event
+                    ? "green.500"
+                    : "blue.500"
+                }
               />
             }
             height="auto"
@@ -98,7 +113,9 @@ export const EntityButton = ({
             pr={2}
             {...props}
           >
-            {org
+            {topic
+              ? topic.topicName
+              : org
               ? org.orgName === "aucourant"
                 ? "Forum"
                 : org.orgName
@@ -106,7 +123,7 @@ export const EntityButton = ({
               ? event.eventName
               : user
               ? user.userName
-              : topic?.topicName}
+              : ""}
           </Button>
         </Link>
       </span>

@@ -24,8 +24,9 @@ import { DeleteIcon } from "@chakra-ui/icons";
 
 export const DeleteButton = ({
   isDisabled,
-  isLoading,
   isIconOnly,
+  isLoading,
+  isSmall = true,
   header,
   body,
   hasArrow,
@@ -40,8 +41,9 @@ export const DeleteButton = ({
   label?: string;
   placement?: string;
   isDisabled?: boolean;
-  isLoading?: boolean;
   isIconOnly?: boolean;
+  isLoading?: boolean;
+  isSmall?: boolean;
   onClick: () => void;
 }) => {
   const { colorMode } = useColorMode();
@@ -49,6 +51,17 @@ export const DeleteButton = ({
   const [isOpen, setIsOpen] = React.useState(false);
   const onClose = () => setIsOpen(false);
   const cancelRef = React.useRef<HTMLButtonElement | null>(null);
+  let styleProps = {};
+
+  if (isIconOnly && isSmall)
+    styleProps = {
+      ...styleProps,
+      bg: "transparent",
+      color: isDark ? "white" : "black",
+      _hover: { bg: "transparent", color: "red" },
+      height: "auto",
+      minWidth: 0
+    };
 
   return (
     <>
@@ -57,13 +70,9 @@ export const DeleteButton = ({
           <IconButton
             aria-label="Supprimer"
             colorScheme="red"
-            color={isDark ? "white" : "black"}
-            bg="transparent"
-            _hover={{ bg: "transparent", color: "red" }}
-            height="auto"
-            minWidth={0}
             icon={<DeleteIcon />}
             isLoading={isLoading}
+            {...styleProps}
             {...props}
             onClick={(e) => {
               e.stopPropagation();

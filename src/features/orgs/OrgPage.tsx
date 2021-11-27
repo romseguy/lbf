@@ -75,9 +75,13 @@ let cachedEmail: string | undefined;
 
 export const OrgPage = ({
   populate,
+  tab,
+  tabItem,
   ...props
 }: {
   populate?: string;
+  tab?: string;
+  tabItem?: string;
   org: IOrg;
   session: Session | null;
 }) => {
@@ -98,6 +102,7 @@ export const OrgPage = ({
     }
   );
   const org = orgQuery.data || props.org;
+  const orgs = org.orgs?.filter(({ orgLat, orgLng }) => !!orgLat && !!orgLng);
   const [description, setDescription] = useState<string | undefined>();
   useEffect(() => {
     if (org.orgDescription && org.orgDescription.length > 0) {
@@ -298,7 +303,7 @@ export const OrgPage = ({
       )}
 
       {!isConfig && !isEdit && (
-        <OrgPageTabs>
+        <OrgPageTabs tab={tab}>
           <TabPanels>
             <TabPanel aria-hidden>
               <Grid
@@ -424,18 +429,18 @@ export const OrgPage = ({
                     </GridHeader>
                     <GridItem light={{ bg: "white" }}>
                       <MapContainer
-                        orgs={org.orgs}
+                        orgs={orgs}
                         center={{
                           lat:
                             org.orgLat ||
-                            (Array.isArray(org.orgs) && org.orgs.length > 0
-                              ? org.orgs[0].orgLat
-                              : 0),
+                            (Array.isArray(orgs) && orgs.length > 0
+                              ? orgs[0].orgLat
+                              : 46.227638),
                           lng:
                             org.orgLng ||
-                            (Array.isArray(org.orgs) && org.orgs.length > 0
-                              ? org.orgs[0].orgLng
-                              : 0)
+                            (Array.isArray(orgs) && orgs.length > 0
+                              ? orgs[0].orgLng
+                              : 2.213749)
                         }}
                       />
                     </GridItem>
@@ -550,7 +555,7 @@ export const OrgPage = ({
                 </Box>
               </Alert>
 
-              {session?.user.isAdmin && (
+              {process.env.NODE_ENV === "development" && session?.user.isAdmin && (
                 <Box mb={5}>
                   <Button
                     onClick={async () => {
@@ -576,6 +581,7 @@ export const OrgPage = ({
                 isSubscribed={!!subscriberSubscription}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
+                currentTopicName={tabItem}
               />
               <IconFooter />
             </TabPanel>

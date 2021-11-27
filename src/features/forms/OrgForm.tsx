@@ -307,7 +307,6 @@ export const OrgForm = withGoogleApi({
         <FormControl
           mb={3}
           isInvalid={!!errors["orgs"]}
-          isRequired={orgType === OrgTypes.NETWORK}
           display={orgType !== OrgTypes.NETWORK ? "none" : undefined}
         >
           <FormLabel>Organisations faisant partie du réseau</FormLabel>
@@ -316,21 +315,15 @@ export const OrgForm = withGoogleApi({
             as={ReactSelect}
             control={control}
             defaultValue={props.org?.orgs || null}
-            rules={
-              orgType === OrgTypes.NETWORK
-                ? {
-                    required:
-                      "Veuillez sélectionner une organisation au minimum"
-                  }
-                : undefined
-            }
             closeMenuOnSelect
             isClearable
             isMulti
             isSearchable
             menuPlacement="top"
             noOptionsMessage={() => "Aucun résultat"}
-            options={myOrgs}
+            options={myOrgs?.filter(
+              ({ orgLat, orgLng }) => !!orgLat && !!orgLng
+            )}
             getOptionLabel={(option: any) => option.orgName}
             getOptionValue={(option: any) => option._id}
             placeholder={

@@ -159,7 +159,14 @@ export const Layout = ({
         )}
 
         {process.env.NODE_ENV === "production" && (
-          <Offline>
+          <Offline
+            polling={{
+              enabled: true,
+              interval: 10000,
+              timeout: 5000,
+              url: `${process.env.NEXT_PUBLIC_API}/check`
+            }}
+          >
             <Box
               position="fixed"
               right={3}

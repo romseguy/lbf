@@ -28,7 +28,11 @@ const Hash = ({
 }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const routeName = router.asPath.substr(1, router.asPath.length);
+  //const routeName = router.asPath.substr(1, router.asPath.length);
+  const [entityUrl, entityTab, entityTabItem] =
+    "name" in router.query && Array.isArray(router.query.name)
+      ? router.query.name
+      : [];
   const [event, setEvent] = useState<IEvent | undefined>();
   const [org, setOrg] = useState<IOrg | undefined>();
   const [user, setUser] = useState<IUser | undefined>();
@@ -44,7 +48,7 @@ const Hash = ({
     const xhr = async () => {
       populate = "";
       const eventQuery = await dispatch(
-        getEvent.initiate({ eventUrl: routeName, populate })
+        getEvent.initiate({ eventUrl: entityUrl, populate })
       );
 
       if (eventQuery.data) {
@@ -54,7 +58,7 @@ const Hash = ({
           "orgBanner orgEvents orgLogo orgLists orgProjects orgSubscriptions orgTopics orgs";
         const orgQuery = await dispatch(
           getOrg.initiate({
-            orgUrl: routeName,
+            orgUrl: entityUrl,
             populate
           })
         );
@@ -63,7 +67,7 @@ const Hash = ({
           setOrg(orgQuery.data);
         } else {
           const userQuery = await dispatch(
-            getUser.initiate({ slug: routeName })
+            getUser.initiate({ slug: entityUrl })
           );
 
           if (userQuery.data) setUser(userQuery.data);
@@ -88,7 +92,15 @@ const Hash = ({
   }
 
   if (org) {
-    return <OrgPage org={org} populate={populate} {...props} />;
+    return (
+      <OrgPage
+        org={org}
+        populate={populate}
+        tab={entityTab}
+        tabItem={entityTabItem}
+        {...props}
+      />
+    );
   }
 
   if (user) {
@@ -131,10 +143,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
       };
     }
 
-    let routeName = ctx.query.name[0];
+    let entityUrl = ctx.query.name[0];
 
-    if (routeName.indexOf(" ") !== -1) {
-      const destination = `/${routeName.replace(/\ /g, "_")}`;
+    if (entityUrl.indexOf(" ") !== -1) {
+      const destination = `/${entityUrl.replace(/\ /g, "_")}`;
 
       return {
         redirect: {

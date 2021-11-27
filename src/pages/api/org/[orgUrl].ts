@@ -84,7 +84,12 @@ handler.get<
               path: "topicMessages",
               populate: { path: "createdBy", select: "_id userName" }
             },
-            { path: "createdBy", select: "_id userName" }
+            { path: "createdBy", select: "_id userName" },
+            {
+              path: "org",
+              select: "orgUrl"
+            },
+            { path: "event", select: "eventUrl" }
           ]
         });
 

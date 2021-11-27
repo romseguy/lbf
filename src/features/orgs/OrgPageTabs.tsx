@@ -13,16 +13,30 @@ import { isMobile } from "react-device-detect";
 import { FaHome, FaImages, FaTools } from "react-icons/fa";
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 
+const tabs = {
+  Accueil: { icon: FaHome },
+  Événements: { icon: CalendarIcon },
+  Projets: { icon: FaTools },
+  Discussions: { icon: ChatIcon },
+  Galerie: { icon: FaImages }
+};
+
 export const OrgPageTabs = ({
   children,
   ...props
 }: {
+  tab?: string;
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
   const StyledTab = chakra("button", { themeKey: "Tabs.Tab" });
   const inactiveTabBg = useColorModeValue("gray.100", "whiteAlpha.300");
-  const [currentTabIndex, setCurrentTabIndex] = useState(0);
-  const defaultTabIndex = 0;
+
+  let defaultTabIndex;
+  Object.keys(tabs).reduce((index, tab) => {
+    if (tab.toLowerCase() === props.tab?.toLowerCase()) defaultTabIndex = index;
+    return index + 1;
+  }, 0);
+  const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex || 0);
 
   const CustomTab = React.forwardRef(
     (
@@ -102,22 +116,20 @@ export const OrgPageTabs = ({
         }}
         aria-hidden
       >
-        {[
-          { name: "Accueil", icon: FaHome },
-          { name: "Événements", icon: CalendarIcon },
-          { name: "Projets", icon: FaTools },
-          { name: "Discussions", icon: ChatIcon },
-          { name: "Galerie", icon: FaImages }
-        ].map(({ name, icon }, tabIndex) => (
-          <CustomTab
-            key={`orgTab-${tabIndex}`}
-            tabIndex={tabIndex}
-            icon={icon}
-            data-cy={`orgTab-${name}`}
-          >
-            {name}
-          </CustomTab>
-        ))}
+        {Object.keys(tabs).map((tab, tabIndex) => {
+          const { icon } = tabs[tab];
+
+          return (
+            <CustomTab
+              key={`orgTab-${tabIndex}`}
+              tabIndex={tabIndex}
+              icon={icon}
+              data-cy={`orgTab-${tab}`}
+            >
+              {tab}
+            </CustomTab>
+          );
+        })}
       </TabList>
       {children}
     </Tabs>

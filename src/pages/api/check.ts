@@ -1,15 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "database";
+import database from "database";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
 handler.get<NextApiRequest, NextApiResponse>(async function postOrg(req, res) {
-  console.log("check");
-
-  res.status(200).json({ foo: "bar" });
+  res.status(200).json({});
 });
 
 export default handler;

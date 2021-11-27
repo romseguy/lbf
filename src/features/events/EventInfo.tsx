@@ -93,7 +93,7 @@ export const EventInfo = ({
             return (
               <Flex key={`web-${index}`} alignItems="center">
                 <Icon as={FaGlobeEurope} mr={3} />
-                <Link variant="underline" href={eventWeb.url}>
+                <Link variant="underline" href={url}>
                   {webCollapsed ? url.substr(0, 9) + "..." : url}
                 </Link>
 

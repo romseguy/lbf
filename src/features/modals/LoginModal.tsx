@@ -163,6 +163,7 @@ export const LoginModal = (props: {
                     register={register}
                     isMultiple={false}
                     isRequired
+                    mb={3}
                   />
 
                   {!isEmail && (

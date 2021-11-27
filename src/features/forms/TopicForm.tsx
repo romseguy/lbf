@@ -261,7 +261,7 @@ export const TopicForm = ({
             name="topicCategory"
             control={control}
             defaultValue={
-              props.topic
+              props.topic && props.topic.topicCategory
                 ? {
                     label: props.topic.topicCategory,
                     value: props.topic.topicCategory
@@ -327,7 +327,7 @@ export const TopicForm = ({
                     }
                   }}
                   isClearable
-                  placeholder="Rechercher ou créer une catégorie"
+                  placeholder="Créer ou rechercher une catégorie"
                   noOptionsMessage={() => "Aucun résultat"}
                   className="react-select-container"
                   classNamePrefix="react-select"
@@ -413,10 +413,10 @@ export const TopicForm = ({
                   }
                   allOptionLabel="Toutes les listes"
                   //closeMenuOnSelect={false}
-                  placeholder="Sélectionner une liste"
+                  placeholder="Sélectionner une ou plusieurs listes"
                   noOptionsMessage={() => "Aucun résultat"}
                   isClearable
-                  isSearchable={false}
+                  isSearchable
                   className="react-select-container"
                   classNamePrefix="react-select"
                   styles={{
@@ -442,7 +442,7 @@ export const TopicForm = ({
         </FormControl>
       )}
 
-      {!props.topic && hasItems(topicVisibility) && (
+      {hasItems(topicVisibility) && (
         <Alert status="info" mb={3}>
           <AlertIcon />
           La discussion ne sera visible que par les membres des listes de
