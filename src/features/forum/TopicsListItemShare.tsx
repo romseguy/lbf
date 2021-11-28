@@ -49,10 +49,13 @@ export const TopicsListItemShare = ({
               icon={<LinkIcon />}
               onClick={(e) => {
                 e.stopPropagation();
+                let url = topic.org
+                  ? topic.org.orgUrl
+                  : topic.event?.eventUrl + "/discussions";
+                if (topic.org?.orgUrl === "aucourant") url = "forum";
+
                 navigator.clipboard.writeText(
-                  `${process.env.NEXT_PUBLIC_URL}/${
-                    topic.org ? topic.org.orgUrl : topic.event?.eventUrl
-                  }/discussions/${topic.topicName}`
+                  `${process.env.NEXT_PUBLIC_URL}/${url}/${topic.topicName}`
                 );
                 toast({
                   title: "Le lien a été copié dans votre presse-papiers",

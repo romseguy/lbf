@@ -24,6 +24,19 @@ import { isMobile } from "react-device-detect";
 
 const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
 
+export interface LayoutProps {
+  logo?: Base64Image;
+  banner?: Base64Image & { mode: "dark" | "light" };
+  children: React.ReactNode | React.ReactNodeArray;
+  isLogin?: number;
+  pageHeader?: React.ReactNode | React.ReactNodeArray;
+  org?: IOrg;
+  event?: IEvent;
+  pageTitle?: string;
+  pageSubTitle?: React.ReactNode;
+  session?: Session | null;
+}
+
 export const Layout = ({
   logo,
   banner,
@@ -36,18 +49,7 @@ export const Layout = ({
   org,
   event,
   ...props
-}: BoxProps & {
-  logo?: Base64Image;
-  banner?: Base64Image & { mode: "dark" | "light" };
-  children: React.ReactNode | React.ReactNodeArray;
-  isLogin?: number;
-  pageHeader?: React.ReactNode | React.ReactNodeArray;
-  org?: IOrg;
-  event?: IEvent;
-  pageTitle?: string;
-  pageSubTitle?: React.ReactNode;
-  session?: Session | null;
-}) => {
+}: BoxProps & LayoutProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 

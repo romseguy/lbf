@@ -114,7 +114,7 @@ export const TopicsListItem = ({
               ? "gray.500"
               : "orange.100"
           }
-          _hover={{ bg: isDark ? "gray.400" : "orange.300" }}
+          _hover={{ bg: isDark ? "#314356" : "blue.100" }}
         >
           <Flex flexDirection="column" flexGrow={1} px={3} py={1}>
             <Flex>
@@ -176,7 +176,12 @@ export const TopicsListItem = ({
               </Link>
             </Flex>
 
-            <Flex fontSize="smaller" color={isDark ? "white" : "purple"} ml={8}>
+            <Flex
+              flexWrap="wrap"
+              fontSize="smaller"
+              color={isDark ? "white" : "purple"}
+              ml={8}
+            >
               <Tooltip label="Aller à la page de l'utilisateur">
                 <Link
                   href={`/${topicCreatedByUserName}`}
@@ -242,11 +247,11 @@ export const TopicsListItem = ({
             </Flex>
           </Flex>
 
-          <Flex alignItems="center">
-            {isLoading && <Spinner mr={3} />}
+          <Flex alignItems="center" mb={-1} ml={2}>
+            {isLoading && <Spinner mr={3} mt={1} mb={2} />}
 
             {!isLoading && session && isTopicCreator && (
-              <Flex>
+              <>
                 <Tooltip placement="bottom" label="Envoyer des invitations">
                   <IconButton
                     aria-label="Envoyer des invitations"
@@ -254,6 +259,8 @@ export const TopicsListItem = ({
                     variant="outline"
                     colorScheme="blue"
                     mr={3}
+                    mt={1}
+                    mb={2}
                     onClick={(e) => {
                       e.stopPropagation();
                       onSendClick();
@@ -268,6 +275,8 @@ export const TopicsListItem = ({
                     variant="outline"
                     colorScheme="green"
                     mr={3}
+                    mt={1}
+                    mb={2}
                     onClick={(e) => {
                       e.stopPropagation();
                       onEditClick();
@@ -292,10 +301,12 @@ export const TopicsListItem = ({
                   isSmall={false}
                   variant="outline"
                   mr={3}
+                  mt={1}
+                  mb={2}
                   onClick={onDeleteClick}
-                  data-cy="deleteTopic"
+                  data-cy="delete-topic"
                 />
-              </Flex>
+              </>
             )}
 
             {!isLoading && (
@@ -318,6 +329,8 @@ export const TopicsListItem = ({
                       variant="outline"
                       colorScheme="blue"
                       mr={3}
+                      mt={1}
+                      mb={2}
                       onClick={async (e) => {
                         e.stopPropagation();
                         onSubscribeClick();
@@ -337,6 +350,8 @@ export const TopicsListItem = ({
                     icon={<FaReply />}
                     colorScheme="green"
                     mr={2}
+                    mt={1}
+                    mb={2}
                   />
                 </Tooltip>
               </Flex>
@@ -347,7 +362,12 @@ export const TopicsListItem = ({
 
       {isCurrent && (
         <>
-          <GridItem bg={isDark ? "#314356" : "blue.100"} px={3} py={2}>
+          <GridItem
+            bg={isDark ? "#314356" : "blue.100"}
+            px={3}
+            py={2}
+            data-cy="topic-subscribers"
+          >
             <TopicsListItemSubscribers
               topic={topic}
               isSubbedToTopic={isSubbedToTopic}

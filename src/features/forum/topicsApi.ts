@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
 import baseQuery, { objectToQueryString } from "utils/query";
 import { IOrg } from "models/Org";
 import { IEvent } from "models/Event";
+import { ITopicMessage } from "models/TopicMessage";
 
 //const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
 
@@ -40,7 +41,11 @@ export const topicsApi = createApi({
     }),
     editTopic: build.mutation<
       {},
-      { payload: Partial<ITopic>; topicId?: string; topicNotif?: boolean }
+      {
+        payload: { topic: Partial<ITopic>; topicMessage?: ITopicMessage };
+        topicId?: string;
+        topicNotif?: boolean;
+      }
     >({
       query: ({ payload, topicId, topicNotif }) => {
         console.log("editTopic: topicId", topicId);
@@ -48,7 +53,7 @@ export const topicsApi = createApi({
         console.log("editTopic: payload", payload);
 
         return {
-          url: `topic/${topicId ? topicId : payload._id}`,
+          url: `topic/${topicId ? topicId : payload.topic._id}`,
           method: "PUT",
           body: { ...payload, topicNotif }
         };

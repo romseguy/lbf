@@ -83,7 +83,7 @@ export const TopicsListItemVisibility = ({
           <IconButton
             aria-label={label}
             icon={React.createElement(icon)}
-            boxSize={4}
+            //boxSize={4}
             bg="transparent"
             _hover={{ bg: "transparent", color: "white" }}
             height="auto"

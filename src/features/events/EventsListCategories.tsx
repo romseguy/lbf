@@ -27,7 +27,7 @@ export const EventsListCategories = ({
   setIsLogin,
   ...props
 }: SpaceProps & {
-  events: IEvent<Date>[];
+  events: IEvent<string | Date>[];
   org?: IOrg;
   selectedCategories: number[];
   setSelectedCategories: (selectedCategories: number[]) => void;

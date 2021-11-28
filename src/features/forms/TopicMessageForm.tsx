@@ -133,7 +133,6 @@ export const TopicMessageForm = ({
       />
 
       <FormControl
-        id="topicMessage"
         isDisabled={isDisabled}
         isRequired
         isInvalid={!!errors["topicMessage"]}

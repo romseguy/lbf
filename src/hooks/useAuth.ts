@@ -19,6 +19,16 @@ import { IUser } from "models/User";
 export async function getSession(
   options: GetSessionOptions
 ): Promise<Session | null> {
+  if (process.env.NEXT_PUBLIC_IS_TEST)
+    return {
+      user: {
+        email: "rom.seguy@lilo.org",
+        userId: "60e340cb56ef290008d2e75d",
+        userName: "romain",
+        isAdmin: true
+      }
+    };
+
   let session = await getNextAuthSession(options);
   if (!session) return session;
 
@@ -26,7 +36,7 @@ export async function getSession(
     session.user &&
     (!session.user.userId || session.user.suggestedCategoryAt === undefined)
   ) {
-    console.log("getSession: fetching", session);
+    // console.log("getSession: fetching", session);
     const { data } = await api.get(`user/${session.user.email}?select=isAdmin`);
 
     if (data) {
@@ -37,6 +47,7 @@ export async function getSession(
         user: {
           ...session.user,
           userId: _id,
+          userName,
           // userName: userName
           //   ? userName
           //   : session.user.email?.replace(/@.+/, ""),
@@ -44,7 +55,7 @@ export async function getSession(
           isAdmin: isAdmin || false
         }
       };
-      console.log("getSession: fetched", session);
+      // console.log("getSession: fetched", session);
     }
   }
 

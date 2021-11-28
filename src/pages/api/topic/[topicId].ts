@@ -13,6 +13,7 @@ import { sendTopicNotifications } from "api/email";
 import { equals, logJson } from "utils/string";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
+import { ITopicMessage } from "models/TopicMessage";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -152,7 +153,7 @@ handler.post<
 handler.put<
   NextApiRequest & {
     query: { topicId: string };
-    body: ITopic & { topicNotif?: boolean };
+    body: { topic: ITopic; topicMessage: ITopicMessage; topicNotif?: boolean };
   },
   NextApiResponse
 >(async function editTopic(req, res) {
@@ -168,7 +169,16 @@ handler.put<
       );
 
   try {
-    const { body }: { body: ITopic & { topicNotif?: boolean } } = req;
+    const {
+      body
+    }: {
+      body: {
+        topic: ITopic;
+        topicMessage: ITopicMessage;
+        topicNotif?: boolean;
+      };
+    } = req;
+
     const topicId = req.query.topicId;
     const topic = await models.Topic.findOne({ _id: topicId });
 
@@ -179,28 +189,61 @@ handler.put<
           createServerError(new Error(`La discussion ${topicId} n'existe pas`))
         );
 
-    if (!equals(topic.createdBy, session.user.userId) && !session.user.isAdmin)
-      return res
-        .status(403)
-        .json(
-          createServerError(
-            new Error(
-              "Vous ne pouvez pas modifier une discussion que vous n'avez pas créé."
+    let update: Partial<ITopic> | undefined;
+
+    if (body.topic) {
+      if (body.topicMessage) {
+        update = {
+          topicMessages: topic.topicMessages.map((topicMessage) => {
+            if (equals(topicMessage._id, body.topicMessage._id)) {
+              return {
+                ...body.topicMessage,
+                _id: topicMessage._id,
+                createdAt: topicMessage.createdAt,
+                createdBy: topicMessage.createdBy
+              };
+            }
+            return topicMessage;
+          })
+        };
+      } else {
+        if (
+          !equals(topic.createdBy, session.user.userId) &&
+          !session.user.isAdmin
+        )
+          return res
+            .status(403)
+            .json(
+              createServerError(
+                new Error(
+                  "Vous ne pouvez pas modifier une discussion que vous n'avez pas créé."
+                )
+              )
+            );
+
+        update = {
+          ...body.topic
+        };
+      }
+    }
+
+    logJson(`PUT /topic/${topicId}: update`, update);
+
+    if (update) {
+      const { n, nModified } = await models.Topic.updateOne(
+        { _id: topicId },
+        update
+      );
+
+      if (nModified !== 1)
+        return res
+          .status(400)
+          .json(
+            createServerError(
+              new Error("La discussion n'a pas pu être modifié")
             )
-          )
-        );
-
-    const { n, nModified } = await models.Topic.updateOne(
-      { _id: topicId },
-      body
-    );
-
-    if (nModified !== 1)
-      return res
-        .status(400)
-        .json(
-          createServerError(new Error("La discussion n'a pas pu être modifié"))
-        );
+          );
+    }
 
     res.status(200).json({});
   } catch (error) {

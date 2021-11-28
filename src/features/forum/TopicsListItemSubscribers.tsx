@@ -22,31 +22,37 @@ export const TopicsListItemSubscribers = ({
 
   if (query.isLoading || query.isFetching) return <Spinner boxSize={4} />;
 
-  return Array.isArray(query.data) && query.data.length > 0 ? (
+  return (
     <Flex alignItems="center">
-      <Text whiteSpace="nowrap" mr={1} fontSize="smaller">
-        Abonnés à la discussion :
-      </Text>
+      {Array.isArray(query.data) && query.data.length > 0 ? (
+        <Text fontSize="smaller" mr={1} whiteSpace="nowrap">
+          Abonnés à la discussion :
+        </Text>
+      ) : (
+        <Text fontSize="smaller" fontStyle="italic" whiteSpace="nowrap">
+          Aucun abonnés à la discussion.
+        </Text>
+      )}
 
-      <Flex wrap="nowrap" data-cy="topic-subscribers">
-        {query.data.map((subscription) => {
-          if (typeof subscription.user !== "object") return;
+      {Array.isArray(query.data) && query.data.length > 0 && (
+        <Flex wrap="nowrap">
+          {query.data.map((subscription) => {
+            if (typeof subscription.user !== "object") return;
 
-          const userName =
-            subscription.user.userName ||
-            session?.user.email.replace(/@.+/, "");
+            const userName =
+              subscription.user.userName ||
+              session?.user.email.replace(/@.+/, "");
 
-          return (
-            <Link key={subscription._id} href={`/${userName}`}>
-              <Tag mr={1} fontSize="smaller">
-                {userName}
-              </Tag>
-            </Link>
-          );
-        })}
-      </Flex>
+            return (
+              <Link key={subscription._id} href={`/${userName}`}>
+                <Tag mr={1} fontSize="smaller">
+                  {userName}
+                </Tag>
+              </Link>
+            );
+          })}
+        </Flex>
+      )}
     </Flex>
-  ) : (
-    <Text fontSize="smaller">Aucun abonné à la discussion.</Text>
   );
 };

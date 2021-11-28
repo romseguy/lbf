@@ -172,11 +172,13 @@ export const TopicForm = ({
       if (props.topic) {
         await editTopic({
           payload: {
-            ...payload.topic,
-            topicMessages: [
-              ...props.topic.topicMessages,
-              ...payload.topic.topicMessages
-            ]
+            topic: {
+              ...payload.topic,
+              topicMessages: [
+                ...props.topic.topicMessages,
+                ...payload.topic.topicMessages
+              ]
+            }
           },
           topicId: props.topic._id
         }).unwrap();

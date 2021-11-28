@@ -493,18 +493,20 @@ export const EventsList = ({
     editOrg,
     isCreator,
     isDark,
-    isLoading,
-    setIsLoading,
     org,
     orgQuery,
     orgFollowersCount,
     session,
     eventToForward,
     setEventToForward,
-    notifyModalState,
-    setNotifyModalState,
     eventToShow,
     setEventToShow,
+    isLoading,
+    setIsLoading,
+    notifyModalState,
+    setNotifyModalState,
+    selectedCategories,
+    setSelectedCategories,
     city,
     toast
   };
@@ -529,13 +531,7 @@ export const EventsList = ({
         />
 
         <EventsListCategories
-          events={
-            showPreviousEvents
-              ? previousEvents
-              : showNextEvents
-              ? nextEvents
-              : currentEvents
-          }
+          events={events}
           org={org}
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}

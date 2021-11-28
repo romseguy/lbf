@@ -37,8 +37,6 @@ export const EventsListItem = ({
   index,
   isCreator,
   isDark,
-  isLoading,
-  setIsLoading,
   org,
   orgQuery,
   orgFollowersCount,
@@ -46,10 +44,14 @@ export const EventsListItem = ({
   session,
   eventToForward,
   setEventToForward,
-  notifyModalState,
-  setNotifyModalState,
   eventToShow,
   setEventToShow,
+  isLoading,
+  setIsLoading,
+  notifyModalState,
+  setNotifyModalState,
+  selectedCategories,
+  setSelectedCategories,
   city,
   toast,
   ...props
@@ -67,12 +69,14 @@ export const EventsListItem = ({
   orgFollowersCount?: number;
   eventToForward: IEvent | null;
   setEventToForward: (event: IEvent | null) => void;
-  notifyModalState: ModalState<IEvent<string | Date>>;
-  setNotifyModalState: (modalState: ModalState<IEvent<string | Date>>) => void;
   eventToShow: IEvent | null;
   setEventToShow: (event: IEvent | null) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
+  notifyModalState: ModalState<IEvent<string | Date>>;
+  setNotifyModalState: (modalState: ModalState<IEvent<string | Date>>) => void;
+  selectedCategories: number[];
+  setSelectedCategories: React.Dispatch<React.SetStateAction<number[]>>;
   session: Session | null;
   city: string | null;
   toast: any;
@@ -106,6 +110,10 @@ export const EventsListItem = ({
     label = canSendCount > 0 ? `Envoyer des invitations` : label;
   }
 
+  const isCategorySelected = !!selectedCategories.find(
+    (selectedCategory) => selectedCategory === event.eventCategory!
+  );
+
   return (
     <>
       <Td
@@ -121,22 +129,42 @@ export const EventsListItem = ({
           {typeof event.eventCategory === "number" &&
             event.eventCategory !== 0 && (
               <GridItem mb={2}>
-                <Button
-                  color="white"
-                  colorScheme={
-                    Category[event.eventCategory].bgColor === "transparent"
-                      ? isDark
-                        ? "whiteAlpha"
-                        : "blackAlpha"
-                      : Category[event.eventCategory].bgColor
+                <Tooltip
+                  label={
+                    !isCategorySelected
+                      ? `Afficher les événements de la catégorie "${
+                          Category[event.eventCategory].label
+                        }"`
+                      : ""
                   }
-                  fontSize="small"
-                  fontWeight="normal"
-                  height="auto"
-                  p={1}
                 >
-                  {Category[event.eventCategory].label}
-                </Button>
+                  <Button
+                    color="white"
+                    colorScheme={
+                      Category[event.eventCategory].bgColor === "transparent"
+                        ? isDark
+                          ? "whiteAlpha"
+                          : "blackAlpha"
+                        : Category[event.eventCategory].bgColor
+                    }
+                    fontSize="small"
+                    fontWeight="normal"
+                    height="auto"
+                    p={1}
+                    onClick={() => {
+                      setSelectedCategories(
+                        isCategorySelected
+                          ? selectedCategories.filter(
+                              (selectedCategory) =>
+                                selectedCategory !== event.eventCategory!
+                            )
+                          : [...selectedCategories, event.eventCategory!]
+                      );
+                    }}
+                  >
+                    {Category[event.eventCategory].label}
+                  </Button>
+                </Tooltip>
               </GridItem>
             )}
 

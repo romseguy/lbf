@@ -27,7 +27,7 @@ export const EventsListToggle = ({
     return null;
 
   return (
-    <Flex flexDirection="row" flexWrap="wrap" mt={-3} {...props}>
+    <Flex flexWrap="wrap" mt={-3} {...props}>
       <Box flexGrow={1} mt={3}>
         {!showNextEvents && (
           <>

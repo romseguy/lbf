@@ -128,7 +128,7 @@ export const DeleteButton = ({
                     onClose();
                   }}
                   ml={3}
-                  data-cy="deleteButtonSubmit"
+                  data-cy="delete-button-submit"
                 >
                   Supprimer
                 </Button>

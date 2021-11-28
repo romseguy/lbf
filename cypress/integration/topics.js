@@ -9,7 +9,7 @@ describe(" topics", () => {
       cy.visit(`/${orgName}`);
       cy.wait(2000);
       cy.get("[data-cy=orgTab-Discussions]").click();
-      cy.get("[data-cy=addTopicForm]").click();
+      cy.get("[data-cy=add-topic]").click();
       cy.get("#topicName").type(topicName);
       cy.get("[data-cy=addTopic]").click();
       cy.get("[data-cy=topicHeader]").contains(topicName);
@@ -46,7 +46,7 @@ describe(" topics", () => {
       cy.visit(`/${eventName}`);
       cy.wait(2000);
       //cy.get("[data-cy=eventTab-Discussions]").click();
-      cy.get("[data-cy=addTopicForm]").click();
+      cy.get("[data-cy=add-topic]").click();
       cy.get("#topicName").type(topicName);
       cy.get("[data-cy=addTopic]").click();
       cy.get("[data-cy=topicHeader]").contains(topicName);

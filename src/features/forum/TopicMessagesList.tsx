@@ -43,6 +43,7 @@ export const TopicMessagesList = ({
   const [isEdit, setIsEdit] = useState<{
     [key: string]: {
       html?: string;
+      quillHtml?: string;
       isOpen: boolean;
     };
   }>({});
@@ -72,17 +73,17 @@ export const TopicMessagesList = ({
               userId === session?.user.userId || session?.user.isAdmin;
 
             return (
-              <Box key={_id} display="flex" pb={3}>
+              <Flex key={_id} pb={3} data-cy="topic-message">
                 <Link variant="no-underline" href={userName}>
                   <Avatar name={userName} boxSize={10} src={userImage} />
                 </Link>
+
                 <Box ml={2}>
                   <Container
                     borderRadius={18}
                     light={{ bg: "white" }}
                     dark={{ bg: "gray.600" }}
                     px={3}
-                    data-cy="topicMessage"
                   >
                     <Link href={`/${userName}`} fontWeight="bold">
                       {userName}
@@ -96,7 +97,7 @@ export const TopicMessagesList = ({
                           onChange={({ html, quillHtml }) => {
                             setIsEdit({
                               ...isEdit,
-                              [_id]: { ...isEdit[_id], html: quillHtml }
+                              [_id]: { ...isEdit[_id], html, quillHtml }
                             });
                           }}
                           placeholder="Contenu de votre message"
@@ -122,21 +123,15 @@ export const TopicMessagesList = ({
                             colorScheme="green"
                             onClick={async () => {
                               await editTopic({
+                                topicId: topic._id,
                                 payload: {
-                                  ...topic,
-                                  topicMessages: topic.topicMessages.map(
-                                    (m) => {
-                                      if (m._id === _id) {
-                                        return {
-                                          ...m,
-                                          message: isEdit[_id].html || ""
-                                        };
-                                      }
-                                      return m;
-                                    }
-                                  )
-                                },
-                                topicId: topic._id
+                                  topic,
+                                  topicMessage: {
+                                    _id,
+                                    message: isEdit[_id].quillHtml || "",
+                                    messageHtml: isEdit[_id].html || ""
+                                  }
+                                }
                               }).unwrap();
                               query.refetch();
                               setIsEdit({
@@ -144,6 +139,7 @@ export const TopicMessagesList = ({
                                 [_id]: { ...isEdit[_id], isOpen: false }
                               });
                             }}
+                            data-cy="topic-message-edit-submit"
                           >
                             Modifier
                           </Button>
@@ -185,6 +181,7 @@ export const TopicMessagesList = ({
                                 [_id]: { ...isEdit[_id], isOpen: true }
                               });
                           }}
+                          data-cy="topic-message-edit"
                         />
                       </Tooltip>
 
@@ -206,24 +203,24 @@ export const TopicMessagesList = ({
                           _id && setIsLoading({ [_id]: true });
 
                           const payload = {
-                            ...topic,
-                            topicMessages:
-                              index === topic.topicMessages.length - 1
-                                ? topic.topicMessages.filter((m) => {
-                                    return m._id !== _id;
-                                  })
-                                : topic.topicMessages.map((m) => {
-                                    if (m._id === _id) {
-                                      return {
-                                        _id,
-                                        message: "<i>Message supprimé</i>",
-                                        createdBy,
-                                        createdAt
-                                      };
-                                    }
+                            topic: {
+                              ...topic,
+                              topicMessages:
+                                index === topic.topicMessages.length - 1
+                                  ? topic.topicMessages.filter((m) => {
+                                      return m._id !== _id;
+                                    })
+                                  : topic.topicMessages.map((m) => {
+                                      if (m._id === _id) {
+                                        return {
+                                          message: "<i>Message supprimé</i>",
+                                          createdBy
+                                        };
+                                      }
 
-                                    return m;
-                                  })
+                                      return m;
+                                    })
+                            }
                           };
 
                           try {
@@ -243,7 +240,7 @@ export const TopicMessagesList = ({
                     </>
                   )}
                 </Box>
-              </Box>
+              </Flex>
             );
           }
         )}

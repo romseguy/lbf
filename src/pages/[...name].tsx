@@ -16,6 +16,8 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
 import { useAppDispatch, wrapper } from "store";
+import { selectEventRefetch } from "features/events/eventSlice";
+import ForumPage from "./forum";
 
 let populate = "";
 
@@ -28,25 +30,27 @@ const Hash = ({
 }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+
   //const routeName = router.asPath.substr(1, router.asPath.length);
-  const [entityUrl, entityTab, entityTabItem] =
+  let [entityUrl, entityTab, entityTabItem] =
     "name" in router.query && Array.isArray(router.query.name)
       ? router.query.name
       : [];
+  entityTabItem = entityUrl === "forum" ? entityTab : entityTabItem;
   const [event, setEvent] = useState<IEvent | undefined>();
   const [org, setOrg] = useState<IOrg | undefined>();
   const [user, setUser] = useState<IUser | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | undefined>();
   const refetchOrg = useSelector(selectOrgRefetch);
-
-  useEffect(() => {
-    if (email) dispatch(setUserEmail(email));
-  }, []);
+  const refetchEvent = useSelector(selectEventRefetch);
 
   useEffect(() => {
     const xhr = async () => {
       populate = "";
+
+      if (entityUrl === "forum") return;
+
       const eventQuery = await dispatch(
         getEvent.initiate({ eventUrl: entityUrl, populate })
       );
@@ -85,7 +89,14 @@ const Hash = ({
     setOrg(undefined);
     setUser(undefined);
     xhr();
-  }, [router.asPath, refetchOrg]);
+  }, [router.asPath, refetchEvent, refetchOrg]);
+
+  useEffect(() => {
+    if (email) dispatch(setUserEmail(email));
+  }, []);
+
+  if (entityUrl === "forum")
+    return <ForumPage tabItem={entityTabItem} {...props} />;
 
   if (event) {
     return <EventPage event={event} populate={populate} {...props} />;

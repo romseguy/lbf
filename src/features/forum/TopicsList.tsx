@@ -31,7 +31,6 @@ import { TopicsListItem } from "./TopicsListItem";
 import { hasItems } from "utils/array";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { TopicsListCategories } from "./TopicsListCategories";
-import api from "utils/api";
 
 export const TopicsList = ({
   event,
@@ -191,7 +190,7 @@ export const TopicsList = ({
               }
             }
           }}
-          data-cy="addTopicForm"
+          data-cy="add-topic"
         >
           Ajouter une discussion
         </Button>
@@ -428,11 +427,6 @@ export const TopicsList = ({
                       title: `La discussion ${topic.topicName} n'a pas pu être supprimée`,
                       status: "error",
                       isClosable: true
-                    });
-                    await api.sendPushNotification({
-                      message: error.message,
-                      title: "topicsList onDeleteClick",
-                      url: entityUrl
                     });
                     setIsLoading({
                       [topic._id!]: false

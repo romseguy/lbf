@@ -58,21 +58,32 @@ export const GlobalStyles = () => (
       ${RainbowTextStyles}
       ${ReactToggleStyles}
 
-      .ql-editor, .ql-editor ul {
+      .ql-editor {
         padding: 0;
-      }
 
-      .ql-editor a {
-        text-decoration: underline;
-      }
+        a {
+          text-decoration: underline;
+        }
 
-      .ql-editor a.clip {
-        text-overflow: ellipsis;
-        display: inline-block;
-        white-space: nowrap;
-        overflow: hidden;
-        max-width: 75px;
-        vertical-align: top;
+        a.clip {
+          text-overflow: ellipsis;
+          display: inline-block;
+          white-space: nowrap;
+          overflow: hidden;
+          max-width: 75px;
+          vertical-align: top;
+        }
+
+        blockquote {
+          border-left: 4px solid #ccc;
+          margin-bottom: 5px;
+          margin-top: 5px;
+          padding-left: 16px;
+        }
+
+        ul {
+          padding: 0;
+        }
       }
     `}
   />

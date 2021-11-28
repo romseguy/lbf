@@ -14,12 +14,13 @@ import { selectUserEmail } from "features/users/userSlice";
 
 export const Forum = ({
   isLogin,
-  setIsLogin
+  setIsLogin,
+  tabItem
 }: {
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
+  tabItem?: string;
 }) => {
-  const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
@@ -77,6 +78,7 @@ export const Forum = ({
       isSubscribed={isSubscribed}
       setIsLogin={setIsLogin}
       isLogin={isLogin}
+      currentTopicName={tabItem}
     />
   );
 };
