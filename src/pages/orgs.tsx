@@ -44,7 +44,7 @@ const OrgsPage = (props: any) => {
               !orgsQuery.data || !orgsQuery.data.length
                 ? "Aucune organisations"
                 : !online
-                ? "Vous devez être connecté à internet pour afficher la carte"
+                ? "Vous devez être connecté à internet pour afficher la carte des organisations"
                 : ""
             }
             placement="right"

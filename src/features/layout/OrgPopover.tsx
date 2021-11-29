@@ -21,7 +21,7 @@ import React, { useEffect, useState } from "react";
 import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { EntityButton, Link } from "features/common";
-import { OrgModal } from "features/modals/OrgModal";
+import { OrgFormModal } from "features/modals/OrgFormModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
@@ -111,7 +111,7 @@ export const OrgPopover = ({
 
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
-  const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
+  const [isOrgFormModalOpen, setIsOrgFormModalOpen] = useState(false);
   const [showOrgs, setShowOrgs] = useState<
     "showOrgsAdded" | "showOrgsFollowed" | "showOrgsSubscribed"
   >("showOrgsAdded");
@@ -281,7 +281,7 @@ export const OrgPopover = ({
               leftIcon={<AddIcon />}
               mt={1}
               size="sm"
-              onClick={() => setIsOrgModalOpen(true)}
+              onClick={() => setIsOrgFormModalOpen(true)}
               data-cy="addOrg"
             >
               Ajouter{" "}
@@ -291,12 +291,12 @@ export const OrgPopover = ({
         </PopoverContent>
       </Popover>
 
-      {isOrgModalOpen && (
-        <OrgModal
+      {isOrgFormModalOpen && (
+        <OrgFormModal
           session={session}
           orgType={orgType}
-          onCancel={() => setIsOrgModalOpen(false)}
-          onClose={() => setIsOrgModalOpen(false)}
+          onCancel={() => setIsOrgFormModalOpen(false)}
+          onClose={() => setIsOrgFormModalOpen(false)}
           onSubmit={async (orgUrl) => {
             await router.push(`/${orgUrl}`, `/${orgUrl}`, {
               shallow: true

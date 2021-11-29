@@ -5,14 +5,15 @@ import { AddressControl } from "features/common";
 import { unwrapSuggestion } from "utils/maps";
 
 export const MapSearch = ({
+  entityAddress = "",
   setCenter,
   isVisible
 }: {
+  entityAddress?: string;
   setCenter: (center: LatLon) => void;
   isVisible: boolean;
 }) => {
-  const defaultValue = "";
-  const [value, setValue] = useState(defaultValue);
+  const [value, setValue] = useState(entityAddress);
 
   const {
     control,
@@ -25,7 +26,7 @@ export const MapSearch = ({
     getValues
   } = useForm({
     defaultValues: {
-      eventAddress: defaultValue
+      entityAddress
     },
     mode: "onChange"
   });
@@ -38,7 +39,7 @@ export const MapSearch = ({
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <AddressControl
-        name="eventAddress"
+        name="entityAddress"
         control={control}
         errors={errors}
         value={value}

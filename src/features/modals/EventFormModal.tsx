@@ -12,7 +12,7 @@ import React from "react";
 import { EventForm } from "features/forms/EventForm";
 import type { IOrg } from "models/Org";
 
-export const EventModal = ({
+export const EventFormModal = ({
   initialEventOrgs,
   session,
   onCancel,

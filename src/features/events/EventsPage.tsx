@@ -1,4 +1,11 @@
-import { Box, Flex, Heading, Text, useDisclosure } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Text,
+  Tooltip,
+  useDisclosure
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaRegMap } from "react-icons/fa";
@@ -7,6 +14,7 @@ import { MapModal } from "features/modals/MapModal";
 import { Visibility } from "models/Event";
 import { useGetEventsQuery } from "./eventsApi";
 import { EventsList } from "./EventsList";
+import { Detector } from "react-detect-offline";
 
 export const EventsPage = ({
   isLogin,
@@ -19,7 +27,7 @@ export const EventsPage = ({
 
   const eventsQuery = useGetEventsQuery();
   useEffect(() => {
-    console.log("refetching events");
+    console.log("refetching events with new route", router.asPath);
     eventsQuery.refetch();
   }, [router.asPath]);
 
@@ -50,20 +58,44 @@ export const EventsPage = ({
 
         {!eventsQuery.isLoading && (
           <Box mt={3}>
-            <Button
-              colorScheme="teal"
-              isDisabled={!events || !events.length}
-              leftIcon={<FaRegMap />}
-              onClick={openMapModal}
-              mb={3}
-            >
-              Carte des événements
-            </Button>
+            <Detector
+              polling={{
+                enabled: true,
+                interval: 10000,
+                timeout: 5000,
+                url: `${process.env.NEXT_PUBLIC_API}/check`
+              }}
+              render={({ online }) => (
+                <Tooltip
+                  label={
+                    !eventsQuery.data || !eventsQuery.data.length
+                      ? "Aucun événements"
+                      : !online
+                      ? "Vous devez être connecté à internet pour afficher la carte des événements"
+                      : ""
+                  }
+                  hasArrow
+                  placement="left"
+                >
+                  <span>
+                    <Button
+                      colorScheme="teal"
+                      isDisabled={!online || !events || !events.length}
+                      leftIcon={<FaRegMap />}
+                      onClick={openMapModal}
+                      mb={3}
+                    >
+                      Carte des événements
+                    </Button>
+                  </span>
+                </Tooltip>
+              )}
+            />
           </Box>
         )}
 
         <Box width="100%">
-          {eventsQuery.isLoading || eventsQuery.isFetching ? (
+          {eventsQuery.isLoading ? (
             <Text>Chargement des événements publics...</Text>
           ) : (
             events && (

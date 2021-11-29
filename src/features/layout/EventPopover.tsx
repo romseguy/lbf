@@ -19,7 +19,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { EntityButton } from "features/common";
-import { EventModal } from "features/modals/EventModal";
+import { EventFormModal } from "features/modals/EventFormModal";
 import { useGetEventsQuery } from "features/events/eventsApi";
 import { selectEventsRefetch } from "features/events/eventSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
@@ -87,7 +87,7 @@ export const EventPopover = ({
   const [showEvents, setShowEvents] = useState<
     "showEventsAdded" | "showEventsFollowed" | "showEventsAttended"
   >("showEventsAdded");
-  const [eventModalState, setEventModalState] = useState<{
+  const [eventModalState, setEventFormModalState] = useState<{
     isOpen: boolean;
     event?: IEvent;
   }>({ isOpen: false, event: undefined });
@@ -247,7 +247,7 @@ export const EventPopover = ({
               mt={1}
               size="sm"
               onClick={() => {
-                setEventModalState({ isOpen: true });
+                setEventFormModalState({ isOpen: true });
               }}
               data-cy="addEvent"
             >
@@ -258,10 +258,10 @@ export const EventPopover = ({
       </Popover>
 
       {eventModalState.isOpen && (
-        <EventModal
+        <EventFormModal
           session={session}
-          onCancel={() => setEventModalState({ isOpen: false })}
-          onClose={() => setEventModalState({ isOpen: false })}
+          onCancel={() => setEventFormModalState({ isOpen: false })}
+          onClose={() => setEventFormModalState({ isOpen: false })}
           onSubmit={async (eventUrl) => {
             await router.push(`/${eventUrl}`, `/${eventUrl}`, {
               shallow: true

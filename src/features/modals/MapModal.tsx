@@ -1,7 +1,4 @@
-import type { LatLon } from "use-places-autocomplete";
-import type { IOrg } from "models/Org";
-import type { IEvent } from "models/Event";
-import React, { useRef, useState } from "react";
+import { CalendarIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
@@ -13,13 +10,20 @@ import {
   Alert,
   AlertIcon,
   Spinner,
-  Tooltip
+  Flex,
+  Icon
 } from "@chakra-ui/react";
+import React, { useRef, useState } from "react";
+import { FaRegMap } from "react-icons/fa";
+import { IoIosPerson } from "react-icons/io";
+import { LatLon } from "use-places-autocomplete";
+import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { Map, SizeMap } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
-import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { IEvent } from "models/Event";
+import { IOrg, OrgTypes } from "models/Org";
 import { hasItems } from "utils/array";
-import { MapStyles } from "features/map/MapStyles";
+import { Link } from "features/common";
 
 export const MapModal = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -28,6 +32,7 @@ export const MapModal = withGoogleApi({
     header,
     events,
     orgs,
+    zoomLevel,
     ...props
   }: {
     google: typeof google;
@@ -36,17 +41,50 @@ export const MapModal = withGoogleApi({
     header?: React.ReactNode | React.ReactNodeArray;
     events?: IEvent[];
     orgs?: IOrg[];
+    center?: LatLon;
+    zoomLevel?: number;
     onClose: () => void;
   }) => {
     const isOffline = props.loaded && !props.google;
 
-    const [center, setCenter] = useState<LatLon>();
+    const [center, setCenter] = useState<LatLon | undefined>(props.center);
 
     const divRef = useRef<HTMLDivElement>(null);
     const [size, setSize] = useState<SizeMap>({
       defaultSize: { enabled: true },
       fullSize: { enabled: false }
     });
+
+    let title;
+    let icon = <Icon as={FaRegMap} mr={3} />;
+    if (events)
+      if (events.length === 1) {
+        title = (
+          <Link
+            href={`/${events[0].eventUrl}`}
+            size="larger"
+            className="rainbow-text"
+          >
+            {events[0].eventName}
+          </Link>
+        );
+        icon = <CalendarIcon mr={3} />;
+      } else title = "Carte des événements";
+    else if (orgs)
+      if (orgs.length === 1) {
+        title = (
+          <Link
+            href={`/${orgs[0].orgUrl}`}
+            size="larger"
+            className="rainbow-text"
+          >
+            {orgs[0].orgName}
+          </Link>
+        );
+        icon = <Icon as={IoIosPerson} mr={3} />;
+      } else if (orgs.find(({ orgType }) => orgType === OrgTypes.NETWORK))
+        title = "Carte des réseaux";
+      else title = "Carte des organisations";
 
     return (
       <Modal
@@ -71,9 +109,11 @@ export const MapModal = withGoogleApi({
             {size.defaultSize.enabled && (
               <>
                 <ModalHeader>
-                  {header
-                    ? header
-                    : `Carte des ${events ? "événements" : "organisations"}`}
+                  {header || (
+                    <Flex alignItems="center">
+                      {icon} {title}
+                    </Flex>
+                  )}
                 </ModalHeader>
                 <ModalCloseButton />
               </>
@@ -89,14 +129,22 @@ export const MapModal = withGoogleApi({
               hasItems(events || orgs || []) ? (
                 <>
                   <MapSearch
-                    setCenter={setCenter}
+                    entityAddress={
+                      events
+                        ? events.length === 1 && events[0].eventAddress
+                          ? events[0].eventAddress[0].address
+                          : undefined
+                        : undefined
+                    }
                     isVisible={size.defaultSize.enabled}
+                    setCenter={setCenter}
                   />
                   <Map
                     center={center}
                     events={events}
                     orgs={orgs}
                     size={size}
+                    zoomLevel={zoomLevel}
                     onFullscreenControlClick={(isFull: boolean) => {
                       setSize({
                         defaultSize: { enabled: !isFull },

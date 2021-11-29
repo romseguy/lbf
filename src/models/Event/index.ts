@@ -3,17 +3,17 @@ import { IEvent, StatusTypes } from "./IEvent";
 export * from "./IEvent";
 
 export const Category: { [key: number]: { label: string; bgColor: string } } = [
-  { label: "À définir", bgColor: "gray" },
-  { label: "Atelier", bgColor: "red" },
-  { label: "Chantier participatif", bgColor: "orange" },
-  { label: "Concert", bgColor: "green.300" },
-  { label: "Exposition", bgColor: "green.600" },
-  { label: "Fête", bgColor: "blue.300" },
-  { label: "Festival", bgColor: "blue.600" },
-  { label: "Jam session", bgColor: "purple.300" },
-  { label: "Réunion", bgColor: "purple.600" },
-  { label: "Autre", bgColor: "transparent" }
-].reduce((obj, cat, index) => ({ ...obj, [index]: cat }), {});
+  { index: 0, label: "À définir", bgColor: "gray" },
+  { index: 1, label: "Atelier", bgColor: "red" },
+  { index: 2, label: "Chantier participatif", bgColor: "orange" },
+  //{ label: "Concert", bgColor: "green.300" },
+  //{ label: "Exposition", bgColor: "green.600" },
+  //{ label: "Fête", bgColor: "blue.300" },
+  //{ label: "Festival", bgColor: "blue.600" },
+  //{ label: "Jam session", bgColor: "purple.300" },
+  //{ label: "Réunion", bgColor: "purple.600" },
+  { index: 9, label: "Autre", bgColor: "transparent" }
+].reduce((obj, cat) => ({ ...obj, [cat.index]: cat }), {});
 
 export const isAttending = ({
   email,

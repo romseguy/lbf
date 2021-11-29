@@ -1,26 +1,18 @@
-import { CalendarIcon } from "@chakra-ui/icons";
-import { Box, Icon, Text, useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@chakra-ui/react";
 import MarkerClusterer, {
   ClusterIconStyle
 } from "@googlemaps/markerclustererplus";
 import GoogleMap from "google-map-react";
-import DOMPurify from "isomorphic-dompurify";
 import React, { useRef, useState } from "react";
 import { render } from "react-dom";
-import { IoIosPeople } from "react-icons/io";
 import { LatLon } from "use-places-autocomplete";
-import { css } from "twin.macro";
-import { Link } from "features/common";
-import { EventTimeline } from "features/events/EventTimeline";
-import { DescriptionModal } from "features/modals/DescriptionModal";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { FullscreenControl } from "./FullscreenControl";
 import { withGoogleApi } from "./GoogleApiWrapper";
 import { Marker } from "./Marker";
-import { OrgInfo } from "features/orgs/OrgInfo";
-import { EventInfo } from "features/events/EventInfo";
 import { getMarkerUrl } from "utils/maps";
+import { EntityModal } from "features/modals/EntityModal";
 
 export type SizeMap = {
   defaultSize: {
@@ -58,6 +50,7 @@ export const Map = withGoogleApi({
     size: SizeMap;
     height?: string;
     style: { [key: string]: string | number };
+    zoomLevel?: number;
     onGoogleApiLoaded: () => void;
     onFullscreenControlClick?: (isFull: boolean) => void;
   }) => {
@@ -67,7 +60,9 @@ export const Map = withGoogleApi({
     const mapRef = useRef(null);
 
     const [itemToShow, setItemToShow] = useState<IEvent | IOrg | null>(null);
-    const [zoomLevel, setZoomLevel] = useState<number>(defaultZoomLevel);
+    const [zoomLevel, setZoomLevel] = useState<number>(
+      props.zoomLevel || defaultZoomLevel
+    );
 
     const hash: { [key: string]: boolean } = {};
     const mapItem = (item: IOrg | IEvent, index: number) => {
@@ -137,7 +132,6 @@ export const Map = withGoogleApi({
           width: 25
         }
       ];
-      console.log(styles);
 
       const clusterer = new MarkerClusterer(map, gMarkers, {
         calculator: (gMarkers, clusterIconStylesCount) => {
@@ -221,82 +215,10 @@ export const Map = withGoogleApi({
         </GoogleMap>
 
         {itemToShow && (
-          <DescriptionModal
-            onClose={() => {
-              setItemToShow(null);
-            }}
-            header={
-              <Box display="inline-flex" alignItems="center" maxWidth="90%">
-                {"eventName" in itemToShow ? (
-                  <Icon as={CalendarIcon} mr={1} boxSize={6} />
-                ) : (
-                  <Icon as={IoIosPeople} mr={1} boxSize={6} />
-                )}{" "}
-                <Link
-                  href={`/${
-                    "eventName" in itemToShow
-                      ? itemToShow.eventUrl
-                      : itemToShow.orgUrl
-                  }`}
-                  css={css`
-                    letter-spacing: 0.1em;
-                  `}
-                  size="larger"
-                  className="rainbow-text"
-                >
-                  {"eventName" in itemToShow
-                    ? itemToShow.eventName
-                    : itemToShow.orgName}
-                </Link>
-              </Box>
-            }
-          >
-            <>
-              {"eventName" in itemToShow ? (
-                <>
-                  <EventInfo event={itemToShow} my={3} />
-                  <EventTimeline event={itemToShow} />
-                </>
-              ) : (
-                <OrgInfo org={itemToShow} />
-              )}
-
-              <Box
-                mt={4}
-                border={isDark ? "1px solid white" : "1px solid black"}
-                borderRadius="lg"
-                p={3}
-              >
-                {"eventName" in itemToShow ? (
-                  itemToShow.eventDescription &&
-                  itemToShow.eventDescription.length > 0 ? (
-                    <div className="ql-editor">
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(
-                            itemToShow.eventDescription
-                          )
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <Text fontStyle="italic">Aucune description.</Text>
-                  )
-                ) : itemToShow.orgDescription &&
-                  itemToShow.orgDescription.length > 0 ? (
-                  <div className="ql-editor">
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(itemToShow.orgDescription)
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <Text fontStyle="italic">Aucune description.</Text>
-                )}
-              </Box>
-            </>
-          </DescriptionModal>
+          <EntityModal
+            entity={itemToShow}
+            onClose={() => setItemToShow(null)}
+          />
         )}
       </>
     );

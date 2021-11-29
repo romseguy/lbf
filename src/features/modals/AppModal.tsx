@@ -10,7 +10,7 @@ import {
   ModalProps
 } from "@chakra-ui/react";
 
-export const DescriptionModal = ({
+export const AppModal = ({
   closeOnOverlayClick,
   ...props
 }: {

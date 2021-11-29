@@ -6,7 +6,6 @@ import {
   Flex,
   BoxProps,
   Heading,
-  Text,
   Table,
   Tbody,
   Tr,
@@ -29,43 +28,35 @@ import {
   setSeconds
 } from "date-fns";
 import { fr } from "date-fns/locale";
-import DOMPurify from "isomorphic-dompurify";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Link,
-  GridHeader,
-  GridItem,
-  Spacer,
-  LocationButton
-} from "features/common";
-import { DescriptionModal } from "features/modals/DescriptionModal";
+import { FaMapMarkerAlt } from "react-icons/fa";
+import { LatLon } from "use-places-autocomplete";
+import { GridHeader, GridItem, Spacer, LocationButton } from "features/common";
 import { ModalState, EntityNotifModal } from "features/modals/EntityNotifModal";
-import { EventModal } from "features/modals/EventModal";
+import { EntityModal } from "features/modals/EntityModal";
+import { EventFormModal } from "features/modals/EventFormModal";
 import { ForwardModal } from "features/modals/ForwardModal";
+import { MapModal } from "features/modals/MapModal";
+import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { refetchOrg } from "features/orgs/orgSlice";
 import { useSession } from "hooks/useAuth";
 import { IEvent, Visibility } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { useAppDispatch } from "store";
+import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
+import { getDistance } from "utils/maps";
 import {
   useDeleteEventMutation,
   useEditEventMutation,
   usePostEventNotifMutation
 } from "./eventsApi";
 import { EventsListItem } from "./EventsListItem";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { EventsListToggle } from "./EventsListToggle";
 import { EventCategory } from "./EventCategory";
 import { EventsListCategories } from "./EventsListCategories";
-import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
-import { getDistance } from "utils/maps";
-import { EventInfo } from "./EventInfo";
-import { EventTimeline } from "./EventTimeline";
 import { EventsListDistance } from "./EventsListDistance";
-import { LatLon } from "use-places-autocomplete";
-import { FaMapMarkerAlt } from "react-icons/fa";
 
 export const EventsList = ({
   events,
@@ -182,8 +173,11 @@ export const EventsList = ({
   }, [showPreviousEvents, showNextEvents]);
 
   const today = setSeconds(setMinutes(setHours(new Date(), 0), 0), 0);
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [isEventFormModalOpen, setIsEventFormModalOpen] = useState(false);
   const [eventToShow, setEventToShow] = useState<IEvent | null>(null);
+  const [eventToShowOnMap, setEventToShowOnMap] = useState<IEvent<
+    string | Date
+  > | null>(null);
   const [eventToForward, setEventToForward] = useState<IEvent | null>(null);
   const [notifyModalState, setNotifyModalState] = useState<
     ModalState<IEvent<string | Date>>
@@ -501,6 +495,8 @@ export const EventsList = ({
     setEventToForward,
     eventToShow,
     setEventToShow,
+    eventToShowOnMap,
+    setEventToShowOnMap,
     isLoading,
     setIsLoading,
     notifyModalState,
@@ -830,7 +826,8 @@ export const EventsList = ({
               if (!isSessionLoading) {
                 if (session) {
                   if (org) {
-                    if (isCreator || isSubscribed) setIsEventModalOpen(true);
+                    if (isCreator || isSubscribed)
+                      setIsEventFormModalOpen(true);
                     else
                       toast({
                         status: "error",
@@ -838,7 +835,7 @@ export const EventsList = ({
                           org.orgType
                         )} pour ajouter un événement`
                       });
-                  } else setIsEventModalOpen(true);
+                  } else setIsEventFormModalOpen(true);
                 } else if (setIsLogin && isLogin) {
                   setIsLogin(isLogin + 1);
                 }
@@ -849,11 +846,11 @@ export const EventsList = ({
             Ajouter un événement
           </Button>
 
-          {session && isEventModalOpen && (
-            <EventModal
+          {session && isEventFormModalOpen && (
+            <EventFormModal
               initialEventOrgs={[org]}
               session={session}
-              onCancel={() => setIsEventModalOpen(false)}
+              onCancel={() => setIsEventFormModalOpen(false)}
               onSubmit={async (eventUrl) => {
                 if (org) {
                   dispatch(refetchOrg());
@@ -862,51 +859,13 @@ export const EventsList = ({
                   shallow: true
                 });
               }}
-              onClose={() => setIsEventModalOpen(false)}
+              onClose={() => setIsEventFormModalOpen(false)}
             />
           )}
         </>
       )}
 
       {eventsList}
-
-      {eventToShow && (
-        <DescriptionModal
-          header={
-            <Link
-              href={`/${eventToShow.eventUrl}`}
-              size="larger"
-              className="rainbow-text"
-            >
-              {eventToShow.eventName}
-            </Link>
-          }
-          onClose={() => {
-            setEventToShow(null);
-          }}
-        >
-          <>
-            <Flex flexDirection="row" flexWrap="wrap" mt={-3} mb={3}>
-              <EventInfo event={eventToShow} flexGrow={1} mt={3} />
-              <EventTimeline event={eventToShow} mt={3} />
-            </Flex>
-
-            {eventToShow.eventDescription &&
-            eventToShow.eventDescription.length > 0 &&
-            eventToShow.eventDescription !== "<p><br></p>" ? (
-              <div className="ql-editor">
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(eventToShow.eventDescription)
-                  }}
-                />
-              </div>
-            ) : (
-              <Text fontStyle="italic">Aucune description.</Text>
-            )}
-          </>
-        </DescriptionModal>
-      )}
 
       {eventToForward && (
         <ForwardModal
@@ -922,6 +881,28 @@ export const EventsList = ({
           }}
         />
       )}
+
+      {eventToShow && (
+        <EntityModal
+          entity={eventToShow}
+          onClose={() => setEventToShow(null)}
+        />
+      )}
+
+      {eventToShowOnMap &&
+        eventToShowOnMap.eventLat &&
+        eventToShowOnMap.eventLng && (
+          <MapModal
+            isOpen
+            events={[eventToShowOnMap]}
+            center={{
+              lat: eventToShowOnMap.eventLat,
+              lng: eventToShowOnMap.eventLng
+            }}
+            zoomLevel={16}
+            onClose={() => setEventToShowOnMap(null)}
+          />
+        )}
 
       {session && (
         <EntityNotifModal

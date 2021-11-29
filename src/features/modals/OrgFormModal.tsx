@@ -13,7 +13,7 @@ import { OrgForm } from "features/forms/OrgForm";
 import { orgTypeFull3 } from "models/Org";
 import { IoIosPeople } from "react-icons/io";
 
-export const OrgModal = ({
+export const OrgFormModal = ({
   session,
   onCancel,
   onSubmit,

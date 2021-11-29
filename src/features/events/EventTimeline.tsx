@@ -8,7 +8,7 @@ import {
   Text,
   useColorMode
 } from "@chakra-ui/react";
-import { format, getDay, getHours, parseISO, setDay } from "date-fns";
+import { format, getDay, parseISO, setDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import React from "react";
 import { css } from "twin.macro";
@@ -22,12 +22,18 @@ export type EventTimelineType = {
 export const EventTimeline = ({
   event,
   ...props
-}: FlexProps & { event: IEvent }) => {
+}: FlexProps & { event: IEvent<string | Date> }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
-  const eventMinDate = parseISO(event.eventMinDate);
-  const eventMaxDate = parseISO(event.eventMaxDate);
+  const eventMinDate =
+    typeof event.eventMinDate === "string"
+      ? parseISO(event.eventMinDate)
+      : event.eventMinDate;
+  const eventMaxDate =
+    typeof event.eventMaxDate === "string"
+      ? parseISO(event.eventMaxDate)
+      : event.eventMaxDate;
   let startDay: number = getDay(eventMinDate);
   startDay = startDay === 0 ? 6 : startDay - 1;
 

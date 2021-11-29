@@ -46,6 +46,8 @@ export const EventsListItem = ({
   setEventToForward,
   eventToShow,
   setEventToShow,
+  eventToShowOnMap,
+  setEventToShowOnMap,
   isLoading,
   setIsLoading,
   notifyModalState,
@@ -71,6 +73,8 @@ export const EventsListItem = ({
   setEventToForward: (event: IEvent | null) => void;
   eventToShow: IEvent | null;
   setEventToShow: (event: IEvent | null) => void;
+  eventToShowOnMap: IEvent<string | Date> | null;
+  setEventToShowOnMap: (event: IEvent<string | Date> | null) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   notifyModalState: ModalState<IEvent<string | Date>>;
@@ -177,7 +181,11 @@ export const EventsListItem = ({
                 placement="right"
               >
                 <span>
-                  <Link variant="underline" fontWeight="bold">
+                  <Link
+                    variant="underline"
+                    fontWeight="bold"
+                    onClick={() => setEventToShowOnMap(event)}
+                  >
                     {event.eventCity}
                   </Link>
                 </span>

@@ -14,7 +14,7 @@ import { IEvent } from "models/Event";
 export const EventInfo = ({
   event,
   ...props
-}: FlexProps & { event: Partial<IEvent> }) => {
+}: FlexProps & { event: IEvent<string | Date> }) => {
   const [emailCollapsed, setEmailCollapsed] = useState(true);
   const [webCollapsed, setWebCollapsed] = useState(true);
 
