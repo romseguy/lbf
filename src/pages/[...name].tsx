@@ -40,13 +40,13 @@ const Hash = ({
   const [event, setEvent] = useState<IEvent | undefined>();
   const [org, setOrg] = useState<IOrg | undefined>();
   const [user, setUser] = useState<IUser | undefined>();
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | undefined>();
   const refetchOrg = useSelector(selectOrgRefetch);
   const refetchEvent = useSelector(selectEventRefetch);
 
   useEffect(() => {
     const xhr = async () => {
+      console.log(`fetching entity ${entityUrl}...`);
       populate = "";
 
       if (entityUrl === "forum") return;
@@ -57,6 +57,8 @@ const Hash = ({
 
       if (eventQuery.data) {
         setEvent(eventQuery.data);
+        setOrg(undefined);
+        setUser(undefined);
       } else {
         populate =
           "orgBanner orgEvents orgLogo orgLists orgProjects orgSubscriptions orgTopics orgs";
@@ -68,14 +70,19 @@ const Hash = ({
         );
 
         if (orgQuery.data) {
+          setEvent(undefined);
           setOrg(orgQuery.data);
+          setUser(undefined);
         } else {
           const userQuery = await dispatch(
             getUser.initiate({ slug: entityUrl })
           );
 
-          if (userQuery.data) setUser(userQuery.data);
-          else
+          if (userQuery.data) {
+            setEvent(undefined);
+            setOrg(undefined);
+            setUser(userQuery.data);
+          } else
             setError(
               new Error(
                 "La page demandée n'a pas été trouvée. Vous allez être redirigé vers la page d'accueil dans quelques secondes."
@@ -85,11 +92,8 @@ const Hash = ({
       }
     };
 
-    setEvent(undefined);
-    setOrg(undefined);
-    setUser(undefined);
     xhr();
-  }, [router.asPath, refetchEvent, refetchOrg]);
+  }, [router.asPath]);
 
   useEffect(() => {
     if (email) dispatch(setUserEmail(email));
@@ -99,7 +103,15 @@ const Hash = ({
     return <ForumPage tabItem={entityTabItem} {...props} />;
 
   if (event) {
-    return <EventPage event={event} populate={populate} {...props} />;
+    return (
+      <EventPage
+        event={event}
+        populate={populate}
+        tab={entityTab}
+        tabItem={entityTabItem}
+        {...props}
+      />
+    );
   }
 
   if (org) {
@@ -126,15 +138,11 @@ const Hash = ({
 
   return (
     <Layout pageTitle={error ? "Page introuvable" : ""} {...props}>
-      {isLoading ? (
-        <Spinner />
-      ) : error ? (
+      {error && (
         <Alert status="error">
           <AlertIcon />
           {error.message}
         </Alert>
-      ) : (
-        <></>
       )}
     </Layout>
   );

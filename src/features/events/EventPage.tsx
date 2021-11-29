@@ -32,10 +32,9 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
-
-import { useSession } from "hooks/useAuth";
 import {
   EntityButton,
+  EntityInfo,
   EntityNotified,
   EventNotifForm,
   GridHeader,
@@ -44,11 +43,11 @@ import {
 } from "features/common";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
-import { EventConfigPanel } from "./EventConfigPanel";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import { selectUserEmail } from "features/users/userSlice";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
+import { selectUserEmail } from "features/users/userSlice";
+import { useSession } from "hooks/useAuth";
 import { IEvent, Visibility } from "models/Event";
 import {
   getFollowerSubscription,
@@ -57,7 +56,7 @@ import {
 } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { EventAttendingForm } from "./EventAttendingForm";
-import { EventInfo } from "./EventInfo";
+import { EventConfigPanel } from "./EventConfigPanel";
 import { EventPageTabs } from "./EventPageTabs";
 import { useEditEventMutation, useGetEventQuery } from "./eventsApi";
 import { selectEventRefetch } from "./eventSlice";
@@ -77,9 +76,13 @@ let cachedRefetchSubscription = false;
 
 export const EventPage = ({
   populate,
+  tab,
+  tabItem,
   ...props
 }: {
   populate?: string;
+  tab?: string;
+  tabItem?: string;
   event: IEvent;
   session: Session | null;
 }) => {
@@ -110,6 +113,11 @@ export const EventPage = ({
     event.createdBy && typeof event.createdBy === "object"
       ? event.createdBy._id
       : "";
+  const hasInfo =
+    hasItems(event.eventAddress) ||
+    hasItems(event.eventEmail) ||
+    hasItems(event.eventPhone) ||
+    hasItems(event.eventWeb);
   const isCreator =
     session?.user.userId === eventCreatedByUserId ||
     session?.user.isAdmin ||
@@ -160,14 +168,14 @@ export const EventPage = ({
   }
   //#endregion
 
-  useEffect(() => {
-    if (router.asPath !== asPath) {
-      setAsPath(router.asPath);
-      console.log("refetching event with new route", router.asPath);
-      eventQuery.refetch();
-      setIsEdit(false);
-    }
-  }, [router.asPath]);
+  // useEffect(() => {
+  //   if (router.asPath !== asPath) {
+  //     setAsPath(router.asPath);
+  //     console.log("refetching event with new route", router.asPath);
+  //     eventQuery.refetch();
+  //     setIsEdit(false);
+  //   }
+  // }, [router.asPath]);
 
   const refetchEvent = useSelector(selectEventRefetch);
   useEffect(() => {
@@ -207,35 +215,30 @@ export const EventPage = ({
         <Button
           colorScheme="teal"
           leftIcon={<SettingsIcon boxSize={6} data-cy="eventSettings" />}
-          onClick={() => {
-            setIsConfig(true);
-          }}
+          onClick={() => setIsConfig(true)}
           mb={5}
         >
           Configuration de l'événement
         </Button>
       )}
 
-      {isConfig && !isEdit && (
+      {isEdit && (
+        <Button
+          colorScheme="teal"
+          leftIcon={<ArrowBackIcon boxSize={6} />}
+          onClick={() => setIsEdit(false)}
+        >
+          Retour
+        </Button>
+      )}
+
+      {!isEdit && isConfig && (
         <Button
           colorScheme="teal"
           leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
         >
           Revenir à la page de l'événement
-        </Button>
-      )}
-
-      {!isConfig && isEdit && (
-        <Button
-          colorScheme="teal"
-          leftIcon={<ArrowBackIcon boxSize={6} />}
-          onClick={() => {
-            setIsConfig(true);
-            setIsEdit(false);
-          }}
-        >
-          Revenir à la configuration de l'événement
         </Button>
       )}
 
@@ -321,7 +324,7 @@ export const EventPage = ({
       )}
 
       {!isConfig && !isEdit && (
-        <EventPageTabs isCreator={isCreator}>
+        <EventPageTabs event={event} isCreator={isCreator} tab={tab}>
           <TabPanels>
             <TabPanel aria-hidden>
               <Grid
@@ -361,11 +364,8 @@ export const EventPage = ({
                           aria-label="Modifier la description"
                           icon={<EditIcon />}
                           bg="transparent"
-                          ml={3}
                           _hover={{ color: "green" }}
-                          onClick={() => {
-                            setIsEdit(true);
-                          }}
+                          onClick={() => setIsEdit(true)}
                         />
                       </Tooltip>
                     )}
@@ -384,9 +384,7 @@ export const EventPage = ({
                         <Button
                           colorScheme="teal"
                           leftIcon={<AddIcon />}
-                          onClick={() => {
-                            setIsEdit(true);
-                          }}
+                          onClick={() => setIsEdit(true)}
                         >
                           Ajouter
                         </Button>
@@ -426,10 +424,28 @@ export const EventPage = ({
                   borderTopRadius="lg"
                 >
                   <Grid templateRows="auto 1fr">
-                    <GridHeader borderTopRadius="lg" alignItems="center">
+                    <GridHeader
+                      display="flex"
+                      alignItems="center"
+                      borderTopRadius="lg"
+                    >
                       <Heading size="sm" py={3}>
                         Coordonnées
                       </Heading>
+                      {hasInfo && isCreator && (
+                        <Tooltip
+                          placement="bottom"
+                          label="Modifier les coordonnées"
+                        >
+                          <IconButton
+                            aria-label="Modifier les coordonnées"
+                            icon={<EditIcon />}
+                            bg="transparent"
+                            _hover={{ color: "green" }}
+                            onClick={() => setIsEdit(true)}
+                          />
+                        </Tooltip>
+                      )}
                     </GridHeader>
 
                     <GridItem
@@ -437,29 +453,18 @@ export const EventPage = ({
                       dark={{ bg: "gray.500" }}
                     >
                       <Box p={5}>
-                        {!hasItems(event.eventAddress) &&
-                        !hasItems(event.eventEmail) &&
-                        !hasItems(event.eventPhone) &&
-                        !hasItems(event.eventWeb) ? (
-                          <>
-                            {session ? (
-                              <Button
-                                colorScheme="teal"
-                                leftIcon={<AddIcon />}
-                                onClick={() => {
-                                  setIsEdit(true);
-                                }}
-                              >
-                                Ajouter
-                              </Button>
-                            ) : (
-                              <Text fontStyle="italic">
-                                Aucunes coordonnées.
-                              </Text>
-                            )}
-                          </>
+                        {hasInfo ? (
+                          <EntityInfo entity={event} />
+                        ) : isCreator ? (
+                          <Button
+                            colorScheme="teal"
+                            leftIcon={<AddIcon />}
+                            onClick={() => setIsEdit(true)}
+                          >
+                            Ajouter
+                          </Button>
                         ) : (
-                          <EventInfo event={event} />
+                          <Text fontStyle="italic">Aucunes coordonnées.</Text>
                         )}
                       </Box>
                     </GridItem>
@@ -474,7 +479,7 @@ export const EventPage = ({
                   <Grid templateRows="auto 1fr">
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Heading size="sm" py={3}>
-                        Organisé par
+                        Organisateurs
                       </Heading>
                     </GridHeader>
 
@@ -521,6 +526,7 @@ export const EventPage = ({
                 isFollowed={!!followerSubscription}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
+                currentTopicName={tabItem}
               />
             </TabPanel>
 

@@ -164,7 +164,7 @@ export const Layout = ({
           <Offline
             polling={{
               enabled: true,
-              interval: 10000,
+              interval: 1000,
               timeout: 5000,
               url: `${process.env.NEXT_PUBLIC_API}/check`
             }}

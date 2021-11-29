@@ -22,7 +22,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaBellSlash,
   FaBell,
@@ -42,12 +42,14 @@ import { TopicMessagesList } from "./TopicMessagesList";
 import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
 import { TopicsListItemSubscribers } from "./TopicsListItemSubscribers";
 import { TopicsListItemShare } from "./TopicsListItemShare";
+import { useScroll } from "hooks/useScroll";
 
 export const TopicsListItem = ({
   session,
   event,
   org,
   query,
+  currentTopicName,
   isSubscribed,
   topic,
   topicIndex,
@@ -69,6 +71,7 @@ export const TopicsListItem = ({
   event?: IEvent;
   org?: IOrg;
   query: any;
+  currentTopicName?: string;
   isSubscribed: boolean;
   topic: ITopic;
   topicIndex: number;
@@ -97,8 +100,15 @@ export const TopicsListItem = ({
       ? topic.createdBy.userName || topic.createdBy.email?.replace(/@.+/, "")
       : "";
 
+  const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
+  useEffect(() => {
+    if (!query.isLoading && currentTopicName === topic.topicName) {
+      executeScroll();
+    }
+  }, [query.isLoading]);
+
   return (
-    <Box key={topic._id} mb={5}>
+    <Box mb={5} ref={elementToScrollRef}>
       <Link as="div" variant="no-underline" onClick={onClick} data-cy="topic">
         <Flex
           //flexDirection="column"

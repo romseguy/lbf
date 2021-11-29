@@ -1,87 +1,37 @@
-//@ts-nocheck
 import React, { useState } from "react";
-import {
-  chakra,
-  Icon,
-  TabList,
-  Tabs,
-  useColorModeValue,
-  useStyles,
-  useTab
-} from "@chakra-ui/react";
-import { isMobile } from "react-device-detect";
-import { FaHome, FaTools } from "react-icons/fa";
-import { CalendarIcon, ChatIcon, EmailIcon } from "@chakra-ui/icons";
+import { TabList, Tabs } from "@chakra-ui/react";
+import { FaHome } from "react-icons/fa";
+import { ChatIcon, EmailIcon } from "@chakra-ui/icons";
+import { IEvent } from "models/Event";
+import { EntityPageTab } from "features/common";
+import { useRouter } from "next/router";
+import { AppIcon } from "utils/types";
+
+const tabs: { [key: string]: { icon: AppIcon; url: string } } = {
+  Accueil: { icon: FaHome, url: "" },
+  Discussions: { icon: ChatIcon, url: "/discussions" }
+};
 
 export const EventPageTabs = ({
-  isCreator,
   children,
+  event,
+  isCreator,
   ...props
 }: {
+  event: IEvent;
+  tab?: string;
   isCreator?: boolean;
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
-  const StyledTab = chakra("button", { themeKey: "Tabs.Tab" });
-  const inactiveTabBg = useColorModeValue("gray.100", "whiteAlpha.300");
-  const [currentTabIndex, setCurrentTabIndex] = useState(0);
-  const defaultTabIndex = 0;
+  const router = useRouter();
+  let defaultTabIndex = 0;
+  Object.keys(tabs).reduce((index, tab) => {
+    if (tab.toLowerCase() === props.tab?.toLowerCase()) defaultTabIndex = index;
+    return index + 1;
+  }, 0);
+  const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex);
 
-  const tabs = [
-    // { name: "Accueil", icon: <FaHome boxSize={6} /> },
-    { name: "Accueil", icon: FaHome },
-    { name: "Discussions", icon: ChatIcon }
-  ];
-
-  if (isCreator) tabs.push({ name: "Invitations", icon: EmailIcon });
-
-  const CustomTab = React.forwardRef(
-    (
-      {
-        icon,
-        tabIndex,
-        ...props
-      }: { children: React.ReactNode | React.ReactNodeArray },
-      ref
-    ) => {
-      const tabProps = useTab(props);
-
-      tabProps.tabIndex = 0;
-
-      if (currentTabIndex === tabIndex) {
-        tabProps["aria-selected"] = true;
-      }
-
-      const styles = useStyles();
-
-      return (
-        <StyledTab
-          display="flex"
-          flex={isMobile ? "0 0 auto" : "1"}
-          //flex="0 0 auto"
-          alignItems="center"
-          justifyContent="center"
-          bg={inactiveTabBg}
-          mx={1}
-          _focus={{
-            boxShadow: "none"
-          }}
-          {...tabProps}
-          __css={styles.tab}
-        >
-          <span
-            style={{
-              display: "inline-flex",
-              flexShrink: "0",
-              marginInlineEnd: "0.5rem"
-            }}
-          >
-            <Icon as={icon} boxSize={5} verticalAlign="middle" />
-          </span>
-          {tabProps.children}
-        </StyledTab>
-      );
-    }
-  );
+  if (isCreator) tabs.Invitations = { icon: EmailIcon, url: "/invitations" };
 
   return (
     <Tabs
@@ -104,7 +54,6 @@ export const EventPageTabs = ({
         alignItems="center"
         height="60px"
         overflowX="auto"
-        //borderBottom="0"
         mx={3}
         css={{
           WebkitOverflowScrolling: "touch",
@@ -112,16 +61,35 @@ export const EventPageTabs = ({
         }}
         aria-hidden
       >
-        {tabs.map(({ name, icon }, tabIndex) => (
-          <CustomTab
-            key={`eventTab-${tabIndex}`}
-            tabIndex={tabIndex}
-            icon={icon}
-            data-cy={`eventTab-${name}`}
-          >
-            {name}
-          </CustomTab>
-        ))}
+        {Object.keys(tabs).map((name, tabIndex) => {
+          const { icon, url } = tabs[name];
+
+          return (
+            <EntityPageTab
+              key={`eventTab-${tabIndex}`}
+              currentTabIndex={currentTabIndex}
+              icon={icon}
+              tabIndex={tabIndex}
+              onClick={() => {
+                if (name === "Discussions")
+                  router.push(
+                    `/${event.eventUrl}/discussions`,
+                    `/${event.eventUrl}/discussions`,
+                    {
+                      shallow: true
+                    }
+                  );
+                else
+                  router.push(`/${event.eventUrl}`, `/${event.eventUrl}`, {
+                    shallow: true
+                  });
+              }}
+              data-cy={`eventTab-${name}`}
+            >
+              {name}
+            </EntityPageTab>
+          );
+        })}
       </TabList>
       {children}
     </Tabs>

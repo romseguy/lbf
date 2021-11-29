@@ -2,14 +2,12 @@ import { CalendarIcon } from "@chakra-ui/icons";
 import { Box, Flex, Text, useColorMode } from "@chakra-ui/react";
 import DOMPurify from "dompurify";
 import React from "react";
-import { Link } from "features/common";
-import { EventInfo } from "features/events/EventInfo";
+import { EntityInfo, Link } from "features/common";
 import { EventTimeline } from "features/events/EventTimeline";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { isEvent } from "utils/models";
 import { AppModal } from "./AppModal";
-import { OrgInfo } from "features/orgs/OrgInfo";
 
 export const EntityModal = ({
   entity,
@@ -41,14 +39,8 @@ export const EntityModal = ({
     >
       <>
         <Flex flexDirection="row" flexWrap="wrap" mt={-3} mb={3}>
-          {isE ? (
-            <>
-              <EventInfo event={entity} flexGrow={1} mt={3} />
-              <EventTimeline event={entity} mt={3} />
-            </>
-          ) : (
-            <OrgInfo org={entity} />
-          )}
+          <EntityInfo entity={entity} flexGrow={isE ? 1 : undefined} mt={3} />
+          {isE && <EventTimeline event={entity} mt={3} />}
         </Flex>
 
         <Box

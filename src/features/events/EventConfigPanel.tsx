@@ -1,16 +1,16 @@
+import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
+import { Box, Button, Text, useToast, Icon, Input } from "@chakra-ui/react";
 import { Session } from "next-auth";
-import type { Visibility } from "./EventPage";
-import type { IEvent } from "models/Event";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 import tw, { css } from "twin.macro";
-import { useRouter } from "next/router";
-import { Box, Text, useToast, Icon, Grid } from "@chakra-ui/react";
-import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
-import { Button, DeleteButton, Input } from "features/common";
+import { DeleteButton } from "features/common";
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
+import { IEvent } from "models/Event";
 import { EventConfigBannerPanel } from "./EventConfigBannerPanel";
 import { EventConfigLogoPanel } from "./EventConfigLogoPanel";
+import { Visibility } from "./EventPage";
 
 export const EventConfigPanel = ({
   session,
@@ -47,7 +47,6 @@ export const EventConfigPanel = ({
               mr={3}
               onClick={() => {
                 setIsEdit(true);
-                setIsConfig(false);
                 setIsVisible({ banner: false, logo: false });
               }}
               css={css`
@@ -130,7 +129,7 @@ export const EventConfigPanel = ({
         />
       )}
 
-      {isConfig && (
+      {isConfig && !isEdit && (
         <>
           <EventConfigLogoPanel
             event={event}

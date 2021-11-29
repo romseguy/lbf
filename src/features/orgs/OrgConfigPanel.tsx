@@ -1,18 +1,18 @@
+import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
+import { Box, Button, Input, Text, useToast, Icon } from "@chakra-ui/react";
 import { Session } from "next-auth";
-import type { Visibility } from "./OrgPage";
-import type { IOrg } from "models/Org";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 import tw, { css } from "twin.macro";
-import { useRouter } from "next/router";
-import { Box, Text, useToast, Icon, Grid } from "@chakra-ui/react";
-import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
-import { Button, DeleteButton, Input } from "features/common";
+import { IOrg } from "models/Org";
+import { DeleteButton } from "features/common";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
-import { OrgForm } from "features/forms/OrgForm";
 import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
-import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
-import { OrgConfigLogoPanel } from "./OrgConfigLogoPanel";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
+import { OrgConfigLogoPanel } from "./OrgConfigLogoPanel";
+import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
+import { OrgForm } from "features/forms/OrgForm";
+import { Visibility } from "./OrgPage";
 
 export const OrgConfigPanel = ({
   session,
@@ -51,7 +51,6 @@ export const OrgConfigPanel = ({
               mr={3}
               onClick={() => {
                 setIsEdit(true);
-                setIsConfig(false);
                 setIsVisible({
                   banner: false,
                   lists: false,
@@ -138,7 +137,7 @@ export const OrgConfigPanel = ({
         />
       )}
 
-      {isConfig && (
+      {isConfig && !isEdit && (
         <>
           <OrgConfigLogoPanel
             org={org}

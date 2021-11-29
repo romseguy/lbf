@@ -1,91 +1,38 @@
-//@ts-nocheck
 import React, { useState } from "react";
-import {
-  chakra,
-  Icon,
-  TabList,
-  Tabs,
-  useColorModeValue,
-  useStyles,
-  useTab
-} from "@chakra-ui/react";
-import { isMobile } from "react-device-detect";
+import { TabList, Tabs, useColorModeValue } from "@chakra-ui/react";
 import { FaHome, FaImages, FaTools } from "react-icons/fa";
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
+import { IOrg } from "models/Org";
+import { useRouter } from "next/router";
+import { EntityPageTab } from "features/common";
+import { AppIcon } from "utils/types";
 
-const tabs = {
-  Accueil: { icon: FaHome },
-  Événements: { icon: CalendarIcon },
-  Projets: { icon: FaTools },
-  Discussions: { icon: ChatIcon },
-  Galerie: { icon: FaImages }
+const tabs: { [key: string]: { icon: AppIcon; url: string } } = {
+  Accueil: { icon: FaHome, url: "" },
+  Événements: { icon: CalendarIcon, url: "/evenements" },
+  Projets: { icon: FaTools, url: "/projets" },
+  Discussions: { icon: ChatIcon, url: "/discussions" },
+  Galerie: { icon: FaImages, url: "/galerie" }
 };
 
 export const OrgPageTabs = ({
   children,
+  org,
   ...props
 }: {
+  org: IOrg;
   tab?: string;
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
-  const StyledTab = chakra("button", { themeKey: "Tabs.Tab" });
+  const router = useRouter();
   const inactiveTabBg = useColorModeValue("gray.100", "whiteAlpha.300");
 
-  let defaultTabIndex;
+  let defaultTabIndex = 0;
   Object.keys(tabs).reduce((index, tab) => {
     if (tab.toLowerCase() === props.tab?.toLowerCase()) defaultTabIndex = index;
     return index + 1;
   }, 0);
   const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex || 0);
-
-  const CustomTab = React.forwardRef(
-    (
-      {
-        icon,
-        tabIndex,
-        ...props
-      }: { children: React.ReactNode | React.ReactNodeArray },
-      ref
-    ) => {
-      const tabProps = useTab(props);
-
-      tabProps.tabIndex = 0;
-
-      if (currentTabIndex === tabIndex) {
-        tabProps["aria-selected"] = true;
-      }
-
-      const styles = useStyles();
-
-      return (
-        <StyledTab
-          display="flex"
-          flex={isMobile ? "0 0 auto" : "1"}
-          //flex="0 0 auto"
-          alignItems="center"
-          justifyContent="center"
-          bg={inactiveTabBg}
-          mx={1}
-          _focus={{
-            boxShadow: "none"
-          }}
-          {...tabProps}
-          __css={styles.tab}
-        >
-          <span
-            style={{
-              display: "inline-flex",
-              flexShrink: "0",
-              marginInlineEnd: "0.5rem"
-            }}
-          >
-            <Icon as={icon} boxSize={5} verticalAlign="middle" />
-          </span>
-          {tabProps.children}
-        </StyledTab>
-      );
-    }
-  );
 
   return (
     <Tabs
@@ -108,7 +55,6 @@ export const OrgPageTabs = ({
         alignItems="center"
         height="60px"
         overflowX="auto"
-        //borderBottom="0"
         mx={3}
         css={{
           WebkitOverflowScrolling: "touch",
@@ -116,18 +62,33 @@ export const OrgPageTabs = ({
         }}
         aria-hidden
       >
-        {Object.keys(tabs).map((tab, tabIndex) => {
-          const { icon } = tabs[tab];
+        {Object.keys(tabs).map((name, tabIndex) => {
+          const { icon, url } = tabs[name];
 
           return (
-            <CustomTab
+            <EntityPageTab
               key={`orgTab-${tabIndex}`}
-              tabIndex={tabIndex}
+              currentTabIndex={currentTabIndex}
               icon={icon}
-              data-cy={`orgTab-${tab}`}
+              tabIndex={tabIndex}
+              onClick={() => {
+                if (name === "Discussions")
+                  router.push(
+                    `/${org.orgUrl}/discussions`,
+                    `/${org.orgUrl}/discussions`,
+                    {
+                      shallow: true
+                    }
+                  );
+                else
+                  router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
+                    shallow: true
+                  });
+              }}
+              data-cy={`orgTab-${name}`}
             >
-              {tab}
-            </CustomTab>
+              {name}
+            </EntityPageTab>
           );
         })}
       </TabList>

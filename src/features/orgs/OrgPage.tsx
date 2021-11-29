@@ -28,12 +28,19 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
-
-import { GridHeader, GridItem, IconFooter, Link } from "features/common";
+import {
+  EntityInfo,
+  GridHeader,
+  GridItem,
+  IconFooter,
+  Link
+} from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
+import { SizeMap } from "features/map/Map";
+import { MapContainer } from "features/map/MapContainer";
 import { ProjectsList } from "features/projects/ProjectsList";
 import {
   useAddSubscriptionMutation,
@@ -52,11 +59,8 @@ import {
 import { hasItems } from "utils/array";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
-import { selectOrgRefetch } from "./orgSlice";
 import { useEditOrgMutation, useGetOrgQuery, useGetOrgsQuery } from "./orgsApi";
-import { SizeMap } from "features/map/Map";
-import { MapContainer } from "features/map/MapContainer";
-import { OrgInfo } from "./OrgInfo";
+import { selectOrgRefetch } from "./orgSlice";
 
 export type Visibility = {
   isVisible: {
@@ -118,26 +122,6 @@ export const OrgPage = ({
       setDescription(doc.body.innerHTML);
     }
   }, [org]);
-  const refetchOrg = useSelector(selectOrgRefetch);
-  useEffect(() => {
-    if (refetchOrg !== cachedRefetchOrg) {
-      cachedRefetchOrg = refetchOrg;
-      console.log("refetching org");
-      orgQuery.refetch();
-    }
-  }, [refetchOrg]);
-  useEffect(() => {
-    if (userEmail !== cachedEmail) {
-      cachedEmail = userEmail;
-      console.log("refetching org with new email", userEmail);
-      orgQuery.refetch();
-    }
-  }, [userEmail]);
-  useEffect(() => {
-    console.log("refetching org with new route", router.asPath);
-    orgQuery.refetch();
-    setIsEdit(false);
-  }, [router.asPath]);
 
   const { networks } = useGetOrgsQuery(
     { populate: "orgs" },
@@ -159,6 +143,11 @@ export const OrgPage = ({
       : "";
   const orgCreatedByUserId =
     typeof org.createdBy === "object" ? org.createdBy._id : "";
+  const hasInfo =
+    hasItems(org.orgAddress) ||
+    hasItems(org.orgEmail) ||
+    hasItems(org.orgPhone) ||
+    hasItems(org.orgWeb);
   const isCreator =
     session?.user.userId === orgCreatedByUserId ||
     session?.user.isAdmin ||
@@ -208,43 +197,57 @@ export const OrgPage = ({
   });
   //#endregion
 
+  const refetchOrg = useSelector(selectOrgRefetch);
+  useEffect(() => {
+    if (refetchOrg !== cachedRefetchOrg) {
+      cachedRefetchOrg = refetchOrg;
+      console.log("refetching org");
+      orgQuery.refetch();
+    }
+  }, [refetchOrg]);
+  useEffect(() => {
+    if (userEmail !== cachedEmail) {
+      cachedEmail = userEmail;
+      console.log("refetching org with new email", userEmail);
+      orgQuery.refetch();
+    }
+  }, [userEmail]);
+  // useEffect(() => {
+  //   console.log("refetching org with new route", router.asPath);
+  //   orgQuery.refetch();
+  //   setIsEdit(false);
+  // }, [router.asPath]);
+
   return (
     <Layout org={org} isLogin={isLogin} session={props.session}>
       {isCreator && !isConfig && !isEdit && (
         <Button
           colorScheme="teal"
           leftIcon={<SettingsIcon boxSize={6} data-cy="orgSettings" />}
-          onClick={() => {
-            setIsConfig(true);
-          }}
+          onClick={() => setIsConfig(true)}
           mb={5}
         >
           Configuration {orgTypeFull(org.orgType)}
         </Button>
       )}
 
-      {isConfig && !isEdit && (
+      {isEdit && (
         <Button
           colorScheme="teal"
           leftIcon={<ArrowBackIcon boxSize={6} />}
-          onClick={() => {
-            setIsConfig(false);
-          }}
+          onClick={() => setIsEdit(false)}
         >
-          {`Revenir à la page ${orgTypeFull(org.orgType)}`}
+          Retour
         </Button>
       )}
 
-      {!isConfig && isEdit && (
+      {!isEdit && isConfig && (
         <Button
           colorScheme="teal"
           leftIcon={<ArrowBackIcon boxSize={6} />}
-          onClick={() => {
-            setIsConfig(true);
-            setIsEdit(false);
-          }}
+          onClick={() => setIsConfig(false)}
         >
-          {`Revenir à la configuration ${orgTypeFull(org.orgType)}`}
+          {`Revenir à la page ${orgTypeFull(org.orgType)}`}
         </Button>
       )}
 
@@ -303,7 +306,7 @@ export const OrgPage = ({
       )}
 
       {!isConfig && !isEdit && (
-        <OrgPageTabs tab={tab}>
+        <OrgPageTabs org={org} tab={tab}>
           <TabPanels>
             <TabPanel aria-hidden>
               <Grid
@@ -323,10 +326,28 @@ export const OrgPage = ({
                   borderTopRadius="lg"
                 >
                   <Grid templateRows="auto 1fr">
-                    <GridHeader borderTopRadius="lg" alignItems="center">
+                    <GridHeader
+                      display="flex"
+                      alignItems="center"
+                      borderTopRadius="lg"
+                    >
                       <Heading size="sm" py={3}>
                         Coordonnées
                       </Heading>
+                      {hasInfo && isCreator && (
+                        <Tooltip
+                          placement="bottom"
+                          label="Modifier les coordonnées"
+                        >
+                          <IconButton
+                            aria-label="Modifier les coordonnées"
+                            icon={<EditIcon />}
+                            bg="transparent"
+                            _hover={{ color: "green" }}
+                            onClick={() => setIsEdit(true)}
+                          />
+                        </Tooltip>
+                      )}
                     </GridHeader>
 
                     <GridItem
@@ -334,29 +355,18 @@ export const OrgPage = ({
                       dark={{ bg: "gray.500" }}
                     >
                       <Box p={5}>
-                        {!hasItems(org.orgAddress) &&
-                        !hasItems(org.orgEmail) &&
-                        !hasItems(org.orgPhone) &&
-                        !hasItems(org.orgWeb) ? (
-                          <>
-                            {isCreator ? (
-                              <Button
-                                colorScheme="teal"
-                                leftIcon={<AddIcon />}
-                                onClick={() => {
-                                  setIsEdit(true);
-                                }}
-                              >
-                                Ajouter
-                              </Button>
-                            ) : (
-                              <Text fontStyle="italic">
-                                Aucunes coordonnées.
-                              </Text>
-                            )}
-                          </>
+                        {hasInfo ? (
+                          <EntityInfo entity={org} />
+                        ) : isCreator ? (
+                          <Button
+                            colorScheme="teal"
+                            leftIcon={<AddIcon />}
+                            onClick={() => setIsEdit(true)}
+                          >
+                            Ajouter
+                          </Button>
                         ) : (
-                          <OrgInfo org={org} />
+                          <Text fontStyle="italic">Aucunes coordonnées.</Text>
                         )}
                       </Box>
                     </GridItem>
@@ -419,9 +429,7 @@ export const OrgPage = ({
                               icon={<EditIcon />}
                               bg="transparent"
                               _hover={{ color: "green" }}
-                              onClick={() => {
-                                setIsEdit(true);
-                              }}
+                              onClick={() => setIsEdit(true)}
                             />
                           </Tooltip>
                         )}
@@ -472,9 +480,7 @@ export const OrgPage = ({
                           icon={<EditIcon />}
                           bg="transparent"
                           _hover={{ color: "green" }}
-                          onClick={() => {
-                            setIsEdit(true);
-                          }}
+                          onClick={() => setIsEdit(true)}
                         />
                       </Tooltip>
                     )}
@@ -494,9 +500,7 @@ export const OrgPage = ({
                         <Button
                           colorScheme="teal"
                           leftIcon={<AddIcon />}
-                          onClick={() => {
-                            setIsEdit(true);
-                          }}
+                          onClick={() => setIsEdit(true)}
                         >
                           Ajouter
                         </Button>
@@ -600,7 +604,7 @@ export const OrgPage = ({
         </OrgPageTabs>
       )}
 
-      {session && (
+      {session && isCreator && (
         <OrgConfigPanel
           session={session}
           org={org}

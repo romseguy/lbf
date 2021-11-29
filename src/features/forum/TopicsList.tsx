@@ -31,6 +31,7 @@ import { TopicsListItem } from "./TopicsListItem";
 import { hasItems } from "utils/array";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { TopicsListCategories } from "./TopicsListCategories";
+import { useScroll } from "hooks/useScroll";
 
 export const TopicsList = ({
   event,
@@ -346,7 +347,7 @@ export const TopicsList = ({
                       )}
                     </Box>
                   ) : (
-                    <>4</>
+                    <>todo</>
                   )}
                 </>
               ) : (
@@ -382,6 +383,7 @@ export const TopicsList = ({
                 event={event}
                 org={org}
                 query={query}
+                currentTopicName={currentTopicName}
                 isSubscribed={props.isSubscribed || false}
                 topic={topic}
                 topicIndex={topicIndex}
