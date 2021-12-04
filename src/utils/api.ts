@@ -111,7 +111,7 @@ async function sendPushNotification({
       notification: {
         title,
         message,
-        url: `${process.env.NEXT_PUBLIC_URL}/${url}`
+        url: url.includes("http") ? url : `${process.env.NEXT_PUBLIC_URL}/${url}`
       }
     },
     {

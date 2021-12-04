@@ -5,13 +5,14 @@ export interface IUser {
   _id: string;
   email: string;
   phone?: string;
-  isOnline: boolean;
   password: string;
   securityCode: string;
   userName: string;
   userImage?: Base64Image;
   userSubscription?: unknown;
   isAdmin: boolean;
+  isOnline: boolean;
   suggestedCategoryAt?: string;
+  userDescription?: string;
   userProjects?: IProject[];
 }

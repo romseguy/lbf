@@ -24,7 +24,7 @@ export const EntityPageTab = React.forwardRef(
       currentTabIndex: number;
       icon: AppIcon;
       tabIndex: number;
-      onClick: () => void;
+      onClick?: () => void;
     },
     ref
   ) => {

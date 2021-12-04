@@ -25,8 +25,6 @@ export const OrgPageTabs = ({
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
   const router = useRouter();
-  const inactiveTabBg = useColorModeValue("gray.100", "whiteAlpha.300");
-
   let defaultTabIndex = 0;
   Object.keys(tabs).reduce((index, tab) => {
     if (tab.toLowerCase() === props.tab?.toLowerCase()) defaultTabIndex = index;

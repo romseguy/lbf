@@ -15,9 +15,6 @@ export const UserSchema = new Schema<IUser>(
       unique: true
     },
     phone: String,
-    isOnline: {
-      type: Boolean
-    },
     password: {
       type: String,
       required: true
@@ -35,7 +32,9 @@ export const UserSchema = new Schema<IUser>(
     },
     userSubscription: Schema.Types.Mixed,
     isAdmin: Boolean,
+    isOnline: Boolean,
     suggestedCategoryAt: String,
+    userDescription: String,
     userProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }]
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }

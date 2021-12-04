@@ -236,30 +236,7 @@ export const EventsList = ({
         const end = parseISO(event.eventMaxDate);
 
         if (!event.repeat) {
-          if (isBefore(start, today)) {
-            // console.log("previousEvents.push", event.eventName);
-            previousEvents.push({
-              ...event,
-              eventMinDate: start,
-              eventMaxDate: end
-            });
-          } else {
-            if (isBefore(start, addWeeks(today, 1))) {
-              // console.log("currentEvents.push", event.eventName);
-              currentEvents.push({
-                ...event,
-                eventMinDate: start,
-                eventMaxDate: end
-              });
-            } else {
-              // console.log("nextEvents.push", event.eventName);
-              nextEvents.push({
-                ...event,
-                eventMinDate: start,
-                eventMaxDate: end
-              });
-            }
-          }
+          let pushedMonthRepeat = false;
 
           if (event.otherDays) {
             for (const otherDay of event.otherDays) {
@@ -299,6 +276,7 @@ export const EventsList = ({
                     });
                   } else {
                     if (isBefore(eventMinDate, addWeeks(today, 1))) {
+                      pushedMonthRepeat = true;
                       // console.log(
                       //   "currentEvents.monthRepeat.push",
                       //   event.eventName
@@ -348,6 +326,31 @@ export const EventsList = ({
                   }
                 }
               }
+            }
+          }
+
+          if (isBefore(start, today)) {
+            // console.log("previousEvents.push", event.eventName);
+            previousEvents.push({
+              ...event,
+              eventMinDate: start,
+              eventMaxDate: end
+            });
+          } else {
+            if (!pushedMonthRepeat && isBefore(start, addWeeks(today, 1))) {
+              // console.log("currentEvents.push", event.eventName, event);
+              currentEvents.push({
+                ...event,
+                eventMinDate: start,
+                eventMaxDate: end
+              });
+            } else {
+              // console.log("nextEvents.push", event.eventName);
+              nextEvents.push({
+                ...event,
+                eventMinDate: start,
+                eventMaxDate: end
+              });
             }
           }
         } else {

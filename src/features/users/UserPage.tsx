@@ -1,22 +1,32 @@
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Button,
-  useToast,
+  Flex,
   Grid,
   Heading,
   Icon,
+  IconButton,
   Textarea,
   VStack,
   TabPanel,
-  TabPanels
+  TabPanels,
+  Tooltip,
+  useToast
 } from "@chakra-ui/react";
 import { format } from "date-fns";
+import DOMPurify from "isomorphic-dompurify";
 import { Session, User } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { css } from "twin.macro";
-
-import { GridHeader, GridItem, IconFooter } from "features/common";
+import {
+  Link,
+  GridHeader,
+  GridItem,
+  IconFooter,
+  RTEditor
+} from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
 import { UserForm } from "features/forms/UserForm";
 import { Layout } from "features/layout";
@@ -26,6 +36,7 @@ import { IUser } from "models/User";
 import api from "utils/api";
 import { UserPageTabs } from "./UserPageTabs";
 import { useGetUserQuery, useEditUserMutation } from "./usersApi";
+import { FaHome } from "react-icons/fa";
 
 export const UserPage = ({
   ...props
@@ -69,8 +80,8 @@ export const UserPage = ({
       }
     }
   );
-
-  console.log("user", userQuery.data);
+  const user = userQuery.data || props.user;
+  console.log("user", user);
   console.groupEnd();
 
   const [editUser, editUserMutation] = useEditUserMutation();
@@ -82,11 +93,7 @@ export const UserPage = ({
   const [description, setDescription] = useState<string | undefined>();
 
   return (
-    <Layout
-      pageTitle={userQuery.data?.userName}
-      isLogin={isLogin}
-      session={session}
-    >
+    <Layout pageTitle={user.userName} isLogin={isLogin} session={session}>
       <>
         {session && (isSelf || session.user.isAdmin) && (
           <>
@@ -117,7 +124,7 @@ export const UserPage = ({
         {session && isEdit && (
           <UserForm
             session={session}
-            user={userQuery.data || props.user}
+            user={user}
             onSubmit={async ({ userName }) => {
               userQuery.refetch();
               setIsEdit(false);
@@ -127,15 +134,15 @@ export const UserPage = ({
                 isClosable: true
               });
 
-              if (userName && userName !== userQuery.data?.userName) {
+              if (userName && userName !== user.userName) {
                 await router.push(`/${userName}`);
               }
             }}
           />
         )}
 
-        {session && !isEdit && isSelf && (
-          <UserPageTabs>
+        {!isEdit && (
+          <UserPageTabs tabs={isSelf ? undefined : {}} height="auto">
             <TabPanels>
               <TabPanel aria-hidden>
                 <Grid
@@ -148,6 +155,137 @@ export const UserPage = ({
                     }
                   `}
                 >
+                  <GridItem
+                    light={{ bg: "orange.100" }}
+                    dark={{ bg: "gray.500" }}
+                    borderTopRadius="lg"
+                  >
+                    <Grid templateRows="auto 1fr">
+                      <GridHeader
+                        display="flex"
+                        alignItems="center"
+                        borderTopRadius="lg"
+                      >
+                        <Heading size="sm" py={3}>
+                          Présentation
+                        </Heading>
+                        {isSelf && (
+                          <Tooltip
+                            placement="bottom"
+                            label={
+                              user.userDescription
+                                ? "Modifier la présentation"
+                                : "Ajouter une présentation"
+                            }
+                          >
+                            <IconButton
+                              aria-label={
+                                user.userDescription
+                                  ? "Modifier la présentation"
+                                  : "Ajouter une présentation"
+                              }
+                              icon={<EditIcon />}
+                              bg="transparent"
+                              _hover={{ color: "green" }}
+                              onClick={() => {
+                                setIsDescriptionEdit(true);
+                              }}
+                            />
+                          </Tooltip>
+                        )}
+                      </GridHeader>
+
+                      <GridItem
+                        light={{ bg: "orange.100" }}
+                        dark={{ bg: "gray.500" }}
+                      >
+                        <Box p={5}>
+                          {session && isDescriptionEdit ? (
+                            <form
+                              onSubmit={async (e) => {
+                                e.preventDefault();
+                                setIsLoading(true);
+                                try {
+                                  await editUser({
+                                    payload: { userDescription: description },
+                                    slug: session.user.userId
+                                  }).unwrap();
+                                  userQuery.refetch();
+                                  toast({
+                                    title:
+                                      "Votre présentation a bien été enregistrée",
+                                    status: "success",
+                                    isClosable: true
+                                  });
+                                } catch (error) {
+                                  toast({
+                                    title:
+                                      "Votre présentation n'a pas pu être enregistrée.",
+                                    status: "error",
+                                    isClosable: true
+                                  });
+                                } finally {
+                                  setIsLoading(false);
+                                }
+                              }}
+                            >
+                              <RTEditor
+                                session={session}
+                                defaultValue={user.userDescription}
+                                placeholder="Ajoutez ici votre présentation"
+                                onChange={({ quillHtml }) => {
+                                  setDescription(quillHtml);
+                                }}
+                              />
+
+                              <Flex justifyContent="space-between" mt={5}>
+                                <Button
+                                  onClick={() => setIsDescriptionEdit(false)}
+                                >
+                                  Annuler
+                                </Button>
+
+                                <Button
+                                  colorScheme="green"
+                                  type="submit"
+                                  isLoading={isLoading}
+                                >
+                                  {user.userDescription
+                                    ? "Modifier"
+                                    : "Ajouter"}
+                                </Button>
+                              </Flex>
+                            </form>
+                          ) : (
+                            <>
+                              {user.userDescription ? (
+                                <div
+                                  dangerouslySetInnerHTML={{
+                                    __html: DOMPurify.sanitize(
+                                      user.userDescription,
+                                      {
+                                        ADD_TAGS: ["iframe"]
+                                      }
+                                    )
+                                  }}
+                                />
+                              ) : isSelf ? (
+                                <Link
+                                  variant="underline"
+                                  onClick={() => setIsDescriptionEdit(true)}
+                                >
+                                  Cliquez ici pour ajouter une présentation
+                                </Link>
+                              ) : (
+                                "Aucune présentation."
+                              )}
+                            </>
+                          )}
+                        </Box>
+                      </GridItem>
+                    </Grid>
+                  </GridItem>
+
                   {isSelf && session.user.isAdmin && !isEdit && (
                     <GridItem
                       light={{ bg: "orange.100" }}
@@ -227,24 +365,28 @@ export const UserPage = ({
                 </Grid>
               </TabPanel>
 
-              <TabPanel aria-hidden>
-                <ProjectsList
-                  user={userQuery.data}
-                  userQuery={userQuery}
-                  isLogin={isLogin}
-                  setIsLogin={setIsLogin}
-                />
-                <IconFooter />
-              </TabPanel>
+              {isSelf && (
+                <TabPanel aria-hidden>
+                  <ProjectsList
+                    user={userQuery.data}
+                    userQuery={userQuery}
+                    isLogin={isLogin}
+                    setIsLogin={setIsLogin}
+                  />
+                  <IconFooter />
+                </TabPanel>
+              )}
 
-              <TabPanel aria-hidden>
-                <DocumentsList
-                  user={userQuery.data}
-                  isLogin={isLogin}
-                  setIsLogin={setIsLogin}
-                />
-                <IconFooter />
-              </TabPanel>
+              {isSelf && (
+                <TabPanel aria-hidden>
+                  <DocumentsList
+                    user={userQuery.data}
+                    isLogin={isLogin}
+                    setIsLogin={setIsLogin}
+                  />
+                  <IconFooter />
+                </TabPanel>
+              )}
             </TabPanels>
           </UserPageTabs>
         )}
@@ -252,126 +394,3 @@ export const UserPage = ({
     </Layout>
   );
 };
-{
-  /* <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  borderTopRadius="lg"
-                >
-                  <Grid templateRows="auto 1fr">
-                    <GridHeader
-                      display="flex"
-                      alignItems="center"
-                      borderTopRadius="lg"
-                    >
-                      <Heading size="sm" py={3}>
-                        Présentation
-                      </Heading>
-                      {isSelf && (
-                        <Tooltip
-                          placement="bottom"
-                          label={
-                            userQuery.data?.userDescription
-                              ? "Modifier la présentation"
-                              : "Ajouter une présentation"
-                          }
-                        >
-                          <IconButton
-                            aria-label={
-                              userQuery.data?.userDescription
-                                ? "Modifier la présentation"
-                                : "Ajouter une présentation"
-                            }
-                            icon={<EditIcon />}
-                            bg="transparent"
-                            _hover={{ color: "green" }}
-                            onClick={() => {
-                              setIsDescriptionEdit(true);
-                            }}
-                          />
-                        </Tooltip>
-                      )}
-                    </GridHeader>
-
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                    >
-                      <Box p={5}>
-                        {isDescriptionEdit ? (
-                          <form
-                            onSubmit={async (e) => {
-                              e.preventDefault();
-                              setIsLoading(true);
-                              try {
-                                await editUser({
-                                  payload: { userDescription: description },
-                                  userName: session?.user.userId
-                                }).unwrap();
-                                userQuery.refetch();
-                                toast({
-                                  title:
-                                    "Votre présentation a bien été enregistrée",
-                                  status: "success",
-                                  isClosable: true
-                                });
-                              } catch (error) {
-                                toast({
-                                  title:
-                                    "Votre présentation n'a pas pu être enregistrée.",
-                                  status: "error",
-                                  isClosable: true
-                                });
-                              } finally {
-                                setIsLoading(false);
-                              }
-                            }}
-                          >
-                            <RTEditor
-                              session={session}
-                              defaultValue={userQuery.data?.userDescription}
-                              placeholder="Ajoutez ici votre présentation"
-                              onChange={({ quillHtml }) => {
-                                setDescription(quillHtml);
-                              }}
-                            />
-
-                            <Flex justifyContent="space-between" mt={5}>
-                              <Button
-                                onClick={() => setIsDescriptionEdit(false)}
-                              >
-                                Annuler
-                              </Button>
-
-                              <Button
-                                colorScheme="green"
-                                type="submit"
-                                isLoading={isLoading}
-                              >
-                                {userQuery.data?.userDescription
-                                  ? "Modifier"
-                                  : "Ajouter"}
-                              </Button>
-                            </Flex>
-                          </form>
-                        ) : (
-                          <>
-                            {userQuery.data?.userDescription ? (
-                              userQuery.data.userDescription
-                            ) : isSelf ? (
-                              <Link
-                                variant="underline"
-                                onClick={() => setIsDescriptionEdit(true)}
-                              >
-                                Cliquez ici pour ajouter une présentation
-                              </Link>
-                            ) : (
-                              "Aucune présentation."
-                            )}
-                          </>
-                        )}
-                      </Box>
-                    </GridItem>
-                  </Grid>
-                </GridItem> */
-}

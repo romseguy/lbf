@@ -210,7 +210,7 @@ export const TopicsListItem = ({
 
               <Tooltip
                 placement="bottom"
-                label={`Discussion ajoutée le ${fullDate}`}
+                label={`Discussion créée le ${fullDate}`}
               >
                 <Text
                   cursor="default"

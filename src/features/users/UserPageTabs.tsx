@@ -1,77 +1,36 @@
-//@ts-nocheck
+import { TabList, Tabs } from "@chakra-ui/react";
 import React, { useState } from "react";
-import {
-  chakra,
-  Icon,
-  TabList,
-  Tabs,
-  useColorModeValue,
-  useStyles,
-  useTab
-} from "@chakra-ui/react";
-import { isMobile } from "react-device-detect";
 import { FaHome, FaImages, FaTools } from "react-icons/fa";
-import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
+import { EntityPageTab } from "features/common";
+import { AppIcon } from "utils/types";
+
+const defaultTabs: UserPageTabsType = {
+  Accueil: { icon: FaHome, url: "" },
+  Projets: { icon: FaTools, url: "/projets" },
+  Galerie: { icon: FaImages, url: "/galerie" }
+};
+
+export type UserPageTabsType = {
+  [key: string]: { icon: AppIcon; url: string };
+};
 
 export const UserPageTabs = ({
   children,
+  height = "60px",
+  tabs = defaultTabs,
   ...props
 }: {
   children: React.ReactNode | React.ReactNodeArray;
+  height?: string;
+  tab?: string;
+  tabs?: UserPageTabsType;
 }) => {
-  const StyledTab = chakra("button", { themeKey: "Tabs.Tab" });
-  const inactiveTabBg = useColorModeValue("gray.100", "whiteAlpha.300");
-  const [currentTabIndex, setCurrentTabIndex] = useState(0);
-  const defaultTabIndex = 0;
-
-  const CustomTab = React.forwardRef(
-    (
-      {
-        icon,
-        tabIndex,
-        ...props
-      }: { children: React.ReactNode | React.ReactNodeArray },
-      ref
-    ) => {
-      const tabProps = useTab(props);
-
-      tabProps.tabIndex = 0;
-
-      if (currentTabIndex === tabIndex) {
-        tabProps["aria-selected"] = true;
-      }
-
-      const styles = useStyles();
-
-      return (
-        <StyledTab
-          display="flex"
-          flex={isMobile ? "0 0 auto" : "1"}
-          //flex="0 0 auto"
-          alignItems="center"
-          justifyContent="center"
-          bg={inactiveTabBg}
-          mx={1}
-          _focus={{
-            boxShadow: "none"
-          }}
-          {...tabProps}
-          __css={styles.tab}
-        >
-          <span
-            style={{
-              display: "inline-flex",
-              flexShrink: "0",
-              marginInlineEnd: "0.5rem"
-            }}
-          >
-            <Icon as={icon} boxSize={5} verticalAlign="middle" />
-          </span>
-          {tabProps.children}
-        </StyledTab>
-      );
-    }
-  );
+  let defaultTabIndex = 0;
+  Object.keys(tabs).reduce((index, tab) => {
+    if (tab.toLowerCase() === props.tab?.toLowerCase()) defaultTabIndex = index;
+    return index + 1;
+  }, 0);
+  const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex || 0);
 
   return (
     <Tabs
@@ -92,7 +51,7 @@ export const UserPageTabs = ({
         display="flex"
         flexWrap="nowrap"
         alignItems="center"
-        height="60px"
+        height={height}
         overflowX="auto"
         //borderBottom="0"
         mx={3}
@@ -102,20 +61,21 @@ export const UserPageTabs = ({
         }}
         aria-hidden
       >
-        {[
-          { name: "Accueil", icon: FaHome },
-          { name: "Projets", icon: FaTools },
-          { name: "Galerie", icon: FaImages }
-        ].map(({ name, icon }, tabIndex) => (
-          <CustomTab
-            key={`userTab-${tabIndex}`}
-            tabIndex={tabIndex}
-            icon={icon}
-            data-cy={`userTab-${name}`}
-          >
-            {name}
-          </CustomTab>
-        ))}
+        {Object.keys(tabs).map((name, tabIndex) => {
+          const { icon, url } = tabs[name];
+
+          return (
+            <EntityPageTab
+              key={`userTab-${tabIndex}`}
+              currentTabIndex={currentTabIndex}
+              icon={icon}
+              tabIndex={tabIndex}
+              data-cy={`userTab-${name}`}
+            >
+              {name}
+            </EntityPageTab>
+          );
+        })}
       </TabList>
       {children}
     </Tabs>

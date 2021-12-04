@@ -35,7 +35,8 @@ handler.get<
   let selector;
 
   try {
-    let select = "_id suggestedCategoryAt userName userImage userSubscription";
+    let select =
+      "_id suggestedCategoryAt userName userImage userSubscription userDescription";
 
     if (emailR.test(slug)) {
       selector = { email: slug };

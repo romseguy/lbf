@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { Box, Flex, Spinner } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useSession } from "hooks/useAuth";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useEditOrgMutation, useGetOrgQuery } from "features/orgs/orgsApi";
-import { TopicsList } from "./TopicsList";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
+import { selectUserEmail } from "features/users/userSlice";
+import { useSession } from "hooks/useAuth";
 import {
   getFollowerSubscription,
   getSubscriberSubscription
 } from "models/Subscription";
-import { useSelector } from "react-redux";
-import { Spinner } from "@chakra-ui/react";
-import { selectUserEmail } from "features/users/userSlice";
+import { TopicsList } from "./TopicsList";
 
 export const Forum = ({
   isLogin,
@@ -47,8 +48,9 @@ export const Forum = ({
 
   //#region subscription
   const subQuery = useGetSubscriptionQuery({ email: userEmail });
+const followerSubscription = getFollowerSubscription({ org, subQuery })
   const [isFollowed, setIsFollowed] = useState(
-    !!getFollowerSubscription({ org, subQuery })
+    !!followerSubscription
   );
   const [isSubscribed, setIsSubscribed] = useState(
     !!getSubscriberSubscription({ org, subQuery })
@@ -68,6 +70,33 @@ export const Forum = ({
   if (!org) return null;
 
   return (
+<>
+      {!subQuery.isLoading && (
+        <Flex flexDirection="row" flexWrap="wrap" mt={-3} mb={3}>
+          {followerSubscription && (
+            <Box mr={3} mt={3}>
+              <SubscriptionPopover
+                org={org}
+                query={query}
+                subQuery={subQuery}
+                followerSubscription={followerSubscription}
+                //isLoading={subQuery.isLoading || subQuery.isFetching}
+              />
+            </Box>
+          )}
+
+          <Box mt={3}>
+            <SubscriptionPopover
+              org={org}
+              query={query}
+              subQuery={subQuery}
+              followerSubscription={followerSubscription}
+              notifType="push"
+              //isLoading={subQuery.isLoading || subQuery.isFetching}
+            />
+          </Box>
+        </Flex>
+      )}
     <TopicsList
       org={org}
       query={query}
@@ -80,5 +109,6 @@ export const Forum = ({
       isLogin={isLogin}
       currentTopicName={tabItem}
     />
+</>
   );
 };

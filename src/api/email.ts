@@ -26,6 +26,25 @@ export type Mail = {
   html?: string;
 };
 
+const getTopicUrl = ({
+  org,
+  event,
+  topic
+}: {
+  org?: IOrg | null;
+  event?: IEvent | null;
+  topic: ITopic;
+}) => {
+  let entityUrl = `${process.env.NEXT_PUBLIC_URL}/${
+    org ? (org.orgName === "aucourant" ? "forum" : org.orgUrl) : event?.eventUrl
+  }`;
+  entityUrl +=
+    org && org.orgName === "aucourant"
+      ? `/${topic.topicName}`
+      : `/discussions/${topic.topicName}`;
+  return entityUrl;
+};
+
 export const createEventEmailNotif = ({
   email,
   event,
@@ -290,9 +309,7 @@ export const createTopicEmailNotif = ({
 }): Mail => {
   const entityName = event ? event.eventName : org?.orgName;
   const entityType = org ? orgTypeFull(org.orgType) : "de l'événement";
-  const entityUrl = `${process.env.NEXT_PUBLIC_URL}/${
-    org ? (org.orgName === "aucourant" ? "forum" : org.orgUrl) : event?.eventUrl
-  }`;
+  const entityUrl = getTopicUrl({ event, org, topic });
   const subject = `Vous êtes invité à une discussion : ${topic.topicName}`;
 
   return {
@@ -328,7 +345,7 @@ export const createTopicEmailNotif = ({
                 : ""
             }
 
-            <p>Rendez-vous sur <a href="${entityUrl}?email=${email}">la page ${entityType}</a> pour participer à la discussion.</p>
+            <p><a href="${entityUrl}">Cliquez ici</a> pour participer à la discussion.</p>
           </td>
         </tr>
       </table>
@@ -341,7 +358,11 @@ export const createTopicEmailNotif = ({
               org ? org.orgUrl : event?.eventUrl
             }?subscriptionId=${
               subscription ? subscription._id : "foo"
-            }">Se désabonner ${entityType} ${entityName}</a>
+            }">Se désabonner ${
+              entityName === "aucourant"
+                ? `du forum ${process.env.NEXT_PUBLIC_SHORT_URL}`
+                : `${entityType} ${entityName}`
+            }</a>
             `}
           </td>
         </tr>
@@ -419,10 +440,10 @@ export const sendTopicNotifications = async ({
         subscription.user.userSubscription
       )
         await api.sendPushNotification({
-          message: `Appuyez pour ouvrir la page ${orgTypeFull(org.orgType)}`,
+          message: `Appuyez pour lire la discussion`,
           subscription: subscription.user.userSubscription,
           title: "Vous êtes invité à une discussion",
-          url: org.orgUrl
+          url: getTopicUrl({ org, topic })
         });
     } else if (event) {
       const eventSubscription = subscription.events?.find(({ eventId }) =>
@@ -463,10 +484,10 @@ export const sendTopicNotifications = async ({
         subscription.user.userSubscription
       )
         await api.sendPushNotification({
-          message: `Appuyez pour ouvrir la page de l'événement`,
+          message: `Appuyez pour lire la discussion`,
           subscription: subscription.user.userSubscription,
           title: "Vous êtes invité à une discussion",
-          url: event.eventUrl
+          url: getTopicUrl({ event, topic })
         });
     }
   }
@@ -497,10 +518,7 @@ export const sendTopicMessageEmailNotifications = async ({
   const entityUrl = event ? event.eventUrl : org?.orgUrl;
   const subject = `Nouveau commentaire sur la discussion : ${topic.topicName}`;
   const type = event ? "l'événement" : "l'organisation";
-  const url =
-    entityName === "aucourant"
-      ? `${process.env.NEXT_PUBLIC_URL}/forum`
-      : `${process.env.NEXT_PUBLIC_URL}/${entityUrl}`;
+  const url = getTopicUrl({ event, org, topic });
 
   for (const subscription of subscriptions) {
     let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${entityName}</a> pour lire la discussion.</p>
@@ -509,7 +527,7 @@ export const sendTopicMessageEmailNotifications = async ({
     `;
 
     if (entityName === "aucourant") {
-      html = `<h1>${subject}</h1><p>Rendez-vous sur le forum de <a href="${url}">${process.env.NEXT_PUBLIC_SHORT_URL}</a> pour lire la discussion.</p>`;
+      html = `<h1>${subject}</h1><p>Rendez-vous sur le <a href="${url}">forum</a> pour lire la discussion.</p>`;
     }
 
     const email =

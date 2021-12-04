@@ -310,7 +310,7 @@ export const SubscriptionEditPopover = ({
               fontSize="smaller"
               variant="underline"
             >
-              Se désabonner de {org ? orgTypeFull(org.orgType) : "l'événement"}
+              Se désabonner {org ? orgTypeFull(org.orgType) : "l'événement"}
             </Link>
           </PopoverHeader>
         ) : (
@@ -330,7 +330,7 @@ export const SubscriptionEditPopover = ({
                 <>
                   Recevoir une notification{" "}
                   {notifType === "email" ? "e-mail" : "mobile"} pour :
-                  {org && (
+                  {org && org.orgUrl !== "aucourant" && (
                     <>
                       <Switch
                         display="flex"

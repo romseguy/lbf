@@ -386,63 +386,65 @@ export const TopicForm = ({
         </FormControl>
       )}
 
-      {(props.isCreator || props.isSubscribed) && lists && (
-        <FormControl
-          id="topicVisibility"
-          isInvalid={!!errors["topicVisibility"]}
-          mb={3}
-        >
-          <FormLabel>Listes de diffusion</FormLabel>
-          <Controller
-            name="topicVisibility"
-            control={control}
-            defaultValue={
-              props.topic?.topicVisibility?.map((listName) => ({
-                label: listName,
-                value: listName
-              })) || []
-            }
-            render={(renderProps) => {
-              return (
-                <MultiSelect
-                  value={renderProps.value}
-                  onChange={renderProps.onChange}
-                  options={
-                    lists?.map(({ listName }) => ({
-                      label: listName,
-                      value: listName
-                    })) || []
-                  }
-                  allOptionLabel="Toutes les listes"
-                  //closeMenuOnSelect={false}
-                  placeholder="Sélectionner une ou plusieurs listes"
-                  noOptionsMessage={() => "Aucun résultat"}
-                  isClearable
-                  isSearchable
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (defaultStyles: any) => {
-                      return {
-                        ...defaultStyles,
-                        borderColor: "#e2e8f0"
-                      };
-                    },
-                    placeholder: () => {
-                      return {
-                        color: "#A0AEC0"
-                      };
+      {(props.isCreator || props.isSubscribed) &&
+        lists &&
+        org?.orgName !== "aucourant" && (
+          <FormControl
+            id="topicVisibility"
+            isInvalid={!!errors["topicVisibility"]}
+            mb={3}
+          >
+            <FormLabel>Listes de diffusion</FormLabel>
+            <Controller
+              name="topicVisibility"
+              control={control}
+              defaultValue={
+                props.topic?.topicVisibility?.map((listName) => ({
+                  label: listName,
+                  value: listName
+                })) || []
+              }
+              render={(renderProps) => {
+                return (
+                  <MultiSelect
+                    value={renderProps.value}
+                    onChange={renderProps.onChange}
+                    options={
+                      lists?.map(({ listName }) => ({
+                        label: listName,
+                        value: listName
+                      })) || []
                     }
-                  }}
-                />
-              );
-            }}
-          />
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="topicVisibility" />
-          </FormErrorMessage>
-        </FormControl>
-      )}
+                    allOptionLabel="Toutes les listes"
+                    //closeMenuOnSelect={false}
+                    placeholder="Sélectionner une ou plusieurs listes"
+                    noOptionsMessage={() => "Aucun résultat"}
+                    isClearable
+                    isSearchable
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    styles={{
+                      control: (defaultStyles: any) => {
+                        return {
+                          ...defaultStyles,
+                          borderColor: "#e2e8f0"
+                        };
+                      },
+                      placeholder: () => {
+                        return {
+                          color: "#A0AEC0"
+                        };
+                      }
+                    }}
+                  />
+                );
+              }}
+            />
+            <FormErrorMessage>
+              <ErrorMessage errors={errors} name="topicVisibility" />
+            </FormErrorMessage>
+          </FormControl>
+        )}
 
       {hasItems(topicVisibility) && (
         <Alert status="info" mb={3}>
@@ -452,32 +454,39 @@ export const TopicForm = ({
         </Alert>
       )}
 
-      {!props.topic && (event || props.isSubscribed) && (
-        <FormControl id="topicNotif" mb={3}>
-          <FormLabel>Notifications</FormLabel>
+      {!props.topic &&
+        (event ||
+          props.isSubscribed ||
+          (org && org.orgName === "aucourant")) && (
+          <FormControl id="topicNotif" mb={3}>
+            <FormLabel>Notifications</FormLabel>
 
-          {hasItems(topicVisibility) ? (
-            <Checkbox
-              ref={register()}
-              name="topicNotif"
-              mb={3}
-              isChecked={topicNotif}
-            >
-              Notifier les membres des listes de diffusions sélectionnées
-            </Checkbox>
-          ) : (
-            <Checkbox
-              ref={register()}
-              name="topicNotif"
-              mb={3}
-              isChecked={topicNotif}
-            >
-              Notifier les personnes abonnées à{" "}
-              {org ? orgTypeFull4(org.orgType) : "cet événement"}
-            </Checkbox>
-          )}
-        </FormControl>
-      )}
+            {hasItems(topicVisibility) ? (
+              <Checkbox
+                ref={register()}
+                name="topicNotif"
+                mb={3}
+                isChecked={topicNotif}
+              >
+                Notifier les membres des listes de diffusions sélectionnées
+              </Checkbox>
+            ) : (
+              <Checkbox
+                ref={register()}
+                name="topicNotif"
+                mb={3}
+                isChecked={topicNotif}
+              >
+                Notifier les personnes abonnées{" "}
+                {org && org.orgName === "aucourant"
+                  ? "au forum"
+                  : org
+                  ? `à ${orgTypeFull4(org.orgType)}`
+                  : "à cet événement"}
+              </Checkbox>
+            )}
+          </FormControl>
+        )}
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>

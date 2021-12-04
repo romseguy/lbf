@@ -248,13 +248,15 @@ export const Layout = ({
               </Tooltip>
 
               <Tooltip
-                label="Ce projet est open-source, financé par son seul créateur."
-                placement="top-end"
                 hasArrow
+                label="Contacter le développeur  ͡❛ ͜ʖ ͡❛"
+                placement="top-end"
               >
-                <a href="https://github.com/romseguy">
-                  <Icon as={FaGithub} boxSize={6} ml={3} />
-                </a>
+                <Box>
+                  <a href="https://twitter.com/romseguy" target="_blank">
+                    <Icon as={FaTwitter} boxSize={6} color="cyan.600" ml={3} />
+                  </a>
+                </Box>
               </Tooltip>
             </Flex>
           )}
