@@ -42,3 +42,8 @@ export const orgTypeFull4 = (orgType: string): string =>
   `${orgType === OrgTypes.ASSO ? "cette " : "ce "}${OrgTypesV[
     orgType
   ].toLowerCase()}`;
+
+export const orgTypeFull5 = (orgType: string): string =>
+  `${orgType === OrgTypes.ASSO ? "l'" : "le "}${OrgTypesV[
+    orgType
+  ].toLowerCase()}`;

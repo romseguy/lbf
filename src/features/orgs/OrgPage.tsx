@@ -109,6 +109,9 @@ export const OrgPage = ({
   const orgs = org.orgs?.filter(({ orgLat, orgLng }) => !!orgLat && !!orgLng);
   const [description, setDescription] = useState<string | undefined>();
   useEffect(() => {
+    setIsEdit(false);
+    setIsConfig(false);
+
     if (org.orgDescription && org.orgDescription.length > 0) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(org.orgDescription, "text/html");
@@ -155,6 +158,9 @@ export const OrgPage = ({
   const publicEvents = org.orgEvents.filter(
     (orgEvent) => orgEvent.eventVisibility === EventVisibility.PUBLIC
   );
+  const [title = "Événements des 7 prochains jours", setTitle] = useState<
+    string | undefined
+  >();
   //#endregion
 
   //#region sub
@@ -322,7 +328,7 @@ export const OrgPage = ({
               >
                 <GridItem
                   light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
+                  dark={{ bg: "gray.600" }}
                   borderTopRadius="lg"
                 >
                   <Grid templateRows="auto 1fr">
@@ -352,7 +358,7 @@ export const OrgPage = ({
 
                     <GridItem
                       light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
+                      dark={{ bg: "gray.600" }}
                     >
                       <Box p={5}>
                         {hasInfo ? (
@@ -376,7 +382,7 @@ export const OrgPage = ({
                 {Array.isArray(networks) && networks.length > 0 && (
                   <GridItem
                     light={{ bg: "orange.100" }}
-                    dark={{ bg: "gray.500" }}
+                    dark={{ bg: "gray.600" }}
                     borderTopRadius="lg"
                   >
                     <Grid templateRows="auto 1fr">
@@ -388,7 +394,7 @@ export const OrgPage = ({
 
                       <GridItem
                         light={{ bg: "orange.100" }}
-                        dark={{ bg: "gray.500" }}
+                        dark={{ bg: "gray.600" }}
                       >
                         <Box p={5}>
                           {networks.map((network) => (
@@ -412,7 +418,7 @@ export const OrgPage = ({
                     rowSpan={1}
                     borderTopRadius="lg"
                     light={{ bg: "orange.100" }}
-                    dark={{ bg: "gray.500" }}
+                    dark={{ bg: "gray.600" }}
                   >
                     <GridHeader borderTopRadius="lg" alignItems="center">
                       <Flex alignItems="center">
@@ -460,7 +466,7 @@ export const OrgPage = ({
                   rowSpan={1}
                   borderTopRadius="lg"
                   light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
+                  dark={{ bg: "gray.600" }}
                 >
                   <GridHeader
                     display="flex"
@@ -514,16 +520,26 @@ export const OrgPage = ({
             </TabPanel>
 
             <TabPanel aria-hidden>
-              <EventsList
-                events={!session ? publicEvents : org.orgEvents}
-                org={org}
-                orgQuery={orgQuery}
-                isCreator={isCreator}
-                isSubscribed={!!subscriberSubscription}
-                isLogin={isLogin}
-                setIsLogin={setIsLogin}
-              />
-              <IconFooter />
+              <Flex flexWrap="wrap" margin="0 auto" maxWidth="4xl">
+                <Box flexGrow={1}>
+                  <Heading className="rainbow-text" fontFamily="DancingScript">
+                    {title}
+                  </Heading>
+                </Box>
+                <Box width="100%" mt={5}>
+                  <EventsList
+                    events={!session ? publicEvents : org.orgEvents}
+                    org={org}
+                    orgQuery={orgQuery}
+                    isCreator={isCreator}
+                    isSubscribed={!!subscriberSubscription}
+                    isLogin={isLogin}
+                    setIsLogin={setIsLogin}
+                    setTitle={setTitle}
+                  />
+                  <IconFooter />
+                </Box>
+              </Flex>
             </TabPanel>
 
             <TabPanel aria-hidden>

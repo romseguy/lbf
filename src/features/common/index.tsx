@@ -26,6 +26,7 @@ export * from "./EntityButton";
 export * from "./EntityInfo";
 export * from "./EntityNotified";
 export * from "./EntityPageTab";
+export * from "./EntityPageTabList";
 export * from "./ErrorMessageText";
 export * from "./Grid";
 export * from "./GridHeader";

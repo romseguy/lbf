@@ -1,7 +1,7 @@
-import { TabList, Tabs } from "@chakra-ui/react";
+import { Tabs } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { FaHome, FaImages, FaTools } from "react-icons/fa";
-import { EntityPageTab } from "features/common";
+import { EntityPageTab, EntityPageTabList } from "features/common";
 import { AppIcon } from "utils/types";
 
 const defaultTabs: UserPageTabsType = {
@@ -36,31 +36,17 @@ export const UserPageTabs = ({
     <Tabs
       defaultIndex={defaultTabIndex}
       index={currentTabIndex}
-      onChange={(index) => setCurrentTabIndex(index)}
       isFitted
+      isLazy
+      isManual
+      lazyBehavior="keepMounted"
       variant="solid-rounded"
       borderWidth={1}
       borderColor="gray.200"
       borderRadius="lg"
-      isManual
-      isLazy
-      lazyBehavior="keepMounted"
+      onChange={(index) => setCurrentTabIndex(index)}
     >
-      <TabList
-        as="nav"
-        display="flex"
-        flexWrap="nowrap"
-        alignItems="center"
-        height={height}
-        overflowX="auto"
-        //borderBottom="0"
-        mx={3}
-        css={{
-          WebkitOverflowScrolling: "touch",
-          msOverflowStyle: "-ms-autohiding-scrollbar"
-        }}
-        aria-hidden
-      >
+      <EntityPageTabList aria-hidden>
         {Object.keys(tabs).map((name, tabIndex) => {
           const { icon, url } = tabs[name];
 
@@ -76,7 +62,7 @@ export const UserPageTabs = ({
             </EntityPageTab>
           );
         })}
-      </TabList>
+      </EntityPageTabList>
       {children}
     </Tabs>
   );

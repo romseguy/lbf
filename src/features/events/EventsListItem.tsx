@@ -173,25 +173,27 @@ export const EventsListItem = ({
             )}
 
           {/* eventCity */}
-          {event.eventCity && event.eventAddress && (
-            <GridItem mb={2}>
-              <Tooltip
-                hasArrow
-                label={event.eventAddress[0].address}
-                placement="right"
-              >
-                <span>
-                  <Link
-                    variant="underline"
-                    fontWeight="bold"
-                    onClick={() => setEventToShowOnMap(event)}
-                  >
-                    {event.eventCity}
-                  </Link>
-                </span>
-              </Tooltip>
-            </GridItem>
-          )}
+          {event.eventCity &&
+            Array.isArray(event.eventAddress) &&
+            event.eventAddress.length > 0 && (
+              <GridItem mb={2}>
+                <Tooltip
+                  hasArrow
+                  label={event.eventAddress[0].address}
+                  placement="right"
+                >
+                  <span>
+                    <Link
+                      variant="underline"
+                      fontWeight="bold"
+                      onClick={() => setEventToShowOnMap(event)}
+                    >
+                      {event.eventCity}
+                    </Link>
+                  </span>
+                </Tooltip>
+              </GridItem>
+            )}
 
           {/* eventDistance */}
           {event.eventDistance && (

@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { TabList, Tabs } from "@chakra-ui/react";
-import { FaHome } from "react-icons/fa";
 import { ChatIcon, EmailIcon } from "@chakra-ui/icons";
-import { IEvent } from "models/Event";
-import { EntityPageTab } from "features/common";
+import { TabList, Tabs } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { FaHome } from "react-icons/fa";
+import { EntityPageTab, EntityPageTabList } from "features/common";
+import { IEvent } from "models/Event";
 import { AppIcon } from "utils/types";
 
 const tabs: { [key: string]: { icon: AppIcon; url: string } } = {
@@ -31,36 +31,27 @@ export const EventPageTabs = ({
   }, 0);
   const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex);
 
-  if (isCreator) tabs.Invitations = { icon: EmailIcon, url: "/invitations" };
+  if (isCreator)
+    tabs["Participants"] = {
+      icon: EmailIcon,
+      url: "/invitations"
+    };
 
   return (
     <Tabs
       defaultIndex={defaultTabIndex}
       index={currentTabIndex}
-      onChange={(index) => setCurrentTabIndex(index)}
       isFitted
+      isLazy
+      isManual
+      lazyBehavior="keepMounted"
       variant="solid-rounded"
       borderWidth={1}
       borderColor="gray.200"
       borderRadius="lg"
-      isManual
-      isLazy
-      lazyBehavior="keepMounted"
+      onChange={(index) => setCurrentTabIndex(index)}
     >
-      <TabList
-        as="nav"
-        display="flex"
-        flexWrap="nowrap"
-        alignItems="center"
-        height="60px"
-        overflowX="auto"
-        mx={3}
-        css={{
-          WebkitOverflowScrolling: "touch",
-          msOverflowStyle: "-ms-autohiding-scrollbar"
-        }}
-        aria-hidden
-      >
+      <EntityPageTabList aria-hidden>
         {Object.keys(tabs).map((name, tabIndex) => {
           const { icon, url } = tabs[name];
 
@@ -90,7 +81,7 @@ export const EventPageTabs = ({
             </EntityPageTab>
           );
         })}
-      </TabList>
+      </EntityPageTabList>
       {children}
     </Tabs>
   );

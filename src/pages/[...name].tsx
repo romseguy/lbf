@@ -1,22 +1,20 @@
-import { Alert, AlertIcon, Spinner } from "@chakra-ui/react";
+import { Button, Heading, Spinner } from "@chakra-ui/react";
+import bcrypt from "bcryptjs";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { EventPage } from "features/events/EventPage";
 import { getEvent } from "features/events/eventsApi";
 import { Layout } from "features/layout";
 import { OrgPage } from "features/orgs/OrgPage";
 import { getOrg } from "features/orgs/orgsApi";
-import { selectOrgRefetch } from "features/orgs/orgSlice";
 import { UserPage } from "features/users/UserPage";
 import { getUser } from "features/users/usersApi";
 import { setUserEmail } from "features/users/userSlice";
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
 import { useAppDispatch, wrapper } from "store";
-import { selectEventRefetch } from "features/events/eventSlice";
 import ForumPage from "./forum";
 
 let populate = "";
@@ -40,9 +38,10 @@ const Hash = ({
   const [event, setEvent] = useState<IEvent | undefined>();
   const [org, setOrg] = useState<IOrg | undefined>();
   const [user, setUser] = useState<IUser | undefined>();
-  const [error, setError] = useState<Error | undefined>();
-  const refetchOrg = useSelector(selectOrgRefetch);
-  const refetchEvent = useSelector(selectEventRefetch);
+  const [error, setError] = useState<
+    { pageTitle: string; fc: React.FC; redirect?: boolean } | undefined
+  >();
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
     const xhr = async () => {
@@ -82,12 +81,21 @@ const Hash = ({
             setEvent(undefined);
             setOrg(undefined);
             setUser(userQuery.data);
-          } else
-            setError(
-              new Error(
-                "La page demandée n'a pas été trouvée. Vous allez être redirigé vers la page d'accueil dans quelques secondes."
-              )
-            );
+          } else {
+            setError({
+              pageTitle: "Page introuvable",
+              fc: () => (
+                <>
+                  <Heading className="rainbow-text" fontFamily="DancingScript">
+                    Page introuvable
+                  </Heading>
+                  Vous allez être redirigé vers la page d'accueil dans quelques
+                  secondes...
+                </>
+              ),
+              redirect: true
+            });
+          }
         }
       }
     };
@@ -96,13 +104,73 @@ const Hash = ({
   }, [router.asPath]);
 
   useEffect(() => {
+    if (!isAuthorized && org && org.orgPassword) {
+      const password = prompt(
+        `Veuillez entrer le mot de passe pour accéder à la page ${orgTypeFull(
+          org.orgType
+        )}`
+      );
+
+      if (password && bcrypt.compareSync(password, org.orgPassword))
+        setIsAuthorized(true);
+      else {
+        setError({
+          pageTitle: "Accès refusé",
+          fc: () => {
+            const [isLoading, setIsLoading] = useState(false);
+            return (
+              <>
+                <Heading className="rainbow-text" fontFamily="DancingScript">
+                  Accès refusé
+                </Heading>
+
+                <Button
+                  colorScheme="teal"
+                  isLoading={isLoading}
+                  mt={3}
+                  onClick={() => {
+                    setIsLoading(true);
+                    window.location.reload();
+                  }}
+                >
+                  Réessayer
+                </Button>
+              </>
+            );
+          }
+        });
+      }
+    }
+  }, [org]);
+
+  useEffect(() => {
     if (email) dispatch(setUserEmail(email));
   }, []);
+
+  if (error) {
+    if (error.redirect) {
+      //if (!isServer())
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return (
+        <Layout pageTitle="Page introuvable" {...props}>
+          <error.fc />
+        </Layout>
+      );
+    } else
+      return (
+        <Layout pageTitle={error?.pageTitle} {...props}>
+          <error.fc />
+        </Layout>
+      );
+  }
 
   if (entityUrl === "forum")
     return <ForumPage tabItem={entityTabItem} {...props} />;
 
-  if (event) {
+  if (event)
     return (
       <EventPage
         event={event}
@@ -112,9 +180,8 @@ const Hash = ({
         {...props}
       />
     );
-  }
 
-  if (org) {
+  if (org)
     return (
       <OrgPage
         org={org}
@@ -124,26 +191,12 @@ const Hash = ({
         {...props}
       />
     );
-  }
 
-  if (user) {
-    return <UserPage user={user} {...props} />;
-  }
-
-  if (error) {
-    setTimeout(() => {
-      router.push("/");
-    }, 2000);
-  }
+  if (user) return <UserPage user={user} {...props} />;
 
   return (
-    <Layout pageTitle={error ? "Page introuvable" : ""} {...props}>
-      {error && (
-        <Alert status="error">
-          <AlertIcon />
-          {error.message}
-        </Alert>
-      )}
+    <Layout>
+      <Spinner />
     </Layout>
   );
 };

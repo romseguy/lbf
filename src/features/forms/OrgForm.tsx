@@ -13,6 +13,7 @@ import {
   useColorMode
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
+import bcrypt from "bcryptjs";
 import { Session } from "next-auth";
 import React, { useState, useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -38,6 +39,7 @@ import {
 import {
   IOrg,
   orgTypeFull,
+  orgTypeFull5,
   OrgTypes,
   OrgTypesV,
   Visibility,
@@ -145,7 +147,7 @@ export const OrgForm = withGoogleApi({
     const orgTypeLabel = orgTypeFull(orgType) || "de l'organisation";
     const orgVisibility = watch("orgVisibility");
     const password = useRef({});
-    password.current = watch("password", "");
+    password.current = watch("orgPassword", "");
     const orgWeb = watch("orgWeb");
 
     const onChange = () => {
@@ -177,7 +179,10 @@ export const OrgForm = withGoogleApi({
           Array.isArray(orgEmail) && orgEmail.length > 0 ? orgEmail : [],
         orgPhone:
           Array.isArray(orgPhone) && orgPhone.length > 0 ? orgPhone : [],
-        orgWeb: Array.isArray(orgWeb) && orgWeb.length > 0 ? orgWeb : []
+        orgWeb: Array.isArray(orgWeb) && orgWeb.length > 0 ? orgWeb : [],
+        orgPassword: form.orgPassword
+          ? await bcrypt.hash(form.orgPassword, await bcrypt.genSalt(10))
+          : undefined
       };
 
       try {
@@ -196,7 +201,7 @@ export const OrgForm = withGoogleApi({
           await editOrg({ payload, orgUrl: props.org.orgUrl }).unwrap();
 
           toast({
-            title: "Votre organisation a bien été modifiée !",
+            title: `${orgTypeFull5(form.orgType)} a bien été modifiée !`,
             status: "success",
             isClosable: true
           });
@@ -205,7 +210,7 @@ export const OrgForm = withGoogleApi({
           await addOrg(payload).unwrap();
 
           toast({
-            title: "Votre organisation a bien été ajoutée !",
+            title: `${orgTypeFull5(form.orgType)} a bien été ajoutée !`,
             status: "success",
             isClosable: true
           });

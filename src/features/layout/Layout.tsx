@@ -118,47 +118,43 @@ export const Layout = ({
           showOnShallow={true}
         />
 
-        {!isMobile && (
-          <Box position="fixed" right={3} bottom={2}>
+        <Box position="fixed" right={3} bottom={2}>
+          <Tooltip
+            placement="top-start"
+            label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
+            hasArrow
+          >
+            <Box>
+              <DarkModeSwitch />
+            </Box>
+          </Tooltip>
+        </Box>
+
+        <Box position="fixed" left={3} bottom={3}>
+          <Flex alignItems="center">
             <Tooltip
-              placement="top-start"
-              label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
               hasArrow
+              label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
+              placement="top-end"
             >
               <Box>
-                <DarkModeSwitch />
+                <PaypalButton />
               </Box>
             </Tooltip>
-          </Box>
-        )}
 
-        {!isMobile && /*true ||*/ process.env.NODE_ENV === "production" && (
-          <Box position="fixed" left={3} bottom={3}>
-            <Flex alignItems="center">
-              <Tooltip
-                hasArrow
-                label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
-                placement="top-end"
-              >
-                <Box>
-                  <PaypalButton />
-                </Box>
-              </Tooltip>
-
-              <Tooltip
-                hasArrow
-                label="Contacter le développeur  ͡❛ ͜ʖ ͡❛"
-                placement="top-end"
-              >
-                <Box>
-                  <a href="https://twitter.com/romseguy" target="_blank">
-                    <Icon as={FaTwitter} boxSize={6} color="cyan.600" ml={3} />
-                  </a>
-                </Box>
-              </Tooltip>
-            </Flex>
-          </Box>
-        )}
+            <Tooltip
+              hasArrow
+              label="Contacter le développeur  ͡❛ ͜ʖ ͡❛"
+              placement="top-end"
+            >
+              <Box>
+                <a href="https://twitter.com/romseguy" target="_blank">
+                  <Icon as={FaTwitter} boxSize={6} color="cyan.600" ml={3} />
+                </a>
+              </Box>
+            </Tooltip>
+          </Flex>
+        </Box>
 
         {process.env.NODE_ENV === "production" && (
           <Offline
@@ -234,7 +230,7 @@ export const Layout = ({
 
         <Main {...props}>{children}</Main>
 
-        <Footer display="flex" alignItems="center" pl={5} pr={5} pb={3}>
+        {/* <Footer display="flex" alignItems="center" pl={5} pr={5} pb={3}>
           {isMobile && (true || process.env.NODE_ENV === "production") && (
             <Flex alignItems="center" flexGrow={1}>
               <Tooltip
@@ -274,7 +270,7 @@ export const Layout = ({
               </Tooltip>
             </Flex>
           )}
-        </Footer>
+        </Footer> */}
       </Flex>
     </>
   );

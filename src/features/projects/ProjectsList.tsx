@@ -147,7 +147,7 @@ export const ProjectsList = ({
         {query.isLoading || query.isFetching ? (
           <Text>Chargement des projets...</Text>
         ) : !projects.length ? (
-          <Alert status="info">
+          <Alert status="warning">
             <AlertIcon /> Aucun projet.
           </Alert>
         ) : (

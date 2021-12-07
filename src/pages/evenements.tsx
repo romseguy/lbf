@@ -1,35 +1,28 @@
 import {
-  Box,
   Flex,
+  Box,
   Heading,
   Text,
   Tooltip,
   useDisclosure
 } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaRegMap } from "react-icons/fa";
-import { Button, IconFooter, Link } from "features/common";
-import { MapModal } from "features/modals/MapModal";
-import { Visibility } from "models/Event";
-import { useGetEventsQuery } from "./eventsApi";
-import { EventsList } from "./EventsList";
 import { Detector } from "react-detect-offline";
+import { FaRegMap } from "react-icons/fa";
+import { Button, IconFooter } from "features/common";
+import { useGetEventsQuery } from "features/events/eventsApi";
+import { EventsList } from "features/events/EventsList";
+import { Layout } from "features/layout";
+import { MapModal } from "features/modals/MapModal";
+import { Visibility } from "models/Project";
 
-export const EventsPage = ({
-  isLogin,
-  setIsLogin
-}: {
-  isLogin: number;
-  setIsLogin: (isLogin: number) => void;
-}) => {
+const EventsPage = ({ ...props }: { session?: Session }) => {
   const router = useRouter();
+  const [isLogin, setIsLogin] = useState(0);
 
   const eventsQuery = useGetEventsQuery();
-  useEffect(() => {
-    console.log("refetching events with new route", router.asPath);
-    eventsQuery.refetch();
-  }, [router.asPath]);
 
   const events = eventsQuery.data?.filter((event) => {
     if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
@@ -47,8 +40,13 @@ export const EventsPage = ({
     string | undefined
   >();
 
+  useEffect(() => {
+    console.log("refetching events with new route", router.asPath);
+    eventsQuery.refetch();
+  }, [router.asPath]);
+
   return (
-    <>
+    <Layout pageTitle="Événements" isLogin={isLogin} {...props}>
       <Flex flexWrap="wrap" margin="0 auto" maxWidth="4xl">
         <Box flexGrow={1}>
           <Heading className="rainbow-text" fontFamily="DancingScript">
@@ -127,6 +125,8 @@ export const EventsPage = ({
           onClose={closeMapModal}
         />
       )}
-    </>
+    </Layout>
   );
 };
+
+export default EventsPage;

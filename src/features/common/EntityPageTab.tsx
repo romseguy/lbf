@@ -6,7 +6,7 @@ import {
   Icon
 } from "@chakra-ui/react";
 import React from "react";
-import { isMobile } from "react-device-detect";
+import { css } from "twin.macro";
 import { AppIcon } from "utils/types";
 
 //@ts-expect-error
@@ -41,28 +41,18 @@ export const EntityPageTab = React.forwardRef(
 
     return (
       <StyledTab
-        display="flex"
-        flex={isMobile ? "0 0 auto" : "1"}
-        //flex="0 0 auto"
-        alignItems="center"
-        justifyContent="center"
+        {...tabProps}
+        __css={styles.tab}
+        css={css`
+          display: inline-block;
+        `}
         bg={inactiveTabBg}
-        mx={1}
+        mr={2}
         _focus={{
           boxShadow: "none"
         }}
-        {...tabProps}
-        __css={styles.tab}
       >
-        <span
-          style={{
-            display: "inline-flex",
-            flexShrink: 0,
-            marginInlineEnd: "0.5rem"
-          }}
-        >
-          <Icon as={icon} boxSize={5} verticalAlign="middle" />
-        </span>
+        <Icon as={icon} boxSize={5} mr={2} verticalAlign="middle" />
         {tabProps.children}
       </StyledTab>
     );

@@ -195,7 +195,15 @@ export const EventPopover = ({
                   spacing={2}
                 >
                   {myEventsQuery.data.map((event, index) => (
-                    <EntityButton key={event._id} event={event} p={1} />
+                    <EntityButton
+                      key={event._id}
+                      event={event}
+                      p={1}
+                      onClick={() => {
+                        setIsOpen(false);
+                        router.push(event.eventUrl);
+                      }}
+                    />
                   ))}
                 </VStack>
               ) : (

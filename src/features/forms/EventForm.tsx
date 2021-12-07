@@ -356,6 +356,9 @@ export const EventForm = withGoogleApi({
       console.log("submitted", form);
       setIsLoading(true);
 
+      const eventAddress = form.eventAddress?.filter(
+        ({ address }) => address !== ""
+      );
       const eventEmail = form.eventEmail?.filter(({ email }) => email !== "");
       const eventPhone = form.eventPhone?.filter(({ phone }) => phone !== "");
       const eventWeb = form.eventWeb?.filter(({ url }) => url !== "");
@@ -369,6 +372,10 @@ export const EventForm = withGoogleApi({
             ? ""
             : form.eventDescription?.replace(/\&nbsp;/g, " "),
         eventDescriptionHtml,
+        eventAddress:
+          Array.isArray(eventAddress) && eventAddress.length > 0
+            ? eventAddress
+            : [],
         eventEmail:
           Array.isArray(eventEmail) && eventEmail.length > 0 ? eventEmail : [],
         eventPhone:

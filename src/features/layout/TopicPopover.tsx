@@ -216,6 +216,16 @@ export const TopicPopover = ({
                             org={topic.org}
                             event={topic.event}
                             p={1}
+                            onClick={() => {
+                              setIsOpen(false);
+                              router.push(
+                                `/${
+                                  topic.org
+                                    ? topic.org.orgUrl
+                                    : topic.event?.eventUrl
+                                }/discussions/${topic.topicName}`
+                              );
+                            }}
                           />
                         </Box>
 

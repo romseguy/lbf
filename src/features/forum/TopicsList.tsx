@@ -275,7 +275,7 @@ export const TopicsList = ({
         {query.isLoading ? (
           <Spinner />
         ) : !topics.length ? (
-          <Alert status="info">
+          <Alert status="warning">
             <AlertIcon />
             <Flex flexDirection="column">
               {(selectedCategories && selectedCategories.length >= 1) ||

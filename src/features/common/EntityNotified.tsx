@@ -41,7 +41,7 @@ export const EntityNotified = ({
         <Alert status="info">
           <AlertIcon />
           <Text>
-            Aucune invitation envoyée{" "}
+            Aucun participants{" "}
             {event ? "pour cet événement" : "pour cette discussion"}.
           </Text>
         </Alert>

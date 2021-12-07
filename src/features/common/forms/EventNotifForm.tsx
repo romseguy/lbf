@@ -147,8 +147,8 @@ export const EventNotifForm = ({
                 setType("multi");
               }}
             >
-              Envoyer l'invitation à une ou plusieurs listes de diffusion des
-              organisateurs de{" "}
+              Inviter les membres d'une ou plusieurs listes de diffusion
+              appartenant aux organisateurs de{" "}
               <EntityButton event={event} p={1} onClick={null} />
             </Radio>
             <Radio
@@ -157,7 +157,7 @@ export const EventNotifForm = ({
                 setType("single");
               }}
             >
-              Envoyer l'invitation à une seule adresse e-mail
+              Inviter une seule adresse e-mail
             </Radio>
           </Stack>
         </RadioGroup>

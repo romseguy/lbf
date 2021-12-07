@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { TabList, Tabs, useColorModeValue } from "@chakra-ui/react";
-import { FaHome, FaImages, FaTools } from "react-icons/fa";
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
-import { IOrg } from "models/Org";
+import { Tabs } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { EntityPageTab } from "features/common";
+import React, { useState } from "react";
+import { FaHome, FaImages, FaTools } from "react-icons/fa";
+import { EntityPageTab, EntityPageTabList } from "features/common";
+import { IOrg } from "models/Org";
+import { normalize } from "utils/string";
 import { AppIcon } from "utils/types";
 
 const tabs: { [key: string]: { icon: AppIcon; url: string } } = {
@@ -27,7 +28,7 @@ export const OrgPageTabs = ({
   const router = useRouter();
   let defaultTabIndex = 0;
   Object.keys(tabs).reduce((index, tab) => {
-    if (tab.toLowerCase() === props.tab?.toLowerCase()) defaultTabIndex = index;
+    if (normalize(tab) === normalize(props.tab || "")) defaultTabIndex = index;
     return index + 1;
   }, 0);
   const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex || 0);
@@ -36,30 +37,17 @@ export const OrgPageTabs = ({
     <Tabs
       defaultIndex={defaultTabIndex}
       index={currentTabIndex}
-      onChange={(index) => setCurrentTabIndex(index)}
       isFitted
+      isLazy
+      isManual
+      lazyBehavior="keepMounted"
       variant="solid-rounded"
       borderWidth={1}
       borderColor="gray.200"
       borderRadius="lg"
-      isManual
-      isLazy
-      lazyBehavior="keepMounted"
+      onChange={(index) => setCurrentTabIndex(index)}
     >
-      <TabList
-        as="nav"
-        display="flex"
-        flexWrap="nowrap"
-        alignItems="center"
-        height="60px"
-        overflowX="auto"
-        mx={3}
-        css={{
-          WebkitOverflowScrolling: "touch",
-          msOverflowStyle: "-ms-autohiding-scrollbar"
-        }}
-        aria-hidden
-      >
+      <EntityPageTabList aria-hidden>
         {Object.keys(tabs).map((name, tabIndex) => {
           const { icon, url } = tabs[name];
 
@@ -78,6 +66,14 @@ export const OrgPageTabs = ({
                       shallow: true
                     }
                   );
+                else if (name === "Événements")
+                  router.push(
+                    `/${org.orgUrl}/evenements`,
+                    `/${org.orgUrl}/evenements`,
+                    {
+                      shallow: true
+                    }
+                  );
                 else
                   router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
                     shallow: true
@@ -89,7 +85,7 @@ export const OrgPageTabs = ({
             </EntityPageTab>
           );
         })}
-      </TabList>
+      </EntityPageTabList>
       {children}
     </Tabs>
   );

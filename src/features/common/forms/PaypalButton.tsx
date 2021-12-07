@@ -1,28 +1,17 @@
 import useScript, { ScriptStatus } from "@charlietango/use-script";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { renderDonationButton } from "utils/paypal";
 
 export const PaypalButton = () => {
-  const router = useRouter();
-  const [rendered, setRendered] = useState(false);
-  const [ready, status] = useScript(
+  const [_, status] = useScript(
     "https://www.paypalobjects.com/donate/sdk/donate-sdk.js"
   );
+
   useEffect(() => {
-    setRendered(false);
-  }, [router.asPath]);
+    if (status === ScriptStatus.READY) renderDonationButton();
+  }, [status]);
 
-  if (status === ScriptStatus.ERROR) {
-    if (process.env.NODE_ENV === "production")
-      console.error("Failed to load Paypal API");
-    return null;
-  }
-
-  if (ready && !rendered) {
-    renderDonationButton();
-    setRendered(true);
-  }
+  if (status === ScriptStatus.ERROR) return null;
 
   return (
     <div id="donate-button-container">

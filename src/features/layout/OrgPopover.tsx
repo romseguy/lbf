@@ -229,7 +229,15 @@ export const OrgPopover = ({
                   pl={1}
                 >
                   {myOrgsQuery.data.map((org) => (
-                    <EntityButton key={org._id} org={org} p={1} />
+                    <EntityButton
+                      key={org._id}
+                      org={org}
+                      p={1}
+                      onClick={() => {
+                        setIsOpen(false);
+                        router.push(org.orgUrl);
+                      }}
+                    />
                   ))}
                 </VStack>
               ) : (

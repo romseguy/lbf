@@ -61,6 +61,11 @@ import { EventPageTabs } from "./EventPageTabs";
 import { useEditEventMutation, useGetEventQuery } from "./eventsApi";
 import { selectEventRefetch } from "./eventSlice";
 import { EventTimeline } from "./EventTimeline";
+import { EventPageDescription } from "./EventPageDescription";
+import { EventPageOrgs } from "./EventPageOrgs";
+import { EventPageTimeline } from "./EventPageTimeline";
+import { EventPageInfo } from "./EventPageInfo";
+import { isMobile } from "react-device-detect";
 
 export type Visibility = {
   isVisible: {
@@ -113,11 +118,6 @@ export const EventPage = ({
     event.createdBy && typeof event.createdBy === "object"
       ? event.createdBy._id
       : "";
-  const hasInfo =
-    hasItems(event.eventAddress) ||
-    hasItems(event.eventEmail) ||
-    hasItems(event.eventPhone) ||
-    hasItems(event.eventWeb);
   const isCreator =
     session?.user.userId === eventCreatedByUserId ||
     session?.user.isAdmin ||
@@ -341,178 +341,49 @@ export const EventPage = ({
                   }
                 `}
               >
-                <GridItem
-                  rowSpan={3}
-                  borderTopRadius="lg"
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                >
-                  <GridHeader
-                    display="flex"
-                    alignItems="center"
-                    borderTopRadius="lg"
-                  >
-                    <Heading size="sm" py={3}>
-                      Description de l'événement
-                    </Heading>
-                    {event.eventDescription && isCreator && (
-                      <Tooltip
-                        placement="bottom"
-                        label="Modifier la description"
-                      >
-                        <IconButton
-                          aria-label="Modifier la description"
-                          icon={<EditIcon />}
-                          bg="transparent"
-                          _hover={{ color: "green" }}
-                          onClick={() => setIsEdit(true)}
-                        />
-                      </Tooltip>
-                    )}
-                  </GridHeader>
+                {isMobile ? (
+                  <>
+                    <EventPageOrgs
+                      event={event}
+                      eventCreatedByUserName={eventCreatedByUserName}
+                    />
 
-                  <GridItem>
-                    <Box className="ql-editor" p={5}>
-                      {event.eventDescription &&
-                      event.eventDescription.length > 0 ? (
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(event.eventDescription)
-                          }}
-                        />
-                      ) : isCreator ? (
-                        <Button
-                          colorScheme="teal"
-                          leftIcon={<AddIcon />}
-                          onClick={() => setIsEdit(true)}
-                        >
-                          Ajouter
-                        </Button>
-                      ) : (
-                        <Text fontStyle="italic">Aucune description.</Text>
-                      )}
-                    </Box>
-                  </GridItem>
-                </GridItem>
+                    <EventPageInfo
+                      event={event}
+                      isCreator={isCreator}
+                      setIsEdit={setIsEdit}
+                    />
 
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  borderTopRadius="lg"
-                >
-                  <Grid templateRows="auto 1fr">
-                    <GridHeader borderTopRadius="lg" alignItems="center">
-                      <Heading size="sm" py={3}>
-                        Quand ?
-                      </Heading>
-                    </GridHeader>
+                    <EventPageTimeline event={event} />
 
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                    >
-                      <Box ml={3} pt={3}>
-                        <EventTimeline event={event} />
-                      </Box>
-                    </GridItem>
-                  </Grid>
-                </GridItem>
+                    <EventPageDescription
+                      event={event}
+                      isCreator={isCreator}
+                      setIsEdit={setIsEdit}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <EventPageDescription
+                      event={event}
+                      isCreator={isCreator}
+                      setIsEdit={setIsEdit}
+                    />
 
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  borderTopRadius="lg"
-                >
-                  <Grid templateRows="auto 1fr">
-                    <GridHeader
-                      display="flex"
-                      alignItems="center"
-                      borderTopRadius="lg"
-                    >
-                      <Heading size="sm" py={3}>
-                        Coordonnées
-                      </Heading>
-                      {hasInfo && isCreator && (
-                        <Tooltip
-                          placement="bottom"
-                          label="Modifier les coordonnées"
-                        >
-                          <IconButton
-                            aria-label="Modifier les coordonnées"
-                            icon={<EditIcon />}
-                            bg="transparent"
-                            _hover={{ color: "green" }}
-                            onClick={() => setIsEdit(true)}
-                          />
-                        </Tooltip>
-                      )}
-                    </GridHeader>
+                    <EventPageOrgs
+                      event={event}
+                      eventCreatedByUserName={eventCreatedByUserName}
+                    />
 
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                    >
-                      <Box p={5}>
-                        {hasInfo ? (
-                          <EntityInfo entity={event} />
-                        ) : isCreator ? (
-                          <Button
-                            colorScheme="teal"
-                            leftIcon={<AddIcon />}
-                            onClick={() => setIsEdit(true)}
-                          >
-                            Ajouter
-                          </Button>
-                        ) : (
-                          <Text fontStyle="italic">Aucunes coordonnées.</Text>
-                        )}
-                      </Box>
-                    </GridItem>
-                  </Grid>
-                </GridItem>
+                    <EventPageTimeline event={event} />
 
-                <GridItem
-                  light={{ bg: "orange.100" }}
-                  dark={{ bg: "gray.500" }}
-                  borderTopRadius="lg"
-                >
-                  <Grid templateRows="auto 1fr">
-                    <GridHeader borderTopRadius="lg" alignItems="center">
-                      <Heading size="sm" py={3}>
-                        Organisateurs
-                      </Heading>
-                    </GridHeader>
-
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                    >
-                      <Box p={5}>
-                        {hasItems(event.eventOrgs) ? (
-                          <VStack alignItems="flex-start" spacing={2}>
-                            {event.eventOrgs.map((eventOrg) => (
-                              <EntityButton
-                                key={eventOrg._id}
-                                org={eventOrg}
-                                p={1}
-                              />
-                            ))}
-                          </VStack>
-                        ) : (
-                          <Flex alignItems="center">
-                            <Icon as={AtSignIcon} mr={2} />
-                            <Link
-                              variant="underline"
-                              href={`/${eventCreatedByUserName}`}
-                            >
-                              {eventCreatedByUserName}
-                            </Link>
-                          </Flex>
-                        )}
-                      </Box>
-                    </GridItem>
-                  </Grid>
-                </GridItem>
+                    <EventPageInfo
+                      event={event}
+                      isCreator={isCreator}
+                      setIsEdit={setIsEdit}
+                    />
+                  </>
+                )}
               </Grid>
             </TabPanel>
 

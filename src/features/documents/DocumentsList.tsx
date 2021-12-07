@@ -31,6 +31,7 @@ import api from "utils/api";
 import { handleError } from "utils/form";
 import * as stringUtils from "utils/string";
 import { useGetDocumentsQuery } from "./documentsApi";
+import { hasItems } from "utils/array";
 
 export const DocumentsList = ({
   org,
@@ -205,84 +206,91 @@ export const DocumentsList = ({
         Array.isArray(query.data) && (
           <Table>
             <Tbody>
-              {query.data.map((fileName) => {
-                const isImage = stringUtils.isImage(fileName);
-                const isPdf = fileName.includes(".pdf");
-                return (
-                  <Tr>
-                    <Td>
-                      <a
-                        href={`${process.env.NEXT_PUBLIC_API2}/${
-                          isImage || isPdf ? "view" : "download"
-                        }?${
-                          org
-                            ? `orgId=${org._id}`
-                            : user
-                            ? `userId=${user._id}`
-                            : ""
-                        }&fileName=${fileName}`}
-                        target="_blank"
-                      >
-                        <Box display="flex" alignItems="center">
-                          <Icon as={isImage ? FaImage : FaFile} mr={3} />
-                          {fileName}
-                        </Box>
-                      </a>
-                    </Td>
-                    <Td textAlign="right">
-                      <DeleteButton
-                        isIconOnly
-                        placement="bottom"
-                        header={
-                          <>
-                            Êtes vous sûr de vouloir supprimer le fichier{" "}
-                            <Text
-                              display="inline"
-                              color="red"
-                              fontWeight="bold"
-                            >
-                              {fileName}
-                            </Text>{" "}
-                            ?
-                          </>
-                        }
-                        onClick={async () => {
-                          let payload: {
-                            fileName: string;
-                            orgId?: string;
-                            userId?: string;
-                          } = {
-                            fileName
-                          };
-
-                          if (org) payload.orgId = org._id;
-                          else if (user) payload.userId = user._id;
-
-                          try {
-                            await api.remove(
-                              process.env.NEXT_PUBLIC_API2,
-                              payload
-                            );
-                            toast({
-                              title: `Le document ${fileName} a bien été supprimé !`,
-                              status: "success",
-                              isClosable: true
-                            });
-                            query.refetch();
-                          } catch (error) {
-                            console.error(error);
-                            toast({
-                              title: `Le document ${fileName} n'a pas pu être supprimé.`,
-                              status: "error",
-                              isClosable: true
-                            });
+              {hasItems(query.data) ? (
+                query.data.map((fileName) => {
+                  const isImage = stringUtils.isImage(fileName);
+                  const isPdf = fileName.includes(".pdf");
+                  return (
+                    <Tr>
+                      <Td>
+                        <a
+                          href={`${process.env.NEXT_PUBLIC_API2}/${
+                            isImage || isPdf ? "view" : "download"
+                          }?${
+                            org
+                              ? `orgId=${org._id}`
+                              : user
+                              ? `userId=${user._id}`
+                              : ""
+                          }&fileName=${fileName}`}
+                          target="_blank"
+                        >
+                          <Box display="flex" alignItems="center">
+                            <Icon as={isImage ? FaImage : FaFile} mr={3} />
+                            {fileName}
+                          </Box>
+                        </a>
+                      </Td>
+                      <Td textAlign="right">
+                        <DeleteButton
+                          isIconOnly
+                          placement="bottom"
+                          header={
+                            <>
+                              Êtes vous sûr de vouloir supprimer le fichier{" "}
+                              <Text
+                                display="inline"
+                                color="red"
+                                fontWeight="bold"
+                              >
+                                {fileName}
+                              </Text>{" "}
+                              ?
+                            </>
                           }
-                        }}
-                      />
-                    </Td>
-                  </Tr>
-                );
-              })}
+                          onClick={async () => {
+                            let payload: {
+                              fileName: string;
+                              orgId?: string;
+                              userId?: string;
+                            } = {
+                              fileName
+                            };
+
+                            if (org) payload.orgId = org._id;
+                            else if (user) payload.userId = user._id;
+
+                            try {
+                              await api.remove(
+                                process.env.NEXT_PUBLIC_API2,
+                                payload
+                              );
+                              toast({
+                                title: `Le document ${fileName} a bien été supprimé !`,
+                                status: "success",
+                                isClosable: true
+                              });
+                              query.refetch();
+                            } catch (error) {
+                              console.error(error);
+                              toast({
+                                title: `Le document ${fileName} n'a pas pu être supprimé.`,
+                                status: "error",
+                                isClosable: true
+                              });
+                            }
+                          }}
+                        />
+                      </Td>
+                    </Tr>
+                  );
+                })
+              ) : (
+                <Alert status="warning">
+                  <AlertIcon />
+                  Aucun document.
+                </Alert>
+              )}
             </Tbody>
           </Table>
         )

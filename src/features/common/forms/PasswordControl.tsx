@@ -15,16 +15,16 @@ import { FaKey } from "react-icons/fa";
 
 export const PasswordControl = ({
   errors,
-  name,
   register,
   isRequired = true,
   ...props
 }: FormControlProps & {
   errors: any;
-  name: string;
+  name?: string;
   register: any;
   isRequired?: boolean;
 }) => {
+  const name = props.name || "password";
   const [passwordFieldType, setPasswordFieldType] = useState("password");
 
   return (
@@ -33,7 +33,7 @@ export const PasswordControl = ({
       <InputGroup>
         <InputLeftElement pointerEvents="none" children={<FaKey />} />
         <Input
-          name="password"
+          name={name}
           ref={register(
             isRequired
               ? {

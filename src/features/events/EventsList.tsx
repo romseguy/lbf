@@ -544,7 +544,7 @@ export const EventsList = ({
           {!showLocationButton ? (
             <Button
               colorScheme="purple"
-              color="white"
+              color={isDark ? "black" : "white"}
               leftIcon={<FaMapMarkerAlt />}
               mr={3}
               size="sm"
@@ -557,7 +557,7 @@ export const EventsList = ({
           ) : (
             <LocationButton
               colorScheme="purple"
-              color="white"
+              color={isDark ? "black" : "white"}
               mr={3}
               size="sm"
               city={city}
@@ -611,10 +611,10 @@ export const EventsList = ({
                       bg={
                         isDark
                           ? index % 2 === 0
-                            ? "gray.400"
+                            ? "gray.600"
                             : "gray.500"
                           : index % 2 === 0
-                          ? "orange.50"
+                          ? "orange.200"
                           : "orange.100"
                       }
                     >
@@ -674,10 +674,10 @@ export const EventsList = ({
                             bg={
                               isDark
                                 ? index % 2 === 0
-                                  ? "gray.400"
+                                  ? "gray.600"
                                   : "gray.500"
                                 : index % 2 === 0
-                                ? "orange.50"
+                                ? "orange.200"
                                 : "orange.100"
                             }
                           >
@@ -694,7 +694,7 @@ export const EventsList = ({
                 </Table>
               </>
             ) : (
-              <Alert status="info">
+              <Alert status="warning">
                 <AlertIcon />
                 Aucun événement{" "}
                 {Array.isArray(selectedCategories) &&
@@ -767,10 +767,10 @@ export const EventsList = ({
                       bg={
                         isDark
                           ? index % 2 === 0
-                            ? "gray.400"
+                            ? "gray.600"
                             : "gray.500"
                           : index % 2 === 0
-                          ? "orange.50"
+                          ? "orange.200"
                           : "orange.100"
                       }
                     >
