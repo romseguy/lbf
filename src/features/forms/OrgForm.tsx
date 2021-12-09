@@ -92,7 +92,7 @@ export const OrgForm = withGoogleApi({
       _hover: {
         borderColor: isDark ? "#5F6774" : "#CBD5E0"
       },
-      borderColor: isDark ? "#4F5765" : "gray.200",
+      borderColor: isDark ? "#677080" : "gray.200",
       borderWidth: "1px",
       borderRadius: "lg",
       mt: 3,
@@ -167,6 +167,7 @@ export const OrgForm = withGoogleApi({
 
       let payload = {
         ...form,
+        orgType: form.orgType || OrgTypes.GENERIC,
         orgUrl: normalize(form.orgName),
         orgDescription:
           form.orgDescription === "<p><br></p>"
@@ -247,7 +248,6 @@ export const OrgForm = withGoogleApi({
     return (
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
         <FormControl
-          id="orgName"
           isRequired
           isInvalid={!!errors["orgName"]}
           display="flex"
@@ -280,26 +280,19 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        <FormControl
-          id="orgType"
-          isRequired
-          isInvalid={!!errors["orgType"]}
-          mb={3}
-        >
+        <FormControl id="orgType" isInvalid={!!errors["orgType"]} mb={3}>
           <FormLabel>Type de l'organisation</FormLabel>
           <Select
             name="orgType"
-            ref={register({
-              required: `Veuillez sélectionner le type de l'organisation`
-            })}
+            ref={register()}
             defaultValue={props.org?.orgType || props.orgType}
             placeholder={`Type de l'organisation`}
-            color="gray.400"
+            color={isDark ? "whiteAlpha.400" : "gray.400"}
           >
-            {Object.keys(OrgTypes).map((orgType) => {
+            {Object.keys(OrgTypes).map((OrgType) => {
               return (
-                <option key={orgType} value={orgType}>
-                  {OrgTypesV[orgType]}
+                <option key={OrgType} value={OrgType}>
+                  {OrgTypesV[OrgType]}
                 </option>
               );
             })}
@@ -326,9 +319,7 @@ export const OrgForm = withGoogleApi({
             isSearchable
             menuPlacement="top"
             noOptionsMessage={() => "Aucun résultat"}
-            options={myOrgs?.filter(
-              ({ orgLat, orgLng }) => !!orgLat && !!orgLng
-            )}
+            options={myOrgs}
             getOptionLabel={(option: any) => option.orgName}
             getOptionValue={(option: any) => option._id}
             placeholder={
@@ -354,11 +345,7 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        <FormControl
-          id="orgDescription"
-          isInvalid={!!errors["orgDescription"]}
-          mb={3}
-        >
+        <FormControl isInvalid={!!errors["orgDescription"]} mb={3}>
           <FormLabel>Description</FormLabel>
           <Controller
             name="orgDescription"
@@ -379,7 +366,6 @@ export const OrgForm = withGoogleApi({
               );
             }}
           />
-
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="orgDescription" />
           </FormErrorMessage>
@@ -396,14 +382,14 @@ export const OrgForm = withGoogleApi({
           <FormLabel>Visibilité</FormLabel>
           <Select
             name="orgVisibility"
-            defaultValue={
-              props.org?.orgVisibility || Visibility[Visibility.PUBLIC]
-            }
             ref={register({
               required: "Veuillez sélectionner la visibilité de l'organisation"
             })}
+            defaultValue={
+              props.org?.orgVisibility || Visibility[Visibility.PUBLIC]
+            }
             placeholder="Visibilité de l'organisation"
-            color="gray.400"
+            color={isDark ? "whiteAlpha.400" : "gray.400"}
           >
             {[Visibility.PUBLIC, Visibility.PRIVATE].map((key) => {
               return (

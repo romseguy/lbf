@@ -16,15 +16,15 @@ import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
 import { useAppDispatch, wrapper } from "store";
 import ForumPage from "./forum";
+import { PageProps } from "./_app";
 
 let populate = "";
 
 const Hash = ({
   email,
   ...props
-}: {
+}: PageProps & {
   email?: string;
-  session: Session | null;
 }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -195,7 +195,7 @@ const Hash = ({
   if (user) return <UserPage user={user} {...props} />;
 
   return (
-    <Layout>
+    <Layout {...props}>
       <Spinner />
     </Layout>
   );

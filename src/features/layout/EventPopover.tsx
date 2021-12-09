@@ -91,7 +91,6 @@ export const EventPopover = ({
     isOpen: boolean;
     event?: IEvent;
   }>({ isOpen: false, event: undefined });
-  const iconHoverColor = useColorModeValue("white", "lightgreen");
   //#endregion
 
   const refetchEvents = useSelector(selectEventsRefetch);
@@ -139,7 +138,7 @@ export const EventPopover = ({
               <Icon
                 as={CalendarIcon}
                 boxSize={boxSize}
-                _hover={{ color: iconHoverColor }}
+                _hover={{ color: "green" }}
               />
             }
             minWidth={0}

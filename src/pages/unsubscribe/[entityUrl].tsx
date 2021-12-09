@@ -8,6 +8,7 @@ import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { wrapper } from "store";
 import api, { ResponseType } from "utils/api";
+import { PageProps } from "pages/_app";
 
 type UnsubscribePageProps = {
   unsubscribed: boolean;
@@ -18,9 +19,8 @@ type UnsubscribePageProps = {
   session?: Session | null;
 };
 
-const UnsubscribePage = (props: UnsubscribePageProps) => {
-  const { unsubscribed, event, org, topic, subscription, session, ...rest } =
-    props;
+const UnsubscribePage = (props: PageProps & UnsubscribePageProps) => {
+  const { unsubscribed, event, org, topic, subscription, ...rest } = props;
 
   const who = subscription
     ? typeof subscription.user === "object"
@@ -29,7 +29,7 @@ const UnsubscribePage = (props: UnsubscribePageProps) => {
     : "Vous êtes";
 
   return (
-    <Layout session={session}>
+    <Layout {...rest}>
       <Alert status={unsubscribed ? "success" : "error"}>
         <AlertIcon />
 

@@ -1,5 +1,6 @@
 import "quill/dist/quill.snow.css";
 import { useColorMode } from "@chakra-ui/react";
+import { theme } from "@chakra-ui/theme";
 import { styled } from "twin.macro";
 
 const tabSize = 10;
@@ -7,26 +8,8 @@ const tabSize = 10;
 export const RTEditorStyles = styled("span")(
   (props: { height?: string; width?: string }) => {
     const { colorMode } = useColorMode();
+    const isDark = colorMode === "dark";
     const bothColorModes = `
-      .ql-editor {
-        padding: 12px;
-        tab-size: ${tabSize};
-        -moz-tab-size: ${tabSize};
-        -o-tab-size:  ${tabSize};
-        max-height: 250px;
-        overflow: auto;
-      }
-
-      &:hover {
-        .ql-toolbar {
-          border: 1px solid #cbd5e0;
-        }
-
-        .ql-container {
-          border: 1px solid #cbd5e0;
-        }
-      }
-
       .ql-toolbar {
         border: 1px solid #e2e8f0;
         padding: 0;
@@ -71,12 +54,6 @@ export const RTEditorStyles = styled("span")(
         }
       }
 
-      .ql-container.ql-disabled {
-        * {
-          cursor: not-allowed;
-        }
-      }
-
       .ql-container {
         width: ${props.width ? props.width : ""};
         height: ${props.height ? props.height : ""};
@@ -84,12 +61,39 @@ export const RTEditorStyles = styled("span")(
         border-bottom-left-radius: 6px;
         border-bottom-right-radius: 6px;
 
-        & > .ql-editor.ql-blank::before {
+        .ql-editor {
+          padding: 12px;
+          tab-size: ${tabSize};
+          -moz-tab-size: ${tabSize};
+          -o-tab-size:  ${tabSize};
+          max-height: 250px;
+          overflow: auto;
+        }
+
+        .ql-editor.ql-blank::before {
           font-size: 16px;
-          color: ${colorMode === "dark" ? "#7b8593" : "#bfc7ce"};
+          color: ${
+            isDark ? theme.colors.whiteAlpha["400"] : theme.colors.gray["400"]
+          };
           font-style: normal;
           overflow: hidden;
           white-space: nowrap;
+        }
+      }
+
+      .ql-container.ql-disabled {
+        * {
+          cursor: not-allowed;
+        }
+      }
+
+      &:hover {
+        .ql-toolbar {
+          border: 1px solid #cbd5e0;
+        }
+
+        .ql-container {
+          border: 1px solid #cbd5e0;
         }
       }
 
@@ -126,7 +130,6 @@ export const RTEditorStyles = styled("span")(
           transform: rotate(360deg);
         }
       }
-
     `;
 
     return `
@@ -145,7 +148,7 @@ export const RTEditorStyles = styled("span")(
       }
 
       .ql-toolbar {
-        border: 1px solid #4F5765;
+        border: 1px solid #677080;
 
         .ql-stroke {
           stroke: white;
@@ -167,7 +170,7 @@ export const RTEditorStyles = styled("span")(
       }
 
       .ql-container {
-        border: 1px solid #4F5765;
+        border: 1px solid #677080;
       }
       `
     }

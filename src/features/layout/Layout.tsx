@@ -4,6 +4,7 @@ import {
   useColorMode,
   Box,
   Icon,
+  Image,
   Tooltip
 } from "@chakra-ui/react";
 import Head from "next/head";
@@ -11,16 +12,16 @@ import { Session } from "next-auth";
 import NextNprogress from "nextjs-progressbar";
 import React, { useEffect, useState } from "react";
 import { Offline } from "react-detect-offline";
-import { FaGithub, FaTwitter } from "react-icons/fa";
 import { css } from "twin.macro";
 import { DarkModeSwitch } from "features/common";
 import { PaypalButton } from "features/common/forms/PaypalButton";
 import { Header, Main, Nav, Footer } from "features/layout";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
+import { PageProps } from "pages/_app";
 import { breakpoints } from "theme/theme";
-import type { Base64Image } from "utils/image";
-import { isMobile } from "react-device-detect";
+import { Base64Image } from "utils/image";
+import { EmailIcon } from "@chakra-ui/icons";
 
 const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
 
@@ -29,6 +30,7 @@ export interface LayoutProps {
   banner?: Base64Image & { mode: "dark" | "light" };
   children: React.ReactNode | React.ReactNodeArray;
   isLogin?: number;
+  isMobile: boolean;
   pageHeader?: React.ReactNode | React.ReactNodeArray;
   org?: IOrg;
   event?: IEvent;
@@ -45,11 +47,11 @@ export const Layout = ({
   pageHeader,
   pageTitle,
   pageSubTitle,
-  session,
   org,
   event,
   ...props
-}: BoxProps & LayoutProps) => {
+}: BoxProps & LayoutProps & PageProps) => {
+  const { isMobile } = props;
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
@@ -118,7 +120,7 @@ export const Layout = ({
           showOnShallow={true}
         />
 
-        <Box position="fixed" right={3} bottom={2}>
+        <Box position="fixed" right={4} bottom={2}>
           <Tooltip
             placement="top-start"
             label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
@@ -130,31 +132,29 @@ export const Layout = ({
           </Tooltip>
         </Box>
 
-        <Box position="fixed" left={3} bottom={3}>
-          <Flex alignItems="center">
-            <Tooltip
-              hasArrow
-              label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
-              placement="top-end"
-            >
-              <Box>
-                <PaypalButton />
-              </Box>
-            </Tooltip>
+        {!isMobile && (
+          <Box position="fixed" left={4} bottom={2}>
+            <Flex alignItems="center">
+              <Tooltip
+                hasArrow
+                label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
+                placement="top-end"
+              >
+                <Box mt={1}>
+                  <PaypalButton />
+                </Box>
+              </Tooltip>
 
-            <Tooltip
-              hasArrow
-              label="Contacter le développeur  ͡❛ ͜ʖ ͡❛"
-              placement="top-end"
-            >
-              <Box>
+              <Box ml={2}>
                 <a href="https://twitter.com/romseguy" target="_blank">
-                  <Icon as={FaTwitter} boxSize={6} color="cyan.600" ml={3} />
+                  <Tooltip hasArrow label="Contacter le développeur  ͡❛ ͜ʖ ͡❛">
+                    <Image src="/favicon-32x32.png" />
+                  </Tooltip>
                 </a>
               </Box>
-            </Tooltip>
-          </Flex>
-        </Box>
+            </Flex>
+          </Box>
+        )}
 
         {process.env.NODE_ENV === "production" && (
           <Offline
@@ -217,30 +217,21 @@ export const Layout = ({
           pageSubTitle={pageSubTitle}
         />
 
-        <Nav
-          minH="96px"
-          isLogin={isLogin}
-          session={session}
-          // css={css`
-          //   @media (min-width: 700px) {
-          //     ${hasVerticalScrollbar && "padding: 28px 0;"}
-          //   }
-          // `}
-        />
+        <Nav isLogin={isLogin} {...props} />
 
         <Main {...props}>{children}</Main>
 
-        {/* <Footer display="flex" alignItems="center" pl={5} pr={5} pb={3}>
-          {isMobile && (true || process.env.NODE_ENV === "production") && (
-            <Flex alignItems="center" flexGrow={1}>
+        <Footer display="flex" alignItems="center" pl={5} pr={5} pb={3}>
+          {isMobile && (
+            <Flex alignItems="center">
               <Tooltip
+                hasArrow
                 label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
                 placement="top-end"
-                hasArrow
               >
-                <div>
+                <Box>
                   <PaypalButton />
-                </div>
+                </Box>
               </Tooltip>
 
               <Tooltip
@@ -248,29 +239,15 @@ export const Layout = ({
                 label="Contacter le développeur  ͡❛ ͜ʖ ͡❛"
                 placement="top-end"
               >
-                <Box>
+                <Box ml={3}>
                   <a href="https://twitter.com/romseguy" target="_blank">
-                    <Icon as={FaTwitter} boxSize={6} color="cyan.600" ml={3} />
+                    <EmailIcon boxSize={6} />
                   </a>
                 </Box>
               </Tooltip>
             </Flex>
           )}
-
-          {isMobile && (
-            <Flex alignItems="center">
-              <Tooltip
-                placement="top-start"
-                label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
-                hasArrow
-              >
-                <Box mt={3}>
-                  <DarkModeSwitch />
-                </Box>
-              </Tooltip>
-            </Flex>
-          )}
-        </Footer> */}
+        </Footer>
       </Flex>
     </>
   );

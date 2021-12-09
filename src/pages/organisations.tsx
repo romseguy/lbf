@@ -1,5 +1,5 @@
-import { Button, Tooltip, useDisclosure } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import { Button, Tooltip, useColorMode, useDisclosure } from "@chakra-ui/react";
+import { useEffect } from "react";
 import { Detector } from "react-detect-offline";
 import { FaRegMap } from "react-icons/fa";
 import { useSelector } from "react-redux";
@@ -7,15 +7,19 @@ import { PageContainer } from "features/common";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgsList } from "features/orgs/OrgsList";
+import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgTypes } from "models/Org";
+import { PageProps } from "./_app";
 
-const NetworksPage = (props: any) => {
+const OrganisationsPage = (props: PageProps) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
   const orgsQuery = useGetOrgsQuery(void 0, {
     selectFromResult: (query) => ({
       ...query,
-      data: query.data?.filter((org) => org.orgType === OrgTypes.NETWORK)
+      data: query.data?.filter((org) => org.orgType !== OrgTypes.NETWORK)
     })
   });
 
@@ -31,7 +35,7 @@ const NetworksPage = (props: any) => {
   } = useDisclosure({ defaultIsOpen: false });
 
   return (
-    <Layout pageTitle="Réseaux" {...props}>
+    <Layout pageTitle="Organisations" {...props}>
       <PageContainer>
         <Detector
           polling={{
@@ -46,7 +50,7 @@ const NetworksPage = (props: any) => {
                 !orgsQuery.data || !orgsQuery.data.length
                   ? "Aucune organisations"
                   : !online
-                  ? "Vous devez être connecté à internet pour afficher la carte des réseaux"
+                  ? "Vous devez être connecté à internet pour afficher la carte des organisations"
                   : ""
               }
               placement="right"
@@ -62,7 +66,7 @@ const NetworksPage = (props: any) => {
                   onClick={openMapModal}
                   mb={3}
                 >
-                  Carte des réseaux
+                  Carte des organisations
                 </Button>
               </span>
             </Tooltip>
@@ -74,7 +78,6 @@ const NetworksPage = (props: any) => {
         {isMapModalOpen && (
           <MapModal
             isOpen={isMapModalOpen}
-            header="Carte des réseaux"
             orgs={
               orgsQuery.data?.filter(
                 (org) =>
@@ -91,4 +94,4 @@ const NetworksPage = (props: any) => {
   );
 };
 
-export default NetworksPage;
+export default OrganisationsPage;

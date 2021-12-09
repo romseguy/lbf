@@ -10,10 +10,11 @@ import {
   Thead,
   Tr
 } from "@chakra-ui/react";
-import DOMPurify from "dompurify";
+import React, { useMemo, useState } from "react";
+import { css } from "twin.macro";
 import { Link } from "features/common";
 import { IOrg, OrgTypesV } from "models/Org";
-import React, { useMemo, useState } from "react";
+import { breakpoints, scrollbarStyles, tableStyles } from "theme/theme";
 
 export const OrgsList = ({
   orgsQuery
@@ -40,9 +41,9 @@ export const OrgsList = ({
             const key = selectedOrder?.key || "orgName";
             const order = selectedOrder?.order || "asc";
             //@ts-expect-error
-            const valueA = a[key] || "";
+            const valueA = a[key]?.toLowerCase() || "";
             //@ts-expect-error
-            const valueB = b[key] || "";
+            const valueB = b[key]?.toLowerCase() || "";
 
             if (order === "asc") {
               if (valueA < valueB) return -1;
@@ -63,8 +64,13 @@ export const OrgsList = ({
   };
 
   return (
-    <Box overflowX="auto">
-      <Table>
+    <Box
+      overflowX="auto"
+      css={css`
+        ${scrollbarStyles}
+      `}
+    >
+      <Table css={css(tableStyles)}>
         <Thead>
           <Tr>
             {[

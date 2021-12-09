@@ -1,44 +1,27 @@
-import {
-  AddIcon,
-  ArrowBackIcon,
-  AtSignIcon,
-  EditIcon,
-  EmailIcon,
-  SettingsIcon
-} from "@chakra-ui/icons";
+import { ArrowBackIcon, EmailIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
   Box,
   Button,
   Flex,
-  Heading,
   Grid,
-  Icon,
-  IconButton,
   Text,
   TabPanel,
   TabPanels,
-  Tooltip,
-  VStack,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
-import DOMPurify from "isomorphic-dompurify";
-import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import {
   EntityButton,
-  EntityInfo,
   EntityNotified,
   EventNotifForm,
-  GridHeader,
-  GridItem,
   Link
 } from "features/common";
 import { TopicsList } from "features/forum/TopicsList";
@@ -54,18 +37,16 @@ import {
   IOrgSubscription,
   SubscriptionTypes
 } from "models/Subscription";
-import { hasItems } from "utils/array";
-import { EventAttendingForm } from "./EventAttendingForm";
-import { EventConfigPanel } from "./EventConfigPanel";
-import { EventPageTabs } from "./EventPageTabs";
+import { PageProps } from "pages/_app";
 import { useEditEventMutation, useGetEventQuery } from "./eventsApi";
 import { selectEventRefetch } from "./eventSlice";
-import { EventTimeline } from "./EventTimeline";
+import { EventAttendingForm } from "./EventAttendingForm";
+import { EventConfigPanel } from "./EventConfigPanel";
 import { EventPageDescription } from "./EventPageDescription";
 import { EventPageOrgs } from "./EventPageOrgs";
-import { EventPageTimeline } from "./EventPageTimeline";
 import { EventPageInfo } from "./EventPageInfo";
-import { isMobile } from "react-device-detect";
+import { EventPageTabs } from "./EventPageTabs";
+import { EventPageTimeline } from "./EventPageTimeline";
 
 export type Visibility = {
   isVisible: {
@@ -80,16 +61,16 @@ let cachedRefetchEvent = false;
 let cachedRefetchSubscription = false;
 
 export const EventPage = ({
+  isMobile,
   populate,
   tab,
   tabItem,
   ...props
-}: {
+}: PageProps & {
   populate?: string;
   tab?: string;
   tabItem?: string;
   event: IEvent;
-  session: Session | null;
 }) => {
   const router = useRouter();
   const [asPath, setAsPath] = useState(router.asPath);
@@ -210,7 +191,12 @@ export const EventPage = ({
   }, [storedUserEmail, session]);
 
   return (
-    <Layout event={event} isLogin={isLogin} session={props.session}>
+    <Layout
+      event={event}
+      isLogin={isLogin}
+      isMobile={isMobile}
+      session={props.session}
+    >
       {isCreator && !isConfig && !isEdit && (
         <Button
           colorScheme="teal"
@@ -325,7 +311,13 @@ export const EventPage = ({
 
       {!isConfig && !isEdit && (
         <EventPageTabs event={event} isCreator={isCreator} tab={tab}>
-          <TabPanels>
+          <TabPanels
+            css={css`
+              & > * {
+                padding: 12px 0 !important;
+              }
+            `}
+          >
             <TabPanel aria-hidden>
               <Grid
                 // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"

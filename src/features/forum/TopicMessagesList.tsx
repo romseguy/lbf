@@ -54,7 +54,7 @@ export const TopicMessagesList = ({
   return (
     <Flex flexDirection="column" {...props}>
       <Box>
-        {topic.topicMessages.map(
+        {topic.topicMessages?.map(
           ({ _id, message, createdBy, createdAt }, index) => {
             let userName = "";
             let userImage;

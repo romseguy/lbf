@@ -31,6 +31,9 @@ export const OrgSchema = new Schema<IOrg>(
         prefix: { type: String, trim: true }
       }
     ],
+    orgEventCategories: [
+      { label: { type: String, required: true, trim: true }, bgColor: String }
+    ],
     orgDescription: {
       type: String,
       trim: true

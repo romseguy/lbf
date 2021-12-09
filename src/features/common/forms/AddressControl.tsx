@@ -3,6 +3,7 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  InputProps,
   Spinner,
   SpaceProps,
   Box,
@@ -51,6 +52,7 @@ export const AddressControl = withGoogleApi({
     setValue: (name: string, value: AddressControlValue) => void;
     value?: string;
     placeholder?: string;
+    inputProps?: InputProps;
     isRequired?: boolean;
     noLabel?: boolean;
     isMultiple?: boolean;
@@ -118,6 +120,7 @@ export const AddressControl = withGoogleApi({
           </FormControl>
         );
       } else {
+        // standalone LocationButton
         return (
           <AutoCompletePlacesControl
             value={value}

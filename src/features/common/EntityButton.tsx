@@ -25,7 +25,7 @@ export const EntityButton = ({
 }: ThemingProps<"Button"> &
   StyleProps & {
     event?: Partial<IEvent<any>>;
-    org?: Partial<IOrg>;
+    org?: IOrg;
     topic?: Partial<ITopic>;
     user?: Partial<IUser>;
     onClick?: (() => void) | null;

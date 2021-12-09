@@ -9,7 +9,7 @@ const ReactSelectStyles = (props: Dict) => ({
   ".react-select-container": {
     ".react-select__control": {
       backgroundColor: mode("white", "gray.700")(props),
-      borderColor: mode("gray.200", "#4F5765")(props),
+      borderColor: mode("gray.200", "#677080")(props),
       paddingLeft: 0,
 
       "&:hover": {

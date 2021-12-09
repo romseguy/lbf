@@ -461,7 +461,7 @@ export const EventForm = withGoogleApi({
       _hover: {
         borderColor: isDark ? "#5F6774" : "#CBD5E0"
       },
-      borderColor: isDark ? "#4F5765" : "gray.200",
+      borderColor: isDark ? "#677080" : "gray.200",
       borderWidth: "1px",
       borderRadius: "lg",
       mt: 3,

@@ -164,7 +164,7 @@ export const OrgPopover = ({
                   orgType === OrgTypes.NETWORK ? IoIosGitNetwork : IoIosPeople
                 }
                 boxSize={boxSize}
-                _hover={{ color: isDark ? "lightgreen" : "white" }}
+                _hover={{ color: "green" }}
               />
             }
             minWidth={0}
@@ -306,6 +306,7 @@ export const OrgPopover = ({
           onCancel={() => setIsOrgFormModalOpen(false)}
           onClose={() => setIsOrgFormModalOpen(false)}
           onSubmit={async (orgUrl) => {
+            setIsOrgFormModalOpen(false);
             await router.push(`/${orgUrl}`, `/${orgUrl}`, {
               shallow: true
             });

@@ -1,11 +1,140 @@
-import { Session } from "next-auth";
 import React, { useState } from "react";
 import { Layout } from "features/layout";
+import { PageProps } from "./_app";
+import {
+  Box,
+  Flex,
+  Heading,
+  Icon,
+  List,
+  ListItem,
+  Tag,
+  Text,
+  Tooltip,
+  useColorMode
+} from "@chakra-ui/react";
+import { FaGift, FaRegLightbulb } from "react-icons/fa";
+import { IconFooter, Link, LinkShare, PageContainer } from "features/common";
+import { ChatIcon } from "@chakra-ui/icons";
 
-const IndexPage = (props: { session?: Session }) => {
+const IndexPage = (props: PageProps) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+  const [className, setClassName] = useState<string | undefined>();
+  const listStyles = {
+    listStyleType: "square",
+    mb: 3,
+    ml: 5,
+    spacing: 2,
+    fontSize: "xl"
+  };
+  const url = `${process.env.NEXT_PUBLIC_URL}/nom de votre association`;
+
   return (
     <Layout pageTitle="Accueil" {...props}>
-      Créez
+      <PageContainer pt={2} mb={5}>
+        <Heading className="rainbow-text" fontFamily="DancingScript" mb={3}>
+          Équipez votre organisation
+        </Heading>
+
+        <List {...listStyles}>
+          <ListItem>
+            Avec un début de site internet et une adresse facile à retenir, par
+            exemple :{" "}
+            <Tag colorScheme="blue" mt={1} mr={1}>
+              <Link href={url} mr={1}>
+                {url}
+              </Link>
+              <LinkShare
+                _hover={{ bg: "transparent", color: "white" }}
+                bg="transparent"
+                height="auto"
+                label="Copier l'adresse du lien"
+                minWidth={0}
+                url={url}
+                tooltipProps={{
+                  placement: "right"
+                }}
+              />
+            </Tag>
+          </ListItem>
+
+          <ListItem>
+            Avec un outil plus adapté, ergonomique et éthique que les{" "}
+            <Tooltip label="synonymes : mailing lists, newsletters">
+              <Text
+                display="inline"
+                borderBottom={`1px dotted ${isDark ? "white" : "black"}`}
+                cursor="pointer"
+              >
+                listes de diffusion
+              </Text>
+            </Tooltip>{" "}
+            traditionnelles ;
+          </ListItem>
+
+          <ListItem>Avec un outil de partage multimédia ;</ListItem>
+        </List>
+
+        <Flex alignItems="center">
+          <ChatIcon color={isDark ? "yellow" : "green"} mr={2} />
+          <Link
+            className={className}
+            variant="underline"
+            href="/forum"
+            onMouseEnter={() => setClassName("rainbow-text")}
+            onMouseLeave={() => setClassName(undefined)}
+          >
+            Proposer des idées sur le forum
+          </Link>
+        </Flex>
+      </PageContainer>
+
+      <PageContainer pt={2}>
+        <Heading className="rainbow-text" fontFamily="DancingScript" mb={3}>
+          Envoyez des invitations
+        </Heading>
+
+        <Box fontSize="xl">
+          Invitez les personnes qui se sont abonnées ou qui ont adhéré à votre
+          organisation, à vos événements, projets, et discussions.
+          <Flex
+            alignItems="center"
+            borderColor={isDark ? "white" : "black"}
+            borderRadius="lg"
+            borderStyle="solid"
+            borderWidth={1}
+            fontSize="lg"
+            mt={1}
+            p={1}
+          >
+            <Icon
+              as={FaRegLightbulb}
+              color={isDark ? "yellow" : "green"}
+              mr={1}
+            />
+            Saisissez la liste des adresses e-mail de vos adhérents, et envoyez
+            les invitations, ou alors, créez une ou plusieurs listes de
+            diffusion pour inviter seulement les personnes concernées.
+          </Flex>
+        </Box>
+      </PageContainer>
+
+      <PageContainer
+        alignItems="center"
+        flexDirection="row"
+        maxWidth="fit-content"
+        mt={5}
+        pt={2}
+      >
+        <Icon as={FaGift} color="green" boxSize={[5, 4]} />
+        <Text ml={2}>
+          Cet outil est un logiciel libre et open-source mis à disposition
+          gratuitement.
+        </Text>
+      </PageContainer>
+
+      <IconFooter />
     </Layout>
   );
 };
@@ -17,7 +146,7 @@ export default IndexPage;
   const orgs = (plural?: boolean) => (
     <Text color={isDark ? "green.200" : "green"} display="inline">
       <Icon as={IoIosPeople} />{" "}
-      <Link href="/orgs">organisation{plural ? "s" : ""}</Link>
+      <Link href="/organisations">organisation{plural ? "s" : ""}</Link>
     </Text>
   );
   const subscribers = (plural?: boolean) => (

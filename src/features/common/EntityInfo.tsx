@@ -1,6 +1,7 @@
 import { AtSignIcon, ViewIcon, ViewOffIcon, PhoneIcon } from "@chakra-ui/icons";
 import { Flex, FlexProps, Icon, Link, Tooltip } from "@chakra-ui/react";
 import React, { useState } from "react";
+import { isMobile } from "react-device-detect";
 import { FaMapMarkedAlt, FaGlobeEurope } from "react-icons/fa";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -42,36 +43,46 @@ export const EntityInfo = ({
               emailCollapsed[index] === undefined
                 ? true
                 : !!emailCollapsed[index];
+            let shortEmail = email;
+            let canCollapse = email.length > 9 && isMobile;
+            if (canCollapse && isCollapsed)
+              shortEmail = email.substr(0, 9) + "...";
+
             return (
               <Flex key={`email-${index}`} alignItems="center">
                 <AtSignIcon mr={3} />
 
                 <Link variant="underline" href={`mailto:${email}`}>
-                  {isCollapsed ? email.substr(0, 9) + "..." : email}
+                  {shortEmail}
                 </Link>
 
-                {isCollapsed ? (
-                  <Tooltip
-                    label="Voir en entier l'adresse e-mail"
-                    placement="top"
-                  >
-                    <ViewIcon
+                {canCollapse ? (
+                  isCollapsed ? (
+                    <Tooltip
+                      label="Voir en entier l'adresse e-mail"
+                      placement="top"
+                    >
+                      <ViewIcon
+                        cursor="pointer"
+                        ml={2}
+                        onClick={() =>
+                          setEmailCollapsed({
+                            ...emailCollapsed,
+                            [index]: false
+                          })
+                        }
+                      />
+                    </Tooltip>
+                  ) : (
+                    <ViewOffIcon
                       cursor="pointer"
                       ml={2}
                       onClick={() =>
-                        setEmailCollapsed({ ...emailCollapsed, [index]: false })
+                        setEmailCollapsed({ ...emailCollapsed, [index]: true })
                       }
                     />
-                  </Tooltip>
-                ) : (
-                  <ViewOffIcon
-                    cursor="pointer"
-                    ml={2}
-                    onClick={() =>
-                      setEmailCollapsed({ ...emailCollapsed, [index]: true })
-                    }
-                  />
-                )}
+                  )
+                ) : null}
               </Flex>
             );
           })}
@@ -99,15 +110,16 @@ export const EntityInfo = ({
           {entityWeb?.map(({ prefix, url }, index) => {
             const isCollapsed =
               webCollapsed[index] === undefined ? true : !!webCollapsed[index];
-            const uri = url.includes("http")
+            let uri = url.includes("http")
               ? url
                   .replace("https://", "")
                   .replace("http://", "")
                   .replace("www.", "")
               : url;
+            uri = uri.replace(/\/$/, "");
             let shortUrl = uri;
-            if (uri.length > 9 && isCollapsed)
-              shortUrl = uri.substr(0, 9) + "...";
+            let canCollapse = uri.length > 9 && isMobile;
+            if (canCollapse && isCollapsed) shortUrl = uri.substr(0, 9) + "...";
 
             return (
               <Flex key={`web-${index}`} alignItems="center">
@@ -119,7 +131,7 @@ export const EntityInfo = ({
                   {shortUrl}
                 </Link>
 
-                {uri.length > 9 ? (
+                {canCollapse ? (
                   isCollapsed ? (
                     <Tooltip
                       label="Voir en entier l'adresse du site internet"

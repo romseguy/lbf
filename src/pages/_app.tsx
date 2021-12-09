@@ -1,5 +1,7 @@
 import React from "react";
+import { getSelectorsByUserAgent } from "react-device-detect";
 import { NextPage, NextPageContext } from "next";
+import { Session } from "next-auth";
 import { AppProps } from "next/app";
 import { Provider as SessionProvider } from "next-auth/client";
 import { Chakra } from "features/common";
@@ -8,6 +10,11 @@ import theme from "theme/theme";
 import { wrapper } from "store";
 import { isServer } from "utils/isServer";
 import { getSession } from "hooks/useAuth";
+
+export interface PageProps {
+  isMobile: boolean;
+  session: Session | null;
+}
 
 if (!isServer() && process.env.NODE_ENV === "production") {
   const CleanConsole = require("@eaboy/clean-console");
@@ -20,7 +27,11 @@ if (!isServer() && process.env.NODE_ENV === "production") {
 }
 
 const App = wrapper.withRedux(
-  ({ Component, pageProps, cookies }: AppProps & { cookies?: string }) => {
+  ({
+    Component,
+    pageProps,
+    cookies
+  }: AppProps & { cookies?: string; pageProps: PageProps }) => {
     return (
       <>
         <GlobalStyles />
@@ -42,6 +53,9 @@ App.getInitialProps = async ({
   Component: NextPage;
   ctx: NextPageContext;
 }) => {
+  const cookies = ctx.req?.headers?.cookie;
+  const userAgent = ctx.req?.headers["user-agent"] || navigator.userAgent;
+  const { isMobile, isMobileOnly } = getSelectorsByUserAgent(userAgent);
   const session = await getSession(ctx);
   let pageProps = {};
 
@@ -49,16 +63,12 @@ App.getInitialProps = async ({
     pageProps = await Component.getInitialProps(ctx);
   }
 
-  let cookies;
-
-  if (ctx.req && ctx.req.headers) {
-    cookies = ctx.req.headers.cookie;
-  }
-
   return {
     cookies,
     pageProps: {
       ...pageProps,
+      isMobile,
+      //isMobileOnly,
       session
     }
   };

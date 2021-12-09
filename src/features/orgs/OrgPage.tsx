@@ -5,30 +5,32 @@ import {
   SettingsIcon
 } from "@chakra-ui/icons";
 import {
-  Box,
-  Button,
-  Text,
-  Heading,
-  Grid,
-  useToast,
-  TabPanels,
-  TabPanel,
-  Flex,
-  Tooltip,
   Alert,
   AlertIcon,
+  Box,
+  Button,
+  Flex,
+  Grid,
+  Heading,
   IconButton,
-  useColorMode
+  List,
+  ListItem,
+  TabPanel,
+  TabPanels,
+  Text,
+  Tooltip,
+  useColorMode,
+  useToast
 } from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
-import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import {
+  EntityButton,
   EntityInfo,
   GridHeader,
   GridItem,
@@ -56,6 +58,7 @@ import {
   getFollowerSubscription,
   getSubscriberSubscription
 } from "models/Subscription";
+import { PageProps } from "pages/_app";
 import { hasItems } from "utils/array";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
@@ -78,16 +81,16 @@ let cachedRefetchSubscription = false;
 let cachedEmail: string | undefined;
 
 export const OrgPage = ({
+  isMobile,
   populate,
   tab,
   tabItem,
   ...props
-}: {
+}: PageProps & {
   populate?: string;
   tab?: string;
   tabItem?: string;
   org: IOrg;
-  session: Session | null;
 }) => {
   const router = useRouter();
   const { data, loading: isSessionLoading } = useSession();
@@ -106,7 +109,8 @@ export const OrgPage = ({
     }
   );
   const org = orgQuery.data || props.org;
-  const orgs = org.orgs?.filter(({ orgLat, orgLng }) => !!orgLat && !!orgLng);
+  const orgsWithLocation =
+    org.orgs?.filter(({ orgLat, orgLng }) => !!orgLat && !!orgLng) || [];
   const [description, setDescription] = useState<string | undefined>();
   useEffect(() => {
     setIsEdit(false);
@@ -225,7 +229,7 @@ export const OrgPage = ({
   // }, [router.asPath]);
 
   return (
-    <Layout org={org} isLogin={isLogin} session={props.session}>
+    <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
       {isCreator && !isConfig && !isEdit && (
         <Button
           colorScheme="teal"
@@ -313,7 +317,13 @@ export const OrgPage = ({
 
       {!isConfig && !isEdit && (
         <OrgPageTabs org={org} tab={tab}>
-          <TabPanels>
+          <TabPanels
+            css={css`
+              & > * {
+                padding: 12px 0 !important;
+              }
+            `}
+          >
             <TabPanel aria-hidden>
               <Grid
                 // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"
@@ -342,8 +352,9 @@ export const OrgPage = ({
                       </Heading>
                       {hasInfo && isCreator && (
                         <Tooltip
-                          placement="bottom"
+                          hasArrow
                           label="Modifier les coordonnées"
+                          placement="bottom"
                         >
                           <IconButton
                             aria-label="Modifier les coordonnées"
@@ -414,51 +425,101 @@ export const OrgPage = ({
                 )}
 
                 {org.orgType === OrgTypes.NETWORK && (
-                  <GridItem
-                    rowSpan={1}
-                    borderTopRadius="lg"
-                    light={{ bg: "orange.100" }}
-                    dark={{ bg: "gray.600" }}
-                  >
-                    <GridHeader borderTopRadius="lg" alignItems="center">
-                      <Flex alignItems="center">
-                        <Heading size="sm" py={3}>
-                          Carte du réseau
-                        </Heading>
-                        {isCreator && (
-                          <Tooltip
-                            placement="bottom"
-                            label="Ajouter ou supprimer des organisations du réseau"
-                          >
-                            <IconButton
-                              aria-label="Ajouter ou supprimer des organisations du réseau"
-                              icon={<EditIcon />}
-                              bg="transparent"
-                              _hover={{ color: "green" }}
-                              onClick={() => setIsEdit(true)}
-                            />
-                          </Tooltip>
-                        )}
-                      </Flex>
-                    </GridHeader>
-                    <GridItem light={{ bg: "white" }}>
-                      <MapContainer
-                        orgs={orgs}
-                        center={{
-                          lat:
-                            org.orgLat ||
-                            (Array.isArray(orgs) && orgs.length > 0
-                              ? orgs[0].orgLat
-                              : 46.227638),
-                          lng:
-                            org.orgLng ||
-                            (Array.isArray(orgs) && orgs.length > 0
-                              ? orgs[0].orgLng
-                              : 2.213749)
-                        }}
-                      />
-                    </GridItem>
-                  </GridItem>
+                  <>
+                    {orgsWithLocation.length > 0 && (
+                      <GridItem
+                        rowSpan={1}
+                        borderTopRadius="lg"
+                        light={{ bg: "orange.100" }}
+                        dark={{ bg: "gray.600" }}
+                      >
+                        <GridHeader borderTopRadius="lg" alignItems="center">
+                          <Flex alignItems="center">
+                            <Heading size="sm" py={3}>
+                              Carte du réseau
+                            </Heading>
+                            {isCreator && (
+                              <Tooltip
+                                hasArrow
+                                label="Ajouter ou supprimer des organisations du réseau"
+                                placement="bottom"
+                              >
+                                <IconButton
+                                  aria-label="Ajouter ou supprimer des organisations du réseau"
+                                  icon={<EditIcon />}
+                                  bg="transparent"
+                                  _hover={{ color: "green" }}
+                                  onClick={() => setIsEdit(true)}
+                                />
+                              </Tooltip>
+                            )}
+                          </Flex>
+                        </GridHeader>
+                        <GridItem
+                          light={{ bg: "orange.100" }}
+                          dark={{ bg: "gray.600" }}
+                        >
+                          <MapContainer
+                            orgs={orgsWithLocation}
+                            center={{
+                              lat: orgsWithLocation[0].orgLat,
+                              lng: orgsWithLocation[0].orgLng
+                            }}
+                          />
+                        </GridItem>
+                      </GridItem>
+                    )}
+
+                    {Array.isArray(org.orgs) && org.orgs.length > 0 && (
+                      <GridItem
+                        rowSpan={1}
+                        borderTopRadius="lg"
+                        light={{ bg: "orange.100" }}
+                        dark={{ bg: "gray.600" }}
+                      >
+                        <GridHeader borderTopRadius="lg" alignItems="center">
+                          <Flex alignItems="center">
+                            <Heading size="sm" py={3}>
+                              Membres du réseau
+                            </Heading>
+                            {isCreator && (
+                              <Tooltip
+                                hasArrow
+                                label="Ajouter ou supprimer des organisations du réseau"
+                                placement="bottom"
+                              >
+                                <IconButton
+                                  aria-label="Ajouter ou supprimer des organisations du réseau"
+                                  icon={<EditIcon />}
+                                  bg="transparent"
+                                  _hover={{ color: "green" }}
+                                  onClick={() => setIsEdit(true)}
+                                />
+                              </Tooltip>
+                            )}
+                          </Flex>
+                        </GridHeader>
+                        <GridItem
+                          light={{ bg: "orange.100" }}
+                          dark={{ bg: "gray.600" }}
+                        >
+                          <List p={3} spacing={1}>
+                            {[...org.orgs]
+                              .sort((a, b) => {
+                                if (a.orgName > b.orgName) return -1;
+                                if (a.orgName < b.orgName) return 1;
+                                return 0;
+                              })
+                              .map((org) => (
+                                <ListItem>
+                                  <EntityButton org={org} />
+                                </ListItem>
+                              ))}
+                          </List>
+                        </GridItem>
+                      </GridItem>
+                    )}
+                  </>
                 )}
 
                 {/* org.orgDescription */}
@@ -478,8 +539,9 @@ export const OrgPage = ({
                     </Heading>
                     {org.orgDescription && isCreator && (
                       <Tooltip
-                        placement="bottom"
+                        hasArrow
                         label="Modifier la description"
+                        placement="bottom"
                       >
                         <IconButton
                           aria-label="Modifier la description"

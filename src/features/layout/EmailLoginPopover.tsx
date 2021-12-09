@@ -36,7 +36,6 @@ export const EmailLoginPopover = ({ boxSize, ...props }: BoxProps) => {
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const iconHoverColor = useColorModeValue("white", "lightgreen");
   //#endregion
 
   //#region form
@@ -66,7 +65,7 @@ export const EmailLoginPopover = ({ boxSize, ...props }: BoxProps) => {
       <Popover
         isLazy
         isOpen={isOpen}
-        offset={[-140, 0]}
+        offset={[-140, -25]}
         onClose={() => {
           clearErrors("formErrorMessage");
           setIsOpen(false);
@@ -84,7 +83,7 @@ export const EmailLoginPopover = ({ boxSize, ...props }: BoxProps) => {
               icon={
                 <Icon
                   as={EmailIcon}
-                  _hover={{ color: iconHoverColor }}
+                  _hover={{ color: "#00B5D8" }}
                   boxSize={boxSize}
                 />
               }
@@ -98,6 +97,14 @@ export const EmailLoginPopover = ({ boxSize, ...props }: BoxProps) => {
           </PopoverHeader>
           <PopoverBody>
             <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+              <EmailControl
+                name="email"
+                register={register}
+                setValue={setValue}
+                errors={errors}
+                isMultiple={false}
+              />
+
               <ErrorMessage
                 errors={errors}
                 name="formErrorMessage"
@@ -107,14 +114,6 @@ export const EmailLoginPopover = ({ boxSize, ...props }: BoxProps) => {
                     <ErrorMessageText>{message}</ErrorMessageText>
                   </Alert>
                 )}
-              />
-
-              <EmailControl
-                name="email"
-                register={register}
-                setValue={setValue}
-                errors={errors}
-                isMultiple={false}
               />
             </form>
           </PopoverBody>

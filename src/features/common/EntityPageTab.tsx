@@ -28,7 +28,7 @@ export const EntityPageTab = React.forwardRef(
     },
     ref
   ) => {
-    const inactiveTabBg = useColorModeValue("gray.100", "whiteAlpha.300");
+    const inactiveTabBg = useColorModeValue("lightcyan", "gray.800");
     const tabProps = useTab(props);
 
     tabProps.tabIndex = 0;

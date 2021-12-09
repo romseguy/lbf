@@ -1,17 +1,17 @@
 import {
+  Icon,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalCloseButton,
-  ModalBody,
-  Icon
+  ModalBody
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React, { useState } from "react";
-import { OrgForm } from "features/forms/OrgForm";
-import { orgTypeFull3 } from "models/Org";
 import { IoIosPeople } from "react-icons/io";
+import { OrgForm } from "features/forms/OrgForm";
+import { OrgType, orgTypeFull3, OrgTypes } from "models/Org";
 
 export const OrgFormModal = ({
   session,
@@ -19,13 +19,15 @@ export const OrgFormModal = ({
   onSubmit,
   ...props
 }: {
-  orgType?: string;
+  orgType?: OrgType;
   session: Session;
   onCancel: () => void;
   onClose: () => void;
   onSubmit: (orgUrl: string) => Promise<void>;
 }) => {
-  const [orgType, setOrgType] = useState<string | undefined>(props.orgType);
+  const [orgType, setOrgType] = useState<OrgType>(
+    props.orgType || OrgTypes.GENERIC
+  );
 
   return (
     <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>

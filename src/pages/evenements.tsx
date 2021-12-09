@@ -4,6 +4,7 @@ import {
   Heading,
   Text,
   Tooltip,
+  useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
@@ -17,8 +18,11 @@ import { EventsList } from "features/events/EventsList";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
 import { Visibility } from "models/Project";
+import { PageProps } from "./_app";
 
-const EventsPage = ({ ...props }: { session?: Session }) => {
+const EventsPage = ({ ...props }: PageProps) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(0);
 
@@ -47,8 +51,19 @@ const EventsPage = ({ ...props }: { session?: Session }) => {
 
   return (
     <Layout pageTitle="Événements" isLogin={isLogin} {...props}>
-      <Flex flexWrap="wrap" margin="0 auto" maxWidth="4xl">
-        <Box flexGrow={1}>
+      <Flex
+        alignItems="center"
+        flexWrap="wrap"
+        background={isDark ? "black" : "lightcyan"}
+        borderWidth={1}
+        borderColor={isDark ? "gray.600" : "gray.200"}
+        borderRadius="lg"
+        m="0 auto"
+        maxWidth="4xl"
+        p={3}
+        pt={0}
+      >
+        <Box flexGrow={1} mt={eventsQuery.isLoading ? 3 : undefined}>
           <Heading className="rainbow-text" fontFamily="DancingScript">
             {title}
           </Heading>

@@ -1,8 +1,9 @@
+import { IOrgEventCategory } from "models/Org";
 import { IEvent, StatusTypes } from "./IEvent";
 
 export * from "./IEvent";
 
-export const Category: { [key: number]: { label: string; bgColor: string } } = [
+export const Category: { [key: number]: IOrgEventCategory } = [
   { index: 0, label: "À définir", bgColor: "gray" },
   { index: 1, label: "Atelier", bgColor: "red" },
   { index: 2, label: "Chantier participatif", bgColor: "orange" },

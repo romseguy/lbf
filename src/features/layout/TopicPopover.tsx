@@ -137,12 +137,7 @@ export const TopicPopover = ({
             aria-label="Discussions"
             bg="transparent"
             _hover={{ bg: "transparent" }}
-            icon={
-              <ChatIcon
-                boxSize={boxSize}
-                _hover={{ color: isDark ? "lightgreen" : "white" }}
-              />
-            }
+            icon={<ChatIcon boxSize={boxSize} _hover={{ color: "green" }} />}
             minWidth={0}
             onClick={() => {
               if (!isOpen) {

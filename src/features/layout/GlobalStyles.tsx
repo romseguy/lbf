@@ -47,7 +47,7 @@ export const GlobalStyles = () => (
 
       @media (min-width: ${breakpoints["2xl"]}) {
         .chakra-ui-light {
-          background: lightblue;
+          background: white;
         }
         .chakra-ui-dark {
           background: black;
@@ -128,8 +128,6 @@ const RainbowTextStyles = `
     /* Animate the text when loading the element. */
     /* This animates it on page load and when hovering out. */
     animation: rainbow-text-animation-rev 0.5s ease forwards;
-
-    cursor: pointer;
   }
 
   /* Add animation on hover. */

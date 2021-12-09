@@ -45,6 +45,8 @@ export const Header = ({
 
   //#region local state
   const [classNameTitle, setClassNameTitle] = useState("");
+  let color = event ? (event.isApproved ? "green" : "red") : "green";
+  if (isDark) if (color === "green") color = "green.200";
   const icon =
     pageTitle === "Forum"
       ? ChatIcon
@@ -83,8 +85,8 @@ export const Header = ({
       {icon && (
         <Icon
           as={icon}
-          boxSize={5}
-          color={event ? (event.isApproved ? "green" : "red") : "green"}
+          boxSize={8}
+          color={color}
           mr={2}
           title={
             event?.isApproved
@@ -140,12 +142,15 @@ export const Header = ({
     <Flex
       as="header"
       alignItems="center"
+      bg={isDark ? "gray.700" : "lightblue"}
+      borderRadius="lg"
       color={isDark ? "white" : "black"}
       cursor={banner ? "pointer" : "default"}
       height={banner ? banner.headerHeight : undefined}
+      m={3}
+      mb={0}
       p={!banner && !logo ? 3 : undefined}
       css={css`
-        ${isDark ? tw`bg-gray-800` : tw`bg-white`}
         background-image: ${bgImage};
         background-size: cover;
         background-repeat: no-repeat;

@@ -18,6 +18,7 @@ export interface IOrg {
   orgEmail?: { email: string }[];
   orgPhone?: { phone: string }[];
   orgWeb?: { url: string; prefix: string }[];
+  orgEventCategories?: IOrgEventCategory[];
   orgDescription?: string;
   orgDescriptionHtml?: string;
   orgEvents: IEvent[];
@@ -42,20 +43,26 @@ export interface IOrg {
   createdAt?: string;
 }
 
+export interface IOrgEventCategory {
+  label: string;
+  bgColor?: string;
+}
 export interface IOrgList {
   listName: string;
   subscriptions?: ISubscription[];
 }
 
-export type OrgType = "ASSO" | "GROUP" | "NETWORK";
+export type OrgType = "ASSO" | "GENERIC" | "GROUP" | "NETWORK";
 
 export const OrgTypes: { [key: string]: OrgType } = {
   ASSO: "ASSO",
+  GENERIC: "GENERIC",
   GROUP: "GROUP",
   NETWORK: "NETWORK"
 };
 export const OrgTypesV: { [key: string]: string } = {
   ASSO: "Association",
+  GENERIC: "Organisation",
   GROUP: "Groupe",
   NETWORK: "Réseau"
 };

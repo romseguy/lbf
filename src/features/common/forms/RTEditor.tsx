@@ -43,6 +43,7 @@ export const RTEditor = ({
   event,
   org,
   session,
+  onBlur,
   onChange,
   readOnly,
   ...props
@@ -51,6 +52,7 @@ export const RTEditor = ({
   event?: IEvent;
   org?: IOrg;
   session?: Session | null;
+  onBlur?: ({ html, quillHtml }: { html: string; quillHtml: string }) => void;
   onChange?: ({ html, quillHtml }: { html: string; quillHtml: string }) => void;
   readOnly?: boolean;
   placeholder?: string;
@@ -185,9 +187,17 @@ export const RTEditor = ({
 
   useEffect(() => {
     if (quill) {
-      if (quill.root) {
-        quill.root.innerHTML = defaultValue || "";
-      }
+      quill.on("selection-change", () => {
+        if (onBlur && quill.root) {
+          console.log("wat");
+
+          const delta = quill.getContents();
+          onBlur({
+            html: deltaToHtml(delta.ops),
+            quillHtml: quill.root.innerHTML
+          });
+        }
+      });
 
       quill.on("text-change", (/*delta, oldDelta, source*/) => {
         if (onChange && quill.root) {
@@ -208,8 +218,11 @@ export const RTEditor = ({
 
   useEffect(() => {
     if (quill && quill.root)
-      quill.root.innerHTML = defaultValue === undefined ? "" : defaultValue;
-  }, [defaultValue]);
+      quill.root.innerHTML =
+        defaultValue === undefined
+          ? localStorage.getItem("quillHtml") || ""
+          : defaultValue;
+  }, [quill, defaultValue]);
 
   return (
     <RTEditorStyles height={props.height} width={props.width}>

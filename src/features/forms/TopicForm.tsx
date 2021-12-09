@@ -206,6 +206,7 @@ export const TopicForm = ({
         setIsLoading(false);
         props.onSubmit && props.onSubmit(topic);
       }
+      localStorage.removeItem("quillHtml");
     } catch (error: any) {
       setIsLoading(false);
       handleError(error, (message, field) => {
@@ -370,9 +371,9 @@ export const TopicForm = ({
             render={(renderProps) => {
               return (
                 <RTEditor
-                  defaultValue={""}
                   placeholder="Contenu de votre message"
                   onChange={({ html, quillHtml }) => {
+                    localStorage.setItem("quillHtml", quillHtml);
                     setMessageHtml(html);
                     renderProps.onChange(quillHtml);
                   }}

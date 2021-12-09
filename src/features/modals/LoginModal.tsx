@@ -139,7 +139,9 @@ export const LoginModal = (props: {
               ? "Mot de passe oublié"
               : isSignup
               ? "Inscription"
-              : "Connexion"}
+              : isEmail
+              ? "Connexion par e-mail"
+              : "Connexion par mot de passe"}
           </ModalHeader>
           <ModalCloseButton />
           <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>

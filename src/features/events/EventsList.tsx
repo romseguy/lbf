@@ -532,6 +532,7 @@ export const EventsList = ({
         <EventsListCategories
           events={events}
           org={org}
+          orgQuery={orgQuery}
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
           session={session}
@@ -564,12 +565,21 @@ export const EventsList = ({
               setCity={setCity}
               location={origin}
               setLocation={setOrigin}
+              inputProps={{
+                bg: isDark ? undefined : "white",
+                borderColor: isDark ? undefined : "black",
+                borderRadius: "lg",
+                color: isDark ? undefined : "black",
+                mr: 3,
+                _placeholder: { color: isDark ? undefined : "black" }
+              }}
               //onLocationChange={(coordinates) => setOrigin(coordinates)}
             />
           )}
           <EventsListDistance
             distance={distance}
             setDistance={setDistance}
+            borderColor={isDark ? undefined : "black"}
             borderRadius="md"
             size="sm"
           />
@@ -614,8 +624,8 @@ export const EventsList = ({
                             ? "gray.600"
                             : "gray.500"
                           : index % 2 === 0
-                          ? "orange.200"
-                          : "orange.100"
+                          ? "orange.100"
+                          : "orange.50"
                       }
                     >
                       <EventsListItem
@@ -677,8 +687,8 @@ export const EventsList = ({
                                   ? "gray.600"
                                   : "gray.500"
                                 : index % 2 === 0
-                                ? "orange.200"
-                                : "orange.100"
+                                ? "orange.100"
+                                : "orange.50"
                             }
                           >
                             <EventsListItem
@@ -702,6 +712,7 @@ export const EventsList = ({
                   <>
                     de la catégorie
                     <EventCategory
+                      org={org}
                       selectedCategory={selectedCategories[0]}
                       mx={1}
                     />
@@ -711,7 +722,9 @@ export const EventsList = ({
                     dans les catégories
                     {selectedCategories.map((catNumber, index) => (
                       <EventCategory
-                        selectedCategory={selectedCategories[index]}
+                        key={`cat-${index}`}
+                        org={org}
+                        selectedCategory={catNumber}
                         mx={1}
                       />
                     ))}
@@ -770,8 +783,8 @@ export const EventsList = ({
                             ? "gray.600"
                             : "gray.500"
                           : index % 2 === 0
-                          ? "orange.200"
-                          : "orange.100"
+                          ? "orange.100"
+                          : "orange.50"
                       }
                     >
                       <EventsListItem
@@ -810,6 +823,7 @@ export const EventsList = ({
     isDark,
     isLoading,
     origin,
+    org,
     selectedCategories,
     session,
     showLocationButton,

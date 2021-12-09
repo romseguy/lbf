@@ -37,10 +37,12 @@ import api from "utils/api";
 import { UserPageTabs } from "./UserPageTabs";
 import { useGetUserQuery, useEditUserMutation } from "./usersApi";
 import { FaHome } from "react-icons/fa";
+import { PageProps } from "pages/_app";
 
 export const UserPage = ({
+  isMobile,
   ...props
-}: {
+}: PageProps & {
   user: IUser;
   session: Session | null;
 }) => {
@@ -93,7 +95,12 @@ export const UserPage = ({
   const [description, setDescription] = useState<string | undefined>();
 
   return (
-    <Layout pageTitle={user.userName} isLogin={isLogin} session={session}>
+    <Layout
+      pageTitle={user.userName}
+      isLogin={isLogin}
+      isMobile={isMobile}
+      session={session}
+    >
       <>
         {session && (isSelf || session.user.isAdmin) && (
           <>
@@ -143,7 +150,13 @@ export const UserPage = ({
 
         {!isEdit && (
           <UserPageTabs tabs={isSelf ? undefined : {}} height="auto">
-            <TabPanels>
+            <TabPanels
+              css={css`
+                & > * {
+                  padding: 12px 0 !important;
+                }
+              `}
+            >
               <TabPanel aria-hidden>
                 <Grid
                   gridGap={5}

@@ -2,16 +2,18 @@ import {
   Button,
   ButtonProps,
   Flex,
+  InputProps,
+  Spinner,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { geolocated } from "react-geolocated";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { getCity, unwrapSuggestion } from "utils/maps";
-import { AddressControl } from ".";
 import { LatLon, Suggestion } from "use-places-autocomplete";
+import { AddressControl } from ".";
 
 export const LocationButton = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -34,6 +36,7 @@ export const LocationButton = withGoogleApi({
       location,
       setLocation,
       onLocationChange,
+      inputProps,
       ...props
     }: ButtonProps & {
       loaded: boolean;
@@ -63,9 +66,8 @@ export const LocationButton = withGoogleApi({
       location: LatLon;
       setLocation: (location: LatLon) => void;
       onLocationChange?: (coordinates?: LatLon) => void;
+      inputProps: InputProps;
     }) => {
-      console.log(coords);
-
       const toast = useToast();
       const { colorMode } = useColorMode();
       const isDark = colorMode === "dark";
@@ -103,18 +105,17 @@ export const LocationButton = withGoogleApi({
         xhr();
       }, [loaded, props.google, location]);
 
+      if (!loaded) return <Spinner />;
+
       return (
         <Flex alignItems="center">
           <Button leftIcon={<FaMapMarkerAlt />} {...props}>
             {city || "Définir la ville"}
           </Button>
           <AddressControl
+            inputProps={inputProps}
             isMultiple={false}
             size="sm"
-            inputProps={{
-              borderRadius: "lg",
-              mr: 3
-            }}
             onSuggestionSelect={async (suggestion: Suggestion) => {
               const { lat, lng, city } = await unwrapSuggestion(suggestion);
               if (lat && lng) setLocation({ lat, lng });

@@ -53,15 +53,20 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           url,
           provider: { server, from }
         }) => {
-          const { host } = new URL(url);
-          const transport = nodemailer.createTransport(server);
-          await transport.sendMail({
-            to: email,
-            from,
-            subject: `Connexion à ${host}`,
-            text: text({ url, host }),
-            html: html({ url, host, email })
-          });
+          try {
+            const { host } = new URL(url);
+            const transport = nodemailer.createTransport(server);
+            transport.sendMail({
+              to: email,
+              from,
+              subject: `Connexion à ${host}`,
+              text: text({ url, host }),
+              html: html({ url, host, email })
+            });
+          } catch (error) {
+            console.error(error);
+            throw error;
+          }
         }
       })
     ],

@@ -1,8 +1,9 @@
 import { Alert, AlertIcon } from "@chakra-ui/react";
 import { Layout } from "features/layout";
 import { useRouter } from "next/router";
+import { PageProps } from "./_app";
 
-const DonatePage = () => {
+const DonatePage = (props: PageProps) => {
   const { query } = useRouter();
   let message = (
     <Alert status="warning">
@@ -20,7 +21,7 @@ const DonatePage = () => {
     );
   }
 
-  return <Layout>{message}</Layout>;
+  return <Layout {...props}>{message}</Layout>;
 };
 
 export default DonatePage;

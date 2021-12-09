@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { FaShare } from "react-icons/fa";
+import { LinkShare } from "features/common";
 import { ITopic } from "models/Topic";
 
 export const TopicsListItemShare = ({
@@ -19,6 +20,12 @@ export const TopicsListItemShare = ({
 }: IconButtonProps & { topic: Partial<ITopic> }) => {
   const toast = useToast({ position: "top" });
   const [isOpen, setIsOpen] = useState(false);
+
+  let url = topic.org
+    ? topic.org.orgUrl
+    : topic.event?.eventUrl + "/discussions";
+  if (topic.org?.orgUrl === "aucourant") url = "forum";
+  url = `${process.env.NEXT_PUBLIC_URL}/${url}/${topic.topicName}`;
 
   return (
     <Popover closeOnBlur isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -43,27 +50,7 @@ export const TopicsListItemShare = ({
       </PopoverTrigger>
       <PopoverContent width="auto">
         <PopoverBody onClick={(e) => e.stopPropagation()}>
-          <Tooltip label="Copier l'adresse de la discussion" placement="left">
-            <IconButton
-              aria-label="Copier l'adresse de la discussion"
-              icon={<LinkIcon />}
-              onClick={(e) => {
-                e.stopPropagation();
-                let url = topic.org
-                  ? topic.org.orgUrl
-                  : topic.event?.eventUrl + "/discussions";
-                if (topic.org?.orgUrl === "aucourant") url = "forum";
-
-                navigator.clipboard.writeText(
-                  `${process.env.NEXT_PUBLIC_URL}/${url}/${topic.topicName}`
-                );
-                toast({
-                  title: "Le lien a été copié dans votre presse-papiers",
-                  status: "success"
-                });
-              }}
-            />
-          </Tooltip>
+          <LinkShare label="Copier l'adresse de la discussion" url={url} />
         </PopoverBody>
       </PopoverContent>
     </Popover>

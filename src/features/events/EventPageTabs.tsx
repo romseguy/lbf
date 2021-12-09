@@ -1,5 +1,5 @@
 import { ChatIcon, EmailIcon } from "@chakra-ui/icons";
-import { TabList, Tabs } from "@chakra-ui/react";
+import { Tabs, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { FaHome } from "react-icons/fa";
@@ -23,6 +23,8 @@ export const EventPageTabs = ({
   isCreator?: boolean;
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const router = useRouter();
   let defaultTabIndex = 0;
   Object.keys(tabs).reduce((index, tab) => {
@@ -46,9 +48,12 @@ export const EventPageTabs = ({
       isManual
       lazyBehavior="keepMounted"
       variant="solid-rounded"
+      background={isDark ? "black" : "lightcyan"}
       borderWidth={1}
-      borderColor="gray.200"
+      borderColor={isDark ? "gray.600" : "gray.200"}
       borderRadius="lg"
+      p={3}
+      pb={0}
       onChange={(index) => setCurrentTabIndex(index)}
     >
       <EntityPageTabList aria-hidden>

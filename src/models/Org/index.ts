@@ -1,5 +1,5 @@
 import { equals } from "utils/string";
-import { IOrg, OrgTypes, OrgTypesV } from "./IOrg";
+import { IOrg, OrgType, OrgTypes, OrgTypesV } from "./IOrg";
 
 export * from "./IOrg";
 
@@ -18,32 +18,32 @@ export const getSubscriptions = (org: IOrg, type: string) => {
   );
 };
 
-export const orgTypeFull = (orgType?: string): string => {
+export const orgTypeFull = (orgType: OrgType): string => {
   if (!orgType) return "";
-  return `${orgType === OrgTypes.ASSO ? "de l'" : "du "}${OrgTypesV[
-    orgType
-  ].toLowerCase()}`;
+  return `${
+    [OrgTypes.ASSO, OrgTypes.GENERIC].includes(orgType) ? "de l'" : "du "
+  }${OrgTypesV[orgType].toLowerCase()}`;
 };
 
-export const orgTypeFull2 = (orgType: string): string =>
-  `${orgType === OrgTypes.ASSO ? "à l'" : "au "}${OrgTypesV[
-    orgType
-  ].toLowerCase()}`;
+export const orgTypeFull2 = (orgType: OrgType): string =>
+  `${
+    [OrgTypes.ASSO, OrgTypes.GENERIC].includes(orgType) ? "à l'" : "au "
+  }${OrgTypesV[orgType].toLowerCase()}`;
 
-export const orgTypeFull3 = (orgType?: string): string => {
+export const orgTypeFull3 = (orgType: OrgType): string => {
   if (!orgType) return "une organisation";
 
-  return `${orgType === OrgTypes.ASSO ? "une " : "un "}${OrgTypesV[
-    orgType
-  ].toLowerCase()}`;
+  return `${
+    [OrgTypes.ASSO, OrgTypes.GENERIC].includes(orgType) ? "une " : "un "
+  }${OrgTypesV[orgType].toLowerCase()}`;
 };
 
-export const orgTypeFull4 = (orgType: string): string =>
-  `${orgType === OrgTypes.ASSO ? "cette " : "ce "}${OrgTypesV[
-    orgType
-  ].toLowerCase()}`;
+export const orgTypeFull4 = (orgType: OrgType): string =>
+  `${
+    [OrgTypes.ASSO, OrgTypes.GENERIC].includes(orgType) ? "cette " : "ce "
+  }${OrgTypesV[orgType].toLowerCase()}`;
 
-export const orgTypeFull5 = (orgType: string): string =>
-  `${orgType === OrgTypes.ASSO ? "l'" : "le "}${OrgTypesV[
-    orgType
-  ].toLowerCase()}`;
+export const orgTypeFull5 = (orgType: OrgType): string =>
+  `${
+    [OrgTypes.ASSO, OrgTypes.GENERIC].includes(orgType) ? "l'" : "le "
+  }${OrgTypesV[orgType].toLowerCase()}`;

@@ -1,4 +1,4 @@
-import { Tabs } from "@chakra-ui/react";
+import { Tabs, useColorMode } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { FaHome, FaImages, FaTools } from "react-icons/fa";
 import { EntityPageTab, EntityPageTabList } from "features/common";
@@ -25,12 +25,16 @@ export const UserPageTabs = ({
   tab?: string;
   tabs?: UserPageTabsType;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   let defaultTabIndex = 0;
   Object.keys(tabs).reduce((index, tab) => {
     if (tab.toLowerCase() === props.tab?.toLowerCase()) defaultTabIndex = index;
     return index + 1;
   }, 0);
   const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex || 0);
+
+  if (!Object.keys(tabs).length) return <Tabs>{children}</Tabs>;
 
   return (
     <Tabs
@@ -41,9 +45,12 @@ export const UserPageTabs = ({
       isManual
       lazyBehavior="keepMounted"
       variant="solid-rounded"
+      background={isDark ? "black" : "lightcyan"}
       borderWidth={1}
-      borderColor="gray.200"
+      borderColor={isDark ? "gray.600" : "gray.200"}
       borderRadius="lg"
+      p={3}
+      pb={0}
       onChange={(index) => setCurrentTabIndex(index)}
     >
       <EntityPageTabList aria-hidden>

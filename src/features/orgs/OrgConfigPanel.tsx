@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import tw, { css } from "twin.macro";
 import { IOrg } from "models/Org";
-import { DeleteButton } from "features/common";
+import { DeleteButton, PageContainer } from "features/common";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
 import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
@@ -117,24 +117,26 @@ export const OrgConfigPanel = ({
       </Box>
 
       {isEdit && (
-        <OrgForm
-          session={session}
-          org={org}
-          onCancel={() => {
-            setIsEdit(false);
-            setIsConfig(true);
-          }}
-          onSubmit={async (orgUrl: string) => {
-            if (org && orgUrl !== org.orgUrl) {
-              await router.push(`/${orgUrl}`, `/${orgUrl}`, {
-                shallow: true
-              });
-            } else {
-              orgQuery.refetch();
+        <PageContainer>
+          <OrgForm
+            session={session}
+            org={org}
+            onCancel={() => {
               setIsEdit(false);
-            }
-          }}
-        />
+              setIsConfig(true);
+            }}
+            onSubmit={async (orgUrl: string) => {
+              if (org && orgUrl !== org.orgUrl) {
+                await router.push(`/${orgUrl}`, `/${orgUrl}`, {
+                  shallow: true
+                });
+              } else {
+                orgQuery.refetch();
+                setIsEdit(false);
+              }
+            }}
+          />
+        </PageContainer>
       )}
 
       {isConfig && !isEdit && (
