@@ -26,6 +26,12 @@ export function normalize(str: string, underscores?: boolean): string {
     .toLowerCase();
 }
 
+export function normalizeQuill(str: string): string {
+  if (str === "<p><br></p>") return "";
+
+  return str.replace(/\&nbsp;/g, " ");
+}
+
 export function equals(a: any, b: any): boolean {
   if (typeof a === "string" && typeof b === "string") return a === b;
 

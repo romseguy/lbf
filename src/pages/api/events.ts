@@ -15,6 +15,7 @@ import { equals, normalize } from "utils/string";
 import { IEvent, Visibility } from "models/Event";
 import { IOrg } from "models/Org";
 import api from "utils/api";
+import { randomNumber } from "utils/randomNumber";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -64,25 +65,26 @@ handler.get<
   }
 });
 
-handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
-  req,
-  res
-) {
-  const session = await getSession({ req });
+handler.post<NextApiRequest & { body: IEvent }, NextApiResponse>(
+  async function postEvent(req, res) {
+    const session = await getSession({ req });
 
-  if (!session) {
-    res
-      .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu")
-        )
-      );
-  } else {
+    if (!session)
+      return res
+        .status(403)
+        .json(
+          createServerError(
+            new Error("Vous devez être identifié pour accéder à ce contenu")
+          )
+        );
+
     try {
       let { body }: { body: IEvent } = req;
-      body = { ...body, eventName: body.eventName.trim() };
-      const eventUrl = normalize(body.eventName);
+      body = {
+        ...body,
+        eventName: body.eventName.trim(),
+        eventUrl: normalize(body.eventName)
+      };
 
       let event: (IEvent & Document<any, any, any>) | null = null;
       let eventOrgs: IOrg[] = [];
@@ -115,12 +117,18 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
           }
         }
       } else {
-        event = await models.Event.findOne({ eventUrl });
-        if (event) throw duplicateError();
-        const org = await models.Org.findOne({ orgUrl: eventUrl });
-        if (org) throw duplicateError();
-        const user = await models.User.findOne({ userName: body.eventName });
-        if (user) throw duplicateError();
+        event = await models.Event.findOne({ eventUrl: body.eventUrl });
+        const org = await models.Org.findOne({ orgUrl: body.eventUrl });
+        const user = await models.User.findOne({ userName: body.eventUrl });
+
+        if (event || org || user) {
+          const uid = randomNumber(2);
+          body = {
+            ...body,
+            eventName: body.eventName + "-" + uid,
+            eventUrl: body.eventUrl + "-" + uid
+          };
+        }
 
         let isApproved = session.user.isAdmin;
 
@@ -143,7 +151,6 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
 
         event = await models.Event.create({
           ...body,
-          eventUrl,
           eventOrgs,
           isApproved
         });
@@ -186,15 +193,9 @@ handler.post<NextApiRequest, NextApiResponse>(async function postEvent(
 
       res.status(200).json(event);
     } catch (error: any) {
-      if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
-        res.status(400).json({
-          eventName: "Ce nom d'événement n'est pas disponible"
-        });
-      } else {
-        res.status(500).json(createServerError(error));
-      }
+      res.status(500).json(createServerError(error));
     }
   }
-});
+);
 
 export default handler;

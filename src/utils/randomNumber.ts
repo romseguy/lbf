@@ -1,7 +1,5 @@
-//@ts-nocheck
-import * as rando from "@nastyox/rando.js";
-
-const r = rando.rando;
+//@ts-expect-error
+import { rando as r } from "@nastyox/rando.js";
 
 export const randomNumber = (maxNumber: number | undefined) => {
   let randomNumberString;
@@ -25,7 +23,7 @@ export const randomNumber = (maxNumber: number | undefined) => {
       randomNumberString = r(100000, 900000).toString();
       break;
     default:
-      randomNumberString = "";
+      randomNumberString = r(1, 9).toString();
       break;
   }
   return randomNumberString;

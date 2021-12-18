@@ -81,6 +81,7 @@ export const OrgPopover = ({
               orgType
                 ? org.orgType === orgType
                 : org.orgType === OrgTypes.ASSO ||
+                  org.orgType === OrgTypes.GENERIC ||
                   org.orgType === OrgTypes.GROUP
             ) || []
       })

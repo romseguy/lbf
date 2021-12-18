@@ -868,6 +868,7 @@ export const EventsList = ({
               initialEventOrgs={[org]}
               session={session}
               onCancel={() => setIsEventFormModalOpen(false)}
+              onClose={() => setIsEventFormModalOpen(false)}
               onSubmit={async (eventUrl) => {
                 if (org) {
                   dispatch(refetchOrg());
@@ -876,7 +877,6 @@ export const EventsList = ({
                   shallow: true
                 });
               }}
-              onClose={() => setIsEventFormModalOpen(false)}
             />
           )}
         </>

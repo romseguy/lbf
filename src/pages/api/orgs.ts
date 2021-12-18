@@ -10,6 +10,7 @@ import {
 import { getSession } from "hooks/useAuth";
 import { logJson, normalize } from "utils/string";
 import { IOrg, Visibility } from "models/Org";
+import { randomNumber } from "utils/randomNumber";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -45,45 +46,49 @@ handler.get<
   }
 });
 
-handler.post<NextApiRequest, NextApiResponse>(async function postOrg(req, res) {
-  const session = await getSession({ req });
+handler.post<NextApiRequest & { body: IOrg }, NextApiResponse>(
+  async function postOrg(req, res) {
+    const session = await getSession({ req });
 
-  if (!session) {
-    res
-      .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu")
-        )
-      );
-  } else {
+    if (!session)
+      return res
+        .status(403)
+        .json(
+          createServerError(
+            new Error("Vous devez être identifié pour accéder à ce contenu")
+          )
+        );
+
     try {
       let { body }: { body: IOrg } = req;
-      body = { ...body, orgName: body.orgName.trim() };
-      const orgUrl = normalize(body.orgName);
+      body = {
+        ...body,
+        isApproved: session.user.isAdmin,
+        orgName: body.orgName.trim(),
+        orgUrl: normalize(body.orgName)
+      };
 
-      const org = await models.Org.findOne({ orgUrl });
-      if (org) throw duplicateError();
-      const user = await models.User.findOne({ userName: body.orgName });
-      if (user) throw duplicateError();
-      const event = await models.Event.findOne({ eventUrl: orgUrl });
-      if (event) throw duplicateError();
-      const doc = await models.Org.create({
-        ...req.body,
-        orgUrl,
-        isApproved: false
-      });
+      const org = await models.Org.findOne({ orgUrl: body.orgUrl });
+      const user = await models.User.findOne({ userName: body.orgUrl });
+      const event = await models.Event.findOne({ eventUrl: body.orgUrl });
+
+      if (org || user || event) {
+        const uid = randomNumber(2);
+        body = {
+          ...body,
+          orgName: body.orgName + "-" + uid,
+          orgUrl: body.orgUrl + "-" + uid
+        };
+      }
+
+      logJson(`POST /orgs: create`, body);
+      const doc = await models.Org.create(body);
+
       res.status(200).json(doc);
     } catch (error: any) {
-      if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
-        res.status(400).json({
-          orgName: "Ce nom n'est pas disponible"
-        });
-      } else {
-        res.status(500).json(createServerError(error));
-      }
+      res.status(500).json(createServerError(error));
     }
   }
-});
+);
 
 export default handler;

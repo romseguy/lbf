@@ -77,7 +77,7 @@ import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
-import { normalize } from "utils/string";
+import { normalize, normalizeQuill } from "utils/string";
 
 const repeatOptions: number[] = [];
 for (let i = 1; i <= 10; i++) {
@@ -367,10 +367,9 @@ export const EventForm = withGoogleApi({
         ...form,
         eventName: form.eventName.trim(),
         eventUrl: normalize(form.eventName),
-        eventDescription:
-          form.eventDescription === "<p><br></p>"
-            ? ""
-            : form.eventDescription?.replace(/\&nbsp;/g, " "),
+        eventDescription: form.eventDescription
+          ? normalizeQuill(form.eventDescription)
+          : undefined,
         eventDescriptionHtml,
         eventAddress:
           Array.isArray(eventAddress) && eventAddress.length > 0
@@ -408,6 +407,8 @@ export const EventForm = withGoogleApi({
             })
         : [];
 
+      let { eventUrl } = payload;
+
       try {
         //const sugg = suggestion || data[0];
         const sugg = suggestion;
@@ -435,6 +436,7 @@ export const EventForm = withGoogleApi({
         } else {
           payload.createdBy = props.session.user.userId;
           const event = await addEvent(payload).unwrap();
+          eventUrl = event.eventUrl;
 
           toast({
             title: "Votre événement a bien été ajouté !",
@@ -444,7 +446,7 @@ export const EventForm = withGoogleApi({
         }
 
         setIsLoading(false);
-        props.onSubmit && props.onSubmit(payload.eventUrl);
+        props.onSubmit && props.onSubmit(eventUrl);
       } catch (error) {
         setIsLoading(false);
         handleError(error, (message, field) => {
@@ -1045,7 +1047,6 @@ export const EventForm = withGoogleApi({
 
         {visibilityOptions.length > 0 && (
           <FormControl
-            id="eventVisibility"
             isRequired
             isInvalid={!!errors["eventVisibility"]}
             onChange={async (e) => {
@@ -1056,14 +1057,14 @@ export const EventForm = withGoogleApi({
             <FormLabel>Visibilité</FormLabel>
             <Select
               name="eventVisibility"
-              defaultValue={
-                props.event ? props.event.eventVisibility : undefined
-              }
               ref={register({
                 required: "Veuillez sélectionner la visibilité de l'événement"
               })}
+              defaultValue={
+                props.event?.eventVisibility || Visibility[Visibility.PUBLIC]
+              }
               placeholder="Visibilité de l'événement"
-              color="gray.400"
+              color={isDark ? "whiteAlpha.400" : "gray.400"}
             >
               {visibilityOptions.map((key) => {
                 return (

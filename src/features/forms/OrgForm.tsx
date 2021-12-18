@@ -48,7 +48,7 @@ import {
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
-import { normalize } from "utils/string";
+import { normalize, normalizeQuill } from "utils/string";
 
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -167,12 +167,12 @@ export const OrgForm = withGoogleApi({
 
       let payload = {
         ...form,
+        orgName: form.orgName.trim(),
         orgType: form.orgType || OrgTypes.GENERIC,
         orgUrl: normalize(form.orgName),
-        orgDescription:
-          form.orgDescription === "<p><br></p>"
-            ? ""
-            : form.orgDescription?.replace(/\&nbsp;/g, " "),
+        orgDescription: form.orgDescription
+          ? normalizeQuill(form.orgDescription)
+          : undefined,
         orgDescriptionHtml,
         orgAddress:
           Array.isArray(orgAddress) && orgAddress.length > 0 ? orgAddress : [],
@@ -185,6 +185,8 @@ export const OrgForm = withGoogleApi({
           ? await bcrypt.hash(form.orgPassword, await bcrypt.genSalt(10))
           : undefined
       };
+
+      let { orgUrl } = payload;
 
       try {
         const sugg = suggestion || data[0];
@@ -208,7 +210,8 @@ export const OrgForm = withGoogleApi({
           });
         } else {
           payload.createdBy = props.session.user.userId;
-          await addOrg(payload).unwrap();
+          const org = await addOrg(payload).unwrap();
+          orgUrl = org.orgUrl;
 
           toast({
             title: `${orgTypeFull5(form.orgType)} a bien été ajoutée !`,
@@ -218,7 +221,7 @@ export const OrgForm = withGoogleApi({
         }
 
         setIsLoading(false);
-        props.onSubmit && props.onSubmit(payload.orgUrl);
+        props.onSubmit && props.onSubmit(orgUrl);
       } catch (error) {
         setIsLoading(false);
         handleError(error, (message, field) => {

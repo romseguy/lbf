@@ -1,6 +1,7 @@
 import {
   AddIcon,
   ArrowBackIcon,
+  ChatIcon,
   EditIcon,
   SettingsIcon
 } from "@chakra-ui/icons";
@@ -622,8 +623,8 @@ export const OrgPage = ({
               <Alert status="info" mb={5}>
                 <AlertIcon />
                 <Box>
-                  Cette section a pour vocation de proposer une alternative plus
-                  pratique et respectueuse aux{" "}
+                  Cette section a pour vocation principale de proposer une
+                  alternative plus pratique et respectueuse aux{" "}
                   <Tooltip label="synonymes : mailing lists, newsletters">
                     <Text
                       display="inline"
@@ -633,9 +634,35 @@ export const OrgPage = ({
                       listes de diffusion
                     </Text>
                   </Tooltip>{" "}
-                  traditionnelles.
+                  traditionnelles. Également libre à vous de l'utiliser comme
+                  bon vous semble, et de faire des suggestions sur le
+                  <ChatIcon color={isDark ? "yellow" : "green"} mx={1} />
+                  <Link
+                    //className={className}
+                    variant="underline"
+                    href="/forum"
+                    //onMouseEnter={() => setClassName("rainbow-text")}
+                    //onMouseLeave={() => setClassName(undefined)}
+                  >
+                    forum
+                  </Link>
+                  .
                 </Box>
               </Alert>
+
+              <TopicsList
+                org={org}
+                query={orgQuery}
+                mutation={[editOrg, editOrgMutation]}
+                subQuery={subQuery}
+                isCreator={isCreator}
+                isFollowed={!!followerSubscription}
+                isSubscribed={!!subscriberSubscription}
+                isLogin={isLogin}
+                setIsLogin={setIsLogin}
+                currentTopicName={tabItem}
+              />
+              <IconFooter />
 
               {process.env.NODE_ENV === "development" && session?.user.isAdmin && (
                 <Box mb={5}>
@@ -652,20 +679,6 @@ export const OrgPage = ({
                   </Button>
                 </Box>
               )}
-
-              <TopicsList
-                org={org}
-                query={orgQuery}
-                mutation={[editOrg, editOrgMutation]}
-                subQuery={subQuery}
-                isCreator={isCreator}
-                isFollowed={!!followerSubscription}
-                isSubscribed={!!subscriberSubscription}
-                isLogin={isLogin}
-                setIsLogin={setIsLogin}
-                currentTopicName={tabItem}
-              />
-              <IconFooter />
             </TabPanel>
 
             <TabPanel aria-hidden>
