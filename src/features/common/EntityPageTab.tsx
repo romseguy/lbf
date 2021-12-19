@@ -1,12 +1,11 @@
 import {
   chakra,
-  useColorModeValue,
-  useTab,
+  Icon,
+  useColorMode,
   useStyles,
-  Icon
+  useTab
 } from "@chakra-ui/react";
 import React from "react";
-import { css } from "twin.macro";
 import { AppIcon } from "utils/types";
 
 //@ts-expect-error
@@ -28,7 +27,9 @@ export const EntityPageTab = React.forwardRef(
     },
     ref
   ) => {
-    const inactiveTabBg = useColorModeValue("lightcyan", "gray.800");
+    const { colorMode } = useColorMode();
+    const isDark = colorMode === "dark";
+    const styles = useStyles();
     const tabProps = useTab(props);
 
     tabProps.tabIndex = 0;
@@ -37,19 +38,17 @@ export const EntityPageTab = React.forwardRef(
       tabProps["aria-selected"] = true;
     }
 
-    const styles = useStyles();
-
     return (
       <StyledTab
         {...tabProps}
-        __css={styles.tab}
-        css={css`
-          display: inline-block;
-        `}
-        bg={inactiveTabBg}
-        mr={2}
-        _focus={{
-          boxShadow: "none"
+        __css={{
+          ...styles.tab,
+          bg: isDark ? "gray.800" : "lightcyan",
+          _focus: {
+            boxShadow: "none"
+          },
+          _hover: { bg: "cyan.500" },
+          mr: 2
         }}
       >
         <Icon

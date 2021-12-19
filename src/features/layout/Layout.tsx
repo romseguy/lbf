@@ -13,7 +13,7 @@ import NextNprogress from "nextjs-progressbar";
 import React, { useEffect, useState } from "react";
 import { Offline } from "react-detect-offline";
 import { css } from "twin.macro";
-import { DarkModeSwitch } from "features/common";
+import { DarkModeSwitch, IconFooter } from "features/common";
 import { PaypalButton } from "features/common/forms/PaypalButton";
 import { Header, Main, Nav, Footer } from "features/layout";
 import { IEvent } from "models/Event";
@@ -146,11 +146,7 @@ export const Layout = ({
               </Tooltip>
 
               <Box ml={2}>
-                <a href="https://twitter.com/romseguy" target="_blank">
-                  <Tooltip hasArrow label="Contacter le développeur  ͡❛ ͜ʖ ͡❛">
-                    <Image src="/favicon-32x32.png" />
-                  </Tooltip>
-                </a>
+                <IconFooter noContainer />
               </Box>
             </Flex>
           </Box>

@@ -2,15 +2,16 @@ import { Alert, AlertIcon } from "@chakra-ui/react";
 import { Layout } from "features/layout";
 import { PageProps } from "./_app";
 
-const VerifyPage = (props: PageProps) => {
+const SentPage = (props: PageProps) => {
   return (
     <Layout {...props}>
       <Alert status="success">
         <AlertIcon />
-        Un e-mail de connexion vous a été envoyé.
+        Votre message a bien été envoyé. Je vous répondrai dès que possible.
+        Merci !
       </Alert>
     </Layout>
   );
 };
 
-export default VerifyPage;
+export default SentPage;

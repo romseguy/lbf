@@ -1,12 +1,5 @@
 import { EditIcon, AddIcon } from "@chakra-ui/icons";
-import {
-  Button,
-  Heading,
-  Tooltip,
-  IconButton,
-  Box,
-  Text
-} from "@chakra-ui/react";
+import { Button, Heading, Tooltip, IconButton, Text } from "@chakra-ui/react";
 import DOMPurify from "dompurify";
 import React from "react";
 import { GridItem, GridHeader } from "features/common";
@@ -30,12 +23,12 @@ export const EventPageDescription = ({
     >
       <GridHeader display="flex" alignItems="center" borderTopRadius="lg">
         <Heading size="sm" py={3}>
-          Description de l'événement
+          Présentation de l'événement
         </Heading>
         {event.eventDescription && isCreator && (
-          <Tooltip placement="bottom" label="Modifier la description">
+          <Tooltip placement="bottom" label="Modifier la présentation">
             <IconButton
-              aria-label="Modifier la description"
+              aria-label="Modifier la présentation"
               icon={<EditIcon />}
               bg="transparent"
               _hover={{ color: "green" }}
@@ -45,26 +38,28 @@ export const EventPageDescription = ({
         )}
       </GridHeader>
 
-      <GridItem>
-        <Box className="ql-editor" p={5}>
-          {event.eventDescription && event.eventDescription.length > 0 ? (
+      <GridItem p={5}>
+        {event.eventDescription && event.eventDescription.length > 0 ? (
+          <div className="ql-editor">
             <div
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(event.eventDescription)
+                __html: DOMPurify.sanitize(event.eventDescription, {
+                  ADD_TAGS: ["iframe"]
+                })
               }}
             />
-          ) : isCreator ? (
-            <Button
-              colorScheme="teal"
-              leftIcon={<AddIcon />}
-              onClick={() => setIsEdit(true)}
-            >
-              Ajouter
-            </Button>
-          ) : (
-            <Text fontStyle="italic">Aucune description.</Text>
-          )}
-        </Box>
+          </div>
+        ) : isCreator ? (
+          <Button
+            colorScheme="teal"
+            leftIcon={<AddIcon />}
+            onClick={() => setIsEdit(true)}
+          >
+            Ajouter
+          </Button>
+        ) : (
+          <Text fontStyle="italic">Aucune présentation.</Text>
+        )}
       </GridItem>
     </GridItem>
   );

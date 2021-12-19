@@ -17,14 +17,11 @@ export const EntityPageTabList = ({
       as="nav"
       bg={isDark ? "gray.700" : "lightblue"}
       borderRadius="xl"
+      css={css(scrollbarStyles)}
+      display="block"
+      overflowX="auto"
       p="12px 0 8px 12px"
-      css={css`
-        // https://stackoverflow.com/a/66926531
-        ${scrollbarStyles}
-        overflow-x: auto;
-        display: block;
-        white-space: nowrap;
-      `}
+      whiteSpace="nowrap"
       {...props}
     >
       {children}

@@ -13,6 +13,7 @@ export const breakpoints = createBreakpoints({
   nav: "1003px"
 });
 
+// https://stackoverflow.com/a/66926531
 export const scrollbarStyles = `
   &::-webkit-scrollbar {
     width: 10px;

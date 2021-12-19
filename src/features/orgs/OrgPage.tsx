@@ -44,7 +44,6 @@ import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
-import { SizeMap } from "features/map/Map";
 import { MapContainer } from "features/map/MapContainer";
 import { ProjectsList } from "features/projects/ProjectsList";
 import {
@@ -537,16 +536,16 @@ export const OrgPage = ({
                     borderTopRadius="lg"
                   >
                     <Heading size="sm" py={3}>
-                      Description {orgTypeFull(org.orgType)}
+                      Présentation {orgTypeFull(org.orgType)}
                     </Heading>
                     {org.orgDescription && isCreator && (
                       <Tooltip
                         hasArrow
-                        label="Modifier la description"
+                        label="Modifier la présentation"
                         placement="bottom"
                       >
                         <IconButton
-                          aria-label="Modifier la description"
+                          aria-label="Modifier la présentation"
                           icon={<EditIcon />}
                           bg="transparent"
                           _hover={{ color: "green" }}
@@ -556,9 +555,9 @@ export const OrgPage = ({
                     )}
                   </GridHeader>
 
-                  <GridItem>
-                    <Box className="ql-editor" p={5}>
-                      {description && description.length > 0 ? (
+                  <GridItem p={5}>
+                    {description && description.length > 0 ? (
+                      <div className="ql-editor">
                         <div
                           dangerouslySetInnerHTML={{
                             __html: DOMPurify.sanitize(description, {
@@ -566,18 +565,18 @@ export const OrgPage = ({
                             })
                           }}
                         />
-                      ) : isCreator ? (
-                        <Button
-                          colorScheme="teal"
-                          leftIcon={<AddIcon />}
-                          onClick={() => setIsEdit(true)}
-                        >
-                          Ajouter
-                        </Button>
-                      ) : (
-                        <Text fontStyle="italic">Aucune description.</Text>
-                      )}
-                    </Box>
+                      </div>
+                    ) : isCreator ? (
+                      <Button
+                        colorScheme="teal"
+                        leftIcon={<AddIcon />}
+                        onClick={() => setIsEdit(true)}
+                      >
+                        Ajouter
+                      </Button>
+                    ) : (
+                      <Text fontStyle="italic">Aucune présentation.</Text>
+                    )}
                   </GridItem>
                 </GridItem>
               </Grid>

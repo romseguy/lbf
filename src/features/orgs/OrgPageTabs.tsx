@@ -11,9 +11,9 @@ import React, { useState } from "react";
 import { FaHome, FaImages, FaTools } from "react-icons/fa";
 import { EntityPageTab, EntityPageTabList } from "features/common";
 import { IOrg, IOrgTab } from "models/Org";
+import { sortOn } from "utils/array";
 import { normalize } from "utils/string";
 import { AppIcon } from "utils/types";
-import { sortOn } from "utils/array";
 
 export const defaultTabs: (IOrgTab & { icon: AppIcon })[] = [
   { label: "Accueil", icon: FaHome, url: "" },
