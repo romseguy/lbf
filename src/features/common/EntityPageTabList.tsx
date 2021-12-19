@@ -7,7 +7,7 @@ export const EntityPageTabList = ({
   children,
   ...props
 }: TabListProps & {
-  children: React.ReactElement | React.ReactElement[];
+  children: React.ReactElement | (React.ReactElement | null)[];
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";

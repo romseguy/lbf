@@ -14,8 +14,10 @@ import {
   Grid,
   Heading,
   IconButton,
+  Input,
   List,
   ListItem,
+  Switch,
   TabPanel,
   TabPanels,
   Text,
@@ -54,7 +56,7 @@ import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSl
 import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { Visibility as EventVisibility } from "models/Event";
-import { IOrg, orgTypeFull, OrgTypes } from "models/Org";
+import { IOrg, IOrgTab, orgTypeFull, OrgTypes } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription
@@ -62,7 +64,7 @@ import {
 import { PageProps } from "pages/_app";
 import { hasItems } from "utils/array";
 import { OrgConfigPanel } from "./OrgConfigPanel";
-import { OrgPageTabs } from "./OrgPageTabs";
+import { OrgPageTabs, defaultTabs } from "./OrgPageTabs";
 import { useEditOrgMutation, useGetOrgQuery, useGetOrgsQuery } from "./orgsApi";
 import { selectOrgRefetch } from "./orgSlice";
 
@@ -202,10 +204,9 @@ export const OrgPage = ({
     topics: false,
     subscribers: false
   });
-  const [size, setSize] = useState<SizeMap>({
-    defaultSize: { enabled: true },
-    fullSize: { enabled: false }
-  });
+  const [tabs, setTabs] = useState<(IOrgTab & { checked: boolean })[]>(
+    (org.orgTabs || defaultTabs).map((t) => ({ ...t, checked: true }))
+  );
   //#endregion
 
   const refetchOrg = useSelector(selectOrgRefetch);
@@ -317,7 +318,7 @@ export const OrgPage = ({
       )}
 
       {!isConfig && !isEdit && (
-        <OrgPageTabs org={org} tab={tab}>
+        <OrgPageTabs org={org} session={session} tab={tab}>
           <TabPanels
             css={css`
               & > * {
@@ -690,6 +691,78 @@ export const OrgPage = ({
                 setIsLogin={setIsLogin}
               />
               <IconFooter />
+            </TabPanel>
+
+            <TabPanel aria-hidden>
+              {defaultTabs
+                .filter((defaultTab) => defaultTab.label !== "")
+                .map((defaultTab) => {
+                  return (
+                    <Flex alignItems="center" mb={1} maxWidth="fit-content">
+                      <Switch
+                        isChecked={
+                          !!tabs.find(
+                            (t) => t.label === defaultTab.label && t.checked
+                          )
+                        }
+                        mr={1}
+                        onChange={async (e) => {
+                          const newTabs = tabs.map((t) =>
+                            t.label === defaultTab.label
+                              ? { ...t, checked: e.target.checked }
+                              : t
+                          );
+                          setTabs(newTabs);
+
+                          let orgTabs;
+
+                          if (e.target.checked) {
+                            orgTabs = [
+                              ...(org.orgTabs || defaultTabs).map(
+                                ({ label, url }) => ({
+                                  label,
+                                  url
+                                })
+                              ),
+                              { label: defaultTab.label, url: defaultTab.url }
+                            ];
+                          } else {
+                            orgTabs = newTabs
+                              .filter(({ checked }) => !!checked)
+                              .map(({ label, url }) => ({ label, url }));
+                          }
+
+                          await editOrg({
+                            orgUrl: org.orgUrl,
+                            payload: { orgTabs }
+                          });
+                          orgQuery.refetch();
+                        }}
+                      />
+                      <Input
+                        defaultValue={defaultTab.label}
+                        isDisabled={defaultTabs
+                          .map(({ label }) => label)
+                          .includes(defaultTab.label)}
+                        onChange={(e) => {
+                          let changed = false;
+                          const newTabs = tabs.map((t) => {
+                            if (t.label === defaultTab.label) {
+                              if (e.target.value !== t.label) changed = true;
+                              return {
+                                ...t,
+                                label: e.target.value
+                              };
+                            }
+                            return t;
+                          });
+
+                          if (changed) setTabs(newTabs);
+                        }}
+                      />
+                    </Flex>
+                  );
+                })}
             </TabPanel>
           </TabPanels>
         </OrgPageTabs>

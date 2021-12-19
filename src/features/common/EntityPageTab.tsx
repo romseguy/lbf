@@ -52,7 +52,12 @@ export const EntityPageTab = React.forwardRef(
           boxShadow: "none"
         }}
       >
-        <Icon as={icon} boxSize={5} mr={2} verticalAlign="middle" />
+        <Icon
+          as={icon}
+          boxSize={5}
+          mr={tabProps.children ? 2 : undefined}
+          verticalAlign="middle"
+        />
         {tabProps.children}
       </StyledTab>
     );

@@ -36,6 +36,7 @@ export interface IOrg {
     url?: string;
   };
   orgPassword: string;
+  orgTabs?: IOrgTab[];
   orgVisibility: string;
   orgs?: IOrg[];
   isApproved?: boolean;
@@ -47,9 +48,15 @@ export interface IOrgEventCategory {
   label: string;
   bgColor?: string;
 }
+
 export interface IOrgList {
   listName: string;
   subscriptions?: ISubscription[];
+}
+
+export interface IOrgTab {
+  label: string;
+  url?: string;
 }
 
 export type OrgType = "ASSO" | "GENERIC" | "GROUP" | "NETWORK";

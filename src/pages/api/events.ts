@@ -88,6 +88,7 @@ handler.post<NextApiRequest & { body: IEvent }, NextApiResponse>(
 
       let event: (IEvent & Document<any, any, any>) | null = null;
       let eventOrgs: IOrg[] = [];
+      const { eventUrl } = body;
 
       if (body.forwardedFrom) {
         event = await models.Event.findOne({ eventUrl });

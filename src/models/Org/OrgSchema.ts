@@ -75,6 +75,10 @@ export const OrgSchema = new Schema<IOrg>(
       url: { type: String, trim: true }
     },
     orgPassword: String,
+    orgTabs: {
+      type: [{ label: { type: String, required: true }, url: String }],
+      default: undefined
+    },
     orgVisibility: {
       type: String,
       enum: Object.keys(Visibility).map((key) => Visibility[key]),

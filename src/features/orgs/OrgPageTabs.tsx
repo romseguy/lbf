@@ -1,38 +1,57 @@
-import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
+import {
+  CalendarIcon,
+  ChatIcon,
+  QuestionIcon,
+  SettingsIcon
+} from "@chakra-ui/icons";
 import { Tabs, useColorMode } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { FaHome, FaImages, FaTools } from "react-icons/fa";
 import { EntityPageTab, EntityPageTabList } from "features/common";
-import { IOrg } from "models/Org";
+import { IOrg, IOrgTab } from "models/Org";
 import { normalize } from "utils/string";
 import { AppIcon } from "utils/types";
+import { sortOn } from "utils/array";
 
-const tabs: { [key: string]: { icon: AppIcon; url: string } } = {
-  Accueil: { icon: FaHome, url: "" },
-  Événements: { icon: CalendarIcon, url: "/evenements" },
-  Projets: { icon: FaTools, url: "/projets" },
-  Discussions: { icon: ChatIcon, url: "/discussions" },
-  Galerie: { icon: FaImages, url: "/galerie" }
-};
+export const defaultTabs: (IOrgTab & { icon: AppIcon })[] = [
+  { label: "Accueil", icon: FaHome, url: "" },
+  { label: "Événements", icon: CalendarIcon, url: "/evenements" },
+  { label: "Projets", icon: FaTools, url: "/projets" },
+  { label: "Discussions", icon: ChatIcon, url: "/discussions" },
+  { label: "Galerie", icon: FaImages, url: "/galerie" },
+  { label: "", icon: SettingsIcon, url: "" }
+];
 
 export const OrgPageTabs = ({
   children,
   org,
+  session,
   ...props
 }: {
   org: IOrg;
+  session: Session | null;
   tab?: string;
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
+  const tabs = [...(org.orgTabs || defaultTabs)].sort(
+    sortOn(
+      "label",
+      defaultTabs.filter(({ label }) => label !== "").map(({ label }) => label)
+    )
+  );
+
   let defaultTabIndex = 0;
-  Object.keys(tabs).reduce((index, tab) => {
-    if (normalize(tab) === normalize(props.tab || "")) defaultTabIndex = index;
-    return index + 1;
-  }, 0);
+  if (props.tab !== undefined)
+    tabs.map((tab, tabIndex) => {
+      if (normalize(tab.label) === normalize(props.tab || ""))
+        defaultTabIndex = tabIndex;
+      return tabIndex + 1;
+    }, 0);
   const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex || 0);
 
   return (
@@ -53,28 +72,23 @@ export const OrgPageTabs = ({
       onChange={(index) => setCurrentTabIndex(index)}
     >
       <EntityPageTabList aria-hidden>
-        {Object.keys(tabs).map((name, tabIndex) => {
-          const { icon, url } = tabs[name];
+        {tabs.map((tab, tabIndex) => {
+          if (!session && tab.label === "") return null;
 
           return (
             <EntityPageTab
               key={`orgTab-${tabIndex}`}
               currentTabIndex={currentTabIndex}
-              icon={icon}
+              icon={
+                defaultTabs.find(({ label }) => label === tab.label)?.icon ||
+                QuestionIcon
+              }
               tabIndex={tabIndex}
               onClick={() => {
-                if (name === "Discussions")
+                if (tab.url)
                   router.push(
-                    `/${org.orgUrl}/discussions`,
-                    `/${org.orgUrl}/discussions`,
-                    {
-                      shallow: true
-                    }
-                  );
-                else if (name === "Événements")
-                  router.push(
-                    `/${org.orgUrl}/evenements`,
-                    `/${org.orgUrl}/evenements`,
+                    `/${org.orgUrl}${tab.url}`,
+                    `/${org.orgUrl}${tab.url}`,
                     {
                       shallow: true
                     }
@@ -84,13 +98,15 @@ export const OrgPageTabs = ({
                     shallow: true
                   });
               }}
-              data-cy={`orgTab-${name}`}
+              data-cy={`orgTab-${tab.label}`}
             >
-              {name}
+              {tab.label}
             </EntityPageTab>
           );
         })}
       </EntityPageTabList>
+
+      {/* TabPanels */}
       {children}
     </Tabs>
   );
