@@ -11,7 +11,6 @@ import React, { useState } from "react";
 import { FaHome, FaImages, FaTools } from "react-icons/fa";
 import { EntityPageTab, EntityPageTabList } from "features/common";
 import { IOrg, IOrgTab } from "models/Org";
-import { sortOn } from "utils/array";
 import { normalize } from "utils/string";
 import { AppIcon } from "utils/types";
 
@@ -28,22 +27,18 @@ export const OrgPageTabs = ({
   children,
   org,
   session,
+  tabs,
   ...props
 }: {
   org: IOrg;
   session: Session | null;
   tab?: string;
+  tabs: IOrgTab[];
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const tabs = [...(org.orgTabs || defaultTabs)].sort(
-    sortOn(
-      "label",
-      defaultTabs.filter(({ label }) => label !== "").map(({ label }) => label)
-    )
-  );
 
   let defaultTabIndex = 0;
   if (props.tab !== undefined)

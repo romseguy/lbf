@@ -32,7 +32,7 @@ import { useRouter } from "next/router";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/client";
 import React, { useEffect, useState } from "react";
-import { FaKey } from "react-icons/fa";
+import { FaKey, FaPowerOff } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import { Link } from "features/common";
@@ -221,7 +221,10 @@ export const Nav = ({
 
                     {!session && (
                       <>
-                        <EmailLoginPopover boxSize={[8, 10, 10]} />
+                        <EmailLoginPopover
+                          iconProps={{ boxSize: [8, 10, 10] }}
+                          popoverProps={{ offset: [-140, -25] }}
+                        />
 
                         <Tooltip label="Connexion par mot de passe">
                           <IconButton
@@ -234,7 +237,7 @@ export const Nav = ({
                               />
                             }
                             bg="transparent"
-                            _hover={{ bg: "transparent" }}
+                            _hover={{ bg: "transparent", color: "#00B5D8" }}
                             mx={3}
                             onClick={() => setIsLoginModalOpen(true)}
                           />
@@ -467,34 +470,29 @@ export const Nav = ({
                       >
                         <EventPopover boxSize={[6, 6, 6]} session={session} />
                         <OrgPopover
-                          boxSize={[6, 8, 8]}
+                          boxSize={6}
                           orgType={OrgTypes.NETWORK}
                           ml={2}
                           session={session}
                         />
-                        <OrgPopover
-                          boxSize={[8, 8, 8]}
-                          mr={1}
-                          session={session}
-                        />
-                        <TopicPopover
-                          boxSize={[6, 6, 6]}
-                          mr={2}
-                          session={session}
-                        />
+                        <OrgPopover boxSize={8} mr={1} session={session} />
+                        <TopicPopover boxSize={6} mr={2} session={session} />
                       </Flex>
                     )}
 
                     {!session && (
                       <>
-                        <EmailLoginPopover boxSize={[8, 10, 10]} />
+                        <EmailLoginPopover
+                          iconProps={{ boxSize: 8 }}
+                          popoverProps={{ offset: [100, -20] }}
+                        />
 
                         <Tooltip label="Connexion par mot de passe">
                           <IconButton
                             aria-label="Connexion"
-                            icon={<Icon as={FaKey} boxSize={[8, 8, 8]} />}
+                            icon={<Icon as={FaPowerOff} boxSize={6} />}
                             bg="transparent"
-                            _hover={{ bg: "transparent" }}
+                            _hover={{ bg: "transparent", color: "#00B5D8" }}
                             mx={3}
                             onClick={() => setIsLoginModalOpen(true)}
                           />
@@ -507,7 +505,7 @@ export const Nav = ({
                         <Tooltip label={`Connecté en tant que ${userEmail}`}>
                           <MenuButton ml={1} data-cy="avatar-button">
                             <Avatar
-                              boxSize={[6, 8, 8]}
+                              boxSize={10}
                               name={userName}
                               css={css`
                                 // &:focus {

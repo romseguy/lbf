@@ -589,14 +589,14 @@ export const EventForm = withGoogleApi({
             placeholder="Catégorie de l'événement"
             color="gray.400"
           >
-            {Object.keys(Category).map((key) => {
-              const k = parseInt(key);
-              return (
-                <option key={key} value={key}>
-                  {Category[k].label}
-                </option>
-              );
-            })}
+            {(initialEventOrgs[0] && initialEventOrgs[0].orgEventCategories
+              ? initialEventOrgs[0].orgEventCategories.map(({ label }) => label)
+              : Object.keys(Category)
+            ).map((label) => (
+              <option key={label} value={label}>
+                {label}
+              </option>
+            ))}
           </Select>
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="eventCategory" />

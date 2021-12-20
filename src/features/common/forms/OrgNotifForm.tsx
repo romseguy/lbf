@@ -23,6 +23,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
+import { css } from "twin.macro";
 import { IEvent } from "models/Event";
 import { orgTypeFull, getSubscriptions, IOrg } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
@@ -77,15 +78,7 @@ export const OrgNotifForm = ({
   //#endregion
 
   return (
-    <Box
-      bg={isDark ? "gray.500" : "orange.100"}
-      borderRadius="lg"
-      pb={3}
-      pt={1}
-      px={3}
-      mb={3}
-      mt={1}
-    >
+    <Box>
       <form
         onSubmit={handleSubmit(async (form: { orgListsNames: string[] }) => {
           setIsLoading(true);
@@ -101,7 +94,7 @@ export const OrgNotifForm = ({
                 setType("multi");
               }}
             >
-              Inviter les membres de listes de diffusion à participer à{" "}
+              Inviter les membres de listes de diffusion à{" "}
               {isT ? "cette discussion" : "cet événement"}
             </Radio>
             <Radio
@@ -110,7 +103,7 @@ export const OrgNotifForm = ({
                 setType("single");
               }}
             >
-              Inviter une personne à participer à{" "}
+              Inviter une personne à{" "}
               {isT ? "cette discussion" : "cet événement"}
             </Radio>
           </Stack>
@@ -118,156 +111,190 @@ export const OrgNotifForm = ({
 
         {query.isLoading && <Spinner />}
 
-        {type === "single" && !query.isLoading && (
-          <EmailControl
-            name="email"
-            noLabel
-            control={control}
-            register={register}
-            setValue={setValue}
-            errors={errors}
-            placeholder="Envoyer à cette adresse e-mail uniquement"
-            isMultiple={false}
-          />
-        )}
+        {type !== undefined && (
+          <Box
+            bg={isDark ? "gray.500" : "orange.100"}
+            borderRadius="lg"
+            p={3}
+            mb={3}
+            mt={1}
+          >
+            {type === "single" && !query.isLoading && (
+              <EmailControl
+                name="email"
+                noLabel
+                control={control}
+                register={register}
+                setValue={setValue}
+                errors={errors}
+                placeholder="Envoyer à cette adresse e-mail uniquement"
+                isMultiple={false}
+                inputProps={{ bg: isDark ? "gray.700" : "white" }}
+              />
+            )}
 
-        {type === "multi" && !query.isLoading && (
-          <FormControl isInvalid={!!errors.orgListsNames} isRequired>
-            <CheckboxGroup>
-              <Table>
-                <Tbody>
-                  <Fragment key={org._id}>
-                    <Tr>
-                      <Td pl={0} pt={0} colSpan={2}>
-                        <Flex alignItems="center">
-                          <HamburgerIcon mr={2} />
-                          <Heading display="flex" alignItems="center" size="sm">
-                            Listes de diffusion {orgTypeFull(org.orgType)}
-                            <EntityButton
-                              org={org}
-                              pl={1}
-                              pr={2}
-                              py={1}
-                              ml={2}
-                            />
-                          </Heading>
-                        </Flex>
-                      </Td>
-                    </Tr>
-
-                    {(org.orgLists || [])
-                      .concat([
-                        {
-                          listName: "Abonnés",
-                          subscriptions: getSubscriptions(
-                            org,
-                            SubscriptionTypes.FOLLOWER
-                          )
-                        },
-                        {
-                          listName: "Adhérents",
-                          subscriptions: getSubscriptions(
-                            org,
-                            SubscriptionTypes.SUBSCRIBER
-                          )
+            {type === "multi" && !query.isLoading && (
+              <FormControl isInvalid={!!errors.orgListsNames} isRequired>
+                <CheckboxGroup>
+                  <Table>
+                    <Tbody
+                      css={css`
+                        td {
+                          border-bottom-color: ${isDark
+                            ? "white"
+                            : "lightgray"};
                         }
-                      ])
-                      .map((list) => {
-                        let i = 0;
-                        for (const subscription of list.subscriptions || []) {
-                          const notified = isT
-                            ? entity.topicNotified
-                            : entity.eventNotified;
-
-                          if (
-                            notified?.find(({ email, phone }) =>
-                              typeof subscription.user === "object"
-                                ? equalsValue(subscription.user.email, email) ||
-                                  equalsValue(subscription.user.phone, phone)
-                                : equalsValue(email, subscription.email) ||
-                                  equalsValue(phone, subscription.phone)
-                            )
-                          )
-                            continue;
-
-                          i++;
-                        }
-                        const s = i !== 1 ? "s" : "";
-
-                        return (
-                          <Tr key={list.listName}>
-                            <Td>
-                              <Checkbox
-                                name="orgListsNames"
-                                ref={register({
-                                  required:
-                                    "Veuillez sélectionner une liste au minimum"
-                                })}
-                                value={list.listName + "." + org._id}
-                                icon={<EmailIcon />}
-                                isDisabled={i === 0}
+                      `}
+                    >
+                      <Fragment key={org._id}>
+                        <Tr>
+                          <Td pl={0} pt={0} colSpan={2}>
+                            <Flex alignItems="center">
+                              <HamburgerIcon mr={2} />
+                              <Heading
+                                display="flex"
+                                alignItems="center"
+                                size="sm"
                               >
-                                {list.listName}
-                              </Checkbox>
-                            </Td>
-                            <Td>
-                              {!hasItems(list.subscriptions) ? (
-                                list.listName === "Abonnés" ? (
-                                  "0 abonnés"
-                                ) : list.listName === "Adhérents" ? (
-                                  "0 adhérents"
-                                ) : (
-                                  "0 membres"
+                                Listes de diffusion {orgTypeFull(org.orgType)}
+                                <EntityButton
+                                  org={org}
+                                  pl={1}
+                                  pr={2}
+                                  py={1}
+                                  ml={2}
+                                />
+                              </Heading>
+                            </Flex>
+                          </Td>
+                        </Tr>
+
+                        {(org.orgLists || [])
+                          .concat([
+                            {
+                              listName: "Abonnés",
+                              subscriptions: getSubscriptions(
+                                org,
+                                SubscriptionTypes.FOLLOWER
+                              )
+                            },
+                            {
+                              listName: "Adhérents",
+                              subscriptions: getSubscriptions(
+                                org,
+                                SubscriptionTypes.SUBSCRIBER
+                              )
+                            }
+                          ])
+                          .map((list) => {
+                            let i = 0;
+                            for (const subscription of list.subscriptions ||
+                              []) {
+                              const notified = isT
+                                ? entity.topicNotified
+                                : entity.eventNotified;
+
+                              if (
+                                notified?.find(({ email, phone }) =>
+                                  typeof subscription.user === "object"
+                                    ? equalsValue(
+                                        subscription.user.email,
+                                        email
+                                      ) ||
+                                      equalsValue(
+                                        subscription.user.phone,
+                                        phone
+                                      )
+                                    : equalsValue(email, subscription.email) ||
+                                      equalsValue(phone, subscription.phone)
                                 )
-                              ) : (
-                                <Text>
-                                  {i} membre{s} n'{s ? "ont" : "a"} pas été{" "}
-                                  {isT ? "notifié" : "invité"}
-                                </Text>
-                              )}
-                            </Td>
-                          </Tr>
-                        );
-                      })}
-                  </Fragment>
-                </Tbody>
-              </Table>
-            </CheckboxGroup>
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="orgListsNames" />
-            </FormErrorMessage>
-          </FormControl>
+                              )
+                                continue;
+
+                              i++;
+                            }
+                            const s = i !== 1 ? "s" : "";
+
+                            return (
+                              <Tr
+                                key={list.listName}
+                                bg={isDark ? undefined : "white"}
+                              >
+                                <Td>
+                                  <Checkbox
+                                    name="orgListsNames"
+                                    ref={register({
+                                      required:
+                                        "Veuillez sélectionner une liste au minimum"
+                                    })}
+                                    value={list.listName + "." + org._id}
+                                    icon={<EmailIcon />}
+                                    isDisabled={i === 0}
+                                  >
+                                    {list.listName}
+                                  </Checkbox>
+                                </Td>
+                                <Td>
+                                  {!hasItems(list.subscriptions) ? (
+                                    list.listName === "Abonnés" ? (
+                                      "0 abonnés"
+                                    ) : list.listName === "Adhérents" ? (
+                                      "0 adhérents"
+                                    ) : (
+                                      "0 membres"
+                                    )
+                                  ) : (
+                                    <Text>
+                                      {i} membre{s} n'{s ? "ont" : "a"} pas été
+                                      invité
+                                    </Text>
+                                  )}
+                                </Td>
+                              </Tr>
+                            );
+                          })}
+                      </Fragment>
+                    </Tbody>
+                  </Table>
+                </CheckboxGroup>
+                <FormErrorMessage>
+                  <ErrorMessage errors={errors} name="orgListsNames" />
+                </FormErrorMessage>
+              </FormControl>
+            )}
+
+            <ErrorMessage
+              errors={errors}
+              name="formErrorMessage"
+              render={({ message }) => (
+                <Alert status="error" mb={3}>
+                  <AlertIcon />
+                  <ErrorMessageText>{message}</ErrorMessageText>
+                </Alert>
+              )}
+            />
+
+            <Flex justifyContent="space-between" mt={3}>
+              {onCancel && <Button onClick={onCancel}>Annuler</Button>}
+
+              {type && (
+                <Button
+                  colorScheme="green"
+                  type="submit"
+                  isLoading={isLoading}
+                  isDisabled={
+                    Object.keys(errors).length > 0 ||
+                    (type === "single" && !email) ||
+                    (type === "multi" && !hasItems(orgListsNames))
+                  }
+                >
+                  Envoyer{" "}
+                  {type === "single" ? "l'invitation" : "les invitations"}
+                </Button>
+              )}
+            </Flex>
+          </Box>
         )}
-
-        <ErrorMessage
-          errors={errors}
-          name="formErrorMessage"
-          render={({ message }) => (
-            <Alert status="error" mb={3}>
-              <AlertIcon />
-              <ErrorMessageText>{message}</ErrorMessageText>
-            </Alert>
-          )}
-        />
-
-        <Flex justifyContent="space-between" mt={3}>
-          {onCancel && <Button onClick={onCancel}>Annuler</Button>}
-
-          {type && (
-            <Button
-              colorScheme="green"
-              type="submit"
-              isLoading={isLoading}
-              isDisabled={
-                Object.keys(errors).length > 0 ||
-                (type === "single" && !email) ||
-                (type === "multi" && !hasItems(orgListsNames))
-              }
-            >
-              Envoyer {type === "single" ? "l'invitation" : "les invitations"}
-            </Button>
-          )}
-        </Flex>
       </form>
     </Box>
   );

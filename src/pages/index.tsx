@@ -41,7 +41,7 @@ const IndexPage = (props: PageProps) => {
           <ListItem>
             Avec un début de site internet et une adresse facile à retenir, par
             exemple :{" "}
-            <Tag colorScheme="blue" mt={1} mr={1}>
+            <Tag colorScheme="blue" mt={1} mr={1} px={2} py={3}>
               <Link href={url} mr={1}>
                 {url}
               </Link>
@@ -96,8 +96,7 @@ const IndexPage = (props: PageProps) => {
         </Heading>
 
         <Box fontSize="xl">
-          Invitez les personnes qui se sont abonnées ou qui ont adhéré à votre
-          organisation, à vos événements, projets, et discussions.
+          Invitez vos adhérents à vos événements, projets, et discussions.
           <Flex
             alignItems="center"
             borderColor={isDark ? "white" : "black"}
@@ -134,7 +133,7 @@ const IndexPage = (props: PageProps) => {
         </Text>
       </PageContainer>
 
-      <IconFooter />
+      <IconFooter mt={3} />
     </Layout>
   );
 };

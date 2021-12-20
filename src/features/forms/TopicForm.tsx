@@ -146,40 +146,20 @@ export const TopicForm = ({
     if (!session) return;
 
     setIsLoading(true);
+    let topic: Partial<ITopic> = {
+      topicCategory: form.topicCategory ? form.topicCategory.value : null,
+      topicName: form.topicName,
+      topicVisibility: form.topicVisibility?.map(({ label, value }) => value)
+    };
 
     try {
-      const payload = {
-        org,
-        event,
-        topic: {
-          topicName: form.topicName,
-          topicMessages: form.topicMessage
-            ? [
-                {
-                  message: form.topicMessage,
-                  messageHtml,
-                  createdBy: session.user.userId
-                }
-              ]
-            : [],
-          topicCategory: form.topicCategory ? form.topicCategory.value : null,
-          topicVisibility: form.topicVisibility?.map(
-            ({ label, value }) => value
-          )
-        }
-      };
-
       if (props.topic) {
+        const payload = {
+          topic
+        };
+
         await editTopic({
-          payload: {
-            topic: {
-              ...payload.topic,
-              topicMessages: [
-                ...props.topic.topicMessages,
-                ...payload.topic.topicMessages
-              ]
-            }
-          },
+          payload,
           topicId: props.topic._id
         }).unwrap();
 
@@ -192,7 +172,23 @@ export const TopicForm = ({
         setIsLoading(false);
         props.onSubmit && props.onSubmit(props.topic);
       } else {
-        const topic = await addTopic({
+        topic.topicMessages = form.topicMessage
+          ? [
+              {
+                message: form.topicMessage,
+                messageHtml,
+                createdBy: session.user.userId
+              }
+            ]
+          : [];
+
+        const payload = {
+          org,
+          event,
+          topic
+        };
+
+        const newTopic = await addTopic({
           payload,
           topicNotif: form.topicNotif
         }).unwrap();
@@ -204,18 +200,17 @@ export const TopicForm = ({
         });
 
         setIsLoading(false);
-        props.onSubmit && props.onSubmit(topic);
+        props.onSubmit && props.onSubmit(newTopic);
       }
+
       localStorage.removeItem("quillHtml");
     } catch (error: any) {
       setIsLoading(false);
-      handleError(error, (message, field) => {
-        if (field) {
-          setError(field, { type: "manual", message });
-        } else {
-          setError("formErrorMessage", { type: "manual", message });
-        }
-      });
+      handleError(error, (message, field) =>
+        field
+          ? setError(field, { type: "manual", message })
+          : setError("formErrorMessage", { type: "manual", message })
+      );
     }
   };
   //#endregion

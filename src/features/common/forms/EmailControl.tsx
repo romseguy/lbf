@@ -10,6 +10,7 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  InputProps,
   InputRightAddon,
   InputRightElement
 } from "@chakra-ui/react";
@@ -31,8 +32,9 @@ export const EmailControl = ({
   control,
   setValue,
   containerProps = {},
-  isRequired = false,
+  inputProps = {},
   isMultiple = true,
+  isRequired = false,
   placeholder = "Saisir une adresse e-mail...",
   onRightElementClick,
   ...props
@@ -46,8 +48,9 @@ export const EmailControl = ({
   control?: any;
   setValue?: (name: string, value: EmailControlValue | string) => void;
   containerProps?: StyleProps;
-  isRequired?: boolean;
+  inputProps?: InputProps;
   isMultiple?: boolean;
+  isRequired?: boolean;
   placeholder?: string;
   onRightElementClick?: () => void;
 }) => {
@@ -80,6 +83,7 @@ export const EmailControl = ({
             })}
             defaultValue={defaultValue}
             pl={10}
+            {...inputProps}
             data-cy="email-input"
           />
           {noLabel && onRightElementClick && (

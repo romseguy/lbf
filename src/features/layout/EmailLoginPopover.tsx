@@ -1,38 +1,34 @@
-import React, { useState } from "react";
-import { useRouter } from "next/router";
-import { signIn } from "next-auth/client";
+import { EmailIcon } from "@chakra-ui/icons";
 import {
   Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverHeader,
   PopoverBody,
+  PopoverContent,
   PopoverFooter,
-  useColorModeValue,
+  PopoverHeader,
+  PopoverProps,
+  PopoverTrigger,
   Icon,
   IconButton,
+  IconProps,
   Box,
   Heading,
   Button,
   BoxProps,
-  useToast,
   Alert,
   AlertIcon,
   Tooltip
 } from "@chakra-ui/react";
-import { EmailControl, ErrorMessageText, Link } from "features/common";
-import { useSession } from "hooks/useAuth";
-import { EmailIcon } from "@chakra-ui/icons";
-import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
-import { useAppDispatch } from "store";
+import { signIn } from "next-auth/client";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { EmailControl, ErrorMessageText } from "features/common";
 
-export const EmailLoginPopover = ({ boxSize, ...props }: BoxProps) => {
-  const router = useRouter();
-  const { data: session } = useSession();
-  const toast = useToast({ position: "top" });
-  const dispatch = useAppDispatch();
-
+export const EmailLoginPopover = ({
+  iconProps,
+  popoverProps,
+  ...props
+}: BoxProps & { iconProps?: IconProps; popoverProps?: PopoverProps }) => {
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,11 +61,11 @@ export const EmailLoginPopover = ({ boxSize, ...props }: BoxProps) => {
       <Popover
         isLazy
         isOpen={isOpen}
-        offset={[-140, -25]}
         onClose={() => {
           clearErrors("formErrorMessage");
           setIsOpen(false);
         }}
+        {...popoverProps}
       >
         <PopoverTrigger>
           <Tooltip label="Connexion par e-mail">
@@ -84,7 +80,7 @@ export const EmailLoginPopover = ({ boxSize, ...props }: BoxProps) => {
                 <Icon
                   as={EmailIcon}
                   _hover={{ color: "#00B5D8" }}
-                  boxSize={boxSize}
+                  {...iconProps}
                 />
               }
             />

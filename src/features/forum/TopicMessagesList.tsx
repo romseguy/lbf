@@ -205,6 +205,7 @@ export const TopicMessagesList = ({
                           const payload = {
                             topic: {
                               ...topic,
+                              //topicMessages: [{_id}]
                               topicMessages:
                                 index === topic.topicMessages.length - 1
                                   ? topic.topicMessages.filter((m) => {

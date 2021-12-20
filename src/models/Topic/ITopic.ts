@@ -8,7 +8,7 @@ export interface ITopic {
   id?: string;
   topicName: string;
   topicMessages: ITopicMessage[];
-  topicMessagesDisabled: boolean;
+  topicMessagesDisabled?: boolean;
   topicCategory?: string | null;
   topicVisibility?: string[];
   org?: IOrg;

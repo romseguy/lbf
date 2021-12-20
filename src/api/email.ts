@@ -510,7 +510,7 @@ export const sendTopicMessageEmailNotifications = async ({
   org?: IOrg | null;
   subscriptions: ISubscription[];
   topic: ITopic;
-  transport: any;
+  transport: nodemailer.Transporter<any>;
 }) => {
   if (!event && !org) return;
 
@@ -558,7 +558,7 @@ export const sendToAdmin = async ({
 }: {
   event?: IEvent;
   project?: Partial<IProject>;
-  transport: any;
+  transport: nodemailer.Transporter<any>;
 }) => {
   if (!event && !project) return;
 

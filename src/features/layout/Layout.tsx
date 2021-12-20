@@ -21,7 +21,6 @@ import { IOrg } from "models/Org";
 import { PageProps } from "pages/_app";
 import { breakpoints } from "theme/theme";
 import { Base64Image } from "utils/image";
-import { EmailIcon } from "@chakra-ui/icons";
 
 const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
 
@@ -230,17 +229,7 @@ export const Layout = ({
                 </Box>
               </Tooltip>
 
-              <Tooltip
-                hasArrow
-                label="Contacter le développeur  ͡❛ ͜ʖ ͡❛"
-                placement="top-end"
-              >
-                <Box ml={3}>
-                  <a href="https://twitter.com/romseguy" target="_blank">
-                    <EmailIcon boxSize={6} />
-                  </a>
-                </Box>
-              </Tooltip>
+              <IconFooter ml={3} />
             </Flex>
           )}
         </Footer>

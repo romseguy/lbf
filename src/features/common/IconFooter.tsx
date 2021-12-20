@@ -2,6 +2,7 @@ import {
   Alert,
   AlertIcon,
   Box,
+  BoxProps,
   Flex,
   FormControl,
   FormLabel,
@@ -31,8 +32,9 @@ import { handleError } from "utils/form";
 import { useRouter } from "next/router";
 
 export const IconFooter = ({
-  noContainer = false
-}: {
+  noContainer = false,
+  ...props
+}: BoxProps & {
   noContainer?: boolean;
 }) => {
   const router = useRouter();
@@ -183,7 +185,7 @@ export const IconFooter = ({
 
   return (
     <>
-      <Box my={3} borderBottomRadius="lg" align="center">
+      <Box align="center" {...props}>
         {link}
       </Box>
       {modal}

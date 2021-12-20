@@ -160,7 +160,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
 
   return (
     <Modal
-      isOpen
+      isOpen={modalState.entity !== null}
       onClose={() =>
         setModalState({
           ...modalState,

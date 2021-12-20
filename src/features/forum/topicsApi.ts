@@ -1,9 +1,10 @@
-import type { ITopic } from "models/Topic";
 import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
-import baseQuery, { objectToQueryString } from "utils/query";
-import { IOrg } from "models/Org";
+import { AddTopicParams, EditTopicParams } from "api/forum";
 import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
+import { ITopic } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
+import baseQuery, { objectToQueryString } from "utils/query";
 
 //const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
 
@@ -16,11 +17,7 @@ export const topicsApi = createApi({
     addTopic: build.mutation<
       ITopic,
       {
-        payload: {
-          topic: Partial<ITopic>;
-          org?: Partial<IOrg>;
-          event?: Partial<IEvent>;
-        };
+        payload: Omit<AddTopicParams, "topicNotif">;
         topicNotif?: boolean;
       }
     >({
@@ -42,15 +39,17 @@ export const topicsApi = createApi({
     editTopic: build.mutation<
       {},
       {
-        payload: { topic: Partial<ITopic>; topicMessage?: ITopicMessage };
+        payload: EditTopicParams;
         topicId?: string;
         topicNotif?: boolean;
       }
     >({
       query: ({ payload, topicId, topicNotif }) => {
+        console.groupCollapsed("editTopic");
         console.log("editTopic: topicId", topicId);
         console.log("editTopic: topicNotif", topicNotif);
         console.log("editTopic: payload", payload);
+        console.groupEnd();
 
         return {
           url: `topic/${topicId ? topicId : payload.topic._id}`,

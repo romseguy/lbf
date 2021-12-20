@@ -112,6 +112,9 @@ export const EntityButton = ({
             m={0}
             p={1}
             pr={2}
+            // override
+            textAlign="left"
+            whiteSpace="normal"
             {...props}
           >
             {topic

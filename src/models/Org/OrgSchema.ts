@@ -31,9 +31,12 @@ export const OrgSchema = new Schema<IOrg>(
         prefix: { type: String, trim: true }
       }
     ],
-    orgEventCategories: [
-      { label: { type: String, required: true, trim: true }, bgColor: String }
-    ],
+    orgEventCategories: {
+      type: [
+        { label: { type: String, required: true, trim: true }, bgColor: String }
+      ],
+      default: undefined
+    },
     orgDescription: {
       type: String,
       trim: true
@@ -76,7 +79,9 @@ export const OrgSchema = new Schema<IOrg>(
     },
     orgPassword: String,
     orgTabs: {
-      type: [{ label: { type: String, required: true }, url: String }],
+      type: [
+        { label: { type: String, required: true, trim: true }, url: String }
+      ],
       default: undefined
     },
     orgVisibility: {
