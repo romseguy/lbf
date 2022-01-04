@@ -79,6 +79,17 @@ import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize, normalizeQuill } from "utils/string";
 
+type DaysMap = { [key: number]: DayState };
+type DayState = {
+  checked: boolean;
+  isDisabled?: boolean;
+  isOpen: boolean;
+  dayNumber: number;
+  startDate: Date | null;
+  endTime: Date | null;
+  monthRepeat?: number[];
+};
+
 const repeatOptions: number[] = [];
 for (let i = 1; i <= 10; i++) {
   repeatOptions[i] = i;
@@ -101,13 +112,8 @@ export const EventForm = withGoogleApi({
     const isDark = colorMode === "dark";
     const toast = useToast({ position: "top" });
     const now = new Date();
-
-    //#region local state
-    const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs || [];
-    const [isRepeat, setIsRepeat] = useState(
-      !!props.event?.repeat || hasItems(props.event?.otherDays)
-    );
-    //#endregion
+    const [addEvent, addEventMutation] = useAddEventMutation();
+    const [editEvent, editEventMutation] = useEditEventMutation();
 
     //#region myOrgs
     const { data: myOrgs } = useGetOrgsQuery({
@@ -115,7 +121,6 @@ export const EventForm = withGoogleApi({
     });
     //#endregion
 
-    //#region form state
     const {
       control,
       register,
@@ -136,65 +141,47 @@ export const EventForm = withGoogleApi({
       mode: "onChange"
     });
 
-    const eventAddress = watch("eventAddress");
-    const eventOrgs = watch("eventOrgs") || defaultEventOrgs;
-    useEffect(() => {
-      if (!eventAddress && hasItems(eventOrgs))
-        setValue("eventAddress", eventOrgs[0].orgAddress);
-    }, [eventOrgs]);
-
     const eventVisibility = watch("eventVisibility");
-    const visibilityOptions: string[] = eventOrgs
-      ? [Visibility.PUBLIC, Visibility.SUBSCRIBERS]
-      : [];
-
+    const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs || [];
+    const eventOrgs: IOrg[] = watch("eventOrgs") || defaultEventOrgs;
+    const eventAddress = watch("eventAddress");
     const eventEmail = watch("eventEmail");
     const eventPhone = watch("eventPhone");
     const eventWeb = watch("eventWeb");
 
-    const [isLoading, setIsLoading] = useState(false);
+    useEffect(() => {
+      if (hasItems(eventOrgs)) {
+        if (eventOrgs[0].orgAddress)
+          setValue("eventAddress", eventOrgs[0].orgAddress);
+      } else {
+        setValue("eventAddress", []);
+      }
+    }, [eventOrgs]);
 
+    //#region form state
     const [eventDescriptionHtml, setEventDescriptionHtml] = useState<
       string | undefined
     >(props.event?.eventDescriptionHtml);
 
-    const [suggestion, setSuggestion] = useState<Suggestion>();
-    // const {
-    //   ready,
-    //   value: autoCompleteValue,
-    //   suggestions: { status, data },
-    //   setValue: setAutoCompleteValue,
-    //   clearSuggestions
-    // } = usePlacesAutocomplete({
-    //   requestOptions: {
-    //     componentRestrictions: {
-    //       country: "fr"
-    //     }
-    //   },
-    //   debounce: 300
-    // });
-    // useEffect(() => {
-    //   if (
-    //     Array.isArray(eventAddress) &&
-    //     eventAddress[0] &&
-    //     eventAddress[0].address !== ""
-    //   )
-    //     if (!suggestion) setAutoCompleteValue(eventAddress[0].address);
-    // }, [eventAddress]);
-    // useEffect(() => {
-    //   if (!suggestion) setSuggestion(data);
-    // }, [data]);
+    const visibilityOptions: string[] = hasItems(eventOrgs)
+      ? [Visibility.PUBLIC, Visibility.SUBSCRIBERS]
+      : [];
 
-    type DaysMap = { [key: number]: DayState };
-    type DayState = {
-      checked: boolean;
-      isDisabled?: boolean;
-      isOpen: boolean;
-      dayNumber: number;
-      startDate: Date | null;
-      endTime: Date | null;
-      monthRepeat?: number[];
+    const eventOrgsRules: { required: string | boolean } = {
+      required:
+        eventVisibility === Visibility.SUBSCRIBERS
+          ? "Veuillez sélectionner une ou plusieurs organisations"
+          : false
     };
+    if (
+      !errors.eventOrgs &&
+      typeof eventOrgsRules.required === "string" &&
+      !hasItems(eventOrgs)
+    )
+      setError("eventOrgs", {
+        type: "manual",
+        message: eventOrgsRules.required
+      });
 
     let hasMonthRepeat = false;
     const [days, setDays] = useState<DaysMap>(
@@ -252,102 +239,11 @@ export const EventForm = withGoogleApi({
       );
     };
 
-    const eventOrgsRules: { required: string | boolean } = {
-      required:
-        eventVisibility === Visibility.SUBSCRIBERS
-          ? "Veuillez sélectionner une ou plusieurs organisations"
-          : false
-    };
-    if (
-      !errors.eventOrgs &&
-      typeof eventOrgsRules.required === "string" &&
-      Array.isArray(eventOrgs) &&
-      !eventOrgs.length
-    ) {
-      setError("eventOrgs", {
-        type: "manual",
-        message: eventOrgsRules.required
-      });
-    }
-
+    const [suggestion, setSuggestion] = useState<Suggestion>();
+    const [isLoading, setIsLoading] = useState(false);
     //#endregion
 
-    //#region event
-    const [addEvent, addEventMutation] = useAddEventMutation();
-    const [editEvent, editEventMutation] = useEditEventMutation();
-
-    let eventMinDefaultDate =
-      (props.event && parseISO(props.event.eventMinDate)) || null;
-    let eventMaxDefaultDate =
-      (props.event && parseISO(props.event.eventMaxDate)) || null;
-
-    const eventMinDate: Date | null = watch("eventMinDate");
-    const eventMaxDate: Date | null = watch("eventMaxDate");
-
-    const start = eventMinDate || eventMinDefaultDate;
-    const startDay = start
-      ? getDay(start) === 0
-        ? 6
-        : getDay(start) - 1
-      : undefined;
-    const [end, setEnd] = useState(eventMaxDate || eventMaxDefaultDate);
-
-    // duration
-    const eventMinDuration = 1;
-    const [duration, setDuration] = useState<Duration | undefined>();
-    const [canRepeat, setCanRepeat] = useState(true);
-    const [canRepeat1day, setCanRepeat1day] = useState(true);
-    useEffect(() => {
-      if (start && end) {
-        const newDuration = intervalToDuration({ start, end });
-
-        if (newDuration !== duration) {
-          setDuration(newDuration);
-
-          if (newDuration.days !== undefined) {
-            setCanRepeat1day(newDuration.days === 0);
-            setCanRepeat(newDuration.days === 0 ? true : newDuration.days < 6);
-          }
-        }
-      }
-    }, [start, end]);
-
-    const highlightDatesStart: Date[] = [];
-    const highlightDatesEnd: Date[] = [];
-
-    if (start && end) {
-      for (let i = 1; i <= 10; i++) {
-        highlightDatesStart[i] = addWeeks(start, i);
-        highlightDatesEnd[i] = addWeeks(end, i);
-      }
-    }
-
-    useEffect(() => {
-      if (eventMinDate) {
-        if (end) {
-          if (isBefore(end, eventMinDate)) {
-            // console.log("setting end to null");
-            setEnd(null);
-            setValue("eventMaxDate", null);
-          }
-        } else {
-          if (getHours(eventMinDate) !== 0) {
-            setEnd(addHours(eventMinDate, eventMinDuration));
-            setValue("eventMaxDate", addHours(eventMinDate, eventMinDuration));
-            clearErrors("eventMaxDate");
-          }
-        }
-      }
-    }, [eventMinDate]);
-
-    useEffect(() => {
-      if (end?.toISOString() !== eventMaxDate?.toISOString()) {
-        // console.log("setting end to", eventMaxDate);
-        setEnd(eventMaxDate);
-      }
-    }, [eventMaxDate]);
-    //#endregion
-
+    //#region form handlers
     const onChange = () => {
       clearErrors();
     };
@@ -457,6 +353,74 @@ export const EventForm = withGoogleApi({
         });
       }
     };
+    //#endregion
+
+    //#region event
+    const [isRepeat, setIsRepeat] = useState(
+      !!props.event?.repeat || hasItems(props.event?.otherDays)
+    );
+
+    const eventMinDefaultDate =
+      (props.event && parseISO(props.event.eventMinDate)) || null;
+    const eventMaxDefaultDate =
+      (props.event && parseISO(props.event.eventMaxDate)) || null;
+
+    const eventMinDate: Date | null = watch("eventMinDate");
+    const eventMaxDate: Date | null = watch("eventMaxDate");
+
+    const start = eventMinDate || eventMinDefaultDate;
+    const startDay = start
+      ? getDay(start) === 0
+        ? 6
+        : getDay(start) - 1
+      : undefined;
+    const [end, setEnd] = useState(eventMaxDate || eventMaxDefaultDate);
+
+    const eventMinDuration = 1;
+    const [duration, setDuration] = useState<Duration | undefined>();
+    const [canRepeat, setCanRepeat] = useState(false);
+    const [canRepeat1day, setCanRepeat1day] = useState(true);
+
+    useEffect(() => {
+      if (start && end) {
+        const newDuration = intervalToDuration({ start, end });
+
+        if (newDuration !== duration) {
+          setDuration(newDuration);
+
+          if (newDuration.days !== undefined) {
+            setCanRepeat1day(newDuration.days === 0);
+            setCanRepeat(newDuration.days === 0 ? true : newDuration.days < 6);
+          }
+        }
+      }
+    }, [start, end]);
+
+    useEffect(() => {
+      if (eventMinDate) {
+        if (end) {
+          if (isBefore(end, eventMinDate)) {
+            // console.log("setting end to null");
+            setEnd(null);
+            setValue("eventMaxDate", null);
+          }
+        } else {
+          if (getHours(eventMinDate) !== 0) {
+            setEnd(addHours(eventMinDate, eventMinDuration));
+            setValue("eventMaxDate", addHours(eventMinDate, eventMinDuration));
+            clearErrors("eventMaxDate");
+          }
+        }
+      }
+    }, [eventMinDate]);
+
+    useEffect(() => {
+      if (end?.toISOString() !== eventMaxDate?.toISOString()) {
+        // console.log("setting end to", eventMaxDate);
+        setEnd(eventMaxDate);
+      }
+    }, [eventMaxDate]);
+    //#endregion
 
     const containerProps = {
       backgroundColor: isDark ? "gray.700" : "white",
@@ -470,6 +434,7 @@ export const EventForm = withGoogleApi({
       p: 3
     };
 
+    //#region datepicker props
     const eventMinDatePickerProps = {
       minDate: now,
       maxDate: end && compareDesc(end, now) === 1 ? undefined : end,
@@ -507,6 +472,12 @@ export const EventForm = withGoogleApi({
       : eventMinDefaultDate
       ? addHours(eventMinDefaultDate, eventMinDuration)
       : addHours(now, eventMinDuration);
+    const highlightDatesStart: Date[] = [];
+    if (start) {
+      for (let i = 1; i <= 10; i++) {
+        highlightDatesStart[i] = addWeeks(start, i);
+      }
+    }
     const eventMaxDatePickerProps = {
       minDate:
         compareDesc(eventMaxDateMinDate, now) === 1 ? now : eventMaxDateMinDate,
@@ -533,11 +504,14 @@ export const EventForm = withGoogleApi({
           return false;
 
         return true;
-      }
+      },
+      highlightDates: highlightDatesStart
     };
+    //#endregion
 
     return (
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+        {/* eventName */}
         <FormControl
           id="eventName"
           isRequired
@@ -573,6 +547,7 @@ export const EventForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
+        {/* eventCategory */}
         <FormControl
           id="eventCategory"
           isInvalid={!!errors["eventCategory"]}
@@ -603,6 +578,7 @@ export const EventForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
+        {/* eventMinDate */}
         <FormControl
           id="eventMinDate"
           isRequired
@@ -643,6 +619,7 @@ export const EventForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
+        {/* eventMaxDate */}
         <FormControl
           id="eventMaxDate"
           isRequired
@@ -666,7 +643,6 @@ export const EventForm = withGoogleApi({
                     customInput={renderCustomInput("maxDate")}
                     selected={value}
                     onChange={onChange}
-                    highlightDates={highlightDatesStart}
                     {...eventMaxDatePickerProps}
                   />
                 );
@@ -691,6 +667,7 @@ export const EventForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
+        {/* otherDays */}
         {canRepeat1day && (
           <FormControl
             id="otherDays"
@@ -700,6 +677,7 @@ export const EventForm = withGoogleApi({
           >
             <Checkbox
               isChecked={isRepeat}
+              isDisabled={!start || !end}
               onChange={(e) => setIsRepeat(e.target.checked)}
             >
               Autres jours
@@ -715,46 +693,51 @@ export const EventForm = withGoogleApi({
                       dayNumber === index && startDate
                   );
 
-                  let selectedStart: Date | undefined;
+                  let defaultStart: Date | undefined;
                   if (day.startDate) {
-                    selectedStart = day.startDate;
+                    defaultStart = day.startDate;
                   } else {
                     if (otherDay?.startDate)
-                      selectedStart = parseISO(otherDay.startDate);
-                    else if (start) selectedStart = setDay(start, index + 1);
+                      defaultStart = parseISO(otherDay.startDate);
+                    else if (start) defaultStart = setDay(start, index + 1);
                   }
 
-                  let selectedEnd: Date | undefined;
+                  let defaultEnd: Date | undefined;
                   if (day.endTime) {
-                    selectedEnd = day.endTime;
+                    defaultEnd = day.endTime;
                   } else {
                     if (otherDay?.endTime)
-                      selectedEnd = parseISO(otherDay.endTime);
-                    else if (end) selectedEnd = setDay(end, index + 1);
+                      defaultEnd = parseISO(otherDay.endTime);
+                    else if (end) defaultEnd = setDay(end, index + 1);
                   }
 
                   let tagLabel = label;
 
                   if (day.checked) {
-                    if (selectedStart) {
-                      const selectedStartHours = getHours(selectedStart);
-                      const selectedStartMinutes =
-                        getMinutes(selectedStart) !== 0
-                          ? getMinutes(selectedStart)
+                    if (defaultStart) {
+                      const defaultStartHours = getHours(defaultStart);
+                      const defaultStartMinutes =
+                        getMinutes(defaultStart) !== 0
+                          ? getMinutes(defaultStart)
                           : "";
 
-                      if (selectedEnd) {
-                        const selectedEndHours = getHours(selectedEnd);
-                        const selectedEndMinutes =
-                          getMinutes(selectedEnd) !== 0
-                            ? getMinutes(selectedEnd)
+                      if (defaultEnd) {
+                        const defaultEndHours = getHours(defaultEnd);
+                        const defaultEndMinutes =
+                          getMinutes(defaultEnd) !== 0
+                            ? getMinutes(defaultEnd)
                             : "";
 
-                        tagLabel += ` ${selectedStartHours}h${selectedStartMinutes} - ${selectedEndHours}h${selectedEndMinutes}`;
+                        tagLabel += ` ${defaultStartHours}h${defaultStartMinutes} - ${defaultEndHours}h${defaultEndMinutes}`;
                       } else
-                        tagLabel += ` ${selectedStartHours}h${selectedStartMinutes}`;
+                        tagLabel += ` ${defaultStartHours}h${defaultStartMinutes}`;
                     }
                   }
+
+                  const show =
+                    defaultStart &&
+                    start &&
+                    getDay(defaultStart) !== getDay(start);
 
                   return (
                     <Popover
@@ -836,78 +819,83 @@ export const EventForm = withGoogleApi({
                         </PopoverHeader>
                         <PopoverCloseButton />
                         <PopoverBody>
-                          <FormControl mb={3}>
-                            <FormLabel>Heure de début</FormLabel>
-                            <DatePicker
-                              //withPortal
-                              customInput={renderCustomInput(
-                                "startDate" + index,
-                                true
-                              )}
-                              selected={selectedStart}
-                              dateFormat="Pp"
-                              showTimeSelect
-                              showTimeSelectOnly
-                              timeFormat="p"
-                              timeIntervals={30}
-                              filterTime={(time) => {
-                                if (
-                                  selectedEnd &&
-                                  getHours(time) >= getHours(selectedEnd)
-                                )
-                                  return false;
-                                return true;
-                              }}
-                              onChange={(startDate: Date) => {
-                                let endTime;
-                                if (selectedEnd) {
-                                  if (
-                                    getHours(selectedEnd) > getHours(startDate)
-                                  )
-                                    endTime = selectedEnd;
-                                }
-                                setDays(
-                                  setDayState(index, {
-                                    startDate: setDay(startDate, index + 1),
-                                    endTime
-                                  })
-                                );
-                              }}
-                            />
-                          </FormControl>
+                          {show && (
+                            <>
+                              <FormControl mb={3}>
+                                <FormLabel>Heure de début</FormLabel>
+                                <DatePicker
+                                  //withPortal
+                                  customInput={renderCustomInput(
+                                    "startDate" + index,
+                                    true
+                                  )}
+                                  selected={defaultStart}
+                                  dateFormat="Pp"
+                                  showTimeSelect
+                                  showTimeSelectOnly
+                                  timeFormat="p"
+                                  timeIntervals={30}
+                                  filterTime={(time) => {
+                                    if (
+                                      defaultEnd &&
+                                      getHours(time) >= getHours(defaultEnd)
+                                    )
+                                      return false;
+                                    return true;
+                                  }}
+                                  onChange={(startDate: Date) => {
+                                    let endTime;
+                                    if (defaultEnd) {
+                                      if (
+                                        getHours(defaultEnd) >
+                                        getHours(startDate)
+                                      )
+                                        endTime = defaultEnd;
+                                    }
+                                    setDays(
+                                      setDayState(index, {
+                                        startDate: setDay(startDate, index + 1),
+                                        endTime
+                                      })
+                                    );
+                                  }}
+                                />
+                              </FormControl>
 
-                          <FormControl mb={3}>
-                            <FormLabel>Heure de fin</FormLabel>
-                            <DatePicker
-                              //withPortal
-                              customInput={renderCustomInput(
-                                "startDate" + index,
-                                true
-                              )}
-                              selected={selectedEnd}
-                              dateFormat="Pp"
-                              showTimeSelect
-                              showTimeSelectOnly
-                              timeFormat="p"
-                              timeIntervals={30}
-                              filterTime={(time) => {
-                                if (
-                                  selectedStart &&
-                                  getHours(time) <= getHours(selectedStart)
-                                ) {
-                                  return false;
-                                }
-                                // console.log("allowing", time);
-                                return true;
-                              }}
-                              onChange={(endDate: Date) => {
-                                const newDays = setDayState(index, {
-                                  endTime: endDate
-                                });
-                                setDays(newDays);
-                              }}
-                            />
-                          </FormControl>
+                              <FormControl mb={3}>
+                                <FormLabel>Heure de fin</FormLabel>
+                                <DatePicker
+                                  //withPortal
+                                  customInput={renderCustomInput(
+                                    "startDate" + index,
+                                    true
+                                  )}
+                                  selected={defaultEnd}
+                                  dateFormat="Pp"
+                                  showTimeSelect
+                                  showTimeSelectOnly
+                                  timeFormat="p"
+                                  timeIntervals={30}
+                                  filterTime={(time) => {
+                                    if (
+                                      defaultStart &&
+                                      getHours(time) <= getHours(defaultStart)
+                                    ) {
+                                      return false;
+                                    }
+                                    // console.log("allowing", time);
+                                    return true;
+                                  }}
+                                  onChange={(endDate: Date) => {
+                                    const newDays = setDayState(index, {
+                                      endTime: endDate
+                                    });
+                                    setDays(newDays);
+                                  }}
+                                />
+                              </FormControl>
+                            </>
+                          )}
 
                           {day.checked && startDay === index && (
                             <FormControl>
@@ -974,6 +962,7 @@ export const EventForm = withGoogleApi({
           </FormControl>
         )}
 
+        {/* repeat */}
         {canRepeat && !hasMonthRepeat && (
           <FormControl
             id="repeat"
@@ -1015,6 +1004,7 @@ export const EventForm = withGoogleApi({
           </FormControl>
         )}
 
+        {/* eventDescription */}
         <FormControl
           id="eventDescription"
           isInvalid={!!errors["eventDescription"]}
@@ -1045,6 +1035,7 @@ export const EventForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
+        {/* eventVisibility */}
         {visibilityOptions.length > 0 && (
           <FormControl
             isRequired
@@ -1080,6 +1071,7 @@ export const EventForm = withGoogleApi({
           </FormControl>
         )}
 
+        {/* eventOrgs */}
         <FormControl
           mb={3}
           id="eventOrgs"
@@ -1108,7 +1100,7 @@ export const EventForm = withGoogleApi({
             getOptionValue={(option: any) => option._id}
             placeholder={
               hasItems(myOrgs)
-                ? "Rechercher une organisation..."
+                ? "Rechercher..."
                 : "Vous n'avez créé aucune organisations"
             }
             styles={{
@@ -1136,9 +1128,7 @@ export const EventForm = withGoogleApi({
           setValue={setValue}
           mb={3}
           containerProps={
-            eventAddress && eventAddress[0]
-              ? { ...containerProps, mt: 0 }
-              : { mb: 3 }
+            hasItems(eventAddress) ? { ...containerProps, mt: 0 } : { mb: 3 }
           }
           onSuggestionSelect={(suggestion: Suggestion) => {
             setSuggestion(suggestion);
@@ -1153,9 +1143,7 @@ export const EventForm = withGoogleApi({
           setValue={setValue}
           mb={3}
           containerProps={
-            eventEmail && eventEmail[0]
-              ? { ...containerProps, mt: 0 }
-              : { mb: 3 }
+            hasItems(eventEmail) ? { ...containerProps, mt: 0 } : { mb: 3 }
           }
         />
 
@@ -1166,9 +1154,7 @@ export const EventForm = withGoogleApi({
           errors={errors}
           setValue={setValue}
           mb={3}
-          containerProps={
-            eventPhone && eventPhone[0] ? containerProps : { mb: 3 }
-          }
+          containerProps={hasItems(eventPhone) ? containerProps : { mb: 3 }}
         />
 
         <UrlControl
@@ -1179,7 +1165,7 @@ export const EventForm = withGoogleApi({
           setValue={setValue}
           mb={3}
           containerProps={
-            eventWeb && eventWeb[0] ? { ...containerProps, mb: 3 } : { mb: 3 }
+            hasItems(eventWeb) ? { ...containerProps, mb: 3 } : { mb: 3 }
           }
         />
 

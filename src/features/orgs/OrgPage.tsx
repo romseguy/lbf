@@ -530,7 +530,7 @@ export const OrgPage = ({
                                   return 0;
                                 })
                                 .map((org) => (
-                                  <ListItem>
+                                  <ListItem key={org._id}>
                                     <EntityButton org={org} />
                                   </ListItem>
                                 ))}
@@ -730,7 +730,12 @@ export const OrgPage = ({
                 .filter((defaultTab) => defaultTab.label !== "")
                 .map((defaultTab) => {
                   return (
-                    <Flex alignItems="center" mb={1} maxWidth="fit-content">
+                    <Flex
+                      key={"tab-" + defaultTab.label}
+                      alignItems="center"
+                      mb={1}
+                      maxWidth="fit-content"
+                    >
                       <Switch
                         isChecked={
                           !!tabsState.find(

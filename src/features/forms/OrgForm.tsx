@@ -36,6 +36,7 @@ import {
   useEditOrgMutation,
   useGetOrgsQuery
 } from "features/orgs/orgsApi";
+import { refetchOrgs } from "features/orgs/orgSlice";
 import {
   IOrg,
   orgTypeFull,
@@ -45,6 +46,7 @@ import {
   Visibility,
   VisibilityV
 } from "models/Org";
+import { useAppDispatch } from "store";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
@@ -64,6 +66,7 @@ export const OrgForm = withGoogleApi({
     const { colorMode } = useColorMode();
     const isDark = colorMode === "dark";
     const toast = useToast({ position: "top" });
+    const dispatch = useAppDispatch();
 
     //#region org
     const [addOrg, addOrgMutation] = useAddOrgMutation();
@@ -212,6 +215,7 @@ export const OrgForm = withGoogleApi({
           payload.createdBy = props.session.user.userId;
           const org = await addOrg(payload).unwrap();
           orgUrl = org.orgUrl;
+          dispatch(refetchOrgs());
 
           toast({
             title: `${orgTypeFull5(form.orgType)} a bien été ajoutée !`,

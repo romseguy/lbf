@@ -1,14 +1,11 @@
 import { Button, Tooltip, useColorMode, useDisclosure } from "@chakra-ui/react";
-import { useEffect } from "react";
 import { Detector } from "react-detect-offline";
 import { FaRegMap } from "react-icons/fa";
-import { useSelector } from "react-redux";
 import { PageContainer } from "features/common";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { OrgsList } from "features/orgs/OrgsList";
-import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgTypes } from "models/Org";
 import { PageProps } from "./_app";
 
@@ -22,11 +19,6 @@ const OrganisationsPage = (props: PageProps) => {
       data: query.data?.filter((org) => org.orgType !== OrgTypes.NETWORK)
     })
   });
-
-  const refetchOrgs = useSelector(selectOrgsRefetch);
-  useEffect(() => {
-    orgsQuery.refetch();
-  }, [refetchOrgs]);
 
   const {
     isOpen: isMapModalOpen,

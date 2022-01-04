@@ -14,6 +14,7 @@ export const EventSchema = new Schema<IEvent>(
       trim: true,
       unique: true
     },
+    eventCategory: Number,
     eventMinDate: {
       type: String,
       required: true
@@ -22,6 +23,19 @@ export const EventSchema = new Schema<IEvent>(
       type: String,
       required: true
     },
+    eventDescription: {
+      type: String,
+      trim: true
+    },
+    eventDescriptionHtml: {
+      type: String,
+      trim: true
+    },
+    eventVisibility: {
+      type: String,
+      enum: Object.keys(Visibility).map((key) => Visibility[key])
+    },
+    eventOrgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
     eventAddress: [{ address: { type: String, trim: true } }],
     eventCity: String,
     eventLat: Number,
@@ -34,25 +48,9 @@ export const EventSchema = new Schema<IEvent>(
         prefix: { type: String, trim: true }
       }
     ],
-    eventDescription: {
-      type: String,
-      trim: true
-    },
-    eventDescriptionHtml: {
-      type: String,
-      trim: true
-    },
-    eventCategory: Number,
-    eventVisibility: {
-      type: String,
-      enum: Object.keys(Visibility).map((key) => Visibility[key])
-    },
-    eventOrgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
     eventSubscriptions: [
       { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
     ],
-    eventTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
-    orgTopicsCategories: [String],
     eventNotified: [
       {
         email: String,
@@ -63,12 +61,8 @@ export const EventSchema = new Schema<IEvent>(
         }
       }
     ],
-    eventLogo: {
-      base64: String,
-      width: Number,
-      height: Number,
-      url: { type: String, trim: true }
-    },
+    eventTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
+    eventTopicsCategories: [String],
     eventBanner: {
       base64: String,
       height: Number,
@@ -77,11 +71,20 @@ export const EventSchema = new Schema<IEvent>(
       mode: String,
       url: { type: String, trim: true }
     },
-    createdBy: {
-      type: Schema.Types.ObjectId,
-      ref: "User"
+    eventLogo: {
+      base64: String,
+      width: Number,
+      height: Number,
+      url: { type: String, trim: true }
     },
-    repeat: Number,
+    forwardedFrom: {
+      eventId: {
+        type: Schema.Types.ObjectId,
+        ref: "Event"
+      },
+      eventUrl: String
+    },
+    isApproved: Boolean,
     otherDays: [
       {
         dayNumber: Number,
@@ -90,13 +93,10 @@ export const EventSchema = new Schema<IEvent>(
         monthRepeat: [Number]
       }
     ],
-    isApproved: Boolean,
-    forwardedFrom: {
-      eventId: {
-        type: Schema.Types.ObjectId,
-        ref: "Event"
-      },
-      eventUrl: String
+    repeat: Number,
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User"
     }
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }

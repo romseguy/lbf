@@ -126,11 +126,11 @@ export const OrgConfigPanel = ({
               setIsConfig(true);
             }}
             onSubmit={async (orgUrl: string) => {
-              if (org && orgUrl !== org.orgUrl) {
+              if (orgUrl !== org.orgUrl)
                 await router.push(`/${orgUrl}`, `/${orgUrl}`, {
                   shallow: true
                 });
-              } else {
+              else {
                 orgQuery.refetch();
                 setIsEdit(false);
               }

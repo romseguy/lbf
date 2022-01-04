@@ -7,12 +7,9 @@ export const Footer = ({
 }: BoxProps & { children: React.ReactNode }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const styles = css`
-    ${isDark ? tw`bg-gray-800` : tw`bg-white`}
-  `;
 
   return (
-    <Box as="footer" css={styles} {...props}>
+    <Box as="footer" bg={isDark ? "gray.800" : "white"} {...props}>
       {children}
     </Box>
   );

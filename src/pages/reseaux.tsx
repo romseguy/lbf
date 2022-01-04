@@ -1,13 +1,11 @@
 import { Button, Tooltip, useDisclosure } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import React from "react";
 import { Detector } from "react-detect-offline";
 import { FaRegMap } from "react-icons/fa";
-import { useSelector } from "react-redux";
 import { PageContainer } from "features/common";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgsList } from "features/orgs/OrgsList";
 import { OrgTypes } from "models/Org";
 
@@ -18,11 +16,6 @@ const NetworksPage = (props: any) => {
       data: query.data?.filter((org) => org.orgType === OrgTypes.NETWORK)
     })
   });
-
-  const refetchOrgs = useSelector(selectOrgsRefetch);
-  useEffect(() => {
-    orgsQuery.refetch();
-  }, [refetchOrgs]);
 
   const {
     isOpen: isMapModalOpen,

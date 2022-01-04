@@ -4,7 +4,7 @@ import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import tw, { css } from "twin.macro";
-import { DeleteButton } from "features/common";
+import { DeleteButton, PageContainer } from "features/common";
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
 import { IEvent } from "models/Event";
@@ -109,24 +109,26 @@ export const EventConfigPanel = ({
       </Box>
 
       {isEdit && (
-        <EventForm
-          session={session}
-          event={event}
-          onCancel={() => {
-            setIsEdit(false);
-            setIsConfig(true);
-          }}
-          onSubmit={async (eventUrl: string) => {
-            if (event && eventUrl !== event.eventUrl) {
-              await router.push(`/${eventUrl}`, `/${eventUrl}`, {
-                shallow: true
-              });
-            } else {
-              eventQuery.refetch();
+        <PageContainer>
+          <EventForm
+            session={session}
+            event={event}
+            onCancel={() => {
               setIsEdit(false);
-            }
-          }}
-        />
+              setIsConfig(true);
+            }}
+            onSubmit={async (eventUrl: string) => {
+              if (event && eventUrl !== event.eventUrl) {
+                await router.push(`/${eventUrl}`, `/${eventUrl}`, {
+                  shallow: true
+                });
+              } else {
+                eventQuery.refetch();
+                setIsEdit(false);
+              }
+            }}
+          />
+        </PageContainer>
       )}
 
       {isConfig && !isEdit && (
