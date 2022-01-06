@@ -34,7 +34,10 @@ export const OrgPageTabs = ({
   session: Session | null;
   tab?: string;
   tabs: IOrgTab[];
-  children: React.ReactNode | React.ReactNodeArray;
+  children: (renderProps: {
+    currentTabIndex: number;
+    setCurrentTabIndex: React.Dispatch<React.SetStateAction<number>>;
+  }) => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -42,12 +45,12 @@ export const OrgPageTabs = ({
 
   let defaultTabIndex = 0;
   if (props.tab !== undefined)
-    tabs.map((tab, tabIndex) => {
+    tabs.forEach((tab, tabIndex) => {
       if (normalize(tab.label) === normalize(props.tab || ""))
         defaultTabIndex = tabIndex;
       return tabIndex + 1;
-    }, 0);
-  const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex || 0);
+    });
+  const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex);
 
   return (
     <Tabs
@@ -102,7 +105,7 @@ export const OrgPageTabs = ({
       </EntityPageTabList>
 
       {/* TabPanels */}
-      {children}
+      {children({ currentTabIndex, setCurrentTabIndex })}
     </Tabs>
   );
 };
