@@ -158,7 +158,7 @@ export const EventForm = withGoogleApi({
       }
     }, [eventOrgs]);
 
-    //#region form state
+    //#region form
     const [eventDescriptionHtml, setEventDescriptionHtml] = useState<
       string | undefined
     >(props.event?.eventDescriptionHtml);

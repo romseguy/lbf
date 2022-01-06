@@ -53,7 +53,7 @@ export const OrgPopover = ({
   const [email, setEmail] = useState(storedUserEmail || session.user.email);
 
   //#region orgs
-  const orgsQuery = useGetOrgsQuery(undefined, {
+  /*const orgsQuery = useGetOrgsQuery(undefined, {
     selectFromResult: (query) => ({
       ...query,
       data: query.data?.filter((org) =>
@@ -62,7 +62,8 @@ export const OrgPopover = ({
           : org.orgType === OrgTypes.ASSO || org.orgType === OrgTypes.GROUP
       )
     })
-  });
+  });*/
+  const orgsQuery = useGetOrgsQuery();
   const myOrgsQuery = useGetOrgsQuery(
     { createdBy: session.user.userId },
     {
@@ -70,20 +71,20 @@ export const OrgPopover = ({
         ...query,
         data:
           [...(query.data || [])]
+            /*.filter((org) =>
+              orgType
+                ? org.orgType === orgType
+                : org.orgType === OrgTypes.ASSO ||
+                  org.orgType === OrgTypes.GENERIC ||
+                  org.orgType === OrgTypes.GROUP
+            )*/
             .sort((a, b) => {
               if (a.createdAt && b.createdAt) {
                 if (a.createdAt < b.createdAt) return 1;
                 else if (a.createdAt > b.createdAt) return -1;
               }
               return 0;
-            })
-            .filter((org) =>
-              orgType
-                ? org.orgType === orgType
-                : org.orgType === OrgTypes.ASSO ||
-                  org.orgType === OrgTypes.GENERIC ||
-                  org.orgType === OrgTypes.GROUP
-            ) || []
+            }) || []
       })
     }
   );

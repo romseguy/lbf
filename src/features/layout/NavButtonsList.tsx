@@ -39,6 +39,16 @@ export const NavButtonsList = ({
         </Button>
       </Link>
 
+      <Link href="/reseaux" {...linkProps}>
+        <Button
+          leftIcon={<IoIosGitNetwork />}
+          isActive={router.asPath === "/reseaux"}
+          {...styleProps}
+        >
+          Réseaux
+        </Button>
+      </Link>
+
       <Link href="/evenements" {...linkProps}>
         <Button
           leftIcon={<CalendarIcon />}
@@ -50,17 +60,7 @@ export const NavButtonsList = ({
         </Button>
       </Link>
 
-      <Link href="/reseaux" {...linkProps}>
-        <Button
-          leftIcon={<IoIosGitNetwork />}
-          isActive={router.asPath === "/reseaux"}
-          {...styleProps}
-        >
-          Réseaux
-        </Button>
-      </Link>
-
-      <Link href="/organisations" {...linkProps}>
+      {/* <Link href="/organisations" {...linkProps}>
         <Button
           leftIcon={<IoIosPeople />}
           isActive={router.asPath === "/organisations"}
@@ -68,7 +68,7 @@ export const NavButtonsList = ({
         >
           Organisations
         </Button>
-      </Link>
+      </Link> */}
 
       <Link href="/forum" {...linkProps}>
         <Button

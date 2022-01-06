@@ -10,12 +10,13 @@ import { OrgsList } from "features/orgs/OrgsList";
 import { OrgTypes } from "models/Org";
 
 const NetworksPage = (props: any) => {
-  const orgsQuery = useGetOrgsQuery(void 0, {
+  /*const orgsQuery = useGetOrgsQuery(void 0, {
     selectFromResult: (query) => ({
       ...query,
       data: query.data?.filter((org) => org.orgType === OrgTypes.NETWORK)
     })
-  });
+  });*/
+  const orgsQuery = useGetOrgsQuery();
 
   const {
     isOpen: isMapModalOpen,
@@ -55,7 +56,7 @@ const NetworksPage = (props: any) => {
                   onClick={openMapModal}
                   mb={3}
                 >
-                  Carte des réseaux
+                  Carte
                 </Button>
               </span>
             </Tooltip>

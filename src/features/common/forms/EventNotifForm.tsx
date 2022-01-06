@@ -60,7 +60,7 @@ export const EventNotifForm = ({
   const [type, setType] = useState<"multi" | "single">();
   //#endregion
 
-  //#region form state
+  //#region form
   const {
     control,
     register,

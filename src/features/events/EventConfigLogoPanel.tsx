@@ -56,7 +56,7 @@ export const EventConfigLogoPanel = ({
   const [editEvent, editEventMutation] = useEditEventMutation();
   //#endregion
 
-  //#region form state
+  //#region form
   const {
     register,
     control,

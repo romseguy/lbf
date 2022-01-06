@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { Layout } from "features/layout";
-import { PageProps } from "./_app";
+import { ChatIcon, EmailIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
+  FlexProps,
   Heading,
   Icon,
   List,
@@ -13,21 +12,61 @@ import {
   Tooltip,
   useColorMode
 } from "@chakra-ui/react";
-import { FaGift, FaRegLightbulb } from "react-icons/fa";
-import { IconFooter, Link, LinkShare, PageContainer } from "features/common";
-import { ChatIcon } from "@chakra-ui/icons";
+import React, { useState } from "react";
+import {
+  FaGift,
+  FaHandshake,
+  FaKey,
+  FaQuoteLeft,
+  FaRegLightbulb
+} from "react-icons/fa";
+import { css } from "twin.macro";
+import {
+  EntityButton,
+  IconFooter,
+  Link,
+  LinkShare,
+  PageContainer
+} from "features/common";
+import { Layout } from "features/layout";
+import { breakpoints } from "theme/theme";
+import { PageProps } from "./_app";
+import { setIsContactModalOpen } from "features/modals/modalSlice";
+import { useAppDispatch } from "store";
+
+const listStyles = {
+  listStyleType: "square",
+  mb: 3,
+  ml: 5,
+  spacing: 2,
+  fontSize: "xl"
+};
+
+const halfStyles: FlexProps = {
+  alignItems: "center",
+  flex: 1,
+  flexDirection: "row",
+  maxWidth: "auto",
+  m: "0",
+  mt: 5
+};
 
 const IndexPage = (props: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const dispatch = useAppDispatch();
+
   const [className, setClassName] = useState<string | undefined>();
-  const listStyles = {
-    listStyleType: "square",
-    mb: 3,
-    ml: 5,
-    spacing: 2,
-    fontSize: "xl"
-  };
+  const host = <Tag colorScheme="red">{process.env.NEXT_PUBLIC_SHORT_URL}</Tag>;
+  const license = (
+    <a
+      href="https://www.gnu.org/licenses/why-affero-gpl.fr.html"
+      target="_blank"
+      style={{ textDecoration: "underline" }}
+    >
+      GNU AGPL
+    </a>
+  );
   const url = `${process.env.NEXT_PUBLIC_URL}/nom de votre association`;
 
   return (
@@ -119,21 +158,75 @@ const IndexPage = (props: PageProps) => {
         </Box>
       </PageContainer>
 
-      <PageContainer
-        alignItems="center"
-        flexDirection="row"
-        maxWidth="fit-content"
-        mt={5}
-        pt={2}
+      <Flex
+        m="0 auto"
+        maxWidth="4xl"
+        css={css`
+          @media (max-width: ${breakpoints.sm}) {
+            display: block;
+          }
+        `}
       >
-        <Icon as={FaGift} color="green" boxSize={[5, 4]} />
-        <Text ml={2}>
-          Cet outil est un logiciel libre et open-source mis à disposition
-          gratuitement.
-        </Text>
-      </PageContainer>
+        <PageContainer
+          {...halfStyles}
+          css={css`
+            @media (min-width: ${breakpoints.sm}) {
+              margin-right: 12px;
+            }
+          `}
+        >
+          <Icon as={FaGift} color="green" boxSize={[5, 4]} />
+          <Text ml={2}>
+            Cet outil est un logiciel libre et open-source mis à disposition
+            gratuitement par son créateur.
+          </Text>
+        </PageContainer>
 
-      <IconFooter mt={3} />
+        <PageContainer {...halfStyles} height="100%" minHeight={0}>
+          <Icon as={EmailIcon} color="green" boxSize={[5, 4]} />
+          <Text ml={2}>
+            {host} peut envoyer jusqu'à 100 e-mails par jour. Si cela s'avère
+            insuffisant, parlons en sur le{" "}
+            <EntityButton org={{ orgName: "aucourant" }} />
+          </Text>
+        </PageContainer>
+      </Flex>
+
+      <PageContainer bg="transparent" border={0} p={0}>
+        <PageContainer {...halfStyles}>
+          <Icon as={FaKey} color="green" boxSize={[5, 4]} />
+          <Text ml={2}>
+            Pour que cet outil reste libre et open-source, la license {license}{" "}
+            a été choisie.
+          </Text>
+        </PageContainer>
+
+        <PageContainer {...halfStyles}>
+          <Icon as={FaHandshake} color="green" boxSize={[5, 4]} />
+          <Flex flexDirection="column">
+            <Text fontSize="smaller" ml={2}>
+              <Icon as={FaQuoteLeft} /> La license {license} ne s'intéresse pas
+              au problème du SaaSS (service se substituant au logiciel). On
+              parle de SaaSS lorsque les utilisateurs font leurs propres tâches
+              informatiques sur l'ordinateur de quelqu'un d'autre. Ceci les
+              oblige à envoyer leurs données au serveur ; ce dernier les traite
+              et leur renvoie les résultats.
+            </Text>
+
+            <Text ml={2}>
+              Si vous ne voulez pas faire confiance à {host} pour le traitement
+              de vos données,{" "}
+              <Link
+                variant="underline"
+                onClick={() => dispatch(setIsContactModalOpen(true))}
+              >
+                contactez
+              </Link>{" "}
+              le créateur pour installer l'outil sur votre propre serveur.
+            </Text>
+          </Flex>
+        </PageContainer>
+      </PageContainer>
     </Layout>
   );
 };

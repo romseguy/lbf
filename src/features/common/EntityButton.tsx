@@ -25,7 +25,7 @@ export const EntityButton = ({
 }: ThemingProps<"Button"> &
   StyleProps & {
     event?: Partial<IEvent<any>>;
-    org?: IOrg;
+    org?: Partial<IOrg>;
     topic?: Partial<ITopic>;
     user?: Partial<IUser>;
     onClick?: (() => void) | null;
@@ -34,17 +34,16 @@ export const EntityButton = ({
 
   if (!org && !event && !user && !topic) return null;
 
-  let hasLink = org || event || user || topic || null;
-
-  if (onClick === null) hasLink = null;
-
   let entityUrl = org
-    ? org.orgUrl
+    ? org.orgName === "aucourant"
+      ? "/forum"
+      : org.orgUrl
     : event
     ? event.eventUrl
     : typeof user === "object"
     ? `/${user.userName}`
     : "";
+  let hasLink = entityUrl !== "" && onClick !== null;
 
   if (topic) {
     entityUrl = `/${entityUrl}/discussions/${topic.topicName}`;
@@ -57,7 +56,11 @@ export const EntityButton = ({
           ? topic
             ? "Aller à la discussion"
             : org
-            ? `Aller à la page ${orgTypeFull(org.orgType)}`
+            ? org.orgName === "aucourant"
+              ? "Aller au forum"
+              : org.orgType
+              ? `Aller à la page ${orgTypeFull(org.orgType)}`
+              : ""
             : event
             ? "Aller à la page de l'événement"
             : user
@@ -70,6 +73,7 @@ export const EntityButton = ({
       <span>
         <Link
           variant={hasLink ? undefined : "no-underline"}
+          href={hasLink ? entityUrl : undefined}
           onClick={() => {
             if (onClick) onClick();
             else if (entityUrl && onClick !== null) router.push(entityUrl);

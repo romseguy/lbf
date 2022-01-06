@@ -54,7 +54,7 @@ export const OrgConfigLogoPanel = ({
   const [editOrg, editOrgMutation] = useEditOrgMutation();
   //#endregion
 
-  //#region form state
+  //#region form
   const {
     register,
     control,

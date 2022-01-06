@@ -46,7 +46,7 @@ export const EntityListForm = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  //#region form state
+  //#region form
   const {
     control,
     register,

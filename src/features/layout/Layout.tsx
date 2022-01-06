@@ -21,6 +21,7 @@ import { IOrg } from "models/Org";
 import { PageProps } from "pages/_app";
 import { breakpoints } from "theme/theme";
 import { Base64Image } from "utils/image";
+import { ContactModal } from "features/modals/ContactModal";
 
 const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
 
@@ -136,7 +137,7 @@ export const Layout = ({
             <Flex alignItems="center">
               <Tooltip
                 hasArrow
-                label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
+                label="Un moyen simple de remercier le créateur de ce logiciel libre ♥"
                 placement="top-end"
               >
                 <Box mt={1}>
@@ -216,12 +217,12 @@ export const Layout = ({
 
         <Main {...props}>{children}</Main>
 
-        <Footer display="flex" alignItems="center" pl={5} pr={5} pb={3}>
+        <Footer display="flex" alignItems="center" pl={5} pr={5} pb={8}>
           {isMobile && (
             <Flex alignItems="center">
               <Tooltip
                 hasArrow
-                label="Un moyen simple de remercier le développeur de ce logiciel libre ♥"
+                label="Un moyen simple de remercier le créateur de ce logiciel libre ♥"
                 placement="top-end"
               >
                 <Box>
@@ -234,6 +235,8 @@ export const Layout = ({
           )}
         </Footer>
       </Flex>
+
+      <ContactModal />
     </>
   );
 };
