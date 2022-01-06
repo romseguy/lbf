@@ -4,7 +4,12 @@ import { PageProps } from "pages/_app";
 import { breakpoints } from "theme/theme";
 import tw, { css } from "twin.macro";
 
-export const Main = ({ isMobile, p = 5, ...props }: PageProps & BoxProps) => {
+export const Main = ({
+  isMobile,
+  p = 5,
+  session,
+  ...props
+}: PageProps & BoxProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const styles = css`

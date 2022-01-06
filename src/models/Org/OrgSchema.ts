@@ -79,9 +79,7 @@ export const OrgSchema = new Schema<IOrg>(
     },
     orgPassword: String,
     orgTabs: {
-      type: [
-        { label: { type: String, required: true, trim: true }, url: String }
-      ],
+      type: [{ label: { type: String, trim: true }, url: String }],
       default: undefined
     },
     orgVisibility: {

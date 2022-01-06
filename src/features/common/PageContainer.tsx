@@ -1,11 +1,16 @@
 import { Flex, FlexProps, useColorMode } from "@chakra-ui/react";
 
-export const PageContainer = ({ children, ...props }: FlexProps) => {
+export const PageContainer = ({
+  id,
+  children,
+  ...props
+}: FlexProps & { id?: string }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
   return (
     <Flex
+      id={id}
       flexDirection="column"
       bg={isDark ? "gray.600" : "lightcyan"}
       borderWidth={1}

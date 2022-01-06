@@ -2053,6 +2053,11 @@
   resolved "https://registry.yarnpkg.com/@types/caseless/-/caseless-0.12.2.tgz#f65d3d6389e01eeb458bd54dc8f52b95a9463bc8"
   integrity sha512-6ckxMjBBD8URvjB6J3NcnuAn5Pkl7t3TizAg+xdlzzQGSPSmBcXf8KoIH0ua/i+tio+ZRUHEXp0HEmvaR4kt0w==
 
+"@types/d3@^3.5.34":
+  version "3.5.34"
+  resolved "https://registry.yarnpkg.com/@types/d3/-/d3-3.5.34.tgz#2192754f4afbc708bec7ec39ba1a99ea24a6f041"
+  integrity sha1-IZJ1T0r7xwi+x+w5uhqZ6iSm8EE=
+
 "@types/dompurify@^2.2.3":
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/@types/dompurify/-/dompurify-2.2.3.tgz#6e89677a07902ac1b6821c345f34bd85da239b08"
@@ -3596,6 +3601,11 @@ cypress@9.0.0:
     untildify "^4.0.0"
     url "^0.11.0"
     yauzl "^2.10.0"
+
+d3@3.5.17:
+  version "3.5.17"
+  resolved "https://registry.yarnpkg.com/d3/-/d3-3.5.17.tgz#bc46748004378b21a360c9fc7cf5231790762fb8"
+  integrity sha1-vEZ0gAQ3iyGjYMn8fPUjF5B2L7g=
 
 dashdash@^1.12.0:
   version "1.14.1"

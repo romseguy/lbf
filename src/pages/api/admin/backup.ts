@@ -84,7 +84,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function importData(
     const body = JSON.parse(req.body);
 
     for (const key of collectionKeys) {
-      // if (key === "users") continue;
+      if (key === "users") continue;
+      console.log(`POST /admin/backup collection: ${key}`);
 
       if (!body.data[key]) {
         console.log(`POST /admin/backup: could not find body.data[${key}]`);
