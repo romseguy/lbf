@@ -56,23 +56,30 @@ export const Layout = ({
   const isDark = colorMode === "dark";
 
   const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false);
-  const handleResize = () => {
-    let scrollHeight = Math.max(
-      document.body.scrollHeight,
-      document.documentElement.scrollHeight,
-      document.body.offsetHeight,
-      document.documentElement.offsetHeight,
-      document.body.clientHeight,
-      document.documentElement.clientHeight
-    );
-
-    if (scrollHeight >= window.innerHeight) {
-      setHasVerticalScrollbar(true);
-    }
-  };
   useEffect(() => {
+    const handleResize = () => {
+      let scrollHeight = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.offsetHeight,
+        document.body.clientHeight,
+        document.documentElement.clientHeight
+      );
+
+      if (scrollHeight >= window.innerHeight) {
+        setHasVerticalScrollbar(true);
+      }
+    };
     window.addEventListener("resize", handleResize);
     handleResize();
+    window.addEventListener("offline", function (e) {
+      console.log("offline");
+    });
+
+    window.addEventListener("online", function (e) {
+      console.log("online");
+    });
   }, []);
 
   return (

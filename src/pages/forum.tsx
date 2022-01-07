@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { isMobile } from "react-device-detect";
 import { Forum } from "features/forum/Forum";
 import { Layout, LayoutProps } from "features/layout";
 import { PageProps } from "./_app";

@@ -20,18 +20,15 @@ import {
 
 export const defaultOptions: InputOptions = {
   aspectRatio: 1.0,
-  blinkDuration: 100,
   heightBetweenNodesCoeff: 2,
   id: "d3svg",
   initialZoom: 1,
+  isFullscreen: false,
   isSorted: false,
-  margin: {
-    top: 0,
-    right: 10,
-    bottom: 10,
-    left: 60
-  },
+  margin: {},
+  padding: {},
   onClickText: () => {},
+  onZoom: () => {},
   size: 500,
   style: {
     node: {
@@ -69,78 +66,82 @@ export const defaultOptions: InputOptions = {
 
 export const treeChart = (
   DOMNode: HTMLElement,
-  options: Partial<InputOptions> = {}
+  inputNode: InputNode,
+  config: Partial<InputOptions> = {}
 ): RenderChart => {
-  console.log("treeChart: setup");
+  const options = deepmerge(defaultOptions, config);
+  console.log("treeChart: options", options);
 
   const {
     aspectRatio,
-    blinkDuration,
     heightBetweenNodesCoeff,
     id,
     initialZoom,
+    isFullscreen,
     isSorted,
     margin,
+    padding,
     onClickText,
+    onZoom,
     size,
     style,
     //tooltipOptions,
     transitionDuration,
     widthBetweenNodesCoeff
-  }: InputOptions = deepmerge(defaultOptions, options);
+  } = options;
 
-  const defaultWidth = size - margin.left - margin.right;
-  const defaultHeight = size * aspectRatio - margin.top - margin.bottom;
+  const pl = padding.left || 0;
+  const pr = padding.right || 0;
+  const mb = margin.bottom || 0;
+  const ml = margin.left || 0;
+  const mr = margin.right || 0;
+  const mt = margin.top || 0;
+  const mx = ml + mr;
+  const my = mt + mb;
 
-  const attr: { [key: string]: number | string } = {
-    id,
-    preserveAspectRatio: "xMinYMin slice"
-  };
+  const layoutHeight = isFullscreen ? window.innerHeight - my : size - my;
+  const layoutWidth = isFullscreen ? window.innerWidth - mx : size - mx;
 
-  if (!style.width) {
-    attr.width = size;
-  }
-
-  if (!style.width || !style.height) {
-    attr.viewBox = `0 0 ${size} ${size * aspectRatio}`;
-  }
-
-  const diagonal = d3.svg
-    .diagonal<NodePosition>()
-    .projection((d) => [d.y!, d.x!]);
-  const root = d3.select(DOMNode);
-  const vis = root
-    .append("svg")
-    .attr(attr)
-    .style({ ...style, cursor: "cell" })
-    .call(
-      d3.behavior
-        .zoom()
-        .scaleExtent([0.1, 3])
-        .scale(initialZoom)
-        .on("zoom", () => {
-          const { translate, scale } = d3.event as ZoomEvent;
-          vis.attr(
-            "transform",
-            `translate(${translate.toString()})scale(${scale})`
-          );
-        })
-    )
-    .append("g")
-    .attr({
-      transform: `translate(${margin.left + style.node.radius}, ${
-        margin.top
-      }) scale(${initialZoom})`
-    });
-
-  let layout = d3.layout.tree().size([defaultWidth, defaultHeight]);
-
+  let layout = d3.layout.tree().size([layoutHeight, layoutWidth]);
   if (isSorted)
     layout.sort((a, b) =>
       (b as TreeNode).name.toLowerCase() < (a as TreeNode).name.toLowerCase()
         ? 1
         : -1
     );
+
+  const root = d3.select(DOMNode);
+  const zoom = d3.behavior.zoom().scaleExtent([0.1, 3]).scale(initialZoom);
+  const vis = root
+    .append("svg")
+    .attr({
+      id,
+      height: layoutHeight,
+      width: layoutWidth,
+      viewBox: `0 0 ${layoutWidth} ${layoutHeight * aspectRatio}`
+    })
+    .style({ ...style, cursor: "cell" })
+    .call(
+      zoom.on("zoom", () => {
+        const zoomEvent = d3.event as ZoomEvent;
+        const { translate, scale } = zoomEvent;
+        zoomEvent.sourceEvent?.stopPropagation();
+
+        // if (touchCount === 1) return;
+
+        vis.attr(
+          "transform",
+          `translate(${translate.toString()})scale(${scale})`
+        );
+        onZoom && onZoom();
+      })
+    )
+    .append("g")
+    .attr({
+      transform: `translate(${
+        pl + (inputNode.name || "empty").length * 9 + style.node.radius
+      }, 0) scale(${initialZoom})`
+    });
 
   // previousNodePositionsById stores node x and y
   // as well as hierarchy (id / parentId);
@@ -149,14 +150,13 @@ export const treeChart = (
     root: {
       id: "root",
       parentId: null,
-      x: defaultHeight / 2,
+      x: layoutHeight / 2,
       y: 0
     }
   };
 
-  return function renderChart(tree: InputNode) {
+  return function renderChart(tree: InputNode | undefined = inputNode) {
     console.log("treeChart: render");
-    let maxLabelLength = 0;
 
     if (!Object.keys(tree).length || !tree.name) {
       tree = {
@@ -167,17 +167,16 @@ export const treeChart = (
     visit(
       tree,
       (node: TreeNodeWithId) => {
-        maxLabelLength = Math.max(node.name.length, maxLabelLength);
         node.id = node.id || "root";
-        node.y = maxLabelLength * 7 * widthBetweenNodesCoeff;
       },
-      (node: TreeNodeWithId) =>
-        Array.isArray(node.children) && node.children.length > 0
+      (node: TreeNodeWithId) => {
+        return Array.isArray(node.children) && node.children.length > 0
           ? node.children.map((c) => {
               c.id = `${node.id || ""}|${c.name}`;
               return c;
             })
-          : undefined
+          : undefined;
+      }
     );
 
     let nodeIndex = 0;
@@ -186,16 +185,21 @@ export const treeChart = (
     function update() {
       console.log("treeChart: update");
 
-      // set tree layout dimensions and spacing between branches and nodes
-      const maxNodeCountByLevel = Math.max(...getNodeGroupByDepthCount(tree));
-      layout = layout.size([
-        maxNodeCountByLevel * 25 * heightBetweenNodesCoeff,
-        defaultWidth
-      ]);
+      const diagonal = d3.svg
+        .diagonal<NodePosition>()
+        .projection((d) => [d.y!, d.x!]);
 
+      // update nodes
       const treeNodes = layout.nodes(tree) as TreeNodeWithId[];
-      const links = layout.links(treeNodes);
+      const nodePool = vis
+        .selectAll("g.node")
+        .property("__oldData__", (d: TreeNodeWithId) => d)
+        .data(treeNodes, (d) => {
+          if (!d.id) d.id = `${++nodeIndex}`;
+          return d.id;
+        });
 
+      //#region node pool enter
       const nodePositionsById: { [nodeId: string]: NodePosition } =
         treeNodes.reduce((obj, treeNode) => {
           return {
@@ -206,16 +210,7 @@ export const treeChart = (
             }
           };
         }, {});
-
-      const pool = vis
-        .selectAll("g.node")
-        .property("__oldData__", (d: TreeNodeWithId) => d)
-        .data(treeNodes, (d) => {
-          if (!d.id) d.id = `${++nodeIndex}`;
-          return d.id;
-        });
-
-      const poolEnter = pool
+      const poolEnter = nodePool
         .enter()
         .append("g")
         .attr({
@@ -275,10 +270,10 @@ export const treeChart = (
         .on("click", onClickText);
 
       // update the text to reflect whether node has children or not
-      pool.select("text").text((d) => d.name);
+      nodePool.select("text").text((d) => d.name);
 
       // change the circle fill depending on whether it has children and is collapsed
-      pool.select("circle").style({
+      nodePool.select("circle").style({
         stroke: "black",
         "stroke-width": "1.5px",
         fill: (d) =>
@@ -290,7 +285,7 @@ export const treeChart = (
       });
 
       // transition nodes to their new position
-      const nodeUpdate = pool
+      const nodeUpdate = nodePool
         .transition()
         .duration(transitionDuration)
         .attr({
@@ -312,9 +307,11 @@ export const treeChart = (
             return `translate(${x},0)`;
           }
         });
+      //#endregion
 
+      //#region node pool exit
       // transition exiting nodes to the parent's new position
-      const poolExit = pool
+      const poolExit = nodePool
         .exit()
         .transition()
         .duration(transitionDuration)
@@ -335,14 +332,17 @@ export const treeChart = (
 
       poolExit.select("circle").attr("r", 0);
       poolExit.select("text").style("fill-opacity", 0);
+      //#endregion
 
-      // update the links
-      const link = vis
+      // update links
+      const links = layout.links(treeNodes);
+      const linkPool = vis
         .selectAll("path.link")
         .data(links, (d) => (d.target as TreeNodeWithId).id);
 
+      //#region link pool enter
       // enter any new links at the parent's previous position
-      link
+      linkPool
         .enter()
         .insert("path", "g")
         .attr({
@@ -367,15 +367,17 @@ export const treeChart = (
         .style(style.link);
 
       // transition links to their new position
-      link
+      linkPool
         .transition()
         .duration(transitionDuration)
         .attr({
           d: diagonal as unknown as Primitive
         });
+      //#endregion
 
+      //#region link pool exit
       // transition exiting nodes to the parent's new position
-      link
+      linkPool
         .exit()
         .transition()
         .duration(transitionDuration)
@@ -396,9 +398,10 @@ export const treeChart = (
           }
         })
         .remove();
+      //#endregion
 
       // delete the old data once it's no longer needed
-      pool.property("__oldData__", null);
+      nodePool.property("__oldData__", null);
 
       // stash the old positions for transition
       previousNodePositionsById = nodePositionsById;

@@ -202,9 +202,9 @@ export const Nav = ({
                       >
                         <OrgPopover
                           boxSize={[6, 6, 6]}
-                          ml={3}
                           orgType={OrgTypes.NETWORK}
                           session={session}
+                          ml={3}
                         />
                         {/* <OrgPopover
                           boxSize={[8, 8, 8]}
@@ -213,14 +213,14 @@ export const Nav = ({
                         /> */}
                         <EventPopover
                           boxSize={[5, 5, 5]}
+                          session={session}
                           ml={1}
                           mr={2}
-                          session={session}
                         />
                         <TopicPopover
                           boxSize={[5, 5, 5]}
-                          mr={3}
                           session={session}
+                          mr={3}
                         />
                       </Flex>
                     )}
@@ -465,24 +465,30 @@ export const Nav = ({
                   <Flex>
                     {session && (
                       <Flex
+                        as="nav"
                         bg={isDark ? "gray.800" : "lightcyan"}
                         borderColor={isDark ? "gray.600" : "gray.200"}
                         borderRadius={9999}
                         borderStyle="solid"
                         borderWidth={1}
                         css={css`
-                          padding: 3px 4px 3px 16px;
+                          padding: 3px 0px 3px 0px;
                         `}
                       >
-                        <EventPopover boxSize={[6, 6, 6]} session={session} />
                         <OrgPopover
                           boxSize={6}
                           orgType={OrgTypes.NETWORK}
-                          ml={2}
                           session={session}
+                          ml={3}
                         />
-                        <OrgPopover boxSize={8} mr={1} session={session} />
-                        <TopicPopover boxSize={6} mr={2} session={session} />
+                        {/* <OrgPopover boxSize={8} mr={1} session={session} /> */}
+                        <EventPopover
+                          boxSize={[6, 6, 6]}
+                          session={session}
+                          ml={1}
+                          mr={2}
+                        />
+                        <TopicPopover boxSize={6} session={session} mr={3} />
                       </Flex>
                     )}
 

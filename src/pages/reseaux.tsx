@@ -8,8 +8,9 @@ import {
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Detector } from "react-detect-offline";
 import { FaRegMap } from "react-icons/fa";
 import { PageContainer } from "features/common";
@@ -18,16 +19,16 @@ import { MapModal } from "features/modals/MapModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { OrgsList } from "features/orgs/OrgsList";
 import { treeChart } from "features/treeChart/treeChart";
-import { RenderChart } from "features/treeChart/types";
+import { InputNode, RenderChart } from "features/treeChart/types";
 import { hasItems } from "utils/array";
 import { normalize } from "utils/string";
 import { Visibility } from "models/Org";
-import { isServer } from "utils/isServer";
+import { PageProps } from "./_app";
+import { NetworksModal } from "features/modals/NetworksModal";
 
 let renderChart: RenderChart | undefined;
-let treeChartRoot: HTMLElement | null;
 
-const NetworksPage = (props: any) => {
+const NetworksPage = (props: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -36,67 +37,118 @@ const NetworksPage = (props: any) => {
     onOpen: openMapModal,
     onClose: closeMapModal
   } = useDisclosure({ defaultIsOpen: false });
+  const {
+    isOpen: isNetworksModalOpen,
+    onOpen: openNetworksModal,
+    onClose: closeNetworksModal
+  } = useDisclosure({ defaultIsOpen: false });
+  const [elementLocked, setElementLocked] = useState<HTMLElement | undefined>();
 
   const orgsQuery = useGetOrgsQuery({ populate: "orgs" });
-  const orgsNodes = orgsQuery.data
-    ?.filter(
-      (org) => hasItems(org.orgs) && org.orgVisibility !== Visibility.PRIVATE
-    )
-    .map((org) => ({
-      name: org.orgName,
-      children: org.orgs?.map(({ orgName }) => ({ name: orgName }))
-    }));
+  const inputNodes: InputNode[] = useMemo(
+    () =>
+      orgsQuery.data
+        ? orgsQuery.data
+            .filter(
+              (org) =>
+                hasItems(org.orgs) && org.orgVisibility !== Visibility.PRIVATE
+            )
+            .map((org) => ({
+              name: org.orgName,
+              children: org.orgs?.map(({ orgName }) => ({ name: orgName }))
+            }))
+        : [],
+    [orgsQuery.data]
+  );
 
-  useEffect(() => {
-    if (!orgsNodes) return;
+  // useEffect(() => {
+  //   if (!inputNodes) return;
 
-    const width =
-      (document.getElementById("pageContainer") || new HTMLElement())
-        .clientWidth - 30;
+  //   const treeChartContainer = document.getElementById("treeC");
 
-    const c = document.getElementById("treeC");
-    treeChartRoot = document.getElementById("tree");
+  //   if (!treeChartContainer) return;
 
-    if (treeChartRoot) {
-      c?.removeChild(treeChartRoot);
-    }
+  //   const renderChartWithInputNodes = (inputNodes: InputNode[]) => {
+  //     const width =
+  //       (document.getElementById("pageContainer") || new HTMLElement())
+  //         .clientWidth - 30;
 
-    treeChartRoot = document.createElement("div");
-    treeChartRoot.setAttribute("id", "tree");
-    c?.appendChild(treeChartRoot);
+  //     let treeChartRoot = document.getElementById("tree") as HTMLDivElement;
 
-    renderChart = treeChart(treeChartRoot, {
-      id: "treeExample",
-      aspectRatio: 0.5,
-      isSorted: true,
-      widthBetweenNodesCoeff: 0.5,
-      heightBetweenNodesCoeff: 2,
-      style: { background: "white", width },
-      //tooltipOptions: { offset: { left: 30, top: 10 }, indentationSize: 2 },
-      initialZoom: 0.5,
-      onClickText: (node) => {
-        const url = "/" + normalize(node.name);
-        router.push(url, url, { shallow: true });
-      }
-    });
+  //     treeChartContainer.removeChild(treeChartRoot);
+  //     treeChartRoot = document.createElement("div");
+  //     treeChartRoot.setAttribute("id", "tree");
+  //     treeChartContainer.appendChild(treeChartRoot);
 
-    renderChart({
-      name: process.env.NEXT_PUBLIC_SHORT_URL,
-      children: orgsNodes
-    });
-  }, [orgsNodes]);
+  //     renderChart = treeChart(treeChartRoot, {
+  //       id: "treeSvg",
+  //       aspectRatio: 0.75,
+  //       isSorted: true,
+  //       widthBetweenNodesCoeff: 0.5,
+  //       heightBetweenNodesCoeff: 2,
+  //       style: { background: "white", width },
+  //       //tooltipOptions: { offset: { left: 30, top: 10 }, indentationSize: 2 },
+  //       initialZoom: 0.5,
+  //       onClickText: (node) => {
+  //         const url = "/" + normalize(node.name);
+  //         router.push(url, url, { shallow: true });
+  //       },
+  //       onZoom: () => {
+  //         // if (!elementLocked) {
+  //         //   disableBodyScroll(treeChartContainer);
+  //         //   setElementLocked(treeChartContainer);
+  //         //   setTimeout(() => {
+  //         //     enableBodyScroll(treeChartContainer);
+  //         //     setElementLocked(undefined);
+  //         //   }, 1000);
+  //         // }
+  //       }
+  //     });
+
+  //     renderChart({
+  //       name: process.env.NEXT_PUBLIC_SHORT_URL,
+  //       children: inputNodes
+  //     });
+  //   };
+
+  //   const run = () => {
+  //     renderChartWithInputNodes(inputNodes);
+  //   };
+
+  //   window.removeEventListener("resize", run);
+  //   window.addEventListener("resize", run);
+  //   run();
+  // }, [inputNodes]);
 
   return (
-    <Layout pageTitle="Réseaux" {...props}>
+    <Layout
+      pageTitle="Réseaux"
+      onTouchStart={() => {
+        if (elementLocked) {
+          enableBodyScroll(elementLocked);
+          setElementLocked(undefined);
+        }
+      }}
+      onWheel={() => {
+        if (elementLocked) {
+          enableBodyScroll(elementLocked);
+          setElementLocked(undefined);
+        }
+      }}
+      {...props}
+    >
       <PageContainer id="pageContainer">
         <Heading className="rainbow-text" fontFamily="DancingScript" mb={2}>
           Réseaux
         </Heading>
 
-        <Box id="treeC" margin="12px auto">
-          {orgsQuery.isLoading && <Spinner mb={5} />}
-          <div id="tree" />
-        </Box>
+        {orgsQuery.isLoading ? (
+          <Spinner />
+        ) : (
+          <Button onClick={() => openNetworksModal()}>
+            Voir l'arborescence des réseaux
+          </Button>
+        )}
 
         <Flex alignItems="center">
           <Box flexGrow={1} mt={orgsQuery.isLoading ? 3 : undefined}>
@@ -147,6 +199,15 @@ const NetworksPage = (props: any) => {
         </Flex>
 
         <OrgsList orgsQuery={orgsQuery} />
+
+        {isNetworksModalOpen && (
+          <NetworksModal
+            inputNodes={inputNodes}
+            isOpen={isNetworksModalOpen}
+            //header="Carte des réseaux"
+            onClose={closeNetworksModal}
+          />
+        )}
 
         {isMapModalOpen && (
           <MapModal

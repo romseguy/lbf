@@ -1,6 +1,6 @@
 import type d3 from "d3";
 
-export type RenderChart = (tree: InputNode) => void;
+export type RenderChart = (tree: InputNode | undefined) => void;
 
 export type Primitive = number | string | boolean;
 
@@ -11,17 +11,24 @@ export interface InputOptions {
   aspectRatio: number;
   initialZoom: number;
   margin: {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
+    top?: number;
+    right?: number;
+    bottom?: number;
+    left?: number;
   };
+  padding: {
+    top?: number;
+    right?: number;
+    bottom?: number;
+    left?: number;
+  };
+  isFullscreen: boolean;
   isSorted: boolean;
   heightBetweenNodesCoeff: number;
   widthBetweenNodesCoeff: number;
   transitionDuration: number;
-  blinkDuration: number;
   onClickText: (datum: TreeNodeWithId) => void;
+  onZoom: () => void;
   tooltipOptions?: {
     disabled?: boolean;
     left?: number | undefined;
@@ -36,7 +43,7 @@ export interface InputOptions {
 }
 
 export interface InputNode {
-  name: string;
+  name?: string;
   children?: InputNode[];
 }
 

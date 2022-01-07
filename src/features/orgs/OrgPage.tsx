@@ -55,7 +55,7 @@ import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSl
 import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { Visibility as EventVisibility } from "models/Event";
-import { IOrg, IOrgTab, orgTypeFull, OrgTypes } from "models/Org";
+import { IOrg, IOrgTab, orgTypeFull, orgTypeFull4, OrgTypes } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription
@@ -66,6 +66,7 @@ import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs, defaultTabs } from "./OrgPageTabs";
 import { useEditOrgMutation, useGetOrgQuery, useGetOrgsQuery } from "./orgsApi";
 import { selectOrgRefetch } from "./orgSlice";
+import { capitalize } from "utils/string";
 
 export type Visibility = {
   isVisible: {
@@ -121,22 +122,32 @@ export const OrgPage = ({
     if (org.orgDescription && org.orgDescription.length > 0) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(org.orgDescription, "text/html");
+      const links = (doc.firstChild as HTMLElement).getElementsByTagName("a");
 
-      //@ts-expect-error
-      const links = doc.firstChild.getElementsByTagName("a");
       for (let i = 0; i < links.length; i++) {
-        if (links[i].innerText.includes("http")) links[i].classList.add("clip");
-        links[i].setAttribute("title", links[i].innerText);
+        const link = links[i];
+        link.setAttribute("title", link.innerText);
+
+        if (
+          isMobile &&
+          (link.href.includes("http") || link.href.includes("mailto:"))
+        ) {
+          link.classList.add("clip");
+
+          if (link.href.includes("mailto:"))
+            link.innerText = "@" + link.innerText;
+        }
       }
+
       setDescription(doc.body.innerHTML);
-    }
+    } else setDescription(undefined);
   }, [org]);
 
-  const { networks } = useGetOrgsQuery(
+  const { orgNetworks } = useGetOrgsQuery(
     { populate: "orgs" },
     {
       selectFromResult: (query) => ({
-        networks: query.data?.filter(
+        orgNetworks: query.data?.filter(
           (o) =>
             o.orgName !== org.orgName &&
             o.orgType === OrgTypes.NETWORK &&
@@ -218,7 +229,6 @@ export const OrgPage = ({
   const [tabsState, setTabsState] = useState<
     (IOrgTab & { checked: boolean })[]
   >(tabs.map((t) => ({ ...t, checked: true })));
-
   useEffect(() => {
     setTabsState(
       tabs.map((t) => ({
@@ -244,11 +254,6 @@ export const OrgPage = ({
       orgQuery.refetch();
     }
   }, [userEmail]);
-  // useEffect(() => {
-  //   console.log("refetching org with new route", router.asPath);
-  //   orgQuery.refetch();
-  //   setIsEdit(false);
-  // }, [router.asPath]);
 
   return (
     <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
@@ -373,7 +378,7 @@ export const OrgPage = ({
                             borderTopRadius="lg"
                           >
                             <Heading size="sm" py={3}>
-                              Coordonnées
+                              Coordonnées {orgTypeFull(org.orgType)}
                             </Heading>
                             {hasInfo && isCreator && (
                               <Tooltip
@@ -417,7 +422,7 @@ export const OrgPage = ({
                         </Grid>
                       </GridItem>
 
-                      {Array.isArray(networks) && networks.length > 0 && (
+                      {Array.isArray(orgNetworks) && orgNetworks.length > 0 && (
                         <GridItem
                           light={{ bg: "orange.100" }}
                           dark={{ bg: "gray.600" }}
@@ -429,8 +434,8 @@ export const OrgPage = ({
                               alignItems="center"
                             >
                               <Heading size="sm" py={3}>
-                                Cette organisation fait partie des réseaux
-                                suivant :
+                                {capitalize(orgTypeFull4(org.orgType))} est
+                                membre des réseaux ci-dessous :
                               </Heading>
                             </GridHeader>
 
@@ -439,7 +444,7 @@ export const OrgPage = ({
                               dark={{ bg: "gray.600" }}
                             >
                               <Box p={5}>
-                                {networks.map((network) => (
+                                {orgNetworks.map((network) => (
                                   <EntityButton
                                     key={network._id}
                                     org={network}

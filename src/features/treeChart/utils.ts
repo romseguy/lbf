@@ -119,3 +119,8 @@ export function findParentNodePosition(
 //     return `childrenCount: ${(children as unknown[]).length}`;
 //   return 'empty';
 // }
+
+// let touchCount = 0;
+// DOMNode.addEventListener("touchstart", (e) => {
+//   touchCount = e.touches.length;
+// });
