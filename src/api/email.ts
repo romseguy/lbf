@@ -35,14 +35,14 @@ const getTopicUrl = ({
   event?: IEvent | null;
   topic: ITopic;
 }) => {
-  let entityUrl = `${process.env.NEXT_PUBLIC_URL}/${
+  let topicUrl = `${process.env.NEXT_PUBLIC_URL}/${
     org ? (org.orgUrl === "forum" ? "forum" : org.orgUrl) : event?.eventUrl
   }`;
-  entityUrl +=
+  topicUrl +=
     org && org.orgUrl === "forum"
       ? `/${topic.topicName}`
       : `/discussions/${topic.topicName}`;
-  return entityUrl;
+  return topicUrl;
 };
 
 export const createEventEmailNotif = ({
@@ -308,8 +308,9 @@ export const createTopicEmailNotif = ({
   subscription: ISubscription | null;
 }): Mail => {
   const entityName = event ? event.eventName : org?.orgName;
+  const entityUrl = event ? event.eventUrl : org?.orgUrl;
   const entityType = org ? orgTypeFull(org.orgType) : "de l'événement";
-  const entityUrl = getTopicUrl({ event, org, topic });
+  const topicUrl = getTopicUrl({ event, org, topic });
   const subject = `Vous êtes invité à une discussion : ${topic.topicName}`;
 
   return {
@@ -345,21 +346,21 @@ export const createTopicEmailNotif = ({
                 : ""
             }
 
-            <p><a href="${entityUrl}">Cliquez ici</a> pour participer à la discussion.</p>
+            <p><a href="${topicUrl}">Cliquez ici</a> pour participer à la discussion.</p>
           </td>
         </tr>
       </table>
 
       <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
+          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
             ${`
               <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
               org ? org.orgUrl : event?.eventUrl
             }?subscriptionId=${
               subscription ? subscription._id : "foo"
             }">Se désabonner ${
-              entityName === "forum"
+              entityUrl === "forum"
                 ? `du forum ${process.env.NEXT_PUBLIC_SHORT_URL}`
                 : `${entityType} ${entityName}`
             }</a>
@@ -438,13 +439,18 @@ export const sendTopicNotifications = async ({
         tagType.pushNotif &&
         typeof subscription.user === "object" &&
         subscription.user.userSubscription
-      )
-        await api.sendPushNotification({
-          message: `Appuyez pour lire la discussion`,
-          subscription: subscription.user.userSubscription,
-          title: "Vous êtes invité à une discussion",
-          url: getTopicUrl({ org, topic })
-        });
+      ) {
+        try {
+          await api.sendPushNotification({
+            message: `Appuyez pour lire la discussion`,
+            subscription: subscription.user.userSubscription,
+            title: "Vous êtes invité à une discussion",
+            url: getTopicUrl({ org, topic })
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
     } else if (event) {
       const eventSubscription = subscription.events?.find(({ eventId }) =>
         equals(eventId, event._id)
@@ -482,13 +488,18 @@ export const sendTopicNotifications = async ({
         tagType.pushNotif &&
         typeof subscription.user === "object" &&
         subscription.user.userSubscription
-      )
-        await api.sendPushNotification({
-          message: `Appuyez pour lire la discussion`,
-          subscription: subscription.user.userSubscription,
-          title: "Vous êtes invité à une discussion",
-          url: getTopicUrl({ event, topic })
-        });
+      ) {
+        try {
+          await api.sendPushNotification({
+            message: `Appuyez pour lire la discussion`,
+            subscription: subscription.user.userSubscription,
+            title: "Vous êtes invité à une discussion",
+            url: getTopicUrl({ event, topic })
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
     }
   }
 

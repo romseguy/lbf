@@ -114,6 +114,7 @@ export const OrgPopover = ({
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
   const [isOrgFormModalOpen, setIsOrgFormModalOpen] = useState(false);
+
   const [showOrgs, setShowOrgs] = useState<
     "showOrgsAdded" | "showOrgsFollowed" | "showOrgsSubscribed"
   >("showOrgsAdded");

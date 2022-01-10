@@ -51,37 +51,36 @@ export const GlobalStyles = () => (
       //#region rainbow text
       .rainbow-text {
         cursor: default;
+        /* Set the background size and repeat properties. */
+        background-size: 57%;
+        background-repeat: repeat;
+        /* Animate the text when loading the element. */
+        /* This animates it on page load and when hovering out. */
+        animation: rainbow-text-animation-rev 0.5s ease forwards;
       }
 
       .chakra-ui-light .rainbow-text {
         /* Create a conic gradient. */
         /* Double percentages to avoid blur (#000 10%, #fff 10%, #fff 20%, ...). */
-        background: #ca4246;
-        background-color: #ca4246;
+        /* background: #ffffff;
+        background-color: #ffffff; */
         background: conic-gradient(
-          #ca4246 16.666%,
-          #ca4246 16.666%,
+          #000000 16.666%,
+          #000000 16.666%,
           #a7489b 33.333%,
-          #a7489b 33.333%,
-          #a7489b 50%,
-          #8b9862 50%,
-          #8b9862 66.666%,
-          #476098 66.666%,
-          #319795 83.333%,
+          #000000 33.333%,
+          #000000 50%,
+          #000000 50%,
+          #000000 66.666%,
+          #a7489b 66.666%,
+          #ff0000 83.333%,
           #a7489b 83.333%
         );
-        /* Set the background size and repeat properties. */
-        background-size: 57%;
-        background-repeat: repeat;
-
         /* Use the text as a mask for the background. */
         /* This will show the gradient as a text color rather than element bg. */
+        background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-
-        /* Animate the text when loading the element. */
-        /* This animates it on page load and when hovering out. */
-        animation: rainbow-text-animation-rev 0.5s ease forwards;
       }
 
       .chakra-ui-dark .rainbow-text {
@@ -89,7 +88,7 @@ export const GlobalStyles = () => (
         /* Double percentages to avoid blur (#000 10%, #fff 10%, #fff 20%, ...). */
         background: #ca4246;
         background-color: #ca4246;
-        background: conic-gradient(
+        /* background: conic-gradient(
           #ca4246 16.666%,
           #ca4246 16.666%,
           #ffee00 33.333%,
@@ -100,19 +99,24 @@ export const GlobalStyles = () => (
           #ffee00 66.666%,
           #81e6d9 83.333%,
           #ffee00 83.333%
+        ); */
+        background: conic-gradient(
+          #ffffff 16.666%,
+          #ffffff 16.666%,
+          #ff0000 33.333%,
+          #ffffff 33.333%,
+          #ffffff 50%,
+          #ffffff 50%,
+          #81e6d9 66.666%,
+          #ffffff 66.666%,
+          #ffffff 83.333%,
+          #ffffff 83.333%
         );
-        /* Set the background size and repeat properties. */
-        background-size: 57%;
-        background-repeat: repeat;
-
         /* Use the text as a mask for the background. */
         /* This will show the gradient as a text color rather than element bg. */
+        background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-
-        /* Animate the text when loading the element. */
-        /* This animates it on page load and when hovering out. */
-        animation: rainbow-text-animation-rev 0.5s ease forwards;
       }
 
       /* Add animation on hover. */

@@ -313,6 +313,8 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
             topics: [{ topic: topic._id, emailNotif: true, pushNotif: true }]
           });
 
+        if (!subscription) throw new Error("Impossible de créer un abonnement");
+
         const topicSubscription = subscription.topics.find(({ topic: t }) =>
           equals(t._id, body.topic!._id)
         );

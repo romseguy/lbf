@@ -141,9 +141,10 @@ export const OrgForm = withGoogleApi({
     });
 
     const orgAddress = watch("orgAddress");
-    const [orgDescriptionHtml, setOrgDescriptionHtml] = useState<
-      string | undefined
-    >(props.org?.orgDescriptionHtml);
+    const [orgDescription, setOrgDescription] = useState<{
+      html?: string;
+      quillHtml?: string;
+    }>({ html: props.org?.orgDescriptionHtml });
     const orgEmail = watch("orgEmail");
     const orgPhone = watch("orgPhone");
     const orgType = watch("orgType");
@@ -176,7 +177,7 @@ export const OrgForm = withGoogleApi({
         orgDescription: form.orgDescription
           ? normalizeQuill(form.orgDescription)
           : undefined,
-        orgDescriptionHtml,
+        orgDescriptionHtml: orgDescription.html,
         orgAddress:
           Array.isArray(orgAddress) && orgAddress.length > 0 ? orgAddress : [],
         orgEmail:
@@ -358,20 +359,21 @@ export const OrgForm = withGoogleApi({
             name="orgDescription"
             control={control}
             defaultValue={props.org?.orgDescription || ""}
-            render={(renderProps) => {
-              return (
-                <RTEditor
-                  org={props.org}
-                  session={props.session}
-                  defaultValue={props.org?.orgDescription}
-                  placeholder={`Écrire la description ${orgTypeLabel}`}
-                  onChange={({ html, quillHtml }) => {
-                    setOrgDescriptionHtml(html);
-                    renderProps.onChange(quillHtml);
-                  }}
-                />
-              );
-            }}
+            render={
+              (/*{onChange}*/) => {
+                return (
+                  <RTEditor
+                    org={props.org}
+                    session={props.session}
+                    defaultValue={props.org?.orgDescription}
+                    placeholder={`Écrire la description ${orgTypeLabel}`}
+                    onChange={({ html, quillHtml }) => {
+                      setOrgDescription({ html, quillHtml });
+                    }}
+                  />
+                );
+              }
+            }
           />
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="orgDescription" />

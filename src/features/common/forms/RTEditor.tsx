@@ -77,7 +77,6 @@ export const RTEditor = ({
     autoLinks: true,
     imageUploader: {
       upload: async (file: File) => {
-        console.log(file);
         if (!/^image\//.test(file.type)) {
           toast({
             status: "error",
@@ -143,20 +142,6 @@ export const RTEditor = ({
     editor: Quill | undefined;
   } = useQuill(options);
 
-  const insertHeart = useCallback(() => {
-    const cursorPosition = quill.getSelection().index;
-    quill.insertText(cursorPosition, "♥");
-    quill.setSelection(cursorPosition + 1);
-  }, [quill]);
-
-  const undo = useCallback(() => {
-    return quill!.history.undo();
-  }, [quill]);
-
-  const redo = useCallback(() => {
-    return quill!.history.redo();
-  }, [quill]);
-
   if (Quill && !quill) {
     const Image = Quill.import("formats/image");
     Image.sanitize = (url: any) => url;
@@ -189,8 +174,6 @@ export const RTEditor = ({
     if (quill) {
       quill.on("selection-change", () => {
         if (onBlur && quill.root) {
-          console.log("wat");
-
           const delta = quill.getContents();
           onBlur({
             html: deltaToHtml(delta.ops),
@@ -210,11 +193,15 @@ export const RTEditor = ({
       });
 
       //quill.getModule("toolbar").addHandler("image", image);
-      quill.getModule("toolbar").addHandler("insertHeart", insertHeart);
-      quill.getModule("toolbar").addHandler("undo", undo);
-      quill.getModule("toolbar").addHandler("redo", redo);
+      quill.getModule("toolbar").addHandler("insertHeart", () => {
+        const cursorPosition = quill.getSelection().index;
+        quill.insertText(cursorPosition, "♥");
+        quill.setSelection(cursorPosition + 1);
+      });
+      quill.getModule("toolbar").addHandler("redo", () => quill.history.redo());
+      quill.getModule("toolbar").addHandler("undo", () => quill.history.undo());
     }
-  }, [quill, undo, redo, insertHeart]);
+  }, [quill]);
 
   useEffect(() => {
     if (quill && quill.root)
