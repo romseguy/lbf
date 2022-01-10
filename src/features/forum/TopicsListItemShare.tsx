@@ -24,7 +24,7 @@ export const TopicsListItemShare = ({
   let url = topic.org
     ? topic.org.orgUrl
     : topic.event?.eventUrl + "/discussions";
-  if (topic.org?.orgUrl === "aucourant") url = "forum";
+  if (topic.org?.orgUrl === "forum") url = "forum";
   url = `${process.env.NEXT_PUBLIC_URL}/${url}/${topic.topicName}`;
 
   return (

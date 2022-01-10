@@ -36,10 +36,10 @@ const getTopicUrl = ({
   topic: ITopic;
 }) => {
   let entityUrl = `${process.env.NEXT_PUBLIC_URL}/${
-    org ? (org.orgName === "aucourant" ? "forum" : org.orgUrl) : event?.eventUrl
+    org ? (org.orgName === "forum" ? "forum" : org.orgUrl) : event?.eventUrl
   }`;
   entityUrl +=
-    org && org.orgName === "aucourant"
+    org && org.orgName === "forum"
       ? `/${topic.topicName}`
       : `/discussions/${topic.topicName}`;
   return entityUrl;
@@ -359,7 +359,7 @@ export const createTopicEmailNotif = ({
             }?subscriptionId=${
               subscription ? subscription._id : "foo"
             }">Se désabonner ${
-              entityName === "aucourant"
+              entityName === "forum"
                 ? `du forum ${process.env.NEXT_PUBLIC_SHORT_URL}`
                 : `${entityType} ${entityName}`
             }</a>
@@ -399,7 +399,6 @@ export const sendTopicNotifications = async ({
       typeof subscription.user === "object"
         ? subscription.user.email
         : subscription.email;
-
     if (org) {
       const orgSubscription = subscription.orgs?.find(
         ({ orgId, type }) =>
@@ -435,6 +434,7 @@ export const sendTopicNotifications = async ({
       }
 
       if (
+        process.env.NODE_ENV === "production" &&
         tagType.pushNotif &&
         typeof subscription.user === "object" &&
         subscription.user.userSubscription
@@ -526,7 +526,7 @@ export const sendTopicMessageEmailNotifications = async ({
     <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${entityName}</a>
     `;
 
-    if (entityName === "aucourant") {
+    if (entityName === "forum") {
       html = `<h1>${subject}</h1><p>Rendez-vous sur le <a href="${url}">forum</a> pour lire la discussion.</p>`;
     }
 

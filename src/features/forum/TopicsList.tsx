@@ -91,7 +91,7 @@ export const TopicsList = ({
   const entityUrl = org ? org.orgUrl : event?.eventUrl;
   const topics: ITopic[] = org
     ? org.orgTopics.filter((topic) => {
-        if (entityName === "aucourant") return true;
+        if (entityName === "forum") return true;
 
         if (hasItems(selectedCategories) || hasItems(selectedLists)) {
           let belongsToCategory = false;
@@ -256,7 +256,7 @@ export const TopicsList = ({
       {(topics.length > 0 || selectedLists || selectedCategories) &&
         session &&
         org &&
-        org.orgName !== "aucourant" &&
+        org.orgName !== "forum" &&
         (props.isSubscribed || props.isCreator) && (
           <>
             Listes de diffusion :

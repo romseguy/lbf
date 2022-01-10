@@ -282,9 +282,10 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
               org = await org
                 .populate({
                   path: "orgSubscriptions",
-                  populate: { path: "user" }
+                  populate: { path: "user", select: "email userSubscription" }
                 })
                 .execPopulate();
+
               emailList = await sendTopicNotifications({
                 org,
                 subscriptions: org.orgSubscriptions,

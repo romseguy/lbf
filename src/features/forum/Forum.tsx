@@ -28,7 +28,7 @@ export const Forum = ({
   //#region org
   const mutation = useEditOrgMutation();
   const query = useGetOrgQuery({
-    orgUrl: "aucourant",
+    orgUrl: "forum",
     populate: "orgTopics orgSubscriptions"
   });
   const org = query.data;

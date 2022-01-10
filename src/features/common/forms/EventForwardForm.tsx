@@ -55,7 +55,7 @@ export const EventForwardForm = ({
 
   const myOrgs = orgs?.filter(
     (org) =>
-      org.orgName !== "aucourant" &&
+      org.orgName !== "forum" &&
       !org.orgEvents.find(
         (orgEvent) =>
           props.event._id === orgEvent._id ||

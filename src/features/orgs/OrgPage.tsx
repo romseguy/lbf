@@ -42,6 +42,7 @@ import {
 } from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
+import { Forum } from "features/forum/Forum";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { MapContainer } from "features/map/MapContainer";
@@ -254,6 +255,14 @@ export const OrgPage = ({
       orgQuery.refetch();
     }
   }, [userEmail]);
+
+  if (org.orgName === "forum") {
+    return (
+      <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
+        <Forum isLogin={isLogin} setIsLogin={setIsLogin} tabItem={tabItem} />
+      </Layout>
+    );
+  }
 
   return (
     <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>

@@ -187,7 +187,7 @@ const IndexPage = (props: PageProps) => {
           <Text ml={2}>
             {host} peut envoyer jusqu'à 100 e-mails par jour. Si cela s'avère
             insuffisant, parlons en sur le{" "}
-            <EntityButton org={{ orgName: "aucourant" }} />
+            <EntityButton org={{ orgName: "forum" }} />
           </Text>
         </PageContainer>
       </Flex>

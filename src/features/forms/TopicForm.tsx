@@ -384,7 +384,7 @@ export const TopicForm = ({
 
       {(props.isCreator || props.isSubscribed) &&
         lists &&
-        org?.orgName !== "aucourant" && (
+        org?.orgName !== "forum" && (
           <FormControl
             id="topicVisibility"
             isInvalid={!!errors["topicVisibility"]}
@@ -451,9 +451,7 @@ export const TopicForm = ({
       )}
 
       {!props.topic &&
-        (event ||
-          props.isSubscribed ||
-          (org && org.orgName === "aucourant")) && (
+        (event || props.isSubscribed || (org && org.orgName === "forum")) && (
           <FormControl id="topicNotif" mb={3}>
             <FormLabel>Notifications</FormLabel>
 
@@ -474,7 +472,7 @@ export const TopicForm = ({
                 isChecked={topicNotif}
               >
                 Notifier les personnes abonnées{" "}
-                {org && org.orgName === "aucourant"
+                {org && org.orgName === "forum"
                   ? "au forum"
                   : org
                   ? `à ${orgTypeFull4(org.orgType)}`

@@ -15,7 +15,6 @@ import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
 import { useAppDispatch, wrapper } from "store";
-import ForumPage from "./forum";
 import { PageProps } from "./_app";
 
 let populate = "";
@@ -47,8 +46,6 @@ const Hash = ({
     const xhr = async () => {
       console.log(`fetching entity ${entityUrl}...`);
       populate = "";
-
-      if (entityUrl === "forum") return;
 
       const eventQuery = await dispatch(
         getEvent.initiate({ eventUrl: entityUrl, populate })
@@ -166,9 +163,6 @@ const Hash = ({
         </Layout>
       );
   }
-
-  if (entityUrl === "forum")
-    return <ForumPage tabItem={entityTabItem} {...props} />;
 
   if (event)
     return (

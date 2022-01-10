@@ -219,7 +219,7 @@ const NetworksPage = (props: PageProps) => {
                 (org) =>
                   typeof org.orgLat === "number" &&
                   typeof org.orgLng === "number" &&
-                  org.orgName !== "aucourant"
+                  org.orgName !== "forum"
               ) || []
             }
             onClose={closeMapModal}

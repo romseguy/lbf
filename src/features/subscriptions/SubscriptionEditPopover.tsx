@@ -330,7 +330,7 @@ export const SubscriptionEditPopover = ({
                 <>
                   Recevoir une notification{" "}
                   {notifType === "email" ? "e-mail" : "mobile"} pour :
-                  {org && org.orgUrl !== "aucourant" && (
+                  {org && org.orgUrl !== "forum" && (
                     <>
                       <Switch
                         display="flex"
