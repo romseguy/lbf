@@ -36,10 +36,10 @@ const getTopicUrl = ({
   topic: ITopic;
 }) => {
   let entityUrl = `${process.env.NEXT_PUBLIC_URL}/${
-    org ? (org.orgName === "forum" ? "forum" : org.orgUrl) : event?.eventUrl
+    org ? (org.orgUrl === "forum" ? "forum" : org.orgUrl) : event?.eventUrl
   }`;
   entityUrl +=
-    org && org.orgName === "forum"
+    org && org.orgUrl === "forum"
       ? `/${topic.topicName}`
       : `/discussions/${topic.topicName}`;
   return entityUrl;
