@@ -118,7 +118,7 @@ export const OrgsList = ({
             </Tr>
           ) : (
             orgs.map((org: IOrg) => {
-              if (org.orgName === "forum") return;
+              if (org.orgUrl === "forum") return;
               return (
                 <Tr key={`org-${org._id}`}>
                   <Td>

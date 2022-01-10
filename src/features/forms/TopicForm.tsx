@@ -451,7 +451,7 @@ export const TopicForm = ({
       )}
 
       {!props.topic &&
-        (event || props.isSubscribed || (org && org.orgName === "forum")) && (
+        (event || props.isSubscribed || (org && org.orgUrl === "forum")) && (
           <FormControl id="topicNotif" mb={3}>
             <FormLabel>Notifications</FormLabel>
 
@@ -472,7 +472,7 @@ export const TopicForm = ({
                 isChecked={topicNotif}
               >
                 Notifier les personnes abonnées{" "}
-                {org && org.orgName === "forum"
+                {org && org.orgUrl === "forum"
                   ? "au forum"
                   : org
                   ? `à ${orgTypeFull4(org.orgType)}`

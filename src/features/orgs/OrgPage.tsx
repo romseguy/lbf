@@ -256,7 +256,7 @@ export const OrgPage = ({
     }
   }, [userEmail]);
 
-  if (org.orgName === "forum") {
+  if (org.orgUrl === "forum") {
     return (
       <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
         <Forum isLogin={isLogin} setIsLogin={setIsLogin} tabItem={tabItem} />

@@ -36,8 +36,7 @@ import {
   ITopicSubscription,
   isOrgSubscription,
   TagType,
-  addTagType,
-  removeTagType
+  updateTagType
 } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { useAddSubscriptionMutation } from "./subscriptionsApi";
@@ -99,7 +98,19 @@ export const SubscriptionEditPopover = ({
   const [topics, setTopics] = useState<ITopicSubscriptionCheckboxes>({});
   const [isAllTopics, setIsAllTopics] = useState(
     !followerSubscription.tagTypes ||
-      !!followerSubscription.tagTypes.find(({ type }) => type === "Topics")
+      !!followerSubscription.tagTypes.find(
+        ({ type, emailNotif, pushNotif }) => {
+          if (type === "Topics") {
+            if (notifType === "email") {
+              return !!emailNotif;
+            }
+            if (notifType === "push") {
+              return !!pushNotif;
+            }
+          }
+          return false;
+        }
+      )
   );
 
   useEffect(() => {
@@ -354,28 +365,15 @@ export const SubscriptionEditPopover = ({
                             if (isOrgSubscription(followerSubscription)) {
                               payload = {
                                 orgs: [
-                                  {
-                                    ...followerSubscription,
-                                    tagTypes: e.target.checked
-                                      ? addTagType(
-                                          {
-                                            type: "Events",
-                                            [notifType === "email"
-                                              ? "emailNotif"
-                                              : "pushNotif"]: true
-                                          },
-                                          followerSubscription
-                                        )
-                                      : removeTagType(
-                                          {
-                                            type: "Events",
-                                            [notifType === "email"
-                                              ? "emailNotif"
-                                              : "pushNotif"]: true
-                                          },
-                                          followerSubscription
-                                        )
-                                  }
+                                  updateTagType(
+                                    {
+                                      type: "Events",
+                                      [notifType === "email"
+                                        ? "emailNotif"
+                                        : "pushNotif"]: e.target.checked
+                                    },
+                                    followerSubscription
+                                  ) as IOrgSubscription
                                 ]
                               };
 
@@ -482,55 +480,29 @@ export const SubscriptionEditPopover = ({
                         if (isOrgSubscription(followerSubscription)) {
                           payload = {
                             orgs: [
-                              {
-                                ...followerSubscription,
-                                tagTypes: e.target.checked
-                                  ? addTagType(
-                                      {
-                                        type: "Topics",
-                                        [notifType === "email"
-                                          ? "emailNotif"
-                                          : "pushNotif"]: true
-                                      },
-                                      followerSubscription
-                                    )
-                                  : removeTagType(
-                                      {
-                                        type: "Topics",
-                                        [notifType === "email"
-                                          ? "emailNotif"
-                                          : "pushNotif"]: true
-                                      },
-                                      followerSubscription
-                                    )
-                              }
+                              updateTagType(
+                                {
+                                  type: "Topics",
+                                  [notifType === "email"
+                                    ? "emailNotif"
+                                    : "pushNotif"]: e.target.checked
+                                },
+                                followerSubscription
+                              ) as IOrgSubscription
                             ]
                           };
                         } else {
                           payload = {
                             events: [
-                              {
-                                ...followerSubscription,
-                                tagTypes: e.target.checked
-                                  ? addTagType(
-                                      {
-                                        type: "Topics",
-                                        [notifType === "email"
-                                          ? "emailNotif"
-                                          : "pushNotif"]: true
-                                      },
-                                      followerSubscription
-                                    )
-                                  : removeTagType(
-                                      {
-                                        type: "Topics",
-                                        [notifType === "email"
-                                          ? "emailNotif"
-                                          : "pushNotif"]: true
-                                      },
-                                      followerSubscription
-                                    )
-                              }
+                              updateTagType(
+                                {
+                                  type: "Topics",
+                                  [notifType === "email"
+                                    ? "emailNotif"
+                                    : "pushNotif"]: e.target.checked
+                                },
+                                followerSubscription
+                              ) as IEventSubscription
                             ]
                           };
                         }

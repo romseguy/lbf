@@ -35,7 +35,7 @@ export const EntityButton = ({
   if (!org && !event && !user && !topic) return null;
 
   let entityUrl = org
-    ? org.orgName === "forum"
+    ? org.orgUrl === "forum"
       ? "/forum"
       : org.orgUrl
     : event
@@ -56,7 +56,7 @@ export const EntityButton = ({
           ? topic
             ? "Aller à la discussion"
             : org
-            ? org.orgName === "forum"
+            ? org.orgUrl === "forum"
               ? "Aller au forum"
               : org.orgType
               ? `Aller à la page ${orgTypeFull(org.orgType)}`
@@ -90,7 +90,7 @@ export const EntityButton = ({
                   topic
                     ? ChatIcon
                     : org
-                    ? org.orgName === "forum"
+                    ? org.orgUrl === "forum"
                       ? ChatIcon
                       : org.orgType === OrgTypes.NETWORK
                       ? IoIosGitNetwork
@@ -124,7 +124,7 @@ export const EntityButton = ({
             {topic
               ? topic.topicName
               : org
-              ? org.orgName === "forum"
+              ? org.orgUrl === "forum"
                 ? "Forum"
                 : org.orgName
               : event
