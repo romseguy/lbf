@@ -9,7 +9,7 @@ export const Footer = ({
   const isDark = colorMode === "dark";
 
   return (
-    <Box as="footer" bg={isDark ? "gray.800" : "white"} {...props}>
+    <Box as="footer" bg="transparent" {...props}>
       {children}
     </Box>
   );

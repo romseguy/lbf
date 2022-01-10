@@ -8,7 +8,7 @@ import {
   useColorMode
 } from "@chakra-ui/react";
 import AbortController from "abort-controller";
-import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
+//import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { treeChart } from "features/treeChart/treeChart";
@@ -41,7 +41,7 @@ export const NetworksModal = ({
       treeChartContainer = document.getElementById("treeC");
 
       if (!treeChartContainer) return;
-      disableBodyScroll(treeChartContainer);
+      //disableBodyScroll(treeChartContainer);
 
       let treeChartRoot = document.getElementById("tree") as HTMLDivElement;
       treeChartContainer.removeChild(treeChartRoot);
@@ -72,6 +72,7 @@ export const NetworksModal = ({
           style: {
             background: isDark ? theme.colors.gray["800"] : "white",
             link: { stroke: isDark ? "#fff" : "#000" },
+            node: { radius: 14 },
             text: { colors: { default: isDark ? "white" : "black" } }
           },
           onClickText: (node) => {
@@ -93,7 +94,7 @@ export const NetworksModal = ({
 
     return () => {
       // Anything in here is fired on component unmount
-      clearAllBodyScrollLocks();
+      //clearAllBodyScrollLocks();
       if (!isMobile) controller.abort();
     };
   }, []);
@@ -102,7 +103,7 @@ export const NetworksModal = ({
     <Modal
       isOpen={props.isOpen}
       onClose={() => {
-        clearAllBodyScrollLocks();
+        //clearAllBodyScrollLocks();
         props.onClose && props.onClose();
       }}
       size="full"

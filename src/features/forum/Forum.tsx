@@ -48,10 +48,8 @@ export const Forum = ({
 
   //#region subscription
   const subQuery = useGetSubscriptionQuery({ email: userEmail });
-const followerSubscription = getFollowerSubscription({ org, subQuery })
-  const [isFollowed, setIsFollowed] = useState(
-    !!followerSubscription
-  );
+  const followerSubscription = getFollowerSubscription({ org, subQuery });
+  const [isFollowed, setIsFollowed] = useState(!!followerSubscription);
   const [isSubscribed, setIsSubscribed] = useState(
     !!getSubscriberSubscription({ org, subQuery })
   );
@@ -70,7 +68,7 @@ const followerSubscription = getFollowerSubscription({ org, subQuery })
   if (!org) return null;
 
   return (
-<>
+    <>
       {!subQuery.isLoading && (
         <Flex flexDirection="row" flexWrap="wrap" mt={-3} mb={3}>
           {followerSubscription && (
@@ -97,18 +95,18 @@ const followerSubscription = getFollowerSubscription({ org, subQuery })
           </Box>
         </Flex>
       )}
-    <TopicsList
-      org={org}
-      query={query}
-      mutation={mutation}
-      subQuery={subQuery}
-      isCreator={isCreator}
-      isFollowed={isFollowed}
-      isSubscribed={isSubscribed}
-      setIsLogin={setIsLogin}
-      isLogin={isLogin}
-      currentTopicName={tabItem}
-    />
-</>
+      <TopicsList
+        org={org}
+        query={query}
+        mutation={mutation}
+        subQuery={subQuery}
+        isCreator={isCreator}
+        isFollowed={isFollowed}
+        isSubscribed={isSubscribed}
+        setIsLogin={setIsLogin}
+        isLogin={isLogin}
+        currentTopicName={tabItem}
+      />
+    </>
   );
 };
