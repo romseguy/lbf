@@ -1,6 +1,6 @@
 import type d3 from "d3";
 
-export type RenderChart = (tree: InputNode | undefined) => void;
+export type RenderChart = (tree: InputNode | void) => void;
 
 export type Primitive = number | string | boolean;
 

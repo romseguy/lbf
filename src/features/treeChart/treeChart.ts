@@ -14,7 +14,8 @@ import {
   //getTooltipString,
   toggleChildren,
   getNodeGroupByDepthCount,
-  findParentNodePosition
+  findParentNodePosition,
+  panLimit
 } from "./utils";
 //import d3tooltip from 'd3tooltip';
 
@@ -110,9 +111,78 @@ export const treeChart = (
         : -1
     );
 
+  //#region zoom
+  let touchCount = 0;
+  DOMNode.addEventListener(
+    "touchstart",
+    (e) => (touchCount = e.touches.length)
+  );
+  const xMax = layoutWidth * 2;
+  const yMax = layoutHeight * 2;
+  const panExtent = {
+    x: [-xMax, xMax],
+    y: [-yMax, yMax]
+  };
+  const x = d3.scale
+    .linear()
+    .domain([
+      panExtent.x[0] > -layoutWidth / 2 ? panExtent.x[0] : -layoutWidth / 2,
+      panExtent.x[1] < layoutWidth / 2 ? panExtent.x[1] : layoutWidth / 2
+    ])
+    .range([0, layoutWidth]);
+  const y = d3.scale
+    .linear()
+    .domain([
+      panExtent.y[0] > -layoutHeight / 2 ? panExtent.y[0] : -layoutHeight / 2,
+      panExtent.y[1] < layoutHeight / 2 ? panExtent.y[1] : layoutHeight / 2
+    ])
+    .range([layoutHeight, 0]);
+  let latestPanX: number;
+  let latestPanY: number;
+  const zoom = d3.behavior
+    .zoom()
+    .x(x)
+    .y(y)
+    .scaleExtent([0.5, 2])
+    .scale(initialZoom)
+    .on("zoom", () => {
+      //if (touchCount === 1) return;
+      const zoomEvent = d3.event as ZoomEvent;
+      if (zoomEvent.sourceEvent) {
+        zoomEvent.sourceEvent.stopPropagation();
+        zoomEvent.sourceEvent.preventDefault();
+      }
+      const { translate, scale } = zoomEvent;
+      const [tX, tY] = translate;
+
+      const [panX, panY] = panLimit(
+        panExtent,
+        layoutHeight,
+        layoutWidth,
+        translate,
+        zoom,
+        x,
+        y
+      );
+      console.log("x", x.domain()[0], panExtent.x[0], tX, panX);
+      //console.log("y", tY, panY);
+
+      if (panX !== Infinity && panX !== -Infinity && !!panX) latestPanX = panX;
+      if (panY !== Infinity && panY !== -Infinity && !!panY) latestPanY = panY;
+
+      const transform = `translate(${latestPanX}, ${latestPanY}) scale(${scale})`;
+      svg.attr("transform", transform);
+
+      //zoom.translate([zoomx, zoomy]);
+      // console.log(zoomx);
+      // console.log(transform);
+
+      onZoom && onZoom();
+    });
+  //#endregion
+
   const root = d3.select(DOMNode);
-  const zoom = d3.behavior.zoom().scaleExtent([0.1, 3]).scale(initialZoom);
-  const vis = root
+  const svg = root
     .append("svg")
     .attr({
       id,
@@ -121,27 +191,15 @@ export const treeChart = (
       viewBox: `0 0 ${layoutWidth} ${layoutHeight * aspectRatio}`
     })
     .style({ ...style, cursor: "cell" })
-    .call(
-      zoom.on("zoom", () => {
-        const zoomEvent = d3.event as ZoomEvent;
-        const { translate, scale } = zoomEvent;
-        zoomEvent.sourceEvent?.stopPropagation();
-
-        // if (touchCount === 1) return;
-
-        vis.attr(
-          "transform",
-          `translate(${translate.toString()})scale(${scale})`
-        );
-        onZoom && onZoom();
-      })
-    )
+    .call(zoom)
     .append("g")
     .attr({
       transform: `translate(${
         pl + (inputNode.name || "empty").length * 9 + style.node.radius
       }, 0) scale(${initialZoom})`
     });
+
+  //root.on("touchstart.zoom", null);
 
   // previousNodePositionsById stores node x and y
   // as well as hierarchy (id / parentId);
@@ -155,8 +213,9 @@ export const treeChart = (
     }
   };
 
-  return function renderChart(tree: InputNode | undefined = inputNode) {
+  return function renderChart() {
     console.log("treeChart: render");
+    let tree = inputNode;
 
     if (!Object.keys(tree).length || !tree.name) {
       tree = {
@@ -191,7 +250,7 @@ export const treeChart = (
 
       // update nodes
       const treeNodes = layout.nodes(tree) as TreeNodeWithId[];
-      const nodePool = vis
+      const nodePool = svg
         .selectAll("g.node")
         .property("__oldData__", (d: TreeNodeWithId) => d)
         .data(treeNodes, (d) => {
@@ -336,7 +395,7 @@ export const treeChart = (
 
       // update links
       const links = layout.links(treeNodes);
-      const linkPool = vis
+      const linkPool = svg
         .selectAll("path.link")
         .data(links, (d) => (d.target as TreeNodeWithId).id);
 

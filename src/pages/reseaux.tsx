@@ -203,6 +203,7 @@ const NetworksPage = (props: PageProps) => {
         {isNetworksModalOpen && (
           <NetworksModal
             inputNodes={inputNodes}
+            isMobile={props.isMobile}
             isOpen={isNetworksModalOpen}
             //header="Carte des réseaux"
             onClose={closeNetworksModal}

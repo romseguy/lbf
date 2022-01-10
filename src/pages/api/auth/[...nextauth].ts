@@ -78,7 +78,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       // Use JSON Web Tokens for session instead of database sessions.
       // This option can be used with or without a database for users/accounts.
       // Note: `jwt` is automatically set to `true` if no database is specified.
-      jwt: true
+      /*strategy*/ jwt: true
     },
     // jwt: {
     //   secret: process.env.SECRET
