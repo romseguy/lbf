@@ -40,7 +40,7 @@ export const EventPageDescription = ({
 
       <GridItem p={5}>
         {event.eventDescription && event.eventDescription.length > 0 ? (
-          <div className="ql-editor">
+          <div className="rteditor">
             <div
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(event.eventDescription, {

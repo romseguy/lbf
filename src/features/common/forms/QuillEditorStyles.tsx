@@ -5,7 +5,7 @@ import { styled } from "twin.macro";
 
 const tabSize = 10;
 
-export const RTEditorStyles = styled("span")(
+export const QuillEditorStyles = styled("span")(
   (props: { height?: string; width?: string }) => {
     const { colorMode } = useColorMode();
     const isDark = colorMode === "dark";

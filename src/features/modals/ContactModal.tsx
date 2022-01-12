@@ -39,7 +39,6 @@ export const ContactModal = () => {
   //#region local state
   const [isDisabled, setIsDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [messageHtml, setMessageHtml] = useState<string | undefined>();
   //#endregion
 
   //#region form
@@ -65,7 +64,7 @@ export const ContactModal = () => {
     setIsLoading(true);
 
     try {
-      await api.post("admin/contact", { email, message: messageHtml });
+      await api.post("admin/contact", { email, message: form.message });
       setIsLoading(false);
       router.push("/sent", "/sent", { shallow: true });
       onClose();
@@ -125,9 +124,8 @@ export const ContactModal = () => {
                   return (
                     <RTEditor
                       placeholder="Écrire le message"
-                      onChange={({ html, quillHtml }) => {
-                        setMessageHtml(html);
-                        renderProps.onChange(quillHtml);
+                      onChange={({ html }) => {
+                        renderProps.onChange(html);
                       }}
                     />
                   );

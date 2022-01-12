@@ -17,6 +17,7 @@ export const GlobalStyles = () => (
       } */
       //#endregion
 
+      //#region global
       html,
       body,
       #__next {
@@ -28,6 +29,7 @@ export const GlobalStyles = () => (
         display: flex;
         flex-direction: column;
       }
+      //#endregion
 
       //#region large screens
       @media (min-width: ${breakpoints["2xl"]}) {
@@ -46,6 +48,36 @@ export const GlobalStyles = () => (
         border-radius: 50%;
         color: white;
       }
+      //#endregion
+
+      //#region quill
+      /* .ql-editor {
+        padding: 0;
+
+        a {
+          text-decoration: underline;
+        }
+
+        a.clip {
+          text-overflow: ellipsis;
+          display: inline-block;
+          white-space: nowrap;
+          overflow: hidden;
+          max-width: 75px;
+          vertical-align: top;
+        }
+
+        blockquote {
+          border-left: 4px solid #ccc;
+          margin-bottom: 5px;
+          margin-top: 5px;
+          padding-left: 16px;
+        }
+
+        ul {
+          padding: 0;
+        }
+      } */
       //#endregion
 
       //#region rainbow text
@@ -302,6 +334,12 @@ export const GlobalStyles = () => (
       }
       //#endregion
 
+      //#region tinymce
+      .tox-tinymce-aux {
+        z-index: 4000 !important;
+      }
+      //#endregion
+
       //#region toast
       .chakra-ui-light {
         .chakra-toast {
@@ -316,36 +354,6 @@ export const GlobalStyles = () => (
           .chakra-alert {
             background: rgba(0, 0, 0, 0.66);
           }
-        }
-      }
-      //#endregion
-
-      //#region quill
-      .ql-editor {
-        padding: 0;
-
-        a {
-          text-decoration: underline;
-        }
-
-        a.clip {
-          text-overflow: ellipsis;
-          display: inline-block;
-          white-space: nowrap;
-          overflow: hidden;
-          max-width: 75px;
-          vertical-align: top;
-        }
-
-        blockquote {
-          border-left: 4px solid #ccc;
-          margin-bottom: 5px;
-          margin-top: 5px;
-          padding-left: 16px;
-        }
-
-        ul {
-          padding: 0;
         }
       }
       //#endregion

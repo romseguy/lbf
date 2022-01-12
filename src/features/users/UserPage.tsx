@@ -246,9 +246,7 @@ export const UserPage = ({
                                 session={session}
                                 defaultValue={user.userDescription}
                                 placeholder="Ajoutez ici votre présentation"
-                                onChange={({ quillHtml }) => {
-                                  setDescription(quillHtml);
-                                }}
+                                onChange={({ html }) => setDescription(html)}
                               />
 
                               <Flex justifyContent="space-between" mt={5}>

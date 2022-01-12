@@ -603,7 +603,7 @@ export const OrgPage = ({
 
                         <GridItem p={5}>
                           {description && description.length > 0 ? (
-                            <div className="ql-editor">
+                            <div className="rteditor">
                               <div
                                 dangerouslySetInnerHTML={{
                                   __html: DOMPurify.sanitize(description, {

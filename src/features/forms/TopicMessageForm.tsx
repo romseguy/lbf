@@ -43,7 +43,6 @@ export const TopicMessageForm = ({
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
-  const [messageHtml, setMessageHtml] = useState<string>();
   const [topicMessageDefaultValue, setTopicMessageDefaultValue] = useState<
     string | undefined
   >();
@@ -85,7 +84,7 @@ export const TopicMessageForm = ({
         topicMessages: [
           {
             message: form.topicMessage,
-            messageHtml,
+            messageHtml: form.topicMessage,
             createdBy: session.user.userId
           }
         ]
@@ -147,13 +146,12 @@ export const TopicMessageForm = ({
           render={(renderProps) => {
             return (
               <RTEditor
-                formats={props.formats}
+                //formats={props.formats}
                 readOnly={session === null}
                 defaultValue={topicMessageDefaultValue}
-                onChange={({ html, quillHtml }) => {
+                onChange={({ html }) => {
                   clearErrors("topicMessage");
-                  setMessageHtml(html);
-                  renderProps.onChange(quillHtml);
+                  renderProps.onChange(html);
                 }}
                 placeholder={
                   isDisabled

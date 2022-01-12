@@ -4,7 +4,7 @@ import { IOrg } from "models/Org";
 import React from "react";
 import { FaHeart } from "react-icons/fa";
 
-export const RTEditorToolbar = ({
+export const QuillEditorToolbar = ({
   id,
   formats,
   event,

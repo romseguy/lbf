@@ -107,8 +107,6 @@ export const TopicForm = ({
         subscriptions: getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
       });
   }
-
-  const [messageHtml, setMessageHtml] = useState<string>();
   //#endregion
 
   //#region form
@@ -176,7 +174,7 @@ export const TopicForm = ({
           ? [
               {
                 message: form.topicMessage,
-                messageHtml,
+                messageHtml: form.topicMessage,
                 createdBy: session.user.userId
               }
             ]
@@ -203,7 +201,7 @@ export const TopicForm = ({
         props.onSubmit && props.onSubmit(newTopic);
       }
 
-      localStorage.removeItem("quillHtml");
+      localStorage.removeItem("topicMessageHtml");
     } catch (error: any) {
       setIsLoading(false);
       handleError(error, (message, field) =>
@@ -362,15 +360,14 @@ export const TopicForm = ({
           <Controller
             name="topicMessage"
             control={control}
-            defaultValue={""}
+            defaultValue={localStorage.getItem("topicMessageHtml") || ""}
             render={(renderProps) => {
               return (
                 <RTEditor
                   placeholder="Contenu de votre message"
-                  onChange={({ html, quillHtml }) => {
-                    localStorage.setItem("quillHtml", quillHtml);
-                    setMessageHtml(html);
-                    renderProps.onChange(quillHtml);
+                  onChange={({ html }) => {
+                    localStorage.setItem("topicMessageHtml", html);
+                    renderProps.onChange(html);
                   }}
                 />
               );

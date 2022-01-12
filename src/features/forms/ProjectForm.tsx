@@ -67,9 +67,6 @@ export const ProjectForm = ({
       }
     ]);
   }
-  const [projectDescriptionHtml, setProjectDescriptionHtml] = useState(
-    props.project?.projectDescriptionHtml
-  );
   //#endregion
 
   //#region myOrgs
@@ -115,11 +112,12 @@ export const ProjectForm = ({
 
     let payload = {
       ...form,
-      projectDescription:
-        form.projectDescription === "<p><br></p>"
-          ? ""
-          : form.projectDescription?.replace(/\&nbsp;/g, " "),
-      projectDescriptionHtml,
+      // projectDescription:
+      //   form.projectDescription === "<p><br></p>"
+      //     ? ""
+      //     : form.projectDescription?.replace(/\&nbsp;/g, " "),
+      projectDescription: form.projectDescription,
+      projectDescriptionHtml: form.projectDescription,
       projectVisibility: form.projectVisibility?.map(({ value }) => value)
     };
 
@@ -193,16 +191,13 @@ export const ProjectForm = ({
         <Controller
           name="projectDescription"
           control={control}
-          defaultValue={""}
+          defaultValue=""
           render={(renderProps) => {
             return (
               <RTEditor
                 defaultValue={props.project?.projectDescription}
                 placeholder="Description du projet"
-                onChange={({ html, quillHtml }) => {
-                  setProjectDescriptionHtml(html);
-                  renderProps.onChange(quillHtml);
-                }}
+                onChange={({ html }) => renderProps.onChange(html)}
               />
             );
           }}

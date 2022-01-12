@@ -17,7 +17,7 @@ import React, { useState } from "react";
 import {
   Container,
   DeleteButton,
-  formats,
+  //formats,
   Link,
   RTEditor
 } from "features/common";
@@ -43,7 +43,6 @@ export const TopicMessagesList = ({
   const [isEdit, setIsEdit] = useState<{
     [key: string]: {
       html?: string;
-      quillHtml?: string;
       isOpen: boolean;
     };
   }>({});
@@ -92,12 +91,12 @@ export const TopicMessagesList = ({
                     {_id && isEdit[_id] && isEdit[_id].isOpen ? (
                       <Box pt={1} pb={3}>
                         <RTEditor
-                          formats={formats.filter((f) => f !== "size")}
+                          //formats={formats.filter((f) => f !== "size")}
                           defaultValue={message}
-                          onChange={({ html, quillHtml }) => {
+                          onChange={({ html }) => {
                             setIsEdit({
                               ...isEdit,
-                              [_id]: { ...isEdit[_id], html, quillHtml }
+                              [_id]: { ...isEdit[_id], html }
                             });
                           }}
                           placeholder="Contenu de votre message"
@@ -128,7 +127,7 @@ export const TopicMessagesList = ({
                                   topic,
                                   topicMessage: {
                                     _id,
-                                    message: isEdit[_id].quillHtml || "",
+                                    message: isEdit[_id].html || "",
                                     messageHtml: isEdit[_id].html || ""
                                   }
                                 }
@@ -146,7 +145,7 @@ export const TopicMessagesList = ({
                         </Flex>
                       </Box>
                     ) : (
-                      <Box className="ql-editor">
+                      <Box className="rteditor">
                         <div
                           dangerouslySetInnerHTML={{
                             __html: DOMPurify.sanitize(message)

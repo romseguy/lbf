@@ -141,10 +141,6 @@ export const OrgForm = withGoogleApi({
     });
 
     const orgAddress = watch("orgAddress");
-    const [orgDescription, setOrgDescription] = useState<{
-      html?: string;
-      quillHtml?: string;
-    }>({ html: props.org?.orgDescriptionHtml });
     const orgEmail = watch("orgEmail");
     const orgPhone = watch("orgPhone");
     const orgType = watch("orgType");
@@ -174,10 +170,11 @@ export const OrgForm = withGoogleApi({
         orgName: form.orgName.trim(),
         orgType: form.orgType || OrgTypes.GENERIC,
         orgUrl: normalize(form.orgName),
-        orgDescription: form.orgDescription
-          ? normalizeQuill(form.orgDescription)
-          : undefined,
-        orgDescriptionHtml: orgDescription.html,
+        // orgDescription: form.orgDescription
+        //   ? normalizeQuill(form.orgDescription)
+        //   : undefined,
+        orgDescription: form.orgDescription,
+        orgDescriptionHtml: form.orgDescription,
         orgAddress:
           Array.isArray(orgAddress) && orgAddress.length > 0 ? orgAddress : [],
         orgEmail:
@@ -359,21 +356,17 @@ export const OrgForm = withGoogleApi({
             name="orgDescription"
             control={control}
             defaultValue={props.org?.orgDescription || ""}
-            render={
-              (/*{onChange}*/) => {
-                return (
-                  <RTEditor
-                    org={props.org}
-                    session={props.session}
-                    defaultValue={props.org?.orgDescription}
-                    placeholder={`Écrire la description ${orgTypeLabel}`}
-                    onChange={({ html, quillHtml }) => {
-                      setOrgDescription({ html, quillHtml });
-                    }}
-                  />
-                );
-              }
-            }
+            render={(renderProps) => {
+              return (
+                <RTEditor
+                  org={props.org}
+                  session={props.session}
+                  defaultValue={props.org?.orgDescription}
+                  placeholder={`Écrire la description ${orgTypeLabel}`}
+                  onChange={({ html }) => renderProps.onChange(html)}
+                />
+              );
+            }}
           />
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="orgDescription" />

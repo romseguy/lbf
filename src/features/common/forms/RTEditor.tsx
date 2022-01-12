@@ -1,225 +1,182 @@
 import { useToast } from "@chakra-ui/react";
-import axios from "axios";
-import Quill, { DeltaOperation } from "quill";
-import { QuillDeltaToHtmlConverter } from "quill-delta-to-html";
-import { Session } from "next-auth";
-import { useCallback, useEffect, RefObject, useState } from "react";
-import { useQuill } from "react-quilljs";
+import { Editor } from "@tinymce/tinymce-react";
+import React, { useEffect, useRef } from "react";
+import type { Editor as TinyMCEEditor } from "tinymce";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { getUniqueId } from "utils/string";
-import { RTEditorToolbar } from "./RTEditorToolbar";
-import { RTEditorStyles } from "./RTEditorStyles";
+import { Session } from "next-auth";
+import { styled } from "twin.macro";
+import axios from "axios";
 
-function deltaToHtml(deltaOps: DeltaOperation[]) {
-  const converter = new QuillDeltaToHtmlConverter(deltaOps, {
-    inlineStyles: true
-  });
-  const html = converter.convert();
-  return html;
+interface BlobInfo {
+  id: () => string;
+  name: () => string;
+  filename: () => string;
+  blob: () => Blob;
+  base64: () => string;
+  blobUri: () => string;
+  uri: () => string | undefined;
 }
 
-export const formats = [
-  "size",
-  "bold",
-  "italic",
-  "underline",
-  "blockquote",
-  "indent",
-  "header",
-  //"list",
-  "color",
-  "align",
-  "link",
-  "image",
-  "imageBlot",
-  "video",
-  "undo",
-  "redo"
-];
+interface UploadFailureOptions {
+  remove?: boolean;
+}
+
+const RTEditorStyles = styled("span")((props) => {
+  return `
+  
+  `;
+});
 
 export const RTEditor = ({
   defaultValue,
   event,
   org,
   session,
-  onBlur,
-  onChange,
+  placeholder,
   readOnly,
+  //onBlur,
+  onChange,
   ...props
 }: {
   defaultValue?: string;
   event?: IEvent;
   org?: IOrg;
   session?: Session | null;
-  onBlur?: ({ html, quillHtml }: { html: string; quillHtml: string }) => void;
-  onChange?: ({ html, quillHtml }: { html: string; quillHtml: string }) => void;
-  readOnly?: boolean;
   placeholder?: string;
+  readOnly?: boolean;
   height?: string;
   width?: string;
-  formats?: string[];
+  //onBlur?: ({ html }: { html: string }) => void;
+  onChange?: ({ html }: { html: string }) => void;
 }) => {
   const toast = useToast({ position: "top" });
-  const shortId = getUniqueId();
+  const editorRef = useRef<TinyMCEEditor | null>(null);
 
-  const [placeholder, setPlaceholder] = useState(props.placeholder);
-  useEffect(() => {
-    if (placeholder !== props.placeholder) setPlaceholder(placeholder);
-  }, [props.placeholder]);
-
-  const modules = (id: string) => ({
-    history: {
-      delay: 1000,
-      maxStack: 50,
-      userOnly: false
-    },
-    autoLinks: true,
-    imageUploader: {
-      upload: async (file: File) => {
-        if (!/^image\//.test(file.type)) {
-          toast({
-            status: "error",
-            title: "Vous devez sélectionner une image"
-          });
-          return;
-        }
-
-        if (file.size >= 10000000) {
-          toast({
-            status: "error",
-            title: "L'image ne doit pas dépasser 10Mo."
-          });
-          return;
-        }
-
-        const data = new FormData();
-        data.append("file", file);
-
-        if (event) data.append("eventId", event._id);
-        else if (org) data.append("orgId", org._id);
-        else if (session) data.append("userId", session.user.userId);
-
-        const mutation = await axios.post(process.env.NEXT_PUBLIC_API2, data);
-
-        let url = `${process.env.NEXT_PUBLIC_API2}/view?fileName=${mutation.data.file}`;
-
-        if (event) url += `&eventId=${event._id}`;
-        else if (org) url += `&orgId=${org._id}`;
-        else if (session) url += `&userId=${session.user.userId}`;
-
-        return url;
-      }
-    },
-    toolbar: {
-      container: "#" + id,
-      handlers: {
-        //image: () => {},
-        insertHeart: () => {},
-        undo: () => {},
-        redo: () => {}
-      }
-    }
-  });
-
-  const options = {
-    theme: "snow",
-    modules: modules(shortId),
-    formats: props.formats || formats,
-    placeholder,
-    readOnly
-  };
-
-  const {
-    quill,
-    quillRef,
-    Quill
-  }: {
-    Quill: any;
-    quillRef: RefObject<any>;
-    quill: any;
-    editorRef: RefObject<any>;
-    editor: Quill | undefined;
-  } = useQuill(options);
-
-  if (Quill && !quill) {
-    const Image = Quill.import("formats/image");
-    Image.sanitize = (url: any) => url;
-
-    var icons = Quill.import("ui/icons");
-    icons[
-      "undo"
-    ] = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18px" height="18px">
-      <path d="M0 0h24v24H0z" fill="none"/>
-      <path class="ql-fill" d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
-      </svg>`;
-    icons[
-      "redo"
-    ] = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18px" height="18px">
-      <path d="M0 0h24v24H0z" fill="none"/>
-      <path class="ql-fill" d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/>
-      </svg>`;
-
-    const AutoLinks = require("quill-auto-links").default; // or quill-magic-url
-    Quill.register("modules/autoLinks", AutoLinks, true);
-
-    // const ImageCompress = require("quill-image-compress").default;
-    // Quill.register("modules/imageCompress", ImageCompress);
-
-    const ImageUploader = require("utils/quill.imageUploader").default;
-    Quill.register("modules/imageUploader", ImageUploader, true);
-  }
-
-  useEffect(() => {
-    if (quill) {
-      quill.on("selection-change", () => {
-        if (onBlur && quill.root) {
-          const delta = quill.getContents();
-          onBlur({
-            html: deltaToHtml(delta.ops),
-            quillHtml: quill.root.innerHTML
-          });
-        }
-      });
-
-      quill.on("text-change", (/*delta, oldDelta, source*/) => {
-        if (onChange && quill.root) {
-          const delta = quill.getContents();
-          onChange({
-            html: deltaToHtml(delta.ops),
-            quillHtml: quill.root.innerHTML
-          });
-        }
-      });
-
-      //quill.getModule("toolbar").addHandler("image", image);
-      quill.getModule("toolbar").addHandler("insertHeart", () => {
-        const cursorPosition = quill.getSelection().index;
-        quill.insertText(cursorPosition, "♥");
-        quill.setSelection(cursorPosition + 1);
-      });
-      quill.getModule("toolbar").addHandler("redo", () => quill.history.redo());
-      quill.getModule("toolbar").addHandler("undo", () => quill.history.undo());
-    }
-  }, [quill]);
-
-  useEffect(() => {
-    if (quill && quill.root)
-      quill.root.innerHTML =
-        defaultValue === undefined
-          ? localStorage.getItem("quillHtml") || ""
-          : defaultValue;
-  }, [quill, defaultValue]);
+  // useEffect(() => {
+  //   if (editorRef.current) {
+  //     console.log(editorRef.current.getContent());
+  //   }
+  // }, [editorRef.current]);
 
   return (
-    <RTEditorStyles height={props.height} width={props.width}>
-      <RTEditorToolbar
-        id={shortId}
-        formats={props.formats || formats}
-        event={event}
-        org={org}
+    <RTEditorStyles>
+      <Editor
+        tinymceScriptSrc="/tinymce/tinymce.min.js"
+        onInit={(evt, editor) => (editorRef.current = editor)}
+        initialValue={defaultValue}
+        init={{
+          // -- styling
+          branding: false,
+          content_css: "default",
+          content_style:
+            "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+          height: props.height || undefined,
+          placeholder,
+          // --
+          language: "fr_FR",
+          language_url: "/tinymce/langs/fr_FR.js",
+          menubar: false,
+          // plugins: [
+          //   "advlist autolink lists link image charmap print preview anchor",
+          //   "searchreplace visualblocks code fullscreen",
+          //   "insertdatetime media table paste code help wordcount",
+          //   "image media"
+          // ],
+          plugins: [
+            "autolink autoresize",
+            "charmap fullscreen",
+            "image link media paste searchreplace",
+            "help"
+          ],
+          //autoresize_bottom_margin: 50,
+          max_height: 500,
+          contextmenu: "copy paste link",
+          statusbar: false,
+          toolbar:
+            "fullscreen undo redo \
+            | formatselect | \
+            alignleft aligncenter bold italic charmap \
+            | link image media \
+            | removeformat | help",
+          file_picker_types: "image",
+          file_picker_callback: function (cb, value, meta) {
+            var input = document.createElement("input");
+            input.setAttribute("type", "file");
+            input.setAttribute("accept", "image/*");
+            input.onchange = function () {
+              //@ts-expect-error
+              var file = this.files[0];
+              var reader = new FileReader();
+              reader.onload = function () {
+                if (typeof reader.result !== "string") return;
+                var id = "blobid" + new Date().getTime();
+                var blobCache = editorRef.current!.editorUpload.blobCache;
+                var base64 = reader.result.split(",")[1];
+                var blobInfo = blobCache.create(id, file, base64);
+                blobCache.add(blobInfo);
+                cb(blobInfo.blobUri(), { title: file.name });
+              };
+              reader.readAsDataURL(file);
+            };
+
+            input.click();
+          },
+          image_upload_handler: async (
+            blobInfo: BlobInfo,
+            success: (url: string) => void,
+            failure: (err: string, options?: UploadFailureOptions) => void,
+            progress?: (percent: number) => void
+          ) => {
+            let formData = new FormData();
+            const file = blobInfo.blob();
+
+            if (file.size >= 10000000) {
+              toast({
+                status: "error",
+                title: "L'image ne doit pas dépasser 10Mo."
+              });
+              return;
+            }
+
+            formData.append("files[]", file, blobInfo.filename());
+            if (event) formData.append("eventId", event._id);
+            else if (org) formData.append("orgId", org._id);
+            else if (session) formData.append("userId", session.user.userId);
+
+            try {
+              const mutation = await axios.post(
+                process.env.NEXT_PUBLIC_API2,
+                formData
+              );
+              if (mutation.status !== 200) {
+                failure("Erreur dans la sauvegarde des images", {
+                  remove: true
+                });
+                return;
+              }
+              if (typeof mutation.data.file !== "string") {
+                failure("Réponse invalide", { remove: true });
+                return;
+              }
+
+              let url = `${process.env.NEXT_PUBLIC_API2}/view?fileName=${mutation.data.file}`;
+              if (event) url += `&eventId=${event._id}`;
+              else if (org) url += `&orgId=${org._id}`;
+              else if (session) url += `&userId=${session.user.userId}`;
+
+              success(url);
+            } catch (error) {
+              console.error(error);
+              failure("Erreur dans la sauvegarde des images", { remove: true });
+            }
+          }
+        }}
+        disabled={readOnly}
+        onEditorChange={(html: string, editor: TinyMCEEditor) => {
+          onChange && onChange({ html });
+        }}
       />
-      <div ref={quillRef} />
     </RTEditorStyles>
   );
 };

@@ -31,7 +31,7 @@ import {
   FaShare,
   FaReply
 } from "react-icons/fa";
-import { DeleteButton, Grid, GridItem, formats } from "features/common";
+import { DeleteButton, Grid, GridItem } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { ModalState } from "features/modals/EntityNotifModal";
 import { IEvent } from "models/Event";
@@ -398,7 +398,7 @@ export const TopicsListItem = ({
               event={event}
               org={org}
               topic={topic}
-              formats={formats.filter((f) => f !== "size")}
+              //formats={formats.filter((f) => f !== "size")}
               isDisabled={topic.topicMessagesDisabled}
               onLoginClick={onLoginClick}
               onSubmit={() => query.refetch()}

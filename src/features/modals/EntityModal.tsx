@@ -52,7 +52,7 @@ export const EntityModal = ({
           {entityDescription &&
           entityDescription.length > 0 &&
           entityDescription !== "<p><br></p>" ? (
-            <div className="ql-editor">
+            <div className="rteditor">
               <div
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(entityDescription)

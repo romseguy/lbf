@@ -67,7 +67,7 @@ const IndexPage = (props: PageProps) => {
       GNU AGPL
     </a>
   );
-  const url = `${process.env.NEXT_PUBLIC_URL}/nom de votre association`;
+  const url = `${process.env.NEXT_PUBLIC_URL}/nom_de_votre association`;
 
   return (
     <Layout pageTitle="Accueil" {...props}>
@@ -78,24 +78,33 @@ const IndexPage = (props: PageProps) => {
 
         <List {...listStyles}>
           <ListItem>
-            Avec un début de site internet et une adresse facile à retenir, par
-            exemple :{" "}
-            <Tag colorScheme="blue" mt={1} mr={1} px={2} py={3}>
-              <Link href={url} mr={1}>
-                {url}
-              </Link>
-              <LinkShare
-                _hover={{ bg: "transparent", color: "white" }}
-                bg="transparent"
-                height="auto"
-                label="Copier l'adresse du lien"
-                minWidth={0}
-                url={url}
-                tooltipProps={{
-                  placement: "right"
-                }}
-              />
-            </Tag>
+            <Flex flexDirection="column">
+              Avec un début de site internet et une adresse facile à retenir,
+              par exemple :{" "}
+              <Tag
+                alignSelf="flex-start"
+                colorScheme="red"
+                mt={1}
+                mr={1}
+                px={2}
+                py={3}
+              >
+                <Link href={url} mr={1}>
+                  {url}
+                </Link>
+                <LinkShare
+                  _hover={{ bg: "transparent", color: "white" }}
+                  bg="transparent"
+                  height="auto"
+                  label="Copier l'adresse du lien"
+                  minWidth={0}
+                  url={url}
+                  tooltipProps={{
+                    placement: "right"
+                  }}
+                />
+              </Tag>
+            </Flex>
           </ListItem>
 
           <ListItem>

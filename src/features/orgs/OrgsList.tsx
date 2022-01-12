@@ -129,7 +129,7 @@ export const OrgsList = ({
                   <Td>{OrgTypesV[org.orgType]}</Td>
                   {/* <Td>
                   {org.orgDescription && (
-                    <div className="ql-editor">
+                    <div className="rteditor">
                       <div
                     Rennes    dangerouslySetInnerHTML={{
                           __html: DOMPurify.sanitize(org.orgDescription)

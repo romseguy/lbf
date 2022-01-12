@@ -388,7 +388,7 @@ export const ProjectsList = ({
                         dark={{ bg: "gray.700" }}
                       >
                         {projectDescription ? (
-                          <Box className="ql-editor">
+                          <Box className="rteditor">
                             <div
                               dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(projectDescription)

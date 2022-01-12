@@ -159,10 +159,6 @@ export const EventForm = withGoogleApi({
     }, [eventOrgs]);
 
     //#region form
-    const [eventDescriptionHtml, setEventDescriptionHtml] = useState<
-      string | undefined
-    >(props.event?.eventDescriptionHtml);
-
     const visibilityOptions: string[] = hasItems(eventOrgs)
       ? [Visibility.PUBLIC, Visibility.SUBSCRIBERS]
       : [];
@@ -263,10 +259,11 @@ export const EventForm = withGoogleApi({
         ...form,
         eventName: form.eventName.trim(),
         eventUrl: normalize(form.eventName),
-        eventDescription: form.eventDescription
-          ? normalizeQuill(form.eventDescription)
-          : undefined,
-        eventDescriptionHtml,
+        // eventDescription: form.eventDescription
+        //   ? normalizeQuill(form.eventDescription)
+        //   : undefined,
+        eventDescription: form.eventDescription,
+        eventDescriptionHtml: form.eventDescription,
         eventAddress:
           Array.isArray(eventAddress) && eventAddress.length > 0
             ? eventAddress
@@ -1022,10 +1019,7 @@ export const EventForm = withGoogleApi({
                   session={props.session}
                   defaultValue={props.event?.eventDescription}
                   placeholder="Description de l'événement"
-                  onChange={({ html, quillHtml }) => {
-                    setEventDescriptionHtml(html);
-                    renderProps.onChange(quillHtml);
-                  }}
+                  onChange={({ html }) => renderProps.onChange(html)}
                 />
               );
             }}
