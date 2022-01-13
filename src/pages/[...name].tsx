@@ -1,23 +1,19 @@
-import { Button, Heading, Spinner } from "@chakra-ui/react";
+import { Heading, Spinner } from "@chakra-ui/react";
 import bcrypt from "bcryptjs";
-import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { EventPage } from "features/events/EventPage";
-import { getEvent } from "features/events/eventsApi";
+import { EventQueryParams, useGetEventQuery } from "features/events/eventsApi";
 import { Layout } from "features/layout";
 import { OrgPage } from "features/orgs/OrgPage";
-import { getOrg } from "features/orgs/orgsApi";
+import { OrgQueryParams, useGetOrgQuery } from "features/orgs/orgsApi";
 import { UserPage } from "features/users/UserPage";
-import { getUser } from "features/users/usersApi";
+import { useGetUserQuery, UserQueryParams } from "features/users/usersApi";
 import { setUserEmail } from "features/users/userSlice";
-import { IEvent } from "models/Event";
-import { IOrg, orgTypeFull } from "models/Org";
-import { IUser } from "models/User";
+import { useSession } from "hooks/useAuth";
 import { useAppDispatch, wrapper } from "store";
 import { PageProps } from "./_app";
-
-let populate = "";
+import { OrgPageLogin } from "features/orgs/OrgPageLogin";
 
 const Hash = ({
   email,
@@ -27,166 +23,117 @@ const Hash = ({
 }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { data: session } = useSession();
 
-  //const routeName = router.asPath.substr(1, router.asPath.length);
+  //#region routing
   let [entityUrl, entityTab, entityTabItem] =
     "name" in router.query && Array.isArray(router.query.name)
       ? router.query.name
       : [];
+
+  const [orgQueryParams, setOrgQueryParams] = useState<OrgQueryParams>({
+    orgUrl: entityUrl,
+    populate:
+      "orgBanner orgEvents orgLogo orgLists orgProjects orgSubscriptions orgTopics orgs"
+  });
+  const [eventQueryParams, setEventQueryParams] = useState<EventQueryParams>({
+    eventUrl: entityUrl
+  });
+  const [userQueryParams, setUserQueryParams] = useState<UserQueryParams>({
+    slug: entityUrl
+  });
+  useEffect(() => {
+    setOrgQueryParams({ ...orgQueryParams, orgUrl: entityUrl });
+    setEventQueryParams({ ...eventQueryParams, eventUrl: entityUrl });
+    setUserQueryParams({ ...userQueryParams, slug: entityUrl });
+  }, [router.asPath]);
+  //#endregion
+
+  const eventQuery = useGetEventQuery(eventQueryParams);
+  const orgQuery = useGetOrgQuery(orgQueryParams);
+  const userQuery = useGetUserQuery(
+    {
+      slug: session?.user.email || "",
+      populate:
+        session?.user.userName === entityUrl ? "userProjects" : undefined,
+      select: session?.user.userName === entityUrl ? "userProjects" : undefined
+    },
+    {
+      selectFromResult: (query) => {
+        if (query.data) {
+          return {
+            ...query,
+            data: {
+              ...query.data,
+              email: query.data.email || session?.user.email || ""
+            }
+          };
+        }
+        return query;
+      }
+    }
+  );
+
   entityTabItem = entityUrl === "forum" ? entityTab : entityTabItem;
-  const [event, setEvent] = useState<IEvent | undefined>();
-  const [org, setOrg] = useState<IOrg | undefined>();
-  const [user, setUser] = useState<IUser | undefined>();
   const [error, setError] = useState<
     { pageTitle: string; fc: React.FC; redirect?: boolean } | undefined
   >();
-  const [isAuthorized, setIsAuthorized] = useState(false);
-
-  useEffect(() => {
-    const xhr = async () => {
-      console.log(`fetching entity ${entityUrl}...`);
-      populate = "";
-
-      const eventQuery = await dispatch(
-        getEvent.initiate({ eventUrl: entityUrl, populate })
-      );
-
-      if (eventQuery.data) {
-        setEvent(eventQuery.data);
-        setOrg(undefined);
-        setUser(undefined);
-      } else {
-        populate =
-          "orgBanner orgEvents orgLogo orgLists orgProjects orgSubscriptions orgTopics orgs";
-        const orgQuery = await dispatch(
-          getOrg.initiate({
-            orgUrl: entityUrl,
-            populate
-          })
-        );
-
-        if (orgQuery.data) {
-          setEvent(undefined);
-          setOrg(orgQuery.data);
-          setUser(undefined);
-        } else {
-          const userQuery = await dispatch(
-            getUser.initiate({ slug: entityUrl })
-          );
-
-          if (userQuery.data) {
-            setEvent(undefined);
-            setOrg(undefined);
-            setUser(userQuery.data);
-          } else {
-            setError({
-              pageTitle: "Page introuvable",
-              fc: () => (
-                <>
-                  <Heading className="rainbow-text" fontFamily="DancingScript">
-                    Page introuvable
-                  </Heading>
-                  Vous allez être redirigé vers la page d'accueil dans quelques
-                  secondes...
-                </>
-              ),
-              redirect: true
-            });
-          }
-        }
-      }
-    };
-
-    xhr();
-  }, [router.asPath]);
-
-  useEffect(() => {
-    if (!isAuthorized && org && org.orgPassword) {
-      const password = prompt(
-        `Veuillez entrer le mot de passe pour accéder à la page ${orgTypeFull(
-          org.orgType
-        )}`
-      );
-
-      if (password && bcrypt.compareSync(password, org.orgPassword))
-        setIsAuthorized(true);
-      else {
-        setError({
-          pageTitle: "Accès refusé",
-          fc: () => {
-            const [isLoading, setIsLoading] = useState(false);
-            return (
-              <>
-                <Heading className="rainbow-text" fontFamily="DancingScript">
-                  Accès refusé
-                </Heading>
-
-                <Button
-                  colorScheme="teal"
-                  isLoading={isLoading}
-                  mt={3}
-                  onClick={() => {
-                    setIsLoading(true);
-                    window.location.reload();
-                  }}
-                >
-                  Réessayer
-                </Button>
-              </>
-            );
-          }
-        });
-      }
-    }
-  }, [org]);
 
   useEffect(() => {
     if (email) dispatch(setUserEmail(email));
   }, []);
 
-  if (error) {
-    if (error.redirect) {
-      //if (!isServer())
-      setTimeout(() => {
-        router.push("/");
-      }, 2000);
+  if (eventQuery.isError && orgQuery.isError && userQuery.isError) {
+    setTimeout(() => {
+      router.push("/");
+    }, 2000);
 
-      return (
-        <Layout pageTitle="Page introuvable" {...props}>
-          <error.fc />
-        </Layout>
-      );
-    } else
-      return (
-        <Layout pageTitle={error?.pageTitle} {...props}>
-          <error.fc />
-        </Layout>
-      );
+    return (
+      <Layout pageTitle="Page introuvable" {...props}>
+        <Heading className="rainbow-text" fontFamily="DancingScript">
+          Page introuvable
+        </Heading>
+        Vous allez être redirigé vers la page d'accueil dans quelques
+        secondes...
+      </Layout>
+    );
   }
 
-  if (event)
+  if (!eventQuery.isError && eventQuery.data) {
     return (
       <EventPage
-        event={event}
-        populate={populate}
+        eventQuery={eventQuery}
         tab={entityTab}
         tabItem={entityTabItem}
         {...props}
       />
     );
+  }
 
-  if (org)
+  if (!orgQuery.isError && orgQuery.data) {
+    if (orgQuery.data._id)
+      return (
+        <OrgPage
+          orgQuery={orgQuery}
+          tab={entityTab}
+          tabItem={entityTabItem}
+          {...props}
+        />
+      );
+
     return (
-      <OrgPage
-        org={org}
-        populate={populate}
-        tab={entityTab}
-        tabItem={entityTabItem}
+      <OrgPageLogin
+        onSubmit={async (orgPassword) => {
+          const hash = bcrypt.hashSync(orgPassword, orgQuery.data!.orgSalt);
+          setOrgQueryParams({ ...orgQueryParams, hash });
+        }}
         {...props}
       />
     );
+  }
 
-  if (user) return <UserPage user={user} {...props} />;
+  if (!userQuery.isError && userQuery.data)
+    return <UserPage userQuery={userQuery} {...props} />;
 
   return (
     <Layout {...props}>
@@ -197,7 +144,6 @@ const Hash = ({
 
 export default Hash;
 
-// export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
     if (
@@ -234,3 +180,43 @@ export const getServerSideProps = wrapper.getServerSideProps(
     return { props: {} };
   }
 );
+
+// setError({
+//   pageTitle: "Page introuvable",
+//   fc: () => (
+//     <>
+//       <Heading className="rainbow-text" fontFamily="DancingScript">
+//         Page introuvable
+//       </Heading>
+//       Vous allez être redirigé vers la page d'accueil dans quelques
+//       secondes...
+//     </>
+//   ),
+//   redirect: true
+// });
+
+// setError({
+//   pageTitle: "Accès refusé",
+//   fc: () => {
+//     const [isLoading, setIsLoading] = useState(false);
+//     return (
+//       <>
+//         <Heading className="rainbow-text" fontFamily="DancingScript">
+//           Accès refusé
+//         </Heading>
+
+//         <Button
+//           colorScheme="teal"
+//           isLoading={isLoading}
+//           mt={3}
+//           onClick={() => {
+//             setIsLoading(true);
+//             window.location.reload();
+//           }}
+//         >
+//           Réessayer
+//         </Button>
+//       </>
+//     );
+//   }
+// });

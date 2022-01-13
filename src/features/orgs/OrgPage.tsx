@@ -80,39 +80,38 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
+let cachedEmail: string | undefined;
 let cachedRefetchOrg = false;
 let cachedRefetchSubscription = false;
-let cachedEmail: string | undefined;
 
 export const OrgPage = ({
   isMobile,
-  populate,
+  orgQuery,
+  session,
   tab,
-  tabItem,
-  ...props
+  tabItem
 }: PageProps & {
-  populate?: string;
+  orgQuery: any;
   tab?: string;
   tabItem?: string;
-  org: IOrg;
 }) => {
-  const router = useRouter();
-  const { data, loading: isSessionLoading } = useSession();
-  const session = data || props.session;
-  const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+
+  //#region user email
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
+  const [email, setEmail] = useState(userEmail);
+  useEffect(() => {
+    if (userEmail !== cachedEmail) {
+      cachedEmail = userEmail;
+      setEmail(userEmail);
+    }
+  }, [userEmail]);
+  //#endregion
 
   //#region org
   const [editOrg, editOrgMutation] = useEditOrgMutation();
-  const orgQuery = useGetOrgQuery(
-    { orgUrl: props.org.orgUrl, populate },
-    {
-      selectFromResult: (query) => query
-    }
-  );
-  const org = orgQuery.data || props.org;
+  const org = orgQuery.data as IOrg;
   const orgsWithLocation =
     org.orgs?.filter(({ orgLat, orgLng }) => !!orgLat && !!orgLng) || [];
   const [description, setDescription] = useState<string | undefined>();
@@ -182,32 +181,14 @@ export const OrgPage = ({
   //#endregion
 
   //#region sub
-  const [addSubscription, addSubscriptionMutation] =
-    useAddSubscriptionMutation();
-  const subQuery = useGetSubscriptionQuery({ email: userEmail });
-  const refetchSubscription = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    if (refetchSubscription !== cachedRefetchSubscription) {
-      cachedRefetchSubscription = refetchSubscription;
-      console.log("refetching subscription");
-      subQuery.refetch();
-    }
-  }, [refetchSubscription]);
-  useEffect(() => {
-    if (userEmail !== cachedEmail) {
-      cachedEmail = userEmail;
-      console.log("refetching subscription with new email", userEmail);
-      subQuery.refetch();
-    }
-  }, [userEmail]);
-
+  const subQuery = useGetSubscriptionQuery({ email });
   const followerSubscription = getFollowerSubscription({ org, subQuery });
   const subscriberSubscription = getSubscriberSubscription({ org, subQuery });
   //#endregion
 
   //#region local state
-  const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
+  const [isLogin, setIsLogin] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
   const [isVisible, setIsVisible] = useState<Visibility["isVisible"]>({
     logo: false,
@@ -240,21 +221,28 @@ export const OrgPage = ({
   }, [org]);
   //#endregion
 
+  //#region cross refetch
   const refetchOrg = useSelector(selectOrgRefetch);
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     if (refetchOrg !== cachedRefetchOrg) {
-      cachedRefetchOrg = refetchOrg;
       console.log("refetching org");
+      cachedRefetchOrg = refetchOrg;
       orgQuery.refetch();
     }
-  }, [refetchOrg]);
+
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      console.log("refetching subscription");
+      cachedRefetchSubscription = refetchSubscription;
+      subQuery.refetch();
+    }
+  }, [refetchOrg, refetchSubscription]);
   useEffect(() => {
-    if (userEmail !== cachedEmail) {
-      cachedEmail = userEmail;
-      console.log("refetching org with new email", userEmail);
-      orgQuery.refetch();
-    }
-  }, [userEmail]);
+    console.log("email changed, refetching");
+    orgQuery.refetch();
+    subQuery.refetch();
+  }, [email]);
+  //#endregion
 
   if (org.orgUrl === "forum") {
     return (

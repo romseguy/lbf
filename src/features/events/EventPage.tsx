@@ -8,13 +8,10 @@ import {
   Grid,
   Text,
   TabPanel,
-  TabPanels,
-  useColorMode,
-  useToast
+  TabPanels
 } from "@chakra-ui/react";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
@@ -30,7 +27,6 @@ import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover"
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
-import { useSession } from "hooks/useAuth";
 import { IEvent, Visibility } from "models/Event";
 import {
   getFollowerSubscription,
@@ -38,7 +34,7 @@ import {
   SubscriptionTypes
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
-import { useEditEventMutation, useGetEventQuery } from "./eventsApi";
+import { useEditEventMutation } from "./eventsApi";
 import { selectEventRefetch } from "./eventSlice";
 import { EventAttendingForm } from "./EventAttendingForm";
 import { EventConfigPanel } from "./EventConfigPanel";
@@ -57,40 +53,35 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
+let cachedEmail: string | undefined;
 let cachedRefetchEvent = false;
 let cachedRefetchSubscription = false;
 
 export const EventPage = ({
+  eventQuery,
   isMobile,
-  populate,
+  session,
   tab,
-  tabItem,
-  ...props
+  tabItem
 }: PageProps & {
-  populate?: string;
+  eventQuery: any;
   tab?: string;
   tabItem?: string;
-  event: IEvent;
 }) => {
-  const router = useRouter();
-  const [asPath, setAsPath] = useState(router.asPath);
-  const { data, loading: isSessionLoading } = useSession();
-  const session = data || props.session;
-  const toast = useToast({ position: "top" });
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
-  const storedUserEmail = useSelector(selectUserEmail);
-  const [email, setEmail] = useState(storedUserEmail || session?.user.email);
+  //#region user email
+  const userEmail = useSelector(selectUserEmail) || session?.user.email;
+  const [email, setEmail] = useState(userEmail);
+  useEffect(() => {
+    if (userEmail !== cachedEmail) {
+      cachedEmail = userEmail;
+      setEmail(userEmail);
+    }
+  }, [userEmail]);
+  //#endregion
 
   //#region event
   const [editEvent, editEventMutation] = useEditEventMutation();
-  const eventQuery = useGetEventQuery(
-    { eventUrl: props.event.eventUrl, populate },
-    {
-      selectFromResult: (query) => query
-    }
-  );
-  const event = eventQuery.data || props.event;
+  const event = eventQuery.data as IEvent;
   const eventCreatedByUserName =
     event.createdBy && typeof event.createdBy === "object"
       ? event.createdBy.userName || event.createdBy._id
@@ -106,7 +97,7 @@ export const EventPage = ({
   //#endregion
 
   //#region sub
-  const subQuery = useGetSubscriptionQuery({ email });
+  const subQuery = useGetSubscriptionQuery({ email: email });
   const followerSubscription = getFollowerSubscription({ event, subQuery });
   const isSubscribedToAtLeastOneOrg =
     isCreator ||
@@ -124,8 +115,8 @@ export const EventPage = ({
   //#endregion
 
   //#region local state
-  const [isLogin, setIsLogin] = useState(0);
   const [isConfig, setIsConfig] = useState(false);
+  const [isLogin, setIsLogin] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
   const [isVisible, setIsVisible] = useState<Visibility["isVisible"]>({
     topics: false,
@@ -133,8 +124,8 @@ export const EventPage = ({
     logo: false
   });
   const [showSendForm, setShowSendForm] = useState(false);
-  let showAttendingForm = false;
 
+  let showAttendingForm = false;
   if (!isConfig && !isEdit) {
     if (session) {
       if (isSubscribedToAtLeastOneOrg) showAttendingForm = true;
@@ -149,53 +140,35 @@ export const EventPage = ({
   }
   //#endregion
 
-  // useEffect(() => {
-  //   if (router.asPath !== asPath) {
-  //     setAsPath(router.asPath);
-  //     console.log("refetching event with new route", router.asPath);
-  //     eventQuery.refetch();
-  //     setIsEdit(false);
-  //   }
-  // }, [router.asPath]);
-
+  //#region cross refetch
   const refetchEvent = useSelector(selectEventRefetch);
-  useEffect(() => {
-    if (refetchEvent !== cachedRefetchEvent) {
-      cachedRefetchEvent = refetchEvent;
-      console.log("refetching event");
-      eventQuery.refetch();
-    }
-  }, [refetchEvent]);
-
   const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
-    if (refetchSubscription !== cachedRefetchSubscription) {
-      cachedRefetchSubscription = refetchSubscription;
-      console.log("refetching subscription");
-      subQuery.refetch();
-    }
-  }, [refetchSubscription]);
-
-  useEffect(() => {
-    const newEmail = storedUserEmail || session?.user.email;
-
-    if (newEmail !== email) {
-      setEmail(newEmail);
-      console.log(
-        "refetching event and subscription because of new email",
-        newEmail
-      );
+    if (refetchEvent !== cachedRefetchEvent) {
+      console.log("refetching event");
+      cachedRefetchEvent = refetchEvent;
       eventQuery.refetch();
+    }
+
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      console.log("refetching subscription");
+      cachedRefetchSubscription = refetchSubscription;
       subQuery.refetch();
     }
-  }, [storedUserEmail, session]);
+  }, [refetchEvent, refetchSubscription]);
+  useEffect(() => {
+    console.log("email changed, refetching");
+    eventQuery.refetch();
+    subQuery.refetch();
+  }, [email]);
+  //#endregion
 
   return (
     <Layout
       event={event}
       isLogin={isLogin}
       isMobile={isMobile}
-      session={props.session}
+      session={session}
     >
       {isCreator && !isConfig && !isEdit && (
         <Button
@@ -237,7 +210,6 @@ export const EventPage = ({
                 query={eventQuery}
                 subQuery={subQuery}
                 followerSubscription={followerSubscription}
-                //isLoading={subQuery.isLoading || subQuery.isFetching}
               />
             </Box>
           )}
@@ -249,7 +221,6 @@ export const EventPage = ({
               subQuery={subQuery}
               followerSubscription={followerSubscription}
               notifType="push"
-              //isLoading={subQuery.isLoading || subQuery.isFetching}
             />
           </Box>
         </Flex>
@@ -320,7 +291,6 @@ export const EventPage = ({
           >
             <TabPanel aria-hidden>
               <Grid
-                // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"
                 gridGap={5}
                 css={css`
                   & {

@@ -2,6 +2,12 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { IEvent } from "models/Event";
 import baseQuery, { objectToQueryString } from "utils/query";
 
+export type EventQueryParams = {
+  eventUrl: string;
+  email?: string;
+  populate?: string;
+};
+
 export const eventApi = createApi({
   reducerPath: "eventsApi",
   baseQuery,
@@ -47,10 +53,7 @@ export const eventApi = createApi({
         };
       }
     }),
-    getEvent: build.query<
-      IEvent,
-      { eventUrl: string; email?: string; populate?: string }
-    >({
+    getEvent: build.query<IEvent, EventQueryParams>({
       query: ({ eventUrl, email, populate }) => {
         console.groupCollapsed("getEvent");
         console.log("eventUrl", eventUrl);

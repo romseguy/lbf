@@ -853,9 +853,7 @@ export const EventsList = ({
                         )} pour ajouter un événement`
                       });
                   } else setIsEventFormModalOpen(true);
-                } else if (setIsLogin && isLogin) {
-                  setIsLogin(isLogin + 1);
-                }
+                } else if (setIsLogin) setIsLogin(isLogin + 1);
               }
             }}
             data-cy="addEvent"

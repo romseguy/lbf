@@ -2,6 +2,12 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { IUser } from "models/User";
 import baseQuery, { objectToQueryString } from "utils/query";
 
+export type UserQueryParams = {
+  slug: string;
+  populate?: string;
+  select?: string;
+};
+
 export const userApi = createApi({
   reducerPath: "usersApi",
   baseQuery,
@@ -22,10 +28,7 @@ export const userApi = createApi({
         body: payload
       })
     }),
-    getUser: build.query<
-      IUser,
-      { slug: string; populate?: string; select?: string }
-    >({
+    getUser: build.query<IUser, UserQueryParams>({
       query: ({ slug, ...query }) => ({
         url: `user/${slug}?${objectToQueryString(query)}`
       })

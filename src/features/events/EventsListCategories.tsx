@@ -262,7 +262,7 @@ export const EventsListCategories = ({
                   <Table>
                     <Tbody>
                       {categories.map(({ label }) => (
-                        <Tr>
+                        <Tr key={`cat-${label}`}>
                           <Td>{label}</Td>
                           <Td textAlign="right">
                             <DeleteButton

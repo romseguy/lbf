@@ -41,48 +41,19 @@ import { PageProps } from "pages/_app";
 
 export const UserPage = ({
   isMobile,
-  ...props
+  session,
+  userQuery
 }: PageProps & {
-  user: IUser;
-  session: Session | null;
+  userQuery: any;
 }) => {
   const router = useRouter();
-  const { data: clientSession } = useSession();
-  const session = clientSession || props.session;
-  console.groupCollapsed("UserPage");
-  console.log("session", session);
-  const isSelf = props.user._id === session?.user.userId;
-  console.log("isSelf", isSelf);
-  console.log("props.user", props.user);
-
   const toast = useToast({ position: "top" });
 
-  const userQuery = useGetUserQuery(
-    {
-      slug: props.user.email || session?.user.email || "",
-      populate: isSelf ? "userProjects" : undefined,
-      select: isSelf ? "userProjects" : undefined
-    },
-    {
-      selectFromResult: (query) => {
-        if (query.data) {
-          return {
-            ...query,
-            data: {
-              ...query.data,
-              email:
-                query.data.email ||
-                props.user.email ||
-                session?.user.email ||
-                ""
-            }
-          };
-        }
-        return query;
-      }
-    }
-  );
-  const user = userQuery.data || props.user;
+  const isSelf = userQuery.data._id === session?.user.userId;
+  const user = userQuery.data as IUser;
+  console.groupCollapsed("UserPage");
+  console.log("session", session);
+  console.log("isSelf", isSelf);
   console.log("user", user);
   console.groupEnd();
 
@@ -297,7 +268,7 @@ export const UserPage = ({
                     </Grid>
                   </GridItem>
 
-                  {isSelf && session.user.isAdmin && !isEdit && (
+                  {isSelf && session?.user.isAdmin && !isEdit && (
                     <GridItem
                       light={{ bg: "orange.100" }}
                       dark={{ bg: "gray.500" }}
