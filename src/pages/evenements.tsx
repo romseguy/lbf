@@ -7,10 +7,8 @@ import {
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
-import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Detector } from "react-detect-offline";
 import { FaRegMap } from "react-icons/fa";
 import { Button, IconFooter } from "features/common";
 import { useGetEventsQuery } from "features/events/eventsApi";
@@ -25,6 +23,11 @@ const EventsPage = ({ ...props }: PageProps) => {
   const isDark = colorMode === "dark";
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(0);
+  const [isOffline, setIsOffline] = useState(false);
+  useEffect(() => {
+    window.addEventListener("offline", () => setIsOffline(true));
+    window.addEventListener("online", () => setIsOffline(false));
+  }, []);
 
   const eventsQuery = useGetEventsQuery();
 
@@ -71,39 +74,29 @@ const EventsPage = ({ ...props }: PageProps) => {
 
         {!eventsQuery.isLoading && (
           <Box mt={3}>
-            <Detector
-              polling={{
-                enabled: true,
-                interval: 1000,
-                timeout: 5000,
-                url: `${process.env.NEXT_PUBLIC_API}/check`
-              }}
-              render={({ online }) => (
-                <Tooltip
-                  label={
-                    !eventsQuery.data || !eventsQuery.data.length
-                      ? "Aucun événements"
-                      : !online
-                      ? "Vous devez être connecté à internet pour afficher la carte des événements"
-                      : ""
-                  }
-                  hasArrow
-                  placement="left"
+            <Tooltip
+              label={
+                !eventsQuery.data || !eventsQuery.data.length
+                  ? "Aucun événements"
+                  : isOffline
+                  ? "Vous devez être connecté à internet pour afficher la carte des événements"
+                  : ""
+              }
+              hasArrow
+              placement="left"
+            >
+              <span>
+                <Button
+                  colorScheme="teal"
+                  isDisabled={isOffline || !events || !events.length}
+                  leftIcon={<FaRegMap />}
+                  onClick={openMapModal}
+                  mb={3}
                 >
-                  <span>
-                    <Button
-                      colorScheme="teal"
-                      isDisabled={!online || !events || !events.length}
-                      leftIcon={<FaRegMap />}
-                      onClick={openMapModal}
-                      mb={3}
-                    >
-                      Carte des événements
-                    </Button>
-                  </span>
-                </Tooltip>
-              )}
-            />
+                  Carte des événements
+                </Button>
+              </span>
+            </Tooltip>
           </Box>
         )}
 

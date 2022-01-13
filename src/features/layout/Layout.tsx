@@ -1,17 +1,8 @@
-import {
-  Flex,
-  BoxProps,
-  useColorMode,
-  Box,
-  Icon,
-  Image,
-  Tooltip
-} from "@chakra-ui/react";
+import { Flex, BoxProps, useColorMode, Box, Tooltip } from "@chakra-ui/react";
 import Head from "next/head";
 import { Session } from "next-auth";
 import NextNprogress from "nextjs-progressbar";
-import React, { useEffect, useState } from "react";
-import { Offline } from "react-detect-offline";
+import React from "react";
 import { css } from "twin.macro";
 import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
 import { PaypalButton } from "features/common/forms/PaypalButton";

@@ -5,12 +5,9 @@ import {
   Heading,
   Spinner,
   Tooltip,
-  useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
-import { Detector } from "react-detect-offline";
 import { FaRegMap } from "react-icons/fa";
 import { PageContainer } from "features/common";
 import { Layout } from "features/layout";
@@ -28,9 +25,12 @@ import { selectOrgsRefetch } from "features/orgs/orgSlice";
 let cachedRefetchOrgs = false;
 
 const NetworksPage = (props: PageProps) => {
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
-  const router = useRouter();
+  const [isOffline, setIsOffline] = useState(false);
+  useEffect(() => {
+    window.addEventListener("offline", () => setIsOffline(true));
+    window.addEventListener("online", () => setIsOffline(false));
+  }, []);
+
   const {
     isOpen: isMapModalOpen,
     onOpen: openMapModal,
@@ -92,41 +92,31 @@ const NetworksPage = (props: PageProps) => {
 
           {!orgsQuery.isLoading && (
             <Box mt={3}>
-              <Detector
-                polling={{
-                  enabled: true,
-                  interval: 1000,
-                  timeout: 5000,
-                  url: `${process.env.NEXT_PUBLIC_API}/check`
-                }}
-                render={({ online }) => (
-                  <Tooltip
-                    label={
-                      !orgsQuery.data || !orgsQuery.data.length
-                        ? "Aucune organisations"
-                        : !online
-                        ? "Vous devez être connecté à internet pour afficher la carte"
-                        : ""
+              <Tooltip
+                label={
+                  !orgsQuery.data || !orgsQuery.data.length
+                    ? "Aucune organisations"
+                    : isOffline
+                    ? "Vous devez être connecté à internet pour afficher la carte"
+                    : ""
+                }
+                placement="right"
+                hasArrow
+              >
+                <span>
+                  <Button
+                    colorScheme="teal"
+                    isDisabled={
+                      isOffline || !orgsQuery.data || !orgsQuery.data.length
                     }
-                    placement="right"
-                    hasArrow
+                    leftIcon={<FaRegMap />}
+                    onClick={openMapModal}
+                    mb={3}
                   >
-                    <span>
-                      <Button
-                        colorScheme="teal"
-                        isDisabled={
-                          !online || !orgsQuery.data || !orgsQuery.data.length
-                        }
-                        leftIcon={<FaRegMap />}
-                        onClick={openMapModal}
-                        mb={3}
-                      >
-                        Carte
-                      </Button>
-                    </span>
-                  </Tooltip>
-                )}
-              />
+                    Carte
+                  </Button>
+                </span>
+              </Tooltip>
             </Box>
           )}
         </Flex>

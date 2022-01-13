@@ -1,5 +1,5 @@
 import { Button, Tooltip, useColorMode, useDisclosure } from "@chakra-ui/react";
-import { Detector } from "react-detect-offline";
+import { useState, useEffect } from "react";
 import { FaRegMap } from "react-icons/fa";
 import { PageContainer } from "features/common";
 import { Layout } from "features/layout";
@@ -10,8 +10,11 @@ import { OrgTypes } from "models/Org";
 import { PageProps } from "./_app";
 
 const OrganisationsPage = (props: PageProps) => {
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
+  const [isOffline, setIsOffline] = useState(false);
+  useEffect(() => {
+    window.addEventListener("offline", () => setIsOffline(true));
+    window.addEventListener("online", () => setIsOffline(false));
+  }, []);
 
   const orgsQuery = useGetOrgsQuery(void 0, {
     selectFromResult: (query) => ({
@@ -29,41 +32,31 @@ const OrganisationsPage = (props: PageProps) => {
   return (
     <Layout pageTitle="Organisations" {...props}>
       <PageContainer>
-        <Detector
-          polling={{
-            enabled: true,
-            interval: 1000,
-            timeout: 5000,
-            url: `${process.env.NEXT_PUBLIC_API}/check`
-          }}
-          render={({ online }) => (
-            <Tooltip
-              label={
-                !orgsQuery.data || !orgsQuery.data.length
-                  ? "Aucune organisations"
-                  : !online
-                  ? "Vous devez être connecté à internet pour afficher la carte des organisations"
-                  : ""
+        <Tooltip
+          label={
+            !orgsQuery.data || !orgsQuery.data.length
+              ? "Aucune organisations"
+              : isOffline
+              ? "Vous devez être connecté à internet pour afficher la carte des organisations"
+              : ""
+          }
+          placement="right"
+          hasArrow
+        >
+          <span>
+            <Button
+              colorScheme="teal"
+              isDisabled={
+                isOffline || !orgsQuery.data || !orgsQuery.data.length
               }
-              placement="right"
-              hasArrow
+              leftIcon={<FaRegMap />}
+              onClick={openMapModal}
+              mb={3}
             >
-              <span>
-                <Button
-                  colorScheme="teal"
-                  isDisabled={
-                    !online || !orgsQuery.data || !orgsQuery.data.length
-                  }
-                  leftIcon={<FaRegMap />}
-                  onClick={openMapModal}
-                  mb={3}
-                >
-                  Carte des organisations
-                </Button>
-              </span>
-            </Tooltip>
-          )}
-        />
+              Carte des organisations
+            </Button>
+          </span>
+        </Tooltip>
 
         <OrgsList orgsQuery={orgsQuery} />
 
