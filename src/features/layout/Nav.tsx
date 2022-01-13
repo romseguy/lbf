@@ -77,7 +77,7 @@ export const Nav = ({
 
   //#region login modal
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(
-    router.asPath === "/?login"
+    router.asPath === "/?login" && !session
   );
   useEffect(() => {
     if (isLogin !== 0) {

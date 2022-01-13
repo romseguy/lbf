@@ -1,11 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
 import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
 import { IOrg, orgTypeFull } from "models/Org";
-import type { ITopic } from "models/Topic";
 import {
   createServerError,
   databaseErrorCodes,
@@ -14,24 +11,20 @@ import {
 import { equals, logJson, normalize } from "utils/string";
 import { getSubscriberSubscription } from "models/Subscription";
 
-const transport = nodemailer.createTransport(
-  nodemailerSendgrid({
-    apiKey: process.env.EMAIL_API_KEY
-  })
-);
-
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
 handler.get<
-  NextApiRequest & { query: { orgUrl: string; populate?: string } },
+  NextApiRequest & {
+    query: { orgUrl: string; hash?: string; populate?: string };
+  },
   NextApiResponse
 >(async function getOrg(req, res) {
   try {
     const session = await getSession({ req });
     const {
-      query: { orgUrl, populate }
+      query: { orgUrl, hash, populate }
     } = req;
 
     let org = await models.Org.findOne({ orgUrl });
@@ -48,6 +41,12 @@ handler.get<
     // hand emails to org creator only
     const isCreator =
       equals(org.createdBy, session?.user.userId) || session?.user.isAdmin;
+
+    if (!isCreator && org.orgPassword) {
+      if (!hash) return res.status(200).json({ orgSalt: org.orgSalt });
+
+      if (org.orgPassword === hash) return res.status(200).json(org);
+    }
 
     let select = isCreator
       ? "-password -securityCode"

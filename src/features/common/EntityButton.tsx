@@ -1,4 +1,4 @@
-import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
+import { CalendarIcon, ChatIcon, LockIcon } from "@chakra-ui/icons";
 import {
   Button,
   StyleProps,
@@ -9,11 +9,12 @@ import {
 import React from "react";
 import { IoIosGitNetwork, IoIosPeople, IoIosPerson } from "react-icons/io";
 import { Link } from "features/common";
-import { IOrg, orgTypeFull, OrgTypes } from "models/Org";
+import { IOrg, orgTypeFull, OrgTypes, Visibility } from "models/Org";
 import { IEvent } from "models/Event";
 import { IUser } from "models/User";
 import { ITopic } from "models/Topic";
 import { useRouter } from "next/router";
+import { FaGlobeEurope } from "react-icons/fa";
 
 export const EntityButton = ({
   event,
@@ -132,6 +133,16 @@ export const EntityButton = ({
               : user
               ? user.userName
               : ""}
+            {org ? (
+              <Icon
+                as={
+                  org.orgVisibility === Visibility.PRIVATE
+                    ? LockIcon
+                    : FaGlobeEurope
+                }
+                ml={2}
+              />
+            ) : null}
           </Button>
         </Link>
       </span>

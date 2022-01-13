@@ -2,6 +2,12 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { IOrg } from "models/Org";
 import baseQuery, { objectToQueryString } from "utils/query";
 
+export type OrgQueryParams = {
+  orgUrl: string;
+  hash?: string | void;
+  populate?: string;
+};
+
 export const orgApi = createApi({
   reducerPath: "orgsApi",
   baseQuery,
@@ -41,15 +47,16 @@ export const orgApi = createApi({
         };
       }
     }),
-    getOrg: build.query<IOrg, { orgUrl: string; populate?: string }>({
-      query: ({ orgUrl, populate }) => {
+    getOrg: build.query<IOrg, OrgQueryParams>({
+      query: ({ orgUrl, ...query }) => {
         console.groupCollapsed("getOrg");
         console.log("orgUrl", orgUrl);
-        console.log("populate", populate);
+        console.log("hash", query.hash);
+        console.log("populate", query.populate);
         console.groupEnd();
 
         return {
-          url: populate ? `org/${orgUrl}?populate=${populate}` : `org/${orgUrl}`
+          url: `org/${orgUrl}?${objectToQueryString(query)}`
         };
       }
     }),
@@ -69,9 +76,6 @@ export const orgApi = createApi({
           url: `orgs${query ? `?${objectToQueryString(query)}` : ""}`
         };
       }
-    }),
-    getOrgsByUserId: build.query<IOrg[], string>({
-      query: (userId) => ({ url: `orgs/${userId}` })
     })
   })
 });
@@ -81,9 +85,8 @@ export const {
   useDeleteOrgMutation,
   useEditOrgMutation,
   useGetOrgQuery,
-  useGetOrgsQuery,
-  useGetOrgsByUserIdQuery
+  useGetOrgsQuery
 } = orgApi;
 export const {
-  endpoints: { getOrg, getOrgs, getOrgsByUserId }
+  endpoints: { getOrg, getOrgs }
 } = orgApi;

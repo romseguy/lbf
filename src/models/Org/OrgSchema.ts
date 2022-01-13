@@ -78,6 +78,7 @@ export const OrgSchema = new Schema<IOrg>(
       url: { type: String, trim: true }
     },
     orgPassword: String,
+    orgSalt: String,
     orgTabs: {
       type: [{ label: { type: String, trim: true }, url: String }],
       default: undefined

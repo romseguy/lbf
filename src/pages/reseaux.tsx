@@ -8,7 +8,6 @@ import {
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
-import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { Detector } from "react-detect-offline";
@@ -18,15 +17,15 @@ import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { OrgsList } from "features/orgs/OrgsList";
-import { treeChart } from "features/treeChart/treeChart";
-import { InputNode, RenderChart } from "features/treeChart/types";
+import { InputNode } from "features/treeChart/types";
 import { hasItems } from "utils/array";
-import { normalize } from "utils/string";
 import { Visibility } from "models/Org";
 import { PageProps } from "./_app";
 import { NetworksModal } from "features/modals/NetworksModal";
+import { useSelector } from "react-redux";
+import { selectOrgsRefetch } from "features/orgs/orgSlice";
 
-let renderChart: RenderChart | undefined;
+let cachedRefetchOrgs = false;
 
 const NetworksPage = (props: PageProps) => {
   const { colorMode } = useColorMode();
@@ -42,7 +41,6 @@ const NetworksPage = (props: PageProps) => {
     onOpen: openNetworksModal,
     onClose: closeNetworksModal
   } = useDisclosure({ defaultIsOpen: false });
-  const [elementLocked, setElementLocked] = useState<HTMLElement | undefined>();
 
   const orgsQuery = useGetOrgsQuery({ populate: "orgs" });
   const inputNodes: InputNode[] = useMemo(
@@ -61,82 +59,17 @@ const NetworksPage = (props: PageProps) => {
     [orgsQuery.data]
   );
 
-  // useEffect(() => {
-  //   if (!inputNodes) return;
-
-  //   const treeChartContainer = document.getElementById("treeC");
-
-  //   if (!treeChartContainer) return;
-
-  //   const renderChartWithInputNodes = (inputNodes: InputNode[]) => {
-  //     const width =
-  //       (document.getElementById("pageContainer") || new HTMLElement())
-  //         .clientWidth - 30;
-
-  //     let treeChartRoot = document.getElementById("tree") as HTMLDivElement;
-
-  //     treeChartContainer.removeChild(treeChartRoot);
-  //     treeChartRoot = document.createElement("div");
-  //     treeChartRoot.setAttribute("id", "tree");
-  //     treeChartContainer.appendChild(treeChartRoot);
-
-  //     renderChart = treeChart(treeChartRoot, {
-  //       id: "treeSvg",
-  //       aspectRatio: 0.75,
-  //       isSorted: true,
-  //       widthBetweenNodesCoeff: 0.5,
-  //       heightBetweenNodesCoeff: 2,
-  //       style: { background: "white", width },
-  //       //tooltipOptions: { offset: { left: 30, top: 10 }, indentationSize: 2 },
-  //       initialZoom: 0.5,
-  //       onClickText: (node) => {
-  //         const url = "/" + normalize(node.name);
-  //         router.push(url, url, { shallow: true });
-  //       },
-  //       onZoom: () => {
-  //         // if (!elementLocked) {
-  //         //   disableBodyScroll(treeChartContainer);
-  //         //   setElementLocked(treeChartContainer);
-  //         //   setTimeout(() => {
-  //         //     enableBodyScroll(treeChartContainer);
-  //         //     setElementLocked(undefined);
-  //         //   }, 1000);
-  //         // }
-  //       }
-  //     });
-
-  //     renderChart({
-  //       name: process.env.NEXT_PUBLIC_SHORT_URL,
-  //       children: inputNodes
-  //     });
-  //   };
-
-  //   const run = () => {
-  //     renderChartWithInputNodes(inputNodes);
-  //   };
-
-  //   window.removeEventListener("resize", run);
-  //   window.addEventListener("resize", run);
-  //   run();
-  // }, [inputNodes]);
+  const refetchOrgs = useSelector(selectOrgsRefetch);
+  useEffect(() => {
+    if (refetchOrgs !== cachedRefetchOrgs) {
+      cachedRefetchOrgs = refetchOrgs;
+      console.log("refetching orgs");
+      orgsQuery.refetch();
+    }
+  }, [refetchOrgs]);
 
   return (
-    <Layout
-      pageTitle="Réseaux"
-      onTouchStart={() => {
-        if (elementLocked) {
-          enableBodyScroll(elementLocked);
-          setElementLocked(undefined);
-        }
-      }}
-      onWheel={() => {
-        if (elementLocked) {
-          enableBodyScroll(elementLocked);
-          setElementLocked(undefined);
-        }
-      }}
-      {...props}
-    >
+    <Layout pageTitle="Réseaux" {...props}>
       <PageContainer id="pageContainer">
         <Heading className="rainbow-text" fontFamily="DancingScript" mb={2}>
           Réseaux

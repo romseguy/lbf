@@ -10,7 +10,7 @@ import { GridItem } from "./GridItem";
 export const GridHeader = ({
   children,
   light = { bg: "orange.300" },
-  dark = { bg: "gray.600" },
+  dark = { bg: "gray.700" },
   pl = 3,
   ...props
 }: GridItemProps & {

@@ -1,15 +1,15 @@
+import { NextPage, NextPageContext } from "next";
+import { AppProps } from "next/app";
+import { Session } from "next-auth";
+import { Provider as SessionProvider } from "next-auth/client";
 import React from "react";
 import { getSelectorsByUserAgent } from "react-device-detect";
-import { NextPage, NextPageContext } from "next";
-import { Session } from "next-auth";
-import { AppProps } from "next/app";
-import { Provider as SessionProvider } from "next-auth/client";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
-import theme from "theme/theme";
-import { wrapper } from "store";
-import { isServer } from "utils/isServer";
 import { getSession } from "hooks/useAuth";
+import { wrapper } from "store";
+import theme from "theme/theme";
+import { isServer } from "utils/isServer";
 
 export interface PageProps {
   isMobile: boolean;

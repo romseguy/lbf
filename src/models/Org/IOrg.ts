@@ -35,7 +35,8 @@ export interface IOrg {
     mode?: "light" | "dark";
     url?: string;
   };
-  orgPassword: string;
+  orgPassword?: string;
+  orgSalt?: string;
   orgTabs?: IOrgTab[];
   orgVisibility: string;
   orgs?: IOrg[];

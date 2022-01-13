@@ -50,7 +50,7 @@ import { useAppDispatch } from "store";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
-import { normalize, normalizeQuill } from "utils/string";
+import { normalize } from "utils/string";
 
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -181,11 +181,14 @@ export const OrgForm = withGoogleApi({
           Array.isArray(orgEmail) && orgEmail.length > 0 ? orgEmail : [],
         orgPhone:
           Array.isArray(orgPhone) && orgPhone.length > 0 ? orgPhone : [],
-        orgWeb: Array.isArray(orgWeb) && orgWeb.length > 0 ? orgWeb : [],
-        orgPassword: form.orgPassword
-          ? await bcrypt.hash(form.orgPassword, await bcrypt.genSalt(10))
-          : undefined
+        orgWeb: Array.isArray(orgWeb) && orgWeb.length > 0 ? orgWeb : []
       };
+
+      if (form.orgPassword) {
+        const salt = await bcrypt.genSalt(10);
+        payload.orgPassword = await bcrypt.hash(form.orgPassword, salt);
+        payload.orgSalt = salt;
+      }
 
       let { orgUrl } = payload;
 
@@ -202,10 +205,20 @@ export const OrgForm = withGoogleApi({
         }
 
         if (props.org) {
-          await editOrg({ payload, orgUrl: props.org.orgUrl }).unwrap();
+          if (
+            form.orgVisibility === Visibility.PUBLIC &&
+            !!props.org.orgPassword
+          )
+            await editOrg({
+              orgUrl: props.org.orgUrl,
+              payload: ["orgPassword"]
+            });
+
+          await editOrg({ payload, orgUrl: props.org.orgUrl });
+          //dispatch(refetchOrg());
 
           toast({
-            title: `${orgTypeFull5(form.orgType)} a bien été modifiée !`,
+            title: `La modification a bien été effectuée !`,
             status: "success",
             isClosable: true
           });
@@ -213,7 +226,6 @@ export const OrgForm = withGoogleApi({
           payload.createdBy = props.session.user.userId;
           const org = await addOrg(payload).unwrap();
           orgUrl = org.orgUrl;
-          dispatch(refetchOrgs());
 
           toast({
             title: `${orgTypeFull5(form.orgType)} a bien été ajoutée !`,
@@ -222,6 +234,7 @@ export const OrgForm = withGoogleApi({
           });
         }
 
+        dispatch(refetchOrgs());
         setIsLoading(false);
         props.onSubmit && props.onSubmit(orgUrl);
       } catch (error) {

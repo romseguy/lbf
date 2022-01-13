@@ -1,14 +1,10 @@
-import bcrypt from "bcryptjs";
-import { models } from "database";
-import { IUser } from "models/User";
-import NextAuth, { User } from "next-auth";
+import NextAuth from "next-auth";
 import type {
   NextApiRequest,
   NextApiResponse
 } from "next-auth/internals/utils";
 import Providers from "next-auth/providers";
 import nodemailer from "nodemailer";
-import api from "utils/api";
 import { logJson } from "utils/string";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
