@@ -2,6 +2,7 @@ import { Heading, Spinner } from "@chakra-ui/react";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { EventPage } from "features/events/EventPage";
 import { EventQueryParams, useGetEventQuery } from "features/events/eventsApi";
 import { Layout } from "features/layout";
@@ -9,14 +10,15 @@ import { OrgPage } from "features/orgs/OrgPage";
 import { OrgQueryParams, useGetOrgQuery } from "features/orgs/orgsApi";
 import { UserPage } from "features/users/UserPage";
 import { useGetUserQuery, UserQueryParams } from "features/users/usersApi";
-import { setUserEmail } from "features/users/userSlice";
+import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { useAppDispatch, wrapper } from "store";
 import { PageProps } from "./_app";
 import { OrgPageLogin } from "features/orgs/OrgPageLogin";
 
+let cachedEmail: string | undefined;
+
 const Hash = ({
-  email,
   ...props
 }: PageProps & {
   email?: string;
@@ -25,19 +27,35 @@ const Hash = ({
   const router = useRouter();
   const { data: session } = useSession();
 
+  //#region user email
+  const userEmail =
+    useSelector(selectUserEmail) || session?.user.email || props.email;
+  const [email, setEmail] = useState(userEmail);
+  useEffect(() => {
+    if (email) dispatch(setUserEmail(email));
+  }, []);
+  useEffect(() => {
+    if (userEmail !== cachedEmail) {
+      cachedEmail = userEmail;
+      setEmail(userEmail);
+    }
+  }, [userEmail]);
+  //#endregion
+
   //#region routing
   let [entityUrl, entityTab, entityTabItem] =
     "name" in router.query && Array.isArray(router.query.name)
       ? router.query.name
       : [];
+  entityTabItem = entityUrl === "forum" ? entityTab : entityTabItem;
 
+  const [eventQueryParams, setEventQueryParams] = useState<EventQueryParams>({
+    eventUrl: entityUrl
+  });
   const [orgQueryParams, setOrgQueryParams] = useState<OrgQueryParams>({
     orgUrl: entityUrl,
     populate:
       "orgBanner orgEvents orgLogo orgLists orgProjects orgSubscriptions orgTopics orgs"
-  });
-  const [eventQueryParams, setEventQueryParams] = useState<EventQueryParams>({
-    eventUrl: entityUrl
   });
   const [userQueryParams, setUserQueryParams] = useState<UserQueryParams>({
     slug: entityUrl
@@ -47,41 +65,14 @@ const Hash = ({
     setEventQueryParams({ ...eventQueryParams, eventUrl: entityUrl });
     setUserQueryParams({ ...userQueryParams, slug: entityUrl });
   }, [router.asPath]);
-  //#endregion
-
   const eventQuery = useGetEventQuery(eventQueryParams);
   const orgQuery = useGetOrgQuery(orgQueryParams);
-  const userQuery = useGetUserQuery(
-    {
-      slug: session?.user.email || "",
-      populate:
-        session?.user.userName === entityUrl ? "userProjects" : undefined,
-      select: session?.user.userName === entityUrl ? "userProjects" : undefined
-    },
-    {
-      selectFromResult: (query) => {
-        if (query.data) {
-          return {
-            ...query,
-            data: {
-              ...query.data,
-              email: query.data.email || session?.user.email || ""
-            }
-          };
-        }
-        return query;
-      }
-    }
-  );
-
-  entityTabItem = entityUrl === "forum" ? entityTab : entityTabItem;
-  const [error, setError] = useState<
-    { pageTitle: string; fc: React.FC; redirect?: boolean } | undefined
-  >();
-
-  useEffect(() => {
-    if (email) dispatch(setUserEmail(email));
-  }, []);
+  const userQuery = useGetUserQuery({
+    slug: email || "",
+    populate: session?.user.userName === entityUrl ? "userProjects" : undefined,
+    select: session?.user.userName === entityUrl ? "userProjects" : undefined
+  });
+  //#endregion
 
   if (eventQuery.isError && orgQuery.isError && userQuery.isError) {
     setTimeout(() => {
@@ -102,6 +93,8 @@ const Hash = ({
   if (!eventQuery.isError && eventQuery.data) {
     return (
       <EventPage
+        {...props}
+        email={email}
         eventQuery={eventQuery}
         tab={entityTab}
         tabItem={entityTabItem}
@@ -114,10 +107,11 @@ const Hash = ({
     if (orgQuery.data._id)
       return (
         <OrgPage
+          {...props}
+          email={email}
           orgQuery={orgQuery}
           tab={entityTab}
           tabItem={entityTabItem}
-          {...props}
         />
       );
 
@@ -133,7 +127,7 @@ const Hash = ({
   }
 
   if (!userQuery.isError && userQuery.data)
-    return <UserPage userQuery={userQuery} {...props} />;
+    return <UserPage {...props} email={email} userQuery={userQuery} />;
 
   return (
     <Layout {...props}>
@@ -180,6 +174,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
     return { props: {} };
   }
 );
+
+// const [error, setError] = useState<
+//   { pageTitle: string; fc: React.FC; redirect?: boolean } | undefined
+// >();
 
 // setError({
 //   pageTitle: "Page introuvable",

@@ -22,13 +22,11 @@ import {
   TabPanels,
   Text,
   Tooltip,
-  useColorMode,
-  useToast
+  useColorMode
 } from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
-import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
@@ -47,14 +45,9 @@ import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { MapContainer } from "features/map/MapContainer";
 import { ProjectsList } from "features/projects/ProjectsList";
-import {
-  useAddSubscriptionMutation,
-  useGetSubscriptionQuery
-} from "features/subscriptions/subscriptionsApi";
+import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
-import { selectUserEmail } from "features/users/userSlice";
-import { useSession } from "hooks/useAuth";
 import { Visibility as EventVisibility } from "models/Event";
 import { IOrg, IOrgTab, orgTypeFull, orgTypeFull4, OrgTypes } from "models/Org";
 import {
@@ -80,11 +73,11 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
-let cachedEmail: string | undefined;
 let cachedRefetchOrg = false;
 let cachedRefetchSubscription = false;
 
 export const OrgPage = ({
+  email,
   isMobile,
   orgQuery,
   session,
@@ -97,17 +90,6 @@ export const OrgPage = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-
-  //#region user email
-  const userEmail = useSelector(selectUserEmail) || session?.user.email;
-  const [email, setEmail] = useState(userEmail);
-  useEffect(() => {
-    if (userEmail !== cachedEmail) {
-      cachedEmail = userEmail;
-      setEmail(userEmail);
-    }
-  }, [userEmail]);
-  //#endregion
 
   //#region org
   const [editOrg, editOrgMutation] = useEditOrgMutation();

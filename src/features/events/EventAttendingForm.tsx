@@ -15,18 +15,19 @@ import { useEditEventMutation } from "features/events/eventsApi";
 import { useSession } from "hooks/useAuth";
 import { IEvent, isAttending, isNotAttending, StatusTypes } from "models/Event";
 import { emailR } from "utils/email";
+import { setUserEmail } from "features/users/userSlice";
+import { useAppDispatch } from "store";
 
 export const EventAttendingForm = ({
   email,
-  setEmail,
   event,
   eventQuery
 }: {
   email?: string;
-  setEmail: (email: string) => void;
   event: IEvent;
   eventQuery: any;
 }) => {
+  const dispatch = useAppDispatch();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
 
@@ -48,7 +49,7 @@ export const EventAttendingForm = ({
         return;
       }
 
-      setEmail(promptedEmail);
+      dispatch(setUserEmail(promptedEmail));
     }
 
     const userEmail = promptedEmail || email;
@@ -95,7 +96,7 @@ export const EventAttendingForm = ({
         return;
       }
 
-      setEmail(promptedEmail);
+      dispatch(setUserEmail(promptedEmail));
     }
 
     const userEmail = promptedEmail || email;

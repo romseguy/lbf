@@ -26,7 +26,6 @@ import { Layout } from "features/layout";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
-import { selectUserEmail } from "features/users/userSlice";
 import { IEvent, Visibility } from "models/Event";
 import {
   getFollowerSubscription,
@@ -53,11 +52,11 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
-let cachedEmail: string | undefined;
 let cachedRefetchEvent = false;
 let cachedRefetchSubscription = false;
 
 export const EventPage = ({
+  email,
   eventQuery,
   isMobile,
   session,
@@ -68,17 +67,6 @@ export const EventPage = ({
   tab?: string;
   tabItem?: string;
 }) => {
-  //#region user email
-  const userEmail = useSelector(selectUserEmail) || session?.user.email;
-  const [email, setEmail] = useState(userEmail);
-  useEffect(() => {
-    if (userEmail !== cachedEmail) {
-      cachedEmail = userEmail;
-      setEmail(userEmail);
-    }
-  }, [userEmail]);
-  //#endregion
-
   //#region event
   const [editEvent, editEventMutation] = useEditEventMutation();
   const event = eventQuery.data as IEvent;
@@ -97,7 +85,7 @@ export const EventPage = ({
   //#endregion
 
   //#region sub
-  const subQuery = useGetSubscriptionQuery({ email: email });
+  const subQuery = useGetSubscriptionQuery({ email });
   const followerSubscription = getFollowerSubscription({ event, subQuery });
   const isSubscribedToAtLeastOneOrg =
     isCreator ||
@@ -156,11 +144,6 @@ export const EventPage = ({
       subQuery.refetch();
     }
   }, [refetchEvent, refetchSubscription]);
-  useEffect(() => {
-    console.log("email changed, refetching");
-    eventQuery.refetch();
-    subQuery.refetch();
-  }, [email]);
   //#endregion
 
   return (
@@ -274,7 +257,6 @@ export const EventPage = ({
       {showAttendingForm && (
         <EventAttendingForm
           email={email}
-          setEmail={setEmail}
           event={event}
           eventQuery={eventQuery}
         />

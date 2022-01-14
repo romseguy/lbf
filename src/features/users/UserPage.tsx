@@ -16,7 +16,6 @@ import {
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import DOMPurify from "isomorphic-dompurify";
-import { Session, User } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { css } from "twin.macro";
@@ -31,15 +30,14 @@ import { DocumentsList } from "features/documents/DocumentsList";
 import { UserForm } from "features/forms/UserForm";
 import { Layout } from "features/layout";
 import { ProjectsList } from "features/projects/ProjectsList";
-import { useSession } from "hooks/useAuth";
 import { IUser } from "models/User";
 import api from "utils/api";
 import { UserPageTabs } from "./UserPageTabs";
-import { useGetUserQuery, useEditUserMutation } from "./usersApi";
-import { FaHome } from "react-icons/fa";
+import { useEditUserMutation } from "./usersApi";
 import { PageProps } from "pages/_app";
 
 export const UserPage = ({
+  email,
   isMobile,
   session,
   userQuery
@@ -48,9 +46,9 @@ export const UserPage = ({
 }) => {
   const router = useRouter();
   const toast = useToast({ position: "top" });
-
   const isSelf = userQuery.data._id === session?.user.userId;
-  const user = userQuery.data as IUser;
+  const user = { ...(userQuery.data as IUser), email: email || "" };
+
   console.groupCollapsed("UserPage");
   console.log("session", session);
   console.log("isSelf", isSelf);
@@ -350,7 +348,7 @@ export const UserPage = ({
               {isSelf && (
                 <TabPanel aria-hidden>
                   <ProjectsList
-                    user={userQuery.data}
+                    user={user}
                     userQuery={userQuery}
                     isLogin={isLogin}
                     setIsLogin={setIsLogin}
@@ -362,7 +360,7 @@ export const UserPage = ({
               {isSelf && (
                 <TabPanel aria-hidden>
                   <DocumentsList
-                    user={userQuery.data}
+                    user={user}
                     isLogin={isLogin}
                     setIsLogin={setIsLogin}
                   />

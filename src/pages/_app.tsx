@@ -12,6 +12,7 @@ import theme from "theme/theme";
 import { isServer } from "utils/isServer";
 
 export interface PageProps {
+  email?: string;
   isMobile: boolean;
   session: Session | null;
 }
