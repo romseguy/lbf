@@ -58,7 +58,6 @@ const NetworksPage = (props: PageProps) => {
         : [],
     [orgsQuery.data]
   );
-
   const refetchOrgs = useSelector(selectOrgsRefetch);
   useEffect(() => {
     if (refetchOrgs !== cachedRefetchOrgs) {
@@ -78,8 +77,8 @@ const NetworksPage = (props: PageProps) => {
         {orgsQuery.isLoading ? (
           <Spinner />
         ) : (
-          <Button onClick={() => openNetworksModal()}>
-            Voir l'arborescence des réseaux
+          <Button colorScheme="teal" onClick={() => openNetworksModal()}>
+            Afficher l'arborescence des réseaux
           </Button>
         )}
 

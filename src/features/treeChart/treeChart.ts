@@ -164,7 +164,7 @@ export const treeChart = (
         x,
         y
       );
-      console.log("x", x.domain()[0], panExtent.x[0], tX, panX);
+      //console.log("x", x.domain()[0], panExtent.x[0], tX, panX);
       //console.log("y", tY, panY);
 
       if (panX !== Infinity && panX !== -Infinity && !!panX) latestPanX = panX;
