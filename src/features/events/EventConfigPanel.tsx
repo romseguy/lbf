@@ -109,7 +109,7 @@ export const EventConfigPanel = ({
       </Box>
 
       {isEdit && (
-        <PageContainer>
+        <PageContainer m="">
           <EventForm
             session={session}
             event={event}
@@ -118,13 +118,14 @@ export const EventConfigPanel = ({
               setIsConfig(true);
             }}
             onSubmit={async (eventUrl: string) => {
-              if (event && eventUrl !== event.eventUrl) {
+              setIsConfig(false);
+              setIsEdit(false);
+              if (eventUrl !== event.eventUrl)
                 await router.push(`/${eventUrl}`, `/${eventUrl}`, {
                   shallow: true
                 });
-              } else {
+              else {
                 eventQuery.refetch();
-                setIsEdit(false);
               }
             }}
           />
@@ -132,7 +133,7 @@ export const EventConfigPanel = ({
       )}
 
       {isConfig && !isEdit && (
-        <>
+        <PageContainer m="" pb={0}>
           <EventConfigLogoPanel
             event={event}
             eventQuery={eventQuery}
@@ -146,9 +147,8 @@ export const EventConfigPanel = ({
             eventQuery={eventQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
-            mb={3}
           />
-        </>
+        </PageContainer>
       )}
     </>
   );

@@ -62,6 +62,7 @@ export const RTEditor = ({
   return (
     <RTEditorStyles>
       <Editor
+        id="rteditor"
         tinymceScriptSrc="/tinymce/tinymce.min.js"
         onInit={(evt, editor) => (editorRef.current = editor)}
         initialValue={defaultValue}

@@ -79,6 +79,7 @@ export const EntityButton = ({
             if (onClick) onClick();
             else if (entityUrl && onClick !== null) router.push(entityUrl);
           }}
+          data-cy={`${entityUrl}-link`}
         >
           <Button
             aria-hidden

@@ -509,7 +509,6 @@ export const OrgForm = withGoogleApi({
               isLoading || addOrgMutation.isLoading || editOrgMutation.isLoading
             }
             isDisabled={Object.keys(errors).length > 0}
-            data-cy="orgFormSubmit"
           >
             {props.org ? "Modifier" : "Ajouter"}
           </Button>

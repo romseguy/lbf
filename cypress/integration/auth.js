@@ -26,3 +26,13 @@ describe("AUTH", () => {
   //   cy.get(k("event-popover-button")).should("not.exist");
   // })
 })
+
+
+  // it("logins", () => {
+  //   cy.visit("/?noLogin");
+  //   cy.get("[data-cy=login]").click();
+  //   cy.get("#email").type("rom.seguy@lilo.org");
+  //   cy.get("#password").type("wxcv");
+  //   cy.get("[data-cy=loginFormSubmit]").click();
+  //   cy.get("[data-cy=orgPopover]").should("exist");
+  // });

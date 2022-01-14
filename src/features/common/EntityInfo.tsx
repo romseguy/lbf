@@ -2,7 +2,15 @@ import { AtSignIcon, ViewIcon, ViewOffIcon, PhoneIcon } from "@chakra-ui/icons";
 import { Flex, FlexProps, Icon, Link, Tooltip } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { isMobile } from "react-device-detect";
-import { FaMapMarkedAlt, FaGlobeEurope } from "react-icons/fa";
+import {
+  FaMapMarkedAlt,
+  FaGlobeEurope,
+  FaFacebook,
+  FaInstagram,
+  FaTwitter,
+  FaYoutube,
+  FaLink
+} from "react-icons/fa";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { isEvent } from "utils/models";
@@ -110,6 +118,17 @@ export const EntityInfo = ({
           {entityWeb?.map(({ prefix, url }, index) => {
             const isCollapsed =
               webCollapsed[index] === undefined ? true : !!webCollapsed[index];
+
+            const icon = url.includes("facebook")
+              ? FaFacebook
+              : url.includes("instagram")
+              ? FaInstagram
+              : url.includes("twitter")
+              ? FaTwitter
+              : url.includes("youtube")
+              ? FaYoutube
+              : FaLink;
+
             let uri = url.includes("http")
               ? url
                   .replace("https://", "")
@@ -123,7 +142,7 @@ export const EntityInfo = ({
 
             return (
               <Flex key={`web-${index}`} alignItems="center">
-                <Icon as={FaGlobeEurope} mr={3} />
+                <Icon as={icon} mr={3} />
                 <Link
                   variant="underline"
                   href={url.includes("http") ? url : `${prefix}${url}`}

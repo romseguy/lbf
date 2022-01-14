@@ -117,7 +117,7 @@ export const OrgConfigPanel = ({
       </Box>
 
       {isEdit && (
-        <PageContainer>
+        <PageContainer m="">
           <OrgForm
             session={session}
             org={org}
@@ -140,7 +140,7 @@ export const OrgConfigPanel = ({
       )}
 
       {isConfig && !isEdit && (
-        <>
+        <PageContainer m="">
           <OrgConfigLogoPanel
             org={org}
             orgQuery={orgQuery}
@@ -173,7 +173,7 @@ export const OrgConfigPanel = ({
             setIsVisible={setIsVisible}
             session={session}
           />
-        </>
+        </PageContainer>
       )}
     </>
   );

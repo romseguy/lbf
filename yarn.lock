@@ -1723,6 +1723,11 @@
   resolved "https://registry.yarnpkg.com/@emotion/weak-memoize/-/weak-memoize-0.2.5.tgz#8eed982e2ee6f7f4e44c253e12962980791efd46"
   integrity sha512-6U71C2Wp7r5XtFtQzYrW5iKFT67OixrSxjI4MptCHzdSVlgabczzqLe0ZSgnub/5Kp4hSbpDB1tMytZY9pwxxA==
 
+"@foreachbe/cypress-tinymce@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@foreachbe/cypress-tinymce/-/cypress-tinymce-1.0.0.tgz#4659cdcca23198341e7352ecfe12178946fc9b31"
+  integrity sha512-/uiJBAPtSp1gYdSd6SAOZ91EGk23458eL93R5tQFwsgmARy3KSHFzQQuJwCH1RFwLWZ/M2wc9a9knRA7httlKA==
+
 "@fullhuman/postcss-purgecss@^4.0.3":
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/@fullhuman/postcss-purgecss/-/postcss-purgecss-4.0.3.tgz#55d71712ec1c7a88e0d1ba5f10ce7fb6aa05beb4"

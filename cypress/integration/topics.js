@@ -1,3 +1,5 @@
+const k = key => cy.get(`[data-cy=${key}]`)
+
 const orgName = "testt";
 const eventName = "testeventt";
 const topicName = "t";
@@ -8,36 +10,36 @@ describe(" topics", () => {
     it("adds topic", () => {
       cy.visit(`/${orgName}`);
       cy.wait(2000);
-      cy.get("[data-cy=orgTab-Discussions]").click();
-      cy.get("[data-cy=add-topic]").click();
+      k("orgTab-Discussions").click();
+      k("add-topic").click();
       cy.get("#topicName").type(topicName);
-      cy.get("[data-cy=addTopic]").click();
-      cy.get("[data-cy=topicHeader]").contains(topicName);
-      cy.get("[data-cy=topicHeader]").contains(userName);
-      cy.get("[data-cy=topicUnsubscribe]").should("exist");
+      k("addTopic").click();
+      k("topicHeader").contains(topicName);
+      k("topicHeader").contains(userName);
+      k("topicUnsubscribe").should("exist");
     });
 
     it("unsubscribes and subscribes from topic", () => {
-      cy.get("[data-cy=topicUnsubscribe]").click();
+      k("topicUnsubscribe").click();
       cy.wait(5000);
-      cy.get("[data-cy=topicSubscribe]").should("exist");
+      k("topicSubscribe").should("exist");
       cy.wait(5000);
-      cy.get("[data-cy=topicSubscribe]").click();
+      k("topicSubscribe").click();
     });
 
     it("adds topic messages", () => {
-      cy.get("[data-cy=topic]").click();
+      k("topic").click();
       cy.get(".ql-editor.ql-blank").type("c");
       cy.get("form").submit();
-      cy.get("[data-cy=topicMessage]").contains(userName);
-      cy.get("[data-cy=topicMessage]").contains("c");
+      k("topicMessage").contains(userName);
+      k("topicMessage").contains("c");
     });
 
     it("removes topic", () => {
-      cy.get("[data-cy=deleteTopic]").click();
+      k("deleteTopic").click();
       cy.get("#topicName").type(topicName);
-      cy.get("[data-cy=deleteButtonSubmit]").click();
-      cy.get("[data-cy=topicList]").contains(topicName).should("not.exist");
+      k("deleteButtonSubmit").click();
+      k("topicList").contains(topicName).should("not.exist");
     });
   });
 
@@ -45,36 +47,36 @@ describe(" topics", () => {
     it("adds topic", () => {
       cy.visit(`/${eventName}`);
       cy.wait(2000);
-      //cy.get("[data-cy=eventTab-Discussions]").click();
-      cy.get("[data-cy=add-topic]").click();
+      //k("eventTab-Discussions").click();
+      k("add-topic").click();
       cy.get("#topicName").type(topicName);
-      cy.get("[data-cy=addTopic]").click();
-      cy.get("[data-cy=topicHeader]").contains(topicName);
-      cy.get("[data-cy=topicHeader]").contains(userName);
-      cy.get("[data-cy=topicUnsubscribe]").should("exist");
+      k("addTopic").click();
+      k("topicHeader").contains(topicName);
+      k("topicHeader").contains(userName);
+      k("topicUnsubscribe").should("exist");
     });
 
     it("unsubscribes and subscribes from topic", () => {
-      cy.get("[data-cy=topicUnsubscribe]").click();
+      k("topicUnsubscribe").click();
       cy.wait(5000);
-      cy.get("[data-cy=topicSubscribe]").should("exist");
+      k("topicSubscribe").should("exist");
       cy.wait(5000);
-      cy.get("[data-cy=topicSubscribe]").click();
+      k("topicSubscribe").click();
     });
 
     it("adds topic messages", () => {
-      cy.get("[data-cy=topic]").click();
+      k("topic").click();
       cy.get(".ql-editor.ql-blank").type("c");
       cy.get("form").submit();
-      cy.get("[data-cy=topicMessage]").contains(userName);
-      cy.get("[data-cy=topicMessage]").contains("c");
+      k("topicMessage").contains(userName);
+      k("topicMessage").contains("c");
     });
 
     it("removes topic", () => {
-      cy.get("[data-cy=deleteTopic]").click();
+      k("deleteTopic").click();
       cy.get("#topicName").type(topicName);
-      cy.get("[data-cy=deleteButtonSubmit]").click();
-      cy.get("[data-cy=topicList]").contains(topicName).should("not.exist");
+      k("deleteButtonSubmit").click();
+      k("topicList").contains(topicName).should("not.exist");
     });
   });
 });

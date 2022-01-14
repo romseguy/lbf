@@ -68,7 +68,7 @@ const Hash = ({
   const eventQuery = useGetEventQuery(eventQueryParams);
   const orgQuery = useGetOrgQuery(orgQueryParams);
   const userQuery = useGetUserQuery({
-    slug: email || "",
+    slug: entityUrl,
     populate: session?.user.userName === entityUrl ? "userProjects" : undefined,
     select: session?.user.userName === entityUrl ? "userProjects" : undefined
   });

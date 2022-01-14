@@ -21,4 +21,4 @@
 
 // import "cypress-promise/register";
 
-require("./commands");
+import "./commands";

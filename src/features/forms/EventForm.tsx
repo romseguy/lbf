@@ -1188,7 +1188,6 @@ export const EventForm = withGoogleApi({
               editEventMutation.isLoading
             }
             isDisabled={Object.keys(errors).length > 0}
-            data-cy="eventFormSubmit"
           >
             {props.event ? "Modifier" : "Ajouter"}
           </Button>

@@ -73,6 +73,7 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
+let cachedEmail: string | undefined;
 let cachedRefetchOrg = false;
 let cachedRefetchSubscription = false;
 
@@ -98,9 +99,6 @@ export const OrgPage = ({
     org.orgs?.filter(({ orgLat, orgLng }) => !!orgLat && !!orgLng) || [];
   const [description, setDescription] = useState<string | undefined>();
   useEffect(() => {
-    // setIsEdit(false);
-    // setIsConfig(false);
-
     if (org.orgDescription && org.orgDescription.length > 0) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(org.orgDescription, "text/html");
@@ -220,9 +218,12 @@ export const OrgPage = ({
     }
   }, [refetchOrg, refetchSubscription]);
   useEffect(() => {
-    console.log("email changed, refetching");
-    orgQuery.refetch();
-    subQuery.refetch();
+    if (email !== cachedEmail) {
+      console.log("email changed, refetching");
+      cachedEmail = email;
+      orgQuery.refetch();
+      subQuery.refetch();
+    }
   }, [email]);
   //#endregion
 

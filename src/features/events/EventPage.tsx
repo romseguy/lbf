@@ -52,6 +52,7 @@ export type Visibility = {
   setIsVisible: (obj: Visibility["isVisible"]) => void;
 };
 
+let cachedEmail: string | undefined;
 let cachedRefetchEvent = false;
 let cachedRefetchSubscription = false;
 
@@ -144,6 +145,14 @@ export const EventPage = ({
       subQuery.refetch();
     }
   }, [refetchEvent, refetchSubscription]);
+  useEffect(() => {
+    if (email !== cachedEmail) {
+      console.log("email changed, refetching");
+      cachedEmail = email;
+      eventQuery.refetch();
+      subQuery.refetch();
+    }
+  }, [email]);
   //#endregion
 
   return (

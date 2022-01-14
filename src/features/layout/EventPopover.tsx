@@ -256,7 +256,7 @@ export const EventPopover = ({
               onClick={() => {
                 setEventFormModalState({ isOpen: true });
               }}
-              data-cy="addEvent"
+              data-cy="event-add-button"
             >
               Ajouter un événement
             </Button>
@@ -270,6 +270,7 @@ export const EventPopover = ({
           onCancel={() => setEventFormModalState({ isOpen: false })}
           onClose={() => setEventFormModalState({ isOpen: false })}
           onSubmit={async (eventUrl) => {
+            setEventFormModalState({ isOpen: false });
             await router.push(`/${eventUrl}`, `/${eventUrl}`, {
               shallow: true
             });

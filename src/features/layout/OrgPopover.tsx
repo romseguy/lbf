@@ -179,7 +179,7 @@ export const OrgPopover = ({
               }
               setIsOpen(!isOpen);
             }}
-            data-cy="orgPopover"
+            data-cy="org-popover-button"
           />
         </PopoverTrigger>
         <PopoverContent>
@@ -293,7 +293,7 @@ export const OrgPopover = ({
               mt={1}
               size="sm"
               onClick={() => setIsOrgFormModalOpen(true)}
-              data-cy="addOrg"
+              data-cy="org-add-button"
             >
               Ajouter{" "}
               {orgType === OrgTypes.NETWORK ? "un réseau" : "une organisation"}
