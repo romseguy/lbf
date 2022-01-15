@@ -7,12 +7,13 @@ import { css } from "twin.macro";
 import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
 import { PaypalButton } from "features/common/forms/PaypalButton";
 import { Header, Main, Nav, Footer } from "features/layout";
+import { ContactModal } from "features/modals/ContactModal";
+import { useSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { PageProps } from "pages/_app";
 import { breakpoints } from "theme/theme";
 import { Base64Image } from "utils/image";
-import { ContactModal } from "features/modals/ContactModal";
 
 const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
 
@@ -45,6 +46,8 @@ export const Layout = ({
   const { isMobile } = props;
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const { data: clientSession } = useSession();
+  const session = props.session || clientSession;
 
   // const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false);
   // useEffect(() => {
@@ -165,9 +168,11 @@ export const Layout = ({
           pageSubTitle={pageSubTitle}
         />
 
-        <Nav isLogin={isLogin} {...props} />
+        <Nav {...props} isLogin={isLogin} session={session} />
 
-        <Main {...props}>{children}</Main>
+        <Main {...props} session={session}>
+          {children}
+        </Main>
 
         <Footer display="flex" alignItems="center" pl={5} pr={5} pb={8}>
           {isMobile && (

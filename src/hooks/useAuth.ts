@@ -15,19 +15,12 @@ import {
 } from "features/session/sessionSlice";
 import { isServer } from "utils/isServer";
 import { IUser } from "models/User";
+import sessionFixture from "../../cypress/fixtures/session.json";
 
 export async function getSession(
   options: GetSessionOptions
 ): Promise<Session | null> {
-  if (process.env.NEXT_PUBLIC_IS_TEST)
-    return {
-      user: {
-        email: "rom.seguy@lilo.org",
-        userId: "60e340cb56ef290008d2e75d",
-        userName: "romain",
-        isAdmin: true
-      }
-    };
+  if (process.env.NEXT_PUBLIC_IS_TEST) return sessionFixture;
 
   let session = await getNextAuthSession(options);
   if (!session) return session;

@@ -171,7 +171,7 @@ export const EventConfigLogoPanel = ({
           <Flex alignItems="center">
             {isVisible.logo ? <FaMinusSquare /> : <FaPlusSquare />}
             <Heading size="sm" ml={2} py={3}>
-              Changer le logo
+              Logo
             </Heading>
           </Flex>
         </GridHeader>

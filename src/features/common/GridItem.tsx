@@ -1,9 +1,6 @@
 import React from "react";
 import {
-  BorderProps,
-  BoxProps,
   GridItem as ChakraGridItem,
-  SpacerProps,
   GridItemProps,
   useColorModeValue
 } from "@chakra-ui/react";

@@ -6,6 +6,7 @@ import {
   FlexProps,
   Tag,
   TagCloseButton,
+  Text,
   Tooltip,
   useColorMode
 } from "@chakra-ui/react";
@@ -61,12 +62,12 @@ export const TopicsListCategories = ({
           <Tag
             key={`category-${index}`}
             variant={isSelected ? "solid" : "outline"}
+            bg={isDark ? "gray.600" : "white"}
             colorScheme={isSelected ? "pink" : undefined}
-            cursor="pointer"
             fontSize="small"
             fontWeight="normal"
-            ml={index !== 0 ? 1 : undefined}
-            px={0}
+            mr={1}
+            p={0}
             onClick={() => {
               selectedCategories?.find(
                 (selectedCategory) => selectedCategory === category
@@ -85,21 +86,21 @@ export const TopicsListCategories = ({
               label={`Afficher les discussions de la catégorie "${category}"`}
               hasArrow
             >
-              <Box mx={2}>
-                {category}
+              <Flex alignItems="center" cursor="pointer" p={2}>
+                <Text fontWeight="bold">{category}</Text>
                 {topicsCount > 0 && (
-                  <Badge colorScheme="green" ml={1}>
+                  <Badge colorScheme="green" ml={2}>
                     {topicsCount}
                   </Badge>
                 )}
-              </Box>
+              </Flex>
             </Tooltip>
 
             {(isCreator || isSubscribed) && (
               <Box
                 borderColor={isDark ? "#BAC1CB" : "gray.500"}
                 borderLeftWidth="1px"
-                mr={2}
+                pr={3}
               >
                 <TagCloseButton as="span">
                   <DeleteButton

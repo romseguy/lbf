@@ -32,7 +32,7 @@ export const SubscriptionsList = ({
       overflowX="auto"
       aria-hidden
     >
-      <Table>
+      <Table data-cy="subscriptions-list">
         <Tbody>
           {org.orgSubscriptions.map((subscription, index) => {
             return (

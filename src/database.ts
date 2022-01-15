@@ -31,14 +31,6 @@ export type AppModels = {
   User: Model<IUser, {}, {}>;
 };
 
-export const collectionKeys = [
-  "events",
-  "orgs",
-  "projects",
-  "subscriptions",
-  "topics",
-  "users"
-];
 export const collectionToModelKeys: { [key: string]: AppModelKey } = {
   events: "Event",
   orgs: "Org",

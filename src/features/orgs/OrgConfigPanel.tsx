@@ -3,15 +3,14 @@ import { Box, Button, Input, Text, useToast, Icon } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import tw, { css } from "twin.macro";
 import { IOrg } from "models/Org";
 import { DeleteButton, PageContainer } from "features/common";
+import { OrgForm } from "features/forms/OrgForm";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
 import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigLogoPanel } from "./OrgConfigLogoPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
-import { OrgForm } from "features/forms/OrgForm";
 import { Visibility } from "./OrgPage";
 
 export const OrgConfigPanel = ({
@@ -46,7 +45,7 @@ export const OrgConfigPanel = ({
         {isConfig && !isEdit && (
           <>
             <Button
-              aria-label="Modifier"
+              colorScheme="teal"
               leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
               mr={3}
               onClick={() => {
@@ -58,11 +57,6 @@ export const OrgConfigPanel = ({
                   subscribers: false
                 });
               }}
-              css={css`
-                &:hover {
-                  ${tw`bg-green-300`}
-                }
-              `}
               data-cy="orgEdit"
             >
               Modifier

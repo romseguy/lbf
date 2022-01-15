@@ -28,11 +28,7 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
     if (!session) {
       return res
         .status(403)
-        .json(
-          createServerError(
-            new Error("Vous devez être identifié pour accéder à ce contenu.")
-          )
-        );
+        .json(createServerError(new Error("Vous devez être identifié.")));
     }
 
     if (

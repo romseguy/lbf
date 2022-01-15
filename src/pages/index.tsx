@@ -119,10 +119,10 @@ const IndexPage = (props: PageProps) => {
       GNU AGPL
     </a>
   );
-  const url = `${process.env.NEXT_PUBLIC_URL}/nom_de_votre association`;
+  const url = `${process.env.NEXT_PUBLIC_URL}/nom_de_votre_organisation`;
 
   return (
-    <Layout pageTitle="Accueil" {...props}>
+    <Layout {...props} pageTitle="Accueil">
       {isGnsa && (
         <Flex flexDirection="column">
           <Button
@@ -148,7 +148,12 @@ const IndexPage = (props: PageProps) => {
 
       {!isGnsa && (
         <PageContainer pt={2} mb={5}>
-          <Heading className="rainbow-text" fontFamily="DancingScript" mb={3}>
+          <Heading
+            className="rainbow-text"
+            alignSelf="flex-start"
+            fontFamily="DancingScript"
+            mb={3}
+          >
             Équipez votre organisation
           </Heading>
 
@@ -218,7 +223,12 @@ const IndexPage = (props: PageProps) => {
       {!isCollapsed && (
         <>
           <PageContainer pt={2}>
-            <Heading className="rainbow-text" fontFamily="DancingScript" mb={3}>
+            <Heading
+              alignSelf="flex-start"
+              className="rainbow-text"
+              fontFamily="DancingScript"
+              mb={3}
+            >
               Envoyez des invitations
             </Heading>
 
@@ -226,6 +236,7 @@ const IndexPage = (props: PageProps) => {
               Invitez vos adhérents à vos événements, projets, et discussions.
               <Flex
                 alignItems="center"
+                bg={isDark ? "black" : "white"}
                 borderColor={isDark ? "white" : "black"}
                 borderRadius="lg"
                 borderStyle="solid"
@@ -237,7 +248,7 @@ const IndexPage = (props: PageProps) => {
                 <Icon
                   as={FaRegLightbulb}
                   color={isDark ? "yellow" : "green"}
-                  mr={1}
+                  mr={3}
                 />
                 Saisissez la liste des adresses e-mail de vos adhérents, et
                 envoyez les invitations, ou alors, créez une ou plusieurs listes
@@ -264,7 +275,7 @@ const IndexPage = (props: PageProps) => {
               `}
             >
               <Icon as={FaGift} color="green" boxSize={[5, 4]} />
-              <Text ml={2}>
+              <Text ml={3}>
                 Cet outil est un logiciel libre et open-source mis à disposition
                 gratuitement par son créateur.
               </Text>
@@ -272,10 +283,10 @@ const IndexPage = (props: PageProps) => {
 
             <PageContainer {...halfStyles} height="100%" minHeight={0}>
               <Icon as={EmailIcon} color="green" boxSize={[5, 4]} />
-              <Text ml={2}>
+              <Text ml={3}>
                 {host} peut envoyer jusqu'à 100 e-mails par jour. Si cela
                 s'avère insuffisant, parlons en sur le{" "}
-                <EntityButton org={{ orgName: "forum" }} />
+                <EntityButton org={{ orgUrl: "forum" }} />
               </Text>
             </PageContainer>
           </Flex>
@@ -283,7 +294,7 @@ const IndexPage = (props: PageProps) => {
           <PageContainer bg="transparent" border={0} p={0}>
             <PageContainer {...halfStyles}>
               <Icon as={FaKey} color="green" boxSize={[5, 4]} />
-              <Text ml={2}>
+              <Text ml={3}>
                 Pour que cet outil reste libre et open-source, la license{" "}
                 {license} a été choisie.
               </Text>
@@ -291,8 +302,15 @@ const IndexPage = (props: PageProps) => {
 
             <PageContainer {...halfStyles}>
               <Icon as={FaHandshake} color="green" boxSize={[5, 4]} />
-              <Flex flexDirection="column">
-                <Text fontSize="smaller" ml={2}>
+              <Flex flexDirection="column" ml={3}>
+                <Text
+                  bg={isDark ? "black" : "white"}
+                  border="1px solid black"
+                  borderRadius="lg"
+                  fontSize="smaller"
+                  mb={2}
+                  p={2}
+                >
                   <Icon as={FaQuoteLeft} /> La license {license} ne s'intéresse
                   pas au problème du SaaSS (service se substituant au logiciel).
                   On parle de SaaSS lorsque les utilisateurs font leurs propres
@@ -301,7 +319,7 @@ const IndexPage = (props: PageProps) => {
                   dernier les traite et leur renvoie les résultats.
                 </Text>
 
-                <Text ml={2}>
+                <Text>
                   Si vous ne voulez pas faire confiance à {host} pour le
                   traitement de vos données,{" "}
                   <Link

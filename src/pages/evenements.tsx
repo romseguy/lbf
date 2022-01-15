@@ -22,6 +22,7 @@ const EventsPage = ({ ...props }: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
+
   const [isLogin, setIsLogin] = useState(0);
   const [isOffline, setIsOffline] = useState(false);
   useEffect(() => {
@@ -53,7 +54,7 @@ const EventsPage = ({ ...props }: PageProps) => {
   }, [router.asPath]);
 
   return (
-    <Layout pageTitle="Événements" isLogin={isLogin} {...props}>
+    <Layout {...props} isLogin={isLogin} pageTitle="Événements">
       <Flex
         alignItems="center"
         flexWrap="wrap"

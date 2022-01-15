@@ -1,15 +1,8 @@
 import nextConnect from "next-connect";
-import database, {
-  db,
-  AppModelKey,
-  IEntity,
-  models,
-  collectionKeys,
-  collectionToModelKeys
-} from "database";
-import { createServerError } from "utils/errors";
+import database, { db, IEntity, models, collectionToModelKeys } from "database";
 import { getSession } from "hooks/useAuth";
 import { NextApiRequest, NextApiResponse } from "next";
+import { createServerError } from "utils/errors";
 
 const handler = nextConnect();
 
@@ -24,24 +17,19 @@ handler.get<NextApiRequest, NextApiResponse>(async function exportData(
   if (!session) {
     return res
       .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
-        )
-      );
+      .json(createServerError(new Error("Vous devez être identifié.")));
   }
 
   if (!session.user.isAdmin) {
     return res
       .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être administrateur pour accéder à ce contenu.")
-        )
-      );
+      .json(createServerError(new Error("Vous devez être administrateur.")));
   }
 
   try {
+    const collectionKeys = (await db.listCollections().toArray()).map(
+      (collection) => collection.name
+    );
     const data: { [key: string]: IEntity[] } = {};
 
     for (const key of collectionKeys) {
@@ -63,25 +51,20 @@ handler.post<NextApiRequest, NextApiResponse>(async function importData(
   if (!session) {
     return res
       .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu.")
-        )
-      );
+      .json(createServerError(new Error("Vous devez être identifié.")));
   }
 
   if (!session.user.isAdmin) {
     return res
       .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être administrateur pour accéder à ce contenu.")
-        )
-      );
+      .json(createServerError(new Error("Vous devez être administrateur.")));
   }
 
   try {
     const body = JSON.parse(req.body);
+    const collectionKeys = (await db.listCollections().toArray()).map(
+      (collection) => collection.name
+    );
 
     for (const key of collectionKeys) {
       if (key === "users") continue;

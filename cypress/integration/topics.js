@@ -5,7 +5,7 @@ const eventName = "testeventt";
 const topicName = "t";
 const userName = "romseguy8933";
 
-describe(" topics", () => {
+describe("topics", () => {
   describe("org topics", () => {
     it("adds topic", () => {
       cy.visit(`/${orgName}`);

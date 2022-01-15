@@ -3,7 +3,6 @@ import { Box, Button, Text, useToast, Icon, Input } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import tw, { css } from "twin.macro";
 import { DeleteButton, PageContainer } from "features/common";
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
@@ -42,18 +41,13 @@ export const EventConfigPanel = ({
         {isConfig && !isEdit && (
           <>
             <Button
-              aria-label="Modifier"
+              colorScheme="teal"
               leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
               mr={3}
               onClick={() => {
                 setIsEdit(true);
                 setIsVisible({ banner: false, logo: false });
               }}
-              css={css`
-                &:hover {
-                  ${tw`bg-green-300`}
-                }
-              `}
               data-cy="eventEdit"
             >
               Modifier
@@ -133,7 +127,7 @@ export const EventConfigPanel = ({
       )}
 
       {isConfig && !isEdit && (
-        <PageContainer m="" pb={0}>
+        <PageContainer m="">
           <EventConfigLogoPanel
             event={event}
             eventQuery={eventQuery}

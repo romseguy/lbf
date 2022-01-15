@@ -185,6 +185,7 @@ export const SubscriptionForm = ({
               borderRadius="lg"
               p={3}
               mb={3}
+              data-cy="subscriber-checkbox"
             >
               Adhérent
               <Text fontSize="smaller">
@@ -199,6 +200,7 @@ export const SubscriptionForm = ({
               bg={"green.100"}
               borderRadius="lg"
               p={3}
+              data-cy="follower-checkbox"
             >
               Abonné
               <Text fontSize="smaller">

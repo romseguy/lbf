@@ -77,14 +77,14 @@ export const TopicsListOrgLists = ({
           >
             <Button
               variant={isSelected ? "solid" : "outline"}
-              colorScheme={isSelected ? "pink" : undefined}
+              bg={isDark ? "gray.600" : "white"}
+              colorScheme={isSelected ? "pink" : "white"}
               fontSize="small"
               fontWeight="normal"
               height="auto"
-              mb={1} // when wrapped
+              // mb={1} // when wrapped
               mr={1}
-              p={1}
-              //whiteSpace="nowrap"
+              p={2}
               onClick={() => {
                 selectedLists?.find(
                   ({ listName }) => listName === orgList.listName

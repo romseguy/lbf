@@ -1,33 +1,34 @@
 import { OrgTypes, OrgTypesV } from "models/Org";
-
-const userName = "romain";
-
-const eventName = "test event";
-const eventUrl = "test_event";
-const newEventUrl = eventUrl + "t";
-const eventDescription = "";
-
-const orgName = "test test";
-const orgUrl = "test_test";
-const newOrgUrl = orgUrl + "t";
+import {
+  eventDescription,
+  eventName,
+  eventUrl,
+  newEventUrl,
+  newOrgUrl,
+  orgName,
+  orgUrl,
+  userName
+} from "../fixtures/env";
 
 const skipVisit = true;
 
-describe("CRUD", () => {
+describe("CRUD entities", () => {
   beforeEach(() => {});
 
   it("resets db", () => {
     cy.request("http://localhost:3004/api/reset-db");
   });
 
-  it("lands", () => {
-    cy.visit("/");
+  it("404", () => {
+    cy.visit("/test");
+    cy.location("pathname", { timeout: 10000 }).should("eq", "/");
   });
 
-  // it("404", () => {
-  //   cy.visit("/test");
-  //   cy.location("pathname", { timeout: 10000 }).should("eq", "/");
-  // });
+  it("lands", () => {
+    cy.login();
+    cy.visit("/");
+    cy.wait("@session");
+  });
 
   describe("CREATE", () => {
     it("adds org", () => {
@@ -111,7 +112,7 @@ describe("CRUD", () => {
 
   describe("/org", () => {
     it("lands", () => {
-      cy.visit(`/${orgName}`);
+      cy.visit(`/${orgUrl}`);
       cy.location("pathname", { timeout: 10000 }).should(
         "include",
         `/${orgUrl}`
@@ -124,8 +125,8 @@ describe("CRUD", () => {
 
       cy.k("orgSettings").click();
       cy.k("orgEdit").click();
-      cy.wait(10000);
-      cy.get("input[name=orgName]").type("t");
+      cy.wait(5000);
+      cy.get("input[name=orgName]").type("m");
       cy.get("form").submit();
       cy.location("pathname", { timeout: 10000 }).should(
         "include",
@@ -150,7 +151,7 @@ describe("CRUD", () => {
       }
       cy.k("eventSettings").click();
       cy.k("eventEdit").click();
-      cy.wait(10000);
+      cy.wait(5000);
       cy.get("input#eventName").type("t");
       cy.get("form").submit();
       cy.location("pathname", { timeout: 10000 }).should(
@@ -165,10 +166,10 @@ describe("CRUD", () => {
       }
       cy.k("eventSettings").click();
       cy.k("eventEdit").click();
-      cy.wait(10000);
+      cy.wait(5000);
       cy.setTinyMceContent("rteditor", "c");
       cy.get("form").submit();
-      cy.wait(10000);
+      cy.wait(5000);
       cy.get(".rteditor").contains(eventDescription + "c");
     });
   });

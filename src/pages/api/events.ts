@@ -72,11 +72,7 @@ handler.post<NextApiRequest & { body: IEvent }, NextApiResponse>(
     if (!session)
       return res
         .status(403)
-        .json(
-          createServerError(
-            new Error("Vous devez être identifié pour accéder à ce contenu")
-          )
-        );
+        .json(createServerError(new Error("Vous devez être identifié")));
 
     try {
       let { body }: { body: IEvent } = req;

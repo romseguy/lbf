@@ -7,6 +7,7 @@ import { EventPage } from "features/events/EventPage";
 import { EventQueryParams, useGetEventQuery } from "features/events/eventsApi";
 import { Layout } from "features/layout";
 import { OrgPage } from "features/orgs/OrgPage";
+import { OrgPageLogin } from "features/orgs/OrgPageLogin";
 import { OrgQueryParams, useGetOrgQuery } from "features/orgs/orgsApi";
 import { UserPage } from "features/users/UserPage";
 import { useGetUserQuery, UserQueryParams } from "features/users/usersApi";
@@ -14,7 +15,6 @@ import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { useAppDispatch, wrapper } from "store";
 import { PageProps } from "./_app";
-import { OrgPageLogin } from "features/orgs/OrgPageLogin";
 
 let cachedEmail: string | undefined;
 
@@ -25,7 +25,8 @@ const Hash = ({
 }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: clientSession } = useSession();
+  const session = props.session || clientSession;
 
   //#region user email
   const userEmail =
@@ -50,7 +51,8 @@ const Hash = ({
   entityTabItem = entityUrl === "forum" ? entityTab : entityTabItem;
 
   const [eventQueryParams, setEventQueryParams] = useState<EventQueryParams>({
-    eventUrl: entityUrl
+    eventUrl: entityUrl,
+    populate: "eventOrgs"
   });
   const [orgQueryParams, setOrgQueryParams] = useState<OrgQueryParams>({
     orgUrl: entityUrl,
@@ -80,7 +82,7 @@ const Hash = ({
     }, 2000);
 
     return (
-      <Layout pageTitle="Page introuvable" {...props}>
+      <Layout {...props} pageTitle="Page introuvable" session={session}>
         <Heading className="rainbow-text" fontFamily="DancingScript">
           Page introuvable
         </Heading>
@@ -96,9 +98,9 @@ const Hash = ({
         {...props}
         email={email}
         eventQuery={eventQuery}
+        session={session}
         tab={entityTab}
         tabItem={entityTabItem}
-        {...props}
       />
     );
   }
@@ -110,6 +112,7 @@ const Hash = ({
           {...props}
           email={email}
           orgQuery={orgQuery}
+          session={session}
           tab={entityTab}
           tabItem={entityTabItem}
         />
@@ -117,20 +120,28 @@ const Hash = ({
 
     return (
       <OrgPageLogin
+        {...props}
+        session={session}
         onSubmit={async (orgPassword) => {
           const hash = bcrypt.hashSync(orgPassword, orgQuery.data!.orgSalt);
           setOrgQueryParams({ ...orgQueryParams, hash });
         }}
-        {...props}
       />
     );
   }
 
   if (!userQuery.isError && userQuery.data)
-    return <UserPage {...props} email={email} userQuery={userQuery} />;
+    return (
+      <UserPage
+        {...props}
+        email={email}
+        session={session}
+        userQuery={userQuery}
+      />
+    );
 
   return (
-    <Layout {...props}>
+    <Layout {...props} session={session}>
       <Spinner />
     </Layout>
   );

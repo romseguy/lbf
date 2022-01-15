@@ -71,7 +71,7 @@ import {
   monthRepeatOptions,
   VisibilityV
 } from "models/Event";
-import type { IOrg } from "models/Org";
+import type { IOrg, IOrgEventCategory } from "models/Org";
 import { Visibility } from "models/Topic";
 import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
@@ -353,6 +353,21 @@ export const EventForm = withGoogleApi({
     //#endregion
 
     //#region event
+    let categories = Object.keys(Category).map(
+      (catId) => Category[parseInt(catId)]
+    );
+
+    if (
+      initialEventOrgs &&
+      initialEventOrgs[0] &&
+      initialEventOrgs[0].orgEventCategories
+    )
+      categories = initialEventOrgs[0].orgEventCategories;
+    else if (Array.isArray(props.event?.eventOrgs)) {
+      const firstOrgCategories = props.event?.eventOrgs[0].orgEventCategories;
+      if (firstOrgCategories) categories = firstOrgCategories;
+    }
+
     const [isRepeat, setIsRepeat] = useState(
       !!props.event?.repeat || hasItems(props.event?.otherDays)
     );
@@ -561,10 +576,7 @@ export const EventForm = withGoogleApi({
             placeholder="Catégorie de l'événement"
             color="gray.400"
           >
-            {(initialEventOrgs[0] && initialEventOrgs[0].orgEventCategories
-              ? initialEventOrgs[0].orgEventCategories.map(({ label }) => label)
-              : Object.keys(Category)
-            ).map((label) => (
+            {categories.map(({ label }) => (
               <option key={label} value={label}>
                 {label}
               </option>

@@ -1,4 +1,9 @@
-import { configureStore, ThunkAction } from "@reduxjs/toolkit";
+import {
+  configureStore,
+  createSlice,
+  PayloadAction,
+  ThunkAction
+} from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query/react";
 import { createWrapper } from "next-redux-wrapper";
 import { useDispatch } from "react-redux";
@@ -26,9 +31,23 @@ import { topicsApi } from "features/forum/topicsApi";
 import user from "features/users/userSlice";
 import { userApi } from "features/users/usersApi";
 
+const uiSlice = createSlice({
+  name: "ui",
+  initialState: { rteditorIndex: 0 },
+  reducers: {
+    incrementRTEditorIndex: (state, action: PayloadAction<undefined>) => {
+      state.rteditorIndex++;
+    }
+  }
+});
+
+export const { incrementRTEditorIndex } = uiSlice.actions;
+export const selectRTEditorIndex = (state: AppState) => state.ui.rteditorIndex;
+
 const makeStore = () =>
   configureStore({
     reducer: {
+      ui: uiSlice.reducer,
       event,
       org,
       modal,

@@ -44,7 +44,7 @@ export const Header = ({
   const isDark = colorMode === "dark";
 
   //#region local state
-  const [classNameTitle, setClassNameTitle] = useState("");
+  const [classNameTitle, setClassNameTitle] = useState("rainbow-text");
   let color = event ? (event.isApproved ? "green" : "red") : "green";
   if (isDark) if (color === "green") color = "green.200";
   const icon =
@@ -70,6 +70,7 @@ export const Header = ({
 
   const bgImage = banner ? `url("${banner.base64 || banner.url}")` : undefined;
   const logo = event?.eventLogo || org?.orgLogo;
+
   const logoBgImage = logo ? `url("${logo.url || logo.base64}")` : "";
   const logoBgSize = "110px";
   //#endregion
@@ -98,13 +99,12 @@ export const Header = ({
         />
       )}
 
-      <Box
-        display="flex"
+      <Flex
         alignItems="center"
         color={banner ? "white" : undefined}
         className={classNameTitle}
-        onMouseEnter={() => setClassNameTitle("rainbow-text")}
-        onMouseLeave={() => setClassNameTitle("")}
+        // onMouseEnter={() => setClassNameTitle("rainbow-text")}
+        // onMouseLeave={() => setClassNameTitle("")}
       >
         <Link href={router.asPath} variant="no-underline">
           <Heading fontFamily="DancingScript" size="lg">
@@ -115,7 +115,7 @@ export const Header = ({
               : pageTitle || defaultTitle}
           </Heading>
         </Link>
-      </Box>
+      </Flex>
     </Flex>
   );
 
@@ -149,7 +149,17 @@ export const Header = ({
       height={banner ? banner.headerHeight : undefined}
       m={3}
       mb={0}
-      p={!banner && !logo ? 3 : undefined}
+      p={
+        banner && !logo
+          ? "0 12px 0 12px"
+          : banner && logo
+          ? "0 12px 0 12px"
+          : !banner && !logo
+          ? 3
+          : !banner && logo
+          ? "10px 12px 0 12px"
+          : undefined
+      }
       css={css`
         background-image: ${bgImage};
         background-size: cover;
@@ -164,7 +174,6 @@ export const Header = ({
       {logo ? (
         <>
           <Link
-            alignSelf="flex-end"
             onClick={(e) => {
               e.stopPropagation();
               setIsLogoModalOpen(true);

@@ -163,11 +163,7 @@ handler.put<
   if (!session) {
     return res
       .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu")
-        )
-      );
+      .json(createServerError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -313,11 +309,7 @@ handler.delete<
   if (!session) {
     res
       .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu")
-        )
-      );
+      .json(createServerError(new Error("Vous devez être identifié")));
   } else {
     try {
       const orgUrl = req.query.orgUrl;

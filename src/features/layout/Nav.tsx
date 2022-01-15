@@ -67,7 +67,7 @@ export const Nav = ({
   session?: Session | null;
 }) => {
   const router = useRouter();
-  const { data: clientSession, loading: isSessionLoading } = useSession();
+  const { data: clientSession } = useSession();
   const session = clientSession || serverSession;
   const userName = session?.user.userName || "";
   const toast = useToast({ position: "top" });
@@ -138,18 +138,20 @@ export const Nav = ({
         pt={0}
         {...props}
       >
-        <Table>
+        <Table role="navigation">
           {!isMobile && (
-            <Tbody>
-              <Tr>
+            <Tbody role="rowgroup">
+              <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
-                  <Text
-                    className="rainbow-text"
-                    fontFamily="DancingScript"
-                    fontSize="3xl"
-                  >
-                    Naviguer
-                  </Text>
+                  <Flex>
+                    <Text
+                      className="rainbow-text"
+                      fontFamily="DancingScript"
+                      fontSize="3xl"
+                    >
+                      Naviguer
+                    </Text>
+                  </Flex>
                 </Td>
                 <Td border={0} lineHeight="auto" p={0}>
                   <Text
@@ -161,7 +163,7 @@ export const Nav = ({
                   </Text>
                 </Td>
               </Tr>
-              <Tr>
+              <Tr role="row">
                 <Td border={0} p={0}>
                   <Box
                     //flexWrap="wrap"
@@ -404,19 +406,21 @@ export const Nav = ({
           )}
 
           {isMobile && (
-            <Tbody>
-              <Tr>
+            <Tbody role="rowgroup">
+              <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
-                  <Text
-                    className="rainbow-text"
-                    fontFamily="DancingScript"
-                    fontSize="3xl"
-                  >
-                    Naviguer
-                  </Text>
+                  <Flex>
+                    <Text
+                      className="rainbow-text"
+                      fontFamily="DancingScript"
+                      fontSize="3xl"
+                    >
+                      Naviguer
+                    </Text>
+                  </Flex>
                 </Td>
               </Tr>
-              <Tr>
+              <Tr role="row">
                 <Td border={0} p={0}>
                   <Flex>
                     <Button
@@ -449,18 +453,21 @@ export const Nav = ({
                   </Flex>
                 </Td>
               </Tr>
-              <Tr>
+
+              <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
-                  <Text
-                    className="rainbow-text"
-                    fontFamily="DancingScript"
-                    fontSize="3xl"
-                  >
-                    {session ? "Mes contributions" : "Se connecter"}
-                  </Text>
+                  <Flex>
+                    <Text
+                      className="rainbow-text"
+                      fontFamily="DancingScript"
+                      fontSize="3xl"
+                    >
+                      {session ? "Mes contributions" : "Se connecter"}
+                    </Text>
+                  </Flex>
                 </Td>
               </Tr>
-              <Tr>
+              <Tr role="row">
                 <Td border={0} p={0}>
                   <Flex>
                     {session && (

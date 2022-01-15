@@ -1,4 +1,4 @@
-import { Button, Tooltip, useColorMode, useDisclosure } from "@chakra-ui/react";
+import { Button, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { FaRegMap } from "react-icons/fa";
 import { PageContainer } from "features/common";
@@ -30,7 +30,7 @@ const OrganisationsPage = (props: PageProps) => {
   } = useDisclosure({ defaultIsOpen: false });
 
   return (
-    <Layout pageTitle="Organisations" {...props}>
+    <Layout {...props} pageTitle="Organisations">
       <PageContainer>
         <Tooltip
           label={

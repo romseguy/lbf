@@ -8,19 +8,19 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import { FaRegMap } from "react-icons/fa";
 import { PageContainer } from "features/common";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
+import { NetworksModal } from "features/modals/NetworksModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
+import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgsList } from "features/orgs/OrgsList";
 import { InputNode } from "features/treeChart/types";
-import { hasItems } from "utils/array";
 import { Visibility } from "models/Org";
+import { hasItems } from "utils/array";
 import { PageProps } from "./_app";
-import { NetworksModal } from "features/modals/NetworksModal";
-import { useSelector } from "react-redux";
-import { selectOrgsRefetch } from "features/orgs/orgSlice";
 
 let cachedRefetchOrgs = false;
 
@@ -68,7 +68,7 @@ const NetworksPage = (props: PageProps) => {
   }, [refetchOrgs]);
 
   return (
-    <Layout pageTitle="Réseaux" {...props}>
+    <Layout {...props} pageTitle="Réseaux">
       <PageContainer id="pageContainer">
         <Heading className="rainbow-text" fontFamily="DancingScript" mb={2}>
           Réseaux

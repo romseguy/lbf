@@ -31,7 +31,13 @@ import { Session } from "next-auth";
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
-import { EntityListForm, GridHeader, GridItem, Link } from "features/common";
+import {
+  DeleteButton,
+  EntityListForm,
+  GridHeader,
+  GridItem,
+  Link
+} from "features/common";
 import { getSubscriptions, IOrg, IOrgList } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
@@ -58,7 +64,7 @@ export const OrgConfigListsPanel = ({
   //#endregion
 
   //#region local state
-  const lists = (org.orgLists || []).concat([
+  const lists: IOrgList[] = (org.orgLists || []).concat([
     {
       listName: "Abonnés",
       subscriptions: getSubscriptions(org, SubscriptionTypes.FOLLOWER)
@@ -190,6 +196,7 @@ export const OrgConfigListsPanel = ({
                   setIsVisible({ ...isVisible, lists: false });
                 }}
                 m={1}
+                data-cy="org-list-add"
               >
                 Ajouter
               </Button>
@@ -257,7 +264,11 @@ export const OrgConfigListsPanel = ({
                   const { listName, subscriptions } = list;
                   const hasSubscriptions =
                     subscriptions && subscriptions.length > 0;
-                  const s = hasSubscriptions ? "s" : "";
+                  const s =
+                    subscriptions &&
+                    (subscriptions.length > 1 || !subscriptions.length)
+                      ? "s"
+                      : "";
 
                   return (
                     <Tr key={`list-${index}`}>
@@ -272,6 +283,7 @@ export const OrgConfigListsPanel = ({
                           onClick={() => {
                             if (hasSubscriptions) setListToShow(list);
                           }}
+                          data-cy="org-list-link"
                         >
                           {hasSubscriptions ? subscriptions.length : 0} membre
                           {hasSubscriptions ? s : "s"}
@@ -292,9 +304,12 @@ export const OrgConfigListsPanel = ({
                                 _hover={{ bg: "transparent", color: "green" }}
                                 icon={<EditIcon />}
                                 height="auto"
+                                minWidth={0}
+                                mr={3}
                                 onClick={async () => {
                                   setListToEdit(list);
                                 }}
+                                data-cy={`org-list-${listName}-edit`}
                               />
                             </Tooltip>
 
@@ -303,28 +318,31 @@ export const OrgConfigListsPanel = ({
                               hasArrow
                               placement="top"
                             >
-                              <IconButton
-                                aria-label="Supprimer la liste"
-                                bg="transparent"
-                                _hover={{ bg: "transparent", color: "red" }}
-                                icon={<DeleteIcon />}
-                                height="auto"
-                                minWidth={0}
+                              <DeleteButton
+                                isIconOnly
+                                hasArrow
+                                placement="top"
+                                header={
+                                  <>
+                                    Êtes vous sûr de vouloir supprimer la liste{" "}
+                                    <Text
+                                      display="inline"
+                                      color="red"
+                                      fontWeight="bold"
+                                    >
+                                      {listName}
+                                    </Text>{" "}
+                                    ?
+                                  </>
+                                }
                                 onClick={async () => {
-                                  const remove = confirm(
-                                    `Êtes-vous sûr de vouloir supprimer la liste ${listName} ?`
-                                  );
-
-                                  if (remove) {
-                                    await editOrg({
-                                      payload: [
-                                        `orgLists.listName=${listName}`
-                                      ],
-                                      orgUrl: org.orgUrl
-                                    });
-                                    orgQuery.refetch();
-                                  }
+                                  await editOrg({
+                                    payload: [`orgLists.listName=${listName}`],
+                                    orgUrl: org.orgUrl
+                                  });
+                                  orgQuery.refetch();
                                 }}
+                                data-cy={`org-list-${listName}-remove`}
                               />
                             </Tooltip>
                           </>

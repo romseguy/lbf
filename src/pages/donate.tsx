@@ -1,6 +1,6 @@
 import { Alert, AlertIcon } from "@chakra-ui/react";
-import { Layout } from "features/layout";
 import { useRouter } from "next/router";
+import { Layout } from "features/layout";
 import { PageProps } from "./_app";
 
 const DonatePage = (props: PageProps) => {

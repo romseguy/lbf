@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useSession } from "hooks/useAuth";
-import { Button, Grid } from "features/common";
+import { Button, Grid, GridItem } from "features/common";
 import { ModalState, EntityNotifModal } from "features/modals/EntityNotifModal";
 import { TopicModal } from "features/modals/TopicModal";
 import {
@@ -238,8 +238,8 @@ export const TopicsList = ({
       {(topics.length > 0 || selectedCategories || selectedLists) &&
         org &&
         hasItems(org.orgTopicsCategories) && (
-          <>
-            Catégories :
+          <Flex flexDirection="column" mb={3}>
+            <Text className="rainbow-text">Catégories</Text>
             <TopicsListCategories
               org={org}
               orgQuery={query}
@@ -248,9 +248,8 @@ export const TopicsList = ({
               isSubscribed={props.isSubscribed}
               selectedCategories={selectedCategories}
               setSelectedCategories={setSelectedCategories}
-              mb={3}
             />
-          </>
+          </Flex>
         )}
 
       {(topics.length > 0 || selectedLists || selectedCategories) &&
@@ -258,17 +257,16 @@ export const TopicsList = ({
         org &&
         org.orgName !== "forum" &&
         (props.isSubscribed || props.isCreator) && (
-          <>
-            Listes de diffusion :
+          <Flex flexDirection="column" mb={3}>
+            <Text className="rainbow-text">Listes de diffusion</Text>
             <TopicsListOrgLists
               org={org}
               isCreator={props.isCreator}
               selectedLists={selectedLists}
               setSelectedLists={setSelectedLists}
               subQuery={subQuery}
-              mb={5}
             />
-          </>
+          </Flex>
         )}
 
       <Grid data-cy="topicList">

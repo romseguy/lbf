@@ -33,11 +33,7 @@ handler.put<
   if (!session && !body.projectNotified) {
     res
       .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu")
-        )
-      );
+      .json(createServerError(new Error("Vous devez être identifié")));
   } else {
     try {
       const projectId = req.query.projectId;
@@ -156,11 +152,7 @@ handler.delete<
   if (!session) {
     res
       .status(403)
-      .json(
-        createServerError(
-          new Error("Vous devez être identifié pour accéder à ce contenu")
-        )
-      );
+      .json(createServerError(new Error("Vous devez être identifié")));
   } else {
     try {
       const projectId = req.query.projectId;
