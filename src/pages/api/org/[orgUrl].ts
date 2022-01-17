@@ -22,7 +22,6 @@ handler.get<
   NextApiResponse
 >(async function getOrg(req, res) {
   try {
-    const session = await getSession({ req });
     const {
       query: { orgUrl, hash, populate }
     } = req;
@@ -38,14 +37,19 @@ handler.get<
           )
         );
 
-    // hand emails to org creator only
+    const session = await getSession({ req });
     const isCreator =
       equals(org.createdBy, session?.user.userId) || session?.user.isAdmin;
+
+    //console.log(org.createdBy, session?.user.userId, org.orgPassword, hash);
 
     if (!isCreator && org.orgPassword) {
       if (!hash) return res.status(200).json({ orgSalt: org.orgSalt });
 
-      if (org.orgPassword === hash) return res.status(200).json(org);
+      if (org.orgPassword !== hash)
+        return res
+          .status(403)
+          .json(createServerError(new Error("Mot de passe incorrect")));
     }
 
     let select = isCreator

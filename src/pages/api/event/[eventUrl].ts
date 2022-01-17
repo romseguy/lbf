@@ -7,12 +7,7 @@ import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
 import { IEvent, StatusTypes } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
-import {
-  getSubscriberSubscription,
-  ISubscription,
-  SubscriptionTypes
-} from "models/Subscription";
-import { hasItems } from "utils/array";
+import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { createEventEmailNotif, sendEventNotifications } from "api/email";
 import { createServerError } from "utils/errors";
 import { equals, logJson, normalize } from "utils/string";
@@ -31,31 +26,29 @@ handler.get<
   NextApiRequest & { query: { eventUrl: string; populate?: string } },
   NextApiResponse
 >(async function getEvent(req, res) {
+  const {
+    query: { eventUrl }
+  } = req;
+
+  const notFoundResponse = () =>
+    res
+      .status(404)
+      .json(
+        createServerError(
+          new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
+        )
+      );
+
   try {
-    const session = await getSession({ req });
-    const {
-      query: { eventUrl }
-    } = req;
     let event = await models.Event.findOne({
       eventUrl
     });
 
-    if (!event) {
-      // maybe event was forwarded
-      event = await models.Event.findOne({
-        _id: eventUrl
-      });
+    if (!event) event = await models.Event.findOne({ _id: eventUrl });
 
-      if (!event)
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
-            )
-          );
-    }
+    if (!event) return notFoundResponse();
 
+    const session = await getSession({ req });
     const isCreator =
       session?.user.isAdmin || equals(event.createdBy, session?.user.userId);
 
@@ -104,7 +97,10 @@ handler.get<
       .execPopulate();
 
     res.status(200).json(event);
-  } catch (error) {
+  } catch (error: any) {
+    if (error.name === "CastError" && error.value === eventUrl)
+      return notFoundResponse();
+
     res.status(500).json(createServerError(error));
   }
 });

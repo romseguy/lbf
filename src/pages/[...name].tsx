@@ -68,15 +68,32 @@ const Hash = ({
     setUserQueryParams({ ...userQueryParams, slug: entityUrl });
   }, [router.asPath]);
   const eventQuery = useGetEventQuery(eventQueryParams);
+  //@ts-expect-error
+  const eventQueryStatus = eventQuery.error?.status;
   const orgQuery = useGetOrgQuery(orgQueryParams);
+  //@ts-expect-error
+  const orgQueryStatus = orgQuery.error?.status;
   const userQuery = useGetUserQuery({
     slug: entityUrl,
     populate: session?.user.userName === entityUrl ? "userProjects" : undefined,
     select: session?.user.userName === entityUrl ? "userProjects" : undefined
   });
+  //@ts-expect-error
+  const userQueryStatus = userQuery.error?.status;
   //#endregion
 
-  if (eventQuery.isError && orgQuery.isError && userQuery.isError) {
+  if (eventQuery.isFetching || orgQuery.isFetching || userQuery.isFetching)
+    return (
+      <Layout {...props} session={session}>
+        <Spinner />
+      </Layout>
+    );
+
+  if (
+    eventQueryStatus === 404 &&
+    orgQueryStatus === 404 &&
+    userQueryStatus === 404
+  ) {
     setTimeout(() => {
       router.push("/");
     }, 2000);
@@ -92,7 +109,7 @@ const Hash = ({
     );
   }
 
-  if (!eventQuery.isError && eventQuery.data) {
+  if (eventQueryStatus === 200) {
     return (
       <EventPage
         {...props}
@@ -105,32 +122,32 @@ const Hash = ({
     );
   }
 
-  if (!orgQuery.isError && orgQuery.data) {
-    if (orgQuery.data._id)
-      return (
-        <OrgPage
-          {...props}
-          email={email}
-          orgQuery={orgQuery}
-          session={session}
-          tab={entityTab}
-          tabItem={entityTabItem}
-        />
-      );
-
+  if (orgQueryStatus === 403 || !orgQuery.data?._id)
     return (
       <OrgPageLogin
         {...props}
         session={session}
+        status={orgQueryStatus}
         onSubmit={async (orgPassword) => {
           const hash = bcrypt.hashSync(orgPassword, orgQuery.data!.orgSalt);
           setOrgQueryParams({ ...orgQueryParams, hash });
         }}
       />
     );
-  }
 
-  if (!userQuery.isError && userQuery.data)
+  if (orgQuery.data?._id)
+    return (
+      <OrgPage
+        {...props}
+        email={email}
+        orgQuery={orgQuery}
+        session={session}
+        tab={entityTab}
+        tabItem={entityTabItem}
+      />
+    );
+
+  if (userQueryStatus === 200)
     return (
       <UserPage
         {...props}

@@ -97,6 +97,18 @@ export const GlobalStyles = () => (
         color: transparent;
         -webkit-text-fill-color: transparent;
       }
+      .chakra-ui-dark .rainbow-text {
+        background-image: linear-gradient(
+          to left,
+          violet,
+          violet,
+          white,
+          green,
+          yellow,
+          orange,
+          red
+        );
+      }
       .rainbow-text-animated {
         animation: rainbow 5s infinite;
         -ms-animation: rainbow 5s infinite;

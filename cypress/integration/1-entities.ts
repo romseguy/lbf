@@ -1,4 +1,4 @@
-import { OrgTypes, OrgTypesV } from "models/Org";
+import { OrgTypes, OrgTypesV, Visibility } from "models/Org";
 import {
   eventDescription,
   eventName,
@@ -36,15 +36,6 @@ describe("CRUD entities", () => {
       cy.k("org-add-button").click();
       cy.get("input[name=orgName]").type(orgName);
       cy.get("select[name=orgType]").select(OrgTypesV[OrgTypes.ASSO]);
-      // cy.get("#orgAddress-label").then(($label) => {
-      //   if ($label.find("span").length) {
-      //     // address is required
-      //     cy.get("input#orgAddress").type("Comiac");
-      //     cy.get(".suggestions[role=list] li:first").click();
-      //     cy.get("input#orgAddress").should("have.value", "Comiac, France");
-      //     cy.wait(1000);
-      //   }
-      // });
       cy.get("form").submit();
       cy.location("pathname", { timeout: 20000 }).should(
         "include",
@@ -60,34 +51,10 @@ describe("CRUD entities", () => {
       cy.k("event-add-button").click();
       cy.get("input[name=eventName]").type(eventName);
       cy.get('button[aria-label="minDate"]').click();
-      // const today = new Date();
-      // let name = "Choose " + format(today, "eeee d MMMM yyyy", { locale: fr });
-      // cy.findByRole("button", {
-      //   name // Choose jeudi 1 juillet 2021
-      // }).click();
       cy.get(".react-datepicker__time-list-item")
         .filter(":visible")
         .first()
         .click();
-      // cy.get('button[aria-label="maxDate"]').click();
-      // const tomorrow = addDays(today, 1);
-      // name = "Choose " + format(tomorrow, "eeee d MMMM yyyy", { locale: fr });
-      // cy.findByRole("button", {
-      //   name // Choose jeudi 2 juillet 2021
-      // }).click();
-      // cy.get(".react-datepicker__time-list-item")
-      //   .filter(":visible")
-      //   .first()
-      //   .click();
-      // cy.get("#eventAddress-label").then(($label) => {
-      //   if ($label.find("span").length) {
-      //     // address is required
-      //     cy.get("input#eventAddress").type("Comiac");
-      //     cy.get(".suggestions[role=list] li:first").click();
-      //     cy.get("input#eventAddress").should("have.value", "Comiac, France");
-      //     cy.wait(1000);
-      //   }
-      // });
       cy.get(".react-select-container").click();
       cy.get(".react-select__option").contains(orgName).click();
       cy.get("form").submit();
@@ -100,13 +67,6 @@ describe("CRUD entities", () => {
         .should("have.length", 1)
         .should("have.attr", "href")
         .and("include", `/${orgUrl}`);
-      // cy.k("homeLink").click();
-      // cy.location("pathname", { timeout: 10000 }).should("include", "/");
-      // cy.findByRole("link", { name: eventName })
-      //   .should("have.length", 1)
-      //   .should("have.attr", "href")
-      //   .and("include", `/${eventName}`);
-      // cy.findByText("Comiac").should("exist");
     });
   });
 
@@ -172,6 +132,38 @@ describe("CRUD entities", () => {
       cy.wait(5000);
       cy.get(".rteditor").contains(eventDescription + "c");
     });
+
+    describe("/org with password", () => {
+      it("creates org with password", () => {
+        cy.k("org-popover-button").click();
+        cy.k("org-add-button").click();
+        cy.get("input[name=orgName]").type("1234");
+        cy.get("select[name=orgType]").select(OrgTypesV[OrgTypes.ASSO]);
+        cy.get("select[name=orgVisibility]").select(Visibility.PRIVATE);
+        cy.get("input[name=orgPassword]").type("1234");
+        cy.get("input[name=orgPasswordConfirm]").type("1234");
+        cy.get("form").submit();
+        cy.location("pathname", { timeout: 20000 }).should("include", "1234");
+      });
+
+      it("logs out", () => {
+        cy.logout();
+        cy.visit("/1234");
+      });
+
+      it("logs into org", () => {
+        cy.get("input[name=orgPassword]").type("12345");
+        cy.get("form").submit();
+        cy.get("div[role=alert]").should("exist");
+        cy.get("input[name=orgPassword]").type("1234");
+        cy.get("form").submit();
+        cy.get(".chakra-tabs__tablist").contains("Accueil");
+        cy.get(".chakra-tabs__tablist").contains("Événements");
+        cy.get(".chakra-tabs__tablist").contains("Projets");
+        cy.get(".chakra-tabs__tablist").contains("Discussions");
+        cy.get(".chakra-tabs__tablist").contains("Galerie");
+      });
+    });
   });
 });
 
@@ -180,3 +172,49 @@ describe("/user", () => {
     cy.visit(`/${userName}`);
   });
 });
+
+// const today = new Date();
+// let name = "Choose " + format(today, "eeee d MMMM yyyy", { locale: fr });
+// cy.findByRole("button", {
+//   name // Choose jeudi 1 juillet 2021
+// }).click();
+
+// cy.get("#orgAddress-label").then(($label) => {
+//   if ($label.find("span").length) {
+//     // address is required
+//     cy.get("input#orgAddress").type("Comiac");
+//     cy.get(".suggestions[role=list] li:first").click();
+//     cy.get("input#orgAddress").should("have.value", "Comiac, France");
+//     cy.wait(1000);
+//   }
+// });
+
+// --
+
+// cy.get('button[aria-label="maxDate"]').click();
+// const tomorrow = addDays(today, 1);
+// name = "Choose " + format(tomorrow, "eeee d MMMM yyyy", { locale: fr });
+// cy.findByRole("button", {
+//   name // Choose jeudi 2 juillet 2021
+// }).click();
+// cy.get(".react-datepicker__time-list-item")
+//   .filter(":visible")
+//   .first()
+//   .click();
+// cy.get("#eventAddress-label").then(($label) => {
+//   if ($label.find("span").length) {
+//     // address is required
+//     cy.get("input#eventAddress").type("Comiac");
+//     cy.get(".suggestions[role=list] li:first").click();
+//     cy.get("input#eventAddress").should("have.value", "Comiac, France");
+//     cy.wait(1000);
+//   }
+// });
+
+// cy.k("homeLink").click();
+// cy.location("pathname", { timeout: 10000 }).should("include", "/");
+// cy.findByRole("link", { name: eventName })
+//   .should("have.length", 1)
+//   .should("have.attr", "href")
+//   .and("include", `/${eventName}`);
+// cy.findByText("Comiac").should("exist");

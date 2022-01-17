@@ -1,20 +1,36 @@
-import { Button } from "@chakra-ui/react";
-import { useState } from "react";
+import { Alert, AlertIcon, Button } from "@chakra-ui/react";
+import { ErrorMessage } from "@hookform/error-message";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { PasswordControl } from "features/common";
+import { ErrorMessageText, PasswordControl } from "features/common";
 import { Layout } from "features/layout";
 import { PageProps } from "pages/_app";
 
 export const OrgPageLogin = ({
+  status,
   onSubmit,
   ...props
-}: PageProps & { onSubmit: (orgPassword: string) => Promise<void> }) => {
-  const { errors, handleSubmit, register } = useForm();
+}: PageProps & {
+  status: number;
+  onSubmit: (orgPassword: string) => Promise<void>;
+}) => {
+  const { clearErrors, errors, handleSubmit, register, setError } = useForm({
+    mode: "onChange"
+  });
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (status === 403)
+      setError("formErrorMessage", {
+        type: "manual",
+        message: "Mot de passe incorrect."
+      });
+  }, [status]);
 
   return (
     <Layout {...props}>
       <form
+        onChange={() => clearErrors()}
         onSubmit={handleSubmit(async (form: { orgPassword: string }) => {
           console.log("submitted", form);
           setIsLoading(true);
@@ -31,12 +47,23 @@ export const OrgPageLogin = ({
           mb={3}
         />
 
+        <ErrorMessage
+          errors={errors}
+          name="formErrorMessage"
+          data-cy="formErrorMessage"
+          render={({ message }) => (
+            <Alert status="error" mb={3}>
+              <AlertIcon />
+              <ErrorMessageText>{message}</ErrorMessageText>
+            </Alert>
+          )}
+        />
+
         <Button
           colorScheme="green"
           type="submit"
           isLoading={isLoading}
           isDisabled={Object.keys(errors).length > 0}
-          data-cy="orgFormSubmit"
         >
           Valider
         </Button>

@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 import type { IUser } from "models/User";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
@@ -26,20 +26,28 @@ handler.get<
   },
   NextApiResponse
 >(async function getUser(req, res) {
-  const session = await getSession({ req });
   const {
     query: { slug, populate, ...query }
   } = req;
 
-  let user: (IUser & Document<any, any, any>) | null = null;
-  let selector;
+  const notFoundResponse = () =>
+    res
+      .status(404)
+      .json(
+        createServerError(
+          new Error(`L'utilisateur ${slug} n'a pas pu être trouvé`)
+        )
+      );
 
   try {
+    let user: (IUser & Document<any, any, any>) | null = null;
+    let selector;
     let select =
       "_id suggestedCategoryAt userName userImage userSubscription userDescription";
 
     if (emailR.test(slug)) {
       selector = { email: slug };
+      const session = await getSession({ req });
       if (session?.user.email === slug) select += " email";
     } else if (phoneR.test(slug)) {
       selector = { phone: slug };
@@ -54,29 +62,24 @@ handler.get<
       if (!user) user = await models.User.findOne({ _id: slug }, select);
     }
 
-    if (user) {
-      if (populate) {
-        if (populate.includes("userProjects")) {
-          user = user.populate({
-            path: "userProjects",
-            populate: [{ path: "createdBy" }]
-          });
-        }
+    if (!user) return notFoundResponse();
 
-        user = await user.execPopulate();
+    if (populate) {
+      if (populate.includes("userProjects")) {
+        user = user.populate({
+          path: "userProjects",
+          populate: [{ path: "createdBy" }]
+        });
       }
 
-      res.status(200).json(user);
-    } else {
-      res
-        .status(404)
-        .json(
-          createServerError(
-            new Error(`L'utilisateur ${slug} n'a pas pu être trouvé`)
-          )
-        );
+      user = await user.execPopulate();
     }
-  } catch (error) {
+
+    res.status(200).json(user);
+  } catch (error: any) {
+    if (error.name === "CastError" && error.value === slug)
+      return notFoundResponse();
+
     res.status(500).json(createServerError(error));
   }
 });

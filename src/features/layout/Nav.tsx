@@ -154,13 +154,15 @@ export const Nav = ({
                   </Flex>
                 </Td>
                 <Td border={0} lineHeight="auto" p={0}>
-                  <Text
-                    className="rainbow-text"
-                    fontFamily="DancingScript"
-                    fontSize="3xl"
-                  >
-                    {session ? "Mes contributions" : "Se connecter"}
-                  </Text>
+                  <Flex>
+                    <Text
+                      className="rainbow-text"
+                      fontFamily="DancingScript"
+                      fontSize="3xl"
+                    >
+                      {session ? "Mes contributions" : "Se connecter"}
+                    </Text>
+                  </Flex>
                 </Td>
               </Tr>
               <Tr role="row">
