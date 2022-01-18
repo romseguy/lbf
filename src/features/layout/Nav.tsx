@@ -168,20 +168,12 @@ export const Nav = ({
               <Tr role="row">
                 <Td border={0} p={0}>
                   <Box
-                    //flexWrap="wrap"
                     css={css`
                       button {
                         background: ${isDark ? "#1A202C" : "lightcyan"};
                         margin-right: 12px;
-                        /*padding-left: 5px;
-                padding-right: 6px;*/
                         border-radius: 9999px;
                       }
-                      /*@media (max-width: ${breakpoints.nav}) {
-                button {
-                  margin-bottom: 12px;
-                }
-              }*/
                     `}
                   >
                     <NavButtonsList />

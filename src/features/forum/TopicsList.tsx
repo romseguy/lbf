@@ -157,11 +157,16 @@ export const TopicsList = ({
     : event
     ? event.eventTopics
     : [];
-  const [currentTopic, setCurrentTopic] = useState<ITopic | null>(
-    currentTopicName
-      ? topics.find((topic) => topic.topicName === currentTopicName) || null
-      : null
-  );
+  const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
+  useEffect(() => {
+    if (currentTopicName) {
+      const cT =
+        topics.find((topic) => topic.topicName === currentTopicName) || null;
+
+      if (cT) setCurrentTopic(cT);
+      else if (currentTopic) setCurrentTopic(cT);
+    } else if (currentTopic) setCurrentTopic(null);
+  }, [currentTopicName]);
   //#endregion
 
   useEffect(() => {
@@ -239,7 +244,9 @@ export const TopicsList = ({
         org &&
         hasItems(org.orgTopicsCategories) && (
           <Flex flexDirection="column" mb={3}>
-            <Text className="rainbow-text">Catégories</Text>
+            <Flex>
+              <Text className="rainbow-text">Catégories</Text>
+            </Flex>
             <TopicsListCategories
               org={org}
               orgQuery={query}
@@ -258,7 +265,9 @@ export const TopicsList = ({
         org.orgName !== "forum" &&
         (props.isSubscribed || props.isCreator) && (
           <Flex flexDirection="column" mb={3}>
-            <Text className="rainbow-text">Listes de diffusion</Text>
+            <Flex>
+              <Text className="rainbow-text">Listes de diffusion</Text>
+            </Flex>
             <TopicsListOrgLists
               org={org}
               isCreator={props.isCreator}

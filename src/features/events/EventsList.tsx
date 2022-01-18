@@ -10,6 +10,7 @@ import {
   Tbody,
   Tr,
   Td,
+  Text,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
@@ -529,17 +530,21 @@ export const EventsList = ({
           mb={5}
         />
 
-        <EventsListCategories
-          events={events}
-          org={org}
-          orgQuery={orgQuery}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          session={session}
-          isLogin={isLogin}
-          setIsLogin={setIsLogin}
-          mb={5}
-        />
+        <Flex flexDirection="column" mb={5}>
+          <Flex>
+            <Text className="rainbow-text">Catégories</Text>
+          </Flex>
+          <EventsListCategories
+            events={events}
+            org={org}
+            orgQuery={orgQuery}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            session={session}
+            isLogin={isLogin}
+            setIsLogin={setIsLogin}
+          />
+        </Flex>
 
         <Flex alignItems="center" mb={5}>
           {!showLocationButton ? (

@@ -6,7 +6,8 @@ declare global {
       k: typeof dataCyCommand;
       login: typeof loginCommand;
       logout: typeof logoutCommand;
-      setTinyMceContent: (id: string, value: string) => void;
+      getTinyMceContent: (id: string) => Chainable;
+      setTinyMceContent: (id: string, value: string) => Chainable;
     }
   }
 }

@@ -7,6 +7,7 @@ export const newEventUrl = eventUrl + "t";
 export const eventDescription = "";
 
 export const orgName = "Foru";
+export const newOrgName = "Forum";
 export const orgUrl = "foru";
 export const newOrgUrl = "forum"
 

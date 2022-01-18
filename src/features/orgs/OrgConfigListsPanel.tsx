@@ -135,22 +135,13 @@ export const OrgConfigListsPanel = ({
       <Link
         variant="no-underline"
         onClick={() => {
-          if (!hasItems(lists)) {
-            setIsAdd(!isAdd);
-            setIsVisible({
-              banner: false,
-              logo: false,
-              subscribers: false
-            });
-          } else {
-            setIsAdd(false);
-            setIsVisible({
-              lists: !isVisible.lists,
-              banner: false,
-              logo: false,
-              subscribers: false
-            });
-          }
+          if (!hasItems(lists)) setIsAdd(!isAdd);
+          setIsVisible({
+            banner: false,
+            lists: hasItems(lists) ? !isVisible.lists : false,
+            logo: false,
+            subscribers: false
+          });
         }}
       >
         <GridHeader

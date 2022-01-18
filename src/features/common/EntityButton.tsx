@@ -36,18 +36,16 @@ export const EntityButton = ({
   if (!org && !event && !user && !topic) return null;
 
   let entityUrl = org
-    ? org.orgUrl === "forum"
-      ? "/forum"
-      : org.orgUrl
+    ? org.orgUrl
     : event
     ? event.eventUrl
     : typeof user === "object"
-    ? `/${user.userName}`
+    ? user.userName
     : "";
   let hasLink = entityUrl !== "" && onClick !== null;
 
   if (topic) {
-    entityUrl = `/${entityUrl}/discussions/${topic.topicName}`;
+    entityUrl = `${entityUrl}/discussions/${topic.topicName}`;
   }
 
   return (
@@ -74,12 +72,13 @@ export const EntityButton = ({
       <span>
         <Link
           variant={hasLink ? undefined : "no-underline"}
-          href={hasLink ? entityUrl : undefined}
+          href={hasLink ? `/${entityUrl}` : undefined}
           onClick={() => {
             if (onClick) onClick();
-            else if (entityUrl && onClick !== null) router.push(entityUrl);
+            else if (entityUrl && onClick !== null)
+              router.push(`/${entityUrl}`);
           }}
-          data-cy={`${entityUrl}-link`}
+          data-cy={entityUrl}
         >
           <Button
             aria-hidden

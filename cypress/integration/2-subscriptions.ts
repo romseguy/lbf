@@ -5,6 +5,7 @@ const add = () => {
   cy.get("#emailList").type(email);
   cy.k("subscriber-checkbox").click();
   cy.get("form").submit();
+  cy.wait(1000);
   cy.k("subscriptions-list").contains(email);
   cy.k("orgSubscriberUnsubscribe").should("exist");
   cy.k("orgSubscriberFollow").should("exist");

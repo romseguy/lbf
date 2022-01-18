@@ -227,46 +227,75 @@ export const OrgPage = ({
   }, [email]);
   //#endregion
 
+  const configButtons = () => {
+    return (
+      <>
+        {isCreator && !isConfig && !isEdit && (
+          <Button
+            colorScheme="teal"
+            leftIcon={<SettingsIcon boxSize={6} data-cy="orgSettings" />}
+            onClick={() => setIsConfig(true)}
+            mb={2}
+          >
+            Configuration {orgTypeFull(org.orgType)}
+          </Button>
+        )}
+
+        {isEdit && (
+          <Button
+            colorScheme="teal"
+            leftIcon={<ArrowBackIcon boxSize={6} />}
+            onClick={() => setIsEdit(false)}
+            mb={2}
+          >
+            Retour
+          </Button>
+        )}
+
+        {!isEdit && isConfig && (
+          <Button
+            colorScheme="teal"
+            leftIcon={<ArrowBackIcon boxSize={6} />}
+            onClick={() => setIsConfig(false)}
+            mb={2}
+          >
+            {`Revenir à la page ${orgTypeFull(org.orgType)}`}
+          </Button>
+        )}
+      </>
+    );
+  };
+
   if (org.orgUrl === "forum") {
     return (
       <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
-        <Forum isLogin={isLogin} setIsLogin={setIsLogin} tabItem={tabItem} />
+        {configButtons()}
+
+        {!isConfig && !isEdit && (
+          <Forum isLogin={isLogin} setIsLogin={setIsLogin} tabItem={tabItem} />
+        )}
+
+        {session && isCreator && (
+          <OrgConfigPanel
+            session={session}
+            org={org}
+            orgQuery={orgQuery}
+            subQuery={subQuery}
+            isConfig={isConfig}
+            isEdit={isEdit}
+            isVisible={isVisible}
+            setIsConfig={setIsConfig}
+            setIsEdit={setIsEdit}
+            setIsVisible={setIsVisible}
+          />
+        )}
       </Layout>
     );
   }
 
   return (
     <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
-      {isCreator && !isConfig && !isEdit && (
-        <Button
-          colorScheme="teal"
-          leftIcon={<SettingsIcon boxSize={6} data-cy="orgSettings" />}
-          onClick={() => setIsConfig(true)}
-          mb={5}
-        >
-          Configuration {orgTypeFull(org.orgType)}
-        </Button>
-      )}
-
-      {isEdit && (
-        <Button
-          colorScheme="teal"
-          leftIcon={<ArrowBackIcon boxSize={6} />}
-          onClick={() => setIsEdit(false)}
-        >
-          Retour
-        </Button>
-      )}
-
-      {!isEdit && isConfig && (
-        <Button
-          colorScheme="teal"
-          leftIcon={<ArrowBackIcon boxSize={6} />}
-          onClick={() => setIsConfig(false)}
-        >
-          {`Revenir à la page ${orgTypeFull(org.orgType)}`}
-        </Button>
-      )}
+      {configButtons()}
 
       {!isConfig && !isEdit && !subQuery.isLoading && (
         <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
@@ -742,6 +771,7 @@ export const OrgPage = ({
                                 (t) => t.label === defaultTab.label && t.checked
                               )
                             }
+                            isDisabled={defaultTab.label === "Accueil"}
                             mr={1}
                             onChange={async (e) => {
                               const newTabs = tabsState.map((t) =>

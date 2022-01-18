@@ -21,6 +21,7 @@ import { InputNode } from "features/treeChart/types";
 import { Visibility } from "models/Org";
 import { hasItems } from "utils/array";
 import { PageProps } from "./_app";
+import { IoIosGitNetwork } from "react-icons/io";
 
 let cachedRefetchOrgs = false;
 
@@ -77,9 +78,15 @@ const NetworksPage = (props: PageProps) => {
         {orgsQuery.isLoading ? (
           <Spinner />
         ) : (
-          <Button colorScheme="teal" onClick={() => openNetworksModal()}>
-            Afficher l'arborescence des réseaux
-          </Button>
+          <Flex>
+            <Button
+              colorScheme="teal"
+              leftIcon={<IoIosGitNetwork />}
+              onClick={() => openNetworksModal()}
+            >
+              Afficher l'arborescence des réseaux
+            </Button>
+          </Flex>
         )}
 
         <Flex alignItems="center">

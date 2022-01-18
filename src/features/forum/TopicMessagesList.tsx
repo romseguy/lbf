@@ -5,9 +5,6 @@ import {
   Button,
   Flex,
   IconButton,
-  Spinner,
-  Tag,
-  Text,
   Tooltip,
   useColorMode,
   FlexProps
@@ -15,7 +12,6 @@ import {
 import DOMPurify from "isomorphic-dompurify";
 import React, { useState } from "react";
 import {
-  Container,
   DeleteButton,
   //formats,
   Link,
@@ -78,10 +74,9 @@ export const TopicMessagesList = ({
                 </Link>
 
                 <Box ml={2}>
-                  <Container
+                  <Box
                     borderRadius={18}
-                    light={{ bg: "white" }}
-                    dark={{ bg: "gray.600" }}
+                    bg={isDark ? "gray.600" : "white"}
                     px={3}
                   >
                     <Link href={`/${userName}`} fontWeight="bold">
@@ -153,7 +148,7 @@ export const TopicMessagesList = ({
                         />
                       </Box>
                     )}
-                  </Container>
+                  </Box>
 
                   <Link pl={3} fontSize="smaller" aria-hidden>
                     <Tooltip placement="bottom" label={fullDate}>

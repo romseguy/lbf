@@ -2,7 +2,7 @@ export const handleError = (
   error: any,
   setError: (message: string, field?: string) => void
 ) => {
-  console.error(error);
+  console.warn(error);
 
   const setFieldsErrors = (fields: any) => {
     const keys = Object.keys(fields);

@@ -161,22 +161,15 @@ export const OrgConfigSubscribersPanel = ({
       <Link
         variant="no-underline"
         onClick={() => {
-          if (!hasItems(org.orgSubscriptions)) {
-            setIsAdd(!isAdd);
-            setIsVisible({
-              banner: false,
-              lists: false,
-              logo: false
-            });
-          } else {
-            setIsAdd(false);
-            setIsVisible({
-              banner: false,
-              lists: false,
-              logo: false,
-              subscribers: !isVisible.subscribers
-            });
-          }
+          if (!hasItems(org.orgSubscriptions)) setIsAdd(!isAdd);
+          setIsVisible({
+            banner: false,
+            lists: false,
+            logo: false,
+            subscribers: hasItems(org.orgSubscriptions)
+              ? !isVisible.subscribers
+              : false
+          });
         }}
       >
         <GridHeader
@@ -241,9 +234,9 @@ export const OrgConfigSubscribersPanel = ({
             onSubmit={() => {
               orgQuery.refetch();
               subQuery.refetch();
-              dispatch(refetchEvent());
               setIsAdd(false);
               setIsVisible({ ...isVisible, subscribers: true });
+              dispatch(refetchEvent());
             }}
           />
         </GridItem>

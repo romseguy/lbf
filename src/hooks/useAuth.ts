@@ -24,8 +24,9 @@ export async function getSession(
     process.env.NEXT_PUBLIC_IS_TEST &&
     typeof options.req?.headers.cookie === "string" &&
     !options.req?.headers.cookie.includes("null")
-  )
+  ) {
     return sessionFixture;
+  }
 
   let session = await getNextAuthSession(options);
   if (!session) return session;

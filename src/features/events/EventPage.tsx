@@ -167,7 +167,7 @@ export const EventPage = ({
           colorScheme="teal"
           leftIcon={<SettingsIcon boxSize={6} data-cy="eventSettings" />}
           onClick={() => setIsConfig(true)}
-          mb={5}
+          mb={2}
         >
           Configuration de l'événement
         </Button>
@@ -178,6 +178,7 @@ export const EventPage = ({
           colorScheme="teal"
           leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsEdit(false)}
+          mb={2}
         >
           Retour
         </Button>
@@ -188,6 +189,7 @@ export const EventPage = ({
           colorScheme="teal"
           leftIcon={<ArrowBackIcon boxSize={6} />}
           onClick={() => setIsConfig(false)}
+          mb={2}
         >
           Revenir à la page de l'événement
         </Button>
@@ -218,7 +220,7 @@ export const EventPage = ({
         </Flex>
       )}
 
-      <Box mb={3}>
+      <Box my={3}>
         <Text fontSize="smaller" pt={1}>
           Événement ajouté le{" "}
           {format(parseISO(event.createdAt!), "eeee d MMMM yyyy", {
