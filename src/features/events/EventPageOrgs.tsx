@@ -11,13 +11,7 @@ import {
 import { IEvent } from "models/Event";
 import { hasItems } from "utils/array";
 
-export const EventPageOrgs = ({
-  event,
-  eventCreatedByUserName
-}: {
-  event: IEvent;
-  eventCreatedByUserName: string;
-}) => {
+export const EventPageOrgs = ({ event }: { event: IEvent }) => {
   return (
     <GridItem
       light={{ bg: "orange.100" }}
@@ -39,13 +33,12 @@ export const EventPageOrgs = ({
                   <EntityButton key={eventOrg._id} org={eventOrg} p={1} />
                 ))}
               </VStack>
-            ) : (
+            ) : typeof event.createdBy === "object" ? (
               <Flex alignItems="center">
-                <Icon as={AtSignIcon} mr={2} />
-                <Link variant="underline" href={`/${eventCreatedByUserName}`}>
-                  {eventCreatedByUserName}
-                </Link>
+                <EntityButton user={event.createdBy} />
               </Flex>
+            ) : (
+              "Aucun organisateurs."
             )}
           </Box>
         </GridItem>

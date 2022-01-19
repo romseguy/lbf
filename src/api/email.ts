@@ -164,13 +164,8 @@ export const sendEventNotifications = async ({
 }): Promise<string[]> => {
   const emailList: string[] = [];
 
-  if (!event && !org) {
-    console.log(`sendTopicNotifications: neither org or event`);
-    return [];
-  }
-
   if (!subscriptions.length) {
-    console.log(`sendEventNotifications: nobody subscribed to this org`);
+    console.log(`sendEventNotifications: no subscriptions`);
     return [];
   }
 
@@ -260,7 +255,7 @@ export const sendEventNotifications = async ({
         if (process.env.NODE_ENV === "production")
           await transport.sendMail(mail);
         else if (process.env.NODE_ENV === "development") {
-          console.log(`sent topic email notif to ${mail.to}`, mail);
+          console.log(`sent event email notif to ${mail.to}`, mail);
         }
 
         emailList.push(email);

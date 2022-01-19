@@ -35,7 +35,7 @@ describe("CRUD entities", () => {
         "include",
         `/${orgUrl}`
       );
-      cy.k("orgSettings").should("have.length", 1);
+      cy.k("org-settings").should("have.length", 1);
     });
 
     it("updates orgName", () => {
@@ -43,7 +43,7 @@ describe("CRUD entities", () => {
       cy.visit(`/${orgUrl}`);
       cy.wait("@session");
 
-      cy.k("orgSettings").click();
+      cy.k("org-settings").click();
       cy.k("orgEdit").click();
       cy.get("input[name=orgName]").type("m");
       cy.wait(5000);

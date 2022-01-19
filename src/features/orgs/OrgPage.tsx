@@ -45,7 +45,6 @@ import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { MapContainer } from "features/map/MapContainer";
 import { ProjectsList } from "features/projects/ProjectsList";
-import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { Visibility as EventVisibility } from "models/Event";
@@ -56,11 +55,12 @@ import {
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
 import { hasItems, indexOfbyKey, sortOn } from "utils/array";
+import { capitalize } from "utils/string";
+import { AppQuery } from "utils/types";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs, defaultTabs } from "./OrgPageTabs";
-import { useEditOrgMutation, useGetOrgQuery, useGetOrgsQuery } from "./orgsApi";
+import { useEditOrgMutation, useGetOrgsQuery } from "./orgsApi";
 import { selectOrgRefetch } from "./orgSlice";
-import { capitalize } from "utils/string";
 
 export type Visibility = {
   isVisible: {
@@ -81,20 +81,23 @@ export const OrgPage = ({
   email,
   isMobile,
   orgQuery,
+  subQuery,
   session,
   tab,
   tabItem
 }: PageProps & {
-  orgQuery: any;
+  orgQuery: AppQuery<IOrg>;
+  subQuery: any;
   tab?: string;
   tabItem?: string;
 }) => {
+  cachedEmail = email;
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
   //#region org
   const [editOrg, editOrgMutation] = useEditOrgMutation();
-  const org = orgQuery.data as IOrg;
+  const org = orgQuery.data;
   const orgsWithLocation =
     org.orgs?.filter(({ orgLat, orgLng }) => !!orgLat && !!orgLng) || [];
   const [description, setDescription] = useState<string | undefined>();
@@ -152,16 +155,17 @@ export const OrgPage = ({
     session?.user.userId === orgCreatedByUserId ||
     session?.user.isAdmin ||
     false;
-  const publicEvents = org.orgEvents.filter(
-    (orgEvent) => orgEvent.eventVisibility === EventVisibility.PUBLIC
-  );
+  const events = !session
+    ? org.orgEvents.filter(
+        (orgEvent) => orgEvent.eventVisibility === EventVisibility.PUBLIC
+      )
+    : org.orgEvents;
   const [title = "Événements des 7 prochains jours", setTitle] = useState<
     string | undefined
   >();
   //#endregion
 
   //#region sub
-  const subQuery = useGetSubscriptionQuery({ email });
   const followerSubscription = getFollowerSubscription({ org, subQuery });
   const subscriberSubscription = getSubscriberSubscription({ org, subQuery });
   //#endregion
@@ -233,7 +237,7 @@ export const OrgPage = ({
         {isCreator && !isConfig && !isEdit && (
           <Button
             colorScheme="teal"
-            leftIcon={<SettingsIcon boxSize={6} data-cy="orgSettings" />}
+            leftIcon={<SettingsIcon boxSize={6} data-cy="org-settings" />}
             onClick={() => setIsConfig(true)}
             mb={2}
           >
@@ -278,7 +282,6 @@ export const OrgPage = ({
         {session && isCreator && (
           <OrgConfigPanel
             session={session}
-            org={org}
             orgQuery={orgQuery}
             subQuery={subQuery}
             isConfig={isConfig}
@@ -306,7 +309,6 @@ export const OrgPage = ({
                 query={orgQuery}
                 subQuery={subQuery}
                 followerSubscription={followerSubscription}
-                //isLoading={subQuery.isLoading || subQuery.isFetching}
               />
             </Box>
           )}
@@ -318,7 +320,6 @@ export const OrgPage = ({
               subQuery={subQuery}
               followerSubscription={followerSubscription}
               notifType="push"
-              //isLoading={subQuery.isLoading || subQuery.isFetching}
             />
           </Box>
         </Flex>
@@ -642,7 +643,7 @@ export const OrgPage = ({
                       </Box>
                       <Box width="100%" mt={5}>
                         <EventsList
-                          events={!session ? publicEvents : org.orgEvents}
+                          events={events}
                           org={org}
                           orgQuery={orgQuery}
                           isCreator={isCreator}
@@ -850,7 +851,6 @@ export const OrgPage = ({
       {session && isCreator && (
         <OrgConfigPanel
           session={session}
-          org={org}
           orgQuery={orgQuery}
           subQuery={subQuery}
           isConfig={isConfig}

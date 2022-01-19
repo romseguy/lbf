@@ -40,19 +40,19 @@ import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { IOrg } from "models/Org";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
+import { AppQuery } from "utils/types";
 import { Visibility } from "./OrgPage";
 
 export const OrgConfigBannerPanel = ({
-  org,
   orgQuery,
   isVisible,
   setIsVisible,
   ...props
 }: GridProps &
   Visibility & {
-    org: IOrg;
-    orgQuery: any;
+    orgQuery: AppQuery<IOrg>;
   }) => {
+  const org = orgQuery.data;
   const toast = useToast({ position: "top" });
 
   //#region org

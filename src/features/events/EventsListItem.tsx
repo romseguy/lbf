@@ -24,7 +24,7 @@ import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
 import { Link, GridItem, EntityButton } from "features/common";
 import { ModalState } from "features/modals/EntityNotifModal";
-import { Category, IEvent } from "models/Event";
+import { Category, getCategories, IEvent } from "models/Event";
 import { IOrg, orgTypeFull2 } from "models/Org";
 import { hasItems } from "utils/array";
 import { EventsListItemVisibility } from "./EventsListItemVisibility";
@@ -114,6 +114,7 @@ export const EventsListItem = ({
     label = canSendCount > 0 ? `Envoyer des invitations` : label;
   }
 
+  const categories = getCategories(event);
   const isCategorySelected = !!selectedCategories.find(
     (selectedCategory) => selectedCategory === event.eventCategory!
   );
@@ -137,7 +138,7 @@ export const EventsListItem = ({
                   label={
                     !isCategorySelected
                       ? `Afficher les événements de la catégorie "${
-                          Category[event.eventCategory].label
+                          categories[event.eventCategory].label
                         }"`
                       : ""
                   }
@@ -145,11 +146,11 @@ export const EventsListItem = ({
                   <Button
                     color="white"
                     colorScheme={
-                      Category[event.eventCategory].bgColor === "transparent"
+                      categories[event.eventCategory].bgColor === "transparent"
                         ? isDark
                           ? "whiteAlpha"
                           : "blackAlpha"
-                        : Category[event.eventCategory].bgColor
+                        : categories[event.eventCategory].bgColor
                     }
                     fontSize="small"
                     fontWeight="normal"
@@ -166,7 +167,7 @@ export const EventsListItem = ({
                       );
                     }}
                   >
-                    {Category[event.eventCategory].label}
+                    {categories[event.eventCategory].label}
                   </Button>
                 </Tooltip>
               </GridItem>

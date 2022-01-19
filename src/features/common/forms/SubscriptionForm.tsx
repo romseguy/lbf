@@ -15,7 +15,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { css } from "twin.macro";
 import { useAddSubscriptionMutation } from "features/subscriptions/subscriptionsApi";
-import { IOrg } from "models/Org";
+import { IOrg, orgTypeFull4 } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { emailR } from "utils/email";
 import { handleError } from "utils/form";
@@ -180,31 +180,33 @@ export const SubscriptionForm = ({
             <Checkbox
               ref={register({ required: true })}
               name="subscriptionType"
-              value={SubscriptionTypes.SUBSCRIBER}
-              bg={"purple.100"}
-              borderRadius="lg"
-              p={3}
-              mb={3}
-              data-cy="subscriber-checkbox"
-            >
-              Adhérent
-              <Text fontSize="smaller">
-                La personne aura accès aux discussions et événements réservées
-                aux adhérents.
-              </Text>
-            </Checkbox>
-            <Checkbox
-              ref={register({ required: true })}
-              name="subscriptionType"
               value={SubscriptionTypes.FOLLOWER}
               bg={"green.100"}
               borderRadius="lg"
+              mb={3}
               p={3}
               data-cy="follower-checkbox"
             >
               Abonné
               <Text fontSize="smaller">
-                La personne recevra les e-mails d'invitation aux événements.
+                Vous pourrez inviter cette personne aux discussions, événements,
+                et projets de {orgTypeFull4(org.orgType)}.
+              </Text>
+            </Checkbox>
+
+            <Checkbox
+              ref={register({ required: true })}
+              name="subscriptionType"
+              value={SubscriptionTypes.SUBSCRIBER}
+              bg={"purple.100"}
+              borderRadius="lg"
+              p={3}
+              data-cy="subscriber-checkbox"
+            >
+              Adhérent
+              <Text fontSize="smaller">
+                La personne aura également accès aux discussions, événements, et
+                projets réservés aux adhérents.
               </Text>
             </Checkbox>
           </Box>

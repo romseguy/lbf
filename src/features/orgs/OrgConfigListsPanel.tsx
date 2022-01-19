@@ -40,23 +40,23 @@ import {
 } from "features/common";
 import { getSubscriptions, IOrg, IOrgList } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
-import { hasItems } from "utils/array";
 import { breakpoints } from "theme/theme";
+import { hasItems } from "utils/array";
+import { AppQuery } from "utils/types";
 import { Visibility } from "./OrgPage";
 import { useEditOrgMutation } from "./orgsApi";
 
 export const OrgConfigListsPanel = ({
-  org,
   orgQuery,
   isVisible,
   setIsVisible,
   session
 }: GridProps &
   Visibility & {
-    org: IOrg;
-    orgQuery: any;
+    orgQuery: AppQuery<IOrg>;
     session: Session;
   }) => {
+  const org = orgQuery.data;
   const toast = useToast({ position: "top" });
 
   //#region org

@@ -4,8 +4,6 @@ import {
   getSession as getNextAuthSession,
   GetSessionOptions
 } from "next-auth/client";
-import { useAppDispatch } from "store";
-import api from "utils/api";
 import { useSelector } from "react-redux";
 import {
   selectLoading,
@@ -13,8 +11,10 @@ import {
   setLoading,
   setSession
 } from "features/session/sessionSlice";
-import { isServer } from "utils/isServer";
 import { IUser } from "models/User";
+import { useAppDispatch } from "store";
+import api from "utils/api";
+import { isServer } from "utils/isServer";
 import sessionFixture from "../../cypress/fixtures/session.json";
 
 export async function getSession(

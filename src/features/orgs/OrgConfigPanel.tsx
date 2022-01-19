@@ -7,6 +7,7 @@ import { IOrg } from "models/Org";
 import { DeleteButton, PageContainer } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
+import { AppQuery } from "utils/types";
 import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigLogoPanel } from "./OrgConfigLogoPanel";
@@ -15,7 +16,6 @@ import { Visibility } from "./OrgPage";
 
 export const OrgConfigPanel = ({
   session,
-  org,
   orgQuery,
   subQuery,
   isConfig,
@@ -26,17 +26,18 @@ export const OrgConfigPanel = ({
   setIsVisible
 }: Visibility & {
   session: Session;
-  org: IOrg;
-  orgQuery: any;
+  orgQuery: AppQuery<IOrg>;
   subQuery: any;
   isConfig: boolean;
   isEdit: boolean;
   setIsConfig: (isConfig: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
 }) => {
+  const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
+  const org = orgQuery.data;
   const router = useRouter();
   const toast = useToast({ position: "top" });
-  const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
+
   const [isDisabled, setIsDisabled] = useState(true);
 
   return (
@@ -136,7 +137,6 @@ export const OrgConfigPanel = ({
       {isConfig && !isEdit && (
         <PageContainer m="">
           <OrgConfigLogoPanel
-            org={org}
             orgQuery={orgQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
@@ -144,7 +144,6 @@ export const OrgConfigPanel = ({
           />
 
           <OrgConfigBannerPanel
-            org={org}
             orgQuery={orgQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
@@ -152,7 +151,6 @@ export const OrgConfigPanel = ({
           />
 
           <OrgConfigSubscribersPanel
-            org={org}
             orgQuery={orgQuery}
             subQuery={subQuery}
             isVisible={isVisible}
@@ -161,7 +159,6 @@ export const OrgConfigPanel = ({
           />
 
           <OrgConfigListsPanel
-            org={org}
             orgQuery={orgQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}

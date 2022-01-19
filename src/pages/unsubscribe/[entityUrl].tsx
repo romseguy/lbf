@@ -3,12 +3,11 @@ import { GetServerSidePropsContext } from "next";
 import { Session } from "next-auth";
 import { Layout } from "features/layout";
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { IOrg, orgTypeFull } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { wrapper } from "store";
-import api, { ResponseType } from "utils/api";
 import { PageProps } from "pages/_app";
+import api, { ResponseType } from "utils/api";
 
 type UnsubscribePageProps = {
   unsubscribed: boolean;
@@ -24,9 +23,9 @@ const UnsubscribePage = (props: PageProps & UnsubscribePageProps) => {
 
   const who = subscription
     ? typeof subscription.user === "object"
-      ? subscription.user.email + " est"
-      : subscription.email + " est"
-    : "Vous êtes";
+      ? subscription.user.email + " a été"
+      : subscription.email + " a été"
+    : "Vous avez été";
 
   return (
     <Layout {...rest}>
@@ -35,9 +34,13 @@ const UnsubscribePage = (props: PageProps & UnsubscribePageProps) => {
 
         {unsubscribed
           ? org || event
-            ? `${who} désabonné de ${org ? "l'organisation" : "l'événement"} ${
-                org ? org.orgName : event?.eventName
-              }.`
+            ? `${who} désabonné ${
+                org
+                  ? org.orgUrl !== "forum"
+                    ? orgTypeFull(org.orgType)
+                    : "du"
+                  : "l'événement"
+              } ${org ? org.orgName : event?.eventName}.`
             : topic
             ? `${who} désabonné de la discussion : ${topic.topicName}`
             : "Vous n'avez pas pu être désabonné."

@@ -20,7 +20,7 @@ export const EntityPageTabList = ({
       css={css(scrollbarStyles)}
       display="block"
       overflowX="auto"
-      p="12px 0 8px 12px"
+      p="8px 0 8px 12px"
       whiteSpace="nowrap"
       {...props}
     >

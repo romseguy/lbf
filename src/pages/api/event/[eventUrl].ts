@@ -223,10 +223,7 @@ handler.post<
             })
             .execPopulate();
 
-          subscriptions = [
-            ...subscriptions,
-            ...getSubscriptions(org, SubscriptionTypes.FOLLOWER)
-          ];
+          subscriptions = getSubscriptions(org, SubscriptionTypes.FOLLOWER);
         } else if (listName === "Adhérents") {
           org = await org
             .populate({
@@ -236,10 +233,7 @@ handler.post<
               }
             })
             .execPopulate();
-          subscriptions = [
-            ...subscriptions,
-            ...getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
-          ];
+          subscriptions = getSubscriptions(org, SubscriptionTypes.SUBSCRIBER);
         } else {
           org = await org
             .populate({
@@ -252,8 +246,7 @@ handler.post<
             (orgList) => orgList.listName === listName
           );
 
-          if (list && list.subscriptions)
-            subscriptions = [...subscriptions, ...list.subscriptions];
+          if (list && list.subscriptions) subscriptions = list.subscriptions;
         }
 
         emailList = await sendEventNotifications({

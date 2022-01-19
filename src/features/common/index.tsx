@@ -36,5 +36,6 @@ export * from "./Link";
 export * from "./LinkShare";
 export * from "./LocationButton";
 export * from "./OfflineIcon";
+export * from "./NotFound";
 export * from "./PageContainer";
 export * from "./Spacer";

@@ -16,6 +16,21 @@ export const Category: { [key: number]: IOrgEventCategory } = [
   { index: 9, label: "Autre", bgColor: "transparent" }
 ].reduce((obj, cat) => ({ ...obj, [cat.index]: cat }), {});
 
+export const getCategories = (event: IEvent<string | Date>) => {
+  let categories = Object.keys(Category).map(
+    (catId) => Category[parseInt(catId)]
+  );
+
+  if (Array.isArray(event.eventOrgs)) {
+    const firstOrgCategories = event.eventOrgs[0].orgEventCategories;
+    console.log("DEUFEZ", event.eventOrgs, firstOrgCategories);
+
+    if (firstOrgCategories) categories = firstOrgCategories;
+  }
+
+  return categories;
+};
+
 export const isAttending = ({
   email,
   event

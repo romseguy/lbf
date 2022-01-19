@@ -356,14 +356,17 @@ export const EventForm = withGoogleApi({
     let categories = Object.keys(Category).map(
       (catId) => Category[parseInt(catId)]
     );
-
     if (
       initialEventOrgs &&
       initialEventOrgs[0] &&
       initialEventOrgs[0].orgEventCategories
     )
       categories = initialEventOrgs[0].orgEventCategories;
-    else if (Array.isArray(props.event?.eventOrgs)) {
+    else if (
+      props.event &&
+      Array.isArray(props.event.eventOrgs) &&
+      props.event.eventOrgs.length > 0
+    ) {
       const firstOrgCategories = props.event?.eventOrgs[0].orgEventCategories;
       if (firstOrgCategories) categories = firstOrgCategories;
     }
@@ -576,8 +579,8 @@ export const EventForm = withGoogleApi({
             placeholder="Catégorie de l'événement"
             color="gray.400"
           >
-            {categories.map(({ label }) => (
-              <option key={label} value={label}>
+            {categories.map(({ label }, index) => (
+              <option key={`cat-${index}`} value={index}>
                 {label}
               </option>
             ))}

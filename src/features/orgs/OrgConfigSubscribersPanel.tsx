@@ -16,10 +16,10 @@ import { IUser } from "models/User";
 import { useAppDispatch } from "store";
 import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
+import { AppQuery } from "utils/types";
 import { Visibility } from "./OrgPage";
 
 export const OrgConfigSubscribersPanel = ({
-  org,
   orgQuery,
   subQuery,
   isVisible,
@@ -27,10 +27,10 @@ export const OrgConfigSubscribersPanel = ({
   ...props
 }: GridProps &
   Visibility & {
-    org: IOrg;
-    orgQuery: any;
+    orgQuery: AppQuery<IOrg>;
     subQuery: any;
   }) => {
+  const org = orgQuery.data;
   const dispatch = useAppDispatch();
 
   //#region subscription

@@ -46,6 +46,7 @@ export interface IOrg {
 }
 
 export interface IOrgEventCategory {
+  index: string;
   label: string;
   bgColor?: string;
 }

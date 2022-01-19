@@ -24,7 +24,6 @@ import {
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
-import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { IEvent, Visibility } from "models/Event";
 import {
@@ -33,6 +32,7 @@ import {
   SubscriptionTypes
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
+import { AppQuery } from "utils/types";
 import { useEditEventMutation } from "./eventsApi";
 import { selectEventRefetch } from "./eventSlice";
 import { EventAttendingForm } from "./EventAttendingForm";
@@ -59,18 +59,22 @@ let cachedRefetchSubscription = false;
 export const EventPage = ({
   email,
   eventQuery,
+  subQuery,
   isMobile,
   session,
   tab,
   tabItem
 }: PageProps & {
-  eventQuery: any;
+  eventQuery: AppQuery<IEvent>;
+  subQuery: any;
   tab?: string;
   tabItem?: string;
 }) => {
+  cachedEmail = email;
+
   //#region event
   const [editEvent, editEventMutation] = useEditEventMutation();
-  const event = eventQuery.data as IEvent;
+  const event = eventQuery.data;
   const eventCreatedByUserName =
     event.createdBy && typeof event.createdBy === "object"
       ? event.createdBy.userName || event.createdBy._id
@@ -86,11 +90,9 @@ export const EventPage = ({
   //#endregion
 
   //#region sub
-  const subQuery = useGetSubscriptionQuery({ email });
   const followerSubscription = getFollowerSubscription({ event, subQuery });
-  const isSubscribedToAtLeastOneOrg =
-    isCreator ||
-    !!subQuery.data?.orgs?.find((orgSubscription: IOrgSubscription) => {
+  const isSubscribedToAtLeastOneOrg = !!subQuery.data?.orgs?.find(
+    (orgSubscription: IOrgSubscription) => {
       for (const org of event.eventOrgs) {
         if (
           org._id === orgSubscription.orgId &&
@@ -100,7 +102,8 @@ export const EventPage = ({
       }
 
       return false;
-    });
+    }
+  );
   //#endregion
 
   //#region local state
@@ -114,7 +117,7 @@ export const EventPage = ({
   });
   const [showSendForm, setShowSendForm] = useState(false);
 
-  let showAttendingForm = false;
+  let showAttendingForm = !isCreator;
   if (!isConfig && !isEdit) {
     if (session) {
       if (isSubscribedToAtLeastOneOrg) showAttendingForm = true;
@@ -266,11 +269,7 @@ export const EventPage = ({
         )}
 
       {showAttendingForm && (
-        <EventAttendingForm
-          email={email}
-          event={event}
-          eventQuery={eventQuery}
-        />
+        <EventAttendingForm email={email} eventQuery={eventQuery} />
       )}
 
       {!isConfig && !isEdit && (
@@ -298,10 +297,7 @@ export const EventPage = ({
               >
                 {isMobile ? (
                   <>
-                    <EventPageOrgs
-                      event={event}
-                      eventCreatedByUserName={eventCreatedByUserName}
-                    />
+                    <EventPageOrgs event={event} />
 
                     <EventPageInfo
                       event={event}
@@ -325,10 +321,7 @@ export const EventPage = ({
                       setIsEdit={setIsEdit}
                     />
 
-                    <EventPageOrgs
-                      event={event}
-                      eventCreatedByUserName={eventCreatedByUserName}
-                    />
+                    <EventPageOrgs event={event} />
 
                     <EventPageTimeline event={event} />
 
@@ -420,7 +413,6 @@ export const EventPage = ({
       {session && (
         <EventConfigPanel
           session={session}
-          event={event}
           eventQuery={eventQuery}
           isConfig={isConfig}
           isEdit={isEdit}

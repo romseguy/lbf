@@ -7,13 +7,13 @@ import { DeleteButton, PageContainer } from "features/common";
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
 import { IEvent } from "models/Event";
+import { AppQuery } from "utils/types";
 import { EventConfigBannerPanel } from "./EventConfigBannerPanel";
 import { EventConfigLogoPanel } from "./EventConfigLogoPanel";
 import { Visibility } from "./EventPage";
 
 export const EventConfigPanel = ({
   session,
-  event,
   eventQuery,
   isConfig,
   isEdit,
@@ -23,13 +23,13 @@ export const EventConfigPanel = ({
   setIsVisible
 }: Visibility & {
   session: Session;
-  event: IEvent;
-  eventQuery: any;
+  eventQuery: AppQuery<IEvent>;
   isConfig: boolean;
   isEdit: boolean;
   setIsConfig: (isConfig: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
 }) => {
+  const event = eventQuery.data;
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
@@ -129,7 +129,6 @@ export const EventConfigPanel = ({
       {isConfig && !isEdit && (
         <PageContainer m="">
           <EventConfigLogoPanel
-            event={event}
             eventQuery={eventQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
@@ -137,7 +136,6 @@ export const EventConfigPanel = ({
           />
 
           <EventConfigBannerPanel
-            event={event}
             eventQuery={eventQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}

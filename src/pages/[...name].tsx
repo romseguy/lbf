@@ -4,19 +4,21 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Container } from "features/common";
+import { NotFound } from "features/common";
 import { EventPage } from "features/events/EventPage";
 import { EventQueryParams, useGetEventQuery } from "features/events/eventsApi";
 import { Layout } from "features/layout";
 import { OrgPage } from "features/orgs/OrgPage";
 import { OrgPageLogin } from "features/orgs/OrgPageLogin";
 import { OrgQueryParams, useGetOrgQuery } from "features/orgs/orgsApi";
+import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { UserPage } from "features/users/UserPage";
 import { useGetUserQuery, UserQueryParams } from "features/users/usersApi";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { useAppDispatch } from "store";
 import { PageProps } from "./_app";
+import { useRouterLoading } from "hooks/useRouterLoading";
 
 let cachedEmail: string | undefined;
 const canRedirect = true;
@@ -30,28 +32,6 @@ const Hash = ({ ...props }: HashProps) => {
   const router = useRouter();
   const { data: clientSession } = useSession();
   const session = props.session || clientSession;
-
-  const notFound = () => {
-    if (canRedirect)
-      setTimeout(() => {
-        router.push("/");
-      }, 2000);
-
-    return (
-      <Layout {...props} pageTitle="Page introuvable" session={session}>
-        <Flex>
-          <Heading className="rainbow-text" fontFamily="DancingScript">
-            Page introuvable
-          </Heading>
-        </Flex>
-
-        <Container>
-          Vous allez être redirigé vers la page d'accueil dans quelques
-          secondes...
-        </Container>
-      </Layout>
-    );
-  };
 
   //#region user email
   const userEmail =
@@ -71,7 +51,7 @@ const Hash = ({ ...props }: HashProps) => {
   }, [userEmail]);
   //#endregion
 
-  //#region routing
+  //#region entity querying
   let [entityUrl, entityTab, entityTabItem] =
     "name" in router.query && Array.isArray(router.query.name)
       ? router.query.name
@@ -90,28 +70,41 @@ const Hash = ({ ...props }: HashProps) => {
   const [userQueryParams, setUserQueryParams] = useState<UserQueryParams>({
     slug: entityUrl
   });
-  useEffect(() => {
-    setOrgQueryParams({ ...orgQueryParams, orgUrl: entityUrl });
-    setEventQueryParams({ ...eventQueryParams, eventUrl: entityUrl });
-    setUserQueryParams({ ...userQueryParams, slug: entityUrl });
-  }, [router.asPath]);
-  const eventQuery = useGetEventQuery(eventQueryParams);
-  //@ts-expect-error
+  const eventQuery: any = useGetEventQuery(eventQueryParams);
   const eventQueryStatus = eventQuery.error?.status || 200;
-  const orgQuery = useGetOrgQuery(orgQueryParams);
-  //@ts-expect-error
+  const orgQuery: any = useGetOrgQuery(orgQueryParams);
   const orgQueryStatus = orgQuery.error?.status || 200;
-  const userQuery = useGetUserQuery({
+  const userQuery: any = useGetUserQuery({
     slug: entityUrl,
     populate: session?.user.userName === entityUrl ? "userProjects" : undefined,
     select: session?.user.userName === entityUrl ? "userProjects" : undefined
   });
-  //@ts-expect-error
   const userQueryStatus = userQuery.error?.status || 200;
   //#endregion
 
-  //#region query status
-  if (eventQuery.isLoading || orgQuery.isLoading || userQuery.isLoading) {
+  //#region subscription querying
+  const subQuery = useGetSubscriptionQuery({ email });
+  //#endregion
+
+  //#region navigation
+  useEffect(
+    function onNavigate() {
+      setOrgQueryParams({ ...orgQueryParams, orgUrl: entityUrl });
+      setEventQueryParams({ ...eventQueryParams, eventUrl: entityUrl });
+      setUserQueryParams({ ...userQueryParams, slug: entityUrl });
+    },
+    [router.asPath]
+  );
+
+  const { isLoading: isRouterLoading } = useRouterLoading();
+  let isLoading =
+    isRouterLoading ||
+    eventQuery.isLoading ||
+    orgQuery.isLoading ||
+    userQuery.isLoading;
+  //#endregion
+
+  if (isLoading) {
     return (
       <Layout {...props} session={session}>
         <Spinner />
@@ -124,7 +117,11 @@ const Hash = ({ ...props }: HashProps) => {
     orgQueryStatus === 404 &&
     userQueryStatus === 404
   ) {
-    return notFound();
+    console.warn("NOT FOUND: REDIRECTING");
+    console.log(isLoading);
+    console.log(eventQuery);
+
+    return <NotFound {...props} canRedirect={canRedirect} />;
   }
 
   if (eventQueryStatus === 200) {
@@ -133,6 +130,7 @@ const Hash = ({ ...props }: HashProps) => {
         {...props}
         email={email}
         eventQuery={eventQuery}
+        subQuery={subQuery}
         session={session}
         tab={entityTab}
         tabItem={entityTabItem}
@@ -163,6 +161,7 @@ const Hash = ({ ...props }: HashProps) => {
         {...props}
         email={email}
         orgQuery={orgQuery}
+        subQuery={subQuery}
         session={session}
         tab={entityTab}
         tabItem={entityTabItem}
@@ -180,9 +179,8 @@ const Hash = ({ ...props }: HashProps) => {
       />
     );
   }
-  //#endregion
 
-  return notFound();
+  return <NotFound canRedirect={canRedirect} {...props} session={session} />;
 };
 
 export async function getServerSideProps(

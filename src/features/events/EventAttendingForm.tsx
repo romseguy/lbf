@@ -12,21 +12,21 @@ import {
 import React from "react";
 import { Button } from "features/common";
 import { useEditEventMutation } from "features/events/eventsApi";
+import { setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { IEvent, isAttending, isNotAttending, StatusTypes } from "models/Event";
-import { emailR } from "utils/email";
-import { setUserEmail } from "features/users/userSlice";
 import { useAppDispatch } from "store";
+import { emailR } from "utils/email";
+import { AppQuery } from "utils/types";
 
 export const EventAttendingForm = ({
   email,
-  event,
   eventQuery
 }: {
   email?: string;
-  event: IEvent;
-  eventQuery: any;
+  eventQuery: AppQuery<IEvent>;
 }) => {
+  const event = eventQuery.data;
   const dispatch = useAppDispatch();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });

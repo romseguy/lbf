@@ -2,12 +2,47 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
-import { getSubscriptions } from "models/Org";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import { getSubscriptions, IOrg } from "models/Org";
+import {
+  getFollowerSubscription,
+  getSubscriberSubscription,
+  IOrgSubscription,
+  ISubscription,
+  SubscriptionTypes
+} from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
 import { createServerError, databaseErrorCodes } from "utils/errors";
 import { equals, logJson } from "utils/string";
+
+function updateOrgSubscription(
+  org: IOrg,
+  subscription: ISubscription,
+  subscriptionType: string,
+  newOrgSubscription: IOrgSubscription
+) {
+  subscription.orgs = subscription.orgs?.map((orgSubscription) => {
+    if (
+      equals(orgSubscription.orgId, org._id) &&
+      orgSubscription.type === subscriptionType
+    ) {
+      if (newOrgSubscription.eventCategories)
+        orgSubscription.eventCategories = newOrgSubscription.eventCategories;
+
+      if (newOrgSubscription.tagTypes)
+        for (const newTagType of newOrgSubscription.tagTypes) {
+          orgSubscription.tagTypes = orgSubscription.tagTypes?.map(
+            (tagType) => {
+              if (tagType.type === newTagType.type) return newTagType;
+              return tagType;
+            }
+          );
+        }
+    }
+
+    return orgSubscription;
+  });
+}
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -105,29 +140,6 @@ handler.post<
 
     if (body.orgs) {
       for (const newOrgSubscription of body.orgs) {
-        const updateTagTypes = (
-          subscription: ISubscription,
-          subscriptionType: string
-        ) => {
-          subscription.orgs = subscription.orgs?.map((orgSubscription) => {
-            if (
-              equals(orgSubscription.orgId, org!._id) &&
-              orgSubscription.type === subscriptionType
-            )
-              if (newOrgSubscription.tagTypes)
-                for (const newTagType of newOrgSubscription.tagTypes) {
-                  orgSubscription.tagTypes = orgSubscription.tagTypes?.map(
-                    (tagType) => {
-                      if (tagType.type === newTagType.type) return newTagType;
-                      return tagType;
-                    }
-                  );
-                }
-
-            return orgSubscription;
-          });
-        };
-
         let org = await models.Org.findOne({
           _id: newOrgSubscription.orgId
         });
@@ -145,30 +157,6 @@ handler.post<
 
         org = await org.populate("orgSubscriptions").execPopulate();
 
-        if (!Array.isArray(subscription.orgs) || !subscription.orgs.length) {
-          subscription.orgs = [newOrgSubscription];
-        } else {
-          if (newOrgSubscription.type === SubscriptionTypes.FOLLOWER) {
-            const followerSubscription = getSubscriptions(
-              org,
-              SubscriptionTypes.FOLLOWER
-            ).find(({ _id }) => equals(_id, subscription!._id));
-
-            if (!followerSubscription)
-              subscription.orgs.push(newOrgSubscription);
-            else updateTagTypes(subscription, SubscriptionTypes.FOLLOWER);
-          } else if (newOrgSubscription.type === SubscriptionTypes.SUBSCRIBER) {
-            const subscriberSubscription = getSubscriptions(
-              org,
-              SubscriptionTypes.SUBSCRIBER
-            ).find(({ _id }) => equals(_id, subscription!._id));
-
-            if (!subscriberSubscription)
-              subscription.orgs.push(newOrgSubscription);
-            else updateTagTypes(subscription, SubscriptionTypes.SUBSCRIBER);
-          }
-        }
-
         if (
           !org.orgSubscriptions.find((orgSubscription) =>
             equals(orgSubscription._id, subscription!._id)
@@ -178,10 +166,41 @@ handler.post<
           await org.save();
         }
 
-        logJson(
-          `POST /subscriptions: org.orgSubscriptions`,
-          org.orgSubscriptions.map((subscription) => subscription._id)
-        );
+        if (!Array.isArray(subscription.orgs) || !subscription.orgs.length) {
+          subscription.orgs = [newOrgSubscription];
+          continue;
+        }
+
+        if (newOrgSubscription.type === SubscriptionTypes.FOLLOWER) {
+          const followerSubscription = getFollowerSubscription({
+            org,
+            subscription
+          });
+
+          if (!followerSubscription) subscription.orgs.push(newOrgSubscription);
+          else
+            updateOrgSubscription(
+              org,
+              subscription,
+              SubscriptionTypes.FOLLOWER,
+              newOrgSubscription
+            );
+        } else if (newOrgSubscription.type === SubscriptionTypes.SUBSCRIBER) {
+          const subscriberSubscription = getSubscriberSubscription({
+            org,
+            subscription
+          });
+
+          if (!subscriberSubscription)
+            subscription.orgs.push(newOrgSubscription);
+          else
+            updateOrgSubscription(
+              org,
+              subscription,
+              SubscriptionTypes.SUBSCRIBER,
+              newOrgSubscription
+            );
+        }
       }
     } else if (body.events) {
       const { events: newEventSubscriptions } = body;

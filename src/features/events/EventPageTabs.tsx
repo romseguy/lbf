@@ -34,7 +34,7 @@ export const EventPageTabs = ({
   const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex);
 
   if (isCreator)
-    tabs["Participants"] = {
+    tabs["Invitations"] = {
       icon: EmailIcon,
       url: "/invitations"
     };

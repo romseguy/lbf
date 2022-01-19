@@ -1,4 +1,3 @@
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
@@ -18,8 +17,8 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useRef, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
-import { useForm } from "react-hook-form";
 import { FaMinusSquare, FaPlusSquare } from "react-icons/fa";
+import { useForm } from "react-hook-form";
 import {
   Button,
   DeleteButton,
@@ -35,21 +34,19 @@ import { useEditEventMutation } from "features/events/eventsApi";
 import { IEvent } from "models/Event";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
+import { AppQuery } from "utils/types";
 import { Visibility } from "./EventPage";
 
-type EventConfigBannerPanelProps = GridProps &
-  Visibility & {
-    event: IEvent;
-    eventQuery: any;
-  };
-
 export const EventConfigBannerPanel = ({
-  event,
   eventQuery,
   isVisible,
   setIsVisible,
   ...props
-}: EventConfigBannerPanelProps) => {
+}: GridProps &
+  Visibility & {
+    eventQuery: AppQuery<IEvent>;
+  }) => {
+  const event = eventQuery.data;
   const toast = useToast({ position: "top" });
 
   //#region event

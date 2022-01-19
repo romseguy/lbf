@@ -29,7 +29,7 @@ export const NavButtonsList = ({
         }
       `}
     >
-      <Link href="/" {...linkProps}>
+      <Link aria-hidden href="/" {...linkProps}>
         <Button
           leftIcon={<FaHome />}
           isActive={router.asPath === "/"}
@@ -39,7 +39,7 @@ export const NavButtonsList = ({
         </Button>
       </Link>
 
-      <Link href="/reseaux" {...linkProps}>
+      <Link aria-hidden href="/reseaux" {...linkProps}>
         <Button
           leftIcon={<IoIosGitNetwork />}
           isActive={router.asPath === "/reseaux"}
@@ -49,7 +49,7 @@ export const NavButtonsList = ({
         </Button>
       </Link>
 
-      <Link href="/evenements" {...linkProps}>
+      <Link aria-hidden href="/evenements" {...linkProps}>
         <Button
           leftIcon={<CalendarIcon />}
           isActive={router.asPath === "/evenements"}
@@ -60,7 +60,7 @@ export const NavButtonsList = ({
         </Button>
       </Link>
 
-      {/* <Link href="/organisations" {...linkProps}>
+      {/* <Link aria-hidden href="/organisations" {...linkProps}>
         <Button
           leftIcon={<IoIosPeople />}
           isActive={router.asPath === "/organisations"}
@@ -70,7 +70,7 @@ export const NavButtonsList = ({
         </Button>
       </Link> */}
 
-      <Link href="/forum" {...linkProps}>
+      <Link aria-hidden href="/forum" {...linkProps}>
         <Button
           leftIcon={<ChatIcon />}
           isActive={router.asPath === "/forum"}

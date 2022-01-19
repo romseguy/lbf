@@ -1,4 +1,3 @@
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
@@ -35,21 +34,19 @@ import { useEditEventMutation } from "features/events/eventsApi";
 import { IEvent } from "models/Event";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
+import { AppQuery } from "utils/types";
 import { Visibility } from "./EventPage";
 
-type EventConfigLogoPanelProps = GridProps &
-  Visibility & {
-    event: IEvent;
-    eventQuery: any;
-  };
-
 export const EventConfigLogoPanel = ({
-  event,
   eventQuery,
   isVisible,
   setIsVisible,
   ...props
-}: EventConfigLogoPanelProps) => {
+}: GridProps &
+  Visibility & {
+    eventQuery: AppQuery<IEvent>;
+  }) => {
+  const event = eventQuery.data;
   const toast = useToast({ position: "top" });
 
   //#region event

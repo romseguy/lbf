@@ -59,7 +59,12 @@ handler.get<
     if (populate) {
       if (populate.includes("orgs")) org = org.populate("orgs");
 
-      if (populate.includes("orgEvents")) org = org.populate("orgEvents");
+      if (populate.includes("orgEvents")) {
+        org = org.populate({
+          path: "orgEvents",
+          populate: { path: "eventOrgs" }
+        });
+      }
 
       if (populate.includes("orgLists"))
         org = org.populate({

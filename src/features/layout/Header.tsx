@@ -22,7 +22,7 @@ import { FaRegCalendarCheck, FaRegCalendarTimes } from "react-icons/fa";
 import tw, { css } from "twin.macro";
 import { Link } from "features/common";
 import { IOrg, OrgTypes } from "models/Org";
-import { Category, IEvent } from "models/Event";
+import { Category, getCategories, IEvent } from "models/Event";
 import { breakpoints } from "theme/theme";
 
 export const Header = ({
@@ -39,14 +39,13 @@ export const Header = ({
   pageTitle?: string;
   pageSubTitle?: React.ReactNode;
 }) => {
+  const banner = event?.eventBanner || org?.orgBanner;
+  const logo = event?.eventLogo || org?.orgLogo;
   const router = useRouter();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
   //#region local state
-  const [classNameTitle, setClassNameTitle] = useState("rainbow-text");
-  let color = event ? (event.isApproved ? "green" : "red") : "green";
-  if (isDark) if (color === "green") color = "green.200";
   const icon =
     pageTitle === "Forum"
       ? ChatIcon
@@ -66,10 +65,8 @@ export const Header = ({
 
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
-  const banner = event?.eventBanner || org?.orgBanner;
 
   const bgImage = banner ? `url("${banner.base64 || banner.url}")` : undefined;
-  const logo = event?.eventLogo || org?.orgLogo;
 
   const logoBgImage = logo ? `url("${logo.url || logo.base64}")` : "";
   const logoBgSize = "110px";
@@ -78,7 +75,7 @@ export const Header = ({
   const HeaderTitle = () => (
     <Flex
       alignItems="center"
-      bg={isDark ? "whiteAlpha.400" : "blackAlpha.100"}
+      bg={banner ? "black" : isDark ? "whiteAlpha.400" : "blackAlpha.200"}
       borderRadius="lg"
       p={4}
       ml={logo ? 5 : undefined}
@@ -87,7 +84,17 @@ export const Header = ({
         <Icon
           as={icon}
           boxSize={8}
-          color={color}
+          color={
+            event
+              ? event.isApproved
+                ? "green"
+                : "red"
+              : banner
+              ? "white"
+              : isDark
+              ? "green.200"
+              : "green"
+          }
           mr={2}
           title={
             event?.isApproved
@@ -102,9 +109,7 @@ export const Header = ({
       <Flex
         alignItems="center"
         color={banner ? "white" : undefined}
-        className={classNameTitle}
-        // onMouseEnter={() => setClassNameTitle("rainbow-text")}
-        // onMouseLeave={() => setClassNameTitle("")}
+        className={`rainbow-text ${banner ? "dark" : isDark ? "dark" : ""}`}
       >
         <Link href={router.asPath} variant="no-underline">
           <Heading fontFamily="DancingScript" size="lg">
@@ -121,19 +126,21 @@ export const Header = ({
 
   const HeaderEventCategory = () => {
     if (!event || !event.eventCategory) return null;
+    const categories = getCategories(event);
+
     return (
       <Tag
         bgColor={
-          Category[event.eventCategory || 0].bgColor === "transparent"
+          categories[event.eventCategory].bgColor === "transparent"
             ? isDark
               ? "whiteAlpha.300"
               : "blackAlpha.600"
-            : Category[event.eventCategory || 0].bgColor
+            : categories[event.eventCategory].bgColor
         }
-        color="white"
+        color={isDark ? "white" : "black"}
         ml={2}
       >
-        {Category[event.eventCategory].label}
+        {categories[event.eventCategory].label}
       </Tag>
     );
   };
@@ -171,34 +178,22 @@ export const Header = ({
       }}
       {...props}
     >
-      {logo ? (
-        <>
-          <Link
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsLogoModalOpen(true);
-            }}
-          >
-            <Image
-              src={logo.url || logo.base64}
-              borderTopRightRadius="lg"
-              height={logoBgSize}
-            />
-          </Link>
-          <HeaderTitle />
-          <HeaderEventCategory />
-        </>
-      ) : (
-        <Flex
-          alignItems="center"
-          bg={banner ? "whiteAlpha.400" : undefined}
-          borderRadius="lg"
-          p={banner ? 3 : undefined}
+      {logo && (
+        <Link
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsLogoModalOpen(true);
+          }}
         >
-          <HeaderTitle />
-          <HeaderEventCategory />
-        </Flex>
+          <Image
+            src={logo.url || logo.base64}
+            borderTopRightRadius="lg"
+            height={logoBgSize}
+          />
+        </Link>
       )}
+      <HeaderTitle />
+      <HeaderEventCategory />
 
       {banner &&
         (isBannerModalOpen ? (

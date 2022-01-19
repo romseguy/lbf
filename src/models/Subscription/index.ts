@@ -1,5 +1,6 @@
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
+import { equals, logJson } from "utils/string";
 import {
   IOrgSubscription,
   IEventSubscription,
@@ -33,7 +34,7 @@ export const getFollowerSubscription = ({
     if (org) {
       return (subQuery?.data || subscription).orgs?.find(
         (orgSubscription: IOrgSubscription) =>
-          orgSubscription.orgId === org._id &&
+          equals(orgSubscription.orgId, org._id) &&
           orgSubscription.type === SubscriptionTypes.FOLLOWER
       );
     }
@@ -59,7 +60,7 @@ export const getSubscriberSubscription = ({
   if (org && (subQuery?.data || subscription)) {
     return (subQuery?.data || subscription).orgs?.find(
       (orgSubscription: IOrgSubscription) =>
-        orgSubscription.orgId === org._id &&
+        equals(orgSubscription.orgId, org._id) &&
         orgSubscription.type === SubscriptionTypes.SUBSCRIBER
     );
   }

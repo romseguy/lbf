@@ -109,8 +109,11 @@ export const EventsListCategories = ({
         orgUrl: org?.orgUrl,
         payload: {
           orgEventCategories: org?.orgEventCategories
-            ? org.orgEventCategories.concat({ label: form.category })
-            : categories.concat({ label: form.category })
+            ? org.orgEventCategories.concat({
+                index: `${org.orgEventCategories.length}`,
+                label: form.category
+              })
+            : categories.concat({ index: "0", label: form.category })
         }
       });
       toast({ status: "success", title: "La catégorie a bien été ajoutée !" });
