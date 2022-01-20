@@ -61,10 +61,26 @@ export const TopicsListCategories = ({
         return (
           <Tag
             key={`category-${index}`}
-            variant={isSelected ? "solid" : "outline"}
-            bg={isDark ? "gray.600" : "white"}
-            colorScheme={isSelected ? "pink" : undefined}
-            fontSize="small"
+            bg={
+              isSelected
+                ? isDark
+                  ? "pink.200"
+                  : "pink.500"
+                : isDark
+                ? "#81E6D9"
+                : "#319795"
+            }
+            _hover={{
+              bg: isSelected
+                ? isDark
+                  ? "pink.300"
+                  : "pink.600"
+                : isDark
+                ? "#4FD1C5"
+                : "#2C7A7B"
+            }}
+            color={isDark ? "black" : "white"}
+            cursor="pointer"
             fontWeight="normal"
             mr={1}
             p={0}
@@ -86,10 +102,14 @@ export const TopicsListCategories = ({
               label={`Afficher les discussions de la catégorie "${category}"`}
               hasArrow
             >
-              <Flex alignItems="center" cursor="pointer" p={2}>
+              <Flex alignItems="center" p={2}>
                 <Text fontWeight="bold">{category}</Text>
                 {topicsCount > 0 && (
-                  <Badge colorScheme="green" ml={2}>
+                  <Badge
+                    bg={isDark ? "teal" : "#81E6D9"}
+                    borderRadius="md"
+                    ml={2}
+                  >
                     {topicsCount}
                   </Badge>
                 )}
@@ -104,6 +124,7 @@ export const TopicsListCategories = ({
               >
                 <TagCloseButton as="span">
                   <DeleteButton
+                    color={isDark ? "black" : "white"}
                     isIconOnly
                     // tooltip props
                     hasArrow

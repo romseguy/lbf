@@ -76,9 +76,9 @@ export const TopicsListOrgLists = ({
             hasArrow
           >
             <Button
-              variant={isSelected ? "solid" : "outline"}
-              bg={isDark ? "gray.600" : "white"}
-              colorScheme={isSelected ? "pink" : "white"}
+              bg={isDark ? "#81E6D9" : "#319795"}
+              _hover={{ bg: isDark ? "#4FD1C5" : "#2C7A7B" }}
+              color={isDark ? "black" : "white"}
               fontSize="small"
               fontWeight="normal"
               height="auto"

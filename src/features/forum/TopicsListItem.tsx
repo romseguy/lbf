@@ -154,7 +154,7 @@ export const TopicsListItem = ({
                   hasArrow
                 >
                   <Button
-                    colorScheme={hasCategorySelected ? "pink" : undefined}
+                    colorScheme={hasCategorySelected ? "pink" : "teal"}
                     fontSize="small"
                     fontWeight="normal"
                     height="auto"

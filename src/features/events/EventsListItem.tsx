@@ -144,7 +144,11 @@ export const EventsListItem = ({
                   }
                 >
                   <Button
-                    color="white"
+                    color={
+                      categories[event.eventCategory].bgColor
+                        ? "white"
+                        : "black"
+                    }
                     colorScheme={
                       categories[event.eventCategory].bgColor === "transparent"
                         ? isDark
