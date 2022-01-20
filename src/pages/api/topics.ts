@@ -195,8 +195,8 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
           if (topicNotif) {
             //#region orgLists
             if (
-              Array.isArray(body.topic.topicVisibility) &&
-              body.topic.topicVisibility.length > 0
+              Array.isArray(body.topic.topicOrgLists) &&
+              body.topic.topicOrgLists.length > 0
             ) {
               const subscription = await models.Subscription.findOne({
                 email: session.user.email
@@ -226,7 +226,7 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
               });
 
               if (
-                body.topic.topicVisibility.find((listName) =>
+                body.topic.topicOrgLists.find((listName) =>
                   ["Abonnés", "Adhérents"].includes(listName)
                 )
               )
@@ -241,7 +241,7 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
 
               let subscriptions = (org.orgLists || [])
                 .filter((orgList) =>
-                  body.topic.topicVisibility?.find(
+                  body.topic.topicOrgLists?.find(
                     (listName) =>
                       listName === orgList.listName &&
                       Array.isArray(orgList.subscriptions) &&
@@ -252,7 +252,7 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
                   ({ subscriptions }) => subscriptions
                 ) as ISubscription[];
 
-              for (const listName of body.topic.topicVisibility)
+              for (const listName of body.topic.topicOrgLists)
                 if (["Abonnés", "Adhérents"].includes(listName))
                   subscriptions = subscriptions.concat(
                     getSubscriptions(

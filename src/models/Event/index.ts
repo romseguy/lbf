@@ -23,8 +23,6 @@ export const getCategories = (event: IEvent<string | Date>) => {
 
   if (Array.isArray(event.eventOrgs)) {
     const firstOrgCategories = event.eventOrgs[0].orgEventCategories;
-    console.log("DEUFEZ", event.eventOrgs, firstOrgCategories);
-
     if (firstOrgCategories) categories = firstOrgCategories;
   }
 

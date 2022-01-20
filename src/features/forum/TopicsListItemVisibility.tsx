@@ -29,7 +29,7 @@ export const TopicsListItemVisibility = ({
     icon: IconType | ComponentWithAs<"svg", IconProps>;
   }[] = [];
 
-  const customLists = topic.topicVisibility?.filter(
+  const customLists = topic.topicOrgLists?.filter(
     (listName) => !["Adhérents", "Abonnés"].includes(listName)
   );
 
@@ -54,14 +54,14 @@ export const TopicsListItemVisibility = ({
     ];
   }
 
-  if (topic.topicVisibility?.includes("Abonnés")) {
+  if (topic.topicOrgLists?.includes("Abonnés")) {
     icons.push({
       label: `Discussion réservée aux abonnés ${suffix}`,
       icon: EmailIcon
     });
   }
 
-  if (topic.topicVisibility?.includes("Adhérents")) {
+  if (topic.topicOrgLists?.includes("Adhérents")) {
     icons.push({
       label: `Discussion réservée aux adhérents ${suffix}`,
       icon: IoMdPerson

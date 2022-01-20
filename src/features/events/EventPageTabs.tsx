@@ -1,14 +1,15 @@
 import { ChatIcon, EmailIcon } from "@chakra-ui/icons";
 import { Tabs, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { EntityPageTab, EntityPageTabList } from "features/common";
 import { IEvent } from "models/Event";
+import { normalize } from "utils/string";
 import { AppIcon } from "utils/types";
 
-const tabs: { [key: string]: { icon: AppIcon; url: string } } = {
-  Accueil: { icon: FaHome, url: "" },
+const defaultTabs: { [key: string]: { icon: AppIcon; url: string } } = {
+  Accueil: { icon: FaHome, url: "/accueil" },
   Discussions: { icon: ChatIcon, url: "/discussions" }
 };
 
@@ -16,32 +17,35 @@ export const EventPageTabs = ({
   children,
   event,
   isCreator,
-  ...props
+  currentTabLabel = "Accueil"
 }: {
   event: IEvent;
-  tab?: string;
+  currentTabLabel?: string;
   isCreator?: boolean;
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  let defaultTabIndex = 0;
-  Object.keys(tabs).reduce((index, tab) => {
-    if (tab.toLowerCase() === props.tab?.toLowerCase()) defaultTabIndex = index;
-    return index + 1;
-  }, 0);
-  const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex);
+  const [currentTabIndex, setCurrentTabIndex] = useState(0);
 
   if (isCreator)
-    tabs["Invitations"] = {
+    defaultTabs["Invitations"] = {
       icon: EmailIcon,
       url: "/invitations"
     };
 
+  useEffect(() => {
+    Object.keys(defaultTabs).reduce((index, tab) => {
+      if (normalize(tab) === normalize(currentTabLabel))
+        setCurrentTabIndex(index);
+      return index + 1;
+    }, 0);
+  }, []);
+
   return (
     <Tabs
-      defaultIndex={defaultTabIndex}
+      defaultIndex={0}
       index={currentTabIndex}
       isFitted
       isLazy
@@ -54,31 +58,25 @@ export const EventPageTabs = ({
       borderRadius="lg"
       p={3}
       pb={0}
-      onChange={(index) => setCurrentTabIndex(index)}
     >
       <EntityPageTabList aria-hidden>
-        {Object.keys(tabs).map((name, tabIndex) => {
-          const { icon, url } = tabs[name];
+        {Object.keys(defaultTabs).map((name, tabIndex) => {
+          const tab = defaultTabs[name];
 
           return (
             <EntityPageTab
               key={`eventTab-${tabIndex}`}
               currentTabIndex={currentTabIndex}
-              icon={icon}
+              icon={tab.icon}
               tabIndex={tabIndex}
               onClick={() => {
-                if (name === "Discussions")
-                  router.push(
-                    `/${event.eventUrl}/discussions`,
-                    `/${event.eventUrl}/discussions`,
-                    {
-                      shallow: true
-                    }
-                  );
-                else
-                  router.push(`/${event.eventUrl}`, `/${event.eventUrl}`, {
+                router.push(
+                  `/${event.eventUrl}${tab.url}`,
+                  `/${event.eventUrl}${tab.url}`,
+                  {
                     shallow: true
-                  });
+                  }
+                );
               }}
               data-cy={`eventTab-${name}`}
             >

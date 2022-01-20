@@ -10,6 +10,7 @@ export interface ITopic {
   topicMessages: ITopicMessage[];
   topicMessagesDisabled?: boolean;
   topicCategory?: string | null;
+  topicOrgLists?: string[];
   topicVisibility?: string[];
   org?: IOrg;
   event?: IEvent;

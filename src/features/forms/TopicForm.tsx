@@ -123,10 +123,10 @@ export const TopicForm = ({
     mode: "onChange"
   });
 
-  const topicVisibility = watch("topicVisibility");
+  const topicOrgLists = watch("topicOrgLists");
   const topicNotif = watch("topicNotif");
 
-  // if (topicNotif && org && !hasItems(topicVisibility))
+  // if (topicNotif && org && !hasItems(topicOrgLists))
   //   setValue("topicNotif", false);
 
   const onChange = () => {
@@ -137,17 +137,18 @@ export const TopicForm = ({
     topicName: string;
     topicMessage: string;
     topicCategory?: { label: string; value: string } | null;
-    topicVisibility?: [{ label: string; value: string }];
+    topicOrgLists?: [{ label: string; value: string }];
     topicNotif?: boolean;
   }) => {
     console.log("submitted", form);
     if (!session) return;
 
     setIsLoading(true);
+
     let topic: Partial<ITopic> = {
       topicCategory: form.topicCategory ? form.topicCategory.value : null,
       topicName: form.topicName,
-      topicVisibility: form.topicVisibility?.map(({ label, value }) => value)
+      topicOrgLists: form.topicOrgLists?.map(({ label, value }) => value)
     };
 
     try {
@@ -382,17 +383,13 @@ export const TopicForm = ({
       {(props.isCreator || props.isSubscribed) &&
         lists &&
         org?.orgName !== "forum" && (
-          <FormControl
-            id="topicVisibility"
-            isInvalid={!!errors["topicVisibility"]}
-            mb={3}
-          >
+          <FormControl isInvalid={!!errors["topicOrgLists"]} mb={3}>
             <FormLabel>Listes de diffusion</FormLabel>
             <Controller
-              name="topicVisibility"
+              name="topicOrgLists"
               control={control}
               defaultValue={
-                props.topic?.topicVisibility?.map((listName) => ({
+                props.topic?.topicOrgLists?.map((listName) => ({
                   label: listName,
                   value: listName
                 })) || []
@@ -434,12 +431,12 @@ export const TopicForm = ({
               }}
             />
             <FormErrorMessage>
-              <ErrorMessage errors={errors} name="topicVisibility" />
+              <ErrorMessage errors={errors} name="topicOrgLists" />
             </FormErrorMessage>
           </FormControl>
         )}
 
-      {hasItems(topicVisibility) && (
+      {hasItems(topicOrgLists) && (
         <Alert status="info" mb={3}>
           <AlertIcon />
           La discussion ne sera visible que par les membres des listes de
@@ -448,11 +445,14 @@ export const TopicForm = ({
       )}
 
       {!props.topic &&
-        (event || props.isSubscribed || (org && org.orgUrl === "forum")) && (
+        (event ||
+          props.isCreator ||
+          props.isSubscribed ||
+          (org && org.orgUrl === "forum")) && (
           <FormControl id="topicNotif" mb={3}>
             <FormLabel>Notifications</FormLabel>
 
-            {hasItems(topicVisibility) ? (
+            {hasItems(topicOrgLists) ? (
               <Checkbox
                 ref={register()}
                 name="topicNotif"
@@ -497,7 +497,13 @@ export const TopicForm = ({
         >
           {props.topic
             ? "Modifier"
-            : `Ajouter ${topicNotif ? "& Notifier" : ""}`}
+            : `Ajouter ${
+                topicNotif
+                  ? hasItems(topicOrgLists)
+                    ? "& Notifier les listes de diffusions"
+                    : "& Notifier les abonnés"
+                  : " sans notifier"
+              }`}
         </Button>
       </Flex>
     </form>

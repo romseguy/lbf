@@ -94,7 +94,7 @@ handler.post<
 
       let subscriptions = (org.orgLists || [])
         .filter((orgList) =>
-          topic.topicVisibility?.find(
+          topic.topicOrgLists?.find(
             (listName) =>
               listName === orgList.listName &&
               Array.isArray(orgList.subscriptions) &&

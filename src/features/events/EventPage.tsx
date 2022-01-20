@@ -273,7 +273,11 @@ export const EventPage = ({
       )}
 
       {!isConfig && !isEdit && (
-        <EventPageTabs event={event} isCreator={isCreator} tab={tab}>
+        <EventPageTabs
+          event={event}
+          isCreator={isCreator}
+          currentTabLabel={tab}
+        >
           <TabPanels
             css={css`
               & > * {

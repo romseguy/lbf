@@ -182,14 +182,22 @@ export const OrgPage = ({
   });
 
   const tabs = useMemo(() => {
-    return [...(org.orgTabs || defaultTabs)].sort(
-      sortOn(
-        "label",
-        defaultTabs
-          .filter(({ label }) => label !== "")
-          .map(({ label }) => label)
+    return [...(org.orgTabs || defaultTabs)]
+      .sort(
+        sortOn(
+          "label",
+          defaultTabs
+            .filter(({ label }) => label !== "")
+            .map(({ label }) => label)
+        )
       )
-    );
+      .map((tab) => ({
+        ...tab,
+        ...defaultTabs.find((defaultTab) => {
+          //if (tab.label === "") return defaultTab.label === "Paramètres"
+          return defaultTab.label === tab.label;
+        })
+      }));
   }, [org.orgTabs, defaultTabs]);
 
   const [tabsState, setTabsState] = useState<
@@ -353,7 +361,12 @@ export const OrgPage = ({
       )}
 
       {!isConfig && !isEdit && (
-        <OrgPageTabs org={org} session={session} tab={tab} tabs={tabs}>
+        <OrgPageTabs
+          org={org}
+          session={session}
+          currentTabLabel={tab}
+          tabs={tabs}
+        >
           {({ setCurrentTabIndex }) => {
             return (
               <TabPanels

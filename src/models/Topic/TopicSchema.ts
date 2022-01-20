@@ -12,6 +12,7 @@ export const TopicSchema = new Schema<ITopic>(
     topicMessages: [TopicMessageSchema],
     topicMessagesDisabled: Boolean,
     topicCategory: { type: String, trim: true },
+    topicOrgLists: [String],
     topicVisibility: [String],
     org: {
       type: Schema.Types.ObjectId,

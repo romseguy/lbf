@@ -112,14 +112,14 @@ export const TopicsList = ({
 
           if (Array.isArray(selectedLists) && selectedLists.length > 0) {
             if (
-              Array.isArray(topic.topicVisibility) &&
-              topic.topicVisibility.length > 0
+              Array.isArray(topic.topicOrgLists) &&
+              topic.topicOrgLists.length > 0
             ) {
               let found = false;
 
-              for (let i = 0; i < topic.topicVisibility.length; i++)
+              for (let i = 0; i < topic.topicOrgLists.length; i++)
                 for (let j = 0; j < selectedLists.length; j++)
-                  if (selectedLists[j].listName === topic.topicVisibility[i])
+                  if (selectedLists[j].listName === topic.topicOrgLists[i])
                     found = true;
 
               if (found) belongsToList = true;
@@ -131,17 +131,16 @@ export const TopicsList = ({
 
         if (props.isCreator) return true;
 
-        if (!topic.topicVisibility || !topic.topicVisibility.length)
+        if (!topic.topicOrgLists || !topic.topicOrgLists.length) return true;
+
+        if (props.isSubscribed && topic.topicOrgLists?.includes("Adhérents"))
           return true;
 
-        if (props.isSubscribed && topic.topicVisibility?.includes("Adhérents"))
-          return true;
-
-        if (props.isFollowed && topic.topicVisibility?.includes("Abonnés"))
+        if (props.isFollowed && topic.topicOrgLists?.includes("Abonnés"))
           return true;
 
         if (
-          topic.topicVisibility.find((listName) => {
+          topic.topicOrgLists.find((listName) => {
             const orgList = org.orgLists?.find(
               (orgList) => orgList.listName === listName
             );
