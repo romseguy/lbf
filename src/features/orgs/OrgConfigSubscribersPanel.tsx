@@ -174,7 +174,9 @@ export const OrgConfigSubscribersPanel = ({
       >
         <GridHeader
           borderTopRadius="lg"
-          borderBottomRadius={!isVisible.subscribers ? "lg" : undefined}
+          borderBottomRadius={
+            !isVisible.subscribers && !isAdd ? "lg" : undefined
+          }
         >
           <Grid templateColumns="1fr auto" alignItems="center">
             <GridItem
@@ -224,7 +226,7 @@ export const OrgConfigSubscribersPanel = ({
       </Link>
 
       {isAdd && (
-        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.700" }} p={5}>
+        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }} p={5}>
           <SubscriptionForm
             org={org}
             isSubscriptionLoading={isSubscriptionLoading}

@@ -59,7 +59,7 @@ export const UrlControl = ({
 
   if (!isMultiple) {
     return (
-      <FormControl id={name} isRequired={isRequired} isInvalid={!!errors[name]}>
+      <FormControl isRequired={isRequired} isInvalid={!!errors[name]}>
         <FormLabel>{label || "Site internet"}</FormLabel>
 
         <InputGroup>

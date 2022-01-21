@@ -183,7 +183,8 @@ export const Map = withGoogleApi({
           center={center}
           zoom={zoomLevel}
           options={(maps) => ({
-            fullscreenControl: false
+            fullscreenControl: false,
+            gestureHandling: "greedy"
             // zoomControl: boolean,
             // mapTypeControl: boolean,
             // scaleControl: boolean,

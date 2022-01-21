@@ -13,6 +13,7 @@ import { EntityPageTab, EntityPageTabList } from "features/common";
 import { IOrg, IOrgTab } from "models/Org";
 import { normalize } from "utils/string";
 import { AppIcon } from "utils/types";
+import { useScroll } from "hooks/useScroll";
 
 export const defaultTabs: (IOrgTab & { icon: AppIcon })[] = [
   { label: "Accueil", icon: FaHome, url: "/accueil" },

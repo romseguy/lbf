@@ -40,10 +40,7 @@ export const EntityNotified = ({
       (Array.isArray(topic?.topicNotified) && !topic?.topicNotified.length) ? (
         <Alert status="info">
           <AlertIcon />
-          <Text>
-            Aucun participants{" "}
-            {event ? "pour cet événement" : "pour cette discussion"}.
-          </Text>
+          <Text>Aucune invitations envoyées</Text>
         </Alert>
       ) : (
         <>

@@ -1,13 +1,15 @@
 import { Alert, AlertIcon } from "@chakra-ui/react";
+import { useEffect } from "react";
+import router from "next/router";
 import { Layout } from "features/layout";
-import { PageProps } from "./_app";
+import { PageProps } from "../_app";
 
 const VerifyPage = (props: PageProps) => {
   return (
     <Layout {...props}>
-      <Alert status="success">
+      <Alert status="error">
         <AlertIcon />
-        Un e-mail de connexion vous a été envoyé.
+        error
       </Alert>
     </Layout>
   );

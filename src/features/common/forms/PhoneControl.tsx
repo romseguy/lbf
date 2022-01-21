@@ -60,7 +60,6 @@ export const PhoneControl = ({
   if (!isMultiple) {
     return (
       <FormControl
-        id={name}
         isRequired={isRequired}
         isInvalid={!!errors[name]}
         {...props}

@@ -144,7 +144,11 @@ export const LoginModal = (props: {
               : "Connexion par mot de passe"}
           </ModalHeader>
           <ModalCloseButton />
-          <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+          <form
+            onChange={onChange}
+            onSubmit={handleSubmit(onSubmit)}
+            data-cy="login-form"
+          >
             <ModalBody pt={0}>
               <ErrorMessage
                 errors={errors}
@@ -278,7 +282,6 @@ export const LoginModal = (props: {
                   isDisabled={Object.keys(errors).length > 0}
                   isLoading={isLoading}
                   colorScheme="green"
-                  data-cy="submit-button"
                 >
                   {isSignup ? "Inscription" : "Connexion"}
                 </Button>

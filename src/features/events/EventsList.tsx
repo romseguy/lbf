@@ -519,17 +519,6 @@ export const EventsList = ({
 
     return (
       <>
-        <EventsListToggle
-          previousEvents={previousEvents}
-          showPreviousEvents={showPreviousEvents}
-          setShowPreviousEvents={setShowPreviousEvents}
-          currentEvents={currentEvents}
-          nextEvents={nextEvents}
-          showNextEvents={showNextEvents}
-          setShowNextEvents={setShowNextEvents}
-          mb={5}
-        />
-
         <Flex flexDirection="column" mb={5}>
           <Flex>
             <Text className="rainbow-text">Catégories</Text>
@@ -589,6 +578,17 @@ export const EventsList = ({
             size="sm"
           />
         </Flex>
+
+        <EventsListToggle
+          previousEvents={previousEvents}
+          showPreviousEvents={showPreviousEvents}
+          setShowPreviousEvents={setShowPreviousEvents}
+          currentEvents={currentEvents}
+          nextEvents={nextEvents}
+          showNextEvents={showNextEvents}
+          setShowNextEvents={setShowNextEvents}
+          mb={5}
+        />
 
         {showPreviousEvents && (
           <Table>

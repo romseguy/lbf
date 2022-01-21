@@ -133,8 +133,9 @@ export const EventsListCategories = ({
 
   return (
     <Flex flexWrap="nowrap" overflowX="auto" {...props}>
-      {categories.map((category, index) => {
+      {categories.map((category) => {
         const { bgColor = "gray" } = category;
+        const index = parseInt(category.index);
         const eventsCount = events.filter(
           (event) => event.eventCategory === index
         ).length;

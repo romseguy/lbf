@@ -35,8 +35,10 @@ import {
   EntityInfo,
   GridHeader,
   GridItem,
-  IconFooter,
-  Link
+  Link,
+  TabContainer,
+  TabContainerContent,
+  TabContainerHeader
 } from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
@@ -48,13 +50,13 @@ import { ProjectsList } from "features/projects/ProjectsList";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { Visibility as EventVisibility } from "models/Event";
-import { IOrg, IOrgTab, orgTypeFull, orgTypeFull4, OrgTypes } from "models/Org";
+import { IOrg, IOrgTab, orgTypeFull, orgTypeFull5, OrgTypes } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
-import { hasItems, indexOfbyKey, sortOn } from "utils/array";
+import { hasItems, sortOn } from "utils/array";
 import { capitalize } from "utils/string";
 import { AppQuery } from "utils/types";
 import { OrgConfigPanel } from "./OrgConfigPanel";
@@ -100,6 +102,7 @@ export const OrgPage = ({
   const org = orgQuery.data;
   const orgsWithLocation =
     org.orgs?.filter(({ orgLat, orgLng }) => !!orgLat && !!orgLng) || [];
+
   const [description, setDescription] = useState<string | undefined>();
   useEffect(() => {
     if (org.orgDescription && org.orgDescription.length > 0) {
@@ -378,268 +381,189 @@ export const OrgPage = ({
               >
                 {!!tabs.find(({ label }) => label === "Accueil") && (
                   <TabPanel aria-hidden>
-                    <Grid
-                      // templateColumns="minmax(425px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr)"
-                      gridGap={5}
-                      css={css`
-                        @media (max-width: 650px) {
-                          & {
-                            grid-template-columns: 1fr !important;
-                          }
-                        }
-                      `}
-                    >
-                      <GridItem
-                        light={{ bg: "orange.100" }}
-                        dark={{ bg: "gray.600" }}
-                        borderTopRadius="lg"
+                    <TabContainer>
+                      <TabContainerHeader
+                        heading={`Coordonnées ${orgTypeFull(org.orgType)}`}
                       >
-                        <Grid templateRows="auto 1fr">
-                          <GridHeader
-                            display="flex"
-                            alignItems="center"
-                            borderTopRadius="lg"
+                        {hasInfo && isCreator && (
+                          <Tooltip
+                            hasArrow
+                            label="Modifier les coordonnées"
+                            placement="bottom"
                           >
-                            <Heading size="sm" py={3}>
-                              Coordonnées {orgTypeFull(org.orgType)}
-                            </Heading>
-                            {hasInfo && isCreator && (
-                              <Tooltip
-                                hasArrow
-                                label="Modifier les coordonnées"
-                                placement="bottom"
-                              >
-                                <IconButton
-                                  aria-label="Modifier les coordonnées"
-                                  icon={<EditIcon />}
-                                  bg="transparent"
-                                  _hover={{ color: "green" }}
-                                  onClick={() => setIsEdit(true)}
-                                />
-                              </Tooltip>
-                            )}
-                          </GridHeader>
+                            <IconButton
+                              aria-label="Modifier les coordonnées"
+                              icon={<EditIcon />}
+                              bg="transparent"
+                              _hover={{ color: "green" }}
+                              onClick={() => setIsEdit(true)}
+                            />
+                          </Tooltip>
+                        )}
+                      </TabContainerHeader>
 
-                          <GridItem
-                            light={{ bg: "orange.100" }}
-                            dark={{ bg: "gray.600" }}
+                      <TabContainerContent p={3}>
+                        {hasInfo ? (
+                          <EntityInfo entity={org} />
+                        ) : isCreator ? (
+                          <Button
+                            colorScheme="teal"
+                            leftIcon={<AddIcon />}
+                            onClick={() => setIsEdit(true)}
                           >
-                            <Box p={5}>
-                              {hasInfo ? (
-                                <EntityInfo entity={org} />
-                              ) : isCreator ? (
-                                <Button
-                                  colorScheme="teal"
-                                  leftIcon={<AddIcon />}
-                                  onClick={() => setIsEdit(true)}
+                            Ajouter
+                          </Button>
+                        ) : (
+                          <Text fontStyle="italic">Aucunes coordonnées.</Text>
+                        )}
+                      </TabContainerContent>
+                    </TabContainer>
+
+                    {org.orgType === OrgTypes.NETWORK && (
+                      <>
+                        {orgsWithLocation.length > 0 && (
+                          <TabContainer>
+                            <TabContainerHeader heading="Carte du réseau">
+                              {isCreator && (
+                                <Tooltip
+                                  hasArrow
+                                  label="Ajouter ou supprimer des organisations du réseau"
+                                  placement="bottom"
                                 >
-                                  Ajouter
-                                </Button>
-                              ) : (
-                                <Text fontStyle="italic">
-                                  Aucunes coordonnées.
-                                </Text>
-                              )}
-                            </Box>
-                          </GridItem>
-                        </Grid>
-                      </GridItem>
-
-                      {Array.isArray(orgNetworks) && orgNetworks.length > 0 && (
-                        <GridItem
-                          light={{ bg: "orange.100" }}
-                          dark={{ bg: "gray.600" }}
-                          borderTopRadius="lg"
-                        >
-                          <Grid templateRows="auto 1fr">
-                            <GridHeader
-                              borderTopRadius="lg"
-                              alignItems="center"
-                            >
-                              <Heading size="sm" py={3}>
-                                {capitalize(orgTypeFull4(org.orgType))} est
-                                membre des réseaux ci-dessous :
-                              </Heading>
-                            </GridHeader>
-
-                            <GridItem
-                              light={{ bg: "orange.100" }}
-                              dark={{ bg: "gray.600" }}
-                            >
-                              <Box p={5}>
-                                {orgNetworks.map((network) => (
-                                  <EntityButton
-                                    key={network._id}
-                                    org={network}
+                                  <IconButton
+                                    aria-label="Ajouter ou supprimer des organisations du réseau"
+                                    icon={<EditIcon />}
+                                    bg="transparent"
+                                    _hover={{ color: "green" }}
+                                    onClick={() => setIsEdit(true)}
                                   />
-                                ))}
-                              </Box>
-                            </GridItem>
-                          </Grid>
-                        </GridItem>
-                      )}
-
-                      {org.orgType === OrgTypes.NETWORK && (
-                        <>
-                          {orgsWithLocation.length > 0 && (
-                            <GridItem
-                              rowSpan={1}
-                              borderTopRadius="lg"
-                              light={{ bg: "orange.100" }}
-                              dark={{ bg: "gray.600" }}
-                            >
-                              <GridHeader
-                                borderTopRadius="lg"
-                                alignItems="center"
-                              >
-                                <Flex alignItems="center">
-                                  <Heading size="sm" py={3}>
-                                    Carte du réseau
-                                  </Heading>
-                                  {isCreator && (
-                                    <Tooltip
-                                      hasArrow
-                                      label="Ajouter ou supprimer des organisations du réseau"
-                                      placement="bottom"
-                                    >
-                                      <IconButton
-                                        aria-label="Ajouter ou supprimer des organisations du réseau"
-                                        icon={<EditIcon />}
-                                        bg="transparent"
-                                        _hover={{ color: "green" }}
-                                        onClick={() => setIsEdit(true)}
-                                      />
-                                    </Tooltip>
-                                  )}
-                                </Flex>
-                              </GridHeader>
-                              <GridItem
-                                light={{ bg: "orange.100" }}
-                                dark={{ bg: "gray.600" }}
-                              >
-                                <MapContainer
-                                  orgs={orgsWithLocation}
-                                  center={{
-                                    lat: orgsWithLocation[0].orgLat,
-                                    lng: orgsWithLocation[0].orgLng
-                                  }}
-                                />
-                              </GridItem>
-                            </GridItem>
-                          )}
-
-                          {Array.isArray(org.orgs) && org.orgs.length > 0 && (
-                            <GridItem
-                              rowSpan={1}
-                              borderTopRadius="lg"
-                              light={{ bg: "orange.100" }}
-                              dark={{ bg: "gray.600" }}
-                            >
-                              <GridHeader
-                                borderTopRadius="lg"
-                                alignItems="center"
-                              >
-                                <Flex alignItems="center">
-                                  <Heading size="sm" py={3}>
-                                    Membres du réseau
-                                  </Heading>
-                                  {isCreator && (
-                                    <Tooltip
-                                      hasArrow
-                                      label="Ajouter ou supprimer des organisations du réseau"
-                                      placement="bottom"
-                                    >
-                                      <IconButton
-                                        aria-label="Ajouter ou supprimer des organisations du réseau"
-                                        icon={<EditIcon />}
-                                        bg="transparent"
-                                        _hover={{ color: "green" }}
-                                        onClick={() => setIsEdit(true)}
-                                      />
-                                    </Tooltip>
-                                  )}
-                                </Flex>
-                              </GridHeader>
-                              <GridItem
-                                light={{ bg: "orange.100" }}
-                                dark={{ bg: "gray.600" }}
-                              >
-                                <List p={3} spacing={1}>
-                                  {[...org.orgs]
-                                    .sort((a, b) => {
-                                      if (a.orgName > b.orgName) return -1;
-                                      if (a.orgName < b.orgName) return 1;
-                                      return 0;
-                                    })
-                                    .map((org) => (
-                                      <ListItem key={org._id}>
-                                        <EntityButton org={org} />
-                                      </ListItem>
-                                    ))}
-                                </List>
-                              </GridItem>
-                            </GridItem>
-                          )}
-                        </>
-                      )}
-
-                      {/* org.orgDescription */}
-                      <GridItem
-                        rowSpan={1}
-                        borderTopRadius="lg"
-                        light={{ bg: "orange.100" }}
-                        dark={{ bg: "gray.600" }}
-                      >
-                        <GridHeader
-                          display="flex"
-                          alignItems="center"
-                          borderTopRadius="lg"
-                        >
-                          <Heading size="sm" py={3}>
-                            Présentation {orgTypeFull(org.orgType)}
-                          </Heading>
-                          {org.orgDescription && isCreator && (
-                            <Tooltip
-                              hasArrow
-                              label="Modifier la présentation"
-                              placement="bottom"
-                            >
-                              <IconButton
-                                aria-label="Modifier la présentation"
-                                icon={<EditIcon />}
-                                bg="transparent"
-                                _hover={{ color: "green" }}
-                                onClick={() => setIsEdit(true)}
-                              />
-                            </Tooltip>
-                          )}
-                        </GridHeader>
-
-                        <GridItem p={5}>
-                          {description && description.length > 0 ? (
-                            <div className="rteditor">
-                              <div
-                                dangerouslySetInnerHTML={{
-                                  __html: DOMPurify.sanitize(description, {
-                                    ADD_TAGS: ["iframe"]
-                                  })
+                                </Tooltip>
+                              )}
+                            </TabContainerHeader>
+                            <TabContainerContent>
+                              <MapContainer
+                                orgs={orgsWithLocation}
+                                center={{
+                                  lat: orgsWithLocation[0].orgLat,
+                                  lng: orgsWithLocation[0].orgLng
                                 }}
                               />
-                            </div>
-                          ) : isCreator ? (
-                            <Button
-                              colorScheme="teal"
-                              leftIcon={<AddIcon />}
+                            </TabContainerContent>
+                          </TabContainer>
+                        )}
+
+                        {Array.isArray(org.orgs) && org.orgs.length > 0 && (
+                          <TabContainer>
+                            <TabContainerHeader heading="Membres du réseau">
+                              {isCreator && (
+                                <Tooltip
+                                  hasArrow
+                                  label="Ajouter ou supprimer des organisations du réseau"
+                                  placement="bottom"
+                                >
+                                  <IconButton
+                                    aria-label="Ajouter ou supprimer des organisations du réseau"
+                                    icon={<EditIcon />}
+                                    bg="transparent"
+                                    _hover={{ color: "green" }}
+                                    onClick={() => setIsEdit(true)}
+                                  />
+                                </Tooltip>
+                              )}
+                            </TabContainerHeader>
+                            <TabContainerContent>
+                              {[...org.orgs]
+                                .sort((a, b) => {
+                                  if (a.orgName > b.orgName) return -1;
+                                  if (a.orgName < b.orgName) return 1;
+                                  return 0;
+                                })
+                                .map((childOrg, index) => {
+                                  return (
+                                    <EntityButton
+                                      org={childOrg}
+                                      mb={
+                                        index === org.orgs!.length - 1 ? 3 : 0
+                                      }
+                                      mt={3}
+                                      mx={3}
+                                    />
+                                  );
+                                })}
+                            </TabContainerContent>
+                          </TabContainer>
+                        )}
+                      </>
+                    )}
+
+                    {Array.isArray(orgNetworks) && orgNetworks.length > 0 && (
+                      <TabContainer>
+                        <TabContainerHeader
+                          heading={`
+                            ${capitalize(orgTypeFull5(org.orgType))} est
+                            membre ${
+                              orgNetworks.length === 1
+                                ? "du réseau"
+                                : "des réseaux"
+                            } :
+                          `}
+                        />
+                        <TabContainerContent p={3}>
+                          {orgNetworks.map((network) => (
+                            <EntityButton
+                              key={network._id}
+                              org={network}
+                              mb={1}
+                            />
+                          ))}
+                        </TabContainerContent>
+                      </TabContainer>
+                    )}
+
+                    <TabContainer>
+                      <TabContainerHeader
+                        heading={`Présentation ${orgTypeFull(org.orgType)}`}
+                      >
+                        {org.orgDescription && isCreator && (
+                          <Tooltip
+                            hasArrow
+                            label="Modifier la présentation"
+                            placement="bottom"
+                          >
+                            <IconButton
+                              aria-label="Modifier la présentation"
+                              icon={<EditIcon />}
+                              bg="transparent"
+                              _hover={{ color: "green" }}
                               onClick={() => setIsEdit(true)}
-                            >
-                              Ajouter
-                            </Button>
-                          ) : (
-                            <Text fontStyle="italic">Aucune présentation.</Text>
-                          )}
-                        </GridItem>
-                      </GridItem>
-                    </Grid>
+                            />
+                          </Tooltip>
+                        )}
+                      </TabContainerHeader>
+                      <TabContainerContent p={3}>
+                        {description && description.length > 0 ? (
+                          <div className="rteditor">
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(description, {
+                                  ADD_TAGS: ["iframe"]
+                                })
+                              }}
+                            />
+                          </div>
+                        ) : isCreator ? (
+                          <Button
+                            colorScheme="teal"
+                            leftIcon={<AddIcon />}
+                            onClick={() => setIsEdit(true)}
+                          >
+                            Ajouter
+                          </Button>
+                        ) : (
+                          <Text fontStyle="italic">Aucune présentation.</Text>
+                        )}
+                      </TabContainerContent>
+                    </TabContainer>
                   </TabPanel>
                 )}
 
@@ -665,7 +589,6 @@ export const OrgPage = ({
                           setIsLogin={setIsLogin}
                           setTitle={setTitle}
                         />
-                        <IconFooter />
                       </Box>
                     </Flex>
                   </TabPanel>
@@ -683,7 +606,6 @@ export const OrgPage = ({
                       isLogin={isLogin}
                       setIsLogin={setIsLogin}
                     />
-                    <IconFooter />
                   </TabPanel>
                 )}
 
@@ -734,7 +656,6 @@ export const OrgPage = ({
                       setIsLogin={setIsLogin}
                       currentTopicName={tabItem}
                     />
-                    <IconFooter />
 
                     {process.env.NODE_ENV === "development" &&
                       session?.user.isAdmin && (
@@ -764,7 +685,6 @@ export const OrgPage = ({
                       isLogin={isLogin}
                       setIsLogin={setIsLogin}
                     />
-                    <IconFooter />
                   </TabPanel>
                 )}
 

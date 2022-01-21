@@ -1,5 +1,4 @@
 import {
-  CheckCircleIcon,
   DeleteIcon,
   EmailIcon,
   InfoIcon,
@@ -19,12 +18,11 @@ import {
 import { format, formatISO, getMinutes, getDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Session } from "next-auth";
-import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
 import { Link, GridItem, EntityButton } from "features/common";
 import { ModalState } from "features/modals/EntityNotifModal";
-import { Category, getCategories, IEvent } from "models/Event";
+import { defaultCategory, getCategories, IEvent } from "models/Event";
 import { IOrg, orgTypeFull2 } from "models/Org";
 import { hasItems } from "utils/array";
 import { EventsListItemVisibility } from "./EventsListItemVisibility";
@@ -85,15 +83,11 @@ export const EventsListItem = ({
   city: string | null;
   toast: any;
 }) => {
-  const router = useRouter();
   const [eventNameClassName, setEventNameClassName] = useState("");
 
   const minDate = event.eventMinDate;
   const maxDate = event.eventMaxDate;
   const showIsApproved = !!(org && isCreator);
-  const showEventCategory = !!event.eventCategory;
-  const showEventVisiblity = !!org;
-  const showSend = !!(org && isCreator);
   let notifiedCount = 0;
   let canSendCount = 0;
   let label = org
@@ -114,10 +108,16 @@ export const EventsListItem = ({
     label = canSendCount > 0 ? `Envoyer des invitations` : label;
   }
 
-  const categories = getCategories(event);
   const isCategorySelected = !!selectedCategories.find(
     (selectedCategory) => selectedCategory === event.eventCategory!
   );
+
+  const categories = getCategories(event);
+  const eventCategory =
+    categories.find(({ index }) => parseInt(index) === event.eventCategory) ||
+    defaultCategory;
+  let categoryBgColor = eventCategory.bgColor;
+  let categoryLabel = eventCategory.label;
 
   return (
     <>
@@ -137,24 +137,18 @@ export const EventsListItem = ({
                 <Tooltip
                   label={
                     !isCategorySelected
-                      ? `Afficher les événements de la catégorie "${
-                          categories[event.eventCategory].label
-                        }"`
+                      ? `Afficher les événements de la catégorie "${categoryLabel}"`
                       : ""
                   }
                 >
                   <Button
-                    color={
-                      categories[event.eventCategory].bgColor
-                        ? "white"
-                        : "black"
-                    }
+                    color={categoryBgColor ? "white" : "black"}
                     colorScheme={
-                      categories[event.eventCategory].bgColor === "transparent"
+                      categoryBgColor === "transparent"
                         ? isDark
                           ? "whiteAlpha"
                           : "blackAlpha"
-                        : categories[event.eventCategory].bgColor
+                        : categoryBgColor
                     }
                     fontSize="small"
                     fontWeight="normal"
@@ -171,7 +165,7 @@ export const EventsListItem = ({
                       );
                     }}
                   >
-                    {categories[event.eventCategory].label}
+                    {categoryLabel}
                   </Button>
                 </Tooltip>
               </GridItem>

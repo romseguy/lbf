@@ -32,7 +32,7 @@ import { Layout } from "features/layout";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { IUser } from "models/User";
 import api from "utils/api";
-import { UserPageTabs } from "./UserPageTabs";
+import { defaultTabs, UserPageTabs } from "./UserPageTabs";
 import { useEditUserMutation } from "./usersApi";
 import { PageProps } from "pages/_app";
 
@@ -118,7 +118,18 @@ export const UserPage = ({
         )}
 
         {!isEdit && (
-          <UserPageTabs tabs={isSelf ? undefined : {}} height="auto">
+          <UserPageTabs
+            tabs={
+              isSelf
+                ? defaultTabs
+                : Object.keys(defaultTabs).reduce((tabs, tabLabel) => {
+                    if (["Accueil", "Galerie"].includes(tabLabel))
+                      return { ...tabs, [tabLabel]: defaultTabs[tabLabel] };
+                    return tabs;
+                  }, {})
+            }
+            height="auto"
+          >
             <TabPanels
               css={css`
                 & > * {

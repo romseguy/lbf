@@ -117,10 +117,6 @@ const Hash = ({ ...props }: HashProps) => {
     orgQueryStatus === 404 &&
     userQueryStatus === 404
   ) {
-    console.warn("NOT FOUND: REDIRECTING");
-    console.log(isLoading);
-    console.log(eventQuery);
-
     return <NotFound {...props} canRedirect={canRedirect} />;
   }
 

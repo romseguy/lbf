@@ -1,4 +1,5 @@
 export const userName = "romain";
+export const userEmail = "rom.seguy@lilo.org";
 export const email = "r@r.com";
 
 export const eventName = "test event";

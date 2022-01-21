@@ -15,7 +15,12 @@ export const NavButtonsList = ({
   const router = useRouter();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const linkProps = { variant: "no-underline", shallow: true };
+  const linkProps = {
+    ariaHidden: true,
+    alignSelf: "flex-start",
+    variant: "no-underline",
+    shallow: true
+  };
   const styleProps = { colorScheme: isDark ? "gray" : "cyan", mt: 3 };
 
   return (
@@ -29,7 +34,7 @@ export const NavButtonsList = ({
         }
       `}
     >
-      <Link aria-hidden href="/" {...linkProps}>
+      <Link href="/" {...linkProps}>
         <Button
           leftIcon={<FaHome />}
           isActive={router.asPath === "/"}
@@ -39,7 +44,7 @@ export const NavButtonsList = ({
         </Button>
       </Link>
 
-      <Link aria-hidden href="/reseaux" {...linkProps}>
+      {/* <Link href="/reseaux" {...linkProps}>
         <Button
           leftIcon={<IoIosGitNetwork />}
           isActive={router.asPath === "/reseaux"}
@@ -47,9 +52,9 @@ export const NavButtonsList = ({
         >
           Réseaux
         </Button>
-      </Link>
+      </Link> */}
 
-      <Link aria-hidden href="/evenements" {...linkProps}>
+      <Link href="/evenements" {...linkProps}>
         <Button
           leftIcon={<CalendarIcon />}
           isActive={router.asPath === "/evenements"}
@@ -70,7 +75,7 @@ export const NavButtonsList = ({
         </Button>
       </Link> */}
 
-      <Link aria-hidden href="/forum" {...linkProps}>
+      <Link href="/forum" {...linkProps}>
         <Button
           leftIcon={<ChatIcon />}
           isActive={router.asPath === "/forum"}

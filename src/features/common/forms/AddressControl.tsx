@@ -81,7 +81,6 @@ export const AddressControl = withGoogleApi({
       if (errors && name) {
         return (
           <FormControl
-            id={name}
             isRequired={!!controlRules.required}
             isInvalid={!!errors[name]}
             {...props}

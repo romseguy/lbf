@@ -109,7 +109,12 @@ export const TopicsListItem = ({
 
   return (
     <Box mb={5} ref={elementToScrollRef}>
-      <Link as="div" variant="no-underline" onClick={onClick} data-cy="topic">
+      <Link
+        as="div"
+        variant="no-underline"
+        onClick={onClick}
+        data-cy="topic-list-item"
+      >
         <Flex
           //flexDirection="column"
           flexWrap="wrap"
@@ -314,7 +319,7 @@ export const TopicsListItem = ({
                   mt={1}
                   mb={2}
                   onClick={onDeleteClick}
-                  data-cy="delete-topic"
+                  data-cy="topic-list-item-delete"
                 />
               </>
             )}
@@ -347,8 +352,8 @@ export const TopicsListItem = ({
                       }}
                       data-cy={
                         isSubbedToTopic
-                          ? "topic-unsubscribe"
-                          : "topic-subscribe"
+                          ? "topic-list-item-unsubscribe"
+                          : "topic-list-item-subscribe"
                       }
                     />
                   </Tooltip>

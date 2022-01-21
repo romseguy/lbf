@@ -3,6 +3,11 @@ import { IEvent, StatusTypes } from "./IEvent";
 
 export * from "./IEvent";
 
+export const defaultCategory = {
+  index: 9,
+  label: "Autre",
+  bgColor: "transparent"
+};
 export const Category: { [key: number]: IOrgEventCategory } = [
   //{ index: 0, label: "À définir", bgColor: "gray" },
   { index: 1, label: "Atelier", bgColor: "red" },
@@ -13,7 +18,7 @@ export const Category: { [key: number]: IOrgEventCategory } = [
   //{ label: "Festival", bgColor: "blue.600" },
   //{ label: "Jam session", bgColor: "purple.300" },
   //{ label: "Réunion", bgColor: "purple.600" },
-  { index: 9, label: "Autre", bgColor: "transparent" }
+  defaultCategory
 ].reduce((obj, cat) => ({ ...obj, [cat.index]: cat }), {});
 
 export const getCategories = (event: IEvent<string | Date>) => {
@@ -21,7 +26,7 @@ export const getCategories = (event: IEvent<string | Date>) => {
     (catId) => Category[parseInt(catId)]
   );
 
-  if (Array.isArray(event.eventOrgs)) {
+  if (Array.isArray(event.eventOrgs) && event.eventOrgs.length > 0) {
     const firstOrgCategories = event.eventOrgs[0].orgEventCategories;
     if (firstOrgCategories) categories = firstOrgCategories;
   }

@@ -146,7 +146,7 @@ export const OrgConfigListsPanel = ({
       >
         <GridHeader
           borderTopRadius="lg"
-          borderBottomRadius={!isVisible.lists ? "lg" : undefined}
+          borderBottomRadius={!isVisible.lists && !isAdd ? "lg" : undefined}
         >
           <Grid templateColumns="1fr auto" alignItems="center">
             <GridItem
@@ -163,7 +163,7 @@ export const OrgConfigListsPanel = ({
                 {hasItems(lists) &&
                   (isVisible.lists ? <FaFolderOpen /> : <FaFolder />)}
                 <Heading size="sm" ml={2}>
-                  Listes de diffusion
+                  Listes
                 </Heading>
               </Flex>
             </GridItem>
@@ -197,7 +197,7 @@ export const OrgConfigListsPanel = ({
       </Link>
 
       {isAdd && (
-        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.700" }} p={5}>
+        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }} p={5}>
           <EntityListForm
             org={org}
             onCancel={() => {

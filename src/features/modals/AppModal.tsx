@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Modal,
   ModalOverlay,
@@ -9,6 +8,8 @@ import {
   useDisclosure,
   ModalProps
 } from "@chakra-ui/react";
+import React from "react";
+import { isMobile } from "react-device-detect";
 
 export const AppModal = ({
   closeOnOverlayClick,
@@ -29,6 +30,7 @@ export const AppModal = ({
         onClose();
       }}
       closeOnOverlayClick={closeOnOverlayClick}
+      size={isMobile ? "full" : undefined}
     >
       <ModalOverlay>
         <ModalContent maxWidth="xl">

@@ -37,7 +37,7 @@ export const MapContainer = withGoogleApi({
     if (!canDisplay) {
       if (isOffline) {
         return (
-          <Alert status="error" mb={3}>
+          <Alert status="error">
             <AlertIcon />
             Échec du chargement de la carte. Êtes-vous connecté à internet ?
           </Alert>
@@ -90,7 +90,8 @@ export const MapContainer = withGoogleApi({
         size={size}
         style={{
           position: "relative",
-          height: "340px"
+          height: "340px",
+          flex: 1
         }}
         onFullscreenControlClick={(isFull: boolean) => {
           setSize({

@@ -50,6 +50,23 @@ export const GlobalStyles = () => (
       }
       //#endregion
 
+      //#region rteditor
+      .rteditor {
+        a {
+          text-decoration: underline;
+        }
+
+        a.clip {
+          text-overflow: ellipsis;
+          display: inline-block;
+          white-space: nowrap;
+          overflow: hidden;
+          max-width: 150px;
+          vertical-align: top;
+        }
+      }
+      //#endregion
+
       //#region quill
       /* .ql-editor {
         padding: 0;

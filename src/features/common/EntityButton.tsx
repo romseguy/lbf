@@ -133,7 +133,7 @@ export const EntityButton = ({
               : user
               ? user.userName
               : ""}
-            {org ? (
+            {org && org.orgUrl !== "forum" ? (
               <Icon
                 as={
                   org.orgVisibility === Visibility.PRIVATE

@@ -5,6 +5,7 @@ import {
   Button,
   Flex,
   FlexProps,
+  Heading,
   Menu,
   MenuButton,
   Icon,
@@ -228,14 +229,13 @@ export const Nav = ({
             <Tbody role="rowgroup">
               <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
-                  <Flex>
-                    <Text
+                  <Flex mb={1}>
+                    <Heading
                       className="rainbow-text"
                       fontFamily="DancingScript"
-                      fontSize="3xl"
                     >
                       Naviguer
-                    </Text>
+                    </Heading>
                   </Flex>
                 </Td>
               </Tr>
@@ -256,13 +256,15 @@ export const Nav = ({
                       <DrawerContent>
                         <DrawerCloseButton />
                         <DrawerHeader>
-                          <Text
-                            className="rainbow-text"
-                            fontFamily="DancingScript"
-                            fontSize="3xl"
-                          >
-                            Naviguer
-                          </Text>
+                          <Flex>
+                            <Heading
+                              className="rainbow-text"
+                              fontFamily="DancingScript"
+                              fontSize="3xl"
+                            >
+                              Naviguer
+                            </Heading>
+                          </Flex>
                         </DrawerHeader>
                         <DrawerBody>
                           <NavButtonsList direction="column" />
@@ -275,14 +277,13 @@ export const Nav = ({
 
               <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
-                  <Flex>
-                    <Text
+                  <Flex mt={1}>
+                    <Heading
                       className="rainbow-text"
                       fontFamily="DancingScript"
-                      fontSize="3xl"
                     >
                       {session ? "Mon espace" : "Se connecter"}
-                    </Text>
+                    </Heading>
                   </Flex>
                 </Td>
               </Tr>

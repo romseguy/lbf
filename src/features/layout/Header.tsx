@@ -19,11 +19,10 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { FaRegCalendarCheck, FaRegCalendarTimes } from "react-icons/fa";
-import tw, { css } from "twin.macro";
+import { css } from "twin.macro";
 import { Link } from "features/common";
 import { IOrg, OrgTypes } from "models/Org";
-import { Category, getCategories, IEvent } from "models/Event";
-import { breakpoints } from "theme/theme";
+import { defaultCategory, getCategories, IEvent } from "models/Event";
 
 export const Header = ({
   defaultTitle,
@@ -127,20 +126,23 @@ export const Header = ({
   const HeaderEventCategory = () => {
     if (!event || !event.eventCategory) return null;
     const categories = getCategories(event);
+    const eventCategory =
+      categories.find(({ index }) => parseInt(index) === event.eventCategory) ||
+      defaultCategory;
 
     return (
       <Tag
         bgColor={
-          categories[event.eventCategory].bgColor === "transparent"
+          eventCategory.bgColor === "transparent"
             ? isDark
               ? "whiteAlpha.300"
               : "blackAlpha.600"
-            : categories[event.eventCategory].bgColor
+            : eventCategory.bgColor
         }
         color={isDark ? "white" : "black"}
         ml={2}
       >
-        {categories[event.eventCategory].label}
+        {eventCategory.label}
       </Tag>
     );
   };

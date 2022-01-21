@@ -39,3 +39,4 @@ export * from "./OfflineIcon";
 export * from "./NotFound";
 export * from "./PageContainer";
 export * from "./Spacer";
+export * from "./TabContainer";

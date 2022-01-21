@@ -10,7 +10,9 @@ import { logJson } from "utils/string";
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   return NextAuth(req, res, {
     pages: {
-      verifyRequest: "/verify"
+      verifyRequest: "/auth/verify",
+      newUser: "/auth/newUser",
+      error: "/auth/newUser"
     },
     providers: [
       Providers.Credentials({
@@ -57,7 +59,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
               from,
               subject: `Connexion à ${host}`,
               text: text({ url, host }),
-              html: html({ url, host, email })
+              html: html({ url, host, email }),
+              encoding: "UTF-8"
             });
           } catch (error) {
             console.error(error);

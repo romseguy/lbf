@@ -123,8 +123,9 @@ export const TopicForm = ({
     mode: "onChange"
   });
 
-  const topicOrgLists = watch("topicOrgLists");
-  const topicNotif = watch("topicNotif");
+  const topicVisibility = watch("topicVisibility");
+  // const topicOrgLists = watch("topicOrgLists");
+  // const topicNotif = watch("topicNotif");
 
   // if (topicNotif && org && !hasItems(topicOrgLists))
   //   setValue("topicNotif", false);
@@ -434,6 +435,14 @@ export const TopicForm = ({
         </FormControl>
       )}
 
+      {hasItems(topicVisibility) && (
+        <Alert status="info" mb={3}>
+          <AlertIcon />
+          La discussion ne sera visible que par les membres des listes
+          sélectionnées.
+        </Alert>
+      )}
+
       {/* {(props.isCreator || props.isSubscribed) &&
         lists &&
         org?.orgName !== "forum" && (
@@ -445,14 +454,6 @@ export const TopicForm = ({
             </FormErrorMessage>
           </FormControl>
         )} */}
-
-      {/* {hasItems(topicOrgLists) && (
-        <Alert status="info" mb={3}>
-          <AlertIcon />
-          La discussion ne sera visible que par les membres des listes de
-          diffusion sélectionnées.
-        </Alert>
-      )} */}
 
       {/* {!props.topic &&
         (event ||

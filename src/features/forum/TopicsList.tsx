@@ -31,7 +31,6 @@ import { TopicsListItem } from "./TopicsListItem";
 import { hasItems } from "utils/array";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { TopicsListCategories } from "./TopicsListCategories";
-import { useScroll } from "hooks/useScroll";
 
 export const TopicsList = ({
   event,
@@ -112,14 +111,14 @@ export const TopicsList = ({
 
           if (Array.isArray(selectedLists) && selectedLists.length > 0) {
             if (
-              Array.isArray(topic.topicOrgLists) &&
-              topic.topicOrgLists.length > 0
+              Array.isArray(topic.topicVisibility) &&
+              topic.topicVisibility.length > 0
             ) {
               let found = false;
 
-              for (let i = 0; i < topic.topicOrgLists.length; i++)
+              for (let i = 0; i < topic.topicVisibility.length; i++)
                 for (let j = 0; j < selectedLists.length; j++)
-                  if (selectedLists[j].listName === topic.topicOrgLists[i])
+                  if (selectedLists[j].listName === topic.topicVisibility[i])
                     found = true;
 
               if (found) belongsToList = true;
@@ -131,16 +130,17 @@ export const TopicsList = ({
 
         if (props.isCreator) return true;
 
-        if (!topic.topicOrgLists || !topic.topicOrgLists.length) return true;
-
-        if (props.isSubscribed && topic.topicOrgLists?.includes("Adhérents"))
+        if (!topic.topicVisibility || !topic.topicVisibility.length)
           return true;
 
-        if (props.isFollowed && topic.topicOrgLists?.includes("Abonnés"))
+        if (props.isSubscribed && topic.topicVisibility?.includes("Adhérents"))
+          return true;
+
+        if (props.isFollowed && topic.topicVisibility?.includes("Abonnés"))
           return true;
 
         if (
-          topic.topicOrgLists.find((listName) => {
+          topic.topicOrgLists?.find((listName) => {
             const orgList = org.orgLists?.find(
               (orgList) => orgList.listName === listName
             );
@@ -195,7 +195,7 @@ export const TopicsList = ({
               }
             }
           }}
-          data-cy="add-topic"
+          data-cy="topic-add-button"
         >
           Ajouter une discussion
         </Button>
@@ -277,7 +277,7 @@ export const TopicsList = ({
           </Flex>
         )}
 
-      <Grid data-cy="topicList">
+      <Grid data-cy="topic-list">
         {query.isLoading ? (
           <Spinner />
         ) : !topics.length ? (
