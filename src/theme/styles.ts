@@ -61,6 +61,7 @@ const ReactSelectStyles = (props: Dict) => ({
     },
 
     ".react-select__menu": {
+      zIndex: 9999999,
       backgroundColor: mode("white", "gray.700")(props),
 
       ".react-select__menu-list": {

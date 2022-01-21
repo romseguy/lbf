@@ -817,10 +817,9 @@ export const OrgPage = ({
                                 orgTabs = newTabs
                                   .filter(({ checked }) => !!checked)
                                   .map(({ label, url }) => ({ label, url }));
-                                setCurrentTabIndex(
-                                  indexOfbyKey(orgTabs, "label", "")
-                                );
                               }
+
+                              setCurrentTabIndex(orgTabs.length - 1);
 
                               await editOrg({
                                 orgUrl: org.orgUrl,

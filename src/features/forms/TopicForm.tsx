@@ -137,8 +137,9 @@ export const TopicForm = ({
     topicName: string;
     topicMessage: string;
     topicCategory?: { label: string; value: string } | null;
-    topicOrgLists?: [{ label: string; value: string }];
-    topicNotif?: boolean;
+    topicVisibility?: [{ label: string; value: string }];
+    //topicOrgLists?: [{ label: string; value: string }];
+    //topicNotif?: boolean;
   }) => {
     console.log("submitted", form);
     if (!session) return;
@@ -148,7 +149,8 @@ export const TopicForm = ({
     let topic: Partial<ITopic> = {
       topicCategory: form.topicCategory ? form.topicCategory.value : null,
       topicName: form.topicName,
-      topicOrgLists: form.topicOrgLists?.map(({ label, value }) => value)
+      topicVisibility: form.topicVisibility?.map(({ label, value }) => value)
+      //topicOrgLists: form.topicOrgLists?.map(({ label, value }) => value)
     };
 
     try {
@@ -171,15 +173,16 @@ export const TopicForm = ({
         setIsLoading(false);
         props.onSubmit && props.onSubmit(props.topic);
       } else {
-        topic.topicMessages = form.topicMessage
-          ? [
-              {
-                message: form.topicMessage,
-                messageHtml: form.topicMessage,
-                createdBy: session.user.userId
-              }
-            ]
-          : [];
+        topic.topicMessages =
+          typeof form.topicMessage === "string" && form.topicMessage !== ""
+            ? [
+                {
+                  message: form.topicMessage,
+                  messageHtml: form.topicMessage,
+                  createdBy: session.user.userId
+                }
+              ]
+            : [];
 
         const payload = {
           org,
@@ -188,8 +191,8 @@ export const TopicForm = ({
         };
 
         const newTopic = await addTopic({
-          payload,
-          topicNotif: form.topicNotif
+          payload
+          //topicNotif: form.topicNotif
         }).unwrap();
 
         toast({
@@ -236,7 +239,7 @@ export const TopicForm = ({
         <FormLabel>Objet de la discussion</FormLabel>
         <Input
           name="topicName"
-          placeholder="Objet de la discussion"
+          placeholder="Objet"
           ref={register({
             required: "Veuillez saisir l'objet de la discussion"
           })}
@@ -253,7 +256,7 @@ export const TopicForm = ({
           isInvalid={!!errors["topicCategory"]}
           mb={3}
         >
-          <FormLabel>Catégories</FormLabel>
+          <FormLabel>Catégorie</FormLabel>
           <Controller
             name="topicCategory"
             control={control}
@@ -380,71 +383,78 @@ export const TopicForm = ({
         </FormControl>
       )}
 
-      {(props.isCreator || props.isSubscribed) &&
+      {org && (
+        <FormControl mb={3}>
+          <FormLabel>Visibilité</FormLabel>
+          <Controller
+            name="topicVisibility"
+            control={control}
+            defaultValue={
+              props.topic?.topicOrgLists?.map((listName) => ({
+                label: listName,
+                value: listName
+              })) || []
+            }
+            render={(renderProps) => {
+              return (
+                <MultiSelect
+                  value={renderProps.value}
+                  onChange={renderProps.onChange}
+                  options={
+                    lists?.map(({ listName }) => ({
+                      label: listName,
+                      value: listName
+                    })) || []
+                  }
+                  allOptionLabel="Toutes les listes"
+                  //closeMenuOnSelect={false}
+                  placeholder="Sélectionner une ou plusieurs listes"
+                  noOptionsMessage={() => "Aucun résultat"}
+                  isClearable
+                  isSearchable
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (defaultStyles: any) => {
+                      return {
+                        ...defaultStyles,
+                        borderColor: "#e2e8f0"
+                      };
+                    },
+                    placeholder: () => {
+                      return {
+                        color: "#A0AEC0"
+                      };
+                    }
+                  }}
+                />
+              );
+            }}
+          />
+        </FormControl>
+      )}
+
+      {/* {(props.isCreator || props.isSubscribed) &&
         lists &&
         org?.orgName !== "forum" && (
           <FormControl isInvalid={!!errors["topicOrgLists"]} mb={3}>
             <FormLabel>Listes de diffusion</FormLabel>
-            <Controller
-              name="topicOrgLists"
-              control={control}
-              defaultValue={
-                props.topic?.topicOrgLists?.map((listName) => ({
-                  label: listName,
-                  value: listName
-                })) || []
-              }
-              render={(renderProps) => {
-                return (
-                  <MultiSelect
-                    value={renderProps.value}
-                    onChange={renderProps.onChange}
-                    options={
-                      lists?.map(({ listName }) => ({
-                        label: listName,
-                        value: listName
-                      })) || []
-                    }
-                    allOptionLabel="Toutes les listes"
-                    //closeMenuOnSelect={false}
-                    placeholder="Sélectionner une ou plusieurs listes"
-                    noOptionsMessage={() => "Aucun résultat"}
-                    isClearable
-                    isSearchable
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    styles={{
-                      control: (defaultStyles: any) => {
-                        return {
-                          ...defaultStyles,
-                          borderColor: "#e2e8f0"
-                        };
-                      },
-                      placeholder: () => {
-                        return {
-                          color: "#A0AEC0"
-                        };
-                      }
-                    }}
-                  />
-                );
-              }}
-            />
+            <OrgListsController name="topicOrgLists" />
             <FormErrorMessage>
               <ErrorMessage errors={errors} name="topicOrgLists" />
             </FormErrorMessage>
           </FormControl>
-        )}
+        )} */}
 
-      {hasItems(topicOrgLists) && (
+      {/* {hasItems(topicOrgLists) && (
         <Alert status="info" mb={3}>
           <AlertIcon />
           La discussion ne sera visible que par les membres des listes de
           diffusion sélectionnées.
         </Alert>
-      )}
+      )} */}
 
-      {!props.topic &&
+      {/* {!props.topic &&
         (event ||
           props.isCreator ||
           props.isSubscribed ||
@@ -456,7 +466,6 @@ export const TopicForm = ({
               <Checkbox
                 ref={register()}
                 name="topicNotif"
-                mb={3}
                 isChecked={topicNotif}
               >
                 Notifier les membres des listes de diffusions sélectionnées
@@ -465,7 +474,6 @@ export const TopicForm = ({
               <Checkbox
                 ref={register()}
                 name="topicNotif"
-                mb={3}
                 isChecked={topicNotif}
               >
                 Notifier les personnes abonnées{" "}
@@ -477,7 +485,7 @@ export const TopicForm = ({
               </Checkbox>
             )}
           </FormControl>
-        )}
+        )} */}
 
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>
@@ -495,7 +503,7 @@ export const TopicForm = ({
           isDisabled={Object.keys(errors).length > 0}
           data-cy="addTopic"
         >
-          {props.topic
+          {/* {props.topic
             ? "Modifier"
             : `Ajouter ${
                 topicNotif
@@ -503,7 +511,8 @@ export const TopicForm = ({
                     ? "& Notifier les listes de diffusions"
                     : "& Notifier les abonnés"
                   : " sans notifier"
-              }`}
+              }`} */}
+          {props.topic ? "Modifier" : "Ajouter"}
         </Button>
       </Flex>
     </form>
