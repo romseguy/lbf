@@ -14,15 +14,14 @@ import React, { useMemo, useState } from "react";
 import { css } from "twin.macro";
 import { Link } from "features/common";
 import { IOrg, OrgTypesV } from "models/Org";
-import { breakpoints, scrollbarStyles, tableStyles } from "theme/theme";
+import { scrollbarStyles, tableStyles } from "theme/theme";
 
 export const OrgsList = ({
-  orgsQuery
+  data,
+  isLoading
 }: {
-  orgsQuery: {
-    isLoading: boolean;
-    data?: IOrg[];
-  };
+  isLoading: boolean;
+  data?: IOrg[];
 }) => {
   const [selectedOrder, s] = useState<{ key: string; order: "asc" | "desc" }>();
   const setSelectedOrder = (key: string) => {
@@ -36,8 +35,8 @@ export const OrgsList = ({
 
   const orgs = useMemo(
     () =>
-      Array.isArray(orgsQuery.data)
-        ? [...orgsQuery.data].sort((a, b) => {
+      Array.isArray(data)
+        ? [...data].sort((a, b) => {
             const key = selectedOrder?.key || "orgName";
             const order = selectedOrder?.order || "asc";
             //@ts-expect-error
@@ -56,7 +55,7 @@ export const OrgsList = ({
             return 0;
           })
         : [],
-    [orgsQuery.data, selectedOrder]
+    [data, selectedOrder]
   );
 
   const iconProps = {
@@ -110,7 +109,7 @@ export const OrgsList = ({
         </Thead>
 
         <Tbody>
-          {orgsQuery.isLoading ? (
+          {isLoading ? (
             <Tr>
               <Td colSpan={4}>
                 <Spinner />

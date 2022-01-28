@@ -193,15 +193,25 @@ export const OrgForm = withGoogleApi({
       let { orgUrl } = payload;
 
       try {
-        const sugg = suggestion || data[0];
+        if (
+          !props.org ||
+          (Array.isArray(form.orgAddress) &&
+            form.orgAddress[0] &&
+            form.orgAddress[0].address !== "" &&
+            Array.isArray(props.org.orgAddress) &&
+            props.org.orgAddress[0] &&
+            props.org.orgAddress[0].address !== form.orgAddress[0].address)
+        ) {
+          const sugg = suggestion || data[0];
 
-        if (sugg) {
-          const {
-            lat: orgLat,
-            lng: orgLng,
-            city: orgCity
-          } = await unwrapSuggestion(sugg);
-          payload = { ...payload, orgLat, orgLng, orgCity };
+          if (sugg) {
+            const {
+              lat: orgLat,
+              lng: orgLng,
+              city: orgCity
+            } = await unwrapSuggestion(sugg);
+            payload = { ...payload, orgLat, orgLng, orgCity };
+          }
         }
 
         if (props.org) {

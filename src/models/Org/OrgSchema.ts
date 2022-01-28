@@ -64,20 +64,26 @@ export const OrgSchema = new Schema<IOrg>(
     orgTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
     orgTopicsCategories: [String],
     orgLogo: {
-      base64: String,
-      width: Number,
-      height: Number,
-      url: { type: String, trim: true }
+      type: {
+        base64: String,
+        width: Number,
+        height: Number,
+        url: { type: String, trim: true }
+      },
+      select: false
     },
     orgBanner: {
-      base64: String,
-      height: Number,
-      headerHeight: Number,
-      width: Number,
-      mode: String,
-      url: { type: String, trim: true }
+      type: {
+        base64: String,
+        height: Number,
+        headerHeight: Number,
+        width: Number,
+        mode: String,
+        url: { type: String, trim: true }
+      },
+      select: false
     },
-    orgPassword: String,
+    orgPassword: { type: String, select: false },
     orgSalt: String,
     orgTabs: {
       type: [{ label: { type: String, trim: true }, url: String }],

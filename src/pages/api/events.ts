@@ -40,11 +40,11 @@ handler.get<
   if (createdBy) selector = { createdBy };
 
   try {
-    events = await models.Event.find(selector, "-eventBanner -eventLogo")
+    events = await models.Event.find(selector)
       .sort({
         eventMinDate: "ascending"
       })
-      .populate("eventOrgs", "-orgBanner -orgLogo")
+      .populate("eventOrgs")
       .populate("createdBy", "userName");
 
     for (const event of events) {

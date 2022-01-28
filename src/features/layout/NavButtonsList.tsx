@@ -16,7 +16,7 @@ export const NavButtonsList = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const linkProps = {
-    ariaHidden: true,
+    "aria-hidden": true,
     alignSelf: "flex-start",
     variant: "no-underline",
     shallow: true
@@ -65,7 +65,7 @@ export const NavButtonsList = ({
         </Button>
       </Link>
 
-      {/* <Link aria-hidden href="/organisations" {...linkProps}>
+      {/* <Link href="/organisations" {...linkProps}>
         <Button
           leftIcon={<IoIosPeople />}
           isActive={router.asPath === "/organisations"}

@@ -71,13 +71,27 @@ export const getCity = (
 
   if (typeof result === "string") return city;
 
+  let found = false;
+
   result.address_components?.forEach(
     (address_component: google.maps.GeocoderAddressComponent) => {
       if (address_component.types.indexOf("locality") !== -1) {
+        found = true;
         city = address_component.long_name || address_component.short_name;
       }
     }
   );
+
+  if (!found)
+    result.address_components?.forEach(
+      (address_component: google.maps.GeocoderAddressComponent) => {
+        if (
+          address_component.types.indexOf("administrative_area_level_2") !== -1
+        ) {
+          city = address_component.long_name || address_component.short_name;
+        }
+      }
+    );
 
   return city;
 };

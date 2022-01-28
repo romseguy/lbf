@@ -68,6 +68,7 @@ export const PhoneControl = ({
         <InputGroup>
           <InputLeftElement pointerEvents="none" children={<PhoneIcon />} />
           <Input
+            type="tel"
             name={name}
             placeholder={placeholder}
             defaultValue={defaultValue}

@@ -82,6 +82,7 @@ export const treeChart = (
     isSorted,
     margin,
     padding,
+    onClickCircle,
     onClickText,
     onZoom,
     size,
@@ -311,7 +312,8 @@ export const treeChart = (
         })
         .on("click", (clickedNode: TreeNodeWithId) => {
           if ((d3.event as Event).defaultPrevented) return;
-          toggleChildren(clickedNode);
+          if (onClickCircle) onClickCircle(clickedNode);
+          else toggleChildren(clickedNode);
           update();
         });
 

@@ -58,7 +58,7 @@ const OrganisationsPage = (props: PageProps) => {
           </span>
         </Tooltip>
 
-        <OrgsList orgsQuery={orgsQuery} />
+        {/* <OrgsList orgsQuery={orgsQuery} /> */}
 
         {isMapModalOpen && (
           <MapModal

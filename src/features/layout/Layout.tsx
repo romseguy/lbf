@@ -2,7 +2,7 @@ import { Flex, BoxProps, useColorMode, Box, Tooltip } from "@chakra-ui/react";
 import Head from "next/head";
 import { Session } from "next-auth";
 import NextNprogress from "nextjs-progressbar";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { css } from "twin.macro";
 import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
 import { PaypalButton } from "features/common/forms/PaypalButton";
@@ -48,6 +48,13 @@ export const Layout = ({
   const isDark = colorMode === "dark";
   const { data: clientSession } = useSession();
   const session = props.session || clientSession;
+
+  const [isOffline, setIsOffline] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener("offline", () => setIsOffline(true));
+    window.addEventListener("online", () => setIsOffline(false));
+  }, []);
 
   // const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false);
   // useEffect(() => {
@@ -146,19 +153,17 @@ export const Layout = ({
           </Box>
         )}
 
-        {
-          /*process.env.NODE_ENV === "production"*/ true && (
-            <Box
-              position="fixed"
-              right={3}
-              top={3}
-              bg={isDark ? "whiteAlpha.400" : "blackAlpha.300"}
-              borderRadius="lg"
-            >
-              <OfflineIcon />
-            </Box>
-          )
-        }
+        {isOffline && (
+          <Box
+            position="fixed"
+            right={3}
+            top={3}
+            bg={isDark ? "whiteAlpha.400" : "blackAlpha.300"}
+            borderRadius="lg"
+          >
+            <OfflineIcon />
+          </Box>
+        )}
 
         <Header
           defaultTitle={defaultTitle}

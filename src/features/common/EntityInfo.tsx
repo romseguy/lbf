@@ -144,6 +144,7 @@ export const EntityInfo = ({
               <Flex key={`web-${index}`} alignItems="center">
                 <Icon as={icon} mr={3} />
                 <Link
+                  target="_blank"
                   variant="underline"
                   href={url.includes("http") ? url : `${prefix}${url}`}
                 >

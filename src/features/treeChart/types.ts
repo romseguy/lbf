@@ -27,7 +27,8 @@ export interface InputOptions {
   heightBetweenNodesCoeff: number;
   widthBetweenNodesCoeff: number;
   transitionDuration: number;
-  onClickText: (datum: TreeNodeWithId) => void;
+  onClickText: (clickedNode: TreeNodeWithId) => void;
+  onClickCircle?: (clickedNode: TreeNodeWithId) => void;
   onZoom: () => void;
   tooltipOptions?: {
     disabled?: boolean;

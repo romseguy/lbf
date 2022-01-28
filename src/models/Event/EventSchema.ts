@@ -64,18 +64,24 @@ export const EventSchema = new Schema<IEvent>(
     eventTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
     eventTopicsCategories: [String],
     eventBanner: {
-      base64: String,
-      height: Number,
-      headerHeight: Number,
-      width: Number,
-      mode: String,
-      url: { type: String, trim: true }
+      type: {
+        base64: String,
+        height: Number,
+        headerHeight: Number,
+        width: Number,
+        mode: String,
+        url: { type: String, trim: true }
+      },
+      select: false
     },
     eventLogo: {
-      base64: String,
-      width: Number,
-      height: Number,
-      url: { type: String, trim: true }
+      type: {
+        base64: String,
+        width: Number,
+        height: Number,
+        url: { type: String, trim: true }
+      },
+      select: false
     },
     forwardedFrom: {
       eventId: {

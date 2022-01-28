@@ -1,34 +1,38 @@
-import { HookNextFunction, Schema } from "mongoose";
-import bcrypt from "bcryptjs";
-import { normalize } from "utils/string";
+import { Schema } from "mongoose";
 import { IUser } from "./IUser";
-
-const HASH_ROUNDS = 10;
 
 export const UserSchema = new Schema<IUser>(
   {
     email: {
       type: String,
       required: true,
+      unique: true,
+      select: false,
       trim: true,
-      lowercase: true,
-      unique: true
+      lowercase: true
     },
     phone: String,
     password: {
       type: String,
-      required: true
+      required: true,
+      select: false
     },
-    securityCode: String,
+    securityCode: {
+      type: String,
+      select: false
+    },
     userName: {
       type: String,
-      // required: true,
+      unique: true,
       trim: true
     },
     userImage: {
-      base64: String,
-      width: Number,
-      height: Number
+      type: {
+        base64: String,
+        width: Number,
+        height: Number
+      },
+      select: false
     },
     userSubscription: Schema.Types.Mixed,
     isAdmin: Boolean,

@@ -132,7 +132,9 @@ const IndexPage = (props: PageProps) => {
           </>
         )}
 
-        {isListOpen && <OrgsList orgsQuery={orgsQuery} />}
+        {isListOpen && (
+          <OrgsList data={orgsQuery.data} isLoading={orgsQuery.isLoading} />
+        )}
 
         {isAboutModalOpen && (
           <AboutModal

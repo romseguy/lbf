@@ -12,7 +12,7 @@ import AbortController from "abort-controller";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { treeChart } from "features/treeChart/treeChart";
-import { InputNode } from "features/treeChart/types";
+import { InputNode, TreeNodeWithId } from "features/treeChart/types";
 import theme from "theme/theme";
 import { normalize } from "utils/string";
 
@@ -24,12 +24,14 @@ export const NetworksModal = ({
   inputNodes,
   isMobile,
   header,
+  rootName,
   ...props
 }: {
   inputNodes: InputNode[];
   isMobile: boolean;
   isOpen: boolean;
   header?: React.ReactNode | React.ReactNodeArray;
+  rootName?: string;
   onClose: () => void;
 }) => {
   const { colorMode } = useColorMode();
@@ -37,6 +39,11 @@ export const NetworksModal = ({
   const router = useRouter();
 
   useEffect(() => {
+    const onClick = (node: TreeNodeWithId) => {
+      const url = "/" + normalize(node.name);
+      router.push(url, url, { shallow: true });
+      props.onClose();
+    };
     const renderChart = () => {
       treeChartContainer = document.getElementById("treeC");
 
@@ -54,7 +61,7 @@ export const NetworksModal = ({
       treeChart(
         treeChartRoot,
         {
-          name: process.env.NEXT_PUBLIC_SHORT_URL,
+          name: rootName || process.env.NEXT_PUBLIC_SHORT_URL,
           children: inputNodes
         },
         {
@@ -75,10 +82,8 @@ export const NetworksModal = ({
             node: { radius: 14 },
             text: { colors: { default: isDark ? "white" : "black" } }
           },
-          onClickText: (node) => {
-            const url = "/" + normalize(node.name);
-            router.push(url, url, { shallow: true });
-          }
+          onClickCircle: onClick,
+          onClickText: onClick
         }
       )();
     };

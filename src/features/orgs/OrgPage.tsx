@@ -3,6 +3,7 @@ import {
   ArrowBackIcon,
   ChatIcon,
   EditIcon,
+  HamburgerIcon,
   SettingsIcon
 } from "@chakra-ui/icons";
 import {
@@ -17,12 +18,14 @@ import {
   Input,
   List,
   ListItem,
+  Spinner,
   Switch,
   TabPanel,
   TabPanels,
   Text,
   Tooltip,
-  useColorMode
+  useColorMode,
+  useDisclosure
 } from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -49,7 +52,7 @@ import { MapContainer } from "features/map/MapContainer";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
-import { Visibility as EventVisibility } from "models/Event";
+import { Visibility as EventVisibility, Visibility } from "models/Event";
 import { IOrg, IOrgTab, orgTypeFull, orgTypeFull5, OrgTypes } from "models/Org";
 import {
   getFollowerSubscription,
@@ -63,6 +66,13 @@ import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs, defaultTabs } from "./OrgPageTabs";
 import { useEditOrgMutation, useGetOrgsQuery } from "./orgsApi";
 import { selectOrgRefetch } from "./orgSlice";
+import { FaRegMap } from "react-icons/fa";
+import { IoIosGitNetwork } from "react-icons/io";
+import { props } from "cypress/types/bluebird";
+import { MapModal } from "features/modals/MapModal";
+import { NetworksModal } from "features/modals/NetworksModal";
+import { InputNode } from "features/treeChart/types";
+import { OrgsList } from "./OrgsList";
 
 export type Visibility = {
   isVisible: {
@@ -96,6 +106,16 @@ export const OrgPage = ({
   cachedEmail = email;
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const {
+    isOpen: isMapModalOpen,
+    onOpen: openMapModal,
+    onClose: closeMapModal
+  } = useDisclosure({ defaultIsOpen: false });
+  const {
+    isOpen: isNetworksModalOpen,
+    onOpen: openNetworksModal,
+    onClose: closeNetworksModal
+  } = useDisclosure({ defaultIsOpen: false });
 
   //#region org
   const [editOrg, editOrgMutation] = useEditOrgMutation();
@@ -129,6 +149,12 @@ export const OrgPage = ({
     } else setDescription(undefined);
   }, [org]);
 
+  const orgCreatedByUserName =
+    typeof org.createdBy === "object"
+      ? org.createdBy.userName || org.createdBy._id
+      : "";
+  const orgCreatedByUserId =
+    typeof org.createdBy === "object" ? org.createdBy._id : "";
   const { orgNetworks } = useGetOrgsQuery(
     { populate: "orgs" },
     {
@@ -143,12 +169,6 @@ export const OrgPage = ({
     }
   );
 
-  const orgCreatedByUserName =
-    typeof org.createdBy === "object"
-      ? org.createdBy.userName || org.createdBy._id
-      : "";
-  const orgCreatedByUserId =
-    typeof org.createdBy === "object" ? org.createdBy._id : "";
   const hasInfo =
     hasItems(org.orgAddress) ||
     hasItems(org.orgEmail) ||
@@ -175,6 +195,7 @@ export const OrgPage = ({
 
   //#region local state
   const [isConfig, setIsConfig] = useState(false);
+  const [isListOpen, setIsListOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
   const [isVisible, setIsVisible] = useState<Visibility["isVisible"]>({
@@ -183,6 +204,19 @@ export const OrgPage = ({
     topics: false,
     subscribers: false
   });
+
+  const inputNodes: InputNode[] = useMemo(
+    () =>
+      org.orgs
+        ? org.orgs
+            .filter((o) => o.orgVisibility !== Visibility.PRIVATE)
+            .map((o) => ({
+              name: o.orgName,
+              children: o.orgs?.map(({ orgName }) => ({ name: orgName }))
+            }))
+        : [],
+    [org.orgs]
+  );
 
   const tabs = useMemo(() => {
     return [...(org.orgTabs || defaultTabs)]
@@ -420,80 +454,68 @@ export const OrgPage = ({
                     </TabContainer>
 
                     {org.orgType === OrgTypes.NETWORK && (
-                      <>
-                        {orgsWithLocation.length > 0 && (
-                          <TabContainer>
-                            <TabContainerHeader heading="Carte du réseau">
-                              {isCreator && (
-                                <Tooltip
-                                  hasArrow
-                                  label="Ajouter ou supprimer des organisations du réseau"
-                                  placement="bottom"
-                                >
-                                  <IconButton
-                                    aria-label="Ajouter ou supprimer des organisations du réseau"
-                                    icon={<EditIcon />}
-                                    bg="transparent"
-                                    _hover={{ color: "green" }}
-                                    onClick={() => setIsEdit(true)}
-                                  />
-                                </Tooltip>
-                              )}
-                            </TabContainerHeader>
-                            <TabContainerContent>
-                              <MapContainer
-                                orgs={orgsWithLocation}
-                                center={{
-                                  lat: orgsWithLocation[0].orgLat,
-                                  lng: orgsWithLocation[0].orgLng
-                                }}
+                      <TabContainer>
+                        <TabContainerHeader heading="Topologie du réseau">
+                          {isCreator && (
+                            <Tooltip
+                              hasArrow
+                              label="Ajouter ou supprimer des organisations du réseau"
+                              placement="bottom"
+                            >
+                              <IconButton
+                                aria-label="Ajouter ou supprimer des organisations du réseau"
+                                icon={<EditIcon />}
+                                bg="transparent"
+                                _hover={{ color: "green" }}
+                                onClick={() => setIsEdit(true)}
                               />
-                            </TabContainerContent>
-                          </TabContainer>
-                        )}
+                            </Tooltip>
+                          )}
+                        </TabContainerHeader>
+                        <TabContainerContent p={3}>
+                          {orgQuery.isLoading ? (
+                            <Spinner />
+                          ) : (
+                            <>
+                              <Button
+                                alignSelf="flex-start"
+                                colorScheme="teal"
+                                leftIcon={<IoIosGitNetwork />}
+                                mb={5}
+                                onClick={openNetworksModal}
+                              >
+                                Arborescence
+                              </Button>
 
-                        {Array.isArray(org.orgs) && org.orgs.length > 0 && (
-                          <TabContainer>
-                            <TabContainerHeader heading="Membres du réseau">
-                              {isCreator && (
-                                <Tooltip
-                                  hasArrow
-                                  label="Ajouter ou supprimer des organisations du réseau"
-                                  placement="bottom"
-                                >
-                                  <IconButton
-                                    aria-label="Ajouter ou supprimer des organisations du réseau"
-                                    icon={<EditIcon />}
-                                    bg="transparent"
-                                    _hover={{ color: "green" }}
-                                    onClick={() => setIsEdit(true)}
-                                  />
-                                </Tooltip>
+                              <Button
+                                alignSelf="flex-start"
+                                colorScheme="teal"
+                                leftIcon={<FaRegMap />}
+                                onClick={openMapModal}
+                                mb={5}
+                              >
+                                Carte
+                              </Button>
+
+                              <Button
+                                alignSelf="flex-start"
+                                colorScheme="teal"
+                                leftIcon={<HamburgerIcon />}
+                                onClick={() => setIsListOpen(!isListOpen)}
+                              >
+                                Liste
+                              </Button>
+
+                              {isListOpen && (
+                                <OrgsList
+                                  data={org.orgs}
+                                  isLoading={orgQuery.isLoading}
+                                />
                               )}
-                            </TabContainerHeader>
-                            <TabContainerContent>
-                              {[...org.orgs]
-                                .sort((a, b) => {
-                                  if (a.orgName > b.orgName) return -1;
-                                  if (a.orgName < b.orgName) return 1;
-                                  return 0;
-                                })
-                                .map((childOrg, index) => {
-                                  return (
-                                    <EntityButton
-                                      org={childOrg}
-                                      mb={
-                                        index === org.orgs!.length - 1 ? 3 : 0
-                                      }
-                                      mt={3}
-                                      mx={3}
-                                    />
-                                  );
-                                })}
-                            </TabContainerContent>
-                          </TabContainer>
-                        )}
-                      </>
+                            </>
+                          )}
+                        </TabContainerContent>
+                      </TabContainer>
                     )}
 
                     {Array.isArray(orgNetworks) && orgNetworks.length > 0 && (
@@ -510,11 +532,13 @@ export const OrgPage = ({
                         />
                         <TabContainerContent p={3}>
                           {orgNetworks.map((network) => (
-                            <EntityButton
-                              key={network._id}
-                              org={network}
-                              mb={1}
-                            />
+                            <Flex>
+                              <EntityButton
+                                key={network._id}
+                                org={network}
+                                mb={1}
+                              />
+                            </Flex>
                           ))}
                         </TabContainerContent>
                       </TabContainer>
@@ -793,6 +817,107 @@ export const OrgPage = ({
           setIsVisible={setIsVisible}
         />
       )}
+
+      {isNetworksModalOpen && (
+        <NetworksModal
+          inputNodes={inputNodes}
+          isMobile={isMobile}
+          isOpen={isNetworksModalOpen}
+          rootName={org.orgName}
+          onClose={closeNetworksModal}
+        />
+      )}
+
+      {isMapModalOpen && (
+        <MapModal
+          isOpen={isMapModalOpen}
+          header="Carte des réseaux"
+          orgs={
+            org.orgs?.filter(
+              (org) =>
+                typeof org.orgLat === "number" &&
+                typeof org.orgLng === "number" &&
+                org.orgName !== "forum"
+            ) || []
+          }
+          onClose={closeMapModal}
+        />
+      )}
     </Layout>
   );
 };
+
+// {orgsWithLocation.length > 0 && (
+//   <TabContainer>
+//     <TabContainerHeader heading="Carte du réseau">
+//       {isCreator && (
+//         <Tooltip
+//           hasArrow
+//           label="Ajouter ou supprimer des organisations du réseau"
+//           placement="bottom"
+//         >
+//           <IconButton
+//             aria-label="Ajouter ou supprimer des organisations du réseau"
+//             icon={<EditIcon />}
+//             bg="transparent"
+//             _hover={{ color: "green" }}
+//             onClick={() => setIsEdit(true)}
+//           />
+//         </Tooltip>
+//       )}
+//     </TabContainerHeader>
+//     <TabContainerContent>
+//       <MapContainer
+//         orgs={orgsWithLocation}
+//         center={{
+//           lat: orgsWithLocation[0].orgLat,
+//           lng: orgsWithLocation[0].orgLng
+//         }}
+//       />
+//     </TabContainerContent>
+//   </TabContainer>
+// )}
+
+// {Array.isArray(org.orgs) && org.orgs.length > 0 && (
+//   <TabContainer>
+//     <TabContainerHeader heading="Membres du réseau">
+//       {isCreator && (
+//         <Tooltip
+//           hasArrow
+//           label="Ajouter ou supprimer des organisations du réseau"
+//           placement="bottom"
+//         >
+//           <IconButton
+//             aria-label="Ajouter ou supprimer des organisations du réseau"
+//             icon={<EditIcon />}
+//             bg="transparent"
+//             _hover={{ color: "green" }}
+//             onClick={() => setIsEdit(true)}
+//           />
+//         </Tooltip>
+//       )}
+//     </TabContainerHeader>
+//     <TabContainerContent>
+//       {[...org.orgs]
+//         .sort((a, b) => {
+//           if (a.orgName > b.orgName) return -1;
+//           if (a.orgName < b.orgName) return 1;
+//           return 0;
+//         })
+//         .map((childOrg, index) => {
+//           return (
+//             <Flex>
+//               <EntityButton
+//                 org={childOrg}
+//                 mb={
+//                   index === org.orgs!.length - 1 ? 3 : 0
+//                 }
+//                 mt={3}
+//                 mx={3}
+//               />
+//             </Flex>
+//           );
+//         })}
+//     </TabContainerContent>
+//   </TabContainer>
+// )}

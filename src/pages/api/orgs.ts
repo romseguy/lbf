@@ -34,11 +34,8 @@ handler.get<
 
     logJson(`GET /orgs: selector`, selector);
 
-    if (populate)
-      orgs = await models.Org.find(selector, "-orgBanner -orgLogo").populate(
-        populate
-      );
-    else orgs = await models.Org.find(selector, "-orgBanner -orgLogo");
+    if (populate) orgs = await models.Org.find(selector).populate(populate);
+    else orgs = await models.Org.find(selector);
 
     res.status(200).json(orgs);
   } catch (error) {

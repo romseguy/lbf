@@ -4,14 +4,6 @@ import React, { useEffect, useState } from "react";
 export const OfflineIcon = ({}: IconProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const [isOffline, setIsOffline] = useState(false);
-
-  useEffect(() => {
-    window.addEventListener("offline", () => setIsOffline(true));
-    window.addEventListener("online", () => setIsOffline(false));
-  }, []);
-
-  if (!isOffline) return null;
 
   return (
     <Tooltip

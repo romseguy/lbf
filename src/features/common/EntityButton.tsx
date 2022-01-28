@@ -4,7 +4,8 @@ import {
   StyleProps,
   Icon,
   ThemingProps,
-  Tooltip
+  Tooltip,
+  TooltipProps
 } from "@chakra-ui/react";
 import React from "react";
 import { IoIosGitNetwork, IoIosPeople, IoIosPerson } from "react-icons/io";
@@ -22,6 +23,7 @@ export const EntityButton = ({
   topic,
   user,
   onClick,
+  tooltipProps,
   ...props
 }: ThemingProps<"Button"> &
   StyleProps & {
@@ -30,6 +32,7 @@ export const EntityButton = ({
     topic?: Partial<ITopic>;
     user?: Partial<IUser>;
     onClick?: (() => void) | null;
+    tooltipProps?: Partial<TooltipProps>;
   }) => {
   const router = useRouter();
 
@@ -68,6 +71,7 @@ export const EntityButton = ({
           : ""
       }
       hasArrow
+      {...tooltipProps}
     >
       <span>
         <Link
