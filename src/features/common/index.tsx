@@ -12,6 +12,7 @@ export * from "./forms/PasswordConfirmControl";
 export * from "./forms/PhoneControl";
 export * from "./forms/RTEditor";
 export * from "./forms/Select";
+export * from "./forms/SubscriptionEditForm";
 export * from "./forms/SubscriptionForm";
 export * from "./forms/Textarea";
 export * from "./forms/UrlControl";

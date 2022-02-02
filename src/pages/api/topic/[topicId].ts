@@ -93,15 +93,18 @@ handler.post<
       const org = body.org;
 
       let subscriptions = (org.orgLists || [])
-        .filter((orgList) =>
-          topic.topicOrgLists?.find(
-            (listName) =>
-              listName === orgList.listName &&
-              Array.isArray(orgList.subscriptions) &&
-              orgList.subscriptions.length > 0
-          )
-        )
-        .flatMap(({ subscriptions }) => subscriptions) as ISubscription[];
+        // .filter((orgList) =>
+        //   topic.topicOrgLists?.find(
+        //     (listName) =>
+        //       listName === orgList.listName &&
+        //       Array.isArray(orgList.subscriptions) &&
+        //       orgList.subscriptions.length > 0
+        //   )
+        // )
+        .map((orgList) => {
+          return orgList.subscriptions;
+        })
+        .flatMap((subscriptions) => subscriptions) as ISubscription[];
 
       for (const orgListName of body.orgListsNames) {
         const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
@@ -126,16 +129,6 @@ handler.post<
         });
       }
     }
-
-    const topicNotified = emailList.map((email) => ({ email }));
-
-    if (topic.topicNotified) {
-      topic.topicNotified = topic.topicNotified.concat(topicNotified);
-    } else {
-      topic.topicNotified = topicNotified;
-    }
-
-    await topic.save();
 
     res.status(200).json({ emailList });
   } catch (error) {

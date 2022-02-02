@@ -391,7 +391,7 @@ export const TopicForm = ({
             name="topicVisibility"
             control={control}
             defaultValue={
-              props.topic?.topicOrgLists?.map((listName) => ({
+              props.topic?.topicVisibility?.map((listName) => ({
                 label: listName,
                 value: listName
               })) || []

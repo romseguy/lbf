@@ -19,6 +19,11 @@ import { useSession } from "hooks/useAuth";
 import { useAppDispatch } from "store";
 import { PageProps } from "./_app";
 import { useRouterLoading } from "hooks/useRouterLoading";
+import { ISubscription } from "models/Subscription";
+import { AppQuery } from "utils/types";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
+import { IUser } from "models/User";
 
 let cachedEmail: string | undefined;
 const canRedirect = true;
@@ -29,9 +34,26 @@ type HashProps = PageProps & {
 
 const Hash = ({ ...props }: HashProps) => {
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const { data: clientSession } = useSession();
   const session = props.session || clientSession;
+
+  //#region routing
+  const router = useRouter();
+  const { isLoading: isRouterLoading } = useRouterLoading();
+  let [entityUrl, entityTab, entityTabItem] =
+    "name" in router.query && Array.isArray(router.query.name)
+      ? router.query.name
+      : [];
+  entityTabItem = entityUrl === "forum" ? entityTab : entityTabItem;
+  useEffect(
+    function onNavigate() {
+      setOrgQueryParams({ ...orgQueryParams, orgUrl: entityUrl });
+      setEventQueryParams({ ...eventQueryParams, eventUrl: entityUrl });
+      setUserQueryParams({ ...userQueryParams, slug: entityUrl });
+    },
+    [router.asPath]
+  );
+  //#endregion
 
   //#region user email
   const userEmail =
@@ -51,13 +73,7 @@ const Hash = ({ ...props }: HashProps) => {
   }, [userEmail]);
   //#endregion
 
-  //#region entity querying
-  let [entityUrl, entityTab, entityTabItem] =
-    "name" in router.query && Array.isArray(router.query.name)
-      ? router.query.name
-      : [];
-  entityTabItem = entityUrl === "forum" ? entityTab : entityTabItem;
-
+  //#region queries parameters
   const [eventQueryParams, setEventQueryParams] = useState<EventQueryParams>({
     eventUrl: entityUrl,
     populate: "eventOrgs"
@@ -70,41 +86,33 @@ const Hash = ({ ...props }: HashProps) => {
   const [userQueryParams, setUserQueryParams] = useState<UserQueryParams>({
     slug: entityUrl
   });
-  const eventQuery: any = useGetEventQuery(eventQueryParams);
-  const eventQueryStatus = eventQuery.error?.status || 200;
-  const orgQuery: any = useGetOrgQuery(orgQueryParams);
-  const orgQueryStatus = orgQuery.error?.status || 200;
-  const userQuery: any = useGetUserQuery({
+  //#endregion
+
+  //#region queries
+  const eventQuery = useGetEventQuery(eventQueryParams) as AppQuery<IEvent>;
+  const orgQuery = useGetOrgQuery(orgQueryParams) as AppQuery<IOrg>;
+  const subQuery = useGetSubscriptionQuery({
+    email
+  }) as AppQuery<ISubscription>;
+  const userQuery = useGetUserQuery({
     slug: entityUrl,
     populate: session?.user.userName === entityUrl ? "userProjects" : undefined,
     select: session?.user.userName === entityUrl ? "userProjects" : undefined
-  });
+  }) as AppQuery<IUser>;
+  //#endregion
+
+  //#region queries statuses
+  const eventQueryStatus = eventQuery.error?.status || 200;
+  const orgQueryStatus = orgQuery.error?.status || 200;
   const userQueryStatus = userQuery.error?.status || 200;
   //#endregion
 
-  //#region subscription querying
-  const subQuery = useGetSubscriptionQuery({ email });
-  //#endregion
-
-  //#region navigation
-  useEffect(
-    function onNavigate() {
-      setOrgQueryParams({ ...orgQueryParams, orgUrl: entityUrl });
-      setEventQueryParams({ ...eventQueryParams, eventUrl: entityUrl });
-      setUserQueryParams({ ...userQueryParams, slug: entityUrl });
-    },
-    [router.asPath]
-  );
-
-  const { isLoading: isRouterLoading } = useRouterLoading();
-  let isLoading =
+  if (
     isRouterLoading ||
     eventQuery.isLoading ||
     orgQuery.isLoading ||
-    userQuery.isLoading;
-  //#endregion
-
-  if (isLoading) {
+    userQuery.isLoading
+  ) {
     return (
       <Layout {...props} session={session}>
         <Spinner />

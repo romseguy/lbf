@@ -2,7 +2,6 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import {
   Box,
   IconButton,
-  Link,
   Spinner,
   Tag,
   TagLabel,
@@ -15,6 +14,8 @@ import { refetchEvent } from "features/events/eventSlice";
 import { getUser } from "features/users/usersApi";
 import { IOrg, orgTypeFull } from "models/Org";
 import {
+  getFollowerSubscription,
+  getSubscriberSubscription,
   IOrgSubscription,
   ISubscription,
   SubscriptionTypes
@@ -23,6 +24,8 @@ import router from "next/router";
 import React from "react";
 import { IoIosPerson } from "react-icons/io";
 import { useAppDispatch } from "store";
+import { AppQuery } from "utils/types";
+import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
 import { useDeleteSubscriptionMutation } from "./subscriptionsApi";
 
 export const SubscriptionsListItem = ({
@@ -35,9 +38,9 @@ export const SubscriptionsListItem = ({
   onTagClick
 }: {
   org: IOrg;
-  orgQuery: any;
+  orgQuery: AppQuery<IOrg>;
   subscription: ISubscription;
-  subQuery: any;
+  subQuery: AppQuery<ISubscription>;
   isSubscriptionLoading: {
     [key: string]: boolean;
   };
@@ -52,8 +55,16 @@ export const SubscriptionsListItem = ({
   const toast = useToast({ position: "top" });
   const [deleteSubscription, deleteSubscriptionMutation] =
     useDeleteSubscriptionMutation();
+  const followerSubscription = getFollowerSubscription({
+    org,
+    subscription
+  }) as IOrgSubscription;
+  const subscriberSubscription = getSubscriberSubscription({
+    org,
+    subscription
+  }) as IOrgSubscription;
 
-  let { email, phone, user, orgs = [] } = subscription;
+  let { phone, user, orgs = [] } = subscription;
   let userEmail: string | undefined, userName: string | undefined;
 
   if (typeof user === "object") {
@@ -61,196 +72,216 @@ export const SubscriptionsListItem = ({
     userName = user.userName;
   }
 
-  let following: IOrgSubscription | null = null;
-  let subscribing: IOrgSubscription | null = null;
-
-  for (const orgSubscription of orgs) {
-    const { type, orgId } = orgSubscription;
-    if (orgId !== org._id || !type) continue;
-
-    if (type === SubscriptionTypes.FOLLOWER) following = orgSubscription;
-    else if (type === SubscriptionTypes.SUBSCRIBER)
-      subscribing = orgSubscription;
-  }
+  const email = subscription.email || userEmail;
 
   return (
     <Tr>
-      <Td whiteSpace="nowrap">
-        <Link
-          variant="no-underline"
-          onClick={() =>
-            onTagClick({
-              type: SubscriptionTypes.FOLLOWER,
-              following,
-              email,
-              phone,
-              user,
-              subscription
-            })
-          }
-          data-cy={following ? "orgSubscriberUnfollow" : "orgSubscriberFollow"}
-        >
-          <Tooltip
-            placement="top"
-            hasArrow
-            label={`${
-              following ? "Retirer de" : "Ajouter à"
-            } la liste des abonnés`}
-          >
-            <Tag
-              variant={following ? "solid" : "outline"}
-              colorScheme="green"
-              mr={3}
-            >
-              <TagLabel>Abonné</TagLabel>
-            </Tag>
-          </Tooltip>
-        </Link>
-
-        <Link
-          variant="no-underline"
-          onClick={() =>
-            onTagClick({
-              type: SubscriptionTypes.SUBSCRIBER,
-              subscribing,
-              email,
-              phone,
-              user,
-              subscription
-            })
-          }
-          data-cy={
-            subscribing ? "orgSubscriberUnsubscribe" : "orgSubscriberSubscribe"
-          }
-        >
-          <Tooltip
-            placement="top"
-            hasArrow
-            label={`${
-              subscribing ? "Retirer de" : "Ajouter à"
-            } la liste des adhérents`}
-          >
-            <Tag
-              variant={subscribing ? "solid" : "outline"}
-              colorScheme="purple"
-              mr={3}
-            >
-              <TagLabel>Adhérent</TagLabel>
-            </Tag>
-          </Tooltip>
-        </Link>
-      </Td>
-
-      <Td width="100%">{phone || email || userEmail}</Td>
-
-      <Td whiteSpace="nowrap" textAlign="right">
-        {isSubscriptionLoading[subscription._id] ? (
-          <Spinner boxSize={4} />
-        ) : (
-          <Box>
+      {orgQuery.isLoading ? (
+        <Td>
+          <Spinner />
+        </Td>
+      ) : (
+        <>
+          <Td whiteSpace="nowrap">
             <Tooltip
-              label="Aller à la page de l'utilisateur"
-              hasArrow
               placement="top"
+              hasArrow
+              label={`${
+                followerSubscription ? "Retirer de" : "Ajouter à"
+              } la liste des abonnés`}
             >
-              <IconButton
-                aria-label="Aller à la page de l'utilisateur"
-                bg="transparent"
-                _hover={{ bg: "transparent", color: "green" }}
-                icon={<IoIosPerson />}
-                height="auto"
-                onClick={async () => {
-                  setIsSubscriptionLoading({
-                    ...isSubscriptionLoading,
-                    [subscription._id]: true
-                  });
-                  if (userName) {
+              <Tag
+                variant={followerSubscription ? "solid" : "outline"}
+                colorScheme="green"
+                cursor="pointer"
+                mr={3}
+                onClick={() =>
+                  onTagClick({
+                    type: SubscriptionTypes.FOLLOWER,
+                    followerSubscription,
+                    email,
+                    phone,
+                    user,
+                    subscription
+                  })
+                }
+                data-cy={
+                  followerSubscription
+                    ? "orgSubscriberUnfollow"
+                    : "orgSubscriberFollow"
+                }
+              >
+                <TagLabel>Abonné</TagLabel>
+              </Tag>
+            </Tooltip>
+
+            <Tooltip
+              placement="top"
+              hasArrow
+              label={`${
+                subscriberSubscription ? "Retirer de" : "Ajouter à"
+              } la liste des adhérents`}
+            >
+              <Tag
+                variant={subscriberSubscription ? "solid" : "outline"}
+                colorScheme="purple"
+                cursor="pointer"
+                mr={3}
+                onClick={() =>
+                  onTagClick({
+                    type: SubscriptionTypes.SUBSCRIBER,
+                    subscriberSubscription,
+                    email,
+                    phone,
+                    user,
+                    subscription
+                  })
+                }
+                data-cy={
+                  subscriberSubscription
+                    ? "orgSubscriberUnsubscribe"
+                    : "orgSubscriberSubscribe"
+                }
+              >
+                <TagLabel>Adhérent</TagLabel>
+              </Tag>
+            </Tooltip>
+          </Td>
+
+          <Td whiteSpace="nowrap">
+            {followerSubscription && email && (
+              <>
+                <SubscriptionEditPopover
+                  org={org}
+                  userEmail={email}
+                  isIconOnly
+                  isSelf={false}
+                  buttonProps={{ mr: 3, "data-cy": "orgSubscriberFollow" }}
+                />
+                <SubscriptionEditPopover
+                  org={org}
+                  notifType="push"
+                  userEmail={email}
+                  isIconOnly
+                  isSelf={false}
+                  buttonProps={{ mr: 3, "data-cy": "orgSubscriberFollow" }}
+                />
+              </>
+            )}
+          </Td>
+
+          <Td width="100%">{phone || email}</Td>
+
+          <Td whiteSpace="nowrap" textAlign="right">
+            {/* {isSubscriptionLoading[subscription._id] ? (
+          <Spinner boxSize={4} />
+        ) : ( */}
+            <Box>
+              <Tooltip
+                label="Aller à la page de l'utilisateur"
+                hasArrow
+                placement="top"
+              >
+                <IconButton
+                  aria-label="Aller à la page de l'utilisateur"
+                  bg="transparent"
+                  _hover={{ bg: "transparent", color: "green" }}
+                  icon={<IoIosPerson />}
+                  height="auto"
+                  onClick={async () => {
+                    setIsSubscriptionLoading({
+                      ...isSubscriptionLoading,
+                      [subscription._id]: true
+                    });
+                    if (userName) {
+                      setIsSubscriptionLoading({
+                        ...isSubscriptionLoading,
+                        [subscription._id]: false
+                      });
+                      router.push(`/${userName}`, `/${userName}`, {
+                        shallow: true
+                      });
+                    } else {
+                      const query = await dispatch(
+                        getUser.initiate({
+                          slug: phone || email || ""
+                        })
+                      );
+
+                      if (query.data) {
+                        setIsSubscriptionLoading({
+                          ...isSubscriptionLoading,
+                          [subscription._id]: false
+                        });
+                        router.push(
+                          `/${query.data.userName}`,
+                          `/${query.data.userName}`,
+                          {
+                            shallow: true
+                          }
+                        );
+                      } else {
+                        setIsSubscriptionLoading({
+                          ...isSubscriptionLoading,
+                          [subscription._id]: false
+                        });
+                        toast({
+                          status: "warning",
+                          title: `Aucun utilisateur associé à ${
+                            phone
+                              ? "ce numéro de téléphone"
+                              : "cette adresse-email"
+                          }`
+                        });
+                      }
+                    }
+                  }}
+                />
+              </Tooltip>
+
+              <Tooltip label="Supprimer de la liste" hasArrow placement="top">
+                <IconButton
+                  aria-label="Désinscrire"
+                  bg="transparent"
+                  _hover={{ bg: "transparent", color: "red" }}
+                  icon={<DeleteIcon />}
+                  height="auto"
+                  minWidth={0}
+                  onClick={async () => {
+                    setIsSubscriptionLoading({
+                      ...isSubscriptionLoading,
+                      [subscription._id]: true
+                    });
+
+                    const unsubscribe = confirm(
+                      `Êtes-vous sûr de vouloir supprimer ${
+                        phone || email
+                      } ${orgTypeFull(org.orgType)} ${org.orgName} ?`
+                    );
+
+                    if (unsubscribe) {
+                      await deleteSubscription({
+                        subscriptionId: subscription._id,
+                        orgId: org._id
+                      });
+                      dispatch(refetchEvent());
+                      orgQuery.refetch();
+                      subQuery.refetch();
+                    }
+
                     setIsSubscriptionLoading({
                       ...isSubscriptionLoading,
                       [subscription._id]: false
                     });
-                    router.push(`/${userName}`, `/${userName}`, {
-                      shallow: true
-                    });
-                  } else {
-                    const query = await dispatch(
-                      getUser.initiate({
-                        slug: phone || email || ""
-                      })
-                    );
-
-                    if (query.data) {
-                      setIsSubscriptionLoading({
-                        ...isSubscriptionLoading,
-                        [subscription._id]: false
-                      });
-                      router.push(
-                        `/${query.data.userName}`,
-                        `/${query.data.userName}`,
-                        {
-                          shallow: true
-                        }
-                      );
-                    } else {
-                      setIsSubscriptionLoading({
-                        ...isSubscriptionLoading,
-                        [subscription._id]: false
-                      });
-                      toast({
-                        status: "warning",
-                        title: `Aucun utilisateur associé à ${
-                          phone
-                            ? "ce numéro de téléphone"
-                            : "cette adresse-email"
-                        }`
-                      });
-                    }
-                  }
-                }}
-              />
-            </Tooltip>
-
-            <Tooltip label="Supprimer de la liste" hasArrow placement="top">
-              <IconButton
-                aria-label="Désinscrire"
-                bg="transparent"
-                _hover={{ bg: "transparent", color: "red" }}
-                icon={<DeleteIcon />}
-                height="auto"
-                minWidth={0}
-                onClick={async () => {
-                  setIsSubscriptionLoading({
-                    ...isSubscriptionLoading,
-                    [subscription._id]: true
-                  });
-
-                  const unsubscribe = confirm(
-                    `Êtes-vous sûr de vouloir supprimer l'abonnement ${
-                      phone || email || userEmail
-                    } ${orgTypeFull(org.orgType)} ${org.orgName} ?`
-                  );
-
-                  if (unsubscribe) {
-                    await deleteSubscription({
-                      subscriptionId: subscription._id,
-                      orgId: org._id
-                    });
-                    dispatch(refetchEvent());
-                    orgQuery.refetch();
-                    subQuery.refetch();
-                  }
-
-                  setIsSubscriptionLoading({
-                    ...isSubscriptionLoading,
-                    [subscription._id]: false
-                  });
-                }}
-                data-cy="orgUnsubscribe"
-              />
-            </Tooltip>
-          </Box>
-        )}
-      </Td>
+                  }}
+                  data-cy="orgUnsubscribe"
+                />
+              </Tooltip>
+            </Box>
+            {/* )} */}
+          </Td>
+        </>
+      )}
     </Tr>
   );
 };

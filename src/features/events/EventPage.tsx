@@ -29,6 +29,7 @@ import { IEvent, Visibility } from "models/Event";
 import {
   getFollowerSubscription,
   IOrgSubscription,
+  ISubscription,
   SubscriptionTypes
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
@@ -66,7 +67,7 @@ export const EventPage = ({
   tabItem
 }: PageProps & {
   eventQuery: AppQuery<IEvent>;
-  subQuery: any;
+  subQuery: AppQuery<ISubscription>;
   tab?: string;
   tabItem?: string;
 }) => {
@@ -90,7 +91,7 @@ export const EventPage = ({
   //#endregion
 
   //#region sub
-  const followerSubscription = getFollowerSubscription({ event, subQuery });
+  const isFollowed = !!getFollowerSubscription({ event, subQuery });
   const isSubscribedToAtLeastOneOrg = !!subQuery.data?.orgs?.find(
     (orgSubscription: IOrgSubscription) => {
       for (const org of event.eventOrgs) {
@@ -200,13 +201,12 @@ export const EventPage = ({
 
       {!isConfig && !isEdit && !subQuery.isLoading && (
         <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
-          {followerSubscription && (
+          {isFollowed && (
             <Box mr={3} mt={3}>
               <SubscriptionPopover
                 event={event}
                 query={eventQuery}
                 subQuery={subQuery}
-                followerSubscription={followerSubscription}
               />
             </Box>
           )}
@@ -216,7 +216,6 @@ export const EventPage = ({
               event={event}
               query={eventQuery}
               subQuery={subQuery}
-              followerSubscription={followerSubscription}
               notifType="push"
             />
           </Box>
@@ -346,7 +345,7 @@ export const EventPage = ({
                 mutation={[editEvent, editEventMutation]}
                 subQuery={subQuery}
                 isCreator={isCreator}
-                isFollowed={!!followerSubscription}
+                isFollowed={isFollowed}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
                 currentTopicName={tabItem}

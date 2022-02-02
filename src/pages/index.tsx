@@ -163,7 +163,7 @@ const IndexPage = (props: PageProps) => {
                 (org) =>
                   typeof org.orgLat === "number" &&
                   typeof org.orgLng === "number" &&
-                  org.orgName !== "forum"
+                  org.orgUrl !== "forum"
               ) || []
             }
             onClose={closeMapModal}

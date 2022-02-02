@@ -12,12 +12,9 @@ import {
   Box,
   Button,
   Flex,
-  Grid,
   Heading,
   IconButton,
   Input,
-  List,
-  ListItem,
   Spinner,
   Switch,
   TabPanel,
@@ -36,8 +33,6 @@ import { css } from "twin.macro";
 import {
   EntityButton,
   EntityInfo,
-  GridHeader,
-  GridItem,
   Link,
   TabContainer,
   TabContainerContent,
@@ -48,7 +43,6 @@ import { EventsList } from "features/events/EventsList";
 import { Forum } from "features/forum/Forum";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
-import { MapContainer } from "features/map/MapContainer";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
@@ -56,7 +50,8 @@ import { Visibility as EventVisibility, Visibility } from "models/Event";
 import { IOrg, IOrgTab, orgTypeFull, orgTypeFull5, OrgTypes } from "models/Org";
 import {
   getFollowerSubscription,
-  getSubscriberSubscription
+  getSubscriberSubscription,
+  ISubscription
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
 import { hasItems, sortOn } from "utils/array";
@@ -68,7 +63,6 @@ import { useEditOrgMutation, useGetOrgsQuery } from "./orgsApi";
 import { selectOrgRefetch } from "./orgSlice";
 import { FaRegMap } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
-import { props } from "cypress/types/bluebird";
 import { MapModal } from "features/modals/MapModal";
 import { NetworksModal } from "features/modals/NetworksModal";
 import { InputNode } from "features/treeChart/types";
@@ -99,7 +93,7 @@ export const OrgPage = ({
   tabItem
 }: PageProps & {
   orgQuery: AppQuery<IOrg>;
-  subQuery: any;
+  subQuery: AppQuery<ISubscription>;
   tab?: string;
   tabItem?: string;
 }) => {
@@ -189,7 +183,7 @@ export const OrgPage = ({
   //#endregion
 
   //#region sub
-  const followerSubscription = getFollowerSubscription({ org, subQuery });
+  const isFollowed = !!getFollowerSubscription({ org, subQuery });
   const subscriberSubscription = getSubscriberSubscription({ org, subQuery });
   //#endregion
 
@@ -316,12 +310,26 @@ export const OrgPage = ({
   };
 
   if (org.orgUrl === "forum") {
+    if (!orgQuery.isLoading && !org) {
+      <Layout isLogin={isLogin} isMobile={isMobile} session={session}>
+        <Alert status="warning">
+          <AlertIcon />
+          Veuillez créer l'organisation forum.
+        </Alert>
+      </Layout>;
+    }
     return (
       <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
         {configButtons()}
 
         {!isConfig && !isEdit && (
-          <Forum isLogin={isLogin} setIsLogin={setIsLogin} tabItem={tabItem} />
+          <Forum
+            isLogin={isLogin}
+            setIsLogin={setIsLogin}
+            orgQuery={orgQuery}
+            subQuery={subQuery}
+            tabItem={tabItem}
+          />
         )}
 
         {session && isCreator && (
@@ -347,13 +355,12 @@ export const OrgPage = ({
 
       {!isConfig && !isEdit && !subQuery.isLoading && (
         <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
-          {followerSubscription && (
+          {isFollowed && (
             <Box mr={3} mt={3}>
               <SubscriptionPopover
                 org={org}
                 query={orgQuery}
                 subQuery={subQuery}
-                followerSubscription={followerSubscription}
               />
             </Box>
           )}
@@ -363,7 +370,6 @@ export const OrgPage = ({
               org={org}
               query={orgQuery}
               subQuery={subQuery}
-              followerSubscription={followerSubscription}
               notifType="push"
             />
           </Box>
@@ -441,6 +447,7 @@ export const OrgPage = ({
                           <EntityInfo entity={org} />
                         ) : isCreator ? (
                           <Button
+                            alignSelf="flex-start"
                             colorScheme="teal"
                             leftIcon={<AddIcon />}
                             onClick={() => setIsEdit(true)}
@@ -577,6 +584,7 @@ export const OrgPage = ({
                           </div>
                         ) : isCreator ? (
                           <Button
+                            alignSelf="flex-start"
                             colorScheme="teal"
                             leftIcon={<AddIcon />}
                             onClick={() => setIsEdit(true)}
@@ -625,7 +633,7 @@ export const OrgPage = ({
                       orgQuery={orgQuery}
                       subQuery={subQuery}
                       isCreator={isCreator}
-                      isFollowed={!!followerSubscription}
+                      isFollowed={isFollowed}
                       isSubscribed={!!subscriberSubscription}
                       isLogin={isLogin}
                       setIsLogin={setIsLogin}
@@ -674,7 +682,7 @@ export const OrgPage = ({
                       mutation={[editOrg, editOrgMutation]}
                       subQuery={subQuery}
                       isCreator={isCreator}
-                      isFollowed={!!followerSubscription}
+                      isFollowed={isFollowed}
                       isSubscribed={!!subscriberSubscription}
                       isLogin={isLogin}
                       setIsLogin={setIsLogin}
@@ -837,7 +845,7 @@ export const OrgPage = ({
               (org) =>
                 typeof org.orgLat === "number" &&
                 typeof org.orgLng === "number" &&
-                org.orgName !== "forum"
+                org.orgUrl !== "forum"
             ) || []
           }
           onClose={closeMapModal}

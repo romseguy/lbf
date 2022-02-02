@@ -2,17 +2,17 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
-import { getSubscriptions, IOrg } from "models/Org";
+import { IOrg } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription,
   IOrgSubscription,
   ISubscription,
+  setFollowerSubscriptionTagType,
   SubscriptionTypes
 } from "models/Subscription";
-import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
-import { createServerError, databaseErrorCodes } from "utils/errors";
+import { createServerError } from "utils/errors";
 import { equals, logJson } from "utils/string";
 
 function updateOrgSubscription(
@@ -29,15 +29,18 @@ function updateOrgSubscription(
       if (newOrgSubscription.eventCategories)
         orgSubscription.eventCategories = newOrgSubscription.eventCategories;
 
-      if (newOrgSubscription.tagTypes)
-        for (const newTagType of newOrgSubscription.tagTypes) {
-          orgSubscription.tagTypes = orgSubscription.tagTypes?.map(
-            (tagType) => {
-              if (tagType.type === newTagType.type) return newTagType;
-              return tagType;
-            }
-          );
+      if (newOrgSubscription.tagTypes) {
+        if (
+          Array.isArray(orgSubscription.tagTypes) &&
+          orgSubscription.tagTypes.length > 0
+        ) {
+          for (const newTagType of newOrgSubscription.tagTypes) {
+            setFollowerSubscriptionTagType(newTagType, orgSubscription);
+          }
+        } else {
+          orgSubscription.tagTypes = newOrgSubscription.tagTypes;
         }
+      }
     }
 
     return orgSubscription;
@@ -329,28 +332,28 @@ handler.post<
             );
         }
 
-        if (
-          Array.isArray(subscription.topics) &&
-          subscription.topics.length > 0
-        ) {
-          console.log("user already got topic subscriptions");
+        const { emailNotif, pushNotif } = body.topics[i];
+        const topicSubscription = subscription.topics.find((topicS) =>
+          typeof topicS.topic === "object"
+            ? equals(topicS.topic._id, topicId)
+            : equals(topicS.topic, topicId)
+        );
 
-          if (
-            !subscription.topics.find(({ topic }: { topic: ITopic }) =>
-              typeof topic === "object"
-                ? equals(topic._id, topicId)
-                : equals(topic, topicId)
-            )
-          ) {
-            subscription.topics.push({
-              topic,
-              emailNotif: true,
-              pushNotif: true
-            });
-          }
+        if (!topicSubscription) {
+          subscription.topics.push({
+            topic,
+            emailNotif,
+            pushNotif
+          });
         } else {
-          console.log("first time user subscribes to any topic");
-          subscription.topics = body.topics;
+          (topicSubscription.emailNotif =
+            emailNotif === undefined
+              ? topicSubscription.emailNotif
+              : emailNotif),
+            (topicSubscription.pushNotif =
+              pushNotif === undefined
+                ? topicSubscription.pushNotif
+                : pushNotif);
         }
       }
     }

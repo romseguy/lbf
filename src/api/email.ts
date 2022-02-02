@@ -400,6 +400,7 @@ export const sendTopicNotifications = async ({
         ({ orgId, type }) =>
           equals(orgId, org._id) && type === SubscriptionTypes.FOLLOWER
       );
+      console.log(orgSubscription);
 
       if (!orgSubscription) continue;
 
@@ -498,7 +499,12 @@ export const sendTopicNotifications = async ({
     }
   }
 
-  topic.topicNotified = emailList.map((email) => ({ email }));
+  const topicNotified = emailList.map((email) => ({ email }));
+  if (topic.topicNotified) {
+    topic.topicNotified = topic.topicNotified.concat(topicNotified);
+  } else {
+    topic.topicNotified = topicNotified;
+  }
   await topic.save();
 
   return emailList;

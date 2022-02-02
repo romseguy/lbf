@@ -1,37 +1,35 @@
 import { Box, Flex, Spinner } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useState } from "react";
 import { useEditOrgMutation, useGetOrgQuery } from "features/orgs/orgsApi";
-import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
-import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import {
   getFollowerSubscription,
-  getSubscriberSubscription
+  getSubscriberSubscription,
+  ISubscription
 } from "models/Subscription";
+import { AppQuery } from "utils/types";
 import { TopicsList } from "./TopicsList";
+import { IOrg } from "models/Org";
 
 export const Forum = ({
   isLogin,
   setIsLogin,
+  orgQuery,
+  subQuery,
   tabItem
 }: {
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
+  orgQuery: AppQuery<IOrg>;
+  subQuery: AppQuery<ISubscription>;
   tabItem?: string;
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
-  const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region org
   const mutation = useEditOrgMutation();
-  const query = useGetOrgQuery({
-    orgUrl: "forum",
-    populate: "orgTopics orgSubscriptions"
-  });
-  const org = query.data;
+  const org = orgQuery.data;
 
   let isCreator = false;
   if (session && org) {
@@ -47,57 +45,40 @@ export const Forum = ({
   //#endregion
 
   //#region subscription
-  const subQuery = useGetSubscriptionQuery({ email: userEmail });
-  const followerSubscription = getFollowerSubscription({ org, subQuery });
-  const [isFollowed, setIsFollowed] = useState(!!followerSubscription);
-  const [isSubscribed, setIsSubscribed] = useState(
-    !!getSubscriberSubscription({ org, subQuery })
-  );
-  useEffect(() => {
-    if (org && subQuery.data) {
-      setIsFollowed(!!getFollowerSubscription({ org, subQuery }));
-      setIsSubscribed(!!getSubscriberSubscription({ org, subQuery }));
-    }
-  }, [org, subQuery.data]);
+  const isFollowed = !!getFollowerSubscription({ org, subQuery });
+  const isSubscribed = !!getSubscriberSubscription({ org, subQuery });
   //#endregion
 
-  if (query.isLoading) {
+  if (orgQuery.isLoading) {
     return <Spinner />;
   }
 
-  if (!org) return null;
-
   return (
     <>
-      {!subQuery.isLoading && (
-        <Flex flexDirection="row" flexWrap="wrap" mt={-3} mb={3}>
-          {followerSubscription && (
-            <Box mr={3} mt={3}>
-              <SubscriptionPopover
-                org={org}
-                query={query}
-                subQuery={subQuery}
-                followerSubscription={followerSubscription}
-                //isLoading={subQuery.isLoading || subQuery.isFetching}
-              />
-            </Box>
-          )}
-
-          <Box mt={3}>
+      <Flex flexDirection="row" flexWrap="wrap" mt={-3} mb={3}>
+        {isFollowed && (
+          <Box mr={3} mt={3}>
             <SubscriptionPopover
               org={org}
-              query={query}
+              query={orgQuery}
               subQuery={subQuery}
-              followerSubscription={followerSubscription}
-              notifType="push"
-              //isLoading={subQuery.isLoading || subQuery.isFetching}
             />
           </Box>
-        </Flex>
-      )}
+        )}
+
+        <Box mt={3}>
+          <SubscriptionPopover
+            org={org}
+            query={orgQuery}
+            subQuery={subQuery}
+            notifType="push"
+          />
+        </Box>
+      </Flex>
+
       <TopicsList
         org={org}
-        query={query}
+        query={orgQuery}
         mutation={mutation}
         subQuery={subQuery}
         isCreator={isCreator}

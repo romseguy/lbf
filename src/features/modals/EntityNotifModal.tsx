@@ -133,7 +133,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
       }).unwrap();
 
       if (hasItems(emailList)) {
-        const s = emailList.length > 1 && "s";
+        const s = emailList.length > 1 ? "s" : "";
         toast({
           status: "success",
           title: `${emailList.length} invitation${s} envoyée${s} !`

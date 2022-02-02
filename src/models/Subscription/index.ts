@@ -1,5 +1,6 @@
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
+import { hasItems } from "utils/array";
 import { equals, logJson } from "utils/string";
 import {
   IOrgSubscription,
@@ -66,21 +67,28 @@ export const getSubscriberSubscription = ({
   }
 };
 
-export const updateTagType = (
+export const setFollowerSubscriptionTagType = (
   newTagType: TagType,
   followerSubscription: IOrgSubscription | IEventSubscription
 ): IOrgSubscription | IEventSubscription => {
-  followerSubscription.tagTypes = followerSubscription.tagTypes?.map(
-    (tagType) => {
-      if (tagType.type === newTagType.type) {
-        return {
-          ...tagType,
-          ...newTagType
-        };
-      }
-      return tagType;
-    }
-  );
+  if (!hasItems(followerSubscription.tagTypes)) {
+    followerSubscription.tagTypes = [newTagType];
+    return followerSubscription;
+  }
+
+  if (
+    followerSubscription.tagTypes?.find(
+      (tagType) => tagType.type === newTagType.type
+    )
+  ) {
+    followerSubscription.tagTypes = followerSubscription.tagTypes
+      .filter((tagType) => tagType.type !== newTagType.type)
+      .concat([newTagType]);
+  } else {
+    followerSubscription.tagTypes = (
+      followerSubscription.tagTypes || []
+    ).concat([newTagType]);
+  }
 
   return followerSubscription;
 };

@@ -42,10 +42,19 @@ export const SubscriptionForm = ({
   const [isLoading, setIsLoading] = useState(false);
 
   //#region form
-  const { register, handleSubmit, errors, setError, clearErrors, setValue } =
-    useForm({
-      mode: "onChange"
-    });
+  const {
+    register,
+    handleSubmit,
+    errors,
+    setError,
+    clearErrors,
+    setValue,
+    watch
+  } = useForm({
+    mode: "onChange"
+  });
+
+  const subscriptionType = watch("subscriptionType");
 
   const onSubmit = async (form: {
     emailList: string;
@@ -128,7 +137,7 @@ export const SubscriptionForm = ({
       onChange={() => clearErrors("formErrorMessage")}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <FormControl id="emailList" isInvalid={!!errors.emailList} mb={3}>
+      <FormControl isInvalid={!!errors.emailList} mb={3}>
         <FormLabel>
           Entrez les e-mails séparées par un espace ou un retour à la ligne :{" "}
         </FormLabel>
@@ -143,7 +152,7 @@ export const SubscriptionForm = ({
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl id="phoneList" isInvalid={!!errors.phoneList} mb={3}>
+      <FormControl isInvalid={!!errors.phoneList} mb={3}>
         <FormLabel>
           Entrez les numéros de téléphone mobile séparés par un espace ou un
           retour à la ligne :{" "}
@@ -159,13 +168,7 @@ export const SubscriptionForm = ({
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl
-        id="subscriptionType"
-        isRequired
-        isInvalid={!!errors.subscriptionType}
-        mb={3}
-      >
-        <FormLabel>Ajouter les coordonnées en tant que :</FormLabel>
+      <FormControl isRequired isInvalid={!!errors.subscriptionType} mb={3}>
         <CheckboxGroup>
           <Box
             display="flex"
@@ -177,22 +180,44 @@ export const SubscriptionForm = ({
             `}
             color="black"
           >
-            <Checkbox
-              ref={register({ required: true })}
-              name="subscriptionType"
-              value={SubscriptionTypes.FOLLOWER}
+            <Box
+              display="flex"
+              flexDirection="column"
               bg={"green.100"}
               borderRadius="lg"
               mb={3}
               p={3}
-              data-cy="follower-checkbox"
             >
-              Abonné
-              <Text fontSize="smaller">
+              <Checkbox
+                ref={register({ required: true })}
+                name="subscriptionType"
+                value={SubscriptionTypes.FOLLOWER}
+                data-cy="follower-checkbox"
+              >
+                Abonné
+                {/* <Text fontSize="smaller">
                 Vous pourrez inviter cette personne aux discussions, événements,
                 et projets de {orgTypeFull4(org.orgType)}.
-              </Text>
-            </Checkbox>
+              </Text> */}
+              </Checkbox>
+              {subscriptionType?.includes(SubscriptionTypes.FOLLOWER) && (
+                <CheckboxGroup>
+                  <Checkbox
+                    ref={register({ required: true })}
+                    name="tagType"
+                    defaultChecked
+                    bg={"red.100"}
+                    borderRadius="lg"
+                    p={3}
+                    mt={3}
+                    ml={3}
+                    data-cy="tagtype-topics-checkbox"
+                  >
+                    Discussions
+                  </Checkbox>
+                </CheckboxGroup>
+              )}
+            </Box>
 
             <Checkbox
               ref={register({ required: true })}
@@ -205,8 +230,9 @@ export const SubscriptionForm = ({
             >
               Adhérent
               <Text fontSize="smaller">
-                La personne aura également accès aux discussions, événements, et
-                projets réservés aux adhérents.
+                {/* La personne aura également accès aux discussions, événements, et
+                projets réservés aux adhérents. */}
+                Donner accès au contenu réservé aux adhérents.
               </Text>
             </Checkbox>
           </Box>

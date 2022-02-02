@@ -28,7 +28,7 @@ export const OrgConfigSubscribersPanel = ({
 }: GridProps &
   Visibility & {
     orgQuery: AppQuery<IOrg>;
-    subQuery: any;
+    subQuery: AppQuery<ISubscription>;
   }) => {
   const org = orgQuery.data;
   const dispatch = useAppDispatch();
@@ -57,16 +57,16 @@ export const OrgConfigSubscribersPanel = ({
 
   const onTagClick = async ({
     type,
-    following,
-    subscribing,
+    followerSubscription,
+    subscriberSubscription,
     email,
     phone,
     user,
     subscription
   }: {
     type: string;
-    following?: any;
-    subscribing?: any;
+    followerSubscription?: any;
+    subscriberSubscription?: any;
     email?: string;
     phone?: string;
     user?: IUser | string;
@@ -82,7 +82,7 @@ export const OrgConfigSubscribersPanel = ({
     const userEmail = typeof user === "object" ? user.email : email;
 
     if (type === SubscriptionTypes.FOLLOWER) {
-      if (following) {
+      if (followerSubscription) {
         const unsubscribe = confirm(
           `Êtes vous sûr de vouloir retirer ${userEmail} de la liste des abonnés ${orgTypeFull(
             org.orgType
@@ -92,7 +92,7 @@ export const OrgConfigSubscribersPanel = ({
           await deleteSubscription({
             subscriptionId: subscription._id,
             payload: {
-              orgs: [following]
+              orgs: [followerSubscription]
             }
           });
           orgQuery.refetch();
@@ -115,7 +115,7 @@ export const OrgConfigSubscribersPanel = ({
         orgQuery.refetch();
       }
     } else if (type === SubscriptionTypes.SUBSCRIBER) {
-      if (subscribing) {
+      if (subscriberSubscription) {
         const unsubscribe = confirm(
           `Êtes vous sûr de vouloir retirer ${userEmail} de la liste des adhérents ${orgTypeFull(
             org.orgType
@@ -125,7 +125,7 @@ export const OrgConfigSubscribersPanel = ({
           await deleteSubscription({
             subscriptionId: subscription._id,
             payload: {
-              orgs: [subscribing]
+              orgs: [subscriberSubscription]
             }
           });
           orgQuery.refetch();

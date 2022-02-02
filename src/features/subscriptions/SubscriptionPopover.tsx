@@ -22,6 +22,7 @@ import { useSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import {
+  getFollowerSubscription,
   IEventSubscription,
   IOrgSubscription,
   ISubscription,
@@ -34,20 +35,18 @@ import { useAddSubscriptionMutation } from "./subscriptionsApi";
 import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
 
 export const SubscriptionPopover = ({
-  org,
   event,
+  org,
   query,
   subQuery,
   notifType = "email",
   ...props
 }: {
-  org?: IOrg;
   event?: IEvent;
+  org?: IOrg;
+  notifType?: "email" | "push";
   query: any;
   subQuery: any;
-  email?: string;
-  followerSubscription?: IOrgSubscription | IEventSubscription;
-  notifType?: "email" | "push";
   isLoading?: boolean;
   onSubmit?: (subscribed: boolean) => void;
 }) => {
@@ -57,13 +56,10 @@ export const SubscriptionPopover = ({
   const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
+  const isFollowed = !!getFollowerSubscription({ org, subQuery });
 
   const [addSubscription, addSubscriptionMutation] =
     useAddSubscriptionMutation();
-
-  //#region subscription
-  let followerSubscription = props.followerSubscription;
-  //#endregion
 
   //#region local state
   const [isOpen, setIsOpen] = useState(false);
@@ -210,7 +206,7 @@ export const SubscriptionPopover = ({
 
   return (
     <>
-      {!subQuery.isLoading && !followerSubscription ? (
+      {!subQuery.isLoading && !isFollowed ? (
         <Button
           isLoading={isLoading}
           leftIcon={
@@ -231,14 +227,11 @@ export const SubscriptionPopover = ({
           S'abonner
         </Button>
       ) : (
-        followerSubscription && (
+        isFollowed && (
           <SubscriptionEditPopover
             event={event}
             org={org}
-            followerSubscription={followerSubscription}
             notifType={notifType}
-            //query={query}
-            subQuery={subQuery}
             userEmail={userEmail}
           />
         )

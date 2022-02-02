@@ -1,7 +1,9 @@
-import { Table, Tbody } from "@chakra-ui/react";
+import { Spinner, Table, Tbody, Td, Tr } from "@chakra-ui/react";
 import React from "react";
 import { GridItem } from "features/common";
 import { IOrg } from "models/Org";
+import { ISubscription } from "models/Subscription";
+import { AppQuery } from "utils/types";
 import { SubscriptionsListItem } from "./SubscriptionsListItem";
 
 export const SubscriptionsList = ({
@@ -13,8 +15,8 @@ export const SubscriptionsList = ({
   onTagClick
 }: {
   org: IOrg;
-  orgQuery: any;
-  subQuery: any;
+  orgQuery: AppQuery<IOrg>;
+  subQuery: AppQuery<ISubscription>;
   isSubscriptionLoading: {
     [key: string]: boolean;
   };
@@ -36,16 +38,26 @@ export const SubscriptionsList = ({
         <Tbody>
           {org.orgSubscriptions.map((subscription, index) => {
             return (
-              <SubscriptionsListItem
-                key={subscription._id}
-                org={org}
-                orgQuery={orgQuery}
-                subscription={subscription}
-                subQuery={subQuery}
-                isSubscriptionLoading={isSubscriptionLoading}
-                setIsSubscriptionLoading={setIsSubscriptionLoading}
-                onTagClick={onTagClick}
-              />
+              <>
+                {isSubscriptionLoading[subscription._id] ? (
+                  <Tr>
+                    <Td>
+                      <Spinner boxSize={4} />
+                    </Td>
+                  </Tr>
+                ) : (
+                  <SubscriptionsListItem
+                    key={subscription._id}
+                    org={org}
+                    orgQuery={orgQuery}
+                    subscription={subscription}
+                    subQuery={subQuery}
+                    isSubscriptionLoading={isSubscriptionLoading}
+                    setIsSubscriptionLoading={setIsSubscriptionLoading}
+                    onTagClick={onTagClick}
+                  />
+                )}
+              </>
             );
           })}
         </Tbody>

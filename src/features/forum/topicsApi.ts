@@ -70,8 +70,10 @@ export const topicsApi = createApi({
       }
     >({
       query: ({ payload, topicId }) => {
+        console.groupCollapsed("postTopicNotif");
         console.log("postTopicNotif: topicId", topicId);
         console.log("postTopicNotif: payload", payload);
+        console.groupEnd();
 
         return {
           url: `topic/${topicId}`,

@@ -8,4 +8,7 @@ export type AppQuery<T> = {
   isFetching: boolean;
   isLoading: boolean;
   refetch: () => void;
+  error?: {
+    status: number;
+  };
 };
