@@ -76,7 +76,7 @@ export const EventPopover = ({
 
   //#region sub
   const subQuery = useGetSubscriptionQuery({
-    email: email,
+    email,
     populate: "events"
   });
   const followedEvents = subQuery.data?.events || [];

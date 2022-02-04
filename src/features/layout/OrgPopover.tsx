@@ -30,9 +30,11 @@ import { selectUserEmail } from "features/users/userSlice";
 import { OrgType, OrgTypes } from "models/Org";
 import {
   getFollowerSubscription,
-  getSubscriberSubscription
+  getSubscriberSubscription,
+  ISubscription
 } from "models/Subscription";
 import { hasItems } from "utils/array";
+import { AppQuery } from "utils/types";
 
 let cachedRefetchOrgs = false;
 let cachedRefetchSubscription = false;
@@ -94,7 +96,7 @@ export const OrgPopover = ({
   const subQuery = useGetSubscriptionQuery({
     email,
     populate: "orgs"
-  });
+  }) as AppQuery<ISubscription>;
   const followedOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&

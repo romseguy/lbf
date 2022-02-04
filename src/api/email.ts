@@ -5,7 +5,7 @@ import { toDateRange } from "features/common";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IProject } from "models/Project";
-import { ITopic } from "models/Topic";
+import { ITopic, ITopicNotification } from "models/Topic";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import api from "utils/api";
 import { equals, logJson } from "utils/string";
@@ -382,60 +382,94 @@ export const sendTopicNotifications = async ({
   subscriptions: ISubscription[];
   topic: ITopic & Document<any, any, ITopic>;
   transport: nodemailer.Transporter<any>;
-}): Promise<string[]> => {
-  const emailList: string[] = [];
+}): Promise<ITopicNotification[]> => {
+  const topicNotifications: ITopicNotification[] = [];
 
   if (!event && !org) {
-    logJson(`sendTopicNotifications: neither org or event`);
+    console.log("sendTopicNotifications: neither org or event");
     return [];
   }
 
   for (let subscription of subscriptions) {
+    logJson(`sendTopicNotifications: subscription`, subscription);
+
+    let topicNotification: ITopicNotification = {
+      created_at: new Date().toISOString()
+    };
+
     const email =
       typeof subscription.user === "object"
         ? subscription.user.email
         : subscription.email;
+
     if (org) {
       const orgSubscription = subscription.orgs?.find(
         ({ orgId, type }) =>
           equals(orgId, org._id) && type === SubscriptionTypes.FOLLOWER
       );
-      console.log(orgSubscription);
 
-      if (!orgSubscription) continue;
+      if (!orgSubscription) {
+        console.log(
+          "sendTopicNotifications: skipping -- no follower subscription"
+        );
+        continue;
+      }
 
       const tagType = orgSubscription.tagTypes?.find(
         ({ type }) => type === "Topics"
       );
 
-      if (!tagType) continue;
+      if (!tagType) {
+        console.log("sendTopicNotifications: skipping -- no tag type");
+        continue;
+      }
 
       if (tagType.emailNotif) {
-        if (!email || topic.topicNotified?.find(({ email: e }) => e === email))
-          continue;
+        if (email) {
+          console.log(`email: notifying ${email}`);
 
-        const mail = createTopicEmailNotif({
-          email,
-          org,
-          subscription,
-          topic
-        });
+          if (topic.topicNotifications?.find(({ email: e }) => e === email)) {
+            console.log(
+              "sendTopicNotifications: skipping -- email already notified"
+            );
+            continue;
+          }
 
-        if (process.env.NODE_ENV === "production")
-          await transport.sendMail(mail);
-        else if (process.env.NODE_ENV === "development") {
-          console.log(`sent topic email notif to ${mail.to}`, mail);
+          const mail = createTopicEmailNotif({
+            email,
+            org,
+            subscription,
+            topic
+          });
+
+          if (process.env.NODE_ENV === "production")
+            await transport.sendMail(mail);
+          else if (process.env.NODE_ENV === "development") {
+            console.log(`email: notified ${mail.to}`, mail);
+          }
+
+          topicNotification = { ...topicNotification, email };
         }
-
-        emailList.push(email);
       }
 
       if (
-        process.env.NODE_ENV === "production" &&
         tagType.pushNotif &&
         typeof subscription.user === "object" &&
         subscription.user.userSubscription
       ) {
+        console.log(`push: user ${subscription.user._id}`);
+
+        if (
+          topic.topicNotifications?.find(({ user }) =>
+            typeof subscription.user === "object"
+              ? equals(user, subscription.user._id)
+              : equals(user, subscription.user)
+          )
+        ) {
+          console.log("push: skipping -- user already notified");
+          continue;
+        }
+
         try {
           await api.sendPushNotification({
             message: `Appuyez pour lire la discussion`,
@@ -443,8 +477,18 @@ export const sendTopicNotifications = async ({
             title: "Vous êtes invité à une discussion",
             url: getTopicUrl({ org, topic })
           });
+
+          topicNotification = {
+            ...topicNotification,
+            user: subscription.user._id
+          };
         } catch (error) {
           console.error(error);
+          if (process.env.NODE_ENV !== "production")
+            topicNotification = {
+              ...topicNotification,
+              user: subscription.user._id
+            };
         }
       }
     } else if (event) {
@@ -452,32 +496,48 @@ export const sendTopicNotifications = async ({
         equals(eventId, event._id)
       );
 
-      if (!eventSubscription) continue;
+      if (!eventSubscription) {
+        console.log(
+          "sendTopicNotifications: skipping -- no event subscription"
+        );
+        continue;
+      }
 
       const tagType = eventSubscription.tagTypes?.find(
         ({ type }) => type === "Topics"
       );
 
-      if (!tagType) continue;
+      if (!tagType) {
+        console.log("sendTopicNotifications: skipping -- no tag type");
+        continue;
+      }
 
       if (tagType.emailNotif) {
-        if (!email || topic.topicNotified?.find(({ email: e }) => e === email))
-          continue;
+        if (email) {
+          console.log(`sendTopicNotifications: notifying email ${email}`);
 
-        const mail = createTopicEmailNotif({
-          email,
-          event,
-          subscription,
-          topic
-        });
+          if (topic.topicNotifications?.find(({ email: e }) => e === email)) {
+            console.log(
+              "sendTopicNotifications: skipping -- email already notified"
+            );
+            continue;
+          }
 
-        if (process.env.NODE_ENV === "production")
-          await transport.sendMail(mail);
-        else if (process.env.NODE_ENV === "development") {
-          console.log(`sent topic email notif to ${mail.to}`, mail);
+          const mail = createTopicEmailNotif({
+            email,
+            event,
+            subscription,
+            topic
+          });
+
+          if (process.env.NODE_ENV === "production")
+            await transport.sendMail(mail);
+          else if (process.env.NODE_ENV === "development") {
+            console.log(`sent topic email notif to ${mail.to}`, mail);
+          }
+
+          topicNotification = { ...topicNotification, email };
         }
-
-        emailList.push(email);
       }
 
       if (
@@ -485,6 +545,19 @@ export const sendTopicNotifications = async ({
         typeof subscription.user === "object" &&
         subscription.user.userSubscription
       ) {
+        console.log(`push: user ${subscription.user._id}`);
+
+        if (
+          topic.topicNotifications?.find(({ user }) =>
+            typeof subscription.user === "object"
+              ? equals(user, subscription.user._id)
+              : equals(user, subscription.user)
+          )
+        ) {
+          console.log("push: skipping -- user already notified");
+          continue;
+        }
+
         try {
           await api.sendPushNotification({
             message: `Appuyez pour lire la discussion`,
@@ -492,22 +565,34 @@ export const sendTopicNotifications = async ({
             title: "Vous êtes invité à une discussion",
             url: getTopicUrl({ event, topic })
           });
+          topicNotification = {
+            ...topicNotification,
+            user: subscription.user._id
+          };
         } catch (error) {
           console.error(error);
+          if (process.env.NODE_ENV !== "production")
+            topicNotification = {
+              ...topicNotification,
+              user: subscription.user._id
+            };
         }
       }
     }
+
+    topicNotifications.push(topicNotification);
   }
 
-  const topicNotified = emailList.map((email) => ({ email }));
-  if (topic.topicNotified) {
-    topic.topicNotified = topic.topicNotified.concat(topicNotified);
+  if (topic.topicNotifications) {
+    topic.topicNotifications =
+      topic.topicNotifications.concat(topicNotifications);
   } else {
-    topic.topicNotified = topicNotified;
+    topic.topicNotifications = topicNotifications;
   }
+
   await topic.save();
 
-  return emailList;
+  return topicNotifications;
 };
 
 // send new topic message email and/or push notifications to topic followers
@@ -533,6 +618,13 @@ export const sendTopicMessageEmailNotifications = async ({
   const url = getTopicUrl({ event, org, topic });
 
   for (const subscription of subscriptions) {
+    const email =
+      typeof subscription.user === "object"
+        ? subscription.user.email
+        : subscription.email;
+
+    if (!email) continue;
+
     let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${entityName}</a> pour lire la discussion.</p>
     <p><a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}&topicId=${topic._id}">Se désabonner de cette discussion</a></p>
     <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${entityName}</a>
@@ -541,13 +633,6 @@ export const sendTopicMessageEmailNotifications = async ({
     if (entityName === "forum") {
       html = `<h1>${subject}</h1><p>Rendez-vous sur le <a href="${url}">forum</a> pour lire la discussion.</p>`;
     }
-
-    const email =
-      typeof subscription.user === "object"
-        ? subscription.user.email
-        : subscription.email;
-
-    if (!email) continue;
 
     const mail = {
       from: process.env.EMAIL_FROM,

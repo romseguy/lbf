@@ -239,7 +239,7 @@ export const TopicsListItem = ({
 
               <TopicsListItemShare aria-label="Partager" topic={topic} />
 
-              {topic.topicNotified && isTopicCreator && (
+              {topic.topicNotifications && isTopicCreator && (
                 <>
                   <Box as="span" aria-hidden mx={1}>
                     ·
@@ -255,7 +255,7 @@ export const TopicsListItem = ({
                       onSendClick();
                     }}
                   >
-                    {topic.topicNotified.length} personnes invitées
+                    {topic.topicNotifications.length} personnes invitées
                   </Link>
                 </>
               )}

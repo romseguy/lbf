@@ -1,7 +1,7 @@
 import { Box, Flex, Spinner } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useEditOrgMutation, useGetOrgQuery } from "features/orgs/orgsApi";
-import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
+import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { useSession } from "hooks/useAuth";
 import {
   getFollowerSubscription,
@@ -58,16 +58,12 @@ export const Forum = ({
       <Flex flexDirection="row" flexWrap="wrap" mt={-3} mb={3}>
         {isFollowed && (
           <Box mr={3} mt={3}>
-            <SubscriptionPopover
-              org={org}
-              query={orgQuery}
-              subQuery={subQuery}
-            />
+            <SubscribePopover org={org} query={orgQuery} subQuery={subQuery} />
           </Box>
         )}
 
         <Box mt={3}>
-          <SubscriptionPopover
+          <SubscribePopover
             org={org}
             query={orgQuery}
             subQuery={subQuery}

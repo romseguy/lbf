@@ -23,68 +23,53 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import {
   getFollowerSubscription,
-  IEventSubscription,
-  IOrgSubscription,
   ISubscription,
   SubscriptionTypes
 } from "models/Subscription";
 import { useAppDispatch } from "store";
 import { emailR } from "utils/email";
-import { refetchSubscription } from "./subscriptionSlice";
-import { useAddSubscriptionMutation } from "./subscriptionsApi";
+import { AppQuery } from "utils/types";
 import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
+import { useAddSubscriptionMutation } from "./subscriptionsApi";
 
-export const SubscriptionPopover = ({
+export const SubscribePopover = ({
   event,
   org,
   query,
   subQuery,
-  notifType = "email",
-  ...props
+  notifType = "email"
 }: {
   event?: IEvent;
   org?: IOrg;
-  notifType?: "email" | "push";
   query: any;
-  subQuery: any;
-  isLoading?: boolean;
-  onSubmit?: (subscribed: boolean) => void;
+  subQuery: AppQuery<ISubscription>;
+  notifType?: "email" | "push";
 }) => {
-  if (!org && !event) return null;
-
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
-  const isFollowed = !!getFollowerSubscription({ org, subQuery });
-
-  const [addSubscription, addSubscriptionMutation] =
-    useAddSubscriptionMutation();
 
   //#region local state
+  const followerSubscription = getFollowerSubscription({
+    event,
+    org,
+    subQuery
+  });
+  const isFollowed = !!followerSubscription;
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  // const [tooltipProps, setTooltipProps] = useState<{
-  //   label?: string;
-  //   closeDelay?: number;
-  //   openDelay?: number;
-  // }>({
-  //   label: org
-  //     ? "S'abonner pour recevoir une notification quand un événement est publié par cette organisation, ou quand une discussion est ajoutée à cette organisation."
-  //     : "S'abonner pour recevoir une notification quand une discussion est ajoutée à cet événement."
-  // });
+  const [isL, setIsLoading] = useState(false);
+  const isLoading = isL || query.isLoading || subQuery.isLoading;
   //#endregion
 
   //#region form
   const { errors, handleSubmit, register } = useForm({
     mode: "onChange"
   });
-  //#endregion
-
   const onChange = () => {
     //clearErrors("email");
   };
-
+  const [addSubscription, _] = useAddSubscriptionMutation();
   const addFollowerSubscription = async (email?: string) => {
     let payload: Partial<ISubscription> = {};
 
@@ -126,16 +111,16 @@ export const SubscriptionPopover = ({
       });
     }
   };
-
-  const onStep1Submit = async ({ email }: { email?: string }) => {
+  const onSubmit = async ({ email }: { email?: string }) => {
     if (!email) return;
     setIsLoading(true);
     dispatch(setUserEmail(email));
     await addFollowerSubscription(email);
     setIsLoading(false);
-    // setIsOpen(false);
-    //props.onSubmit && props.onSubmit(true);
   };
+  //#endregion
+
+  if (!org && !event) return null;
 
   if (!userEmail)
     return (
@@ -143,25 +128,19 @@ export const SubscriptionPopover = ({
         <PopoverTrigger>
           <Button
             isLoading={isLoading}
-            leftIcon={
-              notifType === "email" ? (
-                <EmailIcon boxSize={6} />
-              ) : (
-                <BellIcon boxSize={6} />
-              )
-            }
+            leftIcon={<BellIcon boxSize={6} />}
             colorScheme="teal"
             onClick={async () => {
               setIsOpen(!isOpen);
             }}
-            data-cy="subscribeToOrg"
+            data-cy="subscribe-button"
           >
             S'abonner
           </Button>
         </PopoverTrigger>
 
         <PopoverContent ml={0}>
-          <form onChange={onChange} onSubmit={handleSubmit(onStep1Submit)}>
+          <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
             <PopoverBody>
               <FormControl id="email" isRequired isInvalid={!!errors["email"]}>
                 <InputGroup>
@@ -204,38 +183,29 @@ export const SubscriptionPopover = ({
       </Popover>
     );
 
+  if (isFollowed)
+    return (
+      <SubscriptionEditPopover
+        event={event}
+        org={org}
+        notifType={notifType}
+        userEmail={userEmail}
+      />
+    );
+
   return (
-    <>
-      {!subQuery.isLoading && !isFollowed ? (
-        <Button
-          isLoading={isLoading}
-          leftIcon={
-            notifType === "email" ? (
-              <EmailIcon boxSize={6} />
-            ) : (
-              <BellIcon boxSize={6} />
-            )
-          }
-          colorScheme="teal"
-          onClick={async () => {
-            setIsLoading(true);
-            await addFollowerSubscription();
-            setIsLoading(false);
-          }}
-          data-cy="subscribeToOrg"
-        >
-          S'abonner
-        </Button>
-      ) : (
-        isFollowed && (
-          <SubscriptionEditPopover
-            event={event}
-            org={org}
-            notifType={notifType}
-            userEmail={userEmail}
-          />
-        )
-      )}
-    </>
+    <Button
+      isLoading={isLoading}
+      leftIcon={<BellIcon boxSize={6} />}
+      colorScheme="teal"
+      onClick={async () => {
+        setIsLoading(true);
+        await addFollowerSubscription();
+        setIsLoading(false);
+      }}
+      data-cy="subscribe-button"
+    >
+      S'abonner
+    </Button>
   );
 };

@@ -44,7 +44,7 @@ import { Forum } from "features/forum/Forum";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { ProjectsList } from "features/projects/ProjectsList";
-import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
+import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { Visibility as EventVisibility, Visibility } from "models/Event";
 import { IOrg, IOrgTab, orgTypeFull, orgTypeFull5, OrgTypes } from "models/Org";
@@ -357,7 +357,7 @@ export const OrgPage = ({
         <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
           {isFollowed && (
             <Box mr={3} mt={3}>
-              <SubscriptionPopover
+              <SubscribePopover
                 org={org}
                 query={orgQuery}
                 subQuery={subQuery}
@@ -366,7 +366,7 @@ export const OrgPage = ({
           )}
 
           <Box mt={3}>
-            <SubscriptionPopover
+            <SubscribePopover
               org={org}
               query={orgQuery}
               subQuery={subQuery}

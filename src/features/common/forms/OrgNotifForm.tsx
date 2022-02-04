@@ -191,7 +191,7 @@ export const OrgNotifForm = ({
                             for (const subscription of list.subscriptions ||
                               []) {
                               const notified = isT
-                                ? entity.topicNotified
+                                ? entity.topicNotifications
                                 : entity.eventNotified;
 
                               if (

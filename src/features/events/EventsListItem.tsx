@@ -254,7 +254,7 @@ export const EventsListItem = ({
                 </Tooltip>
               )}
 
-              {org && isCreator && (
+              {/* {org && isCreator && (
                 <Tooltip label={label} placement="right" hasArrow>
                   <span>
                     <IconButton
@@ -281,7 +281,7 @@ export const EventsListItem = ({
                     />
                   </span>
                 </Tooltip>
-              )}
+              )} */}
             </>
           )}
 

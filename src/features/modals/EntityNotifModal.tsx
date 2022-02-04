@@ -14,7 +14,7 @@ import { useEditEventMutation } from "features/events/eventsApi";
 import { useEditTopicMutation } from "features/forum/topicsApi";
 import { IEvent, IEventNotified } from "models/Event";
 import { IOrg } from "models/Org";
-import { ITopic, ITopicNotified } from "models/Topic";
+import { ITopic, ITopicNotification } from "models/Topic";
 import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { isEvent, isTopic } from "utils/models";
@@ -68,7 +68,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
   let entityIdKey = "eventUrl";
   let entityName: string = "";
   let entityTypeLabel = "l'événement";
-  let topicNotified: ITopicNotified | undefined;
+  let topicNotifications: ITopicNotification[] | undefined;
   let eventNotified: IEventNotified | undefined;
   let notifiedCount = 0;
 
@@ -79,9 +79,9 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
     entityTypeLabel = "la discussion";
     subscriptions = subscriptions.filter(({ phone }) => phone === undefined);
 
-    if (entity.topicNotified) {
-      topicNotified = entity.topicNotified;
-      notifiedCount = topicNotified.length;
+    if (entity.topicNotifications) {
+      topicNotifications = entity.topicNotifications;
+      notifiedCount = topicNotifications.length;
     }
   } else if (isEvent(entity)) {
     entityId = entity.eventUrl;
@@ -111,12 +111,10 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
     console.log("submitted", form);
 
     let payload: {
-      org?: IOrg;
       event?: IEvent<string | Date>;
       email?: string;
       orgListsNames?: string[];
     } = {
-      org,
       event
     };
 
@@ -127,16 +125,16 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
     else payload.email = form.email;
 
     try {
-      const { emailList } = await postNotif({
+      const { notifications } = await postNotif({
         [entityIdKey]: entityId,
         payload
       }).unwrap();
 
-      if (hasItems(emailList)) {
-        const s = emailList.length > 1 ? "s" : "";
+      if (hasItems(notifications)) {
+        const s = notifications.length > 1 ? "s" : "";
         toast({
           status: "success",
-          title: `${emailList.length} invitation${s} envoyée${s} !`
+          title: `${notifications.length} invitation${s} envoyée${s} !`
         });
         query.refetch();
       } else

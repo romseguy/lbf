@@ -62,7 +62,6 @@ export const topicsApi = createApi({
       string[],
       {
         payload: {
-          org?: IOrg;
           event?: IEvent;
           orgListsNames?: string[];
         };

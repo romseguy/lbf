@@ -23,7 +23,13 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 handler.use(database);
 
 handler.get<
-  NextApiRequest & { query: { eventUrl: string; populate?: string } },
+  NextApiRequest & {
+    query: { eventUrl: string; populate?: string };
+    body: {
+      orgListsNames?: string[];
+      email?: string;
+    };
+  },
   NextApiResponse
 >(async function getEvent(req, res) {
   const {
@@ -114,10 +120,11 @@ handler.post<
 >(async function postEventNotif(req, res) {
   const session = await getSession({ req });
 
-  if (!session)
+  if (!session) {
     return res
       .status(403)
       .json(createServerError(new Error("Vous devez être identifié")));
+  }
 
   try {
     const {
@@ -137,9 +144,7 @@ handler.post<
         return res
           .status(404)
           .json(
-            createServerError(
-              new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
-            )
+            createServerError(new Error(`L'événement ${eventUrl} n'existe pas`))
           );
     }
 
@@ -204,16 +209,16 @@ handler.post<
 
       emailList.push(body.email);
     } else if (body.orgListsNames) {
+      //console.log(`POST /event/${eventUrl}: orgListsNames`, body.orgListsNames);
       for (const orgListName of body.orgListsNames) {
         const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
         let org: (IOrg & Document<any, any, IOrg>) | null | undefined;
         org = await models.Org.findOne({ _id: orgId });
-
         if (!org) return res.status(400).json("Organisation introuvable");
 
         let subscriptions: ISubscription[] = [];
 
-        if (listName === "Abonnés") {
+        if (["Abonnés", "Adhérents"].includes(listName)) {
           org = await org
             .populate({
               path: "orgSubscriptions",
@@ -222,18 +227,14 @@ handler.post<
               }
             })
             .execPopulate();
-
-          subscriptions = getSubscriptions(org, SubscriptionTypes.FOLLOWER);
-        } else if (listName === "Adhérents") {
-          org = await org
-            .populate({
-              path: "orgSubscriptions",
-              populate: {
-                path: "user"
-              }
-            })
-            .execPopulate();
-          subscriptions = getSubscriptions(org, SubscriptionTypes.SUBSCRIBER);
+          subscriptions = subscriptions.concat(
+            getSubscriptions(
+              org,
+              listName === "Abonnés"
+                ? SubscriptionTypes.FOLLOWER
+                : SubscriptionTypes.SUBSCRIBER
+            )
+          );
         } else {
           org = await org
             .populate({

@@ -35,9 +35,10 @@ export const EntityNotified = ({
       dark={{ bg: "gray.500" }}
       overflowX="auto"
     >
-      {!(event?.eventNotified || topic?.topicNotified) ||
+      {!(event?.eventNotified || topic?.topicNotifications) ||
       (Array.isArray(event?.eventNotified) && !event?.eventNotified.length) ||
-      (Array.isArray(topic?.topicNotified) && !topic?.topicNotified.length) ? (
+      (Array.isArray(topic?.topicNotifications) &&
+        !topic?.topicNotifications.length) ? (
         <Alert status="info">
           <AlertIcon />
           <Text>Aucune invitations envoyées</Text>
@@ -55,7 +56,7 @@ export const EntityNotified = ({
                 else if (topic)
                   await mutation({
                     topicId: topic._id,
-                    payload: { topicNotified: [] }
+                    payload: { topicNotifications: [] }
                   }).unwrap();
 
                 query.refetch();
@@ -67,7 +68,7 @@ export const EntityNotified = ({
 
           <Table>
             <Tbody>
-              {(event?.eventNotified || topic?.topicNotified || []).map(
+              {(event?.eventNotified || topic?.topicNotifications || []).map(
                 ({ email: e, status = StatusTypes.PENDING }) => {
                   return (
                     <Tr key={e}>

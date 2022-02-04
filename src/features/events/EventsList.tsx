@@ -924,7 +924,7 @@ export const EventsList = ({
           />
         )}
 
-      {session && (
+      {/* {session && (
         <EntityNotifModal
           event={notifyModalState.entity || undefined}
           org={org}
@@ -934,7 +934,7 @@ export const EventsList = ({
           modalState={notifyModalState}
           session={session}
         />
-      )}
+      )} */}
     </>
   );
 };

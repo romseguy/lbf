@@ -14,16 +14,18 @@ export interface ITopic {
   topicVisibility?: string[];
   org?: IOrg;
   event?: IEvent;
-  topicNotified?: ITopicNotified;
+  topicNotifications?: ITopicNotification[];
   createdBy: IUser | string;
   createdAt?: string;
 }
 
-export type ITopicNotified = {
+export type ITopicNotification = {
   email?: string;
   phone?: string;
+  user?: string;
   status?: string;
-}[];
+  created_at: string;
+};
 
 export const Visibility: { [key: string]: string } = {
   PUBLIC: "PUBLIC",

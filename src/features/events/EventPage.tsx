@@ -23,7 +23,7 @@ import {
 } from "features/common";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
-import { SubscriptionPopover } from "features/subscriptions/SubscriptionPopover";
+import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { IEvent, Visibility } from "models/Event";
 import {
@@ -203,7 +203,7 @@ export const EventPage = ({
         <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
           {isFollowed && (
             <Box mr={3} mt={3}>
-              <SubscriptionPopover
+              <SubscribePopover
                 event={event}
                 query={eventQuery}
                 subQuery={subQuery}
@@ -212,7 +212,7 @@ export const EventPage = ({
           )}
 
           <Box mt={3}>
-            <SubscriptionPopover
+            <SubscribePopover
               event={event}
               query={eventQuery}
               subQuery={subQuery}

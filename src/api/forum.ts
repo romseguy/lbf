@@ -5,7 +5,7 @@ import { ITopicMessage } from "models/TopicMessage";
 
 export interface AddTopicParams {
   topic: Partial<ITopic>;
-  topicNotif?: boolean;
+  //topicNotif?: boolean;
   org?: Partial<IOrg>;
   event?: Partial<IEvent>;
 }

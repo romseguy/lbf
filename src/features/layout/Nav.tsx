@@ -32,10 +32,11 @@ import { FaKey, FaPowerOff } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import {
+  EmailLoginPopover,
   EventPopover,
   OrgPopover,
-  TopicPopover,
-  EmailLoginPopover
+  SubscriptionPopover,
+  TopicPopover
 } from "features/layout";
 import { LoginModal } from "features/modals/LoginModal";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
@@ -155,17 +156,22 @@ export const Nav = ({
                           orgType={OrgTypes.NETWORK}
                           session={session}
                           ml={3}
+                          mr={2}
                         />
                         <EventPopover
                           boxSize={[5, 5, 5]}
                           session={session}
-                          ml={2}
                           mr={3}
                         />
                         <TopicPopover
                           boxSize={[5, 5, 5]}
                           session={session}
-                          mr={4}
+                          mr={2}
+                        />
+                        <SubscriptionPopover
+                          boxSize={[6, 6, 6]}
+                          session={session}
+                          mr={3}
                         />
                       </Flex>
                     )}
@@ -241,7 +247,7 @@ export const Nav = ({
               </Tr>
               <Tr role="row">
                 <Td border={0} p={0}>
-                  <Flex>
+                  <Flex my={2}>
                     <Button
                       alignSelf="flex-start"
                       colorScheme="cyan"
@@ -289,7 +295,7 @@ export const Nav = ({
               </Tr>
               <Tr role="row">
                 <Td border={0} p={0}>
-                  <Flex>
+                  <Flex mt={2}>
                     {!session && (
                       <>
                         <EmailLoginPopover
@@ -351,6 +357,13 @@ export const Nav = ({
                         </Box>
                         <Box {...popoverProps}>
                           <TopicPopover boxSize={6} session={session} mx={4} />
+                        </Box>
+                        <Box {...popoverProps}>
+                          <SubscriptionPopover
+                            boxSize={6}
+                            session={session}
+                            mx={4}
+                          />
                         </Box>
                       </>
                     )}

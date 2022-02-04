@@ -1,4 +1,4 @@
-import { BellIcon, EmailIcon } from "@chakra-ui/icons";
+import { BellIcon, EmailIcon, PhoneIcon } from "@chakra-ui/icons";
 import {
   Text,
   PopoverContent,
@@ -50,9 +50,12 @@ export const SubscriptionEditPopover = ({
     email: userEmail
   }) as AppQuery<ISubscription>;
   const followerSubscription = getFollowerSubscription({
+    event,
     org,
     subQuery
-  }) as IOrgSubscription;
+  });
+
+  if (!followerSubscription) return null;
 
   return (
     <Popover
@@ -67,7 +70,7 @@ export const SubscriptionEditPopover = ({
         {isIconOnly ? (
           <IconButton
             aria-label={`Notifications ${notifType}`}
-            icon={notifType === "email" ? <EmailIcon /> : <BellIcon />}
+            icon={notifType === "email" ? <EmailIcon /> : <PhoneIcon />}
             colorScheme="teal"
             variant="outline"
             onClick={onOpen}
@@ -79,12 +82,12 @@ export const SubscriptionEditPopover = ({
               notifType === "email" ? (
                 <EmailIcon boxSize={6} />
               ) : (
-                <BellIcon boxSize={6} />
+                <PhoneIcon boxSize={6} />
               )
             }
             colorScheme="teal"
             onClick={onOpen}
-            data-cy="subscribeToOrg"
+            data-cy="subscribe-button"
           >
             {notifType === "email"
               ? "Notifications e-mail"
@@ -105,7 +108,7 @@ export const SubscriptionEditPopover = ({
               variant="underline"
               onClick={onClose}
             >
-              Se désabonner {org ? orgTypeFull(org.orgType) : "l'événement"}
+              Se désabonner {org ? orgTypeFull(org.orgType) : "de l'événement"}
             </Link>
           </PopoverHeader>
         ) : (

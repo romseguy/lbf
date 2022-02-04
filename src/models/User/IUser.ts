@@ -10,6 +10,14 @@ export interface IUser {
   userName: string;
   userImage?: Base64Image;
   userSubscription?: unknown;
+  // userSubscription?: {
+  //   endpoint: string;
+  //   expirationTime: string | null;
+  //   keys: {
+  //     p256dh: string;
+  //     auth: string;
+  //   };
+  // };
   isAdmin: boolean;
   isOnline: boolean;
   suggestedCategoryAt?: string;

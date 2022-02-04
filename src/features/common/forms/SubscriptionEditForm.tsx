@@ -23,6 +23,7 @@ import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { useAddSubscriptionMutation } from "features/subscriptions/subscriptionsApi";
 import { AppQuery } from "utils/types";
+import { ArrowForwardIcon, ArrowRightIcon } from "@chakra-ui/icons";
 
 export type EventCategoriesCheckboxes = {
   [key: number]: {
@@ -306,14 +307,21 @@ export const SubscriptionEditForm = ({
     }
   };
 
+  const switchProps = {
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer",
+    my: 3
+  };
+
   return (
     <form>
       <FormControl>
         <FormLabel fontWeight="normal" whiteSpace="normal">
           {isSelf ? (
             <>
-              Vous avez accepté de recevoir des invitations{" "}
-              <b>{notifType === "email" ? "e-mail" : "mobile"}</b> pour :
+              Recevoir un <b>{notifType === "email" ? "e-mail" : "mobile"}</b>{" "}
+              lorsque :
             </>
           ) : (
             <>
@@ -326,10 +334,7 @@ export const SubscriptionEditForm = ({
         {org && org.orgUrl !== "forum" && (
           <>
             <Switch
-              display="flex"
-              alignItems="center"
-              cursor="pointer"
-              my={3}
+              {...switchProps}
               isChecked={isAllEvents && !showEventCategories}
               isDisabled={isLoading}
               onChange={async (e) => {
@@ -339,14 +344,12 @@ export const SubscriptionEditForm = ({
                 setIsAllEvents(e.target.checked);
               }}
             >
-              tous les événements
+              vous êtes invité à un événement
             </Switch>
 
             <Switch
-              display="flex"
-              alignItems="center"
-              cursor="pointer"
-              my={3}
+              {...switchProps}
+              ml={3}
               isChecked={showEventCategories && !isAllEvents}
               onChange={(e) => {
                 if (!e.target.checked) {
@@ -357,7 +360,7 @@ export const SubscriptionEditForm = ({
                 setShowEventCategories(!showEventCategories);
               }}
             >
-              les événements de la catégorie...
+              de la catégorie...
             </Switch>
 
             {showEventCategories && (
@@ -402,21 +405,23 @@ export const SubscriptionEditForm = ({
           </>
         )}
         <Switch
-          display="flex"
-          alignItems="center"
-          cursor="pointer"
-          my={3}
+          {...switchProps}
           isChecked={isAllTopics}
           isDisabled={isLoading}
           onChange={(e) => {
             setIsAllTopics(e.target.checked);
           }}
         >
-          toutes les discussions
+          vous êtes invité à une discussion
         </Switch>
+
+        <Switch {...switchProps} ml={3} isDisabled>
+          de la catégorie...
+        </Switch>
+
         {Object.keys(topics).length > 0 && (
           <>
-            - une réponse à la discussion...
+            <ArrowForwardIcon /> quelqu'un répond à la discussion...
             <CheckboxGroup>
               <VStack alignItems="flex-start" mt={3} ml={3}>
                 {Object.keys(topics).map((topicId) => {

@@ -1,3 +1,4 @@
+import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import nodemailer from "nodemailer";
@@ -11,6 +12,7 @@ import { createServerError } from "utils/errors";
 import { sendTopicNotifications } from "api/email";
 import { equals } from "utils/string";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import { ITopicNotification } from "models/Topic";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -26,7 +28,6 @@ handler.post<
   NextApiRequest & {
     query: { topicId: string };
     body: {
-      org?: IOrg;
       event?: IEvent;
       orgListsNames?: string[];
       email?: string;
@@ -44,8 +45,10 @@ handler.post<
 
   try {
     const {
+      query: { topicId },
       body
     }: {
+      query: { topicId: string };
       body: {
         org?: IOrg;
         event?: IEvent;
@@ -53,7 +56,7 @@ handler.post<
         email?: string;
       };
     } = req;
-    const topicId = req.query.topicId;
+
     const topic = await models.Topic.findOne({ _id: topicId });
 
     if (!topic) {
@@ -64,10 +67,7 @@ handler.post<
         );
     }
 
-    if (
-      !equals(topic.createdBy, session.user.userId) &&
-      !session.user.isAdmin
-    ) {
+    if (!equals(topic.createdBy, session.user.userId) && !session.user.isAdmin)
       return res
         .status(403)
         .json(
@@ -77,39 +77,36 @@ handler.post<
             )
           )
         );
-    }
 
-    let emailList: string[] = [];
+    let notifications: ITopicNotification[] = [];
 
     if (body.event) {
-      emailList = await sendTopicNotifications({
+      notifications = await sendTopicNotifications({
         event: body.event,
         subscriptions: body.event.eventSubscriptions,
         topic,
         transport
       });
-    } else if (body.org && body.orgListsNames) {
+    } else if (body.orgListsNames) {
       console.log(`POST /topic/${topicId}: orgListsNames`, body.orgListsNames);
-      const org = body.org;
-
-      let subscriptions = (org.orgLists || [])
-        // .filter((orgList) =>
-        //   topic.topicOrgLists?.find(
-        //     (listName) =>
-        //       listName === orgList.listName &&
-        //       Array.isArray(orgList.subscriptions) &&
-        //       orgList.subscriptions.length > 0
-        //   )
-        // )
-        .map((orgList) => {
-          return orgList.subscriptions;
-        })
-        .flatMap((subscriptions) => subscriptions) as ISubscription[];
-
       for (const orgListName of body.orgListsNames) {
         const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
+        let org: (IOrg & Document<any, any, IOrg>) | null | undefined;
+        org = await models.Org.findOne({ _id: orgId });
+        if (!org) return res.status(400).json("Organisation introuvable");
 
-        if (["Abonnés", "Adhérents"].includes(listName))
+        let subscriptions: ISubscription[] = [];
+
+        if (["Abonnés", "Adhérents"].includes(listName)) {
+          org = await org
+            .populate({
+              path: "orgSubscriptions",
+              populate: {
+                path: "user",
+                select: "email userSubscription"
+              }
+            })
+            .execPopulate();
           subscriptions = subscriptions.concat(
             getSubscriptions(
               org,
@@ -118,11 +115,28 @@ handler.post<
                 : SubscriptionTypes.SUBSCRIBER
             )
           );
-      }
+        } else {
+          org = await org
+            .populate({
+              path: "orgLists",
+              populate: [
+                {
+                  path: "subscriptions",
+                  populate: { path: "user", select: "email userSubscription" }
+                }
+              ]
+            })
+            .execPopulate();
 
-      if (Array.isArray(subscriptions) && subscriptions.length > 0) {
-        emailList = await sendTopicNotifications({
-          org: body.org,
+          const list = org.orgLists?.find(
+            (orgList) => orgList.listName === listName
+          );
+
+          if (list && list.subscriptions) subscriptions = list.subscriptions;
+        }
+
+        notifications = await sendTopicNotifications({
+          org,
           subscriptions,
           topic,
           transport
@@ -130,7 +144,7 @@ handler.post<
       }
     }
 
-    res.status(200).json({ emailList });
+    res.status(200).json({ notifications });
   } catch (error) {
     res.status(500).json(createServerError(error));
   }

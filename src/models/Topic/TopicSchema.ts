@@ -22,10 +22,15 @@ export const TopicSchema = new Schema<ITopic>(
       type: Schema.Types.ObjectId,
       ref: "Event"
     },
-    topicNotified: [
+    topicNotifications: [
       {
         email: String,
-        phone: String
+        phone: String,
+        user: {
+          type: Schema.Types.ObjectId,
+          ref: "User"
+        },
+        created_at: { type: String, required: true }
       }
     ],
     createdBy: {

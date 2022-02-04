@@ -2,6 +2,7 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import { equals, logJson } from "utils/string";
+import { AppQuery } from "utils/types";
 import {
   IOrgSubscription,
   IEventSubscription,
@@ -26,26 +27,26 @@ export const getFollowerSubscription = ({
 }: {
   event?: IEvent;
   org?: IOrg;
-  subQuery?: any;
+  subQuery?: AppQuery<ISubscription>;
   subscription?: ISubscription;
 }): IOrgSubscription | IEventSubscription | undefined => {
-  if (!org && !event) return;
+  const sub = subQuery ? subQuery.data : subscription;
 
-  if (subQuery?.data || subscription) {
-    if (org) {
-      return (subQuery?.data || subscription).orgs?.find(
-        (orgSubscription: IOrgSubscription) =>
-          equals(orgSubscription.orgId, org._id) &&
-          orgSubscription.type === SubscriptionTypes.FOLLOWER
-      );
-    }
+  if (!sub) return;
 
-    if (event) {
-      return (subQuery?.data || subscription).events?.find(
-        (eventSubscription: IEventSubscription) =>
-          eventSubscription.eventId === event._id
-      );
-    }
+  if (event) {
+    return sub.events?.find(
+      (eventSubscription: IEventSubscription) =>
+        eventSubscription.eventId === event._id
+    );
+  }
+
+  if (org) {
+    return sub.orgs?.find(
+      (orgSubscription: IOrgSubscription) =>
+        equals(orgSubscription.orgId, org._id) &&
+        orgSubscription.type === SubscriptionTypes.FOLLOWER
+    );
   }
 };
 

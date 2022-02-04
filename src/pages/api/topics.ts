@@ -92,7 +92,7 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
 
       let emailList: string[] = [];
       let topic: (ITopic & Document<any, any, ITopic>) | null | undefined;
-      const topicNotif = body.topicNotif || false;
+      //const topicNotif = body.topicNotif || false;
 
       //#region existing topic
       if (body.topic._id) {
@@ -132,22 +132,20 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
         topic.topicMessages.push(newMessage);
         await topic.save();
 
-        if (topicNotif) {
-          const subscriptions = await models.Subscription.find({
-            "topics.topic": Types.ObjectId(body.topic._id),
-            user: { $ne: newMessage.createdBy }
-          }).populate("user");
+        const subscriptions = await models.Subscription.find({
+          "topics.topic": Types.ObjectId(body.topic._id),
+          user: { $ne: newMessage.createdBy }
+        }).populate({ path: "user", select: "email" });
 
-          logJson(`POST /topics: topic subscriptions`, subscriptions);
+        logJson(`POST /topics: topic subscriptions`, subscriptions);
 
-          sendTopicMessageEmailNotifications({
-            event,
-            org,
-            subscriptions,
-            topic,
-            transport
-          });
-        }
+        sendTopicMessageEmailNotifications({
+          event,
+          org,
+          subscriptions,
+          topic,
+          transport
+        });
       }
       //#endregion
       //#region new topic
@@ -172,125 +170,125 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
           await event.save();
           //log(`POST /topics: event`, event);
 
-          if (topicNotif) {
-            event = await event
-              .populate({
-                path: "eventSubscriptions",
-                populate: { path: "user" }
-              })
-              .execPopulate();
+          // if (topicNotif) {
+          //   event = await event
+          //     .populate({
+          //       path: "eventSubscriptions",
+          //       populate: { path: "user" }
+          //     })
+          //     .execPopulate();
 
-            emailList = await sendTopicNotifications({
-              event,
-              subscriptions: event.eventSubscriptions,
-              topic,
-              transport
-            });
-          }
+          //   emailList = await sendTopicNotifications({
+          //     event,
+          //     subscriptions: event.eventSubscriptions,
+          //     topic,
+          //     transport
+          //   });
+          // }
         } else if (org) {
           org.orgTopics.push(topic);
           await org.save();
           //log(`POST /topics: org`, org);
 
-          if (topicNotif) {
-            //#region orgLists
-            if (
-              Array.isArray(body.topic.topicOrgLists) &&
-              body.topic.topicOrgLists.length > 0
-            ) {
-              const subscription = await models.Subscription.findOne({
-                email: session.user.email
-              });
+          // if (topicNotif) {
+          //   //#region orgLists
+          //   if (
+          //     Array.isArray(body.topic.topicOrgLists) &&
+          //     body.topic.topicOrgLists.length > 0
+          //   ) {
+          //     const subscription = await models.Subscription.findOne({
+          //       email: session.user.email
+          //     });
 
-              if (
-                !session.user.isAdmin &&
-                (!subscription ||
-                  !getSubscriberSubscription({ org, subscription }))
-              )
-                return res
-                  .status(400)
-                  .json(
-                    createServerError(
-                      new Error(
-                        "Vous devez être adhérent pour inviter des personnes à votre discussion"
-                      )
-                    )
-                  );
+          //     if (
+          //       !session.user.isAdmin &&
+          //       (!subscription ||
+          //         !getSubscriberSubscription({ org, subscription }))
+          //     )
+          //       return res
+          //         .status(400)
+          //         .json(
+          //           createServerError(
+          //             new Error(
+          //               "Vous devez être adhérent pour inviter des personnes à votre discussion"
+          //             )
+          //           )
+          //         );
 
-              org = org.populate({
-                path: "orgLists",
-                populate: {
-                  path: "subscriptions",
-                  populate: { path: "user", select: "-password -securityCode" }
-                }
-              });
+          //     org = org.populate({
+          //       path: "orgLists",
+          //       populate: {
+          //         path: "subscriptions",
+          //         populate: { path: "user", select: "-password -securityCode" }
+          //       }
+          //     });
 
-              if (
-                body.topic.topicOrgLists.find((listName) =>
-                  ["Abonnés", "Adhérents"].includes(listName)
-                )
-              )
-                org = org.populate({
-                  path: "orgSubscriptions",
-                  populate: {
-                    path: "user"
-                  }
-                });
+          //     if (
+          //       body.topic.topicOrgLists.find((listName) =>
+          //         ["Abonnés", "Adhérents"].includes(listName)
+          //       )
+          //     )
+          //       org = org.populate({
+          //         path: "orgSubscriptions",
+          //         populate: {
+          //           path: "user"
+          //         }
+          //       });
 
-              org = await org.execPopulate();
+          //     org = await org.execPopulate();
 
-              let subscriptions = (org.orgLists || [])
-                .filter((orgList) =>
-                  body.topic.topicOrgLists?.find(
-                    (listName) =>
-                      listName === orgList.listName &&
-                      Array.isArray(orgList.subscriptions) &&
-                      orgList.subscriptions.length > 0
-                  )
-                )
-                .flatMap(
-                  ({ subscriptions }) => subscriptions
-                ) as ISubscription[];
+          //     let subscriptions = (org.orgLists || [])
+          //       .filter((orgList) =>
+          //         body.topic.topicOrgLists?.find(
+          //           (listName) =>
+          //             listName === orgList.listName &&
+          //             Array.isArray(orgList.subscriptions) &&
+          //             orgList.subscriptions.length > 0
+          //         )
+          //       )
+          //       .flatMap(
+          //         ({ subscriptions }) => subscriptions
+          //       ) as ISubscription[];
 
-              for (const listName of body.topic.topicOrgLists)
-                if (["Abonnés", "Adhérents"].includes(listName))
-                  subscriptions = subscriptions.concat(
-                    getSubscriptions(
-                      org,
-                      listName === "Abonnés"
-                        ? SubscriptionTypes.FOLLOWER
-                        : SubscriptionTypes.SUBSCRIBER
-                    )
-                  );
+          //     for (const listName of body.topic.topicOrgLists)
+          //       if (["Abonnés", "Adhérents"].includes(listName))
+          //         subscriptions = subscriptions.concat(
+          //           getSubscriptions(
+          //             org,
+          //             listName === "Abonnés"
+          //               ? SubscriptionTypes.FOLLOWER
+          //               : SubscriptionTypes.SUBSCRIBER
+          //           )
+          //         );
 
-              if (Array.isArray(subscriptions) && subscriptions.length > 0) {
-                emailList = await sendTopicNotifications({
-                  org,
-                  subscriptions: org.orgSubscriptions,
-                  topic,
-                  transport
-                });
-              }
-            }
-            //#endregion
-            //#region orgSubscriptions
-            else {
-              org = await org
-                .populate({
-                  path: "orgSubscriptions",
-                  populate: { path: "user", select: "email userSubscription" }
-                })
-                .execPopulate();
+          //     if (Array.isArray(subscriptions) && subscriptions.length > 0) {
+          //       emailList = await sendTopicNotifications({
+          //         org,
+          //         subscriptions: org.orgSubscriptions,
+          //         topic,
+          //         transport
+          //       });
+          //     }
+          //   }
+          //   //#endregion
+          //   //#region orgSubscriptions
+          //   else {
+          //     org = await org
+          //       .populate({
+          //         path: "orgSubscriptions",
+          //         populate: { path: "user", select: "email userSubscription" }
+          //       })
+          //       .execPopulate();
 
-              emailList = await sendTopicNotifications({
-                org,
-                subscriptions: org.orgSubscriptions,
-                topic,
-                transport
-              });
-            }
-            //#endregion
-          }
+          //     emailList = await sendTopicNotifications({
+          //       org,
+          //       subscriptions: org.orgSubscriptions,
+          //       topic,
+          //       transport
+          //     });
+          //   }
+          //   //#endregion
+          // }
         }
       }
       //#endregion
