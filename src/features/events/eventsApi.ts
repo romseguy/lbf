@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { IEvent } from "models/Event";
+import { IEvent, IEventNotification } from "models/Event";
 import baseQuery, { objectToQueryString } from "utils/query";
 
 export type EventQueryParams = {
@@ -87,9 +87,9 @@ export const eventApi = createApi({
       query: (userId) => ({ url: `events/${userId}` })
     }),
     postEventNotif: build.mutation<
-      { emailList: string[] },
+      { notifications: IEventNotification[] },
       {
-        payload: { lists?: string[]; email?: string };
+        payload: { orgListsNames?: string[]; email?: string };
         eventUrl?: string;
       }
     >({

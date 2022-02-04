@@ -60,10 +60,11 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
   async function postTopic(req, res) {
     const session = await getSession({ req });
 
-    if (!session)
+    if (!session) {
       return res
         .status(403)
         .json(createServerError(new Error("Vous devez être identifié")));
+    }
 
     try {
       const {
@@ -79,27 +80,26 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
         event = await models.Event.findOne({ _id: body.event._id });
       else if (body.org) org = await models.Org.findOne({ _id: body.org._id });
 
-      if (!event && !org)
+      if (!event && !org) {
         return res
           .status(400)
           .json(
             createServerError(
               new Error(
-                "Le sujet de discussion doit être associé à une organisation ou à un événément"
+                "La discussion doit être associée à une organisation ou à un événément"
               )
             )
           );
+      }
 
-      let emailList: string[] = [];
       let topic: (ITopic & Document<any, any, ITopic>) | null | undefined;
-      //const topicNotif = body.topicNotif || false;
 
       //#region existing topic
       if (body.topic._id) {
         if (
           !Array.isArray(body.topic.topicMessages) ||
           !body.topic.topicMessages.length
-        )
+        ) {
           return res
             .status(400)
             .json(
@@ -109,10 +109,11 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
                 )
               )
             );
+        }
 
         topic = await models.Topic.findOne({ _id: body.topic._id });
 
-        if (!topic)
+        if (!topic) {
           return res
             .status(404)
             .json(
@@ -122,6 +123,7 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
                 )
               )
             );
+        }
 
         logJson(`POST /topics: adding message to topic`, topic);
 
@@ -135,7 +137,7 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
         const subscriptions = await models.Subscription.find({
           "topics.topic": Types.ObjectId(body.topic._id),
           user: { $ne: newMessage.createdBy }
-        }).populate({ path: "user", select: "email" });
+        }).populate({ path: "user", select: "email phone userSubscription" });
 
         logJson(`POST /topics: topic subscriptions`, subscriptions);
 
@@ -169,126 +171,10 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
           event.eventTopics.push(topic);
           await event.save();
           //log(`POST /topics: event`, event);
-
-          // if (topicNotif) {
-          //   event = await event
-          //     .populate({
-          //       path: "eventSubscriptions",
-          //       populate: { path: "user" }
-          //     })
-          //     .execPopulate();
-
-          //   emailList = await sendTopicNotifications({
-          //     event,
-          //     subscriptions: event.eventSubscriptions,
-          //     topic,
-          //     transport
-          //   });
-          // }
         } else if (org) {
           org.orgTopics.push(topic);
           await org.save();
           //log(`POST /topics: org`, org);
-
-          // if (topicNotif) {
-          //   //#region orgLists
-          //   if (
-          //     Array.isArray(body.topic.topicOrgLists) &&
-          //     body.topic.topicOrgLists.length > 0
-          //   ) {
-          //     const subscription = await models.Subscription.findOne({
-          //       email: session.user.email
-          //     });
-
-          //     if (
-          //       !session.user.isAdmin &&
-          //       (!subscription ||
-          //         !getSubscriberSubscription({ org, subscription }))
-          //     )
-          //       return res
-          //         .status(400)
-          //         .json(
-          //           createServerError(
-          //             new Error(
-          //               "Vous devez être adhérent pour inviter des personnes à votre discussion"
-          //             )
-          //           )
-          //         );
-
-          //     org = org.populate({
-          //       path: "orgLists",
-          //       populate: {
-          //         path: "subscriptions",
-          //         populate: { path: "user", select: "-password -securityCode" }
-          //       }
-          //     });
-
-          //     if (
-          //       body.topic.topicOrgLists.find((listName) =>
-          //         ["Abonnés", "Adhérents"].includes(listName)
-          //       )
-          //     )
-          //       org = org.populate({
-          //         path: "orgSubscriptions",
-          //         populate: {
-          //           path: "user"
-          //         }
-          //       });
-
-          //     org = await org.execPopulate();
-
-          //     let subscriptions = (org.orgLists || [])
-          //       .filter((orgList) =>
-          //         body.topic.topicOrgLists?.find(
-          //           (listName) =>
-          //             listName === orgList.listName &&
-          //             Array.isArray(orgList.subscriptions) &&
-          //             orgList.subscriptions.length > 0
-          //         )
-          //       )
-          //       .flatMap(
-          //         ({ subscriptions }) => subscriptions
-          //       ) as ISubscription[];
-
-          //     for (const listName of body.topic.topicOrgLists)
-          //       if (["Abonnés", "Adhérents"].includes(listName))
-          //         subscriptions = subscriptions.concat(
-          //           getSubscriptions(
-          //             org,
-          //             listName === "Abonnés"
-          //               ? SubscriptionTypes.FOLLOWER
-          //               : SubscriptionTypes.SUBSCRIBER
-          //           )
-          //         );
-
-          //     if (Array.isArray(subscriptions) && subscriptions.length > 0) {
-          //       emailList = await sendTopicNotifications({
-          //         org,
-          //         subscriptions: org.orgSubscriptions,
-          //         topic,
-          //         transport
-          //       });
-          //     }
-          //   }
-          //   //#endregion
-          //   //#region orgSubscriptions
-          //   else {
-          //     org = await org
-          //       .populate({
-          //         path: "orgSubscriptions",
-          //         populate: { path: "user", select: "email userSubscription" }
-          //       })
-          //       .execPopulate();
-
-          //     emailList = await sendTopicNotifications({
-          //       org,
-          //       subscriptions: org.orgSubscriptions,
-          //       topic,
-          //       transport
-          //     });
-          //   }
-          //   //#endregion
-          // }
         }
       }
       //#endregion
@@ -328,7 +214,7 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
       }
       //#endregion
 
-      res.status(200).json(emailList);
+      res.status(200).json({});
     } catch (error: any) {
       res.status(500).json(createServerError(error));
     }

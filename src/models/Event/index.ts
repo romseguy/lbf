@@ -42,7 +42,7 @@ export const isAttending = ({
   event: IEvent;
 }) => {
   if (!email) return false;
-  return !!event.eventNotified?.find(({ email: e, status }) => {
+  return !!event.eventNotifications?.find(({ email: e, status }) => {
     return e === email && status === StatusTypes.OK;
   });
 };
@@ -55,7 +55,7 @@ export const isNotAttending = ({
   event: IEvent;
 }) => {
   if (!email) return false;
-  return !!event.eventNotified?.find(({ email: e, status }) => {
+  return !!event.eventNotifications?.find(({ email: e, status }) => {
     return e === email && status === StatusTypes.NOK;
   });
 };

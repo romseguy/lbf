@@ -38,7 +38,7 @@ export const SubscriptionPopover = ({
     selectFromResult: (query) => ({
       ...query,
       data: query.data?.filter((event) =>
-        event.eventNotified?.find(({ email }) => email === userEmail)
+        event.eventNotifications?.find(({ email }) => email === userEmail)
       )
     })
   });

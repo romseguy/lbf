@@ -124,7 +124,11 @@ export const EventPage = ({
       if (isSubscribedToAtLeastOneOrg) showAttendingForm = true;
     } else {
       if (event.eventVisibility === Visibility.SUBSCRIBERS) {
-        if (!!event.eventNotified?.find((notified) => notified.email === email))
+        if (
+          !!event.eventNotifications?.find(
+            (notified) => notified.email === email
+          )
+        )
           showAttendingForm = true;
       } else {
         showAttendingForm = true;

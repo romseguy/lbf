@@ -59,27 +59,32 @@ export const EventAttendingForm = ({
       return;
     }
 
-    let isFound = false;
+    let isNew = true;
 
-    let eventNotified = event.eventNotified?.map(({ email: e, status }) => {
-      if (e === userEmail) {
-        if (status !== StatusTypes.OK) {
-          isFound = true;
-          return { email: e, status: StatusTypes.OK };
+    let eventNotifications = event.eventNotifications?.map(
+      (eventNotification) => {
+        const { email, status } = eventNotification;
+
+        if (email === userEmail) {
+          if (status !== StatusTypes.OK) {
+            isNew = false;
+            return { ...eventNotification, status: StatusTypes.OK };
+          }
         }
+
+        return eventNotification;
       }
+    );
 
-      return { email: e, status };
-    });
-
-    if (!isFound && userEmail)
-      eventNotified?.push({
+    if (isNew && userEmail)
+      eventNotifications?.push({
         email: userEmail,
-        status: StatusTypes.OK
+        status: StatusTypes.OK,
+        created_at: new Date().toISOString()
       });
 
     await editEvent({
-      payload: { eventNotified },
+      payload: { eventNotifications },
       eventUrl: event.eventUrl
     });
     eventQuery.refetch();
@@ -110,23 +115,27 @@ export const EventAttendingForm = ({
     }
 
     let isNew = true;
-    let eventNotified = event.eventNotified?.map(({ email: e, status }) => {
-      if (e === userEmail && status !== StatusTypes.NOK) {
-        isNew = false;
-        return { email: e, status: StatusTypes.NOK };
+    let eventNotifications = event.eventNotifications?.map(
+      (eventNotification) => {
+        const { email, status } = eventNotification;
+        if (email === userEmail && status !== StatusTypes.NOK) {
+          isNew = false;
+          return { ...eventNotification, status: StatusTypes.NOK };
+        }
+        return eventNotification;
       }
-      return { email: e, status };
-    });
+    );
 
     if (isNew && userEmail)
-      eventNotified?.push({
+      eventNotifications?.push({
         email: userEmail,
-        status: StatusTypes.NOK
+        status: StatusTypes.NOK,
+        created_at: new Date().toISOString()
       });
 
     await editEvent({
       payload: {
-        eventNotified
+        eventNotifications
       },
       eventUrl: event.eventUrl
     });

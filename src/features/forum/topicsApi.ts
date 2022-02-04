@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
 import { AddTopicParams, EditTopicParams } from "api/forum";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { ITopic } from "models/Topic";
+import { ITopic, ITopicNotification } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
 import baseQuery, { objectToQueryString } from "utils/query";
 
@@ -17,18 +17,16 @@ export const topicsApi = createApi({
     addTopic: build.mutation<
       ITopic,
       {
-        payload: Omit<AddTopicParams, "topicNotif">;
-        topicNotif?: boolean;
+        payload: AddTopicParams;
       }
     >({
-      query: ({ payload, topicNotif }) => {
+      query: ({ payload }) => {
         console.log("addTopic: payload", payload);
-        console.log("addTopic: topicNotif", topicNotif);
 
         return {
           url: `topics`,
           method: "POST",
-          body: { ...payload, topicNotif }
+          body: payload
         };
       },
       invalidatesTags: [{ type: "Topics", id: "LIST" }]
@@ -41,25 +39,23 @@ export const topicsApi = createApi({
       {
         payload: EditTopicParams;
         topicId?: string;
-        topicNotif?: boolean;
       }
     >({
-      query: ({ payload, topicId, topicNotif }) => {
+      query: ({ payload, topicId }) => {
         console.groupCollapsed("editTopic");
         console.log("editTopic: topicId", topicId);
-        console.log("editTopic: topicNotif", topicNotif);
         console.log("editTopic: payload", payload);
         console.groupEnd();
 
         return {
           url: `topic/${topicId ? topicId : payload.topic._id}`,
           method: "PUT",
-          body: { ...payload, topicNotif }
+          body: payload
         };
       }
     }),
     postTopicNotif: build.mutation<
-      string[],
+      { notifications: ITopicNotification[] },
       {
         payload: {
           event?: IEvent;

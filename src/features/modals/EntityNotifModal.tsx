@@ -1,4 +1,5 @@
 import {
+  Button,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -12,7 +13,7 @@ import React from "react";
 import { EntityButton, EntityNotified, OrgNotifForm } from "features/common";
 import { useEditEventMutation } from "features/events/eventsApi";
 import { useEditTopicMutation } from "features/forum/topicsApi";
-import { IEvent, IEventNotified } from "models/Event";
+import { IEvent, IEventNotification } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic, ITopicNotification } from "models/Topic";
 import { SubscriptionTypes } from "models/Subscription";
@@ -69,7 +70,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
   let entityName: string = "";
   let entityTypeLabel = "l'événement";
   let topicNotifications: ITopicNotification[] | undefined;
-  let eventNotified: IEventNotified | undefined;
+  let eventNotifications: IEventNotification[] | undefined;
   let notifiedCount = 0;
 
   if (isTopic(entity)) {
@@ -98,32 +99,13 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
       );
     });
 
-    if (entity.eventNotified) {
-      eventNotified = entity.eventNotified;
-      notifiedCount = eventNotified.length;
+    if (entity.eventNotifications) {
+      eventNotifications = entity.eventNotifications;
+      notifiedCount = eventNotifications.length;
     }
   }
 
-  const onSubmit = async (
-    form: { email?: string; orgListsNames?: string[] },
-    type?: "single" | "multi"
-  ) => {
-    console.log("submitted", form);
-
-    let payload: {
-      event?: IEvent<string | Date>;
-      email?: string;
-      orgListsNames?: string[];
-    } = {
-      event
-    };
-
-    if (type === "multi")
-      payload.orgListsNames = hasItems(form.orgListsNames)
-        ? form.orgListsNames
-        : undefined;
-    else payload.email = form.email;
-
+  const postEntityNotifications = async (payload: any) => {
     try {
       const { notifications } = await postNotif({
         [entityIdKey]: entityId,
@@ -156,6 +138,29 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
     }
   };
 
+  const onSubmit = async (
+    form: { email?: string; orgListsNames?: string[] },
+    type?: "single" | "multi"
+  ) => {
+    console.log("submitted", form);
+
+    let payload: {
+      event?: IEvent<string | Date>;
+      email?: string;
+      orgListsNames?: string[];
+    } = {
+      event
+    };
+
+    if (type === "multi")
+      payload.orgListsNames = hasItems(form.orgListsNames)
+        ? form.orgListsNames
+        : undefined;
+    else payload.email = form.email;
+
+    postEntityNotifications(payload);
+  };
+
   return (
     <Modal
       isOpen={modalState.entity !== null}
@@ -177,14 +182,27 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={4}>
-            {org && (
+            {org ? (
               <OrgNotifForm
                 entity={entity}
                 org={org}
                 query={query}
                 onSubmit={onSubmit}
               />
-            )}
+            ) : event ? (
+              <Button
+                colorScheme="teal"
+                mb={5}
+                onClick={() => {
+                  const payload = {
+                    event
+                  };
+                  postEntityNotifications(payload);
+                }}
+              >
+                Inviter les abonnés de cet événement à la discussion
+              </Button>
+            ) : null}
 
             {isEvent(entity) && (
               <EntityNotified

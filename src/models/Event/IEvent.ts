@@ -23,7 +23,7 @@ export interface IEvent<T = string> {
   eventPhone?: { phone: string }[];
   eventWeb?: { url: string; prefix: string }[];
   eventSubscriptions: ISubscription[];
-  eventNotified?: IEventNotified; // list of emails the invitation has been sent to
+  eventNotifications?: IEventNotification[]; // list of emails the invitation has been sent to
   eventTopics: ITopic[];
   eventTopicsCategories?: string[];
   eventBanner?: Base64Image & {
@@ -51,11 +51,13 @@ export interface IEvent<T = string> {
   createdAt?: string;
 }
 
-export type IEventNotified = {
+export type IEventNotification = {
   email?: string;
   phone?: string;
+  user?: string;
   status?: string;
-}[];
+  created_at: string;
+};
 
 export const StatusTypes: { [key: string]: string } = {
   PENDING: "PENDING",

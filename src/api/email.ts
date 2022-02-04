@@ -2,7 +2,7 @@ import { addHours, parseISO } from "date-fns";
 import nodemailer from "nodemailer";
 import { models } from "database";
 import { toDateRange } from "features/common";
-import { IEvent } from "models/Event";
+import { IEvent, IEventNotification } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IProject } from "models/Project";
 import { ITopic, ITopicNotification } from "models/Topic";
@@ -161,8 +161,8 @@ export const sendEventNotifications = async ({
   org: IOrg;
   subscriptions: ISubscription[];
   transport: nodemailer.Transporter<any>;
-}): Promise<string[]> => {
-  const emailList: string[] = [];
+}): Promise<IEventNotification[]> => {
+  const eventNotifications: IEventNotification[] = [];
 
   if (!subscriptions.length) {
     console.log(`sendEventNotifications: no subscriptions`);
@@ -170,6 +170,12 @@ export const sendEventNotifications = async ({
   }
 
   for (const subscription of subscriptions) {
+    logJson(`sendEventNotifications: subscription`, subscription);
+
+    let eventNotification: IEventNotification = {
+      created_at: new Date().toISOString()
+    };
+
     const email =
       typeof subscription.user === "object"
         ? subscription.user.email
@@ -180,7 +186,12 @@ export const sendEventNotifications = async ({
         equals(orgId, org._id) && type === SubscriptionTypes.FOLLOWER
     );
 
-    if (!orgSubscription) continue;
+    if (!orgSubscription) {
+      console.log(
+        "sendEventNotifications: skipping -- no follower subscription"
+      );
+      continue;
+    }
 
     if (orgSubscription.eventCategories) {
       const eventCategoriesEmail = orgSubscription.eventCategories.filter(
@@ -194,7 +205,10 @@ export const sendEventNotifications = async ({
             eventCategory.emailNotif
         )
       ) {
-        if (!email || event.eventNotified?.find(({ email: e }) => e === email))
+        if (
+          !email ||
+          event.eventNotifications?.find(({ email: e }) => e === email)
+        )
           continue;
 
         const mail = createEventEmailNotif({
@@ -210,7 +224,7 @@ export const sendEventNotifications = async ({
           console.log(`sent event email notif to ${mail.to}`, mail);
         }
 
-        emailList.push(email);
+        eventNotification = { ...eventNotification, email };
       }
 
       const eventCategoriesPush = orgSubscription.eventCategories.filter(
@@ -239,54 +253,89 @@ export const sendEventNotifications = async ({
         ({ type }) => type === "Events"
       );
 
-      if (!tagType) continue;
-
-      if (tagType.emailNotif) {
-        if (!email || event.eventNotified?.find(({ email: e }) => e === email))
-          continue;
-
-        const mail = createEventEmailNotif({
-          email,
-          event,
-          org,
-          subscription
-        });
-
-        if (process.env.NODE_ENV === "production")
-          await transport.sendMail(mail);
-        else if (process.env.NODE_ENV === "development") {
-          console.log(`sent event email notif to ${mail.to}`, mail);
-        }
-
-        emailList.push(email);
+      if (!tagType) {
+        console.log("sendEventNotifications: skipping -- no tag type");
+        continue;
       }
 
-      if (tagType.pushNotif) {
-        if (!subscription.user) continue;
+      if (tagType.emailNotif) {
+        if (email) {
+          console.log(`email: notifying ${email}`);
 
-        const user = await models.User.findOne({
-          _id:
-            typeof subscription.user === "string"
-              ? subscription.user
-              : subscription.user._id
-        });
+          if (event.eventNotifications?.find(({ email: e }) => e === email)) {
+            console.log("email: skipping -- email already notified");
+          } else {
+            const mail = createEventEmailNotif({
+              email,
+              event,
+              org,
+              subscription
+            });
 
-        if (user && user.userSubscription) {
-          await api.sendPushNotification({
-            message: `Appuyez pour ouvrir la page de l'événement`,
-            subscription: user.userSubscription,
-            title: "Vous êtes invité à un événement",
-            url: event.eventUrl
-          });
+            if (process.env.NODE_ENV === "production")
+              await transport.sendMail(mail);
+            else if (process.env.NODE_ENV === "development") {
+              console.log(`email: notified ${mail.to}`, mail);
+            }
+
+            eventNotification = { ...eventNotification, email };
+          }
+        }
+      }
+
+      if (
+        tagType.pushNotif &&
+        typeof subscription.user === "object" &&
+        subscription.user.userSubscription
+      ) {
+        console.log(`push: user ${subscription.user._id}`);
+
+        if (
+          event.eventNotifications?.find(({ user }) =>
+            typeof subscription.user === "object"
+              ? equals(user, subscription.user._id)
+              : equals(user, subscription.user)
+          )
+        ) {
+          console.log("push: skipping -- user already notified");
+        } else {
+          try {
+            await api.sendPushNotification({
+              message: `Appuyez pour ouvrir la page de l'événement`,
+              subscription: subscription.user.userSubscription,
+              title: "Vous êtes invité à un événement",
+              url: event.eventUrl
+            });
+
+            eventNotification = {
+              ...eventNotification,
+              user: subscription.user._id
+            };
+          } catch (error) {
+            console.error(error);
+            if (process.env.NODE_ENV !== "production")
+              eventNotification = {
+                ...eventNotification,
+                user: subscription.user._id
+              };
+          }
         }
       }
     }
+
+    eventNotifications.push(eventNotification);
   }
 
-  event.eventNotified = emailList.map((email) => ({ email }));
+  if (event.eventNotifications) {
+    event.eventNotifications =
+      event.eventNotifications.concat(eventNotifications);
+  } else {
+    event.eventNotifications = eventNotifications;
+  }
+
   await event.save();
 
-  return emailList;
+  return eventNotifications;
 };
 
 export const createTopicEmailNotif = ({
@@ -514,29 +563,26 @@ export const sendTopicNotifications = async ({
 
       if (tagType.emailNotif) {
         if (email) {
-          console.log(`sendTopicNotifications: notifying email ${email}`);
+          console.log(`email: notifying ${email}`);
 
           if (topic.topicNotifications?.find(({ email: e }) => e === email)) {
-            console.log(
-              "sendTopicNotifications: skipping -- email already notified"
-            );
-            continue;
+            console.log("email: skipping -- already notified");
+          } else {
+            const mail = createTopicEmailNotif({
+              email,
+              event,
+              subscription,
+              topic
+            });
+
+            if (process.env.NODE_ENV === "production")
+              await transport.sendMail(mail);
+            else if (process.env.NODE_ENV === "development") {
+              console.log(`sent topic email notif to ${mail.to}`, mail);
+            }
+
+            topicNotification = { ...topicNotification, email };
           }
-
-          const mail = createTopicEmailNotif({
-            email,
-            event,
-            subscription,
-            topic
-          });
-
-          if (process.env.NODE_ENV === "production")
-            await transport.sendMail(mail);
-          else if (process.env.NODE_ENV === "development") {
-            console.log(`sent topic email notif to ${mail.to}`, mail);
-          }
-
-          topicNotification = { ...topicNotification, email };
         }
       }
 
@@ -756,8 +802,8 @@ export const sendToAdmin = async ({
 //               // todo
 //             } else if (email) {
 //               if (
-//                 Array.isArray(event.eventNotified) &&
-//                 event.eventNotified.find((m) => m.email === email)
+//                 Array.isArray(event.eventNotifications) &&
+//                 event.eventNotifications.find((m) => m.email === email)
 //               )
 //                 continue;
 

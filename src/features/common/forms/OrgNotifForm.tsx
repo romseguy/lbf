@@ -192,7 +192,7 @@ export const OrgNotifForm = ({
                               []) {
                               const notified = isT
                                 ? entity.topicNotifications
-                                : entity.eventNotified;
+                                : entity.eventNotifications;
 
                               if (
                                 notified?.find(({ email, phone }) =>

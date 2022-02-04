@@ -90,18 +90,18 @@ export const EventNotifForm = ({
     };
 
     try {
-      const res = await postEventNotif({
+      const { notifications } = await postEventNotif({
         eventUrl: event.eventUrl,
         payload
       }).unwrap();
 
-      if (hasItems(res.emailList)) {
+      if (hasItems(notifications)) {
         eventQuery.refetch();
-        const s = res.emailList.length > 1 ? "s" : "";
+        const s = notifications.length > 1 ? "s" : "";
 
         toast({
           title: `Une invitation a été envoyée à ${
-            form.email ? form.email : `${res.emailList.length} abonné${s}`
+            form.email ? form.email : `${notifications.length} abonné${s}`
           }`,
           status: "success",
           isClosable: true
@@ -229,18 +229,22 @@ export const EventNotifForm = ({
                             for (const subscription of list.subscriptions ||
                               []) {
                               if (
-                                event.eventNotified?.find(({ email, phone }) =>
-                                  typeof subscription.user === "object"
-                                    ? equalsValue(
-                                        subscription.user.email,
-                                        email
-                                      ) ||
-                                      equalsValue(
-                                        subscription.user.phone,
-                                        phone
-                                      )
-                                    : equalsValue(email, subscription.email) ||
-                                      equalsValue(phone, subscription.phone)
+                                event.eventNotifications?.find(
+                                  ({ email, phone }) =>
+                                    typeof subscription.user === "object"
+                                      ? equalsValue(
+                                          subscription.user.email,
+                                          email
+                                        ) ||
+                                        equalsValue(
+                                          subscription.user.phone,
+                                          phone
+                                        )
+                                      : equalsValue(
+                                          email,
+                                          subscription.email
+                                        ) ||
+                                        equalsValue(phone, subscription.phone)
                                 )
                               )
                                 continue;

@@ -51,10 +51,14 @@ export const EventSchema = new Schema<IEvent>(
     eventSubscriptions: [
       { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
     ],
-    eventNotified: [
+    eventNotifications: [
       {
         email: String,
         phone: String,
+        user: {
+          type: Schema.Types.ObjectId,
+          ref: "User"
+        },
         status: {
           type: String,
           enum: Object.keys(StatusTypes).map((key) => StatusTypes[key])

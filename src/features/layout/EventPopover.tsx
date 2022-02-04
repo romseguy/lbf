@@ -46,8 +46,8 @@ export const EventPopover = ({
   //#region my events
   const attendedEventsQuery = useGetEventsQuery(void 0, {
     selectFromResult: ({ data: events }) => ({
-      attendedEvents: events?.filter(({ eventNotified }) =>
-        eventNotified?.find(
+      attendedEvents: events?.filter(({ eventNotifications }) =>
+        eventNotifications?.find(
           ({ email, status }) => email === email && status === StatusTypes.OK
         )
       )

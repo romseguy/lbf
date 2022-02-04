@@ -5,7 +5,7 @@ import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
-import { IEvent, StatusTypes } from "models/Event";
+import { IEvent, IEventNotification, StatusTypes } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { createEventEmailNotif, sendEventNotifications } from "api/email";
@@ -148,7 +148,10 @@ handler.post<
           );
     }
 
-    if (!equals(event.createdBy, session.user.userId) && !session.user.isAdmin)
+    if (
+      !equals(event.createdBy, session.user.userId) &&
+      !session.user.isAdmin
+    ) {
       return res
         .status(403)
         .json(
@@ -158,8 +161,9 @@ handler.post<
             )
           )
         );
+    }
 
-    if (!event.isApproved)
+    if (!event.isApproved) {
       return res
         .status(403)
         .json(
@@ -169,15 +173,16 @@ handler.post<
             )
           )
         );
+    }
 
-    event = await event.populate("eventOrgs").execPopulate();
-
-    let emailList: string[] = [];
+    let notifications: IEventNotification[] = [];
 
     if (typeof body.email === "string" && body.email.length > 0) {
       const subscription = await models.Subscription.findOne({
         email: body.email
       });
+
+      event = await event.populate("eventOrgs").execPopulate();
 
       const mail = createEventEmailNotif({
         email: body.email,
@@ -191,23 +196,23 @@ handler.post<
       else console.log(`sent event invite to ${body.email}`, mail);
 
       if (body.email !== session.user.email) {
-        const newEntries = emailList.map((email) => ({
-          email,
-          status: StatusTypes.PENDING
-        }));
+        notifications = [
+          {
+            email: body.email,
+            status: StatusTypes.PENDING,
+            created_at: new Date().toISOString()
+          }
+        ];
 
-        if (!event.eventNotified) {
-          event.eventNotified = newEntries;
-        } else if (
-          !event.eventNotified.find(({ email }) => email === body.email)
-        ) {
-          event.eventNotified = event.eventNotified.concat(newEntries);
+        if (event.eventNotifications) {
+          event.eventNotifications =
+            event.eventNotifications.concat(notifications);
+        } else {
+          event.eventNotifications = notifications;
         }
 
         await event.save();
       }
-
-      emailList.push(body.email);
     } else if (body.orgListsNames) {
       //console.log(`POST /event/${eventUrl}: orgListsNames`, body.orgListsNames);
       for (const orgListName of body.orgListsNames) {
@@ -223,7 +228,8 @@ handler.post<
             .populate({
               path: "orgSubscriptions",
               populate: {
-                path: "user"
+                path: "user",
+                select: "email phone userSubscription"
               }
             })
             .execPopulate();
@@ -239,7 +245,15 @@ handler.post<
           org = await org
             .populate({
               path: "orgLists",
-              populate: [{ path: "subscriptions", populate: { path: "user" } }]
+              populate: [
+                {
+                  path: "subscriptions",
+                  populate: {
+                    path: "user",
+                    select: "email phone userSubscription"
+                  }
+                }
+              ]
             })
             .execPopulate();
 
@@ -250,7 +264,7 @@ handler.post<
           if (list && list.subscriptions) subscriptions = list.subscriptions;
         }
 
-        emailList = await sendEventNotifications({
+        notifications = await sendEventNotifications({
           event,
           org,
           subscriptions,
@@ -259,7 +273,7 @@ handler.post<
       }
     }
 
-    res.status(200).json({ emailList });
+    res.status(200).json({ notifications });
   } catch (error) {
     res.status(500).json(createServerError(error));
   }
@@ -274,11 +288,11 @@ handler.put<
 >(async function editEvent(req, res) {
   const session = await getSession({ req });
   let { body }: { body: Partial<IEvent> | string[] } = req;
-  const eventNotified = !Array.isArray(body) && body.eventNotified;
+  const eventNotifications = !Array.isArray(body) && body.eventNotifications;
   const eventTopicsCategories =
     !Array.isArray(body) && body.eventTopicsCategories;
 
-  if (!session && !eventNotified) {
+  if (!session && !eventNotifications) {
     return res
       .status(403)
       .json(createServerError(new Error("Vous devez être identifié")));
@@ -300,7 +314,7 @@ handler.put<
         );
     }
 
-    if (!eventNotified && !eventTopicsCategories && session) {
+    if (!eventNotifications && !eventTopicsCategories && session) {
       if (
         !equals(event.createdBy, session.user.userId) &&
         !session.user.isAdmin

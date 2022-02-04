@@ -101,8 +101,8 @@ export const EventsListItem = ({
     Array.isArray(org.orgSubscriptions) &&
     org.orgSubscriptions.length > 0
   ) {
-    notifiedCount = Array.isArray(event.eventNotified)
-      ? event.eventNotified.length
+    notifiedCount = Array.isArray(event.eventNotifications)
+      ? event.eventNotifications.length
       : 0;
     canSendCount = org.orgSubscriptions.length - notifiedCount;
     label = canSendCount > 0 ? `Envoyer des invitations` : label;

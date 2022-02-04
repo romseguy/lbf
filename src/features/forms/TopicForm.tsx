@@ -8,8 +8,7 @@ import {
   useToast,
   Flex,
   Alert,
-  AlertIcon,
-  Checkbox
+  AlertIcon
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
@@ -22,13 +21,7 @@ import {
 } from "features/forum/topicsApi";
 import { useSession } from "hooks/useAuth";
 import type { IEvent } from "models/Event";
-import {
-  getSubscriptions,
-  IOrg,
-  IOrgList,
-  orgTypeFull,
-  orgTypeFull4
-} from "models/Org";
+import { getSubscriptions, IOrg, IOrgList, orgTypeFull } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription,
@@ -37,7 +30,6 @@ import {
   SubscriptionTypes
 } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { ITopicMessage } from "models/TopicMessage";
 import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
 
@@ -124,11 +116,6 @@ export const TopicForm = ({
   });
 
   const topicVisibility = watch("topicVisibility");
-  // const topicOrgLists = watch("topicOrgLists");
-  // const topicNotif = watch("topicNotif");
-
-  // if (topicNotif && org && !hasItems(topicOrgLists))
-  //   setValue("topicNotif", false);
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -139,8 +126,6 @@ export const TopicForm = ({
     topicMessage: string;
     topicCategory?: { label: string; value: string } | null;
     topicVisibility?: [{ label: string; value: string }];
-    //topicOrgLists?: [{ label: string; value: string }];
-    //topicNotif?: boolean;
   }) => {
     console.log("submitted", form);
     if (!session) return;
@@ -151,7 +136,6 @@ export const TopicForm = ({
       topicCategory: form.topicCategory ? form.topicCategory.value : null,
       topicName: form.topicName,
       topicVisibility: form.topicVisibility?.map(({ label, value }) => value)
-      //topicOrgLists: form.topicOrgLists?.map(({ label, value }) => value)
     };
 
     try {
@@ -193,7 +177,6 @@ export const TopicForm = ({
 
         const newTopic = await addTopic({
           payload
-          //topicNotif: form.topicNotif
         }).unwrap();
 
         toast({
@@ -443,51 +426,6 @@ export const TopicForm = ({
         </Alert>
       )}
 
-      {/* {(props.isCreator || props.isSubscribed) &&
-        lists &&
-        org?.orgName !== "forum" && (
-          <FormControl isInvalid={!!errors["topicOrgLists"]} mb={3}>
-            <FormLabel>Listes de diffusion</FormLabel>
-            <OrgListsController name="topicOrgLists" />
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="topicOrgLists" />
-            </FormErrorMessage>
-          </FormControl>
-        )} */}
-
-      {/* {!props.topic &&
-        (event ||
-          props.isCreator ||
-          props.isSubscribed ||
-          (org && org.orgUrl === "forum")) && (
-          <FormControl id="topicNotif" mb={3}>
-            <FormLabel>Notifications</FormLabel>
-
-            {hasItems(topicOrgLists) ? (
-              <Checkbox
-                ref={register()}
-                name="topicNotif"
-                isChecked={topicNotif}
-              >
-                Notifier les membres des listes de diffusions sélectionnées
-              </Checkbox>
-            ) : (
-              <Checkbox
-                ref={register()}
-                name="topicNotif"
-                isChecked={topicNotif}
-              >
-                Notifier les personnes abonnées{" "}
-                {org && org.orgUrl === "forum"
-                  ? "au forum"
-                  : org
-                  ? `à ${orgTypeFull4(org.orgType)}`
-                  : "à cet événement"}
-              </Checkbox>
-            )}
-          </FormControl>
-        )} */}
-
       <Flex justifyContent="space-between">
         <Button onClick={() => props.onCancel && props.onCancel()}>
           Annuler
@@ -504,15 +442,6 @@ export const TopicForm = ({
           isDisabled={Object.keys(errors).length > 0}
           data-cy="addTopic"
         >
-          {/* {props.topic
-            ? "Modifier"
-            : `Ajouter ${
-                topicNotif
-                  ? hasItems(topicOrgLists)
-                    ? "& Notifier les listes de diffusions"
-                    : "& Notifier les abonnés"
-                  : " sans notifier"
-              }`} */}
           {props.topic ? "Modifier" : "Ajouter"}
         </Button>
       </Flex>

@@ -81,9 +81,18 @@ handler.post<
     let notifications: ITopicNotification[] = [];
 
     if (body.event) {
+      let event = await models.Event.findOne({ _id: body.event._id });
+      if (!event) return res.status(400).json("Événement introuvable");
+      event = await event
+        .populate({
+          path: "eventSubscriptions",
+          populate: { path: "user", select: "email phone userSubscription" }
+        })
+        .execPopulate();
+
       notifications = await sendTopicNotifications({
-        event: body.event,
-        subscriptions: body.event.eventSubscriptions,
+        event,
+        subscriptions: event.eventSubscriptions,
         topic,
         transport
       });

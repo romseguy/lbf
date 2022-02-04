@@ -35,8 +35,9 @@ export const EntityNotified = ({
       dark={{ bg: "gray.500" }}
       overflowX="auto"
     >
-      {!(event?.eventNotified || topic?.topicNotifications) ||
-      (Array.isArray(event?.eventNotified) && !event?.eventNotified.length) ||
+      {!(event?.eventNotifications || topic?.topicNotifications) ||
+      (Array.isArray(event?.eventNotifications) &&
+        !event?.eventNotifications.length) ||
       (Array.isArray(topic?.topicNotifications) &&
         !topic?.topicNotifications.length) ? (
         <Alert status="info">
@@ -51,12 +52,12 @@ export const EntityNotified = ({
                 if (event)
                   await mutation({
                     eventUrl: event.eventUrl,
-                    payload: { eventNotified: [] }
+                    payload: { eventNotifications: [] }
                   }).unwrap();
                 else if (topic)
                   await mutation({
                     topicId: topic._id,
-                    payload: { topicNotifications: [] }
+                    payload: { topic: { topicNotifications: [] } }
                   }).unwrap();
 
                 query.refetch();
@@ -68,29 +69,31 @@ export const EntityNotified = ({
 
           <Table>
             <Tbody>
-              {(event?.eventNotified || topic?.topicNotifications || []).map(
-                ({ email: e, status = StatusTypes.PENDING }) => {
-                  return (
-                    <Tr key={e}>
-                      <Td>{e}</Td>
-                      <Td>
-                        <Tag
-                          variant="solid"
-                          colorScheme={
-                            status === StatusTypes.PENDING
-                              ? "blue"
-                              : status === StatusTypes.OK
-                              ? "green"
-                              : "red"
-                          }
-                        >
-                          {StatusTypesV[status]}
-                        </Tag>
-                      </Td>
-                    </Tr>
-                  );
-                }
-              )}
+              {(
+                event?.eventNotifications ||
+                topic?.topicNotifications ||
+                []
+              ).map(({ email: e, status = StatusTypes.PENDING }) => {
+                return (
+                  <Tr key={e}>
+                    <Td>{e}</Td>
+                    <Td>
+                      <Tag
+                        variant="solid"
+                        colorScheme={
+                          status === StatusTypes.PENDING
+                            ? "blue"
+                            : status === StatusTypes.OK
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        {StatusTypesV[status]}
+                      </Tag>
+                    </Td>
+                  </Tr>
+                );
+              })}
             </Tbody>
           </Table>
         </>
