@@ -642,7 +642,7 @@ export const sendTopicNotifications = async ({
 };
 
 // send new topic message email and/or push notifications to topic followers
-export const sendTopicMessageEmailNotifications = async ({
+export const sendTopicMessageNotifications = async ({
   event,
   org,
   subscriptions,

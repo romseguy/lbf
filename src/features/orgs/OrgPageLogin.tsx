@@ -14,17 +14,20 @@ export const OrgPageLogin = ({
   status: number;
   onSubmit: (orgPassword: string) => Promise<void>;
 }) => {
-  const { clearErrors, errors, handleSubmit, register, setError } = useForm({
-    mode: "onChange"
-  });
+  const { clearErrors, errors, handleSubmit, register, setError, setValue } =
+    useForm({
+      mode: "onChange"
+    });
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (status === 403)
+    if (status === 403) {
       setError("formErrorMessage", {
         type: "manual",
         message: "Mot de passe incorrect."
       });
+      setValue("orgPassword", "");
+    }
   }, [status]);
 
   return (

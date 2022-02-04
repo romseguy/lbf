@@ -26,7 +26,7 @@ handler.get<
       query: { orgUrl, hash, populate }
     } = req;
 
-    let org = await models.Org.findOne({ orgUrl });
+    let org = await models.Org.findOne({ orgUrl }).select("+orgPassword");
 
     if (!org)
       return res
@@ -41,7 +41,11 @@ handler.get<
     const isCreator =
       equals(org.createdBy, session?.user.userId) || session?.user.isAdmin;
 
-    //console.log(org.createdBy, session?.user.userId, org.orgPassword, hash);
+    console.log(org.createdBy);
+    console.log(session?.user.userId);
+    console.log(isCreator);
+    console.log(org);
+    console.log(hash);
 
     if (!isCreator && org.orgPassword) {
       if (!hash) return res.status(200).json({ orgSalt: org.orgSalt });

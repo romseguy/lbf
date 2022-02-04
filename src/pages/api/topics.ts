@@ -4,7 +4,7 @@ import nextConnect from "next-connect";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import {
-  sendTopicMessageEmailNotifications,
+  sendTopicMessageNotifications,
   sendTopicNotifications
 } from "api/email";
 import { AddTopicParams } from "api/forum";
@@ -141,7 +141,7 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
 
         logJson(`POST /topics: topic subscriptions`, subscriptions);
 
-        sendTopicMessageEmailNotifications({
+        sendTopicMessageNotifications({
           event,
           org,
           subscriptions,

@@ -128,7 +128,7 @@ describe("CRUD entities", () => {
       cy.get("input[name=orgPassword]").type("1234");
       cy.get("input[name=orgPasswordConfirm]").type("1234");
       cy.get("form").submit();
-      cy.location("pathname", { timeout: 20000 }).should("include", "1234");
+      cy.wait(1000);
     });
 
     it("logs into org", () => {
@@ -136,6 +136,7 @@ describe("CRUD entities", () => {
       cy.visit("/1234");
       cy.get("input[name=orgPassword]").type("12345");
       cy.get("form").submit();
+      cy.wait(1000);
       cy.get("div[role=alert]").should("exist");
       cy.get("input[name=orgPassword]").type("1234");
       cy.get("form").submit();

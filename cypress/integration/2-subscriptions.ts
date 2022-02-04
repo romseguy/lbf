@@ -2,7 +2,7 @@ import { email, newOrgUrl } from "../fixtures/env";
 
 const add = () => {
   cy.k("orgAddSubscribers").click();
-  cy.get("#emailList").type(email);
+  cy.get("textarea[name=emailList]").type(email);
   cy.k("subscriber-checkbox").click();
   cy.get("form").submit();
   cy.wait(1000);

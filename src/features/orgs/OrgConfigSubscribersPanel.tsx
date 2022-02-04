@@ -244,10 +244,13 @@ export const OrgConfigSubscribersPanel = ({
         </GridItem>
       )}
 
-      {isVisible.subscribers &&
-        (orgQuery.isLoading ? (
-          <Text>Chargement de la liste des adhérents & abonnés...</Text>
-        ) : (
+      {isVisible.subscribers && (
+        <GridItem
+          light={{ bg: "orange.100" }}
+          dark={{ bg: "gray.500" }}
+          overflowX="auto"
+          aria-hidden
+        >
           <SubscriptionsList
             org={org}
             orgQuery={orgQuery}
@@ -256,7 +259,8 @@ export const OrgConfigSubscribersPanel = ({
             setIsSubscriptionLoading={setIsSubscriptionLoading}
             onTagClick={onTagClick}
           />
-        ))}
+        </GridItem>
+      )}
     </Grid>
   );
 };

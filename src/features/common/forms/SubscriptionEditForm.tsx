@@ -325,8 +325,8 @@ export const SubscriptionEditForm = ({
             </>
           ) : (
             <>
-              Cette personne a accepté de recevoir des invitations{" "}
-              <b>{notifType === "email" ? "e-mail" : "mobile"}</b> pour :
+              Cette personne a accepté de recevoir un{" "}
+              <b>{notifType === "email" ? "e-mail" : "mobile"}</b> lorsque :
             </>
           )}
         </FormLabel>
@@ -344,7 +344,9 @@ export const SubscriptionEditForm = ({
                 setIsAllEvents(e.target.checked);
               }}
             >
-              vous êtes invité à un événement
+              {isSelf
+                ? "vous êtes invité à un événement"
+                : "vous l'invitez à un événement"}
             </Switch>
 
             <Switch
@@ -412,7 +414,9 @@ export const SubscriptionEditForm = ({
             setIsAllTopics(e.target.checked);
           }}
         >
-          vous êtes invité à une discussion
+          {isSelf
+            ? "vous êtes invité à une discussion"
+            : "vous l'invitez à une discussion"}
         </Switch>
 
         <Switch {...switchProps} ml={3} isDisabled>

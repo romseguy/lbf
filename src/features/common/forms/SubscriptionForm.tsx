@@ -89,7 +89,11 @@ export const SubscriptionForm = ({
                 {
                   orgId: org._id,
                   org,
-                  type
+                  type,
+                  tagTypes: [
+                    { type: "Events", emailNotif: true, pushNotif: true },
+                    { type: "Topics", emailNotif: true, pushNotif: true }
+                  ]
                 }
               ]
             }
@@ -200,7 +204,8 @@ export const SubscriptionForm = ({
                 et projets de {orgTypeFull4(org.orgType)}.
               </Text> */}
               </Checkbox>
-              {subscriptionType?.includes(SubscriptionTypes.FOLLOWER) && (
+
+              {/* {subscriptionType?.includes(SubscriptionTypes.FOLLOWER) && (
                 <CheckboxGroup>
                   <Checkbox
                     ref={register({ required: true })}
@@ -216,7 +221,7 @@ export const SubscriptionForm = ({
                     Discussions
                   </Checkbox>
                 </CheckboxGroup>
-              )}
+              )} */}
             </Box>
 
             <Checkbox
