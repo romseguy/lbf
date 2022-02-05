@@ -7,6 +7,15 @@ import {
   Suggestion
 } from "use-places-autocomplete";
 
+export type SizeMap = {
+  defaultSize: {
+    enabled: boolean;
+  };
+  fullSize: {
+    enabled: boolean;
+  };
+};
+
 export const markerIcons: {
   [key: string]: { paths: string[]; viewBox: string };
 } = {

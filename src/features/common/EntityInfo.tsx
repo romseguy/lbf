@@ -1,10 +1,16 @@
 import { AtSignIcon, ViewIcon, ViewOffIcon, PhoneIcon } from "@chakra-ui/icons";
-import { Flex, FlexProps, Icon, Link, Tooltip } from "@chakra-ui/react";
+import {
+  Flex,
+  FlexProps,
+  Icon,
+  Link,
+  Tooltip,
+  useDisclosure
+} from "@chakra-ui/react";
 import React, { useState } from "react";
 import { isMobile } from "react-device-detect";
 import {
   FaMapMarkedAlt,
-  FaGlobeEurope,
   FaFacebook,
   FaInstagram,
   FaTwitter,
@@ -13,33 +19,45 @@ import {
 } from "react-icons/fa";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { isEvent } from "utils/models";
+import { MapModal } from "features/modals/MapModal";
 
 export const EntityInfo = ({
-  entity,
+  event,
+  org,
   ...props
-}: FlexProps & { entity: IOrg | IEvent<string | Date> }) => {
+}: FlexProps & { org?: IOrg; event?: IEvent<string | Date> }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [emailCollapsed, setEmailCollapsed] = useState<{
     [key: number]: boolean;
   }>({});
   const [webCollapsed, setWebCollapsed] = useState<{ [key: number]: boolean }>(
     {}
   );
-  const isE = isEvent(entity);
-  const entityAddress = isE ? entity.eventAddress : entity.orgAddress;
-  const entityEmail = isE ? entity.eventEmail : entity.orgEmail;
-  const entityPhone = isE ? entity.eventPhone : entity.orgPhone;
-  const entityWeb = isE ? entity.eventWeb : entity.orgWeb;
+  const entityAddress = event ? event.eventAddress : org?.orgAddress;
+  const entityEmail = event ? event.eventEmail : org?.orgEmail;
+  const entityPhone = event ? event.eventPhone : org?.orgPhone;
+  const entityWeb = event ? event.eventWeb : org?.orgWeb;
+
+  if (!event && !org) return null;
 
   return (
     <Flex flexDirection="column" {...props}>
       {entityAddress && (
         <Flex flexDirection="column">
           {entityAddress.map(({ address }, index) => (
-            <Flex key={`address-${index}`} alignItems="center">
-              <Icon as={FaMapMarkedAlt} mr={3} />
-              {address}
-            </Flex>
+            <Tooltip label="Voir sur la carte">
+              <Flex
+                key={`address-${index}`}
+                alignSelf="flex-start"
+                alignItems="center"
+                cursor="pointer"
+                _hover={{ color: "green" }}
+                onClick={onOpen}
+              >
+                <Icon as={FaMapMarkedAlt} mr={3} />
+                {address}
+              </Flex>
+            </Tooltip>
           ))}
         </Flex>
       )}
@@ -180,6 +198,19 @@ export const EntityInfo = ({
           })}
         </Flex>
       )}
+
+      <MapModal
+        isOpen={isOpen}
+        isSearch={false}
+        events={event ? [event] : undefined}
+        orgs={org ? [org] : undefined}
+        center={{
+          lat: event ? event.eventLat : org?.orgLat,
+          lng: event ? event.eventLng : org?.orgLng
+        }}
+        zoomLevel={16}
+        onClose={onClose}
+      />
     </Flex>
   );
 };

@@ -124,11 +124,6 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
           status: "warning",
           title: "Aucune invitations envoyée"
         });
-
-      setModalState({
-        ...modalState,
-        entity: null
-      });
     } catch (error) {
       console.error(error);
       toast({
@@ -158,7 +153,11 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
         : undefined;
     else payload.email = form.email;
 
-    postEntityNotifications(payload);
+    await postEntityNotifications(payload);
+    setModalState({
+      ...modalState,
+      entity: null
+    });
   };
 
   return (

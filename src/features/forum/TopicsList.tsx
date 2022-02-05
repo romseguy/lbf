@@ -386,6 +386,7 @@ export const TopicsList = ({
               <TopicsListItem
                 key={topic._id}
                 session={session}
+                isCreator={props.isCreator}
                 event={event}
                 org={org}
                 query={query}

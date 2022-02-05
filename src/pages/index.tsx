@@ -166,6 +166,12 @@ const IndexPage = (props: PageProps) => {
                   org.orgUrl !== "forum"
               ) || []
             }
+            mapProps={{
+              style: {
+                position: "relative",
+                height: "340px"
+              }
+            }}
             onClose={closeMapModal}
           />
         )}

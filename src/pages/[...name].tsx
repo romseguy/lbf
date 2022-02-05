@@ -26,7 +26,7 @@ import { IOrg } from "models/Org";
 import { IUser } from "models/User";
 
 let cachedEmail: string | undefined;
-const canRedirect = true;
+const isRedirect = true;
 
 type HashProps = PageProps & {
   email?: string;
@@ -120,12 +120,22 @@ const Hash = ({ ...props }: HashProps) => {
     );
   }
 
+  if (orgQueryStatus === 404 && orgQueryParams.orgUrl === "forum") {
+    return (
+      <NotFound
+        isRedirect={false}
+        message="Veuillez créer l'organisation forum."
+        {...props}
+      />
+    );
+  }
+
   if (
     eventQueryStatus === 404 &&
     orgQueryStatus === 404 &&
     userQueryStatus === 404
   ) {
-    return <NotFound {...props} canRedirect={canRedirect} />;
+    return <NotFound {...props} />;
   }
 
   if (eventQueryStatus === 200) {
@@ -184,7 +194,7 @@ const Hash = ({ ...props }: HashProps) => {
     );
   }
 
-  return <NotFound canRedirect={canRedirect} {...props} session={session} />;
+  return <NotFound {...props} session={session} />;
 };
 
 export async function getServerSideProps(

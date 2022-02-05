@@ -38,14 +38,12 @@ const wideStyles = `
 `;
 
 export const Marker = ({
-  key,
   item,
   lat,
   lng,
   zoomLevel,
   setItemToShow
 }: {
-  key: string;
   item: IEvent | IOrg;
   lat?: number;
   lng?: number;
@@ -55,12 +53,30 @@ export const Marker = ({
   const name = "eventName" in item ? item.eventName : item.orgName;
   const [fill, setFill] = useState("green");
 
+  return (
+    <Tooltip label={name}>
+      <Image
+        cursor="pointer"
+        src={getMarkerUrl({
+          id: "eventName" in item ? "event" : "org",
+          fill,
+          height: 25,
+          width: 25
+        })}
+        onMouseEnter={() => setFill("blue")}
+        onMouseLeave={() => setFill("green")}
+        onClick={() => setItemToShow(item)}
+      />
+    </Tooltip>
+  );
+
   // if (lat && lng) {
   // const world = latLng2World({ lat, lng });
   // const screen = world2Screen({ x: world.x, y: world.y }, zoomLevel);
   // }
 
   // const isWide = zoomLevel > 16;
+
   // const m = (
   //   <Box
   //     css={css(isWide ? wideStyles : defaultStyles)}
@@ -80,36 +96,21 @@ export const Marker = ({
   //   </Box>
   // );
 
-  const m = (
-    <Image
-      cursor="pointer"
-      src={getMarkerUrl({
-        id: "eventName" in item ? "event" : "org",
-        fill,
-        height: 25,
-        width: 25
-      })}
-      onMouseEnter={() => setFill("blue")}
-      onMouseLeave={() => setFill("green")}
-      onClick={() => setItemToShow(item)}
-    />
-  );
+  // const m = (
+  //     <Button
+  //       cursor="pointer"
+  //       leftIcon={<Icon as={FaMapMarkerAlt} boxSize={8} />}
+  //       color="red"
+  //       bg="transparent"
+  //       _hover={{
+  //         color: "green"
+  //       }}
+  //     >
+  //       {name}
+  //     </Button>
+  // )
 
-  return (
-    <div key={key}>
-      <Tooltip label={name}>{m}</Tooltip>
-
-      {/* <Button
-        cursor="pointer"
-        leftIcon={<Icon as={FaMapMarkerAlt} boxSize={8} />}
-        color="red"
-        bg="transparent"
-        _hover={{
-          color: "green"
-        }}
-      >
-        {name}
-      </Button> */}
-    </div>
-  );
+  // return (
+  //   <div key={key}>{m}</div>
+  // );
 };

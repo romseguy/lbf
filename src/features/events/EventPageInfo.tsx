@@ -48,7 +48,7 @@ export const EventPageInfo = ({
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.600" }}>
           <Box p={5}>
             {hasInfo ? (
-              <EntityInfo entity={event} />
+              <EntityInfo event={event} />
             ) : isCreator ? (
               <Button
                 colorScheme="teal"

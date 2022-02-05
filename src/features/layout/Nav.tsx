@@ -49,7 +49,7 @@ import { NavMenuList } from "./NavMenuList";
 export const Nav = ({
   isLogin = 0,
   isMobile,
-  session: serverSession,
+  session,
   ...props
 }: FlexProps & {
   isLogin?: number;
@@ -57,8 +57,6 @@ export const Nav = ({
   session?: Session | null;
 }) => {
   const router = useRouter();
-  const { data: clientSession } = useSession();
-  const session = clientSession || serverSession;
   const userName = session?.user.userName || "";
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";

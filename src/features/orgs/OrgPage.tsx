@@ -148,7 +148,7 @@ export const OrgPage = ({
       ? org.createdBy.userName || org.createdBy._id
       : "";
   const orgCreatedByUserId =
-    typeof org.createdBy === "object" ? org.createdBy._id : "";
+    typeof org.createdBy === "object" ? org.createdBy._id : org.createdBy;
   const { orgNetworks } = useGetOrgsQuery(
     { populate: "orgs" },
     {
@@ -310,18 +310,9 @@ export const OrgPage = ({
   };
 
   if (org.orgUrl === "forum") {
-    if (!orgQuery.isLoading && !org) {
-      <Layout isLogin={isLogin} isMobile={isMobile} session={session}>
-        <Alert status="warning">
-          <AlertIcon />
-          Veuillez créer l'organisation forum.
-        </Alert>
-      </Layout>;
-    }
     return (
       <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
         {configButtons()}
-
         {!isConfig && !isEdit && (
           <Forum
             isLogin={isLogin}
@@ -331,7 +322,6 @@ export const OrgPage = ({
             tabItem={tabItem}
           />
         )}
-
         {session && isCreator && (
           <OrgConfigPanel
             session={session}
@@ -444,7 +434,7 @@ export const OrgPage = ({
 
                       <TabContainerContent p={3}>
                         {hasInfo ? (
-                          <EntityInfo entity={org} />
+                          <EntityInfo org={org} />
                         ) : isCreator ? (
                           <Button
                             alignSelf="flex-start"
@@ -680,8 +670,8 @@ export const OrgPage = ({
                       org={org}
                       query={orgQuery}
                       mutation={[editOrg, editOrgMutation]}
-                      subQuery={subQuery}
                       isCreator={isCreator}
+                      subQuery={subQuery}
                       isFollowed={isFollowed}
                       isSubscribed={!!subscriberSubscription}
                       isLogin={isLogin}

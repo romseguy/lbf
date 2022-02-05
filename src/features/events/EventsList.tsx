@@ -903,16 +903,14 @@ export const EventsList = ({
       )}
 
       {eventToShow && (
-        <EntityModal
-          entity={eventToShow}
-          onClose={() => setEventToShow(null)}
-        />
+        <EntityModal event={eventToShow} onClose={() => setEventToShow(null)} />
       )}
 
       {eventToShowOnMap &&
         eventToShowOnMap.eventLat &&
         eventToShowOnMap.eventLng && (
           <MapModal
+            isSearch={false}
             isOpen
             events={[eventToShowOnMap]}
             center={{

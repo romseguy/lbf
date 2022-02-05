@@ -112,10 +112,6 @@ export const ProjectForm = ({
 
     let payload = {
       ...form,
-      // projectDescription:
-      //   form.projectDescription === "<p><br></p>"
-      //     ? ""
-      //     : form.projectDescription?.replace(/\&nbsp;/g, " "),
       projectDescription: form.projectDescription,
       projectDescriptionHtml: form.projectDescription,
       projectVisibility: form.projectVisibility?.map(({ value }) => value)

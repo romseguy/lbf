@@ -15,32 +15,38 @@ import {
 } from "@chakra-ui/react";
 import React, { useRef, useState } from "react";
 import { FaRegMap } from "react-icons/fa";
-import { IoIosPerson } from "react-icons/io";
+import { IoIosPeople } from "react-icons/io";
 import { LatLon } from "use-places-autocomplete";
+import { Link } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
-import { Map, SizeMap } from "features/map/Map";
+import { Map, MapProps } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
 import { IEvent } from "models/Event";
 import { IOrg, OrgTypes } from "models/Org";
 import { hasItems } from "utils/array";
-import { Link } from "features/common";
+import { SizeMap } from "utils/maps";
 
 export const MapModal = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 })(
   ({
+    isOpen,
+    isSearch = true,
     header,
     events,
     orgs,
+    mapProps,
     zoomLevel,
     ...props
   }: {
     google: typeof google;
     loaded: boolean;
     isOpen: boolean;
+    isSearch?: boolean;
     header?: React.ReactNode | React.ReactNodeArray;
     events?: IEvent[];
     orgs?: IOrg[];
+    mapProps: Partial<MapProps>;
     center?: LatLon;
     zoomLevel?: number;
     onClose: () => void;
@@ -81,14 +87,14 @@ export const MapModal = withGoogleApi({
             {orgs[0].orgName}
           </Link>
         );
-        icon = <Icon as={IoIosPerson} mr={3} />;
+        icon = <Icon as={IoIosPeople} mr={3} />;
       } else if (orgs.find(({ orgType }) => orgType === OrgTypes.NETWORK))
         title = "Carte des réseaux";
       else title = "Carte des organisations";
 
     return (
       <Modal
-        isOpen={props.isOpen}
+        isOpen={isOpen}
         onClose={() => {
           props.onClose && props.onClose();
         }}
@@ -128,17 +134,19 @@ export const MapModal = withGoogleApi({
               props.google &&
               hasItems(events || orgs || []) ? (
                 <>
-                  <MapSearch
-                    entityAddress={
-                      events
-                        ? events.length === 1 && events[0].eventAddress
-                          ? events[0].eventAddress[0].address
+                  {isSearch && (
+                    <MapSearch
+                      entityAddress={
+                        events
+                          ? events.length === 1 && events[0].eventAddress
+                            ? events[0].eventAddress[0].address
+                            : undefined
                           : undefined
-                        : undefined
-                    }
-                    isVisible={size.defaultSize.enabled}
-                    setCenter={setCenter}
-                  />
+                      }
+                      isVisible={size.defaultSize.enabled}
+                      setCenter={setCenter}
+                    />
+                  )}
                   <Map
                     center={center}
                     events={events}
@@ -151,6 +159,7 @@ export const MapModal = withGoogleApi({
                         fullSize: { enabled: isFull }
                       });
                     }}
+                    {...mapProps}
                   />
                 </>
               ) : isOffline ? (

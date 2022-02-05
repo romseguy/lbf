@@ -48,6 +48,7 @@ export const TopicsListItem = ({
   session,
   event,
   org,
+  isCreator,
   query,
   currentTopicName,
   isSubscribed,
@@ -70,6 +71,7 @@ export const TopicsListItem = ({
   session: Session | null;
   event?: IEvent;
   org?: IOrg;
+  isCreator: boolean;
   query: any;
   currentTopicName?: string;
   isSubscribed: boolean;
@@ -91,6 +93,7 @@ export const TopicsListItem = ({
   onSubscribeClick: () => void;
   onLoginClick: () => void;
 }) => {
+  const userId = session?.user._id;
   const hasCategorySelected = !!selectedCategories?.find(
     (category) => category === topic.topicCategory
   );
@@ -239,7 +242,7 @@ export const TopicsListItem = ({
 
               <TopicsListItemShare aria-label="Partager" topic={topic} />
 
-              {topic.topicNotifications && isTopicCreator && (
+              {topic.topicNotifications && isCreator && (
                 <>
                   <Box as="span" aria-hidden mx={1}>
                     ·
@@ -265,62 +268,68 @@ export const TopicsListItem = ({
           <Flex alignItems="center" mb={-1} ml={2}>
             {isLoading && <Spinner mr={3} mt={1} mb={2} />}
 
-            {!isLoading && session && isTopicCreator && (
+            {!isLoading && session && (
               <>
-                <Tooltip placement="bottom" label="Envoyer des invitations">
-                  <IconButton
-                    aria-label="Envoyer des invitations"
-                    icon={<EmailIcon />}
-                    variant="outline"
-                    colorScheme="blue"
-                    mr={3}
-                    mt={1}
-                    mb={2}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSendClick();
-                    }}
-                  />
-                </Tooltip>
+                {isCreator && (
+                  <Tooltip placement="bottom" label="Envoyer des invitations">
+                    <IconButton
+                      aria-label="Envoyer des invitations"
+                      icon={<EmailIcon />}
+                      variant="outline"
+                      colorScheme="blue"
+                      mr={3}
+                      mt={1}
+                      mb={2}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSendClick();
+                      }}
+                    />
+                  </Tooltip>
+                )}
 
-                <Tooltip placement="bottom" label="Modifier la discussion">
-                  <IconButton
-                    aria-label="Modifier la discussion"
-                    icon={<EditIcon />}
-                    variant="outline"
-                    colorScheme="green"
-                    mr={3}
-                    mt={1}
-                    mb={2}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEditClick();
-                    }}
-                  />
-                </Tooltip>
+                {isTopicCreator && (
+                  <>
+                    <Tooltip placement="bottom" label="Modifier la discussion">
+                      <IconButton
+                        aria-label="Modifier la discussion"
+                        icon={<EditIcon />}
+                        variant="outline"
+                        colorScheme="green"
+                        mr={3}
+                        mt={1}
+                        mb={2}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditClick();
+                        }}
+                      />
+                    </Tooltip>
 
-                <DeleteButton
-                  isIconOnly
-                  // tooltip props
-                  placement="bottom"
-                  // other props
-                  header={
-                    <>
-                      Êtes vous sûr de vouloir supprimer la discussion
-                      <Text display="inline" color="red" fontWeight="bold">
-                        {` ${topic.topicName}`}
-                      </Text>{" "}
-                      ?
-                    </>
-                  }
-                  isSmall={false}
-                  variant="outline"
-                  mr={3}
-                  mt={1}
-                  mb={2}
-                  onClick={onDeleteClick}
-                  data-cy="topic-list-item-delete"
-                />
+                    <DeleteButton
+                      isIconOnly
+                      // tooltip props
+                      placement="bottom"
+                      // other props
+                      header={
+                        <>
+                          Êtes vous sûr de vouloir supprimer la discussion
+                          <Text display="inline" color="red" fontWeight="bold">
+                            {` ${topic.topicName}`}
+                          </Text>{" "}
+                          ?
+                        </>
+                      }
+                      isSmall={false}
+                      variant="outline"
+                      mr={3}
+                      mt={1}
+                      mb={2}
+                      onClick={onDeleteClick}
+                      data-cy="topic-list-item-delete"
+                    />
+                  </>
+                )}
               </>
             )}
 

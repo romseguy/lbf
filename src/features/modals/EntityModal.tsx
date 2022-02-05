@@ -6,24 +6,26 @@ import { EntityInfo, Link } from "features/common";
 import { EventTimeline } from "features/events/EventTimeline";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { isEvent } from "utils/models";
 import { AppModal } from "./AppModal";
 
 export const EntityModal = ({
-  entity,
+  event,
+  org,
   onClose
 }: {
-  entity: IEvent<string | Date> | IOrg;
+  event?: IEvent<string | Date>;
+  org?: IOrg;
   onClose: () => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const isE = isEvent(entity);
-  const entityDescription = isE
-    ? entity.eventDescription
-    : entity.orgDescription;
-  const entityName = isE ? entity.eventName : entity.orgName;
-  const entityUrl = isE ? entity.eventUrl : entity.orgUrl;
+  const entityDescription = event
+    ? event.eventDescription
+    : org?.orgDescription;
+  const entityName = event ? event.eventName : org?.orgName;
+  const entityUrl = event ? event.eventUrl : org?.orgUrl;
+
+  if (!event && !org) return null;
 
   return (
     <AppModal
@@ -39,8 +41,13 @@ export const EntityModal = ({
     >
       <>
         <Flex flexDirection="row" flexWrap="wrap" mt={-3} mb={3}>
-          <EntityInfo entity={entity} flexGrow={isE ? 1 : undefined} mt={3} />
-          {isE && <EventTimeline event={entity} mt={3} />}
+          <EntityInfo
+            event={event}
+            org={org}
+            flexGrow={event ? 1 : undefined}
+            mt={3}
+          />
+          {event && <EventTimeline event={event} mt={3} />}
         </Flex>
 
         <Box
@@ -49,9 +56,7 @@ export const EntityModal = ({
           borderRadius="lg"
           p={3}
         >
-          {entityDescription &&
-          entityDescription.length > 0 &&
-          entityDescription !== "<p><br></p>" ? (
+          {entityDescription && entityDescription.length > 0 ? (
             <div className="rteditor">
               <div
                 dangerouslySetInnerHTML={{

@@ -2,7 +2,6 @@ export * from "./GlobalStyles";
 export * from "./Layout";
 export * from "./Header";
 export * from "./Nav";
-export * from "./Main";
 export * from "./Footer";
 export * from "./EmailLoginPopover";
 export * from "./EventPopover";

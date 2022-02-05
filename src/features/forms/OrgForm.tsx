@@ -103,20 +103,6 @@ export const OrgForm = withGoogleApi({
     };
     const [isLoading, setIsLoading] = useState(false);
     const [suggestion, setSuggestion] = useState<Suggestion>();
-    const {
-      ready,
-      value: autoCompleteValue,
-      suggestions: { status, data },
-      setValue: setAutoCompleteValue,
-      clearSuggestions
-    } = usePlacesAutocomplete({
-      requestOptions: {
-        componentRestrictions: {
-          country: "fr"
-        }
-      },
-      debounce: 300
-    });
     //#endregion
 
     //#region form
@@ -195,6 +181,7 @@ export const OrgForm = withGoogleApi({
       try {
         if (
           !props.org ||
+          !hasItems(props.org.orgAddress) ||
           (Array.isArray(form.orgAddress) &&
             form.orgAddress[0] &&
             form.orgAddress[0].address !== "" &&
@@ -202,14 +189,12 @@ export const OrgForm = withGoogleApi({
             props.org.orgAddress[0] &&
             props.org.orgAddress[0].address !== form.orgAddress[0].address)
         ) {
-          const sugg = suggestion || data[0];
-
-          if (sugg) {
+          if (suggestion) {
             const {
               lat: orgLat,
               lng: orgLng,
               city: orgCity
-            } = await unwrapSuggestion(sugg);
+            } = await unwrapSuggestion(suggestion);
             payload = { ...payload, orgLat, orgLng, orgCity };
           }
         }
@@ -259,15 +244,6 @@ export const OrgForm = withGoogleApi({
     };
 
     //#endregion
-
-    useEffect(() => {
-      if (
-        Array.isArray(orgAddress) &&
-        orgAddress[0] &&
-        orgAddress[0].address !== ""
-      )
-        if (!suggestion) setAutoCompleteValue(orgAddress[0].address);
-    }, [orgAddress]);
 
     useEffect(() => {
       if (props.setOrgType) props.setOrgType(orgType);

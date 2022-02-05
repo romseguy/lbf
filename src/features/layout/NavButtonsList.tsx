@@ -44,36 +44,15 @@ export const NavButtonsList = ({
         </Button>
       </Link>
 
-      {/* <Link href="/reseaux" {...linkProps}>
-        <Button
-          leftIcon={<IoIosGitNetwork />}
-          isActive={router.asPath === "/reseaux"}
-          {...styleProps}
-        >
-          Réseaux
-        </Button>
-      </Link> */}
-
       <Link href="/evenements" {...linkProps}>
         <Button
           leftIcon={<CalendarIcon />}
           isActive={router.asPath === "/evenements"}
-          data-cy="homeLink"
           {...styleProps}
         >
           Événements
         </Button>
       </Link>
-
-      {/* <Link href="/organisations" {...linkProps}>
-        <Button
-          leftIcon={<IoIosPeople />}
-          isActive={router.asPath === "/organisations"}
-          {...styleProps}
-        >
-          Organisations
-        </Button>
-      </Link> */}
 
       <Link href="/forum" {...linkProps}>
         <Button

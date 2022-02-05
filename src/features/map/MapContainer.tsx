@@ -1,12 +1,13 @@
 import { Alert, AlertIcon, Portal, Spinner } from "@chakra-ui/react";
 import React, { useState } from "react";
+import { css } from "twin.macro";
 import { LatLon } from "use-places-autocomplete";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
-import { Map, SizeMap } from "features/map/Map";
+import { Map } from "features/map/Map";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
-import { css } from "twin.macro";
+import { SizeMap } from "utils/maps";
 
 export const MapContainer = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY

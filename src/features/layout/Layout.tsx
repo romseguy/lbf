@@ -1,4 +1,11 @@
-import { Flex, BoxProps, useColorMode, Box, Tooltip } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  BoxProps,
+  useColorMode,
+  Tooltip,
+  useToast
+} from "@chakra-ui/react";
 import Head from "next/head";
 import { Session } from "next-auth";
 import NextNprogress from "nextjs-progressbar";
@@ -6,7 +13,7 @@ import React, { useEffect, useState } from "react";
 import { css } from "twin.macro";
 import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
 import { PaypalButton } from "features/common/forms/PaypalButton";
-import { Header, Main, Nav, Footer } from "features/layout";
+import { Header, Nav, Footer } from "features/layout";
 import { ContactModal } from "features/modals/ContactModal";
 import { useSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
@@ -16,6 +23,13 @@ import { breakpoints } from "theme/theme";
 import { Base64Image } from "utils/image";
 
 const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
+let isNotified = false;
+
+interface customWindow extends Window {
+  console: { [key: string]: (...args: any[]) => void };
+}
+
+declare const window: customWindow;
 
 export interface LayoutProps {
   logo?: Base64Image;
@@ -35,25 +49,52 @@ export const Layout = ({
   logo,
   banner,
   children,
-  isLogin,
   pageHeader,
   pageTitle,
   pageSubTitle,
   org,
   event,
+  session: serverSession,
   ...props
 }: BoxProps & LayoutProps & PageProps) => {
   const { isMobile } = props;
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const { data: clientSession } = useSession();
-  const session = props.session || clientSession;
-
+  const session = clientSession || serverSession;
+  const toast = useToast({ position: "top" });
   const [isOffline, setIsOffline] = useState(false);
+  const notify = (title: string) => {
+    if (!isNotified) {
+      isNotified = true;
+      toast({
+        status: "error",
+        title
+      });
+    }
+  };
 
   useEffect(() => {
     window.addEventListener("offline", () => setIsOffline(true));
     window.addEventListener("online", () => setIsOffline(false));
+    ["error"].forEach(intercept);
+
+    function intercept(method: string) {
+      const original = window.console[method];
+      window.console[method] = function (...args: any[]) {
+        if (
+          typeof args[0] === "string" &&
+          args[0].includes("quota") &&
+          args[0].includes("maps")
+        )
+          notify(
+            "Vous avez dépassé le quota de chargement de cartes, veuillez réessayer plus tard."
+          );
+        original.apply
+          ? original.apply(window.console, args)
+          : original(Array.prototype.slice.apply(args).join(" "));
+      };
+    }
   }, []);
 
   // const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false);
@@ -173,11 +214,19 @@ export const Layout = ({
           pageSubTitle={pageSubTitle}
         />
 
-        <Nav {...props} isLogin={isLogin} session={session} />
+        <Nav {...props} session={session} />
 
-        <Main {...props} session={session}>
+        <Box
+          as="main"
+          bg={isDark ? "gray.700" : "lightblue"}
+          borderRadius="lg"
+          flex="1 0 auto"
+          m={3}
+          mt={0}
+          p={5}
+        >
           {children}
-        </Main>
+        </Box>
 
         <Footer display="flex" alignItems="center" pl={5} pr={5} pb={8}>
           {isMobile && (

@@ -328,15 +328,13 @@ export const EventPage = ({
                       setIsEdit={setIsEdit}
                     />
 
-                    <EventPageOrgs event={event} />
-
-                    <EventPageTimeline event={event} />
-
                     <EventPageInfo
                       event={event}
                       isCreator={isCreator}
                       setIsEdit={setIsEdit}
                     />
+                    <EventPageTimeline event={event} />
+                    <EventPageOrgs event={event} />
                   </>
                 )}
               </Grid>
@@ -347,8 +345,8 @@ export const EventPage = ({
                 event={event}
                 query={eventQuery}
                 mutation={[editEvent, editEventMutation]}
-                subQuery={subQuery}
                 isCreator={isCreator}
+                subQuery={subQuery}
                 isFollowed={isFollowed}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
