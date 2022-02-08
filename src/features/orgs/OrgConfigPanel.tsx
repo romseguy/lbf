@@ -3,10 +3,11 @@ import { Box, Button, Input, Text, useToast, Icon } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { IOrg } from "models/Org";
 import { DeleteButton, PageContainer } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
+import { IOrg } from "models/Org";
+import { ISubscription } from "models/Subscription";
 import { AppQuery } from "utils/types";
 import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
@@ -27,7 +28,7 @@ export const OrgConfigPanel = ({
 }: Visibility & {
   session: Session;
   orgQuery: AppQuery<IOrg>;
-  subQuery: any;
+  subQuery: AppQuery<ISubscription>;
   isConfig: boolean;
   isEdit: boolean;
   setIsConfig: (isConfig: boolean) => void;

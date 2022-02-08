@@ -2,11 +2,10 @@ import { IEventNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { IUser } from "models/User";
 import { Base64Image } from "utils/image";
+import { IEntity } from "utils/models";
 
-export interface IEvent<T = string> {
-  _id: string;
+export interface IEvent<T = string> extends IEntity {
   eventName: string;
   eventUrl: string;
   eventCategory?: number;
@@ -48,8 +47,6 @@ export interface IEvent<T = string> {
     monthRepeat?: number[];
   }[];
   repeat?: number;
-  createdBy: IUser | string;
-  createdAt?: string;
 }
 
 export const StatusTypes: { [key: string]: "PENDING" | "NOK" | "OK" } = {

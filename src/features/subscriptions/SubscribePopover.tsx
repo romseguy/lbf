@@ -41,7 +41,7 @@ export const SubscribePopover = ({
 }: {
   event?: IEvent;
   org?: IOrg;
-  query: any;
+  query: AppQuery<IEvent | IOrg>;
   subQuery: AppQuery<ISubscription>;
   notifType?: "email" | "push";
 }) => {

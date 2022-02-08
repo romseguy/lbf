@@ -15,8 +15,11 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useSession } from "hooks/useAuth";
-import { Button, Grid, GridItem } from "features/common";
-import { ModalState, EntityNotifModal } from "features/modals/EntityNotifModal";
+import { Button, Grid } from "features/common";
+import {
+  NotifModalState,
+  EntityNotifModal
+} from "features/modals/EntityNotifModal";
 import { TopicModal } from "features/modals/TopicModal";
 import {
   useAddSubscriptionMutation,
@@ -31,6 +34,7 @@ import { TopicsListItem } from "./TopicsListItem";
 import { hasItems } from "utils/array";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { TopicsListCategories } from "./TopicsListCategories";
+import { AppQuery } from "utils/types";
 
 export const TopicsList = ({
   event,
@@ -45,9 +49,9 @@ export const TopicsList = ({
 }: GridProps & {
   event?: IEvent;
   org?: IOrg;
-  query: any;
+  query: AppQuery<IEvent | IOrg>;
   mutation: any;
-  subQuery: { data?: ISubscription; refetch: () => void };
+  subQuery: AppQuery<ISubscription>;
   isCreator: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
@@ -61,36 +65,21 @@ export const TopicsList = ({
   const toast = useToast({ position: "top" });
 
   //#region subscription
-  const [deleteSubscription, deleteSubscriptionMutation] =
-    useDeleteSubscriptionMutation();
-  const [addSubscription, addSubscriptionMutation] =
-    useAddSubscriptionMutation();
+  const [deleteSubscription] = useDeleteSubscriptionMutation();
+  const [addSubscription] = useAddSubscriptionMutation();
   //#endregion
 
   //#region topic
   const postTopicNotifMutation = usePostTopicNotifMutation();
-  const [deleteTopic, deleteTopicMutation] = useDeleteTopicMutation();
+  const [deleteTopic] = useDeleteTopicMutation();
   //#endregion
 
   //#region local state
-  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
   const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
-  const [topicModalState, setTopicModalState] = useState<{
-    isOpen: boolean;
-    entity: ITopic | null;
-  }>({
-    isOpen: false,
-    entity: null
-  });
-  const [notifyModalState, setNotifyModalState] = useState<ModalState<ITopic>>({
-    entity: null
-  });
-  const entityName = org ? org.orgName : event?.eventName;
-  const entityUrl = org ? org.orgUrl : event?.eventUrl;
-  const topics: ITopic[] = org
+  const topics = org
     ? org.orgTopics.filter((topic) => {
-        if (entityName === "forum") return true;
+        if (org.orgUrl === "forum") return true;
 
         if (hasItems(selectedCategories) || hasItems(selectedLists)) {
           let belongsToCategory = false;
@@ -168,6 +157,8 @@ export const TopicsList = ({
   }, [currentTopicName]);
   //#endregion
 
+  //#region loading state
+  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   useEffect(() => {
     if (!query.isFetching) {
       let newIsLoading = {};
@@ -177,6 +168,25 @@ export const TopicsList = ({
       setIsLoading(newIsLoading);
     }
   }, [query.isFetching]);
+  //#endregion
+
+  //#region modal state
+  const [topicModalState, setTopicModalState] = useState<{
+    isOpen: boolean;
+    topic?: ITopic;
+  }>({
+    isOpen: false
+  });
+  const onClose = () =>
+    setTopicModalState({
+      ...topicModalState,
+      isOpen: false,
+      topic: undefined
+    });
+  const [notifyModalState, setNotifyModalState] = useState<
+    NotifModalState<ITopic>
+  >({});
+  //#endregion
 
   return (
     <>
@@ -202,7 +212,7 @@ export const TopicsList = ({
 
         {topicModalState.isOpen && (
           <TopicModal
-            topic={topicModalState.entity}
+            {...topicModalState}
             org={org}
             event={event}
             query={query}
@@ -211,30 +221,13 @@ export const TopicsList = ({
             isCreator={props.isCreator}
             isFollowed={props.isFollowed}
             isSubscribed={props.isSubscribed}
-            onCancel={() =>
-              setTopicModalState({
-                ...topicModalState,
-                isOpen: false,
-                entity: null
-              })
-            }
+            onCancel={onClose}
             onSubmit={async (topic) => {
               query.refetch();
               subQuery.refetch();
-              setTopicModalState({
-                ...topicModalState,
-                isOpen: false,
-                entity: null
-              });
-              // setCurrentTopic(topic ? topic : null);
+              onClose();
             }}
-            onClose={() =>
-              setTopicModalState({
-                ...topicModalState,
-                isOpen: false,
-                entity: null
-              })
-            }
+            onClose={onClose}
           />
         )}
       </Box>
@@ -248,7 +241,7 @@ export const TopicsList = ({
             </Flex>
             <TopicsListCategories
               org={org}
-              orgQuery={query}
+              orgQuery={query as AppQuery<IOrg>}
               mutation={mutation}
               isCreator={props.isCreator}
               isSubscribed={props.isSubscribed}
@@ -292,7 +285,7 @@ export const TopicsList = ({
                   selectedCategories &&
                   selectedCategories.length >= 1 ? (
                     <>
-                      Aucune discussion appartenant :
+                      Aucune discussions appartenant :
                       <List listStyleType="square" ml={5}>
                         <ListItem mb={1}>
                           aux catégories :
@@ -318,12 +311,12 @@ export const TopicsList = ({
                     <Box>
                       {selectedCategories.length === 1 ? (
                         <>
-                          Aucune discussion appartenant à la catégorie{" "}
+                          Aucune discussions appartenant à la catégorie{" "}
                           <Tag>{selectedCategories[0]}</Tag>
                         </>
                       ) : (
                         <>
-                          Aucune discussion appartenant aux catégories
+                          Aucune discussions appartenant aux catégories
                           {selectedCategories.map((category, index) => (
                             <>
                               <Tag mx={1}>{category}</Tag>
@@ -337,12 +330,12 @@ export const TopicsList = ({
                     <Box>
                       {selectedLists.length === 1 ? (
                         <>
-                          Aucune discussion appartenant à la liste{" "}
+                          Aucune discussions appartenant à la liste{" "}
                           <Tag>{selectedLists[0].listName}</Tag>
                         </>
                       ) : (
                         <>
-                          Aucune discussion appartenant aux listes
+                          Aucune discussions appartenant aux listes
                           {selectedLists.map(({ listName }, index) => (
                             <>
                               <Tag mx={1}>{listName}</Tag>
@@ -357,7 +350,7 @@ export const TopicsList = ({
                   )}
                 </>
               ) : (
-                <Text>Aucune discussion.</Text>
+                <Text>Aucune discussions.</Text>
               )}
             </Flex>
           </Alert>
@@ -391,14 +384,13 @@ export const TopicsList = ({
                 org={org}
                 query={query}
                 currentTopicName={currentTopicName}
-                isSubscribed={props.isSubscribed || false}
                 topic={topic}
                 topicIndex={topicIndex}
                 isSubbedToTopic={isSubbedToTopic}
                 isCurrent={isCurrent}
                 isTopicCreator={isTopicCreator}
                 isDark={isDark}
-                isLoading={isLoading[topic._id!] || query.isLoading}
+                isLoading={isLoading[topic._id] || query.isLoading}
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
                 onClick={() => setCurrentTopic(isCurrent ? null : topic)}
@@ -406,43 +398,36 @@ export const TopicsList = ({
                   setTopicModalState({
                     ...topicModalState,
                     isOpen: true,
-                    entity: topic
+                    topic
                   })
                 }
                 onDeleteClick={async () => {
                   setIsLoading({
-                    [topic._id!]: true
+                    [topic._id]: true
                   });
 
                   try {
-                    let deletedTopic: ITopic | null = null;
-
-                    if (topic._id) {
-                      deletedTopic = await deleteTopic(topic._id).unwrap();
-                    }
-
-                    if (deletedTopic) {
-                      query.refetch();
-                      subQuery.refetch();
-
-                      toast({
-                        title: `${deletedTopic.topicName} a bien été supprimé !`,
-                        status: "success",
-                        isClosable: true
-                      });
-                    }
+                    const deletedTopic = await deleteTopic(topic._id).unwrap();
+                    query.refetch();
+                    subQuery.refetch();
+                    toast({
+                      title: `${deletedTopic.topicName} a bien été supprimé !`,
+                      status: "success",
+                      isClosable: true
+                    });
                   } catch (error: any) {
                     toast({
                       title: `La discussion ${topic.topicName} n'a pas pu être supprimée`,
                       status: "error",
                       isClosable: true
                     });
+                  } finally {
                     setIsLoading({
-                      [topic._id!]: false
+                      [topic._id]: false
                     });
                   }
                 }}
-                onSendClick={() => {
+                onNotifClick={() => {
                   setNotifyModalState({
                     ...notifyModalState,
                     entity: topic
@@ -450,49 +435,66 @@ export const TopicsList = ({
                 }}
                 onSubscribeClick={async () => {
                   setIsLoading({
-                    [topic._id!]: true
+                    [topic._id]: true
                   });
 
                   if (!subQuery.data || !isSubbedToTopic) {
-                    await addSubscription({
-                      payload: {
-                        topics: [
-                          {
-                            topic: topic,
-                            emailNotif: true,
-                            pushNotif: true
-                          }
-                        ]
-                      },
-                      user: session?.user.userId
-                    });
+                    try {
+                      await addSubscription({
+                        payload: {
+                          topics: [
+                            {
+                              topic: topic,
+                              emailNotif: true,
+                              pushNotif: true
+                            }
+                          ]
+                        },
+                        user: session?.user.userId
+                      });
 
-                    toast({
-                      title: `Vous êtes abonné à la discussion ${topic.topicName}`,
-                      status: "success",
-                      isClosable: true
-                    });
+                      toast({
+                        title: `Vous êtes abonné à la discussion ${topic.topicName}`,
+                        status: "success"
+                      });
+                    } catch (error) {
+                      console.error(error);
+                      toast({
+                        title: `Vous n'avez pas pu être abonné à la discussion ${topic.topicName}`,
+                        status: "error"
+                      });
+                    }
                   } else if (isSubbedToTopic) {
                     const unsubscribe = confirm(
                       `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
                     );
 
                     if (unsubscribe) {
-                      await deleteSubscription({
-                        subscriptionId: subQuery.data._id,
-                        topicId: topic._id
-                      });
+                      try {
+                        await deleteSubscription({
+                          subscriptionId: subQuery.data._id,
+                          topicId: topic._id
+                        });
 
-                      toast({
-                        title: `Vous êtes désabonné de ${topic.topicName}`,
-                        status: "success",
-                        isClosable: true
-                      });
+                        toast({
+                          title: `Vous êtes désabonné de ${topic.topicName}`,
+                          status: "success"
+                        });
+                      } catch (error) {
+                        console.error(error);
+                        toast({
+                          title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
+                          status: "error"
+                        });
+                      }
                     }
                   }
 
                   query.refetch();
                   subQuery.refetch();
+                  setIsLoading({
+                    [topic._id]: false
+                  });
                 }}
                 onLoginClick={() => setIsLogin(isLogin + 1)}
               />

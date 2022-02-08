@@ -2,12 +2,10 @@ import { IEvent } from "models/Event";
 import { IProject } from "models/Project";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { IUser } from "models/User";
 import { Base64Image } from "utils/image";
+import { IEntity } from "utils/models";
 
-export interface IOrg {
-  _id: string;
-  id: string;
+export interface IOrg extends IEntity {
   orgName: string;
   orgUrl: string;
   orgType: OrgType;
@@ -41,8 +39,6 @@ export interface IOrg {
   orgVisibility: string;
   orgs?: IOrg[];
   isApproved?: boolean;
-  createdBy: IUser | string;
-  createdAt?: string;
 }
 
 export interface IOrgEventCategory {

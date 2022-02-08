@@ -148,7 +148,7 @@ export const ProjectsList = ({
           <Text>Chargement des projets...</Text>
         ) : !projects.length ? (
           <Alert status="warning">
-            <AlertIcon /> Aucun projet.
+            <AlertIcon /> Aucun projets.
           </Alert>
         ) : (
           projects
@@ -325,7 +325,7 @@ export const ProjectsList = ({
 
                             <DeleteButton
                               isIconOnly
-                              isLoading={isLoading[project._id!]}
+                              isLoading={isLoading[project._id]}
                               placement="bottom"
                               mr={3}
                               header={
@@ -342,7 +342,7 @@ export const ProjectsList = ({
                                 </>
                               }
                               onClick={async () => {
-                                setIsLoading({ [project._id!]: true });
+                                setIsLoading({ [project._id]: true });
                                 try {
                                   let deletedProject;
 

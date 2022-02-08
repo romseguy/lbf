@@ -62,7 +62,8 @@ export const EventSchema = new Schema<IEvent>(
         status: {
           type: String,
           enum: Object.keys(StatusTypes).map((key) => StatusTypes[key])
-        }
+        },
+        createdAt: { type: String, required: true }
       }
     ],
     eventTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],

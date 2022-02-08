@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Table,
   Tbody,
   Tr,
@@ -8,33 +7,28 @@ import {
   Tag,
   Text,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Heading
 } from "@chakra-ui/react";
-import { Session } from "next-auth";
 import React from "react";
 import { IEvent } from "models/Event";
 import { StatusTypes, StatusTypesV } from "models/Project";
 import { ITopic } from "models/Topic";
+import { timeAgo } from "utils/date";
 
 export const EntityNotified = ({
   event,
-  topic,
-  query,
-  mutation,
-  session
+  topic
 }: {
   event?: IEvent<string | Date>;
   topic?: ITopic;
-  query: any;
-  mutation: any;
-  session: Session;
 }) => {
   return (
-    <Box
-      light={{ bg: "orange.100" }}
-      dark={{ bg: "gray.500" }}
-      overflowX="auto"
-    >
+    <Box overflowX="auto">
+      <Heading className="rainbow-text" fontFamily="DancingScript" mb={3}>
+        Historique des invitations envoyées
+      </Heading>
+
       {!(event?.eventNotifications || topic?.topicNotifications) ||
       (Array.isArray(event?.eventNotifications) &&
         !event?.eventNotifications.length) ||
@@ -45,62 +39,47 @@ export const EntityNotified = ({
           <Text>Aucune invitations envoyées</Text>
         </Alert>
       ) : (
-        <>
-          {session.user.isAdmin && (
-            <Button
-              onClick={async () => {
-                if (event)
-                  await mutation({
-                    eventUrl: event.eventUrl,
-                    payload: { eventNotifications: [] }
-                  }).unwrap();
-                else if (topic)
-                  await mutation({
-                    topicId: topic._id,
-                    payload: { topic: { topicNotifications: [] } }
-                  }).unwrap();
-
-                query.refetch();
-              }}
-            >
-              RAZ
-            </Button>
-          )}
-
-          <Table>
-            <Tbody>
-              {event
-                ? event.eventNotifications?.map(
-                    ({ email: e, status, createdAt }) => (
-                      <Tr key={e}>
-                        <Td>{e}</Td>
-                        <Td>
-                          <Tag
-                            variant="solid"
-                            colorScheme={
-                              status === StatusTypes.PENDING
-                                ? "blue"
-                                : status === StatusTypes.OK
-                                ? "green"
-                                : "red"
-                            }
-                          >
-                            {StatusTypesV[status]}
+        <Table>
+          <Tbody>
+            {event
+              ? event.eventNotifications?.map(
+                  ({ _id, email, status, createdAt }) => (
+                    <Tr key={_id}>
+                      <Td pl={0}>{email}</Td>
+                      <Td>
+                        <Tag
+                          colorScheme={
+                            status === StatusTypes.PENDING
+                              ? "blue"
+                              : status === StatusTypes.OK
+                              ? "green"
+                              : "red"
+                          }
+                          textAlign="center"
+                        >
+                          {StatusTypesV[status]}
+                        </Tag>
+                      </Td>
+                      <Td>
+                        {createdAt && (
+                          <Tag colorScheme="green" textAlign="center">
+                            Invitation envoyée le{" "}
+                            {timeAgo(createdAt, true).fullDate}
                           </Tag>
-                        </Td>
-                      </Tr>
-                    )
-                  )
-                : topic
-                ? topic.topicNotifications?.map(({ email: e, createdAt }) => (
-                    <Tr key={e}>
-                      <Td>{e}</Td>
+                        )}
+                      </Td>
                     </Tr>
-                  ))
-                : null}
-            </Tbody>
-          </Table>
-        </>
+                  )
+                )
+              : topic
+              ? topic.topicNotifications?.map(({ email: e, createdAt }) => (
+                  <Tr key={e}>
+                    <Td>{e}</Td>
+                  </Tr>
+                ))
+              : null}
+          </Tbody>
+        </Table>
       )}
     </Box>
   );

@@ -31,6 +31,7 @@ import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { isTopic } from "utils/models";
 import { equalsValue } from "utils/string";
+import { AppQuery } from "utils/types";
 import { EmailControl, EntityButton, Button, ErrorMessageText } from "..";
 
 export const OrgNotifForm = ({
@@ -42,7 +43,7 @@ export const OrgNotifForm = ({
 }: {
   entity: IEvent<string | Date> | ITopic;
   org: IOrg;
-  query: any;
+  query: AppQuery<IOrg>;
   onCancel?: () => void;
   onSubmit: (
     form: { email?: string; orgListsNames?: string[] },

@@ -1,8 +1,8 @@
 import { Base64Image } from "utils/image";
 import { IProject } from "models/Project";
+import { IEntity } from "utils/models";
 
-export interface IUser {
-  _id: string;
+export interface IUser extends Omit<IEntity, "createdBy"> {
   email: string;
   phone?: string;
   password: string;

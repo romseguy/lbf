@@ -108,7 +108,6 @@ const EventsPage = ({ ...props }: PageProps) => {
             events && (
               <EventsList
                 events={events}
-                eventsQuery={eventsQuery}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
                 setTitle={setTitle}

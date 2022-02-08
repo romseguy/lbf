@@ -31,10 +31,11 @@ import { UserForm } from "features/forms/UserForm";
 import { Layout } from "features/layout";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { IUser } from "models/User";
+import { PageProps } from "pages/_app";
 import api from "utils/api";
+import { AppQuery } from "utils/types";
 import { defaultTabs, UserPageTabs } from "./UserPageTabs";
 import { useEditUserMutation } from "./usersApi";
-import { PageProps } from "pages/_app";
 
 export const UserPage = ({
   email,
@@ -42,7 +43,7 @@ export const UserPage = ({
   session,
   userQuery
 }: PageProps & {
-  userQuery: any;
+  userQuery: AppQuery<IUser>;
 }) => {
   const router = useRouter();
   const toast = useToast({ position: "top" });

@@ -66,7 +66,7 @@ import {
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import {
-  Category,
+  EventCategory,
   IEvent,
   monthRepeatOptions,
   VisibilityV
@@ -353,8 +353,8 @@ export const EventForm = withGoogleApi({
     //#endregion
 
     //#region event
-    let categories = Object.keys(Category).map(
-      (catId) => Category[parseInt(catId)]
+    let categories = Object.keys(EventCategory).map(
+      (catId) => EventCategory[parseInt(catId)]
     );
     if (
       initialEventOrgs &&

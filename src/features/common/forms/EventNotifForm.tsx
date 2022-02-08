@@ -3,6 +3,7 @@ import {
   Alert,
   AlertIcon,
   Box,
+  BoxProps,
   Button,
   Checkbox,
   CheckboxGroup,
@@ -33,6 +34,7 @@ import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { equalsValue } from "utils/string";
+import { AppQuery } from "utils/types";
 
 export const EventNotifForm = ({
   event,
@@ -40,9 +42,9 @@ export const EventNotifForm = ({
   session,
   onCancel,
   ...props
-}: {
+}: BoxProps & {
   event: IEvent<any>;
-  eventQuery: any;
+  eventQuery: AppQuery<IEvent>;
   session: Session;
   onCancel?: () => void;
   onSubmit?: () => void;
@@ -137,6 +139,7 @@ export const EventNotifForm = ({
       pb={3}
       px={3}
       mt={3}
+      {...props}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <RadioGroup name="type" my={3}>

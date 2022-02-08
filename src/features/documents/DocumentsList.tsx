@@ -23,7 +23,12 @@ import React, { useState } from "react";
 import { FaFile, FaImage } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 
-import { DeleteButton, ErrorMessageText, Link } from "features/common";
+import {
+  DeleteButton,
+  ErrorMessageText,
+  Link,
+  PageContainer
+} from "features/common";
 import { useSession } from "hooks/useAuth";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
@@ -138,66 +143,68 @@ export const DocumentsList = ({
       </Button>
 
       {isAdd && (
-        <form
-          onChange={() => {
-            clearErrors("formErrorMessage");
-          }}
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <ErrorMessage
-            errors={errors}
-            name="formErrorMessage"
-            render={({ message }) => (
-              <Alert status="error" mb={3}>
-                <AlertIcon />
-                <ErrorMessageText>{message}</ErrorMessageText>
-              </Alert>
-            )}
-          />
-
-          <FormControl id="files" isInvalid={!!errors["files"]} mb={3}>
-            <FormLabel>Sélectionnez un fichier :</FormLabel>
-            <Input
-              height="auto"
-              py={3}
-              name="files"
-              type="file"
-              accept="*"
-              onChange={async (e) => {
-                if (e.target.files && e.target.files[0]) {
-                  setLoaded(0);
-                  clearErrors("file");
-                  clearErrors("formErrorMessage");
-                }
-              }}
-              ref={register({
-                required: "Vous devez sélectionner un fichier",
-                validate: (file) => {
-                  if (file && file[0] && file[0].size >= 50000000) {
-                    return "Le fichier ne doit pas dépasser 50Mo.";
-                  }
-                  return true;
-                }
-              })}
-            />
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="files" />
-            </FormErrorMessage>
-          </FormControl>
-
-          {loaded > 0 && loaded !== 100 && (
-            <Progress mb={3} hasStripe value={loaded} />
-          )}
-
-          <Button
-            colorScheme="green"
-            type="submit"
-            isLoading={isLoading}
-            isDisabled={Object.keys(errors).length > 0}
+        <PageContainer mb={5}>
+          <form
+            onChange={() => {
+              clearErrors("formErrorMessage");
+            }}
+            onSubmit={handleSubmit(onSubmit)}
           >
-            Ajouter
-          </Button>
-        </form>
+            <ErrorMessage
+              errors={errors}
+              name="formErrorMessage"
+              render={({ message }) => (
+                <Alert status="error" mb={3}>
+                  <AlertIcon />
+                  <ErrorMessageText>{message}</ErrorMessageText>
+                </Alert>
+              )}
+            />
+
+            <FormControl id="files" isInvalid={!!errors["files"]} mb={3}>
+              <FormLabel>Sélectionnez un fichier :</FormLabel>
+              <Input
+                height="auto"
+                py={3}
+                name="files"
+                type="file"
+                accept="*"
+                onChange={async (e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setLoaded(0);
+                    clearErrors("file");
+                    clearErrors("formErrorMessage");
+                  }
+                }}
+                ref={register({
+                  required: "Vous devez sélectionner un fichier",
+                  validate: (file) => {
+                    if (file && file[0] && file[0].size >= 50000000) {
+                      return "Le fichier ne doit pas dépasser 50Mo.";
+                    }
+                    return true;
+                  }
+                })}
+              />
+              <FormErrorMessage>
+                <ErrorMessage errors={errors} name="files" />
+              </FormErrorMessage>
+            </FormControl>
+
+            {loaded > 0 && loaded !== 100 && (
+              <Progress mb={3} hasStripe value={loaded} />
+            )}
+
+            <Button
+              colorScheme="green"
+              type="submit"
+              isLoading={isLoading}
+              isDisabled={Object.keys(errors).length > 0}
+            >
+              Ajouter
+            </Button>
+          </form>
+        </PageContainer>
       )}
 
       {query.isLoading || query.isFetching ? (
@@ -288,7 +295,7 @@ export const DocumentsList = ({
               ) : (
                 <Alert status="warning">
                   <AlertIcon />
-                  Aucun document.
+                  Aucun documents.
                 </Alert>
               )}
             </Tbody>

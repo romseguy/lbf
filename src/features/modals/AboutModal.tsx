@@ -242,15 +242,16 @@ const AboutPage = ({ ...props }: AboutModalProps) => {
             </Text>
 
             <Text>
-              Si vous ne voulez pas faire confiance à {host} pour le traitement
-              de vos données,{" "}
+              Si vous ne souhaitez pas faire confiance à {host} pour le
+              traitement de vos données,{" "}
               <Link
                 variant="underline"
                 onClick={() => dispatch(setIsContactModalOpen(true))}
               >
                 contactez
               </Link>{" "}
-              le créateur pour installer l'outil sur votre propre serveur.
+              le créateur de cet outil pour l'installer sur votre propre
+              serveur.
             </Text>
           </Flex>
         </PageContainer>

@@ -43,7 +43,7 @@ import { IoIosPeople } from "react-icons/io";
 import { DeleteButton, ErrorMessageText } from "features/common";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { useEditUserMutation } from "features/users/usersApi";
-import { Category, IEvent } from "models/Event";
+import { EventCategory, IEvent } from "models/Event";
 import { IOrg, IOrgEventCategory, orgTypeFull } from "models/Org";
 import api from "utils/api";
 import { handleError } from "utils/form";
@@ -90,9 +90,9 @@ export const EventsListCategories = ({
 
     let arr = [];
 
-    for (const key of Object.keys(Category)) {
+    for (const key of Object.keys(EventCategory)) {
       if (key === "0") continue;
-      arr.push(Category[parseInt(key)]);
+      arr.push(EventCategory[parseInt(key)]);
     }
 
     return arr;

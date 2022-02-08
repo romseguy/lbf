@@ -22,7 +22,7 @@ import { FaRegCalendarCheck, FaRegCalendarTimes } from "react-icons/fa";
 import { css } from "twin.macro";
 import { Link } from "features/common";
 import { IOrg, OrgTypes } from "models/Org";
-import { defaultCategory, getCategories, IEvent } from "models/Event";
+import { defaultCategory, getEventCategories, IEvent } from "models/Event";
 
 export const Header = ({
   defaultTitle,
@@ -125,7 +125,7 @@ export const Header = ({
 
   const HeaderEventCategory = () => {
     if (!event || !event.eventCategory) return null;
-    const categories = getCategories(event);
+    const categories = getEventCategories(event);
     const eventCategory =
       categories.find(({ index }) => parseInt(index) === event.eventCategory) ||
       defaultCategory;

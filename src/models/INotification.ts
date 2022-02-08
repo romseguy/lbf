@@ -2,6 +2,7 @@ import { IEvent } from "./Event";
 import { ITopic } from "./Topic";
 
 export interface INotification {
+  _id?: string;
   email?: string;
   phone?: string;
   user?: string;

@@ -16,7 +16,7 @@ export const toDateRange = (minDate: Date, maxDate: Date) => {
       ${fullMinDateString(minDate)} à${" "}
       <b>${format(minDate, "H:mm", { locale: fr })}</b>
       <br />
-      jusqu'au <b>${format(maxDate, "cccc", { locale: fr })}</b>${" "}
+      au <b>${format(maxDate, "cccc", { locale: fr })}</b>${" "}
       ${fullMaxDateString(maxDate)} à${" "}
       <b>${format(maxDate, "H:mm", { locale: fr })}</b>
       `;

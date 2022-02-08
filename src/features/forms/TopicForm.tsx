@@ -1,5 +1,4 @@
 import {
-  ChakraProps,
   Input,
   Button,
   FormControl,
@@ -27,11 +26,13 @@ import {
   getSubscriberSubscription,
   IEventSubscription,
   IOrgSubscription,
+  ISubscription,
   SubscriptionTypes
 } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
+import { handleError } from "utils/form";
+import { AppQuery } from "utils/types";
 
 export const TopicForm = ({
   org,
@@ -40,19 +41,19 @@ export const TopicForm = ({
   mutation,
   subQuery,
   ...props
-}: ChakraProps & {
+}: {
   org?: IOrg;
   event?: IEvent;
-  query: any;
+  query: AppQuery<IEvent | IOrg>;
   mutation: any;
-  subQuery: any;
-  topic: ITopic | null;
+  subQuery: AppQuery<ISubscription>;
+  topic?: ITopic;
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
   onClose?: () => void;
   onCancel?: () => void;
-  onSubmit?: (topic: ITopic | null) => void;
+  onSubmit?: (topic?: ITopic) => void;
 }) => {
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });

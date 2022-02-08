@@ -107,7 +107,7 @@ export const GlobalStyles = () => (
           indigo,
           blue,
           green,
-          yellow,
+          #f0e000,
           orange,
           red
         );

@@ -7,11 +7,13 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { getSubscriptions, IOrg, IOrgList } from "models/Org";
-import { SubscriptionTypes } from "models/Subscription";
 import {
   getFollowerSubscription,
-  getSubscriberSubscription
+  getSubscriberSubscription,
+  ISubscription,
+  SubscriptionTypes
 } from "models/Subscription";
+import { AppQuery } from "utils/types";
 
 export const TopicsListOrgLists = ({
   org,
@@ -27,7 +29,7 @@ export const TopicsListOrgLists = ({
   setSelectedLists: React.Dispatch<
     React.SetStateAction<IOrgList[] | undefined>
   >;
-  subQuery: any;
+  subQuery: AppQuery<ISubscription>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";

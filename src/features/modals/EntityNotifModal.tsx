@@ -1,5 +1,8 @@
 import {
+  Alert,
+  AlertIcon,
   Button,
+  Heading,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -9,31 +12,42 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
-import React from "react";
-import { EntityButton, EntityNotified, OrgNotifForm } from "features/common";
+import React, { useState } from "react";
+import {
+  EmailPreview,
+  EntityButton,
+  EntityNotified,
+  OrgNotifForm
+} from "features/common";
 import { useEditEventMutation } from "features/events/eventsApi";
 import { useEditTopicMutation } from "features/forum/topicsApi";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
-import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { isEvent, isTopic } from "utils/models";
-import { IEventNotification, ITopicNotification } from "models/INotification";
+import { AppQuery } from "utils/types";
+import { defaultErrorMessage } from "utils/string";
 
-export type ModalState<T> = {
-  entity: T | null;
+export type NotifModalState<T> = {
+  entity?: T;
 };
 
 interface NotifyModalProps<T> {
   event?: IEvent<string | Date>;
   org?: IOrg;
-  query: any;
+  query: AppQuery<IEvent | IOrg>;
   mutation: any;
-  setModalState: (modalState: ModalState<T>) => void;
-  modalState: ModalState<T>;
+  setModalState: (modalState: NotifModalState<T>) => void;
+  modalState: NotifModalState<T>;
   session: Session;
 }
+
+type PostNotifPayload = {
+  event?: IEvent<string | Date>;
+  email?: string;
+  orgListsNames?: string[];
+};
 
 export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
   event,
@@ -44,72 +58,29 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
   modalState,
   session
 }: NotifyModalProps<T>) => {
-  //#region hooks must be defined here
   const toast = useToast({ position: "top" });
-  const [postNotif, postNotifMutation] = mutation;
+  const [isLoading, setIsLoading] = useState(false);
+
   const { entity } = modalState;
-  const [editEvent, _] = useEditEventMutation();
-  const [editTopic, __] = useEditTopicMutation();
-
-  //#endregion
-
-  if ((!org && !event) || !entity || (!isEvent(entity) && !isTopic(entity)))
-    return null;
-
-  //#region event or org
-  const name = org ? org.orgName : event ? event.eventName : "";
-  let subscriptions = org
-    ? org.orgSubscriptions
-    : event
-    ? event.eventSubscriptions
-    : [];
-  //#endregion
-
-  //#region modal entity
-  let entityId: string = "";
-  let entityIdKey = "eventUrl";
-  let entityName: string = "";
-  let entityTypeLabel = "l'événement";
-  let topicNotifications: ITopicNotification[] | undefined;
-  let eventNotifications: IEventNotification[] | undefined;
-  let notifiedCount = 0;
-
-  if (isTopic(entity)) {
-    entityId = entity._id!;
-    entityIdKey = "topicId";
-    entityName = entity.topicName;
-    entityTypeLabel = "la discussion";
-    subscriptions = subscriptions.filter(({ phone }) => phone === undefined);
-
-    if (entity.topicNotifications) {
-      topicNotifications = entity.topicNotifications;
-      notifiedCount = topicNotifications.length;
-    }
-  } else if (isEvent(entity)) {
-    entityId = entity.eventUrl;
-    entityName = entity.eventName;
-    subscriptions = subscriptions.filter((subscription) => {
-      return (
-        org &&
-        subscription.orgs?.find((orgSubscription) => {
-          return (
-            orgSubscription.orgId === org._id &&
-            orgSubscription.type === SubscriptionTypes.FOLLOWER
-          );
-        })
-      );
+  const onClose = () => {
+    query.refetch();
+    setModalState({
+      ...modalState,
+      entity: undefined
     });
+  };
+  const [editEvent] = useEditEventMutation();
+  const [editTopic] = useEditTopicMutation();
+  const [postNotif] = mutation;
+  const postEntityNotifications = async (payload: PostNotifPayload) => {
+    if (!entity) return;
+    setIsLoading(true);
 
-    if (entity.eventNotifications) {
-      eventNotifications = entity.eventNotifications;
-      notifiedCount = eventNotifications.length;
-    }
-  }
-
-  const postEntityNotifications = async (payload: any) => {
     try {
       const { notifications } = await postNotif({
-        [entityIdKey]: entityId,
+        [isEvent(entity) ? "eventUrl" : "topicId"]: isEvent(entity)
+          ? entity.eventUrl
+          : entity._id,
         payload
       }).unwrap();
 
@@ -119,13 +90,17 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
           status: "success",
           title: `${notifications.length} invitation${s} envoyée${s} !`
         });
-        query.refetch();
+        //query.refetch();
+        onClose();
       } else
         toast({
           status: "warning",
           title: "Aucune invitations envoyée"
         });
+
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error(error);
       toast({
         status: "error",
@@ -134,45 +109,10 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
     }
   };
 
-  const onSubmit = async (
-    form: { email?: string; orgListsNames?: string[] },
-    type?: "single" | "multi"
-  ) => {
-    console.log("submitted", form);
-
-    let payload: {
-      event?: IEvent<string | Date>;
-      email?: string;
-      orgListsNames?: string[];
-    } = {
-      event
-    };
-
-    if (type === "multi")
-      payload.orgListsNames = hasItems(form.orgListsNames)
-        ? form.orgListsNames
-        : undefined;
-    else payload.email = form.email;
-
-    await postEntityNotifications(payload);
-    setModalState({
-      ...modalState,
-      entity: null
-    });
-  };
-
   return (
-    <Modal
-      isOpen={modalState.entity !== null}
-      onClose={() =>
-        setModalState({
-          ...modalState,
-          entity: null
-        })
-      }
-    >
+    <Modal isOpen={!!modalState.entity} onClose={onClose}>
       <ModalOverlay>
-        <ModalContent maxWidth="xl">
+        <ModalContent maxWidth="3xl">
           <ModalHeader display="flex" alignItems="center" pb={0}>
             {isTopic(entity) ? (
               <EntityButton topic={entity} p={2} onClick={null} />
@@ -182,44 +122,109 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={4}>
-            {org ? (
-              <OrgNotifForm
-                entity={entity}
-                org={org}
-                query={query}
-                onSubmit={onSubmit}
-              />
-            ) : event ? (
-              <Button
-                colorScheme="teal"
-                mb={5}
-                onClick={() => {
-                  const payload = {
-                    event
-                  };
-                  postEntityNotifications(payload);
-                }}
-              >
-                Inviter les abonnés de cet événement à la discussion
-              </Button>
+            {(!org && !event) ||
+            !entity ||
+            (!isEvent(entity) && !isTopic(entity)) ? (
+              <Alert status="error">
+                <AlertIcon />
+                {defaultErrorMessage}
+              </Alert>
             ) : null}
 
-            {isEvent(entity) && (
-              <EntityNotified
-                event={entity}
-                query={query}
-                mutation={editEvent}
-                session={session}
-              />
+            {entity && (
+              <>
+                {org ? (
+                  <>
+                    <Heading
+                      className="rainbow-text"
+                      fontFamily="DancingScript"
+                      mb={3}
+                    >
+                      Aperçu de l'e-mail d'invitation
+                    </Heading>
+                    <EmailPreview entity={entity} org={org} session={session} />
+
+                    <OrgNotifForm
+                      entity={entity}
+                      org={org}
+                      query={query as AppQuery<IOrg>}
+                      onSubmit={async (
+                        form: { email?: string; orgListsNames?: string[] },
+                        type?: "single" | "multi"
+                      ) => {
+                        console.log("submitted", form);
+
+                        let payload: PostNotifPayload = {
+                          event
+                        };
+
+                        if (type === "multi")
+                          payload.orgListsNames = hasItems(form.orgListsNames)
+                            ? form.orgListsNames
+                            : undefined;
+                        else payload.email = form.email;
+
+                        await postEntityNotifications(payload);
+                      }}
+                    />
+                  </>
+                ) : event ? (
+                  hasItems(event.eventSubscriptions) ? (
+                    <>
+                      <Heading
+                        className="rainbow-text"
+                        fontFamily="DancingScript"
+                        mb={3}
+                      >
+                        Aperçu de l'e-mail d'invitation
+                      </Heading>
+                      <EmailPreview
+                        entity={entity}
+                        event={event}
+                        session={session}
+                      />
+                      <Button
+                        colorScheme="teal"
+                        my={5}
+                        isLoading={isLoading}
+                        onClick={() => postEntityNotifications({ event })}
+                      >
+                        Inviter les abonnés de cet événement à la discussion
+                      </Button>
+                    </>
+                  ) : (
+                    <Alert status="warning">
+                      <AlertIcon /> Il n'y a aucun abonnés à cet événement.
+                    </Alert>
+                  )
+                ) : null}
+              </>
             )}
 
-            {isTopic(entity) && (
-              <EntityNotified
-                topic={entity}
-                query={query}
-                mutation={editTopic}
-                session={session}
-              />
+            {isEvent(entity) && <EntityNotified event={entity} />}
+
+            {isTopic(entity) && <EntityNotified topic={entity} />}
+
+            {session.user.isAdmin && (
+              <Button
+                mt={5}
+                onClick={async () => {
+                  if (isEvent(entity))
+                    await editEvent({
+                      eventUrl: entity.eventUrl,
+                      payload: { eventNotifications: [] }
+                    });
+                  else if (isTopic(entity))
+                    await editTopic({
+                      topicId: entity._id,
+                      payload: { topic: { topicNotifications: [] } }
+                    });
+
+                  onClose();
+                }}
+              >
+                Effacer
+              </Button>
             )}
           </ModalBody>
         </ModalContent>

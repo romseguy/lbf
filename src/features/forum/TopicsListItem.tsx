@@ -1,10 +1,4 @@
-import {
-  EditIcon,
-  EmailIcon,
-  ExternalLinkIcon,
-  LinkIcon,
-  SpinnerIcon
-} from "@chakra-ui/icons";
+import { EditIcon, EmailIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -12,37 +6,31 @@ import {
   Icon,
   IconButton,
   Link,
-  Popover,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
   Spinner,
   Text,
-  Tooltip,
-  useToast
+  Tooltip
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   FaBellSlash,
   FaBell,
   FaFolder,
   FaFolderOpen,
-  FaShare,
   FaReply
 } from "react-icons/fa";
-import { DeleteButton, Grid, GridItem } from "features/common";
+import { DeleteButton, GridItem } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
-import { ModalState } from "features/modals/EntityNotifModal";
+import { useScroll } from "hooks/useScroll";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import * as dateUtils from "utils/date";
+import { AppQuery } from "utils/types";
 import { TopicMessagesList } from "./TopicMessagesList";
 import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
 import { TopicsListItemSubscribers } from "./TopicsListItemSubscribers";
 import { TopicsListItemShare } from "./TopicsListItemShare";
-import { useScroll } from "hooks/useScroll";
 
 export const TopicsListItem = ({
   session,
@@ -51,7 +39,6 @@ export const TopicsListItem = ({
   isCreator,
   query,
   currentTopicName,
-  isSubscribed,
   topic,
   topicIndex,
   isSubbedToTopic,
@@ -64,7 +51,7 @@ export const TopicsListItem = ({
   onClick,
   onEditClick,
   onDeleteClick,
-  onSendClick,
+  onNotifClick,
   onSubscribeClick,
   onLoginClick
 }: {
@@ -72,9 +59,8 @@ export const TopicsListItem = ({
   event?: IEvent;
   org?: IOrg;
   isCreator: boolean;
-  query: any;
+  query: AppQuery<IEvent | IOrg>;
   currentTopicName?: string;
-  isSubscribed: boolean;
   topic: ITopic;
   topicIndex: number;
   isSubbedToTopic: boolean;
@@ -89,7 +75,7 @@ export const TopicsListItem = ({
   onClick: () => void;
   onEditClick: () => void;
   onDeleteClick: () => void;
-  onSendClick: () => void;
+  onNotifClick: () => void;
   onSubscribeClick: () => void;
   onLoginClick: () => void;
 }) => {
@@ -255,7 +241,7 @@ export const TopicsListItem = ({
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onSendClick();
+                      onNotifClick();
                     }}
                   >
                     {topic.topicNotifications.length} personnes invitées
@@ -282,7 +268,7 @@ export const TopicsListItem = ({
                       mb={2}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onSendClick();
+                        onNotifClick();
                       }}
                     />
                   </Tooltip>

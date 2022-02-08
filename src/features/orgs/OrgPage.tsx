@@ -679,7 +679,7 @@ export const OrgPage = ({
                       currentTopicName={tabItem}
                     />
 
-                    {process.env.NODE_ENV === "development" &&
+                    {/* {process.env.NODE_ENV === "development" &&
                       session?.user.isAdmin && (
                         <Box mb={5}>
                           <Button
@@ -694,7 +694,7 @@ export const OrgPage = ({
                             RAZ
                           </Button>
                         </Box>
-                      )}
+                      )} */}
                   </TabPanel>
                 )}
 

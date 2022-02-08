@@ -23,6 +23,7 @@ export * from "./DarkModeSwitch";
 export * from "./DateRange";
 export * from "./DeleteButton";
 export * from "./DidYouKnow";
+export * from "./EmailPreview";
 export * from "./EntityButton";
 export * from "./EntityInfo";
 export * from "./EntityNotified";

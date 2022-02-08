@@ -55,7 +55,7 @@ handler.post<
     };
 
     if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
-    else console.log(`send message to ${mail.to}`, mail);
+    else console.log(`sent message to ${mail.to}`, mail);
 
     res.status(200).json({});
   } catch (error) {

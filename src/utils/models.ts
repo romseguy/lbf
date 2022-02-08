@@ -1,15 +1,17 @@
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
+import { IUser } from "models/User";
 
-export const isEvent = (
-  entity: IEvent<string | Date> | ITopic | IOrg
-): entity is IEvent<string | Date> => {
-  return (entity as IEvent<string | Date>).eventUrl !== undefined;
+export interface IEntity {
+  _id: string;
+  createdAt?: string;
+  createdBy: IUser | string;
+}
+
+export const isEvent = (entity?: IEntity): entity is IEvent => {
+  return !!entity && (entity as IEvent).eventUrl !== undefined;
 };
 
-export const isTopic = (
-  entity: IEvent<string | Date> | ITopic
-): entity is ITopic => {
-  return (entity as ITopic).topicName !== undefined;
+export const isTopic = (entity?: IEntity): entity is ITopic => {
+  return !!entity && (entity as ITopic).topicName !== undefined;
 };

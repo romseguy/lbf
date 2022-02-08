@@ -1,8 +1,9 @@
 import nextConnect from "next-connect";
-import database, { db, IEntity, models, collectionToModelKeys } from "database";
+import database, { db, models, collectionToModelKeys } from "database";
 import { getSession } from "hooks/useAuth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createServerError } from "utils/errors";
+import { IEntity } from "utils/models";
 
 const handler = nextConnect();
 

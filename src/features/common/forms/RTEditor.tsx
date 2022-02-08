@@ -124,7 +124,7 @@ export const RTEditor = ({
             // ],
             plugins: [
               "autolink autoresize",
-              "charmap fullscreen",
+              "emoticons charmap fullscreen",
               "image link media paste searchreplace",
               "help"
             ],
@@ -133,7 +133,7 @@ export const RTEditor = ({
             statusbar: false,
             toolbar:
               "fullscreen undo redo \
-            | formatselect | \
+             emoticons | formatselect | \
             alignleft aligncenter bold italic charmap \
             | link image media \
             | removeformat | help",

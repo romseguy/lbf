@@ -142,7 +142,7 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
         logJson(`POST /topics: topic subscriptions`, subscriptions);
 
         sendTopicMessageNotifications({
-          event,
+          event: event ? event : undefined,
           org,
           subscriptions,
           topic,

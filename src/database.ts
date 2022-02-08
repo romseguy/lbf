@@ -14,7 +14,6 @@ import { TopicSchema } from "models/Topic/TopicSchema";
 import { IUser } from "models/User";
 import { UserSchema } from "models/User/UserSchema";
 
-export type IEntity = IEvent | IOrg | IProject | ISubscription | ITopic | IUser;
 export type AppModelKey =
   | "Event"
   | "Org"
@@ -22,6 +21,7 @@ export type AppModelKey =
   | "Subscription"
   | "Topic"
   | "User";
+
 export type AppModels = {
   Event: Model<IEvent, {}, {}>;
   Org: Model<IOrg, {}, {}>;

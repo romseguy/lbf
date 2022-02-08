@@ -1,7 +1,6 @@
 import {
   Badge,
   Box,
-  Button,
   Flex,
   FlexProps,
   Tag,
@@ -11,8 +10,9 @@ import {
   useColorMode
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { IOrg } from "models/Org";
 import { DeleteButton } from "features/common";
+import { IOrg } from "models/Org";
+import { AppQuery } from "utils/types";
 
 export const TopicsListCategories = ({
   org,
@@ -25,7 +25,7 @@ export const TopicsListCategories = ({
   ...props
 }: FlexProps & {
   org: IOrg;
-  orgQuery: any;
+  orgQuery: AppQuery<IOrg>;
   mutation: any;
   isCreator?: boolean;
   isSubscribed?: boolean;

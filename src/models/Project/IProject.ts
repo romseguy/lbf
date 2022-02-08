@@ -1,8 +1,7 @@
 import { IOrg } from "models/Org";
-import { IUser } from "models/User";
+import { IEntity } from "utils/models";
 
-export interface IProject {
-  _id?: string;
+export interface IProject extends IEntity {
   projectName: string;
   projectDescription: string;
   projectDescriptionHtml: string;
@@ -16,8 +15,6 @@ export interface IProject {
   forwardedFrom: {
     projectId: string;
   };
-  createdBy: IUser | string;
-  createdAt?: string;
 }
 
 export const isAttending = ({
@@ -50,8 +47,8 @@ export const StatusTypes: { [key: string]: string } = {
   NOK: "NOK"
 };
 export const StatusTypesV: { [key: string]: string } = {
-  PENDING: "Invitation envoyée",
-  OK: "Participant",
+  PENDING: "La personne n'a pas encore indiqué participer",
+  OK: "Invitation acceptée",
   NOK: "Invitation refusée"
 };
 

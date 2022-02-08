@@ -33,7 +33,7 @@ const getTopicUrl = ({
   topic
 }: {
   org?: IOrg | null;
-  event?: IEvent | null;
+  event?: IEvent<string | Date>;
   topic: ITopic;
 }) => {
   let topicUrl = `${process.env.NEXT_PUBLIC_URL}/${
@@ -50,13 +50,13 @@ export const createEventEmailNotif = ({
   email,
   event,
   org,
-  subscription,
+  subscriptionId,
   isPreview
 }: {
   email: string;
-  event: IEvent;
+  event: IEvent<string | Date>;
   org: IOrg;
-  subscription: ISubscription | null;
+  subscriptionId: string;
   isPreview?: boolean;
 }): Mail => {
   const orgUrl = `${process.env.NEXT_PUBLIC_URL}/${org.orgUrl}`;
@@ -64,6 +64,14 @@ export const createEventEmailNotif = ({
   const eventDescription = event.eventDescriptionHtml
     ? event.eventDescriptionHtml
     : undefined;
+  const eventMinDate =
+    typeof event.eventMinDate === "string"
+      ? parseISO(event.eventMinDate)
+      : event.eventMinDate;
+  const eventMaxDate =
+    typeof event.eventMaxDate === "string"
+      ? parseISO(event.eventMaxDate)
+      : event.eventMaxDate;
 
   return {
     from: process.env.EMAIL_FROM,
@@ -78,7 +86,6 @@ export const createEventEmailNotif = ({
           </td>
         </tr>
       </table>
-
       <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
         <tr>
           <td align="center" style="padding: 0px 0px 0px 0px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
@@ -87,21 +94,16 @@ export const createEventEmailNotif = ({
       org.orgName
     }</a> vous invite à un événement : ${event.eventName}
             </h2>
-
             <h3>
             ${
               process.env.NODE_ENV === "production"
                 ? toDateRange(
-                    addHours(parseISO(event.eventMinDate), 2),
-                    addHours(parseISO(event.eventMaxDate), 2)
+                    addHours(eventMinDate, 2),
+                    addHours(eventMaxDate, 2)
                   )
-                : toDateRange(
-                    parseISO(event.eventMinDate),
-                    parseISO(event.eventMaxDate)
-                  )
+                : toDateRange(eventMinDate, eventMaxDate)
             }
             </h3>
-
             ${
               eventDescription
                 ? `
@@ -115,27 +117,21 @@ export const createEventEmailNotif = ({
                 `
                 : ""
             }
-
             <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">la page de l'événement</a> pour indiquer si vous souhaitez y participer.</p>
           </td>
         </tr>
       </table>
-
       <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
+          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor}; text-decoration: underline;">
             ${
               isPreview
                 ? `
-                  <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
-                    org.orgUrl
-                  }?subscriptionId=${
-                    subscription ? subscription._id : "foo"
-                  }">Se désabonner de ${org.orgName}</a>
+                  <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${org.orgUrl}?subscriptionId=${subscriptionId}">Se désabonner de ${org.orgName}</a>
                   `
-                : subscription
+                : subscriptionId
                 ? `
-                  <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${org.orgUrl}?subscriptionId=${subscription._id}">Se désabonner de ${org.orgName}</a>
+                  <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${org.orgUrl}?subscriptionId=${subscriptionId}">Se désabonner de ${org.orgName}</a>
                   `
                 : ""
             }
@@ -217,7 +213,7 @@ export const sendEventNotifications = async ({
           email,
           event,
           org,
-          subscription
+          subscriptionId: subscription._id
         });
 
         if (process.env.NODE_ENV === "production")
@@ -271,7 +267,7 @@ export const sendEventNotifications = async ({
               email,
               event,
               org,
-              subscription
+              subscriptionId: subscription._id
             });
 
             if (process.env.NODE_ENV === "production")
@@ -344,14 +340,14 @@ export const createTopicEmailNotif = ({
   email,
   event,
   org,
-  subscription,
+  subscriptionId,
   topic
 }: {
   email: string;
-  event?: IEvent;
+  event?: IEvent<string | Date>;
   org?: IOrg;
   topic: ITopic;
-  subscription: ISubscription | null;
+  subscriptionId: string;
 }): Mail => {
   const entityName = event ? event.eventName : org?.orgName;
   const entityUrl = event ? event.eventUrl : org?.orgUrl;
@@ -372,12 +368,10 @@ export const createTopicEmailNotif = ({
           </td>
         </tr>
       </table>
-
       <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
         <tr>
           <td align="center" style="padding: 0px 0px 0px 0px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
             <h2>${subject}</h2>
-
             ${
               topic.topicMessages[0]
                 ? `
@@ -391,21 +385,17 @@ export const createTopicEmailNotif = ({
                 `
                 : ""
             }
-
             <p><a href="${topicUrl}">Cliquez ici</a> pour participer à la discussion.</p>
           </td>
         </tr>
       </table>
-
       <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
+          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor}; text-decoration: underline;">
             ${`
               <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
               org ? org.orgUrl : event?.eventUrl
-            }?subscriptionId=${
-              subscription ? subscription._id : "foo"
-            }">Se désabonner ${
+            }?subscriptionId=${subscriptionId}">Se désabonner ${
               entityUrl === "forum"
                 ? `du forum ${process.env.NEXT_PUBLIC_SHORT_URL}`
                 : `${entityType} ${entityName}`
@@ -489,7 +479,7 @@ export const sendTopicNotifications = async ({
           const mail = createTopicEmailNotif({
             email,
             org,
-            subscription,
+            subscriptionId: subscription._id,
             topic
           });
 
@@ -573,7 +563,7 @@ export const sendTopicNotifications = async ({
             const mail = createTopicEmailNotif({
               email,
               event,
-              subscription,
+              subscriptionId: subscription._id,
               topic
             });
 
@@ -651,7 +641,7 @@ export const sendTopicMessageNotifications = async ({
   topic,
   transport
 }: {
-  event?: IEvent | null;
+  event?: IEvent;
   org?: IOrg | null;
   subscriptions: ISubscription[];
   topic: ITopic;
@@ -774,7 +764,7 @@ export const sendToAdmin = async ({
 //         const subscription = await models.Subscription.findOne({
 //           _id:
 //             typeof orgSubscription === "object"
-//               ? orgSubscription._id
+//               ? orgsubscriptionId
 //               : orgSubscription
 //         }).populate("user");
 

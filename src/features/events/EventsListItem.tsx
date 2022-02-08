@@ -21,9 +21,9 @@ import { Session } from "next-auth";
 import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
 import { Link, GridItem, EntityButton } from "features/common";
-import { ModalState } from "features/modals/EntityNotifModal";
-import { defaultCategory, getCategories, IEvent } from "models/Event";
-import { IOrg, orgTypeFull2 } from "models/Org";
+import { NotifModalState } from "features/modals/EntityNotifModal";
+import { defaultCategory, getEventCategories, IEvent } from "models/Event";
+import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import { EventsListItemVisibility } from "./EventsListItemVisibility";
 
@@ -75,8 +75,10 @@ export const EventsListItem = ({
   setEventToShowOnMap: (event: IEvent<string | Date> | null) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
-  notifyModalState: ModalState<IEvent<string | Date>>;
-  setNotifyModalState: (modalState: ModalState<IEvent<string | Date>>) => void;
+  notifyModalState: NotifModalState<IEvent<string | Date>>;
+  setNotifyModalState: (
+    modalState: NotifModalState<IEvent<string | Date>>
+  ) => void;
   selectedCategories: number[];
   setSelectedCategories: React.Dispatch<React.SetStateAction<number[]>>;
   session: Session | null;
@@ -88,31 +90,12 @@ export const EventsListItem = ({
   const minDate = event.eventMinDate;
   const maxDate = event.eventMaxDate;
   const showIsApproved = !!(org && isCreator);
-  let notifiedCount = 0;
-  let canSendCount = 0;
-  let label = org
-    ? `Ajoutez des adhérents ou des abonnés ${orgTypeFull2(
-        org.orgType
-      )} pour envoyer des invitations à cet événement`
-    : "";
-
-  if (
-    org &&
-    Array.isArray(org.orgSubscriptions) &&
-    org.orgSubscriptions.length > 0
-  ) {
-    notifiedCount = Array.isArray(event.eventNotifications)
-      ? event.eventNotifications.length
-      : 0;
-    canSendCount = org.orgSubscriptions.length - notifiedCount;
-    label = canSendCount > 0 ? `Envoyer des invitations` : label;
-  }
 
   const isCategorySelected = !!selectedCategories.find(
     (selectedCategory) => selectedCategory === event.eventCategory!
   );
 
-  const categories = getCategories(event);
+  const categories = getEventCategories(event);
   const eventCategory =
     categories.find(({ index }) => parseInt(index) === event.eventCategory) ||
     defaultCategory;
@@ -254,34 +237,34 @@ export const EventsListItem = ({
                 </Tooltip>
               )}
 
-              {/* {org && isCreator && (
-                <Tooltip label={label} placement="right" hasArrow>
-                  <span>
-                    <IconButton
-                      aria-label={label}
-                      icon={<EmailIcon />}
-                      isLoading={isLoading}
-                      isDisabled={
-                        !event.isApproved || !hasItems(org.orgSubscriptions)
-                      }
-                      bg="transparent"
-                      height="auto"
-                      minWidth={0}
-                      mx={2}
-                      _hover={{
-                        background: "transparent",
-                        color: "green"
-                      }}
-                      onClick={(e) => {
-                        setNotifyModalState({
-                          ...notifyModalState,
-                          entity: event
-                        });
-                      }}
-                    />
-                  </span>
+              {org && isCreator && (
+                <Tooltip
+                  label={`Envoyer des invitations à cet événement`}
+                  placement="right"
+                  hasArrow
+                >
+                  <IconButton
+                    aria-label={`Envoyer des invitations à cet événement`}
+                    icon={<EmailIcon />}
+                    isLoading={isLoading}
+                    isDisabled={!event.isApproved}
+                    bg="transparent"
+                    height="auto"
+                    minWidth={0}
+                    mx={2}
+                    _hover={{
+                      background: "transparent",
+                      color: "green"
+                    }}
+                    onClick={(e) => {
+                      setNotifyModalState({
+                        ...notifyModalState,
+                        entity: event
+                      });
+                    }}
+                  />
                 </Tooltip>
-              )} */}
+              )}
             </>
           )}
 

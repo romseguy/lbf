@@ -18,8 +18,11 @@ import {
   RTEditor
 } from "features/common";
 import { useSession } from "hooks/useAuth";
+import { IEvent } from "models/Event";
 import { ITopic } from "models/Topic";
+import { IOrg } from "models/Org";
 import * as dateUtils from "utils/date";
+import { AppQuery } from "utils/types";
 import { useEditTopicMutation } from "./topicsApi";
 
 export const TopicMessagesList = ({
@@ -28,7 +31,7 @@ export const TopicMessagesList = ({
   ...props
 }: FlexProps & {
   topic: ITopic;
-  query: any;
+  query: AppQuery<IEvent | IOrg>;
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
   const { colorMode } = useColorMode();

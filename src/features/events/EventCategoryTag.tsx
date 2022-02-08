@@ -1,9 +1,9 @@
 import { useColorMode, Tag, SpaceProps } from "@chakra-ui/react";
 import React from "react";
-import { Category } from "models/Event";
+import { EventCategory } from "models/Event";
 import { IOrg } from "models/Org";
 
-export const EventCategory = ({
+export const EventCategoryTag = ({
   org,
   selectedCategory,
   ...props
@@ -13,7 +13,7 @@ export const EventCategory = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  let category = Category[selectedCategory];
+  let category = EventCategory[selectedCategory];
 
   if (org && org.orgEventCategories)
     category = org.orgEventCategories[selectedCategory];

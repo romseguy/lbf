@@ -8,7 +8,8 @@ import {
   Grid,
   Text,
   TabPanel,
-  TabPanels
+  TabPanels,
+  Heading
 } from "@chakra-ui/react";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -16,6 +17,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import {
+  EmailPreview,
   EntityButton,
   EntityNotified,
   EventNotifForm,
@@ -392,23 +394,31 @@ export const EventPage = ({
                 )}
 
                 {showNotifForm && (
-                  <EventNotifForm
-                    event={event}
-                    eventQuery={eventQuery}
-                    session={session}
-                    onCancel={() => setShowNotifForm(false)}
-                    onSubmit={() => setShowNotifForm(false)}
-                  />
+                  <>
+                    <EventNotifForm
+                      event={event}
+                      eventQuery={eventQuery}
+                      session={session}
+                      mb={5}
+                      onCancel={() => setShowNotifForm(false)}
+                      onSubmit={() => setShowNotifForm(false)}
+                    />
+                    <Heading
+                      className="rainbow-text"
+                      fontFamily="DancingScript"
+                    >
+                      Aperçu de l'e-mail d'invitation
+                    </Heading>
+                    <EmailPreview
+                      entity={event}
+                      event={event}
+                      session={session}
+                      mt={5}
+                    />
+                  </>
                 )}
 
-                {!showNotifForm && (
-                  <EntityNotified
-                    event={event}
-                    query={eventQuery}
-                    mutation={editEvent}
-                    session={session}
-                  />
-                )}
+                {!showNotifForm && <EntityNotified event={event} />}
               </TabPanel>
             )}
           </TabPanels>

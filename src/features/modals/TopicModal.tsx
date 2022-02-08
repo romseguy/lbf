@@ -1,6 +1,3 @@
-import type { IOrg } from "models/Org";
-import type { ITopic } from "models/Topic";
-import type { IEvent } from "models/Event";
 import React from "react";
 import {
   Modal,
@@ -8,27 +5,36 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton,
-  useDisclosure
+  ModalCloseButton
 } from "@chakra-ui/react";
 import { TopicForm } from "features/forms/TopicForm";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
+import { ISubscription } from "models/Subscription";
+import { ITopic } from "models/Topic";
+import { AppQuery } from "utils/types";
 
 export const TopicModal = (props: {
   org?: IOrg;
   event?: IEvent;
-  query: any;
+  query: AppQuery<IEvent | IOrg>;
   mutation: any;
-  subQuery: any;
-  topic: ITopic | null;
+  subQuery: AppQuery<ISubscription>;
+  topic?: ITopic;
+  isOpen: boolean;
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
   onCancel: () => void;
   onClose: () => void;
-  onSubmit: (topic: ITopic | null) => void;
+  onSubmit: (topic?: ITopic) => void;
 }) => {
   return (
-    <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
+    <Modal
+      isOpen={props.isOpen}
+      onClose={props.onClose}
+      closeOnOverlayClick={false}
+    >
       <ModalOverlay>
         <ModalContent maxWidth="xl">
           <ModalHeader>

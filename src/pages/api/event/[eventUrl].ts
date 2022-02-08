@@ -189,7 +189,7 @@ handler.post<
         email: body.email,
         event,
         org: event.eventOrgs[0],
-        subscription,
+        subscriptionId: subscription?._id || session.user.userId,
         isPreview: true
       });
 

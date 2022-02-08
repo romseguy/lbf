@@ -1,3 +1,5 @@
+export const defaultErrorMessage =
+  "Une erreur est survenue, merci de contacter le créateur de cet outil.";
 export const logJson = (message: string, object?: any) => {
   if (object) console.log(message, JSON.stringify(object, null, 2));
   else console.log(message);

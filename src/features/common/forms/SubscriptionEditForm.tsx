@@ -10,7 +10,7 @@ import {
   FormLabel
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { Category, IEvent } from "models/Event";
+import { EventCategory, IEvent } from "models/Event";
 import {
   ISubscription,
   isOrgSubscription,
@@ -42,7 +42,7 @@ const setAllItems = (payload: {
   checked: boolean;
   topic?: ITopic;
 }): { [key: number]: { checked: boolean } } =>
-  Object.keys(Category).reduce((obj, key) => {
+  Object.keys(EventCategory).reduce((obj, key) => {
     const k = parseInt(key);
     if (k === 0) return obj;
     return { ...obj, [k]: payload };
@@ -78,7 +78,7 @@ export const SubscriptionEditForm = ({
   const [eventCategories, setEventCategories] =
     useState<EventCategoriesCheckboxes>(
       org
-        ? Object.keys(Category).reduce((obj, key) => {
+        ? Object.keys(EventCategory).reduce((obj, key) => {
             if (!isOrgSubscription(followerSubscription)) return obj;
 
             const k = parseInt(key);
@@ -374,7 +374,7 @@ export const SubscriptionEditForm = ({
                     <VStack alignItems="flex-start" ml={3}>
                       {Object.keys(eventCategories).map((key) => {
                         const k = parseInt(key);
-                        const cat = Category[k];
+                        const cat = EventCategory[k];
 
                         return (
                           <Checkbox

@@ -2,11 +2,9 @@ import { IEvent } from "models/Event";
 import { ITopicNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ITopicMessage } from "models/TopicMessage";
-import { IUser } from "models/User";
+import { IEntity } from "utils/models";
 
-export interface ITopic {
-  _id?: string;
-  id?: string;
+export interface ITopic extends IEntity {
   topicName: string;
   topicMessages: ITopicMessage[];
   topicMessagesDisabled?: boolean;
@@ -16,8 +14,6 @@ export interface ITopic {
   org?: IOrg;
   event?: IEvent;
   topicNotifications?: ITopicNotification[];
-  createdBy: IUser | string;
-  createdAt?: string;
 }
 
 export const Visibility: { [key: string]: string } = {
