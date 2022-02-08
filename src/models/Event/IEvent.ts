@@ -1,3 +1,4 @@
+import { IEventNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
@@ -51,15 +52,7 @@ export interface IEvent<T = string> {
   createdAt?: string;
 }
 
-export type IEventNotification = {
-  email?: string;
-  phone?: string;
-  user?: string;
-  status?: string;
-  created_at: string;
-};
-
-export const StatusTypes: { [key: string]: string } = {
+export const StatusTypes: { [key: string]: "PENDING" | "NOK" | "OK" } = {
   PENDING: "PENDING",
   OK: "OK",
   NOK: "NOK"

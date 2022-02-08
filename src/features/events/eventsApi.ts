@@ -1,5 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { IEvent, IEventNotification } from "models/Event";
+import { IEvent } from "models/Event";
+import { IEventNotification } from "models/INotification";
 import baseQuery, { objectToQueryString } from "utils/query";
 
 export type EventQueryParams = {

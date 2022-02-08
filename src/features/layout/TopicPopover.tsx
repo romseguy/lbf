@@ -196,9 +196,6 @@ export const TopicPopover = ({
                         borderStyle="solid"
                         borderWidth="1px"
                         p={1}
-                        // bg={
-                        //   isDark ? (index % 2 === 0 ? "" : "gray.800") : "white"
-                        // }
                       >
                         <Box
                           display="flex"

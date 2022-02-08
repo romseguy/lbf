@@ -1,25 +1,25 @@
 import { EmailIcon, HamburgerIcon } from "@chakra-ui/icons";
 import {
-  Box,
-  Tr,
-  Td,
-  Table,
-  Tbody,
-  CheckboxGroup,
-  Spinner,
-  Checkbox,
-  useColorMode,
-  Button,
-  Flex,
-  useToast,
-  FormErrorMessage,
-  FormControl,
-  Radio,
-  RadioGroup,
-  Stack,
   Alert,
   AlertIcon,
-  Heading
+  Box,
+  Button,
+  Checkbox,
+  CheckboxGroup,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  Heading,
+  Radio,
+  RadioGroup,
+  Spinner,
+  Stack,
+  Table,
+  Tbody,
+  Td,
+  Tr,
+  useColorMode,
+  useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { Session } from "next-auth";
@@ -187,7 +187,7 @@ export const EventNotifForm = ({
                         <Spinner />
                       </Td>
                     </Tr>
-                  ) : (
+                  ) : hasItems(event.eventOrgs) ? (
                     event.eventOrgs.map((org) => {
                       const lists = (org.orgLists || []).concat([
                         {
@@ -278,6 +278,11 @@ export const EventNotifForm = ({
                         </Fragment>
                       );
                     })
+                  ) : (
+                    <Alert status="error">
+                      <AlertIcon />
+                      L'événement n'est organisé par aucune organisations.
+                    </Alert>
                   )}
                 </Tbody>
               </Table>

@@ -1,4 +1,5 @@
 import { IEvent } from "models/Event";
+import { ITopicNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ITopicMessage } from "models/TopicMessage";
 import { IUser } from "models/User";
@@ -18,14 +19,6 @@ export interface ITopic {
   createdBy: IUser | string;
   createdAt?: string;
 }
-
-export type ITopicNotification = {
-  email?: string;
-  phone?: string;
-  user?: string;
-  status?: string;
-  created_at: string;
-};
 
 export const Visibility: { [key: string]: string } = {
   PUBLIC: "PUBLIC",

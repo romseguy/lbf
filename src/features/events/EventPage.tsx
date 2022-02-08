@@ -116,7 +116,7 @@ export const EventPage = ({
     banner: false,
     logo: false
   });
-  const [showSendForm, setShowSendForm] = useState(false);
+  const [showNotifForm, setShowNotifForm] = useState(false);
 
   let showAttendingForm = !isCreator;
   if (!isConfig && !isEdit) {
@@ -356,7 +356,7 @@ export const EventPage = ({
 
             {session && isCreator && (
               <TabPanel aria-hidden>
-                {!showSendForm && (
+                {!showNotifForm && (
                   <Button
                     as="div"
                     colorScheme="teal"
@@ -368,7 +368,7 @@ export const EventPage = ({
                         alert(
                           "L'événement doit être vérifié par un modérateur avant de pouvoir envoyer des invitations."
                         );
-                      else setShowSendForm(!showSendForm);
+                      else setShowNotifForm(!showNotifForm);
                     }}
                   >
                     Envoyer des invitations à{" "}
@@ -381,27 +381,27 @@ export const EventPage = ({
                   </Button>
                 )}
 
-                {showSendForm && (
+                {showNotifForm && (
                   <Button
                     colorScheme="teal"
                     leftIcon={<ArrowBackIcon />}
-                    onClick={() => setShowSendForm(false)}
+                    onClick={() => setShowNotifForm(false)}
                   >
                     Revenir à la liste des invitations envoyées
                   </Button>
                 )}
 
-                {showSendForm && (
+                {showNotifForm && (
                   <EventNotifForm
                     event={event}
                     eventQuery={eventQuery}
                     session={session}
-                    onCancel={() => setShowSendForm(false)}
-                    onSubmit={() => setShowSendForm(false)}
+                    onCancel={() => setShowNotifForm(false)}
+                    onSubmit={() => setShowNotifForm(false)}
                   />
                 )}
 
-                {!showSendForm && (
+                {!showNotifForm && (
                   <EntityNotified
                     event={event}
                     query={eventQuery}

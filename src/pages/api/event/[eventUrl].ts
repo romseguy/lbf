@@ -5,12 +5,13 @@ import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
-import { IEvent, IEventNotification, StatusTypes } from "models/Event";
+import { IEvent, StatusTypes } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { createEventEmailNotif, sendEventNotifications } from "api/email";
 import { createServerError } from "utils/errors";
 import { equals, logJson, normalize } from "utils/string";
+import { IEventNotification } from "models/INotification";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
@@ -200,7 +201,7 @@ handler.post<
           {
             email: body.email,
             status: StatusTypes.PENDING,
-            created_at: new Date().toISOString()
+            createdAt: new Date().toISOString()
           }
         ];
 

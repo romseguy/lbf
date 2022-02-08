@@ -1,17 +1,18 @@
 import { AddIcon } from "@chakra-ui/icons";
 import {
+  Box,
+  BoxProps,
+  Button,
   Popover,
-  PopoverTrigger,
-  PopoverContent,
   PopoverBody,
+  PopoverContent,
+  PopoverFooter,
+  PopoverTrigger,
   Icon,
   IconButton,
   Select,
-  Button,
-  Box,
-  BoxProps,
+  Spinner,
   Text,
-  PopoverFooter,
   VStack,
   useColorMode
 } from "@chakra-ui/react";
@@ -55,16 +56,6 @@ export const OrgPopover = ({
   const [email, setEmail] = useState(storedUserEmail || session.user.email);
 
   //#region orgs
-  /*const orgsQuery = useGetOrgsQuery(undefined, {
-    selectFromResult: (query) => ({
-      ...query,
-      data: query.data?.filter((org) =>
-        orgType
-          ? org.orgType === orgType
-          : org.orgType === OrgTypes.ASSO || org.orgType === OrgTypes.GROUP
-      )
-    })
-  });*/
   const orgsQuery = useGetOrgsQuery();
   const myOrgsQuery = useGetOrgsQuery(
     { createdBy: session.user.userId },
@@ -72,21 +63,13 @@ export const OrgPopover = ({
       selectFromResult: (query) => ({
         ...query,
         data:
-          [...(query.data || [])]
-            /*.filter((org) =>
-              orgType
-                ? org.orgType === orgType
-                : org.orgType === OrgTypes.ASSO ||
-                  org.orgType === OrgTypes.GENERIC ||
-                  org.orgType === OrgTypes.GROUP
-            )*/
-            .sort((a, b) => {
-              if (a.createdAt && b.createdAt) {
-                if (a.createdAt < b.createdAt) return 1;
-                else if (a.createdAt > b.createdAt) return -1;
-              }
-              return 0;
-            }) || []
+          [...(query.data || [])].sort((a, b) => {
+            if (a.createdAt && b.createdAt) {
+              if (a.createdAt < b.createdAt) return 1;
+              else if (a.createdAt > b.createdAt) return -1;
+            }
+            return 0;
+          }) || []
       })
     }
   );
@@ -222,71 +205,82 @@ export const OrgPopover = ({
               </option>
             </Select>
 
-            {showOrgs === "showOrgsAdded" &&
-              (hasItems(myOrgsQuery.data) ? (
-                <VStack
-                  aria-hidden
-                  alignItems="flex-start"
-                  overflow="auto"
-                  height="200px"
-                  spacing={2}
-                  py={1}
-                  pl={1}
-                >
-                  {myOrgsQuery.data.map((org) => (
-                    <EntityButton
-                      key={org._id}
-                      org={org}
-                      p={1}
-                      onClick={() => {
-                        setIsOpen(false);
-                        router.push(org.orgUrl);
-                      }}
-                    />
-                  ))}
-                </VStack>
-              ) : (
-                <Text fontSize="smaller">
-                  Vous n'avez ajouté aucune organisations.
-                </Text>
-              ))}
+            {showOrgs === "showOrgsAdded" && (
+              <>
+                {myOrgsQuery.isLoading || myOrgsQuery.isFetching ? (
+                  <Spinner />
+                ) : hasItems(myOrgsQuery.data) ? (
+                  <VStack
+                    aria-hidden
+                    alignItems="flex-start"
+                    overflow="auto"
+                    height="200px"
+                    spacing={2}
+                    py={1}
+                    pl={1}
+                  >
+                    {myOrgsQuery.data.map((org) => (
+                      <EntityButton
+                        key={org._id}
+                        org={org}
+                        p={1}
+                        onClick={() => {
+                          setIsOpen(false);
+                          router.push(org.orgUrl);
+                        }}
+                      />
+                    ))}
+                  </VStack>
+                ) : (
+                  <Text fontSize="smaller">
+                    Vous n'avez ajouté aucune organisations.
+                  </Text>
+                )}
+              </>
+            )}
 
-            {showOrgs === "showOrgsFollowed" &&
-              (hasItems(followedOrgs) ? (
-                <VStack
-                  alignItems="flex-start"
-                  overflowX="auto"
-                  height="200px"
-                  spacing={2}
-                >
-                  {followedOrgs.map((org, index) => (
-                    <EntityButton key={org._id} org={org} p={1} />
-                  ))}
-                </VStack>
-              ) : (
-                <Text fontSize="smaller">
-                  Vous n'êtes abonné à aucune organisations.
-                </Text>
-              ))}
+            {showOrgs === "showOrgsFollowed" && (
+              <>
+                {hasItems(followedOrgs) ? (
+                  <VStack
+                    alignItems="flex-start"
+                    overflowX="auto"
+                    height="200px"
+                    spacing={2}
+                  >
+                    {followedOrgs.map((org, index) => (
+                      <EntityButton key={org._id} org={org} p={1} />
+                    ))}
+                  </VStack>
+                ) : (
+                  <Text fontSize="smaller">
+                    Vous n'êtes abonné à aucune organisations.
+                  </Text>
+                )}
+              </>
+            )}
 
-            {showOrgs === "showOrgsSubscribed" &&
-              (hasItems(subscribedOrgs) ? (
-                <VStack
-                  alignItems="flex-start"
-                  overflowX="auto"
-                  height="200px"
-                  spacing={2}
-                >
-                  {subscribedOrgs.map((org, index) => (
-                    <EntityButton key={org._id} org={org} p={1} />
-                  ))}
-                </VStack>
-              ) : (
-                <Text fontSize="smaller">
-                  Personne ne vous a inscrit en tant qu'adhérent, bientôt
-                  peut-être ?
-                </Text>
-              ))}
+            {showOrgs === "showOrgsSubscribed" && (
+              <>
+                {hasItems(subscribedOrgs) ? (
+                  <VStack
+                    alignItems="flex-start"
+                    overflowX="auto"
+                    height="200px"
+                    spacing={2}
+                  >
+                    {subscribedOrgs.map((org, index) => (
+                      <EntityButton key={org._id} org={org} p={1} />
+                    ))}
+                  </VStack>
+                ) : (
+                  <Text fontSize="smaller">
+                    Personne ne vous a inscrit en tant qu'adhérent, bientôt
+                    peut-être ?
+                  </Text>
+                )}
+              </>
+            )}
           </PopoverBody>
           <PopoverFooter>
             <Button

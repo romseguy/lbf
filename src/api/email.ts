@@ -2,14 +2,15 @@ import { addHours, parseISO } from "date-fns";
 import nodemailer from "nodemailer";
 import { models } from "database";
 import { toDateRange } from "features/common";
-import { IEvent, IEventNotification } from "models/Event";
+import { IEvent, StatusTypes } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IProject } from "models/Project";
-import { ITopic, ITopicNotification } from "models/Topic";
+import { ITopic } from "models/Topic";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import api from "utils/api";
 import { equals, logJson } from "utils/string";
 import { Document } from "mongoose";
+import { IEventNotification, ITopicNotification } from "models/INotification";
 
 export const backgroundColor = "#f9f9f9";
 export const textColor = "#444444";
@@ -173,7 +174,8 @@ export const sendEventNotifications = async ({
     logJson(`sendEventNotifications: subscription`, subscription);
 
     let eventNotification: IEventNotification = {
-      created_at: new Date().toISOString()
+      status: StatusTypes.PENDING,
+      createdAt: new Date().toISOString()
     };
 
     const email =
@@ -443,7 +445,7 @@ export const sendTopicNotifications = async ({
     logJson(`sendTopicNotifications: subscription`, subscription);
 
     let topicNotification: ITopicNotification = {
-      created_at: new Date().toISOString()
+      createdAt: new Date().toISOString()
     };
 
     const email =

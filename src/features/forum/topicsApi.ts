@@ -1,8 +1,9 @@
 import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
 import { AddTopicParams, EditTopicParams } from "api/forum";
 import { IEvent } from "models/Event";
+import { ITopicNotification } from "models/INotification";
 import { IOrg } from "models/Org";
-import { ITopic, ITopicNotification } from "models/Topic";
+import { ITopic } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
 import baseQuery, { objectToQueryString } from "utils/query";
 

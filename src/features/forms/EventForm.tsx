@@ -412,7 +412,7 @@ export const EventForm = withGoogleApi({
     }, [start, end]);
 
     useEffect(() => {
-      if (eventMinDate) {
+      if (!props.event && eventMinDate) {
         if (end) {
           if (isBefore(end, eventMinDate)) {
             // console.log("setting end to null");

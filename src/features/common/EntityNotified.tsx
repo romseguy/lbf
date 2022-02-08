@@ -69,31 +69,35 @@ export const EntityNotified = ({
 
           <Table>
             <Tbody>
-              {(
-                event?.eventNotifications ||
-                topic?.topicNotifications ||
-                []
-              ).map(({ email: e, status = StatusTypes.PENDING }) => {
-                return (
-                  <Tr key={e}>
-                    <Td>{e}</Td>
-                    <Td>
-                      <Tag
-                        variant="solid"
-                        colorScheme={
-                          status === StatusTypes.PENDING
-                            ? "blue"
-                            : status === StatusTypes.OK
-                            ? "green"
-                            : "red"
-                        }
-                      >
-                        {StatusTypesV[status]}
-                      </Tag>
-                    </Td>
-                  </Tr>
-                );
-              })}
+              {event
+                ? event.eventNotifications?.map(
+                    ({ email: e, status, createdAt }) => (
+                      <Tr key={e}>
+                        <Td>{e}</Td>
+                        <Td>
+                          <Tag
+                            variant="solid"
+                            colorScheme={
+                              status === StatusTypes.PENDING
+                                ? "blue"
+                                : status === StatusTypes.OK
+                                ? "green"
+                                : "red"
+                            }
+                          >
+                            {StatusTypesV[status]}
+                          </Tag>
+                        </Td>
+                      </Tr>
+                    )
+                  )
+                : topic
+                ? topic.topicNotifications?.map(({ email: e, createdAt }) => (
+                    <Tr key={e}>
+                      <Td>{e}</Td>
+                    </Tr>
+                  ))
+                : null}
             </Tbody>
           </Table>
         </>

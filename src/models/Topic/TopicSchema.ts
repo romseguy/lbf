@@ -30,7 +30,7 @@ export const TopicSchema = new Schema<ITopic>(
           type: Schema.Types.ObjectId,
           ref: "User"
         },
-        created_at: { type: String, required: true }
+        createdAt: { type: String, required: true }
       }
     ],
     createdBy: {

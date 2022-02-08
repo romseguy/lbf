@@ -11,6 +11,7 @@ import {
   PopoverTrigger,
   PopoverFooter,
   Select,
+  Spinner,
   Text,
   VStack,
   useColorModeValue
@@ -46,7 +47,7 @@ export const EventPopover = ({
   //#region my events
   const attendedEventsQuery = useGetEventsQuery(void 0, {
     selectFromResult: ({ data: events }) => ({
-      attendedEvents: events?.filter(({ eventNotifications }) =>
+      attendedEvents: (events || []).filter(({ eventNotifications }) =>
         eventNotifications?.find(
           ({ email, status }) => email === email && status === StatusTypes.OK
         )
@@ -60,15 +61,13 @@ export const EventPopover = ({
     {
       selectFromResult: (query) => ({
         ...query,
-        data: query.data
-          ? [...query.data].sort((a, b) => {
-              if (a.createdAt && b.createdAt) {
-                if (a.createdAt < b.createdAt) return 1;
-                else if (a.createdAt > b.createdAt) return -1;
-              }
-              return 0;
-            })
-          : undefined
+        data: [...(query.data || [])].sort((a, b) => {
+          if (a.createdAt && b.createdAt) {
+            if (a.createdAt < b.createdAt) return 1;
+            else if (a.createdAt > b.createdAt) return -1;
+          }
+          return 0;
+        })
       })
     }
   );
@@ -184,68 +183,78 @@ export const EventPopover = ({
               </option>
             </Select>
 
-            {showEvents === "showEventsAdded" &&
-              (Array.isArray(myEventsQuery.data) &&
-              myEventsQuery.data.length > 0 ? (
-                <VStack
-                  alignItems="flex-start"
-                  overflow="auto"
-                  height="200px"
-                  spacing={2}
-                >
-                  {myEventsQuery.data.map((event, index) => (
-                    <EntityButton
-                      key={event._id}
-                      event={event}
-                      p={1}
-                      onClick={() => {
-                        setIsOpen(false);
-                        router.push(event.eventUrl);
-                      }}
-                    />
-                  ))}
-                </VStack>
-              ) : (
-                <Text fontSize="smaller">
-                  Vous n'avez ajouté aucun événements.
-                </Text>
-              ))}
+            {showEvents === "showEventsAdded" && (
+              <>
+                {myEventsQuery.isLoading || myEventsQuery.isFetching ? (
+                  <Spinner />
+                ) : hasItems(myEventsQuery.data) ? (
+                  <VStack
+                    alignItems="flex-start"
+                    overflow="auto"
+                    height="200px"
+                    spacing={2}
+                  >
+                    {myEventsQuery.data.map((event) => (
+                      <EntityButton
+                        key={event._id}
+                        event={event}
+                        p={1}
+                        onClick={() => {
+                          setIsOpen(false);
+                          router.push(event.eventUrl);
+                        }}
+                      />
+                    ))}
+                  </VStack>
+                ) : (
+                  <Text fontSize="smaller">
+                    Vous n'avez ajouté aucun événements.
+                  </Text>
+                )}
+              </>
+            )}
 
-            {showEvents === "showEventsFollowed" &&
-              (hasItems(followedEvents) ? (
-                <VStack
-                  alignItems="flex-start"
-                  overflow="auto"
-                  height="200px"
-                  spacing={2}
-                >
-                  {followedEvents.map(({ event }) => (
-                    <EntityButton key={event._id} event={event} p={1} />
-                  ))}
-                </VStack>
-              ) : (
-                <Text fontSize="smaller">
-                  Vous n'êtes abonné à aucun événements.
-                </Text>
-              ))}
+            {showEvents === "showEventsFollowed" && (
+              <>
+                {hasItems(followedEvents) ? (
+                  <VStack
+                    alignItems="flex-start"
+                    overflow="auto"
+                    height="200px"
+                    spacing={2}
+                  >
+                    {followedEvents.map(({ event }) => (
+                      <EntityButton key={event._id} event={event} p={1} />
+                    ))}
+                  </VStack>
+                ) : (
+                  <Text fontSize="smaller">
+                    Vous n'êtes abonné à aucun événements.
+                  </Text>
+                )}
+              </>
+            )}
 
-            {showEvents === "showEventsAttended" &&
-              (Array.isArray(attendedEvents) && attendedEvents.length > 0 ? (
-                <VStack
-                  alignItems="flex-start"
-                  overflow="auto"
-                  height="200px"
-                  spacing={2}
-                >
-                  {attendedEvents.map((event) => (
-                    <EntityButton key={event._id} event={event} p={1} />
-                  ))}
-                </VStack>
-              ) : (
-                <Text fontSize="smaller">
-                  Vous ne participez à aucun événements.
-                </Text>
-              ))}
+            {showEvents === "showEventsAttended" && (
+              <>
+                {hasItems(attendedEvents) ? (
+                  <VStack
+                    alignItems="flex-start"
+                    overflow="auto"
+                    height="200px"
+                    spacing={2}
+                  >
+                    {attendedEvents.map((event) => (
+                      <EntityButton key={event._id} event={event} p={1} />
+                    ))}
+                  </VStack>
+                ) : (
+                  <Text fontSize="smaller">
+                    Vous ne participez à aucun événements.
+                  </Text>
+                )}
+              </>
+            )}
           </PopoverBody>
           <PopoverFooter>
             <Button

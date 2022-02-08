@@ -80,7 +80,7 @@ export const EventAttendingForm = ({
       eventNotifications?.push({
         email: userEmail,
         status: StatusTypes.OK,
-        created_at: new Date().toISOString()
+        createdAt: new Date().toISOString()
       });
 
     await editEvent({
@@ -130,7 +130,7 @@ export const EventAttendingForm = ({
       eventNotifications?.push({
         email: userEmail,
         status: StatusTypes.NOK,
-        created_at: new Date().toISOString()
+        createdAt: new Date().toISOString()
       });
 
     await editEvent({

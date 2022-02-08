@@ -13,12 +13,13 @@ import React from "react";
 import { EntityButton, EntityNotified, OrgNotifForm } from "features/common";
 import { useEditEventMutation } from "features/events/eventsApi";
 import { useEditTopicMutation } from "features/forum/topicsApi";
-import { IEvent, IEventNotification } from "models/Event";
+import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { ITopic, ITopicNotification } from "models/Topic";
+import { ITopic } from "models/Topic";
 import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { isEvent, isTopic } from "utils/models";
+import { IEventNotification, ITopicNotification } from "models/INotification";
 
 export type ModalState<T> = {
   entity: T | null;

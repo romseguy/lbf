@@ -12,7 +12,7 @@ import { createServerError } from "utils/errors";
 import { sendTopicNotifications } from "api/email";
 import { equals } from "utils/string";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
-import { ITopicNotification } from "models/Topic";
+import { ITopicNotification } from "models/INotification";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
