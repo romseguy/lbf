@@ -103,7 +103,7 @@
     "@types/react-redux": "^7.1.16",
     "@types/react-toggle": "^4.0.2",
     "@types/web-push": "^3.3.2",
-    "cypress": "9.0.0"
+    "cypress": "9.4.1"
   },
   "browserslist": {
     "production": [

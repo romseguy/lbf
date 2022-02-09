@@ -387,9 +387,7 @@ export const OrgForm = withGoogleApi({
             ref={register({
               required: "Veuillez sélectionner la visibilité de l'organisation"
             })}
-            defaultValue={
-              props.org?.orgVisibility || Visibility[Visibility.PUBLIC]
-            }
+            defaultValue={props.org?.orgVisibility || Visibility.PUBLIC}
             placeholder="Visibilité de l'organisation"
             color={isDark ? "whiteAlpha.400" : "gray.400"}
           >

@@ -1061,9 +1061,7 @@ export const EventForm = withGoogleApi({
               ref={register({
                 required: "Veuillez sélectionner la visibilité de l'événement"
               })}
-              defaultValue={
-                props.event?.eventVisibility || Visibilities[Visibility.PUBLIC]
-              }
+              defaultValue={props.event?.eventVisibility || Visibility.PUBLIC}
               placeholder="Visibilité de l'événement"
               color={isDark ? "whiteAlpha.400" : "gray.400"}
             >

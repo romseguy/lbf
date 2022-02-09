@@ -1,19 +1,23 @@
-import { Flex, Heading } from "@chakra-ui/layout";
+import { Flex, Heading } from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import React, { useEffect } from "react";
 import { Container } from "features/common";
 import { Layout } from "features/layout";
-import router from "next/router";
 import { PageProps } from "pages/_app";
-import React from "react";
 
 export const NotFound = ({
   isRedirect = true,
   message = "",
   ...props
 }: PageProps & { isRedirect?: boolean; message?: string }) => {
-  if (isRedirect)
-    setTimeout(() => {
-      router.push("/");
-    }, 2000);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isRedirect)
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
+  }, []);
 
   return (
     <Layout {...props} pageTitle="Page introuvable" {...props}>
