@@ -13,7 +13,7 @@ import {
 import React, { useMemo, useState } from "react";
 import { css } from "twin.macro";
 import { Link } from "features/common";
-import { IOrg, OrgTypesV } from "models/Org";
+import { IOrg, OrgTypes } from "models/Org";
 import { scrollbarStyles, tableStyles } from "theme/theme";
 
 export const OrgsList = ({
@@ -125,7 +125,7 @@ export const OrgsList = ({
                       {org.orgName}
                     </Link>
                   </Td>
-                  <Td>{OrgTypesV[org.orgType]}</Td>
+                  <Td>{OrgTypes[org.orgType]}</Td>
                   {/* <Td>
                   {org.orgDescription && (
                     <div className="rteditor">

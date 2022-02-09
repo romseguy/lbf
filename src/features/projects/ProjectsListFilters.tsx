@@ -6,7 +6,7 @@ import {
   Tag,
   useColorMode
 } from "@chakra-ui/react";
-import { Status, StatusV } from "models/Project";
+import { Status, Statuses } from "models/Project";
 import React from "react";
 
 export const ProjectsListFilters = ({
@@ -23,18 +23,19 @@ export const ProjectsListFilters = ({
   return (
     <Flex flexWrap="nowrap" overflowX="auto" {...props}>
       {Object.keys(Status).map((k) => {
+        const status = k as Status;
         // const bgColor = Status[k].bgColor;
         const bgColor = "transparent";
         const isSelected = selectedStatuses.includes(k);
 
         return (
           <Link
-            key={"status-" + k}
+            key={"status-" + status}
             variant="no-underline"
             onClick={() => {
               setSelectedStatuses(
                 selectedStatuses.includes(k)
-                  ? selectedStatuses.filter((sC) => sC !== k)
+                  ? selectedStatuses.filter((sC) => sC !== status)
                   : [k]
               );
             }}
@@ -54,7 +55,7 @@ export const ProjectsListFilters = ({
               mr={1}
               whiteSpace="nowrap"
             >
-              {StatusV[k]}
+              {Statuses[status]}
             </Tag>
           </Link>
         );

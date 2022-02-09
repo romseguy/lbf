@@ -5,7 +5,7 @@ import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
-import { IEvent, StatusTypes } from "models/Event";
+import { IEvent, InviteStatus } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { createEventEmailNotif, sendEventNotifications } from "api/email";
@@ -200,7 +200,7 @@ handler.post<
         notifications = [
           {
             email: body.email,
-            status: StatusTypes.PENDING,
+            status: InviteStatus.PENDING,
             createdAt: new Date().toISOString()
           }
         ];

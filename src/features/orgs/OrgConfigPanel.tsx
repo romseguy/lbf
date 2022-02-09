@@ -13,7 +13,7 @@ import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigLogoPanel } from "./OrgConfigLogoPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
-import { Visibility } from "./OrgPage";
+import { ConfigVisibility } from "./OrgPage";
 
 export const OrgConfigPanel = ({
   session,
@@ -25,7 +25,7 @@ export const OrgConfigPanel = ({
   setIsConfig,
   setIsEdit,
   setIsVisible
-}: Visibility & {
+}: ConfigVisibility & {
   session: Session;
   orgQuery: AppQuery<IOrg>;
   subQuery: AppQuery<ISubscription>;

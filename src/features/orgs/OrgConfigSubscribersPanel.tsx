@@ -17,7 +17,7 @@ import { useAppDispatch } from "store";
 import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
-import { Visibility } from "./OrgPage";
+import { ConfigVisibility } from "./OrgPage";
 
 export const OrgConfigSubscribersPanel = ({
   orgQuery,
@@ -26,7 +26,7 @@ export const OrgConfigSubscribersPanel = ({
   setIsVisible,
   ...props
 }: GridProps &
-  Visibility & {
+  ConfigVisibility & {
     orgQuery: AppQuery<IOrg>;
     subQuery: AppQuery<ISubscription>;
   }) => {

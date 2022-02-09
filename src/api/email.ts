@@ -2,7 +2,7 @@ import { addHours, parseISO } from "date-fns";
 import nodemailer from "nodemailer";
 import { models } from "database";
 import { toDateRange } from "features/common";
-import { IEvent, StatusTypes } from "models/Event";
+import { IEvent, InviteStatus } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
@@ -170,7 +170,7 @@ export const sendEventNotifications = async ({
     logJson(`sendEventNotifications: subscription`, subscription);
 
     let eventNotification: IEventNotification = {
-      status: StatusTypes.PENDING,
+      status: InviteStatus.PENDING,
       createdAt: new Date().toISOString()
     };
 

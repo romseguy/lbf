@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { IEvent } from "models/Event";
-import { StatusTypes, StatusTypesV } from "models/Project";
+import { InviteStatus, InviteStatuses } from "models/Project";
 import { ITopic } from "models/Topic";
 import { timeAgo } from "utils/date";
 
@@ -49,15 +49,15 @@ export const EntityNotified = ({
                       <Td>
                         <Tag
                           colorScheme={
-                            status === StatusTypes.PENDING
+                            status === InviteStatus.PENDING
                               ? "blue"
-                              : status === StatusTypes.OK
+                              : status === InviteStatus.OK
                               ? "green"
                               : "red"
                           }
                           textAlign="center"
                         >
-                          {StatusTypesV[status]}
+                          {InviteStatuses[status]}
                         </Tag>
                       </Td>
                       <Td>

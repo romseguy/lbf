@@ -1,4 +1,4 @@
-import { IProject, isAttending, StatusTypes } from "models/Project";
+import { IProject, isAttending, InviteStatus } from "models/Project";
 import React from "react";
 import { useSession } from "hooks/useAuth";
 import {
@@ -60,9 +60,9 @@ export const ProjectAttendingForm = ({
 
     let projectNotified =
       project.projectNotified?.map(({ email: e, status }) => {
-        if ((e === promptedEmail || userEmail) && status !== StatusTypes.OK) {
+        if ((e === promptedEmail || userEmail) && status !== InviteStatus.OK) {
           isNew = false;
-          return { email: e, status: StatusTypes.OK };
+          return { email: e, status: InviteStatus.OK };
         }
         return { email: e, status };
       }) || [];
@@ -70,7 +70,7 @@ export const ProjectAttendingForm = ({
     if (isNew)
       projectNotified?.push({
         email: promptedEmail || userEmail,
-        status: StatusTypes.OK
+        status: InviteStatus.OK
       });
 
     await editProject({

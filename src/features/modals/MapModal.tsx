@@ -22,7 +22,7 @@ import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { Map, MapProps } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
 import { IEvent } from "models/Event";
-import { IOrg, OrgTypes } from "models/Org";
+import { IOrg, OrgType } from "models/Org";
 import { hasItems } from "utils/array";
 import { SizeMap } from "utils/maps";
 
@@ -88,7 +88,7 @@ export const MapModal = withGoogleApi({
           </Link>
         );
         icon = <Icon as={IoIosPeople} mr={3} />;
-      } else if (orgs.find(({ orgType }) => orgType === OrgTypes.NETWORK))
+      } else if (orgs.find(({ orgType }) => orgType === OrgType.NETWORK))
         title = "Carte des réseaux";
       else title = "Carte des organisations";
 

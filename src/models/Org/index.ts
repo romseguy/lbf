@@ -1,5 +1,5 @@
 import { equals } from "utils/string";
-import { IOrg, OrgType, OrgTypes, OrgTypesV } from "./IOrg";
+import { IOrg, OrgType, OrgTypes } from "./IOrg";
 
 export * from "./IOrg";
 
@@ -21,29 +21,29 @@ export const getSubscriptions = (org: IOrg, type: string) => {
 export const orgTypeFull = (orgType: OrgType): string => {
   if (!orgType) return "";
   return `${
-    [OrgTypes.ASSO, OrgTypes.GENERIC].includes(orgType) ? "de l'" : "du "
-  }${OrgTypesV[orgType].toLowerCase()}`;
+    [OrgType.ASSO, OrgType.GENERIC].includes(orgType) ? "de l'" : "du "
+  }${OrgTypes[orgType].toLowerCase()}`;
 };
 
 export const orgTypeFull2 = (orgType: OrgType): string =>
   `${
-    [OrgTypes.ASSO, OrgTypes.GENERIC].includes(orgType) ? "à l'" : "au "
-  }${OrgTypesV[orgType].toLowerCase()}`;
+    [OrgType.ASSO, OrgType.GENERIC].includes(orgType) ? "à l'" : "au "
+  }${OrgTypes[orgType].toLowerCase()}`;
 
 export const orgTypeFull3 = (orgType: OrgType): string => {
   if (!orgType) return "une organisation";
 
   return `${
-    [OrgTypes.ASSO, OrgTypes.GENERIC].includes(orgType) ? "une " : "un "
-  }${OrgTypesV[orgType].toLowerCase()}`;
+    [OrgType.ASSO, OrgType.GENERIC].includes(orgType) ? "une " : "un "
+  }${OrgTypes[orgType].toLowerCase()}`;
 };
 
 export const orgTypeFull4 = (orgType: OrgType): string =>
   `${
-    [OrgTypes.ASSO, OrgTypes.GENERIC].includes(orgType) ? "cette " : "ce "
-  }${OrgTypesV[orgType].toLowerCase()}`;
+    [OrgType.ASSO, OrgType.GENERIC].includes(orgType) ? "cette " : "ce "
+  }${OrgTypes[orgType].toLowerCase()}`;
 
 export const orgTypeFull5 = (orgType: OrgType): string =>
   `${
-    [OrgTypes.ASSO, OrgTypes.GENERIC].includes(orgType) ? "l'" : "le "
-  }${OrgTypesV[orgType].toLowerCase()}`;
+    [OrgType.ASSO, OrgType.GENERIC].includes(orgType) ? "l'" : "le "
+  }${OrgTypes[orgType].toLowerCase()}`;

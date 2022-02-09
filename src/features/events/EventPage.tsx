@@ -46,13 +46,13 @@ import { EventPageInfo } from "./EventPageInfo";
 import { EventPageTabs } from "./EventPageTabs";
 import { EventPageTimeline } from "./EventPageTimeline";
 
-export type Visibility = {
+export type ConfigVisibility = {
   isVisible: {
     banner?: boolean;
     logo?: boolean;
     topics?: boolean;
   };
-  setIsVisible: (obj: Visibility["isVisible"]) => void;
+  setIsVisible: (obj: ConfigVisibility["isVisible"]) => void;
 };
 
 let cachedEmail: string | undefined;
@@ -113,7 +113,7 @@ export const EventPage = ({
   const [isConfig, setIsConfig] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
-  const [isVisible, setIsVisible] = useState<Visibility["isVisible"]>({
+  const [isVisible, setIsVisible] = useState<ConfigVisibility["isVisible"]>({
     topics: false,
     banner: false,
     logo: false

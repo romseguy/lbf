@@ -27,9 +27,9 @@ import { IOrg, orgTypeFull } from "models/Org";
 import {
   IProject,
   Status,
-  StatusTypes,
-  StatusTypesV,
-  StatusV
+  InviteStatus,
+  InviteStatuses,
+  Statuses
 } from "models/Project";
 import { IUser } from "models/User";
 import * as dateUtils from "utils/date";
@@ -261,7 +261,7 @@ export const ProjectsList = ({
                                 : "green"
                             }
                           >
-                            {StatusV[projectStatus]}
+                            {Statuses[projectStatus]}
                           </Tag>
                         </GridItem>
 
@@ -433,14 +433,14 @@ export const ProjectsList = ({
                                             <Tag
                                               variant="solid"
                                               colorScheme={
-                                                status === StatusTypes.PENDING
+                                                status === InviteStatus.PENDING
                                                   ? "blue"
-                                                  : status === StatusTypes.OK
+                                                  : status === InviteStatus.OK
                                                   ? "green"
                                                   : "red"
                                               }
                                             >
-                                              {StatusTypesV[status]}
+                                              {InviteStatuses[status]}
                                             </Tag>
                                           </Td>
                                         </Tr>

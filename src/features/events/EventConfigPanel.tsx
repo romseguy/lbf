@@ -10,7 +10,7 @@ import { IEvent } from "models/Event";
 import { AppQuery } from "utils/types";
 import { EventConfigBannerPanel } from "./EventConfigBannerPanel";
 import { EventConfigLogoPanel } from "./EventConfigLogoPanel";
-import { Visibility } from "./EventPage";
+import { ConfigVisibility } from "./EventPage";
 
 export const EventConfigPanel = ({
   session,
@@ -21,7 +21,7 @@ export const EventConfigPanel = ({
   setIsConfig,
   setIsEdit,
   setIsVisible
-}: Visibility & {
+}: ConfigVisibility & {
   session: Session;
   eventQuery: AppQuery<IEvent>;
   isConfig: boolean;

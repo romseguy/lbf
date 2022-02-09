@@ -3,6 +3,7 @@ import { ITopicNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ITopicMessage } from "models/TopicMessage";
 import { IEntity } from "utils/models";
+import { StringMap } from "utils/types";
 
 export interface ITopic extends IEntity {
   topicName: string;
@@ -16,13 +17,13 @@ export interface ITopic extends IEntity {
   topicNotifications?: ITopicNotification[];
 }
 
-export const Visibility: { [key: string]: string } = {
-  PUBLIC: "PUBLIC",
-  SUBSCRIBERS: "SUBSCRIBERS",
-  FOLLOWERS: "FOLLOWERS"
-};
-export const VisibilityV: { [key: string]: string } = {
-  PUBLIC: "Publique",
-  SUBSCRIBERS: "Adhérents",
-  FOLLOWERS: "Abonnés"
+export enum Visibility {
+  FOLLOWERS = "FOLLOWERS",
+  PUBLIC = "PUBLIC",
+  SUBSCRIBERS = "SUBSCRIBERS"
+}
+export const Visibilities: StringMap<Visibility, string> = {
+  [Visibility.FOLLOWERS]: "Abonnés",
+  [Visibility.PUBLIC]: "Publique",
+  [Visibility.SUBSCRIBERS]: "Adhérents"
 };

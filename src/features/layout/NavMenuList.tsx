@@ -46,13 +46,16 @@ export const NavMenuList = ({
     null
   );
   const isSubscribed = !!subscription && !!userQuery.data?.userSubscription;
-  const subscribe = async () => {
-    const pushSubscription = await registration!.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: base64ToUint8Array(
-        process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
-      )
-    });
+  const subscribe = async (
+    serviceWorkerRegistration: ServiceWorkerRegistration
+  ) => {
+    const pushSubscription =
+      await serviceWorkerRegistration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: base64ToUint8Array(
+          process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
+        )
+      });
 
     if (pushSubscription) {
       setSubscription(pushSubscription);
@@ -69,7 +72,7 @@ export const NavMenuList = ({
     }
   };
   useEffect(() => {
-    async function init() {
+    async function componentDidMount() {
       if (!("serviceWorker" in navigator)) {
         console.log("navigator.serviceWorker is missing");
         return;
@@ -85,9 +88,9 @@ export const NavMenuList = ({
       const pushSubscription =
         await serviceWorkerRegistration.pushManager.getSubscription();
       if (pushSubscription) setSubscription(pushSubscription);
-      else await subscribe();
+      else await subscribe(serviceWorkerRegistration);
     }
-    init();
+    componentDidMount();
   }, []);
   //#endregion
 
@@ -140,8 +143,8 @@ export const NavMenuList = ({
                   status: "success",
                   title: "Vous ne recevrez plus de notifications"
                 });
-              } else {
-                await subscribe();
+              } else if (registration) {
+                await subscribe(registration);
                 toast({
                   status: "success",
                   title: "Vous acceptez de recevoir des notifications"

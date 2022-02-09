@@ -42,9 +42,9 @@ import {
   orgTypeFull,
   orgTypeFull5,
   OrgTypes,
-  OrgTypesV,
+  OrgType,
   Visibility,
-  VisibilityV
+  Visibilities
 } from "models/Org";
 import { useAppDispatch } from "store";
 import { hasItems } from "utils/array";
@@ -154,7 +154,7 @@ export const OrgForm = withGoogleApi({
       let payload = {
         ...form,
         orgName: form.orgName.trim(),
-        orgType: form.orgType || OrgTypes.GENERIC,
+        orgType: form.orgType || OrgType.GENERIC,
         orgUrl: normalize(form.orgName),
         // orgDescription: form.orgDescription
         //   ? normalizeQuill(form.orgDescription)
@@ -293,10 +293,11 @@ export const OrgForm = withGoogleApi({
             placeholder={`Type de l'organisation`}
             color={isDark ? "whiteAlpha.400" : "gray.400"}
           >
-            {Object.keys(OrgTypes).map((OrgType) => {
+            {Object.keys(OrgType).map((k) => {
+              const orgType = k as OrgType;
               return (
-                <option key={OrgType} value={OrgType}>
-                  {OrgTypesV[OrgType]}
+                <option key={orgType} value={orgType}>
+                  {OrgTypes[orgType]}
                 </option>
               );
             })}
@@ -309,7 +310,7 @@ export const OrgForm = withGoogleApi({
         <FormControl
           mb={3}
           isInvalid={!!errors["orgs"]}
-          display={orgType !== OrgTypes.NETWORK ? "none" : undefined}
+          display={orgType !== OrgType.NETWORK ? "none" : undefined}
         >
           <FormLabel>Organisations faisant partie du réseau</FormLabel>
           <Controller
@@ -392,10 +393,11 @@ export const OrgForm = withGoogleApi({
             placeholder="Visibilité de l'organisation"
             color={isDark ? "whiteAlpha.400" : "gray.400"}
           >
-            {[Visibility.PUBLIC, Visibility.PRIVATE].map((key) => {
+            {Object.keys(Visibility).map((key) => {
+              const visibility = key as Visibility;
               return (
-                <option key={key} value={key}>
-                  {VisibilityV[key]}
+                <option key={visibility} value={visibility}>
+                  {Visibilities[visibility]}
                 </option>
               );
             })}

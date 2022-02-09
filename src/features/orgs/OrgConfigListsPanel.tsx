@@ -43,7 +43,7 @@ import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
-import { Visibility } from "./OrgPage";
+import { ConfigVisibility } from "./OrgPage";
 import { useEditOrgMutation } from "./orgsApi";
 
 export const OrgConfigListsPanel = ({
@@ -52,7 +52,7 @@ export const OrgConfigListsPanel = ({
   setIsVisible,
   session
 }: GridProps &
-  Visibility & {
+  ConfigVisibility & {
     orgQuery: AppQuery<IOrg>;
     session: Session;
   }) => {

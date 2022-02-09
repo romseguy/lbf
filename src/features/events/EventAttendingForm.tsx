@@ -14,7 +14,12 @@ import { Button } from "features/common";
 import { useEditEventMutation } from "features/events/eventsApi";
 import { setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
-import { IEvent, isAttending, isNotAttending, StatusTypes } from "models/Event";
+import {
+  IEvent,
+  isAttending,
+  isNotAttending,
+  InviteStatus
+} from "models/Event";
 import { useAppDispatch } from "store";
 import { emailR } from "utils/email";
 import { AppQuery } from "utils/types";
@@ -66,9 +71,9 @@ export const EventAttendingForm = ({
         const { email, status } = eventNotification;
 
         if (email === userEmail) {
-          if (status !== StatusTypes.OK) {
+          if (status !== InviteStatus.OK) {
             isNew = false;
-            return { ...eventNotification, status: StatusTypes.OK };
+            return { ...eventNotification, status: InviteStatus.OK };
           }
         }
 
@@ -79,7 +84,7 @@ export const EventAttendingForm = ({
     if (isNew && userEmail)
       eventNotifications?.push({
         email: userEmail,
-        status: StatusTypes.OK,
+        status: InviteStatus.OK,
         createdAt: new Date().toISOString()
       });
 
@@ -118,9 +123,9 @@ export const EventAttendingForm = ({
     let eventNotifications = event.eventNotifications?.map(
       (eventNotification) => {
         const { email, status } = eventNotification;
-        if (email === userEmail && status !== StatusTypes.NOK) {
+        if (email === userEmail && status !== InviteStatus.NOK) {
           isNew = false;
-          return { ...eventNotification, status: StatusTypes.NOK };
+          return { ...eventNotification, status: InviteStatus.NOK };
         }
         return eventNotification;
       }
@@ -129,7 +134,7 @@ export const EventAttendingForm = ({
     if (isNew && userEmail)
       eventNotifications?.push({
         email: userEmail,
-        status: StatusTypes.NOK,
+        status: InviteStatus.NOK,
         createdAt: new Date().toISOString()
       });
 

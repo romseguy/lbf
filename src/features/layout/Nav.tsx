@@ -41,7 +41,7 @@ import {
 import { LoginModal } from "features/modals/LoginModal";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
-import { OrgTypes } from "models/Org";
+import { OrgType } from "models/Org";
 import { useAppDispatch } from "store";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
@@ -151,7 +151,7 @@ export const Nav = ({
                       >
                         <OrgPopover
                           boxSize={[6, 6, 6]}
-                          orgType={OrgTypes.NETWORK}
+                          orgType={OrgType.NETWORK}
                           session={session}
                           ml={3}
                           mr={2}
@@ -341,7 +341,7 @@ export const Nav = ({
                         <Box {...popoverProps}>
                           <OrgPopover
                             boxSize={6}
-                            orgType={OrgTypes.NETWORK}
+                            orgType={OrgType.NETWORK}
                             session={session}
                             mx={4}
                           />

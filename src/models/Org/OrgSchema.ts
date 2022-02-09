@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { IOrg, OrgTypes, Visibility } from "./IOrg";
+import { IOrg, OrgType, Visibility } from "./IOrg";
 
 export const OrgSchema = new Schema<IOrg>(
   {
@@ -16,7 +16,7 @@ export const OrgSchema = new Schema<IOrg>(
     },
     orgType: {
       type: String,
-      enum: Object.keys(OrgTypes).map((key) => OrgTypes[key]),
+      enum: OrgType,
       required: true
     },
     orgAddress: [{ address: { type: String, trim: true } }],
@@ -91,7 +91,7 @@ export const OrgSchema = new Schema<IOrg>(
     },
     orgVisibility: {
       type: String,
-      enum: Object.keys(Visibility).map((key) => Visibility[key]),
+      enum: Visibility,
       required: true
     },
     orgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],

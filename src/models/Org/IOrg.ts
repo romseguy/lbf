@@ -4,6 +4,7 @@ import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { Base64Image } from "utils/image";
 import { IEntity } from "utils/models";
+import { StringMap } from "utils/types";
 
 export interface IOrg extends IEntity {
   orgName: string;
@@ -57,26 +58,24 @@ export interface IOrgTab {
   url?: string;
 }
 
-export type OrgType = "ASSO" | "GENERIC" | "GROUP" | "NETWORK";
-
-export const OrgTypes: { [key: string]: OrgType } = {
-  ASSO: "ASSO",
-  GENERIC: "GENERIC",
-  GROUP: "GROUP",
-  NETWORK: "NETWORK"
-};
-export const OrgTypesV: { [key: string]: string } = {
-  ASSO: "Association",
-  GENERIC: "Organisation",
-  GROUP: "Groupe",
-  NETWORK: "Réseau"
+export enum OrgType {
+  ASSO = "ASSO",
+  GENERIC = "GENERIC",
+  GROUP = "GROUP",
+  NETWORK = "NETWORK"
+}
+export const OrgTypes: StringMap<OrgType, string> = {
+  [OrgType.ASSO]: "Association",
+  [OrgType.GENERIC]: "Organisation",
+  [OrgType.GROUP]: "Groupe",
+  [OrgType.NETWORK]: "Réseau"
 };
 
-export const Visibility: { [key: string]: string } = {
-  PUBLIC: "PUBLIC",
-  PRIVATE: "PRIVATE"
-};
-export const VisibilityV: { [key: string]: string } = {
-  PUBLIC: "Publique",
-  PRIVATE: "Protégée par un mot de passe"
+export enum Visibility {
+  PUBLIC = "PUBLIC",
+  PRIVATE = "PRIVATE"
+}
+export const Visibilities: StringMap<Visibility, string> = {
+  [Visibility.PUBLIC]: "Publique",
+  [Visibility.PRIVATE]: "Protégée par un mot de passe"
 };

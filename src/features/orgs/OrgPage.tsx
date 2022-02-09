@@ -46,8 +46,15 @@ import { Layout } from "features/layout";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
-import { Visibility as EventVisibility, Visibility } from "models/Event";
-import { IOrg, IOrgTab, orgTypeFull, orgTypeFull5, OrgTypes } from "models/Org";
+import { Visibility as EventVisibility } from "models/Event";
+import {
+  IOrg,
+  IOrgTab,
+  orgTypeFull,
+  orgTypeFull5,
+  OrgType,
+  Visibility as OrgVisibility
+} from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription,
@@ -68,7 +75,7 @@ import { NetworksModal } from "features/modals/NetworksModal";
 import { InputNode } from "features/treeChart/types";
 import { OrgsList } from "./OrgsList";
 
-export type Visibility = {
+export type ConfigVisibility = {
   isVisible: {
     banner?: boolean;
     logo?: boolean;
@@ -76,7 +83,7 @@ export type Visibility = {
     subscribers?: boolean;
     topics?: boolean;
   };
-  setIsVisible: (obj: Visibility["isVisible"]) => void;
+  setIsVisible: (obj: ConfigVisibility["isVisible"]) => void;
 };
 
 let cachedEmail: string | undefined;
@@ -156,7 +163,7 @@ export const OrgPage = ({
         orgNetworks: query.data?.filter(
           (o) =>
             o.orgName !== org.orgName &&
-            o.orgType === OrgTypes.NETWORK &&
+            o.orgType === OrgType.NETWORK &&
             !!o.orgs?.find(({ orgName }) => orgName === org.orgName)
         )
       })
@@ -192,7 +199,7 @@ export const OrgPage = ({
   const [isListOpen, setIsListOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
-  const [isVisible, setIsVisible] = useState<Visibility["isVisible"]>({
+  const [isVisible, setIsVisible] = useState<ConfigVisibility["isVisible"]>({
     logo: false,
     banner: false,
     topics: false,
@@ -203,7 +210,7 @@ export const OrgPage = ({
     () =>
       org.orgs
         ? org.orgs
-            .filter((o) => o.orgVisibility !== Visibility.PRIVATE)
+            .filter((o) => o.orgVisibility !== OrgVisibility.PRIVATE)
             .map((o) => ({
               name: o.orgName,
               children: o.orgs?.map(({ orgName }) => ({ name: orgName }))
@@ -450,7 +457,7 @@ export const OrgPage = ({
                       </TabContainerContent>
                     </TabContainer>
 
-                    {org.orgType === OrgTypes.NETWORK && (
+                    {org.orgType === OrgType.NETWORK && (
                       <TabContainer>
                         <TabContainerHeader heading="Topologie du réseau">
                           {isCreator && (

@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { IProject, Status, StatusTypes } from "./IProject";
+import { IProject, Status, InviteStatus } from "./IProject";
 
 export const ProjectSchema = new Schema<IProject>(
   {
@@ -19,7 +19,7 @@ export const ProjectSchema = new Schema<IProject>(
     projectOrgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
     projectStatus: {
       type: String,
-      enum: Object.keys(Status).map((key) => Status[key])
+      enum: Status
     },
     projectVisibility: [String],
     projectNotified: [
@@ -27,7 +27,7 @@ export const ProjectSchema = new Schema<IProject>(
         email: String,
         status: {
           type: String,
-          enum: Object.keys(StatusTypes).map((key) => StatusTypes[key])
+          enum: InviteStatus
         }
       }
     ],

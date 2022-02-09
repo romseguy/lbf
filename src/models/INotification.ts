@@ -1,4 +1,4 @@
-import { IEvent } from "./Event";
+import { IEvent, InviteStatus } from "./Event";
 import { ITopic } from "./Topic";
 
 export interface INotification {
@@ -10,7 +10,7 @@ export interface INotification {
 }
 
 export interface IEventNotification extends INotification {
-  status: "PENDING" | "OK" | "NOK";
+  status: InviteStatus;
 }
 
 export interface ITopicNotification extends INotification {}

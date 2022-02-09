@@ -10,11 +10,11 @@ import {
   addWeeks,
   setSeconds
 } from "date-fns";
-import { IOrgEventCategory, Visibility } from "models/Org";
+import { IOrgEventCategory } from "models/Org";
 import { LatLon } from "use-places-autocomplete";
 import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
 import { getDistance } from "utils/maps";
-import { IEvent, StatusTypes } from "./IEvent";
+import { IEvent, InviteStatus, Visibility } from "models/Event";
 
 export * from "./IEvent";
 
@@ -364,7 +364,7 @@ export const isAttending = ({
 }) => {
   if (!email) return false;
   return !!event.eventNotifications?.find(({ email: e, status }) => {
-    return e === email && status === StatusTypes.OK;
+    return e === email && status === InviteStatus.OK;
   });
 };
 
@@ -377,7 +377,7 @@ export const isNotAttending = ({
 }) => {
   if (!email) return false;
   return !!event.eventNotifications?.find(({ email: e, status }) => {
-    return e === email && status === StatusTypes.NOK;
+    return e === email && status === InviteStatus.NOK;
   });
 };
 

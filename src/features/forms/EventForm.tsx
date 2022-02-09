@@ -69,15 +69,16 @@ import {
   EventCategory,
   IEvent,
   monthRepeatOptions,
-  VisibilityV
+  Visibilities,
+  Visibility
 } from "models/Event";
-import type { IOrg, IOrgEventCategory } from "models/Org";
-import { Visibility } from "models/Topic";
+import { IOrg } from "models/Org";
+import { Visibility as TopicVisibility } from "models/Topic";
 import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
-import { normalize, normalizeQuill } from "utils/string";
+import { normalize } from "utils/string";
 
 type DaysMap = { [key: number]: DayState };
 type DayState = {
@@ -159,13 +160,13 @@ export const EventForm = withGoogleApi({
     }, [eventOrgs]);
 
     //#region form
-    const visibilityOptions: string[] = hasItems(eventOrgs)
-      ? [Visibility.PUBLIC, Visibility.SUBSCRIBERS]
+    const visibilityOptions = hasItems(eventOrgs)
+      ? Object.keys(Visibility)
       : [];
 
     const eventOrgsRules: { required: string | boolean } = {
       required:
-        eventVisibility === Visibility.SUBSCRIBERS
+        eventVisibility === TopicVisibility.SUBSCRIBERS
           ? "Veuillez sélectionner une ou plusieurs organisations"
           : false
     };
@@ -1061,15 +1062,16 @@ export const EventForm = withGoogleApi({
                 required: "Veuillez sélectionner la visibilité de l'événement"
               })}
               defaultValue={
-                props.event?.eventVisibility || Visibility[Visibility.PUBLIC]
+                props.event?.eventVisibility || Visibilities[Visibility.PUBLIC]
               }
               placeholder="Visibilité de l'événement"
               color={isDark ? "whiteAlpha.400" : "gray.400"}
             >
               {visibilityOptions.map((key) => {
+                const visibility = key as Visibility;
                 return (
-                  <option key={key} value={key}>
-                    {VisibilityV[key]}
+                  <option key={visibility} value={visibility}>
+                    {Visibilities[visibility]}
                   </option>
                 );
               })}

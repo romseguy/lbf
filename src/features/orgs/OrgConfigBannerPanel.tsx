@@ -41,7 +41,7 @@ import { IOrg } from "models/Org";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
 import { AppQuery } from "utils/types";
-import { Visibility } from "./OrgPage";
+import { ConfigVisibility } from "./OrgPage";
 
 export const OrgConfigBannerPanel = ({
   orgQuery,
@@ -49,7 +49,7 @@ export const OrgConfigBannerPanel = ({
   setIsVisible,
   ...props
 }: GridProps &
-  Visibility & {
+  ConfigVisibility & {
     orgQuery: AppQuery<IOrg>;
   }) => {
   const org = orgQuery.data;

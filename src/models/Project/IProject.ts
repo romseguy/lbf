@@ -1,16 +1,17 @@
 import { IOrg } from "models/Org";
 import { IEntity } from "utils/models";
+import { StringMap } from "utils/types";
 
 export interface IProject extends IEntity {
   projectName: string;
   projectDescription: string;
   projectDescriptionHtml: string;
   projectOrgs?: IOrg[];
-  projectStatus: string;
+  projectStatus: Status;
   projectVisibility?: string[];
   projectNotified: {
     email: string;
-    status: string;
+    status: InviteStatus;
   }[];
   forwardedFrom: {
     projectId: string;
@@ -26,39 +27,39 @@ export const isAttending = ({
 }) => {
   if (email === "") return false;
   return !!project.projectNotified?.find(({ email: e, status }) => {
-    return e === email && status === StatusTypes.OK;
+    return e === email && status === InviteStatus.OK;
   });
 };
 
-export const Status: { [key: string]: string } = {
-  PENDING: "PENDING",
-  ONGOING: "ONGOING",
-  FINISHED: "FINISHED"
-};
-export const StatusV: { [key: string]: string } = {
-  PENDING: "En attente",
-  ONGOING: "En cours",
-  FINISHED: "Terminé"
-};
-
-export const StatusTypes: { [key: string]: string } = {
-  PENDING: "PENDING",
-  OK: "OK",
-  NOK: "NOK"
-};
-export const StatusTypesV: { [key: string]: string } = {
-  PENDING: "La personne n'a pas encore indiqué participer",
-  OK: "Invitation acceptée",
-  NOK: "Invitation refusée"
+export enum Status {
+  PENDING = "PENDING",
+  ONGOING = "ONGOING",
+  FINISHED = "FINISHED"
+}
+export const Statuses: StringMap<Status, string> = {
+  [Status.PENDING]: "En attente",
+  [Status.ONGOING]: "En cours",
+  [Status.FINISHED]: "Terminé"
 };
 
-export const Visibility: { [key: string]: string } = {
-  PUBLIC: "PUBLIC",
-  SUBSCRIBERS: "SUBSCRIBERS",
-  FOLLOWERS: "FOLLOWERS"
+export enum InviteStatus {
+  PENDING = "PENDING",
+  OK = "OK",
+  NOK = "NOK"
+}
+export const InviteStatuses: StringMap<InviteStatus, string> = {
+  [InviteStatus.PENDING]: "La personne n'a pas encore indiqué participer",
+  [InviteStatus.OK]: "Participant",
+  [InviteStatus.NOK]: "Invitation refusée"
 };
-export const VisibilityV: { [key: string]: string } = {
-  PUBLIC: "Publique",
-  SUBSCRIBERS: "Adhérents",
-  FOLLOWERS: "Abonnés"
+
+export enum Visibility {
+  FOLLOWERS = "FOLLOWERS",
+  PUBLIC = "PUBLIC",
+  SUBSCRIBERS = "SUBSCRIBERS"
+}
+export const Visibilities: StringMap<Visibility, string> = {
+  [Visibility.PUBLIC]: "Publique",
+  [Visibility.SUBSCRIBERS]: "Adhérents",
+  [Visibility.FOLLOWERS]: "Abonnés"
 };

@@ -28,7 +28,7 @@ import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
-import { OrgType, OrgTypes } from "models/Org";
+import { OrgType } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription,
@@ -148,9 +148,7 @@ export const OrgPopover = ({
             _hover={{ bg: "transparent" }}
             icon={
               <Icon
-                as={
-                  orgType === OrgTypes.NETWORK ? IoIosGitNetwork : IoIosPeople
-                }
+                as={orgType === OrgType.NETWORK ? IoIosGitNetwork : IoIosPeople}
                 boxSize={boxSize}
                 _hover={{ color: "green" }}
               />
@@ -192,15 +190,15 @@ export const OrgPopover = ({
               }
             >
               <option value="showOrgsAdded">
-                Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}{" "}
+                Les {orgType === OrgType.NETWORK ? "réseaux" : "organisations"}{" "}
                 que j'ai ajouté
               </option>
               <option value="showOrgsFollowed">
-                Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}{" "}
+                Les {orgType === OrgType.NETWORK ? "réseaux" : "organisations"}{" "}
                 où je suis abonné
               </option>
               <option value="showOrgsSubscribed">
-                Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}{" "}
+                Les {orgType === OrgType.NETWORK ? "réseaux" : "organisations"}{" "}
                 où je suis adhérent
               </option>
             </Select>
@@ -292,7 +290,7 @@ export const OrgPopover = ({
               data-cy="org-add-button"
             >
               Ajouter{" "}
-              {orgType === OrgTypes.NETWORK ? "un réseau" : "une organisation"}
+              {orgType === OrgType.NETWORK ? "un réseau" : "une organisation"}
             </Button>
           </PopoverFooter>
         </PopoverContent>

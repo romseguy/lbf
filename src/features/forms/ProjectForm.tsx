@@ -24,7 +24,13 @@ import {
   useEditProjectMutation
 } from "features/projects/projectsApi";
 import { getSubscriptions, IOrg, IOrgList } from "models/Org";
-import { IProject, Status, StatusV, Visibility } from "models/Project";
+import {
+  IProject,
+  Status,
+  Statuses,
+  Visibilities,
+  Visibility
+} from "models/Project";
 import { IUser } from "models/User";
 import { handleError } from "utils/form";
 import { SubscriptionTypes } from "models/Subscription";
@@ -91,10 +97,12 @@ export const ProjectForm = ({
   } = useForm({
     mode: "onChange"
   });
-  const statusOptions: string[] = Object.keys(Status).map((key) => Status[key]);
-  const visibilityOptions: string[] = Object.keys(Visibility).map(
-    (key) => Visibility[key]
+  const statusOptions: string[] = Object.keys(Status).map(
+    (key) => key as Status
   );
+  // const visibilityOptions: Visibility[] = Object.keys(Visibility).map(
+  //   (key) => Visibilities[key as Visibility]
+  // );
   const projectVisibility = watch("projectVisibility");
 
   const onChange = () => {
@@ -223,9 +231,10 @@ export const ProjectForm = ({
             color="gray.400"
           >
             {statusOptions.map((key) => {
+              const status = key as Status;
               return (
-                <option key={key} value={key}>
-                  {StatusV[key]}
+                <option key={status} value={status}>
+                  {Statuses[status]}
                 </option>
               );
             })}
