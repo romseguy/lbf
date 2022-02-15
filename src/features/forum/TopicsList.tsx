@@ -29,7 +29,7 @@ import { IEvent } from "models/Event";
 import { IOrg, IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic, Visibility } from "models/Topic";
-import { useDeleteTopicMutation, usePostTopicNotifMutation } from "./topicsApi";
+import { useDeleteTopicMutation, useAddTopicNotifMutation } from "./topicsApi";
 import { TopicsListItem } from "./TopicsListItem";
 import { hasItems } from "utils/array";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
@@ -70,7 +70,7 @@ export const TopicsList = ({
   //#endregion
 
   //#region topic
-  const postTopicNotifMutation = usePostTopicNotifMutation();
+  const addTopicNotifMutation = useAddTopicNotifMutation();
   const [deleteTopic] = useDeleteTopicMutation();
   //#endregion
 
@@ -508,7 +508,7 @@ export const TopicsList = ({
           event={event}
           org={org}
           query={query}
-          mutation={postTopicNotifMutation}
+          mutation={addTopicNotifMutation}
           setModalState={setNotifyModalState}
           modalState={notifyModalState}
           session={session}

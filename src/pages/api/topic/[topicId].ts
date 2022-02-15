@@ -1,24 +1,19 @@
 import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
-import { EditTopicParams } from "api/forum";
+import { sendMail, sendTopicNotifications } from "api/email";
 import database, { models } from "database";
+import {
+  EditTopicPayload,
+  AddTopicNotifPayload
+} from "features/forum/topicsApi";
 import { getSession } from "hooks/useAuth";
-import { IEvent } from "models/Event";
 import { getSubscriptions, IOrg } from "models/Org";
-import { createServerError } from "utils/errors";
-import { sendTopicNotifications } from "api/email";
-import { equals } from "utils/string";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import { ITopicNotification } from "models/INotification";
-
-const transport = nodemailer.createTransport(
-  nodemailerSendgrid({
-    apiKey: process.env.EMAIL_API_KEY
-  })
-);
+import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import { createTopicEmailNotif } from "utils/email";
+import { createServerError } from "utils/errors";
+import { equals } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -27,14 +22,10 @@ handler.use(database);
 handler.post<
   NextApiRequest & {
     query: { topicId: string };
-    body: {
-      event?: IEvent;
-      orgListsNames?: string[];
-      email?: string;
-    };
+    body: AddTopicNotifPayload;
   },
   NextApiResponse
->(async function postTopicNotif(req, res) {
+>(async function addTopicNotif(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -49,12 +40,7 @@ handler.post<
       body
     }: {
       query: { topicId: string };
-      body: {
-        org?: IOrg;
-        event?: IEvent;
-        orgListsNames?: string[];
-        email?: string;
-      };
+      body: AddTopicNotifPayload;
     } = req;
 
     const topic = await models.Topic.findOne({ _id: topicId });
@@ -80,7 +66,40 @@ handler.post<
 
     let notifications: ITopicNotification[] = [];
 
-    if (body.event) {
+    if (typeof body.email === "string" && body.email.length > 0) {
+      const subscription = await models.Subscription.findOne({
+        email: body.email
+      });
+
+      const mail = createTopicEmailNotif({
+        email: body.email,
+        event: body.event,
+        org: body.org,
+        topic,
+        subscriptionId: subscription?._id || session.user.userId
+      });
+
+      if (process.env.NODE_ENV === "production") await sendMail(mail);
+      else console.log(`sent event invite to ${body.email}`, mail);
+
+      if (body.email !== session.user.email) {
+        notifications = [
+          {
+            email: body.email,
+            createdAt: new Date().toISOString()
+          }
+        ];
+
+        if (topic.topicNotifications) {
+          topic.topicNotifications =
+            topic.topicNotifications.concat(notifications);
+        } else {
+          topic.topicNotifications = notifications;
+        }
+
+        await topic.save();
+      }
+    } else if (body.event) {
       let event = await models.Event.findOne({ _id: body.event._id });
       if (!event) return res.status(400).json("Événement introuvable");
       event = await event
@@ -93,8 +112,7 @@ handler.post<
       notifications = await sendTopicNotifications({
         event,
         subscriptions: event.eventSubscriptions,
-        topic,
-        transport
+        topic
       });
     } else if (body.orgListsNames) {
       console.log(`POST /topic/${topicId}: orgListsNames`, body.orgListsNames);
@@ -147,8 +165,7 @@ handler.post<
         notifications = await sendTopicNotifications({
           org,
           subscriptions,
-          topic,
-          transport
+          topic
         });
       }
     }
@@ -162,7 +179,7 @@ handler.post<
 handler.put<
   NextApiRequest & {
     query: { topicId: string };
-    body: EditTopicParams;
+    body: EditTopicPayload;
   },
   NextApiResponse
 >(async function editTopic(req, res) {
@@ -177,7 +194,7 @@ handler.put<
     const {
       body
     }: {
-      body: EditTopicParams;
+      body: EditTopicPayload;
     } = req;
 
     const topicId = req.query.topicId;

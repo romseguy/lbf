@@ -146,6 +146,7 @@ export const EventsListCategories = ({
             key={index}
             variant="no-underline"
             onClick={() => {
+              if (!events.length) return;
               setSelectedCategories(
                 selectedCategories.includes(index)
                   ? selectedCategories.filter((sC) => sC !== index)
@@ -165,6 +166,8 @@ export const EventsListCategories = ({
                     : bgColor
                   : undefined
               }
+              cursor={!events.length ? "not-allowed" : "pointer"}
+              isDisabled={!events.length}
               mr={1}
               whiteSpace="nowrap"
             >

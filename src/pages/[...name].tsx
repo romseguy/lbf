@@ -6,11 +6,11 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { NotFound } from "features/common";
 import { EventPage } from "features/events/EventPage";
-import { EventQueryParams, useGetEventQuery } from "features/events/eventsApi";
+import { GetEventParams, useGetEventQuery } from "features/events/eventsApi";
 import { Layout } from "features/layout";
 import { OrgPage } from "features/orgs/OrgPage";
 import { OrgPageLogin } from "features/orgs/OrgPageLogin";
-import { OrgQueryParams, useGetOrgQuery } from "features/orgs/orgsApi";
+import { GetOrgParams, useGetOrgQuery } from "features/orgs/orgsApi";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { UserPage } from "features/users/UserPage";
 import { useGetUserQuery, UserQueryParams } from "features/users/usersApi";
@@ -26,7 +26,6 @@ import { IOrg } from "models/Org";
 import { IUser } from "models/User";
 
 let cachedEmail: string | undefined;
-const isRedirect = true;
 
 type HashProps = PageProps & {
   email?: string;
@@ -74,11 +73,11 @@ const Hash = ({ ...props }: HashProps) => {
   //#endregion
 
   //#region queries parameters
-  const [eventQueryParams, setEventQueryParams] = useState<EventQueryParams>({
+  const [eventQueryParams, setEventQueryParams] = useState<GetEventParams>({
     eventUrl: entityUrl,
     populate: "eventOrgs"
   });
-  const [orgQueryParams, setOrgQueryParams] = useState<OrgQueryParams>({
+  const [orgQueryParams, setOrgQueryParams] = useState<GetOrgParams>({
     orgUrl: entityUrl,
     populate:
       "orgBanner orgEvents orgLogo orgLists orgProjects orgSubscriptions orgTopics orgs"
@@ -169,7 +168,7 @@ const Hash = ({ ...props }: HashProps) => {
     );
   }
 
-  if (orgQuery.data?._id) {
+  if (orgQueryStatus === 200 && orgQuery.data?._id) {
     return (
       <OrgPage
         {...props}

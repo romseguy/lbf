@@ -1,6 +1,4 @@
 import { Document } from "mongoose";
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import { sendToAdmin } from "api/email";
@@ -11,12 +9,6 @@ import api from "utils/api";
 import { hasItems } from "utils/array";
 import { createServerError } from "utils/errors";
 import { logJson } from "utils/string";
-
-const transport = nodemailer.createTransport(
-  nodemailerSendgrid({
-    apiKey: process.env.EMAIL_API_KEY
-  })
-);
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -101,7 +93,7 @@ handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
           admin &&
           (!project.projectVisibility || !hasItems(project.projectVisibility))
         ) {
-          sendToAdmin({ project: body, transport });
+          sendToAdmin({ project: body });
 
           if (admin.userSubscription) {
             try {

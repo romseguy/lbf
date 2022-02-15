@@ -153,7 +153,7 @@ export const OrgPage = ({
   const orgCreatedByUserName =
     typeof org.createdBy === "object"
       ? org.createdBy.userName || org.createdBy._id
-      : "";
+      : org.createdBy;
   const orgCreatedByUserId =
     typeof org.createdBy === "object" ? org.createdBy._id : org.createdBy;
   const { orgNetworks } = useGetOrgsQuery(

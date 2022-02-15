@@ -2,7 +2,9 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { IOrg } from "models/Org";
 import baseQuery, { objectToQueryString } from "utils/query";
 
-export type OrgQueryParams = {
+export type AddOrgPayload = Omit<IOrg, "_id">;
+
+export type GetOrgParams = {
   orgUrl: string;
   hash?: string | void;
   populate?: string;
@@ -13,14 +15,16 @@ export const orgApi = createApi({
   baseQuery,
   tagTypes: ["Orgs"],
   endpoints: (build) => ({
-    addOrg: build.mutation<IOrg, Partial<IOrg>>({
-      query: (body) => {
-        console.log("addOrg: payload", body);
+    addOrg: build.mutation<IOrg, AddOrgPayload>({
+      query: (payload) => {
+        console.groupCollapsed("addOrg");
+        console.log("payload", payload);
+        console.groupEnd();
 
         return {
           url: `orgs`,
           method: "POST",
-          body
+          body: payload
         };
       },
       invalidatesTags: [{ type: "Orgs", id: "LIST" }]
@@ -47,7 +51,7 @@ export const orgApi = createApi({
         };
       }
     }),
-    getOrg: build.query<IOrg, OrgQueryParams>({
+    getOrg: build.query<IOrg, GetOrgParams>({
       query: ({ orgUrl, ...query }) => {
         console.groupCollapsed("getOrg");
         console.log("orgUrl", orgUrl);

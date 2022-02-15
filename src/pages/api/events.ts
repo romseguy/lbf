@@ -1,6 +1,4 @@
 import { Document, Types } from "mongoose";
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
@@ -16,12 +14,7 @@ import { IEvent, Visibility } from "models/Event";
 import { IOrg } from "models/Org";
 import api from "utils/api";
 import { randomNumber } from "utils/randomNumber";
-
-const transport = nodemailer.createTransport(
-  nodemailerSendgrid({
-    apiKey: process.env.EMAIL_API_KEY
-  })
-);
+import { AddEventPayload } from "features/events/eventsApi";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -65,8 +58,8 @@ handler.get<
   }
 });
 
-handler.post<NextApiRequest & { body: IEvent }, NextApiResponse>(
-  async function postEvent(req, res) {
+handler.post<NextApiRequest & { body: AddEventPayload }, NextApiResponse>(
+  async function addEvent(req, res) {
     const session = await getSession({ req });
 
     if (!session)
@@ -75,7 +68,7 @@ handler.post<NextApiRequest & { body: IEvent }, NextApiResponse>(
         .json(createServerError(new Error("Vous devez être identifié")));
 
     try {
-      let { body }: { body: IEvent } = req;
+      let { body }: { body: AddEventPayload } = req;
       body = {
         ...body,
         eventName: body.eventName.trim(),
@@ -155,18 +148,16 @@ handler.post<NextApiRequest & { body: IEvent }, NextApiResponse>(
         if (!isApproved) {
           const admin = await models.User.findOne({ isAdmin: true });
 
-          if (
-            admin &&
-            admin.userSubscription &&
-            event.eventVisibility === Visibility.PUBLIC
-          ) {
-            await api.sendPushNotification({
-              subscription: admin.userSubscription,
-              message: "Appuyez pour ouvrir la page de l'événement",
-              title: "Un événement attend votre approbation",
-              url: event.eventUrl
-            });
-            sendToAdmin({ event: body, transport });
+          if (admin && event.eventVisibility === Visibility.PUBLIC) {
+            sendToAdmin({ event: body });
+
+            if (admin.userSubscription)
+              await api.sendPushNotification({
+                subscription: admin.userSubscription,
+                message: "Appuyez pour ouvrir la page de l'événement",
+                title: "Un événement attend votre approbation",
+                url: event.eventUrl
+              });
           }
         }
       }

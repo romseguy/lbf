@@ -1,23 +1,21 @@
 import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
+import { sendEventNotifications, sendMail } from "api/email";
 import database, { models } from "database";
+import {
+  AddEventNotifPayload,
+  EditEventPayload,
+  GetEventParams
+} from "features/events/eventsApi";
 import { getSession } from "hooks/useAuth";
-import { IEvent, InviteStatus } from "models/Event";
+import { InviteStatus } from "models/Event";
+import { IEventNotification } from "models/INotification";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
-import { createEventEmailNotif, sendEventNotifications } from "api/email";
 import { createServerError } from "utils/errors";
+import { createEventEmailNotif } from "utils/email";
 import { equals, logJson, normalize } from "utils/string";
-import { IEventNotification } from "models/INotification";
-
-const transport = nodemailer.createTransport(
-  nodemailerSendgrid({
-    apiKey: process.env.EMAIL_API_KEY
-  })
-);
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -25,11 +23,7 @@ handler.use(database);
 
 handler.get<
   NextApiRequest & {
-    query: { eventUrl: string; populate?: string };
-    body: {
-      orgListsNames?: string[];
-      email?: string;
-    };
+    query: GetEventParams;
   },
   NextApiResponse
 >(async function getEvent(req, res) {
@@ -115,10 +109,10 @@ handler.get<
 handler.post<
   NextApiRequest & {
     query: { eventUrl: string };
-    body: { orgListsNames?: string[]; email?: string };
+    body: AddEventNotifPayload;
   },
   NextApiResponse
->(async function postEventNotif(req, res) {
+>(async function addEventNotif(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -133,7 +127,7 @@ handler.post<
       body
     }: {
       query: { eventUrl: string };
-      body: { orgListsNames?: string[]; email?: string };
+      body: AddEventNotifPayload;
     } = req;
 
     let event = await models.Event.findOne({ eventUrl });
@@ -189,11 +183,10 @@ handler.post<
         email: body.email,
         event,
         org: event.eventOrgs[0],
-        subscriptionId: subscription?._id || session.user.userId,
-        isPreview: true
+        subscriptionId: subscription?._id || session.user.userId
       });
 
-      if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
+      if (process.env.NODE_ENV === "production") await sendMail(mail);
       else console.log(`sent event invite to ${body.email}`, mail);
 
       if (body.email !== session.user.email) {
@@ -268,8 +261,7 @@ handler.post<
         notifications = await sendEventNotifications({
           event,
           org,
-          subscriptions,
-          transport
+          subscriptions
         });
       }
     }
@@ -283,12 +275,12 @@ handler.post<
 handler.put<
   NextApiRequest & {
     query: { eventUrl: string };
-    body: Partial<IEvent> | string[];
+    body: EditEventPayload;
   },
   NextApiResponse
 >(async function editEvent(req, res) {
   const session = await getSession({ req });
-  let { body }: { body: Partial<IEvent> | string[] } = req;
+  let { body }: { body: EditEventPayload } = req;
   const eventNotifications = !Array.isArray(body) && body.eventNotifications;
   const eventTopicsCategories =
     !Array.isArray(body) && body.eventTopicsCategories;

@@ -40,11 +40,11 @@ import { AppQuery } from "utils/types";
 import {
   useDeleteEventMutation,
   useEditEventMutation,
-  usePostEventNotifMutation
+  useAddEventNotifMutation
 } from "./eventsApi";
 import { EventsListCategories } from "./EventsListCategories";
 import { EventCategoryTag } from "./EventCategoryTag";
-import { EventsListDistance } from "./EventsListDistance";
+import { EventsListDistanceSelect } from "./EventsListDistance";
 import { EventsListItem } from "./EventsListItem";
 import { EventsListToggle } from "./EventsListToggle";
 
@@ -78,7 +78,7 @@ export const EventsList = ({
   const [deleteEvent] = useDeleteEventMutation();
   const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
-  const postEventNotifMutation = usePostEventNotifMutation();
+  const addEventNotifMutation = useAddEventNotifMutation();
   //#endregion
 
   //#region org
@@ -241,6 +241,7 @@ export const EventsList = ({
             <Button
               colorScheme="purple"
               color={isDark ? "black" : "white"}
+              isDisabled={!events.length}
               leftIcon={<FaMapMarkerAlt />}
               mr={3}
               size="sm"
@@ -271,11 +272,12 @@ export const EventsList = ({
               //onLocationChange={(coordinates) => setOrigin(coordinates)}
             />
           )}
-          <EventsListDistance
+          <EventsListDistanceSelect
             distance={distance}
             setDistance={setDistance}
             borderColor={isDark ? undefined : "black"}
             borderRadius="md"
+            isDisabled={!events.length}
             size="sm"
           />
         </Flex>
@@ -588,9 +590,10 @@ export const EventsList = ({
 
       {eventsList}
 
-      {eventToForward && (
+      {session && eventToForward && (
         <ForwardModal
           event={eventToForward}
+          session={session}
           onCancel={() => {
             setEventToForward(null);
           }}
@@ -627,7 +630,7 @@ export const EventsList = ({
         <EntityNotifModal
           org={org}
           query={orgQuery}
-          mutation={postEventNotifMutation}
+          mutation={addEventNotifMutation}
           setModalState={setNotifyModalState}
           modalState={notifyModalState}
           session={session}

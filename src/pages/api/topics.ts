@@ -1,31 +1,15 @@
 import { Document, Types } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
-import {
-  sendTopicMessageNotifications,
-  sendTopicNotifications
-} from "api/email";
-import { AddTopicParams } from "api/forum";
+import { sendTopicMessageNotifications } from "api/email";
 import database, { models } from "database";
 import { getSession } from "hooks/useAuth";
+import { AddTopicPayload } from "features/forum/topicsApi";
 import { IEvent } from "models/Event";
-import { getSubscriptions, IOrg } from "models/Org";
-import {
-  getSubscriberSubscription,
-  ISubscription,
-  SubscriptionTypes
-} from "models/Subscription";
+import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { createServerError } from "utils/errors";
 import { equals, logJson, toString } from "utils/string";
-
-const transport = nodemailer.createTransport(
-  nodemailerSendgrid({
-    apiKey: process.env.EMAIL_API_KEY
-  })
-);
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -56,8 +40,8 @@ handler.get<
   }
 });
 
-handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
-  async function postTopic(req, res) {
+handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
+  async function addTopic(req, res) {
     const session = await getSession({ req });
 
     if (!session) {
@@ -70,7 +54,7 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
       const {
         body
       }: {
-        body: AddTopicParams;
+        body: AddTopicPayload;
       } = req;
 
       let event: (IEvent & Document<any, any, IEvent>) | null | undefined;
@@ -145,8 +129,7 @@ handler.post<NextApiRequest & { body: AddTopicParams }, NextApiResponse>(
           event: event ? event : undefined,
           org,
           subscriptions,
-          topic,
-          transport
+          topic
         });
       }
       //#endregion

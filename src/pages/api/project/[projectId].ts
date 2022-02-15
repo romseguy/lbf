@@ -4,17 +4,9 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
 import { getSession } from "hooks/useAuth";
 // import { sendProjectToOrgFollowers } from "api/email";
 import { equals, normalize } from "utils/string";
-
-const transport = nodemailer.createTransport(
-  nodemailerSendgrid({
-    apiKey: process.env.EMAIL_API_KEY
-  })
-);
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -101,7 +93,7 @@ handler.put<
       }
 
       // project.projectNotif = body.projectNotif || [];
-      // const emailList = await sendProjectToOrgFollowers(project, transport);
+      // const emailList = await sendProjectToOrgFollowers(project);
 
       let projectNotified;
 

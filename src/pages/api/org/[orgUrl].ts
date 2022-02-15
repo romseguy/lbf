@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
+import { GetOrgParams } from "features/orgs/orgsApi";
 import { getSession } from "hooks/useAuth";
 import { IOrg, orgTypeFull } from "models/Org";
 import {
@@ -17,7 +18,7 @@ handler.use(database);
 
 handler.get<
   NextApiRequest & {
-    query: { orgUrl: string; hash?: string; populate?: string };
+    query: GetOrgParams;
   },
   NextApiResponse
 >(async function getOrg(req, res) {

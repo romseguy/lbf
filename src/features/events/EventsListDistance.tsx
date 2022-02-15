@@ -1,6 +1,6 @@
 import { Select, SelectProps } from "@chakra-ui/react";
 
-export const EventsListDistance = ({
+export const EventsListDistanceSelect = ({
   distance,
   setDistance,
   ...props

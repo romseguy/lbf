@@ -1,5 +1,4 @@
-import type { IEvent } from "models/Event";
-import React from "react";
+import { CalendarIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
@@ -9,11 +8,14 @@ import {
   ModalCloseButton,
   useDisclosure
 } from "@chakra-ui/react";
+import { Session } from "next-auth";
+import React from "react";
 import { EventForwardForm } from "features/common/forms/EventForwardForm";
-import { CalendarIcon } from "@chakra-ui/icons";
+import { IEvent } from "models/Event";
 
 export const ForwardModal = (props: {
   event: IEvent;
+  session: Session;
   onCancel?: () => void;
   onClose: () => void;
   onSubmit?: () => void;

@@ -1,17 +1,10 @@
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
+import { sendMail } from "api/email";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
 import { emailR } from "utils/email";
 import { randomNumber } from "utils/randomNumber";
-
-const transport = nodemailer.createTransport(
-  nodemailerSendgrid({
-    apiKey: process.env.EMAIL_API_KEY
-  })
-);
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -70,7 +63,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function forgotten(
       html: `<h1>Votre demande de réinitialisation de mot de passe</h1>Afin de réinitialiser votre mot de passse, veuillez saisir le code de sécurité suivant : ${securityCode}`
     };
 
-    if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
+    if (process.env.NODE_ENV === "production") await sendMail(mail);
     else if (process.env.NODE_ENV === "development")
       console.log(`sent forgotten password e-mail to ${mail.to}`, mail);
 

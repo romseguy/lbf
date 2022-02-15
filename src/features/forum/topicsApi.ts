@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
-import { AddTopicParams, EditTopicParams } from "api/forum";
 import { IEvent } from "models/Event";
 import { ITopicNotification } from "models/INotification";
 import { IOrg } from "models/Org";
@@ -8,6 +7,25 @@ import { ITopicMessage } from "models/TopicMessage";
 import baseQuery, { objectToQueryString } from "utils/query";
 
 //const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
+
+export interface AddTopicPayload {
+  topic: Partial<ITopic>;
+  org?: Partial<IOrg>;
+  event?: Partial<IEvent>;
+}
+
+export interface AddTopicNotifPayload {
+  email?: string;
+  event?: IEvent<string | Date>;
+  org?: IOrg;
+  orgListsNames?: string[];
+}
+
+export interface EditTopicPayload {
+  topic: Partial<ITopic>;
+  topicMessage?: ITopicMessage;
+  topicMessageId?: string;
+}
 
 export const topicsApi = createApi({
   reducerPath: "topicsApi", // We only specify this because there are many services. This would not be common in most applications
@@ -18,7 +36,7 @@ export const topicsApi = createApi({
     addTopic: build.mutation<
       ITopic,
       {
-        payload: AddTopicParams;
+        payload: AddTopicPayload;
       }
     >({
       query: ({ payload }) => {
@@ -32,13 +50,33 @@ export const topicsApi = createApi({
       },
       invalidatesTags: [{ type: "Topics", id: "LIST" }]
     }),
+    addTopicNotif: build.mutation<
+      { notifications: ITopicNotification[] },
+      {
+        payload: AddTopicNotifPayload;
+        topicId: string;
+      }
+    >({
+      query: ({ payload, topicId }) => {
+        console.groupCollapsed("addTopicNotif");
+        console.log("addTopicNotif: topicId", topicId);
+        console.log("addTopicNotif: payload", payload);
+        console.groupEnd();
+
+        return {
+          url: `topic/${topicId}`,
+          method: "POST",
+          body: payload
+        };
+      }
+    }),
     deleteTopic: build.mutation<ITopic, string>({
       query: (topicId) => ({ url: `topic/${topicId}`, method: "DELETE" })
     }),
     editTopic: build.mutation<
       {},
       {
-        payload: EditTopicParams;
+        payload: EditTopicPayload;
         topicId?: string;
       }
     >({
@@ -51,29 +89,6 @@ export const topicsApi = createApi({
         return {
           url: `topic/${topicId ? topicId : payload.topic._id}`,
           method: "PUT",
-          body: payload
-        };
-      }
-    }),
-    postTopicNotif: build.mutation<
-      { notifications: ITopicNotification[] },
-      {
-        payload: {
-          event?: IEvent;
-          orgListsNames?: string[];
-        };
-        topicId: string;
-      }
-    >({
-      query: ({ payload, topicId }) => {
-        console.groupCollapsed("postTopicNotif");
-        console.log("postTopicNotif: topicId", topicId);
-        console.log("postTopicNotif: payload", payload);
-        console.groupEnd();
-
-        return {
-          url: `topic/${topicId}`,
-          method: "POST",
           body: payload
         };
       }
@@ -94,16 +109,13 @@ export const topicsApi = createApi({
         };
       }
     })
-    // getTopicByName: build.query<ITopic, string>({
-    //   query: (topicUrl) => ({ url: `topic/${topicUrl}` })
-    // }),
   })
 });
 
 export const {
   useAddTopicMutation,
   // useAddTopicDetailsMutation,
-  usePostTopicNotifMutation,
+  useAddTopicNotifMutation,
   useDeleteTopicMutation,
   useEditTopicMutation,
   useGetTopicsQuery

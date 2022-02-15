@@ -1,146 +1,31 @@
-import { addHours, parseISO } from "date-fns";
-import nodemailer from "nodemailer";
+import { Document } from "mongoose";
+import { Session } from "next-auth";
+import nodemailer, { SendMailOptions as Mail } from "nodemailer";
 import { models } from "database";
-import { toDateRange } from "features/common";
 import { IEvent, InviteStatus } from "models/Event";
-import { IOrg, orgTypeFull } from "models/Org";
+import { IOrg } from "models/Org";
+import { IEventNotification, ITopicNotification } from "models/INotification";
 import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 import { ISubscription, SubscriptionTypes } from "models/Subscription";
 import api from "utils/api";
 import { equals, logJson } from "utils/string";
-import { Document } from "mongoose";
-import { IEventNotification, ITopicNotification } from "models/INotification";
+import {
+  createEventEmailNotif,
+  createTopicEmailNotif,
+  getTopicUrl
+} from "utils/email";
 
-export const backgroundColor = "#f9f9f9";
-export const textColor = "#444444";
-export const mainBackgroundColor = "#ffffff";
-const descriptionBackgroundColor = "#f9f9f9";
-const buttonBackgroundColor = "#346df1";
-const buttonBorderColor = "#346df1";
-const buttonTextColor = "#ffffff";
+export const sendMail = async (mail: Mail, session?: Session | null) => {
+  const server = process.env.EMAIL_SERVER;
+  const transport = nodemailer.createTransport(server);
+  await transport.sendMail(mail);
 
-export type Mail = {
-  from?: string;
-  subject?: string;
-  to?: string;
-  html?: string;
-};
-
-const getTopicUrl = ({
-  org,
-  event,
-  topic
-}: {
-  org?: IOrg | null;
-  event?: IEvent<string | Date>;
-  topic: ITopic;
-}) => {
-  let topicUrl = `${process.env.NEXT_PUBLIC_URL}/${
-    org ? (org.orgUrl === "forum" ? "forum" : org.orgUrl) : event?.eventUrl
-  }`;
-  topicUrl +=
-    org && org.orgUrl === "forum"
-      ? `/${topic.topicName}`
-      : `/discussions/${topic.topicName}`;
-  return topicUrl;
-};
-
-export const createEventEmailNotif = ({
-  email,
-  event,
-  org,
-  subscriptionId,
-  isPreview
-}: {
-  email: string;
-  event: IEvent<string | Date>;
-  org: IOrg;
-  subscriptionId: string;
-  isPreview?: boolean;
-}): Mail => {
-  const orgUrl = `${process.env.NEXT_PUBLIC_URL}/${org.orgUrl}`;
-  const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`;
-  const eventDescription = event.eventDescriptionHtml
-    ? event.eventDescriptionHtml
-    : undefined;
-  const eventMinDate =
-    typeof event.eventMinDate === "string"
-      ? parseISO(event.eventMinDate)
-      : event.eventMinDate;
-  const eventMaxDate =
-    typeof event.eventMaxDate === "string"
-      ? parseISO(event.eventMaxDate)
-      : event.eventMaxDate;
-
-  return {
-    from: process.env.EMAIL_FROM,
-    to: `<${email}>`,
-    subject: `${org.orgName} vous invite à un événement : ${event.eventName}`,
-    html: `
-      <body style="background: ${backgroundColor};">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <strong>${process.env.NEXT_PUBLIC_SHORT_URL}</strong>
-          </td>
-        </tr>
-      </table>
-      <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
-        <tr>
-          <td align="center" style="padding: 0px 0px 0px 0px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <h2>
-              <a href="${orgUrl}">${
-      org.orgName
-    }</a> vous invite à un événement : ${event.eventName}
-            </h2>
-            <h3>
-            ${
-              process.env.NODE_ENV === "production"
-                ? toDateRange(
-                    addHours(eventMinDate, 2),
-                    addHours(eventMaxDate, 2)
-                  )
-                : toDateRange(eventMinDate, eventMaxDate)
-            }
-            </h3>
-            ${
-              eventDescription
-                ? `
-                  <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${descriptionBackgroundColor}; border-radius: 10px;">
-                    <tr>
-                      <td>
-                        ${eventDescription}
-                      </td>
-                    </tr>
-                  </table>
-                `
-                : ""
-            }
-            <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">la page de l'événement</a> pour indiquer si vous souhaitez y participer.</p>
-          </td>
-        </tr>
-      </table>
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor}; text-decoration: underline;">
-            ${
-              isPreview
-                ? `
-                  <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${org.orgUrl}?subscriptionId=${subscriptionId}">Se désabonner de ${org.orgName}</a>
-                  `
-                : subscriptionId
-                ? `
-                  <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${org.orgUrl}?subscriptionId=${subscriptionId}">Se désabonner de ${org.orgName}</a>
-                  `
-                : ""
-            }
-          </td>
-        </tr>
-      </table>
-    </body>
-    `
-  };
+  if (session)
+    await models.User.updateOne(
+      { userId: session.user.userId },
+      { emailCount: "increment" }
+    );
 };
 
 // send email and/or push notifications to org followers
@@ -151,13 +36,11 @@ export const createEventEmailNotif = ({
 export const sendEventNotifications = async ({
   event,
   org,
-  subscriptions,
-  transport
+  subscriptions
 }: {
   event: IEvent & Document<any, any, IEvent>;
   org: IOrg;
   subscriptions: ISubscription[];
-  transport: nodemailer.Transporter<any>;
 }): Promise<IEventNotification[]> => {
   const eventNotifications: IEventNotification[] = [];
 
@@ -216,8 +99,7 @@ export const sendEventNotifications = async ({
           subscriptionId: subscription._id
         });
 
-        if (process.env.NODE_ENV === "production")
-          await transport.sendMail(mail);
+        if (process.env.NODE_ENV === "production") await sendMail(mail);
         else if (process.env.NODE_ENV === "development") {
           console.log(`sent event email notif to ${mail.to}`, mail);
         }
@@ -270,8 +152,7 @@ export const sendEventNotifications = async ({
               subscriptionId: subscription._id
             });
 
-            if (process.env.NODE_ENV === "production")
-              await transport.sendMail(mail);
+            if (process.env.NODE_ENV === "production") await sendMail(mail);
             else if (process.env.NODE_ENV === "development") {
               console.log(`email: notified ${mail.to}`, mail);
             }
@@ -336,93 +217,18 @@ export const sendEventNotifications = async ({
   return eventNotifications;
 };
 
-export const createTopicEmailNotif = ({
-  email,
-  event,
-  org,
-  subscriptionId,
-  topic
-}: {
-  email: string;
-  event?: IEvent<string | Date>;
-  org?: IOrg;
-  topic: ITopic;
-  subscriptionId: string;
-}): Mail => {
-  const entityName = event ? event.eventName : org?.orgName;
-  const entityUrl = event ? event.eventUrl : org?.orgUrl;
-  const entityType = org ? orgTypeFull(org.orgType) : "de l'événement";
-  const topicUrl = getTopicUrl({ event, org, topic });
-  const subject = `Vous êtes invité à une discussion : ${topic.topicName}`;
-
-  return {
-    from: process.env.EMAIL_FROM,
-    to: `<${email}>`,
-    subject,
-    html: `
-      <body style="background: ${backgroundColor};">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <strong>${process.env.NEXT_PUBLIC_SHORT_URL}</strong>
-          </td>
-        </tr>
-      </table>
-      <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
-        <tr>
-          <td align="center" style="padding: 0px 0px 0px 0px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <h2>${subject}</h2>
-            ${
-              topic.topicMessages[0]
-                ? `
-                  <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${descriptionBackgroundColor}; border-radius: 10px;">
-                    <tr>
-                      <td>
-                        ${topic.topicMessages[0].messageHtml}
-                      </td>
-                    </tr>
-                  </table>
-                `
-                : ""
-            }
-            <p><a href="${topicUrl}">Cliquez ici</a> pour participer à la discussion.</p>
-          </td>
-        </tr>
-      </table>
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor}; text-decoration: underline;">
-            ${`
-              <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
-              org ? org.orgUrl : event?.eventUrl
-            }?subscriptionId=${subscriptionId}">Se désabonner ${
-              entityUrl === "forum"
-                ? `du forum ${process.env.NEXT_PUBLIC_SHORT_URL}`
-                : `${entityType} ${entityName}`
-            }</a>
-            `}
-          </td>
-        </tr>
-      </table>
-    </body>
-    `
-  };
-};
-
 // send email and/or push notifications to org or event followers
 // who chose to be notified when new topics are added to the org or event
 export const sendTopicNotifications = async ({
   event,
   org,
   subscriptions,
-  topic,
-  transport
+  topic
 }: {
   event?: IEvent;
   org?: IOrg;
   subscriptions: ISubscription[];
   topic: ITopic & Document<any, any, ITopic>;
-  transport: nodemailer.Transporter<any>;
 }): Promise<ITopicNotification[]> => {
   const topicNotifications: ITopicNotification[] = [];
 
@@ -483,8 +289,7 @@ export const sendTopicNotifications = async ({
             topic
           });
 
-          if (process.env.NODE_ENV === "production")
-            await transport.sendMail(mail);
+          if (process.env.NODE_ENV === "production") await sendMail(mail);
           else if (process.env.NODE_ENV === "development") {
             console.log(`email: notified ${mail.to}`, mail);
           }
@@ -567,8 +372,7 @@ export const sendTopicNotifications = async ({
               topic
             });
 
-            if (process.env.NODE_ENV === "production")
-              await transport.sendMail(mail);
+            if (process.env.NODE_ENV === "production") await sendMail(mail);
             else if (process.env.NODE_ENV === "development") {
               console.log(`sent topic email notif to ${mail.to}`, mail);
             }
@@ -638,14 +442,12 @@ export const sendTopicMessageNotifications = async ({
   event,
   org,
   subscriptions,
-  topic,
-  transport
+  topic
 }: {
   event?: IEvent;
   org?: IOrg | null;
   subscriptions: ISubscription[];
   topic: ITopic;
-  transport: nodemailer.Transporter<any>;
 }) => {
   if (!event && !org) return;
 
@@ -679,7 +481,7 @@ export const sendTopicMessageNotifications = async ({
       html
     };
 
-    if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
+    if (process.env.NODE_ENV === "production") await sendMail(mail);
     else if (process.env.NODE_ENV === "development") {
       console.log(`sent topic message email notif to ${email}`, mail);
     }
@@ -688,12 +490,10 @@ export const sendTopicMessageNotifications = async ({
 
 export const sendToAdmin = async ({
   event,
-  project,
-  transport
+  project
 }: {
-  event?: IEvent;
+  event?: Omit<IEvent, "_id">;
   project?: Partial<IProject>;
-  transport: nodemailer.Transporter<any>;
 }) => {
   if (!event && !project) return;
 
@@ -725,7 +525,7 @@ export const sendToAdmin = async ({
   }
 
   if (process.env.NODE_ENV === "production") {
-    await transport.sendMail(mail);
+    await sendMail(mail);
   } else if (process.env.NODE_ENV === "development") {
     console.log(`sent project email notif to ${mail.to}`, mail);
   }
@@ -733,8 +533,7 @@ export const sendToAdmin = async ({
 
 // export const sendEventToOrgFollowers = async (
 //   event: IEvent,
-//   orgIds: string[],
-//   transport: nodemailer.Transporter<any>
+//   orgIds: string[]
 // ) => {
 //   // console.log("sending notifications to event", event);
 

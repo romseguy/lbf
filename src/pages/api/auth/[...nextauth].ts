@@ -1,10 +1,10 @@
+import { sendMail } from "api/email";
 import NextAuth from "next-auth";
 import type {
   NextApiRequest,
   NextApiResponse
 } from "next-auth/internals/utils";
 import Providers from "next-auth/providers";
-import nodemailer from "nodemailer";
 import { logJson } from "utils/string";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -53,17 +53,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         }) => {
           try {
             const { host } = new URL(url);
-            const transport = nodemailer.createTransport(server);
-            transport.sendMail({
+            const mail = {
               to: email,
               from,
               subject: `Connexion à ${host}`,
               text: text({ url, host }),
               html: html({ url, host, email }),
               encoding: "UTF-8"
-            });
+            };
+            await sendMail(mail);
           } catch (error) {
-            console.error(error);
+            console.error("error sending verification email", error);
             throw error;
           }
         }

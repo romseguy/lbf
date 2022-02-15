@@ -11,6 +11,7 @@ import { getSession } from "hooks/useAuth";
 import { logJson, normalize } from "utils/string";
 import { IOrg, Visibility } from "models/Org";
 import { randomNumber } from "utils/randomNumber";
+import { AddOrgPayload } from "features/orgs/orgsApi";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -43,7 +44,7 @@ handler.get<
   }
 });
 
-handler.post<NextApiRequest & { body: IOrg }, NextApiResponse>(
+handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
   async function postOrg(req, res) {
     const session = await getSession({ req });
 
@@ -53,7 +54,7 @@ handler.post<NextApiRequest & { body: IOrg }, NextApiResponse>(
         .json(createServerError(new Error("Vous devez être identifié")));
 
     try {
-      let { body }: { body: IOrg } = req;
+      let { body }: { body: AddOrgPayload } = req;
       body = {
         ...body,
         isApproved: session.user.isAdmin,

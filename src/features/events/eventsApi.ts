@@ -3,37 +3,66 @@ import { IEvent } from "models/Event";
 import { IEventNotification } from "models/INotification";
 import baseQuery, { objectToQueryString } from "utils/query";
 
-export type EventQueryParams = {
+export type AddEventPayload = Omit<IEvent, "_id">;
+
+export interface AddEventNotifPayload {
+  orgListsNames?: string[];
+  email?: string;
+}
+
+export type EditEventPayload = Partial<IEvent> | string[];
+
+export interface GetEventParams {
   eventUrl: string;
   email?: string;
   populate?: string;
-};
+}
 
 export const eventApi = createApi({
   reducerPath: "eventsApi",
   baseQuery,
   tagTypes: ["Events"],
   endpoints: (build) => ({
-    addEvent: build.mutation<IEvent, Partial<IEvent>>({
-      query: (body) => {
+    addEvent: build.mutation<IEvent, AddEventPayload>({
+      query: (payload) => {
         console.groupCollapsed("addEvent");
-        console.log("payload", body);
+        console.log("payload", payload);
         console.groupEnd();
 
         return {
           url: `events`,
           method: "POST",
-          body
+          body: payload
         };
       },
       invalidatesTags: [{ type: "Events", id: "LIST" }]
+    }),
+    addEventNotif: build.mutation<
+      { notifications: IEventNotification[] },
+      {
+        payload: AddEventNotifPayload;
+        eventUrl?: string;
+      }
+    >({
+      query: ({ payload, eventUrl }) => {
+        console.groupCollapsed("addEventNotif");
+        console.log("addEventNotif: eventUrl", eventUrl);
+        console.log("addEventNotif: payload", payload);
+        console.groupEnd();
+
+        return {
+          url: `event/${eventUrl}`,
+          method: "POST",
+          body: payload
+        };
+      }
     }),
     deleteEvent: build.mutation<IEvent, { eventUrl: string }>({
       query: ({ eventUrl }) => ({ url: `event/${eventUrl}`, method: "DELETE" })
     }),
     editEvent: build.mutation<
       {},
-      { payload: Partial<IEvent> | string[]; eventUrl?: string }
+      { payload: EditEventPayload; eventUrl?: string }
     >({
       query: ({ payload, eventUrl }) => {
         console.groupCollapsed("editEvent");
@@ -54,7 +83,7 @@ export const eventApi = createApi({
         };
       }
     }),
-    getEvent: build.query<IEvent, EventQueryParams>({
+    getEvent: build.query<IEvent, GetEventParams>({
       query: ({ eventUrl, email, populate }) => {
         console.groupCollapsed("getEvent");
         console.log("eventUrl", eventUrl);
@@ -83,35 +112,18 @@ export const eventApi = createApi({
           url: `events${query ? `?${objectToQueryString(query)}` : ""}`
         };
       }
-    }),
-    getEventsByUserId: build.query<IEvent[], string>({
-      query: (userId) => ({ url: `events/${userId}` })
-    }),
-    postEventNotif: build.mutation<
-      { notifications: IEventNotification[] },
-      {
-        payload: { orgListsNames?: string[]; email?: string };
-        eventUrl?: string;
-      }
-    >({
-      query: ({ payload, eventUrl }) => ({
-        url: `event/${eventUrl}`,
-        method: "POST",
-        body: payload
-      })
     })
   })
 });
 
 export const {
   useAddEventMutation,
-  usePostEventNotifMutation,
+  useAddEventNotifMutation,
   useDeleteEventMutation,
   useEditEventMutation,
   useGetEventQuery,
-  useGetEventsQuery,
-  useGetEventsByUserIdQuery
+  useGetEventsQuery
 } = eventApi;
 export const {
-  endpoints: { getEvent, getEvents, getEventsByUserId, deleteEvent }
+  endpoints: { getEvent, getEvents, deleteEvent }
 } = eventApi;

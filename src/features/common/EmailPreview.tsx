@@ -1,11 +1,11 @@
 import { Box, FlexProps, Heading } from "@chakra-ui/react";
-import { createEventEmailNotif, createTopicEmailNotif } from "api/email";
 import { PageContainer } from "features/common";
 import DOMPurify from "isomorphic-dompurify";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { Session } from "next-auth";
+import { createEventEmailNotif, createTopicEmailNotif } from "utils/email";
 import { isEvent, isTopic } from "utils/models";
 
 export const EmailPreview = ({
@@ -35,15 +35,16 @@ export const EmailPreview = ({
         subscriptionId: session.user.userId,
         topic: entity
       })
-    : {};
+    : undefined;
 
   return (
     <PageContainer bg="white" {...props}>
       <div
         dangerouslySetInnerHTML={{
           __html: DOMPurify.sanitize(
-            notif.html?.replaceAll("\\n", "<br/>") ||
-              "L'aperçu n'a pas pu être affiché"
+            notif
+              ? notif.html.replaceAll("\\n", "<br/>")
+              : "L'aperçu n'a pas pu être affiché"
           )
         }}
       />

@@ -27,7 +27,7 @@ import { Session } from "next-auth";
 import React, { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EmailControl, EntityButton, ErrorMessageText } from "features/common";
-import { usePostEventNotifMutation } from "features/events/eventsApi";
+import { useAddEventNotifMutation } from "features/events/eventsApi";
 import { IEvent } from "models/Event";
 import { getSubscriptions, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
@@ -54,7 +54,7 @@ export const EventNotifForm = ({
   const isDark = colorMode === "dark";
 
   //#region event
-  const [postEventNotif, q] = usePostEventNotifMutation();
+  const [addEventNotif, q] = useAddEventNotifMutation();
   //#endregion
 
   //#region local state
@@ -92,7 +92,7 @@ export const EventNotifForm = ({
     };
 
     try {
-      const { notifications } = await postEventNotif({
+      const { notifications } = await addEventNotif({
         eventUrl: event.eventUrl,
         payload
       }).unwrap();

@@ -10,6 +10,7 @@ import {
   useToast,
   FormLabel
 } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -26,15 +27,16 @@ import { IOrg } from "models/Org";
 import { handleError } from "utils/form";
 
 export const EventForwardForm = ({
+  session,
   ...props
 }: {
   event: IEvent;
+  session: Session;
   onCancel?: () => void;
   onClose: () => void;
   onSubmit?: () => void;
 }) => {
   const router = useRouter();
-  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
 
   const [addEvent, addEventMutation] = useAddEventMutation();
@@ -50,7 +52,7 @@ export const EventForwardForm = ({
     refetch: refetchOrgs
   } = useGetOrgsQuery({
     populate: "orgSubscriptions orgEvents",
-    createdBy: session?.user.userId
+    createdBy: session.user.userId
   });
 
   const myOrgs = orgs?.filter(
@@ -76,13 +78,12 @@ export const EventForwardForm = ({
 
       await addEvent({
         ...props.event,
-        _id: undefined,
         eventName: props.event._id,
         forwardedFrom: {
           eventId: props.event._id
         },
         eventOrgs: orgs,
-        createdBy: session?.user.userId
+        createdBy: session.user.userId
       });
 
       toast({

@@ -20,12 +20,9 @@ export const TopicsListItemShare = ({
 }: IconButtonProps & { topic: Partial<ITopic> }) => {
   const toast = useToast({ position: "top" });
   const [isOpen, setIsOpen] = useState(false);
-
-  let url = topic.org
-    ? topic.org.orgUrl
-    : topic.event?.eventUrl + "/discussions";
-  if (topic.org?.orgUrl === "forum") url = "forum";
-  url = `${process.env.NEXT_PUBLIC_URL}/${url}/${topic.topicName}`;
+  const url = `${process.env.NEXT_PUBLIC_URL}/${
+    topic.org ? topic.org.orgUrl : topic.event ? topic.event.eventUrl : ""
+  }/discussions/${topic.topicName}`;
 
   return (
     <Popover closeOnBlur isOpen={isOpen} onClose={() => setIsOpen(false)}>

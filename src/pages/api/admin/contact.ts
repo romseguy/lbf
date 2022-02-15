@@ -1,20 +1,9 @@
 import nextConnect from "next-connect";
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
+import { sendMail } from "api/email";
+import { getSession } from "hooks/useAuth";
+import { backgroundColor, textColor, mainBackgroundColor } from "utils/email";
 import { createServerError } from "utils/errors";
-import {
-  backgroundColor,
-  Mail,
-  mainBackgroundColor,
-  textColor
-} from "api/email";
-
-const transport = nodemailer.createTransport(
-  nodemailerSendgrid({
-    apiKey: process.env.EMAIL_API_KEY
-  })
-);
 
 const handler = nextConnect();
 
@@ -22,12 +11,13 @@ handler.post<
   NextApiRequest & { body: { email: string; message: string } },
   NextApiResponse
 >(async function contact(req, res) {
+  const session = await getSession({ req });
   const {
     body: { email, message }
   }: { body: { email: string; message: string } } = req;
 
   try {
-    const mail: Mail = {
+    const mail = {
       from: process.env.EMAIL_FROM,
       to: process.env.EMAIL_ADMIN,
       subject: "Vous avez reçu un message",
@@ -54,7 +44,7 @@ handler.post<
         `
     };
 
-    if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
+    if (process.env.NODE_ENV === "production") await sendMail(mail, session);
     else console.log(`sent message to ${mail.to}`, mail);
 
     res.status(200).json({});

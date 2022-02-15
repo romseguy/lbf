@@ -19,8 +19,14 @@ import {
   EntityNotified,
   OrgNotifForm
 } from "features/common";
-import { useEditEventMutation } from "features/events/eventsApi";
-import { useEditTopicMutation } from "features/forum/topicsApi";
+import {
+  AddEventNotifPayload,
+  useEditEventMutation
+} from "features/events/eventsApi";
+import {
+  AddTopicNotifPayload,
+  useEditTopicMutation
+} from "features/forum/topicsApi";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
@@ -42,12 +48,6 @@ interface NotifyModalProps<T> {
   modalState: NotifModalState<T>;
   session: Session;
 }
-
-type PostNotifPayload = {
-  event?: IEvent<string | Date>;
-  email?: string;
-  orgListsNames?: string[];
-};
 
 export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
   event,
@@ -72,7 +72,9 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
   const [editEvent] = useEditEventMutation();
   const [editTopic] = useEditTopicMutation();
   const [postNotif] = mutation;
-  const postEntityNotifications = async (payload: PostNotifPayload) => {
+  const postEntityNotifications = async (
+    payload: AddEventNotifPayload | AddTopicNotifPayload
+  ) => {
     if (!entity) return;
     setIsLoading(true);
 
@@ -153,16 +155,12 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
                         type?: "single" | "multi"
                       ) => {
                         console.log("submitted", form);
+                        let payload: AddTopicNotifPayload = { org };
 
-                        let payload: PostNotifPayload = {
-                          event
-                        };
-
-                        if (type === "multi")
-                          payload.orgListsNames = hasItems(form.orgListsNames)
-                            ? form.orgListsNames
-                            : undefined;
-                        else payload.email = form.email;
+                        if (type === "multi") {
+                          if (hasItems(form.orgListsNames))
+                            payload.orgListsNames = form.orgListsNames;
+                        } else payload.email = form.email;
 
                         await postEntityNotifications(payload);
                       }}

@@ -1,23 +1,11 @@
 import { isBefore, addDays, format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
-import nextConnect from "next-connect";
-import nodemailer from "nodemailer";
-import nodemailerSendgrid from "nodemailer-sendgrid";
 import { NextApiRequest, NextApiResponse } from "next";
+import nextConnect from "next-connect";
+import { sendMail } from "api/email";
 import { getSession } from "hooks/useAuth";
-import {
-  backgroundColor,
-  Mail,
-  mainBackgroundColor,
-  textColor
-} from "api/email";
+import { backgroundColor, textColor, mainBackgroundColor } from "utils/email";
 import { createServerError } from "utils/errors";
-
-const transport = nodemailer.createTransport(
-  nodemailerSendgrid({
-    apiKey: process.env.EMAIL_API_KEY
-  })
-);
 
 const handler = nextConnect();
 
@@ -66,7 +54,7 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
         );
 
     try {
-      const mail: Mail = {
+      const mail = {
         from: process.env.EMAIL_FROM,
         to: process.env.EMAIL_ADMIN,
         subject: "Une nouvelle catégorie a été suggérée",
@@ -93,7 +81,7 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
         `
       };
 
-      if (process.env.NODE_ENV === "production") await transport.sendMail(mail);
+      if (process.env.NODE_ENV === "production") await sendMail(mail);
       else console.log(`sent new category suggestion to ${mail.to}`, mail);
 
       res.status(200).json({});
