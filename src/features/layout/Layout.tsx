@@ -14,7 +14,7 @@ import { css } from "twin.macro";
 import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
 import { PaypalButton } from "features/common/forms/PaypalButton";
 import { Header, Nav, Footer } from "features/layout";
-import { ContactModal } from "features/modals/ContactModal";
+import { ContactFormModal } from "features/modals/ContactFormModal";
 import { useSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -247,7 +247,7 @@ export const Layout = ({
         </Footer>
       </Flex>
 
-      <ContactModal />
+      <ContactFormModal />
     </>
   );
 };

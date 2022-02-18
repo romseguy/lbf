@@ -1,6 +1,5 @@
 import type { IOrg } from "models/Org";
 import type { IProject } from "models/Project";
-import type { IEvent } from "models/Event";
 import React from "react";
 import {
   Modal,
@@ -8,13 +7,12 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton,
-  useDisclosure
+  ModalCloseButton
 } from "@chakra-ui/react";
 import { ProjectForm } from "features/forms/ProjectForm";
 import { Session } from "next-auth";
 
-export const ProjectModal = (props: {
+export const ProjectFormModal = (props: {
   session: Session;
   org?: IOrg;
   project?: IProject;
@@ -28,7 +26,7 @@ export const ProjectModal = (props: {
   return (
     <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
       <ModalOverlay>
-        <ModalContent>
+        <ModalContent maxWidth="xl">
           <ModalHeader>
             {props.project ? "Modifier le projet" : "Ajouter un projet"}
           </ModalHeader>

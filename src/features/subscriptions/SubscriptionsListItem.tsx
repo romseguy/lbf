@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { refetchEvent } from "features/events/eventSlice";
 import { getUser } from "features/users/usersApi";
-import { IOrg, orgTypeFull } from "models/Org";
+import { orgTypeFull } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription,
@@ -24,32 +24,20 @@ import router from "next/router";
 import React from "react";
 import { IoIosPerson } from "react-icons/io";
 import { useAppDispatch } from "store";
-import { AppQuery } from "utils/types";
 import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
 import { useDeleteSubscriptionMutation } from "./subscriptionsApi";
+import { SubscriptionsListProps } from "./SubscriptionsList";
 
 export const SubscriptionsListItem = ({
   org,
   orgQuery,
-  subscription,
   subQuery,
   isSubscriptionLoading,
   setIsSubscriptionLoading,
-  onTagClick
-}: {
-  org: IOrg;
-  orgQuery: AppQuery<IOrg>;
+  onTagClick,
+  subscription
+}: SubscriptionsListProps & {
   subscription: ISubscription;
-  subQuery: AppQuery<ISubscription>;
-  isSubscriptionLoading: {
-    [key: string]: boolean;
-  };
-  setIsSubscriptionLoading: React.Dispatch<
-    React.SetStateAction<{
-      [key: string]: boolean;
-    }>
-  >;
-  onTagClick: (arg0: any) => void;
 }) => {
   const dispatch = useAppDispatch();
   const toast = useToast({ position: "top" });

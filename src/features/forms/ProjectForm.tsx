@@ -11,29 +11,20 @@ import {
   AlertIcon
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
-import { SerializedError } from "@reduxjs/toolkit";
 import { Session } from "next-auth";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import ReactSelect from "react-select";
-import { ErrorMessageText, MultiSelect, RTEditor } from "features/common";
+import { ErrorMessageText, ListsControl, RTEditor } from "features/common";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import {
   useAddProjectMutation,
   useEditProjectMutation
 } from "features/projects/projectsApi";
-import { getSubscriptions, IOrg, IOrgList } from "models/Org";
-import {
-  IProject,
-  Status,
-  Statuses,
-  Visibilities,
-  Visibility
-} from "models/Project";
+import { getLists, IOrg } from "models/Org";
+import { IProject, Status, Statuses } from "models/Project";
 import { IUser } from "models/User";
 import { handleError } from "utils/form";
-import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
 
 export const ProjectForm = ({
@@ -60,19 +51,7 @@ export const ProjectForm = ({
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
-  let lists: IOrgList[] | undefined;
-  if (org) {
-    lists = (org.orgLists || []).concat([
-      {
-        listName: "Abonnés",
-        subscriptions: getSubscriptions(org, SubscriptionTypes.FOLLOWER)
-      },
-      {
-        listName: "Adhérents",
-        subscriptions: getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
-      }
-    ]);
-  }
+  let lists = getLists(org);
   //#endregion
 
   //#region myOrgs
@@ -246,63 +225,19 @@ export const ProjectForm = ({
       )}
 
       {props.isCreator && lists && (
-        <FormControl
-          id="projectVisibility"
-          isInvalid={!!errors["projectVisibility"]}
-          mb={3}
-        >
-          <FormLabel>Listes de diffusion</FormLabel>
-          <Controller
-            name="projectVisibility"
-            control={control}
-            defaultValue={[]}
-            render={(renderProps) => {
-              return (
-                <MultiSelect
-                  value={renderProps.value}
-                  onChange={renderProps.onChange}
-                  options={
-                    lists?.map(({ listName }) => ({
-                      label: listName,
-                      value: listName
-                    })) || []
-                  }
-                  allOptionLabel="Toutes les listes"
-                  placeholder="Sélectionner une ou plusieurs listes"
-                  noOptionsMessage={() => "Aucun résultat"}
-                  isClearable
-                  isSearchable={false}
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (defaultStyles: any) => {
-                      return {
-                        ...defaultStyles,
-                        borderColor: "#e2e8f0",
-                        paddingLeft: "8px"
-                      };
-                    },
-                    placeholder: () => {
-                      return {
-                        color: "#A0AEC0"
-                      };
-                    }
-                  }}
-                />
-              );
-            }}
-          />
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="projectVisibility" />
-          </FormErrorMessage>
-        </FormControl>
+        <ListsControl
+          control={control}
+          errors={errors}
+          lists={lists}
+          name="projectVisibility"
+        />
       )}
 
       {hasItems(projectVisibility) && (
         <Alert status="info" mb={3}>
           <AlertIcon />
-          La discussion ne sera visible que par les membres des listes de
-          diffusion sélectionnées.
+          Le projet ne sera visible que par les membres des listes
+          sélectionnées.
         </Alert>
       )}
 

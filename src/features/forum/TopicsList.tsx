@@ -20,7 +20,7 @@ import {
   NotifModalState,
   EntityNotifModal
 } from "features/modals/EntityNotifModal";
-import { TopicModal } from "features/modals/TopicModal";
+import { TopicFormModal } from "features/modals/TopicFormModal";
 import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
@@ -28,7 +28,7 @@ import {
 import { IEvent } from "models/Event";
 import { IOrg, IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
-import { ITopic, Visibility } from "models/Topic";
+import { ITopic } from "models/Topic";
 import { useDeleteTopicMutation, useAddTopicNotifMutation } from "./topicsApi";
 import { TopicsListItem } from "./TopicsListItem";
 import { hasItems } from "utils/array";
@@ -211,7 +211,7 @@ export const TopicsList = ({
         </Button>
 
         {topicModalState.isOpen && (
-          <TopicModal
+          <TopicFormModal
             {...topicModalState}
             org={org}
             event={event}
@@ -258,7 +258,7 @@ export const TopicsList = ({
         (props.isSubscribed || props.isCreator) && (
           <Flex flexDirection="column" mb={3}>
             <Flex>
-              <Text className="rainbow-text">Listes de diffusion</Text>
+              <Text className="rainbow-text">Listes</Text>
             </Flex>
             <TopicsListOrgLists
               org={org}

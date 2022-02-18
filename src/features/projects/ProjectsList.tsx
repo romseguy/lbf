@@ -22,7 +22,7 @@ import React, { useMemo, useState } from "react";
 import { FaFolderOpen, FaFolder } from "react-icons/fa";
 import { useSession } from "hooks/useAuth";
 import { DeleteButton, Grid, GridItem, Link } from "features/common";
-import { ProjectModal } from "features/modals/ProjectModal";
+import { ProjectFormModal } from "features/modals/ProjectFormModal";
 import { IOrg, orgTypeFull } from "models/Org";
 import {
   IProject,
@@ -475,7 +475,7 @@ export const ProjectsList = ({
       </Grid>
 
       {projectModalState.isOpen && session && (
-        <ProjectModal
+        <ProjectFormModal
           session={session}
           project={projectModalState.project}
           org={org}

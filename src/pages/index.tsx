@@ -14,7 +14,7 @@ import { PageContainer } from "features/common";
 import { Layout } from "features/layout";
 import { AboutModal } from "features/modals/AboutModal";
 import { MapModal } from "features/modals/MapModal";
-import { NetworksModal } from "features/modals/NetworksModal";
+import { TreeChartModal } from "features/modals/TreeChartModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgsList } from "features/orgs/OrgsList";
@@ -145,7 +145,7 @@ const IndexPage = (props: PageProps) => {
         )}
 
         {isNetworksModalOpen && (
-          <NetworksModal
+          <TreeChartModal
             inputNodes={inputNodes}
             isMobile={props.isMobile}
             isOpen={isNetworksModalOpen}

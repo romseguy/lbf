@@ -29,7 +29,7 @@ import { useForm } from "react-hook-form";
 import { EmailControl, EntityButton, ErrorMessageText } from "features/common";
 import { useAddEventNotifMutation } from "features/events/eventsApi";
 import { IEvent } from "models/Event";
-import { getSubscriptions, orgTypeFull } from "models/Org";
+import { getLists, getSubscriptions, orgTypeFull } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
@@ -150,8 +150,7 @@ export const EventNotifForm = ({
                 setType("multi");
               }}
             >
-              Inviter les membres d'une ou plusieurs listes de diffusion
-              appartenant aux organisateurs de{" "}
+              Inviter les membres d'une ou plusieurs listes des organisateurs de{" "}
               <EntityButton event={event} p={1} onClick={null} />
             </Radio>
             <Radio
@@ -192,22 +191,7 @@ export const EventNotifForm = ({
                     </Tr>
                   ) : hasItems(event.eventOrgs) ? (
                     event.eventOrgs.map((org) => {
-                      const lists = (org.orgLists || []).concat([
-                        {
-                          listName: "Abonnés",
-                          subscriptions: getSubscriptions(
-                            org,
-                            SubscriptionTypes.FOLLOWER
-                          )
-                        },
-                        {
-                          listName: "Adhérents",
-                          subscriptions: getSubscriptions(
-                            org,
-                            SubscriptionTypes.SUBSCRIBER
-                          )
-                        }
-                      ]);
+                      const lists = getLists(org);
 
                       return (
                         <Fragment key={org._id}>
@@ -220,14 +204,14 @@ export const EventNotifForm = ({
                                   alignItems="center"
                                   size="sm"
                                 >
-                                  Listes de diffusion {orgTypeFull(org.orgType)}
+                                  Listes de {orgTypeFull(org.orgType)}
                                   <EntityButton org={org} ml={2} />
                                 </Heading>
                               </Flex>
                             </Td>
                           </Tr>
 
-                          {lists.map((list) => {
+                          {lists?.map((list) => {
                             let i = 0;
                             for (const subscription of list.subscriptions ||
                               []) {

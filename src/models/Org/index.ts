@@ -1,7 +1,23 @@
+import { SubscriptionTypes } from "models/Subscription";
 import { equals } from "utils/string";
-import { IOrg, OrgType, OrgTypes } from "./IOrg";
+import { IOrg, IOrgList, OrgType, OrgTypes } from "./IOrg";
 
 export * from "./IOrg";
+
+export const getLists = (org?: IOrg): IOrgList[] | undefined => {
+  if (!org) return undefined;
+
+  return (org.orgLists || []).concat([
+    {
+      listName: "Abonnés",
+      subscriptions: getSubscriptions(org, SubscriptionTypes.FOLLOWER)
+    },
+    {
+      listName: "Adhérents",
+      subscriptions: getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
+    }
+  ]);
+};
 
 export const getSubscriptions = (org: IOrg, type: string) => {
   if (!Array.isArray(org.orgSubscriptions) || !org.orgSubscriptions.length)

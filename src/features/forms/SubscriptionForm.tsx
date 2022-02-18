@@ -2,25 +2,26 @@ import {
   FormControl,
   FormLabel,
   FormErrorMessage,
-  CheckboxGroup,
-  Box,
-  Checkbox,
   Alert,
   AlertIcon,
-  Flex,
-  Text
+  Flex
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { css } from "twin.macro";
+import {
+  Textarea,
+  ErrorMessageText,
+  Button,
+  ListsControl
+} from "features/common";
 import { useAddSubscriptionMutation } from "features/subscriptions/subscriptionsApi";
-import { IOrg, orgTypeFull4 } from "models/Org";
+import { getLists, IOrg } from "models/Org";
 import { SubscriptionTypes } from "models/Subscription";
+import { hasItems } from "utils/array";
 import { emailR } from "utils/email";
 import { handleError } from "utils/form";
 import { phoneR } from "utils/string";
-import { Textarea, ErrorMessageText, Button } from "..";
 
 export const SubscriptionForm = ({
   org,
@@ -36,90 +37,93 @@ export const SubscriptionForm = ({
   onCancel: () => void;
   onSubmit: () => void;
 }) => {
-  const [addSubscription, addSubscriptionMutation] =
-    useAddSubscriptionMutation();
+  const [addSubscription] = useAddSubscriptionMutation();
 
   const [isLoading, setIsLoading] = useState(false);
+  let lists = getLists(org);
 
   //#region form
-  const {
-    register,
-    handleSubmit,
-    errors,
-    setError,
-    clearErrors,
-    setValue,
-    watch
-  } = useForm({
-    mode: "onChange"
-  });
+  const { clearErrors, control, errors, handleSubmit, register, setError } =
+    useForm({
+      mode: "onChange"
+    });
 
-  const subscriptionType = watch("subscriptionType");
+  const onChange = () => clearErrors();
 
   const onSubmit = async (form: {
-    emailList: string;
-    phoneList: string;
-    subscriptionType: string;
+    emailList?: string;
+    phoneList?: string;
+    subscriptionType: { label: string; value: string }[];
   }) => {
+    console.log("submitted", form);
+    setIsLoading(true);
+    const { emailList, phoneList, subscriptionType } = form;
+
+    const emailArray: string[] = (emailList || "")
+      .split(/(\s+)/)
+      .filter((e: string) => e.trim().length > 0)
+      .filter((email: string) => emailR.test(email));
+
+    const phoneArray: string[] = (phoneList || "")
+      .split(/(\s+)/)
+      .filter((e: string) => e.trim().length > 0)
+      .filter((phone: string) => phoneR.test(phone));
+
     try {
-      setIsLoading(true);
-      console.log("submitted", form);
-      const { emailList, phoneList, subscriptionType } = form;
+      if (!hasItems(subscriptionType))
+        throw new Error("Veuillez sélectionner une ou plusieurs listes");
 
-      const emailArray: string[] = emailList
-        .split(/(\s+)/)
-        .filter((e: string) => e.trim().length > 0)
-        .filter((email: string) => emailR.test(email));
-
-      const phoneArray: string[] = phoneList
-        .split(/(\s+)/)
-        .filter((e: string) => e.trim().length > 0)
-        .filter((phone: string) => phoneR.test(phone));
-
-      if (!emailArray.length && !phoneArray.length) {
+      if (!hasItems(emailArray) && !hasItems(phoneArray)) {
         throw new Error("Aucunes coordonnées valide");
       }
 
       for (const email of emailArray) {
-        for (const type of subscriptionType) {
-          await addSubscription({
-            email,
-            payload: {
-              orgs: [
-                {
-                  orgId: org._id,
-                  org,
-                  type,
-                  tagTypes: [
-                    { type: "Events", emailNotif: true, pushNotif: true },
-                    { type: "Topics", emailNotif: true, pushNotif: true }
-                  ]
-                }
-              ]
-            }
-          });
+        for (const { value } of subscriptionType) {
+          let type;
+          if (value === "Adhérents") type = SubscriptionTypes.SUBSCRIBER;
+          else if (value === "Abonnés") type = SubscriptionTypes.FOLLOWER;
+
+          if (type)
+            await addSubscription({
+              email,
+              payload: {
+                orgs: [
+                  {
+                    orgId: org._id,
+                    org,
+                    type,
+                    tagTypes: [
+                      { type: "Events", emailNotif: true, pushNotif: true },
+                      { type: "Topics", emailNotif: true, pushNotif: true }
+                    ]
+                  }
+                ]
+              }
+            });
+          else {
+            console.log("todo: add to org list");
+          }
         }
       }
 
-      for (const phone of phoneArray) {
-        for (const type of subscriptionType) {
-          await addSubscription({
-            phone,
-            payload: {
-              orgs: [
-                {
-                  orgId: org._id,
-                  org,
-                  type
-                }
-              ]
-            }
-          });
-        }
-      }
+      // for (const phone of phoneArray) {
+      //   for (const type of subscriptionType) {
+      //     await addSubscription({
+      //       phone,
+      //       payload: {
+      //         orgs: [
+      //           {
+      //             orgId: org._id,
+      //             org,
+      //             type
+      //           }
+      //         ]
+      //       }
+      //     });
+      //   }
+      // }
 
-      clearErrors();
-      setValue("subscriptionType", []);
+      //setValue("subscriptionType", []);
       setIsLoading(false);
       props.onSubmit && props.onSubmit();
     } catch (error) {
@@ -137,26 +141,19 @@ export const SubscriptionForm = ({
   //#endregion
 
   return (
-    <form
-      onChange={() => clearErrors("formErrorMessage")}
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <FormControl isInvalid={!!errors.emailList} mb={3}>
         <FormLabel>
-          Entrez les e-mails séparées par un espace ou un retour à la ligne :{" "}
+          Entrez les adresses e-mails séparées par un espace ou un retour à la
+          ligne :{" "}
         </FormLabel>
-        <Textarea
-          ref={register()}
-          name="emailList"
-          dark={{ _hover: { borderColor: "white" } }}
-          onChange={() => clearErrors("formErrorMessage")}
-        />
+        <Textarea ref={register()} name="emailList" />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="emailList" />
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl isInvalid={!!errors.phoneList} mb={3}>
+      {/* <FormControl isInvalid={!!errors.phoneList} mb={3}>
         <FormLabel>
           Entrez les numéros de téléphone mobile séparés par un espace ou un
           retour à la ligne :{" "}
@@ -165,14 +162,24 @@ export const SubscriptionForm = ({
           ref={register()}
           name="phoneList"
           dark={{ _hover: { borderColor: "white" } }}
-          onChange={() => clearErrors("formErrorMessage")}
+          onChange={onChange}
         />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="phoneList" />
         </FormErrorMessage>
-      </FormControl>
+      </FormControl> */}
 
-      <FormControl isRequired isInvalid={!!errors.subscriptionType} mb={3}>
+      <ListsControl
+        control={control}
+        errors={errors}
+        isRequired
+        label="Liste(s):"
+        lists={lists}
+        name="subscriptionType"
+        onChange={onChange}
+      />
+
+      {/*<FormControl isRequired isInvalid={!!errors.subscriptionType} mb={3}>
         <CheckboxGroup>
           <Box
             display="flex"
@@ -199,29 +206,11 @@ export const SubscriptionForm = ({
                 data-cy="follower-checkbox"
               >
                 Abonné
-                {/* <Text fontSize="smaller">
+                <Text fontSize="smaller">
                 Vous pourrez inviter cette personne aux discussions, événements,
                 et projets de {orgTypeFull4(org.orgType)}.
-              </Text> */}
+              </Text>
               </Checkbox>
-
-              {/* {subscriptionType?.includes(SubscriptionTypes.FOLLOWER) && (
-                <CheckboxGroup>
-                  <Checkbox
-                    ref={register({ required: true })}
-                    name="tagType"
-                    defaultChecked
-                    bg={"red.100"}
-                    borderRadius="lg"
-                    p={3}
-                    mt={3}
-                    ml={3}
-                    data-cy="tagtype-topics-checkbox"
-                  >
-                    Discussions
-                  </Checkbox>
-                </CheckboxGroup>
-              )} */}
             </Box>
 
             <Checkbox
@@ -235,13 +224,13 @@ export const SubscriptionForm = ({
             >
               Adhérent
               <Text fontSize="smaller">
-                {/* La personne aura également accès aux discussions, événements, et
-                projets réservés aux adhérents. */}
+                La personne aura également accès aux discussions, événements, et
+                projets réservés aux adhérents.
                 Donner accès au contenu réservé aux adhérents.
               </Text>
             </Checkbox>
           </Box>
-        </CheckboxGroup>
+        </CheckboxGroup> 
 
         <FormErrorMessage>
           <ErrorMessage
@@ -250,7 +239,7 @@ export const SubscriptionForm = ({
             message="Veuillez cocher une case au minimum"
           />
         </FormErrorMessage>
-      </FormControl>
+      </FormControl>*/}
 
       <ErrorMessage
         errors={errors}

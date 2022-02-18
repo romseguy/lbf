@@ -38,7 +38,7 @@ export const ProjectsListItemVisibility = ({
   ) {
     icons = [
       {
-        label: `Discussion réservée aux membres d'une liste de diffusion ${suffix}`,
+        label: `Discussion réservée à certains membres ${suffix}`,
         icon: HamburgerIcon
       }
     ];

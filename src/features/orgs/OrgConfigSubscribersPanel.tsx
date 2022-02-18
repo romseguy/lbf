@@ -3,7 +3,7 @@ import { Button, Heading, Grid, GridProps, Text, Flex } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
-import { GridHeader, GridItem, Link, SubscriptionForm } from "features/common";
+import { GridHeader, GridItem, Link } from "features/common";
 import { refetchEvent } from "features/events/eventSlice";
 import {
   useAddSubscriptionMutation,
@@ -18,6 +18,7 @@ import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
 import { ConfigVisibility } from "./OrgPage";
+import { SubscriptionForm } from "features/forms/SubscriptionForm";
 
 export const OrgConfigSubscribersPanel = ({
   orgQuery,
@@ -192,7 +193,7 @@ export const OrgConfigSubscribersPanel = ({
               <Flex alignItems="center">
                 {isVisible.subscribers ? <FaFolderOpen /> : <FaFolder />}
                 <Heading size="sm" ml={2}>
-                  Adhérents & Abonnés
+                  Membres
                 </Heading>
               </Flex>
             </GridItem>

@@ -11,12 +11,10 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { getFollowerSubscription } from "models/Subscription";
+import { ErrorMessageText, MultiSelect } from "features/common";
 import { IOrg, IOrgList } from "models/Org";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { handleError } from "utils/form";
-import { ErrorMessageText } from "..";
-import { MultiSelect } from "./MultiSelect";
 import { hasItems } from "utils/array";
 
 const subscriptionsToOptions = (subscriptions: ISubscription[]) =>

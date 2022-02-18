@@ -13,7 +13,7 @@ import { ContactForm } from "features/forms/ContactForm";
 import { selectIsContactModalOpen, setIsContactModalOpen } from "./modalSlice";
 import { useAppDispatch } from "store";
 
-export const ContactModal = () => {
+export const ContactFormModal = () => {
   const dispatch = useAppDispatch();
   const { isOpen, onOpen, onClose: onModalClose } = useDisclosure();
   const isContactModalOpen = useSelector(selectIsContactModalOpen);

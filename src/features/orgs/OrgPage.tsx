@@ -71,7 +71,7 @@ import { selectOrgRefetch } from "./orgSlice";
 import { FaRegMap } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
 import { MapModal } from "features/modals/MapModal";
-import { NetworksModal } from "features/modals/NetworksModal";
+import { TreeChartModal } from "features/modals/TreeChartModal";
 import { InputNode } from "features/treeChart/types";
 import { OrgsList } from "./OrgsList";
 
@@ -824,7 +824,7 @@ export const OrgPage = ({
       )}
 
       {isNetworksModalOpen && (
-        <NetworksModal
+        <TreeChartModal
           inputNodes={inputNodes}
           isMobile={isMobile}
           isOpen={isNetworksModalOpen}

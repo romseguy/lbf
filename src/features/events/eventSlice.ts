@@ -15,10 +15,10 @@ export const eventSlice = createSlice({
   name: "event",
   initialState,
   reducers: {
-    refetchEvent: (state, action: PayloadAction<undefined>) => {
+    refetchEvent: (state, action: PayloadAction<void>) => {
       state.refetchEvent = !state.refetchEvent;
     },
-    refetchEvents: (state, action: PayloadAction<undefined>) => {
+    refetchEvents: (state, action: PayloadAction<void>) => {
       state.refetchEvents = !state.refetchEvents;
     }
   }

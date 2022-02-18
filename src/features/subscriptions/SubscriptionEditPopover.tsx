@@ -15,7 +15,7 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { SubscriptionEditForm } from "features/common";
+import { SubscriptionEditForm } from "features/forms/SubscriptionEditForm";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import {

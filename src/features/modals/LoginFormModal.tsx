@@ -29,12 +29,12 @@ import {
   PasswordControl
 } from "features/common";
 import { ForgottenForm } from "features/forms/ForgottenForm";
+import { getUser } from "features/users/usersApi";
+import { useAppDispatch } from "store";
 import api from "utils/api";
 import { handleError as handleError } from "utils/form";
-import { useAppDispatch } from "store";
-import { getUser } from "features/users/usersApi";
 
-export const LoginModal = (props: {
+export const LoginFormModal = (props: {
   onClose: () => void;
   onSubmit: () => void;
 }) => {
@@ -50,18 +50,10 @@ export const LoginModal = (props: {
 
   const portalRef = useRef(null);
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    watch,
-    errors,
-    setError,
-    clearErrors,
-    reset
-  } = useForm({
-    mode: "onChange"
-  });
+  const { register, handleSubmit, watch, errors, setError, clearErrors } =
+    useForm({
+      mode: "onChange"
+    });
 
   const password = useRef({});
   password.current = watch("password", "");

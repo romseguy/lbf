@@ -20,7 +20,7 @@ const controller = new AbortController();
 const signal = controller.signal;
 let treeChartContainer: HTMLElement | null | undefined;
 
-export const NetworksModal = ({
+export const TreeChartModal = ({
   inputNodes,
   isMobile,
   header,

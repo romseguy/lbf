@@ -10,10 +10,10 @@ import {
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React from "react";
-import { EventForwardForm } from "features/common/forms/EventForwardForm";
+import { EventForwardForm } from "features/forms/EventForwardForm";
 import { IEvent } from "models/Event";
 
-export const ForwardModal = (props: {
+export const EventForwardFormModal = (props: {
   event: IEvent;
   session: Session;
   onCancel?: () => void;

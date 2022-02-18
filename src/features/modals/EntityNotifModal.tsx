@@ -13,16 +13,12 @@ import {
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React, { useState } from "react";
-import {
-  EmailPreview,
-  EntityButton,
-  EntityNotified,
-  OrgNotifForm
-} from "features/common";
+import { EmailPreview, EntityButton, EntityNotified } from "features/common";
 import {
   AddEventNotifPayload,
   useEditEventMutation
 } from "features/events/eventsApi";
+import { OrgNotifForm } from "features/forms/OrgNotifForm";
 import {
   AddTopicNotifPayload,
   useEditTopicMutation
@@ -32,8 +28,8 @@ import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { isEvent, isTopic } from "utils/models";
-import { AppQuery } from "utils/types";
 import { defaultErrorMessage } from "utils/string";
+import { AppQuery } from "utils/types";
 
 export type NotifModalState<T> = {
   entity?: T;

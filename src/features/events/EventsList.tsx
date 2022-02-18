@@ -29,7 +29,7 @@ import {
 } from "features/modals/EntityNotifModal";
 import { EntityModal } from "features/modals/EntityModal";
 import { EventFormModal } from "features/modals/EventFormModal";
-import { ForwardModal } from "features/modals/ForwardModal";
+import { EventForwardFormModal } from "features/modals/EventForwardFormModal";
 import { MapModal } from "features/modals/MapModal";
 import { useSession } from "hooks/useAuth";
 import { getEvents, IEvent } from "models/Event";
@@ -591,7 +591,7 @@ export const EventsList = ({
       {eventsList}
 
       {session && eventToForward && (
-        <ForwardModal
+        <EventForwardFormModal
           event={eventToForward}
           session={session}
           onCancel={() => {

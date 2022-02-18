@@ -20,9 +20,9 @@ import {
   EmailPreview,
   EntityButton,
   EntityNotified,
-  EventNotifForm,
   Link
 } from "features/common";
+import { EventNotifForm } from "features/forms/EventNotifForm";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";

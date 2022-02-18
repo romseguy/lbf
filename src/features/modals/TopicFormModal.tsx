@@ -1,4 +1,4 @@
-import React from "react";
+import { EditIcon, AddIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
@@ -7,6 +7,7 @@ import {
   ModalBody,
   ModalCloseButton
 } from "@chakra-ui/react";
+import React from "react";
 import { TopicForm } from "features/forms/TopicForm";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -14,7 +15,7 @@ import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { AppQuery } from "utils/types";
 
-export const TopicModal = (props: {
+export const TopicFormModal = (props: {
   org?: IOrg;
   event?: IEvent;
   query: AppQuery<IEvent | IOrg>;
@@ -37,8 +38,17 @@ export const TopicModal = (props: {
     >
       <ModalOverlay>
         <ModalContent maxWidth="xl">
-          <ModalHeader>
-            {props.topic ? "Modifier la discussion" : "Ajouter une discussion"}
+          <ModalHeader display="flex" alignItems="center">
+            {props.topic ? (
+              <>
+                <EditIcon mr={3} /> Modifier la discussion
+              </>
+            ) : (
+              <>
+                <AddIcon mr={3} />
+                Ajouter une discussion
+              </>
+            )}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>

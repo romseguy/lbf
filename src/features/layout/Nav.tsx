@@ -38,7 +38,7 @@ import {
   SubscriptionPopover,
   TopicPopover
 } from "features/layout";
-import { LoginModal } from "features/modals/LoginModal";
+import { LoginFormModal } from "features/modals/LoginFormModal";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { OrgType } from "models/Org";
@@ -374,7 +374,7 @@ export const Nav = ({
       </Box>
 
       {isLoginModalOpen && (
-        <LoginModal
+        <LoginFormModal
           onClose={() => setIsLoginModalOpen(false)}
           onSubmit={async () => {
             setIsLoginModalOpen(false);

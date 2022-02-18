@@ -1,9 +1,4 @@
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  DeleteIcon,
-  EditIcon
-} from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronRightIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Button,
   Flex,
@@ -31,15 +26,10 @@ import { Session } from "next-auth";
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
-import {
-  DeleteButton,
-  EntityListForm,
-  GridHeader,
-  GridItem,
-  Link
-} from "features/common";
-import { getSubscriptions, IOrg, IOrgList } from "models/Org";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import { DeleteButton, GridHeader, GridItem, Link } from "features/common";
+import { EntityListForm } from "features/forms/EntityListForm";
+import { getLists, IOrg, IOrgList } from "models/Org";
+import { ISubscription } from "models/Subscription";
 import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
@@ -56,24 +46,15 @@ export const OrgConfigListsPanel = ({
     orgQuery: AppQuery<IOrg>;
     session: Session;
   }) => {
-  const org = orgQuery.data;
   const toast = useToast({ position: "top" });
 
   //#region org
-  const [editOrg, editOrgMutation] = useEditOrgMutation();
+  const org = orgQuery.data;
+  const [editOrg] = useEditOrgMutation();
   //#endregion
 
   //#region local state
-  const lists: IOrgList[] = (org.orgLists || []).concat([
-    {
-      listName: "Abonnés",
-      subscriptions: getSubscriptions(org, SubscriptionTypes.FOLLOWER)
-    },
-    {
-      listName: "Adhérents",
-      subscriptions: getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
-    }
-  ]);
+  const lists = getLists(org);
   const [isAdd, setIsAdd] = useState(false);
   const [listToEdit, setListToEdit] = useState<IOrgList>();
   const [listToShow, setListToShow] = useState<IOrgList>();
@@ -210,8 +191,8 @@ export const OrgConfigListsPanel = ({
 
       {isVisible.lists &&
         (orgQuery.isLoading ? (
-          <Text>Chargement des listes de diffusion...</Text>
-        ) : lists.length > 0 ? (
+          <Text>Chargement des listes...</Text>
+        ) : hasItems(lists) ? (
           <GridItem
             light={{ bg: "orange.100" }}
             dark={{ bg: "gray.500" }}
@@ -251,7 +232,7 @@ export const OrgConfigListsPanel = ({
               </Thead>
 
               <Tbody>
-                {lists.map((list, index) => {
+                {lists?.map((list, index) => {
                   const { listName, subscriptions } = list;
                   const hasSubscriptions =
                     subscriptions && subscriptions.length > 0;
@@ -285,12 +266,12 @@ export const OrgConfigListsPanel = ({
                         {!["Abonnés", "Adhérents"].includes(list.listName) && (
                           <>
                             <Tooltip
-                              label="Modifier la liste de diffusion"
+                              label="Modifier la liste"
                               hasArrow
                               placement="top"
                             >
                               <IconButton
-                                aria-label="Modifier la liste de diffusion"
+                                aria-label="Modifier la liste"
                                 bg="transparent"
                                 _hover={{ bg: "transparent", color: "green" }}
                                 icon={<EditIcon />}
@@ -356,10 +337,8 @@ export const OrgConfigListsPanel = ({
                 <ModalOverlay />
                 <ModalContent maxWidth={listToEdit && "xl"}>
                   <ModalHeader>
-                    {listToEdit &&
-                      `Modifier la liste de diffusion : ${listToEdit.listName}`}
-                    {listToShow &&
-                      `Liste de diffusion : ${listToShow.listName}`}
+                    {listToEdit && `Modifier la liste : ${listToEdit.listName}`}
+                    {listToShow && `Liste : ${listToShow.listName}`}
                   </ModalHeader>
                   <ModalCloseButton />
                   <ModalBody>
