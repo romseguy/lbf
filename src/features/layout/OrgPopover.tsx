@@ -28,7 +28,7 @@ import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
-import { OrgType } from "models/Org";
+import { EOrgType } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription,
@@ -46,7 +46,7 @@ export const OrgPopover = ({
   session,
   ...props
 }: BoxProps & {
-  orgType?: OrgType;
+  orgType?: EOrgType;
   session: Session;
 }) => {
   const router = useRouter();
@@ -148,7 +148,9 @@ export const OrgPopover = ({
             _hover={{ bg: "transparent" }}
             icon={
               <Icon
-                as={orgType === OrgType.NETWORK ? IoIosGitNetwork : IoIosPeople}
+                as={
+                  orgType === EOrgType.NETWORK ? IoIosGitNetwork : IoIosPeople
+                }
                 boxSize={boxSize}
                 _hover={{ color: "green" }}
               />
@@ -190,15 +192,15 @@ export const OrgPopover = ({
               }
             >
               <option value="showOrgsAdded">
-                Les {orgType === OrgType.NETWORK ? "réseaux" : "organisations"}{" "}
+                Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"}{" "}
                 que j'ai ajouté
               </option>
               <option value="showOrgsFollowed">
-                Les {orgType === OrgType.NETWORK ? "réseaux" : "organisations"}{" "}
+                Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"}{" "}
                 où je suis abonné
               </option>
               <option value="showOrgsSubscribed">
-                Les {orgType === OrgType.NETWORK ? "réseaux" : "organisations"}{" "}
+                Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"}{" "}
                 où je suis adhérent
               </option>
             </Select>
@@ -290,7 +292,7 @@ export const OrgPopover = ({
               data-cy="org-add-button"
             >
               Ajouter{" "}
-              {orgType === OrgType.NETWORK ? "un réseau" : "une organisation"}
+              {orgType === EOrgType.NETWORK ? "un réseau" : "une organisation"}
             </Button>
           </PopoverFooter>
         </PopoverContent>

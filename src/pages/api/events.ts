@@ -10,7 +10,7 @@ import {
 import { getSession } from "hooks/useAuth";
 import { sendToAdmin } from "api/email";
 import { equals, normalize } from "utils/string";
-import { IEvent, Visibility } from "models/Event";
+import { IEvent, EEventVisibility } from "models/Event";
 import { IOrg } from "models/Org";
 import api from "utils/api";
 import { randomNumber } from "utils/randomNumber";
@@ -69,18 +69,18 @@ handler.post<NextApiRequest & { body: AddEventPayload }, NextApiResponse>(
 
     try {
       let { body }: { body: AddEventPayload } = req;
-      body = {
+      let newEvent: Omit<IEvent, "_id"> = {
         ...body,
         eventName: body.eventName.trim(),
-        eventUrl: normalize(body.eventName)
+        eventUrl: normalize(body.eventName),
+        createdBy: session.user.userId
       };
 
       let event: (IEvent & Document<any, any, any>) | null = null;
       let eventOrgs: IOrg[] = [];
-      const { eventUrl } = body;
 
       if (body.forwardedFrom) {
-        event = await models.Event.findOne({ eventUrl });
+        event = await models.Event.findOne({ eventUrl: body.eventUrl });
 
         for (const eventOrg of body.eventOrgs) {
           const o = await models.Org.findOne({ _id: eventOrg._id }).populate(
@@ -89,7 +89,9 @@ handler.post<NextApiRequest & { body: AddEventPayload }, NextApiResponse>(
 
           if (
             o &&
-            !o.orgEvents.find((orgEvent) => equals(orgEvent.eventUrl, eventUrl))
+            !o.orgEvents.find((orgEvent) =>
+              equals(orgEvent.eventUrl, body.eventUrl)
+            )
           ) {
             eventOrgs.push(o);
           }
@@ -103,7 +105,8 @@ handler.post<NextApiRequest & { body: AddEventPayload }, NextApiResponse>(
             event.eventOrgs = event.eventOrgs.concat(eventOrgs);
             await event.save();
           } else {
-            event = await models.Event.create({ ...body, eventUrl, eventOrgs });
+            newEvent = { ...newEvent, eventOrgs };
+            event = await models.Event.create(newEvent);
           }
         }
       } else {
@@ -139,24 +142,25 @@ handler.post<NextApiRequest & { body: AddEventPayload }, NextApiResponse>(
 
         console.log("POST /events: creating event with eventOrgs", eventOrgs);
 
-        event = await models.Event.create({
-          ...body,
+        newEvent = {
+          ...newEvent,
           eventOrgs,
           isApproved
-        });
+        };
+        event = await models.Event.create(newEvent);
 
         if (!isApproved) {
           const admin = await models.User.findOne({ isAdmin: true });
 
-          if (admin && event.eventVisibility === Visibility.PUBLIC) {
-            sendToAdmin({ event: body });
+          if (admin && event.eventVisibility === EEventVisibility.PUBLIC) {
+            sendToAdmin({ event: newEvent });
 
             if (admin.userSubscription)
               await api.sendPushNotification({
                 subscription: admin.userSubscription,
                 message: "Appuyez pour ouvrir la page de l'événement",
                 title: "Un événement attend votre approbation",
-                url: event.eventUrl
+                url: newEvent.eventUrl
               });
           }
         }

@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { ISubscription, SubscriptionTypes } from "./ISubscription";
+import { ISubscription, ESubscriptionType } from "./ISubscription";
 
 export const SubscriptionSchema = new Schema<ISubscription>(
   {
@@ -38,8 +38,8 @@ export const SubscriptionSchema = new Schema<ISubscription>(
         },
         type: {
           type: String,
-          enum: Object.keys(SubscriptionTypes).map(
-            (key) => SubscriptionTypes[key]
+          enum: Object.keys(ESubscriptionType).map(
+            (key) => ESubscriptionType[key as ESubscriptionType]
           ),
           required: true
         },

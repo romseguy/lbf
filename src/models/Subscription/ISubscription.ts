@@ -2,6 +2,12 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
+import { TypedMap } from "utils/types";
+
+export enum ESubscriptionType {
+  SUBSCRIBER = "SUBSCRIBER",
+  FOLLOWER = "FOLLOWER"
+}
 
 export interface ISubscription {
   _id: string;
@@ -10,7 +16,7 @@ export interface ISubscription {
   phone?: string;
   events?: IEventSubscription[];
   orgs?: IOrgSubscription[];
-  topics: ITopicSubscription[];
+  topics?: ITopicSubscription[];
   createdBy: IUser | string;
 }
 
@@ -45,8 +51,3 @@ export interface ITopicSubscription {
   pushNotif?: boolean;
   topic: ITopic;
 }
-
-export const SubscriptionTypes: { [key: string]: string } = {
-  SUBSCRIBER: "SUBSCRIBER",
-  FOLLOWER: "FOLLOWER"
-};

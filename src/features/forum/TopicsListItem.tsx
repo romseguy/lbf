@@ -293,10 +293,6 @@ export const TopicsListItem = ({
                     </Tooltip>
 
                     <DeleteButton
-                      isIconOnly
-                      // tooltip props
-                      placement="bottom"
-                      // other props
                       header={
                         <>
                           Êtes vous sûr de vouloir supprimer la discussion
@@ -306,12 +302,14 @@ export const TopicsListItem = ({
                           ?
                         </>
                       }
+                      isIconOnly
                       isSmall={false}
-                      variant="outline"
+                      mb={2}
                       mr={3}
                       mt={1}
-                      mb={2}
+                      variant="outline"
                       onClick={onDeleteClick}
+                      placement="bottom"
                       data-cy="topic-list-item-delete"
                     />
                   </>

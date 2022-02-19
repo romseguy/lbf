@@ -32,6 +32,7 @@ import {
 } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import {
+  AddOrgPayload,
   useAddOrgMutation,
   useEditOrgMutation,
   useGetOrgsQuery
@@ -42,15 +43,15 @@ import {
   orgTypeFull,
   orgTypeFull5,
   OrgTypes,
-  OrgType,
-  Visibility,
-  Visibilities
+  EOrgType,
+  EOrgVisibility,
+  OrgVisibilities
 } from "models/Org";
 import { useAppDispatch } from "store";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
-import { normalize } from "utils/string";
+import { capitalize, normalize } from "utils/string";
 
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -67,14 +68,9 @@ export const OrgForm = withGoogleApi({
     const isDark = colorMode === "dark";
     const toast = useToast({ position: "top" });
     const dispatch = useAppDispatch();
-
-    //#region org
-    const [addOrg, addOrgMutation] = useAddOrgMutation();
-    const [editOrg, editOrgMutation] = useEditOrgMutation();
-    //#endregion
-
-    //#region myOrgs
-    const { data: myOrgs, isLoading: isQueryLoading } = useGetOrgsQuery(
+    const [addOrg] = useAddOrgMutation();
+    const [editOrg] = useEditOrgMutation();
+    const { data: myOrgs } = useGetOrgsQuery(
       {
         createdBy: props.session.user.userId
       },
@@ -87,7 +83,6 @@ export const OrgForm = withGoogleApi({
         })
       }
     );
-    //#endregion
 
     //#region local state
     const containerProps = {
@@ -151,10 +146,10 @@ export const OrgForm = withGoogleApi({
       const orgPhone = form.orgPhone?.filter(({ phone }) => phone !== "");
       const orgWeb = form.orgWeb?.filter(({ url }) => url !== "");
 
-      let payload = {
+      let payload: AddOrgPayload = {
         ...form,
         orgName: form.orgName.trim(),
-        orgType: form.orgType || OrgType.GENERIC,
+        orgType: form.orgType || EOrgType.GENERIC,
         orgUrl: normalize(form.orgName),
         // orgDescription: form.orgDescription
         //   ? normalizeQuill(form.orgDescription)
@@ -201,7 +196,7 @@ export const OrgForm = withGoogleApi({
 
         if (props.org) {
           if (
-            form.orgVisibility === Visibility.PUBLIC &&
+            form.orgVisibility === EOrgVisibility.PUBLIC &&
             !!props.org.orgPassword
           )
             await editOrg({
@@ -218,12 +213,13 @@ export const OrgForm = withGoogleApi({
             isClosable: true
           });
         } else {
-          payload.createdBy = props.session.user.userId;
           const org = await addOrg(payload).unwrap();
           orgUrl = org.orgUrl;
 
           toast({
-            title: `${orgTypeFull5(form.orgType)} a bien été ajoutée !`,
+            title: `${capitalize(
+              orgTypeFull5(form.orgType)
+            )} a bien été ajoutée !`,
             status: "success",
             isClosable: true
           });
@@ -293,8 +289,8 @@ export const OrgForm = withGoogleApi({
             placeholder={`Type de l'organisation`}
             color={isDark ? "whiteAlpha.400" : "gray.400"}
           >
-            {Object.keys(OrgType).map((k) => {
-              const orgType = k as OrgType;
+            {Object.keys(EOrgType).map((k) => {
+              const orgType = k as EOrgType;
               return (
                 <option key={orgType} value={orgType}>
                   {OrgTypes[orgType]}
@@ -310,7 +306,7 @@ export const OrgForm = withGoogleApi({
         <FormControl
           mb={3}
           isInvalid={!!errors["orgs"]}
-          display={orgType !== OrgType.NETWORK ? "none" : undefined}
+          display={orgType !== EOrgType.NETWORK ? "none" : undefined}
         >
           <FormLabel>Organisations faisant partie du réseau</FormLabel>
           <Controller
@@ -387,15 +383,15 @@ export const OrgForm = withGoogleApi({
             ref={register({
               required: "Veuillez sélectionner la visibilité de l'organisation"
             })}
-            defaultValue={props.org?.orgVisibility || Visibility.PUBLIC}
+            defaultValue={props.org?.orgVisibility || EOrgVisibility.PUBLIC}
             placeholder="Visibilité de l'organisation"
             color={isDark ? "whiteAlpha.400" : "gray.400"}
           >
-            {Object.keys(Visibility).map((key) => {
-              const visibility = key as Visibility;
+            {Object.keys(EOrgVisibility).map((key) => {
+              const visibility = key as EOrgVisibility;
               return (
                 <option key={visibility} value={visibility}>
-                  {Visibilities[visibility]}
+                  {OrgVisibilities[visibility]}
                 </option>
               );
             })}
@@ -405,7 +401,7 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {orgVisibility === Visibility.PRIVATE && (
+        {orgVisibility === EOrgVisibility.PRIVATE && (
           <>
             <PasswordControl
               name="orgPassword"
@@ -491,9 +487,7 @@ export const OrgForm = withGoogleApi({
           <Button
             colorScheme="green"
             type="submit"
-            isLoading={
-              isLoading || addOrgMutation.isLoading || editOrgMutation.isLoading
-            }
+            isLoading={isLoading}
             isDisabled={Object.keys(errors).length > 0}
           >
             {props.org ? "Modifier" : "Ajouter"}

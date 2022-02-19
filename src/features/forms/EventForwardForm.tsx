@@ -82,8 +82,7 @@ export const EventForwardForm = ({
         forwardedFrom: {
           eventId: props.event._id
         },
-        eventOrgs: orgs,
-        createdBy: session.user.userId
+        eventOrgs: orgs
       });
 
       toast({

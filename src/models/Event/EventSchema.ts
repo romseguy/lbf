@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { IEvent, InviteStatus, Visibility } from "./IEvent";
+import { IEvent, EEventInviteStatus, EEventVisibility } from "./IEvent";
 
 export const EventSchema = new Schema<IEvent>(
   {
@@ -33,7 +33,7 @@ export const EventSchema = new Schema<IEvent>(
     },
     eventVisibility: {
       type: String,
-      enum: Visibility
+      enum: EEventVisibility
     },
     eventOrgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
     eventAddress: [{ address: { type: String, trim: true } }],
@@ -61,7 +61,7 @@ export const EventSchema = new Schema<IEvent>(
         },
         status: {
           type: String,
-          enum: InviteStatus
+          enum: EEventInviteStatus
         },
         createdAt: { type: String, required: true }
       }

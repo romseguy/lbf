@@ -371,7 +371,7 @@ handler.delete<
         subscription
       );
 
-      subscription.topics = subscription.topics.filter((topicSubscription) => {
+      subscription.topics = subscription.topics?.filter((topicSubscription) => {
         if (!topicSubscription.topic) return false;
         return !equals(topicSubscription.topic._id, body.topicId);
       });

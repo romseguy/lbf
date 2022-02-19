@@ -45,8 +45,8 @@ export const TopicsListItemVisibility = ({
         label: `Discussion réservée aux membres ${
           customLists.length === 1
             ? `de la liste "${customLists[0]}"`
-            : `des listes ${customLists.map((listName, index) =>
-                index !== listName.length ? `"${listName}", ` : `"${listName}"`
+            : `des listes ${customLists.map(
+                (listName, index) => ` "${listName}"`
               )}`
         }`,
         icon: HamburgerIcon

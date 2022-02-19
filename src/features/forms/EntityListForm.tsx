@@ -45,20 +45,10 @@ export const EntityListForm = ({
   const [isLoading, setIsLoading] = useState(false);
 
   //#region form
-  const {
-    control,
-    register,
-    handleSubmit,
-    errors,
-    setError,
-    clearErrors,
-    watch,
-    setValue,
-    getValues,
-    trigger
-  } = useForm({
-    mode: "onChange"
-  });
+  const { control, register, handleSubmit, errors, setError, clearErrors } =
+    useForm({
+      mode: "onChange"
+    });
 
   const defaultSubscriptions = props.list?.subscriptions || [];
   //const subscriptions: ISubscription[] = watch("subscriptions") || defaultSubscriptions;
@@ -96,14 +86,14 @@ export const EntityListForm = ({
       onSubmit={handleSubmit(onSubmit)}
     >
       <FormControl isInvalid={!!errors.listName} isRequired mb={3}>
-        <FormLabel>Nom de la liste de diffusion</FormLabel>
+        <FormLabel>Nom de la liste</FormLabel>
         <Input
           name="listName"
           ref={register({
             required: "Veuillez saisir un nom"
           })}
           defaultValue={props.list?.listName}
-          placeholder="Nom de la liste de diffusion"
+          placeholder="Nom de la liste"
         />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="listName" />
@@ -239,7 +229,7 @@ export const EntityListForm = ({
             subscription.orgs.find(
               (orgSubscription) =>
                 orgSubscription.orgId === org._id &&
-                orgSubscription.type === SubscriptionTypes.SUBSCRIBER
+                orgSubscription.type === ESubscriptionType.SUBSCRIBER
             )
           )
           .map((subscription) => {

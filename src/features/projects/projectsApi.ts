@@ -1,25 +1,24 @@
 import type { IProject } from "models/Project";
-import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import baseQuery from "utils/query";
 
-//const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
+export type AddProjectPayload = Omit<IProject, "_id" | "createdBy">;
 
 export const projectApi = createApi({
-  reducerPath: "projectsApi", // We only specify this because there are many services. This would not be common in most applications
-  //baseQuery: baseQueryWithRetry,
+  reducerPath: "projectsApi",
   baseQuery,
   tagTypes: ["Projects"],
   endpoints: (build) => ({
-    addProject: build.mutation<IProject, Partial<IProject>>({
-      query: (body) => {
+    addProject: build.mutation<IProject, AddProjectPayload>({
+      query: (payload) => {
         console.groupCollapsed("addProject");
-        console.log("payload", body);
+        console.log("payload", payload);
         console.groupEnd();
 
         return {
           url: `projects`,
           method: "POST",
-          body
+          body: payload
         };
       },
       invalidatesTags: [{ type: "Projects", id: "LIST" }]

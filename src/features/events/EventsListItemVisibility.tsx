@@ -3,7 +3,7 @@ import { IconButton, Tooltip } from "@chakra-ui/react";
 import React from "react";
 import { FaGlobeEurope } from "react-icons/fa";
 import { IoMdPerson } from "react-icons/io";
-import { Visibility } from "models/Event";
+import { EEventVisibility } from "models/Event";
 
 export const EventsListItemVisibility = ({
   eventVisibility
@@ -13,10 +13,10 @@ export const EventsListItemVisibility = ({
   let label = "Événement public";
   let icon = <FaGlobeEurope />;
 
-  if (eventVisibility === Visibility.FOLLOWERS) {
+  if (eventVisibility === EEventVisibility.FOLLOWERS) {
     label = "Événement réservé aux abonnés";
     icon = <EmailIcon />;
-  } else if (eventVisibility === Visibility.SUBSCRIBERS) {
+  } else if (eventVisibility === EEventVisibility.SUBSCRIBERS) {
     label = "Événement réservé aux adhérents";
     icon = <IoMdPerson />;
   }

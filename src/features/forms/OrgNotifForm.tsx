@@ -32,7 +32,7 @@ import {
 } from "features/common";
 import { IEvent } from "models/Event";
 import { orgTypeFull, getSubscriptions, IOrg, getLists } from "models/Org";
-import { SubscriptionTypes } from "models/Subscription";
+import { ESubscriptionType } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { isTopic } from "utils/models";

@@ -24,7 +24,7 @@ import { IOrg } from "models/Org";
 import {
   getFollowerSubscription,
   ISubscription,
-  SubscriptionTypes
+  ESubscriptionType
 } from "models/Subscription";
 import { useAppDispatch } from "store";
 import { emailR } from "utils/email";
@@ -69,7 +69,7 @@ export const SubscribePopover = ({
   const onChange = () => {
     //clearErrors("email");
   };
-  const [addSubscription, _] = useAddSubscriptionMutation();
+  const [addSubscription] = useAddSubscriptionMutation();
   const addFollowerSubscription = async (email?: string) => {
     let payload: Partial<ISubscription> = {};
 
@@ -78,7 +78,7 @@ export const SubscribePopover = ({
         {
           org,
           orgId: org._id,
-          type: SubscriptionTypes.FOLLOWER,
+          type: ESubscriptionType.FOLLOWER,
           tagTypes: [
             { type: "Events", emailNotif: true, pushNotif: true },
             { type: "Topics", emailNotif: true, pushNotif: true }
@@ -97,7 +97,7 @@ export const SubscribePopover = ({
 
     try {
       await addSubscription({
-        payload,
+        ...payload,
         email: email || userEmail
       }).unwrap();
 

@@ -12,6 +12,6 @@ export type AppQuery<T> = {
     status: number;
   };
 };
-export type StringMap<T extends string, K extends string> = {
+export type TypedMap<T extends string, K extends string> = {
   [key in T]: K;
 };

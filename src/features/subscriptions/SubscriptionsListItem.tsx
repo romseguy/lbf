@@ -1,4 +1,3 @@
-import { DeleteIcon } from "@chakra-ui/icons";
 import {
   Box,
   IconButton,
@@ -10,6 +9,7 @@ import {
   Tr,
   useToast
 } from "@chakra-ui/react";
+import { DeleteButton } from "features/common";
 import { refetchEvent } from "features/events/eventSlice";
 import { getUser } from "features/users/usersApi";
 import { orgTypeFull } from "models/Org";
@@ -18,7 +18,7 @@ import {
   getSubscriberSubscription,
   IOrgSubscription,
   ISubscription,
-  SubscriptionTypes
+  ESubscriptionType
 } from "models/Subscription";
 import router from "next/router";
 import React from "react";
@@ -85,7 +85,7 @@ export const SubscriptionsListItem = ({
                 mr={3}
                 onClick={() =>
                   onTagClick({
-                    type: SubscriptionTypes.FOLLOWER,
+                    type: ESubscriptionType.FOLLOWER,
                     followerSubscription,
                     email,
                     phone,
@@ -117,7 +117,7 @@ export const SubscriptionsListItem = ({
                 mr={3}
                 onClick={() =>
                   onTagClick({
-                    type: SubscriptionTypes.SUBSCRIBER,
+                    type: ESubscriptionType.SUBSCRIBER,
                     subscriberSubscription,
                     email,
                     phone,
@@ -227,44 +227,38 @@ export const SubscriptionsListItem = ({
                 />
               </Tooltip>
 
-              <Tooltip label="Supprimer de la liste" hasArrow placement="top">
-                <IconButton
-                  aria-label="Désinscrire"
-                  bg="transparent"
-                  _hover={{ bg: "transparent", color: "red" }}
-                  icon={<DeleteIcon />}
-                  height="auto"
-                  minWidth={0}
-                  onClick={async () => {
-                    setIsSubscriptionLoading({
-                      ...isSubscriptionLoading,
-                      [subscription._id]: true
-                    });
+              <DeleteButton
+                header={
+                  <>
+                    Êtes-vous sûr de vouloir supprimer {phone || email}{" "}
+                    {orgTypeFull(org.orgType)} {org.orgName} ?
+                  </>
+                }
+                isIconOnly
+                onClick={async () => {
+                  setIsSubscriptionLoading({
+                    ...isSubscriptionLoading,
+                    [subscription._id]: true
+                  });
 
-                    const unsubscribe = confirm(
-                      `Êtes-vous sûr de vouloir supprimer ${
-                        phone || email
-                      } ${orgTypeFull(org.orgType)} ${org.orgName} ?`
-                    );
+                  await deleteSubscription({
+                    subscriptionId: subscription._id,
+                    orgId: org._id
+                  });
+                  dispatch(refetchEvent());
+                  orgQuery.refetch();
+                  subQuery.refetch();
 
-                    if (unsubscribe) {
-                      await deleteSubscription({
-                        subscriptionId: subscription._id,
-                        orgId: org._id
-                      });
-                      dispatch(refetchEvent());
-                      orgQuery.refetch();
-                      subQuery.refetch();
-                    }
-
-                    setIsSubscriptionLoading({
-                      ...isSubscriptionLoading,
-                      [subscription._id]: false
-                    });
-                  }}
-                  data-cy="orgUnsubscribe"
-                />
-              </Tooltip>
+                  setIsSubscriptionLoading({
+                    ...isSubscriptionLoading,
+                    [subscription._id]: false
+                  });
+                }}
+                hasArrow
+                label="Supprimer"
+                placement="top"
+                data-cy="orgUnsubscribe"
+              />
             </Box>
             {/* )} */}
           </Td>

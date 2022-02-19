@@ -148,7 +148,7 @@ export const SubscriptionEditForm = ({
     }
   }, [followerSubscription]);
   useEffect(() => {
-    if (subQuery.data) {
+    if (subQuery.data && subQuery.data.topics) {
       const topics = subQuery.data.topics.reduce(
         (obj: TopicsCheckboxes, topicSubscription) => {
           const {
@@ -283,7 +283,7 @@ export const SubscriptionEditForm = ({
 
     try {
       await addSubscription({
-        payload,
+        ...payload,
         email: userEmail
       }).unwrap();
 
@@ -437,7 +437,7 @@ export const SubscriptionEditForm = ({
                       isChecked={checked}
                       onChange={(e) => {
                         const wasSubscribedToTopic =
-                          !!subQuery.data?.topics.find(
+                          !!subQuery.data?.topics?.find(
                             (topicSubscription) =>
                               topicSubscription.topic._id === topicId &&
                               !!topicSubscription[`${notifType}Notif`]

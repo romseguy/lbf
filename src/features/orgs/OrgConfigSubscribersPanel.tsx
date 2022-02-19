@@ -11,13 +11,13 @@ import {
 } from "features/subscriptions/subscriptionsApi";
 import { SubscriptionsList } from "features/subscriptions/SubscriptionsList";
 import { IOrg, orgTypeFull } from "models/Org";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import { ISubscription, ESubscriptionType } from "models/Subscription";
 import { IUser } from "models/User";
 import { useAppDispatch } from "store";
 import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
-import { ConfigVisibility } from "./OrgPage";
+import { OrgConfigVisibility } from "./OrgConfigPanel";
 import { SubscriptionForm } from "features/forms/SubscriptionForm";
 
 export const OrgConfigSubscribersPanel = ({
@@ -27,7 +27,7 @@ export const OrgConfigSubscribersPanel = ({
   setIsVisible,
   ...props
 }: GridProps &
-  ConfigVisibility & {
+  OrgConfigVisibility & {
     orgQuery: AppQuery<IOrg>;
     subQuery: AppQuery<ISubscription>;
   }) => {
@@ -35,10 +35,8 @@ export const OrgConfigSubscribersPanel = ({
   const dispatch = useAppDispatch();
 
   //#region subscription
-  const [addSubscription, addSubscriptionMutation] =
-    useAddSubscriptionMutation();
-  const [deleteSubscription, deleteSubscriptionMutation] =
-    useDeleteSubscriptionMutation();
+  const [addSubscription] = useAddSubscriptionMutation();
+  const [deleteSubscription] = useDeleteSubscriptionMutation();
   //#endregion
 
   //#region local state
@@ -82,7 +80,7 @@ export const OrgConfigSubscribersPanel = ({
 
     const userEmail = typeof user === "object" ? user.email : email;
 
-    if (type === SubscriptionTypes.FOLLOWER) {
+    if (type === ESubscriptionType.FOLLOWER) {
       if (followerSubscription) {
         const unsubscribe = confirm(
           `Êtes vous sûr de vouloir retirer ${userEmail} de la liste des abonnés ${orgTypeFull(
@@ -103,19 +101,17 @@ export const OrgConfigSubscribersPanel = ({
           email,
           phone,
           user,
-          payload: {
-            orgs: [
-              {
-                orgId: org._id,
-                org,
-                type: SubscriptionTypes.FOLLOWER
-              }
-            ]
-          }
+          orgs: [
+            {
+              orgId: org._id,
+              org,
+              type: ESubscriptionType.FOLLOWER
+            }
+          ]
         });
         orgQuery.refetch();
       }
-    } else if (type === SubscriptionTypes.SUBSCRIBER) {
+    } else if (type === ESubscriptionType.SUBSCRIBER) {
       if (subscriberSubscription) {
         const unsubscribe = confirm(
           `Êtes vous sûr de vouloir retirer ${userEmail} de la liste des adhérents ${orgTypeFull(
@@ -137,15 +133,13 @@ export const OrgConfigSubscribersPanel = ({
           email,
           phone,
           user,
-          payload: {
-            orgs: [
-              {
-                orgId: org._id,
-                org,
-                type: SubscriptionTypes.SUBSCRIBER
-              }
-            ]
-          }
+          orgs: [
+            {
+              orgId: org._id,
+              org,
+              type: ESubscriptionType.SUBSCRIBER
+            }
+          ]
         });
         orgQuery.refetch();
       }
@@ -193,7 +187,8 @@ export const OrgConfigSubscribersPanel = ({
               <Flex alignItems="center">
                 {isVisible.subscribers ? <FaFolderOpen /> : <FaFolder />}
                 <Heading size="sm" ml={2}>
-                  Membres
+                  {org.orgSubscriptions.length} membre
+                  {org.orgSubscriptions.length !== 1 ? "s" : ""}
                 </Heading>
               </Flex>
             </GridItem>

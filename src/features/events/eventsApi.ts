@@ -3,7 +3,7 @@ import { IEvent } from "models/Event";
 import { IEventNotification } from "models/INotification";
 import baseQuery, { objectToQueryString } from "utils/query";
 
-export type AddEventPayload = Omit<IEvent, "_id">;
+export type AddEventPayload = Omit<IEvent, "_id" | "createdBy">;
 
 export interface AddEventNotifPayload {
   orgListsNames?: string[];

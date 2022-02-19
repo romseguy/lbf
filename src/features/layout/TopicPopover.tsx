@@ -23,6 +23,7 @@ import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSl
 import { selectUserEmail } from "features/users/userSlice";
 import { hasItems } from "utils/array";
 import { timeAgo } from "utils/date";
+import { getRefId } from "utils/models";
 
 let cachedRefetchSubscription = false;
 
@@ -69,13 +70,9 @@ export const TopicPopover = ({
           query.data?.filter((topic) => {
             if (topic.org === null || topic.event === null) return false;
 
-            return !!topic.topicMessages.find((topicMessage) => {
-              const createdBy =
-                typeof topicMessage.createdBy === "object"
-                  ? topicMessage.createdBy._id
-                  : topicMessage.createdBy;
-              return createdBy === session.user.userId;
-            });
+            return !!topic.topicMessages.find(
+              (topicMessage) => getRefId(topicMessage) === session.user.userId
+            );
           }) || []
       })
     }
@@ -92,7 +89,7 @@ export const TopicPopover = ({
     {
       selectFromResult: (query) => ({
         ...query,
-        followedTopics: query.data?.topics.map((topics) => topics.topic) || []
+        followedTopics: query.data?.topics?.map((topics) => topics.topic) || []
       })
     }
   );

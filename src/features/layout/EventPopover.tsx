@@ -26,7 +26,7 @@ import { selectEventsRefetch } from "features/events/eventSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
-import { IEvent, InviteStatus } from "models/Event";
+import { IEvent, EEventInviteStatus } from "models/Event";
 import { hasItems } from "utils/array";
 import { Session } from "next-auth";
 
@@ -49,7 +49,8 @@ export const EventPopover = ({
     selectFromResult: ({ data: events }) => ({
       attendedEvents: (events || []).filter(({ eventNotifications }) =>
         eventNotifications?.find(
-          ({ email, status }) => email === email && status === InviteStatus.OK
+          ({ email, status }) =>
+            email === email && status === EEventInviteStatus.OK
         )
       )
     })

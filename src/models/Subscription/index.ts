@@ -4,10 +4,10 @@ import { hasItems } from "utils/array";
 import { equals, logJson } from "utils/string";
 import { AppQuery } from "utils/types";
 import {
+  ESubscriptionType,
   IOrgSubscription,
   IEventSubscription,
   ISubscription,
-  SubscriptionTypes,
   TagType
 } from "./ISubscription";
 
@@ -45,7 +45,7 @@ export const getFollowerSubscription = ({
     return sub.orgs?.find(
       (orgSubscription: IOrgSubscription) =>
         equals(orgSubscription.orgId, org._id) &&
-        orgSubscription.type === SubscriptionTypes.FOLLOWER
+        orgSubscription.type === ESubscriptionType.FOLLOWER
     );
   }
 };
@@ -63,7 +63,7 @@ export const getSubscriberSubscription = ({
     return (subQuery?.data || subscription).orgs?.find(
       (orgSubscription: IOrgSubscription) =>
         equals(orgSubscription.orgId, org._id) &&
-        orgSubscription.type === SubscriptionTypes.SUBSCRIBER
+        orgSubscription.type === ESubscriptionType.SUBSCRIBER
     );
   }
 };

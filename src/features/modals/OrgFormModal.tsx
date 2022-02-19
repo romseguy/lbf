@@ -11,7 +11,7 @@ import { Session } from "next-auth";
 import React, { useState } from "react";
 import { IoIosPeople } from "react-icons/io";
 import { OrgForm } from "features/forms/OrgForm";
-import { orgTypeFull3, OrgType } from "models/Org";
+import { orgTypeFull3, EOrgType } from "models/Org";
 
 export const OrgFormModal = ({
   session,
@@ -19,14 +19,14 @@ export const OrgFormModal = ({
   onSubmit,
   ...props
 }: {
-  orgType?: OrgType;
+  orgType?: EOrgType;
   session: Session;
   onCancel: () => void;
   onClose: () => void;
   onSubmit: (orgUrl: string) => Promise<void>;
 }) => {
-  const [orgType, setOrgType] = useState<OrgType>(
-    props.orgType || OrgType.GENERIC
+  const [orgType, setOrgType] = useState<EOrgType>(
+    props.orgType || EOrgType.GENERIC
   );
 
   return (

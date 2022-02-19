@@ -10,8 +10,8 @@ import {
 import React from "react";
 import { IoIosGitNetwork, IoIosPeople, IoIosPerson } from "react-icons/io";
 import { Link } from "features/common";
-import { IOrg, orgTypeFull, OrgType, Visibility } from "models/Org";
-import { Visibility as EventVisibility } from "models/Event";
+import { IOrg, orgTypeFull, EOrgType, EOrgVisibility } from "models/Org";
+import { EEventVisibility as EventVisibility } from "models/Event";
 import { IEvent } from "models/Event";
 import { IUser } from "models/User";
 import { ITopic } from "models/Topic";
@@ -98,7 +98,7 @@ export const EntityButton = ({
                     : org
                     ? org.orgUrl === "forum"
                       ? ChatIcon
-                      : org.orgType === OrgType.NETWORK
+                      : org.orgType === EOrgType.NETWORK
                       ? IoIosGitNetwork
                       : IoIosPeople
                     : event
@@ -142,7 +142,7 @@ export const EntityButton = ({
               org.orgUrl !== "forum" ? (
                 <Icon
                   as={
-                    org.orgVisibility === Visibility.PRIVATE
+                    org.orgVisibility === EOrgVisibility.PRIVATE
                       ? LockIcon
                       : FaGlobeEurope
                   }

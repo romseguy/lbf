@@ -28,13 +28,18 @@ import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
 import { DeleteButton, GridHeader, GridItem, Link } from "features/common";
 import { EntityListForm } from "features/forms/EntityListForm";
-import { getLists, IOrg, IOrgList } from "models/Org";
-import { ISubscription } from "models/Subscription";
+import {
+  addOrReplaceList,
+  editList,
+  getLists,
+  IOrg,
+  IOrgList
+} from "models/Org";
 import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
-import { ConfigVisibility } from "./OrgPage";
-import { useEditOrgMutation } from "./orgsApi";
+import { OrgConfigVisibility } from "./OrgConfigPanel";
+import { EditOrgPayload, useEditOrgMutation } from "./orgsApi";
 
 export const OrgConfigListsPanel = ({
   orgQuery,
@@ -42,7 +47,7 @@ export const OrgConfigListsPanel = ({
   setIsVisible,
   session
 }: GridProps &
-  ConfigVisibility & {
+  OrgConfigVisibility & {
     orgQuery: AppQuery<IOrg>;
     session: Session;
   }) => {
@@ -63,35 +68,20 @@ export const OrgConfigListsPanel = ({
   }, [lists]);
   //#endregion
 
-  const onSubmit = async (form: {
-    listName: string;
-    subscriptions?: ISubscription[];
-  }) => {
-    if (form.listName === "Abonnés" || form.listName === "Adhérents")
-      throw { listName: "Ce nom n'est pas disponible." };
-
-    let orgLists = [...(org.orgLists || [])];
-
-    if (listToEdit?.listName !== form.listName)
-      for (const orgList of orgLists)
-        if (orgList.listName === form.listName)
-          throw { listName: "Ce nom n'est pas disponible." };
-
+  const onSubmit = async (form: IOrgList) => {
     try {
-      let found = false;
-      orgLists = orgLists.map((orgList) => {
-        if (orgList.listName === form.listName) {
-          found = true;
-          return { ...orgList, subscriptions: form.subscriptions };
-        }
-        return orgList;
-      });
-      if (!found) orgLists = [...orgLists, form];
+      let payload: EditOrgPayload = {};
+
+      if (listToEdit && listToEdit.listName !== form.listName) {
+        for (const orgList of org.orgLists || [])
+          if (orgList.listName === form.listName)
+            throw { listName: "Ce nom n'est pas disponible." };
+
+        payload.orgLists = editList(org, listToEdit, form);
+      } else payload.orgLists = addOrReplaceList(org, form);
 
       await editOrg({
-        payload: {
-          orgLists
-        },
+        payload,
         orgUrl: org.orgUrl
       }).unwrap();
       orgQuery.refetch();
@@ -144,7 +134,9 @@ export const OrgConfigListsPanel = ({
                 {hasItems(lists) &&
                   (isVisible.lists ? <FaFolderOpen /> : <FaFolder />)}
                 <Heading size="sm" ml={2}>
-                  Listes
+                  {lists
+                    ? `${lists.length} liste${lists.length !== 1 ? "s" : ""}`
+                    : "0 listes"}
                 </Heading>
               </Flex>
             </GridItem>
@@ -285,38 +277,33 @@ export const OrgConfigListsPanel = ({
                               />
                             </Tooltip>
 
-                            <Tooltip
-                              label="Supprimer la liste"
+                            <DeleteButton
+                              header={
+                                <>
+                                  Êtes vous sûr de vouloir supprimer la liste{" "}
+                                  <Text
+                                    display="inline"
+                                    color="red"
+                                    fontWeight="bold"
+                                  >
+                                    {listName}
+                                  </Text>{" "}
+                                  ?
+                                </>
+                              }
+                              isIconOnly
+                              onClick={async () => {
+                                await editOrg({
+                                  payload: [`orgLists.listName=${listName}`],
+                                  orgUrl: org.orgUrl
+                                });
+                                orgQuery.refetch();
+                              }}
                               hasArrow
+                              label="Supprimer la liste"
                               placement="top"
-                            >
-                              <DeleteButton
-                                isIconOnly
-                                hasArrow
-                                placement="top"
-                                header={
-                                  <>
-                                    Êtes vous sûr de vouloir supprimer la liste{" "}
-                                    <Text
-                                      display="inline"
-                                      color="red"
-                                      fontWeight="bold"
-                                    >
-                                      {listName}
-                                    </Text>{" "}
-                                    ?
-                                  </>
-                                }
-                                onClick={async () => {
-                                  await editOrg({
-                                    payload: [`orgLists.listName=${listName}`],
-                                    orgUrl: org.orgUrl
-                                  });
-                                  orgQuery.refetch();
-                                }}
-                                data-cy={`org-list-${listName}-remove`}
-                              />
-                            </Tooltip>
+                              data-cy={`org-list-${listName}-remove`}
+                            />
                           </>
                         )}
                       </Td>

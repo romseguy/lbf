@@ -2,12 +2,12 @@ import { Document } from "mongoose";
 import { Session } from "next-auth";
 import nodemailer, { SendMailOptions as Mail } from "nodemailer";
 import { models } from "database";
-import { IEvent, InviteStatus } from "models/Event";
+import { IEvent, EEventInviteStatus } from "models/Event";
 import { IOrg } from "models/Org";
 import { IEventNotification, ITopicNotification } from "models/INotification";
 import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import { ESubscriptionType, ISubscription } from "models/Subscription";
 import api from "utils/api";
 import { equals, logJson } from "utils/string";
 import {
@@ -53,7 +53,7 @@ export const sendEventNotifications = async ({
     logJson(`sendEventNotifications: subscription`, subscription);
 
     let eventNotification: IEventNotification = {
-      status: InviteStatus.PENDING,
+      status: EEventInviteStatus.PENDING,
       createdAt: new Date().toISOString()
     };
 
@@ -64,7 +64,7 @@ export const sendEventNotifications = async ({
 
     const orgSubscription = subscription.orgs?.find(
       ({ orgId, type }) =>
-        equals(orgId, org._id) && type === SubscriptionTypes.FOLLOWER
+        equals(orgId, org._id) && type === ESubscriptionType.FOLLOWER
     );
 
     if (!orgSubscription) {
@@ -252,7 +252,7 @@ export const sendTopicNotifications = async ({
     if (org) {
       const orgSubscription = subscription.orgs?.find(
         ({ orgId, type }) =>
-          equals(orgId, org._id) && type === SubscriptionTypes.FOLLOWER
+          equals(orgId, org._id) && type === ESubscriptionType.FOLLOWER
       );
 
       if (!orgSubscription) {
@@ -580,7 +580,7 @@ export const sendToAdmin = async ({
 //           } of subscription.orgs) {
 //             if (
 //               !equals(notifOrgId, orgId) ||
-//               type !== SubscriptionTypes.FOLLOWER
+//               type !== ESubscriptionType.FOLLOWER
 //             )
 //               continue;
 

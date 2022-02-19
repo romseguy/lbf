@@ -4,12 +4,23 @@ import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { Base64Image } from "utils/image";
 import { IEntity } from "utils/models";
-import { StringMap } from "utils/types";
+
+export enum EOrgType {
+  ASSO = "ASSO",
+  GENERIC = "GENERIC",
+  GROUP = "GROUP",
+  NETWORK = "NETWORK"
+}
+
+export enum EOrgVisibility {
+  PUBLIC = "PUBLIC",
+  PRIVATE = "PRIVATE"
+}
 
 export interface IOrg extends IEntity {
   orgName: string;
   orgUrl: string;
-  orgType: OrgType;
+  orgType: EOrgType;
   orgAddress?: { address: string }[];
   orgCity?: string;
   orgLat?: number;
@@ -57,25 +68,3 @@ export interface IOrgTab {
   label: string;
   url?: string;
 }
-
-export enum OrgType {
-  ASSO = "ASSO",
-  GENERIC = "GENERIC",
-  GROUP = "GROUP",
-  NETWORK = "NETWORK"
-}
-export const OrgTypes: StringMap<OrgType, string> = {
-  [OrgType.ASSO]: "Association",
-  [OrgType.GENERIC]: "Organisation",
-  [OrgType.GROUP]: "Groupe",
-  [OrgType.NETWORK]: "Réseau"
-};
-
-export enum Visibility {
-  PUBLIC = "PUBLIC",
-  PRIVATE = "PRIVATE"
-}
-export const Visibilities: StringMap<Visibility, string> = {
-  [Visibility.PUBLIC]: "Publique",
-  [Visibility.PRIVATE]: "Protégée par un mot de passe"
-};

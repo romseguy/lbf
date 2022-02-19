@@ -15,6 +15,8 @@ import { Controller, useForm } from "react-hook-form";
 import Creatable from "react-select/creatable";
 import { ErrorMessageText, MultiSelect, RTEditor } from "features/common";
 import {
+  AddTopicPayload,
+  EditTopicPayload,
   useAddTopicMutation,
   useEditTopicMutation
 } from "features/forum/topicsApi";
@@ -27,7 +29,7 @@ import {
   IEventSubscription,
   IOrgSubscription,
   ISubscription,
-  SubscriptionTypes
+  ESubscriptionType
 } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
@@ -91,13 +93,13 @@ export const TopicForm = ({
     if (props.isCreator || followerSubscription)
       lists.push({
         listName: "Abonnés",
-        subscriptions: getSubscriptions(org, SubscriptionTypes.FOLLOWER)
+        subscriptions: getSubscriptions(org, ESubscriptionType.FOLLOWER)
       });
 
     if (props.isCreator || subscriberSubscription)
       lists.push({
         listName: "Adhérents",
-        subscriptions: getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
+        subscriptions: getSubscriptions(org, ESubscriptionType.SUBSCRIBER)
       });
   }
   //#endregion
@@ -151,7 +153,7 @@ export const TopicForm = ({
         }).unwrap();
 
         toast({
-          title: "Votre discussion a bien été modifiée",
+          title: "La discussion a bien été modifiée",
           status: "success",
           isClosable: true
         });
@@ -181,7 +183,7 @@ export const TopicForm = ({
         }).unwrap();
 
         toast({
-          title: "Votre discussion a bien été ajoutée !",
+          title: "La discussion a bien été ajoutée !",
           status: "success",
           isClosable: true
         });

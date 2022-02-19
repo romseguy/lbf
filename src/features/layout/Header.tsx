@@ -21,7 +21,7 @@ import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { FaRegCalendarCheck, FaRegCalendarTimes } from "react-icons/fa";
 import { css } from "twin.macro";
 import { Link } from "features/common";
-import { IOrg, OrgType } from "models/Org";
+import { IOrg, EOrgType } from "models/Org";
 import { defaultCategory, getEventCategories, IEvent } from "models/Event";
 
 export const Header = ({
@@ -53,7 +53,7 @@ export const Header = ({
       : pageTitle === "Réseaux"
       ? IoIosGitNetwork
       : org
-      ? org.orgType === OrgType.NETWORK
+      ? org.orgType === EOrgType.NETWORK
         ? IoIosGitNetwork
         : IoIosPeople
       : event

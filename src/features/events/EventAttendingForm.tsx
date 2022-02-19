@@ -18,7 +18,7 @@ import {
   IEvent,
   isAttending,
   isNotAttending,
-  InviteStatus
+  EEventInviteStatus
 } from "models/Event";
 import { useAppDispatch } from "store";
 import { emailR } from "utils/email";
@@ -71,9 +71,9 @@ export const EventAttendingForm = ({
         const { email, status } = eventNotification;
 
         if (email === userEmail) {
-          if (status !== InviteStatus.OK) {
+          if (status !== EEventInviteStatus.OK) {
             isNew = false;
-            return { ...eventNotification, status: InviteStatus.OK };
+            return { ...eventNotification, status: EEventInviteStatus.OK };
           }
         }
 
@@ -84,7 +84,7 @@ export const EventAttendingForm = ({
     if (isNew && userEmail)
       eventNotifications?.push({
         email: userEmail,
-        status: InviteStatus.OK,
+        status: EEventInviteStatus.OK,
         createdAt: new Date().toISOString()
       });
 
@@ -123,9 +123,9 @@ export const EventAttendingForm = ({
     let eventNotifications = event.eventNotifications?.map(
       (eventNotification) => {
         const { email, status } = eventNotification;
-        if (email === userEmail && status !== InviteStatus.NOK) {
+        if (email === userEmail && status !== EEventInviteStatus.NOK) {
           isNew = false;
-          return { ...eventNotification, status: InviteStatus.NOK };
+          return { ...eventNotification, status: EEventInviteStatus.NOK };
         }
         return eventNotification;
       }
@@ -134,7 +134,7 @@ export const EventAttendingForm = ({
     if (isNew && userEmail)
       eventNotifications?.push({
         email: userEmail,
-        status: InviteStatus.NOK,
+        status: EEventInviteStatus.NOK,
         createdAt: new Date().toISOString()
       });
 

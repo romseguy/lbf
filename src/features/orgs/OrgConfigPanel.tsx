@@ -13,7 +13,17 @@ import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigLogoPanel } from "./OrgConfigLogoPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
-import { ConfigVisibility } from "./OrgPage";
+
+export type OrgConfigVisibility = {
+  isVisible: {
+    banner?: boolean;
+    logo?: boolean;
+    lists?: boolean;
+    subscribers?: boolean;
+    topics?: boolean;
+  };
+  setIsVisible: (obj: OrgConfigVisibility["isVisible"]) => void;
+};
 
 export const OrgConfigPanel = ({
   session,
@@ -21,11 +31,9 @@ export const OrgConfigPanel = ({
   subQuery,
   isConfig,
   isEdit,
-  isVisible,
   setIsConfig,
-  setIsEdit,
-  setIsVisible
-}: ConfigVisibility & {
+  setIsEdit
+}: {
   session: Session;
   orgQuery: AppQuery<IOrg>;
   subQuery: AppQuery<ISubscription>;
@@ -39,7 +47,15 @@ export const OrgConfigPanel = ({
   const router = useRouter();
   const toast = useToast({ position: "top" });
 
+  //#region local state
   const [isDisabled, setIsDisabled] = useState(true);
+  const [isVisible, setIsVisible] = useState<OrgConfigVisibility["isVisible"]>({
+    logo: false,
+    banner: false,
+    topics: false,
+    subscribers: false
+  });
+  //#endregion
 
   return (
     <>

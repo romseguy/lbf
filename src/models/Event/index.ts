@@ -14,7 +14,7 @@ import { IOrgEventCategory } from "models/Org";
 import { LatLon } from "use-places-autocomplete";
 import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
 import { getDistance } from "utils/maps";
-import { IEvent, InviteStatus, Visibility } from "models/Event";
+import { IEvent, EEventInviteStatus, EEventVisibility } from "models/Event";
 
 export * from "./IEvent";
 
@@ -83,8 +83,8 @@ export const getEvents = ({
 
     if (
       isCreator ||
-      event.eventVisibility === Visibility.PUBLIC ||
-      (event.eventVisibility === Visibility.SUBSCRIBERS &&
+      event.eventVisibility === EEventVisibility.PUBLIC ||
+      (event.eventVisibility === EEventVisibility.SUBSCRIBERS &&
         (isSubscribed || isCreator))
     ) {
       if (origin && event.eventLat && event.eventLng) {
@@ -364,7 +364,7 @@ export const isAttending = ({
 }) => {
   if (!email) return false;
   return !!event.eventNotifications?.find(({ email: e, status }) => {
-    return e === email && status === InviteStatus.OK;
+    return e === email && status === EEventInviteStatus.OK;
   });
 };
 
@@ -377,7 +377,7 @@ export const isNotAttending = ({
 }) => {
   if (!email) return false;
   return !!event.eventNotifications?.find(({ email: e, status }) => {
-    return e === email && status === InviteStatus.NOK;
+    return e === email && status === EEventInviteStatus.NOK;
   });
 };
 

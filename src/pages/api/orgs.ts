@@ -9,7 +9,7 @@ import {
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 import { logJson, normalize } from "utils/string";
-import { IOrg, Visibility } from "models/Org";
+import { IOrg, EOrgVisibility } from "models/Org";
 import { randomNumber } from "utils/randomNumber";
 import { AddOrgPayload } from "features/orgs/orgsApi";
 
@@ -31,7 +31,7 @@ handler.get<
     let orgs: (IOrg & Document<any, any, IOrg>)[] = [];
     const selector = createdBy
       ? { createdBy }
-      : { orgVisibility: Visibility[Visibility.PUBLIC] };
+      : { orgVisibility: EOrgVisibility[EOrgVisibility.PUBLIC] };
 
     logJson(`GET /orgs: selector`, selector);
 
@@ -45,7 +45,7 @@ handler.get<
 });
 
 handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
-  async function postOrg(req, res) {
+  async function addOrg(req, res) {
     const session = await getSession({ req });
 
     if (!session)
@@ -55,11 +55,12 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
 
     try {
       let { body }: { body: AddOrgPayload } = req;
-      body = {
+      let newOrg: Omit<IOrg, "_id"> = {
         ...body,
         isApproved: session.user.isAdmin,
         orgName: body.orgName.trim(),
-        orgUrl: normalize(body.orgName)
+        orgUrl: normalize(body.orgName),
+        createdBy: session.user.userId
       };
 
       const org = await models.Org.findOne({ orgUrl: body.orgUrl });
@@ -68,15 +69,15 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
 
       if (org || user || event) {
         const uid = randomNumber(2);
-        body = {
-          ...body,
+        newOrg = {
+          ...newOrg,
           orgName: body.orgName + "-" + uid,
           orgUrl: body.orgUrl + "-" + uid
         };
       }
 
-      logJson(`POST /orgs: create`, body);
-      const doc = await models.Org.create(body);
+      logJson(`POST /orgs: create`, newOrg);
+      const doc = await models.Org.create(newOrg);
 
       res.status(200).json(doc);
     } catch (error: any) {

@@ -30,7 +30,7 @@ import { EmailControl, EntityButton, ErrorMessageText } from "features/common";
 import { useAddEventNotifMutation } from "features/events/eventsApi";
 import { IEvent } from "models/Event";
 import { getLists, getSubscriptions, orgTypeFull } from "models/Org";
-import { SubscriptionTypes } from "models/Subscription";
+import { ESubscriptionType } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { equalsValue } from "utils/string";

@@ -17,7 +17,7 @@ import {
 } from "features/common";
 import { useAddSubscriptionMutation } from "features/subscriptions/subscriptionsApi";
 import { getLists, IOrg } from "models/Org";
-import { SubscriptionTypes } from "models/Subscription";
+import { ESubscriptionType } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { emailR } from "utils/email";
 import { handleError } from "utils/form";
@@ -39,8 +39,9 @@ export const SubscriptionForm = ({
 }) => {
   const [addSubscription] = useAddSubscriptionMutation();
 
+  //#region local state
   const [isLoading, setIsLoading] = useState(false);
-  let lists = getLists(org);
+  //#endregion
 
   //#region form
   const { clearErrors, control, errors, handleSubmit, register, setError } =
@@ -70,27 +71,24 @@ export const SubscriptionForm = ({
       .filter((phone: string) => phoneR.test(phone));
 
     try {
-      if (!hasItems(subscriptionType))
-        throw new Error("Veuillez sélectionner une ou plusieurs listes");
-
       if (!hasItems(emailArray) && !hasItems(phoneArray)) {
         throw new Error("Aucunes coordonnées valide");
       }
 
       for (const email of emailArray) {
-        for (const { value } of subscriptionType) {
-          let type;
-          if (value === "Adhérents") type = SubscriptionTypes.SUBSCRIBER;
-          else if (value === "Abonnés") type = SubscriptionTypes.FOLLOWER;
+        if (hasItems(subscriptionType))
+          for (const { value } of subscriptionType) {
+            let type;
+            if (value === "Adhérents") type = ESubscriptionType.SUBSCRIBER;
+            else if (value === "Abonnés") type = ESubscriptionType.FOLLOWER;
 
-          if (type)
-            await addSubscription({
-              email,
-              payload: {
+            if (type)
+              await addSubscription({
+                email,
                 orgs: [
                   {
-                    orgId: org._id,
                     org,
+                    orgId: org._id,
                     type,
                     tagTypes: [
                       { type: "Events", emailNotif: true, pushNotif: true },
@@ -98,12 +96,12 @@ export const SubscriptionForm = ({
                     ]
                   }
                 ]
-              }
-            });
-          else {
-            console.log("todo: add to org list");
+              });
+            else {
+              console.log("todo: add to org list");
+            }
           }
-        }
+        else console.log("todo: add empty sub");
       }
 
       // for (const phone of phoneArray) {
@@ -172,9 +170,8 @@ export const SubscriptionForm = ({
       <ListsControl
         control={control}
         errors={errors}
-        isRequired
         label="Liste(s):"
-        lists={lists}
+        lists={getLists(org)}
         name="subscriptionType"
         onChange={onChange}
       />
@@ -202,7 +199,7 @@ export const SubscriptionForm = ({
               <Checkbox
                 ref={register({ required: true })}
                 name="subscriptionType"
-                value={SubscriptionTypes.FOLLOWER}
+                value={ESubscriptionType.FOLLOWER}
                 data-cy="follower-checkbox"
               >
                 Abonné
@@ -216,7 +213,7 @@ export const SubscriptionForm = ({
             <Checkbox
               ref={register({ required: true })}
               name="subscriptionType"
-              value={SubscriptionTypes.SUBSCRIBER}
+              value={ESubscriptionType.SUBSCRIBER}
               bg={"purple.100"}
               borderRadius="lg"
               p={3}

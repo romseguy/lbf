@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
-import { GetOrgParams } from "features/orgs/orgsApi";
+import { EditOrgPayload, GetOrgParams } from "features/orgs/orgsApi";
 import { getSession } from "hooks/useAuth";
-import { IOrg, orgTypeFull } from "models/Org";
+import { addOrReplaceList, IOrg, orgTypeFull } from "models/Org";
 import {
   createServerError,
   databaseErrorCodes,
@@ -162,7 +162,7 @@ handler.get<
 handler.put<
   NextApiRequest & {
     query: { orgUrl: string };
-    body: Partial<IOrg> | string[];
+    body: EditOrgPayload;
   },
   NextApiResponse
 >(async function editOrg(req, res) {
@@ -178,7 +178,7 @@ handler.put<
     const orgUrl = req.query.orgUrl;
     const org = await models.Org.findOne({ orgUrl });
 
-    if (!org)
+    if (!org) {
       return res
         .status(404)
         .json(
@@ -186,22 +186,26 @@ handler.put<
             new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
           )
         );
+    }
 
-    let { body }: { body: Partial<IOrg> | string[] } = req;
+    let { body }: { body: EditOrgPayload } = req;
     const orgTopicsCategories =
       !Array.isArray(body) && body.orgTopicsCategories;
 
-    if (!orgTopicsCategories) {
-      if (!equals(org.createdBy, session.user.userId) && !session.user.isAdmin)
-        return res
-          .status(403)
-          .json(
-            createServerError(
-              new Error(
-                "Vous ne pouvez pas modifier un organisation que vous n'avez pas créé."
-              )
+    if (
+      !equals(org.createdBy, session.user.userId) &&
+      !session.user.isAdmin &&
+      !orgTopicsCategories
+    ) {
+      return res
+        .status(403)
+        .json(
+          createServerError(
+            new Error(
+              "Vous ne pouvez pas modifier un organisation que vous n'avez pas créé."
             )
-          );
+          )
+        );
     }
 
     let update:

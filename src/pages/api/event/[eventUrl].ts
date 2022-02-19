@@ -9,10 +9,10 @@ import {
   GetEventParams
 } from "features/events/eventsApi";
 import { getSession } from "hooks/useAuth";
-import { InviteStatus } from "models/Event";
+import { EEventInviteStatus } from "models/Event";
 import { IEventNotification } from "models/INotification";
 import { getSubscriptions, IOrg } from "models/Org";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import { ISubscription, ESubscriptionType } from "models/Subscription";
 import { createServerError } from "utils/errors";
 import { createEventEmailNotif } from "utils/email";
 import { equals, logJson, normalize } from "utils/string";
@@ -193,7 +193,7 @@ handler.post<
         notifications = [
           {
             email: body.email,
-            status: InviteStatus.PENDING,
+            status: EEventInviteStatus.PENDING,
             createdAt: new Date().toISOString()
           }
         ];
@@ -231,8 +231,8 @@ handler.post<
             getSubscriptions(
               org,
               listName === "Abonnés"
-                ? SubscriptionTypes.FOLLOWER
-                : SubscriptionTypes.SUBSCRIBER
+                ? ESubscriptionType.FOLLOWER
+                : ESubscriptionType.SUBSCRIBER
             )
           );
         } else {

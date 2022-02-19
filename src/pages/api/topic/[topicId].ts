@@ -10,7 +10,7 @@ import {
 import { getSession } from "hooks/useAuth";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ITopicNotification } from "models/INotification";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import { ISubscription, ESubscriptionType } from "models/Subscription";
 import { createTopicEmailNotif } from "utils/email";
 import { createServerError } from "utils/errors";
 import { equals } from "utils/string";
@@ -138,8 +138,8 @@ handler.post<
             getSubscriptions(
               org,
               listName === "Abonnés"
-                ? SubscriptionTypes.FOLLOWER
-                : SubscriptionTypes.SUBSCRIBER
+                ? ESubscriptionType.FOLLOWER
+                : ESubscriptionType.SUBSCRIBER
             )
           );
         } else {
@@ -338,6 +338,7 @@ handler.delete<
     const subscriptions = await models.Subscription.find({});
     let count = 0;
     for (const subscription of subscriptions) {
+      if (!subscription.topics) continue;
       subscription.topics = subscription.topics.filter((topicSubscription) => {
         if (equals(topicSubscription.topic._id, topic._id)) {
           count++;

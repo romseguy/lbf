@@ -19,7 +19,7 @@ import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgsList } from "features/orgs/OrgsList";
 import { InputNode } from "features/treeChart/types";
-import { Visibility } from "models/Org";
+import { EOrgVisibility } from "models/Org";
 import { hasItems } from "utils/array";
 import { PageProps } from "./_app";
 
@@ -50,7 +50,8 @@ const IndexPage = (props: PageProps) => {
         ? orgsQuery.data
             .filter(
               (org) =>
-                hasItems(org.orgs) && org.orgVisibility !== Visibility.PRIVATE
+                hasItems(org.orgs) &&
+                org.orgVisibility !== EOrgVisibility.PRIVATE
             )
             .map((org) => ({
               name: org.orgName,

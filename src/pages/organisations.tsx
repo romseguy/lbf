@@ -6,7 +6,7 @@ import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { OrgsList } from "features/orgs/OrgsList";
-import { OrgType } from "models/Org";
+import { EOrgType } from "models/Org";
 import { PageProps } from "./_app";
 
 const OrganisationsPage = (props: PageProps) => {
@@ -19,7 +19,7 @@ const OrganisationsPage = (props: PageProps) => {
   const orgsQuery = useGetOrgsQuery(void 0, {
     selectFromResult: (query) => ({
       ...query,
-      data: query.data?.filter((org) => org.orgType !== OrgType.NETWORK)
+      data: query.data?.filter((org) => org.orgType !== EOrgType.NETWORK)
     })
   });
 

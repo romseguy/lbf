@@ -11,6 +11,7 @@ import {
 import { AppQuery } from "utils/types";
 import { TopicsList } from "./TopicsList";
 import { IOrg } from "models/Org";
+import { getRefId } from "utils/models";
 
 export const Forum = ({
   isLogin,
@@ -30,18 +31,8 @@ export const Forum = ({
   //#region org
   const mutation = useEditOrgMutation();
   const org = orgQuery.data;
-
-  let isCreator = false;
-  if (session && org) {
-    if (
-      typeof org.createdBy === "object" &&
-      org.createdBy._id === session.user.userId
-    ) {
-      isCreator = true;
-    } else if (org.createdBy === session.user.userId) {
-      isCreator = true;
-    }
-  }
+  const isCreator =
+    session?.user.userId === getRefId(org) || session?.user.isAdmin || false;
   //#endregion
 
   //#region subscription

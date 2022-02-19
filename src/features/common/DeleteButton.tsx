@@ -1,55 +1,51 @@
-import React from "react";
+import { DeleteIcon } from "@chakra-ui/icons";
 import {
-  Button,
-  IconButton,
-  PopoverTrigger,
-  Popover,
-  PopoverContent,
-  PopoverHeader,
-  PopoverCloseButton,
-  PopoverBody,
-  PopoverFooter,
-  useDisclosure,
-  Spinner,
   AlertDialog,
   AlertDialogOverlay,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogBody,
   AlertDialogFooter,
+  Button,
+  IconButton,
+  IconButtonProps,
+  PlacementWithLogical,
   Tooltip,
-  useColorMode
+  useColorMode,
+  useDisclosure
 } from "@chakra-ui/react";
-import { DeleteIcon } from "@chakra-ui/icons";
+import React from "react";
 
 export const DeleteButton = ({
+  "aria-label": ariaLabel = "Supprimer",
   isDisabled,
   isIconOnly,
   isLoading,
   isSmall = true,
   header,
   body,
+  onClick,
   hasArrow,
   label = "Supprimer",
   placement = "left",
-  onClick,
   ...props
-}: any & {
+}: Omit<IconButtonProps, "aria-label"> & {
+  "aria-label"?: string;
   header: React.ReactNode;
-  body: React.ReactNode;
-  hasArrow?: boolean;
-  label?: string;
-  placement?: string;
+  body?: React.ReactNode;
   isDisabled?: boolean;
   isIconOnly?: boolean;
   isLoading?: boolean;
   isSmall?: boolean;
   onClick: () => void;
+  // tooltip props
+  hasArrow?: boolean;
+  label?: string;
+  placement?: PlacementWithLogical;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const [isOpen, setIsOpen] = React.useState(false);
-  const onClose = () => setIsOpen(false);
+  const { onOpen, onClose, isOpen } = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement | null>(null);
   let styleProps = {};
 
@@ -68,7 +64,7 @@ export const DeleteButton = ({
       {isIconOnly ? (
         <Tooltip label={label} placement={placement} hasArrow={hasArrow}>
           <IconButton
-            aria-label="Supprimer"
+            aria-label={ariaLabel}
             colorScheme="red"
             icon={<DeleteIcon />}
             isLoading={isLoading}
@@ -76,7 +72,7 @@ export const DeleteButton = ({
             {...props}
             onClick={(e) => {
               e.stopPropagation();
-              setIsOpen(true);
+              onOpen();
             }}
           />
         </Tooltip>
@@ -87,7 +83,7 @@ export const DeleteButton = ({
           leftIcon={<DeleteIcon />}
           onClick={(e) => {
             e.stopPropagation();
-            setIsOpen(true);
+            onOpen();
           }}
           colorScheme="red"
           // css={css`

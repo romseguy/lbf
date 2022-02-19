@@ -8,7 +8,7 @@ import type {
   ISubscription
 } from "models/Subscription";
 import { createSlice } from "@reduxjs/toolkit";
-import { SubscriptionTypes } from "models/Subscription";
+import { ESubscriptionType } from "models/Subscription";
 
 type SubscriptionState = {
   refetchSubscription: boolean;

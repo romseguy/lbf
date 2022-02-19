@@ -34,9 +34,9 @@ handler.get<
     }
 
     for (const project of projects) {
-      if (project.forwardedFrom.projectId) {
+      if (project.forwardedFrom?.projectId) {
         const e = await models.Project.findOne({
-          _id: project.forwardedFrom.projectId
+          _id: project.forwardedFrom?.projectId
         });
         if (e) {
           project.projectName = e.projectName;

@@ -69,11 +69,11 @@ import {
   EventCategory,
   IEvent,
   monthRepeatOptions,
-  Visibilities,
-  Visibility
+  EventVisibilities,
+  EEventVisibility
 } from "models/Event";
 import { IOrg } from "models/Org";
-import { Visibility as TopicVisibility } from "models/Topic";
+import { ETopicVisibility as TopicVisibility } from "models/Topic";
 import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
@@ -161,7 +161,7 @@ export const EventForm = withGoogleApi({
 
     //#region form
     const visibilityOptions = hasItems(eventOrgs)
-      ? Object.keys(Visibility)
+      ? Object.keys(EEventVisibility)
       : [];
 
     const eventOrgsRules: { required: string | boolean } = {
@@ -323,17 +323,16 @@ export const EventForm = withGoogleApi({
           }).unwrap();
 
           toast({
-            title: "Votre événement a bien été modifié !",
+            title: "L'événement a bien été modifié !",
             status: "success",
             isClosable: true
           });
         } else {
-          payload.createdBy = props.session.user.userId;
           const event = await addEvent(payload).unwrap();
           eventUrl = event.eventUrl;
 
           toast({
-            title: "Votre événement a bien été ajouté !",
+            title: "L'événement a bien été ajouté !",
             status: "success",
             isClosable: true
           });
@@ -1061,15 +1060,17 @@ export const EventForm = withGoogleApi({
               ref={register({
                 required: "Veuillez sélectionner la visibilité de l'événement"
               })}
-              defaultValue={props.event?.eventVisibility || Visibility.PUBLIC}
+              defaultValue={
+                props.event?.eventVisibility || EEventVisibility.PUBLIC
+              }
               placeholder="Visibilité de l'événement"
               color={isDark ? "whiteAlpha.400" : "gray.400"}
             >
               {visibilityOptions.map((key) => {
-                const visibility = key as Visibility;
+                const visibility = key as EEventVisibility;
                 return (
                   <option key={visibility} value={visibility}>
-                    {Visibilities[visibility]}
+                    {EventVisibilities[visibility]}
                   </option>
                 );
               })}

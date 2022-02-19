@@ -1,24 +1,22 @@
 import {
+  Badge,
   Button,
   Flex,
   FlexProps,
   Tooltip,
   useColorMode
 } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import React from "react";
-import { getSubscriptions, IOrg, IOrgList } from "models/Org";
-import {
-  getFollowerSubscription,
-  getSubscriberSubscription,
-  ISubscription,
-  SubscriptionTypes
-} from "models/Subscription";
+import { getLists, IOrg, IOrgList } from "models/Org";
+import { ISubscription } from "models/Subscription";
 import { AppQuery } from "utils/types";
 
 export const TopicsListOrgLists = ({
   org,
   isCreator,
   selectedLists,
+  session,
   setSelectedLists,
   subQuery,
   ...props
@@ -26,6 +24,7 @@ export const TopicsListOrgLists = ({
   org: IOrg;
   isCreator?: boolean;
   selectedLists?: IOrgList[];
+  session: Session;
   setSelectedLists: React.Dispatch<
     React.SetStateAction<IOrgList[] | undefined>
   >;
@@ -33,43 +32,20 @@ export const TopicsListOrgLists = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  let lists: IOrgList[] = [];
-
-  const followerSubscription = getFollowerSubscription({ org, subQuery });
-  const subscriberSubscription = getSubscriberSubscription({ org, subQuery });
-
-  if (isCreator || followerSubscription)
-    lists.push({
-      listName: "Abonnés",
-      subscriptions: getSubscriptions(org, SubscriptionTypes.FOLLOWER)
-    });
-
-  if (isCreator || subscriberSubscription)
-    lists.push({
-      listName: "Adhérents",
-      subscriptions: getSubscriptions(org, SubscriptionTypes.SUBSCRIBER)
-    });
-
-  if (org.orgLists) {
-    lists = [
-      ...lists,
-      ...(org.orgLists.filter((orgList) => {
-        if (isCreator) return true;
-        if (subQuery.data)
-          return !!orgList?.subscriptions?.find(
-            (subscription) => subscription._id === subQuery.data?._id
-          );
-        return false;
-      }) || [])
-    ];
-  }
 
   return (
     <Flex flexWrap="wrap" {...props}>
-      {lists.map((orgList, index) => {
+      {getLists(org)?.map((orgList, index) => {
         const isSelected = selectedLists?.find(
           ({ listName }) => listName === orgList.listName
         );
+
+        const topicsCount = org.orgTopics.reduce((count, orgTopic) => {
+          if (orgTopic.topicVisibility?.includes(orgList.listName)) {
+            return ++count;
+          }
+          return count;
+        }, 0);
 
         return (
           <Tooltip
@@ -100,7 +76,7 @@ export const TopicsListOrgLists = ({
               fontSize="small"
               fontWeight="normal"
               height="auto"
-              // mb={1} // when wrapped
+              // mb={1} // todo: when wrapped
               mr={1}
               p={2}
               onClick={() => {
@@ -116,6 +92,11 @@ export const TopicsListOrgLists = ({
               }}
             >
               {orgList.listName}
+              {topicsCount > 0 && (
+                <Badge colorScheme="green" ml={1}>
+                  {topicsCount}
+                </Badge>
+              )}
             </Button>
           </Tooltip>
         );

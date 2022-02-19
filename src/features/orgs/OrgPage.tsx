@@ -28,6 +28,8 @@ import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import DOMPurify from "isomorphic-dompurify";
 import React, { useEffect, useMemo, useState } from "react";
+import { FaRegMap } from "react-icons/fa";
+import { IoIosGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import {
@@ -43,17 +45,20 @@ import { EventsList } from "features/events/EventsList";
 import { Forum } from "features/forum/Forum";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
+import { MapModal } from "features/modals/MapModal";
+import { TreeChartModal } from "features/modals/TreeChartModal";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
-import { Visibility as EventVisibility } from "models/Event";
+import { InputNode } from "features/treeChart/types";
+import { EEventVisibility as EventVisibility } from "models/Event";
 import {
   IOrg,
   IOrgTab,
   orgTypeFull,
   orgTypeFull5,
-  OrgType,
-  Visibility as OrgVisibility
+  EOrgType,
+  EOrgVisibility as OrgVisibility
 } from "models/Org";
 import {
   getFollowerSubscription,
@@ -62,29 +67,14 @@ import {
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
 import { hasItems, sortOn } from "utils/array";
+import { getRefId } from "utils/models";
 import { capitalize } from "utils/string";
 import { AppQuery } from "utils/types";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs, defaultTabs } from "./OrgPageTabs";
 import { useEditOrgMutation, useGetOrgsQuery } from "./orgsApi";
 import { selectOrgRefetch } from "./orgSlice";
-import { FaRegMap } from "react-icons/fa";
-import { IoIosGitNetwork } from "react-icons/io";
-import { MapModal } from "features/modals/MapModal";
-import { TreeChartModal } from "features/modals/TreeChartModal";
-import { InputNode } from "features/treeChart/types";
 import { OrgsList } from "./OrgsList";
-
-export type ConfigVisibility = {
-  isVisible: {
-    banner?: boolean;
-    logo?: boolean;
-    lists?: boolean;
-    subscribers?: boolean;
-    topics?: boolean;
-  };
-  setIsVisible: (obj: ConfigVisibility["isVisible"]) => void;
-};
 
 let cachedEmail: string | undefined;
 let cachedRefetchOrg = false;
@@ -154,8 +144,6 @@ export const OrgPage = ({
     typeof org.createdBy === "object"
       ? org.createdBy.userName || org.createdBy._id
       : org.createdBy;
-  const orgCreatedByUserId =
-    typeof org.createdBy === "object" ? org.createdBy._id : org.createdBy;
   const { orgNetworks } = useGetOrgsQuery(
     { populate: "orgs" },
     {
@@ -163,7 +151,7 @@ export const OrgPage = ({
         orgNetworks: query.data?.filter(
           (o) =>
             o.orgName !== org.orgName &&
-            o.orgType === OrgType.NETWORK &&
+            o.orgType === EOrgType.NETWORK &&
             !!o.orgs?.find(({ orgName }) => orgName === org.orgName)
         )
       })
@@ -176,9 +164,7 @@ export const OrgPage = ({
     hasItems(org.orgPhone) ||
     hasItems(org.orgWeb);
   const isCreator =
-    session?.user.userId === orgCreatedByUserId ||
-    session?.user.isAdmin ||
-    false;
+    session?.user.userId === getRefId(org) || session?.user.isAdmin || false;
   const events = !session
     ? org.orgEvents.filter(
         (orgEvent) => orgEvent.eventVisibility === EventVisibility.PUBLIC
@@ -199,12 +185,6 @@ export const OrgPage = ({
   const [isListOpen, setIsListOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
-  const [isVisible, setIsVisible] = useState<ConfigVisibility["isVisible"]>({
-    logo: false,
-    banner: false,
-    topics: false,
-    subscribers: false
-  });
 
   const inputNodes: InputNode[] = useMemo(
     () =>
@@ -336,10 +316,8 @@ export const OrgPage = ({
             subQuery={subQuery}
             isConfig={isConfig}
             isEdit={isEdit}
-            isVisible={isVisible}
             setIsConfig={setIsConfig}
             setIsEdit={setIsEdit}
-            setIsVisible={setIsVisible}
           />
         )}
       </Layout>
@@ -457,7 +435,7 @@ export const OrgPage = ({
                       </TabContainerContent>
                     </TabContainer>
 
-                    {org.orgType === OrgType.NETWORK && (
+                    {org.orgType === EOrgType.NETWORK && (
                       <TabContainer>
                         <TabContainerHeader heading="Topologie du réseau">
                           {isCreator && (
@@ -816,10 +794,8 @@ export const OrgPage = ({
           subQuery={subQuery}
           isConfig={isConfig}
           isEdit={isEdit}
-          isVisible={isVisible}
           setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}
-          setIsVisible={setIsVisible}
         />
       )}
 

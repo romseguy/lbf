@@ -27,12 +27,12 @@ import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
-import { IEvent, Visibility } from "models/Event";
+import { IEvent, EEventVisibility } from "models/Event";
 import {
+  ESubscriptionType,
   getFollowerSubscription,
   IOrgSubscription,
-  ISubscription,
-  SubscriptionTypes
+  ISubscription
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
 import { AppQuery } from "utils/types";
@@ -45,6 +45,7 @@ import { EventPageOrgs } from "./EventPageOrgs";
 import { EventPageInfo } from "./EventPageInfo";
 import { EventPageTabs } from "./EventPageTabs";
 import { EventPageTimeline } from "./EventPageTimeline";
+import { getRefId } from "utils/models";
 
 export type ConfigVisibility = {
   isVisible: {
@@ -82,14 +83,8 @@ export const EventPage = ({
     event.createdBy && typeof event.createdBy === "object"
       ? event.createdBy.userName || event.createdBy._id
       : "";
-  const eventCreatedByUserId =
-    event.createdBy && typeof event.createdBy === "object"
-      ? event.createdBy._id
-      : "";
   const isCreator =
-    session?.user.userId === eventCreatedByUserId ||
-    session?.user.isAdmin ||
-    false;
+    session?.user.userId === getRefId(event) || session?.user.isAdmin || false;
   //#endregion
 
   //#region sub
@@ -99,7 +94,7 @@ export const EventPage = ({
       for (const org of event.eventOrgs) {
         if (
           org._id === orgSubscription.orgId &&
-          orgSubscription.type === SubscriptionTypes.SUBSCRIBER
+          orgSubscription.type === ESubscriptionType.SUBSCRIBER
         )
           return true;
       }
@@ -125,7 +120,7 @@ export const EventPage = ({
     if (session) {
       if (isSubscribedToAtLeastOneOrg) showAttendingForm = true;
     } else {
-      if (event.eventVisibility === Visibility.SUBSCRIBERS) {
+      if (event.eventVisibility === EEventVisibility.SUBSCRIBERS) {
         if (
           !!event.eventNotifications?.find(
             (notified) => notified.email === email
@@ -255,7 +250,7 @@ export const EventPage = ({
         </Alert>
       )}
 
-      {event.eventVisibility === Visibility.SUBSCRIBERS &&
+      {event.eventVisibility === EEventVisibility.SUBSCRIBERS &&
         !isConfig &&
         !isEdit &&
         !isSubscribedToAtLeastOneOrg && (

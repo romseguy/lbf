@@ -53,7 +53,8 @@ export const TopicMessagesList = ({
     <Flex flexDirection="column" {...props}>
       <Box>
         {topic.topicMessages?.map(
-          ({ _id, message, createdBy, createdAt }, index) => {
+          ({ message, createdBy, createdAt, ...rest }, index) => {
+            const _id = rest._id as string;
             let userName = "";
             let userImage;
             let userId =
@@ -187,7 +188,6 @@ export const TopicMessagesList = ({
                       <DeleteButton
                         isIconOnly
                         isLoading={
-                          _id &&
                           isLoading[_id] &&
                           !query.isLoading &&
                           !query.isFetching

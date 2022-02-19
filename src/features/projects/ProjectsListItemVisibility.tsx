@@ -10,7 +10,7 @@ import React from "react";
 import { IconType } from "react-icons";
 import { FaGlobeEurope } from "react-icons/fa";
 import { IoMdPerson } from "react-icons/io";
-import { Visibility } from "models/Project";
+import { EProjectVisibility } from "models/Project";
 import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 
@@ -38,7 +38,7 @@ export const ProjectsListItemVisibility = ({
   ) {
     icons = [
       {
-        label: `Discussion réservée à certains membres ${suffix}`,
+        label: `Projet réservé aux membres de listes ${suffix}`,
         icon: HamburgerIcon
       }
     ];
@@ -46,12 +46,12 @@ export const ProjectsListItemVisibility = ({
 
   if (projectVisibility?.includes("Adhérents")) {
     icons.push({
-      label: `Discussion réservée aux adhérents ${suffix}`,
+      label: `Projet réservé aux adhérents ${suffix}`,
       icon: IoMdPerson
     });
   } else if (projectVisibility?.includes("Abonnés")) {
     icons.push({
-      label: `Discussion réservée aux abonnés ${suffix}`,
+      label: `Projet réservé aux abonnés ${suffix}`,
       icon: EmailIcon
     });
   }

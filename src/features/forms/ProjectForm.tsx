@@ -14,15 +14,14 @@ import { ErrorMessage } from "@hookform/error-message";
 import { Session } from "next-auth";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import ReactSelect from "react-select";
 import { ErrorMessageText, ListsControl, RTEditor } from "features/common";
-import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import {
+  AddProjectPayload,
   useAddProjectMutation,
   useEditProjectMutation
 } from "features/projects/projectsApi";
 import { getLists, IOrg } from "models/Org";
-import { IProject, Status, Statuses } from "models/Project";
+import { IProject, EProjectStatus, ProjectStatuses } from "models/Project";
 import { IUser } from "models/User";
 import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
@@ -43,22 +42,11 @@ export const ProjectForm = ({
   onSubmit?: (project: IProject | null) => void;
 }) => {
   const toast = useToast({ position: "top" });
-
-  //#region project
   const [addProject, addProjectMutation] = useAddProjectMutation();
   const [editProject, editProjectMutation] = useEditProjectMutation();
-  //#endregion
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
-  let lists = getLists(org);
-  //#endregion
-
-  //#region myOrgs
-  const { data: myOrgs, isLoading: isQueryLoading } = useGetOrgsQuery({
-    populate: "orgSubscriptions",
-    createdBy: props.session.user.userId
-  });
   //#endregion
 
   //#region form
@@ -69,20 +57,15 @@ export const ProjectForm = ({
     errors,
     setError,
     clearErrors,
-    watch,
-    setValue,
-    getValues,
-    trigger
+    watch
   } = useForm({
     mode: "onChange"
   });
-  const statusOptions: string[] = Object.keys(Status).map(
-    (key) => key as Status
-  );
-  // const visibilityOptions: Visibility[] = Object.keys(Visibility).map(
-  //   (key) => Visibilities[key as Visibility]
-  // );
+
   const projectVisibility = watch("projectVisibility");
+  const statusOptions: string[] = Object.keys(EProjectStatus).map(
+    (key) => key as EProjectStatus
+  );
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -91,17 +74,16 @@ export const ProjectForm = ({
   const onSubmit = async (form: {
     projectName: string;
     projectDescription: string;
-    projectOrgs?: IOrg[];
-    projectVisibility?: { label: string; value: string }[];
+    projectDescriptionHtml: string;
+    projectStatus: EProjectStatus;
+    projectVisibility: { label: string; value: string }[];
   }) => {
     console.log("submitted", form);
     setIsLoading(true);
 
-    let payload = {
+    let payload: AddProjectPayload = {
       ...form,
-      projectDescription: form.projectDescription,
-      projectDescriptionHtml: form.projectDescription,
-      projectVisibility: form.projectVisibility?.map(({ value }) => value)
+      projectVisibility: form.projectVisibility.map(({ value }) => value)
     };
 
     try {
@@ -112,7 +94,7 @@ export const ProjectForm = ({
         }).unwrap();
 
         toast({
-          title: "Votre projet a bien été modifié",
+          title: "Le projet a bien été modifié",
           status: "success",
           isClosable: true
         });
@@ -122,7 +104,7 @@ export const ProjectForm = ({
         });
 
         toast({
-          title: "Votre projet a bien été ajouté !",
+          title: "Le projet a bien été ajouté !",
           status: "success",
           isClosable: true
         });
@@ -201,7 +183,8 @@ export const ProjectForm = ({
           <Select
             name="projectStatus"
             defaultValue={
-              props.project?.projectStatus || Status[Status.PENDING]
+              props.project?.projectStatus ||
+              EProjectStatus[EProjectStatus.PENDING]
             }
             ref={register({
               required: "Veuillez sélectionner le statut du projet"
@@ -210,10 +193,10 @@ export const ProjectForm = ({
             color="gray.400"
           >
             {statusOptions.map((key) => {
-              const status = key as Status;
+              const status = key as EProjectStatus;
               return (
                 <option key={status} value={status}>
-                  {Statuses[status]}
+                  {ProjectStatuses[status]}
                 </option>
               );
             })}
@@ -224,11 +207,11 @@ export const ProjectForm = ({
         </FormControl>
       )}
 
-      {props.isCreator && lists && (
+      {props.isCreator && (
         <ListsControl
           control={control}
           errors={errors}
-          lists={lists}
+          lists={getLists(org)}
           name="projectVisibility"
         />
       )}
@@ -239,53 +222,6 @@ export const ProjectForm = ({
           Le projet ne sera visible que par les membres des listes
           sélectionnées.
         </Alert>
-      )}
-
-      {org && (
-        <FormControl
-          display="none"
-          mb={3}
-          id="projectOrgs"
-          isInvalid={!!errors["projectOrgs"]}
-        >
-          <FormLabel>Organisateurs</FormLabel>
-          <Controller
-            name="projectOrgs"
-            as={ReactSelect}
-            control={control}
-            defaultValue={props.project?.projectOrgs || [org]}
-            placeholder="Rechercher une organisation..."
-            menuPlacement="top"
-            noOptionsMessage={() => "Aucun résultat"}
-            isClearable
-            isMulti
-            isSearchable
-            closeMenuOnSelect
-            styles={{
-              placeholder: () => {
-                return {
-                  color: "#A0AEC0"
-                };
-              },
-              control: (defaultStyles: any) => {
-                return {
-                  ...defaultStyles,
-                  borderColor: "#e2e8f0",
-                  paddingLeft: "8px"
-                };
-              }
-            }}
-            className="react-select-container"
-            classNamePrefix="react-select"
-            options={myOrgs}
-            getOptionLabel={(option: any) => `${option.orgName}`}
-            getOptionValue={(option: any) => option._id}
-            onChange={(option: any) => option._id}
-          />
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="projectOrgs" />
-          </FormErrorMessage>
-        </FormControl>
       )}
 
       <ErrorMessage

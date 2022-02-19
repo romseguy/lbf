@@ -178,13 +178,13 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
 
         if (!subscription) throw new Error("Impossible de créer un abonnement");
 
-        const topicSubscription = subscription.topics.find(({ topic: t }) =>
+        const topicSubscription = subscription.topics?.find(({ topic: t }) =>
           equals(t._id, body.topic!._id)
         );
 
         if (!topicSubscription) {
           // console.log("no sub for this topic => adding one", subscription);
-          subscription.topics = subscription.topics.concat([
+          subscription.topics = (subscription.topics || []).concat([
             {
               topic: topic._id,
               emailNotif: true,

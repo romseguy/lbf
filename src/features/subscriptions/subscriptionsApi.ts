@@ -1,33 +1,24 @@
 import type { ISubscription } from "models/Subscription";
-import type { IUser } from "models/User";
-import { createApi, FetchArgs } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import baseQuery from "utils/query";
+
+export type AddSubscriptionPayload = Omit<ISubscription, "_id" | "createdBy">;
 
 export const subscriptionApi = createApi({
   reducerPath: "subscriptionsApi",
   baseQuery,
   tagTypes: ["Subscriptions"],
   endpoints: (build) => ({
-    addSubscription: build.mutation<
-      ISubscription,
-      {
-        payload: Partial<ISubscription>;
-        email?: string;
-        phone?: string;
-        user?: IUser | string;
-      }
-    >({
-      query: ({ payload, email, phone, user }) => {
+    addSubscription: build.mutation<ISubscription, AddSubscriptionPayload>({
+      query: (payload) => {
         console.groupCollapsed("addSubscription");
-        console.log("email", email);
-        console.log("phone", phone);
-        console.log("user", user);
         console.log("payload", payload);
         console.groupEnd();
+
         return {
           url: `subscriptions`,
           method: "POST",
-          body: { ...payload, email, phone, user }
+          body: payload
         };
       },
       invalidatesTags: [{ type: "Subscriptions", id: "LIST" }]

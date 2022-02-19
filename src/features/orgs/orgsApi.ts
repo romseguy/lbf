@@ -2,7 +2,9 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { IOrg } from "models/Org";
 import baseQuery, { objectToQueryString } from "utils/query";
 
-export type AddOrgPayload = Omit<IOrg, "_id">;
+export type AddOrgPayload = Omit<IOrg, "_id" | "createdBy">;
+
+export type EditOrgPayload = Partial<IOrg> | string[];
 
 export type GetOrgParams = {
   orgUrl: string;
@@ -32,10 +34,7 @@ export const orgApi = createApi({
     deleteOrg: build.mutation<IOrg, string>({
       query: (orgUrl) => ({ url: `org/${orgUrl}`, method: "DELETE" })
     }),
-    editOrg: build.mutation<
-      {},
-      { payload: Partial<IOrg> | string[]; orgUrl?: string }
-    >({
+    editOrg: build.mutation<{}, { payload: EditOrgPayload; orgUrl?: string }>({
       query: ({ payload, orgUrl }) => {
         console.groupCollapsed("editOrg");
         console.log("orgUrl", orgUrl);

@@ -14,7 +14,6 @@ import {
   useToast
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { useSession } from "hooks/useAuth";
 import { Button, Grid } from "features/common";
 import {
   NotifModalState,
@@ -25,16 +24,18 @@ import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
 } from "features/subscriptions/subscriptionsApi";
+import { useSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
 import { IOrg, IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
+import { hasItems } from "utils/array";
+import { getRefId } from "utils/models";
+import { AppQuery } from "utils/types";
 import { useDeleteTopicMutation, useAddTopicNotifMutation } from "./topicsApi";
 import { TopicsListItem } from "./TopicsListItem";
-import { hasItems } from "utils/array";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { TopicsListCategories } from "./TopicsListCategories";
-import { AppQuery } from "utils/types";
 
 export const TopicsList = ({
   event,
@@ -75,12 +76,20 @@ export const TopicsList = ({
   //#endregion
 
   //#region local state
+  const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
+  useEffect(() => {
+    if (currentTopicName) {
+      const cT =
+        topics.find((topic) => topic.topicName === currentTopicName) || null;
+
+      if (cT) setCurrentTopic(cT);
+      else if (currentTopic) setCurrentTopic(cT);
+    } else if (currentTopic) setCurrentTopic(null);
+  }, [currentTopicName]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
   const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
   const topics = org
     ? org.orgTopics.filter((topic) => {
-        if (org.orgUrl === "forum") return true;
-
         if (hasItems(selectedCategories) || hasItems(selectedLists)) {
           let belongsToCategory = false;
           let belongsToList = false;
@@ -97,6 +106,8 @@ export const TopicsList = ({
             )
               belongsToCategory = true;
           }
+
+          if (org.orgUrl === "forum") return belongsToCategory;
 
           if (Array.isArray(selectedLists) && selectedLists.length > 0) {
             if (
@@ -117,44 +128,11 @@ export const TopicsList = ({
           return belongsToCategory || belongsToList;
         }
 
-        if (props.isCreator) return true;
-
-        if (!topic.topicVisibility || !topic.topicVisibility.length)
-          return true;
-
-        if (props.isSubscribed && topic.topicVisibility?.includes("Adhérents"))
-          return true;
-
-        if (props.isFollowed && topic.topicVisibility?.includes("Abonnés"))
-          return true;
-
-        if (
-          topic.topicOrgLists?.find((listName) => {
-            const orgList = org.orgLists?.find(
-              (orgList) => orgList.listName === listName
-            );
-            return !!orgList?.subscriptions?.find(
-              (subscription) => subscription._id === subQuery.data?._id
-            );
-          })
-        )
-          return true;
-
-        return false;
+        return true;
       })
     : event
     ? event.eventTopics
     : [];
-  const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
-  useEffect(() => {
-    if (currentTopicName) {
-      const cT =
-        topics.find((topic) => topic.topicName === currentTopicName) || null;
-
-      if (cT) setCurrentTopic(cT);
-      else if (currentTopic) setCurrentTopic(cT);
-    } else if (currentTopic) setCurrentTopic(null);
-  }, [currentTopicName]);
   //#endregion
 
   //#region loading state
@@ -251,11 +229,11 @@ export const TopicsList = ({
           </Flex>
         )}
 
-      {(topics.length > 0 || selectedLists || selectedCategories) &&
-        session &&
+      {session &&
+        topics.length > 0 &&
         org &&
-        org.orgName !== "forum" &&
-        (props.isSubscribed || props.isCreator) && (
+        org.orgUrl !== "forum" &&
+        hasItems(org.orgLists) && (
           <Flex flexDirection="column" mb={3}>
             <Flex>
               <Text className="rainbow-text">Listes</Text>
@@ -264,6 +242,7 @@ export const TopicsList = ({
               org={org}
               isCreator={props.isCreator}
               selectedLists={selectedLists}
+              session={session}
               setSelectedLists={setSelectedLists}
               subQuery={subQuery}
             />
@@ -357,23 +336,14 @@ export const TopicsList = ({
         ) : (
           topics.map((topic, topicIndex) => {
             const isCurrent = topic._id === currentTopic?._id;
-            const topicCreatedBy =
-              typeof topic.createdBy === "object"
-                ? topic.createdBy._id
-                : topic.createdBy;
             const isTopicCreator =
-              props.isCreator || topicCreatedBy === session?.user.userId;
-
-            let isSubbedToTopic = false;
-
-            if (subQuery.data) {
-              isSubbedToTopic = !!subQuery.data.topics.find(
-                (topicSubscription) => {
-                  if (!topicSubscription.topic) return false;
-                  return topicSubscription.topic._id === topic._id;
-                }
-              );
-            }
+              props.isCreator || getRefId(topic) === session?.user.userId;
+            const isSubbedToTopic = !!subQuery.data?.topics?.find(
+              (topicSubscription) => {
+                if (!topicSubscription.topic) return false;
+                return topicSubscription.topic._id === topic._id;
+              }
+            );
 
             return (
               <TopicsListItem
@@ -441,15 +411,13 @@ export const TopicsList = ({
                   if (!subQuery.data || !isSubbedToTopic) {
                     try {
                       await addSubscription({
-                        payload: {
-                          topics: [
-                            {
-                              topic: topic,
-                              emailNotif: true,
-                              pushNotif: true
-                            }
-                          ]
-                        },
+                        topics: [
+                          {
+                            topic: topic,
+                            emailNotif: true,
+                            pushNotif: true
+                          }
+                        ],
                         user: session?.user.userId
                       });
 

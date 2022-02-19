@@ -26,10 +26,10 @@ import { ProjectFormModal } from "features/modals/ProjectFormModal";
 import { IOrg, orgTypeFull } from "models/Org";
 import {
   IProject,
-  Status,
-  InviteStatus,
-  InviteStatuses,
-  Statuses
+  EProjectStatus,
+  EProjectInviteStatus,
+  ProjectInviteStatuses,
+  ProjectStatuses
 } from "models/Project";
 import { IUser } from "models/User";
 import * as dateUtils from "utils/date";
@@ -190,9 +190,17 @@ export const ProjectsList = ({
                 Array.isArray(projectVisibility) &&
                 projectVisibility.length > 0
               ) {
-                if (projectVisibility.includes("Adhérents") && !isSubscribed)
+                if (
+                  projectVisibility.includes("Adhérents") &&
+                  !isSubscribed &&
+                  !isCreator
+                )
                   return null;
-                if (projectVisibility.includes("Abonnés") && !isFollowed)
+                if (
+                  projectVisibility.includes("Abonnés") &&
+                  !isFollowed &&
+                  !isCreator
+                )
                   return null;
               }
 
@@ -254,14 +262,14 @@ export const ProjectsList = ({
                           <Tag
                             variant="solid"
                             colorScheme={
-                              projectStatus === Status.PENDING
+                              projectStatus === EProjectStatus.PENDING
                                 ? "red"
-                                : projectStatus === Status.ONGOING
+                                : projectStatus === EProjectStatus.ONGOING
                                 ? "orange"
                                 : "green"
                             }
                           >
-                            {Statuses[projectStatus]}
+                            {ProjectStatuses[projectStatus]}
                           </Tag>
                         </GridItem>
 
@@ -433,14 +441,16 @@ export const ProjectsList = ({
                                             <Tag
                                               variant="solid"
                                               colorScheme={
-                                                status === InviteStatus.PENDING
+                                                status ===
+                                                EProjectInviteStatus.PENDING
                                                   ? "blue"
-                                                  : status === InviteStatus.OK
+                                                  : status ===
+                                                    EProjectInviteStatus.OK
                                                   ? "green"
                                                   : "red"
                                               }
                                             >
-                                              {InviteStatuses[status]}
+                                              {ProjectInviteStatuses[status]}
                                             </Tag>
                                           </Td>
                                         </Tr>

@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
+import { AddSubscriptionPayload } from "features/subscriptions/subscriptionsApi";
 import { getSession } from "hooks/useAuth";
 import { IOrg } from "models/Org";
 import {
@@ -9,7 +10,7 @@ import {
   IOrgSubscription,
   ISubscription,
   setFollowerSubscriptionTagType,
-  SubscriptionTypes
+  ESubscriptionType
 } from "models/Subscription";
 import { IUser } from "models/User";
 import { createServerError } from "utils/errors";
@@ -61,6 +62,7 @@ handler.get<NextApiRequest & { query: { topicId?: string } }, NextApiResponse>(
     const subscriptions = await models.Subscription.find({});
 
     for (const subscription of subscriptions) {
+      if (!subscription.topics) continue;
       for (const topicSubscription of subscription.topics) {
         if (equals(topicSubscription.topic, topicId)) {
           const s = await subscription
@@ -78,17 +80,17 @@ handler.get<NextApiRequest & { query: { topicId?: string } }, NextApiResponse>(
 
 handler.post<
   NextApiRequest & {
-    body: ISubscription;
+    body: AddSubscriptionPayload;
   },
   NextApiResponse
->(async function postSubscription(req, res) {
+>(async function addSubscription(req, res) {
   const session = await getSession({ req });
 
   try {
     const {
       body
     }: {
-      body: ISubscription;
+      body: AddSubscriptionPayload;
     } = req;
     const selector: { user?: IUser; email?: string; phone?: string } = {};
 
@@ -174,7 +176,7 @@ handler.post<
           continue;
         }
 
-        if (newOrgSubscription.type === SubscriptionTypes.FOLLOWER) {
+        if (newOrgSubscription.type === ESubscriptionType.FOLLOWER) {
           const followerSubscription = getFollowerSubscription({
             org,
             subscription
@@ -185,10 +187,10 @@ handler.post<
             updateOrgSubscription(
               org,
               subscription,
-              SubscriptionTypes.FOLLOWER,
+              ESubscriptionType.FOLLOWER,
               newOrgSubscription
             );
-        } else if (newOrgSubscription.type === SubscriptionTypes.SUBSCRIBER) {
+        } else if (newOrgSubscription.type === ESubscriptionType.SUBSCRIBER) {
           const subscriberSubscription = getSubscriberSubscription({
             org,
             subscription
@@ -200,7 +202,7 @@ handler.post<
             updateOrgSubscription(
               org,
               subscription,
-              SubscriptionTypes.SUBSCRIBER,
+              ESubscriptionType.SUBSCRIBER,
               newOrgSubscription
             );
         }
@@ -333,14 +335,14 @@ handler.post<
         }
 
         const { emailNotif, pushNotif } = body.topics[i];
-        const topicSubscription = subscription.topics.find((topicS) =>
+        const topicSubscription = subscription.topics?.find((topicS) =>
           typeof topicS.topic === "object"
             ? equals(topicS.topic._id, topicId)
             : equals(topicS.topic, topicId)
         );
 
         if (!topicSubscription) {
-          subscription.topics.push({
+          subscription.topics?.push({
             topic,
             emailNotif,
             pushNotif

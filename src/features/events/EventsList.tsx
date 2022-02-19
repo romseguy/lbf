@@ -34,7 +34,6 @@ import { MapModal } from "features/modals/MapModal";
 import { useSession } from "hooks/useAuth";
 import { getEvents, IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
-import { SubscriptionTypes } from "models/Subscription";
 import { useAppDispatch } from "store";
 import { AppQuery } from "utils/types";
 import {
@@ -47,6 +46,7 @@ import { EventCategoryTag } from "./EventCategoryTag";
 import { EventsListDistanceSelect } from "./EventsListDistance";
 import { EventsListItem } from "./EventsListItem";
 import { EventsListToggle } from "./EventsListToggle";
+import { ESubscriptionType } from "models/Subscription";
 
 export const EventsList = ({
   events,
@@ -88,7 +88,7 @@ export const EventsList = ({
         (subscription.orgs || []).filter((orgSubscription) => {
           return (
             orgSubscription.orgId === org?._id &&
-            orgSubscription.type === SubscriptionTypes.FOLLOWER
+            orgSubscription.type === ESubscriptionType.FOLLOWER
           );
         }).length
     )

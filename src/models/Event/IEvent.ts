@@ -4,7 +4,19 @@ import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { Base64Image } from "utils/image";
 import { IEntity } from "utils/models";
-import { StringMap } from "utils/types";
+import { TypedMap } from "utils/types";
+
+export enum EEventInviteStatus {
+  PENDING = "PENDING",
+  OK = "OK",
+  NOK = "NOK"
+}
+
+export enum EEventVisibility {
+  FOLLOWERS = "FOLLOWERS",
+  PUBLIC = "PUBLIC",
+  SUBSCRIBERS = "SUBSCRIBERS"
+}
 
 export interface IEvent<T = string> extends IEntity {
   eventName: string;
@@ -50,24 +62,14 @@ export interface IEvent<T = string> extends IEntity {
   repeat?: number;
 }
 
-export enum InviteStatus {
-  PENDING = "PENDING",
-  OK = "OK",
-  NOK = "NOK"
-}
-export const InviteStatuses: StringMap<InviteStatus, string> = {
-  [InviteStatus.PENDING]: "La personne n'a pas encore indiqué participer",
-  [InviteStatus.OK]: "Participant",
-  [InviteStatus.NOK]: "Invitation refusée"
+export const EventInviteStatuses: TypedMap<EEventInviteStatus, string> = {
+  [EEventInviteStatus.PENDING]: "La personne n'a pas encore indiqué participer",
+  [EEventInviteStatus.OK]: "Participant",
+  [EEventInviteStatus.NOK]: "Invitation refusée"
 };
 
-export enum Visibility {
-  FOLLOWERS = "FOLLOWERS",
-  PUBLIC = "PUBLIC",
-  SUBSCRIBERS = "SUBSCRIBERS"
-}
-export const Visibilities: StringMap<Visibility, string> = {
-  [Visibility.FOLLOWERS]: "Abonnés",
-  [Visibility.PUBLIC]: "Publique",
-  [Visibility.SUBSCRIBERS]: "Adhérents"
+export const EventVisibilities: TypedMap<EEventVisibility, string> = {
+  [EEventVisibility.FOLLOWERS]: "Abonnés",
+  [EEventVisibility.PUBLIC]: "Publique",
+  [EEventVisibility.SUBSCRIBERS]: "Adhérents"
 };

@@ -4,7 +4,7 @@ import { Session } from "next-auth";
 import { Layout } from "features/layout";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
-import { ISubscription, SubscriptionTypes } from "models/Subscription";
+import { ISubscription, ESubscriptionType } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { PageProps } from "pages/_app";
 import api, { ResponseType } from "utils/api";
@@ -71,7 +71,7 @@ export async function getServerSideProps(
 
   if (org) {
     if (topicId) {
-      const topicSubscription = subscription.topics.find(
+      const topicSubscription = subscription.topics?.find(
         ({ topic }) => topic._id === topicId
       );
 
@@ -100,7 +100,7 @@ export async function getServerSideProps(
               {
                 orgId: org._id,
                 org,
-                type: SubscriptionTypes.FOLLOWER
+                type: ESubscriptionType.FOLLOWER
               }
             ]
           }
@@ -116,7 +116,7 @@ export async function getServerSideProps(
           orgs: [
             {
               orgId: org._id,
-              type: SubscriptionTypes.FOLLOWER
+              type: ESubscriptionType.FOLLOWER
             }
           ]
         }
