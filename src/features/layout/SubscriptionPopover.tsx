@@ -44,10 +44,10 @@ export const SubscriptionPopover = ({
     selectFromResult: (query) => ({
       ...query,
       eventsWithEmailNotifications: (query.data || []).filter((event) =>
-        event.eventNotifications?.find(({ email }) => email === userEmail)
+        event.eventNotifications.find(({ email }) => email === userEmail)
       ),
       eventsWithPushNotifications: (query.data || []).filter((event) =>
-        event.eventNotifications?.find(
+        event.eventNotifications.find(
           ({ user }) => user === session.user.userId
         )
       )
@@ -62,11 +62,11 @@ export const SubscriptionPopover = ({
     selectFromResult: (query) => ({
       ...query,
       topicsWithEmailNotifications: (query.data || []).filter((topic) =>
-        topic.topicNotifications?.find(({ email }) => email === userEmail)
+        topic.topicNotifications.find(({ email }) => email === userEmail)
       ),
 
       topicsWithPushNotifications: (query.data || []).filter((topic) =>
-        topic.topicNotifications?.find(
+        topic.topicNotifications.find(
           ({ user }) => user === session.user.userId
         )
       )
@@ -82,12 +82,12 @@ export const SubscriptionPopover = ({
     ...topicsWithEmailNotifications
   ]) {
     if (isEvent(entity)) {
-      for (const eventNotification of entity.eventNotifications!) {
+      for (const eventNotification of entity.eventNotifications) {
         emailNotifications.push({ ...eventNotification, entity });
       }
     }
     if (isTopic(entity)) {
-      for (const topicNotification of entity.topicNotifications!) {
+      for (const topicNotification of entity.topicNotifications) {
         emailNotifications.push({ ...topicNotification, entity });
       }
     }
@@ -102,12 +102,12 @@ export const SubscriptionPopover = ({
     ...topicsWithPushNotifications
   ]) {
     if (isEvent(entity)) {
-      for (const eventNotification of entity.eventNotifications!) {
+      for (const eventNotification of entity.eventNotifications) {
         pushNotifications.push({ ...eventNotification, entity });
       }
     }
     if (isTopic(entity)) {
-      for (const topicNotification of entity.topicNotifications!) {
+      for (const topicNotification of entity.topicNotifications) {
         pushNotifications.push({ ...topicNotification, entity });
       }
     }

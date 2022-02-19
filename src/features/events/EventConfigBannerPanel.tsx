@@ -119,8 +119,7 @@ export const EventConfigBannerPanel = ({
       });
       toast({
         title: "La bannière a bien été modifiée !",
-        status: "success",
-        isClosable: true
+        status: "success"
       });
       eventQuery.refetch();
       setIsVisible({ ...isVisible, banner: !isVisible.banner, logo: false });
@@ -182,14 +181,12 @@ export const EventConfigBannerPanel = ({
                     eventQuery.refetch();
                     toast({
                       title: "La bannière a bien été supprimée !",
-                      status: "success",
-                      isClosable: true
+                      status: "success"
                     });
                   } catch (error) {
                     toast({
                       title: "La bannière n'a pas pu être supprimée",
-                      status: "error",
-                      isClosable: true
+                      status: "error"
                     });
                   }
                 }}

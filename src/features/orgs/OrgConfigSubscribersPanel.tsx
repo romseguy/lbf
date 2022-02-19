@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { Button, Heading, Grid, GridProps, Text, Flex } from "@chakra-ui/react";
+import { Button, Heading, Grid, GridProps, Flex } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";

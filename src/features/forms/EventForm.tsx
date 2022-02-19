@@ -37,8 +37,7 @@ import {
   intervalToDuration,
   isBefore,
   parseISO,
-  setDay,
-  subHours
+  setDay
 } from "date-fns";
 import { Session } from "next-auth";
 import React, { useEffect, useState } from "react";
@@ -46,14 +45,13 @@ import { isMobile } from "react-device-detect";
 import { Controller, useForm } from "react-hook-form";
 import ReactSelect from "react-select";
 import { css } from "twin.macro";
-import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
+import { Suggestion } from "use-places-autocomplete";
 
 import {
   AddressControl,
   DatePicker,
   EmailControl,
   ErrorMessageText,
-  Link,
   renderCustomInput,
   RTEditor
 } from "features/common";
@@ -73,7 +71,6 @@ import {
   EEventVisibility
 } from "models/Event";
 import { IOrg } from "models/Org";
-import { ETopicVisibility as TopicVisibility } from "models/Topic";
 import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
@@ -143,7 +140,10 @@ export const EventForm = withGoogleApi({
     });
 
     const eventVisibility = watch("eventVisibility");
-    const defaultEventOrgs = props.event?.eventOrgs || initialEventOrgs || [];
+    const defaultEventOrgs =
+      props.event && hasItems(props.event.eventOrgs)
+        ? props.event.eventOrgs
+        : initialEventOrgs;
     const eventOrgs: IOrg[] = watch("eventOrgs") || defaultEventOrgs;
     const eventAddress = watch("eventAddress");
     const eventEmail = watch("eventEmail");
@@ -152,8 +152,8 @@ export const EventForm = withGoogleApi({
 
     useEffect(() => {
       if (hasItems(eventOrgs)) {
-        if (eventOrgs[0].orgAddress)
-          setValue("eventAddress", eventOrgs[0].orgAddress);
+        if (eventOrgs[0].orgAddress[0])
+          setValue("eventAddress", eventOrgs[0].orgAddress[0].address);
       } else {
         setValue("eventAddress", []);
       }
@@ -166,7 +166,7 @@ export const EventForm = withGoogleApi({
 
     const eventOrgsRules: { required: string | boolean } = {
       required:
-        eventVisibility === TopicVisibility.SUBSCRIBERS
+        eventVisibility === EEventVisibility.SUBSCRIBERS
           ? "Veuillez sélectionner une ou plusieurs organisations"
           : false
     };
@@ -324,8 +324,7 @@ export const EventForm = withGoogleApi({
 
           toast({
             title: "L'événement a bien été modifié !",
-            status: "success",
-            isClosable: true
+            status: "success"
           });
         } else {
           const event = await addEvent(payload).unwrap();
@@ -333,8 +332,7 @@ export const EventForm = withGoogleApi({
 
           toast({
             title: "L'événement a bien été ajouté !",
-            status: "success",
-            isClosable: true
+            status: "success"
           });
         }
 
@@ -356,17 +354,9 @@ export const EventForm = withGoogleApi({
     let categories = Object.keys(EventCategory).map(
       (catId) => EventCategory[parseInt(catId)]
     );
-    if (
-      initialEventOrgs &&
-      initialEventOrgs[0] &&
-      initialEventOrgs[0].orgEventCategories
-    )
+    if (initialEventOrgs[0] && initialEventOrgs[0].orgEventCategories)
       categories = initialEventOrgs[0].orgEventCategories;
-    else if (
-      props.event &&
-      Array.isArray(props.event.eventOrgs) &&
-      props.event.eventOrgs.length > 0
-    ) {
+    else if (props.event && hasItems(props.event.eventOrgs)) {
       const firstOrgCategories = props.event?.eventOrgs[0].orgEventCategories;
       if (firstOrgCategories) categories = firstOrgCategories;
     }
@@ -606,7 +596,7 @@ export const EventForm = withGoogleApi({
             render={(props) => {
               return (
                 <DatePicker
-                  withPortal={isMobile ? true : false}
+                  withPortal={isMobile}
                   customInput={renderCustomInput("minDate")}
                   selected={props.value}
                   onChange={(e) => {

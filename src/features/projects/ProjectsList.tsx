@@ -31,9 +31,11 @@ import {
   ProjectInviteStatuses,
   ProjectStatuses
 } from "models/Project";
+import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
-import * as dateUtils from "utils/date";
 import { hasItems } from "utils/array";
+import * as dateUtils from "utils/date";
+import { AppQuery } from "utils/types";
 import { ProjectAttendingForm } from "./ProjectAttendingForm";
 import { ProjectsListItemVisibility } from "./ProjectsListItemVisibility";
 import { useDeleteProjectMutation } from "./projectsApi";
@@ -43,57 +45,58 @@ import { ISelectedOrder, ProjectsListOrder } from "./ProjectsListOrder";
 export const ProjectsList = ({
   org,
   orgQuery,
+  user,
+  userQuery,
   subQuery,
   isCreator,
   isFollowed,
-  isSubscribed,
   isLogin,
+  isSubscribed,
   setIsLogin,
-  user,
-  userQuery,
   ...props
 }: {
+  // either
   org?: IOrg;
-  orgQuery?: any;
-  subQuery?: any;
+  orgQuery?: AppQuery<IOrg>;
+  // or
+  user?: Partial<IUser>;
+  userQuery?: AppQuery<IUser>;
+  // end either
+  subQuery?: AppQuery<ISubscription>;
   isCreator?: boolean;
   isFollowed?: boolean;
-  isSubscribed?: boolean;
   isLogin: number;
+  isSubscribed?: boolean;
   setIsLogin: (isLogin: number) => void;
-  user?: Partial<IUser>;
-  userQuery?: any;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
-  const query = orgQuery || userQuery;
+  const query = (orgQuery || userQuery) as AppQuery<IOrg | IUser>;
 
   //#region project
-  const [deleteProject, deleteProjectMutation] = useDeleteProjectMutation();
-  const projects = useMemo(
-    () => [
-      ...(org ? org.orgProjects || [] : user ? user.userProjects || [] : [])
-    ],
+  const [deleteProject] = useDeleteProjectMutation();
+  let projects = useMemo(
+    () => [...(org ? org.orgProjects : user ? user.userProjects || [] : [])],
     [org, user]
   );
   //#endregion
 
   //#region local state
+  const [currentProject, setCurrentProject] = useState<IProject | null>(null);
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const [projectModalState, setProjectModalState] = useState<{
     isOpen: boolean;
     project?: IProject;
   }>({ isOpen: false, project: undefined });
-  const [currentProject, setCurrentProject] = useState<IProject | null>(null);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<
     ISelectedOrder | undefined
   >({
     key: "createdAt",
     order: "desc"
   });
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   //#endregion
 
   return (
@@ -185,24 +188,6 @@ export const ProjectsList = ({
                 !selectedStatuses.includes(projectStatus)
               )
                 return null;
-
-              if (
-                Array.isArray(projectVisibility) &&
-                projectVisibility.length > 0
-              ) {
-                if (
-                  projectVisibility.includes("Adhérents") &&
-                  !isSubscribed &&
-                  !isCreator
-                )
-                  return null;
-                if (
-                  projectVisibility.includes("Abonnés") &&
-                  !isFollowed &&
-                  !isCreator
-                )
-                  return null;
-              }
 
               const projectCreatedByUserName =
                 typeof createdBy === "object"
@@ -297,9 +282,7 @@ export const ProjectsList = ({
 
                                   <ProjectsListItemVisibility
                                     org={org}
-                                    projectVisibility={
-                                      project.projectVisibility
-                                    }
+                                    projectVisibility={projectVisibility}
                                     ml={1}
                                   />
                                 </>
@@ -321,7 +304,7 @@ export const ProjectsList = ({
                                 onClick={() => {
                                   setProjectModalState({
                                     isOpen: true,
-                                    project: project
+                                    project
                                   });
                                 }}
                               />
@@ -365,18 +348,15 @@ export const ProjectsList = ({
                                     query.refetch();
 
                                     toast({
-                                      title: `${deletedProject.projectName} a bien été supprimé !`,
-                                      status: "success",
-                                      isClosable: true
+                                      title: `Le projet ${deletedProject.projectName} a bien été supprimé !`,
+                                      status: "success"
                                     });
                                   }
-                                } catch (error: any) {
+                                } catch (error) {
+                                  console.error(error);
                                   toast({
-                                    title: error.data
-                                      ? error.data.message
-                                      : error.message,
-                                    status: "error",
-                                    isClosable: true
+                                    title: `Le projet n'a pas pu être supprimé`,
+                                    status: "error"
                                   });
                                 }
                               }}
@@ -408,7 +388,7 @@ export const ProjectsList = ({
                             onClick={() => {
                               setProjectModalState({
                                 isOpen: true,
-                                project: project
+                                project
                               });
                             }}
                             variant="underline"
@@ -431,9 +411,11 @@ export const ProjectsList = ({
                             {isProjectCreator ? (
                               <Table>
                                 <Tbody>
-                                  {Array.isArray(project.projectNotified) &&
-                                  project.projectNotified.length > 0 ? (
-                                    project.projectNotified.map(
+                                  {Array.isArray(
+                                    project.projectNotifications
+                                  ) &&
+                                  project.projectNotifications.length > 0 ? (
+                                    project.projectNotifications.map(
                                       ({ email, status }) => (
                                         <Tr>
                                           <Td>{email}</Td>

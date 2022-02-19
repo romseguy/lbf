@@ -1,12 +1,16 @@
 import { NextPageContext } from "next";
+import { isMobile } from "react-device-detect";
+import { Layout } from "features/layout";
+import { useSession } from "hooks/useAuth";
 
 function Error({ statusCode }: { statusCode: number }) {
+  const { data: session } = useSession();
   return (
-    <p>
-      {statusCode
-        ? `An error ${statusCode} occurred on server`
-        : "An error occurred on client"}
-    </p>
+    <Layout isMobile={isMobile} session={session}>
+      {`Une erreur ${
+        statusCode ? `(${statusCode})` : ""
+      } est survenue, merci de contacter le créateur de cet outil.`}
+    </Layout>
   );
 }
 

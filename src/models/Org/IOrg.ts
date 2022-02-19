@@ -21,36 +21,53 @@ export interface IOrg extends IEntity {
   orgName: string;
   orgUrl: string;
   orgType: EOrgType;
-  orgAddress?: { address: string }[];
+  orgDescription?: string;
+  orgDescriptionHtml?: string;
+  orgAddress: IOrgAddress[];
   orgCity?: string;
   orgLat?: number;
   orgLng?: number;
-  orgEmail?: { email: string }[];
-  orgPhone?: { phone: string }[];
-  orgWeb?: { url: string; prefix: string }[];
-  orgEventCategories?: IOrgEventCategory[];
-  orgDescription?: string;
-  orgDescriptionHtml?: string;
+  orgEmail: IOrgEmail[];
+  orgPhone: IOrgPhone[];
+  orgWeb: IOrgWeb[];
+  orgEventCategories: IOrgEventCategory[];
   orgEvents: IEvent[];
-  orgLists?: IOrgList[];
+  orgLists: IOrgList[];
   orgProjects: IProject[];
   orgSubscriptions: ISubscription[];
   orgTopics: ITopic[];
-  orgTopicsCategories?: string[];
-  orgLogo?: Base64Image & {
-    url?: string;
-  };
+  orgTopicsCategories: string[];
   orgBanner?: Base64Image & {
     headerHeight: number;
     mode?: "light" | "dark";
+    url?: string;
+  };
+  orgLogo?: Base64Image & {
     url?: string;
   };
   orgPassword?: string;
   orgSalt?: string;
   orgTabs?: IOrgTab[];
   orgVisibility: string;
-  orgs?: IOrg[];
+  orgs: IOrg[];
   isApproved?: boolean;
+}
+
+export interface IOrgAddress {
+  address: string;
+}
+
+export interface IOrgEmail {
+  email: string;
+}
+
+export interface IOrgPhone {
+  phone: string;
+}
+
+export interface IOrgWeb {
+  url: string;
+  prefix: string;
 }
 
 export interface IOrgEventCategory {
@@ -61,7 +78,7 @@ export interface IOrgEventCategory {
 
 export interface IOrgList {
   listName: string;
-  subscriptions?: ISubscription[];
+  subscriptions: ISubscription[];
 }
 
 export interface IOrgTab {

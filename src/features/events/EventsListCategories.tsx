@@ -47,6 +47,7 @@ import { EventCategory, IEvent } from "models/Event";
 import { IOrg, IOrgEventCategory, orgTypeFull } from "models/Org";
 import api from "utils/api";
 import { handleError } from "utils/form";
+import { hasItems } from "utils/array";
 
 export const EventsListCategories = ({
   events,
@@ -86,7 +87,7 @@ export const EventsListCategories = ({
   };
 
   const categories = useMemo((): IOrgEventCategory[] => {
-    if (org && org.orgEventCategories) return org.orgEventCategories;
+    if (org && hasItems(org.orgEventCategories)) return org.orgEventCategories;
 
     let arr = [];
 
@@ -361,8 +362,7 @@ export const EventsListCategories = ({
 
                     toast({
                       status: "success",
-                      title: "Merci de votre contribution !",
-                      isClosable: true
+                      title: "Merci de votre contribution !"
                     });
                   } catch (error: any) {
                     toast({
@@ -370,8 +370,7 @@ export const EventsListCategories = ({
                       status: "error",
                       title:
                         error.message ||
-                        "Une erreur est survenue, merci de reporter le bug sur le forum",
-                      isClosable: true
+                        "Une erreur est survenue, merci de reporter le bug sur le forum"
                     });
                   }
                 }

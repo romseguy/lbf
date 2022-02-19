@@ -40,6 +40,7 @@ import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
 import { EditOrgPayload, useEditOrgMutation } from "./orgsApi";
+import { IoIosPerson } from "react-icons/io";
 
 export const OrgConfigListsPanel = ({
   orgQuery,
@@ -59,7 +60,7 @@ export const OrgConfigListsPanel = ({
   //#endregion
 
   //#region local state
-  const lists = getLists(org);
+  const lists = org.orgLists;
   const [isAdd, setIsAdd] = useState(false);
   const [listToEdit, setListToEdit] = useState<IOrgList>();
   const [listToShow, setListToShow] = useState<IOrgList>();
@@ -73,7 +74,7 @@ export const OrgConfigListsPanel = ({
       let payload: EditOrgPayload = {};
 
       if (listToEdit && listToEdit.listName !== form.listName) {
-        for (const orgList of org.orgLists || [])
+        for (const orgList of org.orgLists)
           if (orgList.listName === form.listName)
             throw { listName: "Ce nom n'est pas disponible." };
 
@@ -354,7 +355,10 @@ export const OrgConfigListsPanel = ({
 
                             return (
                               <Tr key={subscription._id}>
-                                <Td>{label}</Td>
+                                <Td maxW={0} pr={0}>
+                                  <IoIosPerson />
+                                </Td>
+                                <Td pl={0}>{label}</Td>
                               </Tr>
                             );
                           })}

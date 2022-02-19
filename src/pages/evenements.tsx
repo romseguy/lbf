@@ -15,7 +15,7 @@ import { useGetEventsQuery } from "features/events/eventsApi";
 import { EventsList } from "features/events/EventsList";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
-import { EProjectVisibility } from "models/Project";
+import { EEventVisibility } from "models/Event";
 import { PageProps } from "./_app";
 
 const EventsPage = ({ ...props }: PageProps) => {
@@ -34,7 +34,7 @@ const EventsPage = ({ ...props }: PageProps) => {
 
   const events = eventsQuery.data?.filter((event) => {
     if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
-    if (event.eventVisibility !== EProjectVisibility.PUBLIC) return false;
+    if (event.eventVisibility !== EEventVisibility.PUBLIC) return false;
     return event.isApproved;
   });
 
@@ -126,7 +126,7 @@ const EventsPage = ({ ...props }: PageProps) => {
               return (
                 typeof event.eventLat === "number" &&
                 typeof event.eventLng === "number" &&
-                event.eventVisibility === EProjectVisibility.PUBLIC
+                event.eventVisibility === EEventVisibility.PUBLIC
               );
             }) || []
           }

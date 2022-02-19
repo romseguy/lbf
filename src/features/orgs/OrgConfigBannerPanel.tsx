@@ -123,8 +123,7 @@ export const OrgConfigBannerPanel = ({
       });
       toast({
         title: "La bannière a bien été modifiée !",
-        status: "success",
-        isClosable: true
+        status: "success"
       });
       orgQuery.refetch();
       setIsVisible({ ...isVisible, banner: false });
@@ -188,14 +187,12 @@ export const OrgConfigBannerPanel = ({
                     orgQuery.refetch();
                     toast({
                       title: "La bannière a bien été supprimée !",
-                      status: "success",
-                      isClosable: true
+                      status: "success"
                     });
                   } catch (error) {
                     toast({
                       title: "La bannière n'a pas pu être supprimée",
-                      status: "error",
-                      isClosable: true
+                      status: "error"
                     });
                   }
                 }}

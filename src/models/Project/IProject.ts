@@ -1,6 +1,5 @@
 import { IOrg } from "models/Org";
 import { IEntity } from "utils/models";
-import { TypedMap } from "utils/types";
 
 export enum EProjectStatus {
   PENDING = "PENDING",
@@ -14,24 +13,18 @@ export enum EProjectInviteStatus {
   NOK = "NOK"
 }
 
-export enum EProjectVisibility {
-  FOLLOWERS = "FOLLOWERS",
-  PUBLIC = "PUBLIC",
-  SUBSCRIBERS = "SUBSCRIBERS"
-}
-
 export interface IProject extends IEntity {
-  projectName: string;
-  projectDescription: string;
-  projectDescriptionHtml: string;
-  projectOrgs?: IOrg[];
-  projectStatus: EProjectStatus;
-  projectVisibility?: string[];
-  projectNotified?: {
-    email: string;
-    status: EProjectInviteStatus;
-  }[];
   forwardedFrom?: {
     projectId: string;
   };
+  projectDescription: string;
+  projectDescriptionHtml: string;
+  projectName: string;
+  projectNotifications?: {
+    email: string;
+    status: EProjectInviteStatus;
+  }[];
+  projectOrgs?: IOrg[];
+  projectStatus: EProjectStatus;
+  projectVisibility?: string[];
 }

@@ -1,14 +1,14 @@
 import {
-  Input,
-  Button,
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
-  useToast,
-  Flex,
-  Select,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  Select,
+  useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { Session } from "next-auth";
@@ -20,7 +20,7 @@ import {
   useAddProjectMutation,
   useEditProjectMutation
 } from "features/projects/projectsApi";
-import { getLists, IOrg } from "models/Org";
+import { IOrg } from "models/Org";
 import { IProject, EProjectStatus, ProjectStatuses } from "models/Project";
 import { IUser } from "models/User";
 import { handleError } from "utils/form";
@@ -76,14 +76,15 @@ export const ProjectForm = ({
     projectDescription: string;
     projectDescriptionHtml: string;
     projectStatus: EProjectStatus;
-    projectVisibility: { label: string; value: string }[];
+    projectVisibility?: { label: string; value: string }[];
   }) => {
     console.log("submitted", form);
     setIsLoading(true);
 
     let payload: AddProjectPayload = {
       ...form,
-      projectVisibility: form.projectVisibility.map(({ value }) => value)
+      projectOrgs: org ? [org] : undefined,
+      projectVisibility: form.projectVisibility?.map(({ value }) => value)
     };
 
     try {
@@ -95,8 +96,7 @@ export const ProjectForm = ({
 
         toast({
           title: "Le projet a bien été modifié",
-          status: "success",
-          isClosable: true
+          status: "success"
         });
       } else {
         await addProject({
@@ -105,8 +105,7 @@ export const ProjectForm = ({
 
         toast({
           title: "Le projet a bien été ajouté !",
-          status: "success",
-          isClosable: true
+          status: "success"
         });
       }
 
@@ -207,11 +206,11 @@ export const ProjectForm = ({
         </FormControl>
       )}
 
-      {props.isCreator && (
+      {org && props.isCreator && (
         <ListsControl
           control={control}
           errors={errors}
-          lists={getLists(org)}
+          lists={org.orgLists}
           name="projectVisibility"
         />
       )}

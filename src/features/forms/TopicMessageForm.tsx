@@ -98,8 +98,7 @@ export const TopicMessageForm = ({
 
       toast({
         title: "Votre message a bien été ajouté !",
-        status: "success",
-        isClosable: true
+        status: "success"
       });
 
       setIsLoading(false);

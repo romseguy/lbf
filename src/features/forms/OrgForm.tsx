@@ -45,13 +45,18 @@ import {
   OrgTypes,
   EOrgType,
   EOrgVisibility,
-  OrgVisibilities
+  OrgVisibilities,
+  IOrgEmail,
+  IOrgPhone,
+  IOrgWeb,
+  IOrgAddress
 } from "models/Org";
 import { useAppDispatch } from "store";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { capitalize, normalize } from "utils/string";
+import { PartialRequired } from "utils/types";
 
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -135,34 +140,49 @@ export const OrgForm = withGoogleApi({
       clearErrors("formErrorMessage");
     };
 
-    const onSubmit = async (form: IOrg) => {
+    const onSubmit = async (form: {
+      orgName: string;
+      orgType?: EOrgType;
+      orgs: IOrg[];
+      orgDescription: string;
+      orgVisibility: EOrgVisibility;
+      orgPassword?: string;
+      orgPasswordConfirm?: string;
+      orgAddress?: IOrgAddress[];
+      orgEmail?: IOrgEmail[];
+      orgPhone?: IOrgPhone[];
+      orgWeb?: IOrgWeb[];
+    }) => {
       console.log("submitted", form);
       setIsLoading(true);
 
-      const orgAddress = form.orgAddress?.filter(
+      let orgUrl = normalize(form.orgName);
+      const orgDescription = !form.orgDescription.length
+        ? undefined
+        : form.orgDescription;
+      const orgType = form.orgType || EOrgType.GENERIC;
+      const orgAddress = (form.orgAddress || []).filter(
         ({ address }) => address !== ""
       );
-      const orgEmail = form.orgEmail?.filter(({ email }) => email !== "");
-      const orgPhone = form.orgPhone?.filter(({ phone }) => phone !== "");
-      const orgWeb = form.orgWeb?.filter(({ url }) => url !== "");
+      const orgEmail = (form.orgEmail || []).filter(
+        ({ email }) => email !== ""
+      );
+      const orgPhone = (form.orgPhone || []).filter(
+        ({ phone }) => phone !== ""
+      );
+      const orgWeb = (form.orgWeb || []).filter(({ url }) => url !== "");
 
       let payload: AddOrgPayload = {
         ...form,
         orgName: form.orgName.trim(),
-        orgType: form.orgType || EOrgType.GENERIC,
-        orgUrl: normalize(form.orgName),
-        // orgDescription: form.orgDescription
-        //   ? normalizeQuill(form.orgDescription)
-        //   : undefined,
-        orgDescription: form.orgDescription,
-        orgDescriptionHtml: form.orgDescription,
-        orgAddress:
-          Array.isArray(orgAddress) && orgAddress.length > 0 ? orgAddress : [],
-        orgEmail:
-          Array.isArray(orgEmail) && orgEmail.length > 0 ? orgEmail : [],
-        orgPhone:
-          Array.isArray(orgPhone) && orgPhone.length > 0 ? orgPhone : [],
-        orgWeb: Array.isArray(orgWeb) && orgWeb.length > 0 ? orgWeb : []
+        orgType,
+        orgUrl,
+        orgDescription,
+        orgDescriptionHtml: orgDescription,
+        orgAddress,
+        orgEmail,
+        orgPhone,
+        orgWeb
       };
 
       if (form.orgPassword) {
@@ -171,18 +191,13 @@ export const OrgForm = withGoogleApi({
         payload.orgSalt = salt;
       }
 
-      let { orgUrl } = payload;
-
       try {
         if (
           !props.org ||
           !hasItems(props.org.orgAddress) ||
-          (Array.isArray(form.orgAddress) &&
-            form.orgAddress[0] &&
-            form.orgAddress[0].address !== "" &&
-            Array.isArray(props.org.orgAddress) &&
+          (orgAddress[0] &&
             props.org.orgAddress[0] &&
-            props.org.orgAddress[0].address !== form.orgAddress[0].address)
+            props.org.orgAddress[0].address !== orgAddress[0].address)
         ) {
           if (suggestion) {
             const {
@@ -205,23 +220,18 @@ export const OrgForm = withGoogleApi({
             });
 
           await editOrg({ payload, orgUrl: props.org.orgUrl });
-          //dispatch(refetchOrg());
 
           toast({
             title: `La modification a bien été effectuée !`,
-            status: "success",
-            isClosable: true
+            status: "success"
           });
         } else {
           const org = await addOrg(payload).unwrap();
           orgUrl = org.orgUrl;
 
           toast({
-            title: `${capitalize(
-              orgTypeFull5(form.orgType)
-            )} a bien été ajoutée !`,
-            status: "success",
-            isClosable: true
+            title: `${capitalize(orgTypeFull5(orgType))} a bien été ajoutée !`,
+            status: "success"
           });
         }
 
@@ -313,7 +323,7 @@ export const OrgForm = withGoogleApi({
             name="orgs"
             as={ReactSelect}
             control={control}
-            defaultValue={props.org?.orgs || null}
+            defaultValue={props.org ? props.org.orgs : []}
             closeMenuOnSelect
             isClearable
             isMulti

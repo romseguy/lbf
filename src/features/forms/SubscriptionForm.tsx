@@ -15,8 +15,9 @@ import {
   Button,
   ListsControl
 } from "features/common";
+import { EditOrgPayload, useEditOrgMutation } from "features/orgs/orgsApi";
 import { useAddSubscriptionMutation } from "features/subscriptions/subscriptionsApi";
-import { getLists, IOrg } from "models/Org";
+import { IOrg } from "models/Org";
 import { ESubscriptionType } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { emailR } from "utils/email";
@@ -38,6 +39,7 @@ export const SubscriptionForm = ({
   onSubmit: () => void;
 }) => {
   const [addSubscription] = useAddSubscriptionMutation();
+  const [editOrg] = useEditOrgMutation();
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
@@ -54,11 +56,11 @@ export const SubscriptionForm = ({
   const onSubmit = async (form: {
     emailList?: string;
     phoneList?: string;
-    subscriptionType: { label: string; value: string }[];
+    orgLists: { label: string; value: string }[];
   }) => {
     console.log("submitted", form);
     setIsLoading(true);
-    const { emailList, phoneList, subscriptionType } = form;
+    const { emailList, phoneList, orgLists } = form;
 
     const emailArray: string[] = (emailList || "")
       .split(/(\s+)/)
@@ -76,11 +78,11 @@ export const SubscriptionForm = ({
       }
 
       for (const email of emailArray) {
-        if (hasItems(subscriptionType))
-          for (const { value } of subscriptionType) {
+        if (hasItems(orgLists))
+          for (const { value: listName } of orgLists) {
             let type;
-            if (value === "Adhérents") type = ESubscriptionType.SUBSCRIBER;
-            else if (value === "Abonnés") type = ESubscriptionType.FOLLOWER;
+            if (listName === "Adhérents") type = ESubscriptionType.SUBSCRIBER;
+            else if (listName === "Abonnés") type = ESubscriptionType.FOLLOWER;
 
             if (type)
               await addSubscription({
@@ -98,14 +100,54 @@ export const SubscriptionForm = ({
                 ]
               });
             else {
-              console.log("todo: add to org list");
+              const subscription = await addSubscription({
+                email,
+                orgs: [
+                  {
+                    org,
+                    orgId: org._id
+                  }
+                ]
+              }).unwrap();
+              const payload: EditOrgPayload = {
+                orgLists: org.orgLists.map((orgList) => {
+                  if (orgList.listName === listName) {
+                    if (!orgList.subscriptions.length)
+                      return {
+                        ...orgList,
+                        subscriptions: [subscription]
+                      };
+
+                    return {
+                      ...orgList,
+                      subscriptions: !orgList.subscriptions.find(
+                        ({ _id }) => _id === subscription._id
+                      )
+                        ? [...orgList.subscriptions, subscription]
+                        : orgList.subscriptions
+                    };
+                  }
+
+                  return orgList;
+                })
+              };
+              await editOrg({ orgUrl: org.orgUrl, payload });
             }
           }
-        else console.log("todo: add empty sub");
+        else
+          await addSubscription({
+            email,
+            orgs: [
+              {
+                org,
+                orgId: org._id
+              }
+            ]
+          });
       }
 
       // for (const phone of phoneArray) {
-      //   for (const type of subscriptionType) {
+      //   for (const type of orgLists) {
       //     await addSubscription({
       //       phone,
       //       payload: {
@@ -121,7 +163,7 @@ export const SubscriptionForm = ({
       //   }
       // }
 
-      //setValue("subscriptionType", []);
+      //setValue("orgLists", []);
       setIsLoading(false);
       props.onSubmit && props.onSubmit();
     } catch (error) {
@@ -171,12 +213,12 @@ export const SubscriptionForm = ({
         control={control}
         errors={errors}
         label="Liste(s):"
-        lists={getLists(org)}
-        name="subscriptionType"
+        lists={org.orgLists}
+        name="orgLists"
         onChange={onChange}
       />
 
-      {/*<FormControl isRequired isInvalid={!!errors.subscriptionType} mb={3}>
+      {/*<FormControl isRequired isInvalid={!!errors.orgLists} mb={3}>
         <CheckboxGroup>
           <Box
             display="flex"
@@ -198,7 +240,7 @@ export const SubscriptionForm = ({
             >
               <Checkbox
                 ref={register({ required: true })}
-                name="subscriptionType"
+                name="orgLists"
                 value={ESubscriptionType.FOLLOWER}
                 data-cy="follower-checkbox"
               >
@@ -212,7 +254,7 @@ export const SubscriptionForm = ({
 
             <Checkbox
               ref={register({ required: true })}
-              name="subscriptionType"
+              name="orgLists"
               value={ESubscriptionType.SUBSCRIBER}
               bg={"purple.100"}
               borderRadius="lg"
@@ -232,7 +274,7 @@ export const SubscriptionForm = ({
         <FormErrorMessage>
           <ErrorMessage
             errors={errors}
-            name="subscriptionType"
+            name="orgLists"
             message="Veuillez cocher une case au minimum"
           />
         </FormErrorMessage>

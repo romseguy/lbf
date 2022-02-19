@@ -8,6 +8,7 @@ import { AddTopicPayload } from "features/forum/topicsApi";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
+import { hasItems } from "utils/array";
 import { createServerError } from "utils/errors";
 import { equals, logJson, toString } from "utils/string";
 
@@ -82,7 +83,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       if (body.topic._id) {
         if (
           !Array.isArray(body.topic.topicMessages) ||
-          !body.topic.topicMessages.length
+          !body.topic.topicMessages[0]
         ) {
           return res
             .status(400)
@@ -137,12 +138,10 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       else {
         topic = await models.Topic.create({
           ...body.topic,
-          topicMessages: (body.topic.topicMessages || []).map(
-            (topicMessage) => ({
-              ...topicMessage,
-              createdBy: session.user.userId
-            })
-          ),
+          topicMessages: body.topic.topicMessages?.map((topicMessage) => ({
+            ...topicMessage,
+            createdBy: session.user.userId
+          })),
           event,
           org,
           createdBy: session.user.userId

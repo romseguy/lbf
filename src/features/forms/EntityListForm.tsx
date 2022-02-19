@@ -37,10 +37,7 @@ export const EntityListForm = ({
   list?: IOrgList;
   org: IOrg;
   onCancel: () => void;
-  onSubmit: (payload: {
-    listName: string;
-    subscriptions?: ISubscription[];
-  }) => Promise<void>;
+  onSubmit: (form: IOrgList) => Promise<void>;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -65,9 +62,11 @@ export const EntityListForm = ({
       try {
         await props.onSubmit({
           ...form,
-          subscriptions: form.subscriptions?.map(({ value }) => {
-            return value;
-          })
+          subscriptions: form.subscriptions
+            ? form.subscriptions.map(({ value }) => {
+                return value;
+              })
+            : []
         });
         setIsLoading(false);
       } catch (error) {

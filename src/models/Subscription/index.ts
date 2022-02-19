@@ -30,7 +30,7 @@ export const getFollowerSubscription = ({
   subQuery?: AppQuery<ISubscription>;
   subscription?: ISubscription;
 }): IOrgSubscription | IEventSubscription | undefined => {
-  const sub = subQuery ? subQuery.data : subscription;
+  const sub = subQuery?.data || subscription;
 
   if (!sub) return;
 
@@ -56,16 +56,17 @@ export const getSubscriberSubscription = ({
   subscription
 }: {
   org?: IOrg;
-  subQuery?: any;
+  subQuery?: AppQuery<ISubscription>;
   subscription?: ISubscription;
 }): IOrgSubscription | undefined => {
-  if (org && (subQuery?.data || subscription)) {
-    return (subQuery?.data || subscription).orgs?.find(
-      (orgSubscription: IOrgSubscription) =>
-        equals(orgSubscription.orgId, org._id) &&
-        orgSubscription.type === ESubscriptionType.SUBSCRIBER
-    );
-  }
+  const sub = subQuery?.data || subscription;
+  if (!org || !sub || !sub.orgs) return;
+
+  return sub.orgs.find(
+    (orgSubscription: IOrgSubscription) =>
+      equals(orgSubscription.orgId, org._id) &&
+      orgSubscription.type === ESubscriptionType.SUBSCRIBER
+  );
 };
 
 export const setFollowerSubscriptionTagType = (

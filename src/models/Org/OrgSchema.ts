@@ -19,24 +19,6 @@ export const OrgSchema = new Schema<IOrg>(
       enum: EOrgType,
       required: true
     },
-    orgAddress: [{ address: { type: String, trim: true } }],
-    orgCity: String,
-    orgLat: Number,
-    orgLng: Number,
-    orgEmail: [{ email: { type: String, trim: true } }],
-    orgPhone: [{ phone: { type: String, trim: true } }],
-    orgWeb: [
-      {
-        url: { type: String, trim: true },
-        prefix: { type: String, trim: true }
-      }
-    ],
-    orgEventCategories: {
-      type: [
-        { label: { type: String, required: true, trim: true }, bgColor: String }
-      ],
-      default: undefined
-    },
     orgDescription: {
       type: String,
       trim: true
@@ -45,33 +27,66 @@ export const OrgSchema = new Schema<IOrg>(
       type: String,
       trim: true
     },
-    orgEvents: [{ type: Schema.Types.ObjectId, ref: "Event" }],
-    orgLists: [
-      {
-        listName: { type: String, required: true, trim: true },
-        subscriptions: [
-          {
-            type: Schema.Types.ObjectId,
-            ref: "Subscription"
-          }
-        ]
-      }
-    ],
-    orgProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
-    orgSubscriptions: [
-      { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
-    ],
-    orgTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
-    orgTopicsCategories: [String],
-    orgLogo: {
-      type: {
-        base64: String,
-        width: Number,
-        height: Number,
-        url: { type: String, trim: true }
-      },
-      select: false
+    orgAddress: {
+      type: [{ address: { type: String, trim: true } }],
+      default: []
     },
+    orgCity: { type: String, trim: true },
+    orgLat: Number,
+    orgLng: Number,
+    orgEmail: { type: [{ email: { type: String, trim: true } }], default: [] },
+    orgPhone: { type: [{ phone: { type: String, trim: true } }], default: [] },
+    orgWeb: {
+      type: [
+        {
+          url: { type: String, trim: true },
+          prefix: { type: String, trim: true }
+        }
+      ],
+      default: []
+    },
+    orgEventCategories: {
+      type: [
+        { label: { type: String, required: true, trim: true }, bgColor: String }
+      ],
+      default: []
+    },
+    orgEvents: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Event" }],
+      default: []
+    },
+    orgLists: {
+      type: [
+        {
+          listName: { type: String, required: true, trim: true },
+          subscriptions: {
+            type: [
+              {
+                type: Schema.Types.ObjectId,
+                ref: "Subscription"
+              }
+            ],
+            default: []
+          }
+        }
+      ],
+      default: []
+    },
+    orgProjects: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+      default: []
+    },
+    orgSubscriptions: {
+      type: [
+        { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
+      ],
+      default: []
+    },
+    orgTopics: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
+      default: []
+    },
+    orgTopicsCategories: { type: [String], default: [] },
     orgBanner: {
       type: {
         base64: String,
@@ -79,6 +94,15 @@ export const OrgSchema = new Schema<IOrg>(
         headerHeight: Number,
         width: Number,
         mode: String,
+        url: { type: String, trim: true }
+      },
+      select: false
+    },
+    orgLogo: {
+      type: {
+        base64: String,
+        width: Number,
+        height: Number,
         url: { type: String, trim: true }
       },
       select: false
@@ -94,7 +118,7 @@ export const OrgSchema = new Schema<IOrg>(
       enum: EOrgVisibility,
       required: true
     },
-    orgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
+    orgs: { type: [{ type: Schema.Types.ObjectId, ref: "Org" }], default: [] },
     isApproved: Boolean,
     createdBy: {
       type: Schema.Types.ObjectId,

@@ -2,7 +2,6 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
-import { TypedMap } from "utils/types";
 
 export enum ESubscriptionType {
   SUBSCRIBER = "SUBSCRIBER",
@@ -18,6 +17,7 @@ export interface ISubscription {
   orgs?: IOrgSubscription[];
   topics?: ITopicSubscription[];
   createdBy: IUser | string;
+  createdAt?: string;
 }
 
 export type TagType = {
@@ -35,7 +35,7 @@ export interface IEventSubscription {
 export interface IOrgSubscription {
   org: IOrg;
   orgId: string;
-  type: string;
+  type?: string;
   tagTypes?: TagType[];
   eventCategories?: IOrgSubscriptionEventCategory[];
 }

@@ -228,7 +228,7 @@ export const TopicsListItem = ({
 
               <TopicsListItemShare aria-label="Partager" topic={topic} />
 
-              {topic.topicNotifications && isCreator && (
+              {isCreator && (
                 <>
                   <Box as="span" aria-hidden mx={1}>
                     ·

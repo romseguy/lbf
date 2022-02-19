@@ -207,9 +207,9 @@ export const Layout = ({
         )}
 
         <Header
-          defaultTitle={defaultTitle}
-          org={org}
           event={event}
+          org={org}
+          defaultTitle={defaultTitle}
           pageTitle={pageTitle}
           pageSubTitle={pageSubTitle}
         />

@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React from "react";
-import { getLists, IOrg, IOrgList } from "models/Org";
+import { IOrg, IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { AppQuery } from "utils/types";
 
@@ -35,13 +35,13 @@ export const TopicsListOrgLists = ({
 
   return (
     <Flex flexWrap="wrap" {...props}>
-      {getLists(org)?.map((orgList, index) => {
+      {org.orgLists.map((orgList, index) => {
         const isSelected = selectedLists?.find(
           ({ listName }) => listName === orgList.listName
         );
 
         const topicsCount = org.orgTopics.reduce((count, orgTopic) => {
-          if (orgTopic.topicVisibility?.includes(orgList.listName)) {
+          if (orgTopic.topicVisibility.includes(orgList.listName)) {
             return ++count;
           }
           return count;
@@ -50,7 +50,7 @@ export const TopicsListOrgLists = ({
         return (
           <Tooltip
             key={"orgList-" + index}
-            label={`Afficher les discussions réservées aux membres de la liste de diffusion "${orgList.listName}"`}
+            label={`Afficher les discussions réservées aux membres de la liste "${orgList.listName}"`}
             hasArrow
           >
             <Button

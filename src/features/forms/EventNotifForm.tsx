@@ -105,14 +105,12 @@ export const EventNotifForm = ({
           title: `Une invitation a été envoyée à ${
             form.email ? form.email : `${notifications.length} abonné${s}`
           }`,
-          status: "success",
-          isClosable: true
+          status: "success"
         });
       } else {
         toast({
           title: "Aucune invitation envoyée",
-          status: "warning",
-          isClosable: true
+          status: "warning"
         });
       }
 
@@ -191,7 +189,7 @@ export const EventNotifForm = ({
                     </Tr>
                   ) : hasItems(event.eventOrgs) ? (
                     event.eventOrgs.map((org) => {
-                      const lists = getLists(org);
+                      const lists = org.orgLists;
 
                       return (
                         <Fragment key={org._id}>
@@ -216,7 +214,7 @@ export const EventNotifForm = ({
                             for (const subscription of list.subscriptions ||
                               []) {
                               if (
-                                event.eventNotifications?.find(
+                                event.eventNotifications.find(
                                   ({ email, phone }) =>
                                     typeof subscription.user === "object"
                                       ? equalsValue(

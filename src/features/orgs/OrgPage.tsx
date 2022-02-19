@@ -51,7 +51,6 @@ import { ProjectsList } from "features/projects/ProjectsList";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { InputNode } from "features/treeChart/types";
-import { EEventVisibility as EventVisibility } from "models/Event";
 import {
   IOrg,
   IOrgTab,
@@ -94,31 +93,20 @@ export const OrgPage = ({
   tab?: string;
   tabItem?: string;
 }) => {
-  cachedEmail = email;
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const {
-    isOpen: isMapModalOpen,
-    onOpen: openMapModal,
-    onClose: closeMapModal
-  } = useDisclosure({ defaultIsOpen: false });
-  const {
-    isOpen: isNetworksModalOpen,
-    onOpen: openNetworksModal,
-    onClose: closeNetworksModal
-  } = useDisclosure({ defaultIsOpen: false });
+  const [editOrg, editOrgMutation] = useEditOrgMutation();
 
   //#region org
-  const [editOrg, editOrgMutation] = useEditOrgMutation();
   const org = orgQuery.data;
-  const orgsWithLocation =
-    org.orgs?.filter(({ orgLat, orgLng }) => !!orgLat && !!orgLng) || [];
-
   const [description, setDescription] = useState<string | undefined>();
   useEffect(() => {
     if (org.orgDescription && org.orgDescription.length > 0) {
       const parser = new DOMParser();
-      const doc = parser.parseFromString(org.orgDescription, "text/html");
+      const doc = parser.parseFromString(
+        org.orgDescription.replaceAll("\n", "<br/>"),
+        "text/html"
+      );
       const links = (doc.firstChild as HTMLElement).getElementsByTagName("a");
 
       for (let i = 0; i < links.length; i++) {
@@ -139,7 +127,13 @@ export const OrgPage = ({
       setDescription(doc.body.innerHTML);
     } else setDescription(undefined);
   }, [org]);
-
+  const hasInfo =
+    hasItems(org.orgAddress) ||
+    hasItems(org.orgEmail) ||
+    hasItems(org.orgPhone) ||
+    hasItems(org.orgWeb);
+  const isCreator =
+    session?.user.userId === getRefId(org) || session?.user.isAdmin || false;
   const orgCreatedByUserName =
     typeof org.createdBy === "object"
       ? org.createdBy.userName || org.createdBy._id
@@ -157,35 +151,29 @@ export const OrgPage = ({
       })
     }
   );
-
-  const hasInfo =
-    hasItems(org.orgAddress) ||
-    hasItems(org.orgEmail) ||
-    hasItems(org.orgPhone) ||
-    hasItems(org.orgWeb);
-  const isCreator =
-    session?.user.userId === getRefId(org) || session?.user.isAdmin || false;
-  const events = !session
-    ? org.orgEvents.filter(
-        (orgEvent) => orgEvent.eventVisibility === EventVisibility.PUBLIC
-      )
-    : org.orgEvents;
-  const [title = "Événements des 7 prochains jours", setTitle] = useState<
-    string | undefined
-  >();
   //#endregion
 
   //#region sub
   const isFollowed = !!getFollowerSubscription({ org, subQuery });
-  const subscriberSubscription = getSubscriberSubscription({ org, subQuery });
+  const isSubscribed = !!getSubscriberSubscription({ org, subQuery });
   //#endregion
 
   //#region local state
+  cachedEmail = email;
+  const {
+    isOpen: isMapModalOpen,
+    onOpen: openMapModal,
+    onClose: closeMapModal
+  } = useDisclosure({ defaultIsOpen: false });
+  const {
+    isOpen: isNetworksModalOpen,
+    onOpen: openNetworksModal,
+    onClose: closeNetworksModal
+  } = useDisclosure({ defaultIsOpen: false });
   const [isConfig, setIsConfig] = useState(false);
   const [isListOpen, setIsListOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
-
   const inputNodes: InputNode[] = useMemo(
     () =>
       org.orgs
@@ -198,7 +186,6 @@ export const OrgPage = ({
         : [],
     [org.orgs]
   );
-
   const tabs = useMemo(() => {
     return [...(org.orgTabs || defaultTabs)]
       .sort(
@@ -217,7 +204,6 @@ export const OrgPage = ({
         })
       }));
   }, [org.orgTabs, defaultTabs]);
-
   const [tabsState, setTabsState] = useState<
     (IOrgTab & { checked: boolean })[]
   >(tabs.map((t) => ({ ...t, checked: true })));
@@ -229,6 +215,9 @@ export const OrgPage = ({
       }))
     );
   }, [org]);
+  const [title = "Événements des 7 prochains jours", setTitle] = useState<
+    string | undefined
+  >();
   //#endregion
 
   //#region cross refetch
@@ -365,14 +354,14 @@ export const OrgPage = ({
         </Text>
       </Box>
 
-      {subscriberSubscription && !isConfig && (
+      {isSubscribed && !isConfig && (
         <Alert status="info" mb={3}>
           <AlertIcon />
           <Box>
             Vous êtes adhérent {orgTypeFull(org.orgType)} {org.orgName}.
             <Text fontSize="smaller">
-              Vous avez donc accès aux événements, discussions et projets
-              réservés aux adhérents.
+              Vous avez donc également accès aux événements, discussions et
+              projets réservés aux adhérents.
             </Text>
           </Box>
         </Alert>
@@ -587,11 +576,11 @@ export const OrgPage = ({
                       </Box>
                       <Box width="100%" mt={5}>
                         <EventsList
-                          events={events}
+                          events={org.orgEvents}
                           org={org}
                           orgQuery={orgQuery}
                           isCreator={isCreator}
-                          isSubscribed={!!subscriberSubscription}
+                          isSubscribed={isSubscribed}
                           isLogin={isLogin}
                           setIsLogin={setIsLogin}
                           setTitle={setTitle}
@@ -609,7 +598,7 @@ export const OrgPage = ({
                       subQuery={subQuery}
                       isCreator={isCreator}
                       isFollowed={isFollowed}
-                      isSubscribed={!!subscriberSubscription}
+                      isSubscribed={isSubscribed}
                       isLogin={isLogin}
                       setIsLogin={setIsLogin}
                     />
@@ -658,7 +647,7 @@ export const OrgPage = ({
                       isCreator={isCreator}
                       subQuery={subQuery}
                       isFollowed={isFollowed}
-                      isSubscribed={!!subscriberSubscription}
+                      isSubscribed={isSubscribed}
                       isLogin={isLogin}
                       setIsLogin={setIsLogin}
                       currentTopicName={tabItem}
@@ -688,7 +677,7 @@ export const OrgPage = ({
                     <DocumentsList
                       org={org}
                       isCreator={isCreator}
-                      isSubscribed={!!subscriberSubscription}
+                      isSubscribed={isSubscribed}
                       isLogin={isLogin}
                       setIsLogin={setIsLogin}
                     />
@@ -814,7 +803,7 @@ export const OrgPage = ({
           isOpen={isMapModalOpen}
           header="Carte des réseaux"
           orgs={
-            org.orgs?.filter(
+            org.orgs.filter(
               (org) =>
                 typeof org.orgLat === "number" &&
                 typeof org.orgLng === "number" &&
@@ -828,6 +817,8 @@ export const OrgPage = ({
   );
 };
 
+// const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!orgLng);
+// // --
 // {orgsWithLocation.length > 0 && (
 //   <TabContainer>
 //     <TabContainerHeader heading="Carte du réseau">

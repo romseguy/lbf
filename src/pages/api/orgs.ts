@@ -48,19 +48,20 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
   async function addOrg(req, res) {
     const session = await getSession({ req });
 
-    if (!session)
+    if (!session) {
       return res
         .status(403)
         .json(createServerError(new Error("Vous devez être identifié")));
+    }
 
     try {
-      let { body }: { body: AddOrgPayload } = req;
-      let newOrg: Omit<IOrg, "_id"> = {
+      const { body }: { body: AddOrgPayload } = req;
+      let newOrg = {
         ...body,
-        isApproved: session.user.isAdmin,
+        createdBy: session.user.userId,
         orgName: body.orgName.trim(),
         orgUrl: normalize(body.orgName),
-        createdBy: session.user.userId
+        isApproved: session.user.isAdmin
       };
 
       const org = await models.Org.findOne({ orgUrl: body.orgUrl });
@@ -71,8 +72,8 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
         const uid = randomNumber(2);
         newOrg = {
           ...newOrg,
-          orgName: body.orgName + "-" + uid,
-          orgUrl: body.orgUrl + "-" + uid
+          orgName: newOrg.orgName + "-" + uid,
+          orgUrl: newOrg.orgUrl + "-" + uid
         };
       }
 

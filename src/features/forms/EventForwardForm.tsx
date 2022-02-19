@@ -87,8 +87,7 @@ export const EventForwardForm = ({
 
       toast({
         title: "L'événement a bien été rediffusé !",
-        status: "success",
-        isClosable: true
+        status: "success"
       });
 
       refetchOrgs();

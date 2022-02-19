@@ -270,7 +270,9 @@ export const AboutModal = ({ ...props }: AboutModalProps) => {
     >
       <ModalOverlay>
         <ModalContent my={0}>
-          <ModalHeader pb={0}>À propos</ModalHeader>
+          <ModalHeader display="flex" alignItems="center" pb={0}>
+            <InfoIcon color="green" mr={2} /> À propos
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <AboutPage {...props} />

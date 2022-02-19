@@ -15,26 +15,18 @@ import { Controller, useForm } from "react-hook-form";
 import Creatable from "react-select/creatable";
 import { ErrorMessageText, MultiSelect, RTEditor } from "features/common";
 import {
-  AddTopicPayload,
-  EditTopicPayload,
   useAddTopicMutation,
   useEditTopicMutation
 } from "features/forum/topicsApi";
 import { useSession } from "hooks/useAuth";
 import type { IEvent } from "models/Event";
-import { getSubscriptions, IOrg, IOrgList, orgTypeFull } from "models/Org";
-import {
-  getFollowerSubscription,
-  getSubscriberSubscription,
-  IEventSubscription,
-  IOrgSubscription,
-  ISubscription,
-  ESubscriptionType
-} from "models/Subscription";
+import { IOrg, orgTypeFull } from "models/Org";
+import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
-import { AppQuery } from "utils/types";
+import { AppQuery, Optional } from "utils/types";
+import { normalize } from "utils/string";
 
 export const TopicForm = ({
   org,
@@ -62,46 +54,10 @@ export const TopicForm = ({
 
   const [addTopic, addTopicMutation] = useAddTopicMutation();
   const [editTopic, editTopicMutation] = useEditTopicMutation();
-  const [editEntity, _] = mutation;
+  const [editEntity] = mutation;
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
-
-  let categories: string[] | undefined;
-  let lists: IOrgList[] | undefined;
-  let followerSubscription: IOrgSubscription | IEventSubscription | undefined;
-  let subscriberSubscription: IOrgSubscription | undefined;
-
-  if (org) {
-    categories = org.orgTopicsCategories || [];
-    lists =
-      org.orgLists?.filter((orgList) => {
-        if (
-          props.isSubscribed &&
-          !orgList.subscriptions?.find(
-            (subscription) => subscription._id === subQuery.data?._id
-          )
-        )
-          return false;
-
-        return true;
-      }) || [];
-
-    followerSubscription = getFollowerSubscription({ org, subQuery });
-    subscriberSubscription = getSubscriberSubscription({ org, subQuery });
-
-    if (props.isCreator || followerSubscription)
-      lists.push({
-        listName: "Abonnés",
-        subscriptions: getSubscriptions(org, ESubscriptionType.FOLLOWER)
-      });
-
-    if (props.isCreator || subscriberSubscription)
-      lists.push({
-        listName: "Adhérents",
-        subscriptions: getSubscriptions(org, ESubscriptionType.SUBSCRIBER)
-      });
-  }
   //#endregion
 
   //#region form
@@ -126,7 +82,7 @@ export const TopicForm = ({
 
   const onSubmit = async (form: {
     topicName: string;
-    topicMessage: string;
+    topicMessage?: string;
     topicCategory?: { label: string; value: string } | null;
     topicVisibility?: [{ label: string; value: string }];
   }) => {
@@ -135,10 +91,15 @@ export const TopicForm = ({
 
     setIsLoading(true);
 
-    let topic: Partial<ITopic> = {
+    let topic: Omit<
+      Optional<ITopic, "topicMessages">,
+      "_id" | "createdBy" | "topicNotifications"
+    > = {
       topicCategory: form.topicCategory ? form.topicCategory.value : null,
       topicName: form.topicName,
-      topicVisibility: form.topicVisibility?.map(({ label, value }) => value)
+      topicVisibility: (form.topicVisibility || []).map(
+        ({ label, value }) => value
+      )
     };
 
     try {
@@ -154,23 +115,21 @@ export const TopicForm = ({
 
         toast({
           title: "La discussion a bien été modifiée",
-          status: "success",
-          isClosable: true
+          status: "success"
         });
 
         setIsLoading(false);
         props.onSubmit && props.onSubmit(props.topic);
       } else {
-        topic.topicMessages =
-          typeof form.topicMessage === "string" && form.topicMessage !== ""
-            ? [
-                {
-                  message: form.topicMessage,
-                  messageHtml: form.topicMessage,
-                  createdBy: session.user.userId
-                }
-              ]
-            : [];
+        if (typeof form.topicMessage === "string" && form.topicMessage !== "") {
+          topic.topicMessages = [
+            {
+              message: form.topicMessage,
+              messageHtml: form.topicMessage,
+              createdBy: session.user.userId
+            }
+          ];
+        }
 
         const payload = {
           org,
@@ -184,8 +143,7 @@ export const TopicForm = ({
 
         toast({
           title: "La discussion a bien été ajoutée !",
-          status: "success",
-          isClosable: true
+          status: "success"
         });
 
         setIsLoading(false);
@@ -261,7 +219,7 @@ export const TopicForm = ({
                   value={renderProps.value}
                   onChange={renderProps.onChange}
                   options={
-                    categories?.map((label) => ({
+                    org.orgTopicsCategories?.map((label) => ({
                       label,
                       value: label
                     })) || []
@@ -271,28 +229,41 @@ export const TopicForm = ({
                     `Créer la catégorie "${inputValue}"`
                   }
                   onCreateOption={async (inputValue: string) => {
-                    if (org && !props.isSubscribed && !props.isCreator) {
+                    if (!org) return; // for TS
+
+                    if (!props.isSubscribed && !props.isCreator) {
                       toast({
                         status: "error",
-                        title: `Vous devez être adhérent ${orgTypeFull(
+                        title: `Vous devez être adhérent ou créateur ${orgTypeFull(
                           org.orgType
-                        )} ${org.orgName} pour créer une catégorie`,
-                        isClosable: true
+                        )} ${org.orgName} pour créer une catégorie`
                       });
                       return;
                     }
 
+                    // if (
+                    //   org.orgTopicsCategories.find(
+                    //     (orgTopicsCategory) =>
+                    //       orgTopicsCategory === normalize(inputValue, false)
+                    //   )
+                    // ) {
+                    //   toast({
+                    //     status: "error",
+                    //     title: `Ce nom de catégorie n'est pas disponible`,
+                    //                         //   });
+                    //   return;
+                    // }
+
                     try {
-                      if (org)
-                        await editEntity({
-                          orgUrl: org.orgUrl,
-                          payload: {
-                            orgTopicsCategories: [
-                              ...(org.orgTopicsCategories || []),
-                              inputValue
-                            ]
-                          }
-                        });
+                      await editEntity({
+                        orgUrl: org.orgUrl,
+                        payload: {
+                          orgTopicsCategories: [
+                            ...org.orgTopicsCategories,
+                            inputValue
+                          ]
+                        }
+                      }).unwrap();
 
                       query.refetch();
                       setValue("topicCategory", {
@@ -301,15 +272,13 @@ export const TopicForm = ({
                       });
                       toast({
                         status: "success",
-                        title: "La catégorie a bien été ajoutée !",
-                        isClosable: true
+                        title: "La catégorie a bien été ajoutée !"
                       });
                     } catch (error) {
                       console.error(error);
                       toast({
                         status: "error",
-                        title: "La catégorie n'a pas pu être ajoutée",
-                        isClosable: true
+                        title: "La catégorie n'a pas pu être ajoutée"
                       });
                     }
                   }}
@@ -377,7 +346,7 @@ export const TopicForm = ({
             name="topicVisibility"
             control={control}
             defaultValue={
-              props.topic?.topicVisibility?.map((listName) => ({
+              props.topic?.topicVisibility.map((listName) => ({
                 label: listName,
                 value: listName
               })) || []
@@ -388,7 +357,7 @@ export const TopicForm = ({
                   value={renderProps.value}
                   onChange={renderProps.onChange}
                   options={
-                    lists?.map(({ listName }) => ({
+                    org.orgLists.map(({ listName }) => ({
                       label: listName,
                       value: listName
                     })) || []

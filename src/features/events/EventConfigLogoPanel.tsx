@@ -132,7 +132,7 @@ export const EventConfigLogoPanel = ({
       });
       toast({
         title: `Le logo de l'événement a bien été modifié !`,
-        isClosable: true,
+
         status: "success"
       });
       eventQuery.refetch();
@@ -195,14 +195,12 @@ export const EventConfigLogoPanel = ({
                     eventQuery.refetch();
                     toast({
                       title: "Le logo a bien été supprimé !",
-                      status: "success",
-                      isClosable: true
+                      status: "success"
                     });
                   } catch (error) {
                     toast({
                       title: "Le logo n'a pas pu être supprimé",
-                      status: "error",
-                      isClosable: true
+                      status: "error"
                     });
                   }
                 }}

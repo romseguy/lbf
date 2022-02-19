@@ -66,7 +66,7 @@ export const EventAttendingForm = ({
 
     let isNew = true;
 
-    let eventNotifications = event.eventNotifications?.map(
+    let eventNotifications = event.eventNotifications.map(
       (eventNotification) => {
         const { email, status } = eventNotification;
 
@@ -82,7 +82,7 @@ export const EventAttendingForm = ({
     );
 
     if (isNew && userEmail)
-      eventNotifications?.push({
+      eventNotifications.push({
         email: userEmail,
         status: EEventInviteStatus.OK,
         createdAt: new Date().toISOString()
@@ -120,7 +120,7 @@ export const EventAttendingForm = ({
     }
 
     let isNew = true;
-    let eventNotifications = event.eventNotifications?.map(
+    let eventNotifications = event.eventNotifications.map(
       (eventNotification) => {
         const { email, status } = eventNotification;
         if (email === userEmail && status !== EEventInviteStatus.NOK) {
@@ -132,7 +132,7 @@ export const EventAttendingForm = ({
     );
 
     if (isNew && userEmail)
-      eventNotifications?.push({
+      eventNotifications.push({
         email: userEmail,
         status: EEventInviteStatus.NOK,
         createdAt: new Date().toISOString()

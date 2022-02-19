@@ -37,7 +37,7 @@ export const TopicMessagesList = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
-  const [editTopic, editTopicMutation] = useEditTopicMutation();
+  const [editTopic] = useEditTopicMutation();
 
   const [isEdit, setIsEdit] = useState<{
     [key: string]: {
@@ -52,7 +52,7 @@ export const TopicMessagesList = ({
   return (
     <Flex flexDirection="column" {...props}>
       <Box>
-        {topic.topicMessages?.map(
+        {topic.topicMessages.map(
           ({ message, createdBy, createdAt, ...rest }, index) => {
             const _id = rest._id as string;
             let userName = "";

@@ -56,8 +56,8 @@ export const UserPage = ({
   console.log("user", user);
   console.groupEnd();
 
-  const [editUser, editUserMutation] = useEditUserMutation();
-  const [data, setData] = useState<any>();
+  const [editUser] = useEditUserMutation();
+  const [data, setData] = useState<string>("");
   const [isEdit, setIsEdit] = useState(false);
   const [isDescriptionEdit, setIsDescriptionEdit] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
@@ -107,8 +107,7 @@ export const UserPage = ({
               setIsEdit(false);
               toast({
                 title: "Votre profil a bien été modifié !",
-                status: "success",
-                isClosable: true
+                status: "success"
               });
 
               if (userName && userName !== user.userName) {
@@ -208,15 +207,13 @@ export const UserPage = ({
                                   toast({
                                     title:
                                       "Votre présentation a bien été enregistrée",
-                                    status: "success",
-                                    isClosable: true
+                                    status: "success"
                                   });
                                 } catch (error) {
                                   toast({
                                     title:
                                       "Votre présentation n'a pas pu être enregistrée.",
-                                    status: "error",
-                                    isClosable: true
+                                    status: "error"
                                   });
                                 } finally {
                                   setIsLoading(false);

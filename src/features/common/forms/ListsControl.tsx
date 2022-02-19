@@ -44,10 +44,12 @@ export const ListsControl = ({
                 onChange && onChange();
               }}
               options={
-                lists?.map(({ listName }) => ({
-                  label: listName,
-                  value: listName
-                })) || []
+                lists
+                  ? lists.map((list) => ({
+                      label: list.listName,
+                      value: list.listName
+                    }))
+                  : []
               }
               allOptionLabel="Toutes les listes"
               placeholder="Sélectionner une ou plusieurs listes"

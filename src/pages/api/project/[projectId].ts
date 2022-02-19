@@ -22,7 +22,7 @@ handler.put<
   const session = await getSession({ req });
   const { body }: { body: IProject } = req;
 
-  if (!session && !body.projectNotified) {
+  if (!session && !body.projectNotifications) {
     res
       .status(403)
       .json(createServerError(new Error("Vous devez être identifié")));
@@ -44,7 +44,7 @@ handler.put<
           );
       }
 
-      if (!body.projectNotified && session) {
+      if (!body.projectNotifications && session) {
         if (
           !equals(project.createdBy, session.user.userId) &&
           !session.user.isAdmin
@@ -95,13 +95,13 @@ handler.put<
       // project.projectNotif = body.projectNotif || [];
       // const emailList = await sendProjectToOrgFollowers(project);
 
-      let projectNotified;
+      let projectNotifications;
 
-      if (body.projectNotified) {
-        projectNotified = body.projectNotified;
+      if (body.projectNotifications) {
+        projectNotifications = body.projectNotifications;
       }
       // else if (emailList.length > 0) {
-      //   projectNotified = project.projectNotified?.concat(
+      //   projectNotifications = project.projectNotifications?.concat(
       //     emailList.map((email) => ({
       //       email,
       //       status: StatusTypes.PENDING
@@ -113,7 +113,7 @@ handler.put<
         { _id: projectId },
         {
           ...body,
-          projectNotified
+          projectNotifications
         }
       );
 

@@ -7,9 +7,9 @@ export const SubscriptionSchema = new Schema<ISubscription>(
       type: Schema.Types.ObjectId,
       ref: "User"
     },
-    email: String,
-    phone: String,
-    // IEventSubscription
+    email: { type: String, select: false },
+    phone: { type: String, select: false },
+    // IEventSubscription[]
     events: [
       {
         eventId: {
@@ -25,7 +25,7 @@ export const SubscriptionSchema = new Schema<ISubscription>(
         ]
       }
     ],
-    // IOrgSubscription
+    // IOrgSubscription[]
     orgs: [
       {
         orgId: {
@@ -40,12 +40,14 @@ export const SubscriptionSchema = new Schema<ISubscription>(
           type: String,
           enum: Object.keys(ESubscriptionType).map(
             (key) => ESubscriptionType[key as ESubscriptionType]
-          ),
-          required: true
+          )
         },
-        tagTypes: [
-          { type: { type: String }, emailNotif: Boolean, pushNotif: Boolean }
-        ],
+        tagTypes: {
+          type: [
+            { type: { type: String }, emailNotif: Boolean, pushNotif: Boolean }
+          ],
+          default: []
+        },
         eventCategories: {
           type: [
             {
@@ -58,7 +60,7 @@ export const SubscriptionSchema = new Schema<ISubscription>(
         }
       }
     ],
-    // ITopicSubscription
+    // ITopicSubscription[]
     topics: [
       {
         emailNotif: Boolean,

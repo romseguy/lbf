@@ -1,28 +1,23 @@
-import { IProject, isAttending, EProjectInviteStatus } from "models/Project";
+import { Box, useToast, Spinner } from "@chakra-ui/react";
 import React from "react";
-import { useSession } from "hooks/useAuth";
-import {
-  Box,
-  Text,
-  Flex,
-  Alert,
-  AlertIcon,
-  useToast,
-  Spinner
-} from "@chakra-ui/react";
+import { useSelector } from "react-redux";
 import { Button } from "features/common";
 import { useEditProjectMutation } from "features/projects/projectsApi";
-import { emailR } from "utils/email";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
+import { useSession } from "hooks/useAuth";
+import { IOrg } from "models/Org";
+import { IProject, isAttending, EProjectInviteStatus } from "models/Project";
+import { IUser } from "models/User";
 import { useAppDispatch } from "store";
-import { useSelector } from "react-redux";
+import { emailR } from "utils/email";
+import { AppQuery } from "utils/types";
 
 export const ProjectAttendingForm = ({
   project,
   query
 }: {
   project: IProject;
-  query?: any;
+  query: AppQuery<IOrg | IUser>;
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
@@ -58,8 +53,8 @@ export const ProjectAttendingForm = ({
 
     let isNew = true;
 
-    let projectNotified =
-      project.projectNotified?.map(({ email: e, status }) => {
+    let projectNotifications =
+      project.projectNotifications?.map(({ email: e, status }) => {
         if (
           (e === promptedEmail || userEmail) &&
           status !== EProjectInviteStatus.OK
@@ -71,13 +66,13 @@ export const ProjectAttendingForm = ({
       }) || [];
 
     if (isNew)
-      projectNotified?.push({
+      projectNotifications?.push({
         email: promptedEmail || userEmail,
         status: EProjectInviteStatus.OK
       });
 
     await editProject({
-      payload: { projectNotified },
+      payload: { projectNotifications },
       projectId: project._id
     });
     query.refetch();
@@ -97,7 +92,7 @@ export const ProjectAttendingForm = ({
       dispatch(setUserEmail(promptedEmail));
     }
 
-    let projectNotified = project.projectNotified?.filter(
+    let projectNotifications = project.projectNotifications?.filter(
       ({ email, status }) => {
         return email !== promptedEmail && email !== userEmail;
       }
@@ -105,7 +100,7 @@ export const ProjectAttendingForm = ({
 
     await editProject({
       payload: {
-        projectNotified
+        projectNotifications
       },
       projectId: project._id
     });

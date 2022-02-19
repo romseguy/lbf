@@ -22,7 +22,7 @@ export const ProjectSchema = new Schema<IProject>(
       enum: EProjectStatus
     },
     projectVisibility: [String],
-    projectNotified: [
+    projectNotifications: [
       {
         email: String,
         status: {

@@ -88,7 +88,7 @@ export const sendEventNotifications = async ({
       ) {
         if (
           !email ||
-          event.eventNotifications?.find(({ email: e }) => e === email)
+          event.eventNotifications.find(({ email: e }) => e === email)
         )
           continue;
 
@@ -142,7 +142,7 @@ export const sendEventNotifications = async ({
         if (email) {
           console.log(`email: notifying ${email}`);
 
-          if (event.eventNotifications?.find(({ email: e }) => e === email)) {
+          if (event.eventNotifications.find(({ email: e }) => e === email)) {
             console.log("email: skipping -- email already notified");
           } else {
             const mail = createEventEmailNotif({
@@ -170,7 +170,7 @@ export const sendEventNotifications = async ({
         console.log(`push: user ${subscription.user._id}`);
 
         if (
-          event.eventNotifications?.find(({ user }) =>
+          event.eventNotifications.find(({ user }) =>
             typeof subscription.user === "object"
               ? equals(user, subscription.user._id)
               : equals(user, subscription.user)
@@ -205,13 +205,8 @@ export const sendEventNotifications = async ({
     eventNotifications.push(eventNotification);
   }
 
-  if (event.eventNotifications) {
-    event.eventNotifications =
-      event.eventNotifications.concat(eventNotifications);
-  } else {
-    event.eventNotifications = eventNotifications;
-  }
-
+  event.eventNotifications =
+    event.eventNotifications.concat(eventNotifications);
   await event.save();
 
   return eventNotifications;
@@ -275,7 +270,7 @@ export const sendTopicNotifications = async ({
         if (email) {
           console.log(`email: notifying ${email}`);
 
-          if (topic.topicNotifications?.find(({ email: e }) => e === email)) {
+          if (topic.topicNotifications.find(({ email: e }) => e === email)) {
             console.log(
               "sendTopicNotifications: skipping -- email already notified"
             );
@@ -306,7 +301,7 @@ export const sendTopicNotifications = async ({
         console.log(`push: user ${subscription.user._id}`);
 
         if (
-          topic.topicNotifications?.find(({ user }) =>
+          topic.topicNotifications.find(({ user }) =>
             typeof subscription.user === "object"
               ? equals(user, subscription.user._id)
               : equals(user, subscription.user)
@@ -362,7 +357,7 @@ export const sendTopicNotifications = async ({
         if (email) {
           console.log(`email: notifying ${email}`);
 
-          if (topic.topicNotifications?.find(({ email: e }) => e === email)) {
+          if (topic.topicNotifications.find(({ email: e }) => e === email)) {
             console.log("email: skipping -- already notified");
           } else {
             const mail = createTopicEmailNotif({
@@ -390,7 +385,7 @@ export const sendTopicNotifications = async ({
         console.log(`push: user ${subscription.user._id}`);
 
         if (
-          topic.topicNotifications?.find(({ user }) =>
+          topic.topicNotifications.find(({ user }) =>
             typeof subscription.user === "object"
               ? equals(user, subscription.user._id)
               : equals(user, subscription.user)
@@ -425,13 +420,8 @@ export const sendTopicNotifications = async ({
     topicNotifications.push(topicNotification);
   }
 
-  if (topic.topicNotifications) {
-    topic.topicNotifications =
-      topic.topicNotifications.concat(topicNotifications);
-  } else {
-    topic.topicNotifications = topicNotifications;
-  }
-
+  topic.topicNotifications =
+    topic.topicNotifications.concat(topicNotifications);
   await topic.save();
 
   return topicNotifications;
@@ -543,7 +533,7 @@ export const sendToAdmin = async ({
 //     throw new Error("L'événément doit être approuvé");
 //   }
 
-//   if (!Array.isArray(event.eventOrgs)) {
+//   if (!hasItems(event.eventOrgs)) {
 //     throw new Error("L'événement est organisé par aucune organisation");
 //   }
 
@@ -592,10 +582,7 @@ export const sendToAdmin = async ({
 //             if (subscription.phone) {
 //               // todo
 //             } else if (email) {
-//               if (
-//                 Array.isArray(event.eventNotifications) &&
-//                 event.eventNotifications.find((m) => m.email === email)
-//               )
+//               if (event.eventNotifications.find((m) => m.email === email))
 //                 continue;
 
 //               const user = await models.User.findOne({ email });

@@ -78,8 +78,7 @@ export const ForgottenForm = ({
         toast({
           title: `Veuillez saisir le code de sécurité qui vous a été envoyé à ${emailForgotten}`,
           status: "success",
-          duration: 9000,
-          isClosable: true
+          duration: 9000
         });
       } catch (error) {
         handleError(error, (message, field) => {
@@ -106,8 +105,7 @@ export const ForgottenForm = ({
         });
         toast({
           title: `Le mot de passe du compte ${savedEmail} a bien été changé.`,
-          status: "success",
-          isClosable: true
+          status: "success"
         });
         onSuccess && onSuccess();
       } catch (error) {

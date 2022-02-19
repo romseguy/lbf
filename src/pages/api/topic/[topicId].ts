@@ -90,13 +90,8 @@ handler.post<
           }
         ];
 
-        if (topic.topicNotifications) {
-          topic.topicNotifications =
-            topic.topicNotifications.concat(notifications);
-        } else {
-          topic.topicNotifications = notifications;
-        }
-
+        topic.topicNotifications =
+          topic.topicNotifications.concat(notifications);
         await topic.save();
       }
     } else if (body.event) {
@@ -155,7 +150,7 @@ handler.post<
             })
             .execPopulate();
 
-          const list = org.orgLists?.find(
+          const list = org.orgLists.find(
             (orgList) => orgList.listName === listName
           );
 

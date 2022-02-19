@@ -1,9 +1,11 @@
 import axios, { AxiosResponse } from "axios";
+import {} from "react-hook-form";
 import { databaseErrorCodes } from "utils/errors";
 import { isServer } from "utils/isServer";
 import { objectToQueryString } from "./query";
+import { Primitive, TypedMap } from "./types";
 
-type ParamsType = { [key: string]: any };
+type ParamsType = TypedMap<string, any> | Primitive;
 export type ResponseType<T> = { data?: T; error?: any; status?: number };
 
 async function request(endpoint: string, params?: ParamsType, method = "GET") {
@@ -111,7 +113,9 @@ async function sendPushNotification({
       notification: {
         title,
         message,
-        url: url.includes("http") ? url : `${process.env.NEXT_PUBLIC_URL}/${url}`
+        url: url.includes("http")
+          ? url
+          : `${process.env.NEXT_PUBLIC_URL}/${url}`
       }
     },
     {

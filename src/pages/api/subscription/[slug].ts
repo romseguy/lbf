@@ -1,9 +1,4 @@
-import type {
-  IEventSubscription,
-  IOrgSubscription,
-  ISubscription
-} from "models/Subscription";
-import type { ITopic } from "models/Topic";
+import type { IEventSubscription, IOrgSubscription } from "models/Subscription";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
@@ -12,7 +7,6 @@ import { getSession } from "hooks/useAuth";
 import { equals, logJson } from "utils/string";
 import { emailR } from "utils/email";
 import { IUser } from "models/User";
-import { hasItems } from "utils/array";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -273,7 +267,7 @@ handler.delete<
       //log("> org.orgSubscriptions", org.orgSubscriptions);
 
       //log("> org.orgLists", org.orgLists);
-      org.orgLists = org.orgLists?.map((orgList) => ({
+      org.orgLists = org.orgLists.map((orgList) => ({
         listName: orgList.listName,
         subscriptions: orgList.subscriptions?.filter(
           ({ _id }) => !equals(_id, subscriptionId)

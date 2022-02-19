@@ -5,11 +5,15 @@ import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
 import baseQuery, { objectToQueryString } from "utils/query";
+import { Optional } from "utils/types";
 
 //const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
 
 export interface AddTopicPayload {
-  topic: Partial<ITopic>;
+  topic: Optional<
+    Omit<ITopic, "topicNotifications" | "createdBy">,
+    "_id" | "topicMessages"
+  >;
   org?: Partial<IOrg>;
   event?: Partial<IEvent>;
 }

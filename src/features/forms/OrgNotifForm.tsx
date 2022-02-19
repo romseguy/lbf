@@ -61,7 +61,7 @@ export const OrgNotifForm = ({
   //#region local state
   const isT = isTopic(entity);
   const [isLoading, setIsLoading] = useState(false);
-  const lists = getLists(org);
+  const lists = org.orgLists;
   const [type, setType] = useState<"multi" | "single">();
   //#endregion
 
@@ -164,12 +164,12 @@ export const OrgNotifForm = ({
                       {lists?.map((list) => {
                         let i = 0;
                         for (const subscription of list.subscriptions || []) {
-                          const notified = isT
+                          const notifications = isT
                             ? entity.topicNotifications
                             : entity.eventNotifications;
 
                           if (
-                            notified?.find(({ email, phone }) =>
+                            notifications.find(({ email, phone }) =>
                               typeof subscription.user === "object"
                                 ? equalsValue(subscription.user.email, email) ||
                                   equalsValue(subscription.user.phone, phone)

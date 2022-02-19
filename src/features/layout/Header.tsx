@@ -25,26 +25,26 @@ import { IOrg, EOrgType } from "models/Org";
 import { defaultCategory, getEventCategories, IEvent } from "models/Event";
 
 export const Header = ({
-  defaultTitle,
   event,
   org,
+  defaultTitle,
   pageTitle,
   pageSubTitle,
   ...props
 }: SpaceProps & {
-  defaultTitle: string;
-  org?: IOrg;
   event?: IEvent;
+  org?: IOrg;
+  defaultTitle: string;
   pageTitle?: string;
   pageSubTitle?: React.ReactNode;
 }) => {
-  const banner = event?.eventBanner || org?.orgBanner;
-  const logo = event?.eventLogo || org?.orgLogo;
-  const router = useRouter();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const router = useRouter();
 
-  //#region local state
+  //#region event/org
+  const banner = event?.eventBanner || org?.orgBanner;
+  const bgImage = banner ? `url("${banner.base64 || banner.url}")` : undefined;
   const icon =
     pageTitle === "Forum"
       ? ChatIcon
@@ -61,14 +61,14 @@ export const Header = ({
         ? FaRegCalendarCheck
         : FaRegCalendarTimes
       : null;
-
-  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
-  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
-
-  const bgImage = banner ? `url("${banner.base64 || banner.url}")` : undefined;
-
+  const logo = event?.eventLogo || org?.orgLogo;
   const logoBgImage = logo ? `url("${logo.url || logo.base64}")` : "";
   const logoBgSize = "110px";
+  //#endregion
+
+  //#region local state
+  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
   //#endregion
 
   const HeaderTitle = () => (

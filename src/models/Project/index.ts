@@ -1,9 +1,4 @@
-import {
-  EProjectInviteStatus,
-  EProjectStatus,
-  EProjectVisibility,
-  IProject
-} from "./IProject";
+import { EProjectInviteStatus, EProjectStatus, IProject } from "./IProject";
 import { TypedMap } from "utils/types";
 
 export * from "./IProject";
@@ -16,7 +11,7 @@ export const isAttending = ({
   project: IProject;
 }) => {
   if (email === "") return false;
-  return !!project.projectNotified?.find(({ email: e, status }) => {
+  return !!project.projectNotifications?.find(({ email: e, status }) => {
     return e === email && status === EProjectInviteStatus.OK;
   });
 };
@@ -32,10 +27,4 @@ export const ProjectStatuses: TypedMap<EProjectStatus, string> = {
   [EProjectStatus.PENDING]: "En attente",
   [EProjectStatus.ONGOING]: "En cours",
   [EProjectStatus.FINISHED]: "Terminé"
-};
-
-export const ProjectVisibilities: TypedMap<EProjectVisibility, string> = {
-  [EProjectVisibility.PUBLIC]: "Publique",
-  [EProjectVisibility.SUBSCRIBERS]: "Adhérents",
-  [EProjectVisibility.FOLLOWERS]: "Abonnés"
 };

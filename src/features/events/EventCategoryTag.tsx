@@ -15,7 +15,7 @@ export const EventCategoryTag = ({
   const isDark = colorMode === "dark";
   let category = EventCategory[selectedCategory];
 
-  if (org && org.orgEventCategories)
+  if (org && org.orgEventCategories[selectedCategory])
     category = org.orgEventCategories[selectedCategory];
 
   return (

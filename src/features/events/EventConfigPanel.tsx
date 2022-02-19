@@ -85,15 +85,13 @@ export const EventConfigPanel = ({
                     await router.push(`/`);
                     toast({
                       title: `${deletedEvent.eventName} a bien été supprimé !`,
-                      status: "success",
-                      isClosable: true
+                      status: "success"
                     });
                   }
                 } catch (error: any) {
                   toast({
                     title: error.data ? error.data.message : error.message,
-                    status: "error",
-                    isClosable: true
+                    status: "error"
                   });
                 }
               }}

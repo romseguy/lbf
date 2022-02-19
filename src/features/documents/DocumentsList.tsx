@@ -1,4 +1,4 @@
-import { AddIcon, ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { AddIcon, ChevronRightIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
@@ -120,7 +120,7 @@ export const DocumentsList = ({
       <Button
         colorScheme="teal"
         leftIcon={<AddIcon />}
-        rightIcon={isAdd ? <ChevronDownIcon /> : <ChevronRightIcon />}
+        rightIcon={isAdd ? <ChevronUpIcon /> : <ChevronRightIcon />}
         mb={5}
         onClick={() => {
           if (!isSessionLoading) {
@@ -274,16 +274,14 @@ export const DocumentsList = ({
                               );
                               toast({
                                 title: `Le document ${fileName} a bien été supprimé !`,
-                                status: "success",
-                                isClosable: true
+                                status: "success"
                               });
                               query.refetch();
                             } catch (error) {
                               console.error(error);
                               toast({
                                 title: `Le document ${fileName} n'a pas pu être supprimé.`,
-                                status: "error",
-                                isClosable: true
+                                status: "error"
                               });
                             }
                           }}

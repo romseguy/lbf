@@ -122,7 +122,7 @@ export const EventPage = ({
     } else {
       if (event.eventVisibility === EEventVisibility.SUBSCRIBERS) {
         if (
-          !!event.eventNotifications?.find(
+          !!event.eventNotifications.find(
             (notified) => notified.email === email
           )
         )

@@ -11,7 +11,10 @@ export const UserSchema = new Schema<IUser>(
       trim: true,
       lowercase: true
     },
-    phone: String,
+    phone: {
+      type: String,
+      select: false
+    },
     password: {
       type: String,
       required: true,
@@ -21,11 +24,6 @@ export const UserSchema = new Schema<IUser>(
       type: String,
       select: false
     },
-    userName: {
-      type: String,
-      unique: true,
-      trim: true
-    },
     userImage: {
       type: {
         base64: String,
@@ -34,7 +32,15 @@ export const UserSchema = new Schema<IUser>(
       },
       select: false
     },
-    userSubscription: Schema.Types.Mixed,
+    userName: {
+      type: String,
+      unique: true,
+      trim: true
+    },
+    userSubscription: {
+      type: Schema.Types.Mixed,
+      select: false
+    },
     isAdmin: Boolean,
     isOnline: Boolean,
     suggestedCategoryAt: String,

@@ -62,18 +62,19 @@ handler.post<NextApiRequest & { body: AddEventPayload }, NextApiResponse>(
   async function addEvent(req, res) {
     const session = await getSession({ req });
 
-    if (!session)
+    if (!session) {
       return res
         .status(403)
         .json(createServerError(new Error("Vous devez être identifié")));
+    }
 
     try {
       let { body }: { body: AddEventPayload } = req;
-      let newEvent: Omit<IEvent, "_id"> = {
+      let newEvent = {
         ...body,
+        createdBy: session.user.userId,
         eventName: body.eventName.trim(),
-        eventUrl: normalize(body.eventName),
-        createdBy: session.user.userId
+        eventUrl: normalize(body.eventName)
       };
 
       let event: (IEvent & Document<any, any, any>) | null = null;
@@ -118,8 +119,8 @@ handler.post<NextApiRequest & { body: AddEventPayload }, NextApiResponse>(
           const uid = randomNumber(2);
           body = {
             ...body,
-            eventName: body.eventName + "-" + uid,
-            eventUrl: body.eventUrl + "-" + uid
+            eventName: newEvent.eventName + "-" + uid,
+            eventUrl: newEvent.eventUrl + "-" + uid
           };
         }
 

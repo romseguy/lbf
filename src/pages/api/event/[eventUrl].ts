@@ -9,13 +9,14 @@ import {
   GetEventParams
 } from "features/events/eventsApi";
 import { getSession } from "hooks/useAuth";
-import { EEventInviteStatus } from "models/Event";
+import { EEventInviteStatus, IEvent } from "models/Event";
 import { IEventNotification } from "models/INotification";
-import { getSubscriptions, IOrg } from "models/Org";
+import { getLists, getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, ESubscriptionType } from "models/Subscription";
 import { createServerError } from "utils/errors";
 import { createEventEmailNotif } from "utils/email";
 import { equals, logJson, normalize } from "utils/string";
+import { getRefId } from "utils/models";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -54,28 +55,36 @@ handler.get<
       session?.user.isAdmin || equals(event.createdBy, session?.user.userId);
 
     if (isCreator) {
-      event = event.populate({
-        path: "eventOrgs",
-        populate: [
-          {
-            path: "orgLists",
-            populate: {
-              path: "subscriptions",
+      event = await event
+        .populate({
+          path: "eventOrgs",
+          populate: [
+            {
+              path: "orgLists",
+              populate: {
+                path: "subscriptions",
+                select: isCreator ? "+email +phone" : undefined,
+                populate: {
+                  path: "user",
+                  select: isCreator ? "+email" : undefined
+                }
+              }
+            },
+            {
+              path: "orgSubscriptions",
+              select: isCreator ? "+email +phone" : undefined,
               populate: {
                 path: "user",
-                select: isCreator ? "_id email userName" : "_id userName"
+                select: isCreator ? "+email" : undefined
               }
             }
-          },
-          {
-            path: "orgSubscriptions",
-            populate: {
-              path: "user",
-              select: isCreator ? "_id email userName" : "_id userName"
-            }
-          }
-        ]
-      });
+          ]
+        })
+        .execPopulate();
+
+      for (const eventOrg of event.eventOrgs) {
+        eventOrg.orgLists = getLists(eventOrg);
+      }
     } else {
       event = event.populate("eventOrgs");
     }
@@ -198,13 +207,8 @@ handler.post<
           }
         ];
 
-        if (event.eventNotifications) {
-          event.eventNotifications =
-            event.eventNotifications.concat(notifications);
-        } else {
-          event.eventNotifications = notifications;
-        }
-
+        event.eventNotifications =
+          event.eventNotifications.concat(notifications);
         await event.save();
       }
     } else if (body.orgListsNames) {
@@ -251,7 +255,7 @@ handler.post<
             })
             .execPopulate();
 
-          const list = org.orgLists?.find(
+          const list = org.orgLists.find(
             (orgList) => orgList.listName === listName
           );
 
@@ -438,31 +442,29 @@ handler.delete<
       }
 
       const { deletedCount } = await models.Event.deleteOne({ eventUrl });
-      const deleteOrgRef = async () => {
-        if (event && event.eventOrgs) {
-          for (const eventOrg of event.eventOrgs) {
-            const o = await models.Org.findOne({
-              _id: typeof eventOrg === "object" ? eventOrg._id : eventOrg
-            });
+      const deleteOrgRef = async (event: IEvent) => {
+        for (const eventOrgRef of event.eventOrgs) {
+          const eventOrg = await models.Org.findOne({
+            _id: getRefId(eventOrgRef)
+          });
 
-            if (o) {
-              o.orgEvents = o.orgEvents.filter(
-                (orgEvent) => !equals(orgEvent, event?._id)
-              );
-              o.save();
-            }
+          if (eventOrg) {
+            eventOrg.orgEvents = eventOrg.orgEvents.filter(
+              (orgEvent) => !equals(orgEvent, event?._id)
+            );
+            await eventOrg.save();
           }
         }
       };
 
       if (deletedCount === 1) {
-        await deleteOrgRef();
+        await deleteOrgRef(event);
         res.status(200).json(event);
       } else {
         if (
           (await models.Event.deleteOne({ _id: eventUrl })).deletedCount === 1
         ) {
-          await deleteOrgRef();
+          await deleteOrgRef(event);
           res.status(200).json(event);
         } else {
           res

@@ -2,7 +2,18 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { IOrg } from "models/Org";
 import baseQuery, { objectToQueryString } from "utils/query";
 
-export type AddOrgPayload = Omit<IOrg, "_id" | "createdBy">;
+export type AddOrgPayload = Omit<
+  IOrg,
+  | "_id"
+  | "createdBy"
+  | "orgEventCategories"
+  | "orgEvents"
+  | "orgLists"
+  | "orgProjects"
+  | "orgSubscriptions"
+  | "orgTopics"
+  | "orgTopicsCategories"
+>;
 
 export type EditOrgPayload = Partial<IOrg> | string[];
 

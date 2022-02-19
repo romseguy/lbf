@@ -24,6 +24,12 @@ export interface IEvent<T = string> extends IEntity {
   eventCategory?: number;
   eventMinDate: T;
   eventMaxDate: T;
+  otherDays?: {
+    dayNumber: number;
+    startDate?: string;
+    endTime?: string;
+    monthRepeat?: number[];
+  }[];
   eventDescription?: string;
   eventDescriptionHtml?: string;
   eventVisibility?: string;
@@ -35,10 +41,10 @@ export interface IEvent<T = string> extends IEntity {
   eventEmail?: { email: string }[];
   eventPhone?: { phone: string }[];
   eventWeb?: { url: string; prefix: string }[];
+  eventNotifications: IEventNotification[]; // list of emails the invitation has been sent to
   eventSubscriptions: ISubscription[];
-  eventNotifications?: IEventNotification[]; // list of emails the invitation has been sent to
   eventTopics: ITopic[];
-  eventTopicsCategories?: string[];
+  eventTopicsCategories: string[];
   eventBanner?: Base64Image & {
     headerHeight: number;
     mode: "light" | "dark";
@@ -53,12 +59,6 @@ export interface IEvent<T = string> extends IEntity {
     eventUrl?: string;
   };
   isApproved?: boolean;
-  otherDays?: {
-    dayNumber: number;
-    startDate?: string;
-    endTime?: string;
-    monthRepeat?: number[];
-  }[];
   repeat?: number;
 }
 

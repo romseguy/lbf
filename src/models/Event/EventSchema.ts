@@ -23,6 +23,17 @@ export const EventSchema = new Schema<IEvent>(
       type: String,
       required: true
     },
+    otherDays: [
+      {
+        dayNumber: {
+          type: Number,
+          required: true
+        },
+        startDate: String,
+        endTime: String,
+        monthRepeat: [Number]
+      }
+    ],
     eventDescription: {
       type: String,
       trim: true
@@ -35,7 +46,10 @@ export const EventSchema = new Schema<IEvent>(
       type: String,
       enum: EEventVisibility
     },
-    eventOrgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
+    eventOrgs: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Org" }],
+      default: []
+    },
     eventAddress: [{ address: { type: String, trim: true } }],
     eventCity: String,
     eventLat: Number,
@@ -48,26 +62,35 @@ export const EventSchema = new Schema<IEvent>(
         prefix: { type: String, trim: true }
       }
     ],
-    eventSubscriptions: [
-      { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
-    ],
-    eventNotifications: [
-      {
-        email: String,
-        phone: String,
-        user: {
-          type: Schema.Types.ObjectId,
-          ref: "User"
-        },
-        status: {
-          type: String,
-          enum: EEventInviteStatus
-        },
-        createdAt: { type: String, required: true }
-      }
-    ],
-    eventTopics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
-    eventTopicsCategories: [String],
+    eventNotifications: {
+      type: [
+        {
+          email: String,
+          phone: String,
+          user: {
+            type: Schema.Types.ObjectId,
+            ref: "User"
+          },
+          status: {
+            type: String,
+            enum: EEventInviteStatus
+          },
+          createdAt: { type: String, required: true }
+        }
+      ],
+      default: []
+    },
+    eventSubscriptions: {
+      type: [
+        { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
+      ],
+      default: []
+    },
+    eventTopics: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
+      default: []
+    },
+    eventTopicsCategories: { type: [String], default: [] },
     eventBanner: {
       type: {
         base64: String,
@@ -96,14 +119,6 @@ export const EventSchema = new Schema<IEvent>(
       eventUrl: String
     },
     isApproved: Boolean,
-    otherDays: [
-      {
-        dayNumber: Number,
-        startDate: String,
-        endTime: String,
-        monthRepeat: [Number]
-      }
-    ],
     repeat: Number,
     createdBy: {
       type: Schema.Types.ObjectId,

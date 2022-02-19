@@ -12,6 +12,15 @@ export type AppQuery<T> = {
     status: number;
   };
 };
+export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+export type PartialRequired<T, K extends keyof T> = Pick<Required<T>, K>;
+// export type PartialRequired<T, Keys extends keyof T = keyof T> = Pick<
+//   Partial<T>,
+//   Exclude<keyof T, Keys>
+// > & {
+//   [K in Keys]: T[K];
+// };
+export type Primitive = string | number | boolean | symbol;
 export type TypedMap<T extends string, K extends string> = {
   [key in T]: K;
 };

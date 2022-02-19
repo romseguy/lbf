@@ -15,6 +15,7 @@ import { LatLon } from "use-places-autocomplete";
 import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
 import { getDistance } from "utils/maps";
 import { IEvent, EEventInviteStatus, EEventVisibility } from "models/Event";
+import { hasItems } from "utils/array";
 
 export * from "./IEvent";
 
@@ -43,7 +44,7 @@ export const getEventCategories = (event: IEvent<string | Date>) => {
     (catId) => EventCategory[parseInt(catId)]
   );
 
-  if (Array.isArray(event.eventOrgs) && event.eventOrgs.length > 0) {
+  if (hasItems(event.eventOrgs)) {
     const firstOrgCategories = event.eventOrgs[0].orgEventCategories;
     if (firstOrgCategories) eventCategories = firstOrgCategories;
   }
@@ -363,7 +364,7 @@ export const isAttending = ({
   event: IEvent;
 }) => {
   if (!email) return false;
-  return !!event.eventNotifications?.find(({ email: e, status }) => {
+  return !!event.eventNotifications.find(({ email: e, status }) => {
     return e === email && status === EEventInviteStatus.OK;
   });
 };
@@ -376,7 +377,7 @@ export const isNotAttending = ({
   event: IEvent;
 }) => {
   if (!email) return false;
-  return !!event.eventNotifications?.find(({ email: e, status }) => {
+  return !!event.eventNotifications.find(({ email: e, status }) => {
     return e === email && status === EEventInviteStatus.NOK;
   });
 };

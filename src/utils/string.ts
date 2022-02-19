@@ -20,7 +20,9 @@ export function normalize(str: string, underscores?: boolean): string {
   str = str.trim();
   str = str.replace(/\//g, "");
   str = str.replace(/\s{2,}/g, " ");
-  str = str.replace(/\ /g, "_");
+
+  if (typeof underscores === "undefined" || !!underscores)
+    str = str.replace(/\ /g, "_");
 
   return str
     .normalize("NFD")

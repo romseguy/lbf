@@ -14,6 +14,7 @@ import React from "react";
 import { EEventInviteStatus, IEvent, EventInviteStatuses } from "models/Event";
 import { ITopic } from "models/Topic";
 import { timeAgo } from "utils/date";
+import { hasItems } from "utils/array";
 
 export const EntityNotified = ({
   event,
@@ -28,20 +29,17 @@ export const EntityNotified = ({
         Historique des invitations envoyées
       </Heading>
 
-      {!(event?.eventNotifications || topic?.topicNotifications) ||
-      (Array.isArray(event?.eventNotifications) &&
-        !event?.eventNotifications.length) ||
-      (Array.isArray(topic?.topicNotifications) &&
-        !topic?.topicNotifications.length) ? (
+      {(event && !hasItems(event?.eventNotifications)) ||
+      (topic && !hasItems(topic?.topicNotifications)) ? (
         <Alert status="info">
           <AlertIcon />
-          <Text>Aucune invitations envoyées</Text>
+          <Text>Aucune invitations envoyées.</Text>
         </Alert>
       ) : (
         <Table>
           <Tbody>
             {event
-              ? event.eventNotifications?.map(
+              ? event.eventNotifications.map(
                   ({ _id, email, status, createdAt }) => (
                     <Tr key={_id}>
                       <Td pl={0}>{email}</Td>
@@ -71,7 +69,7 @@ export const EntityNotified = ({
                   )
                 )
               : topic
-              ? topic.topicNotifications?.map(({ email: e, createdAt }) => (
+              ? topic.topicNotifications.map(({ email: e, createdAt }) => (
                   <Tr key={e}>
                     <Td>{e}</Td>
                   </Tr>

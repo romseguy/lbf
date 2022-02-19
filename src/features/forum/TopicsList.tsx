@@ -110,10 +110,7 @@ export const TopicsList = ({
           if (org.orgUrl === "forum") return belongsToCategory;
 
           if (Array.isArray(selectedLists) && selectedLists.length > 0) {
-            if (
-              Array.isArray(topic.topicVisibility) &&
-              topic.topicVisibility.length > 0
-            ) {
+            if (hasItems(topic.topicVisibility)) {
               let found = false;
 
               for (let i = 0; i < topic.topicVisibility.length; i++)
@@ -382,14 +379,12 @@ export const TopicsList = ({
                     subQuery.refetch();
                     toast({
                       title: `${deletedTopic.topicName} a bien été supprimé !`,
-                      status: "success",
-                      isClosable: true
+                      status: "success"
                     });
                   } catch (error: any) {
                     toast({
                       title: `La discussion ${topic.topicName} n'a pas pu être supprimée`,
-                      status: "error",
-                      isClosable: true
+                      status: "error"
                     });
                   } finally {
                     setIsLoading({

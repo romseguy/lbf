@@ -8,11 +8,13 @@ import { OrgForm } from "features/forms/OrgForm";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
+import { useAppDispatch } from "store";
 import { AppQuery } from "utils/types";
 import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigLogoPanel } from "./OrgConfigLogoPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
+import { refetchOrgs } from "./orgSlice";
 
 export type OrgConfigVisibility = {
   isVisible: {
@@ -42,6 +44,7 @@ export const OrgConfigPanel = ({
   setIsConfig: (isConfig: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
 }) => {
+  const dispatch = useAppDispatch();
   const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
   const org = orgQuery.data;
   const router = useRouter();
@@ -108,18 +111,17 @@ export const OrgConfigPanel = ({
                   const deletedOrg = await deleteOrg(org.orgUrl).unwrap();
 
                   if (deletedOrg) {
+                    dispatch(refetchOrgs());
                     await router.push(`/`);
                     toast({
                       title: `${deletedOrg.orgName} a bien été supprimé !`,
-                      status: "success",
-                      isClosable: true
+                      status: "success"
                     });
                   }
                 } catch (error: any) {
                   toast({
                     title: error.data ? error.data.message : error.message,
-                    status: "error",
-                    isClosable: true
+                    status: "error"
                   });
                 }
               }}

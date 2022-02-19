@@ -1,9 +1,15 @@
-import { HamburgerIcon, QuestionIcon } from "@chakra-ui/icons";
+import {
+  ChevronRightIcon,
+  ChevronUpIcon,
+  HamburgerIcon,
+  InfoIcon
+} from "@chakra-ui/icons";
 import {
   Button,
   Flex,
   Heading,
   Spinner,
+  useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
@@ -26,7 +32,10 @@ import { PageProps } from "./_app";
 let cachedRefetchOrgs = false;
 
 const IndexPage = (props: PageProps) => {
-  const [isListOpen, setIsListOpen] = useState(false);
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
+  //#region local state
   const {
     isOpen: isAboutModalOpen,
     onOpen: openAboutModal,
@@ -55,11 +64,15 @@ const IndexPage = (props: PageProps) => {
             )
             .map((org) => ({
               name: org.orgName,
-              children: org.orgs?.map(({ orgName }) => ({ name: orgName }))
+              children: org.orgs.map(({ orgName }) => ({ name: orgName }))
             }))
         : [],
     [orgsQuery.data]
   );
+  const [isListOpen, setIsListOpen] = useState(false);
+  //#endregion
+
+  //#region cross refetch
   const refetchOrgs = useSelector(selectOrgsRefetch);
   useEffect(() => {
     if (refetchOrgs !== cachedRefetchOrgs) {
@@ -68,6 +81,7 @@ const IndexPage = (props: PageProps) => {
       orgsQuery.refetch();
     }
   }, [refetchOrgs]);
+  //#endregion
 
   return (
     <Layout {...props} pageTitle="Accueil">
@@ -81,7 +95,7 @@ const IndexPage = (props: PageProps) => {
         <Button
           alignSelf="flex-start"
           colorScheme="teal"
-          leftIcon={<QuestionIcon />}
+          leftIcon={<InfoIcon />}
           mb={5}
           onClick={openAboutModal}
         >
@@ -101,7 +115,6 @@ const IndexPage = (props: PageProps) => {
             <Button
               alignSelf="flex-start"
               colorScheme="teal"
-              //isLoading={orgsQuery.isLoading}
               leftIcon={<IoIosGitNetwork />}
               mb={5}
               onClick={openNetworksModal}
@@ -112,7 +125,6 @@ const IndexPage = (props: PageProps) => {
             <Button
               alignSelf="flex-start"
               colorScheme="teal"
-              //isLoading={orgsQuery.isLoading}
               leftIcon={<FaRegMap />}
               onClick={openMapModal}
               mb={5}
@@ -123,8 +135,8 @@ const IndexPage = (props: PageProps) => {
             <Button
               alignSelf="flex-start"
               colorScheme="teal"
-              //isLoading={orgsQuery.isLoading}
               leftIcon={<HamburgerIcon />}
+              rightIcon={isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />}
               mb={5}
               onClick={() => setIsListOpen(!isListOpen)}
             >
@@ -134,7 +146,9 @@ const IndexPage = (props: PageProps) => {
         )}
 
         {isListOpen && (
-          <OrgsList data={orgsQuery.data} isLoading={orgsQuery.isLoading} />
+          <PageContainer m={undefined} bg={isDark ? "black" : "white"}>
+            <OrgsList data={orgsQuery.data} isLoading={orgsQuery.isLoading} />
+          </PageContainer>
         )}
 
         {isAboutModalOpen && (

@@ -135,7 +135,6 @@ export const OrgConfigLogoPanel = ({
       });
       toast({
         title: `Le logo ${orgTypeFull(org.orgType)} a bien été modifié !`,
-        isClosable: true,
         status: "success"
       });
       orgQuery.refetch();
@@ -200,14 +199,12 @@ export const OrgConfigLogoPanel = ({
                     orgQuery.refetch();
                     toast({
                       title: "Le logo a bien été supprimé !",
-                      status: "success",
-                      isClosable: true
+                      status: "success"
                     });
                   } catch (error) {
                     toast({
                       title: "Le logo n'a pas pu être supprimé",
-                      status: "error",
-                      isClosable: true
+                      status: "error"
                     });
                   }
                 }}
