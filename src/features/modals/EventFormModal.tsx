@@ -1,6 +1,5 @@
 import { CalendarIcon } from "@chakra-ui/icons";
 import {
-  Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
@@ -9,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React from "react";
+import { Modal } from "features/common";
 import { EventForm } from "features/forms/EventForm";
 import type { IOrg } from "models/Org";
 

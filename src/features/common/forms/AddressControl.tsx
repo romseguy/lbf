@@ -18,6 +18,7 @@ import { Suggestion } from "use-places-autocomplete";
 import { AutoCompletePlacesControl, Link } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { StyleProps } from "theme/styles";
+import { zIndex } from "utils/string";
 
 type AddressControlValue = [{ address: string }] | null;
 
@@ -127,7 +128,7 @@ export const AddressControl = withGoogleApi({
             rightAddon={rightAddon}
             suggestionsListProps={{
               position: "absolute",
-              zIndex: 9999,
+              zIndex: zIndex(),
               bg: isDark ? "whiteAlpha.400" : "blackAlpha.600",
               borderRadius: "lg",
               py: 5

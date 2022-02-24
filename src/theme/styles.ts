@@ -1,5 +1,6 @@
 import { mode } from "@chakra-ui/theme-tools";
 import { Dict } from "@chakra-ui/utils";
+import { zIndex } from "utils/string";
 
 export type StyleProps = {
   [key: string]: string | number | { [key: string]: string | number };
@@ -61,7 +62,7 @@ const ReactSelectStyles = (props: Dict) => ({
     },
 
     ".react-select__menu": {
-      zIndex: 9999999,
+      zIndex: zIndex(),
       backgroundColor: mode("white", "gray.700")(props),
 
       ".react-select__menu-list": {

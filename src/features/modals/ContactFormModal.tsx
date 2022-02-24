@@ -1,5 +1,4 @@
 import {
-  Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
@@ -9,9 +8,10 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { Modal } from "features/common";
 import { ContactForm } from "features/forms/ContactForm";
-import { selectIsContactModalOpen, setIsContactModalOpen } from "./modalSlice";
 import { useAppDispatch } from "store";
+import { selectIsContactModalOpen, setIsContactModalOpen } from "./modalSlice";
 
 export const ContactFormModal = () => {
   const dispatch = useAppDispatch();

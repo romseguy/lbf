@@ -11,11 +11,6 @@ export function capitalize(string: string): string {
   return string.charAt(0).toUpperCase() + string.substring(1, string.length);
 }
 
-export function getUniqueId(prefix?: string): string {
-  const time = new Date().getTime() + Math.round(Math.random() * 100);
-  return `${prefix || "uid-"}${time}`;
-}
-
 export function normalize(str: string, underscores?: boolean): string {
   str = str.trim();
   str = str.replace(/\//g, "");
@@ -107,4 +102,9 @@ export const isImage = (fileName: string) => {
     fileName.includes(".bmp") ||
     fileName.includes(".webp")
   );
+};
+
+export const zIndex = (level: number = 0) => {
+  const base = 10000;
+  return level === 0 ? base : (level + 1) * base;
 };

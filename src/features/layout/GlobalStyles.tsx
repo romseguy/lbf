@@ -1,5 +1,6 @@
 import { Global, css } from "@emotion/react";
 import { breakpoints } from "theme/theme";
+import { zIndex } from "utils/string";
 
 export const GlobalStyles = () => (
   <Global
@@ -437,7 +438,7 @@ export const GlobalStyles = () => (
 
       //#region tinymce
       .tox-tinymce-aux {
-        z-index: 4000 !important;
+        z-index: ${zIndex()} !important;
       }
       //#endregion
 

@@ -1,6 +1,5 @@
 import { EditIcon, AddIcon } from "@chakra-ui/icons";
 import {
-  Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
@@ -8,6 +7,7 @@ import {
   ModalCloseButton
 } from "@chakra-ui/react";
 import React from "react";
+import { Modal } from "features/common";
 import { TopicForm } from "features/forms/TopicForm";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";

@@ -1,16 +1,16 @@
-import type { IOrg } from "models/Org";
-import type { IProject } from "models/Project";
-import React from "react";
 import {
-  Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalCloseButton
 } from "@chakra-ui/react";
-import { ProjectForm } from "features/forms/ProjectForm";
+import React from "react";
 import { Session } from "next-auth";
+import { Modal } from "features/common";
+import { ProjectForm } from "features/forms/ProjectForm";
+import { IOrg } from "models/Org";
+import { IProject } from "models/Project";
 
 export const ProjectFormModal = (props: {
   session: Session;

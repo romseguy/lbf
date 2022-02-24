@@ -1,6 +1,5 @@
 import {
   Icon,
-  Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
@@ -10,6 +9,7 @@ import {
 import { Session } from "next-auth";
 import React, { useState } from "react";
 import { IoIosPeople } from "react-icons/io";
+import { Modal } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
 import { orgTypeFull3, EOrgType } from "models/Org";
 

@@ -35,6 +35,7 @@ export * from "./IconFooter";
 export * from "./Link";
 export * from "./LinkShare";
 export * from "./LocationButton";
+export * from "./Modal";
 export * from "./OfflineIcon";
 export * from "./NotFound";
 export * from "./Row";
