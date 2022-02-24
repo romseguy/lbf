@@ -2,6 +2,8 @@ import {
   AddIcon,
   ArrowBackIcon,
   ChatIcon,
+  ChevronRightIcon,
+  ChevronUpIcon,
   EditIcon,
   HamburgerIcon,
   SettingsIcon
@@ -12,7 +14,6 @@ import {
   Box,
   Button,
   Flex,
-  Heading,
   IconButton,
   Input,
   Spinner,
@@ -35,6 +36,7 @@ import { css } from "twin.macro";
 import {
   EntityButton,
   EntityInfo,
+  Heading,
   Link,
   TabContainer,
   TabContainerContent,
@@ -252,7 +254,9 @@ export const OrgPage = ({
         {isCreator && !isConfig && !isEdit && (
           <Button
             colorScheme="teal"
-            leftIcon={<SettingsIcon boxSize={6} data-cy="org-settings" />}
+            leftIcon={
+              <SettingsIcon boxSize={6} data-cy="org-settings-button" />
+            }
             onClick={() => setIsConfig(true)}
             mb={2}
           >
@@ -472,6 +476,13 @@ export const OrgPage = ({
                                 alignSelf="flex-start"
                                 colorScheme="teal"
                                 leftIcon={<HamburgerIcon />}
+                                rightIcon={
+                                  isListOpen ? (
+                                    <ChevronUpIcon />
+                                  ) : (
+                                    <ChevronRightIcon />
+                                  )
+                                }
                                 onClick={() => setIsListOpen(!isListOpen)}
                               >
                                 Liste
@@ -567,12 +578,7 @@ export const OrgPage = ({
                   <TabPanel aria-hidden>
                     <Flex flexWrap="wrap" margin="0 auto" maxWidth="4xl">
                       <Box flexGrow={1}>
-                        <Heading
-                          className="rainbow-text"
-                          fontFamily="DancingScript"
-                        >
-                          {title}
-                        </Heading>
+                        <Heading>{title}</Heading>
                       </Box>
                       <Box width="100%" mt={5}>
                         <EventsList

@@ -2,7 +2,6 @@ import { ChatIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
-  Heading,
   Icon,
   Image,
   Modal,
@@ -20,7 +19,7 @@ import React, { useState } from "react";
 import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { FaRegCalendarCheck, FaRegCalendarTimes } from "react-icons/fa";
 import { css } from "twin.macro";
-import { Link } from "features/common";
+import { Link, Heading } from "features/common";
 import { IOrg, EOrgType } from "models/Org";
 import { defaultCategory, getEventCategories, IEvent } from "models/Event";
 
@@ -105,13 +104,9 @@ export const Header = ({
         />
       )}
 
-      <Flex
-        alignItems="center"
-        color={banner ? "white" : undefined}
-        className={`rainbow-text ${banner ? "dark" : isDark ? "dark" : ""}`}
-      >
+      <Flex alignItems="center" color={banner ? "white" : undefined}>
         <Link href={router.asPath} variant="no-underline">
-          <Heading fontFamily="DancingScript" size="lg">
+          <Heading pr={1}>
             {org
               ? org.orgName
               : event

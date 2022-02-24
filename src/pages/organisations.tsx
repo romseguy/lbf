@@ -1,7 +1,7 @@
 import { Button, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { FaRegMap } from "react-icons/fa";
-import { PageContainer } from "features/common";
+import { Column } from "features/common";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
@@ -31,7 +31,7 @@ const OrganisationsPage = (props: PageProps) => {
 
   return (
     <Layout {...props} pageTitle="Organisations">
-      <PageContainer>
+      <Column>
         <Tooltip
           label={
             !orgsQuery.data || !orgsQuery.data.length
@@ -74,7 +74,7 @@ const OrganisationsPage = (props: PageProps) => {
             onClose={closeMapModal}
           />
         )}
-      </PageContainer>
+      </Column>
     </Layout>
   );
 };

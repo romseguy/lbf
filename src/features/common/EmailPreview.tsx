@@ -1,5 +1,5 @@
 import { Box, FlexProps, Heading } from "@chakra-ui/react";
-import { PageContainer } from "features/common";
+import { Column } from "features/common";
 import DOMPurify from "isomorphic-dompurify";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -38,7 +38,7 @@ export const EmailPreview = ({
     : undefined;
 
   return (
-    <PageContainer bg="white" {...props}>
+    <Column bg="white" {...props}>
       <div
         dangerouslySetInnerHTML={{
           __html: DOMPurify.sanitize(
@@ -48,6 +48,6 @@ export const EmailPreview = ({
           )
         }}
       />
-    </PageContainer>
+    </Column>
   );
 };

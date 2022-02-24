@@ -4,11 +4,11 @@ import { Layout } from "features/layout";
 import { EmailLoginForm } from "features/forms/EmailLoginForm";
 import { useSession } from "hooks/useAuth";
 import { PageProps } from "../_app";
-import { PageContainer } from "features/common";
+import { Column } from "features/common";
 
 const NewUserPage = (props: PageProps) => {
   const { data: clientSession } = useSession();
-  const session = props.session || clientSession;
+  const session = clientSession || props.session;
 
   return (
     <Layout {...props}>
@@ -30,9 +30,9 @@ const NewUserPage = (props: PageProps) => {
               le formulaire ci-dessous :
             </Text>
           </Alert>
-          <PageContainer>
+          <Column>
             <EmailLoginForm />
-          </PageContainer>
+          </Column>
         </>
       )}
     </Layout>

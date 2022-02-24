@@ -1,35 +1,38 @@
-import { ChatIcon, EmailIcon, Icon, InfoIcon } from "@chakra-ui/icons";
+import { EmailIcon, Icon } from "@chakra-ui/icons";
 import {
   Flex,
   FlexProps,
-  Heading,
-  List,
-  ListItem,
+  IconButton,
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
   ModalBody,
   ModalCloseButton,
   Tag,
   Text,
-  Tooltip,
   useColorMode,
   Box
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { FaGift, FaKey, FaHandshake, FaQuoteLeft } from "react-icons/fa";
+import {
+  FaGift,
+  FaKey,
+  FaHandshake,
+  FaQuoteLeft,
+  FaLightbulb,
+  FaShare
+} from "react-icons/fa";
 import { css } from "twin.macro";
 import {
-  Container,
+  Row,
   EntityButton,
+  Heading,
+  HostTag,
   Link,
-  LinkShare,
-  PageContainer,
-  Spacer
+  Column
 } from "features/common";
 import { useAppDispatch } from "store";
-import { breakpoints } from "theme/theme";
 import { setIsContactModalOpen } from "./modalSlice";
 
 type AboutModalProps = {
@@ -38,29 +41,33 @@ type AboutModalProps = {
   onClose: () => void;
 };
 
-const listStyles = {
-  listStyleType: "square",
-  mb: 3,
-  ml: 5,
-  spacing: 2
-};
+const columnStyles: (isDark: boolean) => FlexProps = (isDark) => ({
+  bg: isDark ? "gray.600" : "lightblue",
+  textAlign: "center"
+});
 
-const halfStyles: FlexProps = {
-  alignItems: "center",
-  flex: 1,
-  flexDirection: "row",
-  maxWidth: "auto",
-  m: "0",
-  mt: 5
-};
+const rowStyles: (isDark: boolean) => FlexProps = (isDark) => ({
+  bg: isDark ? "gray.600" : "lightblue",
+  border: 0,
+  fontSize: "sm",
+  p: 2
+});
 
 const AboutPage = ({ ...props }: AboutModalProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const [className, setClassName] = useState<string | undefined>();
-  const host = <Tag colorScheme="red">{process.env.NEXT_PUBLIC_SHORT_URL}</Tag>;
+  const contactLink = (
+    <Link
+      variant="underline"
+      onClick={() => dispatch(setIsContactModalOpen(true))}
+    >
+      contactez-nous
+    </Link>
+  );
   const license = (
     <a
       href="https://www.gnu.org/licenses/why-affero-gpl.fr.html"
@@ -71,77 +78,195 @@ const AboutPage = ({ ...props }: AboutModalProps) => {
     </a>
   );
   const url = `${process.env.NEXT_PUBLIC_URL}/nom de votre organisation`;
+
   return (
-    <>
-      <PageContainer pt={2} mb={5}>
-        <Heading
+    <Box
+      css={css`
+        & > * {
+          margin-bottom: 12px !important;
+        }
+      `}
+    >
+      <Heading>Équipez votre organisation</Heading>
+
+      <Column {...columnStyles(isDark)}>
+        <Flex flexDirection="column">
+          <Text mb={2}>
+            Avec un début de site internet et une adresse facile à retenir, par
+            exemple :
+          </Text>
+
+          <Tag bg={isDark ? "gray.500" : "lightcyan"} m="0 auto" px={1} py={1}>
+            {url}
+            <IconButton
+              aria-label="Visite guidée"
+              colorScheme="teal"
+              icon={<FaShare />}
+              ml={1}
+              onClick={() => {
+                props.onClose();
+                router.push(url, url, { shallow: true });
+              }}
+            />
+            {/* <LinkShare
+              // _hover={{ bg: "transparent", color: "white" }}
+              // bg="transparent"
+              //height="auto"
+              label="Copier l'adresse du lien"
+              //minWidth={0}
+              ml={1}
+              url={url}
+              tooltipProps={{
+                placement: "right"
+              }}
+            /> */}
+          </Tag>
+
+          <Box m="0 auto">
+            {/* <Link
+              alignSelf="flex-start"
+              fontSize="smaller"
+              variant="underline"
+              href={url}
+              mt={2}
+            >
+              Voir la démonstration
+            </Link> */}
+            {/* <Button
+              colorScheme="teal"
+              mt={3}
+              onClick={() => router.push(url, url, { shallow: true })}
+            >
+              Visite guidée
+            </Button> */}
+          </Box>
+        </Flex>
+      </Column>
+
+      <Heading>Invitez vos adhérents</Heading>
+
+      <Column {...columnStyles(isDark)}>
+        <Text mb={3}>
+          Invitez vos adhérents à participer à vos événements, projets, et
+          discussions.
+        </Text>
+
+        <Row
+          {...rowStyles(isDark)}
           alignSelf="flex-start"
-          className="rainbow-text"
-          fontFamily="DancingScript"
-          fontSize={["2xl", "4xl"]}
-          mb={3}
+          bg={isDark ? "gray.500" : "lightcyan"}
+          m="0 auto"
+          px={3}
         >
-          Équipez votre organisation
-        </Heading>
+          <Icon as={FaLightbulb} color={isDark ? "yellow" : "green"} mr={1} />
+          Créez des listes d'adhérents pour inviter seulement les adhérents
+          concernés.
+        </Row>
+      </Column>
 
-        <List {...listStyles}>
-          <ListItem>
-            <Flex flexDirection="column">
-              <Text>
-                Avec un début de site internet et une adresse facile à retenir,
-                par exemple :
-              </Text>
+      <Heading>Partage & Limitations</Heading>
 
-              <Tag colorScheme="red" my={2} mr={1} px={2} py={3}>
-                {url}
-                <LinkShare
-                  _hover={{ bg: "transparent", color: "white" }}
-                  bg="transparent"
-                  height="auto"
-                  label="Copier l'adresse du lien"
-                  minWidth={0}
-                  ml={1}
-                  url={url}
-                  tooltipProps={{
-                    placement: "right"
-                  }}
-                />
-              </Tag>
+      <Row {...rowStyles(isDark)}>
+        <Icon as={EmailIcon} color="green" boxSize={[5, 4]} />
+        <Text ml={3}>
+          <HostTag /> peut envoyer jusqu'à 100 e-mails par jour. Si cela s'avère
+          insuffisant, parlons en sur le{" "}
+          <EntityButton org={{ orgUrl: "forum" }} />
+        </Text>
+      </Row>
 
-              <Link
-                alignSelf="flex-start"
-                fontSize="smaller"
-                variant="underline"
-                href={url}
-                mr={1}
-              >
-                Voir la démonstration
-              </Link>
-            </Flex>
-          </ListItem>
+      <Row {...rowStyles(isDark)}>
+        <Icon as={FaGift} color="green" boxSize={[5, 4]} />
+        <Text ml={3}>
+          Cet outil est un logiciel libre et open-source mis à disposition
+          gratuitement, {contactLink} pour obtenir son code source.
+        </Text>
+      </Row>
 
-          <ListItem>
-            Avec un outil plus adapté, ergonomique et éthique que les{" "}
-            <Tooltip label="synonymes : mailing lists, newsletters">
-              <Text
-                display="inline"
-                borderBottom={
-                  props.isMobile
-                    ? undefined
-                    : `1px dotted ${isDark ? "white" : "black"}`
-                }
-                cursor="pointer"
-              >
-                listes de diffusion
-              </Text>
-            </Tooltip>{" "}
-            traditionnelles ;
-          </ListItem>
+      <Row {...rowStyles(isDark)}>
+        <Icon as={FaKey} color="green" boxSize={[5, 4]} />
+        <Text ml={3}>
+          Pour qu'il reste libre et open-source, la license {license} a été
+          choisie.
+        </Text>
+      </Row>
 
-          <ListItem>Avec un outil de partage multimédia ;</ListItem>
-        </List>
+      <Row {...rowStyles(isDark)}>
+        <Icon as={FaHandshake} color="green" boxSize={[5, 4]} />
+        <Flex flexDirection="column" ml={3}>
+          <Text
+            bg={isDark ? "black" : "white"}
+            border="1px solid black"
+            borderRadius="lg"
+            fontSize="xs"
+            mb={2}
+            p={2}
+          >
+            <Icon as={FaQuoteLeft} /> La license {license} ne s'intéresse pas au
+            problème du SaaSS (service se substituant au logiciel). On parle de
+            SaaSS lorsque les utilisateurs font leurs propres tâches
+            informatiques sur l'ordinateur de quelqu'un d'autre. Ceci les oblige
+            à envoyer leurs données au serveur ; ce dernier les traite et leur
+            renvoie les résultats.
+          </Text>
 
-        <Flex alignItems="center">
+          <Text>
+            Si vous ne souhaitez pas faire confiance à <HostTag /> pour le
+            traitement de vos données, {contactLink} pour installer cet outil
+            sur la machine de votre choix.
+          </Text>
+        </Flex>
+      </Row>
+    </Box>
+  );
+};
+
+export const AboutModal = ({ ...props }: AboutModalProps) => {
+  return (
+    <Modal
+      isOpen={props.isOpen}
+      size="4xl"
+      onClose={() => {
+        props.onClose && props.onClose();
+      }}
+    >
+      <ModalOverlay>
+        <ModalContent my={0}>
+          {/* <ModalHeader display="flex" alignItems="center" pb={0}>
+            <InfoIcon color="green" mr={2} /> À propos
+          </ModalHeader> */}
+          <ModalCloseButton />
+          <ModalBody>
+            <AboutPage {...props} />
+          </ModalBody>
+        </ModalContent>
+      </ModalOverlay>
+    </Modal>
+  );
+};
+
+{
+  /*
+const halfStyles: (isDark: boolean) => FlexProps = (isDark) => ({
+  alignItems: "center",
+  bg: isDark ? "gray.600" : "lightblue",
+  flex: 1,
+  flexDirection: "row",
+  maxWidth: "auto",
+  m: "0"
+});
+
+const listStyles = {
+  listStyleType: "square",
+  mb: 3,
+  ml: 5,
+  spacing: 2
+};
+*/
+}
+
+{
+  /* <Flex alignItems="center">
           <ChatIcon color={isDark ? "yellow" : "green"} mr={2} />
           <Link
             className={className}
@@ -152,34 +277,15 @@ const AboutPage = ({ ...props }: AboutModalProps) => {
           >
             Proposer des idées sur le forum
           </Link>
-        </Flex>
-      </PageContainer>
+        </Flex> */
+}
 
-      <PageContainer pt={2}>
-        <Heading
-          alignSelf="flex-start"
-          className="rainbow-text"
-          fontFamily="DancingScript"
-          fontSize={["2xl", "4xl"]}
-          mb={3}
-        >
-          Fonctionnalités
-        </Heading>
+{
+  /* <Spacer borderWidth={1} mt={5} /> */
+}
 
-        <Box>
-          Invitez vos adhérents à vos événements, projets, et discussions.
-          <Container fontSize="sm" mt={3}>
-            <Icon as={InfoIcon} color={isDark ? "yellow" : "green"} mx={3} />
-            En saisissant les adresses e-mail de vos adhérents, vous pourrez
-            envoyer les invitations, ou bien créer une ou plusieurs listes de
-            diffusion pour inviter seulement les personnes concernées.
-          </Container>
-        </Box>
-      </PageContainer>
-
-      <Spacer borderWidth={1} mt={5} />
-
-      <Flex
+{
+  /* <Flex
         m="0 auto"
         maxWidth="4xl"
         css={css`
@@ -189,96 +295,18 @@ const AboutPage = ({ ...props }: AboutModalProps) => {
         `}
       >
         <PageContainer
-          {...halfStyles}
+          {...columnStyles(isDark)}
           css={css`
             @media (min-width: ${breakpoints.sm}) {
               margin-right: 12px;
             }
           `}
         >
-          <Icon as={FaGift} color="green" boxSize={[5, 4]} />
-          <Text ml={3}>
-            Cet outil est un logiciel libre et open-source mis à disposition
-            gratuitement par son créateur.
-          </Text>
+          A
         </PageContainer>
 
-        <PageContainer {...halfStyles} height="100%" minHeight={0}>
-          <Icon as={EmailIcon} color="green" boxSize={[5, 4]} />
-          <Text ml={3}>
-            {host} peut envoyer jusqu'à 100 e-mails par jour. Si cela s'avère
-            insuffisant, parlons en sur le{" "}
-            <EntityButton org={{ orgUrl: "forum" }} />
-          </Text>
+        <PageContainer {...columnStyles(isDark)} height="100%" minHeight={0}>
+          B
         </PageContainer>
-      </Flex>
-
-      <PageContainer bg="transparent" border={0} p={0}>
-        <PageContainer {...halfStyles}>
-          <Icon as={FaKey} color="green" boxSize={[5, 4]} />
-          <Text ml={3}>
-            Pour que cet outil reste libre et open-source, la license {license}{" "}
-            a été choisie.
-          </Text>
-        </PageContainer>
-
-        <PageContainer {...halfStyles}>
-          <Icon as={FaHandshake} color="green" boxSize={[5, 4]} />
-          <Flex flexDirection="column" ml={3}>
-            <Text
-              bg={isDark ? "black" : "white"}
-              border="1px solid black"
-              borderRadius="lg"
-              fontSize="smaller"
-              mb={2}
-              p={2}
-            >
-              <Icon as={FaQuoteLeft} /> La license {license} ne s'intéresse pas
-              au problème du SaaSS (service se substituant au logiciel). On
-              parle de SaaSS lorsque les utilisateurs font leurs propres tâches
-              informatiques sur l'ordinateur de quelqu'un d'autre. Ceci les
-              oblige à envoyer leurs données au serveur ; ce dernier les traite
-              et leur renvoie les résultats.
-            </Text>
-
-            <Text>
-              Si vous ne souhaitez pas faire confiance à {host} pour le
-              traitement de vos données,{" "}
-              <Link
-                variant="underline"
-                onClick={() => dispatch(setIsContactModalOpen(true))}
-              >
-                contactez
-              </Link>{" "}
-              le créateur de cet outil pour l'installer sur votre propre
-              serveur.
-            </Text>
-          </Flex>
-        </PageContainer>
-      </PageContainer>
-    </>
-  );
-};
-
-export const AboutModal = ({ ...props }: AboutModalProps) => {
-  return (
-    <Modal
-      isOpen={props.isOpen}
-      onClose={() => {
-        props.onClose && props.onClose();
-      }}
-    >
-      <ModalOverlay>
-        <ModalContent my={0}>
-          <ModalHeader display="flex" alignItems="center" pb={0}>
-            <InfoIcon color="green" mr={2} /> À propos
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <AboutPage {...props} />
-          </ModalBody>
-        </ModalContent>
-      </ModalOverlay>
-    </Modal>
-  );
-};
+      </Flex> */
+}

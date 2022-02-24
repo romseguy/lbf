@@ -58,9 +58,6 @@ App.getInitialProps = async ({
   const userAgent = ctx.req?.headers["user-agent"] || navigator.userAgent;
   const { isMobile, isMobileOnly } = getSelectorsByUserAgent(userAgent);
   const session = await getSession(ctx);
-  // const session = process.env.NEXT_PUBLIC_IS_TEST
-  //   ? null
-  //   : await getSession(ctx);
   let pageProps = {};
 
   if (Component.getInitialProps) {

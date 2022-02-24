@@ -10,7 +10,7 @@ import { signOut } from "next-auth/client";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Link } from "features/common";
-import { setSession } from "features/session/sessionSlice";
+import { refetchSession } from "features/session/sessionSlice";
 import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
 import { setUserEmail } from "features/users/userSlice";
 import { useAppDispatch } from "store";
@@ -168,8 +168,8 @@ export const NavMenuList = ({
             redirect: false,
             callbackUrl: "/"
           });
+          dispatch(refetchSession());
           dispatch(setUserEmail(null));
-          dispatch(setSession(null));
           router.push(url);
         }}
         data-cy="logout"

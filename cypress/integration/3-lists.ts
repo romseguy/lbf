@@ -8,7 +8,7 @@ describe("CRUD lists", () => {
   });
 
   it("adds list", () => {
-    cy.k("org-settings").click();
+    cy.k("org-settings-button").click();
     cy.k("org-list-add").click();
     cy.get("input[name=listName]").type(listName);
     cy.get(".react-select-container").click();

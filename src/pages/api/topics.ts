@@ -30,7 +30,7 @@ handler.get<
     let topics: (ITopic & Document<any, any, ITopic>)[] = [];
     const selector = createdBy ? { createdBy } : {};
 
-    logJson(`GET /topics: selector`, selector);
+    //logJson(`GET /topics: selector`, selector);
 
     if (populate) topics = await models.Topic.find(selector).populate(populate);
     else topics = await models.Topic.find(selector);

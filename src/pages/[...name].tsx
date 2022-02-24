@@ -34,7 +34,7 @@ type HashProps = PageProps & {
 const Hash = ({ ...props }: HashProps) => {
   const dispatch = useAppDispatch();
   const { data: clientSession } = useSession();
-  const session = props.session || clientSession;
+  const session = clientSession || props.session;
 
   //#region routing
   const router = useRouter();

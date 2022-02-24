@@ -3,7 +3,7 @@ import { Box, Button, Input, Text, useToast, Icon } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { DeleteButton, PageContainer } from "features/common";
+import { DeleteButton, Column } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
 import { IOrg } from "models/Org";
@@ -131,7 +131,7 @@ export const OrgConfigPanel = ({
       </Box>
 
       {isEdit && (
-        <PageContainer m="">
+        <Column m={undefined}>
           <OrgForm
             session={session}
             org={org}
@@ -150,11 +150,11 @@ export const OrgConfigPanel = ({
               }
             }}
           />
-        </PageContainer>
+        </Column>
       )}
 
       {isConfig && !isEdit && (
-        <PageContainer m="">
+        <Column m="">
           <OrgConfigLogoPanel
             orgQuery={orgQuery}
             isVisible={isVisible}
@@ -183,7 +183,7 @@ export const OrgConfigPanel = ({
             setIsVisible={setIsVisible}
             session={session}
           />
-        </PageContainer>
+        </Column>
       )}
     </>
   );

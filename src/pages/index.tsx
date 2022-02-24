@@ -1,14 +1,14 @@
 import {
+  ArrowForwardIcon,
   ChevronRightIcon,
   ChevronUpIcon,
-  HamburgerIcon,
-  InfoIcon
+  HamburgerIcon
 } from "@chakra-ui/icons";
 import {
-  Button,
+  Box,
   Flex,
-  Heading,
   Spinner,
+  Text,
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
@@ -16,7 +16,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FaRegMap } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { PageContainer } from "features/common";
+import { css } from "twin.macro";
+import { Button, Column, Heading } from "features/common";
 import { Layout } from "features/layout";
 import { AboutModal } from "features/modals/AboutModal";
 import { MapModal } from "features/modals/MapModal";
@@ -25,8 +26,7 @@ import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgsList } from "features/orgs/OrgsList";
 import { InputNode } from "features/treeChart/types";
-import { EOrgVisibility } from "models/Org";
-import { hasItems } from "utils/array";
+import { EOrgType, EOrgVisibility } from "models/Org";
 import { PageProps } from "./_app";
 
 let cachedRefetchOrgs = false;
@@ -53,22 +53,22 @@ const IndexPage = (props: PageProps) => {
   } = useDisclosure({ defaultIsOpen: false });
 
   const orgsQuery = useGetOrgsQuery({ populate: "orgs" });
-  const inputNodes: InputNode[] = useMemo(
-    () =>
-      orgsQuery.data
-        ? orgsQuery.data
-            .filter(
-              (org) =>
-                hasItems(org.orgs) &&
-                org.orgVisibility !== EOrgVisibility.PRIVATE
-            )
-            .map((org) => ({
+  const inputNodes: InputNode[] = useMemo(() => {
+    return orgsQuery.data
+      ? orgsQuery.data
+          .filter(
+            (org) =>
+              org.orgType === EOrgType.NETWORK &&
+              org.orgVisibility !== EOrgVisibility.PRIVATE
+          )
+          .map((org) => {
+            return {
               name: org.orgName,
               children: org.orgs.map(({ orgName }) => ({ name: orgName }))
-            }))
-        : [],
-    [orgsQuery.data]
-  );
+            };
+          })
+      : [];
+  }, [orgsQuery.data]);
   const [isListOpen, setIsListOpen] = useState(false);
   //#endregion
 
@@ -85,112 +85,139 @@ const IndexPage = (props: PageProps) => {
 
   return (
     <Layout {...props} pageTitle="Accueil">
-      <PageContainer>
-        <Flex>
-          <Heading className="rainbow-text" fontFamily="DancingScript" mb={5}>
-            Bienvenue
-          </Heading>
-        </Flex>
+      <Box
+        css={css`
+          & > div:first-of-type {
+            margin-bottom: 16px;
+          }
+        `}
+      >
+        <Column>
+          <Flex>
+            <Heading>Présentations </Heading>
+          </Flex>
 
-        <Button
-          alignSelf="flex-start"
-          colorScheme="teal"
-          leftIcon={<InfoIcon />}
-          mb={5}
-          onClick={openAboutModal}
-        >
-          À propos
-        </Button>
+          <Text my={3}>
+            Cette application (optimisée mobile) a pour objectif de pérenniser
+            et de mettre en valeur l'information et la communication au sein des
+            organisations.
+          </Text>
 
-        <Flex>
-          <Heading className="rainbow-text" fontFamily="DancingScript" mb={5}>
-            Réseaux
-          </Heading>
-        </Flex>
+          <Button
+            canWrap
+            colorScheme="teal"
+            leftIcon={<ArrowForwardIcon />}
+            mb={5}
+            py={2}
+            onClick={openAboutModal}
+          >
+            Vous êtes responsable de communication au sein d'une organisation
+          </Button>
 
-        {orgsQuery.isLoading ? (
-          <Spinner />
-        ) : (
-          <>
-            <Button
-              alignSelf="flex-start"
-              colorScheme="teal"
-              leftIcon={<IoIosGitNetwork />}
-              mb={5}
-              onClick={openNetworksModal}
-            >
-              Arborescence
-            </Button>
+          <Button
+            canWrap
+            colorScheme="teal"
+            isDisabled
+            leftIcon={<ArrowForwardIcon />}
+            mb={5}
+            py={2}
+            onClick={openAboutModal}
+          >
+            Vous êtes adhérent au sein d'une organisation
+          </Button>
+        </Column>
 
-            <Button
-              alignSelf="flex-start"
-              colorScheme="teal"
-              leftIcon={<FaRegMap />}
-              onClick={openMapModal}
-              mb={5}
-            >
-              Carte
-            </Button>
+        <Column>
+          <Flex>
+            <Heading mb={3}>Naviguer dans les organisations</Heading>
+          </Flex>
 
-            <Button
-              alignSelf="flex-start"
-              colorScheme="teal"
-              leftIcon={<HamburgerIcon />}
-              rightIcon={isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />}
-              mb={5}
-              onClick={() => setIsListOpen(!isListOpen)}
-            >
-              Liste
-            </Button>
-          </>
-        )}
+          {orgsQuery.isLoading ? (
+            <Spinner />
+          ) : (
+            <>
+              <Button
+                alignSelf="flex-start"
+                colorScheme="teal"
+                leftIcon={<IoIosGitNetwork />}
+                mb={5}
+                onClick={openNetworksModal}
+              >
+                Arborescence
+              </Button>
 
-        {isListOpen && (
-          <PageContainer m={undefined} bg={isDark ? "black" : "white"}>
-            <OrgsList data={orgsQuery.data} isLoading={orgsQuery.isLoading} />
-          </PageContainer>
-        )}
+              <Button
+                alignSelf="flex-start"
+                colorScheme="teal"
+                leftIcon={<FaRegMap />}
+                onClick={openMapModal}
+                mb={5}
+              >
+                Carte
+              </Button>
 
-        {isAboutModalOpen && (
-          <AboutModal
-            isMobile={props.isMobile}
-            isOpen={isAboutModalOpen}
-            onClose={closeAboutModal}
-          />
-        )}
+              <Button
+                alignSelf="flex-start"
+                colorScheme="teal"
+                leftIcon={<HamburgerIcon />}
+                rightIcon={
+                  isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
+                }
+                mb={3}
+                onClick={() => setIsListOpen(!isListOpen)}
+              >
+                Liste
+              </Button>
+            </>
+          )}
 
-        {isNetworksModalOpen && (
-          <TreeChartModal
-            inputNodes={inputNodes}
-            isMobile={props.isMobile}
-            isOpen={isNetworksModalOpen}
-            //header="Carte des réseaux"
-            onClose={closeNetworksModal}
-          />
-        )}
+          {isListOpen && (
+            <Column m={undefined} bg={isDark ? "black" : "white"}>
+              <OrgsList data={orgsQuery.data} isLoading={orgsQuery.isLoading} />
+            </Column>
+          )}
+        </Column>
+      </Box>
 
-        {isMapModalOpen && (
-          <MapModal
-            isOpen={isMapModalOpen}
-            header="Carte des réseaux"
-            orgs={
-              orgsQuery.data?.filter(
-                (org) =>
-                  typeof org.orgLat === "number" &&
-                  typeof org.orgLng === "number" &&
-                  org.orgUrl !== "forum"
-              ) || []
+      {isAboutModalOpen && (
+        <AboutModal
+          isMobile={props.isMobile}
+          isOpen={isAboutModalOpen}
+          onClose={closeAboutModal}
+        />
+      )}
+
+      {isNetworksModalOpen && (
+        <TreeChartModal
+          inputNodes={inputNodes}
+          isMobile={props.isMobile}
+          isOpen={isNetworksModalOpen}
+          //header="Carte des réseaux"
+          onClose={closeNetworksModal}
+        />
+      )}
+
+      {isMapModalOpen && (
+        <MapModal
+          isOpen={isMapModalOpen}
+          header="Carte des réseaux"
+          orgs={
+            orgsQuery.data?.filter(
+              (org) =>
+                typeof org.orgLat === "number" &&
+                typeof org.orgLng === "number" &&
+                org.orgUrl !== "forum"
+            ) || []
+          }
+          mapProps={{
+            style: {
+              position: "relative",
+              height: "340px"
             }
-            mapProps={{
-              style: {
-                position: "relative",
-                height: "340px"
-              }
-            }}
-            onClose={closeMapModal}
-          />
-        )}
-      </PageContainer>
+          }}
+          onClose={closeMapModal}
+        />
+      )}
     </Layout>
   );
 };

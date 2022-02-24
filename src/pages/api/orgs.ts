@@ -31,9 +31,9 @@ handler.get<
     let orgs: (IOrg & Document<any, any, IOrg>)[] = [];
     const selector = createdBy
       ? { createdBy }
-      : { orgVisibility: EOrgVisibility[EOrgVisibility.PUBLIC] };
+      : { orgVisibility: EOrgVisibility.PUBLIC };
 
-    logJson(`GET /orgs: selector`, selector);
+    //logJson(`GET /orgs: selector`, selector);
 
     if (populate) orgs = await models.Org.find(selector).populate(populate);
     else orgs = await models.Org.find(selector);

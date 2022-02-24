@@ -11,7 +11,10 @@ import {
   InputLeftElement,
   Input,
   FormErrorMessage,
-  useToast
+  useToast,
+  Alert,
+  AlertIcon,
+  Box
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
@@ -31,6 +34,7 @@ import { emailR } from "utils/email";
 import { AppQuery } from "utils/types";
 import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
 import { useAddSubscriptionMutation } from "./subscriptionsApi";
+import { HostTag } from "features/common";
 
 export const SubscribePopover = ({
   event,
@@ -142,6 +146,14 @@ export const SubscribePopover = ({
         <PopoverContent ml={0}>
           <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
             <PopoverBody>
+              <Alert status="info" mb={3}>
+                <AlertIcon />
+                <Box>
+                  En vous abonnant, vous acceptez de rendre votre adresse e-mail
+                  visible à l'administrateur de cette organisation et de{" "}
+                  <HostTag />
+                </Box>
+              </Alert>
               <FormControl id="email" isRequired isInvalid={!!errors["email"]}>
                 <InputGroup>
                   <InputLeftElement

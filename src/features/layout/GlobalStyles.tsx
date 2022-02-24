@@ -103,11 +103,11 @@ export const GlobalStyles = () => (
         -webkit-background-clip: text;
         background-image: linear-gradient(
           to left,
-          violet,
+          indigo,
           indigo,
           blue,
           green,
-          #f0e000,
+          orange,
           orange,
           red
         );

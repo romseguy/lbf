@@ -2,7 +2,6 @@ import {
   Alert,
   AlertIcon,
   Button,
-  Heading,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -13,7 +12,12 @@ import {
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import React, { useState } from "react";
-import { EmailPreview, EntityButton, EntityNotified } from "features/common";
+import {
+  EmailPreview,
+  EntityButton,
+  EntityNotified,
+  Heading
+} from "features/common";
 import {
   AddEventNotifPayload,
   useEditEventMutation
@@ -133,13 +137,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
               <>
                 {org ? (
                   <>
-                    <Heading
-                      className="rainbow-text"
-                      fontFamily="DancingScript"
-                      mb={3}
-                    >
-                      Aperçu de l'e-mail d'invitation
-                    </Heading>
+                    <Heading mb={3}>Aperçu de l'e-mail d'invitation</Heading>
                     <EmailPreview entity={entity} org={org} session={session} />
 
                     <OrgNotifForm
@@ -165,13 +163,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
                 ) : event ? (
                   hasItems(event.eventSubscriptions) ? (
                     <>
-                      <Heading
-                        className="rainbow-text"
-                        fontFamily="DancingScript"
-                        mb={3}
-                      >
-                        Aperçu de l'e-mail d'invitation
-                      </Heading>
+                      <Heading mb={3}>Aperçu de l'e-mail d'invitation</Heading>
                       <EmailPreview
                         entity={entity}
                         event={event}

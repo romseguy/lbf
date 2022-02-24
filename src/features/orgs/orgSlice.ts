@@ -16,10 +16,10 @@ export const orgSlice = createSlice({
   name: "org",
   initialState,
   reducers: {
-    refetchOrg: (state, action: PayloadAction<undefined>) => {
+    refetchOrg: (state, action: PayloadAction<void>) => {
       state.refetchOrg = !state.refetchOrg;
     },
-    refetchOrgs: (state, action: PayloadAction<undefined>) => {
+    refetchOrgs: (state, action: PayloadAction<void>) => {
       state.refetchOrgs = !state.refetchOrgs;
     }
   }

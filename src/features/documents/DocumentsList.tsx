@@ -23,12 +23,7 @@ import React, { useState } from "react";
 import { FaFile, FaImage } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 
-import {
-  DeleteButton,
-  ErrorMessageText,
-  Link,
-  PageContainer
-} from "features/common";
+import { DeleteButton, ErrorMessageText, Link, Column } from "features/common";
 import { useSession } from "hooks/useAuth";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
@@ -143,7 +138,7 @@ export const DocumentsList = ({
       </Button>
 
       {isAdd && (
-        <PageContainer mb={5}>
+        <Column mb={5}>
           <form
             onChange={() => {
               clearErrors("formErrorMessage");
@@ -204,7 +199,7 @@ export const DocumentsList = ({
               Ajouter
             </Button>
           </form>
-        </PageContainer>
+        </Column>
       )}
 
       {query.isLoading || query.isFetching ? (

@@ -7,10 +7,10 @@ import {
   Tag,
   Text,
   Alert,
-  AlertIcon,
-  Heading
+  AlertIcon
 } from "@chakra-ui/react";
 import React from "react";
+import { Heading } from "features/common";
 import { EEventInviteStatus, IEvent, EventInviteStatuses } from "models/Event";
 import { ITopic } from "models/Topic";
 import { timeAgo } from "utils/date";
@@ -25,9 +25,7 @@ export const EntityNotified = ({
 }) => {
   return (
     <Box overflowX="auto">
-      <Heading className="rainbow-text" fontFamily="DancingScript" mb={3}>
-        Historique des invitations envoyées
-      </Heading>
+      <Heading mb={3}>Historique des invitations envoyées</Heading>
 
       {(event && !hasItems(event?.eventNotifications)) ||
       (topic && !hasItems(topic?.topicNotifications)) ? (

@@ -19,7 +19,7 @@ describe("CRUD subscriptions", () => {
   });
 
   it("adds subscriber", () => {
-    cy.k("org-settings").click();
+    cy.k("org-settings-button").click();
     add();
   });
 

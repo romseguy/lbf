@@ -1,8 +1,6 @@
 import React from "react";
 import {
-  BorderProps,
   Button as ChakraButton,
-  SpacerProps,
   ButtonProps,
   useColorModeValue
 } from "@chakra-ui/react";
@@ -11,15 +9,23 @@ export const Button = ({
   children,
   light,
   dark,
+  canWrap = false,
   ...props
-}: BorderProps &
-  SpacerProps &
-  ButtonProps & {
-    children: React.ReactNode | React.ReactNodeArray;
-    light?: { [key: string]: any };
-    dark?: { [key: string]: any };
-  }) => {
-  const styles = useColorModeValue(light, dark);
+}: ButtonProps & {
+  light?: { [key: string]: any };
+  dark?: { [key: string]: any };
+  canWrap?: boolean;
+}) => {
+  let styles = useColorModeValue(light, dark);
+
+  if (canWrap)
+    styles = {
+      ...styles,
+      alignSelf: "flex-start",
+      height: "auto",
+      whiteSpace: "normal"
+    };
+
   return (
     <ChakraButton {...styles} {...props}>
       {children}

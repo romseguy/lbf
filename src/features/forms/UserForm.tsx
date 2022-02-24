@@ -1,13 +1,13 @@
 import {
-  Input,
-  Button,
-  FormControl,
-  FormLabel,
-  Box,
-  FormErrorMessage,
   Alert,
   AlertIcon,
   Avatar,
+  Box,
+  Button,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
   Tooltip
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
@@ -16,8 +16,8 @@ import { Session } from "next-auth";
 import React, { useRef, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
-import { EmailControl, ErrorMessageText } from "features/common";
-import { setSession } from "features/session/sessionSlice";
+import { EmailControl, ErrorMessageText, HostTag } from "features/common";
+import { refetchSession } from "features/session/sessionSlice";
 import {
   useAddUserMutation,
   useEditUserMutation
@@ -33,6 +33,7 @@ import {
 } from "utils/image";
 import { normalize } from "utils/string";
 import { PhoneControl } from "features/common/forms/PhoneControl";
+import { refetchOrg } from "features/orgs/orgSlice";
 
 export const UserForm = (props: {
   user: IUser;
@@ -40,12 +41,13 @@ export const UserForm = (props: {
   onSubmit: (user: Partial<IUser>) => void;
 }) => {
   const dispatch = useAppDispatch();
+  const [editUser] = useEditUserMutation();
 
-  const [addUser, addUserMutation] = useAddUserMutation();
-  const [editUser, editUserMutation] = useEditUserMutation();
-
+  //#region local state
   const [isLoading, setIsLoading] = useState(false);
+  //#endregion
 
+  //#region form
   const {
     control,
     register,
@@ -57,8 +59,12 @@ export const UserForm = (props: {
   } = useForm({
     mode: "onChange"
   });
-  const [upImg, setUpImg] = useState<Base64Image | undefined>();
+
+  const setEditorRef = useRef<AvatarEditor | null>(null);
   const [scale, setScale] = useState(1);
+  const [upImg, setUpImg] = useState<Base64Image | undefined>();
+
+  //#region locking behavior
   const [elementLocked, setElementLocked] = useState<
     { el: HTMLElement; locked: boolean } | undefined
   >();
@@ -68,8 +74,7 @@ export const UserForm = (props: {
   const enableScroll = (target: HTMLElement) => {
     enableBodyScroll(target);
   };
-
-  const setEditorRef = useRef<AvatarEditor | null>(null);
+  //#endregion
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -120,8 +125,8 @@ export const UserForm = (props: {
         slug: props.user.email,
         payload
       }).unwrap();
-      dispatch(setSession(null));
-
+      dispatch(refetchOrg());
+      dispatch(refetchSession());
       setIsLoading(false);
       props.onSubmit && props.onSubmit(payload);
     } catch (error) {
@@ -135,6 +140,7 @@ export const UserForm = (props: {
       });
     }
   };
+  //#endregion
 
   return (
     <form
@@ -176,13 +182,14 @@ export const UserForm = (props: {
         </FormErrorMessage>
       </FormControl>
 
-      {/* <AddressControl
-        name="userAddress"
-        defaultValue={props.user?.userAddress || ""}
-        errors={errors}
-        control={control}
-        mb={3}
-      /> */}
+      <Alert status="info" mb={3}>
+        <AlertIcon />
+        <Box>
+          Votre adresse e-mail et votre numéro de téléphone seront visibles aux
+          administrateurs de <HostTag /> et des organisations où vous êtes
+          adhérent et/ou abonné.
+        </Box>
+      </Alert>
 
       <EmailControl
         name="email"

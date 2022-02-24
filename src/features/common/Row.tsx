@@ -1,7 +1,7 @@
 import React from "react";
 import { Flex, FlexProps, useColorMode } from "@chakra-ui/react";
 
-export const Container = ({ children, ...props }: FlexProps) => {
+export const Row = ({ children, ...props }: FlexProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   return (

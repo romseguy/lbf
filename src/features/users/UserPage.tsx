@@ -1,4 +1,4 @@
-import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, EditIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -24,7 +24,8 @@ import {
   GridHeader,
   GridItem,
   IconFooter,
-  RTEditor
+  RTEditor,
+  Column
 } from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
 import { UserForm } from "features/forms/UserForm";
@@ -77,20 +78,27 @@ export const UserPage = ({
             {!isEdit ? (
               <Button
                 colorScheme="teal"
-                leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-                onClick={() => setIsEdit(!isEdit)}
+                leftIcon={
+                  <SettingsIcon boxSize={6} data-cy="user-settings-button" />
+                }
                 mb={5}
+                onClick={() => setIsEdit(!isEdit)}
                 data-cy="user-edit"
               >
-                Paramètres de votre compte
+                Configuration de votre compte
               </Button>
             ) : (
               <Button
                 colorScheme="pink"
-                leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+                leftIcon={
+                  <ArrowBackIcon
+                    boxSize={6}
+                    data-cy="user-settings-back-button"
+                  />
+                }
                 mb={5}
                 onClick={() => setIsEdit(!isEdit)}
-                data-cy="user-edit"
+                data-cy="user-settings-back-button"
               >
                 Revenir à votre page
               </Button>
@@ -99,22 +107,24 @@ export const UserPage = ({
         )}
 
         {session && isEdit && (
-          <UserForm
-            session={session}
-            user={user}
-            onSubmit={async ({ userName }) => {
-              userQuery.refetch();
-              setIsEdit(false);
-              toast({
-                title: "Votre profil a bien été modifié !",
-                status: "success"
-              });
+          <Column m={undefined}>
+            <UserForm
+              session={session}
+              user={user}
+              onSubmit={async ({ userName }) => {
+                userQuery.refetch();
+                setIsEdit(false);
+                toast({
+                  title: "Votre profil a bien été modifié !",
+                  status: "success"
+                });
 
-              if (userName && userName !== user.userName) {
-                await router.push(`/${userName}`);
-              }
-            }}
-          />
+                if (userName && userName !== user.userName) {
+                  await router.push(`/${userName}`);
+                }
+              }}
+            />
+          </Column>
         )}
 
         {!isEdit && (
@@ -209,14 +219,16 @@ export const UserPage = ({
                                       "Votre présentation a bien été enregistrée",
                                     status: "success"
                                   });
+                                  setIsDescriptionEdit(false);
+                                  setIsLoading(false);
                                 } catch (error) {
+                                  console.error(error);
+                                  setIsLoading(false);
                                   toast({
                                     title:
                                       "Votre présentation n'a pas pu être enregistrée.",
                                     status: "error"
                                   });
-                                } finally {
-                                  setIsLoading(false);
                                 }
                               }}
                             >

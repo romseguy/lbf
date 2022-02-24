@@ -107,11 +107,11 @@ export const TreeChartModal = ({
   return (
     <Modal
       isOpen={props.isOpen}
+      size="full"
       onClose={() => {
         //clearAllBodyScrollLocks();
         props.onClose && props.onClose();
       }}
-      size="full"
     >
       <ModalOverlay>
         <ModalContent my={0} minHeight="100vh">

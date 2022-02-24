@@ -5,7 +5,6 @@ import {
   Button,
   Flex,
   FlexProps,
-  Heading,
   Menu,
   MenuButton,
   Icon,
@@ -31,6 +30,7 @@ import React, { useEffect, useState } from "react";
 import { FaKey, FaPowerOff } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
+import { Heading } from "features/common";
 import {
   EmailLoginPopover,
   EventPopover,
@@ -40,7 +40,6 @@ import {
 } from "features/layout";
 import { LoginFormModal } from "features/modals/LoginFormModal";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
-import { useSession } from "hooks/useAuth";
 import { EOrgType } from "models/Org";
 import { useAppDispatch } from "store";
 import { NavButtonsList } from "./NavButtonsList";
@@ -99,26 +98,10 @@ export const Nav = ({
             <Tbody role="rowgroup">
               <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
-                  <Flex>
-                    <Text
-                      className="rainbow-text"
-                      fontFamily="DancingScript"
-                      fontSize="3xl"
-                    >
-                      Naviguer
-                    </Text>
-                  </Flex>
+                  <Heading>Naviguer</Heading>
                 </Td>
                 <Td border={0} lineHeight="auto" p={0}>
-                  <Flex>
-                    <Text
-                      className="rainbow-text"
-                      fontFamily="DancingScript"
-                      fontSize="3xl"
-                    >
-                      {session ? "Mon espace" : "Se connecter"}
-                    </Text>
-                  </Flex>
+                  <Heading>{session ? "Mon espace" : "Se connecter"}</Heading>
                 </Td>
               </Tr>
               <Tr role="row">
@@ -233,14 +216,7 @@ export const Nav = ({
             <Tbody role="rowgroup">
               <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
-                  <Flex mb={1}>
-                    <Heading
-                      className="rainbow-text"
-                      fontFamily="DancingScript"
-                    >
-                      Naviguer
-                    </Heading>
-                  </Flex>
+                  <Heading mb={1}>Naviguer</Heading>
                 </Td>
               </Tr>
               <Tr role="row">
@@ -260,15 +236,7 @@ export const Nav = ({
                       <DrawerContent>
                         <DrawerCloseButton />
                         <DrawerHeader>
-                          <Flex>
-                            <Heading
-                              className="rainbow-text"
-                              fontFamily="DancingScript"
-                              fontSize="3xl"
-                            >
-                              Naviguer
-                            </Heading>
-                          </Flex>
+                          <Heading>Naviguer</Heading>
                         </DrawerHeader>
                         <DrawerBody>
                           <NavButtonsList direction="column" />
@@ -282,12 +250,7 @@ export const Nav = ({
               <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
                   <Flex mt={1}>
-                    <Heading
-                      className="rainbow-text"
-                      fontFamily="DancingScript"
-                    >
-                      {session ? "Mon espace" : "Se connecter"}
-                    </Heading>
+                    <Heading>{session ? "Mon espace" : "Se connecter"}</Heading>
                   </Flex>
                 </Td>
               </Tr>

@@ -3,7 +3,7 @@ import { Box, Button, Text, useToast, Icon, Input } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { DeleteButton, PageContainer } from "features/common";
+import { DeleteButton, Column } from "features/common";
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
 import { IEvent } from "models/Event";
@@ -101,7 +101,7 @@ export const EventConfigPanel = ({
       </Box>
 
       {isEdit && (
-        <PageContainer m="">
+        <Column m="">
           <EventForm
             session={session}
             event={event}
@@ -121,11 +121,11 @@ export const EventConfigPanel = ({
               }
             }}
           />
-        </PageContainer>
+        </Column>
       )}
 
       {isConfig && !isEdit && (
-        <PageContainer m="">
+        <Column m="">
           <EventConfigLogoPanel
             eventQuery={eventQuery}
             isVisible={isVisible}
@@ -138,7 +138,7 @@ export const EventConfigPanel = ({
             isVisible={isVisible}
             setIsVisible={setIsVisible}
           />
-        </PageContainer>
+        </Column>
       )}
     </>
   );

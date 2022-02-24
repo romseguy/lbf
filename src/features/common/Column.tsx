@@ -1,6 +1,6 @@
 import { Flex, FlexProps, useColorMode } from "@chakra-ui/react";
 
-export const PageContainer = ({
+export const Column = ({
   id,
   children,
   ...props

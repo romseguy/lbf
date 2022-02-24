@@ -1,21 +1,15 @@
-import { Session, User } from "next-auth";
+import { Session } from "next-auth";
 import {
   useSession as useNextAuthSession,
   getSession as getNextAuthSession,
   GetSessionOptions
 } from "next-auth/client";
 import { useSelector } from "react-redux";
-import {
-  selectLoading,
-  selectSession,
-  setLoading,
-  setSession
-} from "features/session/sessionSlice";
-import { IUser } from "models/User";
-import { useAppDispatch } from "store";
+import { selectSessionRefetch } from "features/session/sessionSlice";
 import api from "utils/api";
 import { isServer } from "utils/isServer";
 import sessionFixture from "../../cypress/fixtures/session.json";
+import { useEffect } from "react";
 
 export async function getSession(
   options: GetSessionOptions
@@ -61,56 +55,70 @@ export async function getSession(
   return session;
 }
 
-export const useSession = (): { data: Session | null; loading: boolean } => {
-  const dispatch = useAppDispatch();
+let cachedRefetchSession = false;
+let isLoading = false;
+let populatedSession: Session | null = null;
+
+export const useSession = (): {
+  data: Session | null;
+  loading: boolean;
+} => {
+  const refetchSession = useSelector(selectSessionRefetch);
+  useEffect(() => {
+    if (refetchSession !== cachedRefetchSession) {
+      //console.log("REFETCHING");
+      cachedRefetchSession = refetchSession;
+      populatedSession = null;
+    }
+  }, [refetchSession]);
+
   const [session, loading] = useNextAuthSession();
 
-  if (isServer()) return { data: session, loading };
+  if (!session || loading) return { data: session, loading };
 
-  const appSessionLoading = useSelector(selectLoading);
-  const appSession = useSelector(selectSession);
-  if (appSession) return { data: appSession, loading: false };
-  if (!session) return { data: null, loading };
+  if (populatedSession) {
+    //console.log("POPULATED", populatedSession);
+    return { data: populatedSession, loading: false };
+  }
 
-  const xhr = async () => {
-    dispatch(setLoading(true));
-    const userQuery = await api.get(
-      `user/${session.user.email}?select=isAdmin`
-    );
+  if (!isServer() && !isLoading) {
+    //console.log("POPULATING");
+    (async () => {
+      isLoading = true;
+      const userQuery = await api.get(
+        `user/${session.user.email}?select=isAdmin`
+      );
+      isLoading = false;
 
-    if (userQuery.data) {
-      const {
-        _id,
-        email = session.user.email,
-        userName = _id,
-        userImage,
-        suggestedCategoryAt,
-        isAdmin = false
-      }: IUser = userQuery.data;
+      if (!userQuery.data) {
+        populatedSession = session;
+      } else {
+        const {
+          _id,
+          email = session.user.email,
+          userName = _id,
+          userImage,
+          suggestedCategoryAt,
+          isAdmin = false
+        } = userQuery.data;
 
-      const user: User = {
-        ...session.user,
-        email,
-        userId: _id,
-        userName: userName ? userName : _id,
-        userImage,
-        suggestedCategoryAt,
-        isAdmin: isAdmin || false
-      };
+        populatedSession = {
+          ...session,
+          user: {
+            ...session.user,
+            email,
+            userId: _id,
+            userName: userName ? userName : _id,
+            userImage,
+            suggestedCategoryAt,
+            isAdmin: isAdmin || false
+          }
+        };
+      }
+    })();
+  }
 
-      const newSession = {
-        ...session,
-        user
-      };
-
-      dispatch(setSession(newSession));
-      dispatch(setLoading(false));
-    }
-  };
-
-  if (!appSessionLoading) xhr();
-
-  return { data: null, loading: true };
+  return { data: populatedSession || session, loading: isLoading };
 };
 
 /*

@@ -36,7 +36,7 @@ export const ContactFormModal = () => {
     >
       <ModalOverlay />
       <ModalContent maxWidth="xl">
-        <ModalHeader>Envoyer un message au créateur</ModalHeader>
+        <ModalHeader>Formulaire de contact</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <ContactForm onClose={onClose} />

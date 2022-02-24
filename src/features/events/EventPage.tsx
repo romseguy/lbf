@@ -8,8 +8,7 @@ import {
   Grid,
   Text,
   TabPanel,
-  TabPanels,
-  Heading
+  TabPanels
 } from "@chakra-ui/react";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -20,6 +19,7 @@ import {
   EmailPreview,
   EntityButton,
   EntityNotified,
+  Heading,
   Link
 } from "features/common";
 import { EventNotifForm } from "features/forms/EventNotifForm";
@@ -398,12 +398,7 @@ export const EventPage = ({
                       onCancel={() => setShowNotifForm(false)}
                       onSubmit={() => setShowNotifForm(false)}
                     />
-                    <Heading
-                      className="rainbow-text"
-                      fontFamily="DancingScript"
-                    >
-                      Aperçu de l'e-mail d'invitation
-                    </Heading>
+                    <Heading>Aperçu de l'e-mail d'invitation</Heading>
                     <EmailPreview
                       entity={event}
                       event={event}

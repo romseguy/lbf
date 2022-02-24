@@ -7,7 +7,9 @@
       "dom.iterable",
       "esnext"
     ],
-    "types": ["cypress"],
+    "types": [
+      "cypress"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -21,7 +23,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "incremental": true
   },
   "include": [
     "types",

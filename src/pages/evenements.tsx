@@ -1,7 +1,6 @@
 import {
   Flex,
   Box,
-  Heading,
   Text,
   Tooltip,
   useColorMode,
@@ -10,7 +9,7 @@ import {
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaRegMap } from "react-icons/fa";
-import { Button, IconFooter } from "features/common";
+import { Button, Heading, IconFooter } from "features/common";
 import { useGetEventsQuery } from "features/events/eventsApi";
 import { EventsList } from "features/events/EventsList";
 import { Layout } from "features/layout";
@@ -68,9 +67,7 @@ const EventsPage = ({ ...props }: PageProps) => {
         pt={0}
       >
         <Box flexGrow={1} mt={eventsQuery.isLoading ? 3 : undefined}>
-          <Heading className="rainbow-text" fontFamily="DancingScript">
-            {title}
-          </Heading>
+          <Heading>{title}</Heading>
         </Box>
 
         {!eventsQuery.isLoading && (
