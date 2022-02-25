@@ -17,7 +17,6 @@ import {
   useColorMode,
   useToast
 } from "@chakra-ui/react";
-import DOMPurify from "isomorphic-dompurify";
 import React, { useMemo, useState } from "react";
 import { FaFolderOpen, FaFolder } from "react-icons/fa";
 import { useSession } from "hooks/useAuth";
@@ -35,6 +34,7 @@ import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
 import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
+import { sanitize } from "utils/string";
 import { AppQuery } from "utils/types";
 import { ProjectAttendingForm } from "./ProjectAttendingForm";
 import { ProjectsListItemVisibility } from "./ProjectsListItemVisibility";
@@ -379,7 +379,7 @@ export const ProjectsList = ({
                           <Box className="rteditor">
                             <div
                               dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(projectDescription)
+                                __html: sanitize(projectDescription)
                               }}
                             />
                           </Box>

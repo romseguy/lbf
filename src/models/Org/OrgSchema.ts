@@ -23,10 +23,6 @@ export const OrgSchema = new Schema<IOrg>(
       type: String,
       trim: true
     },
-    orgDescriptionHtml: {
-      type: String,
-      trim: true
-    },
     orgAddress: {
       type: [{ address: { type: String, trim: true } }],
       default: []

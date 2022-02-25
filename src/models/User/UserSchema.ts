@@ -1,4 +1,5 @@
 import { Schema } from "mongoose";
+import { normalize } from "utils/string";
 import { IUser } from "./IUser";
 
 export const UserSchema = new Schema<IUser>(
@@ -17,7 +18,6 @@ export const UserSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: true,
       select: false
     },
     securityCode: {
@@ -51,3 +51,8 @@ export const UserSchema = new Schema<IUser>(
 );
 
 UserSchema.index({ email: 1, userName: 1 }, { unique: true });
+
+// UserSchema.pre("init", function (next) {
+//   if (!this.userName) this.userName = normalize(this.email.replace(/@.+/, ""));
+//   return next();
+// });

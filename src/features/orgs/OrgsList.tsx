@@ -126,19 +126,7 @@ export const OrgsList = ({
                     </Link>
                   </Td>
                   <Td>{OrgTypes[org.orgType]}</Td>
-                  {/* <Td>
-                  {org.orgDescription && (
-                    <div className="rteditor">
-                      <div
-                    Rennes    dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(org.orgDescription)
-                        }}
-                      />
-                    </div>
-                  )}
-                </Td> */}
                   <Td>{org.orgCity}</Td>
-                  {/* <Td>{org.orgEmail}</Td> */}
                 </Tr>
               );
             })

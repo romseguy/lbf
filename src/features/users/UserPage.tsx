@@ -5,8 +5,8 @@ import {
   Flex,
   Grid,
   Heading,
-  Icon,
   IconButton,
+  Input,
   Textarea,
   VStack,
   TabPanel,
@@ -15,7 +15,6 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { format } from "date-fns";
-import DOMPurify from "isomorphic-dompurify";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { css } from "twin.macro";
@@ -34,6 +33,7 @@ import { ProjectsList } from "features/projects/ProjectsList";
 import { IUser } from "models/User";
 import { PageProps } from "pages/_app";
 import api from "utils/api";
+import { sanitize } from "utils/string";
 import { AppQuery } from "utils/types";
 import { defaultTabs, UserPageTabs } from "./UserPageTabs";
 import { useEditUserMutation } from "./usersApi";
@@ -58,7 +58,6 @@ export const UserPage = ({
   console.groupEnd();
 
   const [editUser] = useEditUserMutation();
-  const [data, setData] = useState<string>("");
   const [isEdit, setIsEdit] = useState(false);
   const [isDescriptionEdit, setIsDescriptionEdit] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
@@ -262,12 +261,7 @@ export const UserPage = ({
                               {user.userDescription ? (
                                 <div
                                   dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(
-                                      user.userDescription,
-                                      {
-                                        ADD_TAGS: ["iframe"]
-                                      }
-                                    )
+                                    __html: sanitize(user.userDescription)
                                   }}
                                 />
                               ) : isSelf ? (
@@ -334,30 +328,39 @@ export const UserPage = ({
                               Exporter les données
                             </Button>
 
-                            <Textarea
-                              onChange={(e) => setData(e.target.value)}
-                              placeholder="Copiez ici les données exportées précédemment"
-                            />
-                            <Button
-                              isDisabled={!data}
-                              onClick={async () => {
-                                try {
-                                  await api.post("admin/backup", data);
-                                  toast({
-                                    status: "success",
-                                    title: "Les données ont été importées"
-                                  });
-                                } catch (error: any) {
-                                  console.error(error);
-                                  toast({
-                                    status: "error",
-                                    title: error.message
-                                  });
+                            <Input
+                              accept="*"
+                              type="file"
+                              height="auto"
+                              onChange={async (e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  const file = e.target.files[0];
+                                  const reader = new FileReader();
+                                  reader.readAsText(file, "UTF-8");
+                                  reader.onload = async () => {
+                                    if (typeof reader.result !== "string")
+                                      return;
+
+                                    try {
+                                      await api.post(
+                                        "admin/backup",
+                                        reader.result
+                                      );
+                                      toast({
+                                        status: "success",
+                                        title: "Les données ont été importées"
+                                      });
+                                    } catch (error: any) {
+                                      console.error(error);
+                                      toast({
+                                        status: "error",
+                                        title: error.message
+                                      });
+                                    }
+                                  };
                                 }
                               }}
-                            >
-                              Importer les données
-                            </Button>
+                            />
                           </VStack>
                         </GridItem>
                       </Grid>

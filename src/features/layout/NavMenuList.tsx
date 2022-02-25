@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "features/common";
 import { refetchSession } from "features/session/sessionSlice";
 import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
-import { setUserEmail } from "features/users/userSlice";
+import { resetUserEmail } from "features/users/userSlice";
 import { useAppDispatch } from "store";
 import { base64ToUint8Array, defaultErrorMessage } from "utils/string";
 
@@ -164,12 +164,12 @@ export const NavMenuList = ({
 
       <MenuItem
         onClick={async () => {
+          dispatch(resetUserEmail());
           const { url } = await signOut({
             redirect: false,
             callbackUrl: "/"
           });
           dispatch(refetchSession());
-          dispatch(setUserEmail(null));
           router.push(url);
         }}
         data-cy="logout"

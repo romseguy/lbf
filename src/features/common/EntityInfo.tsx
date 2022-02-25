@@ -3,7 +3,6 @@ import {
   Flex,
   FlexProps,
   Icon,
-  Link,
   Tooltip,
   useDisclosure
 } from "@chakra-ui/react";
@@ -17,6 +16,7 @@ import {
   FaYoutube,
   FaLink
 } from "react-icons/fa";
+import { Link } from "features/common";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { MapModal } from "features/modals/MapModal";
@@ -45,19 +45,20 @@ export const EntityInfo = ({
       {entityAddress && (
         <Flex flexDirection="column">
           {entityAddress.map(({ address }, index) => (
-            <Tooltip label="Voir sur la carte">
-              <Flex
-                key={`address-${index}`}
-                alignSelf="flex-start"
-                alignItems="center"
-                cursor="pointer"
-                _hover={{ color: "green" }}
-                onClick={onOpen}
-              >
-                <Icon as={FaMapMarkedAlt} mr={3} />
-                {address}
-              </Flex>
-            </Tooltip>
+            <Flex
+              key={`address-${index}`}
+              alignSelf="flex-start"
+              alignItems="center"
+            >
+              <Icon as={FaMapMarkedAlt} mr={3} />
+              <Tooltip hasArrow label="Voir sur la carte" placement="top">
+                <span>
+                  <Link variant="underline" onClick={onOpen}>
+                    {address}
+                  </Link>
+                </span>
+              </Tooltip>
+            </Flex>
           ))}
         </Flex>
       )}

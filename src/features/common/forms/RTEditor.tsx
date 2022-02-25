@@ -101,7 +101,7 @@ export const RTEditor = ({
     //   "image media"
     // ],
     plugins: [
-      "autolink",
+      "autolink code",
       "emoticons charmap fullscreen",
       "image link media paste searchreplace",
       "help"
@@ -114,7 +114,7 @@ export const RTEditor = ({
              emoticons | formatselect | \
             alignleft aligncenter bold italic charmap \
             | link image media \
-            | removeformat | help",
+            | removeformat | code help",
     file_picker_types: "image",
     file_picker_callback: function (
       cb: Function,
@@ -128,7 +128,7 @@ export const RTEditor = ({
         //@ts-expect-error
         var file = this.files[0];
         var reader = new FileReader();
-        reader.onload = function () {
+        reader.onload = () => {
           if (typeof reader.result !== "string") return;
           var id = "blobid" + new Date().getTime();
           var blobCache = editorRef.current!.editorUpload.blobCache;

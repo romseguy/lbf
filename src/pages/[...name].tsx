@@ -1,4 +1,4 @@
-import { Flex, Heading, Spinner } from "@chakra-ui/react";
+import { Spinner } from "@chakra-ui/react";
 import bcrypt from "bcryptjs";
 import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
@@ -12,20 +12,22 @@ import { OrgPage } from "features/orgs/OrgPage";
 import { OrgPageLogin } from "features/orgs/OrgPageLogin";
 import { GetOrgParams, useGetOrgQuery } from "features/orgs/orgsApi";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { UserPage } from "features/users/UserPage";
 import { useGetUserQuery, UserQueryParams } from "features/users/usersApi";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
-import { useAppDispatch } from "store";
-import { PageProps } from "./_app";
 import { useRouterLoading } from "hooks/useRouterLoading";
-import { ISubscription } from "models/Subscription";
-import { AppQuery } from "utils/types";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
+import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
+import { useAppDispatch } from "store";
+import { AppQuery } from "utils/types";
+import { PageProps } from "./_app";
 
 let cachedEmail: string | undefined;
+let cachedRefetchSubscription = false;
 
 type HashProps = PageProps & {
   email?: string;
@@ -55,21 +57,14 @@ const Hash = ({ ...props }: HashProps) => {
   //#endregion
 
   //#region user email
-  const userEmail =
-    useSelector(selectUserEmail) ||
-    (router.query.email as string | undefined) ||
-    props.email ||
-    session?.user.email;
-  const [email, setEmail] = useState(userEmail);
-  useEffect(() => {
+  const userEmail = useSelector(selectUserEmail);
+  if (!userEmail) {
+    const email =
+      (router.query.email as string | undefined) ||
+      session?.user.email ||
+      props.email;
     if (email) dispatch(setUserEmail(email));
-  }, []);
-  useEffect(() => {
-    if (userEmail !== cachedEmail) {
-      cachedEmail = userEmail;
-      setEmail(userEmail);
-    }
-  }, [userEmail]);
+  }
   //#endregion
 
   //#region queries parameters
@@ -91,7 +86,7 @@ const Hash = ({ ...props }: HashProps) => {
   const eventQuery = useGetEventQuery(eventQueryParams) as AppQuery<IEvent>;
   const orgQuery = useGetOrgQuery(orgQueryParams) as AppQuery<IOrg>;
   const subQuery = useGetSubscriptionQuery({
-    email
+    email: userEmail
   }) as AppQuery<ISubscription>;
   const userQuery = useGetUserQuery({
     slug: entityUrl,
@@ -104,6 +99,32 @@ const Hash = ({ ...props }: HashProps) => {
   const eventQueryStatus = eventQuery.error?.status || 200;
   const orgQueryStatus = orgQuery.error?.status || 200;
   const userQueryStatus = userQuery.error?.status || 200;
+  //#endregion
+
+  //#region cross refetch
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      console.log("refetching subscription");
+      cachedRefetchSubscription = refetchSubscription;
+      subQuery.refetch();
+    }
+
+    if (typeof cachedEmail === "string" && cachedEmail !== userEmail) {
+      console.group(
+        "refetching subscription and entities because user email changed"
+      );
+      console.log("cached", cachedEmail);
+      console.log("current", userEmail);
+      console.groupEnd();
+
+      cachedEmail = userEmail;
+      subQuery.refetch();
+      if (eventQueryStatus === 200) eventQuery.refetch();
+      if (orgQueryStatus === 200) orgQuery.refetch();
+      if (userQueryStatus === 200) userQuery.refetch();
+    }
+  }, [refetchSubscription, userEmail]);
   //#endregion
 
   if (
@@ -122,9 +143,10 @@ const Hash = ({ ...props }: HashProps) => {
   if (orgQueryStatus === 404 && orgQueryParams.orgUrl === "forum") {
     return (
       <NotFound
+        {...props}
         isRedirect={false}
         message="Veuillez créer l'organisation forum."
-        {...props}
+        session={session}
       />
     );
   }
@@ -134,14 +156,14 @@ const Hash = ({ ...props }: HashProps) => {
     orgQueryStatus === 404 &&
     userQueryStatus === 404
   ) {
-    return <NotFound {...props} />;
+    return <NotFound {...props} session={session} />;
   }
 
   if (eventQueryStatus === 200) {
     return (
       <EventPage
         {...props}
-        email={email}
+        email={userEmail}
         eventQuery={eventQuery}
         subQuery={subQuery}
         session={session}
@@ -172,7 +194,6 @@ const Hash = ({ ...props }: HashProps) => {
     return (
       <OrgPage
         {...props}
-        email={email}
         orgQuery={orgQuery}
         subQuery={subQuery}
         session={session}
@@ -186,7 +207,7 @@ const Hash = ({ ...props }: HashProps) => {
     return (
       <UserPage
         {...props}
-        email={email}
+        email={userEmail}
         session={session}
         userQuery={userQuery}
       />

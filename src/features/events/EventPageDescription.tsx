@@ -1,9 +1,9 @@
 import { EditIcon, AddIcon } from "@chakra-ui/icons";
 import { Button, Heading, Tooltip, IconButton, Text } from "@chakra-ui/react";
-import DOMPurify from "dompurify";
 import React from "react";
 import { GridItem, GridHeader } from "features/common";
 import { IEvent } from "models/Event";
+import { sanitize } from "utils/string";
 
 export const EventPageDescription = ({
   event,
@@ -43,9 +43,7 @@ export const EventPageDescription = ({
           <div className="rteditor">
             <div
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(event.eventDescription, {
-                  ADD_TAGS: ["iframe"]
-                })
+                __html: sanitize(event.eventDescription)
               }}
             />
           </div>

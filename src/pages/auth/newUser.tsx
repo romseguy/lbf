@@ -1,10 +1,10 @@
 import { Alert, AlertIcon, Text } from "@chakra-ui/react";
 import React from "react";
+import { Column } from "features/common";
 import { Layout } from "features/layout";
 import { EmailLoginForm } from "features/forms/EmailLoginForm";
 import { useSession } from "hooks/useAuth";
 import { PageProps } from "../_app";
-import { Column } from "features/common";
 
 const NewUserPage = (props: PageProps) => {
   const { data: clientSession } = useSession();

@@ -1,10 +1,7 @@
-import { Box, Image, Tooltip } from "@chakra-ui/react";
+import { Image, Tooltip } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { css } from "twin.macro";
-import { Link } from "features/common";
 import type { IEvent } from "models/Event";
 import type { IOrg } from "models/Org";
-import { getStyleObjectFromString } from "utils/string";
 import { getMarkerUrl } from "utils/maps";
 
 const defaultStyles = `

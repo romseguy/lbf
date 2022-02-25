@@ -1,10 +1,27 @@
+import { ChatIcon, CalendarIcon, SettingsIcon } from "@chakra-ui/icons";
+import { FaHome, FaTools, FaImages } from "react-icons/fa";
 import { ESubscriptionType } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { equals } from "utils/string";
 import { TypedMap } from "utils/types";
-import { IOrg, IOrgList, EOrgType, EOrgVisibility } from "./IOrg";
+import {
+  IOrg,
+  IOrgList,
+  EOrgType,
+  EOrgVisibility,
+  IOrgTabWithIcon
+} from "./IOrg";
 
 export * from "./IOrg";
+
+export const defaultTabs: IOrgTabWithIcon[] = [
+  { label: "Accueil", icon: FaHome, url: "/accueil" },
+  { label: "Discussions", icon: ChatIcon, url: "/discussions" },
+  { label: "Événements", icon: CalendarIcon, url: "/evenements" },
+  { label: "Projets", icon: FaTools, url: "/projets" },
+  { label: "Galerie", icon: FaImages, url: "/galerie" },
+  { label: "", icon: SettingsIcon, url: "/parametres" }
+];
 
 export const addOrReplaceList = (org: IOrg, list: IOrgList) => {
   let orgListExists = false;

@@ -4,6 +4,7 @@ import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { Base64Image } from "utils/image";
 import { IEntity } from "utils/models";
+import { AppIcon } from "utils/types";
 
 export enum EOrgType {
   ASSO = "ASSO",
@@ -22,7 +23,6 @@ export interface IOrg extends IEntity {
   orgUrl: string;
   orgType: EOrgType;
   orgDescription?: string;
-  orgDescriptionHtml?: string;
   orgAddress: IOrgAddress[];
   orgCity?: string;
   orgLat?: number;
@@ -84,4 +84,8 @@ export interface IOrgList {
 export interface IOrgTab {
   label: string;
   url?: string;
+}
+
+export interface IOrgTabWithIcon extends IOrgTab {
+  icon?: AppIcon;
 }

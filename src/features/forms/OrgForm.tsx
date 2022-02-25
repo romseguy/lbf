@@ -178,7 +178,6 @@ export const OrgForm = withGoogleApi({
         orgType,
         orgUrl,
         orgDescription,
-        orgDescriptionHtml: orgDescription,
         orgAddress,
         orgEmail,
         orgPhone,

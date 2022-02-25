@@ -56,9 +56,7 @@ export type ConfigVisibility = {
   setIsVisible: (obj: ConfigVisibility["isVisible"]) => void;
 };
 
-let cachedEmail: string | undefined;
 let cachedRefetchEvent = false;
-let cachedRefetchSubscription = false;
 
 export const EventPage = ({
   email,
@@ -74,8 +72,6 @@ export const EventPage = ({
   tab?: string;
   tabItem?: string;
 }) => {
-  cachedEmail = email;
-
   //#region event
   const [editEvent, editEventMutation] = useEditEventMutation();
   const event = eventQuery.data;
@@ -136,28 +132,13 @@ export const EventPage = ({
 
   //#region cross refetch
   const refetchEvent = useSelector(selectEventRefetch);
-  const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     if (refetchEvent !== cachedRefetchEvent) {
       console.log("refetching event");
       cachedRefetchEvent = refetchEvent;
       eventQuery.refetch();
     }
-
-    if (refetchSubscription !== cachedRefetchSubscription) {
-      console.log("refetching subscription");
-      cachedRefetchSubscription = refetchSubscription;
-      subQuery.refetch();
-    }
-  }, [refetchEvent, refetchSubscription]);
-  useEffect(() => {
-    if (email !== cachedEmail) {
-      console.log("email changed, refetching");
-      cachedEmail = email;
-      eventQuery.refetch();
-      subQuery.refetch();
-    }
-  }, [email]);
+  }, [refetchEvent]);
   //#endregion
 
   return (

@@ -1,12 +1,12 @@
-import { Box, FlexProps, Heading } from "@chakra-ui/react";
+import { FlexProps } from "@chakra-ui/react";
 import { Column } from "features/common";
-import DOMPurify from "isomorphic-dompurify";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { Session } from "next-auth";
 import { createEventEmailNotif, createTopicEmailNotif } from "utils/email";
 import { isEvent, isTopic } from "utils/models";
+import { sanitize } from "utils/string";
 
 export const EmailPreview = ({
   entity,
@@ -41,7 +41,7 @@ export const EmailPreview = ({
     <Column bg="white" {...props}>
       <div
         dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(
+          __html: sanitize(
             notif
               ? notif.html.replaceAll("\\n", "<br/>")
               : "L'aperçu n'a pas pu être affiché"

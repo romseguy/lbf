@@ -39,7 +39,7 @@ import {
   TopicPopover
 } from "features/layout";
 import { LoginFormModal } from "features/modals/LoginFormModal";
-import { selectUserEmail, setUserEmail } from "features/users/userSlice";
+import { selectUserEmail, resetUserEmail } from "features/users/userSlice";
 import { EOrgType } from "models/Org";
 import { useAppDispatch } from "store";
 import { NavButtonsList } from "./NavButtonsList";
@@ -340,8 +340,8 @@ export const Nav = ({
         <LoginFormModal
           onClose={() => setIsLoginModalOpen(false)}
           onSubmit={async () => {
+            dispatch(resetUserEmail());
             setIsLoginModalOpen(false);
-            dispatch(setUserEmail(null));
             const url = router.asPath.includes("/?login") ? "/" : router.asPath;
             await router.push(url);
           }}

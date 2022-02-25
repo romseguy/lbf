@@ -3,25 +3,25 @@ import type { AppState } from "store";
 import { createSlice } from "@reduxjs/toolkit";
 
 type UserState = {
-  userEmail: string | null;
+  userEmail?: string;
 };
 
-const initialState: UserState = {
-  userEmail: null
-};
+const initialState: UserState = {};
 
 export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUserEmail: (state, action: PayloadAction<string | null>) => {
-      if (!action.payload) state.userEmail = initialState.userEmail;
+    resetUserEmail: (state) => {
+      delete state.userEmail;
+    },
+    setUserEmail: (state, action: PayloadAction<string>) => {
       state.userEmail = action.payload;
     }
   }
 });
 
-export const { setUserEmail } = userSlice.actions;
+export const { resetUserEmail, setUserEmail } = userSlice.actions;
 
 export const selectUserEmail = (state: AppState) => state.user.userEmail;
 

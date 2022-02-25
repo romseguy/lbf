@@ -1,49 +1,119 @@
+import { ChatIcon, QuestionIcon } from "@chakra-ui/icons";
 import {
-  CalendarIcon,
-  ChatIcon,
-  QuestionIcon,
-  SettingsIcon
-} from "@chakra-ui/icons";
-import { Tabs, useColorMode } from "@chakra-ui/react";
+  Alert,
+  AlertIcon,
+  Box,
+  Flex,
+  Input,
+  Switch,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+  Tooltip,
+  useColorMode
+} from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { FaHome, FaImages, FaTools } from "react-icons/fa";
-import { EntityPageTab, EntityPageTabList } from "features/common";
-import { IOrg, IOrgTab } from "models/Org";
+import React, { useEffect, useMemo, useState } from "react";
+import { css } from "twin.macro";
+import {
+  EntityPageTab,
+  EntityPageTabList,
+  Heading,
+  Link
+} from "features/common";
+import { DocumentsList } from "features/documents/DocumentsList";
+import { EventsList } from "features/events/EventsList";
+import { TopicsList } from "features/forum/TopicsList";
+import { ProjectsList } from "features/projects/ProjectsList";
+import { defaultTabs, IOrg, IOrgTabWithIcon } from "models/Org";
+import { ISubscription } from "models/Subscription";
+import { sortOn } from "utils/array";
 import { normalize } from "utils/string";
-import { AppIcon } from "utils/types";
-
-export const defaultTabs: (IOrgTab & { icon: AppIcon })[] = [
-  { label: "Accueil", icon: FaHome, url: "/accueil" },
-  { label: "Événements", icon: CalendarIcon, url: "/evenements" },
-  { label: "Projets", icon: FaTools, url: "/projets" },
-  { label: "Discussions", icon: ChatIcon, url: "/discussions" },
-  { label: "Galerie", icon: FaImages, url: "/galerie" },
-  { label: "", icon: SettingsIcon, url: "/parametres" }
-];
+import { AppQuery } from "utils/types";
+import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
+import { useEditOrgMutation } from "./orgsApi";
 
 export const OrgPageTabs = ({
-  children,
-  org,
-  session,
+  currentItemName,
   currentTabLabel = "Accueil",
-  tabs
+  isCreator,
+  isFollowed,
+  isLogin,
+  isSubscribed,
+  orgQuery,
+  session,
+  setIsEdit,
+  setIsLogin,
+  subQuery
 }: {
-  org: IOrg;
-  session: Session | null;
+  currentItemName?: string;
   currentTabLabel?: string;
-  tabs: IOrgTab[];
-  children: (renderProps: {
-    currentTabIndex: number;
-    setCurrentTabIndex: React.Dispatch<React.SetStateAction<number>>;
-  }) => void;
+  isCreator: boolean;
+  isFollowed: boolean;
+  isLogin: number;
+  isSubscribed: boolean;
+  orgQuery: AppQuery<IOrg>;
+  session: Session | null;
+  setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLogin: React.Dispatch<React.SetStateAction<number>>;
+  subQuery: AppQuery<ISubscription>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const [currentTabIndex, setCurrentTabIndex] = useState(0);
+  const editOrgMutation = useEditOrgMutation();
+  const org = orgQuery.data;
 
+  //#region tabs
+  const [currentTabIndex, setCurrentTabIndex] = useState(0);
+  const tabs: IOrgTabWithIcon[] = useMemo(() => {
+    return [...(org.orgTabs || defaultTabs)]
+      .filter((tab) => (tab.label === "" && !session ? false : true))
+      .sort(
+        sortOn(
+          "label",
+          defaultTabs
+            .filter(({ label }) => label !== "")
+            .map(({ label }) => label)
+        )
+      )
+      .map((tab) => {
+        const defaultTab = defaultTabs.find(
+          (defaultTab) => defaultTab.label === tab.label
+        );
+
+        if (defaultTab) {
+          return {
+            ...tab,
+            ...defaultTab
+          };
+        }
+
+        return tab;
+      });
+  }, [org.orgTabs]);
+  const [tabsState, setTabsState] = useState<
+    (IOrgTabWithIcon & { checked: boolean })[]
+  >(tabs.map((t) => ({ ...t, checked: true })));
+  useEffect(() => {
+    setTabsState(
+      tabs.map((t) => ({
+        ...t,
+        checked: true
+      }))
+    );
+  }, [org]);
+  //#endregion
+
+  //#region events tab
+  const [title = "Événements des 7 prochains jours", setTitle] = useState<
+    string | undefined
+  >();
+  //#endregion
+
+  //#region componentDidMount
   useEffect(() => {
     tabs.forEach((tab, tabIndex) => {
       if (
@@ -53,6 +123,7 @@ export const OrgPageTabs = ({
         setCurrentTabIndex(tabIndex);
     });
   }, []);
+  //#endregion
 
   return (
     <Tabs
@@ -72,9 +143,9 @@ export const OrgPageTabs = ({
     >
       <EntityPageTabList aria-hidden>
         {tabs.map((tab, tabIndex) => {
-          if (!session && tab.label === "") return null;
           return (
             <EntityPageTab
+              key={`org-${tab.label}-tab`}
               currentTabIndex={currentTabIndex}
               icon={
                 defaultTabs.find(({ label }) => label === tab.label)?.icon ||
@@ -90,7 +161,7 @@ export const OrgPageTabs = ({
                   }
                 );
               }}
-              data-cy={`orgTab-${tab.label}`}
+              data-cy={`orgTab-${normalize(tab.label)}`}
             >
               {tab.label}
             </EntityPageTab>
@@ -98,8 +169,224 @@ export const OrgPageTabs = ({
         })}
       </EntityPageTabList>
 
-      {/* TabPanels */}
-      {children({ currentTabIndex, setCurrentTabIndex })}
+      <TabPanels
+        css={css`
+          & > * {
+            padding: 12px 0 !important;
+          }
+        `}
+      >
+        {!!tabs.find(({ label }) => label === "Accueil") && (
+          <TabPanel aria-hidden>
+            <OrgPageHomeTabPanel
+              isCreator={isCreator}
+              orgQuery={orgQuery}
+              setIsEdit={setIsEdit}
+            />
+          </TabPanel>
+        )}
+
+        {!!tabs.find(({ label }) => label === "Discussions") && (
+          <TabPanel aria-hidden>
+            <Alert status="info" mb={5}>
+              <AlertIcon />
+              <Box>
+                Cette section a pour vocation principale de proposer une
+                alternative plus pratique et respectueuse aux{" "}
+                <Tooltip label="synonymes : mailing lists, newsletters">
+                  <Text
+                    display="inline"
+                    borderBottom={`1px dotted ${isDark ? "white" : "black"}`}
+                    cursor="pointer"
+                  >
+                    listes de diffusion
+                  </Text>
+                </Tooltip>{" "}
+                traditionnelles. Également libre à vous de l'utiliser comme bon
+                vous semble, et de faire des suggestions sur le
+                <ChatIcon color={isDark ? "yellow" : "green"} mx={1} />
+                <Link
+                  //className={className}
+                  variant="underline"
+                  href="/forum"
+                  //onMouseEnter={() => setClassName("rainbow-text")}
+                  //onMouseLeave={() => setClassName(undefined)}
+                >
+                  forum
+                </Link>
+                .
+              </Box>
+            </Alert>
+
+            <TopicsList
+              org={org}
+              query={orgQuery}
+              mutation={editOrgMutation}
+              isCreator={isCreator}
+              subQuery={subQuery}
+              isFollowed={isFollowed}
+              isSubscribed={isSubscribed}
+              isLogin={isLogin}
+              setIsLogin={setIsLogin}
+              currentTopicName={currentItemName}
+            />
+
+            {/* {process.env.NODE_ENV === "development" &&
+                      session?.user.isAdmin && (
+                        <Box mb={5}>
+                          <Button
+                            onClick={async () => {
+                              await editOrg({
+                                orgUrl: org.orgUrl,
+                                payload: { orgTopics: [] }
+                              }).unwrap();
+                              orgQuery.refetch();
+                            }}
+                          >
+                            RAZ
+                          </Button>
+                        </Box>
+                      )} */}
+          </TabPanel>
+        )}
+
+        {!!tabs.find(({ label }) => label === "Événements") && (
+          <TabPanel aria-hidden>
+            <Flex flexWrap="wrap" margin="0 auto" maxWidth="4xl">
+              <Box flexGrow={1}>
+                <Heading>{title}</Heading>
+              </Box>
+              <Box width="100%" mt={5}>
+                <EventsList
+                  events={org.orgEvents}
+                  org={org}
+                  orgQuery={orgQuery}
+                  isCreator={isCreator}
+                  isSubscribed={isSubscribed}
+                  isLogin={isLogin}
+                  setIsLogin={setIsLogin}
+                  setTitle={setTitle}
+                />
+              </Box>
+            </Flex>
+          </TabPanel>
+        )}
+
+        {!!tabs.find(({ label }) => label === "Projets") && (
+          <TabPanel aria-hidden>
+            <ProjectsList
+              org={org}
+              orgQuery={orgQuery}
+              subQuery={subQuery}
+              isCreator={isCreator}
+              isFollowed={isFollowed}
+              isSubscribed={isSubscribed}
+              isLogin={isLogin}
+              setIsLogin={setIsLogin}
+            />
+          </TabPanel>
+        )}
+
+        {!!tabs.find(({ label }) => label === "Galerie") && (
+          <TabPanel aria-hidden>
+            <DocumentsList
+              org={org}
+              isCreator={isCreator}
+              isSubscribed={isSubscribed}
+              isLogin={isLogin}
+              setIsLogin={setIsLogin}
+            />
+          </TabPanel>
+        )}
+
+        {session && isCreator && (
+          <TabPanel aria-hidden>
+            {defaultTabs
+              .filter((defaultTab) => defaultTab.label !== "")
+              .map((defaultTab) => {
+                return (
+                  <Flex
+                    key={"tab-" + defaultTab.label}
+                    alignItems="center"
+                    mb={1}
+                    maxWidth="fit-content"
+                  >
+                    <Switch
+                      isChecked={
+                        !!tabsState.find(
+                          (t) => t.label === defaultTab.label && t.checked
+                        )
+                      }
+                      isDisabled={defaultTab.label === "Accueil"}
+                      mr={1}
+                      onChange={async (e) => {
+                        const newTabs = tabsState.map((t) =>
+                          t.label === defaultTab.label
+                            ? { ...t, checked: e.target.checked }
+                            : t
+                        );
+                        setTabsState(newTabs);
+
+                        let orgTabs;
+
+                        if (
+                          e.target.checked &&
+                          !org.orgTabs?.find(
+                            ({ label }) => label === defaultTab.label
+                          )
+                        ) {
+                          orgTabs = [
+                            ...tabs.map(({ label, url }) => ({
+                              label,
+                              url
+                            })),
+                            {
+                              label: defaultTab.label,
+                              url: defaultTab.url
+                            }
+                          ];
+                        } else {
+                          orgTabs = newTabs
+                            .filter(({ checked }) => !!checked)
+                            .map(({ label, url }) => ({ label, url }));
+                        }
+
+                        setCurrentTabIndex(orgTabs.length - 1);
+
+                        await editOrgMutation[0]({
+                          orgUrl: org.orgUrl,
+                          payload: { orgTabs }
+                        });
+                        orgQuery.refetch();
+                      }}
+                    />
+                    <Input
+                      defaultValue={defaultTab.label}
+                      isDisabled={defaultTabs
+                        .map(({ label }) => label)
+                        .includes(defaultTab.label)}
+                      onChange={(e) => {
+                        let changed = false;
+                        const newTabs = tabsState.map((t) => {
+                          if (t.label === defaultTab.label) {
+                            if (e.target.value !== t.label) changed = true;
+                            return {
+                              ...t,
+                              label: e.target.value
+                            };
+                          }
+                          return t;
+                        });
+
+                        if (changed) setTabsState(newTabs);
+                      }}
+                    />
+                  </Flex>
+                );
+              })}
+          </TabPanel>
+        )}
+      </TabPanels>
     </Tabs>
   );
 };

@@ -9,7 +9,6 @@ import {
   useColorMode,
   FlexProps
 } from "@chakra-ui/react";
-import DOMPurify from "isomorphic-dompurify";
 import React, { useState } from "react";
 import {
   DeleteButton,
@@ -22,6 +21,7 @@ import { IEvent } from "models/Event";
 import { ITopic } from "models/Topic";
 import { IOrg } from "models/Org";
 import * as dateUtils from "utils/date";
+import { sanitize } from "utils/string";
 import { AppQuery } from "utils/types";
 import { useEditTopicMutation } from "./topicsApi";
 
@@ -147,7 +147,7 @@ export const TopicMessagesList = ({
                       <Box className="rteditor">
                         <div
                           dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(message)
+                            __html: sanitize(message)
                           }}
                         />
                       </Box>

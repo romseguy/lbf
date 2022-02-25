@@ -1,13 +1,8 @@
 // https://raw.githubusercontent.com/chakra-ui/chakra-ui/develop/examples/nextjs-typescript/components/NextChakraLink.tsx
 import NextLink from "next/link";
 import {
-  ThemingProps,
   Link as ChakraLink,
-  LinkProps as ChakraLinkProps,
-  SpaceProps,
-  TypographyProps,
-  ColorProps,
-  FlexProps
+  LinkProps as ChakraLinkProps
 } from "@chakra-ui/react";
 import { SerializedStyles } from "@emotion/react";
 declare type Url = string;
@@ -55,12 +50,14 @@ export const Link = ({
       {children}
     </ChakraLink>
   );
+
   if (!href) {
     return chakraLink;
   }
+
   return (
     <NextLink
-      passHref={true}
+      passHref
       href={href}
       as={as}
       replace={replace}

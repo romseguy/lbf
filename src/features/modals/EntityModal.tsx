@@ -11,13 +11,13 @@ import {
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
-import DOMPurify from "dompurify";
 import React from "react";
+import { isMobile } from "react-device-detect";
 import { EntityInfo, Link, Modal } from "features/common";
 import { EventTimeline } from "features/events/EventTimeline";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { isMobile } from "react-device-detect";
+import { sanitize } from "utils/string";
 
 export const EntityModal = ({
   event,
@@ -85,7 +85,7 @@ export const EntityModal = ({
                 <div className="rteditor">
                   <div
                     dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(entityDescription)
+                      __html: sanitize(entityDescription)
                     }}
                   />
                 </div>
