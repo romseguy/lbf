@@ -2,27 +2,27 @@ import { Session } from "next-auth";
 import {
   useSession as useNextAuthSession,
   getSession as getNextAuthSession,
-  GetSessionOptions
-} from "next-auth/client";
+  GetSessionParams
+} from "next-auth/react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectSessionRefetch } from "features/session/sessionSlice";
 import api from "utils/api";
 import { isServer } from "utils/isServer";
 import sessionFixture from "../../cypress/fixtures/session.json";
-import { useEffect } from "react";
 
 export async function getSession(
-  options: GetSessionOptions
+  params: GetSessionParams
 ): Promise<Session | null> {
   if (
     process.env.NEXT_PUBLIC_IS_TEST &&
-    typeof options.req?.headers.cookie === "string" &&
-    !options.req?.headers.cookie.includes("null")
+    typeof params.req?.headers.cookie === "string" &&
+    !params.req?.headers.cookie.includes("null")
   ) {
     return sessionFixture;
   }
 
-  let session = await getNextAuthSession(options);
+  let session = await getNextAuthSession(params);
   if (!session) return session;
 
   if (
@@ -72,7 +72,8 @@ export const useSession = (): {
     }
   }, [refetchSession]);
 
-  const [session, loading] = useNextAuthSession();
+  const { data: session, status } = useNextAuthSession();
+  const loading = status === "loading";
 
   if (!session || loading) return { data: session, loading };
 
@@ -121,15 +122,15 @@ export const useSession = (): {
   return { data: populatedSession || session, loading: isLoading };
 };
 
-/*
-export async function getSession(
-  options: GetSessionOptions
-): Promise<Session | null> {
-  return await getNextAuthSession(options);
-}
+// export async function getSession(
+//   params: GetSessionParams
+// ): Promise<Session | null> {
+//   return await getNextAuthSession(params);
+// }
 
-export const useSession = (): { data: Session | null; loading: boolean } => {
-  const [session, loading] = useNextAuthSession();
-  return { data: session, loading };
-};
-*/
+// export const useSession = (): { data: Session | null; loading: boolean } => {
+//   const { data: session, status } = useNextAuthSession();
+//   console.log("CSSession", session);
+//   const loading = status === "loading";
+//   return { data: session, loading };
+// };

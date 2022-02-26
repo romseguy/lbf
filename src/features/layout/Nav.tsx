@@ -9,7 +9,6 @@ import {
   MenuButton,
   Icon,
   IconButton,
-  Text,
   Tooltip,
   useColorMode,
   Drawer,
@@ -24,9 +23,8 @@ import {
   Tr,
   Td
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
 import { Session } from "next-auth";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FaKey, FaPowerOff } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
@@ -38,37 +36,27 @@ import {
   SubscriptionPopover,
   TopicPopover
 } from "features/layout";
-import { LoginFormModal } from "features/modals/LoginFormModal";
-import { selectUserEmail, resetUserEmail } from "features/users/userSlice";
+import { selectUserEmail } from "features/users/userSlice";
 import { EOrgType } from "models/Org";
-import { useAppDispatch } from "store";
+import { PageProps } from "pages/_app";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
 
 export const Nav = ({
-  isLogin = 0,
   isMobile,
   session,
+  setIsLoginModalOpen,
   ...props
-}: FlexProps & {
-  isLogin?: number;
-  isMobile: boolean;
-  session?: Session | null;
-}) => {
-  const router = useRouter();
+}: FlexProps &
+  PageProps & {
+    setIsLoginModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  }) => {
   const userName = session?.user.userName || "";
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const dispatch = useAppDispatch();
-  const userEmail = useSelector(selectUserEmail) || session?.user.email || "";
+  const userEmail = useSelector(selectUserEmail);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(
-    router.asPath === "/?login" && !session
-  );
-  useEffect(() => {
-    if (isLogin !== 0) setIsLoginModalOpen(true);
-  }, [isLogin]);
 
   const popoverProps = {
     bg: isDark ? "gray.800" : "lightcyan",
@@ -200,8 +188,9 @@ export const Nav = ({
                         </Tooltip>
 
                         <NavMenuList
+                          {...props}
+                          isMobile={isMobile}
                           session={session}
-                          userEmail={userEmail}
                           userName={userName}
                         />
                       </Menu>
@@ -295,8 +284,9 @@ export const Nav = ({
                           </Tooltip>
 
                           <NavMenuList
+                            {...props}
+                            isMobile={isMobile}
                             session={session}
-                            userEmail={userEmail}
                             userName={userName}
                           />
                         </Menu>
@@ -335,18 +325,6 @@ export const Nav = ({
           )}
         </Table>
       </Box>
-
-      {isLoginModalOpen && (
-        <LoginFormModal
-          onClose={() => setIsLoginModalOpen(false)}
-          onSubmit={async () => {
-            dispatch(resetUserEmail());
-            setIsLoginModalOpen(false);
-            const url = router.asPath.includes("/?login") ? "/" : router.asPath;
-            await router.push(url);
-          }}
-        />
-      )}
     </>
   );
 };

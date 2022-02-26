@@ -249,9 +249,12 @@ handler.get<
 
         if (!isCreator) {
           org = await org.execPopulate();
-          const subscription = await models.Subscription.findOne({
-            user: session?.user.userId
-          });
+
+          const subscription = session
+            ? await models.Subscription.findOne({
+                user: session.user.userId
+              })
+            : null;
 
           org.orgTopics = subscription
             ? org.orgTopics.filter(({ topicVisibility }) => {
@@ -442,20 +445,17 @@ handler.put<
 
     logJson(`PUT /org/${orgUrl}:`, update || body);
 
-    const { n, nModified } = await models.Org.updateOne(
-      { orgUrl },
-      update || body
-    );
+    await models.Org.updateOne({ orgUrl }, update || body);
 
-    if (nModified !== 1) {
-      return res
-        .status(400)
-        .json(
-          createServerError(
-            new Error(`L'organisation ${orgUrl} n'a pas pu être modifiée`)
-          )
-        );
-    }
+    // if (nModified !== 1) {
+    //   return res
+    //     .status(400)
+    //     .json(
+    //       createServerError(
+    //         new Error(`L'organisation ${orgUrl} n'a pas pu être modifiée`)
+    //       )
+    //     );
+    // }
 
     res.status(200).json({});
   } catch (error: any) {

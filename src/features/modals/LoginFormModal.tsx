@@ -19,7 +19,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/router";
-import { signIn } from "next-auth/client";
+import { signIn } from "next-auth/react";
 import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -84,7 +84,7 @@ export const LoginFormModal = (props: {
           email,
           password: await bcrypt.hash(password, salt)
         });
-        await signIn("credentials", { email, user });
+        await signIn("credentials", { email });
       } else {
         const userQuery = await dispatch(
           getUser.initiate({ slug: email, select: "password isAdmin" })
@@ -98,11 +98,7 @@ export const LoginFormModal = (props: {
             "Échec de la connexion, veuillez vérifier vos identifiants."
           );
 
-        await signIn("credentials", {
-          email,
-          user: userQuery.data,
-          redirect: false
-        });
+        await signIn("credentials", { email });
       }
 
       props.onSubmit && props.onSubmit();

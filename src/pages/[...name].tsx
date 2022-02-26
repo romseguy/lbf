@@ -29,14 +29,12 @@ import { PageProps } from "./_app";
 let cachedEmail: string | undefined;
 let cachedRefetchSubscription = false;
 
-type HashProps = PageProps & {
-  email?: string;
-};
+type HashProps = PageProps;
 
 const Hash = ({ ...props }: HashProps) => {
-  const dispatch = useAppDispatch();
   const { data: clientSession } = useSession();
   const session = clientSession || props.session;
+  const userEmail = useSelector(selectUserEmail);
 
   //#region routing
   const router = useRouter();
@@ -54,17 +52,6 @@ const Hash = ({ ...props }: HashProps) => {
     },
     [router.asPath]
   );
-  //#endregion
-
-  //#region user email
-  const userEmail = useSelector(selectUserEmail);
-  if (!userEmail) {
-    const email =
-      (router.query.email as string | undefined) ||
-      session?.user.email ||
-      props.email;
-    if (email) dispatch(setUserEmail(email));
-  }
   //#endregion
 
   //#region queries parameters
@@ -223,37 +210,25 @@ export async function getServerSideProps(
   props?: Partial<HashProps>;
   redirect?: { permanent: boolean; destination: string };
 }> {
-  if (!Array.isArray(ctx.query.name) || typeof ctx.query.name[0] !== "string") {
-    return {};
+  if (Array.isArray(ctx.query.name) && typeof ctx.query.name[0] === "string") {
+    let entityUrl = ctx.query.name[0];
+
+    if (entityUrl === "login")
+      return { redirect: { permanent: false, destination: "/?login" } };
+
+    if (entityUrl.indexOf(" ") !== -1) {
+      const destination = `/${entityUrl.replace(/\ /g, "_")}`;
+
+      return {
+        redirect: {
+          permanent: false,
+          destination
+        }
+      };
+    }
   }
 
-  //#region redirect
-  let entityUrl = ctx.query.name[0];
-
-  if (entityUrl === "login")
-    return { redirect: { permanent: false, destination: "/?login" } };
-
-  if (entityUrl.indexOf(" ") !== -1) {
-    const destination = `/${entityUrl.replace(/\ /g, "_")}`;
-
-    return {
-      redirect: {
-        permanent: false,
-        destination
-      }
-    };
-  }
-  //#endregion
-
-  //#region props
-  let props: Partial<HashProps> = {};
-
-  if (ctx.query.email) {
-    props.email = ctx.query.email as string;
-  }
-
-  return { props };
-  //#endregion
+  return { props: {} };
 }
 
 export default Hash;

@@ -1,7 +1,7 @@
 import { NextPage, NextPageContext } from "next";
 import { AppProps } from "next/app";
 import { Session } from "next-auth";
-import { Provider as SessionProvider } from "next-auth/client";
+import { SessionProvider } from "next-auth/react";
 import React from "react";
 import { getSelectorsByUserAgent } from "react-device-detect";
 import { Chakra } from "features/common";
@@ -33,6 +33,8 @@ const App = wrapper.withRedux(
     pageProps,
     cookies
   }: AppProps & { cookies?: string; pageProps: PageProps }) => {
+    console.log("SSSession", pageProps.session);
+
     return (
       <>
         <GlobalStyles />
@@ -56,22 +58,25 @@ App.getInitialProps = async ({
 }) => {
   const cookies = ctx.req?.headers?.cookie;
   const userAgent = ctx.req?.headers["user-agent"] || navigator.userAgent;
-  const { isMobile, isMobileOnly } = getSelectorsByUserAgent(userAgent);
+
+  const { isMobile } = getSelectorsByUserAgent(userAgent);
   const session = await getSession(ctx);
-  let pageProps = {};
+  let pageProps: PageProps = { isMobile, session };
+
+  if (ctx.query.email) {
+    pageProps.email = ctx.query.email as string;
+  }
 
   if (Component.getInitialProps) {
-    pageProps = await Component.getInitialProps(ctx);
+    pageProps = {
+      ...pageProps,
+      ...(await Component.getInitialProps(ctx))
+    };
   }
 
   return {
     cookies,
-    pageProps: {
-      ...pageProps,
-      isMobile,
-      //isMobileOnly,
-      session
-    }
+    pageProps
   };
 };
 

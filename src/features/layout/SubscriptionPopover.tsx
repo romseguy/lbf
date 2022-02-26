@@ -34,7 +34,7 @@ export const SubscriptionPopover = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
-  const userEmail = useSelector(selectUserEmail) || session.user.email;
+  const userEmail = useSelector(selectUserEmail);
 
   const {
     eventsWithEmailNotifications,

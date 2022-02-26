@@ -6,13 +6,14 @@ import {
   Switch
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
-import { signOut } from "next-auth/client";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Link } from "features/common";
 import { refetchSession } from "features/session/sessionSlice";
 import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
 import { resetUserEmail } from "features/users/userSlice";
+import { PageProps } from "pages/_app";
 import { useAppDispatch } from "store";
 import { base64ToUint8Array, defaultErrorMessage } from "utils/string";
 
@@ -24,11 +25,9 @@ declare const window: customWindow;
 
 export const NavMenuList = ({
   session,
-  userEmail,
+  email,
   userName
-}: {
-  session: Session;
-  userEmail: string;
+}: PageProps & {
   userName: string;
 }) => {
   const { colorMode } = useColorMode();
@@ -37,7 +36,7 @@ export const NavMenuList = ({
   const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
   const [editUser] = useEditUserMutation();
-  const userQuery = useGetUserQuery({ slug: userEmail });
+  const userQuery = useGetUserQuery({ slug: email || "" });
 
   //#region push subscriptions
   const [registration, setRegistration] =
@@ -98,7 +97,7 @@ export const NavMenuList = ({
     <MenuList mr={[1, 3]}>
       <MenuItem
         aria-hidden
-        command={`${userEmail}`}
+        command={`${email}`}
         cursor="default"
         _hover={{ bg: isDark ? "gray.700" : "white" }}
       />
@@ -106,7 +105,7 @@ export const NavMenuList = ({
       {process.env.NODE_ENV === "development" && (
         <MenuItem
           aria-hidden
-          command={`${session.user.userId}`}
+          command={`${session?.user.userId}`}
           cursor="default"
           _hover={{ bg: isDark ? "gray.700" : "white" }}
         />

@@ -21,6 +21,15 @@ import { IOrg } from "models/Org";
 import { PageProps } from "pages/_app";
 import { breakpoints } from "theme/theme";
 import { Base64Image } from "utils/image";
+import { useRouter } from "next/router";
+import { LoginFormModal } from "features/modals/LoginFormModal";
+import {
+  resetUserEmail,
+  selectUserEmail,
+  setUserEmail
+} from "features/users/userSlice";
+import { useAppDispatch } from "store";
+import { useSelector } from "react-redux";
 
 const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
 let isNotified = false;
@@ -46,6 +55,7 @@ export interface LayoutProps {
 }
 
 export const Layout = ({
+  isLogin = 0,
   logo,
   banner,
   children,
@@ -57,10 +67,20 @@ export const Layout = ({
   session: serverSession,
   ...props
 }: BoxProps & LayoutProps & PageProps) => {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(
+    router.asPath === "/?login" && !serverSession
+  );
+  useEffect(() => {
+    if (isLogin !== 0) setIsLoginModalOpen(true);
+  }, [isLogin]);
+
   const { isMobile } = props;
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const { data: clientSession } = useSession();
+
   const session = clientSession || serverSession;
   const toast = useToast({ position: "top" });
   const [isOffline, setIsOffline] = useState(false);
@@ -73,6 +93,17 @@ export const Layout = ({
       });
     }
   };
+
+  //#region user email
+  const userEmail = useSelector(selectUserEmail);
+  if (!userEmail) {
+    const email =
+      (router.query.email as string | undefined) ||
+      session?.user.email ||
+      props.email;
+    if (email) dispatch(setUserEmail(email));
+  }
+  //#endregion
 
   useEffect(() => {
     window.addEventListener("offline", () => setIsOffline(true));
@@ -96,26 +127,6 @@ export const Layout = ({
       };
     }
   }, []);
-
-  // const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false);
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     let scrollHeight = Math.max(
-  //       document.body.scrollHeight,
-  //       document.documentElement.scrollHeight,
-  //       document.body.offsetHeight,
-  //       document.documentElement.offsetHeight,
-  //       document.body.clientHeight,
-  //       document.documentElement.clientHeight
-  //     );
-
-  //     if (scrollHeight >= window.innerHeight) {
-  //       setHasVerticalScrollbar(true);
-  //     }
-  //   };
-  //   window.addEventListener("resize", handleResize);
-  //   handleResize();
-  // }, []);
 
   return (
     <>
@@ -214,7 +225,12 @@ export const Layout = ({
           pageSubTitle={pageSubTitle}
         />
 
-        <Nav {...props} session={session} />
+        <Nav
+          {...props}
+          email={userEmail}
+          session={session}
+          setIsLoginModalOpen={setIsLoginModalOpen}
+        />
 
         <Box
           as="main"
@@ -248,6 +264,43 @@ export const Layout = ({
       </Flex>
 
       <ContactFormModal />
+
+      {isLoginModalOpen && (
+        <LoginFormModal
+          onClose={() => setIsLoginModalOpen(false)}
+          onSubmit={async () => {
+            dispatch(resetUserEmail());
+            setIsLoginModalOpen(false);
+            if (router.asPath.includes("/?login")) {
+              await router.push("/", "/", { shallow: true });
+            }
+          }}
+        />
+      )}
     </>
   );
 };
+
+{
+  /*
+  const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false);
+  useEffect(() => {
+    const handleResize = () => {
+      let scrollHeight = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.offsetHeight,
+        document.body.clientHeight,
+        document.documentElement.clientHeight
+      );
+
+      if (scrollHeight >= window.innerHeight) {
+        setHasVerticalScrollbar(true);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+  }, []);
+*/
+}

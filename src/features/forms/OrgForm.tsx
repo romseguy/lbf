@@ -56,7 +56,6 @@ import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { capitalize, normalize } from "utils/string";
-import { PartialRequired } from "utils/types";
 
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY

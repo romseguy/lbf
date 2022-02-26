@@ -52,7 +52,7 @@ export const SubscribePopover = ({
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
-  const userEmail = useSelector(selectUserEmail) || session?.user.email;
+  const userEmail = useSelector(selectUserEmail);
 
   //#region local state
   const followerSubscription = getFollowerSubscription({

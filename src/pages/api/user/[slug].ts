@@ -141,24 +141,24 @@ handler.put<
       selector = { userName: slug };
     }
 
-    const { n, nModified } = await models.User.updateOne(selector, body);
+    await models.User.updateOne(selector, body);
 
-    if (nModified === 1) {
-      res.status(200).json({});
-    } else {
-      const { n, nModified } = await models.User.updateOne({ _id: slug }, body);
-      if (nModified === 1) {
-        res.status(200).json({});
-      } else {
-        res
-          .status(400)
-          .json(
-            createServerError(
-              new Error(`L'utilisateur ${slug} n'a pas pu être modifié`)
-            )
-          );
-      }
-    }
+    // if (nModified === 1) {
+    res.status(200).json({});
+    // } else {
+    //   await models.User.updateOne({ _id: slug }, body);
+    //   if (nModified === 1) {
+    //     res.status(200).json({});
+    //   } else {
+    //     res
+    //       .status(400)
+    //       .json(
+    //         createServerError(
+    //           new Error(`L'utilisateur ${slug} n'a pas pu être modifié`)
+    //         )
+    //       );
+    //   }
+    // }
   } catch (error: any) {
     if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
       res.status(400).json({

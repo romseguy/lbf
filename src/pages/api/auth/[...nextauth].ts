@@ -1,123 +1,136 @@
-import { sendMail } from "api/email";
+import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+import mongodb from "mongodb";
 import NextAuth from "next-auth";
-import type {
-  NextApiRequest,
-  NextApiResponse
-} from "next-auth/internals/utils";
-import Providers from "next-auth/providers";
-import { logJson } from "utils/string";
+import CredentialsProvider from "next-auth/providers/credentials";
+import EmailProvider from "next-auth/providers/email";
+import { sendMail } from "api/email";
+import { clientPromise } from "database";
+import { logJson, normalize } from "utils/string";
+import { randomNumber } from "utils/randomNumber";
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
-  return NextAuth(req, res, {
-    pages: {
-      verifyRequest: "/auth/verify",
-      newUser: "/auth/newUser",
-      error: "/auth/newUser"
-    },
-    providers: [
-      Providers.Credentials({
-        name: "Credentials",
-        credentials: {
-          email: { label: "Adresse e-mail", type: "text" },
-          password: { label: "Mot de passe", type: "password" }
-        },
-        //@ts-expect-error
-        authorize: async (signInOptions) => {
-          logJson(
-            "POST /auth/callback/credentials: signInOptions",
-            signInOptions
-          );
+declare const global: NodeJS.Global &
+  typeof globalThis & {
+    _mongoClientPromise: Promise<mongodb.MongoClient>;
+  };
 
-          try {
-            //@ts-expect-error
-            const { email, user } = signInOptions;
+const CustomAdapter = () => {
+  const adapter = MongoDBAdapter(
+    process.env.NODE_ENV === "development"
+      ? global._mongoClientPromise
+      : clientPromise
+  );
 
-            return {
-              email,
-              userId: user._id,
-              userName: user.userName
-            };
-          } catch (error) {
-            return null;
-          }
-        }
-      }),
-      Providers.Email({
-        server: process.env.EMAIL_SERVER,
-        from: process.env.EMAIL_FROM,
-        maxAge: 24 * 60 * 60, // How long email links are valid for (default 24h)
-        sendVerificationRequest: async ({
-          identifier: email,
-          url,
-          provider: { server, from }
-        }) => {
-          try {
-            const { host } = new URL(url);
-            const mail = {
-              to: email,
-              from,
-              subject: `Connexion à ${host}`,
-              text: text({ url, host }),
-              html: html({ url, host, email }),
-              encoding: "UTF-8"
-            };
-            await sendMail(mail);
-          } catch (error) {
-            console.error("error sending verification email", error);
-            throw error;
-          }
-        }
-      })
-    ],
-    database: process.env.DATABASE_URL,
-    //secret: process.env.SECRET,
-    session: {
-      // Signin in with credentials is only supported if JSON Web Tokens are enabled!
-      //
-      // Use JSON Web Tokens for session instead of database sessions.
-      // This option can be used with or without a database for users/accounts.
-      // Note: `jwt` is automatically set to `true` if no database is specified.
-      /*strategy*/ jwt: true
-    },
-    // jwt: {
-    //   secret: process.env.SECRET
-    // },
-    callbacks: {
-      /*
-       * This JSON Web Token callback is called whenever a JSON Web Token is created (i.e. at sign in)
-       * or updated (i.e whenever a session is accessed in the client).
-       * e.g. /api/auth/signin, getSession(), useSession(), /api/auth/session
-       */
-      async jwt(token, user, account, profile, isNewUser) {
-        //console.log("JWT() PARAMS:", token, user, account, profile, isNewUser);
+  const originalCreateUser = adapter.createUser;
 
-        if (user) {
-          token = user;
-        }
+  adapter.createUser = async (user) => {
+    return originalCreateUser({
+      ...user,
+      userName:
+        normalize(user.email as string).replace(/@.+/, "") +
+        "-" +
+        randomNumber(2)
+    });
+  };
 
-        //console.log("JWT() RETURN:", token);
-        return token;
-      },
-
-      /*
-       * The session callback is called whenever a session is checked.
-       * e.g. getSession(), useSession(), /api/auth/session
-       */
-      async session(session, userOrToken) {
-        //console.log("SESSION() PARAMS:", session, userOrToken);
-
-        // If you want to make something available you added to the token through the jwt() callback,
-        // you have to explicitly forward it here to make it available to the client.
-        // e.g. getSession(), useSession(), /api/auth/session
-        session.user = userOrToken;
-
-        //console.log("SESSION() RETURN:", session);
-        return session;
-      }
-    },
-    debug: false
-  });
+  return adapter;
 };
+
+export default NextAuth({
+  pages: {
+    verifyRequest: "/auth/verify"
+    //newUser: "/auth/newUser",
+    //error: "/auth/newUser"
+  },
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Adresse e-mail", type: "text" },
+        password: { label: "Mot de passe", type: "password" }
+      },
+      //@ts-expect-error
+      authorize: async (credentials, req) => {
+        logJson("AUTHORIZE", credentials);
+        return credentials;
+      }
+    }),
+    EmailProvider({
+      server: process.env.EMAIL_SERVER,
+      from: process.env.EMAIL_FROM,
+      maxAge: 24 * 60 * 60, // How long email links are valid for (default 24h)
+      sendVerificationRequest: async ({
+        identifier: email,
+        url,
+        provider: { server, from }
+      }) => {
+        try {
+          const { host } = new URL(url);
+          const mail = {
+            to: email,
+            from,
+            subject: `Connexion à ${host}`,
+            text: text({ url, host }),
+            html: html({ url, host, email }),
+            encoding: "UTF-8"
+          };
+          await sendMail(mail);
+        } catch (error) {
+          console.error("error sending verification email", error);
+          throw error;
+        }
+      }
+    })
+  ],
+  secret: process.env.SECRET,
+  adapter: CustomAdapter(),
+  // adapter: MongoDBAdapter(
+  //   process.env.NODE_ENV === "development"
+  //     ? global._mongoClientPromise
+  //     : clientPromise
+  // ),
+  session: {
+    // Signin in with credentials is only supported if JSON Web Tokens are enabled!
+    //
+    // Use JSON Web Tokens for session instead of database sessions.
+    // This option can be used with or without a database for users/accounts.
+    // Note: `jwt` is automatically set to `true` if no database is specified.
+    strategy: "jwt"
+  },
+  // jwt: {
+  //   secret: process.env.SECRET
+  // },
+  callbacks: {
+    /*
+     * This JSON Web Token callback is called whenever a JSON Web Token is created (i.e. at sign in)
+     * or updated (i.e whenever a session is accessed in the client).
+     * /api/auth/signin, getSession(), useSession(), /api/auth/session
+     */
+    async jwt(params) {
+      //console.log("JWT() PARAMS:", params);
+      let { token, user, account, profile, isNewUser } = params;
+      //console.log("JWT() RETURN:", token);
+      return token;
+    },
+
+    /*
+     * The session callback is called whenever a session is checked.
+     * e.g. getSession(), useSession(), /api/auth/session
+     */
+    async session(params) {
+      //console.log("SESSION() PARAMS:", params);
+      const { session, token } = params;
+
+      // If you want to make something available you added to the token through the jwt() callback,
+      // you have to explicitly forward it here to make it available to the client.
+      // e.g. getSession(), useSession(), /api/auth/session
+      if (token.email) session.user.email = token.email;
+
+      //console.log("SESSION() RETURN:", session);
+      return session;
+    }
+  },
+  debug: false
+});
 
 // Email HTML body
 function html({ url, host, email }: Record<"url" | "host" | "email", string>) {

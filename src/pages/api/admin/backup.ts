@@ -1,9 +1,11 @@
+import { Document } from "mongodb";
 import nextConnect from "next-connect";
 import database, { db, models, collectionToModelKeys } from "database";
 import { getSession } from "hooks/useAuth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createServerError } from "utils/errors";
 import { IEntity } from "utils/models";
+import { TypedMap } from "utils/types";
 
 const handler = nextConnect();
 
@@ -31,7 +33,7 @@ handler.get<NextApiRequest, NextApiResponse>(async function exportData(
     const collectionKeys = (await db.listCollections().toArray()).map(
       (collection) => collection.name
     );
-    const data: { [key: string]: IEntity[] } = {};
+    const data: TypedMap<string, Document[]> = {};
 
     for (const key of collectionKeys) {
       data[key] = await db.collection(key).find({}).toArray();
@@ -83,6 +85,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function importData(
         continue;
       }
 
+      //@ts-expect-error
       model.collection.remove({});
 
       for (const o of body.data[key]) {

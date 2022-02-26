@@ -375,19 +375,16 @@ handler.put<
       }
     }
 
-    const { n, nModified } = await models.Event.updateOne(
-      { eventUrl },
-      update || body
-    );
+    await models.Event.updateOne({ eventUrl }, update || body);
 
-    if (nModified !== 1)
-      return res
-        .status(400)
-        .json(
-          createServerError(
-            new Error(`L'événement ${eventUrl} n'a pas pu être modifié`)
-          )
-        );
+    // if (nModified !== 1)
+    //   return res
+    //     .status(400)
+    //     .json(
+    //       createServerError(
+    //         new Error(`L'événement ${eventUrl} n'a pas pu être modifié`)
+    //       )
+    //     );
 
     res.status(200).json({});
   } catch (error) {

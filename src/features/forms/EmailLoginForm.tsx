@@ -1,6 +1,6 @@
 import { Button, Alert, AlertIcon, Flex } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import { signIn } from "next-auth/client";
+import { signIn } from "next-auth/react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { EmailControl, ErrorMessageText } from "features/common";

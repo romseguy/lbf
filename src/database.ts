@@ -14,6 +14,11 @@ import { TopicSchema } from "models/Topic/TopicSchema";
 import { IUser } from "models/User";
 import { UserSchema } from "models/User/UserSchema";
 
+declare const global: NodeJS.Global &
+  typeof globalThis & {
+    _mongoClientPromise: Promise<mongodb.MongoClient>;
+  };
+
 export type AppModelKey =
   | "Event"
   | "Org"
@@ -39,6 +44,7 @@ export const collectionToModelKeys: { [key: string]: AppModelKey } = {
   topics: "Topic",
   users: "User"
 };
+export let clientPromise: Promise<mongodb.MongoClient>;
 export let db: mongodb.Db;
 export let models: AppModels;
 
@@ -54,14 +60,12 @@ let connection: Connection;
 
 async function connectToDatabase() {
   if (!connection) {
-    connection = await mongoose.createConnection(process.env.DATABASE_URL, {
-      useNewUrlParser: true,
-      useFindAndModify: false,
-      useUnifiedTopology: true
-    });
+    mongoose.set("useFindAndModify", true);
+    mongoose.set("useNewUrlParser", true);
+    mongoose.set("useUnifiedTopology", true);
+    connection = await mongoose.createConnection(process.env.DATABASE_URL);
   }
 
-  db = connection.db;
   models = {
     Event: connection.model<IEvent>("Event", EventSchema),
     Org: connection.model<IOrg>("Org", OrgSchema),
@@ -73,4 +77,17 @@ async function connectToDatabase() {
     Topic: connection.model<ITopic>("Topic", TopicSchema),
     User: connection.model<IUser>("User", UserSchema)
   };
+
+  if (process.env.NODE_ENV === "development") {
+    // In development mode, use a global variable so that the value
+    // is preserved across module reloads caused by HMR (Hot Module Replacement).
+    if (!global._mongoClientPromise) {
+      global._mongoClientPromise = connection.getClient().connect();
+      clientPromise = global._mongoClientPromise;
+    }
+  } else {
+    clientPromise = connection.getClient().connect();
+  }
+
+  db = connection.db;
 }

@@ -250,13 +250,10 @@ handler.put<
               )
             );
 
-        const { n, nModified } = await models.Topic.updateOne(
-          { _id: topicId },
-          body.topic
-        );
+        await models.Topic.updateOne({ _id: topicId }, body.topic);
 
-        if (nModified !== 1)
-          throw new Error("La discussion n'a pas pu être modifié");
+        // if (nModified !== 1)
+        //   throw new Error("La discussion n'a pas pu être modifié");
       }
     }
 
@@ -302,20 +299,17 @@ handler.delete<
         );
 
     //#region org reference
-    let nModified;
-
     if (topic.org) {
       console.log("deleting org reference to topic", topic.org);
-      const mutation = await models.Org.updateOne(
+      await models.Org.updateOne(
         { _id: typeof topic.org === "object" ? topic.org._id : topic.org },
         {
           $pull: { orgTopics: topic._id }
         }
       );
-      nModified = mutation.nModified;
     } else if (topic.event) {
       console.log("deleting event reference to topic", topic.event);
-      const mutation = await models.Event.updateOne(
+      await models.Event.updateOne(
         {
           _id: typeof topic.event === "object" ? topic.event._id : topic.event
         },
@@ -323,10 +317,7 @@ handler.delete<
           $pull: { eventTopics: topic._id }
         }
       );
-      nModified = mutation.nModified;
     }
-
-    if (nModified === 1) console.log("org reference to topic deleted");
     //#endregion
 
     //#region subscription reference

@@ -131,22 +131,19 @@ handler.put<NextApiRequest & { query: { slug: string } }, NextApiResponse>(
 
         let body = req.body;
 
-        const { n, nModified } = await models.Subscription.updateOne(
-          { _id: slug },
-          body
-        );
+        await models.Subscription.updateOne({ _id: slug }, body);
 
-        if (nModified === 1) {
-          res.status(200).json({});
-        } else {
-          res
-            .status(400)
-            .json(
-              createServerError(
-                new Error(`L'abonnement n'a pas pu être modifié`)
-              )
-            );
-        }
+        // if (nModified === 1) {
+        res.status(200).json({});
+        // } else {
+        //   res
+        //     .status(400)
+        //     .json(
+        //       createServerError(
+        //         new Error(`L'abonnement n'a pas pu être modifié`)
+        //       )
+        //     );
+        // }
       } catch (error) {
         res.status(500).json(createServerError(error));
       }

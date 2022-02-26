@@ -21,6 +21,6 @@ export type PartialRequired<T, K extends keyof T> = Pick<Required<T>, K>;
 //   [K in Keys]: T[K];
 // };
 export type Primitive = string | number | boolean | symbol;
-export type TypedMap<T extends string, K extends string> = {
+export type TypedMap<T extends string, K> = {
   [key in T]: K;
 };

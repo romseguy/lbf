@@ -23,38 +23,32 @@ handler.post<NextApiRequest, NextApiResponse>(async function forgotten(
 
   try {
     if (password) {
-      const { n, nModified } = await models.User.updateOne(
-        { email },
-        { password }
-      );
+      await models.User.updateOne({ email }, { password });
 
-      if (nModified !== 1)
-        return res
-          .status(400)
-          .json(
-            createServerError(
-              new Error("Le mot de passe n'a pas pu être modifié")
-            )
-          );
+      // if (nModified !== 1)
+      //   return res
+      //     .status(400)
+      //     .json(
+      //       createServerError(
+      //         new Error("Le mot de passe n'a pas pu être modifié")
+      //       )
+      //     );
 
       return res.status(200).json({});
     }
 
     const securityCode = randomNumber(6);
 
-    const { n, nModified } = await models.User.updateOne(
-      { email },
-      { securityCode }
-    );
+    await models.User.updateOne({ email }, { securityCode });
 
-    if (nModified !== 1)
-      return res
-        .status(400)
-        .json(
-          createServerError(
-            new Error("Cette adresse e-mail ne correspond à aucun compte")
-          )
-        );
+    // if (nModified !== 1)
+    //   return res
+    //     .status(400)
+    //     .json(
+    //       createServerError(
+    //         new Error("Cette adresse e-mail ne correspond à aucun compte")
+    //       )
+    //     );
 
     const mail = {
       from: process.env.EMAIL_FROM,
