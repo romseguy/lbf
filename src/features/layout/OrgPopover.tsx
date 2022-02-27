@@ -52,8 +52,7 @@ export const OrgPopover = ({
   const router = useRouter();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const storedUserEmail = useSelector(selectUserEmail);
-  const [email, setEmail] = useState(storedUserEmail || session.user.email);
+  const userEmail = useSelector(selectUserEmail);
 
   //#region orgs
   const orgsQuery = useGetOrgsQuery();
@@ -77,7 +76,7 @@ export const OrgPopover = ({
 
   //#region my sub
   const subQuery = useGetSubscriptionQuery({
-    email,
+    email: userEmail,
     populate: "orgs"
   }) as AppQuery<ISubscription>;
   const followedOrgs =
@@ -105,6 +104,7 @@ export const OrgPopover = ({
   >("showOrgsAdded");
   //#endregion
 
+  //#region cross refetch
   const refetchOrgs = useSelector(selectOrgsRefetch);
   useEffect(() => {
     if (refetchOrgs !== cachedRefetchOrgs) {
@@ -122,16 +122,7 @@ export const OrgPopover = ({
       subQuery.refetch();
     }
   }, [refetchSubscription]);
-
-  useEffect(() => {
-    const newEmail = storedUserEmail || session.user.email;
-
-    if (newEmail !== email) {
-      setEmail(newEmail);
-      console.log("refetching subscription because of new email", newEmail);
-      subQuery.refetch();
-    }
-  }, [storedUserEmail, session]);
+  //#endregion
 
   return (
     <Box {...props}>

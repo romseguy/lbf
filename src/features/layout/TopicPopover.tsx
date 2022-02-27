@@ -37,8 +37,7 @@ export const TopicPopover = ({
   const router = useRouter();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const storedUserEmail = useSelector(selectUserEmail);
-  const [email, setEmail] = useState(storedUserEmail || session.user.email);
+  const userEmail = useSelector(selectUserEmail);
 
   //#region topics
   const myTopicsQuery = useGetTopicsQuery(
@@ -83,7 +82,7 @@ export const TopicPopover = ({
   //#region my sub
   const subQuery = useGetSubscriptionQuery(
     {
-      email,
+      email: userEmail,
       populate: "topics.topic.org topics.topic.event"
     },
     {
@@ -103,6 +102,7 @@ export const TopicPopover = ({
   >("showTopicsAdded");
   //#endregion
 
+  //#region cross refetch
   const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     if (refetchSubscription !== cachedRefetchSubscription) {
@@ -110,16 +110,7 @@ export const TopicPopover = ({
       subQuery.refetch();
     }
   }, [refetchSubscription]);
-
-  useEffect(() => {
-    const newEmail = storedUserEmail || session.user.email;
-
-    if (newEmail !== email) {
-      setEmail(newEmail);
-      console.log("refetching subscription because of new email", newEmail);
-      subQuery.refetch();
-    }
-  }, [storedUserEmail, session]);
+  //#endregion
 
   return (
     <Box {...props}>

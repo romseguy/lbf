@@ -155,7 +155,7 @@ handler.get<
             select: isCreator ? "+email +phone" : undefined,
             populate: {
               path: "user",
-              select: isCreator ? "+email" : undefined
+              select: isCreator ? "+email +phone" : undefined
             }
           })
           .execPopulate();

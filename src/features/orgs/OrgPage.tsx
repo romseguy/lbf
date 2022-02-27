@@ -16,7 +16,7 @@ import {
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
 import { getRefId } from "utils/models";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { selectOrgRefetch } from "./orgSlice";
@@ -31,7 +31,7 @@ export const OrgPage = ({
   tab,
   tabItem
 }: PageProps & {
-  orgQuery: AppQuery<IOrg>;
+  orgQuery: AppQueryWithData<IOrg>;
   subQuery: AppQuery<ISubscription>;
   tab?: string;
   tabItem?: string;

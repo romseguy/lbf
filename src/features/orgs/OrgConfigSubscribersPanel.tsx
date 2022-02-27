@@ -16,7 +16,7 @@ import { IUser } from "models/User";
 import { useAppDispatch } from "store";
 import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
 import { SubscriptionForm } from "features/forms/SubscriptionForm";
 
@@ -28,7 +28,7 @@ export const OrgConfigSubscribersPanel = ({
   ...props
 }: GridProps &
   OrgConfigVisibility & {
-    orgQuery: AppQuery<IOrg>;
+    orgQuery: AppQueryWithData<IOrg>;
     subQuery: AppQuery<ISubscription>;
   }) => {
   const org = orgQuery.data;

@@ -8,7 +8,7 @@ import {
   getSubscriberSubscription,
   ISubscription
 } from "models/Subscription";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { TopicsList } from "./TopicsList";
 import { IOrg } from "models/Org";
 import { getRefId } from "utils/models";
@@ -22,7 +22,7 @@ export const Forum = ({
 }: {
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
-  orgQuery: AppQuery<IOrg>;
+  orgQuery: AppQueryWithData<IOrg>;
   subQuery: AppQuery<ISubscription>;
   tabItem?: string;
 }) => {

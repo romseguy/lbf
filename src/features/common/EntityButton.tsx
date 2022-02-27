@@ -30,7 +30,7 @@ export const EntityButton = ({
   StyleProps & {
     event?: Partial<IEvent<any>>;
     org?: Partial<IOrg>;
-    topic?: Partial<ITopic>;
+    topic?: ITopic;
     user?: Partial<IUser>;
     onClick?: (() => void) | null;
     tooltipProps?: Partial<TooltipProps>;
@@ -98,10 +98,10 @@ export const EntityButton = ({
                     : org
                     ? org.orgUrl === "forum"
                       ? ChatIcon
-                      : org.orgType === EOrgType.NETWORK
-                      ? IoIosGitNetwork
-                      : IoIosPeople
-                    : event
+                      : //org.orgType === EOrgType.NETWORK ?
+                        IoIosGitNetwork
+                    : //: IoIosPeople
+                    event
                     ? CalendarIcon
                     : user
                     ? IoIosPerson
@@ -138,7 +138,18 @@ export const EntityButton = ({
               : user
               ? user.userName
               : ""}
-            {org ? (
+
+            {topic ? (
+              <Icon
+                as={
+                  topic.topicVisibility.includes("Adhérents") ||
+                  topic.topicVisibility.includes("Abonnés")
+                    ? IoIosPeople
+                    : FaGlobeEurope
+                }
+                ml={2}
+              />
+            ) : org ? (
               org.orgUrl !== "forum" ? (
                 <Icon
                   as={

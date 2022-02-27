@@ -7,9 +7,10 @@ import { getSelectorsByUserAgent } from "react-device-detect";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
 import { getSession } from "hooks/useAuth";
-import { wrapper } from "store";
+import { useAppDispatch, wrapper } from "store";
 import theme from "theme/theme";
 import { isServer } from "utils/isServer";
+import { setUserEmail } from "features/users/userSlice";
 
 export interface PageProps {
   email?: string;
@@ -33,7 +34,12 @@ const App = wrapper.withRedux(
     pageProps,
     cookies
   }: AppProps & { cookies?: string; pageProps: PageProps }) => {
-    console.log("SSSession", pageProps.session);
+    const dispatch = useAppDispatch();
+
+    console.log("pageProps", pageProps);
+    if (pageProps.email) {
+      dispatch(setUserEmail(pageProps.email));
+    }
 
     return (
       <>
@@ -61,11 +67,12 @@ App.getInitialProps = async ({
 
   const { isMobile } = getSelectorsByUserAgent(userAgent);
   const session = await getSession(ctx);
-  let pageProps: PageProps = { isMobile, session };
 
-  if (ctx.query.email) {
-    pageProps.email = ctx.query.email as string;
-  }
+  let pageProps: PageProps = {
+    email: ctx.query.email ? (ctx.query.email as string) : session?.user.email,
+    isMobile,
+    session
+  };
 
   if (Component.getInitialProps) {
     pageProps = {

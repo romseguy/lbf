@@ -31,7 +31,7 @@ import { defaultTabs, IOrg, IOrgTabWithIcon } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { sortOn } from "utils/array";
 import { normalize } from "utils/string";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
 import { useEditOrgMutation } from "./orgsApi";
 
@@ -54,7 +54,7 @@ export const OrgPageTabs = ({
   isFollowed: boolean;
   isLogin: number;
   isSubscribed: boolean;
-  orgQuery: AppQuery<IOrg>;
+  orgQuery: AppQueryWithData<IOrg>;
   session: Session | null;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
   setIsLogin: React.Dispatch<React.SetStateAction<number>>;
@@ -181,6 +181,7 @@ export const OrgPageTabs = ({
             <OrgPageHomeTabPanel
               isCreator={isCreator}
               orgQuery={orgQuery}
+              subQuery={subQuery}
               setIsEdit={setIsEdit}
             />
           </TabPanel>

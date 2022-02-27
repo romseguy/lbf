@@ -22,14 +22,14 @@ import {
 } from "models/Event";
 import { useAppDispatch } from "store";
 import { emailR } from "utils/email";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 
 export const EventAttendingForm = ({
   email,
   eventQuery
 }: {
   email?: string;
-  eventQuery: AppQuery<IEvent>;
+  eventQuery: AppQueryWithData<IEvent>;
 }) => {
   const event = eventQuery.data;
   const dispatch = useAppDispatch();

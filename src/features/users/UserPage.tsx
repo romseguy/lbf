@@ -34,7 +34,7 @@ import { IUser } from "models/User";
 import { PageProps } from "pages/_app";
 import api from "utils/api";
 import { sanitize } from "utils/string";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { defaultTabs, UserPageTabs } from "./UserPageTabs";
 import { useEditUserMutation } from "./usersApi";
 
@@ -44,7 +44,7 @@ export const UserPage = ({
   session,
   userQuery
 }: PageProps & {
-  userQuery: AppQuery<IUser>;
+  userQuery: AppQueryWithData<IUser>;
 }) => {
   const router = useRouter();
   const toast = useToast({ position: "top" });

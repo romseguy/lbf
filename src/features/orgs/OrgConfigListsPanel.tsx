@@ -37,7 +37,7 @@ import {
 } from "models/Org";
 import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
 import { EditOrgPayload, useEditOrgMutation } from "./orgsApi";
 import { IoIosPerson } from "react-icons/io";
@@ -49,7 +49,7 @@ export const OrgConfigListsPanel = ({
   session
 }: GridProps &
   OrgConfigVisibility & {
-    orgQuery: AppQuery<IOrg>;
+    orgQuery: AppQueryWithData<IOrg>;
     session: Session;
   }) => {
   const toast = useToast({ position: "top" });

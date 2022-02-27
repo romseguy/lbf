@@ -34,7 +34,7 @@ import { useEditEventMutation } from "features/events/eventsApi";
 import { IEvent } from "models/Event";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { ConfigVisibility } from "./EventPage";
 
 export const EventConfigLogoPanel = ({
@@ -44,7 +44,7 @@ export const EventConfigLogoPanel = ({
   ...props
 }: GridProps &
   ConfigVisibility & {
-    eventQuery: AppQuery<IEvent>;
+    eventQuery: AppQueryWithData<IEvent>;
   }) => {
   const event = eventQuery.data;
   const toast = useToast({ position: "top" });

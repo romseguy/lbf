@@ -35,7 +35,7 @@ import {
   ISubscription
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { useEditEventMutation } from "./eventsApi";
 import { selectEventRefetch } from "./eventSlice";
 import { EventAttendingForm } from "./EventAttendingForm";
@@ -67,7 +67,7 @@ export const EventPage = ({
   tab,
   tabItem
 }: PageProps & {
-  eventQuery: AppQuery<IEvent>;
+  eventQuery: AppQueryWithData<IEvent>;
   subQuery: AppQuery<ISubscription>;
   tab?: string;
   tabItem?: string;

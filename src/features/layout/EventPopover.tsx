@@ -41,13 +41,13 @@ export const EventPopover = ({
   session: Session;
 }) => {
   const router = useRouter();
-  const storedUserEmail = useSelector(selectUserEmail);
-  const [email, setEmail] = useState(storedUserEmail || session.user.email);
+  const userEmail = useSelector(selectUserEmail);
 
   //#region my events
-  const attendedEventsQuery = useGetEventsQuery(void 0, {
-    selectFromResult: ({ data: events }) => ({
-      attendedEvents: (events || []).filter(({ eventNotifications }) =>
+  const eventsQuery = useGetEventsQuery(void 0, {
+    selectFromResult: (query) => ({
+      ...query,
+      attendedEvents: (query.data || []).filter(({ eventNotifications }) =>
         eventNotifications.find(
           ({ email, status }) =>
             email === email && status === EEventInviteStatus.OK
@@ -55,7 +55,7 @@ export const EventPopover = ({
       )
     })
   });
-  const { attendedEvents } = attendedEventsQuery;
+  const { attendedEvents } = eventsQuery;
 
   const myEventsQuery = useGetEventsQuery(
     { createdBy: session.user.userId },
@@ -76,7 +76,7 @@ export const EventPopover = ({
 
   //#region sub
   const subQuery = useGetSubscriptionQuery({
-    email,
+    email: userEmail,
     populate: "events"
   });
   const followedEvents = subQuery.data?.events || [];
@@ -93,11 +93,13 @@ export const EventPopover = ({
   }>({ isOpen: false, event: undefined });
   //#endregion
 
+  //#region cross refetch
   const refetchEvents = useSelector(selectEventsRefetch);
   useEffect(() => {
     if (refetchEvents !== cachedRefetchEvents) {
       cachedRefetchEvents = refetchEvents;
       console.log("refetching events");
+      eventsQuery.refetch();
       myEventsQuery.refetch();
     }
   }, [refetchEvents]);
@@ -110,16 +112,7 @@ export const EventPopover = ({
       subQuery.refetch();
     }
   }, [refetchSubscription]);
-
-  useEffect(() => {
-    const newEmail = storedUserEmail || session.user.email;
-
-    if (newEmail !== email) {
-      setEmail(newEmail);
-      console.log("refetching subscription because of new email", newEmail);
-      subQuery.refetch();
-    }
-  }, [storedUserEmail, session]);
+  //#endregion
 
   return (
     <Box {...props}>
@@ -145,7 +138,7 @@ export const EventPopover = ({
             onClick={() => {
               if (!isOpen) {
                 myEventsQuery.refetch();
-                attendedEventsQuery.refetch();
+                eventsQuery.refetch();
                 subQuery.refetch();
               }
               setIsOpen(!isOpen);

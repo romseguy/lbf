@@ -69,6 +69,8 @@ export const Layout = ({
 }: BoxProps & LayoutProps & PageProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const userEmail = useSelector(selectUserEmail);
+
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(
     router.asPath === "/?login" && !serverSession
   );
@@ -93,17 +95,6 @@ export const Layout = ({
       });
     }
   };
-
-  //#region user email
-  const userEmail = useSelector(selectUserEmail);
-  if (!userEmail) {
-    const email =
-      (router.query.email as string | undefined) ||
-      session?.user.email ||
-      props.email;
-    if (email) dispatch(setUserEmail(email));
-  }
-  //#endregion
 
   useEffect(() => {
     window.addEventListener("offline", () => setIsOffline(true));

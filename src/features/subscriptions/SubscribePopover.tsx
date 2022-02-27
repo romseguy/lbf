@@ -14,16 +14,20 @@ import {
   useToast,
   Alert,
   AlertIcon,
-  Box
+  Box,
+  Icon,
+  IconButton
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { FaBellSlash } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import { HostTag } from "features/common";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
-import { useSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
 import {
   getFollowerSubscription,
   ISubscription,
@@ -34,25 +38,26 @@ import { emailR } from "utils/email";
 import { AppQuery } from "utils/types";
 import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
 import { useAddSubscriptionMutation } from "./subscriptionsApi";
-import { HostTag } from "features/common";
 
 export const SubscribePopover = ({
   event,
   org,
   query,
   subQuery,
+  isIconOnly = false,
   notifType = "email"
 }: {
   event?: IEvent;
   org?: IOrg;
-  query: AppQuery<IEvent | IOrg>;
+  query: AppQuery<IEvent | IOrg | IOrg[]>;
   subQuery: AppQuery<ISubscription>;
+  isIconOnly?: boolean;
   notifType?: "email" | "push";
 }) => {
-  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
   const userEmail = useSelector(selectUserEmail);
+  const router = useRouter();
 
   //#region local state
   const followerSubscription = getFollowerSubscription({
@@ -70,11 +75,9 @@ export const SubscribePopover = ({
   const { errors, handleSubmit, register } = useForm({
     mode: "onChange"
   });
-  const onChange = () => {
-    //clearErrors("email");
-  };
   const [addSubscription] = useAddSubscriptionMutation();
   const addFollowerSubscription = async (email?: string) => {
+    setIsLoading(true);
     let payload: Partial<ISubscription> = {};
 
     if (org) {
@@ -107,7 +110,15 @@ export const SubscribePopover = ({
 
       query.refetch();
       subQuery.refetch();
+      setIsLoading(false);
+      toast({
+        status: "success",
+        title: `Vous êtes maintenant abonné à ${
+          org ? orgTypeFull2(org.orgType) : "l'événement"
+        } ${org ? org.orgName : event?.eventName}`
+      });
     } catch (error) {
+      setIsLoading(false);
       console.error(error);
       toast({
         status: "error",
@@ -115,12 +126,13 @@ export const SubscribePopover = ({
       });
     }
   };
+  const onChange = () => {
+    //clearErrors("email");
+  };
   const onSubmit = async ({ email }: { email?: string }) => {
     if (!email) return;
-    setIsLoading(true);
     dispatch(setUserEmail(email));
     await addFollowerSubscription(email);
-    setIsLoading(false);
   };
   //#endregion
 
@@ -130,17 +142,30 @@ export const SubscribePopover = ({
     return (
       <Popover isLazy isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <PopoverTrigger>
-          <Button
-            isLoading={isLoading}
-            leftIcon={<BellIcon boxSize={6} />}
-            colorScheme="teal"
-            onClick={async () => {
-              setIsOpen(!isOpen);
-            }}
-            data-cy="subscribe-button"
-          >
-            S'abonner
-          </Button>
+          {isIconOnly ? (
+            <IconButton
+              aria-label="S'abonner"
+              isLoading={isLoading}
+              icon={<BellIcon boxSize={6} />}
+              colorScheme="teal"
+              onClick={async () => {
+                setIsOpen(!isOpen);
+              }}
+              data-cy="subscribe-button"
+            />
+          ) : (
+            <Button
+              isLoading={isLoading}
+              leftIcon={<BellIcon boxSize={6} />}
+              colorScheme="teal"
+              onClick={async () => {
+                setIsOpen(!isOpen);
+              }}
+              data-cy="subscribe-button"
+            >
+              S'abonner
+            </Button>
+          )}
         </PopoverTrigger>
 
         <PopoverContent ml={0}>
@@ -195,7 +220,38 @@ export const SubscribePopover = ({
       </Popover>
     );
 
-  if (isFollowed)
+  if (isIconOnly) {
+    return (
+      <IconButton
+        aria-label={isFollowed ? "Se désabonner" : "S'abonner"}
+        isLoading={isLoading}
+        icon={<Icon as={isFollowed ? FaBellSlash : BellIcon} boxSize={6} />}
+        colorScheme="teal"
+        onClick={async () => {
+          if (isFollowed) {
+            const unsubscribe = confirm(
+              `Êtes-vous sûr de vouloir vous désabonner ${
+                org ? orgTypeFull(org.orgType) : "de l'événement"
+              } ${org ? org.orgName : event?.eventName} ?`
+            );
+
+            if (unsubscribe) {
+              const url = `/unsubscribe/${
+                org ? org.orgUrl : event?.eventUrl
+              }?subscriptionId=${subQuery.data!._id}`;
+              router.push(url);
+              setIsOpen(false);
+            }
+          } else {
+            addFollowerSubscription();
+          }
+        }}
+        data-cy="subscribe-button"
+      />
+    );
+  }
+
+  if (isFollowed) {
     return (
       <SubscriptionEditPopover
         event={event}
@@ -204,20 +260,17 @@ export const SubscribePopover = ({
         userEmail={userEmail}
       />
     );
+  }
 
   return (
     <Button
       isLoading={isLoading}
       leftIcon={<BellIcon boxSize={6} />}
       colorScheme="teal"
-      onClick={async () => {
-        setIsLoading(true);
-        await addFollowerSubscription();
-        setIsLoading(false);
-      }}
+      onClick={() => addFollowerSubscription()}
       data-cy="subscribe-button"
     >
-      S'abonner
+      {isIconOnly ? "" : "S'abonner"}
     </Button>
   );
 };

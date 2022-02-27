@@ -7,7 +7,7 @@ import { DeleteButton, Column } from "features/common";
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
 import { IEvent } from "models/Event";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventConfigBannerPanel } from "./EventConfigBannerPanel";
 import { EventConfigLogoPanel } from "./EventConfigLogoPanel";
 import { ConfigVisibility } from "./EventPage";
@@ -23,7 +23,7 @@ export const EventConfigPanel = ({
   setIsVisible
 }: ConfigVisibility & {
   session: Session;
-  eventQuery: AppQuery<IEvent>;
+  eventQuery: AppQueryWithData<IEvent>;
   isConfig: boolean;
   isEdit: boolean;
   setIsConfig: (isConfig: boolean) => void;

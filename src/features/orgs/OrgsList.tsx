@@ -15,14 +15,20 @@ import { css } from "twin.macro";
 import { Link } from "features/common";
 import { IOrg, OrgTypes } from "models/Org";
 import { scrollbarStyles, tableStyles } from "theme/theme";
+import { SubscribePopover } from "features/subscriptions/SubscribePopover";
+import { AppQuery } from "utils/types";
+import { ISubscription } from "models/Subscription";
 
 export const OrgsList = ({
-  data,
-  isLoading
+  query,
+  subQuery
 }: {
-  isLoading: boolean;
-  data?: IOrg[];
+  query: AppQuery<IOrg | IOrg[]>;
+  subQuery: AppQuery<ISubscription>;
 }) => {
+  let { data, isLoading } = query;
+  if (!Array.isArray(data)) data = data?.orgs;
+
   const [selectedOrder, s] = useState<{ key: string; order: "asc" | "desc" }>();
   const setSelectedOrder = (key: string) => {
     const order = !selectedOrder
@@ -73,6 +79,7 @@ export const OrgsList = ({
         <Thead>
           <Tr>
             {[
+              { key: "subscription", label: "" },
               { key: "orgName", label: "Nom" },
               { key: "orgType", label: "Type" },
               { key: "orgCity", label: "Localité" }
@@ -120,6 +127,14 @@ export const OrgsList = ({
               if (org.orgUrl === "forum") return;
               return (
                 <Tr key={`org-${org._id}`}>
+                  <Td>
+                    <SubscribePopover
+                      org={org}
+                      query={query}
+                      subQuery={subQuery}
+                      isIconOnly
+                    />
+                  </Td>
                   <Td>
                     <Link variant="underline" href={`/${org.orgUrl}`} shallow>
                       {org.orgName}

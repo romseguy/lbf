@@ -208,10 +208,6 @@ handler.delete<
             )
           );
 
-      subscription = await subscription
-        .populate("user", "-securityCode -password")
-        .execPopulate();
-
       logJson(
         `DELETE /subscription/${subscriptionId}: subscription`,
         subscription
@@ -309,10 +305,6 @@ handler.delete<
             )
           );
 
-      subscription = await subscription
-        .populate("user", "-securityCode -password")
-        .execPopulate();
-
       logJson(
         `DELETE /subscription/${subscriptionId}: subscription`,
         subscription
@@ -350,7 +342,7 @@ handler.delete<
 
     if (body.topicId) {
       subscription = await subscription
-        .populate({ path: "topics", populate: { path: "topic" } })
+        .populate("topics", "topic")
         .execPopulate();
 
       logJson(

@@ -10,7 +10,6 @@ import {
   Flex,
   IconButton,
   Spinner,
-  TabPanel,
   Text,
   Tooltip,
   useDisclosure
@@ -36,19 +35,22 @@ import {
   EOrgType,
   EOrgVisibility as OrgVisibility
 } from "models/Org";
+import { ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { capitalize, sanitize } from "utils/string";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { useGetOrgsQuery } from "./orgsApi";
 import { OrgsList } from "./OrgsList";
 
 export const OrgPageHomeTabPanel = ({
   isCreator,
   orgQuery,
+  subQuery,
   setIsEdit
 }: {
   isCreator: boolean;
-  orgQuery: AppQuery<IOrg>;
+  orgQuery: AppQueryWithData<IOrg>;
+  subQuery: AppQuery<ISubscription>;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   //#region org
@@ -223,7 +225,7 @@ export const OrgPageHomeTabPanel = ({
                 </Button>
 
                 {isListOpen && (
-                  <OrgsList data={org.orgs} isLoading={orgQuery.isLoading} />
+                  <OrgsList query={orgQuery} subQuery={subQuery} />
                 )}
 
                 {isNetworksModalOpen && (

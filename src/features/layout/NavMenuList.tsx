@@ -163,12 +163,12 @@ export const NavMenuList = ({
 
       <MenuItem
         onClick={async () => {
-          dispatch(resetUserEmail());
           const { url } = await signOut({
             redirect: false,
             callbackUrl: "/"
           });
           dispatch(refetchSession());
+          dispatch(resetUserEmail());
           router.push(url);
         }}
         data-cy="logout"

@@ -3,15 +3,19 @@ import { ComponentWithAs } from "@chakra-ui/system";
 import { IconType } from "react-icons";
 
 export type AppIcon = ComponentWithAs<"svg", IconProps> | IconType;
-export type AppQuery<T> = {
-  data: T;
+export interface AppQuery<T> {
+  data?: T;
   isFetching: boolean;
   isLoading: boolean;
   refetch: () => void;
   error?: {
     status: number;
   };
-};
+}
+export interface AppQueryWithData<T> extends AppQuery<T> {
+  data: T;
+}
+
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 export type PartialRequired<T, K extends keyof T> = Pick<Required<T>, K>;
 // export type PartialRequired<T, Keys extends keyof T = keyof T> = Pick<

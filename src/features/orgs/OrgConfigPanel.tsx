@@ -9,7 +9,7 @@ import { useDeleteOrgMutation } from "features/orgs/orgsApi";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { useAppDispatch } from "store";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigLogoPanel } from "./OrgConfigLogoPanel";
@@ -37,7 +37,7 @@ export const OrgConfigPanel = ({
   setIsEdit
 }: {
   session: Session;
-  orgQuery: AppQuery<IOrg>;
+  orgQuery: AppQueryWithData<IOrg>;
   subQuery: AppQuery<ISubscription>;
   isConfig: boolean;
   isEdit: boolean;

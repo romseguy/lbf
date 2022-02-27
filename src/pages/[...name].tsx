@@ -15,15 +15,14 @@ import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { UserPage } from "features/users/UserPage";
 import { useGetUserQuery, UserQueryParams } from "features/users/usersApi";
-import { selectUserEmail, setUserEmail } from "features/users/userSlice";
+import { selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { useRouterLoading } from "hooks/useRouterLoading";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
-import { useAppDispatch } from "store";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { PageProps } from "./_app";
 
 let cachedEmail: string | undefined;
@@ -151,7 +150,7 @@ const Hash = ({ ...props }: HashProps) => {
       <EventPage
         {...props}
         email={userEmail}
-        eventQuery={eventQuery}
+        eventQuery={eventQuery as AppQueryWithData<IEvent>}
         subQuery={subQuery}
         session={session}
         tab={entityTab}
@@ -181,7 +180,7 @@ const Hash = ({ ...props }: HashProps) => {
     return (
       <OrgPage
         {...props}
-        orgQuery={orgQuery}
+        orgQuery={orgQuery as AppQueryWithData<IOrg>}
         subQuery={subQuery}
         session={session}
         tab={entityTab}
@@ -196,7 +195,7 @@ const Hash = ({ ...props }: HashProps) => {
         {...props}
         email={userEmail}
         session={session}
-        userQuery={userQuery}
+        userQuery={userQuery as AppQueryWithData<IUser>}
       />
     );
   }

@@ -25,15 +25,36 @@ import { TreeChartModal } from "features/modals/TreeChartModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgsList } from "features/orgs/OrgsList";
+import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { InputNode } from "features/treeChart/types";
-import { EOrgType, EOrgVisibility } from "models/Org";
+import { selectUserEmail } from "features/users/userSlice";
+import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
+import { ISubscription } from "models/Subscription";
+import { AppQuery } from "utils/types";
 import { PageProps } from "./_app";
+import { useRouter } from "next/router";
 
 let cachedRefetchOrgs = false;
+let cachedUserEmail: string | undefined;
 
 const IndexPage = (props: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const router = useRouter();
+  const userEmail = useSelector(selectUserEmail);
+
+  const subQuery = useGetSubscriptionQuery({
+    email: userEmail
+  }) as AppQuery<ISubscription>;
+  useEffect(() => {
+    subQuery.refetch();
+  }, [router.asPath]);
+  useEffect(() => {
+    if (cachedUserEmail !== userEmail) {
+      cachedUserEmail = userEmail;
+      subQuery.refetch();
+    }
+  }, [userEmail]);
 
   //#region local state
   const {
@@ -52,7 +73,7 @@ const IndexPage = (props: PageProps) => {
     onClose: closeNetworksModal
   } = useDisclosure({ defaultIsOpen: false });
 
-  const orgsQuery = useGetOrgsQuery({ populate: "orgs" });
+  const orgsQuery = useGetOrgsQuery({ populate: "orgs" }) as AppQuery<IOrg[]>;
   const inputNodes: InputNode[] = useMemo(() => {
     return orgsQuery.data
       ? orgsQuery.data
@@ -69,7 +90,7 @@ const IndexPage = (props: PageProps) => {
           })
       : [];
   }, [orgsQuery.data]);
-  const [isListOpen, setIsListOpen] = useState(false);
+  const [isListOpen, setIsListOpen] = useState(true);
   //#endregion
 
   //#region cross refetch
@@ -168,13 +189,13 @@ const IndexPage = (props: PageProps) => {
               >
                 Liste
               </Button>
-            </>
-          )}
 
-          {isListOpen && (
-            <Column m={undefined} bg={isDark ? "black" : "white"}>
-              <OrgsList data={orgsQuery.data} isLoading={orgsQuery.isLoading} />
-            </Column>
+              {isListOpen && (
+                <Column m={undefined} bg={isDark ? "black" : "white"}>
+                  <OrgsList query={orgsQuery} subQuery={subQuery} />
+                </Column>
+              )}
+            </>
           )}
         </Column>
       </Box>
