@@ -1,4 +1,3 @@
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
@@ -35,24 +34,24 @@ import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { IOrg, orgTypeFull } from "models/Org";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
-import { AppQuery, AppQueryWithData } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
+import { Session } from "next-auth";
 
 export const OrgConfigLogoPanel = ({
+  session,
   orgQuery,
   isVisible,
   setIsVisible,
   ...props
 }: GridProps &
   OrgConfigVisibility & {
+    session: Session | null;
     orgQuery: AppQueryWithData<IOrg>;
   }) => {
-  const org = orgQuery.data;
   const toast = useToast({ position: "top" });
-
-  //#region org
   const [editOrg, editOrgMutation] = useEditOrgMutation();
-  //#endregion
+  const org = orgQuery.data;
 
   //#region form
   const {
@@ -132,7 +131,8 @@ export const OrgConfigLogoPanel = ({
       await editOrg({
         payload,
         orgUrl: org.orgUrl
-      });
+      }).unwrap();
+
       toast({
         title: `Le logo ${orgTypeFull(org.orgType)} a bien été modifié !`,
         status: "success"
@@ -195,7 +195,7 @@ export const OrgConfigLogoPanel = ({
                     await editOrg({
                       payload: ["orgLogo"],
                       orgUrl: org.orgUrl
-                    });
+                    }).unwrap();
                     orgQuery.refetch();
                     toast({
                       title: "Le logo a bien été supprimé !",
@@ -221,17 +221,6 @@ export const OrgConfigLogoPanel = ({
                 if (elementLocked) enableScroll(elementLocked.el);
               }}
             >
-              <ErrorMessage
-                errors={errors}
-                name="formErrorMessage"
-                render={({ message }) => (
-                  <Alert status="error" mb={3}>
-                    <AlertIcon />
-                    <ErrorMessageText>{message}</ErrorMessageText>
-                  </Alert>
-                )}
-              />
-
               <RadioGroup name="uploadType" mb={3}>
                 <Stack spacing={2}>
                   <Radio
@@ -337,6 +326,17 @@ export const OrgConfigLogoPanel = ({
                   </Box>
                 )
               )}
+
+              <ErrorMessage
+                errors={errors}
+                name="formErrorMessage"
+                render={({ message }) => (
+                  <Alert status="error" mb={3}>
+                    <AlertIcon />
+                    <ErrorMessageText>{message}</ErrorMessageText>
+                  </Alert>
+                )}
+              />
 
               <Button
                 colorScheme="green"

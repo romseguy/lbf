@@ -23,7 +23,7 @@ export const TopicsListItemSubscribers = ({
   if (query.isLoading || query.isFetching) return <Spinner boxSize={4} />;
 
   return (
-    <Flex alignItems="center">
+    <Flex alignItems="center" flexWrap="wrap">
       {Array.isArray(query.data) && query.data.length > 0 ? (
         <Text fontSize="smaller" mr={1} whiteSpace="nowrap">
           Abonnés à la discussion :
@@ -35,7 +35,7 @@ export const TopicsListItemSubscribers = ({
       )}
 
       {Array.isArray(query.data) && query.data.length > 0 && (
-        <Flex wrap="nowrap">
+        <Flex flexWrap="wrap" mb={-1}>
           {query.data.map((subscription) => {
             if (typeof subscription.user !== "object") return;
 
@@ -44,7 +44,7 @@ export const TopicsListItemSubscribers = ({
               session?.user.email.replace(/@.+/, "");
 
             return (
-              <Link key={subscription._id} href={`/${userName}`}>
+              <Link key={subscription._id} href={`/${userName}`} mb={1}>
                 <Tag mr={1} fontSize="smaller">
                   {userName}
                 </Tag>

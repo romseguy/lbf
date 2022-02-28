@@ -22,7 +22,6 @@ import {
   Tooltip,
   useToast
 } from "@chakra-ui/react";
-import { Session } from "next-auth";
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
@@ -45,12 +44,10 @@ import { IoIosPerson } from "react-icons/io";
 export const OrgConfigListsPanel = ({
   orgQuery,
   isVisible,
-  setIsVisible,
-  session
+  setIsVisible
 }: GridProps &
   OrgConfigVisibility & {
     orgQuery: AppQueryWithData<IOrg>;
-    session: Session;
   }) => {
   const toast = useToast({ position: "top" });
 
@@ -132,8 +129,7 @@ export const OrgConfigListsPanel = ({
               `}
             >
               <Flex alignItems="center">
-                {hasItems(lists) &&
-                  (isVisible.lists ? <FaFolderOpen /> : <FaFolder />)}
+                {isVisible.lists ? <FaFolderOpen /> : <FaFolder />}
                 <Heading size="sm" ml={2}>
                   {lists
                     ? `${lists.length} liste${lists.length !== 1 ? "s" : ""}`
@@ -192,21 +188,6 @@ export const OrgConfigListsPanel = ({
             overflowX="auto"
             aria-hidden
           >
-            {session.user.isAdmin && (
-              <Button
-                onClick={async () => {
-                  await editOrg({
-                    orgUrl: org.orgUrl,
-                    payload: { orgLists: [] }
-                  }).unwrap();
-
-                  orgQuery.refetch();
-                }}
-              >
-                RAZ
-              </Button>
-            )}
-
             <Table
               css={css`
                 @media (max-width: 700px) {

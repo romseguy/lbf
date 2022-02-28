@@ -53,7 +53,9 @@ handler.get<
 
     const session = await getSession({ req });
     const isCreator =
-      equals(getRefId(org), session?.user.userId) || session?.user.isAdmin;
+      orgUrl === "nom_de_votre_organisation" ||
+      equals(getRefId(org), session?.user.userId) ||
+      session?.user.isAdmin;
 
     if (!isCreator) {
       if (org.orgPassword) {

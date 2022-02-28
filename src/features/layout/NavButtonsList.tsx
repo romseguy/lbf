@@ -21,7 +21,7 @@ export const NavButtonsList = ({
     variant: "no-underline",
     shallow: true
   };
-  const styleProps = { colorScheme: isDark ? "gray" : "cyan", mt: 3 };
+  const styleProps = { colorScheme: isDark ? "gray" : "cyan", mt: 5 };
 
   return (
     <Flex

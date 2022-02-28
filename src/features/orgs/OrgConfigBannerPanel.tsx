@@ -1,10 +1,4 @@
 import {
-  MinusIcon,
-  PlusSquareIcon,
-  ViewIcon,
-  ViewOffIcon
-} from "@chakra-ui/icons";
-import {
   Alert,
   AlertIcon,
   Box,
@@ -21,6 +15,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
+import { Session } from "next-auth";
 import React, { useRef, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
@@ -40,24 +35,23 @@ import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { IOrg } from "models/Org";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
-import { AppQuery, AppQueryWithData } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
 
 export const OrgConfigBannerPanel = ({
+  session,
   orgQuery,
   isVisible,
   setIsVisible,
   ...props
 }: GridProps &
   OrgConfigVisibility & {
+    session: Session | null;
     orgQuery: AppQueryWithData<IOrg>;
   }) => {
-  const org = orgQuery.data;
   const toast = useToast({ position: "top" });
-
-  //#region org
   const [editOrg, editOrgMutation] = useEditOrgMutation();
-  //#endregion
+  const org = orgQuery.data;
 
   //#region form
   const {
@@ -120,7 +114,8 @@ export const OrgConfigBannerPanel = ({
       await editOrg({
         payload,
         orgUrl: org.orgUrl
-      });
+      }).unwrap();
+
       toast({
         title: "La bannière a bien été modifiée !",
         status: "success"
@@ -183,7 +178,7 @@ export const OrgConfigBannerPanel = ({
                     await editOrg({
                       payload: ["orgBanner"],
                       orgUrl: org.orgUrl
-                    });
+                    }).unwrap();
                     orgQuery.refetch();
                     toast({
                       title: "La bannière a bien été supprimée !",
@@ -206,17 +201,6 @@ export const OrgConfigBannerPanel = ({
               }}
               onSubmit={handleSubmit(onSubmit)}
             >
-              <ErrorMessage
-                errors={errors}
-                name="formErrorMessage"
-                render={({ message }) => (
-                  <Alert status="error" mb={3}>
-                    <AlertIcon />
-                    <ErrorMessageText>{message}</ErrorMessageText>
-                  </Alert>
-                )}
-              />
-
               <RadioGroup name="uploadType" mb={3}>
                 <Stack spacing={2}>
                   <Radio
@@ -326,6 +310,17 @@ export const OrgConfigBannerPanel = ({
                   />
                 )}
               </Box>
+
+              <ErrorMessage
+                errors={errors}
+                name="formErrorMessage"
+                render={({ message }) => (
+                  <Alert status="error" mb={3}>
+                    <AlertIcon />
+                    <ErrorMessageText>{message}</ErrorMessageText>
+                  </Alert>
+                )}
+              />
 
               <Button
                 colorScheme="green"

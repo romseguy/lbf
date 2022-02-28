@@ -60,8 +60,12 @@ import { capitalize, normalize } from "utils/string";
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 })(
-  (props: {
-    session: Session;
+  ({
+    session,
+    org,
+    ...props
+  }: {
+    session: Session | null;
     org?: IOrg;
     orgType?: string;
     setOrgType?: (orgType: string) => void;
@@ -74,15 +78,16 @@ export const OrgForm = withGoogleApi({
     const dispatch = useAppDispatch();
     const [addOrg] = useAddOrgMutation();
     const [editOrg] = useEditOrgMutation();
+    const orgsQuery = useGetOrgsQuery();
     const { data: myOrgs } = useGetOrgsQuery(
       {
-        createdBy: props.session.user.userId
+        createdBy: session?.user.userId
       },
       {
         selectFromResult: (query) => ({
           ...query,
           data: query.data?.filter((org) =>
-            props.org ? org.orgName !== props.org.orgName : true
+            org ? org.orgName !== org.orgName : true
           )
         })
       }
@@ -117,10 +122,10 @@ export const OrgForm = withGoogleApi({
       setValue
     }: { [key: string]: any } = useForm({
       defaultValues: {
-        orgAddress: props.org?.orgAddress,
-        orgEmail: props.org?.orgEmail,
-        orgPhone: props.org?.orgPhone,
-        orgWeb: props.org?.orgWeb
+        orgAddress: org?.orgAddress,
+        orgEmail: org?.orgEmail,
+        orgPhone: org?.orgPhone,
+        orgWeb: org?.orgWeb
       },
       mode: "onChange"
     });
@@ -191,33 +196,29 @@ export const OrgForm = withGoogleApi({
 
       try {
         if (
-          !props.org ||
-          !hasItems(props.org.orgAddress) ||
-          (orgAddress[0] &&
-            props.org.orgAddress[0] &&
-            props.org.orgAddress[0].address !== orgAddress[0].address)
+          suggestion &&
+          (!org ||
+            !hasItems(org.orgAddress) ||
+            (orgAddress[0] &&
+              org.orgAddress[0] &&
+              org.orgAddress[0].address !== orgAddress[0].address))
         ) {
-          if (suggestion) {
-            const {
-              lat: orgLat,
-              lng: orgLng,
-              city: orgCity
-            } = await unwrapSuggestion(suggestion);
-            payload = { ...payload, orgLat, orgLng, orgCity };
-          }
+          const {
+            lat: orgLat,
+            lng: orgLng,
+            city: orgCity
+          } = await unwrapSuggestion(suggestion);
+          payload = { ...payload, orgLat, orgLng, orgCity };
         }
 
-        if (props.org) {
-          if (
-            form.orgVisibility === EOrgVisibility.PUBLIC &&
-            !!props.org.orgPassword
-          )
+        if (org) {
+          if (form.orgVisibility === EOrgVisibility.PUBLIC && !!org.orgPassword)
             await editOrg({
-              orgUrl: props.org.orgUrl,
+              orgUrl: org.orgUrl,
               payload: ["orgPassword"]
-            });
+            }).unwrap();
 
-          await editOrg({ payload, orgUrl: props.org.orgUrl });
+          await editOrg({ payload, orgUrl: org.orgUrl }).unwrap();
 
           toast({
             title: `La modification a bien été effectuée !`,
@@ -273,7 +274,7 @@ export const OrgForm = withGoogleApi({
               //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
               // }
             })}
-            defaultValue={props.org?.orgName}
+            defaultValue={org?.orgName}
             placeholder={`Saisir le nom ${orgTypeLabel}`}
           />
           {getValues("orgName") && (
@@ -293,7 +294,7 @@ export const OrgForm = withGoogleApi({
           <Select
             name="orgType"
             ref={register()}
-            defaultValue={props.org?.orgType || props.orgType}
+            defaultValue={org?.orgType || orgType}
             placeholder={`Type de l'organisation`}
             color={isDark ? "whiteAlpha.400" : "gray.400"}
           >
@@ -321,14 +322,14 @@ export const OrgForm = withGoogleApi({
             name="orgs"
             as={ReactSelect}
             control={control}
-            defaultValue={props.org ? props.org.orgs : []}
+            defaultValue={org ? org.orgs : []}
             closeMenuOnSelect
             isClearable
             isMulti
             isSearchable
             menuPlacement="top"
             noOptionsMessage={() => "Aucun résultat"}
-            options={myOrgs}
+            options={session?.user.isAdmin ? orgsQuery.data : myOrgs}
             getOptionLabel={(option: any) => option.orgName}
             getOptionValue={(option: any) => option._id}
             placeholder={
@@ -359,13 +360,13 @@ export const OrgForm = withGoogleApi({
           <Controller
             name="orgDescription"
             control={control}
-            defaultValue={props.org?.orgDescription || ""}
+            defaultValue={org?.orgDescription || ""}
             render={(renderProps) => {
               return (
                 <RTEditor
-                  org={props.org}
-                  session={props.session}
-                  defaultValue={props.org?.orgDescription}
+                  org={org}
+                  session={session}
+                  defaultValue={org?.orgDescription}
                   placeholder={`Écrire la description ${orgTypeLabel}`}
                   onChange={({ html }) => renderProps.onChange(html)}
                 />
@@ -391,7 +392,7 @@ export const OrgForm = withGoogleApi({
             ref={register({
               required: "Veuillez sélectionner la visibilité de l'organisation"
             })}
-            defaultValue={props.org?.orgVisibility || EOrgVisibility.PUBLIC}
+            defaultValue={org?.orgVisibility || EOrgVisibility.PUBLIC}
             placeholder="Visibilité de l'organisation"
             color={isDark ? "whiteAlpha.400" : "gray.400"}
           >
@@ -498,7 +499,7 @@ export const OrgForm = withGoogleApi({
             isLoading={isLoading}
             isDisabled={Object.keys(errors).length > 0}
           >
-            {props.org ? "Modifier" : "Ajouter"}
+            {org ? "Modifier" : "Ajouter"}
           </Button>
         </Flex>
       </form>

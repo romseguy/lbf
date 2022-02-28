@@ -23,6 +23,7 @@ export const Button = ({
       ...styles,
       alignSelf: "flex-start",
       height: "auto",
+      py: 2,
       whiteSpace: "normal"
     };
 

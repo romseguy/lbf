@@ -1,10 +1,10 @@
 import { ArrowBackIcon, SettingsIcon } from "@chakra-ui/icons";
-import { Alert, AlertIcon, Box, Button, Flex, Text } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Flex, Text } from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "features/common";
+import { Button, Link } from "features/common";
 import { Forum } from "features/forum/Forum";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
@@ -39,7 +39,10 @@ export const OrgPage = ({
   //#region org
   const org = orgQuery.data;
   const isCreator =
-    session?.user.userId === getRefId(org) || session?.user.isAdmin || false;
+    org.orgUrl === "nom_de_votre_organisation" || // demo page
+    session?.user.userId === getRefId(org) ||
+    session?.user.isAdmin ||
+    false;
   const orgCreatedByUserName =
     typeof org.createdBy === "object"
       ? org.createdBy.userName || org.createdBy._id
@@ -97,6 +100,7 @@ export const OrgPage = ({
 
         {!isEdit && isConfig && (
           <Button
+            canWrap
             colorScheme="teal"
             leftIcon={<ArrowBackIcon boxSize={6} />}
             onClick={() => setIsConfig(false)}
@@ -155,6 +159,9 @@ export const OrgPage = ({
 
           <Box mt={3}>
             <SubscribePopover
+              isDisabled={
+                org.orgUrl === "nom_de_votre_organisation" && !session
+              }
               org={org}
               query={orgQuery}
               subQuery={subQuery}
@@ -174,7 +181,7 @@ export const OrgPage = ({
           <Link variant="underline" href={`/${orgCreatedByUserName}`}>
             {orgCreatedByUserName}
           </Link>{" "}
-          {isCreator && !session?.user.isAdmin && "(Vous)"}
+          {isCreator && session && !session.user.isAdmin && "(Vous)"}
         </Text>
       </Box>
 
@@ -207,7 +214,7 @@ export const OrgPage = ({
         />
       )}
 
-      {session && isCreator && (
+      {isCreator && (
         <OrgConfigPanel
           session={session}
           orgQuery={orgQuery}

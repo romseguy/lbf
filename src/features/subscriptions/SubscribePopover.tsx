@@ -1,22 +1,23 @@
 import { BellIcon, EmailIcon } from "@chakra-ui/icons";
 import {
+  Alert,
+  AlertIcon,
+  Box,
+  Button,
+  ButtonProps,
+  FormControl,
+  FormErrorMessage,
+  Icon,
+  IconButton,
+  InputGroup,
+  InputLeftElement,
+  Input,
   Popover,
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
   PopoverFooter,
-  Button,
-  FormControl,
-  InputGroup,
-  InputLeftElement,
-  Input,
-  FormErrorMessage,
-  useToast,
-  Alert,
-  AlertIcon,
-  Box,
-  Icon,
-  IconButton
+  useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/router";
@@ -45,8 +46,9 @@ export const SubscribePopover = ({
   query,
   subQuery,
   isIconOnly = false,
-  notifType = "email"
-}: {
+  notifType = "email",
+  ...props
+}: ButtonProps & {
   event?: IEvent;
   org?: IOrg;
   query: AppQuery<IEvent | IOrg | IOrg[]>;
@@ -155,6 +157,7 @@ export const SubscribePopover = ({
             />
           ) : (
             <Button
+              {...props}
               isLoading={isLoading}
               leftIcon={<BellIcon boxSize={6} />}
               colorScheme="teal"

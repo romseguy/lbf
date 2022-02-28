@@ -7,6 +7,8 @@ import {
 import {
   Box,
   Flex,
+  List,
+  ListItem,
   Spinner,
   Text,
   useColorMode,
@@ -17,7 +19,7 @@ import { FaRegMap } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
-import { Button, Column, Heading } from "features/common";
+import { Button, Column, Heading, HostTag } from "features/common";
 import { Layout } from "features/layout";
 import { AboutModal } from "features/modals/AboutModal";
 import { MapModal } from "features/modals/MapModal";
@@ -106,99 +108,106 @@ const IndexPage = (props: PageProps) => {
 
   return (
     <Layout {...props} pageTitle="Accueil">
-      <Box
-        css={css`
-          & > div:first-of-type {
-            margin-bottom: 16px;
+      <Column mb={3}>
+        <Text>
+          Bienvenue sur l'arborescence <HostTag />
+        </Text>
+
+        <Button
+          canWrap
+          colorScheme="teal"
+          leftIcon={<ArrowForwardIcon />}
+          my={5}
+          onClick={() =>
+            router.push(
+              "/nom_de_votre_organisation",
+              "/nom_de_votre_organisation",
+              { shallow: true }
+            )
           }
-        `}
-      >
-        <Column>
-          <Flex>
-            <Heading>Présentations </Heading>
-          </Flex>
+        >
+          Exemple de page d'une organisation (association, groupe, pôle
+          thématique, etc)
+        </Button>
 
-          <Text my={3}>
-            Cette application (optimisée mobile) a pour objectif de pérenniser
-            et de mettre en valeur l'information et la communication au sein des
-            organisations.
-          </Text>
+        <Text>Bonne découverte !</Text>
+      </Column>
 
-          <Button
-            canWrap
-            colorScheme="teal"
-            leftIcon={<ArrowForwardIcon />}
-            mb={5}
-            py={2}
-            onClick={openAboutModal}
-          >
-            Vous êtes responsable de communication au sein d'une organisation
-          </Button>
+      <Column mb={3}>
+        <Flex mb={3}>
+          <Heading>Informations supplémentaires</Heading>
+        </Flex>
 
-          <Button
-            canWrap
-            colorScheme="teal"
-            isDisabled
-            leftIcon={<ArrowForwardIcon />}
-            mb={5}
-            py={2}
-            onClick={openAboutModal}
-          >
-            Vous êtes adhérent au sein d'une organisation
-          </Button>
-        </Column>
+        <Button
+          canWrap
+          colorScheme="teal"
+          leftIcon={<ArrowForwardIcon />}
+          mb={5}
+          onClick={openAboutModal}
+        >
+          Vous êtes responsable de communication au sein d'une organisation
+        </Button>
 
-        <Column>
-          <Flex>
-            <Heading mb={3}>Naviguer dans les organisations</Heading>
-          </Flex>
+        {/* <Button
+          canWrap
+          colorScheme="teal"
+          isDisabled
+          leftIcon={<ArrowForwardIcon />}
+          mb={5}
+          onClick={openAboutModal}
+        >
+          Vous êtes adhérent au sein d'une organisation
+        </Button> */}
+      </Column>
 
-          {orgsQuery.isLoading ? (
-            <Spinner />
-          ) : (
-            <>
-              <Button
-                alignSelf="flex-start"
-                colorScheme="teal"
-                leftIcon={<IoIosGitNetwork />}
-                mb={5}
-                onClick={openNetworksModal}
-              >
-                Arborescence
-              </Button>
+      <Column>
+        <Flex>
+          <Heading mb={3}>Naviguer dans les organisations</Heading>
+        </Flex>
 
-              <Button
-                alignSelf="flex-start"
-                colorScheme="teal"
-                leftIcon={<FaRegMap />}
-                onClick={openMapModal}
-                mb={5}
-              >
-                Carte
-              </Button>
+        {orgsQuery.isLoading ? (
+          <Spinner />
+        ) : (
+          <>
+            <Button
+              alignSelf="flex-start"
+              colorScheme="teal"
+              leftIcon={<IoIosGitNetwork />}
+              mb={5}
+              onClick={openNetworksModal}
+            >
+              Arborescence
+            </Button>
 
-              <Button
-                alignSelf="flex-start"
-                colorScheme="teal"
-                leftIcon={<HamburgerIcon />}
-                rightIcon={
-                  isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
-                }
-                mb={3}
-                onClick={() => setIsListOpen(!isListOpen)}
-              >
-                Liste
-              </Button>
+            <Button
+              alignSelf="flex-start"
+              colorScheme="teal"
+              leftIcon={<FaRegMap />}
+              onClick={openMapModal}
+              mb={5}
+            >
+              Carte
+            </Button>
 
-              {isListOpen && (
-                <Column m={undefined} bg={isDark ? "black" : "white"}>
-                  <OrgsList query={orgsQuery} subQuery={subQuery} />
-                </Column>
-              )}
-            </>
-          )}
-        </Column>
-      </Box>
+            <Button
+              alignSelf="flex-start"
+              colorScheme="teal"
+              leftIcon={<HamburgerIcon />}
+              rightIcon={isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />}
+              mb={3}
+              onClick={() => setIsListOpen(!isListOpen)}
+            >
+              Liste
+            </Button>
+
+            {isListOpen && (
+              <Column m={undefined} bg={isDark ? "black" : "white"}>
+                <OrgsList query={orgsQuery} subQuery={subQuery} />
+              </Column>
+            )}
+          </>
+        )}
+      </Column>
 
       {isAboutModalOpen && (
         <AboutModal

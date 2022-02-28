@@ -12,16 +12,17 @@ import {
   ModalOverlay,
   Tag,
   useColorMode,
-  SpaceProps
+  FlexProps
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { FaRegCalendarCheck, FaRegCalendarTimes } from "react-icons/fa";
 import { css } from "twin.macro";
 import { Link, Heading } from "features/common";
-import { IOrg, EOrgType } from "models/Org";
+import { useScroll } from "hooks/useScroll";
 import { defaultCategory, getEventCategories, IEvent } from "models/Event";
+import { IOrg, EOrgType } from "models/Org";
 
 export const Header = ({
   event,
@@ -30,7 +31,7 @@ export const Header = ({
   pageTitle,
   pageSubTitle,
   ...props
-}: SpaceProps & {
+}: FlexProps & {
   event?: IEvent;
   org?: IOrg;
   defaultTitle: string;
@@ -40,6 +41,10 @@ export const Header = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
+  const [executeScroll, elementToScrollRef] = useScroll<any>();
+  useEffect(() => {
+    executeScroll();
+  }, [router.asPath]);
 
   //#region event/org
   const banner = event?.eventBanner || org?.orgBanner;
@@ -144,6 +149,7 @@ export const Header = ({
 
   return (
     <Flex
+      ref={elementToScrollRef as React.ForwardedRef<any>}
       as="header"
       alignItems="center"
       bg={isDark ? "gray.700" : "lightblue"}
@@ -151,8 +157,6 @@ export const Header = ({
       color={isDark ? "white" : "black"}
       cursor={banner ? "pointer" : "default"}
       height={banner ? banner.headerHeight : undefined}
-      m={3}
-      mb={0}
       p={
         banner && !logo
           ? "0 12px 0 12px"

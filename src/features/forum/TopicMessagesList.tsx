@@ -22,8 +22,9 @@ import { ITopic } from "models/Topic";
 import { IOrg } from "models/Org";
 import * as dateUtils from "utils/date";
 import { sanitize } from "utils/string";
-import { AppQuery } from "utils/types";
+import { AppQuery, TypedMap } from "utils/types";
 import { useEditTopicMutation } from "./topicsApi";
+import { TopicMessagesListItem } from "./TopicMessagesListItem";
 
 export const TopicMessagesList = ({
   topic,
@@ -33,26 +34,50 @@ export const TopicMessagesList = ({
   topic: ITopic;
   query: AppQuery<IEvent | IOrg>;
 }) => {
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
-  const [editTopic] = useEditTopicMutation();
+  const mutation = useEditTopicMutation();
 
-  const [isEdit, setIsEdit] = useState<{
-    [key: string]: {
-      html?: string;
-      isOpen: boolean;
-    };
-  }>({});
-  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
+  const [isEdit, setIsEdit] = useState<
+    TypedMap<
+      string,
+      {
+        html?: string;
+        isOpen: boolean;
+      }
+    >
+  >({});
+  const [isLoading, setIsLoading] = useState<TypedMap<string, boolean>>({});
 
   if (!topic) return null;
 
   return (
     <Flex flexDirection="column" {...props}>
       <Box>
-        {topic.topicMessages.map(
+        {topic.topicMessages.map((topicMessage, index) => (
+          <TopicMessagesListItem
+            index={index}
+            isDark={isDark}
+            isEdit={isEdit}
+            isLoading={isLoading}
+            mutation={mutation}
+            query={query}
+            session={session}
+            setIsEdit={setIsEdit}
+            setIsLoading={setIsLoading}
+            topic={topic}
+            topicMessage={topicMessage}
+          />
+        ))}
+      </Box>
+    </Flex>
+  );
+};
+
+{
+  /*
           ({ message, createdBy, createdAt, ...rest }, index) => {
             const _id = rest._id as string;
             let userName = "";
@@ -241,8 +266,5 @@ export const TopicMessagesList = ({
               </Flex>
             );
           }
-        )}
-      </Box>
-    </Flex>
-  );
-};
+*/
+}

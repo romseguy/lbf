@@ -76,7 +76,6 @@ export const Nav = ({
         as="nav"
         bg={isDark ? "gray.700" : "lightblue"}
         borderRadius="lg"
-        m={3}
         p={3}
         pt={0}
         {...props}

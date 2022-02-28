@@ -36,7 +36,7 @@ export const OrgConfigPanel = ({
   setIsConfig,
   setIsEdit
 }: {
-  session: Session;
+  session: Session | null;
   orgQuery: AppQueryWithData<IOrg>;
   subQuery: AppQuery<ISubscription>;
   isConfig: boolean;
@@ -156,6 +156,7 @@ export const OrgConfigPanel = ({
       {isConfig && !isEdit && (
         <Column m="">
           <OrgConfigLogoPanel
+            session={session}
             orgQuery={orgQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
@@ -163,6 +164,7 @@ export const OrgConfigPanel = ({
           />
 
           <OrgConfigBannerPanel
+            session={session}
             orgQuery={orgQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
@@ -181,7 +183,6 @@ export const OrgConfigPanel = ({
             orgQuery={orgQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
-            session={session}
           />
         </Column>
       )}

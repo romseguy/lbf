@@ -208,20 +208,25 @@ export const Layout = ({
           </Box>
         )}
 
-        <Header
-          event={event}
-          org={org}
-          defaultTitle={defaultTitle}
-          pageTitle={pageTitle}
-          pageSubTitle={pageSubTitle}
-        />
-
         <Nav
           {...props}
           email={userEmail}
           session={session}
           setIsLoginModalOpen={setIsLoginModalOpen}
+          m={3}
         />
+
+        {router.asPath !== "/" && (
+          <Header
+            event={event}
+            org={org}
+            defaultTitle={defaultTitle}
+            pageTitle={pageTitle}
+            pageSubTitle={pageSubTitle}
+            m={3}
+            mt={0}
+          />
+        )}
 
         <Box
           as="main"
