@@ -29,12 +29,16 @@ import { useForm } from "react-hook-form";
 import { EmailControl, EntityButton, ErrorMessageText } from "features/common";
 import { useAddEventNotifMutation } from "features/events/eventsApi";
 import { IEvent } from "models/Event";
-import { getLists, getSubscriptions, orgTypeFull } from "models/Org";
-import { ESubscriptionType } from "models/Subscription";
+import { orgTypeFull } from "models/Org";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { equalsValue } from "utils/string";
 import { AppQuery } from "utils/types";
+
+export interface EventNotifFormState {
+  email?: string;
+  orgListsNames: string[];
+}
 
 export const EventNotifForm = ({
   event,
@@ -43,7 +47,7 @@ export const EventNotifForm = ({
   onCancel,
   ...props
 }: BoxProps & {
-  event: IEvent<any>;
+  event: IEvent<string | Date>;
   eventQuery: AppQuery<IEvent>;
   session: Session;
   onCancel?: () => void;
@@ -54,7 +58,7 @@ export const EventNotifForm = ({
   const isDark = colorMode === "dark";
 
   //#region event
-  const [addEventNotif, q] = useAddEventNotifMutation();
+  const [addEventNotif] = useAddEventNotifMutation();
   //#endregion
 
   //#region local state
@@ -63,27 +67,16 @@ export const EventNotifForm = ({
   //#endregion
 
   //#region form
-  const {
-    control,
-    register,
-    handleSubmit,
-    errors,
-    setError,
-    clearErrors,
-    watch,
-    setValue,
-    getValues,
-    trigger
-  } = useForm({
+  const { control, register, errors, setError, setValue, watch } = useForm({
     mode: "onChange"
   });
   const email = watch("email");
   const orgListsNames = watch("orgListsNames");
 
-  const onSubmit = async (form: {
-    email?: string;
-    orgListsNames: string[];
-  }) => {
+  //#region form handlers
+  const onChange = () => {};
+
+  const onSubmit = async (form: EventNotifFormState) => {
     console.log("submitted", form);
     setIsLoading(true);
 
@@ -128,6 +121,7 @@ export const EventNotifForm = ({
     }
   };
   //#endregion
+  //#endregion
 
   return (
     <Box
@@ -139,7 +133,7 @@ export const EventNotifForm = ({
       mt={3}
       {...props}
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onChange={onChange}>
         <RadioGroup name="type" my={3}>
           <Stack spacing={2}>
             <Radio
@@ -294,12 +288,17 @@ export const EventNotifForm = ({
 
           <Button
             colorScheme="green"
-            type="submit"
-            isLoading={isLoading}
             isDisabled={
               Object.keys(errors).length > 0 ||
               (type === "single" && !email) ||
               (type === "multi" && !hasItems(orgListsNames))
+            }
+            isLoading={isLoading}
+            onClick={() =>
+              onSubmit({
+                email,
+                orgListsNames
+              })
             }
           >
             Envoyer {type === "single" ? "l'invitation" : "les invitations"}

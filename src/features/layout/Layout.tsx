@@ -70,6 +70,7 @@ export const Layout = ({
   const dispatch = useAppDispatch();
   const router = useRouter();
   const userEmail = useSelector(selectUserEmail);
+  console.log("userEmail", userEmail);
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(
     router.asPath === "/?login" && !serverSession

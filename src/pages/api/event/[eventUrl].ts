@@ -195,18 +195,25 @@ handler.post<
         subscriptionId: subscription?._id || session.user.userId
       });
 
-      if (process.env.NODE_ENV === "production") await sendMail(mail);
-      else console.log(`sent event invite to ${body.email}`, mail);
+      try {
+        await sendMail(mail);
+      } catch (error: any) {
+        if (process.env.NODE_ENV === "development") {
+          if (error.command !== "CONN") {
+            throw error;
+          }
+        }
+      }
+
+      notifications = [
+        {
+          email: body.email,
+          status: EEventInviteStatus.PENDING,
+          createdAt: new Date().toISOString()
+        }
+      ];
 
       if (body.email !== session.user.email) {
-        notifications = [
-          {
-            email: body.email,
-            status: EEventInviteStatus.PENDING,
-            createdAt: new Date().toISOString()
-          }
-        ];
-
         event.eventNotifications =
           event.eventNotifications.concat(notifications);
         await event.save();
@@ -215,6 +222,7 @@ handler.post<
       //console.log(`POST /event/${eventUrl}: orgListsNames`, body.orgListsNames);
       for (const orgListName of body.orgListsNames) {
         const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
+
         let org: (IOrg & Document<any, any, IOrg>) | null | undefined;
         org = await models.Org.findOne({ _id: orgId });
         if (!org) return res.status(400).json("Organisation introuvable");
@@ -225,9 +233,10 @@ handler.post<
           org = await org
             .populate({
               path: "orgSubscriptions",
+              select: "+email +phone",
               populate: {
                 path: "user",
-                select: "email phone userSubscription"
+                select: "+email +phone +userSubscription"
               }
             })
             .execPopulate();
@@ -246,9 +255,10 @@ handler.post<
               populate: [
                 {
                   path: "subscriptions",
+                  select: "+email +phone",
                   populate: {
                     path: "user",
-                    select: "email phone userSubscription"
+                    select: "+email +phone +userSubscription"
                   }
                 }
               ]

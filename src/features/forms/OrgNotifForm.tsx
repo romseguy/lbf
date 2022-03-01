@@ -39,6 +39,11 @@ import { isTopic } from "utils/models";
 import { equalsValue } from "utils/string";
 import { AppQuery } from "utils/types";
 
+export interface OrgNotifFormState {
+  email?: string;
+  orgListsNames?: string[];
+}
+
 export const OrgNotifForm = ({
   entity,
   org,
@@ -51,7 +56,7 @@ export const OrgNotifForm = ({
   query: AppQuery<IOrg>;
   onCancel?: () => void;
   onSubmit: (
-    form: { email?: string; orgListsNames?: string[] },
+    form: OrgNotifFormState,
     type?: "single" | "multi"
   ) => Promise<void>;
 }) => {
@@ -61,12 +66,19 @@ export const OrgNotifForm = ({
   //#region local state
   const isT = isTopic(entity);
   const [isLoading, setIsLoading] = useState(false);
-  const lists = org.orgLists;
   const [type, setType] = useState<"multi" | "single">();
   //#endregion
 
   //#region form
-  const { control, register, handleSubmit, errors, watch, setValue } = useForm({
+  const {
+    control,
+    register,
+    handleSubmit,
+    errors,
+    clearErrors,
+    setValue,
+    watch
+  } = useForm({
     mode: "onChange"
   });
   const email = watch("email");
@@ -75,7 +87,9 @@ export const OrgNotifForm = ({
 
   return (
     <form
-      onSubmit={handleSubmit(async (form: { orgListsNames: string[] }) => {
+      onChange={() => clearErrors("formErrorMessage")}
+      onSubmit={handleSubmit(async (form: OrgNotifFormState) => {
+        console.log("submitted", form);
         setIsLoading(true);
         await onSubmit(form, type);
         setIsLoading(false);
@@ -161,7 +175,7 @@ export const OrgNotifForm = ({
                         </Td>
                       </Tr>
 
-                      {lists?.map((list) => {
+                      {org.orgLists.map((list) => {
                         let i = 0;
                         for (const subscription of list.subscriptions || []) {
                           const notifications = isT

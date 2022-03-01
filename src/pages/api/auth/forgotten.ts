@@ -57,10 +57,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function forgotten(
       html: `<h1>Votre demande de réinitialisation de mot de passe</h1>Afin de réinitialiser votre mot de passse, veuillez saisir le code de sécurité suivant : ${securityCode}`
     };
 
-    if (process.env.NODE_ENV === "production") await sendMail(mail);
-    else if (process.env.NODE_ENV === "development")
-      console.log(`sent forgotten password e-mail to ${mail.to}`, mail);
-
+    await sendMail(mail);
     res.status(200).json(securityCode);
   } catch (error) {
     res.status(500).json(createServerError(error));

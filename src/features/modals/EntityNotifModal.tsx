@@ -22,7 +22,7 @@ import {
   AddEventNotifPayload,
   useEditEventMutation
 } from "features/events/eventsApi";
-import { OrgNotifForm } from "features/forms/OrgNotifForm";
+import { OrgNotifForm, OrgNotifFormState } from "features/forms/OrgNotifForm";
 import {
   AddTopicNotifPayload,
   useEditTopicMutation
@@ -145,10 +145,9 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
                       org={org}
                       query={query as AppQuery<IOrg>}
                       onSubmit={async (
-                        form: { email?: string; orgListsNames?: string[] },
+                        form: OrgNotifFormState,
                         type?: "single" | "multi"
                       ) => {
-                        console.log("submitted", form);
                         let payload: AddTopicNotifPayload = { org };
 
                         if (type === "multi") {

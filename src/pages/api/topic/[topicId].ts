@@ -79,17 +79,24 @@ handler.post<
         subscriptionId: subscription?._id || session.user.userId
       });
 
-      if (process.env.NODE_ENV === "production") await sendMail(mail);
-      else console.log(`sent event invite to ${body.email}`, mail);
+      try {
+        await sendMail(mail);
+      } catch (error: any) {
+        if (process.env.NODE_ENV === "development") {
+          if (error.command !== "CONN") {
+            throw error;
+          }
+        }
+      }
+
+      notifications = [
+        {
+          email: body.email,
+          createdAt: new Date().toISOString()
+        }
+      ];
 
       if (body.email !== session.user.email) {
-        notifications = [
-          {
-            email: body.email,
-            createdAt: new Date().toISOString()
-          }
-        ];
-
         topic.topicNotifications =
           topic.topicNotifications.concat(notifications);
         await topic.save();
@@ -97,10 +104,12 @@ handler.post<
     } else if (body.event) {
       let event = await models.Event.findOne({ _id: body.event._id });
       if (!event) return res.status(400).json("Événement introuvable");
+
       event = await event
         .populate({
           path: "eventSubscriptions",
-          populate: { path: "user", select: "email phone userSubscription" }
+          select: "+email +phone",
+          populate: { path: "user", select: "+email +phone +userSubscription" }
         })
         .execPopulate();
 

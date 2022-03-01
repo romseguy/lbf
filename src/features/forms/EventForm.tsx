@@ -242,7 +242,7 @@ export const EventForm = withGoogleApi({
 
     //#region form handlers
     const onChange = () => {
-      clearErrors();
+      clearErrors("formErrorMessage");
     };
 
     const onSubmit = async (form: IEvent) => {

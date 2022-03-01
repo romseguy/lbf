@@ -17,15 +17,33 @@ import {
 } from "utils/email";
 
 export const sendMail = async (mail: Mail, session?: Session | null) => {
-  const server = process.env.EMAIL_SERVER;
-  const transport = nodemailer.createTransport(server);
-  await transport.sendMail(mail);
+  try {
+    const server = process.env.EMAIL_SERVER;
+    const transport = nodemailer.createTransport(server);
+    await transport.sendMail(mail);
+    console.log(`sent event email notif to ${mail.to}`, mail);
 
-  if (session)
-    await models.User.updateOne(
-      { userId: session.user.userId },
-      { emailCount: "increment" }
-    );
+    if (session)
+      await models.User.updateOne(
+        { userId: session.user.userId },
+        { emailCount: "increment" }
+      );
+  } catch (error: any) {
+    console.log("api/email/sendMail error");
+    console.error(error);
+
+    if (process.env.NODE_ENV === "development") {
+      if (error.command === "CONN") {
+        console.log(`sent email to ${mail.to}`, mail);
+
+        if (session)
+          await models.User.updateOne(
+            { userId: session.user.userId },
+            { emailCount: "increment" }
+          );
+      }
+    } else throw error;
+  }
 };
 
 // send email and/or push notifications to org followers
@@ -99,11 +117,7 @@ export const sendEventNotifications = async ({
           subscriptionId: subscription._id
         });
 
-        if (process.env.NODE_ENV === "production") await sendMail(mail);
-        else if (process.env.NODE_ENV === "development") {
-          console.log(`sent event email notif to ${mail.to}`, mail);
-        }
-
+        await sendMail(mail);
         eventNotification = { ...eventNotification, email };
       }
 
@@ -152,11 +166,7 @@ export const sendEventNotifications = async ({
               subscriptionId: subscription._id
             });
 
-            if (process.env.NODE_ENV === "production") await sendMail(mail);
-            else if (process.env.NODE_ENV === "development") {
-              console.log(`email: notified ${mail.to}`, mail);
-            }
-
+            await sendMail(mail);
             eventNotification = { ...eventNotification, email };
           }
         }
@@ -284,11 +294,7 @@ export const sendTopicNotifications = async ({
             topic
           });
 
-          if (process.env.NODE_ENV === "production") await sendMail(mail);
-          else if (process.env.NODE_ENV === "development") {
-            console.log(`email: notified ${mail.to}`, mail);
-          }
-
+          await sendMail(mail);
           topicNotification = { ...topicNotification, email };
         }
       }
@@ -367,11 +373,7 @@ export const sendTopicNotifications = async ({
               topic
             });
 
-            if (process.env.NODE_ENV === "production") await sendMail(mail);
-            else if (process.env.NODE_ENV === "development") {
-              console.log(`sent topic email notif to ${mail.to}`, mail);
-            }
-
+            await sendMail(mail);
             topicNotification = { ...topicNotification, email };
           }
         }
@@ -471,10 +473,7 @@ export const sendTopicMessageNotifications = async ({
       html
     };
 
-    if (process.env.NODE_ENV === "production") await sendMail(mail);
-    else if (process.env.NODE_ENV === "development") {
-      console.log(`sent topic message email notif to ${email}`, mail);
-    }
+    await sendMail(mail);
   }
 };
 

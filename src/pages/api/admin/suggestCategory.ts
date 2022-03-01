@@ -81,9 +81,7 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
         `
       };
 
-      if (process.env.NODE_ENV === "production") await sendMail(mail);
-      else console.log(`sent new category suggestion to ${mail.to}`, mail);
-
+      await sendMail(mail);
       res.status(200).json({});
     } catch (error) {
       res.status(500).json(createServerError(error));
