@@ -222,7 +222,7 @@ export const OrgConfigBannerPanel = ({
                 </Stack>
               </RadioGroup>
 
-              <FormControl id="height" mb={3}>
+              <FormControl mb={3}>
                 <FormLabel>Hauteur</FormLabel>
                 <Select
                   name="height"
@@ -251,7 +251,7 @@ export const OrgConfigBannerPanel = ({
                   mb={3}
                 />
               ) : (
-                <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
+                <FormControl isInvalid={!!errors["file"]} mb={3}>
                   <FormLabel>Image</FormLabel>
                   <Input
                     height="auto"

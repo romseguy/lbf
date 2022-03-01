@@ -1,3 +1,4 @@
+import { DeleteIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
@@ -92,7 +93,6 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
           status: "success",
           title: `${notifications.length} invitation${s} envoyée${s} !`
         });
-        //query.refetch();
         onClose();
       } else
         toast({
@@ -192,6 +192,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
 
             {session.user.isAdmin && (
               <Button
+                leftIcon={<DeleteIcon />}
                 mt={5}
                 onClick={async () => {
                   if (isEvent(entity))
@@ -208,7 +209,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
                   onClose();
                 }}
               >
-                Effacer
+                Effacer l'historique
               </Button>
             )}
           </ModalBody>

@@ -139,12 +139,7 @@ export const ForgottenForm = ({
 
       {/* Step 1 */}
       {!isSent && !isValid && (
-        <FormControl
-          id="emailForgotten"
-          isRequired
-          isInvalid={!!errors["emailForgotten"]}
-          mb={3}
-        >
+        <FormControl isRequired isInvalid={!!errors["emailForgotten"]} mb={3}>
           <FormLabel>Adresse e-mail</FormLabel>
           <InputGroup>
             <InputLeftElement pointerEvents="none" children={<EmailIcon />} />
@@ -169,12 +164,7 @@ export const ForgottenForm = ({
 
       {/* Step 2 */}
       {isSent && !isValid && (
-        <FormControl
-          id="securityCode"
-          isRequired
-          isInvalid={!!errors["securityCode"]}
-          mb={3}
-        >
+        <FormControl isRequired isInvalid={!!errors["securityCode"]} mb={3}>
           <FormLabel>Code de sécurité</FormLabel>
           <InputGroup>
             <Input
@@ -194,12 +184,7 @@ export const ForgottenForm = ({
       {/* Step 3 */}
       {isValid && (
         <>
-          <FormControl
-            id="password"
-            mb={3}
-            isRequired
-            isInvalid={!!errors["password"]}
-          >
+          <FormControl mb={3} isRequired isInvalid={!!errors["password"]}>
             <FormLabel>Nouveau mot de passe</FormLabel>
             <Input
               name="password"
@@ -214,7 +199,6 @@ export const ForgottenForm = ({
           </FormControl>
 
           <FormControl
-            id="passwordConfirm"
             isRequired
             isInvalid={!!errors["passwordConfirm"]}
             mb={3}

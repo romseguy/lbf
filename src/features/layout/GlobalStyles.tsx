@@ -65,10 +65,6 @@ export const GlobalStyles = () => (
           max-width: 150px;
           vertical-align: top;
         }
-
-        p {
-          margin-bottom: 12px;
-        }
       }
       //#endregion
 

@@ -14,7 +14,8 @@ import {
   FaInstagram,
   FaTwitter,
   FaYoutube,
-  FaLink
+  FaLink,
+  FaTelegram
 } from "react-icons/fa";
 import { Link } from "features/common";
 import { IEvent } from "models/Event";
@@ -146,6 +147,8 @@ export const EntityInfo = ({
               ? FaTwitter
               : url.includes("youtube")
               ? FaYoutube
+              : url.includes("t.me") || url.includes("telegram")
+              ? FaTelegram
               : FaLink;
 
             let uri = url.includes("http")

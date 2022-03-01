@@ -30,26 +30,30 @@ export const OrgFormModal = ({
   );
 
   return (
-    <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
-      <ModalOverlay />
-      <ModalContent maxWidth="xl">
-        <ModalHeader display="flex" alignItems="center">
-          <Icon as={IoIosPeople} color="green" mr={3} />
-          Ajouter {orgTypeFull3(orgType)}
-        </ModalHeader>
-        <ModalCloseButton data-cy="orgPopoverCloseButton" />
-        <ModalBody>
-          <OrgForm
-            orgType={orgType}
-            setOrgType={setOrgType}
-            session={session}
-            onCancel={onCancel}
-            onSubmit={async (orgUrl: string) => {
-              await onSubmit(orgUrl);
-            }}
-          />
-        </ModalBody>
-      </ModalContent>
+    <Modal {...props} isOpen closeOnOverlayClick={false}>
+      {(setIsTouched, onCancel) => (
+        <ModalOverlay>
+          <ModalContent maxWidth="xl">
+            <ModalHeader display="flex" alignItems="center">
+              <Icon as={IoIosPeople} color="green" mr={3} />
+              Ajouter {orgTypeFull3(orgType)}
+            </ModalHeader>
+            <ModalCloseButton data-cy="orgPopoverCloseButton" />
+            <ModalBody>
+              <OrgForm
+                orgType={orgType}
+                setOrgType={setOrgType}
+                session={session}
+                setIsTouched={setIsTouched}
+                onCancel={onCancel}
+                onSubmit={async (orgUrl: string) => {
+                  await onSubmit(orgUrl);
+                }}
+              />
+            </ModalBody>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </Modal>
   );
 };

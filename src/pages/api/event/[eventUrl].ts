@@ -220,10 +220,11 @@ handler.post<
       }
     } else if (body.orgListsNames) {
       //console.log(`POST /event/${eventUrl}: orgListsNames`, body.orgListsNames);
+
       for (const orgListName of body.orgListsNames) {
         const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
 
-        let org: (IOrg & Document<any, any, IOrg>) | null | undefined;
+        let org: (IOrg & Document<any, IOrg>) | null | undefined;
         org = await models.Org.findOne({ _id: orgId });
         if (!org) return res.status(400).json("Organisation introuvable");
 

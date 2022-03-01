@@ -73,7 +73,6 @@ export interface IOrgWeb {
 export interface IOrgEventCategory {
   index: string;
   label: string;
-  bgColor?: string;
 }
 
 export interface IOrgList {

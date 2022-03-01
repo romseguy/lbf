@@ -20,7 +20,13 @@ import {
 import api from "utils/api";
 import { handleError } from "utils/form";
 
-export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
+export const ContactForm = ({
+  setIsTouched,
+  ...props
+}: {
+  setIsTouched?: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose?: () => void;
+}) => {
   const router = useRouter();
 
   //#region local state
@@ -46,6 +52,11 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
     props.onClose && props.onClose();
   };
 
+  const onChange = () => {
+    setIsTouched && setIsTouched(true);
+    clearErrors("formErrorMessage");
+  };
+
   const onSubmit = async (form: { email: string; message: string }) => {
     console.log("submitted", form);
     const { email } = form;
@@ -69,10 +80,7 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
   //#endregion
 
   return (
-    <form
-      onChange={() => clearErrors("formErrorMessage")}
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <EmailControl
         name="email"
         register={register}
@@ -96,6 +104,10 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
             return (
               <RTEditor
                 placeholder="Écrire le message"
+                onBlur={(html) => {
+                  setIsTouched && setIsTouched(html !== "");
+                  renderProps.onChange(html);
+                }}
                 onChange={({ html }) => {
                   renderProps.onChange(html);
                 }}

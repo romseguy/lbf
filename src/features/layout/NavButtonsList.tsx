@@ -1,6 +1,6 @@
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { Button, Flex, useColorMode } from "@chakra-ui/react";
-import { Link } from "features/common";
+import { Link, LinkProps } from "features/common";
 import { useRouter } from "next/router";
 import React from "react";
 import { FaHome } from "react-icons/fa";
@@ -15,7 +15,7 @@ export const NavButtonsList = ({
   const router = useRouter();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const linkProps = {
+  const linkProps: Partial<LinkProps> = {
     "aria-hidden": true,
     alignSelf: "flex-start",
     variant: "no-underline",

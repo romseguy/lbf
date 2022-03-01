@@ -5,7 +5,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalCloseButton,
-  useColorMode
+  useColorMode,
+  Icon
 } from "@chakra-ui/react";
 import AbortController from "abort-controller";
 //import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
@@ -15,6 +16,7 @@ import { treeChart } from "features/treeChart/treeChart";
 import { InputNode, TreeNodeWithId } from "features/treeChart/types";
 import theme from "theme/theme";
 import { normalize } from "utils/string";
+import { IoIosGitNetwork } from "react-icons/io";
 
 const controller = new AbortController();
 const signal = controller.signal;
@@ -115,7 +117,10 @@ export const TreeChartModal = ({
     >
       <ModalOverlay>
         <ModalContent my={0} minHeight="100vh">
-          <ModalHeader>Arborescence des réseaux</ModalHeader>
+          <ModalHeader display="flex" alignItems="center">
+            <Icon as={IoIosGitNetwork} color="green" mr={3} />
+            {header ? header : "Arborescence"}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody id="treeC" p={0} display="flex" flexDirection="column">
             <div id="tree" />

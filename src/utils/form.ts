@@ -1,3 +1,37 @@
+export const onCancelWithConfirm = ({
+  isTouched,
+  onCancel
+}: {
+  isTouched: boolean;
+  onCancel: () => void;
+}) => {
+  if (isTouched) {
+    const confirmed = confirm(
+      "Le formulaire a été modifié, êtes-vous sûr de vouloir annuler ?"
+    );
+    if (!confirmed) return;
+  }
+
+  onCancel && onCancel();
+};
+
+export const onCloseWithConfirm = ({
+  isTouched,
+  onClose
+}: {
+  isTouched: boolean;
+  onClose: () => void;
+}) => {
+  if (isTouched) {
+    const confirmed = confirm(
+      "Le formulaire a été modifié, êtes-vous sûr de vouloir annuler ?"
+    );
+    if (!confirmed) return;
+  }
+
+  onClose && onClose();
+};
+
 export const handleError = (
   error: any,
   setError: (message: string, field?: string) => void

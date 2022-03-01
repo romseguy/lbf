@@ -64,13 +64,12 @@ import {
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import {
-  EventCategory,
   IEvent,
   monthRepeatOptions,
   EventVisibilities,
   EEventVisibility
 } from "models/Event";
-import { IOrg } from "models/Org";
+import { getOrgEventCategories, IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
@@ -98,11 +97,13 @@ export const EventForm = withGoogleApi({
 })(
   ({
     initialEventOrgs = [],
+    setIsTouched,
     ...props
   }: {
     session: Session;
     event?: IEvent;
     initialEventOrgs?: IOrg[];
+    setIsTouched?: React.Dispatch<React.SetStateAction<boolean>>;
     onCancel?: () => void;
     onSubmit?: (eventUrl: string) => void;
   }) => {
@@ -112,12 +113,10 @@ export const EventForm = withGoogleApi({
     const now = new Date();
     const [addEvent, addEventMutation] = useAddEventMutation();
     const [editEvent, editEventMutation] = useEditEventMutation();
-
-    //#region myOrgs
+    const org = initialEventOrgs[0] || props.event?.eventOrgs[0];
     const { data: myOrgs } = useGetOrgsQuery({
       createdBy: props.session.user.userId
     });
-    //#endregion
 
     const {
       control,
@@ -242,6 +241,7 @@ export const EventForm = withGoogleApi({
 
     //#region form handlers
     const onChange = () => {
+      setIsTouched && setIsTouched(true);
       clearErrors("formErrorMessage");
     };
 
@@ -351,16 +351,7 @@ export const EventForm = withGoogleApi({
     //#endregion
 
     //#region event
-    let categories = Object.keys(EventCategory).map(
-      (catId) => EventCategory[parseInt(catId)]
-    );
-    if (initialEventOrgs[0] && initialEventOrgs[0].orgEventCategories)
-      categories = initialEventOrgs[0].orgEventCategories;
-    else if (props.event && hasItems(props.event.eventOrgs)) {
-      const firstOrgCategories = props.event?.eventOrgs[0].orgEventCategories;
-      if (firstOrgCategories) categories = firstOrgCategories;
-    }
-
+    let categories = getOrgEventCategories(org);
     const [isRepeat, setIsRepeat] = useState(
       !!props.event?.repeat || hasItems(props.event?.otherDays)
     );
@@ -518,7 +509,6 @@ export const EventForm = withGoogleApi({
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
         {/* eventName */}
         <FormControl
-          id="eventName"
           isRequired
           isInvalid={!!errors["eventName"]}
           display="flex"
@@ -554,7 +544,6 @@ export const EventForm = withGoogleApi({
 
         {/* eventCategory */}
         <FormControl
-          id="eventCategory"
           isInvalid={!!errors["eventCategory"]}
           onChange={async (e) => {
             clearErrors("eventOrgs");
@@ -581,12 +570,7 @@ export const EventForm = withGoogleApi({
         </FormControl>
 
         {/* eventMinDate */}
-        <FormControl
-          id="eventMinDate"
-          isRequired
-          isInvalid={!!errors["eventMinDate"]}
-          mb={3}
-        >
+        <FormControl isRequired isInvalid={!!errors["eventMinDate"]} mb={3}>
           <FormLabel>Date de début</FormLabel>
           <Controller
             name="eventMinDate"
@@ -597,20 +581,14 @@ export const EventForm = withGoogleApi({
               return (
                 <DatePicker
                   withPortal={isMobile}
-                  customInput={renderCustomInput("minDate")}
+                  customInput={renderCustomInput({
+                    label: "minDate"
+                  })}
                   selected={props.value}
                   onChange={(e) => {
                     clearErrors("eventMinDate");
                     props.onChange(e);
                   }}
-                  // onCalendarClose={() => {
-                  //   if (eventMinDate && !eventMaxDate) {
-                  //     setValue(
-                  //       "eventMaxDate",
-                  //       addHours(eventMinDate, eventMinDuration)
-                  //     );
-                  //   }
-                  // }}
                   {...eventMinDatePickerProps}
                 />
               );
@@ -622,13 +600,7 @@ export const EventForm = withGoogleApi({
         </FormControl>
 
         {/* eventMaxDate */}
-        <FormControl
-          id="eventMaxDate"
-          isRequired
-          isInvalid={!!errors["eventMaxDate"]}
-          // isDisabled={!eventMinDate}
-          mb={3}
-        >
+        <FormControl isRequired isInvalid={!!errors["eventMaxDate"]} mb={3}>
           <FormLabel>Date de fin</FormLabel>
 
           <InputGroup>
@@ -642,7 +614,7 @@ export const EventForm = withGoogleApi({
                   <DatePicker
                     // disabled={!eventMinDate}
                     withPortal={isMobile}
-                    customInput={renderCustomInput("maxDate")}
+                    customInput={renderCustomInput({ label: "maxDate" })}
                     selected={value}
                     onChange={onChange}
                     {...eventMaxDatePickerProps}
@@ -671,12 +643,7 @@ export const EventForm = withGoogleApi({
 
         {/* otherDays */}
         {canRepeat1day && (
-          <FormControl
-            id="otherDays"
-            isInvalid={!!errors["otherDays"]}
-            // isDisabled={!eventMinDate || !eventMaxDate}
-            mb={3}
-          >
+          <FormControl isInvalid={!!errors["otherDays"]} mb={3}>
             <Checkbox
               isChecked={isRepeat}
               isDisabled={!start || !end}
@@ -827,10 +794,10 @@ export const EventForm = withGoogleApi({
                                 <FormLabel>Heure de début</FormLabel>
                                 <DatePicker
                                   //withPortal
-                                  customInput={renderCustomInput(
-                                    "startDate" + index,
-                                    true
-                                  )}
+                                  customInput={renderCustomInput({
+                                    label: "startDate" + index,
+                                    isTimeOnly: true
+                                  })}
                                   selected={defaultStart}
                                   dateFormat="Pp"
                                   showTimeSelect
@@ -868,10 +835,10 @@ export const EventForm = withGoogleApi({
                                 <FormLabel>Heure de fin</FormLabel>
                                 <DatePicker
                                   //withPortal
-                                  customInput={renderCustomInput(
-                                    "startDate" + index,
-                                    true
-                                  )}
+                                  customInput={renderCustomInput({
+                                    label: "startDate" + index,
+                                    isTimeOnly: true
+                                  })}
                                   selected={defaultEnd}
                                   dateFormat="Pp"
                                   showTimeSelect
@@ -966,12 +933,7 @@ export const EventForm = withGoogleApi({
 
         {/* repeat */}
         {canRepeat && !hasMonthRepeat && (
-          <FormControl
-            id="repeat"
-            isInvalid={!!errors["repeat"]}
-            // isDisabled={!eventMinDate || !eventMaxDate}
-            mb={3}
-          >
+          <FormControl isInvalid={!!errors["repeat"]} mb={3}>
             <FormLabel>Fréquence</FormLabel>
             <Select
               name="repeat"
@@ -1007,11 +969,7 @@ export const EventForm = withGoogleApi({
         )}
 
         {/* eventDescription */}
-        <FormControl
-          id="eventDescription"
-          isInvalid={!!errors["eventDescription"]}
-          mb={3}
-        >
+        <FormControl isInvalid={!!errors["eventDescription"]} mb={3}>
           <FormLabel>Description</FormLabel>
           <Controller
             name="eventDescription"
@@ -1024,7 +982,11 @@ export const EventForm = withGoogleApi({
                   session={props.session}
                   defaultValue={props.event?.eventDescription}
                   placeholder="Description de l'événement"
-                  onChange={({ html }) => renderProps.onChange(html)}
+                  onBlur={(html) => {
+                    setIsTouched && setIsTouched(html !== "");
+                    renderProps.onChange(html);
+                  }}
+                  //onChange={({ html }) => renderProps.onChange(html)}
                 />
               );
             }}
@@ -1074,7 +1036,6 @@ export const EventForm = withGoogleApi({
         {/* eventOrgs */}
         <FormControl
           mb={3}
-          id="eventOrgs"
           isInvalid={!!errors["eventOrgs"]}
           isRequired={
             eventOrgsRules.required === false

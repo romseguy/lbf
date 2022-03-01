@@ -214,7 +214,7 @@ export const UserForm = (props: {
         mb={3}
       />
 
-      <FormControl id="userImage" isInvalid={!!errors["userImage"]} mb={3}>
+      <FormControl isInvalid={!!errors["userImage"]} mb={3}>
         <FormLabel>Avatar</FormLabel>
         <Tooltip
           hasArrow
@@ -236,7 +236,6 @@ export const UserForm = (props: {
         </Tooltip>
 
         <Input
-          id="fileInput"
           name="userImage"
           display="none"
           type="file"
@@ -291,7 +290,6 @@ export const UserForm = (props: {
       )}
 
       {/* <FormControl
-        id="password"
         mb={3}
         isRequired
         isInvalid={!!errors["password"]}
@@ -310,7 +308,6 @@ export const UserForm = (props: {
       </FormControl>
 
       <FormControl
-        id="passwordConfirm"
         isRequired
         isInvalid={!!errors["passwordConfirm"]}
       >

@@ -3,7 +3,11 @@ import { Editor, IAllProps } from "@tinymce/tinymce-react";
 import axios from "axios";
 import { Session } from "next-auth";
 import React, { useEffect, useRef, useState } from "react";
-import type { Editor as TinyMCEEditor, RawEditorSettings } from "tinymce";
+import type {
+  Editor as TinyMCEEditor,
+  EditorEvent,
+  RawEditorSettings
+} from "tinymce";
 import { styled } from "twin.macro";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -29,7 +33,7 @@ interface UploadFailureOptions {
   remove?: boolean;
 }
 
-const RTEditorStyles = styled("span")((props) => {
+const RTEditorStyles = styled("div")((props) => {
   return ``;
 });
 
@@ -40,7 +44,7 @@ export const RTEditor = ({
   session,
   placeholder,
   readOnly,
-  //onBlur,
+  onBlur,
   onChange,
   ...props
 }: {
@@ -52,7 +56,7 @@ export const RTEditor = ({
   readOnly?: boolean;
   height?: string;
   width?: string;
-  //onBlur?: ({ html }: { html: string }) => void;
+  onBlur?: (html: string) => void;
   onChange?: ({ html }: { html: string }) => void;
 }) => {
   const dispatch = useAppDispatch();
@@ -83,7 +87,9 @@ export const RTEditor = ({
       font-family:Helvetica,Arial,sans-serif;
       font-size:14px;
       overflow-y: scroll;
-    }`,
+    }
+    p { margin: 0; padding: 0; }
+    `,
     height: props.height || undefined,
     placeholder,
     // --
@@ -113,7 +119,7 @@ export const RTEditor = ({
       "fullscreen undo redo \
              emoticons | formatselect | \
             alignleft aligncenter bold italic charmap \
-            | link image media \
+            | link unlink | image media \
             | removeformat | code help",
     file_picker_types: "image",
     file_picker_callback: function (
@@ -228,7 +234,10 @@ export const RTEditor = ({
           init={init}
           initialValue={defaultValue}
           tinymceScriptSrc="/tinymce/tinymce.min.js"
-          onBlur={closeToolbar}
+          onBlur={(e, editor) => {
+            closeToolbar();
+            onBlur && onBlur(editor.getContent());
+          }}
           onEditorChange={(html, editor) => {
             onChange && onChange({ html });
           }}

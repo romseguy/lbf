@@ -156,7 +156,7 @@ export const DocumentsList = ({
               )}
             />
 
-            <FormControl id="files" isInvalid={!!errors["files"]} mb={3}>
+            <FormControl isInvalid={!!errors["files"]} mb={3}>
               <FormLabel>Sélectionnez un fichier :</FormLabel>
               <Input
                 height="auto"

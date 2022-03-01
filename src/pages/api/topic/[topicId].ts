@@ -119,10 +119,12 @@ handler.post<
         topic
       });
     } else if (body.orgListsNames) {
-      console.log(`POST /topic/${topicId}: orgListsNames`, body.orgListsNames);
+      //console.log(`POST /topic/${topicId}: orgListsNames`, body.orgListsNames);
+
       for (const orgListName of body.orgListsNames) {
         const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
-        let org: (IOrg & Document<any, any, IOrg>) | null | undefined;
+
+        let org: (IOrg & Document<any, IOrg>) | null | undefined;
         org = await models.Org.findOne({ _id: orgId });
         if (!org) return res.status(400).json("Organisation introuvable");
 
@@ -132,9 +134,10 @@ handler.post<
           org = await org
             .populate({
               path: "orgSubscriptions",
+              select: "+email +phone",
               populate: {
                 path: "user",
-                select: "email userSubscription"
+                select: "+email +phone +userSubscription"
               }
             })
             .execPopulate();
@@ -153,7 +156,11 @@ handler.post<
               populate: [
                 {
                   path: "subscriptions",
-                  populate: { path: "user", select: "email userSubscription" }
+                  select: "+email +phone",
+                  populate: {
+                    path: "user",
+                    select: "+email +phone +userSubscription"
+                  }
                 }
               ]
             })

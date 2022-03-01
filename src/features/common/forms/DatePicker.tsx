@@ -76,7 +76,13 @@ const ReactDatePickerStyles = styled.span(
   ]
 );
 
-export const renderCustomInput = (label: string, timeOnly?: boolean) => {
+export const renderCustomInput = ({
+  label,
+  isTimeOnly = false
+}: {
+  label: string;
+  isTimeOnly?: boolean;
+}) => {
   const ExampleCustomInput = forwardRef(
     (
       { value, onClick }: { value?: string; onClick?: () => void },
@@ -108,7 +114,7 @@ export const renderCustomInput = (label: string, timeOnly?: boolean) => {
           isDisabled={isDisabled}
         >
           {value ? (
-            format(date, timeOnly ? "H'h'mm" : "cccc d MMMM H'h'mm", {
+            format(date, isTimeOnly ? "H'h'mm" : "cccc d MMMM H'h'mm", {
               locale: fr
             })
           ) : (

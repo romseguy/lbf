@@ -145,6 +145,7 @@ export const EventsList = ({
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+
   const selectedCategoriesCount = selectedCategories
     ? selectedCategories.length
     : 0;

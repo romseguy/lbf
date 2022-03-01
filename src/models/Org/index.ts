@@ -5,24 +5,33 @@ import { hasItems } from "utils/array";
 import { equals } from "utils/string";
 import { TypedMap } from "utils/types";
 import {
-  IOrg,
-  IOrgList,
   EOrgType,
   EOrgVisibility,
+  IOrg,
+  IOrgList,
+  IOrgEventCategory,
   IOrgTabWithIcon
 } from "./IOrg";
+import { defaultEventCategories } from "models/Event";
 
 export * from "./IOrg";
 
-export const defaultTabs: IOrgTabWithIcon[] = [
-  { label: "Accueil", icon: FaHome, url: "/accueil" },
-  { label: "Discussions", icon: ChatIcon, url: "/discussions" },
-  { label: "Événements", icon: CalendarIcon, url: "/evenements" },
-  { label: "Projets", icon: FaTools, url: "/projets" },
-  { label: "Galerie", icon: FaImages, url: "/galerie" },
-  { label: "", icon: SettingsIcon, url: "/parametres" }
-];
+//#region categories
+export const getOrgEventCategories = (org?: IOrg): IOrgEventCategory[] => {
+  let arr = defaultEventCategories;
 
+  if (org && hasItems(org.orgEventCategories)) {
+    if (!org.orgEventCategories.find(({ index }) => index === "0"))
+      return arr.concat(org.orgEventCategories);
+
+    return org.orgEventCategories;
+  }
+
+  return arr;
+};
+//#endregion
+
+//#region lists
 export const addOrReplaceList = (org: IOrg, list: IOrgList) => {
   let orgListExists = false;
   let orgLists: IOrgList[] = [];
@@ -72,7 +81,9 @@ export const getLists = (org?: IOrg): IOrgList[] => {
 
   return lists;
 };
+//#endregion
 
+//#region subscriptions
 export const getSubscriptions = (org: IOrg, type: string) => {
   if (!Array.isArray(org.orgSubscriptions) || !org.orgSubscriptions.length)
     return [];
@@ -90,7 +101,20 @@ export const getSubscriptions = (org: IOrg, type: string) => {
     )
   );
 };
+//#endregion
 
+//#region tabs
+export const defaultTabs: IOrgTabWithIcon[] = [
+  { label: "Accueil", icon: FaHome, url: "/accueil" },
+  { label: "Discussions", icon: ChatIcon, url: "/discussions" },
+  { label: "Événements", icon: CalendarIcon, url: "/evenements" },
+  { label: "Projets", icon: FaTools, url: "/projets" },
+  { label: "Galerie", icon: FaImages, url: "/galerie" },
+  { label: "", icon: SettingsIcon, url: "/parametres" }
+];
+//#endregion
+
+//#region toString
 export const orgTypeFull = (orgType: EOrgType): string => {
   if (!orgType) return "";
   return `${
@@ -132,3 +156,4 @@ export const OrgVisibilities: TypedMap<EOrgVisibility, string> = {
   [EOrgVisibility.PUBLIC]: "Publique",
   [EOrgVisibility.PRIVATE]: "Protégée par un mot de passe"
 };
+//#endregion

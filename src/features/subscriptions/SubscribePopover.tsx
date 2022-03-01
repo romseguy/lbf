@@ -182,7 +182,7 @@ export const SubscribePopover = ({
                   <HostTag />
                 </Box>
               </Alert>
-              <FormControl id="email" isRequired isInvalid={!!errors["email"]}>
+              <FormControl isRequired isInvalid={!!errors["email"]}>
                 <InputGroup>
                   <InputLeftElement
                     pointerEvents="none"

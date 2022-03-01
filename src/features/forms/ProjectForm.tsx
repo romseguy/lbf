@@ -28,6 +28,7 @@ import { hasItems } from "utils/array";
 
 export const ProjectForm = ({
   org,
+  setIsTouched,
   ...props
 }: {
   session: Session;
@@ -37,6 +38,7 @@ export const ProjectForm = ({
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
+  setIsTouched: React.Dispatch<React.SetStateAction<boolean>>;
   onClose?: () => void;
   onCancel?: () => void;
   onSubmit?: (project: IProject | null) => void;
@@ -68,6 +70,7 @@ export const ProjectForm = ({
   );
 
   const onChange = () => {
+    setIsTouched(true);
     clearErrors("formErrorMessage");
   };
 
@@ -126,12 +129,7 @@ export const ProjectForm = ({
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-      <FormControl
-        id="projectName"
-        isRequired
-        isInvalid={!!errors["projectName"]}
-        mb={3}
-      >
+      <FormControl isRequired isInvalid={!!errors["projectName"]} mb={3}>
         <FormLabel>Nom du projet</FormLabel>
         <Input
           name="projectName"
@@ -146,11 +144,7 @@ export const ProjectForm = ({
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl
-        id="projectDescription"
-        isInvalid={!!errors["projectDescription"]}
-        mb={3}
-      >
+      <FormControl isInvalid={!!errors["projectDescription"]} mb={3}>
         <FormLabel>Description du projet</FormLabel>
         <Controller
           name="projectDescription"
@@ -161,7 +155,8 @@ export const ProjectForm = ({
               <RTEditor
                 defaultValue={props.project?.projectDescription}
                 placeholder="Description du projet"
-                onChange={({ html }) => renderProps.onChange(html)}
+                onBlur={(html) => setIsTouched(html !== "")}
+                //onChange={({ html }) => renderProps.onChange(html)}
               />
             );
           }}
@@ -172,12 +167,7 @@ export const ProjectForm = ({
       </FormControl>
 
       {statusOptions.length > 0 && (
-        <FormControl
-          id="projectStatus"
-          isRequired
-          isInvalid={!!errors["projectStatus"]}
-          mb={3}
-        >
+        <FormControl isRequired isInvalid={!!errors["projectStatus"]} mb={3}>
           <FormLabel>Statut</FormLabel>
           <Select
             name="projectStatus"

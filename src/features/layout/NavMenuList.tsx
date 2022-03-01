@@ -73,12 +73,12 @@ export const NavMenuList = ({
   useEffect(() => {
     async function componentDidMount() {
       if (!("serviceWorker" in navigator)) {
-        console.log("navigator.serviceWorker is missing");
+        console.warn("navigator.serviceWorker is missing");
         return;
       }
 
       if (!window.workbox) {
-        console.log("window.workbox is missing");
+        console.warn("window.workbox is missing");
         return;
       }
 

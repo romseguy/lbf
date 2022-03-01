@@ -26,25 +26,28 @@ export const EventFormModal = ({
   onSubmit: (eventUrl: string) => Promise<void>;
 }) => {
   return (
-    <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
-      <ModalOverlay>
-        <ModalContent maxWidth="xl">
-          <ModalHeader display="flex" alignItems="center">
-            <CalendarIcon color="green" mr={3} /> Ajouter un événement
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <EventForm
-              initialEventOrgs={initialEventOrgs}
-              session={session}
-              onCancel={onCancel}
-              onSubmit={async (eventUrl: string) => {
-                await onSubmit(eventUrl);
-              }}
-            />
-          </ModalBody>
-        </ModalContent>
-      </ModalOverlay>
+    <Modal {...props} isOpen closeOnOverlayClick={false}>
+      {(setIsTouched, onCancel) => (
+        <ModalOverlay>
+          <ModalContent maxWidth="xl">
+            <ModalHeader display="flex" alignItems="center">
+              <CalendarIcon color="green" mr={3} /> Ajouter un événement
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <EventForm
+                initialEventOrgs={initialEventOrgs}
+                session={session}
+                setIsTouched={setIsTouched}
+                onCancel={onCancel}
+                onSubmit={async (eventUrl: string) => {
+                  await onSubmit(eventUrl);
+                }}
+              />
+            </ModalBody>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </Modal>
   );
 };

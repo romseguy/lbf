@@ -131,17 +131,7 @@ export const Header = ({
       defaultCategory;
 
     return (
-      <Tag
-        bgColor={
-          eventCategory.bgColor === "transparent"
-            ? isDark
-              ? "whiteAlpha.300"
-              : "blackAlpha.600"
-            : eventCategory.bgColor
-        }
-        color={isDark ? "white" : "black"}
-        ml={2}
-      >
+      <Tag variant="solid" bgColor="teal" color="white" ml={2}>
         {eventCategory.label}
       </Tag>
     );

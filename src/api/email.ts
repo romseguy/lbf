@@ -56,7 +56,7 @@ export const sendEventNotifications = async ({
   org,
   subscriptions
 }: {
-  event: IEvent & Document<any, any, IEvent>;
+  event: IEvent & Document<any, IEvent>;
   org: IOrg;
   subscriptions: ISubscription[];
 }): Promise<IEventNotification[]> => {
@@ -233,7 +233,7 @@ export const sendTopicNotifications = async ({
   event?: IEvent;
   org?: IOrg;
   subscriptions: ISubscription[];
-  topic: ITopic & Document<any, any, ITopic>;
+  topic: ITopic & Document<any, ITopic>;
 }): Promise<ITopicNotification[]> => {
   const topicNotifications: ITopicNotification[] = [];
 
@@ -519,147 +519,3 @@ export const sendToAdmin = async ({
     console.log(`sent project email notif to ${mail.to}`, mail);
   }
 };
-
-// export const sendEventToOrgFollowers = async (
-//   event: IEvent,
-//   orgIds: string[]
-// ) => {
-//   // console.log("sending notifications to event", event);
-
-//   const emailList: string[] = [];
-
-//   if (!event.isApproved) {
-//     throw new Error("L'événément doit être approuvé");
-//   }
-
-//   if (!hasItems(event.eventOrgs)) {
-//     throw new Error("L'événement est organisé par aucune organisation");
-//   }
-
-//   if (!Array.isArray(orgIds) || !orgIds.length) {
-//     throw new Error("Aucune organisation spécifiée");
-//   }
-
-//   for (const org of event.eventOrgs) {
-//     const orgId = typeof org === "object" ? org._id : org;
-
-//     for (const notifOrgId of orgIds) {
-//       if (!equals(notifOrgId, orgId)) continue;
-
-//       //console.log("notifying followers from org", org);
-
-//       for (const orgSubscription of org.orgSubscriptions) {
-//         const subscription = await models.Subscription.findOne({
-//           _id:
-//             typeof orgSubscription === "object"
-//               ? orgsubscriptionId
-//               : orgSubscription
-//         }).populate("user");
-
-//         if (!subscription) {
-//           // shouldn't happen because when user remove subscription to org it is also removed from org.orgSubscriptions
-//           continue;
-//         }
-
-//         if (subscription.orgs)
-//           for (const {
-//             orgId,
-//             type,
-//             eventCategories = []
-//           } of subscription.orgs) {
-//             if (
-//               !equals(notifOrgId, orgId) ||
-//               type !== ESubscriptionType.FOLLOWER
-//             )
-//               continue;
-
-//             const email =
-//               typeof subscription.user === "object"
-//                 ? subscription.user.email
-//                 : subscription.email;
-
-//             if (subscription.phone) {
-//               // todo
-//             } else if (email) {
-//               if (event.eventNotifications.find((m) => m.email === email))
-//                 continue;
-
-//               const user = await models.User.findOne({ email });
-//               const eventCategoriesEmail = eventCategories.filter(
-//                 ({ emailNotif }) => emailNotif
-//               );
-//               const eventCategoriesPush = eventCategories.filter(
-//                 ({ pushNotif }) => pushNotif
-//               );
-
-//               if (
-//                 user &&
-//                 user.userSubscription &&
-//                 (eventCategoriesPush.length === 0 ||
-//                   !!eventCategoriesPush.find(
-//                     (eventCategory) =>
-//                       eventCategory.catId === event.eventCategory &&
-//                       eventCategory.pushNotif
-//                   ))
-//               ) {
-//                 await api.post("notification", {
-//                   subscription: user.userSubscription,
-//                   notification: {
-//                     title: `Invitation à un événement`,
-//                     message: event.eventName,
-//                     url: `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`
-//                   }
-//                 });
-//               }
-
-//               if (
-//                 eventCategoriesEmail.length > 0 &&
-//                 !eventCategoriesEmail.find(
-//                   (eventCategory) =>
-//                     eventCategory.catId === event.eventCategory &&
-//                     eventCategory.emailNotif
-//                 )
-//               )
-//                 continue;
-
-//               const mail = createEventEmailNotif({
-//                 email,
-//                 event,
-//                 org,
-//                 subscription
-//               });
-
-//               if (process.env.NODE_ENV === "production") {
-//                 try {
-//                   const res = await axios.post(
-//                     process.env.NEXT_PUBLIC_API2 + "/mail",
-//                     {
-//                       eventId: event._id,
-//                       mail
-//                     }
-//                   );
-//                   console.log(
-//                     `sent event email notif to subscriber ${res.data.email}`,
-//                     mail
-//                   );
-//                 } catch (error: any) {
-//                   console.log(`error sending mail to ${email}`);
-//                   console.error(error);
-//                   continue;
-//                 }
-//               } else if (process.env.NODE_ENV === "development") {
-//                 console.log(
-//                   `sent event email notif to subscriber ${email}`,
-//                   mail
-//                 );
-//               }
-
-//               emailList.push(email);
-//             }
-//           }
-//       }
-//     }
-//   }
-
-//   return emailList;
-// };

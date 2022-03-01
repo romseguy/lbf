@@ -10,7 +10,7 @@ import {
   addWeeks,
   setSeconds
 } from "date-fns";
-import { IOrgEventCategory } from "models/Org";
+import { getOrgEventCategories, IOrgEventCategory } from "models/Org";
 import { LatLon } from "use-places-autocomplete";
 import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
 import { getDistance } from "utils/maps";
@@ -19,39 +19,57 @@ import { hasItems } from "utils/array";
 
 export * from "./IEvent";
 
-export const EventCategory: { [key: number]: IOrgEventCategory } = {
-  1: {
-    index: "1",
-    label: "Atelier",
-    bgColor: "red"
-  },
-  2: {
-    index: "2",
-    label: "Chantier participatif",
-    bgColor: "orange"
-  },
-  9: {
-    index: "9",
-    label: "Autre",
-    bgColor: "transparent"
+//#region categories
+export const defaultEventCategories: IOrgEventCategory[] = [
+  {
+    index: "0",
+    label: "Autre"
   }
-};
-
-export const defaultCategory = EventCategory[9];
-
+];
+export const defaultCategory = defaultEventCategories[0];
 export const getEventCategories = (event: IEvent<string | Date>) => {
-  let eventCategories = Object.keys(EventCategory).map(
-    (catId) => EventCategory[parseInt(catId)]
-  );
+  return getOrgEventCategories(event.eventOrgs[0]);
+};
+//#region
 
-  if (hasItems(event.eventOrgs)) {
-    const firstOrgCategories = event.eventOrgs[0].orgEventCategories;
-    if (firstOrgCategories) eventCategories = firstOrgCategories;
-  }
-
-  return eventCategories;
+//#region notifications
+export const isAttending = ({
+  email,
+  event
+}: {
+  email?: string;
+  event: IEvent;
+}) => {
+  if (!email) return false;
+  return !!event.eventNotifications.find(({ email: e, status }) => {
+    return e === email && status === EEventInviteStatus.OK;
+  });
 };
 
+export const isNotAttending = ({
+  email,
+  event
+}: {
+  email?: string;
+  event: IEvent;
+}) => {
+  if (!email) return false;
+  return !!event.eventNotifications.find(({ email: e, status }) => {
+    return e === email && status === EEventInviteStatus.NOK;
+  });
+};
+//#endregion
+
+//#region toString
+export const monthRepeatOptions: { [key: number]: string } = {
+  0: "premier",
+  1: "2ème",
+  2: "3ème",
+  3: "dernier"
+};
+//#endregion
+
+//#region EventsList
 export const getEvents = ({
   events,
   isCreator,
@@ -74,13 +92,12 @@ export const getEvents = ({
 
   for (let event of events) {
     if (
-      event.eventCategory &&
-      selectedCategories.length > 0 &&
+      typeof event.eventCategory === "number" &&
+      hasItems(selectedCategories) &&
       !selectedCategories.includes(event.eventCategory)
-    )
+    ) {
       continue;
-
-    if (!event.eventCategory && selectedCategories.length > 0) continue;
+    }
 
     if (
       isCreator ||
@@ -355,36 +372,4 @@ export const getEvents = ({
 
   return { previousEvents, currentEvents, nextEvents };
 };
-
-export const isAttending = ({
-  email,
-  event
-}: {
-  email?: string;
-  event: IEvent;
-}) => {
-  if (!email) return false;
-  return !!event.eventNotifications.find(({ email: e, status }) => {
-    return e === email && status === EEventInviteStatus.OK;
-  });
-};
-
-export const isNotAttending = ({
-  email,
-  event
-}: {
-  email?: string;
-  event: IEvent;
-}) => {
-  if (!email) return false;
-  return !!event.eventNotifications.find(({ email: e, status }) => {
-    return e === email && status === EEventInviteStatus.NOK;
-  });
-};
-
-export const monthRepeatOptions: { [key: number]: string } = {
-  0: "premier",
-  1: "2ème",
-  2: "3ème",
-  3: "dernier"
-};
+//#endregion

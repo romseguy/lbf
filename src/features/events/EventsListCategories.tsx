@@ -40,14 +40,16 @@ import { Session } from "next-auth";
 import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { IoIosPeople } from "react-icons/io";
-import { DeleteButton, ErrorMessageText } from "features/common";
+import { Column, DeleteButton, ErrorMessageText } from "features/common";
+import { refetchEvent } from "features/events/eventSlice";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { useEditUserMutation } from "features/users/usersApi";
-import { EventCategory, IEvent } from "models/Event";
-import { IOrg, IOrgEventCategory, orgTypeFull } from "models/Org";
+import { IEvent } from "models/Event";
+import { getOrgEventCategories, IOrg } from "models/Org";
+import { useAppDispatch } from "store";
 import api from "utils/api";
-import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
+import { handleError } from "utils/form";
 
 export const EventsListCategories = ({
   events,
@@ -70,11 +72,12 @@ export const EventsListCategories = ({
   setIsLogin: (isLogin: number) => void;
 }) => {
   const { colorMode } = useColorMode();
+  const dispatch = useAppDispatch();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
 
-  const [editUser, editUserMutation] = useEditUserMutation();
-  const [editOrg, editOrgMutation] = useEditOrgMutation();
+  const [editUser] = useEditUserMutation();
+  const [editOrg] = useEditOrgMutation();
 
   const {
     isOpen: isCategoriesModalOpen,
@@ -86,39 +89,28 @@ export const EventsListCategories = ({
     closeCategoriesModal();
   };
 
-  const categories = useMemo((): IOrgEventCategory[] => {
-    if (org && hasItems(org.orgEventCategories)) return org.orgEventCategories;
-
-    let arr = [];
-
-    for (const key of Object.keys(EventCategory)) {
-      if (key === "0") continue;
-      arr.push(EventCategory[parseInt(key)]);
-    }
-
-    return arr;
-  }, [org]);
-
+  const categories = getOrgEventCategories(org);
   const [isAdd, setIsAdd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { errors, handleSubmit, register, setError } = useForm();
 
   const onSubmit = async (form: { category: string }) => {
+    if (!org) return;
+
     setIsLoading(true);
     try {
       await editOrg({
         orgUrl: org?.orgUrl,
         payload: {
-          orgEventCategories: org?.orgEventCategories
-            ? org.orgEventCategories.concat({
-                index: `${org.orgEventCategories.length}`,
-                label: form.category
-              })
-            : categories.concat({ index: "0", label: form.category })
+          orgEventCategories: categories.concat({
+            index: `${categories.length}`,
+            label: form.category
+          })
         }
       });
       toast({ status: "success", title: "La catégorie a bien été ajoutée !" });
       orgQuery?.refetch();
+      dispatch(refetchEvent());
       setIsLoading(false);
       setIsAdd(false);
     } catch (error) {
@@ -134,65 +126,19 @@ export const EventsListCategories = ({
 
   return (
     <Flex flexWrap="nowrap" overflowX="auto" {...props}>
-      {categories.map((category) => {
-        const { bgColor = "gray" } = category;
-        const index = parseInt(category.index);
-        const eventsCount = events.filter(
-          (event) => event.eventCategory === index
-        ).length;
-        const isSelected = selectedCategories.includes(index);
-
-        return (
-          <Link
-            key={index}
-            variant="no-underline"
-            onClick={() => {
-              if (!events.length) return;
-              setSelectedCategories(
-                selectedCategories.includes(index)
-                  ? selectedCategories.filter((sC) => sC !== index)
-                  : selectedCategories.concat([index])
-              );
-            }}
-          >
-            <Tag
-              variant={isSelected ? "solid" : "outline"}
-              color={isDark ? "white" : isSelected ? "white" : "black"}
-              bgColor={
-                isSelected
-                  ? bgColor === "transparent"
-                    ? isDark
-                      ? "whiteAlpha.300"
-                      : "blackAlpha.600"
-                    : bgColor
-                  : undefined
-              }
-              cursor={!events.length ? "not-allowed" : "pointer"}
-              isDisabled={!events.length}
-              mr={1}
-              whiteSpace="nowrap"
-            >
-              {category.label}{" "}
-              {eventsCount > 0 && (
-                <Badge colorScheme="green" ml={1}>
-                  {eventsCount}
-                </Badge>
-              )}
-            </Tag>
-          </Link>
-        );
-      })}
-
       {session && org && (
         <>
           <Tooltip label="Gérer les catégories d'événement">
-            <IconButton
+            <Button
               aria-label="Gérer les catégories d'événement"
-              icon={<SettingsIcon />}
+              leftIcon={<SettingsIcon />}
               size="xs"
               _hover={{ bg: "teal", color: "white" }}
+              mr={1}
               onClick={openCategoriesModal}
-            />
+            >
+              Configuration
+            </Button>
           </Tooltip>
 
           <Modal
@@ -267,57 +213,62 @@ export const EventsListCategories = ({
                     </Flex>
                   </form>
                 ) : categories.length > 0 ? (
-                  <Table>
-                    <Tbody>
-                      {categories.map(({ label }) => (
-                        <Tr key={`cat-${label}`}>
-                          <Td>{label}</Td>
-                          <Td textAlign="right">
-                            <DeleteButton
-                              isIconOnly
-                              placement="bottom"
-                              header={
-                                <>
-                                  Êtes vous sûr de vouloir supprimer la
-                                  catégorie{" "}
-                                  <Text
-                                    display="inline"
-                                    color="red"
-                                    fontWeight="bold"
-                                  >
-                                    {label}
-                                  </Text>{" "}
-                                  ?
-                                </>
-                              }
-                              onClick={async () => {
-                                try {
-                                  await editOrg({
-                                    orgUrl: org.orgUrl,
-                                    payload: [
-                                      `orgEventCategories.label=${label}`
-                                    ]
-                                  });
-                                  orgQuery?.refetch();
-                                  toast({
-                                    status: "success",
-                                    title: "La catégorie a bien été supprimée !"
-                                  });
-                                } catch (error) {
-                                  console.error(error);
-                                  toast({
-                                    status: "error",
-                                    title:
-                                      "La catégorie n'a pas pu être supprimée"
-                                  });
-                                }
-                              }}
-                            />
-                          </Td>
-                        </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
+                  <Column overflowX="auto">
+                    <Table>
+                      <Tbody>
+                        {categories.map(({ index, label }) => (
+                          <Tr key={`cat-${label}`}>
+                            <Td>{label}</Td>
+                            <Td textAlign="right">
+                              {index !== "0" && (
+                                <DeleteButton
+                                  isIconOnly
+                                  placement="bottom"
+                                  header={
+                                    <>
+                                      Êtes vous sûr de vouloir supprimer la
+                                      catégorie{" "}
+                                      <Text
+                                        display="inline"
+                                        color="red"
+                                        fontWeight="bold"
+                                      >
+                                        {label}
+                                      </Text>{" "}
+                                      ?
+                                    </>
+                                  }
+                                  onClick={async () => {
+                                    try {
+                                      await editOrg({
+                                        orgUrl: org.orgUrl,
+                                        payload: [
+                                          `orgEventCategories.label=${label}`
+                                        ]
+                                      });
+                                      orgQuery?.refetch();
+                                      toast({
+                                        status: "success",
+                                        title:
+                                          "La catégorie a bien été supprimée !"
+                                      });
+                                    } catch (error) {
+                                      console.error(error);
+                                      toast({
+                                        status: "error",
+                                        title:
+                                          "La catégorie n'a pas pu être supprimée"
+                                      });
+                                    }
+                                  }}
+                                />
+                              )}
+                            </Td>
+                          </Tr>
+                        ))}
+                      </Tbody>
+                    </Table>
+                  </Column>
                 ) : (
                   <Alert status="warning">
                     <AlertIcon />
@@ -329,6 +280,44 @@ export const EventsListCategories = ({
           </Modal>
         </>
       )}
+
+      {categories.map((category) => {
+        const index = parseInt(category.index);
+        const eventsCount = events.filter(
+          (event) => event.eventCategory === index
+        ).length;
+        const isSelected = selectedCategories.includes(index);
+
+        return (
+          <Link
+            key={index}
+            variant="no-underline"
+            onClick={() => {
+              if (!events.length) return;
+              setSelectedCategories(
+                selectedCategories.includes(index)
+                  ? selectedCategories.filter((sC) => sC !== index)
+                  : selectedCategories.concat([index])
+              );
+            }}
+          >
+            <Tag
+              variant={isSelected ? "solid" : "outline"}
+              bgColor={isSelected ? "teal" : "transparent"}
+              cursor={!events.length ? "not-allowed" : "pointer"}
+              mr={1}
+              whiteSpace="nowrap"
+            >
+              {category.label}{" "}
+              {eventsCount > 0 && (
+                <Badge colorScheme="green" ml={1}>
+                  {eventsCount}
+                </Badge>
+              )}
+            </Tag>
+          </Link>
+        );
+      })}
 
       {!org && (
         <Tooltip label="Suggérer une nouvelle catégorie">

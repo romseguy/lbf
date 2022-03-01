@@ -10,7 +10,7 @@ import {
   FormLabel
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { EventCategory, IEvent } from "models/Event";
+import { defaultEventCategories, IEvent } from "models/Event";
 import {
   ISubscription,
   isOrgSubscription,
@@ -19,7 +19,7 @@ import {
   IEventSubscription,
   IOrgSubscriptionEventCategory
 } from "models/Subscription";
-import { IOrg } from "models/Org";
+import { getOrgEventCategories, IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { useAddSubscriptionMutation } from "features/subscriptions/subscriptionsApi";
 import { AppQuery } from "utils/types";
@@ -37,16 +37,6 @@ export type TopicsCheckboxes = {
     topic: ITopic;
   };
 };
-
-const setAllItems = (payload: {
-  checked: boolean;
-  topic?: ITopic;
-}): { [key: number]: { checked: boolean } } =>
-  Object.keys(EventCategory).reduce((obj, key) => {
-    const k = parseInt(key);
-    if (k === 0) return obj;
-    return { ...obj, [k]: payload };
-  }, {});
 
 export const SubscriptionEditForm = ({
   event,
@@ -70,19 +60,17 @@ export const SubscriptionEditForm = ({
   const toast = useToast({ position: "top" });
   const [isLoading, sIL] = useState(false);
   const setIsLoading = props.setIsLoading || sIL;
-  const [addSubscription, addSubscriptionMutation] =
-    useAddSubscriptionMutation();
+  const [addSubscription] = useAddSubscriptionMutation();
 
   //#region events
   const [isAllEvents, setIsAllEvents] = useState(false);
   const [eventCategories, setEventCategories] =
     useState<EventCategoriesCheckboxes>(
       org
-        ? Object.keys(EventCategory).reduce((obj, key) => {
+        ? getOrgEventCategories(org).reduce((obj, { index }) => {
             if (!isOrgSubscription(followerSubscription)) return obj;
 
-            const k = parseInt(key);
-            if (k === 0) return obj;
+            const k = parseInt(index);
 
             const checked = !!followerSubscription.eventCategories?.find(
               ({ catId, emailNotif, pushNotif }) => {
@@ -101,6 +89,16 @@ export const SubscriptionEditForm = ({
           }, {})
         : {}
     );
+
+  const setAllItems = (payload: {
+    checked: boolean;
+    topic?: ITopic;
+  }): { [key: number]: { checked: boolean } } =>
+    Object.keys(eventCategories).reduce((obj, key) => {
+      const k = parseInt(key);
+      return { ...obj, [k]: payload };
+    }, {});
+
   const [showEventCategories, setShowEventCategories] = useState(
     isOrgSubscription(followerSubscription) &&
       !!followerSubscription.eventCategories?.find(
@@ -374,7 +372,11 @@ export const SubscriptionEditForm = ({
                     <VStack alignItems="flex-start" ml={3}>
                       {Object.keys(eventCategories).map((key) => {
                         const k = parseInt(key);
-                        const cat = EventCategory[k];
+                        const cat = getOrgEventCategories(org).find(
+                          ({ index }) => parseInt(index) === k
+                        );
+
+                        if (!cat) return null;
 
                         return (
                           <Checkbox

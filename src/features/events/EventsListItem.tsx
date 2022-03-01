@@ -90,17 +90,15 @@ export const EventsListItem = ({
   const minDate = event.eventMinDate;
   const maxDate = event.eventMaxDate;
   const showIsApproved = !!(org && isCreator);
-
-  const isCategorySelected = !!selectedCategories.find(
-    (selectedCategory) => selectedCategory === event.eventCategory!
-  );
+  const isCategorySelected =
+    typeof event.eventCategory === "number"
+      ? selectedCategories.includes(event.eventCategory)
+      : false;
 
   const categories = getEventCategories(event);
   const eventCategory =
     categories.find(({ index }) => parseInt(index) === event.eventCategory) ||
     defaultCategory;
-  let categoryBgColor = eventCategory.bgColor;
-  let categoryLabel = eventCategory.label;
 
   return (
     <>
@@ -114,45 +112,38 @@ export const EventsListItem = ({
       >
         <Flex flexDirection="column" alignItems="center">
           {/* eventCategory */}
-          {typeof event.eventCategory === "number" &&
-            event.eventCategory !== 0 && (
-              <GridItem mb={2}>
-                <Tooltip
-                  label={
-                    !isCategorySelected
-                      ? `Afficher les événements de la catégorie "${categoryLabel}"`
-                      : ""
-                  }
+          {typeof event.eventCategory === "number" && (
+            <GridItem mb={2}>
+              <Tooltip
+                label={
+                  !isCategorySelected
+                    ? `Afficher les événements de la catégorie "${eventCategory.label}"`
+                    : ""
+                }
+              >
+                <Button
+                  variant={isCategorySelected ? "solid" : "outline"}
+                  colorScheme={isCategorySelected ? "teal" : undefined}
+                  fontSize="small"
+                  fontWeight="normal"
+                  height="auto"
+                  p={1}
+                  onClick={() => {
+                    setSelectedCategories(
+                      isCategorySelected
+                        ? selectedCategories.filter(
+                            (selectedCategory) =>
+                              selectedCategory !== event.eventCategory!
+                          )
+                        : [...selectedCategories, event.eventCategory!]
+                    );
+                  }}
                 >
-                  <Button
-                    color={categoryBgColor ? "white" : "black"}
-                    colorScheme={
-                      categoryBgColor === "transparent"
-                        ? isDark
-                          ? "whiteAlpha"
-                          : "blackAlpha"
-                        : categoryBgColor
-                    }
-                    fontSize="small"
-                    fontWeight="normal"
-                    height="auto"
-                    p={1}
-                    onClick={() => {
-                      setSelectedCategories(
-                        isCategorySelected
-                          ? selectedCategories.filter(
-                              (selectedCategory) =>
-                                selectedCategory !== event.eventCategory!
-                            )
-                          : [...selectedCategories, event.eventCategory!]
-                      );
-                    }}
-                  >
-                    {categoryLabel}
-                  </Button>
-                </Tooltip>
-              </GridItem>
-            )}
+                  {eventCategory.label}
+                </Button>
+              </Tooltip>
+            </GridItem>
+          )}
 
           {/* eventCity */}
           {event.eventCity &&

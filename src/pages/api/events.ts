@@ -77,7 +77,7 @@ handler.post<NextApiRequest & { body: AddEventPayload }, NextApiResponse>(
         eventUrl: normalize(body.eventName)
       };
 
-      let event: (IEvent & Document<any, any, any>) | null = null;
+      let event: (IEvent & Document<any, IEvent>) | null = null;
       let eventOrgs: IOrg[] = [];
 
       if (body.forwardedFrom) {

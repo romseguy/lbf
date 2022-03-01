@@ -34,6 +34,7 @@ export const TopicForm = ({
   query,
   mutation,
   subQuery,
+  setIsTouched,
   ...props
 }: {
   org?: IOrg;
@@ -41,11 +42,11 @@ export const TopicForm = ({
   query: AppQuery<IEvent | IOrg>;
   mutation: any;
   subQuery: AppQuery<ISubscription>;
+  setIsTouched: React.Dispatch<React.SetStateAction<boolean>>;
   topic?: ITopic;
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
-  onClose?: () => void;
   onCancel?: () => void;
   onSubmit?: (topic?: ITopic) => void;
 }) => {
@@ -77,6 +78,7 @@ export const TopicForm = ({
   const topicVisibility = watch("topicVisibility");
 
   const onChange = () => {
+    setIsTouched(true);
     clearErrors("formErrorMessage");
   };
 
@@ -149,8 +151,6 @@ export const TopicForm = ({
         setIsLoading(false);
         props.onSubmit && props.onSubmit(newTopic);
       }
-
-      localStorage.removeItem("topicMessageHtml");
     } catch (error: any) {
       setIsLoading(false);
       handleError(error, (message, field) =>
@@ -175,12 +175,7 @@ export const TopicForm = ({
         )}
       />
 
-      <FormControl
-        id="topicName"
-        isRequired
-        isInvalid={!!errors["topicName"]}
-        mb={3}
-      >
+      <FormControl isRequired isInvalid={!!errors["topicName"]} mb={3}>
         <FormLabel>Objet de la discussion</FormLabel>
         <Input
           name="topicName"
@@ -196,11 +191,7 @@ export const TopicForm = ({
       </FormControl>
 
       {org && (
-        <FormControl
-          id="topicCategory"
-          isInvalid={!!errors["topicCategory"]}
-          mb={3}
-        >
+        <FormControl isInvalid={!!errors["topicCategory"]} mb={3}>
           <FormLabel>Catégorie</FormLabel>
           <Controller
             name="topicCategory"
@@ -311,22 +302,18 @@ export const TopicForm = ({
       )}
 
       {!props.topic && (
-        <FormControl
-          id="topicMessage"
-          isInvalid={!!errors["topicMessage"]}
-          mb={3}
-        >
+        <FormControl isInvalid={!!errors["topicMessage"]} mb={3}>
           <FormLabel>Message (optionnel)</FormLabel>
           <Controller
             name="topicMessage"
             control={control}
-            defaultValue={localStorage.getItem("topicMessageHtml") || ""}
+            defaultValue=""
             render={(renderProps) => {
               return (
                 <RTEditor
                   placeholder="Contenu de votre message"
+                  onBlur={(html) => setIsTouched(html !== "")}
                   onChange={({ html }) => {
-                    localStorage.setItem("topicMessageHtml", html);
                     renderProps.onChange(html);
                   }}
                 />
@@ -391,7 +378,7 @@ export const TopicForm = ({
       )}
 
       {hasItems(topicVisibility) && (
-        <Alert status="info" mb={3}>
+        <Alert status="warning" mb={3}>
           <AlertIcon />
           La discussion ne sera visible que par les membres des listes
           sélectionnées.

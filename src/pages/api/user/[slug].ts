@@ -40,7 +40,7 @@ handler.get<
       );
 
   try {
-    let user: (IUser & Document<any, any, any>) | null = null;
+    let user: (IUser & Document<any, IUser>) | null = null;
     let selector;
     let select =
       "_id suggestedCategoryAt userName userImage userSubscription userDescription";

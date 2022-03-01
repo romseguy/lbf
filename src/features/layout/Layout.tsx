@@ -9,27 +9,24 @@ import {
 import Head from "next/head";
 import { Session } from "next-auth";
 import NextNprogress from "nextjs-progressbar";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
 import { PaypalButton } from "features/common/forms/PaypalButton";
 import { Header, Nav, Footer } from "features/layout";
 import { ContactFormModal } from "features/modals/ContactFormModal";
+import { LoginFormModal } from "features/modals/LoginFormModal";
+import { selectIsOffline } from "features/session/sessionSlice";
+import { resetUserEmail, selectUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { PageProps } from "pages/_app";
+import { useAppDispatch } from "store";
 import { breakpoints } from "theme/theme";
 import { Base64Image } from "utils/image";
-import { useRouter } from "next/router";
-import { LoginFormModal } from "features/modals/LoginFormModal";
-import {
-  resetUserEmail,
-  selectUserEmail,
-  setUserEmail
-} from "features/users/userSlice";
-import { useAppDispatch } from "store";
-import { useSelector } from "react-redux";
 
 const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
 let isNotified = false;
@@ -69,8 +66,8 @@ export const Layout = ({
 }: BoxProps & LayoutProps & PageProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const isOffline = useSelector(selectIsOffline);
   const userEmail = useSelector(selectUserEmail);
-  console.log("userEmail", userEmail);
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(
     router.asPath === "/?login" && !serverSession
@@ -86,7 +83,7 @@ export const Layout = ({
 
   const session = clientSession || serverSession;
   const toast = useToast({ position: "top" });
-  const [isOffline, setIsOffline] = useState(false);
+
   const notify = (title: string) => {
     if (!isNotified) {
       isNotified = true;
@@ -98,8 +95,6 @@ export const Layout = ({
   };
 
   useEffect(() => {
-    window.addEventListener("offline", () => setIsOffline(true));
-    window.addEventListener("online", () => setIsOffline(false));
     ["error"].forEach(intercept);
 
     function intercept(method: string) {

@@ -63,11 +63,13 @@ export const OrgForm = withGoogleApi({
   ({
     session,
     org,
+    setIsTouched,
     ...props
   }: {
     session: Session | null;
     org?: IOrg;
     orgType?: string;
+    setIsTouched?: React.Dispatch<React.SetStateAction<boolean>>;
     setOrgType?: (orgType: string) => void;
     onCancel: () => void;
     onSubmit?: (orgUrl: string) => void;
@@ -141,6 +143,7 @@ export const OrgForm = withGoogleApi({
     const orgWeb = watch("orgWeb");
 
     const onChange = () => {
+      setIsTouched && setIsTouched(true);
       clearErrors("formErrorMessage");
     };
 
@@ -289,7 +292,7 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        <FormControl id="orgType" isInvalid={!!errors["orgType"]} mb={3}>
+        <FormControl isInvalid={!!errors["orgType"]} mb={3}>
           <FormLabel>Type de l'organisation</FormLabel>
           <Select
             name="orgType"
@@ -368,7 +371,11 @@ export const OrgForm = withGoogleApi({
                   session={session}
                   defaultValue={org?.orgDescription}
                   placeholder={`Écrire la description ${orgTypeLabel}`}
-                  onChange={({ html }) => renderProps.onChange(html)}
+                  onBlur={(html) => {
+                    setIsTouched && setIsTouched(html !== "");
+                    renderProps.onChange(html);
+                  }}
+                  //onChange={({ html }) => renderProps.onChange(html)}
                 />
               );
             }}

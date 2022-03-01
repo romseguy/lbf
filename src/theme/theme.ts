@@ -13,6 +13,8 @@ export const breakpoints = createBreakpoints({
   nav: "1003px"
 });
 
+export type LinkVariant = "underline" | "no-underline";
+
 // https://stackoverflow.com/a/66926531
 export const scrollbarStyles = `
   &::-webkit-scrollbar {

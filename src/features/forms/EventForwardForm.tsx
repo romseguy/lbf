@@ -122,7 +122,7 @@ export const EventForwardForm = ({
       {isQueryLoading ? (
         <Spinner />
       ) : (
-        <FormControl mb={3} id="orgs" isInvalid={!!errors.orgs} isRequired>
+        <FormControl mb={3} isInvalid={!!errors.orgs} isRequired>
           <FormLabel>Organisations où l'événement sera rediffusé</FormLabel>
           <Controller
             name="orgs"

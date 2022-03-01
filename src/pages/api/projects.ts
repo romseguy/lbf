@@ -62,7 +62,7 @@ handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
 
     try {
       const { body }: { body: Partial<IProject> } = req;
-      let project: (IProject & Document<any, any, IProject>) | null;
+      let project: (IProject & Document<any, IProject>) | null;
 
       project = await models.Project.create({
         ...body,

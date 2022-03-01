@@ -43,7 +43,10 @@ export const OrgSchema = new Schema<IOrg>(
     },
     orgEventCategories: {
       type: [
-        { label: { type: String, required: true, trim: true }, bgColor: String }
+        {
+          index: { type: String, required: true, trim: true },
+          label: { type: String, required: true, trim: true }
+        }
       ],
       default: []
     },

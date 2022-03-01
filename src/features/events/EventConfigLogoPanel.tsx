@@ -262,7 +262,7 @@ export const EventConfigLogoPanel = ({
                   isRequired
                 />
               ) : (
-                <FormControl id="file" isInvalid={!!errors["file"]} mb={3}>
+                <FormControl isInvalid={!!errors["file"]} mb={3}>
                   <FormLabel>Image</FormLabel>
                   <Input
                     height="auto"

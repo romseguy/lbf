@@ -34,6 +34,8 @@ import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
 import { useEditOrgMutation } from "./orgsApi";
+import { useAppDispatch } from "store";
+import { setIsContactModalOpen } from "features/modals/modalSlice";
 
 export const OrgPageTabs = ({
   currentItemName,
@@ -62,6 +64,7 @@ export const OrgPageTabs = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const editOrgMutation = useEditOrgMutation();
   const org = orgQuery.data;
@@ -206,16 +209,19 @@ export const OrgPageTabs = ({
                 traditionnelles. Également libre à vous de l'utiliser comme bon
                 vous semble, et de faire des suggestions sur le
                 <ChatIcon color={isDark ? "yellow" : "green"} mx={1} />
-                <Link
-                  //className={className}
-                  variant="underline"
-                  href="/forum"
-                  //onMouseEnter={() => setClassName("rainbow-text")}
-                  //onMouseLeave={() => setClassName(undefined)}
-                >
+                <Link variant="underline" href="/forum">
                   forum
-                </Link>
-                .
+                </Link>{" "}
+                ou de{" "}
+                <Link
+                  variant="underline"
+                  onClick={() => {
+                    dispatch(setIsContactModalOpen(true));
+                  }}
+                >
+                  contacter
+                </Link>{" "}
+                le créateur de cet outil.
               </Box>
             </Alert>
 

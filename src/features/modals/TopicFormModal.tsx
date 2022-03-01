@@ -6,7 +6,7 @@ import {
   ModalBody,
   ModalCloseButton
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useState } from "react";
 import { Modal } from "features/common";
 import { TopicForm } from "features/forms/TopicForm";
 import { IEvent } from "models/Event";
@@ -31,31 +31,33 @@ export const TopicFormModal = (props: {
   onSubmit: (topic?: ITopic) => void;
 }) => {
   return (
-    <Modal
-      isOpen={props.isOpen}
-      onClose={props.onClose}
-      closeOnOverlayClick={false}
-    >
-      <ModalOverlay>
-        <ModalContent maxWidth="xl">
-          <ModalHeader display="flex" alignItems="center">
-            {props.topic ? (
-              <>
-                <EditIcon mr={3} /> Modifier la discussion
-              </>
-            ) : (
-              <>
-                <AddIcon mr={3} />
-                Ajouter une discussion
-              </>
-            )}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <TopicForm {...props} />
-          </ModalBody>
-        </ModalContent>
-      </ModalOverlay>
+    <Modal {...props} closeOnOverlayClick={false}>
+      {(setIsTouched, onCancel) => (
+        <ModalOverlay>
+          <ModalContent maxWidth="xl">
+            <ModalHeader display="flex" alignItems="center">
+              {props.topic ? (
+                <>
+                  <EditIcon mr={3} /> Modifier la discussion
+                </>
+              ) : (
+                <>
+                  <AddIcon mr={3} />
+                  Ajouter une discussion
+                </>
+              )}
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <TopicForm
+                {...props}
+                setIsTouched={setIsTouched}
+                onCancel={onCancel}
+              />
+            </ModalBody>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </Modal>
   );
 };

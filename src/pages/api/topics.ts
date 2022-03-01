@@ -27,7 +27,7 @@ handler.get<
       query: { populate, createdBy }
     } = req;
 
-    let topics: (ITopic & Document<any, any, ITopic>)[] = [];
+    let topics: (ITopic & Document<any, ITopic>)[] = [];
     const selector = createdBy ? { createdBy } : {};
 
     //logJson(`GET /topics: selector`, selector);
@@ -58,8 +58,8 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
         body: AddTopicPayload;
       } = req;
 
-      let event: (IEvent & Document<any, any, IEvent>) | null | undefined;
-      let org: (IOrg & Document<any, any, IOrg>) | null | undefined;
+      let event: (IEvent & Document<any, IEvent>) | null | undefined;
+      let org: (IOrg & Document<any, IOrg>) | null | undefined;
 
       if (body.event)
         event = await models.Event.findOne({ _id: body.event._id });
@@ -77,7 +77,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           );
       }
 
-      let topic: (ITopic & Document<any, any, ITopic>) | null | undefined;
+      let topic: (ITopic & Document<any, ITopic>) | null | undefined;
 
       //#region existing topic
       if (body.topic._id) {

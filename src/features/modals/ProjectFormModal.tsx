@@ -24,18 +24,24 @@ export const ProjectFormModal = (props: {
   onSubmit: (project: IProject | null) => void;
 }) => {
   return (
-    <Modal isOpen onClose={props.onClose} closeOnOverlayClick={false}>
-      <ModalOverlay>
-        <ModalContent maxWidth="xl">
-          <ModalHeader>
-            {props.project ? "Modifier le projet" : "Ajouter un projet"}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <ProjectForm {...props} />
-          </ModalBody>
-        </ModalContent>
-      </ModalOverlay>
+    <Modal {...props} isOpen closeOnOverlayClick={false}>
+      {(setIsTouched, onCancel) => (
+        <ModalOverlay>
+          <ModalContent maxWidth="xl">
+            <ModalHeader>
+              {props.project ? "Modifier le projet" : "Ajouter un projet"}
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <ProjectForm
+                {...props}
+                setIsTouched={setIsTouched}
+                onCancel={onCancel}
+              />
+            </ModalBody>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </Modal>
   );
 };

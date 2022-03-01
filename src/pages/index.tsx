@@ -5,10 +5,7 @@ import {
   HamburgerIcon
 } from "@chakra-ui/icons";
 import {
-  Box,
   Flex,
-  List,
-  ListItem,
   Spinner,
   Text,
   useColorMode,
@@ -18,8 +15,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FaRegMap } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { css } from "twin.macro";
-import { Button, Column, Heading, HostTag } from "features/common";
+import { Button, Column, Heading, HostTag, Link } from "features/common";
 import { Layout } from "features/layout";
 import { AboutModal } from "features/modals/AboutModal";
 import { MapModal } from "features/modals/MapModal";
@@ -110,7 +106,11 @@ const IndexPage = (props: PageProps) => {
     <Layout {...props} pageTitle="Accueil">
       <Column mb={3}>
         <Text>
-          Bienvenue sur l'arborescence <HostTag />
+          Bienvenue sur l'outil de gestion en{" "}
+          <Link variant="underline" onClick={openNetworksModal}>
+            arborescence
+          </Link>{" "}
+          <HostTag />
         </Text>
 
         <Button
@@ -222,7 +222,11 @@ const IndexPage = (props: PageProps) => {
           inputNodes={inputNodes}
           isMobile={props.isMobile}
           isOpen={isNetworksModalOpen}
-          //header="Carte des réseaux"
+          header={
+            <Flex alignItems="center">
+              Arborescence <HostTag ml={2} />
+            </Flex>
+          }
           onClose={closeNetworksModal}
         />
       )}

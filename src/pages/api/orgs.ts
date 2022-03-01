@@ -28,7 +28,7 @@ handler.get<
       query: { populate, createdBy }
     } = req;
 
-    let orgs: (IOrg & Document<any, any, IOrg>)[] = [];
+    let orgs: (IOrg & Document<any, IOrg>)[] = [];
     const selector = createdBy
       ? { createdBy }
       : { orgVisibility: EOrgVisibility.PUBLIC };
