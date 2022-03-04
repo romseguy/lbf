@@ -8,7 +8,6 @@ import {
   List,
   ListItem,
   Spinner,
-  Tag,
   Text,
   useColorMode,
   useToast
@@ -36,6 +35,7 @@ import { useDeleteTopicMutation, useAddTopicNotifMutation } from "./topicsApi";
 import { TopicsListItem } from "./TopicsListItem";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { TopicsListCategories } from "./TopicsListCategories";
+import { TopicCategoryTag } from "./TopicCategoryTag";
 
 export const TopicsList = ({
   event,
@@ -207,44 +207,38 @@ export const TopicsList = ({
         )}
       </Box>
 
-      {(topics.length > 0 || selectedCategories || selectedLists) &&
-        org &&
-        hasItems(org.orgTopicsCategories) && (
-          <Flex flexDirection="column" mb={3}>
-            <Flex>
-              <Text className="rainbow-text">Catégories</Text>
-            </Flex>
-            <TopicsListCategories
-              org={org}
-              orgQuery={query as AppQuery<IOrg>}
-              mutation={mutation}
-              isCreator={props.isCreator}
-              isSubscribed={props.isSubscribed}
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
-            />
+      {org && hasItems(org.orgTopicsCategories) && (
+        <Flex flexDirection="column" mb={3}>
+          <Flex>
+            <Text className="rainbow-text">Catégories</Text>
           </Flex>
-        )}
+          <TopicsListCategories
+            org={org}
+            orgQuery={query as AppQuery<IOrg>}
+            mutation={mutation}
+            isCreator={props.isCreator}
+            isSubscribed={props.isSubscribed}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+          />
+        </Flex>
+      )}
 
-      {session &&
-        topics.length > 0 &&
-        org &&
-        org.orgUrl !== "forum" &&
-        hasItems(org.orgLists) && (
-          <Flex flexDirection="column" mb={3}>
-            <Flex>
-              <Text className="rainbow-text">Listes</Text>
-            </Flex>
-            <TopicsListOrgLists
-              org={org}
-              isCreator={props.isCreator}
-              selectedLists={selectedLists}
-              session={session}
-              setSelectedLists={setSelectedLists}
-              subQuery={subQuery}
-            />
+      {session && org && org.orgUrl !== "forum" && hasItems(org.orgLists) && (
+        <Flex flexDirection="column" mb={3}>
+          <Flex>
+            <Text className="rainbow-text">Listes</Text>
           </Flex>
-        )}
+          <TopicsListOrgLists
+            org={org}
+            isCreator={props.isCreator}
+            selectedLists={selectedLists}
+            session={session}
+            setSelectedLists={setSelectedLists}
+            subQuery={subQuery}
+          />
+        </Flex>
+      )}
 
       <Grid data-cy="topic-list">
         {query.isLoading ? (
@@ -267,7 +261,9 @@ export const TopicsList = ({
                           aux catégories :
                           {selectedCategories.map((category, index) => (
                             <>
-                              <Tag mx={1}>{category}</Tag>
+                              <TopicCategoryTag key={index} mx={1}>
+                                {category}
+                              </TopicCategoryTag>
                               {index !== selectedCategories.length - 1 && "ou"}
                             </>
                           ))}
@@ -276,7 +272,9 @@ export const TopicsList = ({
                           aux listes :
                           {selectedLists.map(({ listName }, index) => (
                             <>
-                              <Tag mx={1}>{listName}</Tag>
+                              <TopicCategoryTag mx={1}>
+                                {listName}
+                              </TopicCategoryTag>
                               {index !== selectedLists.length - 1 && "ou"}
                             </>
                           ))}
@@ -288,14 +286,18 @@ export const TopicsList = ({
                       {selectedCategories.length === 1 ? (
                         <>
                           Aucune discussions appartenant à la catégorie{" "}
-                          <Tag>{selectedCategories[0]}</Tag>
+                          <TopicCategoryTag>
+                            {selectedCategories[0]}
+                          </TopicCategoryTag>
                         </>
                       ) : (
                         <>
                           Aucune discussions appartenant aux catégories
                           {selectedCategories.map((category, index) => (
                             <>
-                              <Tag mx={1}>{category}</Tag>
+                              <TopicCategoryTag mx={1}>
+                                {category}
+                              </TopicCategoryTag>
                               {index !== selectedCategories.length - 1 && "ou"}
                             </>
                           ))}
@@ -307,14 +309,18 @@ export const TopicsList = ({
                       {selectedLists.length === 1 ? (
                         <>
                           Aucune discussions appartenant à la liste{" "}
-                          <Tag>{selectedLists[0].listName}</Tag>
+                          <TopicCategoryTag>
+                            {selectedLists[0].listName}
+                          </TopicCategoryTag>
                         </>
                       ) : (
                         <>
                           Aucune discussions appartenant aux listes
                           {selectedLists.map(({ listName }, index) => (
                             <>
-                              <Tag mx={1}>{listName}</Tag>
+                              <TopicCategoryTag mx={1}>
+                                {listName}
+                              </TopicCategoryTag>
                               {index !== selectedLists.length - 1 && "ou"}
                             </>
                           ))}
@@ -378,7 +384,7 @@ export const TopicsList = ({
                     query.refetch();
                     subQuery.refetch();
                     toast({
-                      title: `${deletedTopic.topicName} a bien été supprimé !`,
+                      title: `${deletedTopic.topicName} a été supprimé !`,
                       status: "success"
                     });
                   } catch (error: any) {

@@ -97,7 +97,7 @@ export const TopicMessageForm = ({
       }).unwrap();
 
       toast({
-        title: "Votre message a bien été ajouté !",
+        title: "Votre message a été ajouté !",
         status: "success"
       });
 

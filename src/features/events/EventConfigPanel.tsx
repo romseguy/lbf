@@ -6,7 +6,9 @@ import React, { useState } from "react";
 import { DeleteButton, Column } from "features/common";
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
+import { refetchOrg } from "features/orgs/orgSlice";
 import { IEvent } from "models/Event";
+import { useAppDispatch } from "store";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventConfigBannerPanel } from "./EventConfigBannerPanel";
 import { EventConfigLogoPanel } from "./EventConfigLogoPanel";
@@ -29,9 +31,10 @@ export const EventConfigPanel = ({
   setIsConfig: (isConfig: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
 }) => {
-  const event = eventQuery.data;
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const toast = useToast({ position: "top" });
+  const event = eventQuery.data;
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const [isDisabled, setIsDisabled] = useState(true);
 
@@ -82,9 +85,10 @@ export const EventConfigPanel = ({
                   }).unwrap();
 
                   if (deletedEvent) {
+                    dispatch(refetchOrg());
                     await router.push(`/`);
                     toast({
-                      title: `${deletedEvent.eventName} a bien été supprimé !`,
+                      title: `${deletedEvent.eventName} a été supprimé !`,
                       status: "success"
                     });
                   }

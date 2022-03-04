@@ -34,6 +34,10 @@ import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { equalsValue } from "utils/string";
 import { AppQuery } from "utils/types";
+import {
+  getFollowerSubscription,
+  isOrgSubscription
+} from "models/Subscription";
 
 export interface EventNotifFormState {
   email?: string;
@@ -227,6 +231,32 @@ export const EventNotifForm = ({
                                 )
                               )
                                 continue;
+
+                              const followerSubscription =
+                                getFollowerSubscription({ org, subscription });
+
+                              if (
+                                followerSubscription &&
+                                isOrgSubscription(followerSubscription)
+                              ) {
+                                const { eventCategories, tagTypes } =
+                                  followerSubscription;
+
+                                if (
+                                  !tagTypes?.find(
+                                    ({ type, emailNotif, pushNotif }) =>
+                                      type === "Events" &&
+                                      (emailNotif || pushNotif)
+                                  ) &&
+                                  !eventCategories?.find(
+                                    ({ catId, emailNotif, pushNotif }) =>
+                                      (catId === event.eventCategory &&
+                                        emailNotif) ||
+                                      pushNotif
+                                  )
+                                )
+                                  continue;
+                              }
 
                               i++;
                             }

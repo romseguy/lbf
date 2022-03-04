@@ -118,7 +118,7 @@ export const EventConfigBannerPanel = ({
         eventUrl: event.eventUrl
       });
       toast({
-        title: "La bannière a bien été modifiée !",
+        title: "La bannière a été modifiée !",
         status: "success"
       });
       eventQuery.refetch();
@@ -180,7 +180,7 @@ export const EventConfigBannerPanel = ({
                     });
                     eventQuery.refetch();
                     toast({
-                      title: "La bannière a bien été supprimée !",
+                      title: "La bannière a été supprimée !",
                       status: "success"
                     });
                   } catch (error) {

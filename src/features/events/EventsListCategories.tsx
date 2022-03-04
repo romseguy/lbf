@@ -108,7 +108,7 @@ export const EventsListCategories = ({
           })
         }
       });
-      toast({ status: "success", title: "La catégorie a bien été ajoutée !" });
+      toast({ status: "success", title: "La catégorie a été ajoutée !" });
       orgQuery?.refetch();
       dispatch(refetchEvent());
       setIsLoading(false);
@@ -249,8 +249,7 @@ export const EventsListCategories = ({
                                       orgQuery?.refetch();
                                       toast({
                                         status: "success",
-                                        title:
-                                          "La catégorie a bien été supprimée !"
+                                        title: "La catégorie a été supprimée !"
                                       });
                                     } catch (error) {
                                       console.error(error);
@@ -293,7 +292,6 @@ export const EventsListCategories = ({
             key={index}
             variant="no-underline"
             onClick={() => {
-              if (!events.length) return;
               setSelectedCategories(
                 selectedCategories.includes(index)
                   ? selectedCategories.filter((sC) => sC !== index)
@@ -304,7 +302,7 @@ export const EventsListCategories = ({
             <Tag
               variant={isSelected ? "solid" : "outline"}
               bgColor={isSelected ? "teal" : "transparent"}
-              cursor={!events.length ? "not-allowed" : "pointer"}
+              cursor="pointer"
               mr={1}
               whiteSpace="nowrap"
             >

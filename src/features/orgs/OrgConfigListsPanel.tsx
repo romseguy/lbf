@@ -87,8 +87,8 @@ export const OrgConfigListsPanel = ({
       setIsVisible({ ...isVisible, lists: true });
 
       if (listToEdit)
-        toast({ status: "success", title: "La liste a bien été modifiée !" });
-      else toast({ status: "success", title: "La liste a bien été ajoutée !" });
+        toast({ status: "success", title: "La liste a été modifiée !" });
+      else toast({ status: "success", title: "La liste a été ajoutée !" });
     } catch (error) {
       if (listToEdit)
         toast({ status: "error", title: "La liste n'a pas pu être modifiée" });

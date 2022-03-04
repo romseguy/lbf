@@ -117,7 +117,7 @@ export const OrgConfigBannerPanel = ({
       }).unwrap();
 
       toast({
-        title: "La bannière a bien été modifiée !",
+        title: "La bannière a été modifiée !",
         status: "success"
       });
       orgQuery.refetch();
@@ -181,7 +181,7 @@ export const OrgConfigBannerPanel = ({
                     }).unwrap();
                     orgQuery.refetch();
                     toast({
-                      title: "La bannière a bien été supprimée !",
+                      title: "La bannière a été supprimée !",
                       status: "success"
                     });
                   } catch (error) {

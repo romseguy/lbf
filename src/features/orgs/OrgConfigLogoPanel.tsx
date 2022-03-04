@@ -134,7 +134,7 @@ export const OrgConfigLogoPanel = ({
       }).unwrap();
 
       toast({
-        title: `Le logo ${orgTypeFull(org.orgType)} a bien été modifié !`,
+        title: `Le logo ${orgTypeFull(org.orgType)} a été modifié !`,
         status: "success"
       });
       orgQuery.refetch();
@@ -198,7 +198,7 @@ export const OrgConfigLogoPanel = ({
                     }).unwrap();
                     orgQuery.refetch();
                     toast({
-                      title: "Le logo a bien été supprimé !",
+                      title: "Le logo a été supprimé !",
                       status: "success"
                     });
                   } catch (error) {

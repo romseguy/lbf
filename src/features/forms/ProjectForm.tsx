@@ -98,7 +98,7 @@ export const ProjectForm = ({
         }).unwrap();
 
         toast({
-          title: "Le projet a bien été modifié",
+          title: "Le projet a été modifié",
           status: "success"
         });
       } else {
@@ -107,7 +107,7 @@ export const ProjectForm = ({
         });
 
         toast({
-          title: "Le projet a bien été ajouté !",
+          title: "Le projet a été ajouté !",
           status: "success"
         });
       }
@@ -155,7 +155,11 @@ export const ProjectForm = ({
               <RTEditor
                 defaultValue={props.project?.projectDescription}
                 placeholder="Description du projet"
-                onBlur={(html) => setIsTouched(html !== "")}
+                onBlur={(html) => {
+                  renderProps.onChange(html);
+                  if (!props.project && !html) return;
+                  setIsTouched(true);
+                }}
                 //onChange={({ html }) => renderProps.onChange(html)}
               />
             );

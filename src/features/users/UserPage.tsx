@@ -114,7 +114,7 @@ export const UserPage = ({
                 userQuery.refetch();
                 setIsEdit(false);
                 toast({
-                  title: "Votre profil a bien été modifié !",
+                  title: "Votre profil a été modifié !",
                   status: "success"
                 });
 
@@ -215,7 +215,7 @@ export const UserPage = ({
                                   userQuery.refetch();
                                   toast({
                                     title:
-                                      "Votre présentation a bien été enregistrée",
+                                      "Votre présentation a été enregistrée",
                                     status: "success"
                                   });
                                   setIsDescriptionEdit(false);

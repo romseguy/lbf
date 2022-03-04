@@ -131,7 +131,7 @@ export const EventConfigLogoPanel = ({
         eventUrl: event.eventUrl
       });
       toast({
-        title: `Le logo de l'événement a bien été modifié !`,
+        title: `Le logo de l'événement a été modifié !`,
 
         status: "success"
       });
@@ -194,7 +194,7 @@ export const EventConfigLogoPanel = ({
                     });
                     eventQuery.refetch();
                     toast({
-                      title: "Le logo a bien été supprimé !",
+                      title: "Le logo a été supprimé !",
                       status: "success"
                     });
                   } catch (error) {

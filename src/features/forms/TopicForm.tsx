@@ -116,7 +116,7 @@ export const TopicForm = ({
         }).unwrap();
 
         toast({
-          title: "La discussion a bien été modifiée",
+          title: "La discussion a été modifiée",
           status: "success"
         });
 
@@ -144,7 +144,7 @@ export const TopicForm = ({
         }).unwrap();
 
         toast({
-          title: "La discussion a bien été ajoutée !",
+          title: "La discussion a été ajoutée !",
           status: "success"
         });
 
@@ -263,7 +263,7 @@ export const TopicForm = ({
                       });
                       toast({
                         status: "success",
-                        title: "La catégorie a bien été ajoutée !"
+                        title: "La catégorie a été ajoutée !"
                       });
                     } catch (error) {
                       console.error(error);
@@ -312,9 +312,10 @@ export const TopicForm = ({
               return (
                 <RTEditor
                   placeholder="Contenu de votre message"
-                  onBlur={(html) => setIsTouched(html !== "")}
-                  onChange={({ html }) => {
+                  onBlur={(html) => {
                     renderProps.onChange(html);
+                    if (!html) return;
+                    setIsTouched(true);
                   }}
                 />
               );

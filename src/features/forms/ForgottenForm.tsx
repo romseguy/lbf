@@ -104,7 +104,7 @@ export const ForgottenForm = ({
           password: await bcrypt.hash(password, salt)
         });
         toast({
-          title: `Le mot de passe du compte ${savedEmail} a bien été changé.`,
+          title: `Le mot de passe du compte ${savedEmail} a été changé.`,
           status: "success"
         });
         onSuccess && onSuccess();

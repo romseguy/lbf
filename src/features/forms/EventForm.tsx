@@ -323,7 +323,7 @@ export const EventForm = withGoogleApi({
           }).unwrap();
 
           toast({
-            title: "L'événement a bien été modifié !",
+            title: "L'événement a été modifié !",
             status: "success"
           });
         } else {
@@ -331,7 +331,7 @@ export const EventForm = withGoogleApi({
           eventUrl = event.eventUrl;
 
           toast({
-            title: "L'événement a bien été ajouté !",
+            title: "L'événement a été ajouté !",
             status: "success"
           });
         }
@@ -983,8 +983,9 @@ export const EventForm = withGoogleApi({
                   defaultValue={props.event?.eventDescription}
                   placeholder="Description de l'événement"
                   onBlur={(html) => {
-                    setIsTouched && setIsTouched(html !== "");
                     renderProps.onChange(html);
+                    if (!props.event && !html) return;
+                    setIsTouched && setIsTouched(true);
                   }}
                   //onChange={({ html }) => renderProps.onChange(html)}
                 />

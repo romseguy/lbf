@@ -91,7 +91,7 @@ export const DocumentsList = ({
 
       if (statusText === "OK") {
         toast({
-          title: "Votre document a bien été ajouté !",
+          title: "Votre document a été ajouté !",
           status: "success"
         });
         query.refetch();
@@ -268,7 +268,7 @@ export const DocumentsList = ({
                                 payload
                               );
                               toast({
-                                title: `Le document ${fileName} a bien été supprimé !`,
+                                title: `Le document ${fileName} a été supprimé !`,
                                 status: "success"
                               });
                               query.refetch();

@@ -348,7 +348,7 @@ export const ProjectsList = ({
                                     query.refetch();
 
                                     toast({
-                                      title: `Le projet ${deletedProject.projectName} a bien été supprimé !`,
+                                      title: `Le projet ${deletedProject.projectName} a été supprimé !`,
                                       status: "success"
                                     });
                                   }

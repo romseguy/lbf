@@ -17,7 +17,7 @@ const NewUserPage = (props: PageProps) => {
         <Text>
           {session
             ? "Vous avez été connecté à l'application."
-            : "Votre compte a bien été créé."}
+            : "Votre compte a été créé."}
         </Text>
       </Alert>
 

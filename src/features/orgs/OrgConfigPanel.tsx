@@ -114,7 +114,7 @@ export const OrgConfigPanel = ({
                     dispatch(refetchOrgs());
                     await router.push(`/`);
                     toast({
-                      title: `${deletedOrg.orgName} a bien été supprimé !`,
+                      title: `${deletedOrg.orgName} a été supprimé !`,
                       status: "success"
                     });
                   }

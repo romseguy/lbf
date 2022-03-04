@@ -404,7 +404,7 @@ export const EventsListItem = ({
 
                       orgQuery.refetch();
                       toast({
-                        title: `La rediffusion a bien été annulée.`,
+                        title: `La rediffusion a été annulée.`,
                         status: "success"
                       });
                     }

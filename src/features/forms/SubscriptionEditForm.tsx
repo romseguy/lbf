@@ -291,7 +291,7 @@ export const SubscriptionEditForm = ({
         toast({
           title: `${
             isSelf ? "Votre abonnement" : `L'abonnement de ${userEmail}`
-          } à ${org ? org.orgName : event!.eventName} a bien été modifié !`,
+          } à ${org ? org.orgName : event!.eventName} a été modifié !`,
           status: "success"
         });
     } catch (error) {

@@ -160,7 +160,7 @@ export const Layout = ({
           showOnShallow={true}
         />
 
-        <Box position="fixed" right={4} bottom={2}>
+        <Box position="fixed" right={4} bottom={1}>
           <Tooltip
             placement="top-start"
             label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}

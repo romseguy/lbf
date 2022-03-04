@@ -86,7 +86,7 @@ export const EventForwardForm = ({
       });
 
       toast({
-        title: "L'événement a bien été rediffusé !",
+        title: "L'événement a été rediffusé !",
         status: "success"
       });
 

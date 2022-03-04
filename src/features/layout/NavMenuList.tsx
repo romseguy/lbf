@@ -82,12 +82,14 @@ export const NavMenuList = ({
       console.log("componentDidMount");
 
       if (!("serviceWorker" in navigator)) {
-        console.warn("navigator.serviceWorker is missing");
+        if (process.env.NODE_ENV === "production")
+          console.warn("navigator.serviceWorker is missing");
         return;
       }
 
       if (!window.workbox) {
-        console.warn("window.workbox is missing");
+        if (process.env.NODE_ENV === "production")
+          console.warn("window.workbox is missing");
         return;
       }
 

@@ -224,7 +224,7 @@ export const OrgForm = withGoogleApi({
           await editOrg({ payload, orgUrl: org.orgUrl }).unwrap();
 
           toast({
-            title: `La modification a bien été effectuée !`,
+            title: `La modification a été effectuée !`,
             status: "success"
           });
         } else {
@@ -232,7 +232,7 @@ export const OrgForm = withGoogleApi({
           orgUrl = org.orgUrl;
 
           toast({
-            title: `${capitalize(orgTypeFull5(orgType))} a bien été ajoutée !`,
+            title: `${capitalize(orgTypeFull5(orgType))} a été ajoutée !`,
             status: "success"
           });
         }
@@ -372,8 +372,9 @@ export const OrgForm = withGoogleApi({
                   defaultValue={org?.orgDescription}
                   placeholder={`Écrire la description ${orgTypeLabel}`}
                   onBlur={(html) => {
-                    setIsTouched && setIsTouched(html !== "");
                     renderProps.onChange(html);
+                    if (!org && !html) return;
+                    setIsTouched && setIsTouched(true);
                   }}
                   //onChange={({ html }) => renderProps.onChange(html)}
                 />

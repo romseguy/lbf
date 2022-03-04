@@ -2,6 +2,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
+  Box,
   Button,
   Flex,
   BoxProps,
@@ -415,36 +416,38 @@ export const EventsList = ({
             ) : (
               <Alert status="warning">
                 <AlertIcon />
-                Aucun événements{" "}
-                {Array.isArray(selectedCategories) &&
-                selectedCategoriesCount === 1 ? (
-                  <>
-                    de la catégorie
-                    <EventCategoryTag
-                      org={org}
-                      selectedCategory={selectedCategories[0]}
-                      mx={1}
-                    />
-                  </>
-                ) : selectedCategoriesCount > 1 ? (
-                  <>
-                    dans les catégories
-                    {selectedCategories.map((catNumber, index) => (
+                <Box>
+                  Aucun événements{" "}
+                  {Array.isArray(selectedCategories) &&
+                  selectedCategoriesCount === 1 ? (
+                    <>
+                      de la catégorie
                       <EventCategoryTag
-                        key={`cat-${index}`}
                         org={org}
-                        selectedCategory={catNumber}
+                        selectedCategory={selectedCategories[0]}
                         mx={1}
                       />
-                    ))}
-                  </>
-                ) : (
-                  ""
-                )}{" "}
-                prévu
-                {previousEvents.length > 0 || nextEvents.length > 0
-                  ? " cette semaine."
-                  : "."}
+                    </>
+                  ) : selectedCategoriesCount > 1 ? (
+                    <>
+                      dans les catégories
+                      {selectedCategories.map((catNumber, index) => (
+                        <EventCategoryTag
+                          key={`cat-${index}`}
+                          org={org}
+                          selectedCategory={catNumber}
+                          mx={1}
+                        />
+                      ))}
+                    </>
+                  ) : (
+                    ""
+                  )}
+                  prévus
+                  {previousEvents.length > 0 || nextEvents.length > 0
+                    ? " cette semaine."
+                    : "."}
+                </Box>
               </Alert>
             )}
           </>
