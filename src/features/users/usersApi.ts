@@ -29,9 +29,21 @@ export const userApi = createApi({
       })
     }),
     getUser: build.query<IUser, UserQueryParams>({
-      query: ({ slug, ...query }) => ({
-        url: `user/${slug}?${objectToQueryString(query)}`
-      })
+      query: ({ slug, ...query }) => {
+        const hasQueryParams = Object.keys(query).length > 0;
+        if (hasQueryParams) {
+          console.groupCollapsed("getUser");
+          console.log("populate", query.populate);
+          console.log("select", query.select);
+          console.groupEnd();
+        } else console.log("getUser");
+
+        return {
+          url: `user/${slug}${
+            hasQueryParams ? `?${objectToQueryString(query)}` : ""
+          }`
+        };
+      }
     }),
     getUserByEmail: build.query<IUser, string>({
       query: (email) => ({ url: `user/${email}` })

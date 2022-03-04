@@ -14,7 +14,7 @@ import {
   Spinner,
   Text,
   VStack,
-  useColorMode
+  useDisclosure
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
@@ -24,9 +24,7 @@ import { useSelector } from "react-redux";
 import { EntityButton, Link } from "features/common";
 import { OrgFormModal } from "features/modals/OrgFormModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
 import { EOrgType } from "models/Org";
 import {
@@ -37,25 +35,19 @@ import {
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
 
-let cachedRefetchOrgs = false;
-let cachedRefetchSubscription = false;
-
-export const OrgPopover = ({
-  boxSize,
+const OrgPopoverContent = ({
   orgType,
   session,
-  ...props
-}: BoxProps & {
+  onClose
+}: {
   orgType?: EOrgType;
   session: Session;
+  onClose: () => void;
 }) => {
   const router = useRouter();
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
-  const userEmail = useSelector(selectUserEmail);
+  const userEmail = useSelector(selectUserEmail) || session.user.email;
 
   //#region orgs
-  const orgsQuery = useGetOrgsQuery();
   const myOrgsQuery = useGetOrgsQuery(
     { createdBy: session.user.userId },
     {
@@ -72,13 +64,7 @@ export const OrgPopover = ({
       })
     }
   );
-  //#endregion
-
-  //#region my sub
-  const subQuery = useGetSubscriptionQuery({
-    email: userEmail,
-    populate: "orgs"
-  }) as AppQuery<ISubscription>;
+  const orgsQuery = useGetOrgsQuery();
   const followedOrgs =
     (Array.isArray(orgsQuery.data) &&
       orgsQuery.data.length > 0 &&
@@ -95,43 +81,192 @@ export const OrgPopover = ({
     [];
   //#endregion
 
-  //#region local state
-  const [isOpen, setIsOpen] = useState(false);
-  const [isOrgFormModalOpen, setIsOrgFormModalOpen] = useState(false);
+  //#region my sub
+  const subQuery = useGetSubscriptionQuery({
+    email: userEmail,
+    populate: "orgs"
+  }) as AppQuery<ISubscription>;
+  //#endregion
 
+  //#region local state
+  const {
+    isOpen: isModalOpen,
+    onOpen: onModalOpen,
+    onClose: onModalClose
+  } = useDisclosure();
   const [showOrgs, setShowOrgs] = useState<
     "showOrgsAdded" | "showOrgsFollowed" | "showOrgsSubscribed"
   >("showOrgsAdded");
   //#endregion
 
-  //#region cross refetch
-  const refetchOrgs = useSelector(selectOrgsRefetch);
   useEffect(() => {
-    if (refetchOrgs !== cachedRefetchOrgs) {
-      cachedRefetchOrgs = refetchOrgs;
-      console.log("refetching orgs");
-      orgsQuery.refetch();
-      myOrgsQuery.refetch();
-    }
-  }, [refetchOrgs]);
+    orgsQuery.refetch();
+    myOrgsQuery.refetch();
+    subQuery.refetch();
+  }, []);
 
-  const refetchSubscription = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    if (refetchSubscription !== cachedRefetchSubscription) {
-      console.log("refetching subscription");
-      subQuery.refetch();
-    }
-  }, [refetchSubscription]);
-  //#endregion
+  return (
+    <>
+      {/* <PopoverHeader>
+            <Heading size="md">
+              Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}
+              ...
+            </Heading>
+          </PopoverHeader>
+          <PopoverCloseButton /> */}
+      <PopoverBody>
+        <Select
+          fontSize="sm"
+          height="auto"
+          lineHeight={2}
+          mb={2}
+          defaultValue={showOrgs}
+          onChange={(e) =>
+            setShowOrgs(
+              e.target.value as
+                | "showOrgsAdded"
+                | "showOrgsFollowed"
+                | "showOrgsSubscribed"
+            )
+          }
+        >
+          <option value="showOrgsAdded">
+            Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"} que
+            j'ai ajouté
+          </option>
+          <option value="showOrgsFollowed">
+            Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"} où
+            je suis abonné
+          </option>
+          <option value="showOrgsSubscribed">
+            Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"} où
+            je suis adhérent
+          </option>
+        </Select>
+
+        {showOrgs === "showOrgsAdded" && (
+          <>
+            {myOrgsQuery.isLoading || myOrgsQuery.isFetching ? (
+              <Spinner />
+            ) : hasItems(myOrgsQuery.data) ? (
+              <VStack
+                aria-hidden
+                alignItems="flex-start"
+                overflow="auto"
+                height="200px"
+                spacing={2}
+                py={1}
+                pl={1}
+              >
+                {myOrgsQuery.data.map((org) => (
+                  <EntityButton
+                    key={org._id}
+                    org={org}
+                    p={1}
+                    onClick={() => {
+                      onClose();
+                      router.push(org.orgUrl);
+                    }}
+                  />
+                ))}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller">
+                Vous n'avez ajouté aucune organisations.
+              </Text>
+            )}
+          </>
+        )}
+
+        {showOrgs === "showOrgsFollowed" && (
+          <>
+            {hasItems(followedOrgs) ? (
+              <VStack
+                alignItems="flex-start"
+                overflowX="auto"
+                height="200px"
+                spacing={2}
+              >
+                {followedOrgs.map((org, index) => (
+                  <EntityButton key={org._id} org={org} p={1} />
+                ))}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller">
+                Vous n'êtes abonné à aucune organisations.
+              </Text>
+            )}
+          </>
+        )}
+
+        {showOrgs === "showOrgsSubscribed" && (
+          <>
+            {hasItems(subscribedOrgs) ? (
+              <VStack
+                alignItems="flex-start"
+                overflowX="auto"
+                height="200px"
+                spacing={2}
+              >
+                {subscribedOrgs.map((org, index) => (
+                  <EntityButton key={org._id} org={org} p={1} />
+                ))}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller">
+                Personne ne vous a inscrit en tant qu'adhérent, bientôt
+                peut-être ?
+              </Text>
+            )}
+          </>
+        )}
+      </PopoverBody>
+      <PopoverFooter>
+        <Button
+          colorScheme="teal"
+          leftIcon={<AddIcon />}
+          mt={1}
+          size="sm"
+          onClick={onModalOpen}
+          data-cy="org-add-button"
+        >
+          Ajouter{" "}
+          {orgType === EOrgType.NETWORK ? "un réseau" : "une organisation"}
+        </Button>
+      </PopoverFooter>
+
+      {isModalOpen && (
+        <OrgFormModal
+          session={session}
+          orgType={orgType}
+          onCancel={onModalClose}
+          onClose={onModalClose}
+          onSubmit={async (orgUrl) => {
+            onModalClose();
+            await router.push(`/${orgUrl}`, `/${orgUrl}`, {
+              shallow: true
+            });
+          }}
+        />
+      )}
+    </>
+  );
+};
+
+export const OrgPopover = ({
+  boxSize,
+  orgType,
+  session,
+  ...props
+}: BoxProps & {
+  orgType?: EOrgType;
+  session: Session;
+}) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Box {...props}>
-      <Popover
-        isLazy
-        isOpen={isOpen}
-        offset={[-140, 0]}
-        onClose={() => setIsOpen(false)}
-      >
+      <Popover isLazy isOpen={isOpen} offset={[-140, 0]} onClose={onClose}>
         <PopoverTrigger>
           <IconButton
             aria-label="Organisations"
@@ -147,162 +282,18 @@ export const OrgPopover = ({
               />
             }
             minWidth={0}
-            onClick={() => {
-              if (!isOpen) {
-                orgsQuery.refetch();
-                myOrgsQuery.refetch();
-                subQuery.refetch();
-              }
-              setIsOpen(!isOpen);
-            }}
+            onClick={onOpen}
             data-cy="org-popover-button"
           />
         </PopoverTrigger>
         <PopoverContent>
-          {/* <PopoverHeader>
-            <Heading size="md">
-              Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}
-              ...
-            </Heading>
-          </PopoverHeader>
-          <PopoverCloseButton /> */}
-          <PopoverBody>
-            <Select
-              fontSize="sm"
-              height="auto"
-              lineHeight={2}
-              mb={2}
-              defaultValue={showOrgs}
-              onChange={(e) =>
-                setShowOrgs(
-                  e.target.value as
-                    | "showOrgsAdded"
-                    | "showOrgsFollowed"
-                    | "showOrgsSubscribed"
-                )
-              }
-            >
-              <option value="showOrgsAdded">
-                Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"}{" "}
-                que j'ai ajouté
-              </option>
-              <option value="showOrgsFollowed">
-                Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"}{" "}
-                où je suis abonné
-              </option>
-              <option value="showOrgsSubscribed">
-                Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"}{" "}
-                où je suis adhérent
-              </option>
-            </Select>
-
-            {showOrgs === "showOrgsAdded" && (
-              <>
-                {myOrgsQuery.isLoading || myOrgsQuery.isFetching ? (
-                  <Spinner />
-                ) : hasItems(myOrgsQuery.data) ? (
-                  <VStack
-                    aria-hidden
-                    alignItems="flex-start"
-                    overflow="auto"
-                    height="200px"
-                    spacing={2}
-                    py={1}
-                    pl={1}
-                  >
-                    {myOrgsQuery.data.map((org) => (
-                      <EntityButton
-                        key={org._id}
-                        org={org}
-                        p={1}
-                        onClick={() => {
-                          setIsOpen(false);
-                          router.push(org.orgUrl);
-                        }}
-                      />
-                    ))}
-                  </VStack>
-                ) : (
-                  <Text fontSize="smaller">
-                    Vous n'avez ajouté aucune organisations.
-                  </Text>
-                )}
-              </>
-            )}
-
-            {showOrgs === "showOrgsFollowed" && (
-              <>
-                {hasItems(followedOrgs) ? (
-                  <VStack
-                    alignItems="flex-start"
-                    overflowX="auto"
-                    height="200px"
-                    spacing={2}
-                  >
-                    {followedOrgs.map((org, index) => (
-                      <EntityButton key={org._id} org={org} p={1} />
-                    ))}
-                  </VStack>
-                ) : (
-                  <Text fontSize="smaller">
-                    Vous n'êtes abonné à aucune organisations.
-                  </Text>
-                )}
-              </>
-            )}
-
-            {showOrgs === "showOrgsSubscribed" && (
-              <>
-                {hasItems(subscribedOrgs) ? (
-                  <VStack
-                    alignItems="flex-start"
-                    overflowX="auto"
-                    height="200px"
-                    spacing={2}
-                  >
-                    {subscribedOrgs.map((org, index) => (
-                      <EntityButton key={org._id} org={org} p={1} />
-                    ))}
-                  </VStack>
-                ) : (
-                  <Text fontSize="smaller">
-                    Personne ne vous a inscrit en tant qu'adhérent, bientôt
-                    peut-être ?
-                  </Text>
-                )}
-              </>
-            )}
-          </PopoverBody>
-          <PopoverFooter>
-            <Button
-              colorScheme="teal"
-              leftIcon={<AddIcon />}
-              mt={1}
-              size="sm"
-              onClick={() => setIsOrgFormModalOpen(true)}
-              data-cy="org-add-button"
-            >
-              Ajouter{" "}
-              {orgType === EOrgType.NETWORK ? "un réseau" : "une organisation"}
-            </Button>
-          </PopoverFooter>
+          <OrgPopoverContent
+            orgType={orgType}
+            session={session}
+            onClose={onClose}
+          />
         </PopoverContent>
       </Popover>
-
-      {isOrgFormModalOpen && (
-        <OrgFormModal
-          session={session}
-          orgType={orgType}
-          onCancel={() => setIsOrgFormModalOpen(false)}
-          onClose={() => setIsOrgFormModalOpen(false)}
-          onSubmit={async (orgUrl) => {
-            setIsOrgFormModalOpen(false);
-            await router.push(`/${orgUrl}`, `/${orgUrl}`, {
-              shallow: true
-            });
-          }}
-        />
-      )}
     </Box>
   );
 };

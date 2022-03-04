@@ -24,10 +24,12 @@ interface customWindow extends Window {
 declare const window: customWindow;
 
 export const NavMenuList = ({
-  session,
   email,
+  session,
   userName
-}: PageProps & {
+}: Omit<PageProps, "isMobile"> & {
+  email: string;
+  session: Session;
   userName: string;
 }) => {
   const { colorMode } = useColorMode();
@@ -36,7 +38,7 @@ export const NavMenuList = ({
   const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
   const [editUser] = useEditUserMutation();
-  const userQuery = useGetUserQuery({ slug: email || "" });
+  const userQuery = useGetUserQuery({ slug: email });
 
   //#region push subscriptions
   const [registration, setRegistration] =
@@ -48,30 +50,37 @@ export const NavMenuList = ({
   const subscribe = async (
     serviceWorkerRegistration: ServiceWorkerRegistration
   ) => {
-    const pushSubscription =
-      await serviceWorkerRegistration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: base64ToUint8Array(
-          process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
-        )
-      });
+    try {
+      const pushSubscription =
+        await serviceWorkerRegistration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: base64ToUint8Array(
+            process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
+          )
+        });
 
-    if (pushSubscription) {
-      setSubscription(pushSubscription);
-      await editUser({
-        payload: { userSubscription: pushSubscription },
-        slug: userName
-      });
-      userQuery.refetch();
-      toast({
-        status: "success",
-        title:
-          "Vous avez activé les notifications mobile, vous pouvez les désactiver en cliquant sur votre avatar"
-      });
+      if (pushSubscription) {
+        setSubscription(pushSubscription);
+        await editUser({
+          payload: { userSubscription: pushSubscription },
+          slug: userName
+        });
+        userQuery.refetch();
+        toast({
+          status: "success",
+          title: "Les notifications mobile sont activées"
+        });
+      }
+    } catch (error) {
+      console.log("serviceWorkerRegistration.pushManager.subscribe error");
+      console.error(error);
+      throw error;
     }
   };
   useEffect(() => {
     async function componentDidMount() {
+      console.log("componentDidMount");
+
       if (!("serviceWorker" in navigator)) {
         console.warn("navigator.serviceWorker is missing");
         return;
@@ -82,12 +91,23 @@ export const NavMenuList = ({
         return;
       }
 
-      const serviceWorkerRegistration = await navigator.serviceWorker.ready;
-      setRegistration(serviceWorkerRegistration);
-      const pushSubscription =
-        await serviceWorkerRegistration.pushManager.getSubscription();
-      if (pushSubscription) setSubscription(pushSubscription);
-      else await subscribe(serviceWorkerRegistration);
+      try {
+        const serviceWorkerRegistration = await navigator.serviceWorker.ready;
+        setRegistration(serviceWorkerRegistration);
+
+        const pushSubscription =
+          await serviceWorkerRegistration.pushManager.getSubscription();
+
+        if (pushSubscription) setSubscription(pushSubscription);
+        else await subscribe(serviceWorkerRegistration);
+      } catch (error) {
+        console.error(error);
+        toast({
+          status: "error",
+          title:
+            "Les notifications mobile n'ont pas pu être activées, êtes-vous connecté à internet ?"
+        });
+      }
     }
     componentDidMount();
   }, []);
@@ -105,7 +125,7 @@ export const NavMenuList = ({
       {process.env.NODE_ENV === "development" && (
         <MenuItem
           aria-hidden
-          command={`${session?.user.userId}`}
+          command={`${session.user.userId}`}
           cursor="default"
           _hover={{ bg: isDark ? "gray.700" : "white" }}
         />
@@ -115,11 +135,7 @@ export const NavMenuList = ({
         <MenuItem>Ma page</MenuItem>
       </Link>
 
-      <MenuItem
-        isDisabled={
-          registration === null || userQuery.isLoading || userQuery.isFetching
-        }
-      >
+      <MenuItem isDisabled={userQuery.isLoading || userQuery.isFetching}>
         <Switch
           isChecked={isSubscribed}
           display="flex"
@@ -140,24 +156,29 @@ export const NavMenuList = ({
 
                 toast({
                   status: "success",
-                  title: "Vous ne recevrez plus de notifications"
+                  title: "Notifications mobiles désactivées"
                 });
               } else if (registration) {
                 await subscribe(registration);
                 toast({
                   status: "success",
-                  title: "Vous acceptez de recevoir des notifications"
+                  title: "Notifications mobiles activées"
                 });
+              } else {
+                throw new Error("todo");
               }
             } catch (error: any) {
+              console.error(error);
               toast({
                 status: "error",
-                title: error.message
+                title: `Les notifications mobiles n'ont pas pu être ${
+                  isSubscribed ? "désactivées" : "activées"
+                }`
               });
             }
           }}
         >
-          Notifications mobile {isSubscribed ? "activées" : "désactivées"}
+          Notifications mobile
         </Switch>
       </MenuItem>
 

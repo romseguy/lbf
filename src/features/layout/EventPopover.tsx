@@ -14,49 +14,31 @@ import {
   Spinner,
   Text,
   VStack,
-  useColorModeValue
+  useDisclosure
 } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { EntityButton } from "features/common";
 import { EventFormModal } from "features/modals/EventFormModal";
 import { useGetEventsQuery } from "features/events/eventsApi";
-import { selectEventsRefetch } from "features/events/eventSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
-import { IEvent, EEventInviteStatus } from "models/Event";
+import { EEventInviteStatus } from "models/Event";
 import { hasItems } from "utils/array";
-import { Session } from "next-auth";
 
-let cachedRefetchEvents = false;
-let cachedRefetchSubscription = false;
-
-export const EventPopover = ({
-  boxSize,
+const EventPopoverContent = ({
   session,
-  ...props
-}: BoxProps & {
+  onClose
+}: {
   session: Session;
+  onClose: () => void;
 }) => {
   const router = useRouter();
-  const userEmail = useSelector(selectUserEmail);
+  const userEmail = useSelector(selectUserEmail) || session.user.email;
 
-  //#region my events
-  const eventsQuery = useGetEventsQuery(void 0, {
-    selectFromResult: (query) => ({
-      ...query,
-      attendedEvents: (query.data || []).filter(({ eventNotifications }) =>
-        eventNotifications.find(
-          ({ email, status }) =>
-            email === email && status === EEventInviteStatus.OK
-        )
-      )
-    })
-  });
-  const { attendedEvents } = eventsQuery;
-
+  //#region events
   const myEventsQuery = useGetEventsQuery(
     { createdBy: session.user.userId },
     {
@@ -72,9 +54,21 @@ export const EventPopover = ({
       })
     }
   );
+  const eventsQuery = useGetEventsQuery(void 0, {
+    selectFromResult: (query) => ({
+      ...query,
+      attendedEvents: (query.data || []).filter(({ eventNotifications }) =>
+        eventNotifications.find(
+          ({ email, status }) =>
+            email === email && status === EEventInviteStatus.OK
+        )
+      )
+    })
+  });
+  const { attendedEvents } = eventsQuery;
   //#endregion
 
-  //#region sub
+  //#region my sub
   const subQuery = useGetSubscriptionQuery({
     email: userEmail,
     populate: "events"
@@ -83,45 +77,169 @@ export const EventPopover = ({
   //#endregion
 
   //#region local state
-  const [isOpen, setIsOpen] = useState(false);
+  const {
+    isOpen: isModalOpen,
+    onOpen: onModalOpen,
+    onClose: onModalClose
+  } = useDisclosure();
   const [showEvents, setShowEvents] = useState<
     "showEventsAdded" | "showEventsFollowed" | "showEventsAttended"
   >("showEventsAdded");
-  const [eventModalState, setEventFormModalState] = useState<{
-    isOpen: boolean;
-    event?: IEvent;
-  }>({ isOpen: false, event: undefined });
   //#endregion
 
-  //#region cross refetch
-  const refetchEvents = useSelector(selectEventsRefetch);
   useEffect(() => {
-    if (refetchEvents !== cachedRefetchEvents) {
-      cachedRefetchEvents = refetchEvents;
-      console.log("refetching events");
-      eventsQuery.refetch();
-      myEventsQuery.refetch();
-    }
-  }, [refetchEvents]);
+    eventsQuery.refetch();
+    myEventsQuery.refetch();
+    subQuery.refetch();
+  }, []);
 
-  const refetchSubscription = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    if (refetchSubscription !== cachedRefetchSubscription) {
-      cachedRefetchSubscription = refetchSubscription;
-      console.log("refetching subscription");
-      subQuery.refetch();
-    }
-  }, [refetchSubscription]);
-  //#endregion
+  return (
+    <>
+      {/* <PopoverHeader>
+          </PopoverHeader>
+          <PopoverCloseButton /> */}
+      <PopoverBody>
+        <Select
+          fontSize="sm"
+          height="auto"
+          lineHeight={2}
+          mb={2}
+          defaultValue={showEvents}
+          onChange={(e) =>
+            setShowEvents(
+              e.target.value as
+                | "showEventsAdded"
+                | "showEventsFollowed"
+                | "showEventsAttended"
+            )
+          }
+        >
+          <option value="showEventsAdded">
+            Les événements que j'ai ajouté
+          </option>
+          <option value="showEventsFollowed">
+            Les événements où je suis abonné
+          </option>
+          <option value="showEventsAttended">
+            Les événements où je participe
+          </option>
+        </Select>
+
+        {showEvents === "showEventsAdded" && (
+          <>
+            {myEventsQuery.isLoading || myEventsQuery.isFetching ? (
+              <Spinner />
+            ) : hasItems(myEventsQuery.data) ? (
+              <VStack
+                alignItems="flex-start"
+                overflow="auto"
+                height="200px"
+                spacing={2}
+              >
+                {myEventsQuery.data.map((event) => (
+                  <EntityButton
+                    key={event._id}
+                    event={event}
+                    p={1}
+                    onClick={() => {
+                      onClose();
+                      router.push(event.eventUrl);
+                    }}
+                  />
+                ))}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller">
+                Vous n'avez ajouté aucun événements.
+              </Text>
+            )}
+          </>
+        )}
+
+        {showEvents === "showEventsFollowed" && (
+          <>
+            {hasItems(followedEvents) ? (
+              <VStack
+                alignItems="flex-start"
+                overflow="auto"
+                height="200px"
+                spacing={2}
+              >
+                {followedEvents.map(({ event }) => (
+                  <EntityButton key={event._id} event={event} p={1} />
+                ))}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller">
+                Vous n'êtes abonné à aucun événements.
+              </Text>
+            )}
+          </>
+        )}
+
+        {showEvents === "showEventsAttended" && (
+          <>
+            {hasItems(attendedEvents) ? (
+              <VStack
+                alignItems="flex-start"
+                overflow="auto"
+                height="200px"
+                spacing={2}
+              >
+                {attendedEvents.map((event) => (
+                  <EntityButton key={event._id} event={event} p={1} />
+                ))}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller">
+                Vous ne participez à aucun événements.
+              </Text>
+            )}
+          </>
+        )}
+      </PopoverBody>
+      <PopoverFooter>
+        <Button
+          colorScheme="teal"
+          leftIcon={<AddIcon />}
+          mt={1}
+          size="sm"
+          onClick={onModalOpen}
+          data-cy="event-add-button"
+        >
+          Ajouter un événement
+        </Button>
+      </PopoverFooter>
+
+      {isModalOpen && (
+        <EventFormModal
+          session={session}
+          onCancel={onModalClose}
+          onClose={onModalClose}
+          onSubmit={async (eventUrl) => {
+            onModalClose();
+            await router.push(`/${eventUrl}`, `/${eventUrl}`, {
+              shallow: true
+            });
+          }}
+        />
+      )}
+    </>
+  );
+};
+
+export const EventPopover = ({
+  boxSize,
+  session,
+  ...props
+}: BoxProps & {
+  session: Session;
+}) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Box {...props}>
-      <Popover
-        isLazy
-        isOpen={isOpen}
-        offset={[-140, 0]}
-        onClose={() => setIsOpen(false)}
-      >
+      <Popover isLazy isOpen={isOpen} offset={[-140, 0]} onClose={onClose}>
         <PopoverTrigger>
           <IconButton
             aria-label="Événements"
@@ -135,151 +253,14 @@ export const EventPopover = ({
               />
             }
             minWidth={0}
-            onClick={() => {
-              if (!isOpen) {
-                myEventsQuery.refetch();
-                eventsQuery.refetch();
-                subQuery.refetch();
-              }
-              setIsOpen(!isOpen);
-            }}
+            onClick={onOpen}
             data-cy="event-popover-button"
           />
         </PopoverTrigger>
         <PopoverContent>
-          {/* <PopoverHeader>
-          </PopoverHeader>
-          <PopoverCloseButton /> */}
-          <PopoverBody>
-            <Select
-              fontSize="sm"
-              height="auto"
-              lineHeight={2}
-              mb={2}
-              defaultValue={showEvents}
-              onChange={(e) =>
-                setShowEvents(
-                  e.target.value as
-                    | "showEventsAdded"
-                    | "showEventsFollowed"
-                    | "showEventsAttended"
-                )
-              }
-            >
-              <option value="showEventsAdded">
-                Les événements que j'ai ajouté
-              </option>
-              <option value="showEventsFollowed">
-                Les événements où je suis abonné
-              </option>
-              <option value="showEventsAttended">
-                Les événements où je participe
-              </option>
-            </Select>
-
-            {showEvents === "showEventsAdded" && (
-              <>
-                {myEventsQuery.isLoading || myEventsQuery.isFetching ? (
-                  <Spinner />
-                ) : hasItems(myEventsQuery.data) ? (
-                  <VStack
-                    alignItems="flex-start"
-                    overflow="auto"
-                    height="200px"
-                    spacing={2}
-                  >
-                    {myEventsQuery.data.map((event) => (
-                      <EntityButton
-                        key={event._id}
-                        event={event}
-                        p={1}
-                        onClick={() => {
-                          setIsOpen(false);
-                          router.push(event.eventUrl);
-                        }}
-                      />
-                    ))}
-                  </VStack>
-                ) : (
-                  <Text fontSize="smaller">
-                    Vous n'avez ajouté aucun événements.
-                  </Text>
-                )}
-              </>
-            )}
-
-            {showEvents === "showEventsFollowed" && (
-              <>
-                {hasItems(followedEvents) ? (
-                  <VStack
-                    alignItems="flex-start"
-                    overflow="auto"
-                    height="200px"
-                    spacing={2}
-                  >
-                    {followedEvents.map(({ event }) => (
-                      <EntityButton key={event._id} event={event} p={1} />
-                    ))}
-                  </VStack>
-                ) : (
-                  <Text fontSize="smaller">
-                    Vous n'êtes abonné à aucun événements.
-                  </Text>
-                )}
-              </>
-            )}
-
-            {showEvents === "showEventsAttended" && (
-              <>
-                {hasItems(attendedEvents) ? (
-                  <VStack
-                    alignItems="flex-start"
-                    overflow="auto"
-                    height="200px"
-                    spacing={2}
-                  >
-                    {attendedEvents.map((event) => (
-                      <EntityButton key={event._id} event={event} p={1} />
-                    ))}
-                  </VStack>
-                ) : (
-                  <Text fontSize="smaller">
-                    Vous ne participez à aucun événements.
-                  </Text>
-                )}
-              </>
-            )}
-          </PopoverBody>
-          <PopoverFooter>
-            <Button
-              colorScheme="teal"
-              leftIcon={<AddIcon />}
-              mt={1}
-              size="sm"
-              onClick={() => {
-                setEventFormModalState({ isOpen: true });
-              }}
-              data-cy="event-add-button"
-            >
-              Ajouter un événement
-            </Button>
-          </PopoverFooter>
+          <EventPopoverContent session={session} onClose={onClose} />
         </PopoverContent>
       </Popover>
-
-      {eventModalState.isOpen && (
-        <EventFormModal
-          session={session}
-          onCancel={() => setEventFormModalState({ isOpen: false })}
-          onClose={() => setEventFormModalState({ isOpen: false })}
-          onSubmit={async (eventUrl) => {
-            setEventFormModalState({ isOpen: false });
-            await router.push(`/${eventUrl}`, `/${eventUrl}`, {
-              shallow: true
-            });
-          }}
-        />
-      )}
     </Box>
   );
 };

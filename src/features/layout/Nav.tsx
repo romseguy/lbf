@@ -54,9 +54,13 @@ export const Nav = ({
   const userName = session?.user.userName || "";
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const userEmail = useSelector(selectUserEmail);
+  const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isDrawerOpen,
+    onOpen: onDrawerOpen,
+    onClose: onDrawerClose
+  } = useDisclosure();
 
   const popoverProps = {
     bg: isDark ? "gray.800" : "lightcyan",
@@ -64,9 +68,10 @@ export const Nav = ({
     borderRadius: 9999,
     borderStyle: "solid",
     borderWidth: 1,
-    ml: 3,
+    mr: isMobile ? 2 : undefined,
+    ml: isMobile ? undefined : 3,
     css: css`
-      padding: 2px 0px 3px 0px;
+      padding: ${isMobile ? "0" : "2px 0px 3px 0px"};
     `
   };
 
@@ -170,7 +175,7 @@ export const Nav = ({
                       </>
                     )}
 
-                    {session && (
+                    {session && userEmail && (
                       <Menu>
                         <Tooltip label={`Connecté en tant que ${userEmail}`}>
                           <MenuButton ml={1} data-cy="avatar-button">
@@ -187,8 +192,7 @@ export const Nav = ({
                         </Tooltip>
 
                         <NavMenuList
-                          {...props}
-                          isMobile={isMobile}
+                          email={userEmail}
                           session={session}
                           userName={userName}
                         />
@@ -215,11 +219,15 @@ export const Nav = ({
                       colorScheme="cyan"
                       bg="lightcyan"
                       leftIcon={<HamburgerIcon />}
-                      onClick={onOpen}
+                      onClick={onDrawerOpen}
                     >
                       Ouvrir le menu
                     </Button>
-                    <Drawer placement="left" isOpen={isOpen} onClose={onClose}>
+                    <Drawer
+                      placement="left"
+                      isOpen={isDrawerOpen}
+                      onClose={onDrawerClose}
+                    >
                       <DrawerOverlay />
                       <DrawerContent>
                         <DrawerCloseButton />
@@ -265,8 +273,30 @@ export const Nav = ({
                       </>
                     )}
 
-                    {session && (
+                    {session && userEmail && (
                       <>
+                        <Box {...popoverProps}>
+                          <OrgPopover
+                            boxSize={6}
+                            orgType={EOrgType.NETWORK}
+                            session={session}
+                            mx={3}
+                          />
+                        </Box>
+                        <Box {...popoverProps}>
+                          <EventPopover boxSize={6} session={session} mx={3} />
+                        </Box>
+                        <Box {...popoverProps}>
+                          <TopicPopover boxSize={6} session={session} mx={3} />
+                        </Box>
+                        <Box {...popoverProps}>
+                          <SubscriptionPopover
+                            boxSize={6}
+                            session={session}
+                            mx={3}
+                          />
+                        </Box>
+
                         <Menu>
                           <Tooltip label={`Connecté en tant que ${userEmail}`}>
                             <MenuButton data-cy="avatar-button">
@@ -283,38 +313,11 @@ export const Nav = ({
                           </Tooltip>
 
                           <NavMenuList
-                            {...props}
-                            isMobile={isMobile}
+                            email={userEmail}
                             session={session}
                             userName={userName}
                           />
                         </Menu>
-
-                        <Box {...popoverProps}>
-                          <OrgPopover
-                            boxSize={6}
-                            orgType={EOrgType.NETWORK}
-                            session={session}
-                            mx={4}
-                          />
-                        </Box>
-                        <Box {...popoverProps}>
-                          <EventPopover
-                            boxSize={[6, 6, 6]}
-                            session={session}
-                            mx={4}
-                          />
-                        </Box>
-                        <Box {...popoverProps}>
-                          <TopicPopover boxSize={6} session={session} mx={4} />
-                        </Box>
-                        <Box {...popoverProps}>
-                          <SubscriptionPopover
-                            boxSize={6}
-                            session={session}
-                            mx={4}
-                          />
-                        </Box>
                       </>
                     )}
                   </Flex>

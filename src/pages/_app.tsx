@@ -91,9 +91,9 @@ App.getInitialProps = async ({
 
   let session: Session | null = null;
 
-  //if (isServer()) {
-  session = await getSession(ctx);
-  //}
+  if (isServer()) {
+    session = await getSession(ctx);
+  }
 
   if (session) {
     pageProps.session = session;

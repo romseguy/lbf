@@ -13,28 +13,23 @@ import {
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
+import { compareAsc, compareDesc, parseISO } from "date-fns";
 import { Session } from "next-auth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { EntityButton } from "features/common";
 import { useGetEventsQuery } from "features/events/eventsApi";
 import { useGetTopicsQuery } from "features/forum/topicsApi";
 import { selectUserEmail } from "features/users/userSlice";
-import { isEvent, isTopic } from "utils/models";
-import { compareAsc, compareDesc, parseISO } from "date-fns";
 import { IEmailNotification, IPushNotification } from "models/INotification";
-import { EntityButton } from "features/common";
-import { timeAgo } from "utils/date";
 import { hasItems } from "utils/array";
+import { timeAgo } from "utils/date";
+import { isEvent, isTopic } from "utils/models";
 
-export const SubscriptionPopover = ({
-  boxSize,
-  session,
-  ...props
-}: BoxProps & { session: Session }) => {
+const SubscriptionPopoverContent = ({ session }: { session: Session }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-
-  const userEmail = useSelector(selectUserEmail);
+  const userEmail = useSelector(selectUserEmail) || session.user.email;
 
   const {
     eventsWithEmailNotifications,
@@ -74,8 +69,6 @@ export const SubscriptionPopover = ({
   });
 
   //#region local state
-  const { onOpen, onClose, isOpen } = useDisclosure();
-
   let emailNotifications: IEmailNotification[] = [];
   for (const entity of [
     ...eventsWithEmailNotifications,
@@ -121,6 +114,150 @@ export const SubscriptionPopover = ({
   >("showEmailNotifications");
   //#endregion
 
+  useEffect(() => {
+    refetchEvents();
+    refetchTopics();
+  }, []);
+  return (
+    <>
+      <PopoverBody>
+        <Select
+          fontSize="sm"
+          height="auto"
+          lineHeight={2}
+          mb={2}
+          defaultValue={showNotifications}
+          onChange={(e) =>
+            setShowNotifications(
+              e.target.value as
+                | "showEmailNotifications"
+                | "showPushNotifications"
+            )
+          }
+        >
+          <option value="showEmailNotifications">
+            Les invitations e-mail que j'ai reçu
+          </option>
+          <option value="showPushNotifications">
+            Les invitations mobile que j'ai reçu
+          </option>
+        </Select>
+
+        {showNotifications === "showEmailNotifications" && (
+          <>
+            {hasItems(emailNotifications) ? (
+              <VStack
+                alignItems="flex-start"
+                overflow="auto"
+                height="200px"
+                spacing={2}
+              >
+                {emailNotifications.map(({ entity, createdAt }, index) => {
+                  return (
+                    <Box
+                      key={entity._id}
+                      alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
+                      borderColor={isDark ? "gray.600" : "gray.300"}
+                      borderRadius="lg"
+                      borderStyle="solid"
+                      borderWidth="1px"
+                      p={1}
+                    >
+                      <EmailIcon mr={2} />
+
+                      {isEvent(entity) ? (
+                        <EntityButton event={entity} />
+                      ) : isTopic(entity) ? (
+                        <EntityButton topic={entity} />
+                      ) : null}
+
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent={
+                          index % 2 === 0 ? "flex-start" : "flex-end"
+                        }
+                        mt={1}
+                      >
+                        <Text fontSize="0.7em" fontStyle="italic" mx={1}>
+                          il y a {timeAgo(createdAt).timeAgo}
+                        </Text>
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller">
+                Vous n'avez reçu aucune invitations e-mail.
+              </Text>
+            )}
+          </>
+        )}
+
+        {showNotifications === "showPushNotifications" && (
+          <>
+            {hasItems(pushNotifications) ? (
+              <VStack
+                alignItems="flex-start"
+                overflow="auto"
+                height="200px"
+                spacing={2}
+              >
+                {pushNotifications.map(({ entity, createdAt }, index) => {
+                  return (
+                    <Box
+                      key={entity._id}
+                      alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
+                      borderColor={isDark ? "gray.600" : "gray.300"}
+                      borderRadius="lg"
+                      borderStyle="solid"
+                      borderWidth="1px"
+                      p={1}
+                    >
+                      <PhoneIcon mr={2} />
+
+                      {isEvent(entity) ? (
+                        <EntityButton event={entity} />
+                      ) : isTopic(entity) ? (
+                        <EntityButton topic={entity} />
+                      ) : null}
+
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent={
+                          index % 2 === 0 ? "flex-start" : "flex-end"
+                        }
+                        mt={1}
+                      >
+                        <Text fontSize="0.7em" fontStyle="italic" mx={1}>
+                          il y a {timeAgo(createdAt).timeAgo}
+                        </Text>
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller">
+                Vous n'avez reçu aucune invitations mobile.
+              </Text>
+            )}
+          </>
+        )}
+      </PopoverBody>
+    </>
+  );
+};
+
+export const SubscriptionPopover = ({
+  boxSize,
+  session,
+  ...props
+}: BoxProps & { session: Session }) => {
+  const { onOpen, onClose, isOpen } = useDisclosure();
+
   return (
     <Box {...props}>
       <Popover isLazy isOpen={isOpen} offset={[-140, 0]} onClose={onClose}>
@@ -131,147 +268,11 @@ export const SubscriptionPopover = ({
             _hover={{ bg: "transparent" }}
             icon={<BellIcon boxSize={boxSize} _hover={{ color: "green" }} />}
             minWidth={0}
-            onClick={() => {
-              if (!isOpen) {
-                refetchEvents();
-                refetchTopics();
-              }
-              onOpen();
-            }}
+            onClick={onOpen}
           />
         </PopoverTrigger>
         <PopoverContent>
-          <PopoverBody>
-            <Select
-              fontSize="sm"
-              height="auto"
-              lineHeight={2}
-              mb={2}
-              defaultValue={showNotifications}
-              onChange={(e) =>
-                setShowNotifications(
-                  e.target.value as
-                    | "showEmailNotifications"
-                    | "showPushNotifications"
-                )
-              }
-            >
-              <option value="showEmailNotifications">
-                Les invitations e-mail que j'ai reçu
-              </option>
-              <option value="showPushNotifications">
-                Les invitations mobile que j'ai reçu
-              </option>
-            </Select>
-
-            {showNotifications === "showEmailNotifications" && (
-              <>
-                {hasItems(emailNotifications) ? (
-                  <VStack
-                    alignItems="flex-start"
-                    overflow="auto"
-                    height="200px"
-                    spacing={2}
-                  >
-                    {emailNotifications.map(({ entity, createdAt }, index) => {
-                      return (
-                        <Box
-                          key={entity._id}
-                          alignSelf={
-                            index % 2 === 0 ? "flex-start" : "flex-end"
-                          }
-                          borderColor={isDark ? "gray.600" : "gray.300"}
-                          borderRadius="lg"
-                          borderStyle="solid"
-                          borderWidth="1px"
-                          p={1}
-                        >
-                          <EmailIcon mr={2} />
-
-                          {isEvent(entity) ? (
-                            <EntityButton event={entity} />
-                          ) : isTopic(entity) ? (
-                            <EntityButton topic={entity} />
-                          ) : null}
-
-                          <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent={
-                              index % 2 === 0 ? "flex-start" : "flex-end"
-                            }
-                            mt={1}
-                          >
-                            <Text fontSize="0.7em" fontStyle="italic" mx={1}>
-                              il y a {timeAgo(createdAt).timeAgo}
-                            </Text>
-                          </Box>
-                        </Box>
-                      );
-                    })}
-                  </VStack>
-                ) : (
-                  <Text fontSize="smaller">
-                    Vous n'avez reçu aucune invitations e-mail.
-                  </Text>
-                )}
-              </>
-            )}
-
-            {showNotifications === "showPushNotifications" && (
-              <>
-                {hasItems(pushNotifications) ? (
-                  <VStack
-                    alignItems="flex-start"
-                    overflow="auto"
-                    height="200px"
-                    spacing={2}
-                  >
-                    {pushNotifications.map(({ entity, createdAt }, index) => {
-                      return (
-                        <Box
-                          key={entity._id}
-                          alignSelf={
-                            index % 2 === 0 ? "flex-start" : "flex-end"
-                          }
-                          borderColor={isDark ? "gray.600" : "gray.300"}
-                          borderRadius="lg"
-                          borderStyle="solid"
-                          borderWidth="1px"
-                          p={1}
-                        >
-                          <PhoneIcon mr={2} />
-
-                          {isEvent(entity) ? (
-                            <EntityButton event={entity} />
-                          ) : isTopic(entity) ? (
-                            <EntityButton topic={entity} />
-                          ) : null}
-
-                          <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent={
-                              index % 2 === 0 ? "flex-start" : "flex-end"
-                            }
-                            mt={1}
-                          >
-                            <Text fontSize="0.7em" fontStyle="italic" mx={1}>
-                              il y a {timeAgo(createdAt).timeAgo}
-                            </Text>
-                          </Box>
-                        </Box>
-                      );
-                    })}
-                  </VStack>
-                ) : (
-                  <Text fontSize="smaller">
-                    Vous n'avez reçu aucune invitations mobile.
-                  </Text>
-                )}
-              </>
-            )}
-          </PopoverBody>
+          <SubscriptionPopoverContent session={session} />
         </PopoverContent>
       </Popover>
     </Box>

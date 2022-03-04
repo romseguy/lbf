@@ -40,21 +40,27 @@ handler.get<
       );
 
   try {
-    let user: (IUser & Document<any, IUser>) | null = null;
-    let selector;
-    let select =
-      "_id suggestedCategoryAt userName userImage userSubscription userDescription";
+    let select = query.select;
+    const session = await getSession({ req });
+    if (session) {
+      if (
+        session.user.isAdmin ||
+        session.user.email === slug ||
+        session.user.userName === slug ||
+        session.user.userId === slug
+      ) {
+        select = "+email +phone +userImage +userSubscription";
+      }
+    }
 
+    let selector;
     if (emailR.test(slug)) {
       selector = { email: slug };
-      const session = await getSession({ req });
-      if (session?.user.email === slug) select += " email";
     } else if (phoneR.test(slug)) {
       selector = { phone: slug };
     }
 
-    if (query.select) select += ` ${query.select}`;
-
+    let user: (IUser & Document<any, IUser>) | null = null;
     if (selector) {
       user = await models.User.findOne(selector, select);
     } else {

@@ -30,7 +30,7 @@ export async function getSession(
     (!session.user.userId || session.user.suggestedCategoryAt === undefined)
   ) {
     // console.log("getSession: fetching", session);
-    const { data } = await api.get(`user/${session.user.email}?select=isAdmin`);
+    const { data } = await api.get(`user/${session.user.email}`);
 
     if (data) {
       const { _id, userName, suggestedCategoryAt = null, isAdmin } = data;
@@ -86,9 +86,7 @@ export const useSession = (): {
     //console.log("POPULATING");
     (async () => {
       isLoading = true;
-      const userQuery = await api.get(
-        `user/${session.user.email}?select=isAdmin`
-      );
+      const userQuery = await api.get(`user/${session.user.email}`);
       isLoading = false;
 
       if (!userQuery.data) {
