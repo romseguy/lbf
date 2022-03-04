@@ -115,8 +115,8 @@ export const SubscribePopover = ({
       setIsLoading(false);
       toast({
         status: "success",
-        title: `Vous êtes maintenant abonné à ${
-          org ? orgTypeFull2(org.orgType) : "l'événement"
+        title: `Vous êtes maintenant abonné ${
+          org ? orgTypeFull2(org.orgType) : "à l'événement"
         } ${org ? org.orgName : event?.eventName}`
       });
     } catch (error) {

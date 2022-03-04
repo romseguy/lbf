@@ -21,12 +21,17 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { EntityButton } from "features/common";
+import { selectEventsRefetch } from "features/events/eventSlice";
 import { EventFormModal } from "features/modals/EventFormModal";
 import { useGetEventsQuery } from "features/events/eventsApi";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
 import { EEventInviteStatus } from "models/Event";
 import { hasItems } from "utils/array";
+
+let cachedRefetchEvents = false;
+let cachedRefetchSubscription = false;
 
 const EventPopoverContent = ({
   session,
@@ -87,11 +92,21 @@ const EventPopoverContent = ({
   >("showEventsAdded");
   //#endregion
 
+  const refetchEvents = useSelector(selectEventsRefetch);
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
-    eventsQuery.refetch();
-    myEventsQuery.refetch();
-    subQuery.refetch();
-  }, []);
+    if (refetchEvents !== cachedRefetchEvents) {
+      cachedRefetchEvents = refetchEvents;
+      eventsQuery.refetch();
+      myEventsQuery.refetch();
+    }
+  }, [refetchEvents]);
+  useEffect(() => {
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      cachedRefetchSubscription = refetchSubscription;
+      subQuery.refetch();
+    }
+  }, [refetchSubscription]);
 
   return (
     <>

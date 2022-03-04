@@ -21,10 +21,12 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { EntityButton, Link } from "features/common";
+import { EntityButton } from "features/common";
 import { OrgFormModal } from "features/modals/OrgFormModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
+import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
 import { EOrgType } from "models/Org";
 import {
@@ -34,6 +36,9 @@ import {
 } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
+
+let cachedRefetchOrgs = false;
+let cachedRefetchSubscription = false;
 
 const OrgPopoverContent = ({
   orgType,
@@ -46,6 +51,13 @@ const OrgPopoverContent = ({
 }) => {
   const router = useRouter();
   const userEmail = useSelector(selectUserEmail) || session.user.email;
+
+  //#region my sub
+  const subQuery = useGetSubscriptionQuery({
+    email: userEmail,
+    populate: "orgs"
+  }) as AppQuery<ISubscription>;
+  //#endregion
 
   //#region orgs
   const myOrgsQuery = useGetOrgsQuery(
@@ -81,13 +93,6 @@ const OrgPopoverContent = ({
     [];
   //#endregion
 
-  //#region my sub
-  const subQuery = useGetSubscriptionQuery({
-    email: userEmail,
-    populate: "orgs"
-  }) as AppQuery<ISubscription>;
-  //#endregion
-
   //#region local state
   const {
     isOpen: isModalOpen,
@@ -99,11 +104,21 @@ const OrgPopoverContent = ({
   >("showOrgsAdded");
   //#endregion
 
+  const refetchOrgs = useSelector(selectOrgsRefetch);
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
-    orgsQuery.refetch();
-    myOrgsQuery.refetch();
-    subQuery.refetch();
-  }, []);
+    if (refetchOrgs !== cachedRefetchOrgs) {
+      cachedRefetchOrgs = refetchOrgs;
+      orgsQuery.refetch();
+      myOrgsQuery.refetch();
+    }
+  }, [refetchOrgs]);
+  useEffect(() => {
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      cachedRefetchSubscription = refetchSubscription;
+      subQuery.refetch();
+    }
+  }, [refetchSubscription]);
 
   return (
     <>

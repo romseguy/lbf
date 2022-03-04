@@ -19,8 +19,12 @@ import {
 export const sendMail = async (mail: Mail, session?: Session | null) => {
   try {
     const server = process.env.EMAIL_SERVER;
-    const transport = nodemailer.createTransport(server);
-    await transport.sendMail(mail);
+
+    if (process.env.NODE_ENV === "production") {
+      const transport = nodemailer.createTransport(server);
+      await transport.sendMail(mail);
+    }
+
     console.log(`sent event email notif to ${mail.to}`, mail);
 
     if (session)

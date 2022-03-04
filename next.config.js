@@ -15,8 +15,8 @@ let plugins = [
     withPWA,
     {
       pwa: {
-        dest: "public",
-        runtimeCaching: require("next-pwa/cache")
+        dest: "public"
+        //runtimeCaching: require("next-pwa/cache")
       }
     },
     [PHASE_PRODUCTION_BUILD]

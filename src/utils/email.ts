@@ -24,7 +24,7 @@ export const getTopicUrl = ({
   topic: ITopic;
 }) => {
   let topicUrl = `${process.env.NEXT_PUBLIC_URL}/${
-    org ? (org.orgUrl === "forum" ? "forum" : org.orgUrl) : event?.eventUrl
+    org ? org.orgUrl : event?.eventUrl
   }`;
   topicUrl +=
     org && org.orgUrl === "forum"

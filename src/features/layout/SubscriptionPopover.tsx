@@ -76,12 +76,14 @@ const SubscriptionPopoverContent = ({ session }: { session: Session }) => {
   ]) {
     if (isEvent(entity)) {
       for (const eventNotification of entity.eventNotifications) {
-        emailNotifications.push({ ...eventNotification, entity });
+        if (eventNotification.email === userEmail)
+          emailNotifications.push({ ...eventNotification, entity });
       }
     }
     if (isTopic(entity)) {
       for (const topicNotification of entity.topicNotifications) {
-        emailNotifications.push({ ...topicNotification, entity });
+        if (topicNotification.email === userEmail)
+          emailNotifications.push({ ...topicNotification, entity });
       }
     }
   }
@@ -96,12 +98,14 @@ const SubscriptionPopoverContent = ({ session }: { session: Session }) => {
   ]) {
     if (isEvent(entity)) {
       for (const eventNotification of entity.eventNotifications) {
-        pushNotifications.push({ ...eventNotification, entity });
+        if (eventNotification.user === session.user.userId)
+          pushNotifications.push({ ...eventNotification, entity });
       }
     }
     if (isTopic(entity)) {
       for (const topicNotification of entity.topicNotifications) {
-        pushNotifications.push({ ...topicNotification, entity });
+        if (topicNotification.user === session.user.userId)
+          pushNotifications.push({ ...topicNotification, entity });
       }
     }
   }
@@ -118,6 +122,7 @@ const SubscriptionPopoverContent = ({ session }: { session: Session }) => {
     refetchEvents();
     refetchTopics();
   }, []);
+
   return (
     <>
       <PopoverBody>

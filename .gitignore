@@ -7,12 +7,15 @@ yarn-debug.log*
 yarn-error.log*
 
 # build
+tsconfig.tsbuildinfo
 *.zip
 *.tar.gz
 .next
 **/public/workbox-*.js
 **/public/sw.js
+**/public/sw.js.map
 **/public/worker-*.js
+**/public/workbox-*.js.map
 
 # misc
 playground.mongodb

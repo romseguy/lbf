@@ -143,7 +143,10 @@ export const NavMenuList = ({
           onClick={async () => {
             try {
               if (isSubscribed) {
-                if (!subscription) throw new Error(defaultErrorMessage);
+                if (!subscription) {
+                  console.error("no subscription to unsubscribe from");
+                  throw new Error(defaultErrorMessage);
+                }
 
                 await subscription.unsubscribe();
                 await editUser({

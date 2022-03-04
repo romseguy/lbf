@@ -216,6 +216,7 @@ handler.get<
 
       if (modelKey === "orgTopics") {
         org = await org
+
           .populate({
             path: "orgTopics",
             populate: [
@@ -260,6 +261,8 @@ handler.get<
 
           org.orgTopics = subscription
             ? org.orgTopics.filter(({ topicVisibility }) => {
+                if (!hasItems(topicVisibility)) return true;
+
                 for (const listName of topicVisibility) {
                   if (listName === "Adhérents") {
                     if (

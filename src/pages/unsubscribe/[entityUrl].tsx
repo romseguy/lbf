@@ -1,7 +1,6 @@
 import { Alert, AlertIcon } from "@chakra-ui/react";
 import { GetServerSidePropsContext } from "next";
-import { NextParsedUrlQuery } from "next/dist/server/request-meta";
-import { Session } from "next-auth";
+import { ParsedUrlQuery } from "querystring";
 import { Layout } from "features/layout";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
@@ -46,7 +45,7 @@ const UnsubscribePage = (props: PageProps & UnsubscribePageProps) => {
 export async function getServerSideProps(
   ctx: GetServerSidePropsContext
 ): Promise<{ props: UnsubscribePageProps }> {
-  const entityUrl = (ctx.params as NextParsedUrlQuery).entityUrl as string;
+  const entityUrl = (ctx.params as ParsedUrlQuery).entityUrl as string;
   const {
     subscriptionId,
     topicId

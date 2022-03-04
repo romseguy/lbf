@@ -20,10 +20,13 @@ import { useSelector } from "react-redux";
 import { EntityButton } from "features/common";
 import { useGetTopicsQuery } from "features/forum/topicsApi";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
 import { hasItems } from "utils/array";
 import { timeAgo } from "utils/date";
 import { getRefId } from "utils/models";
+
+let cachedRefetchSubscription = false;
 
 const TopicPopoverContent = ({
   session,
@@ -102,8 +105,14 @@ const TopicPopoverContent = ({
   useEffect(() => {
     topicsQuery.refetch();
     myTopicsQuery.refetch();
-    subQuery.refetch();
   }, []);
+  const refetchSubscription = useSelector(selectSubscriptionRefetch);
+  useEffect(() => {
+    if (refetchSubscription !== cachedRefetchSubscription) {
+      cachedRefetchSubscription = refetchSubscription;
+      subQuery.refetch();
+    }
+  }, [refetchSubscription]);
 
   return (
     <>
