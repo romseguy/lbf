@@ -336,9 +336,6 @@ export const OrgConfigListsPanel = ({
 
                             return (
                               <Tr key={subscription._id}>
-                                <Td maxW={0} pr={0}>
-                                  <IoIosPerson />
-                                </Td>
                                 <Td pl={0}>{label}</Td>
                               </Tr>
                             );
@@ -352,7 +349,7 @@ export const OrgConfigListsPanel = ({
             )}
           </GridItem>
         ) : (
-          <Text>Aucune liste de diffusion.</Text>
+          <Text>Aucune listes de diffusion.</Text>
         ))}
     </Grid>
   );

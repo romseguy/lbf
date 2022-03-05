@@ -8,7 +8,9 @@ import {
   Td,
   Th,
   Thead,
-  Tr
+  Tr,
+  Tooltip,
+  useColorMode
 } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
 import { css } from "twin.macro";
@@ -18,6 +20,7 @@ import { scrollbarStyles, tableStyles } from "theme/theme";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { AppQuery } from "utils/types";
 import { ISubscription } from "models/Subscription";
+import { MapModal } from "features/modals/MapModal";
 
 export const OrgsList = ({
   query,
@@ -26,6 +29,10 @@ export const OrgsList = ({
   query: AppQuery<IOrg | IOrg[]>;
   subQuery: AppQuery<ISubscription>;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+  const [orgToShow, setOrgToShow] = useState<IOrg | void>();
+
   let { data, isLoading } = query;
   if (!Array.isArray(data)) data = data?.orgs;
 
@@ -86,6 +93,7 @@ export const OrgsList = ({
             ].map(({ key, label }) => {
               return (
                 <Th
+                  color={isDark ? "white" : "black"}
                   key={key}
                   cursor="pointer"
                   onClick={() => setSelectedOrder(key)}
@@ -141,13 +149,38 @@ export const OrgsList = ({
                     </Link>
                   </Td>
                   <Td>{OrgTypes[org.orgType]}</Td>
-                  <Td>{org.orgCity}</Td>
+                  <Td>
+                    <Tooltip hasArrow label="Voir sur la carte" placement="top">
+                      <span>
+                        <Link
+                          variant="underline"
+                          onClick={() => setOrgToShow(org)}
+                        >
+                          {org.orgCity}
+                        </Link>
+                      </span>
+                    </Tooltip>
+                  </Td>
                 </Tr>
               );
             })
           )}
         </Tbody>
       </Table>
+
+      {orgToShow && (
+        <MapModal
+          isOpen
+          isSearch={false}
+          orgs={[orgToShow]}
+          center={{
+            lat: orgToShow.orgLat,
+            lng: orgToShow.orgLng
+          }}
+          zoomLevel={16}
+          onClose={() => setOrgToShow()}
+        />
+      )}
     </Box>
   );
 };

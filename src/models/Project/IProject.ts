@@ -1,3 +1,4 @@
+import { IProjectNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { IEntity } from "utils/models";
 
@@ -20,10 +21,7 @@ export interface IProject extends IEntity {
   projectDescription: string;
   projectDescriptionHtml: string;
   projectName: string;
-  projectNotifications?: {
-    email: string;
-    status: EProjectInviteStatus;
-  }[];
+  projectNotifications: IProjectNotification[];
   projectOrgs?: IOrg[];
   projectStatus: EProjectStatus;
   projectVisibility?: string[];

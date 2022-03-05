@@ -55,20 +55,26 @@ export const ProjectAttendingForm = ({
 
     let projectNotifications =
       project.projectNotifications?.map(({ email: e, status }) => {
+        const projectNotification = {
+          email: e,
+          status,
+          createdAt: new Date().toISOString()
+        };
         if (
           (e === promptedEmail || userEmail) &&
           status !== EProjectInviteStatus.OK
         ) {
           isNew = false;
-          return { email: e, status: EProjectInviteStatus.OK };
+          return { ...projectNotification, status: EProjectInviteStatus.OK };
         }
-        return { email: e, status };
+        return projectNotification;
       }) || [];
 
     if (isNew)
       projectNotifications?.push({
         email: promptedEmail || userEmail,
-        status: EProjectInviteStatus.OK
+        status: EProjectInviteStatus.OK,
+        createdAt: new Date().toISOString()
       });
 
     await editProject({

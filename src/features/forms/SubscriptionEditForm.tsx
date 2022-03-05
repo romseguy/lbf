@@ -125,6 +125,27 @@ export const SubscriptionEditForm = ({
   }, [followerSubscription]);
   //#endregion
 
+  //#region projects
+  const [isAllProjects, setIsAllProjects] = useState(false);
+  useEffect(() => {
+    if (followerSubscription) {
+      const isAllProjects =
+        !followerSubscription.tagTypes ||
+        !!followerSubscription.tagTypes.find(
+          ({ type, emailNotif, pushNotif }) =>
+            type === "Projects"
+              ? notifType === "email"
+                ? !!emailNotif
+                : notifType === "push"
+                ? !!pushNotif
+                : false
+              : false
+        );
+      setIsAllProjects(isAllProjects);
+    }
+  }, [followerSubscription]);
+  //#endregion
+
   //#region topics
   const [topics, setTopics] = useState<TopicsCheckboxes>({});
   const [isAllTopics, setIsAllTopics] = useState(false);
@@ -211,6 +232,13 @@ export const SubscriptionEditForm = ({
     if (isOrgSubscription(newFollowerSubscription)) {
       newFollowerSubscription = {
         ...newFollowerSubscription,
+        ...(setFollowerSubscriptionTagType(
+          {
+            type: "Projects",
+            [`${notifType}Notif`]: isAllProjects
+          },
+          newFollowerSubscription
+        ) as IOrgSubscription),
         ...(setFollowerSubscriptionTagType(
           {
             type: "Topics",
@@ -408,6 +436,7 @@ export const SubscriptionEditForm = ({
             )}
           </>
         )}
+
         <Switch
           {...switchProps}
           isChecked={isAllTopics}
@@ -425,7 +454,7 @@ export const SubscriptionEditForm = ({
           de la catégorie...
         </Switch>
 
-        {Object.keys(topics).length > 0 && (
+        {/* {Object.keys(topics).length > 0 && (
           <>
             <ArrowForwardIcon /> quelqu'un répond à la discussion...
             <CheckboxGroup>
@@ -461,7 +490,20 @@ export const SubscriptionEditForm = ({
               </VStack>
             </CheckboxGroup>
           </>
-        )}
+        )} */}
+
+        <Switch
+          {...switchProps}
+          isChecked={isAllProjects}
+          isDisabled={isLoading}
+          onChange={(e) => {
+            setIsAllProjects(e.target.checked);
+          }}
+        >
+          {isSelf
+            ? "vous êtes invité à un projet"
+            : "vous l'invitez à un projet"}
+        </Switch>
       </FormControl>
 
       <Button

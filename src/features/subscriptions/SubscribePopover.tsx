@@ -90,6 +90,7 @@ export const SubscribePopover = ({
           type: ESubscriptionType.FOLLOWER,
           tagTypes: [
             { type: "Events", emailNotif: true, pushNotif: true },
+            { type: "Projects", emailNotif: true, pushNotif: true },
             { type: "Topics", emailNotif: true, pushNotif: true }
           ]
         }

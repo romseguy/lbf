@@ -2,7 +2,10 @@ import type { IProject } from "models/Project";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import baseQuery from "utils/query";
 
-export type AddProjectPayload = Omit<IProject, "_id" | "createdBy">;
+export type AddProjectPayload = Omit<
+  IProject,
+  "_id" | "createdBy" | "projectNotifications"
+>;
 
 export const projectApi = createApi({
   reducerPath: "projectsApi",

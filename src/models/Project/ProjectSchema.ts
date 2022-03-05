@@ -22,15 +22,23 @@ export const ProjectSchema = new Schema<IProject>(
       enum: EProjectStatus
     },
     projectVisibility: [String],
-    projectNotifications: [
-      {
-        email: String,
-        status: {
-          type: String,
-          enum: EProjectInviteStatus
+    projectNotifications: {
+      type: [
+        {
+          email: String,
+          phone: String,
+          user: {
+            type: Schema.Types.ObjectId,
+            ref: "User"
+          },
+          status: {
+            type: String,
+            enum: EProjectInviteStatus
+          }
         }
-      }
-    ],
+      ],
+      default: []
+    },
     forwardedFrom: {
       projectId: {
         type: Schema.Types.ObjectId,

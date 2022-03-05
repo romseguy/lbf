@@ -1,6 +1,7 @@
-import mongodb from "mongodb";
-import mongoose, { Connection, Document, Model } from "mongoose";
-import nextConnect from "next-connect";
+import { IncomingMessage, ServerResponse } from "http";
+import type { Db } from "mongodb";
+import mongoose, { Model } from "mongoose";
+import nextConnect, { NextHandler } from "next-connect";
 import { IEvent } from "models/Event";
 import { EventSchema } from "models/Event/EventSchema";
 import { IOrg } from "models/Org";
@@ -14,11 +15,6 @@ import { TopicSchema } from "models/Topic/TopicSchema";
 import { IUser } from "models/User";
 import { UserSchema } from "models/User/UserSchema";
 
-declare const global: NodeJS.Global &
-  typeof globalThis & {
-    _mongoClientPromise: Promise<mongodb.MongoClient>;
-  };
-
 export type AppModelKey =
   | "Event"
   | "Org"
@@ -26,7 +22,6 @@ export type AppModelKey =
   | "Subscription"
   | "Topic"
   | "User";
-
 export type AppModels = {
   Event: Model<IEvent, {}, {}>;
   Org: Model<IOrg, {}, {}>;
@@ -44,29 +39,15 @@ export const collectionToModelKeys: { [key: string]: AppModelKey } = {
   topics: "Topic",
   users: "User"
 };
-export let clientPromise: Promise<mongodb.MongoClient>;
-export let db: mongodb.Db;
+export let db: Db;
 export let models: AppModels;
 
-const middleware = nextConnect();
-middleware.use(async (req, res, next) => {
-  await connectToDatabase();
-  return next();
-});
-
-export default middleware;
-
-let connection: Connection;
-
-async function connectToDatabase() {
-  if (!connection) {
-    mongoose.set("useFindAndModify", true);
-    mongoose.set("useNewUrlParser", true);
-    mongoose.set("useUnifiedTopology", true);
-    connection = await mongoose.createConnection(process.env.DATABASE_URL);
-  }
-
-  models = {
+const connection = mongoose.createConnection(process.env.DATABASE_URL);
+export const clientPromise = connection.then((connection) =>
+  connection.getClient()
+);
+const modelsPromise = connection.then((connection) => {
+  return {
     Event: connection.model<IEvent>("Event", EventSchema),
     Org: connection.model<IOrg>("Org", OrgSchema),
     Project: connection.model<IProject>("Project", ProjectSchema),
@@ -77,17 +58,42 @@ async function connectToDatabase() {
     Topic: connection.model<ITopic>("Topic", TopicSchema),
     User: connection.model<IUser>("User", UserSchema)
   };
+});
 
-  if (process.env.NODE_ENV === "development") {
-    // In development mode, use a global variable so that the value
-    // is preserved across module reloads caused by HMR (Hot Module Replacement).
-    if (!global._mongoClientPromise) {
-      global._mongoClientPromise = connection.getClient().connect();
-      clientPromise = global._mongoClientPromise;
-    }
-  } else {
-    clientPromise = connection.getClient().connect();
+let cached = global.mongo;
+
+if (!cached) {
+  cached = global.mongo = { conn: null, promise: null };
+}
+
+global._mongoClientPromise = clientPromise;
+
+async function database(
+  req: IncomingMessage,
+  res: ServerResponse,
+  next: NextHandler
+) {
+  if (!cached.promise) {
+    cached.promise = (await clientPromise).connect().then((client) => {
+      const db = client.db("assolidaires");
+
+      return {
+        client,
+        db
+      };
+    });
+    cached.conn = await cached.promise;
+
+    models = await modelsPromise;
   }
 
-  db = connection.db;
+  if (cached.conn?.db) db = cached.conn.db;
+  // req.dbClient = cached.conn.client;
+  // req.db = cached.conn.db;
+
+  return next();
 }
+
+const middleware = nextConnect();
+middleware.use(database);
+export default middleware;

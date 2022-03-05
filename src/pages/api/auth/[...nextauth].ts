@@ -1,5 +1,4 @@
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
-import mongodb from "mongodb";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
@@ -7,11 +6,6 @@ import { sendMail } from "api/email";
 import { clientPromise } from "database";
 import { logJson, normalize } from "utils/string";
 import { randomNumber } from "utils/randomNumber";
-
-declare const global: NodeJS.Global &
-  typeof globalThis & {
-    _mongoClientPromise: Promise<mongodb.MongoClient>;
-  };
 
 const CustomAdapter = () => {
   const adapter = MongoDBAdapter(

@@ -12,6 +12,7 @@ import {
   Spinner,
   Text,
   Tooltip,
+  useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
@@ -19,6 +20,7 @@ import { isMobile } from "react-device-detect";
 import { FaRegMap } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
 import {
+  Column,
   EntityButton,
   EntityInfo,
   TabContainer,
@@ -53,6 +55,9 @@ export const OrgPageHomeTabPanel = ({
   subQuery: AppQuery<ISubscription>;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
   //#region org
   const org = orgQuery.data;
   const hasInfo =
@@ -91,7 +96,7 @@ export const OrgPageHomeTabPanel = ({
 
     setDescription(doc.body.innerHTML);
   }, [org]);
-  const [isListOpen, setIsListOpen] = useState(false);
+  const [isListOpen, setIsListOpen] = useState(true);
   const {
     isOpen: isMapModalOpen,
     onOpen: openMapModal,
@@ -225,7 +230,14 @@ export const OrgPageHomeTabPanel = ({
                 </Button>
 
                 {isListOpen && (
-                  <OrgsList query={orgQuery} subQuery={subQuery} />
+                  <Column
+                    m={undefined}
+                    maxWidth={undefined}
+                    mt={3}
+                    bg={isDark ? "gray.400" : "lightcyan"}
+                  >
+                    <OrgsList query={orgQuery} subQuery={subQuery} />
+                  </Column>
                 )}
 
                 {isNetworksModalOpen && (

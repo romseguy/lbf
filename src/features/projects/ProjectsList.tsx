@@ -199,7 +199,7 @@ export const ProjectsList = ({
               const isProjectCreator =
                 typeof createdBy === "object"
                   ? createdBy._id === session?.user.userId
-                  : "";
+                  : false;
               const bgColor = isDark
                 ? projectIndex % 2 === 0
                   ? "gray.600"

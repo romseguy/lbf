@@ -4,15 +4,21 @@ import nodemailer, { SendMailOptions as Mail } from "nodemailer";
 import { models } from "database";
 import { IEvent, EEventInviteStatus } from "models/Event";
 import { IOrg } from "models/Org";
-import { IEventNotification, ITopicNotification } from "models/INotification";
-import { IProject } from "models/Project";
+import {
+  IEventNotification,
+  IProjectNotification,
+  ITopicNotification
+} from "models/INotification";
+import { EProjectInviteStatus, IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 import { ESubscriptionType, ISubscription } from "models/Subscription";
 import api from "utils/api";
 import { equals, logJson } from "utils/string";
 import {
   createEventEmailNotif,
+  createProjectEmailNotif,
   createTopicEmailNotif,
+  getProjectUrl,
   getTopicUrl
 } from "utils/email";
 
@@ -222,6 +228,216 @@ export const sendEventNotifications = async ({
   await event.save();
 
   return eventNotifications;
+};
+
+// send email and/or push notifications to org or event followers
+// who chose to be notified when new projects are added to the org or event
+export const sendProjectNotifications = async ({
+  event,
+  org,
+  subscriptions,
+  project
+}: {
+  event?: IEvent;
+  org?: IOrg;
+  subscriptions: ISubscription[];
+  project: IProject & Document<any, IProject>;
+}): Promise<IProjectNotification[]> => {
+  const projectNotifications: IProjectNotification[] = [];
+
+  if (!event && !org) {
+    console.log("sendProjectNotifications: neither org or event");
+    return [];
+  }
+
+  for (let subscription of subscriptions) {
+    logJson(`sendProjectNotifications: subscription`, subscription);
+
+    let projectNotification: IProjectNotification = {
+      status: EProjectInviteStatus.PENDING,
+      createdAt: new Date().toISOString()
+    };
+
+    const email =
+      typeof subscription.user === "object"
+        ? subscription.user.email
+        : subscription.email;
+
+    if (org) {
+      const orgSubscription = subscription.orgs?.find(
+        ({ orgId, type }) =>
+          equals(orgId, org._id) && type === ESubscriptionType.FOLLOWER
+      );
+
+      if (!orgSubscription) {
+        console.log(
+          "sendProjectNotifications: skipping -- no follower subscription"
+        );
+        continue;
+      }
+
+      const tagType = orgSubscription.tagTypes?.find(
+        ({ type }) => type === "Projects"
+      );
+
+      if (!tagType) {
+        console.log("sendProjectNotifications: skipping -- no tag type");
+        continue;
+      }
+
+      if (tagType.emailNotif) {
+        if (email) {
+          console.log(`email: notifying ${email}`);
+
+          if (
+            project.projectNotifications.find(({ email: e }) => e === email)
+          ) {
+            console.log(
+              "sendProjectNotifications: skipping -- email already notified"
+            );
+            continue;
+          }
+
+          const mail = createProjectEmailNotif({
+            email,
+            org,
+            subscriptionId: subscription._id,
+            project
+          });
+
+          await sendMail(mail);
+          projectNotifications.push({ ...projectNotification, email });
+        }
+      }
+
+      if (
+        tagType.pushNotif &&
+        typeof subscription.user === "object" &&
+        subscription.user.userSubscription
+      ) {
+        console.log(`push: user ${subscription.user._id}`);
+
+        if (
+          project.projectNotifications.find(({ user }) =>
+            typeof subscription.user === "object"
+              ? equals(user, subscription.user._id)
+              : equals(user, subscription.user)
+          )
+        ) {
+          console.log("push: skipping -- user already notified");
+          continue;
+        }
+
+        try {
+          await api.sendPushNotification({
+            message: `Appuyez pour lire le projet`,
+            subscription: subscription.user.userSubscription,
+            title: "Vous êtes invité à un projet",
+            url: getProjectUrl({ org, project })
+          });
+
+          projectNotifications.push({
+            ...projectNotification,
+            user: subscription.user._id
+          });
+        } catch (error) {
+          console.error(error);
+          if (process.env.NODE_ENV !== "production")
+            projectNotifications.push({
+              ...projectNotification,
+              user: subscription.user._id
+            });
+        }
+      }
+    } else if (event) {
+      const eventSubscription = subscription.events?.find(({ eventId }) =>
+        equals(eventId, event._id)
+      );
+
+      if (!eventSubscription) {
+        console.log(
+          "sendProjectNotifications: skipping -- no event subscription"
+        );
+        continue;
+      }
+
+      const tagType = eventSubscription.tagTypes?.find(
+        ({ type }) => type === "Projects"
+      );
+
+      if (!tagType) {
+        console.log("sendProjectNotifications: skipping -- no tag type");
+        continue;
+      }
+
+      if (tagType.emailNotif) {
+        if (email) {
+          console.log(`email: notifying ${email}`);
+
+          if (
+            project.projectNotifications.find(({ email: e }) => e === email)
+          ) {
+            console.log("email: skipping -- already notified");
+          } else {
+            const mail = createProjectEmailNotif({
+              email,
+              event,
+              subscriptionId: subscription._id,
+              project
+            });
+
+            await sendMail(mail);
+            projectNotifications.push({ ...projectNotification, email });
+          }
+        }
+      }
+
+      if (
+        tagType.pushNotif &&
+        typeof subscription.user === "object" &&
+        subscription.user.userSubscription
+      ) {
+        console.log(`push: user ${subscription.user._id}`);
+
+        if (
+          project.projectNotifications.find(({ user }) =>
+            typeof subscription.user === "object"
+              ? equals(user, subscription.user._id)
+              : equals(user, subscription.user)
+          )
+        ) {
+          console.log("push: skipping -- user already notified");
+          continue;
+        }
+
+        try {
+          await api.sendPushNotification({
+            message: `Appuyez pour lire le projet`,
+            subscription: subscription.user.userSubscription,
+            title: "Vous êtes invité à un projet",
+            url: getProjectUrl({ event, project })
+          });
+          projectNotifications.push({
+            ...projectNotification,
+            user: subscription.user._id
+          });
+        } catch (error) {
+          console.error(error);
+          if (process.env.NODE_ENV !== "production")
+            projectNotifications.push({
+              ...projectNotification,
+              user: subscription.user._id
+            });
+        }
+      }
+    }
+  }
+
+  project.projectNotifications =
+    project.projectNotifications.concat(projectNotifications);
+  await project.save();
+
+  return projectNotifications;
 };
 
 // send email and/or push notifications to org or event followers

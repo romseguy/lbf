@@ -21,7 +21,7 @@ export interface ISubscription {
 }
 
 export type TagType = {
-  type: "Events" | "Topics";
+  type: "Events" | "Projects" | "Topics";
   emailNotif?: boolean;
   pushNotif?: boolean;
 };
