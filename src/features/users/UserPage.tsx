@@ -2,12 +2,10 @@ import { ArrowBackIcon, EditIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  Flex,
   Grid,
   Heading,
   IconButton,
   Input,
-  Textarea,
   VStack,
   TabPanel,
   TabPanels,
@@ -23,7 +21,6 @@ import {
   GridHeader,
   GridItem,
   IconFooter,
-  RTEditor,
   Column
 } from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
@@ -34,9 +31,9 @@ import { IUser } from "models/User";
 import { PageProps } from "pages/_app";
 import api from "utils/api";
 import { sanitize } from "utils/string";
-import { AppQuery, AppQueryWithData } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 import { defaultTabs, UserPageTabs } from "./UserPageTabs";
-import { useEditUserMutation } from "./usersApi";
+import { UserDescriptionForm } from "features/forms/UserDescriptionForm";
 
 export const UserPage = ({
   email,
@@ -48,7 +45,9 @@ export const UserPage = ({
 }) => {
   const router = useRouter();
   const toast = useToast({ position: "top" });
-  const isSelf = userQuery.data._id === session?.user.userId;
+
+  const isSelf =
+    userQuery.data._id === session?.user.userId || session?.user.isAdmin;
   const user = { ...(userQuery.data as IUser), email: email || "" };
 
   console.groupCollapsed("UserPage");
@@ -57,12 +56,9 @@ export const UserPage = ({
   console.log("user", user);
   console.groupEnd();
 
-  const [editUser] = useEditUserMutation();
   const [isEdit, setIsEdit] = useState(false);
   const [isDescriptionEdit, setIsDescriptionEdit] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [description, setDescription] = useState<string | undefined>();
 
   return (
     <Layout
@@ -105,7 +101,7 @@ export const UserPage = ({
           </>
         )}
 
-        {session && isEdit && (
+        {session && isSelf && isEdit && (
           <Column m={undefined}>
             <UserForm
               session={session}
@@ -202,68 +198,23 @@ export const UserPage = ({
                         dark={{ bg: "gray.500" }}
                       >
                         <Box p={5}>
-                          {session && isDescriptionEdit ? (
-                            <form
-                              onSubmit={async (e) => {
-                                e.preventDefault();
-                                setIsLoading(true);
-                                try {
-                                  await editUser({
-                                    payload: { userDescription: description },
-                                    slug: session.user.userId
-                                  }).unwrap();
-                                  userQuery.refetch();
-                                  toast({
-                                    title:
-                                      "Votre présentation a été enregistrée",
-                                    status: "success"
-                                  });
-                                  setIsDescriptionEdit(false);
-                                  setIsLoading(false);
-                                } catch (error) {
-                                  console.error(error);
-                                  setIsLoading(false);
-                                  toast({
-                                    title:
-                                      "Votre présentation n'a pas pu être enregistrée.",
-                                    status: "error"
-                                  });
-                                }
-                              }}
-                            >
-                              <RTEditor
-                                session={session}
-                                defaultValue={user.userDescription}
-                                placeholder="Ajoutez ici votre présentation"
-                                onChange={({ html }) => setDescription(html)}
-                              />
-
-                              <Flex justifyContent="space-between" mt={5}>
-                                <Button
-                                  onClick={() => setIsDescriptionEdit(false)}
-                                >
-                                  Annuler
-                                </Button>
-
-                                <Button
-                                  colorScheme="green"
-                                  type="submit"
-                                  isLoading={isLoading}
-                                >
-                                  {user.userDescription
-                                    ? "Modifier"
-                                    : "Ajouter"}
-                                </Button>
-                              </Flex>
-                            </form>
+                          {session && isSelf && isDescriptionEdit ? (
+                            <UserDescriptionForm
+                              session={session}
+                              userQuery={userQuery}
+                              onCancel={() => setIsDescriptionEdit(false)}
+                              onSubmit={() => setIsDescriptionEdit(false)}
+                            />
                           ) : (
                             <>
                               {user.userDescription ? (
-                                <div
-                                  dangerouslySetInnerHTML={{
-                                    __html: sanitize(user.userDescription)
-                                  }}
-                                />
+                                <div className="rteditor">
+                                  <div
+                                    dangerouslySetInnerHTML={{
+                                      __html: sanitize(user.userDescription)
+                                    }}
+                                  />
+                                </div>
                               ) : isSelf ? (
                                 <Link
                                   variant="underline"

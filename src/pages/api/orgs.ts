@@ -56,24 +56,26 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
 
     try {
       const { body }: { body: AddOrgPayload } = req;
+      const orgName = body.orgName.trim();
+      const orgUrl = normalize(orgName);
       let newOrg = {
         ...body,
         createdBy: session.user.userId,
-        orgName: body.orgName.trim(),
-        orgUrl: normalize(body.orgName),
+        orgName,
+        orgUrl,
         isApproved: session.user.isAdmin
       };
 
-      const org = await models.Org.findOne({ orgUrl: body.orgUrl });
-      const user = await models.User.findOne({ userName: body.orgUrl });
-      const event = await models.Event.findOne({ eventUrl: body.orgUrl });
+      const org = await models.Org.findOne({ orgUrl });
+      const user = await models.User.findOne({ userName: orgUrl });
+      const event = await models.Event.findOne({ eventUrl: orgUrl });
 
       if (org || user || event) {
         const uid = randomNumber(2);
         newOrg = {
           ...newOrg,
-          orgName: newOrg.orgName + "-" + uid,
-          orgUrl: newOrg.orgUrl + "-" + uid
+          orgName: orgName + "-" + uid,
+          orgUrl: orgUrl + "-" + uid
         };
       }
 

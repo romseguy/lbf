@@ -11,7 +11,7 @@ import {
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { TopicsList } from "./TopicsList";
 import { IOrg } from "models/Org";
-import { getRefId } from "utils/models";
+import { getRefId } from "models/Entity";
 
 export const Forum = ({
   isLogin,

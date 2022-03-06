@@ -163,7 +163,7 @@ export const OrgForm = withGoogleApi({
       console.log("submitted", form);
       setIsLoading(true);
 
-      let orgUrl = normalize(form.orgName);
+      let orgUrl: string | undefined = org?.orgUrl;
       const orgDescription = !form.orgDescription.length
         ? undefined
         : form.orgDescription;
@@ -183,7 +183,6 @@ export const OrgForm = withGoogleApi({
         ...form,
         orgName: form.orgName.trim(),
         orgType,
-        orgUrl,
         orgDescription,
         orgAddress,
         orgEmail,
@@ -239,7 +238,7 @@ export const OrgForm = withGoogleApi({
 
         dispatch(refetchOrgs());
         setIsLoading(false);
-        props.onSubmit && props.onSubmit(orgUrl);
+        props.onSubmit && props.onSubmit(orgUrl as string);
       } catch (error) {
         setIsLoading(false);
         handleError(error, (message, field) => {

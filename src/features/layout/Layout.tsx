@@ -216,7 +216,7 @@ export const Layout = ({
           <Header
             event={event}
             org={org}
-            defaultTitle={defaultTitle}
+            defaultTitle="Chargement..."
             pageTitle={pageTitle}
             pageSubTitle={pageSubTitle}
             m={3}

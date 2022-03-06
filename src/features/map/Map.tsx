@@ -12,7 +12,7 @@ import { withGoogleApi } from "./GoogleApiWrapper";
 import { Marker } from "./Marker";
 import { getMarkerUrl, SizeMap } from "utils/maps";
 import { EntityModal } from "features/modals/EntityModal";
-import { isEvent } from "utils/models";
+import { isEvent } from "models/Entity";
 
 const defaultCenter = {
   lat: 46.227638,

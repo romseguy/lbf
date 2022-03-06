@@ -346,13 +346,23 @@ export const SubscriptionEditForm = ({
         <FormLabel fontWeight="normal" whiteSpace="normal">
           {isSelf ? (
             <>
-              Recevoir un <b>{notifType === "email" ? "e-mail" : "mobile"}</b>{" "}
+              Recevoir{" "}
+              <b>
+                {notifType === "email"
+                  ? "un e-mail"
+                  : "une notification mobile"}
+              </b>{" "}
               lorsque :
             </>
           ) : (
             <>
-              Cette personne a accepté de recevoir un{" "}
-              <b>{notifType === "email" ? "e-mail" : "mobile"}</b> lorsque :
+              Cette personne a accepté de recevoir{" "}
+              <b>
+                {notifType === "email"
+                  ? "un e-mail"
+                  : "une notification mobile"}
+              </b>{" "}
+              lorsque :
             </>
           )}
         </FormLabel>

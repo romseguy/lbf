@@ -86,6 +86,10 @@ export const OrgSchema = new Schema<IOrg>(
       default: []
     },
     orgTopicsCategories: { type: [String], default: [] },
+    orgStyles: {
+      type: Schema.Types.Mixed,
+      default: { showTitle: true }
+    },
     orgBanner: {
       type: {
         base64: String,

@@ -24,7 +24,7 @@ import { selectUserEmail } from "features/users/userSlice";
 import { IEmailNotification, IPushNotification } from "models/INotification";
 import { hasItems } from "utils/array";
 import { timeAgo } from "utils/date";
-import { isEvent, isTopic } from "utils/models";
+import { isEvent, isTopic } from "models/Entity";
 
 const SubscriptionPopoverContent = ({ session }: { session: Session }) => {
   const { colorMode } = useColorMode();

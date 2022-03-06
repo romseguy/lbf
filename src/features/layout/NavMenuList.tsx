@@ -104,11 +104,6 @@ export const NavMenuList = ({
         else await subscribe(serviceWorkerRegistration);
       } catch (error) {
         console.error(error);
-        toast({
-          status: "error",
-          title:
-            "Les notifications mobile n'ont pas pu être activées, êtes-vous connecté à internet ?"
-        });
       }
     }
     componentDidMount();

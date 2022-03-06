@@ -1,18 +1,33 @@
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
-import { Box, Button, Input, Text, useToast, Icon } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Input,
+  Text,
+  useToast,
+  Icon,
+  Switch,
+  FormControl,
+  FormLabel
+} from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { DeleteButton, Column } from "features/common";
+import {
+  Column,
+  DeleteButton,
+  EntityConfigBannerPanel,
+  EntityConfigLogoPanel,
+  EntityConfigStyles,
+  Heading
+} from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { useAppDispatch } from "store";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { OrgConfigBannerPanel } from "./OrgConfigBannerPanel";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
-import { OrgConfigLogoPanel } from "./OrgConfigLogoPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
 import { refetchOrgs } from "./orgSlice";
 
@@ -155,22 +170,7 @@ export const OrgConfigPanel = ({
 
       {isConfig && !isEdit && (
         <Column m="">
-          <OrgConfigLogoPanel
-            session={session}
-            orgQuery={orgQuery}
-            isVisible={isVisible}
-            setIsVisible={setIsVisible}
-            mb={3}
-          />
-
-          <OrgConfigBannerPanel
-            session={session}
-            orgQuery={orgQuery}
-            isVisible={isVisible}
-            setIsVisible={setIsVisible}
-            mb={3}
-          />
-
+          <Heading mb={1}>Gestion des membres</Heading>
           <OrgConfigSubscribersPanel
             orgQuery={orgQuery}
             subQuery={subQuery}
@@ -183,6 +183,25 @@ export const OrgConfigPanel = ({
             orgQuery={orgQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
+          />
+
+          <Heading mb={1} mt={3}>
+            Apparence
+          </Heading>
+
+          <EntityConfigStyles query={orgQuery} my={3} />
+
+          <EntityConfigLogoPanel
+            query={orgQuery}
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
+            mb={3}
+          />
+          <EntityConfigBannerPanel
+            query={orgQuery}
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
+            mb={3}
           />
         </Column>
       )}

@@ -1,6 +1,6 @@
 import { IProjectNotification } from "models/INotification";
 import { IOrg } from "models/Org";
-import { IEntity } from "utils/models";
+import { IEntity } from "models/Entity";
 
 export enum EProjectStatus {
   PENDING = "PENDING",

@@ -24,7 +24,7 @@ import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSl
 import { selectUserEmail } from "features/users/userSlice";
 import { hasItems } from "utils/array";
 import { timeAgo } from "utils/date";
-import { getRefId } from "utils/models";
+import { getRefId } from "models/Entity";
 
 let cachedRefetchSubscription = false;
 

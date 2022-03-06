@@ -22,16 +22,21 @@ import axios from "axios";
 import React, { useState } from "react";
 import { FaFile, FaImage } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-
-import { DeleteButton, ErrorMessageText, Link, Column } from "features/common";
+import {
+  Column,
+  DeleteButton,
+  ErrorMessageText,
+  Link,
+  LinkShare
+} from "features/common";
 import { useSession } from "hooks/useAuth";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
 import api from "utils/api";
 import { handleError } from "utils/form";
 import * as stringUtils from "utils/string";
-import { useGetDocumentsQuery } from "./documentsApi";
 import { hasItems } from "utils/array";
+import { useGetDocumentsQuery } from "./documentsApi";
 
 export const DocumentsList = ({
   org,
@@ -206,93 +211,105 @@ export const DocumentsList = ({
         <Text>Chargement des documents...</Text>
       ) : (
         Array.isArray(query.data) && (
-          <Table>
-            <Tbody>
-              {hasItems(query.data) ? (
-                query.data.map((fileName) => {
-                  const isImage = stringUtils.isImage(fileName);
-                  const isPdf = fileName.includes(".pdf");
-                  return (
-                    <Tr>
-                      <Td>
-                        <a
-                          href={`${process.env.NEXT_PUBLIC_API2}/${
-                            isImage || isPdf ? "view" : "download"
-                          }?${
-                            org
-                              ? `orgId=${org._id}`
-                              : user
-                              ? `userId=${user._id}`
-                              : ""
-                          }&fileName=${fileName}`}
-                          target="_blank"
-                        >
-                          <Box display="flex" alignItems="center">
-                            <Icon as={isImage ? FaImage : FaFile} mr={3} />
-                            {fileName}
-                          </Box>
-                        </a>
-                      </Td>
-                      <Td textAlign="right">
-                        <DeleteButton
-                          isIconOnly
-                          placement="bottom"
-                          header={
-                            <>
-                              Êtes vous sûr de vouloir supprimer le fichier{" "}
-                              <Text
-                                display="inline"
-                                color="red"
-                                fontWeight="bold"
-                              >
-                                {fileName}
-                              </Text>{" "}
-                              ?
-                            </>
-                          }
-                          onClick={async () => {
-                            let payload: {
-                              fileName: string;
-                              orgId?: string;
-                              userId?: string;
-                            } = {
-                              fileName
-                            };
+          <Column m="" maxWidth={undefined} overflowX="auto">
+            <Table>
+              <Tbody>
+                {hasItems(query.data) ? (
+                  query.data.map((fileName) => {
+                    const isImage = stringUtils.isImage(fileName);
+                    const isPdf = fileName.includes(".pdf");
+                    const url = `${process.env.NEXT_PUBLIC_API2}/${
+                      isImage || isPdf ? "view" : "download"
+                    }?${
+                      org
+                        ? `orgId=${org._id}`
+                        : user
+                        ? `userId=${user._id}`
+                        : ""
+                    }&fileName=${fileName}`;
 
-                            if (org) payload.orgId = org._id;
-                            else if (user) payload.userId = user._id;
+                    return (
+                      <Tr>
+                        <Td>
+                          <a href={url} target="_blank">
+                            <Box display="flex" alignItems="center">
+                              <Icon as={isImage ? FaImage : FaFile} mr={3} />
+                              {fileName}
+                            </Box>
+                          </a>
+                        </Td>
+                        <Td textAlign="right">
+                          <LinkShare
+                            label="Copier l'adresse du lien"
+                            url={url}
+                            colorScheme="blue"
+                            mr={2}
+                            variant="outline"
+                            tooltipProps={{ placement: "bottom" }}
+                          />
 
-                            try {
-                              await api.remove(
-                                process.env.NEXT_PUBLIC_API2,
-                                payload
-                              );
-                              toast({
-                                title: `Le document ${fileName} a été supprimé !`,
-                                status: "success"
-                              });
-                              query.refetch();
-                            } catch (error) {
-                              console.error(error);
-                              toast({
-                                title: `Le document ${fileName} n'a pas pu être supprimé.`,
-                                status: "error"
-                              });
+                          <DeleteButton
+                            header={
+                              <>
+                                Êtes vous sûr de vouloir supprimer le fichier{" "}
+                                <Text
+                                  display="inline"
+                                  color="red"
+                                  fontWeight="bold"
+                                >
+                                  {fileName}
+                                </Text>{" "}
+                                ?
+                              </>
                             }
-                          }}
-                        />
-                      </Td>
-                    </Tr>
-                  );
-                })
-              ) : (
-                <Alert status="warning">
-                  <AlertIcon />
-                  Aucun documents.
-                </Alert>
-              )}
-            </Tbody>
-          </Table>
+                            isIconOnly
+                            isSmall={false}
+                            placement="bottom"
+                            variant="outline"
+                            onClick={async () => {
+                              let payload: {
+                                fileName: string;
+                                orgId?: string;
+                                userId?: string;
+                              } = {
+                                fileName
+                              };
+
+                              if (org) payload.orgId = org._id;
+                              else if (user) payload.userId = user._id;
+
+                              try {
+                                await api.remove(
+                                  process.env.NEXT_PUBLIC_API2,
+                                  payload
+                                );
+                                toast({
+                                  title: `Le document ${fileName} a été supprimé !`,
+                                  status: "success"
+                                });
+                                query.refetch();
+                              } catch (error) {
+                                console.error(error);
+                                toast({
+                                  title: `Le document ${fileName} n'a pas pu être supprimé.`,
+                                  status: "error"
+                                });
+                              }
+                            }}
+                          />
+                        </Td>
+                      </Tr>
+                    );
+                  })
+                ) : (
+                  <Alert status="warning">
+                    <AlertIcon />
+                    Aucun documents.
+                  </Alert>
+                )}
+              </Tbody>
+            </Table>
+          </Column>
         )
       )}
     </>

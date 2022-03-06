@@ -20,7 +20,7 @@ const UnsubscribePage = (props: PageProps & UnsubscribePageProps) => {
   const { unsubscribed, event, org, topic, ...rest } = props;
 
   return (
-    <Layout {...rest}>
+    <Layout {...rest} pageTitle="Désabonnement">
       <Alert status={unsubscribed ? "success" : "error"}>
         <AlertIcon />
 

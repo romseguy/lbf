@@ -3,16 +3,28 @@ import { Box, Button, Text, useToast, Icon, Input } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { DeleteButton, Column } from "features/common";
+import {
+  Column,
+  DeleteButton,
+  EntityConfigBannerPanel,
+  EntityConfigLogoPanel,
+  EntityConfigStyles,
+  Heading
+} from "features/common";
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
 import { refetchOrg } from "features/orgs/orgSlice";
 import { IEvent } from "models/Event";
 import { useAppDispatch } from "store";
-import { AppQuery, AppQueryWithData } from "utils/types";
-import { EventConfigBannerPanel } from "./EventConfigBannerPanel";
-import { EventConfigLogoPanel } from "./EventConfigLogoPanel";
-import { ConfigVisibility } from "./EventPage";
+import { AppQueryWithData } from "utils/types";
+
+export type EventConfigVisibility = {
+  isVisible: {
+    banner?: boolean;
+    logo?: boolean;
+  };
+  setIsVisible: (obj: EventConfigVisibility["isVisible"]) => void;
+};
 
 export const EventConfigPanel = ({
   session,
@@ -23,7 +35,7 @@ export const EventConfigPanel = ({
   setIsConfig,
   setIsEdit,
   setIsVisible
-}: ConfigVisibility & {
+}: EventConfigVisibility & {
   session: Session;
   eventQuery: AppQueryWithData<IEvent>;
   isConfig: boolean;
@@ -130,15 +142,21 @@ export const EventConfigPanel = ({
 
       {isConfig && !isEdit && (
         <Column m="">
-          <EventConfigLogoPanel
-            eventQuery={eventQuery}
+          <Heading mb={1} mt={3}>
+            Apparence
+          </Heading>
+
+          <EntityConfigStyles query={eventQuery} my={3} />
+
+          <EntityConfigLogoPanel
+            query={eventQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
             mb={3}
           />
 
-          <EventConfigBannerPanel
-            eventQuery={eventQuery}
+          <EntityConfigBannerPanel
+            query={eventQuery}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
           />

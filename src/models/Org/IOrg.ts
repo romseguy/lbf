@@ -1,9 +1,13 @@
+import {
+  IEntity,
+  IEntityBanner,
+  IEntityLogo,
+  IEntityStyles
+} from "models/Entity";
 import { IEvent } from "models/Event";
 import { IProject } from "models/Project";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { Base64Image } from "utils/image";
-import { IEntity } from "utils/models";
 import { AppIcon } from "utils/types";
 
 export enum EOrgType {
@@ -37,14 +41,9 @@ export interface IOrg extends IEntity {
   orgSubscriptions: ISubscription[];
   orgTopics: ITopic[];
   orgTopicsCategories: string[];
-  orgBanner?: Base64Image & {
-    headerHeight: number;
-    mode?: "light" | "dark";
-    url?: string;
-  };
-  orgLogo?: Base64Image & {
-    url?: string;
-  };
+  orgStyles: IEntityStyles;
+  orgBanner?: IEntityBanner;
+  orgLogo?: IEntityLogo;
   orgPassword?: string;
   orgSalt?: string;
   orgTabs?: IOrgTab[];

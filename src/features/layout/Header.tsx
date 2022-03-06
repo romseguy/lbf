@@ -80,7 +80,10 @@ export const Header = ({
       alignItems="center"
       bg={banner ? "black" : isDark ? "whiteAlpha.400" : "blackAlpha.200"}
       borderRadius="lg"
-      p={4}
+      pb={4}
+      pl={4}
+      pr={4}
+      pt={2}
       ml={logo ? 5 : undefined}
     >
       {icon && (
@@ -98,6 +101,7 @@ export const Header = ({
               ? "green.200"
               : "green"
           }
+          mt={1}
           mr={2}
           title={
             event?.isApproved
@@ -109,17 +113,15 @@ export const Header = ({
         />
       )}
 
-      <Flex alignItems="center" color={banner ? "white" : undefined}>
-        <Link href={router.asPath} variant="no-underline">
-          <Heading pr={1}>
-            {org
-              ? org.orgName
-              : event
-              ? event.eventName
-              : pageTitle || defaultTitle}
-          </Heading>
-        </Link>
-      </Flex>
+      <Link href={router.asPath} variant="no-underline">
+        <Heading pr={1}>
+          {org
+            ? org.orgName
+            : event
+            ? event.eventName
+            : pageTitle || defaultTitle}
+        </Heading>
+      </Link>
     </Flex>
   );
 
@@ -136,6 +138,16 @@ export const Header = ({
       </Tag>
     );
   };
+
+  if (org && !org.orgBanner && !org.orgLogo && !org.orgStyles.showTitle)
+    return null;
+  if (
+    event &&
+    !event.eventBanner &&
+    !event.eventLogo &&
+    !event.eventStyles.showTitle
+  )
+    return null;
 
   return (
     <Flex
@@ -183,7 +195,9 @@ export const Header = ({
           />
         </Link>
       )}
-      <HeaderTitle />
+      {((!org && !event) ||
+        (org && org.orgStyles.showTitle) ||
+        (event && event.eventStyles.showTitle)) && <HeaderTitle />}
       <HeaderEventCategory />
 
       {banner &&

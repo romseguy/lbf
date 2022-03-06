@@ -41,6 +41,7 @@ import { EOrgType } from "models/Org";
 import { PageProps } from "pages/_app";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
+import { capitalize } from "utils/string";
 
 export const Nav = ({
   isMobile,
@@ -90,7 +91,9 @@ export const Nav = ({
             <Tbody role="rowgroup">
               <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
-                  <Heading>Naviguer</Heading>
+                  <Heading>
+                    {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
+                  </Heading>
                 </Td>
                 <Td border={0} lineHeight="auto" p={0}>
                   <Heading>{session ? "Mon espace" : "Se connecter"}</Heading>
@@ -208,7 +211,9 @@ export const Nav = ({
             <Tbody role="rowgroup">
               <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
-                  <Heading mb={1}>Naviguer</Heading>
+                  <Heading mb={1}>
+                    {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
+                  </Heading>
                 </Td>
               </Tr>
               <Tr role="row">
@@ -232,7 +237,9 @@ export const Nav = ({
                       <DrawerContent>
                         <DrawerCloseButton />
                         <DrawerHeader>
-                          <Heading>Naviguer</Heading>
+                          <Heading>
+                            {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
+                          </Heading>
                         </DrawerHeader>
                         <DrawerBody>
                           <NavButtonsList direction="column" />

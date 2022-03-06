@@ -70,11 +70,13 @@ handler.post<NextApiRequest & { body: AddEventPayload }, NextApiResponse>(
 
     try {
       let { body }: { body: AddEventPayload } = req;
+      const eventName = body.eventName.trim();
+      const eventUrl = normalize(eventName);
       let newEvent = {
         ...body,
         createdBy: session.user.userId,
-        eventName: body.eventName.trim(),
-        eventUrl: normalize(body.eventName)
+        eventName,
+        eventUrl
       };
 
       let event: (IEvent & Document<any, IEvent>) | null = null;
@@ -111,16 +113,16 @@ handler.post<NextApiRequest & { body: AddEventPayload }, NextApiResponse>(
           }
         }
       } else {
-        event = await models.Event.findOne({ eventUrl: body.eventUrl });
-        const org = await models.Org.findOne({ orgUrl: body.eventUrl });
-        const user = await models.User.findOne({ userName: body.eventUrl });
+        event = await models.Event.findOne({ eventUrl });
+        const org = await models.Org.findOne({ orgUrl: eventUrl });
+        const user = await models.User.findOne({ userName: eventUrl });
 
         if (event || org || user) {
           const uid = randomNumber(2);
-          body = {
-            ...body,
-            eventName: newEvent.eventName + "-" + uid,
-            eventUrl: newEvent.eventUrl + "-" + uid
+          newEvent = {
+            ...newEvent,
+            eventName: eventName + "-" + uid,
+            eventUrl: eventUrl + "-" + uid
           };
         }
 

@@ -35,7 +35,7 @@ import { orgTypeFull, getSubscriptions, IOrg, getLists } from "models/Org";
 import { ESubscriptionType } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
-import { isTopic } from "utils/models";
+import { isTopic } from "models/Entity";
 import { equalsValue } from "utils/string";
 import { AppQuery } from "utils/types";
 

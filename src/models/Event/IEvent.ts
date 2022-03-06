@@ -1,9 +1,13 @@
+import {
+  IEntity,
+  IEntityBanner,
+  IEntityLogo,
+  IEntityStyles
+} from "models/Entity";
 import { IEventNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { Base64Image } from "utils/image";
-import { IEntity } from "utils/models";
 import { TypedMap } from "utils/types";
 
 export enum EEventInviteStatus {
@@ -45,14 +49,9 @@ export interface IEvent<T = string> extends IEntity {
   eventSubscriptions: ISubscription[];
   eventTopics: ITopic[];
   eventTopicsCategories: string[];
-  eventBanner?: Base64Image & {
-    headerHeight: number;
-    mode: "light" | "dark";
-    url?: string;
-  };
-  eventLogo?: Base64Image & {
-    url?: string;
-  };
+  eventStyles: IEntityStyles;
+  eventBanner?: IEntityBanner;
+  eventLogo?: IEntityLogo;
   eventDistance?: string;
   forwardedFrom?: {
     eventId: string;

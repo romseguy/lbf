@@ -17,6 +17,7 @@ export const Heading = ({
         className={`rainbow-text ${isDark ? "dark" : ""}`}
         fontFamily="DancingScript"
         fontSize={["2xl", "4xl"]}
+        pl={1}
         {...props}
       >
         {children}

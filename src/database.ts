@@ -84,8 +84,10 @@ async function database(
     });
     cached.conn = await cached.promise;
 
-    models = await modelsPromise;
+    if (process.env.NODE_ENV === "production") models = await modelsPromise;
   }
+
+  if (process.env.NODE_ENV === "development") models = await modelsPromise;
 
   if (cached.conn?.db) db = cached.conn.db;
   // req.dbClient = cached.conn.client;

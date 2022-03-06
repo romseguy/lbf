@@ -32,7 +32,7 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
-import { isEvent, isTopic } from "utils/models";
+import { isEvent, isTopic } from "models/Entity";
 import { defaultErrorMessage } from "utils/string";
 import { AppQuery } from "utils/types";
 

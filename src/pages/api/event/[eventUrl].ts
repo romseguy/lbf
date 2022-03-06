@@ -16,7 +16,7 @@ import { ISubscription, ESubscriptionType } from "models/Subscription";
 import { createServerError } from "utils/errors";
 import { createEventEmailNotif } from "utils/email";
 import { equals, logJson, normalize } from "utils/string";
-import { getRefId } from "utils/models";
+import { getRefId } from "models/Entity";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 

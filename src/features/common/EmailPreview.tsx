@@ -1,11 +1,11 @@
 import { FlexProps } from "@chakra-ui/react";
 import { Column } from "features/common";
+import { isEvent, isTopic } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { Session } from "next-auth";
 import { createEventEmailNotif, createTopicEmailNotif } from "utils/email";
-import { isEvent, isTopic } from "utils/models";
 import { sanitize } from "utils/string";
 
 export const EmailPreview = ({

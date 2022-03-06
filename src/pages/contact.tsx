@@ -4,7 +4,7 @@ import { PageProps } from "./_app";
 
 const ContactPage = (props: PageProps) => {
   return (
-    <Layout {...props}>
+    <Layout {...props} pageTitle="Contact">
       <ContactForm />
     </Layout>
   );

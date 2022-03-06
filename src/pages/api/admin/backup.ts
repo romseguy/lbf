@@ -4,7 +4,7 @@ import database, { db, models, collectionToModelKeys } from "database";
 import { getSession } from "hooks/useAuth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createServerError } from "utils/errors";
-import { IEntity } from "utils/models";
+import { IEntity } from "models/Entity";
 import { TypedMap } from "utils/types";
 
 const handler = nextConnect();

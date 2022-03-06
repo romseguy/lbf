@@ -91,6 +91,10 @@ export const EventSchema = new Schema<IEvent>(
       default: []
     },
     eventTopicsCategories: { type: [String], default: [] },
+    eventStyles: {
+      type: Schema.Types.Mixed,
+      default: { showTitle: true }
+    },
     eventBanner: {
       type: {
         base64: String,

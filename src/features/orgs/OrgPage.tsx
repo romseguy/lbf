@@ -15,7 +15,7 @@ import {
   ISubscription
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
-import { getRefId } from "utils/models";
+import { getRefId } from "models/Entity";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";

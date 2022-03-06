@@ -39,22 +39,13 @@ import { AppQuery, AppQueryWithData } from "utils/types";
 import { useEditEventMutation } from "./eventsApi";
 import { selectEventRefetch } from "./eventSlice";
 import { EventAttendingForm } from "./EventAttendingForm";
-import { EventConfigPanel } from "./EventConfigPanel";
+import { EventConfigPanel, EventConfigVisibility } from "./EventConfigPanel";
 import { EventPageDescription } from "./EventPageDescription";
 import { EventPageOrgs } from "./EventPageOrgs";
 import { EventPageInfo } from "./EventPageInfo";
 import { EventPageTabs } from "./EventPageTabs";
 import { EventPageTimeline } from "./EventPageTimeline";
-import { getRefId } from "utils/models";
-
-export type ConfigVisibility = {
-  isVisible: {
-    banner?: boolean;
-    logo?: boolean;
-    topics?: boolean;
-  };
-  setIsVisible: (obj: ConfigVisibility["isVisible"]) => void;
-};
+import { getRefId } from "models/Entity";
 
 let cachedRefetchEvent = false;
 
@@ -104,8 +95,9 @@ export const EventPage = ({
   const [isConfig, setIsConfig] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
-  const [isVisible, setIsVisible] = useState<ConfigVisibility["isVisible"]>({
-    topics: false,
+  const [isVisible, setIsVisible] = useState<
+    EventConfigVisibility["isVisible"]
+  >({
     banner: false,
     logo: false
   });

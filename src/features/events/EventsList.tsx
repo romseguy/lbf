@@ -36,7 +36,7 @@ import { useSession } from "hooks/useAuth";
 import { getEvents, IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { useAppDispatch } from "store";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import {
   useDeleteEventMutation,
   useEditEventMutation,
@@ -53,7 +53,7 @@ export const EventsList = ({
   events,
   org,
   orgQuery,
-  isCreator,
+  isCreator = false,
   isSubscribed,
   isLogin,
   setIsLogin,
@@ -61,7 +61,7 @@ export const EventsList = ({
 }: BoxProps & {
   events: IEvent[];
   org?: IOrg;
-  orgQuery?: AppQuery<IOrg>;
+  orgQuery?: AppQueryWithData<IOrg>;
   isCreator?: boolean;
   isSubscribed?: boolean;
   isLogin: number;
@@ -222,21 +222,16 @@ export const EventsList = ({
 
     return (
       <>
-        <Flex flexDirection="column" mb={5}>
-          <Flex>
-            <Text className="rainbow-text">Catégories</Text>
-          </Flex>
-          <EventsListCategories
-            events={events}
-            org={org}
-            orgQuery={orgQuery}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            session={session}
-            isLogin={isLogin}
-            setIsLogin={setIsLogin}
-          />
-        </Flex>
+        <EventsListCategories
+          events={events}
+          org={org}
+          orgQuery={orgQuery}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+          isCreator={isCreator}
+          isLogin={isLogin}
+          setIsLogin={setIsLogin}
+        />
 
         <Flex alignItems="center" mb={5}>
           {!showLocationButton ? (

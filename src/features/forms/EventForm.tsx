@@ -249,6 +249,7 @@ export const EventForm = withGoogleApi({
       console.log("submitted", form);
       setIsLoading(true);
 
+      let eventUrl: string | undefined = props.event?.eventUrl;
       const eventAddress = form.eventAddress?.filter(
         ({ address }) => address !== ""
       );
@@ -259,7 +260,6 @@ export const EventForm = withGoogleApi({
       let payload = {
         ...form,
         eventName: form.eventName.trim(),
-        eventUrl: normalize(form.eventName),
         // eventDescription: form.eventDescription
         //   ? normalizeQuill(form.eventDescription)
         //   : undefined,
@@ -301,8 +301,6 @@ export const EventForm = withGoogleApi({
             })
         : [];
 
-      let { eventUrl } = payload;
-
       try {
         //const sugg = suggestion || data[0];
         const sugg = suggestion;
@@ -337,7 +335,7 @@ export const EventForm = withGoogleApi({
         }
 
         setIsLoading(false);
-        props.onSubmit && props.onSubmit(eventUrl);
+        props.onSubmit && props.onSubmit(eventUrl as string);
       } catch (error) {
         setIsLoading(false);
         handleError(error, (message, field) => {

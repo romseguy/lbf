@@ -16,7 +16,7 @@ import {
   databaseErrorCodes,
   duplicateError
 } from "utils/errors";
-import { getRefId } from "utils/models";
+import { getRefId } from "models/Entity";
 import { equals, logJson, normalize } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();

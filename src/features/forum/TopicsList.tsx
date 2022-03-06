@@ -29,7 +29,7 @@ import { IOrg, IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
-import { getRefId } from "utils/models";
+import { getRefId } from "models/Entity";
 import { AppQuery } from "utils/types";
 import { useDeleteTopicMutation, useAddTopicNotifMutation } from "./topicsApi";
 import { TopicsListItem } from "./TopicsListItem";

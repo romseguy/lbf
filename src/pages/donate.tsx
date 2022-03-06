@@ -21,7 +21,11 @@ const DonatePage = (props: PageProps) => {
     );
   }
 
-  return <Layout {...props}>{message}</Layout>;
+  return (
+    <Layout {...props} pageTitle="Faire un don">
+      {message}
+    </Layout>
+  );
 };
 
 export default DonatePage;

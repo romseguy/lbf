@@ -9,7 +9,7 @@ import {
   duplicateError
 } from "utils/errors";
 import { getSession } from "hooks/useAuth";
-import { normalize, phoneR } from "utils/string";
+import { logJson, normalize, phoneR } from "utils/string";
 import { emailR } from "utils/email";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -99,10 +99,11 @@ handler.put<
 >(async function editUser(req, res) {
   const session = await getSession({ req });
 
-  if (!session)
+  if (!session) {
     return res
       .status(403)
       .json(createServerError(new Error("Vous devez être identifié")));
+  }
 
   try {
     const {
@@ -128,25 +129,30 @@ handler.put<
     if (!selector) {
       let user = await models.User.findOne({ userName: slug });
 
-      if (!user) {
+      if (user) {
+        selector = { userName: slug };
+      } else {
         user = await models.User.findOne({ _id: slug });
 
-        if (!user)
+        if (user) {
+          selector = { _id: slug };
+        } else {
           return res
             .status(400)
             .json(
               createServerError(new Error(`L'utilisateur ${slug} n'existe pas`))
             );
+        }
       }
 
       if (body.userName && body.userName !== user.userName) {
         const user = await models.User.findOne({ userName: body.userName });
         if (user) throw duplicateError();
       }
-
-      selector = { userName: slug };
     }
 
+    logJson(`PUT /user/${slug}: selector`, selector);
+    logJson(`PUT /user/${slug}: body`, body);
     await models.User.updateOne(selector, body);
 
     // if (nModified === 1) {
