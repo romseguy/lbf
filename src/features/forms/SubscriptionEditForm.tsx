@@ -26,7 +26,7 @@ import { AppQuery } from "utils/types";
 import { ArrowForwardIcon, ArrowRightIcon } from "@chakra-ui/icons";
 
 export type EventCategoriesCheckboxes = {
-  [key: number]: {
+  [key: string]: {
     checked: boolean;
   };
 };
@@ -67,22 +67,20 @@ export const SubscriptionEditForm = ({
   const [eventCategories, setEventCategories] =
     useState<EventCategoriesCheckboxes>(
       org
-        ? getOrgEventCategories(org).reduce((obj, { index }) => {
+        ? getOrgEventCategories(org).reduce((obj, orgEventCategory) => {
             if (!isOrgSubscription(followerSubscription)) return obj;
-
-            const k = parseInt(index);
 
             const checked = !!followerSubscription.eventCategories?.find(
               ({ catId, emailNotif, pushNotif }) => {
                 return notifType === "email"
-                  ? catId === k && emailNotif
-                  : catId === k && pushNotif;
+                  ? catId === orgEventCategory.catId && emailNotif
+                  : catId === orgEventCategory.catId && pushNotif;
               }
             );
 
             return {
               ...obj,
-              [k]: {
+              [orgEventCategory.catId]: {
                 checked
               }
             };
@@ -262,10 +260,10 @@ export const SubscriptionEditForm = ({
       newFollowerSubscription.eventCategories = [];
 
       for (const key of Object.keys(eventCategories)) {
-        if (!eventCategories[parseInt(key)].checked) continue;
+        if (!eventCategories[key].checked) continue;
 
         const eventCategory = newFollowerSubscription.eventCategories?.find(
-          ({ catId }) => catId === parseInt(key)
+          ({ catId }) => catId === key
         );
         let newEventCategory = { ...eventCategory };
 
@@ -277,7 +275,7 @@ export const SubscriptionEditForm = ({
           }
         } else {
           newEventCategory = {
-            catId: parseInt(key),
+            catId: key,
             emailNotif: notifType === "email" ? true : undefined,
             pushNotif: notifType === "push" ? true : undefined
           };
@@ -409,29 +407,28 @@ export const SubscriptionEditForm = ({
                   <CheckboxGroup>
                     <VStack alignItems="flex-start" ml={3}>
                       {Object.keys(eventCategories).map((key) => {
-                        const k = parseInt(key);
                         const cat = getOrgEventCategories(org).find(
-                          ({ index }) => parseInt(index) === k
+                          ({ catId }) => catId === key
                         );
 
                         if (!cat) return null;
 
                         return (
                           <Checkbox
-                            key={k}
-                            isChecked={eventCategories[k].checked}
+                            key={key}
+                            isChecked={eventCategories[key].checked}
                             onChange={(e) => {
                               if (!isOrgSubscription(followerSubscription))
                                 return;
 
                               const wasSubscribedToEventCategory =
                                 !!followerSubscription.eventCategories?.find(
-                                  ({ catId }) => catId === k
+                                  ({ catId }) => catId === key
                                 );
 
                               setEventCategories({
                                 ...eventCategories,
-                                [k]: { checked: e.target.checked }
+                                [key]: { checked: e.target.checked }
                               });
                             }}
                           >

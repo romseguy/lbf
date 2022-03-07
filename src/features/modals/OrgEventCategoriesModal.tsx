@@ -98,11 +98,11 @@ export const OrgEventCategoriesModal = ({
             <Column overflowX="auto">
               <Table>
                 <Tbody>
-                  {categories.map(({ index, label }) => (
+                  {categories.map(({ catId, label }) => (
                     <Tr key={`cat-${label}`}>
                       <Td>{label}</Td>
                       <Td textAlign="right">
-                        {index !== "0" && (
+                        {catId !== "0" && (
                           <DeleteButton
                             isIconOnly
                             placement="bottom"

@@ -50,12 +50,12 @@ export const TopicsListCategories = ({
 
   return (
     <Flex {...props}>
-      {org.orgTopicsCategories?.map((category, index) => {
+      {org.orgTopicCategories.map(({ catId, label }, index) => {
         const isSelected = selectedCategories?.find(
-          (selectedCategory) => selectedCategory === category
+          (selectedCategory) => selectedCategory === catId
         );
         const topicsCount = org.orgTopics.filter(
-          (topic) => topic.topicCategory === category
+          (topic) => topic.topicCategory === catId
         ).length;
 
         return (
@@ -86,24 +86,24 @@ export const TopicsListCategories = ({
             p={0}
             onClick={() => {
               selectedCategories?.find(
-                (selectedCategory) => selectedCategory === category
+                (selectedCategory) => selectedCategory === catId
               )
                 ? setSelectedCategories(
                     selectedCategories.filter(
-                      (selectedCategory) => selectedCategory !== category
+                      (selectedCategory) => selectedCategory !== catId
                     )
                   )
                 : setSelectedCategories(
-                    (selectedCategories || []).concat([category])
+                    (selectedCategories || []).concat([catId])
                   );
             }}
           >
             <Tooltip
-              label={`Afficher les discussions de la catégorie "${category}"`}
+              label={`Afficher les discussions de la catégorie "${label}"`}
               hasArrow
             >
               <Flex alignItems="center" p={2}>
-                <Text fontWeight="bold">{category}</Text>
+                <Text fontWeight="bold">{label}</Text>
                 {topicsCount > 0 && (
                   <Badge
                     bg={isDark ? "teal" : "#81E6D9"}
@@ -133,8 +133,8 @@ export const TopicsListCategories = ({
                     // other props
                     header={
                       <>
-                        Êtes vous sûr de vouloir supprimer la catégorie{" "}
-                        {category} ?
+                        Êtes vous sûr de vouloir supprimer la catégorie {catId}{" "}
+                        ?
                       </>
                     }
                     isLoading={isLoading[`category-${index}`]}
@@ -144,7 +144,7 @@ export const TopicsListCategories = ({
                       try {
                         await editOrg({
                           orgUrl: org.orgUrl,
-                          payload: [`orgTopicsCategories=${category}`]
+                          payload: [`orgTopicCategories=${catId}`]
                         });
                         orgQuery.refetch();
                       } catch (error) {

@@ -44,7 +44,7 @@ export const OrgSchema = new Schema<IOrg>(
     orgEventCategories: {
       type: [
         {
-          index: { type: String, required: true, trim: true },
+          catId: { type: String, required: true, trim: true },
           label: { type: String, required: true, trim: true }
         }
       ],
@@ -81,11 +81,19 @@ export const OrgSchema = new Schema<IOrg>(
       ],
       default: []
     },
+    orgTopicCategories: {
+      type: [
+        {
+          catId: { type: String, required: true, trim: true },
+          label: { type: String, required: true, trim: true }
+        }
+      ],
+      default: []
+    },
     orgTopics: {
       type: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
       default: []
     },
-    orgTopicsCategories: { type: [String], default: [] },
     orgStyles: {
       type: Schema.Types.Mixed,
       default: { showTitle: true }

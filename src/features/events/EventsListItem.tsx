@@ -79,8 +79,8 @@ export const EventsListItem = ({
   setNotifyModalState: (
     modalState: NotifModalState<IEvent<string | Date>>
   ) => void;
-  selectedCategories: number[];
-  setSelectedCategories: React.Dispatch<React.SetStateAction<number[]>>;
+  selectedCategories: string[];
+  setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
   session: Session | null;
   city: string | null;
   toast: any;
@@ -91,13 +91,13 @@ export const EventsListItem = ({
   const maxDate = event.eventMaxDate;
   const showIsApproved = !!(org && isCreator);
   const isCategorySelected =
-    typeof event.eventCategory === "number"
+    typeof event.eventCategory === "string"
       ? selectedCategories.includes(event.eventCategory)
       : false;
 
   const categories = getEventCategories(event);
   const eventCategory =
-    categories.find(({ index }) => parseInt(index) === event.eventCategory) ||
+    categories.find(({ catId }) => catId === event.eventCategory) ||
     defaultCategory;
 
   return (
@@ -112,7 +112,7 @@ export const EventsListItem = ({
       >
         <Flex flexDirection="column" alignItems="center">
           {/* eventCategory */}
-          {typeof event.eventCategory === "number" && (
+          {typeof event.eventCategory === "string" && (
             <GridItem mb={2}>
               <Tooltip
                 label={

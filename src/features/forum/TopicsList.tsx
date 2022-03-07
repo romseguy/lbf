@@ -207,7 +207,7 @@ export const TopicsList = ({
         )}
       </Box>
 
-      {org && hasItems(org.orgTopicsCategories) && (
+      {org && hasItems(org.orgTopicCategories) && (
         <Flex flexDirection="column" mb={3}>
           <Flex>
             <Text className="rainbow-text">Catégories</Text>

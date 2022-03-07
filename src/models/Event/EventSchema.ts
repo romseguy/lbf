@@ -14,7 +14,7 @@ export const EventSchema = new Schema<IEvent>(
       trim: true,
       unique: true
     },
-    eventCategory: Number,
+    eventCategory: { type: String, trim: true },
     eventMinDate: {
       type: String,
       required: true
@@ -86,11 +86,19 @@ export const EventSchema = new Schema<IEvent>(
       ],
       default: []
     },
+    eventTopicCategories: {
+      type: [
+        {
+          catId: { type: String, required: true, trim: true },
+          label: { type: String, required: true, trim: true }
+        }
+      ],
+      default: []
+    },
     eventTopics: {
       type: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
       default: []
     },
-    eventTopicsCategories: { type: [String], default: [] },
     eventStyles: {
       type: Schema.Types.Mixed,
       default: { showTitle: true }

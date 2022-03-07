@@ -6,13 +6,13 @@ import React, { useEffect } from "react";
 import { getSelectorsByUserAgent } from "react-device-detect";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
+import { setIsOffline } from "features/session/sessionSlice";
+import { setUserEmail } from "features/users/userSlice";
 import { getSession } from "hooks/useAuth";
 import { useAppDispatch, wrapper } from "store";
 import theme from "theme/theme";
-import { isServer } from "utils/isServer";
-import { setUserEmail } from "features/users/userSlice";
-import { setIsOffline } from "features/session/sessionSlice";
 import api from "utils/api";
+import { isServer } from "utils/isServer";
 
 export interface PageProps {
   email?: string;
@@ -37,9 +37,8 @@ const App = wrapper.withRedux(
     cookies
   }: AppProps & { cookies?: string; pageProps: PageProps }) => {
     const dispatch = useAppDispatch();
-    //console.log("pageProps", pageProps);
 
-    useEffect(function componentDidMount() {
+    useEffect(function appDidMount() {
       if (pageProps.email) {
         dispatch(setUserEmail(pageProps.email));
       }
@@ -51,11 +50,16 @@ const App = wrapper.withRedux(
           dispatch(setIsOffline(true));
         }
       })();
+
       window.addEventListener("offline", () => {
         console.log("offline_event");
         dispatch(setIsOffline(true));
       });
-      window.addEventListener("online", () => dispatch(setIsOffline(false)));
+
+      window.addEventListener("online", () => {
+        console.log("online_event");
+        dispatch(setIsOffline(false));
+      });
     }, []);
 
     return (
@@ -79,11 +83,15 @@ App.getInitialProps = async ({
   Component: NextPage;
   ctx: NextPageContext;
 }) => {
-  const cookies = ctx.req?.headers?.cookie;
-  const userAgent = ctx.req?.headers["user-agent"] || navigator.userAgent;
-  const { isMobile } = getSelectorsByUserAgent(userAgent);
+  let cookies: string | undefined;
+  let userAgent: string | undefined;
 
-  let pageProps: Partial<PageProps> = { isMobile };
+  if (ctx.req?.headers) {
+    cookies = ctx.req.headers.cookie;
+    userAgent = ctx.req.headers["user-agent"];
+  }
+
+  let pageProps: Partial<PageProps> = {};
 
   if (ctx.query.email) {
     pageProps.email = ctx.query.email as string;
@@ -93,6 +101,10 @@ App.getInitialProps = async ({
 
   if (isServer()) {
     session = await getSession(ctx);
+  } else {
+    pageProps.isMobile = getSelectorsByUserAgent(
+      userAgent || navigator.userAgent
+    );
   }
 
   if (session) {

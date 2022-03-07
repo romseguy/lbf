@@ -14,8 +14,9 @@ import { refetchSession } from "features/session/sessionSlice";
 import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
 import { resetUserEmail } from "features/users/userSlice";
 import { PageProps } from "pages/_app";
-import { useAppDispatch } from "store";
+import { selectIsAppMounted, setIsAppMounted, useAppDispatch } from "store";
 import { base64ToUint8Array, defaultErrorMessage } from "utils/string";
+import { useSelector } from "react-redux";
 
 interface customWindow extends Window {
   workbox?: any;
@@ -77,9 +78,11 @@ export const NavMenuList = ({
       throw error;
     }
   };
+
+  const isAppMounted = useSelector(selectIsAppMounted);
   useEffect(() => {
     async function componentDidMount() {
-      console.log("componentDidMount");
+      console.log("cdm");
 
       if (!("serviceWorker" in navigator)) {
         if (process.env.NODE_ENV === "production")
@@ -106,7 +109,11 @@ export const NavMenuList = ({
         console.error(error);
       }
     }
-    componentDidMount();
+
+    if (!isAppMounted) {
+      dispatch(setIsAppMounted(true));
+      componentDidMount();
+    }
   }, []);
   //#endregion
 

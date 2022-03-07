@@ -351,10 +351,9 @@ handler.put<
     let { body }: { body: EditOrgPayload } = req;
     const isCreator =
       equals(getRefId(org), session?.user.userId) || session?.user.isAdmin;
-    const orgTopicsCategories =
-      !Array.isArray(body) && body.orgTopicsCategories;
+    const orgTopicCategories = !Array.isArray(body) && body.orgTopicCategories;
 
-    if (!isCreator && !orgTopicsCategories) {
+    if (!isCreator && !orgTopicCategories) {
       return res
         .status(403)
         .json(
@@ -385,7 +384,7 @@ handler.put<
             };
           }
         } else if (key.includes("=")) {
-          // orgTopicsCategories=string
+          // orgTopicCategories=string
           const matches = key.match(/([^=]+)=(.+)/);
 
           if (matches && matches.length === 3) {
@@ -393,14 +392,16 @@ handler.put<
               $pull: { [matches[1]]: matches[2] }
             };
 
-            if (matches[1] === "orgTopicsCategories") {
+            if (matches[1] === "orgTopicCategories") {
               await models.Topic.updateMany(
                 { topicCategory: matches[2] },
                 { topicCategory: null }
               );
             }
           }
-        } else update = { $unset: { [key]: 1 } };
+        } else {
+          update = { $unset: { [key]: 1 } };
+        }
       }
     } else {
       if (body.orgName) {
@@ -417,7 +418,7 @@ handler.put<
           throw duplicateError();
       }
 
-      if (orgTopicsCategories) {
+      if (orgTopicCategories) {
         const subscription = await models.Subscription.findOne({
           email: session?.user.email
         });
@@ -431,20 +432,13 @@ handler.put<
             .json(
               createServerError(
                 new Error(
-                  `Vous devez être adhérent ${orgTypeFull(org.orgType)} "${
-                    org.orgName
-                  }" pour créer une catégorie de discussions`
+                  `Vous devez être adhérent ou créateur ${orgTypeFull(
+                    org.orgType
+                  )} "${org.orgName}" pour créer une catégorie de discussions`
                 )
               )
             );
         }
-
-        // body = {
-        //   ...body,
-        //   orgTopicsCategories: orgTopicsCategories.map((orgTopicCategory) =>
-        //     normalize(orgTopicCategory, false)
-        //   )
-        // };
       }
     }
 

@@ -39,8 +39,8 @@ export interface IOrg extends IEntity {
   orgLists: IOrgList[];
   orgProjects: IProject[];
   orgSubscriptions: ISubscription[];
+  orgTopicCategories: IOrgTopicCategory[];
   orgTopics: ITopic[];
-  orgTopicsCategories: string[];
   orgStyles: IEntityStyles;
   orgBanner?: IEntityBanner;
   orgLogo?: IEntityLogo;
@@ -70,7 +70,7 @@ export interface IOrgWeb {
 }
 
 export interface IOrgEventCategory {
-  index: string;
+  catId: string;
   label: string;
 }
 
@@ -86,4 +86,9 @@ export interface IOrgTab {
 
 export interface IOrgTabWithIcon extends IOrgTab {
   icon?: AppIcon;
+}
+
+export interface IOrgTopicCategory {
+  catId: string;
+  label: string;
 }

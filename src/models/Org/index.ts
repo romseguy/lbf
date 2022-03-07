@@ -21,7 +21,7 @@ export const getOrgEventCategories = (org?: IOrg): IOrgEventCategory[] => {
   let arr = defaultEventCategories;
 
   if (org && hasItems(org.orgEventCategories)) {
-    if (!org.orgEventCategories.find(({ index }) => index === "0"))
+    if (!org.orgEventCategories.find(({ catId }) => catId === "0"))
       return arr.concat(org.orgEventCategories);
 
     return org.orgEventCategories;

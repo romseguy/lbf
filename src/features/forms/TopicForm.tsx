@@ -26,7 +26,7 @@ import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { AppQuery, Optional } from "utils/types";
-import { normalize } from "utils/string";
+import { defaultErrorMessage, normalize } from "utils/string";
 
 export const TopicForm = ({
   org,
@@ -210,7 +210,7 @@ export const TopicForm = ({
                   value={renderProps.value}
                   onChange={renderProps.onChange}
                   options={
-                    org.orgTopicsCategories?.map((label) => ({
+                    org.orgTopicCategories.map(({ label }) => ({
                       label,
                       value: label
                     })) || []
@@ -233,7 +233,7 @@ export const TopicForm = ({
                     }
 
                     // if (
-                    //   org.orgTopicsCategories.find(
+                    //   org.orgTopicCategories.find(
                     //     (orgTopicsCategory) =>
                     //       orgTopicsCategory === normalize(inputValue, false)
                     //   )
@@ -246,12 +246,16 @@ export const TopicForm = ({
                     // }
 
                     try {
+                      const catId = org.orgTopicCategories.length;
                       await editEntity({
                         orgUrl: org.orgUrl,
                         payload: {
-                          orgTopicsCategories: [
-                            ...org.orgTopicsCategories,
-                            inputValue
+                          orgTopicCategories: [
+                            ...org.orgTopicCategories,
+                            {
+                              catId,
+                              label: inputValue
+                            }
                           ]
                         }
                       }).unwrap();
@@ -259,7 +263,7 @@ export const TopicForm = ({
                       query.refetch();
                       setValue("topicCategory", {
                         label: inputValue,
-                        value: inputValue
+                        value: catId
                       });
                       toast({
                         status: "success",
@@ -269,7 +273,7 @@ export const TopicForm = ({
                       console.error(error);
                       toast({
                         status: "error",
-                        title: "La catégorie n'a pas pu être ajoutée"
+                        title: defaultErrorMessage
                       });
                     }
                   }}

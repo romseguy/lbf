@@ -297,8 +297,6 @@ handler.put<
   const session = await getSession({ req });
   let { body }: { body: EditEventPayload } = req;
   const eventNotifications = !Array.isArray(body) && body.eventNotifications;
-  const eventTopicsCategories =
-    !Array.isArray(body) && body.eventTopicsCategories;
 
   if (!session && !eventNotifications) {
     return res
@@ -322,29 +320,61 @@ handler.put<
         );
     }
 
-    if (!eventNotifications && !eventTopicsCategories && session) {
-      if (
-        !equals(event.createdBy, session.user.userId) &&
-        !session.user.isAdmin
-      ) {
-        return res
-          .status(403)
-          .json(
-            createServerError(
-              new Error(
-                "Vous ne pouvez pas modifier un événement que vous n'avez pas créé."
-              )
+    const isCreator =
+      equals(getRefId(event), session?.user.userId) || session?.user.isAdmin;
+    const eventTopicCategories =
+      !Array.isArray(body) && body.eventTopicCategories;
+
+    if (!isCreator && !eventTopicCategories && session) {
+      return res
+        .status(403)
+        .json(
+          createServerError(
+            new Error(
+              "Vous ne pouvez pas modifier un événement que vous n'avez pas créé."
             )
-          );
-      }
+          )
+        );
     }
 
     let update: [{ $unset: string[] }] | undefined;
+    // let update:
+    //   | {
+    //       $unset?: { [key: string]: number };
+    //       $pull?: { [key: string]: { [key: string]: string } | string };
+    //     }
+    //   | undefined;
 
     if (Array.isArray(body)) {
       update = [{ $unset: [] }];
       for (const key of body) {
-        update[0].$unset.push(key);
+        if (key.includes(".") && key.includes("=")) {
+          const matches = key.match(/([^\.]+)\.([^=]+)=(.+)/);
+
+          if (matches && matches.length === 4) {
+            // update = {
+            //   $pull: { [matches[1]]: { [matches[2]]: matches[3] } }
+            // };
+          }
+        } else if (key.includes("=")) {
+          const matches = key.match(/([^=]+)=(.+)/);
+
+          if (matches && matches.length === 3) {
+            // update = {
+            //   $pull: { [matches[1]]: matches[2] }
+            // };
+
+            if (matches[1] === "orgTopicCategories") {
+              // await models.Topic.updateMany(
+              //   { topicCategory: matches[2] },
+              //   { topicCategory: null }
+              // );
+            }
+          }
+        } else {
+          update[0].$unset.push(key);
+          //update = { $unset: { [key]: 1 } };
+        }
       }
     } else {
       if (body.eventName) {
@@ -382,6 +412,20 @@ handler.put<
           body.eventOrgs = body.eventOrgs.filter(
             (eventOrg) => !staleEventOrgsIds.find((id) => id === eventOrg._id)
           );
+        }
+      }
+
+      if (eventTopicCategories) {
+        if (!isCreator) {
+          return res
+            .status(400)
+            .json(
+              createServerError(
+                new Error(
+                  `Vous devez être le créateur de l'événement "${event.eventName}" pour créer une catégorie de discussions`
+                )
+              )
+            );
         }
       }
     }

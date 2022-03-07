@@ -16,58 +16,9 @@ import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
 import { getDistance } from "utils/maps";
 import { IEvent, EEventInviteStatus, EEventVisibility } from "models/Event";
 import { hasItems } from "utils/array";
+import { TypedMap } from "utils/types";
 
 export * from "./IEvent";
-
-//#region categories
-export const defaultEventCategories: IOrgEventCategory[] = [
-  {
-    index: "0",
-    label: "Autre"
-  }
-];
-export const defaultCategory = defaultEventCategories[0];
-export const getEventCategories = (event: IEvent<string | Date>) => {
-  return getOrgEventCategories(event.eventOrgs[0]);
-};
-//#region
-
-//#region notifications
-export const isAttending = ({
-  email,
-  event
-}: {
-  email?: string;
-  event: IEvent;
-}) => {
-  if (!email) return false;
-  return !!event.eventNotifications.find(({ email: e, status }) => {
-    return e === email && status === EEventInviteStatus.OK;
-  });
-};
-
-export const isNotAttending = ({
-  email,
-  event
-}: {
-  email?: string;
-  event: IEvent;
-}) => {
-  if (!email) return false;
-  return !!event.eventNotifications.find(({ email: e, status }) => {
-    return e === email && status === EEventInviteStatus.NOK;
-  });
-};
-//#endregion
-
-//#region toString
-export const monthRepeatOptions: { [key: number]: string } = {
-  0: "premier",
-  1: "2ème",
-  2: "3ème",
-  3: "dernier"
-};
-//#endregion
 
 //#region EventsList
 export const getEvents = ({
@@ -83,7 +34,7 @@ export const getEvents = ({
   isSubscribed?: boolean;
   origin?: LatLon;
   distance: number;
-  selectedCategories: number[];
+  selectedCategories: string[];
 }) => {
   const today = setSeconds(setMinutes(setHours(new Date(), 0), 0), 0);
   let previousEvents: IEvent<Date>[] = [];
@@ -92,7 +43,7 @@ export const getEvents = ({
 
   for (let event of events) {
     if (
-      typeof event.eventCategory === "number" &&
+      typeof event.eventCategory === "string" &&
       hasItems(selectedCategories) &&
       !selectedCategories.includes(event.eventCategory)
     ) {
@@ -371,5 +322,66 @@ export const getEvents = ({
   }
 
   return { previousEvents, currentEvents, nextEvents };
+};
+//#endregion
+
+//#region categories
+export const defaultEventCategories: IOrgEventCategory[] = [
+  {
+    catId: "0",
+    label: "Autre"
+  }
+];
+export const defaultCategory = defaultEventCategories[0];
+export const getEventCategories = (event: IEvent<string | Date>) => {
+  return getOrgEventCategories(event.eventOrgs[0]);
+};
+//#endregion
+
+//#region notifications
+export const isAttending = ({
+  email,
+  event
+}: {
+  email?: string;
+  event: IEvent;
+}) => {
+  if (!email) return false;
+  return !!event.eventNotifications.find(({ email: e, status }) => {
+    return e === email && status === EEventInviteStatus.OK;
+  });
+};
+
+export const isNotAttending = ({
+  email,
+  event
+}: {
+  email?: string;
+  event: IEvent;
+}) => {
+  if (!email) return false;
+  return !!event.eventNotifications.find(({ email: e, status }) => {
+    return e === email && status === EEventInviteStatus.NOK;
+  });
+};
+//#endregion
+
+//#region toString
+export const monthRepeatOptions: { [key: number]: string } = {
+  0: "premier",
+  1: "2ème",
+  2: "3ème",
+  3: "dernier"
+};
+export const EventInviteStatuses: TypedMap<EEventInviteStatus, string> = {
+  [EEventInviteStatus.PENDING]: "La personne n'a pas encore indiqué participer",
+  [EEventInviteStatus.OK]: "Participant",
+  [EEventInviteStatus.NOK]: "Invitation refusée"
+};
+
+export const EventVisibilities: TypedMap<EEventVisibility, string> = {
+  [EEventVisibility.FOLLOWERS]: "Abonnés",
+  [EEventVisibility.PUBLIC]: "Publique",
+  [EEventVisibility.SUBSCRIBERS]: "Adhérents"
 };
 //#endregion

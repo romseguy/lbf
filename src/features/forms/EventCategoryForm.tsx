@@ -50,7 +50,7 @@ export const EventCategoryForm = ({
         orgUrl: org.orgUrl,
         payload: {
           orgEventCategories: categories.concat({
-            index: `${categories.length}`,
+            catId: `${categories.length}`,
             label: form.category
           })
         }

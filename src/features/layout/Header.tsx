@@ -129,7 +129,7 @@ export const Header = ({
     if (!event || !event.eventCategory) return null;
     const categories = getEventCategories(event);
     const eventCategory =
-      categories.find(({ index }) => parseInt(index) === event.eventCategory) ||
+      categories.find(({ catId }) => catId === event.eventCategory) ||
       defaultCategory;
 
     return (

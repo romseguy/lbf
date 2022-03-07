@@ -556,8 +556,8 @@ export const EventForm = withGoogleApi({
             placeholder="Catégorie de l'événement"
             color="gray.400"
           >
-            {categories.map(({ index, label }) => (
-              <option key={`cat-${index}`} value={index}>
+            {categories.map(({ catId, label }) => (
+              <option key={`cat-${catId}`} value={catId}>
                 {label}
               </option>
             ))}

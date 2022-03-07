@@ -33,16 +33,20 @@ import { userApi } from "features/users/usersApi";
 
 const uiSlice = createSlice({
   name: "ui",
-  initialState: { rteditorIndex: 0 },
+  initialState: { isAppMounted: false, rteditorIndex: 0 },
   reducers: {
     incrementRTEditorIndex: (state, action: PayloadAction<undefined>) => {
       state.rteditorIndex++;
+    },
+    setIsAppMounted: (state, action: PayloadAction<boolean>) => {
+      state.isAppMounted = action.payload;
     }
   }
 });
 
-export const { incrementRTEditorIndex } = uiSlice.actions;
+export const { incrementRTEditorIndex, setIsAppMounted } = uiSlice.actions;
 export const selectRTEditorIndex = (state: AppState) => state.ui.rteditorIndex;
+export const selectIsAppMounted = (state: AppState) => state.ui.isAppMounted;
 
 const makeStore = () =>
   configureStore({

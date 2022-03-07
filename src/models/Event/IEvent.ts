@@ -25,7 +25,7 @@ export enum EEventVisibility {
 export interface IEvent<T = string> extends IEntity {
   eventName: string;
   eventUrl: string;
-  eventCategory?: number;
+  eventCategory?: string;
   eventMinDate: T;
   eventMaxDate: T;
   otherDays?: {
@@ -47,8 +47,8 @@ export interface IEvent<T = string> extends IEntity {
   eventWeb?: { url: string; prefix: string }[];
   eventNotifications: IEventNotification[]; // list of emails the invitation has been sent to
   eventSubscriptions: ISubscription[];
+  eventTopicCategories: IEventTopicCategory[];
   eventTopics: ITopic[];
-  eventTopicsCategories: string[];
   eventStyles: IEntityStyles;
   eventBanner?: IEntityBanner;
   eventLogo?: IEntityLogo;
@@ -61,14 +61,7 @@ export interface IEvent<T = string> extends IEntity {
   repeat?: number;
 }
 
-export const EventInviteStatuses: TypedMap<EEventInviteStatus, string> = {
-  [EEventInviteStatus.PENDING]: "La personne n'a pas encore indiqué participer",
-  [EEventInviteStatus.OK]: "Participant",
-  [EEventInviteStatus.NOK]: "Invitation refusée"
-};
-
-export const EventVisibilities: TypedMap<EEventVisibility, string> = {
-  [EEventVisibility.FOLLOWERS]: "Abonnés",
-  [EEventVisibility.PUBLIC]: "Publique",
-  [EEventVisibility.SUBSCRIBERS]: "Adhérents"
-};
+export interface IEventTopicCategory {
+  catId: string;
+  label: string;
+}

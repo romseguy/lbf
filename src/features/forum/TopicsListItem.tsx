@@ -31,6 +31,7 @@ import { TopicMessagesList } from "./TopicMessagesList";
 import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
 import { TopicsListItemSubscribers } from "./TopicsListItemSubscribers";
 import { TopicsListItemShare } from "./TopicsListItemShare";
+import { isEvent } from "models/Entity";
 
 export const TopicsListItem = ({
   session,
@@ -79,10 +80,17 @@ export const TopicsListItem = ({
   onSubscribeClick: () => void;
   onLoginClick: () => void;
 }) => {
-  const userId = session?.user._id;
+  const entity = query.data;
+  const isE = isEvent(entity);
   const hasCategorySelected = !!selectedCategories?.find(
     (category) => category === topic.topicCategory
   );
+  const catLabel = entity
+    ? (isE ? entity.eventTopicCategories : entity.orgTopicCategories).find(
+        ({ catId }) => catId === topic.topicCategory
+      )?.label || topic.topicCategory
+    : topic.topicCategory;
+
   const { timeAgo, fullDate } = dateUtils.timeAgo(topic.createdAt, true);
   const topicCreatedByUserName =
     typeof topic.createdBy === "object"
@@ -142,7 +150,7 @@ export const TopicsListItem = ({
                 <Tooltip
                   label={
                     !hasCategorySelected
-                      ? `Afficher les discussions de la catégorie ${topic.topicCategory}`
+                      ? `Afficher les discussions de la catégorie ${catLabel}`
                       : ""
                   }
                   hasArrow
@@ -170,7 +178,7 @@ export const TopicsListItem = ({
                         ]);
                     }}
                   >
-                    {topic.topicCategory}
+                    {catLabel}
                   </Button>
                 </Tooltip>
               )}

@@ -57,8 +57,8 @@ export const EventsListCategories = ({
   events: IEvent<string | Date>[];
   org?: IOrg;
   orgQuery?: AppQueryWithData<IOrg>;
-  selectedCategories: number[];
-  setSelectedCategories: (selectedCategories: number[]) => void;
+  selectedCategories: string[];
+  setSelectedCategories: (selectedCategories: string[]) => void;
   isCreator: boolean;
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
@@ -86,21 +86,21 @@ export const EventsListCategories = ({
     if (renderedCategoryLabels.includes(category.label)) return null;
     renderedCategoryLabels.push(category.label);
 
-    const index = parseInt(category.index);
+    const catId = category.catId;
     const eventsCount = events.filter(
-      (event) => event.eventCategory === index
+      (event) => event.eventCategory === catId
     ).length;
-    const isSelected = selectedCategories.includes(index);
+    const isSelected = selectedCategories.includes(catId);
 
     return (
       <Link
-        key={index}
+        key={catId}
         variant="no-underline"
         onClick={() => {
           setSelectedCategories(
-            selectedCategories.includes(index)
-              ? selectedCategories.filter((sC) => sC !== index)
-              : selectedCategories.concat([index])
+            selectedCategories.includes(catId)
+              ? selectedCategories.filter((sC) => sC !== catId)
+              : selectedCategories.concat([catId])
           );
         }}
       >

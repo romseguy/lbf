@@ -41,7 +41,7 @@ export interface IOrgSubscription {
 }
 
 export interface IOrgSubscriptionEventCategory {
-  catId: number;
+  catId: string;
   emailNotif?: boolean;
   pushNotif?: boolean;
 }

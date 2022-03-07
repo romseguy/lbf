@@ -9,12 +9,10 @@ export const EventCategoryTag = ({
   ...props
 }: TagProps & {
   org?: IOrg;
-  selectedCategory: number;
+  selectedCategory: string;
 }) => {
   const categories = getOrgEventCategories(org);
-  const category = categories.find(
-    ({ index }) => parseInt(index) === selectedCategory
-  );
+  const category = categories.find(({ catId }) => catId === selectedCategory);
 
   return (
     <Tag {...props} variant="outline" bgColor="teal" color="white">
