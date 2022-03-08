@@ -16,7 +16,6 @@ import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSl
 import { UserPage } from "features/users/UserPage";
 import { useGetUserQuery, UserQueryParams } from "features/users/usersApi";
 import { selectUserEmail } from "features/users/userSlice";
-import { useSession } from "hooks/useAuth";
 import { useRouterLoading } from "hooks/useRouterLoading";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -28,11 +27,7 @@ import { PageProps } from "./_app";
 let cachedEmail: string | undefined;
 let cachedRefetchSubscription = false;
 
-type HashProps = PageProps;
-
-const Hash = ({ ...props }: HashProps) => {
-  const { data: clientSession } = useSession();
-  const session = clientSession || props.session;
+const Hash = ({ ...props }: PageProps) => {
   const userEmail = useSelector(selectUserEmail);
 
   //#region routing
@@ -76,8 +71,8 @@ const Hash = ({ ...props }: HashProps) => {
   }) as AppQuery<ISubscription>;
   const userQuery = useGetUserQuery({
     slug: entityUrl,
-    populate: session?.user.userName === entityUrl ? "userProjects" : undefined,
-    select: session?.user.userName === entityUrl ? "userProjects" : undefined
+    populate:
+      props.session?.user.userName === entityUrl ? "userProjects" : undefined
   }) as AppQuery<IUser>;
   //#endregion
 
@@ -120,7 +115,7 @@ const Hash = ({ ...props }: HashProps) => {
     userQuery.isLoading
   ) {
     return (
-      <Layout {...props} session={session}>
+      <Layout {...props}>
         <Spinner />
       </Layout>
     );
@@ -132,7 +127,6 @@ const Hash = ({ ...props }: HashProps) => {
         {...props}
         isRedirect={false}
         message="Veuillez créer l'organisation forum."
-        session={session}
       />
     );
   }
@@ -142,7 +136,7 @@ const Hash = ({ ...props }: HashProps) => {
     orgQueryStatus === 404 &&
     userQueryStatus === 404
   ) {
-    return <NotFound {...props} session={session} />;
+    return <NotFound {...props} />;
   }
 
   if (eventQueryStatus === 200) {
@@ -152,7 +146,6 @@ const Hash = ({ ...props }: HashProps) => {
         email={userEmail}
         eventQuery={eventQuery as AppQueryWithData<IEvent>}
         subQuery={subQuery}
-        session={session}
         tab={entityTab}
         tabItem={entityTabItem}
       />
@@ -166,7 +159,6 @@ const Hash = ({ ...props }: HashProps) => {
     return (
       <OrgPageLogin
         {...props}
-        session={session}
         status={orgQueryStatus}
         onSubmit={async (orgPassword) => {
           const hash = bcrypt.hashSync(orgPassword, orgQuery.data!.orgSalt);
@@ -182,7 +174,6 @@ const Hash = ({ ...props }: HashProps) => {
         {...props}
         orgQuery={orgQuery as AppQueryWithData<IOrg>}
         subQuery={subQuery}
-        session={session}
         tab={entityTab}
         tabItem={entityTabItem}
       />
@@ -194,19 +185,18 @@ const Hash = ({ ...props }: HashProps) => {
       <UserPage
         {...props}
         email={userEmail}
-        session={session}
         userQuery={userQuery as AppQueryWithData<IUser>}
       />
     );
   }
 
-  return <NotFound {...props} session={session} />;
+  return <NotFound {...props} />;
 };
 
 export async function getServerSideProps(
   ctx: GetServerSidePropsContext
 ): Promise<{
-  props?: Partial<HashProps>;
+  props?: {};
   redirect?: { permanent: boolean; destination: string };
 }> {
   if (Array.isArray(ctx.query.name) && typeof ctx.query.name[0] === "string") {

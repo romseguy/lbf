@@ -50,8 +50,8 @@ export const EventsListCategories = ({
   selectedCategories,
   setSelectedCategories,
   isCreator,
-  isLogin,
-  setIsLogin,
+  // isLogin,
+  // setIsLogin,
   ...props
 }: SpaceProps & {
   events: IEvent<string | Date>[];
@@ -60,8 +60,8 @@ export const EventsListCategories = ({
   selectedCategories: string[];
   setSelectedCategories: (selectedCategories: string[]) => void;
   isCreator: boolean;
-  isLogin: number;
-  setIsLogin: (isLogin: number) => void;
+  // isLogin: number;
+  // setIsLogin: (isLogin: number) => void;
 }) => {
   const {
     isOpen: isCategoriesModalOpen,

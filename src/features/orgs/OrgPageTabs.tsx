@@ -192,7 +192,7 @@ export const OrgPageTabs = ({
 
         {!!tabs.find(({ label }) => label === "Discussions") && (
           <TabPanel aria-hidden>
-            <Alert status="info" mb={5}>
+            {/* <Alert status="info" mb={5}>
               <AlertIcon />
               <Box>
                 Cette section a pour vocation principale de proposer une
@@ -207,23 +207,24 @@ export const OrgPageTabs = ({
                   </Text>
                 </Tooltip>{" "}
                 traditionnelles. Également libre à vous de l'utiliser comme bon
-                vous semble, et de faire des suggestions sur le
-                <ChatIcon color={isDark ? "yellow" : "green"} mx={1} />
+                vous semble, et de faire des suggestions sur le{" "}
                 <Link variant="underline" href="/forum">
                   forum
                 </Link>{" "}
-                ou de{" "}
+                ou en{" "}
                 <Link
                   variant="underline"
                   onClick={() => {
                     dispatch(setIsContactModalOpen(true));
                   }}
                 >
-                  contacter
-                </Link>{" "}
-                le créateur de cet outil.
+                  nous écrivant un message
+                </Link>
+                .
               </Box>
-            </Alert>
+            </Alert> */}
+
+            <Heading mb={3}>Discussions</Heading>
 
             <TopicsList
               org={org}
@@ -281,6 +282,8 @@ export const OrgPageTabs = ({
 
         {!!tabs.find(({ label }) => label === "Projets") && (
           <TabPanel aria-hidden>
+            <Heading mb={3}>Projets</Heading>
+
             <ProjectsList
               org={org}
               orgQuery={orgQuery}

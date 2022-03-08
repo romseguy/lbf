@@ -4,7 +4,6 @@ import { Link, LinkProps } from "features/common";
 import { useRouter } from "next/router";
 import React from "react";
 import { FaHome } from "react-icons/fa";
-import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { css } from "twin.macro";
 
 export const NavButtonsList = ({

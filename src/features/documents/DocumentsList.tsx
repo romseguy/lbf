@@ -4,6 +4,7 @@ import {
   AlertIcon,
   Box,
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -19,13 +20,15 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaFile, FaImage } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import {
   Column,
   DeleteButton,
   ErrorMessageText,
+  Heading,
+  HostTag,
   Link,
   LinkShare
 } from "features/common";
@@ -37,6 +40,7 @@ import { handleError } from "utils/form";
 import * as stringUtils from "utils/string";
 import { hasItems } from "utils/array";
 import { useGetDocumentsQuery } from "./documentsApi";
+import { useDiskUsage } from "hooks/useDiskUsage";
 
 export const DocumentsList = ({
   org,
@@ -61,6 +65,7 @@ export const DocumentsList = ({
   //#endregion
 
   //#region local state
+  const diskUsage = useDiskUsage();
   const [loaded, setLoaded] = useState(0);
   const [isAdd, setIsAdd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -72,6 +77,9 @@ export const DocumentsList = ({
       mode: "onChange"
     });
 
+  const onChange = () => {
+    clearErrors("formErrorMessage");
+  };
   const onSubmit = async (form: any) => {
     console.log("submitted", form);
     setIsLoading(true);
@@ -117,6 +125,25 @@ export const DocumentsList = ({
 
   return (
     <>
+      <Flex alignItems="center" mb={3}>
+        <Box flexGrow={1}>
+          <Heading>Galerie</Heading>
+        </Box>
+        <Flex flexDir="column" pt={3} width="50%">
+          <Progress hasStripe value={diskUsage.pct} />
+          {typeof diskUsage.current !== "undefined" &&
+            typeof diskUsage.max !== "undefined" && (
+              <Flex alignItems="center" fontSize="smaller" mt={1}>
+                <Text>
+                  {stringUtils.bytesForHuman(diskUsage.current)} sur{" "}
+                  {stringUtils.bytesForHuman(diskUsage.max)} utilisés pour
+                </Text>
+                <HostTag ml={1} />
+              </Flex>
+            )}
+        </Flex>
+      </Flex>
+
       <Button
         colorScheme="teal"
         leftIcon={<AddIcon />}
@@ -144,23 +171,7 @@ export const DocumentsList = ({
 
       {isAdd && (
         <Column mb={5}>
-          <form
-            onChange={() => {
-              clearErrors("formErrorMessage");
-            }}
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <ErrorMessage
-              errors={errors}
-              name="formErrorMessage"
-              render={({ message }) => (
-                <Alert status="error" mb={3}>
-                  <AlertIcon />
-                  <ErrorMessageText>{message}</ErrorMessageText>
-                </Alert>
-              )}
-            />
-
+          <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
             <FormControl isInvalid={!!errors["files"]} mb={3}>
               <FormLabel>Sélectionnez un fichier :</FormLabel>
               <Input
@@ -194,6 +205,17 @@ export const DocumentsList = ({
             {loaded > 0 && loaded !== 100 && (
               <Progress mb={3} hasStripe value={loaded} />
             )}
+
+            <ErrorMessage
+              errors={errors}
+              name="formErrorMessage"
+              render={({ message }) => (
+                <Alert status="error" mb={3}>
+                  <AlertIcon />
+                  <ErrorMessageText>{message}</ErrorMessageText>
+                </Alert>
+              )}
+            />
 
             <Button
               colorScheme="green"

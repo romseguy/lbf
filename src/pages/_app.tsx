@@ -3,7 +3,7 @@ import { AppProps } from "next/app";
 import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import React, { useEffect } from "react";
-import { getSelectorsByUserAgent } from "react-device-detect";
+import { getSelectorsByUserAgent, isMobile } from "react-device-detect";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
 import { setIsOffline } from "features/session/sessionSlice";
@@ -38,12 +38,12 @@ const App = wrapper.withRedux(
   }: AppProps & { cookies?: string; pageProps: PageProps }) => {
     const dispatch = useAppDispatch();
 
-    useEffect(function appDidMount() {
+    useEffect(function clientDidMount() {
       if (pageProps.email) {
         dispatch(setUserEmail(pageProps.email));
       }
 
-      (async () => {
+      (async function checkOnlineStatus() {
         try {
           await api.get("check");
         } catch (error) {
@@ -68,7 +68,10 @@ const App = wrapper.withRedux(
 
         <SessionProvider session={pageProps.session}>
           <Chakra theme={theme} cookies={cookies}>
-            <Component {...pageProps} />
+            <Component
+              {...pageProps}
+              isMobile={pageProps.isMobile || isMobile}
+            />
           </Chakra>
         </SessionProvider>
       </>
@@ -97,25 +100,27 @@ App.getInitialProps = async ({
     pageProps.email = ctx.query.email as string;
   }
 
-  let session: Session | null = null;
+  pageProps.isMobile =
+    typeof userAgent === "string"
+      ? getSelectorsByUserAgent(userAgent).isMobile
+      : false;
 
-  if (isServer()) {
-    session = await getSession(ctx);
-  } else {
-    pageProps.isMobile = getSelectorsByUserAgent(
-      userAgent || navigator.userAgent
-    );
-  }
+  pageProps.session = await getSession(ctx);
 
-  if (session) {
-    pageProps.session = session;
-    pageProps.email = session.user.email;
+  if (pageProps.session) {
+    pageProps.email = pageProps.session.user.email;
   }
 
   if (Component.getInitialProps) {
+    const componentInitialProps = await Component.getInitialProps(ctx);
+    console.log(
+      `componentInitialProps ${Component.displayName}`,
+      componentInitialProps
+    );
+
     pageProps = {
       ...pageProps,
-      ...(await Component.getInitialProps(ctx))
+      ...componentInitialProps
     };
   }
 

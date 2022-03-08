@@ -10,13 +10,25 @@ export const defaultErrorMessage =
   "Une erreur est survenue, merci de contacter le créateur de cet outil.";
 export const phoneR = /^[0-9]{10,}$/i;
 
+export function bytesForHuman(bytes: number, decimals = 0) {
+  const units = ["o", "Ko", "Mo", "Go"];
+  let i = 0;
+
+  for (i; bytes > 1024; i++) {
+    bytes /= 1024;
+  }
+
+  return parseFloat(bytes.toFixed(decimals)) + " " + units[i];
+}
+
 export function isImage(fileName: string) {
+  const str = fileName.toLowerCase();
   return (
-    fileName.includes(".png") ||
-    fileName.includes(".jpg") ||
-    fileName.includes(".jpeg") ||
-    fileName.includes(".bmp") ||
-    fileName.includes(".webp")
+    str.includes(".png") ||
+    str.includes(".jpg") ||
+    str.includes(".jpeg") ||
+    str.includes(".bmp") ||
+    str.includes(".webp")
   );
 }
 

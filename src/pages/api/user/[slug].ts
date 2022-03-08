@@ -21,7 +21,6 @@ handler.get<
     query: {
       slug: string;
       populate: string;
-      select: string;
     };
   },
   NextApiResponse
@@ -40,17 +39,15 @@ handler.get<
       );
 
   try {
-    let select = query.select;
+    let select: string | undefined;
     const session = await getSession({ req });
-    if (session) {
-      if (
-        session.user.isAdmin ||
-        session.user.email === slug ||
-        session.user.userName === slug ||
-        session.user.userId === slug
-      ) {
-        select = "+email +phone +userImage +userSubscription";
-      }
+    const isSelf =
+      session?.user.isAdmin ||
+      session?.user.email === slug ||
+      session?.user.userName === slug ||
+      session?.user.userId === slug;
+    if (isSelf) {
+      select = "+email +phone +userImage +userSubscription";
     }
 
     let selector;
@@ -71,7 +68,7 @@ handler.get<
     if (!user) return notFoundResponse();
 
     if (populate) {
-      if (populate.includes("userProjects")) {
+      if (populate.includes("userProjects") && isSelf) {
         user = user.populate({
           path: "userProjects",
           populate: [{ path: "createdBy" }]

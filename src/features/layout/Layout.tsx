@@ -37,18 +37,16 @@ interface customWindow extends Window {
 
 declare const window: customWindow;
 
-export interface LayoutProps {
-  logo?: Base64Image;
-  banner?: Base64Image & { mode: "dark" | "light" };
+export interface LayoutProps extends PageProps, BoxProps {
   children: React.ReactNode | React.ReactNodeArray;
+  banner?: Base64Image & { mode: "dark" | "light" };
+  logo?: Base64Image;
   isLogin?: number;
-  isMobile: boolean;
-  pageHeader?: React.ReactNode | React.ReactNodeArray;
-  org?: IOrg;
   event?: IEvent;
-  pageTitle?: string;
+  org?: IOrg;
+  pageHeader?: React.ReactNode | React.ReactNodeArray;
   pageSubTitle?: React.ReactNode;
-  session?: Session | null;
+  pageTitle?: string;
 }
 
 export const Layout = ({
@@ -61,28 +59,23 @@ export const Layout = ({
   pageSubTitle,
   org,
   event,
-  session: serverSession,
   ...props
-}: BoxProps & LayoutProps & PageProps) => {
+}: LayoutProps) => {
   const dispatch = useAppDispatch();
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const router = useRouter();
+  const toast = useToast({ position: "top" });
   const isOffline = useSelector(selectIsOffline);
   const userEmail = useSelector(selectUserEmail);
+  const { isMobile } = props;
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(
-    router.asPath === "/?login" && !serverSession
+    router.asPath === "/?login" && !props.session
   );
   useEffect(() => {
     if (isLogin !== 0) setIsLoginModalOpen(true);
   }, [isLogin]);
-
-  const { isMobile } = props;
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
-  const { data: clientSession } = useSession();
-
-  const session = clientSession || serverSession;
-  const toast = useToast({ position: "top" });
 
   const notify = (title: string) => {
     if (!isNotified) {
@@ -175,6 +168,10 @@ export const Layout = ({
         {!isMobile && (
           <Box position="fixed" left={4} bottom={2}>
             <Flex alignItems="center">
+              <Box mr={2}>
+                <IconFooter noContainer />
+              </Box>
+
               <Tooltip
                 hasArrow
                 label="Un moyen simple de remercier le créateur de ce logiciel libre ♥"
@@ -184,10 +181,6 @@ export const Layout = ({
                   <PaypalButton />
                 </Box>
               </Tooltip>
-
-              <Box ml={2}>
-                <IconFooter noContainer />
-              </Box>
             </Flex>
           </Box>
         )}
@@ -207,7 +200,6 @@ export const Layout = ({
         <Nav
           {...props}
           email={userEmail}
-          session={session}
           setIsLoginModalOpen={setIsLoginModalOpen}
           m={3}
         />
@@ -239,6 +231,8 @@ export const Layout = ({
         <Footer display="flex" alignItems="center" pl={5} pr={5} pb={8}>
           {isMobile && (
             <Flex alignItems="center">
+              <IconFooter mr={3} />
+
               <Tooltip
                 hasArrow
                 label="Un moyen simple de remercier le créateur de ce logiciel libre ♥"
@@ -248,8 +242,6 @@ export const Layout = ({
                   <PaypalButton />
                 </Box>
               </Tooltip>
-
-              <IconFooter ml={3} />
             </Flex>
           )}
         </Footer>

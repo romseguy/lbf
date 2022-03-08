@@ -229,8 +229,8 @@ export const EventsList = ({
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
           isCreator={isCreator}
-          isLogin={isLogin}
-          setIsLogin={setIsLogin}
+          // isLogin={isLogin}
+          // setIsLogin={setIsLogin}
         />
 
         <Flex alignItems="center" mb={5}>
@@ -560,7 +560,7 @@ export const EventsList = ({
                         )} pour ajouter un événement`
                       });
                   } else setIsEventFormModalOpen(true);
-                } else if (setIsLogin) setIsLogin(isLogin + 1);
+                } else setIsLogin(isLogin + 1);
               }
             }}
             data-cy="addEvent"

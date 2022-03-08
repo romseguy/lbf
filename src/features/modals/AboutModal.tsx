@@ -11,7 +11,8 @@ import {
   Tag,
   Text,
   useColorMode,
-  Box
+  Box,
+  Badge
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -34,6 +35,8 @@ import {
 } from "features/common";
 import { useAppDispatch } from "store";
 import { setIsContactModalOpen } from "./modalSlice";
+import { useDiskUsage } from "hooks/useDiskUsage";
+import { bytesForHuman } from "utils/string";
 
 type AboutModalProps = {
   isMobile: boolean;
@@ -68,6 +71,7 @@ const AboutPage = ({ ...props }: AboutModalProps) => {
       contactez-nous
     </Link>
   );
+  const diskUsage = useDiskUsage();
   const license = (
     <a
       href="https://www.gnu.org/licenses/why-affero-gpl.fr.html"
@@ -147,8 +151,10 @@ const AboutPage = ({ ...props }: AboutModalProps) => {
 
       <Column {...columnStyles(isDark)}>
         <Text mb={3}>
-          Invitez vos adhérents à participer à vos événements, projets, et
-          discussions.
+          Informez vos adhérents de vos projets et événements à venir.
+          <br />
+          Créez des discussions et envoyez des invitations par e-mail ou par
+          notification mobile.
         </Text>
 
         <Row
@@ -159,8 +165,8 @@ const AboutPage = ({ ...props }: AboutModalProps) => {
           px={3}
         >
           <Icon as={FaLightbulb} color={isDark ? "yellow" : "green"} mr={1} />
-          Créez des listes d'adhérents pour inviter seulement les adhérents
-          concernés.
+          Créez vos propres listes pour envoyer des invitations seulement aux
+          personnes concernés.
         </Row>
       </Column>
 
@@ -168,9 +174,20 @@ const AboutPage = ({ ...props }: AboutModalProps) => {
 
       <Row {...rowStyles(isDark)}>
         <Icon as={EmailIcon} color="green" boxSize={[5, 4]} />
-        <Text ml={3}>
-          <HostTag /> peut envoyer jusqu'à 100 e-mails par jour. Si cela s'avère
-          insuffisant, parlons en sur le{" "}
+        <Text lineHeight={2} ml={3}>
+          <HostTag /> peut envoyer jusqu'à{" "}
+          <Badge colorScheme="purple">100 e-mails</Badge> par jour
+          {typeof diskUsage.current !== "undefined" &&
+            typeof diskUsage.max !== "undefined" && (
+              <>
+                , et stocker{" "}
+                <Badge colorScheme="purple">
+                  {bytesForHuman(diskUsage.max)}
+                </Badge>{" "}
+                de données
+              </>
+            )}
+          . Si cela s'avère insuffisant, parlons financement participatif sur le{" "}
           <EntityButton org={{ orgUrl: "forum" }} />
         </Text>
       </Row>
