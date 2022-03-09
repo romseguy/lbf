@@ -29,8 +29,7 @@ export const UserSchema = new Schema<IUser>(
         base64: String,
         width: Number,
         height: Number
-      },
-      select: false
+      }
     },
     userName: {
       type: String,

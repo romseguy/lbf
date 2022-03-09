@@ -69,6 +69,8 @@ export const LoginFormModal = (props: {
     password: string;
     email: string;
   }) => {
+    console.log("submitted", { email, password });
+
     if (isForgotten) return;
     setIsLoading(true);
 
@@ -87,7 +89,7 @@ export const LoginFormModal = (props: {
         await signIn("credentials", { email });
       } else {
         const userQuery = await dispatch(
-          getUser.initiate({ slug: email, select: "password isAdmin" })
+          getUser.initiate({ slug: email, select: "password" })
         );
 
         if (

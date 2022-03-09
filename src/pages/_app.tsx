@@ -8,7 +8,7 @@ import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
 import { setIsOffline } from "features/session/sessionSlice";
 import { setUserEmail } from "features/users/userSlice";
-import { getSession } from "hooks/useAuth";
+import { getSession, useSession } from "hooks/useAuth";
 import { useAppDispatch, wrapper } from "store";
 import theme from "theme/theme";
 import api from "utils/api";
@@ -86,30 +86,27 @@ App.getInitialProps = async ({
   Component: NextPage;
   ctx: NextPageContext;
 }) => {
-  let cookies: string | undefined;
-  let userAgent: string | undefined;
+  //#region headers
+  const headers = ctx.req?.headers;
+  const cookies = headers?.cookie;
+  const userAgent = headers?.["user-agent"] || navigator.userAgent;
+  //#endregion
 
-  if (ctx.req?.headers) {
-    cookies = ctx.req.headers.cookie;
-    userAgent = ctx.req.headers["user-agent"];
-  }
+  let pageProps: Partial<PageProps> = {
+    session: await getSession({ req: ctx.req }),
+    isMobile:
+      typeof userAgent === "string"
+        ? getSelectorsByUserAgent(userAgent).isMobile
+        : false
+  };
 
-  let pageProps: Partial<PageProps> = {};
-
+  //#region query
   if (ctx.query.email) {
     pageProps.email = ctx.query.email as string;
-  }
-
-  pageProps.isMobile =
-    typeof userAgent === "string"
-      ? getSelectorsByUserAgent(userAgent).isMobile
-      : false;
-
-  pageProps.session = await getSession(ctx);
-
-  if (pageProps.session) {
+  } else if (pageProps.session) {
     pageProps.email = pageProps.session.user.email;
   }
+  //#endregion
 
   if (Component.getInitialProps) {
     const componentInitialProps = await Component.getInitialProps(ctx);

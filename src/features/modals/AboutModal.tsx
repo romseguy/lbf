@@ -38,11 +38,10 @@ import { setIsContactModalOpen } from "./modalSlice";
 import { useDiskUsage } from "hooks/useDiskUsage";
 import { bytesForHuman } from "utils/string";
 
-type AboutModalProps = {
-  isMobile: boolean;
+interface AboutModalProps {
   isOpen: boolean;
   onClose: () => void;
-};
+}
 
 const columnStyles: (isDark: boolean) => FlexProps = (isDark) => ({
   bg: isDark ? "gray.600" : "lightblue",
@@ -62,7 +61,6 @@ const AboutPage = ({ ...props }: AboutModalProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const [className, setClassName] = useState<string | undefined>();
   const contactLink = (
     <Link
       variant="underline"

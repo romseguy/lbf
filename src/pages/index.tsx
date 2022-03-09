@@ -210,11 +210,7 @@ const IndexPage = (props: PageProps) => {
       </Column>
 
       {isAboutModalOpen && (
-        <AboutModal
-          isMobile={props.isMobile}
-          isOpen={isAboutModalOpen}
-          onClose={closeAboutModal}
-        />
+        <AboutModal isOpen={isAboutModalOpen} onClose={closeAboutModal} />
       )}
 
       {isNetworksModalOpen && (

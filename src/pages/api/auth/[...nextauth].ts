@@ -44,7 +44,6 @@ export default NextAuth({
       },
       //@ts-expect-error
       authorize: async (credentials, req) => {
-        logJson("AUTHORIZE", credentials);
         return credentials;
       }
     }),

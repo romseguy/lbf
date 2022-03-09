@@ -111,7 +111,6 @@ const EventsPage = ({ ...props }: PageProps) => {
               />
             )
           )}
-          <IconFooter />
         </Box>
       </Flex>
 

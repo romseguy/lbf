@@ -1,16 +1,16 @@
 import { Document } from "mongoose";
-import type { IUser } from "models/User";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
+import { getSession } from "hooks/useAuth";
+import { IUser } from "models/User";
+import { emailR } from "utils/email";
 import {
   createServerError,
   databaseErrorCodes,
   duplicateError
 } from "utils/errors";
-import { getSession } from "hooks/useAuth";
 import { logJson, normalize, phoneR } from "utils/string";
-import { emailR } from "utils/email";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -20,7 +20,8 @@ handler.get<
   NextApiRequest & {
     query: {
       slug: string;
-      populate: string;
+      select?: string;
+      populate?: string;
     };
   },
   NextApiResponse
@@ -46,8 +47,11 @@ handler.get<
       session?.user.email === slug ||
       session?.user.userName === slug ||
       session?.user.userId === slug;
+
     if (isSelf) {
-      select = "+email +phone +userImage +userSubscription";
+      select = "+email +phone +userSubscription";
+    } else if (query.select === "password") {
+      select = "+password";
     }
 
     let selector;
@@ -73,9 +77,8 @@ handler.get<
           path: "userProjects",
           populate: [{ path: "createdBy" }]
         });
+        user = await user.execPopulate();
       }
-
-      user = await user.execPopulate();
     }
 
     res.status(200).json(user);

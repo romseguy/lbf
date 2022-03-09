@@ -1,28 +1,13 @@
-import {
-  MenuList,
-  MenuItem,
-  useColorMode,
-  useToast,
-  Switch
-} from "@chakra-ui/react";
+import { MenuList, MenuItem, useColorMode } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { Link } from "features/common";
+import React from "react";
+import { Link, SubscribeSwitch } from "features/common";
 import { refetchSession } from "features/session/sessionSlice";
-import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
 import { resetUserEmail } from "features/users/userSlice";
 import { PageProps } from "pages/_app";
-import { selectIsAppMounted, setIsAppMounted, useAppDispatch } from "store";
-import { base64ToUint8Array, defaultErrorMessage } from "utils/string";
-import { useSelector } from "react-redux";
-
-interface customWindow extends Window {
-  workbox?: any;
-}
-
-declare const window: customWindow;
+import { useAppDispatch } from "store";
 
 export const NavMenuList = ({
   email,
@@ -34,88 +19,9 @@ export const NavMenuList = ({
   userName: string;
 }) => {
   const { colorMode } = useColorMode();
+  const dispatch = useAppDispatch();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const toast = useToast({ position: "top" });
-  const dispatch = useAppDispatch();
-  const [editUser] = useEditUserMutation();
-  const userQuery = useGetUserQuery({ slug: email });
-
-  //#region push subscriptions
-  const [registration, setRegistration] =
-    useState<ServiceWorkerRegistration | null>(null);
-  const [subscription, setSubscription] = useState<PushSubscription | null>(
-    null
-  );
-  const isSubscribed = !!subscription && !!userQuery.data?.userSubscription;
-  const subscribe = async (
-    serviceWorkerRegistration: ServiceWorkerRegistration
-  ) => {
-    try {
-      const pushSubscription =
-        await serviceWorkerRegistration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: base64ToUint8Array(
-            process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
-          )
-        });
-
-      if (pushSubscription) {
-        setSubscription(pushSubscription);
-        await editUser({
-          payload: { userSubscription: pushSubscription },
-          slug: userName
-        });
-        userQuery.refetch();
-        toast({
-          status: "success",
-          title: "Les notifications mobile sont activées"
-        });
-      }
-    } catch (error) {
-      console.log("serviceWorkerRegistration.pushManager.subscribe error");
-      console.error(error);
-      throw error;
-    }
-  };
-
-  const isAppMounted = useSelector(selectIsAppMounted);
-  useEffect(() => {
-    async function componentDidMount() {
-      console.log("cdm");
-
-      if (!("serviceWorker" in navigator)) {
-        if (process.env.NODE_ENV === "production")
-          console.warn("navigator.serviceWorker is missing");
-        return;
-      }
-
-      if (!window.workbox) {
-        if (process.env.NODE_ENV === "production")
-          console.warn("window.workbox is missing");
-        return;
-      }
-
-      try {
-        const serviceWorkerRegistration = await navigator.serviceWorker.ready;
-        setRegistration(serviceWorkerRegistration);
-
-        const pushSubscription =
-          await serviceWorkerRegistration.pushManager.getSubscription();
-
-        if (pushSubscription) setSubscription(pushSubscription);
-        else await subscribe(serviceWorkerRegistration);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    if (!isAppMounted) {
-      dispatch(setIsAppMounted(true));
-      componentDidMount();
-    }
-  }, []);
-  //#endregion
 
   return (
     <MenuList mr={[1, 3]}>
@@ -139,54 +45,8 @@ export const NavMenuList = ({
         <MenuItem>Ma page</MenuItem>
       </Link>
 
-      <MenuItem isDisabled={userQuery.isLoading || userQuery.isFetching}>
-        <Switch
-          isChecked={isSubscribed}
-          display="flex"
-          alignItems="center"
-          onClick={async () => {
-            try {
-              if (isSubscribed) {
-                if (!subscription) {
-                  console.error("no subscription to unsubscribe from");
-                  throw new Error(defaultErrorMessage);
-                }
-
-                await subscription.unsubscribe();
-                await editUser({
-                  payload: { userSubscription: null },
-                  slug: userName
-                });
-
-                setSubscription(null);
-                userQuery.refetch();
-
-                toast({
-                  status: "success",
-                  title: "Notifications mobiles désactivées"
-                });
-              } else if (registration) {
-                await subscribe(registration);
-                toast({
-                  status: "success",
-                  title: "Notifications mobiles activées"
-                });
-              } else {
-                throw new Error("todo");
-              }
-            } catch (error: any) {
-              console.error(error);
-              toast({
-                status: "error",
-                title: `Les notifications mobiles n'ont pas pu être ${
-                  isSubscribed ? "désactivées" : "activées"
-                }`
-              });
-            }
-          }}
-        >
-          Notifications mobile
-        </Switch>
+      <MenuItem>
+        <SubscribeSwitch email={email} userName={userName} />
       </MenuItem>
 
       <MenuItem

@@ -11,53 +11,56 @@ import api from "utils/api";
 import { isServer } from "utils/isServer";
 import sessionFixture from "../../cypress/fixtures/session.json";
 
+let populatedSession: Session | null = null;
+
 export async function getSession(
-  params: GetSessionParams
+  params?: GetSessionParams
 ): Promise<Session | null> {
   if (
     process.env.NEXT_PUBLIC_IS_TEST &&
-    typeof params.req?.headers.cookie === "string" &&
-    !params.req?.headers.cookie.includes("null")
+    typeof params?.req?.headers.cookie === "string" &&
+    !params?.req?.headers.cookie.includes("null")
   ) {
     return sessionFixture;
   }
 
-  let session = await getNextAuthSession(params);
+  const session = await getNextAuthSession(params);
+
   if (!session) return session;
 
-  if (
-    session.user &&
-    (!session.user.userId || session.user.suggestedCategoryAt === undefined)
-  ) {
-    // console.log("getSession: fetching", session);
-    const { data } = await api.get(`user/${session.user.email}`);
+  if (!populatedSession) {
+    const userQuery = await api.get(`user/${session.user.email}`);
 
-    if (data) {
-      const { _id, userName, suggestedCategoryAt = null, isAdmin } = data;
+    if (!userQuery.data) {
+      populatedSession = session;
+    } else {
+      const {
+        _id,
+        userName = _id,
+        userImage,
+        suggestedCategoryAt,
+        isAdmin = false
+      } = userQuery.data;
 
-      session = {
+      populatedSession = {
         ...session,
         user: {
           ...session.user,
           userId: _id,
-          userName,
-          // userName: userName
-          //   ? userName
-          //   : session.user.email?.replace(/@.+/, ""),
+          userName: userName ? userName : _id,
+          userImage,
           suggestedCategoryAt,
           isAdmin: isAdmin || false
         }
       };
-      // console.log("getSession: fetched", session);
     }
   }
 
-  return session;
+  return populatedSession;
 }
 
 let cachedRefetchSession = false;
 let isLoading = false;
-let populatedSession: Session | null = null;
 
 export const useSession = (): {
   data: Session | null;
@@ -66,7 +69,6 @@ export const useSession = (): {
   const refetchSession = useSelector(selectSessionRefetch);
   useEffect(() => {
     if (refetchSession !== cachedRefetchSession) {
-      //console.log("REFETCHING");
       cachedRefetchSession = refetchSession;
       populatedSession = null;
     }
@@ -78,13 +80,11 @@ export const useSession = (): {
   if (!session || loading) return { data: session, loading };
 
   if (populatedSession) {
-    //console.log("POPULATED", populatedSession);
     return { data: populatedSession, loading: false };
   }
 
   if (!isServer() && !isLoading) {
-    //console.log("POPULATING");
-    (async () => {
+    (async function populateSession() {
       isLoading = true;
       const userQuery = await api.get(`user/${session.user.email}`);
       isLoading = false;
@@ -94,7 +94,6 @@ export const useSession = (): {
       } else {
         const {
           _id,
-          email = session.user.email,
           userName = _id,
           userImage,
           suggestedCategoryAt,
@@ -105,7 +104,6 @@ export const useSession = (): {
           ...session,
           user: {
             ...session.user,
-            email,
             userId: _id,
             userName: userName ? userName : _id,
             userImage,
@@ -117,7 +115,7 @@ export const useSession = (): {
     })();
   }
 
-  return { data: populatedSession || session, loading: isLoading };
+  return { data: session, loading: true };
 };
 
 // export async function getSession(

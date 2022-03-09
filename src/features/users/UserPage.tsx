@@ -328,7 +328,6 @@ export const UserPage = ({
                     isLogin={isLogin}
                     setIsLogin={setIsLogin}
                   />
-                  <IconFooter />
                 </TabPanel>
               )}
 
@@ -339,7 +338,6 @@ export const UserPage = ({
                     isLogin={isLogin}
                     setIsLogin={setIsLogin}
                   />
-                  <IconFooter />
                 </TabPanel>
               )}
             </TabPanels>
