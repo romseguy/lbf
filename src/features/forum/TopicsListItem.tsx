@@ -50,8 +50,8 @@ export const TopicsListItem = ({
   selectedCategories,
   setSelectedCategories,
   onClick,
-  onEditClick,
   onDeleteClick,
+  onEditClick,
   onNotifClick,
   onSubscribeClick,
   onLoginClick
@@ -73,11 +73,11 @@ export const TopicsListItem = ({
   setSelectedCategories: React.Dispatch<
     React.SetStateAction<string[] | undefined>
   >;
-  onClick: () => void;
-  onEditClick: () => void;
-  onDeleteClick: () => void;
-  onNotifClick: () => void;
-  onSubscribeClick: () => void;
+  onClick: (topic: ITopic | null) => void;
+  onDeleteClick: (topic: ITopic) => void;
+  onEditClick: (topic: ITopic) => void;
+  onNotifClick: (topic: ITopic) => void;
+  onSubscribeClick: (topic: ITopic, isSubbedToTopic: boolean) => void;
   onLoginClick: () => void;
 }) => {
   const entity = query.data;
@@ -109,11 +109,10 @@ export const TopicsListItem = ({
       <Link
         as="div"
         variant="no-underline"
-        onClick={onClick}
+        onClick={() => onClick(isCurrent ? null : topic)}
         data-cy="topic-list-item"
       >
         <Flex
-          //flexDirection="column"
           flexWrap="wrap"
           borderTopRadius="xl"
           borderBottomRadius={!isCurrent ? "lg" : undefined}
@@ -249,7 +248,7 @@ export const TopicsListItem = ({
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onNotifClick();
+                      onNotifClick(topic);
                     }}
                   >
                     {topic.topicNotifications.length} personnes invitées
@@ -276,7 +275,7 @@ export const TopicsListItem = ({
                       mb={2}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onNotifClick();
+                        onNotifClick(topic);
                       }}
                     />
                   </Tooltip>
@@ -288,14 +287,14 @@ export const TopicsListItem = ({
                       <IconButton
                         aria-label="Modifier la discussion"
                         icon={<EditIcon />}
-                        variant="outline"
                         colorScheme="green"
+                        variant="outline"
                         mr={3}
                         mt={1}
                         mb={2}
                         onClick={(e) => {
                           e.stopPropagation();
-                          onEditClick();
+                          onEditClick(topic);
                         }}
                       />
                     </Tooltip>
@@ -315,9 +314,9 @@ export const TopicsListItem = ({
                       mb={2}
                       mr={3}
                       mt={1}
-                      variant="outline"
-                      onClick={onDeleteClick}
                       placement="bottom"
+                      variant="outline"
+                      onClick={() => onDeleteClick(topic)}
                       data-cy="topic-list-item-delete"
                     />
                   </>
@@ -349,7 +348,7 @@ export const TopicsListItem = ({
                       mb={2}
                       onClick={async (e) => {
                         e.stopPropagation();
-                        onSubscribeClick();
+                        onSubscribeClick(topic, isSubbedToTopic);
                       }}
                       data-cy={
                         isSubbedToTopic

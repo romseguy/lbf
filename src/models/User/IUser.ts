@@ -22,5 +22,5 @@ export interface IUser extends Omit<IEntity, "createdBy"> {
   isOnline: boolean;
   suggestedCategoryAt?: string;
   userDescription?: string;
-  userProjects?: IProject[];
+  userProjects: IProject[];
 }

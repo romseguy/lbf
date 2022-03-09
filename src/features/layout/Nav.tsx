@@ -128,9 +128,9 @@ export const Nav = ({
                         `}
                       >
                         <OrgPopover
-                          boxSize={[6, 6, 6]}
                           orgType={EOrgType.NETWORK}
                           session={session}
+                          boxSize={[6, 6, 6]}
                           ml={3}
                           mr={2}
                         />

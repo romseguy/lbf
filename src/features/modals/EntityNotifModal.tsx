@@ -28,13 +28,14 @@ import {
   AddTopicNotifPayload,
   useEditTopicMutation
 } from "features/forum/topicsApi";
+import { isEvent, isTopic } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
+import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
-import { isEvent, isTopic } from "models/Entity";
-import { defaultErrorMessage } from "utils/string";
 import { AppQuery } from "utils/types";
+import { useEditProjectMutation } from "features/projects/projectsApi";
 
 export type NotifModalState<T> = {
   entity?: T;
@@ -50,7 +51,9 @@ interface NotifyModalProps<T> {
   session: Session;
 }
 
-export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
+export const EntityNotifModal = <
+  T extends IEvent<string | Date> | IProject | ITopic
+>({
   event,
   org,
   query,
@@ -71,6 +74,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
     });
   };
   const [editEvent] = useEditEventMutation();
+  const [editProject] = useEditProjectMutation();
   const [editTopic] = useEditTopicMutation();
   const [postNotif] = mutation;
   const postEntityNotifications = async (
@@ -118,21 +122,12 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
           <ModalHeader display="flex" alignItems="center" pb={0}>
             {isTopic(entity) ? (
               <EntityButton topic={entity} p={2} onClick={null} />
-            ) : (
+            ) : isEvent(entity) ? (
               <EntityButton event={entity} p={2} onClick={null} />
-            )}
+            ) : null}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={4}>
-            {(!org && !event) ||
-            !entity ||
-            (!isEvent(entity) && !isTopic(entity)) ? (
-              <Alert status="error">
-                <AlertIcon />
-                {defaultErrorMessage}
-              </Alert>
-            ) : null}
-
             {entity && (
               <>
                 {org ? (
@@ -186,9 +181,7 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
               </>
             )}
 
-            {isEvent(entity) && <EntityNotified event={entity} />}
-
-            {isTopic(entity) && <EntityNotified topic={entity} />}
+            <EntityNotified entity={entity} />
 
             {session.user.isAdmin && (
               <Button
@@ -204,6 +197,11 @@ export const EntityNotifModal = <T extends IEvent<string | Date> | ITopic>({
                     await editTopic({
                       topicId: entity._id,
                       payload: { topic: { topicNotifications: [] } }
+                    });
+                  else if (entity)
+                    await editProject({
+                      projectId: entity._id,
+                      payload: { projectNotifications: [] }
                     });
 
                   onClose();

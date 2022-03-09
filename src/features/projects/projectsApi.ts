@@ -1,11 +1,17 @@
 import type { IProject } from "models/Project";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import baseQuery from "utils/query";
+import { IProjectNotification } from "models/INotification";
 
 export type AddProjectPayload = Omit<
   IProject,
   "_id" | "createdBy" | "projectNotifications"
 >;
+
+export interface AddProjectNotifPayload {
+  orgListsNames?: string[];
+  email?: string;
+}
 
 export const projectApi = createApi({
   reducerPath: "projectsApi",
@@ -26,6 +32,26 @@ export const projectApi = createApi({
       },
       invalidatesTags: [{ type: "Projects", id: "LIST" }]
     }),
+    addProjectNotif: build.mutation<
+      { notifications: IProjectNotification[] },
+      {
+        payload: AddProjectNotifPayload;
+        projectId: string;
+      }
+    >({
+      query: ({ payload, projectId }) => {
+        console.groupCollapsed("addProjectNotif");
+        console.log("addProjectNotif: projectId", projectId);
+        console.log("addProjectNotif: payload", payload);
+        console.groupEnd();
+
+        return {
+          url: `project/${projectId}`,
+          method: "POST",
+          body: payload
+        };
+      }
+    }),
     deleteProject: build.mutation<IProject, string>({
       query: (projectId) => ({ url: `project/${projectId}`, method: "DELETE" })
     }),
@@ -44,26 +70,14 @@ export const projectApi = createApi({
         };
       }
     })
-    // getProjects: build.query<IProject[], undefined>({
-    //   query: () => ({ url: `projects` })
-    // }),
-    // getProjectByName: build.query<IProject, string>({
-    //   query: (projectUrl) => ({ url: `project/${projectUrl}` })
-    // }),
-    // getProjectsByCreator: build.query<IProject[], string>({
-    //   query: (createdBy) => ({ url: `projects/${createdBy}` })
-    // })
   })
 });
 
 export const {
   useAddProjectMutation,
-  // useAddProjectDetailsMutation,
+  useAddProjectNotifMutation,
   useDeleteProjectMutation,
   useEditProjectMutation
-  // useGetProjectsQuery,
-  // useGetProjectByNameQuery,
-  // useGetProjectsByCreatorQuery
 } = projectApi;
 export const {
   endpoints: {

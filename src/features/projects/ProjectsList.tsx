@@ -1,4 +1,4 @@
-import { AddIcon, EditIcon } from "@chakra-ui/icons";
+import { AddIcon, EditIcon, EmailIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
@@ -7,6 +7,7 @@ import {
   Flex,
   Icon,
   IconButton,
+  Spinner,
   Table,
   Tag,
   Tbody,
@@ -38,9 +39,17 @@ import { sanitize } from "utils/string";
 import { AppQuery } from "utils/types";
 import { ProjectAttendingForm } from "./ProjectAttendingForm";
 import { ProjectsListItemVisibility } from "./ProjectsListItemVisibility";
-import { useDeleteProjectMutation } from "./projectsApi";
+import {
+  useAddProjectNotifMutation,
+  useDeleteProjectMutation
+} from "./projectsApi";
 import { ProjectsListFilters } from "./ProjectsListFilters";
 import { ISelectedOrder, ProjectsListOrder } from "./ProjectsListOrder";
+import {
+  EntityNotifModal,
+  NotifModalState
+} from "features/modals/EntityNotifModal";
+import { getRefId } from "models/Entity";
 
 export const ProjectsList = ({
   org,
@@ -59,7 +68,7 @@ export const ProjectsList = ({
   org?: IOrg;
   orgQuery?: AppQuery<IOrg>;
   // or
-  user?: Partial<IUser>;
+  user?: IUser;
   userQuery?: AppQuery<IUser>;
   // end either
   subQuery?: AppQuery<ISubscription>;
@@ -75,17 +84,12 @@ export const ProjectsList = ({
   const toast = useToast({ position: "top" });
   const query = (orgQuery || userQuery) as AppQuery<IOrg | IUser>;
 
-  //#region project
-  const [deleteProject] = useDeleteProjectMutation();
-  let projects = useMemo(
-    () => [...(org ? org.orgProjects : user ? user.userProjects || [] : [])],
-    [org, user]
-  );
-  //#endregion
-
   //#region local state
   const [currentProject, setCurrentProject] = useState<IProject | null>(null);
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
+  const [notifyModalState, setNotifyModalState] = useState<
+    NotifModalState<IProject>
+  >({});
   const [projectModalState, setProjectModalState] = useState<{
     isOpen: boolean;
     project?: IProject;
@@ -98,6 +102,86 @@ export const ProjectsList = ({
   });
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   //#endregion
+
+  //#region project
+  const addProjectNotifMutation = useAddProjectNotifMutation();
+  const [deleteProject] = useDeleteProjectMutation();
+  const projects = useMemo(
+    () =>
+      [
+        ...(org ? org.orgProjects : user ? user.userProjects : []).filter(
+          (project) => {
+            if (
+              hasItems(selectedStatuses) &&
+              !selectedStatuses.includes(project.projectStatus)
+            )
+              return false;
+            return true;
+          }
+        )
+      ].sort((a, b) => {
+        if (!selectedOrder) return 0;
+
+        const valueA = a[selectedOrder.key];
+        const valueB = b[selectedOrder.key];
+
+        if (!valueA || !valueB) return 0;
+
+        if (selectedOrder.order === "asc") {
+          if (valueA < valueB) return -1;
+          if (valueA > valueB) return 1;
+        } else if (selectedOrder.order === "desc") {
+          if (valueA > valueB) return -1;
+          if (valueA < valueB) return 1;
+        }
+
+        return 0;
+      }),
+
+    [org, user, selectedOrder, selectedStatuses]
+  );
+  //#endregion
+
+  const onDeleteClick = async (project: IProject) => {
+    setIsLoading({ [project._id]: true });
+    try {
+      let deletedProject;
+
+      if (project._id) {
+        deletedProject = await deleteProject(project._id).unwrap();
+      }
+
+      if (deletedProject) {
+        // subQuery.refetch();
+        query.refetch();
+
+        toast({
+          title: `Le projet ${deletedProject.projectName} a été supprimé !`,
+          status: "success"
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: `Le projet n'a pas pu être supprimé`,
+        status: "error"
+      });
+    }
+  };
+
+  const onEditClick = (project: IProject) => {
+    setProjectModalState({
+      isOpen: true,
+      project
+    });
+  };
+
+  const onNotifClick = (project: IProject) => {
+    setNotifyModalState({
+      ...notifyModalState,
+      entity: project
+    });
+  };
 
   return (
     <>
@@ -130,7 +214,7 @@ export const ProjectsList = ({
         Ajouter un projet
       </Button>
 
-      {Array.isArray(projects) && projects.length > 1 && (
+      {hasItems(projects) && (
         <>
           <ProjectsListFilters
             selectedStatuses={selectedStatuses}
@@ -146,323 +230,340 @@ export const ProjectsList = ({
         </>
       )}
 
-      <Grid data-cy="projectList" {...props}>
-        {query.isLoading || query.isFetching ? (
-          <Text>Chargement des projets...</Text>
+      <Grid data-cy="projectList">
+        {query.isLoading ? (
+          <Spinner />
         ) : !projects.length ? (
           <Alert status="warning">
             <AlertIcon /> Aucun projets.
           </Alert>
         ) : (
-          projects
-            .sort((a, b) => {
-              if (!selectedOrder) return 0;
+          projects.map((project, projectIndex) => {
+            const isCurrent =
+              currentProject && project._id === currentProject._id;
+            const isProjectCreator =
+              isCreator || getRefId(project) === session?.user.userId;
+            const {
+              projectName,
+              projectDescription,
+              projectStatus,
+              projectVisibility,
+              createdBy,
+              createdAt
+            } = project;
 
-              const valueA = a[selectedOrder.key];
-              const valueB = b[selectedOrder.key];
+            const projectCreatedByUserName =
+              typeof createdBy === "object"
+                ? createdBy.userName || createdBy.email?.replace(/@.+/, "")
+                : "";
+            const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt, true);
 
-              if (!valueA || !valueB) return 0;
+            return (
+              <Box key={project._id} mb={5}>
+                <Link
+                  as="div"
+                  variant="no-underline"
+                  onClick={() => setCurrentProject(isCurrent ? null : project)}
+                  data-cy="project-list-item"
+                >
+                  <Flex
+                    flexWrap="wrap"
+                    borderTopRadius="xl"
+                    borderBottomRadius={!isCurrent ? "xl" : undefined}
+                    bg={
+                      projectIndex % 2 === 0
+                        ? isDark
+                          ? "gray.600"
+                          : "orange.200"
+                        : isDark
+                        ? "gray.500"
+                        : "orange.100"
+                    }
+                  >
+                    <Flex flexDirection="column" flexGrow={1} px={3} py={1}>
+                      <Flex>
+                        {isCurrent ? (
+                          <Icon
+                            as={FaFolderOpen}
+                            boxSize={6}
+                            color={isDark ? "teal.200" : "teal"}
+                            mr={2}
+                          />
+                        ) : (
+                          <Icon
+                            as={FaFolder}
+                            boxSize={6}
+                            color={isDark ? "teal.200" : "teal"}
+                            mr={2}
+                          />
+                        )}
 
-              if (selectedOrder.order === "asc") {
-                if (valueA < valueB) return -1;
-                if (valueA > valueB) return 1;
-              } else if (selectedOrder.order === "desc") {
-                if (valueA > valueB) return -1;
-                if (valueA < valueB) return 1;
-              }
-
-              return 0;
-            })
-            .map((project, projectIndex) => {
-              const {
-                projectName,
-                projectDescription,
-                projectStatus,
-                projectVisibility,
-                createdBy,
-                createdAt
-              } = project;
-
-              if (
-                hasItems(selectedStatuses) &&
-                !selectedStatuses.includes(projectStatus)
-              )
-                return null;
-
-              const projectCreatedByUserName =
-                typeof createdBy === "object"
-                  ? createdBy.userName || createdBy.email?.replace(/@.+/, "")
-                  : "";
-              const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt, true);
-              const isCurrent =
-                currentProject && project._id === currentProject._id;
-              const isProjectCreator =
-                typeof createdBy === "object"
-                  ? createdBy._id === session?.user.userId
-                  : false;
-              const bgColor = isDark
-                ? projectIndex % 2 === 0
-                  ? "gray.600"
-                  : "gray.500"
-                : projectIndex % 2 === 0
-                ? "orange.200"
-                : "orange.100";
-
-              return (
-                <Box key={project._id} mb={5}>
-                  <GridItem>
-                    <Link
-                      variant="no-underline"
-                      onClick={() =>
-                        setCurrentProject(isCurrent ? null : project)
-                      }
-                      data-cy="project"
-                    >
-                      <Grid
-                        templateColumns="auto auto 1fr auto"
-                        borderTopRadius="xl"
-                        borderBottomRadius={!isCurrent ? "xl" : undefined}
-                        light={{
-                          bg: bgColor,
-                          _hover: {
-                            bg: "orange.300"
+                        <Tag
+                          colorScheme={
+                            projectStatus === EProjectStatus.PENDING
+                              ? "red"
+                              : projectStatus === EProjectStatus.ONGOING
+                              ? "orange"
+                              : "green"
                           }
-                        }}
-                        dark={{
-                          bg: bgColor,
-                          _hover: {
-                            bg: "gray.400"
-                          }
-                        }}
+                          variant="solid"
+                          mr={2}
+                        >
+                          {ProjectStatuses[projectStatus]}
+                        </Tag>
+
+                        <Link variant="no-underline" fontWeight="bold">
+                          {project.projectName}
+                        </Link>
+                      </Flex>
+
+                      <Flex
+                        flexWrap="wrap"
+                        fontSize="smaller"
+                        color={isDark ? "white" : "purple"}
+                        ml={8}
                       >
-                        <GridItem display="flex" alignItems="center" p={3}>
-                          {currentProject && isCurrent ? (
-                            <Icon as={FaFolderOpen} boxSize={6} />
-                          ) : (
-                            <Icon as={FaFolder} boxSize={6} />
-                          )}
-                        </GridItem>
-
-                        <GridItem display="flex" alignItems="center" pr={3}>
-                          <Tag
-                            variant="solid"
-                            colorScheme={
-                              projectStatus === EProjectStatus.PENDING
-                                ? "red"
-                                : projectStatus === EProjectStatus.ONGOING
-                                ? "orange"
-                                : "green"
-                            }
+                        <Tooltip label="Aller à la page de l'utilisateur">
+                          <Link
+                            href={`/${projectCreatedByUserName}`}
+                            _hover={{
+                              color: isDark ? "white" : "white",
+                              textDecoration: "underline"
+                            }}
                           >
-                            {ProjectStatuses[projectStatus]}
-                          </Tag>
-                        </GridItem>
+                            {projectCreatedByUserName}
+                          </Link>
+                        </Tooltip>
 
-                        <GridItem lineHeight={1} py={3}>
-                          <Flex flexDirection="column">
-                            <Text fontWeight="bold">{projectName}</Text>
-                            <Flex
-                              alignItems="center"
-                              flexWrap="wrap"
-                              fontSize="smaller"
-                              color={isDark ? "white" : "gray.600"}
-                              mt={1}
-                            >
-                              <Text mr={1}>{projectCreatedByUserName}</Text>
+                        <Box as="span" aria-hidden mx={1}>
+                          ·
+                        </Box>
 
-                              <span aria-hidden> · </span>
+                        <Tooltip
+                          placement="bottom"
+                          label={`Projet créé le ${fullDate}`}
+                        >
+                          <Text
+                            cursor="default"
+                            _hover={{
+                              color: isDark ? "white" : "white"
+                            }}
+                          >
+                            {timeAgo}
+                          </Text>
+                        </Tooltip>
 
-                              <Tooltip placement="bottom" label={fullDate}>
-                                <Text mx={1}>{timeAgo}</Text>
-                              </Tooltip>
+                        <Box as="span" aria-hidden mx={1}>
+                          ·
+                        </Box>
 
-                              {org && (
-                                <>
-                                  <span aria-hidden> · </span>
+                        <ProjectsListItemVisibility
+                          org={org}
+                          projectVisibility={projectVisibility}
+                        />
 
-                                  <ProjectsListItemVisibility
-                                    org={org}
-                                    projectVisibility={projectVisibility}
-                                    ml={1}
-                                  />
-                                </>
-                              )}
-                            </Flex>
-                          </Flex>
-                        </GridItem>
+                        {/* <ProjectsListItemShare aria-label="Partager" project={project} /> */}
 
-                        {isProjectCreator && (
-                          <GridItem display="flex" alignItems="center">
-                            <Tooltip label="Modifier le projet">
-                              <IconButton
-                                aria-label="Modifier le projet"
-                                icon={<EditIcon />}
-                                bg="transparent"
-                                _hover={{ bg: "transparent", color: "green" }}
-                                height="auto"
-                                minWidth={0}
-                                onClick={() => {
-                                  setProjectModalState({
-                                    isOpen: true,
-                                    project
-                                  });
-                                }}
-                              />
-                            </Tooltip>
-
-                            <Box aria-hidden mx={1}>
+                        {isCreator && (
+                          <>
+                            <Box as="span" aria-hidden mx={1}>
                               ·
                             </Box>
 
-                            <DeleteButton
-                              isIconOnly
-                              isLoading={isLoading[project._id]}
-                              placement="bottom"
-                              mr={3}
-                              header={
-                                <>
-                                  Êtes vous sûr de vouloir supprimer le projet
-                                  <Text
-                                    display="inline"
-                                    color="red"
-                                    fontWeight="bold"
-                                  >
-                                    {` ${projectName}`}
-                                  </Text>{" "}
-                                  ?
-                                </>
-                              }
-                              onClick={async () => {
-                                setIsLoading({ [project._id]: true });
-                                try {
-                                  let deletedProject;
-
-                                  if (project._id) {
-                                    deletedProject = await deleteProject(
-                                      project._id
-                                    ).unwrap();
-                                  }
-
-                                  if (deletedProject) {
-                                    // subQuery.refetch();
-                                    query.refetch();
-
-                                    toast({
-                                      title: `Le projet ${deletedProject.projectName} a été supprimé !`,
-                                      status: "success"
-                                    });
-                                  }
-                                } catch (error) {
-                                  console.error(error);
-                                  toast({
-                                    title: `Le projet n'a pas pu être supprimé`,
-                                    status: "error"
-                                  });
-                                }
+                            <Link
+                              _hover={{
+                                color: isDark ? "white" : "white",
+                                textDecoration: "underline"
                               }}
-                              data-cy="deleteTopic"
-                            />
-                          </GridItem>
-                        )}
-                      </Grid>
-                    </Link>
-                  </GridItem>
-
-                  {isCurrent && (
-                    <>
-                      <GridItem
-                        p={3}
-                        light={{ bg: "white" }}
-                        dark={{ bg: "gray.700" }}
-                      >
-                        {projectDescription ? (
-                          <Box className="rteditor">
-                            <div
-                              dangerouslySetInnerHTML={{
-                                __html: sanitize(projectDescription)
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onNotifClick(project);
                               }}
-                            />
-                          </Box>
-                        ) : isProjectCreator ? (
-                          <Link
-                            onClick={() => {
-                              setProjectModalState({
-                                isOpen: true,
-                                project
-                              });
-                            }}
-                            variant="underline"
-                          >
-                            Cliquez ici pour ajouter la description du projet.
-                          </Link>
-                        ) : (
-                          <Text fontStyle="italic">Aucune description.</Text>
-                        )}
-                      </GridItem>
-                      <GridItem
-                        light={{ bg: bgColor }}
-                        dark={{ bg: bgColor }}
-                        overflowX="auto"
-                        borderBottomRadius="xl"
-                        minHeight="12px"
-                      >
-                        {org && (
-                          <>
-                            {isProjectCreator ? (
-                              <Table>
-                                <Tbody>
-                                  {Array.isArray(
-                                    project.projectNotifications
-                                  ) &&
-                                  project.projectNotifications.length > 0 ? (
-                                    project.projectNotifications.map(
-                                      ({ email, status }) => (
-                                        <Tr>
-                                          <Td>{email}</Td>
-                                          <Td>
-                                            <Tag
-                                              variant="solid"
-                                              colorScheme={
-                                                status ===
-                                                EProjectInviteStatus.PENDING
-                                                  ? "blue"
-                                                  : status ===
-                                                    EProjectInviteStatus.OK
-                                                  ? "green"
-                                                  : "red"
-                                              }
-                                            >
-                                              {ProjectInviteStatuses[status]}
-                                            </Tag>
-                                          </Td>
-                                        </Tr>
-                                      )
-                                    )
-                                  ) : (
-                                    <Tr>
-                                      <Td>
-                                        <Text fontStyle="italic">
-                                          Personne n'a indiqué participer.
-                                        </Text>
-                                      </Td>
-                                    </Tr>
-                                  )}
-                                </Tbody>
-                              </Table>
-                            ) : (
-                              <ProjectAttendingForm
-                                project={project}
-                                query={query}
-                              />
-                            )}
+                            >
+                              {project.projectNotifications.length} personnes
+                              invitées
+                            </Link>
                           </>
                         )}
-                      </GridItem>
-                    </>
-                  )}
-                </Box>
-              );
-            })
+                      </Flex>
+                    </Flex>
+
+                    <Flex alignItems="center" mb={-1} ml={2}>
+                      {isLoading[project._id] && (
+                        <Spinner mr={3} mt={1} mb={2} />
+                      )}
+
+                      {!isLoading[project._id] && (
+                        <>
+                          {org && isCreator && (
+                            <Tooltip
+                              placement="bottom"
+                              label="Envoyer des invitations"
+                            >
+                              <IconButton
+                                aria-label="Envoyer des invitations"
+                                icon={<EmailIcon />}
+                                variant="outline"
+                                colorScheme="blue"
+                                mr={3}
+                                mt={1}
+                                mb={2}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onNotifClick(project);
+                                }}
+                              />
+                            </Tooltip>
+                          )}
+
+                          {isProjectCreator && (
+                            <>
+                              <Tooltip
+                                placement="bottom"
+                                label="Modifier le projet"
+                              >
+                                <IconButton
+                                  aria-label="Modifier le projet"
+                                  icon={<EditIcon />}
+                                  colorScheme="green"
+                                  variant="outline"
+                                  mr={3}
+                                  mt={1}
+                                  mb={2}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onEditClick(project);
+                                  }}
+                                />
+                              </Tooltip>
+
+                              <DeleteButton
+                                header={
+                                  <>
+                                    Êtes vous sûr de vouloir supprimer le projet
+                                    <Text
+                                      display="inline"
+                                      color="red"
+                                      fontWeight="bold"
+                                    >
+                                      {` ${projectName}`}
+                                    </Text>{" "}
+                                    ?
+                                  </>
+                                }
+                                isIconOnly
+                                isSmall={false}
+                                mb={2}
+                                mr={3}
+                                mt={1}
+                                placement="bottom"
+                                variant="outline"
+                                onClick={() => {
+                                  onDeleteClick(project);
+                                }}
+                                data-cy="deleteTopic"
+                              />
+                            </>
+                          )}
+                        </>
+                      )}
+                    </Flex>
+                  </Flex>
+                </Link>
+
+                {isCurrent && (
+                  <>
+                    <GridItem
+                      p={3}
+                      light={{ bg: "orange.50" }}
+                      dark={{ bg: "gray.700" }}
+                    >
+                      {projectDescription ? (
+                        <Box className="rteditor">
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: sanitize(projectDescription)
+                            }}
+                          />
+                        </Box>
+                      ) : isProjectCreator ? (
+                        <Link
+                          onClick={() => {
+                            setProjectModalState({
+                              isOpen: true,
+                              project
+                            });
+                          }}
+                          variant="underline"
+                        >
+                          Cliquez ici pour ajouter la description du projet.
+                        </Link>
+                      ) : (
+                        <Text fontStyle="italic">Aucune description.</Text>
+                      )}
+                    </GridItem>
+
+                    <GridItem
+                      bg={isDark ? "#314356" : "blue.100"}
+                      overflowX="auto"
+                      borderBottomRadius="xl"
+                      minHeight="12px"
+                    >
+                      {org && (
+                        <>
+                          {isProjectCreator ? (
+                            <Table>
+                              <Tbody>
+                                {Array.isArray(project.projectNotifications) &&
+                                project.projectNotifications.length > 0 ? (
+                                  project.projectNotifications.map(
+                                    ({ email, status }) => (
+                                      <Tr>
+                                        <Td>{email}</Td>
+                                        <Td>
+                                          <Tag
+                                            variant="solid"
+                                            colorScheme={
+                                              status ===
+                                              EProjectInviteStatus.PENDING
+                                                ? "blue"
+                                                : status ===
+                                                  EProjectInviteStatus.OK
+                                                ? "green"
+                                                : "red"
+                                            }
+                                          >
+                                            {ProjectInviteStatuses[status]}
+                                          </Tag>
+                                        </Td>
+                                      </Tr>
+                                    )
+                                  )
+                                ) : (
+                                  <Tr>
+                                    <Td>
+                                      <Text fontStyle="italic">
+                                        Personne n'a indiqué participer.
+                                      </Text>
+                                    </Td>
+                                  </Tr>
+                                )}
+                              </Tbody>
+                            </Table>
+                          ) : (
+                            <ProjectAttendingForm
+                              project={project}
+                              query={query}
+                            />
+                          )}
+                        </>
+                      )}
+                    </GridItem>
+                  </>
+                )}
+              </Box>
+            );
+          })
         )}
       </Grid>
 
@@ -500,6 +601,54 @@ export const ProjectsList = ({
           }
         />
       )}
+
+      {session && org && (
+        <EntityNotifModal
+          org={org}
+          query={query as AppQuery<IOrg>}
+          mutation={addProjectNotifMutation}
+          setModalState={setNotifyModalState}
+          modalState={notifyModalState}
+          session={session}
+        />
+      )}
     </>
   );
 };
+
+{
+  /*
+                    <GridItem lineHeight={1} py={3}>
+                      <Flex flexDirection="column">
+                        <Text fontWeight="bold">{projectName}</Text>
+                        <Flex
+                          alignItems="center"
+                          flexWrap="wrap"
+                          fontSize="smaller"
+                          color={isDark ? "white" : "gray.600"}
+                          mt={1}
+                        >
+                          <Text mr={1}>{projectCreatedByUserName}</Text>
+
+                          <span aria-hidden> · </span>
+
+                          <Tooltip placement="bottom" label={fullDate}>
+                            <Text mx={1}>{timeAgo}</Text>
+                          </Tooltip>
+
+                          {org && (
+                            <>
+                              <span aria-hidden> · </span>
+
+                              <ProjectsListItemVisibility
+                                org={org}
+                                projectVisibility={projectVisibility}
+                                ml={1}
+                              />
+                            </>
+                          )}
+                        </Flex>
+                      </Flex>
+                    </GridItem>
+  */
+}

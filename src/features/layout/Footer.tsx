@@ -1,5 +1,4 @@
 import { Box, BoxProps, useColorMode } from "@chakra-ui/react";
-import tw, { css } from "twin.macro";
 
 export const Footer = ({
   children,

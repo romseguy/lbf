@@ -98,10 +98,10 @@ export const EntityButton = ({
                     : org
                     ? org.orgUrl === "forum"
                       ? ChatIcon
-                      : //org.orgType === EOrgType.NETWORK ?
-                        IoIosGitNetwork
-                    : //: IoIosPeople
-                    event
+                      : org.orgType === EOrgType.NETWORK
+                      ? IoIosGitNetwork
+                      : IoIosPeople
+                    : event
                     ? CalendarIcon
                     : user
                     ? IoIosPerson

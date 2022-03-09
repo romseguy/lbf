@@ -10,7 +10,7 @@ import React from "react";
 import { IconType } from "react-icons";
 import { FaGlobeEurope } from "react-icons/fa";
 import { IoMdPerson } from "react-icons/io";
-import { IOrg } from "models/Org";
+import { IOrg, orgTypeFull } from "models/Org";
 import { hasItems } from "utils/array";
 
 export const ProjectsListItemVisibility = ({
@@ -18,7 +18,7 @@ export const ProjectsListItemVisibility = ({
   projectVisibility,
   ...props
 }: BoxProps & {
-  org: IOrg;
+  org?: IOrg;
   projectVisibility?: string[];
 }) => {
   let icons: {
@@ -30,7 +30,7 @@ export const ProjectsListItemVisibility = ({
     (listName) => !["Adhérents", "Abonnés"].includes(listName)
   );
 
-  const suffix = "de " + org.orgName;
+  const suffix = org ? `${orgTypeFull(org.orgType)} "${org.orgName}"` : "";
 
   if (Array.isArray(customLists) && customLists.length > 0) {
     icons = [

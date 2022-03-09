@@ -44,7 +44,10 @@ export const UserSchema = new Schema<IUser>(
     isOnline: Boolean,
     suggestedCategoryAt: String,
     userDescription: String,
-    userProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }]
+    userProjects: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+      default: []
+    }
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );

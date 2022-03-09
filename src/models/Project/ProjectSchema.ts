@@ -16,7 +16,10 @@ export const ProjectSchema = new Schema<IProject>(
       type: String,
       trim: true
     },
-    projectOrgs: [{ type: Schema.Types.ObjectId, ref: "Org" }],
+    projectOrgs: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Org" }],
+      default: []
+    },
     projectStatus: {
       type: String,
       enum: EProjectStatus

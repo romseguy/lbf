@@ -163,6 +163,110 @@ export const TopicsList = ({
   >({});
   //#endregion
 
+  const onClick = (topic: ITopic | null) => setCurrentTopic(topic);
+
+  const onDeleteClick = async (topic: ITopic) => {
+    setIsLoading({
+      [topic._id]: true
+    });
+
+    try {
+      const deletedTopic = await deleteTopic(topic._id).unwrap();
+      query.refetch();
+      subQuery.refetch();
+      toast({
+        title: `${deletedTopic.topicName} a été supprimé !`,
+        status: "success"
+      });
+    } catch (error: any) {
+      toast({
+        title: `La discussion ${topic.topicName} n'a pas pu être supprimée`,
+        status: "error"
+      });
+    } finally {
+      setIsLoading({
+        [topic._id]: false
+      });
+    }
+  };
+
+  const onEditClick = (topic: ITopic) => {
+    setTopicModalState({
+      ...topicModalState,
+      isOpen: true,
+      topic
+    });
+  };
+
+  const onNotifClick = (topic: ITopic) => {
+    setNotifyModalState({
+      ...notifyModalState,
+      entity: topic
+    });
+  };
+
+  const onSubscribeClick = async (topic: ITopic, isSubbedToTopic: boolean) => {
+    setIsLoading({
+      [topic._id]: true
+    });
+
+    if (!subQuery.data || !isSubbedToTopic) {
+      try {
+        await addSubscription({
+          topics: [
+            {
+              topic: topic,
+              emailNotif: true,
+              pushNotif: true
+            }
+          ],
+          user: session?.user.userId
+        });
+
+        toast({
+          title: `Vous êtes abonné à la discussion ${topic.topicName}`,
+          status: "success"
+        });
+      } catch (error) {
+        console.error(error);
+        toast({
+          title: `Vous n'avez pas pu être abonné à la discussion ${topic.topicName}`,
+          status: "error"
+        });
+      }
+    } else if (isSubbedToTopic) {
+      const unsubscribe = confirm(
+        `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
+      );
+
+      if (unsubscribe) {
+        try {
+          await deleteSubscription({
+            subscriptionId: subQuery.data._id,
+            topicId: topic._id
+          });
+
+          toast({
+            title: `Vous êtes désabonné de ${topic.topicName}`,
+            status: "success"
+          });
+        } catch (error) {
+          console.error(error);
+          toast({
+            title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
+            status: "error"
+          });
+        }
+      }
+    }
+
+    query.refetch();
+    subQuery.refetch();
+    setIsLoading({
+      [topic._id]: false
+    });
+  };
+
   return (
     <>
       <Box>
@@ -366,105 +470,11 @@ export const TopicsList = ({
                 isLoading={isLoading[topic._id] || query.isLoading}
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
-                onClick={() => setCurrentTopic(isCurrent ? null : topic)}
-                onEditClick={() =>
-                  setTopicModalState({
-                    ...topicModalState,
-                    isOpen: true,
-                    topic
-                  })
-                }
-                onDeleteClick={async () => {
-                  setIsLoading({
-                    [topic._id]: true
-                  });
-
-                  try {
-                    const deletedTopic = await deleteTopic(topic._id).unwrap();
-                    query.refetch();
-                    subQuery.refetch();
-                    toast({
-                      title: `${deletedTopic.topicName} a été supprimé !`,
-                      status: "success"
-                    });
-                  } catch (error: any) {
-                    toast({
-                      title: `La discussion ${topic.topicName} n'a pas pu être supprimée`,
-                      status: "error"
-                    });
-                  } finally {
-                    setIsLoading({
-                      [topic._id]: false
-                    });
-                  }
-                }}
-                onNotifClick={() => {
-                  setNotifyModalState({
-                    ...notifyModalState,
-                    entity: topic
-                  });
-                }}
-                onSubscribeClick={async () => {
-                  setIsLoading({
-                    [topic._id]: true
-                  });
-
-                  if (!subQuery.data || !isSubbedToTopic) {
-                    try {
-                      await addSubscription({
-                        topics: [
-                          {
-                            topic: topic,
-                            emailNotif: true,
-                            pushNotif: true
-                          }
-                        ],
-                        user: session?.user.userId
-                      });
-
-                      toast({
-                        title: `Vous êtes abonné à la discussion ${topic.topicName}`,
-                        status: "success"
-                      });
-                    } catch (error) {
-                      console.error(error);
-                      toast({
-                        title: `Vous n'avez pas pu être abonné à la discussion ${topic.topicName}`,
-                        status: "error"
-                      });
-                    }
-                  } else if (isSubbedToTopic) {
-                    const unsubscribe = confirm(
-                      `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
-                    );
-
-                    if (unsubscribe) {
-                      try {
-                        await deleteSubscription({
-                          subscriptionId: subQuery.data._id,
-                          topicId: topic._id
-                        });
-
-                        toast({
-                          title: `Vous êtes désabonné de ${topic.topicName}`,
-                          status: "success"
-                        });
-                      } catch (error) {
-                        console.error(error);
-                        toast({
-                          title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
-                          status: "error"
-                        });
-                      }
-                    }
-                  }
-
-                  query.refetch();
-                  subQuery.refetch();
-                  setIsLoading({
-                    [topic._id]: false
-                  });
-                }}
+                onClick={onClick}
+                onDeleteClick={onDeleteClick}
+                onEditClick={onEditClick}
+                onNotifClick={onNotifClick}
+                onSubscribeClick={onSubscribeClick}
                 onLoginClick={() => setIsLogin(isLogin + 1)}
               />
             );

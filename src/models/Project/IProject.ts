@@ -22,7 +22,7 @@ export interface IProject extends IEntity {
   projectDescriptionHtml: string;
   projectName: string;
   projectNotifications: IProjectNotification[];
-  projectOrgs?: IOrg[];
+  projectOrgs: IOrg[];
   projectStatus: EProjectStatus;
   projectVisibility?: string[];
 }

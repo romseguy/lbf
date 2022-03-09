@@ -7,7 +7,6 @@ import {
   useToast
 } from "@chakra-ui/react";
 import Head from "next/head";
-import { Session } from "next-auth";
 import NextNprogress from "nextjs-progressbar";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -20,14 +19,15 @@ import { ContactFormModal } from "features/modals/ContactFormModal";
 import { LoginFormModal } from "features/modals/LoginFormModal";
 import { selectIsOffline } from "features/session/sessionSlice";
 import { resetUserEmail, selectUserEmail } from "features/users/userSlice";
-import { useSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { PageProps } from "pages/_app";
 import { useAppDispatch } from "store";
 import { breakpoints } from "theme/theme";
 import { Base64Image } from "utils/image";
+import { isServer } from "utils/isServer";
 
+const PAYPAL_BUTTON_WIDTH = 108;
 const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
 let isNotified = false;
 
@@ -168,9 +168,7 @@ export const Layout = ({
         {!isMobile && (
           <Box position="fixed" left={4} bottom={2}>
             <Flex alignItems="center">
-              <Box mr={2}>
-                <IconFooter noContainer />
-              </Box>
+              <IconFooter mr={2} />
 
               <Tooltip
                 hasArrow
@@ -201,7 +199,7 @@ export const Layout = ({
           {...props}
           email={userEmail}
           setIsLoginModalOpen={setIsLoginModalOpen}
-          m={3}
+          m={isMobile ? 1 : 3}
         />
 
         {router.asPath !== "/" && (
@@ -211,7 +209,7 @@ export const Layout = ({
             defaultTitle="Chargement..."
             pageTitle={pageTitle}
             pageSubTitle={pageSubTitle}
-            m={3}
+            m={isMobile ? 1 : 3}
             mt={0}
           />
         )}
@@ -221,30 +219,35 @@ export const Layout = ({
           bg={isDark ? "gray.700" : "lightblue"}
           borderRadius="lg"
           flex="1 0 auto"
-          m={3}
+          m={isMobile ? 1 : 3}
           mt={0}
-          p={5}
+          p={isMobile ? 3 : 5}
         >
           {children}
         </Box>
 
-        <Footer display="flex" alignItems="center" pl={5} pr={5} pb={8}>
-          {isMobile && (
-            <Flex alignItems="center">
-              <IconFooter mr={3} />
-
-              <Tooltip
-                hasArrow
-                label="Un moyen simple de remercier le créateur de ce logiciel libre ♥"
-                placement="top-end"
-              >
-                <Box>
-                  <PaypalButton />
-                </Box>
-              </Tooltip>
-            </Flex>
-          )}
-        </Footer>
+        {isMobile && (
+          <Footer display="flex" alignItems="center" pl={3} pb={1}>
+            <IconFooter
+              minWidth={
+                isServer()
+                  ? "34%"
+                  : `${
+                      (window.innerWidth - 28) / 2 - PAYPAL_BUTTON_WIDTH / 2
+                    }px`
+              }
+            />
+            <Tooltip
+              hasArrow
+              label="Un moyen simple de remercier le créateur de ce logiciel libre ♥"
+              placement="top-end"
+            >
+              <Box>
+                <PaypalButton />
+              </Box>
+            </Tooltip>
+          </Footer>
+        )}
       </Flex>
 
       <ContactFormModal />

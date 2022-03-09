@@ -41,11 +41,9 @@ let cachedRefetchOrgs = false;
 let cachedRefetchSubscription = false;
 
 const OrgPopoverContent = ({
-  orgType,
   session,
   onClose
 }: {
-  orgType?: EOrgType;
   session: Session;
   onClose: () => void;
 }) => {
@@ -122,13 +120,6 @@ const OrgPopoverContent = ({
 
   return (
     <>
-      {/* <PopoverHeader>
-            <Heading size="md">
-              Les {orgType === OrgTypes.NETWORK ? "réseaux" : "organisations"}
-              ...
-            </Heading>
-          </PopoverHeader>
-          <PopoverCloseButton /> */}
       <PopoverBody>
         <Select
           fontSize="sm"
@@ -146,16 +137,13 @@ const OrgPopoverContent = ({
           }
         >
           <option value="showOrgsAdded">
-            Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"} que
-            j'ai ajouté
+            Les organisations que j'ai ajouté
           </option>
           <option value="showOrgsFollowed">
-            Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"} où
-            je suis abonné
+            Les organisations où je suis abonné
           </option>
           <option value="showOrgsSubscribed">
-            Les {orgType === EOrgType.NETWORK ? "réseaux" : "organisations"} où
-            je suis adhérent
+            Les organisations où je suis adhérent
           </option>
         </Select>
 
@@ -245,15 +233,13 @@ const OrgPopoverContent = ({
           onClick={onModalOpen}
           data-cy="org-add-button"
         >
-          Ajouter{" "}
-          {orgType === EOrgType.NETWORK ? "un réseau" : "une organisation"}
+          Ajouter une organisation
         </Button>
       </PopoverFooter>
 
       {isModalOpen && (
         <OrgFormModal
           session={session}
-          orgType={orgType}
           onCancel={onModalClose}
           onClose={onModalClose}
           onSubmit={async (orgUrl) => {
@@ -302,11 +288,7 @@ export const OrgPopover = ({
           />
         </PopoverTrigger>
         <PopoverContent>
-          <OrgPopoverContent
-            orgType={orgType}
-            session={session}
-            onClose={onClose}
-          />
+          <OrgPopoverContent session={session} onClose={onClose} />
         </PopoverContent>
       </Popover>
     </Box>

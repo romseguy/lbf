@@ -381,7 +381,7 @@ export const EventPage = ({
                   </>
                 )}
 
-                {!showNotifForm && <EntityNotified event={event} />}
+                {!showNotifForm && <EntityNotified entity={event} />}
               </TabPanel>
             )}
           </TabPanels>

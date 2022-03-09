@@ -30,13 +30,5 @@ export const IconFooter = ({
     </Link>
   );
 
-  if (noContainer) return <>{link}</>;
-
-  return (
-    <>
-      <Box align="center" {...props}>
-        {link}
-      </Box>
-    </>
-  );
+  return <Box {...props}>{link}</Box>;
 };

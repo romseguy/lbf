@@ -30,12 +30,10 @@ import {
   Button,
   ErrorMessageText
 } from "features/common";
-import { IEvent } from "models/Event";
-import { orgTypeFull, getSubscriptions, IOrg, getLists } from "models/Org";
-import { ESubscriptionType } from "models/Subscription";
-import { ITopic } from "models/Topic";
+import { IEntity, isEvent, isTopic } from "models/Entity";
+import { orgTypeFull, IOrg } from "models/Org";
+import { IProject } from "models/Project";
 import { hasItems } from "utils/array";
-import { isTopic } from "models/Entity";
 import { equalsValue } from "utils/string";
 import { AppQuery } from "utils/types";
 
@@ -51,7 +49,7 @@ export const OrgNotifForm = ({
   onCancel,
   onSubmit
 }: {
-  entity: IEvent<string | Date> | ITopic;
+  entity: IEntity;
   org: IOrg;
   query: AppQuery<IOrg>;
   onCancel?: () => void;
@@ -64,6 +62,7 @@ export const OrgNotifForm = ({
   const isDark = colorMode === "dark";
 
   //#region local state
+  const isE = isEvent(entity);
   const isT = isTopic(entity);
   const [isLoading, setIsLoading] = useState(false);
   const [type, setType] = useState<"multi" | "single">();
@@ -104,7 +103,7 @@ export const OrgNotifForm = ({
             }}
           >
             Inviter les membres d'une ou plusieurs listes à{" "}
-            {isT ? "cette discussion" : "cet événement"}
+            {isT ? "cette discussion" : isE ? "cet événement" : "ce projet"}
           </Radio>
           <Radio
             isChecked={type === "single"}
@@ -112,7 +111,8 @@ export const OrgNotifForm = ({
               setType("single");
             }}
           >
-            Inviter une personne à {isT ? "cette discussion" : "cet événement"}
+            Inviter une personne à{" "}
+            {isT ? "cette discussion" : isE ? "cet événement" : "ce projet"}
           </Radio>
         </Stack>
       </RadioGroup>
@@ -180,7 +180,9 @@ export const OrgNotifForm = ({
                         for (const subscription of list.subscriptions || []) {
                           const notifications = isT
                             ? entity.topicNotifications
-                            : entity.eventNotifications;
+                            : isE
+                            ? entity.eventNotifications
+                            : (entity as IProject).projectNotifications;
 
                           if (
                             notifications.find(({ email, phone }) =>

@@ -41,7 +41,7 @@ export const eventApi = createApi({
       { notifications: IEventNotification[] },
       {
         payload: AddEventNotifPayload;
-        eventUrl?: string;
+        eventUrl: string;
       }
     >({
       query: ({ payload, eventUrl }) => {

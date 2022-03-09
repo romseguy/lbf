@@ -83,7 +83,7 @@ export const SubscribeSwitch = ({
     }
   };
 
-  const isAppMounted = useSelector(selectIsAppMounted);
+  //const isAppMounted = useSelector(selectIsAppMounted);
   useEffect(() => {
     async function componentDidMount() {
       if (!("serviceWorker" in navigator)) {
@@ -112,10 +112,10 @@ export const SubscribeSwitch = ({
       }
     }
 
-    if (!isAppMounted) {
-      dispatch(setIsAppMounted(true));
-      componentDidMount();
-    }
+    // if (!isAppMounted) {
+    //   dispatch(setIsAppMounted(true));
+    componentDidMount();
+    //}
   }, []);
 
   return (

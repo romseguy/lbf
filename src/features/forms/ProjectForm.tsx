@@ -86,7 +86,7 @@ export const ProjectForm = ({
 
     let payload: AddProjectPayload = {
       ...form,
-      projectOrgs: org ? [org] : undefined,
+      projectOrgs: org ? [org] : [],
       projectVisibility: form.projectVisibility?.map(({ value }) => value)
     };
 
