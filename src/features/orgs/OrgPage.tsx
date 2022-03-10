@@ -81,7 +81,7 @@ export const OrgPage = ({
               <SettingsIcon boxSize={6} data-cy="org-settings-button" />
             }
             onClick={() => setIsConfig(true)}
-            mb={2}
+            mb={3}
           >
             Configuration {orgTypeFull(org.orgType)}
           </Button>
@@ -92,7 +92,7 @@ export const OrgPage = ({
             colorScheme="teal"
             leftIcon={<ArrowBackIcon boxSize={6} />}
             onClick={() => setIsEdit(false)}
-            mb={2}
+            mb={3}
           >
             Retour
           </Button>
@@ -126,7 +126,7 @@ export const OrgPage = ({
             tabItem={tabItem}
           />
         )}
-        {session && isCreator && (
+        {isCreator && (isConfig || isEdit) && (
           <OrgConfigPanel
             session={session}
             orgQuery={orgQuery}
@@ -206,6 +206,7 @@ export const OrgPage = ({
           isFollowed={isFollowed}
           isSubscribed={isSubscribed}
           isLogin={isLogin}
+          isMobile={isMobile}
           setIsLogin={setIsLogin}
           orgQuery={orgQuery}
           session={session}
@@ -214,7 +215,7 @@ export const OrgPage = ({
         />
       )}
 
-      {isCreator && (
+      {isCreator && (isConfig || isEdit) && (
         <OrgConfigPanel
           session={session}
           orgQuery={orgQuery}

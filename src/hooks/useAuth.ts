@@ -115,7 +115,7 @@ export const useSession = (): {
     })();
   }
 
-  return { data: session, loading: true };
+  return { data: session, loading: typeof session.user.userId === "undefined" };
 };
 
 // export async function getSession(

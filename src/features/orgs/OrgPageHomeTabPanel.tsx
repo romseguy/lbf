@@ -231,7 +231,6 @@ export const OrgPageHomeTabPanel = ({
 
                 {isListOpen && (
                   <Column
-                    m={undefined}
                     maxWidth={undefined}
                     mt={3}
                     bg={isDark ? "gray.400" : "lightcyan"}
@@ -289,7 +288,7 @@ export const OrgPageHomeTabPanel = ({
         </TabContainer>
       )}
 
-      <TabContainer>
+      <TabContainer mb={0}>
         <TabContainerHeader
           heading={`Présentation ${orgTypeFull(org.orgType)}`}
         >

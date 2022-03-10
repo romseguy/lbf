@@ -1,32 +1,29 @@
-import { TabList, TabListProps, useColorMode } from "@chakra-ui/react";
+import { Flex, TabList, TabListProps, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React from "react";
-import { css } from "twin.macro";
-import { scrollbarStyles } from "theme/theme";
+import React, { useEffect } from "react";
+import { useScroll } from "hooks/useScroll";
 
-export const EntityPageTabList = ({
-  children,
-  ...props
-}: TabListProps & {
-  children: React.ReactElement | (React.ReactElement | null)[];
-}) => {
+export const EntityPageTabList = ({ children, ...props }: TabListProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
+  const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
+  useEffect(() => {
+    if (Array.isArray(router.query.name) && !!router.query.name[1])
+      executeScroll();
+  }, [router.asPath]);
 
   return (
     <TabList
+      ref={elementToScrollRef as React.ForwardedRef<HTMLDivElement>}
       as="nav"
       bg={isDark ? "gray.700" : "lightblue"}
       borderRadius="xl"
-      css={css(scrollbarStyles)}
-      display="block"
-      overflowX="auto"
-      p="8px 0 8px 12px"
-      whiteSpace="nowrap"
       {...props}
     >
-      {children}
+      <Flex flexWrap="wrap" mt={-3} p={2}>
+        {children}
+      </Flex>
     </TabList>
   );
 };

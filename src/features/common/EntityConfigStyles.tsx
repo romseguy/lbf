@@ -75,7 +75,7 @@ export const EntityConfigStyles = ({
     <Box {...props}>
       <form onChange={onChange}>
         <FormControl display="flex">
-          <FormLabel>Titre</FormLabel>
+          <FormLabel>Afficher l'entête</FormLabel>
           <Switch
             isChecked={
               isE ? entity.eventStyles.showTitle : entity.orgStyles.showTitle

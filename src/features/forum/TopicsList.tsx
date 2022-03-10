@@ -152,6 +152,7 @@ export const TopicsList = ({
   }>({
     isOpen: false
   });
+
   const onClose = () =>
     setTopicModalState({
       ...topicModalState,
@@ -348,7 +349,7 @@ export const TopicsList = ({
         {query.isLoading ? (
           <Spinner />
         ) : !topics.length ? (
-          <Alert status="warning">
+          <Alert status="warning" mb={3}>
             <AlertIcon />
             <Flex flexDirection="column">
               {(selectedCategories && selectedCategories.length >= 1) ||
@@ -470,6 +471,7 @@ export const TopicsList = ({
                 isLoading={isLoading[topic._id] || query.isLoading}
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
+                mb={topicIndex < topics.length - 1 ? 5 : 0}
                 onClick={onClick}
                 onDeleteClick={onDeleteClick}
                 onEditClick={onEditClick}

@@ -1,6 +1,7 @@
 import { EditIcon, EmailIcon } from "@chakra-ui/icons";
 import {
   Box,
+  BoxProps,
   Button,
   Flex,
   Icon,
@@ -33,29 +34,7 @@ import { TopicsListItemSubscribers } from "./TopicsListItemSubscribers";
 import { TopicsListItemShare } from "./TopicsListItemShare";
 import { isEvent } from "models/Entity";
 
-export const TopicsListItem = ({
-  session,
-  event,
-  org,
-  isCreator,
-  query,
-  currentTopicName,
-  topic,
-  topicIndex,
-  isSubbedToTopic,
-  isCurrent,
-  isTopicCreator,
-  isDark,
-  isLoading,
-  selectedCategories,
-  setSelectedCategories,
-  onClick,
-  onDeleteClick,
-  onEditClick,
-  onNotifClick,
-  onSubscribeClick,
-  onLoginClick
-}: {
+interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
   session: Session | null;
   event?: IEvent;
   org?: IOrg;
@@ -79,7 +58,32 @@ export const TopicsListItem = ({
   onNotifClick: (topic: ITopic) => void;
   onSubscribeClick: (topic: ITopic, isSubbedToTopic: boolean) => void;
   onLoginClick: () => void;
-}) => {
+}
+
+export const TopicsListItem = ({
+  session,
+  event,
+  org,
+  isCreator,
+  query,
+  currentTopicName,
+  topic,
+  topicIndex,
+  isSubbedToTopic,
+  isCurrent,
+  isTopicCreator,
+  isDark,
+  isLoading,
+  selectedCategories,
+  setSelectedCategories,
+  onClick,
+  onDeleteClick,
+  onEditClick,
+  onNotifClick,
+  onSubscribeClick,
+  onLoginClick,
+  ...props
+}: TopicsListItemProps) => {
   const entity = query.data;
   const isE = isEvent(entity);
   const hasCategorySelected = !!selectedCategories?.find(
@@ -105,7 +109,7 @@ export const TopicsListItem = ({
   }, [query.isLoading]);
 
   return (
-    <Box mb={5} ref={elementToScrollRef}>
+    <Box ref={elementToScrollRef} {...props}>
       <Link
         as="div"
         variant="no-underline"
@@ -258,7 +262,7 @@ export const TopicsListItem = ({
             </Flex>
           </Flex>
 
-          <Flex alignItems="center" mb={-1} ml={2}>
+          <Flex alignItems="center" flexWrap="wrap" mb={-1} ml={2}>
             {isLoading && <Spinner mr={3} mt={1} mb={2} />}
 
             {!isLoading && session && (

@@ -1,19 +1,14 @@
-import {
-  Flex,
-  Box,
-  Text,
-  Tooltip,
-  useColorMode,
-  useDisclosure
-} from "@chakra-ui/react";
+import { Text, Tooltip, useColorMode, useDisclosure } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaRegMap } from "react-icons/fa";
-import { Button, Heading, IconFooter } from "features/common";
+import { useSelector } from "react-redux";
+import { Button, Column } from "features/common";
 import { useGetEventsQuery } from "features/events/eventsApi";
 import { EventsList } from "features/events/EventsList";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
+import { selectIsOffline } from "features/session/sessionSlice";
 import { EEventVisibility } from "models/Event";
 import { PageProps } from "./_app";
 
@@ -23,11 +18,7 @@ const EventsPage = ({ ...props }: PageProps) => {
   const router = useRouter();
 
   const [isLogin, setIsLogin] = useState(0);
-  const [isOffline, setIsOffline] = useState(false);
-  useEffect(() => {
-    window.addEventListener("offline", () => setIsOffline(true));
-    window.addEventListener("online", () => setIsOffline(false));
-  }, []);
+  const isOffline = useSelector(selectIsOffline);
 
   const eventsQuery = useGetEventsQuery();
 
@@ -53,66 +44,45 @@ const EventsPage = ({ ...props }: PageProps) => {
   }, [router.asPath]);
 
   return (
-    <Layout {...props} isLogin={isLogin} pageTitle="Événements">
-      <Flex
-        alignItems="center"
-        flexWrap="wrap"
-        background={isDark ? "black" : "lightcyan"}
-        borderWidth={1}
-        borderColor={isDark ? "gray.600" : "gray.200"}
-        borderRadius="lg"
-        m="0 auto"
-        maxWidth="4xl"
-        p={3}
-        pt={0}
+    <Layout {...props} isLogin={isLogin} pageTitle={title}>
+      <Tooltip
+        label={
+          !eventsQuery.data || !eventsQuery.data.length
+            ? "Aucun événements"
+            : isOffline
+            ? "Vous devez être connecté à internet pour afficher la carte des événements"
+            : ""
+        }
+        hasArrow
+        placement="left"
       >
-        <Box flexGrow={1} mt={eventsQuery.isLoading ? 3 : undefined}>
-          <Heading>{title}</Heading>
-        </Box>
+        <span>
+          <Button
+            colorScheme="teal"
+            isDisabled={isOffline || !events || !events.length}
+            leftIcon={<FaRegMap />}
+            onClick={openMapModal}
+            mb={3}
+          >
+            Carte des événements
+          </Button>
+        </span>
+      </Tooltip>
 
-        {!eventsQuery.isLoading && (
-          <Box mt={3}>
-            <Tooltip
-              label={
-                !eventsQuery.data || !eventsQuery.data.length
-                  ? "Aucun événements"
-                  : isOffline
-                  ? "Vous devez être connecté à internet pour afficher la carte des événements"
-                  : ""
-              }
-              hasArrow
-              placement="left"
-            >
-              <span>
-                <Button
-                  colorScheme="teal"
-                  isDisabled={isOffline || !events || !events.length}
-                  leftIcon={<FaRegMap />}
-                  onClick={openMapModal}
-                  mb={3}
-                >
-                  Carte des événements
-                </Button>
-              </span>
-            </Tooltip>
-          </Box>
+      <Column bg={isDark ? "black" : "lightcyan"}>
+        {eventsQuery.isLoading ? (
+          <Text>Chargement des événements publics...</Text>
+        ) : (
+          events && (
+            <EventsList
+              events={events}
+              isLogin={isLogin}
+              setIsLogin={setIsLogin}
+              setTitle={setTitle}
+            />
+          )
         )}
-
-        <Box width="100%">
-          {eventsQuery.isLoading ? (
-            <Text>Chargement des événements publics...</Text>
-          ) : (
-            events && (
-              <EventsList
-                events={events}
-                isLogin={isLogin}
-                setIsLogin={setIsLogin}
-                setTitle={setTitle}
-              />
-            )
-          )}
-        </Box>
-      </Flex>
+      </Column>
 
       {isMapModalOpen && (
         <MapModal

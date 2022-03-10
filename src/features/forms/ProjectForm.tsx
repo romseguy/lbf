@@ -229,9 +229,11 @@ export const ProjectForm = ({
       />
 
       <Flex justifyContent="space-between">
-        <Button onClick={() => props.onCancel && props.onCancel()}>
-          Annuler
-        </Button>
+        {props.onCancel && (
+          <Button colorScheme="red" onClick={props.onCancel}>
+            Annuler
+          </Button>
+        )}
 
         <Button
           colorScheme="green"

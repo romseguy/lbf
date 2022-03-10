@@ -51,7 +51,7 @@ export const selectIsAppMounted = (state: AppState) => state.ui.isAppMounted;
 const makeStore = () =>
   configureStore({
     reducer: {
-      ui: uiSlice.reducer,
+      [uiSlice.name]: uiSlice.reducer,
       event,
       org,
       modal,

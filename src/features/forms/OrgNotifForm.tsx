@@ -259,7 +259,11 @@ export const OrgNotifForm = ({
           />
 
           <Flex justifyContent="space-between" mt={3}>
-            {onCancel && <Button onClick={onCancel}>Annuler</Button>}
+            {onCancel && (
+              <Button colorScheme="red" onClick={onCancel}>
+                Annuler
+              </Button>
+            )}
 
             {type && (
               <Button

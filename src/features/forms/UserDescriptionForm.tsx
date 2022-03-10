@@ -55,14 +55,16 @@ export const UserDescriptionForm = ({
   return (
     <form>
       <RTEditor
-        session={session}
         defaultValue={user.userDescription}
         placeholder="Ajoutez ici votre présentation"
+        session={session}
         onBlur={(html) => setDescription(html)}
       />
 
       <Flex justifyContent="space-between" mt={5}>
-        <Button onClick={onCancel}>Annuler</Button>
+        <Button colorScheme="red" onClick={onCancel}>
+          Annuler
+        </Button>
 
         <Button colorScheme="green" isLoading={isLoading} onClick={onSubmit}>
           {user.userDescription ? "Modifier" : "Ajouter"}

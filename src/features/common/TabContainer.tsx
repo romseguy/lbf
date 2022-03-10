@@ -2,15 +2,16 @@ import { Flex, FlexProps, Heading, useColorMode } from "@chakra-ui/react";
 import React from "react";
 
 export const TabContainer = ({
-  children
-}: {
+  children,
+  ...props
+}: FlexProps & {
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
   return (
-    <Flex flexDirection="column" borderTopRadius="lg" mb={5}>
+    <Flex flexDirection="column" borderTopRadius="lg" mb={5} {...props}>
       {children}
     </Flex>
   );

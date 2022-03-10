@@ -1,4 +1,9 @@
-import { ArrowBackIcon, EmailIcon, SettingsIcon } from "@chakra-ui/icons";
+import {
+  ArrowBackIcon,
+  ArrowForwardIcon,
+  EmailIcon,
+  SettingsIcon
+} from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
@@ -8,7 +13,8 @@ import {
   Grid,
   Text,
   TabPanel,
-  TabPanels
+  TabPanels,
+  useColorMode
 } from "@chakra-ui/react";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -16,6 +22,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import {
+  Column,
   EmailPreview,
   EntityButton,
   EntityNotified,
@@ -63,6 +70,12 @@ export const EventPage = ({
   tab?: string;
   tabItem?: string;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+  const columnProps = {
+    bg: isDark ? "gray.700" : "lightblue"
+  };
+
   //#region event
   const [editEvent, editEventMutation] = useEditEventMutation();
   const event = eventQuery.data;
@@ -249,6 +262,7 @@ export const EventPage = ({
         <EventPageTabs
           event={event}
           isCreator={isCreator}
+          isMobile={isMobile}
           currentTabLabel={tab}
         >
           <TabPanels
@@ -311,77 +325,97 @@ export const EventPage = ({
             </TabPanel>
 
             <TabPanel aria-hidden>
-              <TopicsList
-                event={event}
-                query={eventQuery}
-                mutation={[editEvent, editEventMutation]}
-                isCreator={isCreator}
-                subQuery={subQuery}
-                isFollowed={isFollowed}
-                isLogin={isLogin}
-                setIsLogin={setIsLogin}
-                currentTopicName={tabItem}
-              />
+              <Heading mb={3}>Discussions</Heading>
+
+              <Column {...columnProps} pb={0}>
+                <TopicsList
+                  event={event}
+                  query={eventQuery}
+                  mutation={[editEvent, editEventMutation]}
+                  isCreator={isCreator}
+                  subQuery={subQuery}
+                  isFollowed={isFollowed}
+                  isLogin={isLogin}
+                  setIsLogin={setIsLogin}
+                  currentTopicName={tabItem}
+                />
+              </Column>
             </TabPanel>
 
             {session && isCreator && (
               <TabPanel aria-hidden>
+                <Heading mb={3}>Invitations</Heading>
+
+                <Column {...columnProps}>
+                  {!showNotifForm && (
+                    <Flex>
+                      <Button
+                        as="div"
+                        colorScheme="teal"
+                        cursor="pointer"
+                        leftIcon={<ArrowForwardIcon />}
+                        onClick={() => {
+                          if (!event.isApproved)
+                            alert(
+                              "L'événement doit être vérifié par un modérateur avant de pouvoir envoyer des invitations."
+                            );
+                          else setShowNotifForm(!showNotifForm);
+                        }}
+                      >
+                        Envoyer des invitations à{" "}
+                        <EntityButton
+                          event={event}
+                          bg="whiteAlpha.500"
+                          ml={2}
+                          onClick={null}
+                        />
+                      </Button>
+                    </Flex>
+                  )}
+
+                  {/* {showNotifForm && (
+                    <Flex>
+                      <Button
+                        colorScheme="teal"
+                        leftIcon={<ArrowBackIcon />}
+                        onClick={() => setShowNotifForm(false)}
+                      >
+                        Revenir à la liste des invitations envoyées
+                      </Button>
+                    </Flex>
+                  )} */}
+
+                  {showNotifForm && (
+                    <>
+                      <Heading>Aperçu de l'e-mail d'invitation</Heading>
+                      <EmailPreview
+                        entity={event}
+                        event={event}
+                        session={session}
+                        mt={5}
+                      />
+
+                      <EventNotifForm
+                        event={event}
+                        eventQuery={eventQuery}
+                        session={session}
+                        onCancel={() => setShowNotifForm(false)}
+                        onSubmit={() => setShowNotifForm(false)}
+                      />
+                    </>
+                  )}
+                </Column>
+
                 {!showNotifForm && (
-                  <Button
-                    as="div"
-                    colorScheme="teal"
-                    cursor="pointer"
-                    leftIcon={<EmailIcon />}
-                    mb={5}
-                    onClick={() => {
-                      if (!event.isApproved)
-                        alert(
-                          "L'événement doit être vérifié par un modérateur avant de pouvoir envoyer des invitations."
-                        );
-                      else setShowNotifForm(!showNotifForm);
-                    }}
-                  >
-                    Envoyer des invitations à{" "}
-                    <EntityButton
-                      event={event}
-                      bg="whiteAlpha.500"
-                      ml={2}
-                      onClick={null}
-                    />
-                  </Button>
-                )}
-
-                {showNotifForm && (
-                  <Button
-                    colorScheme="teal"
-                    leftIcon={<ArrowBackIcon />}
-                    onClick={() => setShowNotifForm(false)}
-                  >
-                    Revenir à la liste des invitations envoyées
-                  </Button>
-                )}
-
-                {showNotifForm && (
                   <>
-                    <EventNotifForm
-                      event={event}
-                      eventQuery={eventQuery}
-                      session={session}
-                      mb={5}
-                      onCancel={() => setShowNotifForm(false)}
-                      onSubmit={() => setShowNotifForm(false)}
-                    />
-                    <Heading>Aperçu de l'e-mail d'invitation</Heading>
-                    <EmailPreview
-                      entity={event}
-                      event={event}
-                      session={session}
-                      mt={5}
-                    />
+                    <Heading my={3}>
+                      Historique des invitations envoyées
+                    </Heading>
+                    <Column {...columnProps}>
+                      <EntityNotified entity={event} />
+                    </Column>
                   </>
                 )}
-
-                {!showNotifForm && <EntityNotified entity={event} />}
               </TabPanel>
             )}
           </TabPanels>

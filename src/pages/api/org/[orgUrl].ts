@@ -34,21 +34,24 @@ handler.get<
       query: { orgUrl, hash, populate = "" }
     } = req;
 
-    let org = await models.Org.findOne(
-      { orgUrl },
-      `+orgPassword ${populate.includes("orgLogo") ? "+orgLogo" : ""} ${
-        populate.includes("orgBanner") ? "+orgBanner" : ""
-      }`
-    );
+    const select = `+orgPassword ${
+      populate.includes("orgLogo") ? "+orgLogo" : ""
+    } ${populate.includes("orgBanner") ? "+orgBanner" : ""}`;
+
+    let org = await models.Org.findOne({ orgUrl }, select);
 
     if (!org) {
-      return res
-        .status(404)
-        .json(
-          createServerError(
-            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
-          )
-        );
+      org = await models.Org.findOne({ _id: orgUrl }, select);
+
+      if (!org) {
+        return res
+          .status(404)
+          .json(
+            createServerError(
+              new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
+            )
+          );
+      }
     }
 
     const session = await getSession({ req });

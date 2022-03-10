@@ -16,11 +16,13 @@ export type UserPageTabsType = {
 
 export const UserPageTabs = ({
   children,
+  isMobile,
   height = "60px",
   tabs = defaultTabs,
   ...props
 }: {
   children: React.ReactNode | React.ReactNodeArray;
+  isMobile: boolean;
   height?: string;
   tab?: string;
   tabs?: UserPageTabsType;
@@ -62,6 +64,7 @@ export const UserPageTabs = ({
               key={`userTab-${tabIndex}`}
               currentTabIndex={currentTabIndex}
               icon={icon}
+              isMobile={isMobile}
               tabIndex={tabIndex}
               data-cy={`userTab-${name}`}
             >

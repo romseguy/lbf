@@ -82,11 +82,11 @@ const EventPopoverContent = ({
   //#endregion
 
   //#region local state
-  const {
-    isOpen: isModalOpen,
-    onOpen: onModalOpen,
-    onClose: onModalClose
-  } = useDisclosure();
+  // const {
+  //   isOpen: isModalOpen,
+  //   onOpen: onModalOpen,
+  //   onClose: onModalClose
+  // } = useDisclosure();
   const [showEvents, setShowEvents] = useState<
     "showEventsAdded" | "showEventsFollowed" | "showEventsAttended"
   >("showEventsAdded");
@@ -158,7 +158,9 @@ const EventPopoverContent = ({
                     p={1}
                     onClick={() => {
                       onClose();
-                      router.push(event.eventUrl);
+                      router.push(`/${event.eventUrl}`, `/${event.eventUrl}`, {
+                        shallow: true
+                      });
                     }}
                   />
                 ))}
@@ -219,26 +221,31 @@ const EventPopoverContent = ({
           leftIcon={<AddIcon />}
           mt={1}
           size="sm"
-          onClick={onModalOpen}
+          onClick={() => {
+            onClose();
+            router.push("/evenements/ajouter", "/evenements/ajouter", {
+              shallow: true
+            });
+          }}
           data-cy="event-add-button"
         >
           Ajouter un événement
         </Button>
       </PopoverFooter>
 
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <EventFormModal
           session={session}
-          onCancel={onModalClose}
-          onClose={onModalClose}
+          onCancel={() => onModalClose()}
+          onClose={() => onModalClose()}
           onSubmit={async (eventUrl) => {
-            onModalClose();
+            //onModalClose();
             await router.push(`/${eventUrl}`, `/${eventUrl}`, {
               shallow: true
             });
           }}
         />
-      )}
+      )} */}
     </>
   );
 };
@@ -254,11 +261,12 @@ export const EventPopover = ({
 
   return (
     <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[-140, 0]} onClose={onClose}>
+      <Popover isLazy isOpen={isOpen} offset={[-20, 25]} onClose={onClose}>
         <PopoverTrigger>
           <IconButton
             aria-label="Événements"
             bg="transparent"
+            color={isOpen ? "green" : undefined}
             _hover={{ bg: "transparent" }}
             icon={
               <Icon

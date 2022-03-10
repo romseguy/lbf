@@ -117,7 +117,7 @@ export const EventConfigPanel = ({
       </Box>
 
       {isEdit && (
-        <Column m="">
+        <Column>
           <EventForm
             session={session}
             event={event}
@@ -141,7 +141,7 @@ export const EventConfigPanel = ({
       )}
 
       {isConfig && !isEdit && (
-        <Column m="">
+        <Column>
           <Heading mb={1} mt={3}>
             Apparence
           </Heading>

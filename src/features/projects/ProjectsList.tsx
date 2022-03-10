@@ -185,50 +185,48 @@ export const ProjectsList = ({
 
   return (
     <>
-      <Button
-        colorScheme="teal"
-        leftIcon={<AddIcon />}
-        mb={5}
-        onClick={() => {
-          if (!isSessionLoading) {
-            if (session) {
-              if (org) {
-                if (!isCreator && !isSubscribed) {
-                  toast({
-                    status: "error",
-                    title: `Vous devez être adhérent ${orgTypeFull(
-                      org.orgType
-                    )} pour ajouter un projet`
-                  });
-                  return;
+      <Flex>
+        <Button
+          colorScheme="teal"
+          leftIcon={<AddIcon />}
+          mb={5}
+          onClick={() => {
+            if (!isSessionLoading) {
+              if (session) {
+                if (org) {
+                  if (!isCreator && !isSubscribed) {
+                    toast({
+                      status: "error",
+                      title: `Vous devez être adhérent ${orgTypeFull(
+                        org.orgType
+                      )} pour ajouter un projet`
+                    });
+                    return;
+                  }
                 }
+
+                setProjectModalState({ ...projectModalState, isOpen: true });
+              } else {
+                setIsLogin(isLogin + 1);
               }
-
-              setProjectModalState({ ...projectModalState, isOpen: true });
-            } else {
-              setIsLogin(isLogin + 1);
             }
-          }
-        }}
-      >
-        Ajouter un projet
-      </Button>
+          }}
+        >
+          Ajouter un projet
+        </Button>
+      </Flex>
 
-      {hasItems(projects) && (
-        <>
-          <ProjectsListFilters
-            selectedStatuses={selectedStatuses}
-            setSelectedStatuses={setSelectedStatuses}
-            mb={5}
-          />
+      <ProjectsListFilters
+        selectedStatuses={selectedStatuses}
+        setSelectedStatuses={setSelectedStatuses}
+        mb={5}
+      />
 
-          <ProjectsListOrder
-            selectedOrder={selectedOrder}
-            setSelectedOrder={setSelectedOrder}
-            mb={5}
-          />
-        </>
-      )}
+      <ProjectsListOrder
+        selectedOrder={selectedOrder}
+        setSelectedOrder={setSelectedOrder}
+        mb={5}
+      />
 
       <Grid data-cy="projectList">
         {query.isLoading ? (
@@ -259,7 +257,10 @@ export const ProjectsList = ({
             const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt, true);
 
             return (
-              <Box key={project._id} mb={5}>
+              <Box
+                key={project._id}
+                mb={projectIndex < projects.length - 1 ? 5 : 0}
+              >
                 <Link
                   as="div"
                   variant="no-underline"

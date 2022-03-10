@@ -1,5 +1,5 @@
 import { NextPage, NextPageContext } from "next";
-import { AppProps } from "next/app";
+import { AppProps as NextAppProps } from "next/app";
 import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import React, { useEffect } from "react";
@@ -8,10 +8,11 @@ import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
 import { setIsOffline } from "features/session/sessionSlice";
 import { setUserEmail } from "features/users/userSlice";
-import { getSession, useSession } from "hooks/useAuth";
+import { getSession } from "hooks/useAuth";
 import { useAppDispatch, wrapper } from "store";
 import theme from "theme/theme";
 import api from "utils/api";
+//import { AppStateProvider } from "utils/context";
 import { isServer } from "utils/isServer";
 
 export interface PageProps {
@@ -30,12 +31,13 @@ if (!isServer() && process.env.NODE_ENV === "production") {
   });
 }
 
+interface AppProps extends NextAppProps<PageProps> {
+  cookies?: string;
+  pageProps: PageProps;
+}
+
 const App = wrapper.withRedux(
-  ({
-    Component,
-    pageProps,
-    cookies
-  }: AppProps & { cookies?: string; pageProps: PageProps }) => {
+  ({ Component, pageProps, cookies, ...props }: AppProps) => {
     const dispatch = useAppDispatch();
 
     useEffect(function clientDidMount() {
@@ -68,10 +70,12 @@ const App = wrapper.withRedux(
 
         <SessionProvider session={pageProps.session}>
           <Chakra theme={theme} cookies={cookies}>
+            {/* <AppStateProvider isMobile={props.isMobile || isMobile}> */}
             <Component
               {...pageProps}
-              isMobile={pageProps.isMobile || isMobile}
+              isMobile={/*true ||*/ pageProps.isMobile || isMobile}
             />
+            {/* </AppStateProvider> */}
           </Chakra>
         </SessionProvider>
       </>
@@ -93,11 +97,11 @@ App.getInitialProps = async ({
   //#endregion
 
   let pageProps: Partial<PageProps> = {
-    session: await getSession({ req: ctx.req }),
     isMobile:
       typeof userAgent === "string"
         ? getSelectorsByUserAgent(userAgent).isMobile
-        : false
+        : false,
+    session: await getSession({ req: ctx.req })
   };
 
   //#region query

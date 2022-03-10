@@ -35,8 +35,6 @@ export const EntityNotified = ({ entity }: { entity?: IEntity }) => {
 
   return (
     <>
-      <Heading mb={3}>Historique des invitations envoyées</Heading>
-
       {!hasItems(notifications) ? (
         <Alert status="info">
           <AlertIcon />

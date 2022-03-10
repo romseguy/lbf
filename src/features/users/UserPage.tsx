@@ -102,7 +102,7 @@ export const UserPage = ({
         )}
 
         {session && isSelf && isEdit && (
-          <Column m={undefined}>
+          <Column>
             <UserForm
               session={session}
               user={user}
@@ -124,6 +124,7 @@ export const UserPage = ({
 
         {!isEdit && (
           <UserPageTabs
+            isMobile={isMobile}
             tabs={
               isSelf
                 ? defaultTabs

@@ -130,44 +130,46 @@ export const TopicMessageForm = ({
         )}
       />
 
-      <FormControl
-        isDisabled={isDisabled}
-        isRequired
-        isInvalid={!!errors["topicMessage"]}
-        p={3}
-        pt={0}
-      >
-        <Controller
-          name="topicMessage"
-          control={control}
-          defaultValue={topicMessageDefaultValue || ""}
-          rules={{ required: "Veuillez saisir un message" }}
-          render={(renderProps) => {
-            return (
-              <RTEditor
-                //formats={props.formats}
-                readOnly={session === null}
-                defaultValue={topicMessageDefaultValue}
-                onChange={({ html }) => {
-                  clearErrors("topicMessage");
-                  renderProps.onChange(html);
-                }}
-                placeholder={
-                  isDisabled
-                    ? "Les réponses sont désactivées pour cette discussion."
-                    : session
-                    ? "Cliquez ici pour répondre..."
-                    : "Connectez vous pour répondre..."
-                }
-              />
-            );
-          }}
-        />
+      {!isDisabled && (
+        <FormControl
+          isDisabled={isDisabled}
+          isRequired
+          isInvalid={!!errors["topicMessage"]}
+          p={3}
+          pt={0}
+        >
+          <Controller
+            name="topicMessage"
+            control={control}
+            defaultValue={topicMessageDefaultValue || ""}
+            rules={{ required: "Veuillez saisir un message" }}
+            render={(renderProps) => {
+              return (
+                <RTEditor
+                  //formats={props.formats}
+                  readOnly={session === null}
+                  defaultValue={topicMessageDefaultValue}
+                  onBlur={(html) => {
+                    clearErrors("topicMessage");
+                    renderProps.onChange(html);
+                    // if (html)
+                    // setIsTouched && setIsTouched(true);
+                  }}
+                  placeholder={
+                    session
+                      ? "Cliquez ici pour répondre..."
+                      : "Connectez vous pour répondre..."
+                  }
+                />
+              );
+            }}
+          />
 
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="topicMessage" />
-        </FormErrorMessage>
-      </FormControl>
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="topicMessage" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
 
       <Flex justifyContent={props.onCancel ? "space-between" : "flex-end"}>
         {props.onCancel && (

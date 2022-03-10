@@ -41,9 +41,9 @@ export const RTEditor = ({
   defaultValue,
   event,
   org,
-  session,
   placeholder,
   readOnly,
+  session,
   onBlur,
   onChange,
   ...props
@@ -51,9 +51,9 @@ export const RTEditor = ({
   defaultValue?: string;
   event?: IEvent;
   org?: IOrg;
-  session?: Session | null;
   placeholder?: string;
   readOnly?: boolean;
+  session?: Session | null;
   height?: string;
   width?: string;
   onBlur?: (html: string) => void;

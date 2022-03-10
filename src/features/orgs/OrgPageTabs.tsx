@@ -1,16 +1,11 @@
-import { ChatIcon, QuestionIcon } from "@chakra-ui/icons";
+import { QuestionIcon } from "@chakra-ui/icons";
 import {
-  Alert,
-  AlertIcon,
-  Box,
   Flex,
   Input,
   Switch,
   TabPanel,
   TabPanels,
   Tabs,
-  Text,
-  Tooltip,
   useColorMode
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
@@ -18,10 +13,10 @@ import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { css } from "twin.macro";
 import {
+  Column,
   EntityPageTab,
   EntityPageTabList,
-  Heading,
-  Link
+  Heading
 } from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
@@ -34,8 +29,6 @@ import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
 import { useEditOrgMutation } from "./orgsApi";
-import { useAppDispatch } from "store";
-import { setIsContactModalOpen } from "features/modals/modalSlice";
 
 export const OrgPageTabs = ({
   currentItemName,
@@ -44,6 +37,7 @@ export const OrgPageTabs = ({
   isFollowed,
   isLogin,
   isSubscribed,
+  isMobile,
   orgQuery,
   session,
   setIsEdit,
@@ -56,6 +50,7 @@ export const OrgPageTabs = ({
   isFollowed: boolean;
   isLogin: number;
   isSubscribed: boolean;
+  isMobile: boolean;
   orgQuery: AppQueryWithData<IOrg>;
   session: Session | null;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
@@ -64,7 +59,9 @@ export const OrgPageTabs = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const dispatch = useAppDispatch();
+  const columnProps = {
+    bg: isDark ? "gray.700" : "lightblue"
+  };
   const router = useRouter();
   const editOrgMutation = useEditOrgMutation();
   const org = orgQuery.data;
@@ -138,13 +135,13 @@ export const OrgPageTabs = ({
       lazyBehavior="keepMounted"
       variant="solid-rounded"
       background={isDark ? "black" : "lightcyan"}
-      borderWidth={1}
       borderColor={isDark ? "gray.600" : "gray.200"}
       borderRadius="lg"
+      borderWidth={1}
       p={3}
       pb={0}
     >
-      <EntityPageTabList aria-hidden>
+      <EntityPageTabList>
         {tabs.map((tab, tabIndex) => {
           return (
             <EntityPageTab
@@ -154,6 +151,7 @@ export const OrgPageTabs = ({
                 defaultTabs.find(({ label }) => label === tab.label)?.icon ||
                 QuestionIcon
               }
+              isMobile={isMobile}
               tabIndex={tabIndex}
               onClick={() => {
                 router.push(
@@ -166,7 +164,7 @@ export const OrgPageTabs = ({
               }}
               data-cy={`orgTab-${normalize(tab.label)}`}
             >
-              {tab.label}
+              {isMobile && tab.label === "" ? "Configuration" : tab.label}
             </EntityPageTab>
           );
         })}
@@ -226,18 +224,20 @@ export const OrgPageTabs = ({
 
             <Heading mb={3}>Discussions</Heading>
 
-            <TopicsList
-              org={org}
-              query={orgQuery}
-              mutation={editOrgMutation}
-              isCreator={isCreator}
-              subQuery={subQuery}
-              isFollowed={isFollowed}
-              isSubscribed={isSubscribed}
-              isLogin={isLogin}
-              setIsLogin={setIsLogin}
-              currentTopicName={currentItemName}
-            />
+            <Column {...columnProps}>
+              <TopicsList
+                org={org}
+                query={orgQuery}
+                mutation={editOrgMutation}
+                isCreator={isCreator}
+                subQuery={subQuery}
+                isFollowed={isFollowed}
+                isSubscribed={isSubscribed}
+                isLogin={isLogin}
+                setIsLogin={setIsLogin}
+                currentTopicName={currentItemName}
+              />
+            </Column>
 
             {/* {process.env.NODE_ENV === "development" &&
                       session?.user.isAdmin && (
@@ -260,11 +260,9 @@ export const OrgPageTabs = ({
 
         {!!tabs.find(({ label }) => label === "Événements") && (
           <TabPanel aria-hidden>
-            <Flex flexWrap="wrap" margin="0 auto" maxWidth="4xl">
-              <Box flexGrow={1}>
-                <Heading>{title}</Heading>
-              </Box>
-              <Box width="100%" mt={5}>
+            <>
+              <Heading mb={3}>{title}</Heading>
+              <Column {...columnProps}>
                 <EventsList
                   events={org.orgEvents}
                   org={org}
@@ -275,8 +273,8 @@ export const OrgPageTabs = ({
                   setIsLogin={setIsLogin}
                   setTitle={setTitle}
                 />
-              </Box>
-            </Flex>
+              </Column>
+            </>
           </TabPanel>
         )}
 
@@ -284,28 +282,34 @@ export const OrgPageTabs = ({
           <TabPanel aria-hidden>
             <Heading mb={3}>Projets</Heading>
 
-            <ProjectsList
-              org={org}
-              orgQuery={orgQuery}
-              subQuery={subQuery}
-              isCreator={isCreator}
-              isFollowed={isFollowed}
-              isSubscribed={isSubscribed}
-              isLogin={isLogin}
-              setIsLogin={setIsLogin}
-            />
+            <Column {...columnProps}>
+              <ProjectsList
+                org={org}
+                orgQuery={orgQuery}
+                subQuery={subQuery}
+                isCreator={isCreator}
+                isFollowed={isFollowed}
+                isSubscribed={isSubscribed}
+                isLogin={isLogin}
+                setIsLogin={setIsLogin}
+              />
+            </Column>
           </TabPanel>
         )}
 
         {!!tabs.find(({ label }) => label === "Galerie") && (
           <TabPanel aria-hidden>
-            <DocumentsList
-              org={org}
-              isCreator={isCreator}
-              isSubscribed={isSubscribed}
-              isLogin={isLogin}
-              setIsLogin={setIsLogin}
-            />
+            <Heading mb={3}>Galerie</Heading>
+
+            <Column {...columnProps}>
+              <DocumentsList
+                org={org}
+                isCreator={isCreator}
+                isSubscribed={isSubscribed}
+                isLogin={isLogin}
+                setIsLogin={setIsLogin}
+              />
+            </Column>
           </TabPanel>
         )}
 

@@ -16,8 +16,6 @@ export const Column = ({
       borderWidth={1}
       borderColor={isDark ? "gray.600" : "gray.200"}
       borderRadius="lg"
-      m="0 auto"
-      maxWidth="4xl"
       p={3}
       {...props}
     >

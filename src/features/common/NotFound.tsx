@@ -6,7 +6,7 @@ import { Layout } from "features/layout";
 import { PageProps } from "pages/_app";
 
 export const NotFound = ({
-  isRedirect = true,
+  isRedirect = false,
   message = "",
   ...props
 }: PageProps & { isRedirect?: boolean; message?: string }) => {
@@ -21,10 +21,6 @@ export const NotFound = ({
 
   return (
     <Layout {...props} pageTitle="Page introuvable" {...props}>
-      <Flex>
-        <Heading>Page introuvable</Heading>
-      </Flex>
-
       <Row>
         {message}
         {isRedirect &&

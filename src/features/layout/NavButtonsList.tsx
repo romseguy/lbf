@@ -7,9 +7,11 @@ import { FaHome } from "react-icons/fa";
 import { css } from "twin.macro";
 
 export const NavButtonsList = ({
-  direction = "row"
+  direction = "row",
+  isMobile
 }: {
   direction?: "row" | "column";
+  isMobile: boolean;
 }) => {
   const router = useRouter();
   const { colorMode } = useColorMode();
@@ -20,7 +22,10 @@ export const NavButtonsList = ({
     variant: "no-underline",
     shallow: true
   };
-  const styleProps = { colorScheme: isDark ? "gray" : "cyan", mt: 5 };
+  const styleProps = {
+    colorScheme: isDark ? "gray" : "cyan",
+    my: isMobile ? 2 : undefined
+  };
 
   return (
     <Flex

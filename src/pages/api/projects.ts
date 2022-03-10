@@ -61,17 +61,14 @@ handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
     }
 
     try {
-      const { body }: { body: Partial<IProject> } = req;
-      let project: (IProject & Document<any, IProject>) | null;
-
-      project = await models.Project.create({
+      const { body }: { body: IProject } = req;
+      const project = await models.Project.create({
         ...body,
         createdBy: session.user.userId
       });
+      const projectOrgs = body.projectOrgs;
 
-      if (body.projectOrgs) {
-        const projectOrgs = body.projectOrgs;
-
+      if (hasItems(projectOrgs)) {
         await models.Org.updateMany(
           {
             _id: {

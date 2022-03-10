@@ -328,11 +328,12 @@ export const TopicPopover = ({
 
   return (
     <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[-140, 0]} onClose={onClose}>
+      <Popover isLazy isOpen={isOpen} offset={[-50, 25]} onClose={onClose}>
         <PopoverTrigger>
           <IconButton
             aria-label="Discussions"
             bg="transparent"
+            color={isOpen ? "green" : undefined}
             _hover={{ bg: "transparent" }}
             icon={<ChatIcon boxSize={boxSize} _hover={{ color: "green" }} />}
             minWidth={0}

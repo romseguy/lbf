@@ -92,11 +92,11 @@ const OrgPopoverContent = ({
   //#endregion
 
   //#region local state
-  const {
-    isOpen: isModalOpen,
-    onOpen: onModalOpen,
-    onClose: onModalClose
-  } = useDisclosure();
+  // const {
+  //   isOpen: isModalOpen,
+  //   onOpen: onModalOpen,
+  //   onClose: onModalClose
+  // } = useDisclosure();
   const [showOrgs, setShowOrgs] = useState<
     "showOrgsAdded" | "showOrgsFollowed" | "showOrgsSubscribed"
   >("showOrgsAdded");
@@ -168,7 +168,9 @@ const OrgPopoverContent = ({
                     p={1}
                     onClick={() => {
                       onClose();
-                      router.push(org.orgUrl);
+                      router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
+                        shallow: true
+                      });
                     }}
                   />
                 ))}
@@ -230,14 +232,19 @@ const OrgPopoverContent = ({
           leftIcon={<AddIcon />}
           mt={1}
           size="sm"
-          onClick={onModalOpen}
+          onClick={() => {
+            onClose();
+            router.push("/organisations/ajouter", "/organisations/ajouter", {
+              shallow: true
+            });
+          }}
           data-cy="org-add-button"
         >
           Ajouter une organisation
         </Button>
       </PopoverFooter>
 
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <OrgFormModal
           session={session}
           onCancel={onModalClose}
@@ -249,7 +256,7 @@ const OrgPopoverContent = ({
             });
           }}
         />
-      )}
+      )} */}
     </>
   );
 };
@@ -267,11 +274,12 @@ export const OrgPopover = ({
 
   return (
     <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[-140, 0]} onClose={onClose}>
+      <Popover isLazy isOpen={isOpen} offset={[10, 25]} onClose={onClose}>
         <PopoverTrigger>
           <IconButton
             aria-label="Organisations"
             bg="transparent"
+            color={isOpen ? "green" : undefined}
             _hover={{ bg: "transparent" }}
             icon={
               <Icon

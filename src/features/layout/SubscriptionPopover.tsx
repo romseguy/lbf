@@ -265,11 +265,12 @@ export const SubscriptionPopover = ({
 
   return (
     <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[-140, 0]} onClose={onClose}>
+      <Popover isLazy isOpen={isOpen} offset={[-80, 25]} onClose={onClose}>
         <PopoverTrigger>
           <IconButton
             aria-label="Notifications"
             bg="transparent"
+            color={isOpen ? "green" : undefined}
             _hover={{ bg: "transparent" }}
             icon={<BellIcon boxSize={boxSize} _hover={{ color: "green" }} />}
             minWidth={0}

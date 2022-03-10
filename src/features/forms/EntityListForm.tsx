@@ -176,7 +176,7 @@ export const EntityListForm = ({
       />
 
       <Flex justifyContent="space-between">
-        <Button onClick={onCancel} mr={3}>
+        <Button colorScheme="red" onClick={onCancel} mr={3}>
           Annuler
         </Button>
 

@@ -17,11 +17,13 @@ export const EventPageTabs = ({
   children,
   event,
   isCreator,
+  isMobile,
   currentTabLabel = "Accueil"
 }: {
   event: IEvent;
   currentTabLabel?: string;
   isCreator?: boolean;
+  isMobile: boolean;
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
   const { colorMode } = useColorMode();
@@ -68,6 +70,7 @@ export const EventPageTabs = ({
               key={`eventTab-${tabIndex}`}
               currentTabIndex={currentTabIndex}
               icon={tab.icon}
+              isMobile={isMobile}
               tabIndex={tabIndex}
               onClick={() => {
                 router.push(

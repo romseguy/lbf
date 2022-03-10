@@ -41,8 +41,9 @@ export const Header = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const [executeScroll, elementToScrollRef] = useScroll<any>();
+  const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
   useEffect(() => {
+    if (Array.isArray(router.query.name) && !!router.query.name[1]) return;
     executeScroll();
   }, [router.asPath]);
 
@@ -151,7 +152,7 @@ export const Header = ({
 
   return (
     <Flex
-      ref={elementToScrollRef as React.ForwardedRef<any>}
+      ref={elementToScrollRef as React.ForwardedRef<HTMLDivElement>}
       as="header"
       alignItems="center"
       bg={isDark ? "gray.700" : "lightblue"}

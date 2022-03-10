@@ -129,7 +129,7 @@ export const EventNotifForm = ({
 
   return (
     <Box
-      bg={isDark ? "gray.500" : "orange.100"}
+      bg={isDark ? "gray.500" : "lightcyan"}
       borderRadius="lg"
       pt={1}
       pb={3}
@@ -177,7 +177,7 @@ export const EventNotifForm = ({
         {type === "multi" && (
           <FormControl isInvalid={!!errors.orgListsNames} isRequired>
             <CheckboxGroup>
-              <Table bg={isDark ? "gray.500" : "orange.100"} borderRadius="lg">
+              <Table bg={isDark ? "gray.500" : "lightblue"} borderRadius="lg">
                 <Tbody>
                   {eventQuery.isLoading || eventQuery.isFetching ? (
                     <Tr>
@@ -313,8 +313,12 @@ export const EventNotifForm = ({
           )}
         />
 
-        <Flex justifyContent="space-between" mt={3}>
-          {onCancel && <Button onClick={onCancel}>Annuler</Button>}
+        <Flex justifyContent="space-between" mt={5}>
+          {onCancel && (
+            <Button colorScheme="red" onClick={onCancel}>
+              Annuler
+            </Button>
+          )}
 
           <Button
             colorScheme="green"

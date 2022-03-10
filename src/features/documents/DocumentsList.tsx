@@ -68,6 +68,7 @@ export const DocumentsList = ({
   const diskUsage = useDiskUsage();
   const [loaded, setLoaded] = useState(0);
   const [isAdd, setIsAdd] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   //#endregion
 
@@ -125,52 +126,50 @@ export const DocumentsList = ({
 
   return (
     <>
-      <Flex alignItems="center" mb={3}>
-        <Box flexGrow={1}>
-          <Heading>Galerie</Heading>
+      <Flex flexWrap="wrap" mb={3} mt={-3}>
+        <Box flexGrow={1} mt={3}>
+          <Button
+            colorScheme="teal"
+            leftIcon={<AddIcon />}
+            rightIcon={isAdd ? <ChevronUpIcon /> : <ChevronRightIcon />}
+            onClick={() => {
+              if (!isSessionLoading) {
+                if (session) {
+                  if (org && !props.isSubscribed && !props.isCreator)
+                    toast({
+                      status: "error",
+                      title: `Vous devez être adhérent ${orgTypeFull(
+                        org.orgType
+                      )} pour ajouter un document`
+                    });
+                  else setIsAdd(!isAdd);
+                } else {
+                  setIsLogin(isLogin + 1);
+                }
+              }
+            }}
+          >
+            Ajouter un fichier
+          </Button>
         </Box>
-        <Flex flexDir="column" pt={3} width="50%">
+
+        <Flex flexDir="column" mt={3}>
+          <HostTag mb={1} />
           <Progress hasStripe value={diskUsage.pct} />
           {typeof diskUsage.current !== "undefined" &&
             typeof diskUsage.max !== "undefined" && (
               <Flex alignItems="center" fontSize="smaller" mt={1}>
                 <Text>
                   {stringUtils.bytesForHuman(diskUsage.current)} sur{" "}
-                  {stringUtils.bytesForHuman(diskUsage.max)} utilisés pour
+                  {stringUtils.bytesForHuman(diskUsage.max)}
                 </Text>
-                <HostTag ml={1} />
               </Flex>
             )}
         </Flex>
       </Flex>
 
-      <Button
-        colorScheme="teal"
-        leftIcon={<AddIcon />}
-        rightIcon={isAdd ? <ChevronUpIcon /> : <ChevronRightIcon />}
-        mb={5}
-        onClick={() => {
-          if (!isSessionLoading) {
-            if (session) {
-              if (org && !props.isSubscribed && !props.isCreator)
-                toast({
-                  status: "error",
-                  title: `Vous devez être adhérent ${orgTypeFull(
-                    org.orgType
-                  )} pour ajouter un document`
-                });
-              else setIsAdd(!isAdd);
-            } else {
-              setIsLogin(isLogin + 1);
-            }
-          }
-        }}
-      >
-        Ajouter
-      </Button>
-
       {isAdd && (
-        <Column mb={5}>
+        <Column m="0 0 20px 0">
           <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
             <FormControl isInvalid={!!errors["files"]} mb={3}>
               <FormLabel>Sélectionnez un fichier :</FormLabel>
@@ -231,108 +230,108 @@ export const DocumentsList = ({
 
       {query.isLoading || query.isFetching ? (
         <Text>Chargement des documents...</Text>
-      ) : (
-        Array.isArray(query.data) && (
-          <Column m="" maxWidth={undefined} overflowX="auto">
-            <Table>
-              <Tbody>
-                {hasItems(query.data) ? (
-                  query.data.map((fileName) => {
-                    const isImage = stringUtils.isImage(fileName);
-                    const isPdf = fileName.includes(".pdf");
-                    const url = `${process.env.NEXT_PUBLIC_API2}/${
-                      isImage || isPdf ? "view" : "download"
-                    }?${
-                      org
-                        ? `orgId=${org._id}`
-                        : user
-                        ? `userId=${user._id}`
-                        : ""
-                    }&fileName=${fileName}`;
+      ) : Array.isArray(query.data) ? (
+        <Column overflowX="auto" m="" maxWidth={undefined} p={0}>
+          <Table>
+            <Tbody>
+              {hasItems(query.data) ? (
+                query.data.map((fileName) => {
+                  const isImage = stringUtils.isImage(fileName);
+                  const isPdf = fileName.includes(".pdf");
+                  const url = `${process.env.NEXT_PUBLIC_API2}/${
+                    isImage || isPdf ? "view" : "download"
+                  }?${
+                    org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
+                  }&fileName=${fileName}`;
 
-                    return (
-                      <Tr>
-                        <Td>
-                          <a href={url} target="_blank">
-                            <Box display="flex" alignItems="center">
-                              <Icon as={isImage ? FaImage : FaFile} mr={3} />
-                              {fileName}
-                            </Box>
-                          </a>
-                        </Td>
-                        <Td textAlign="right">
-                          <LinkShare
-                            label="Copier l'adresse du lien"
-                            url={url}
-                            colorScheme="blue"
-                            mr={2}
-                            variant="outline"
-                            tooltipProps={{ placement: "bottom" }}
-                          />
+                  return (
+                    <Tr key={fileName}>
+                      <Td p="16px 12px 16px 12px">
+                        <a href={url} target="_blank">
+                          <Box display="flex" alignItems="center">
+                            <Icon as={isImage ? FaImage : FaFile} mr={3} />
+                            {fileName}
+                          </Box>
+                        </a>
+                      </Td>
 
-                          <DeleteButton
-                            header={
-                              <>
-                                Êtes vous sûr de vouloir supprimer le fichier{" "}
-                                <Text
-                                  display="inline"
-                                  color="red"
-                                  fontWeight="bold"
-                                >
-                                  {fileName}
-                                </Text>{" "}
-                                ?
-                              </>
+                      <Td p="0 8px 0 0" textAlign="right" whiteSpace="nowrap">
+                        <LinkShare
+                          label="Copier l'adresse du lien"
+                          url={url}
+                          colorScheme="blue"
+                          mr={2}
+                          variant="outline"
+                          tooltipProps={{ placement: "bottom" }}
+                        />
+
+                        <DeleteButton
+                          header={
+                            <>
+                              Êtes vous sûr de vouloir supprimer le fichier{" "}
+                              <Text
+                                display="inline"
+                                color="red"
+                                fontWeight="bold"
+                              >
+                                {fileName}
+                              </Text>{" "}
+                              ?
+                            </>
+                          }
+                          isIconOnly
+                          isSmall={false}
+                          placement="bottom"
+                          variant="outline"
+                          onClick={async () => {
+                            let payload: {
+                              fileName: string;
+                              orgId?: string;
+                              userId?: string;
+                            } = {
+                              fileName
+                            };
+
+                            if (org) payload.orgId = org._id;
+                            else if (user) payload.userId = user._id;
+
+                            try {
+                              await api.remove(
+                                process.env.NEXT_PUBLIC_API2,
+                                payload
+                              );
+                              toast({
+                                title: `Le document ${fileName} a été supprimé !`,
+                                status: "success"
+                              });
+                              query.refetch();
+                            } catch (error) {
+                              console.error(error);
+                              toast({
+                                title: `Le document ${fileName} n'a pas pu être supprimé.`,
+                                status: "error"
+                              });
                             }
-                            isIconOnly
-                            isSmall={false}
-                            placement="bottom"
-                            variant="outline"
-                            onClick={async () => {
-                              let payload: {
-                                fileName: string;
-                                orgId?: string;
-                                userId?: string;
-                              } = {
-                                fileName
-                              };
-
-                              if (org) payload.orgId = org._id;
-                              else if (user) payload.userId = user._id;
-
-                              try {
-                                await api.remove(
-                                  process.env.NEXT_PUBLIC_API2,
-                                  payload
-                                );
-                                toast({
-                                  title: `Le document ${fileName} a été supprimé !`,
-                                  status: "success"
-                                });
-                                query.refetch();
-                              } catch (error) {
-                                console.error(error);
-                                toast({
-                                  title: `Le document ${fileName} n'a pas pu être supprimé.`,
-                                  status: "error"
-                                });
-                              }
-                            }}
-                          />
-                        </Td>
-                      </Tr>
-                    );
-                  })
-                ) : (
-                  <Alert status="warning">
-                    <AlertIcon />
-                    Aucun documents.
-                  </Alert>
-                )}
-              </Tbody>
-            </Table>
-          </Column>
-        )
+                          }}
+                        />
+                      </Td>
+                    </Tr>
+                  );
+                })
+              ) : (
+                <Alert status="warning">
+                  <AlertIcon />
+                  Aucun documents.
+                </Alert>
+              )}
+            </Tbody>
+          </Table>
+        </Column>
+      ) : (
+        <Alert status="warning">
+          <AlertIcon />
+          Aucun documents.
+        </Alert>
       )}
     </>
   );

@@ -71,9 +71,7 @@ export const Nav = ({
     borderWidth: 1,
     mr: isMobile ? 2 : undefined,
     ml: isMobile ? undefined : 3,
-    css: css`
-      padding: ${isMobile ? "0" : "2px 0px 3px 0px"};
-    `
+    pt: 0.5
   };
 
   return (
@@ -90,30 +88,32 @@ export const Nav = ({
           {!isMobile && (
             <Tbody role="rowgroup">
               <Tr role="rowheader">
-                <Td border={0} lineHeight="auto" p={0}>
+                <Td border={0} p={0}>
                   <Heading>
                     {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
                   </Heading>
                 </Td>
-                <Td border={0} lineHeight="auto" p={0}>
-                  <Heading>{session ? "Mon espace" : "Se connecter"}</Heading>
+                <Td border={0} p={0}>
+                  <Heading ml="auto">
+                    {session ? "Mon espace" : "Se connecter"}
+                  </Heading>
                 </Td>
               </Tr>
               <Tr role="row">
-                <Td border={0} p={0}>
-                  <Box
-                    css={css`
-                      button {
-                        background: ${isDark ? "#1A202C" : "lightcyan"};
-                        margin-right: 12px;
-                        border-radius: 9999px;
-                      }
-                    `}
-                  >
-                    <NavButtonsList />
-                  </Box>
+                <Td
+                  border={0}
+                  css={css`
+                    button {
+                      background: ${isDark ? "#1A202C" : "lightcyan"};
+                      margin-right: 12px;
+                      border-radius: 9999px;
+                    }
+                  `}
+                  p="28px 0 0 0"
+                >
+                  <NavButtonsList isMobile={false} />
                 </Td>
-                <Td border={0} p={0}>
+                <Td border={0} p="8px 0 0 0">
                   <Flex alignItems="center">
                     {session && (
                       <Flex
@@ -123,6 +123,7 @@ export const Nav = ({
                         borderRadius={9999}
                         borderStyle="solid"
                         borderWidth={1}
+                        ml="auto"
                         css={css`
                           padding: 3px 0px 3px 0px;
                         `}
@@ -242,7 +243,7 @@ export const Nav = ({
                           </Heading>
                         </DrawerHeader>
                         <DrawerBody>
-                          <NavButtonsList direction="column" />
+                          <NavButtonsList direction="column" isMobile />
                         </DrawerBody>
                       </DrawerContent>
                     </Drawer>

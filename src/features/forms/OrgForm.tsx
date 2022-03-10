@@ -18,7 +18,7 @@ import { Session } from "next-auth";
 import React, { useState, useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import ReactSelect from "react-select";
-import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
+import { Suggestion } from "use-places-autocomplete";
 import {
   AddressControl,
   EmailControl,
@@ -56,22 +56,23 @@ import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { capitalize, normalize } from "utils/string";
+import { AppQuery } from "utils/types";
 
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 })(
   ({
     session,
-    org,
+    orgQuery,
     setIsTouched,
     ...props
   }: {
     session: Session | null;
-    org?: IOrg;
+    orgQuery: AppQuery<IOrg>;
     orgType?: string;
     setIsTouched?: React.Dispatch<React.SetStateAction<boolean>>;
     setOrgType?: (orgType: string) => void;
-    onCancel: () => void;
+    onCancel?: () => void;
     onSubmit?: (orgUrl: string) => void;
   }) => {
     const { colorMode } = useColorMode();
@@ -80,6 +81,7 @@ export const OrgForm = withGoogleApi({
     const dispatch = useAppDispatch();
     const [addOrg] = useAddOrgMutation();
     const [editOrg] = useEditOrgMutation();
+    const org = orgQuery.data;
     const orgsQuery = useGetOrgsQuery();
     const { data: myOrgs } = useGetOrgsQuery(
       {
@@ -221,6 +223,7 @@ export const OrgForm = withGoogleApi({
             }).unwrap();
 
           await editOrg({ payload, orgUrl: org.orgUrl }).unwrap();
+          orgQuery.refetch();
 
           toast({
             title: `La modification a été effectuée !`,
@@ -229,14 +232,14 @@ export const OrgForm = withGoogleApi({
         } else {
           const org = await addOrg(payload).unwrap();
           orgUrl = org.orgUrl;
+          dispatch(refetchOrgs());
 
           toast({
-            title: `${capitalize(orgTypeFull5(orgType))} a été ajoutée !`,
+            title: `Vous allez être redirigé vers ${org.orgName}...`,
             status: "success"
           });
         }
 
-        dispatch(refetchOrgs());
         setIsLoading(false);
         props.onSubmit && props.onSubmit(orgUrl as string);
       } catch (error) {
@@ -366,10 +369,10 @@ export const OrgForm = withGoogleApi({
             render={(renderProps) => {
               return (
                 <RTEditor
-                  org={org}
-                  session={session}
                   defaultValue={org?.orgDescription}
+                  org={org}
                   placeholder={`Écrire la description ${orgTypeLabel}`}
+                  session={session}
                   onBlur={(html) => {
                     renderProps.onChange(html);
                     if (!org && !html) return;
@@ -498,7 +501,11 @@ export const OrgForm = withGoogleApi({
         />
 
         <Flex justifyContent="space-between">
-          <Button onClick={props.onCancel}>Annuler</Button>
+          {props.onCancel && (
+            <Button colorScheme="red" onClick={props.onCancel}>
+              Annuler
+            </Button>
+          )}
 
           <Button
             colorScheme="green"

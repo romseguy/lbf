@@ -210,9 +210,9 @@ export const TopicForm = ({
                   value={renderProps.value}
                   onChange={renderProps.onChange}
                   options={
-                    org.orgTopicCategories.map(({ label }) => ({
+                    org.orgTopicCategories.map(({ catId: value, label }) => ({
                       label,
-                      value: label
+                      value
                     })) || []
                   }
                   allowCreateWhileLoading
@@ -391,9 +391,11 @@ export const TopicForm = ({
       )}
 
       <Flex justifyContent="space-between">
-        <Button onClick={() => props.onCancel && props.onCancel()}>
-          Annuler
-        </Button>
+        {props.onCancel && (
+          <Button colorScheme="red" onClick={props.onCancel}>
+            Annuler
+          </Button>
+        )}
 
         <Button
           colorScheme="green"

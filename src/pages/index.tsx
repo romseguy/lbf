@@ -38,6 +38,11 @@ let cachedUserEmail: string | undefined;
 const IndexPage = (props: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const columnProps = {
+    maxWidth: "4xl",
+    m: "0 auto",
+    mb: 3
+  };
   const router = useRouter();
   const userEmail = useSelector(selectUserEmail);
 
@@ -104,7 +109,7 @@ const IndexPage = (props: PageProps) => {
 
   return (
     <Layout {...props} pageTitle="Accueil">
-      <Column mb={3}>
+      <Column {...columnProps}>
         <Text>
           Bienvenue sur l'outil de gestion en{" "}
           <Link variant="underline" onClick={openNetworksModal}>
@@ -133,7 +138,7 @@ const IndexPage = (props: PageProps) => {
         <Text>Bonne découverte !</Text>
       </Column>
 
-      <Column mb={3}>
+      <Column {...columnProps}>
         <Flex mb={3}>
           <Heading>Informations supplémentaires</Heading>
         </Flex>
@@ -160,7 +165,7 @@ const IndexPage = (props: PageProps) => {
         </Button> */}
       </Column>
 
-      <Column>
+      <Column {...columnProps}>
         <Flex>
           <Heading mb={3}>Naviguer dans les organisations</Heading>
         </Flex>
@@ -201,7 +206,7 @@ const IndexPage = (props: PageProps) => {
             </Button>
 
             {isListOpen && (
-              <Column m={undefined} bg={isDark ? "black" : "white"}>
+              <Column bg={isDark ? "black" : "white"}>
                 <OrgsList query={orgsQuery} subQuery={subQuery} />
               </Column>
             )}

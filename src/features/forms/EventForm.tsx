@@ -62,7 +62,7 @@ import {
   useEditEventMutation
 } from "features/events/eventsApi";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
-import { useGetOrgsQuery } from "features/orgs/orgsApi";
+import { useGetOrgQuery, useGetOrgsQuery } from "features/orgs/orgsApi";
 import {
   IEvent,
   monthRepeatOptions,
@@ -96,13 +96,13 @@ export const EventForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 })(
   ({
-    initialEventOrgs = [],
+    orgId,
     setIsTouched,
     ...props
   }: {
     session: Session;
     event?: IEvent;
-    initialEventOrgs?: IOrg[];
+    orgId?: string;
     setIsTouched?: React.Dispatch<React.SetStateAction<boolean>>;
     onCancel?: () => void;
     onSubmit?: (eventUrl: string) => void;
@@ -113,7 +113,7 @@ export const EventForm = withGoogleApi({
     const now = new Date();
     const [addEvent, addEventMutation] = useAddEventMutation();
     const [editEvent, editEventMutation] = useEditEventMutation();
-    const org = initialEventOrgs[0] || props.event?.eventOrgs[0];
+
     const { data: myOrgs } = useGetOrgsQuery({
       createdBy: props.session.user.userId
     });
@@ -130,6 +130,7 @@ export const EventForm = withGoogleApi({
       getValues
     }: { [key: string]: any } = useForm({
       defaultValues: {
+        eventOrgs: props.event ? props.event.eventOrgs : [],
         eventAddress: props.event?.eventAddress,
         eventEmail: props.event?.eventEmail,
         eventPhone: props.event?.eventPhone,
@@ -139,22 +140,26 @@ export const EventForm = withGoogleApi({
     });
 
     const eventVisibility = watch("eventVisibility");
-    const defaultEventOrgs =
-      props.event && hasItems(props.event.eventOrgs)
-        ? props.event.eventOrgs
-        : initialEventOrgs;
-    const eventOrgs: IOrg[] = watch("eventOrgs") || defaultEventOrgs;
+    const eventOrgs: IOrg[] = watch("eventOrgs");
     const eventAddress = watch("eventAddress");
     const eventEmail = watch("eventEmail");
     const eventPhone = watch("eventPhone");
     const eventWeb = watch("eventWeb");
 
+    const { data: org } = useGetOrgQuery({ orgUrl: orgId || "" });
     useEffect(() => {
-      if (hasItems(eventOrgs)) {
-        if (eventOrgs[0].orgAddress[0])
-          setValue("eventAddress", eventOrgs[0].orgAddress[0].address);
-      } else {
-        setValue("eventAddress", []);
+      if (org) setValue("eventOrgs", [org]);
+    }, [org]);
+
+    useEffect(() => {
+      if (!hasItems(eventAddress)) {
+        if (hasItems(eventOrgs)) {
+          if (eventOrgs[0].orgAddress[0]) {
+            setValue("eventAddress", eventOrgs[0].orgAddress);
+          }
+        } else {
+          setValue("eventAddress", []);
+        }
       }
     }, [eventOrgs]);
 
@@ -329,7 +334,7 @@ export const EventForm = withGoogleApi({
           eventUrl = event.eventUrl;
 
           toast({
-            title: "L'événement a été ajouté !",
+            title: `Vous allez être redirigé vers ${event.eventName}...`,
             status: "success"
           });
         }
@@ -349,7 +354,7 @@ export const EventForm = withGoogleApi({
     //#endregion
 
     //#region event
-    let categories = getOrgEventCategories(org);
+    const categories = getOrgEventCategories(eventOrgs[0]);
     const [isRepeat, setIsRepeat] = useState(
       !!props.event?.repeat || hasItems(props.event?.otherDays)
     );
@@ -976,10 +981,10 @@ export const EventForm = withGoogleApi({
             render={(renderProps) => {
               return (
                 <RTEditor
-                  event={props.event}
-                  session={props.session}
                   defaultValue={props.event?.eventDescription}
+                  event={props.event}
                   placeholder="Description de l'événement"
+                  session={props.session}
                   onBlur={(html) => {
                     renderProps.onChange(html);
                     if (!props.event && !html) return;
@@ -1048,7 +1053,7 @@ export const EventForm = withGoogleApi({
             rules={eventOrgsRules}
             as={ReactSelect}
             control={control}
-            defaultValue={defaultEventOrgs}
+            //defaultValue={defaultEventOrgs}
             closeMenuOnSelect
             isClearable
             isMulti
@@ -1141,9 +1146,11 @@ export const EventForm = withGoogleApi({
         />
 
         <Flex justifyContent="space-between">
-          <Button onClick={() => props.onCancel && props.onCancel()}>
-            Annuler
-          </Button>
+          {props.onCancel && (
+            <Button colorScheme="red" onClick={props.onCancel}>
+              Annuler
+            </Button>
+          )}
 
           <Button
             colorScheme="green"

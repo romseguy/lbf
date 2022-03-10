@@ -77,8 +77,30 @@ export const OrgConfigPanel = ({
 
   return (
     <>
+      {isEdit && (
+        <Column>
+          <OrgForm
+            session={session}
+            orgQuery={orgQuery as AppQuery<IOrg>}
+            onCancel={() => {
+              setIsEdit(false);
+              setIsConfig(true);
+            }}
+            onSubmit={async (orgUrl: string) => {
+              if (orgUrl !== org.orgUrl) {
+                await router.push(`/${orgUrl}`, `/${orgUrl}`, {
+                  shallow: true
+                });
+              } else {
+                setIsEdit(false);
+              }
+            }}
+          />
+        </Column>
+      )}
+
       <Box mb={3}>
-        {isConfig && !isEdit && (
+        {!isEdit && (
           <>
             <Button
               colorScheme="teal"
@@ -145,65 +167,43 @@ export const OrgConfigPanel = ({
         )}
       </Box>
 
-      {isEdit && (
-        <Column m={undefined}>
-          <OrgForm
-            session={session}
-            org={org}
-            onCancel={() => {
-              setIsEdit(false);
-              setIsConfig(true);
-            }}
-            onSubmit={async (orgUrl: string) => {
-              if (orgUrl !== org.orgUrl)
-                await router.push(`/${orgUrl}`, `/${orgUrl}`, {
-                  shallow: true
-                });
-              else {
-                orgQuery.refetch();
-                setIsEdit(false);
-              }
-            }}
-          />
-        </Column>
-      )}
+      {!isEdit && (
+        <>
+          <Column mb={3} pt={1}>
+            <Heading mb={1}>Gestion des membres</Heading>
+            <OrgConfigSubscribersPanel
+              orgQuery={orgQuery}
+              subQuery={subQuery}
+              isVisible={isVisible}
+              setIsVisible={setIsVisible}
+              mb={3}
+            />
 
-      {isConfig && !isEdit && (
-        <Column m="">
-          <Heading mb={1}>Gestion des membres</Heading>
-          <OrgConfigSubscribersPanel
-            orgQuery={orgQuery}
-            subQuery={subQuery}
-            isVisible={isVisible}
-            setIsVisible={setIsVisible}
-            mb={3}
-          />
+            <OrgConfigListsPanel
+              orgQuery={orgQuery}
+              isVisible={isVisible}
+              setIsVisible={setIsVisible}
+            />
+          </Column>
 
-          <OrgConfigListsPanel
-            orgQuery={orgQuery}
-            isVisible={isVisible}
-            setIsVisible={setIsVisible}
-          />
+          <Column pt={1}>
+            <Heading>Apparence</Heading>
 
-          <Heading mb={1} mt={3}>
-            Apparence
-          </Heading>
+            <EntityConfigStyles query={orgQuery} mt={3} mb={2} />
 
-          <EntityConfigStyles query={orgQuery} my={3} />
-
-          <EntityConfigLogoPanel
-            query={orgQuery}
-            isVisible={isVisible}
-            setIsVisible={setIsVisible}
-            mb={3}
-          />
-          <EntityConfigBannerPanel
-            query={orgQuery}
-            isVisible={isVisible}
-            setIsVisible={setIsVisible}
-            mb={3}
-          />
-        </Column>
+            <EntityConfigLogoPanel
+              query={orgQuery}
+              isVisible={isVisible}
+              setIsVisible={setIsVisible}
+              mb={3}
+            />
+            <EntityConfigBannerPanel
+              query={orgQuery}
+              isVisible={isVisible}
+              setIsVisible={setIsVisible}
+            />
+          </Column>
+        </>
       )}
     </>
   );

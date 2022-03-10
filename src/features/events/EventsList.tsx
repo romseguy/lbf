@@ -48,6 +48,7 @@ import { EventsListDistanceSelect } from "./EventsListDistance";
 import { EventsListItem } from "./EventsListItem";
 import { EventsListToggle } from "./EventsListToggle";
 import { ESubscriptionType } from "models/Subscription";
+import { EventsListHeader } from "./EventsListHeader";
 
 export const EventsList = ({
   events,
@@ -233,7 +234,7 @@ export const EventsList = ({
           // setIsLogin={setIsLogin}
         />
 
-        <Flex alignItems="center" mb={5}>
+        <Flex alignItems="center" flexWrap="wrap" mb={5} mt={-3}>
           {!showLocationButton ? (
             <Button
               colorScheme="purple"
@@ -241,6 +242,7 @@ export const EventsList = ({
               isDisabled={!events.length}
               leftIcon={<FaMapMarkerAlt />}
               mr={3}
+              mt={3}
               size="sm"
               onClick={() => {
                 setShowLocationButton(!showLocationButton);
@@ -253,6 +255,7 @@ export const EventsList = ({
               colorScheme="purple"
               color={isDark ? "black" : "white"}
               mr={3}
+              mt={3}
               size="sm"
               city={city}
               setCity={setCity}
@@ -276,6 +279,7 @@ export const EventsList = ({
             borderRadius="md"
             isDisabled={!events.length}
             size="sm"
+            mt={3}
           />
         </Flex>
 
@@ -302,45 +306,38 @@ export const EventsList = ({
                     getDayOfYear(currentDateP) < getDayOfYear(minDate);
                   currentDateP = minDate;
 
-                  return [
-                    <Tr key={`eventsList-header-${index}`}>
-                      <Td border={0} colSpan={3} p={0}>
-                        {addGridHeader ? (
-                          <GridHeader
-                            borderTopRadius={index === 0 ? "lg" : undefined}
-                          >
-                            <Heading size="sm" py={3}>
-                              {format(minDate, "cccc d MMMM", {
-                                locale: fr
-                              })}
-                            </Heading>
-                          </GridHeader>
-                        ) : (
-                          <GridItem></GridItem>
-                        )}
-                      </Td>
-                    </Tr>,
+                  return (
+                    <React.Fragment>
+                      {addGridHeader && (
+                        <EventsListHeader
+                          key={`eventsList-header-${index}`}
+                          borderTopRadius={index === 0 ? "lg" : undefined}
+                          bg={isDark ? "gray.800" : "orange.200"}
+                          minDate={minDate}
+                        />
+                      )}
 
-                    <Tr
-                      key={`eventsList-item-${index}`}
-                      bg={
-                        isDark
-                          ? index % 2 === 0
-                            ? "gray.600"
-                            : "gray.500"
-                          : index % 2 === 0
-                          ? "orange.100"
-                          : "orange.50"
-                      }
-                    >
-                      <EventsListItem
-                        {...eventsListItemProps}
-                        event={event}
-                        index={index}
-                        length={previousEvents.length}
-                      />
-                    </Tr>
-                  ];
+                      <Tr
+                        key={`eventsList-item-${index}`}
+                        bg={
+                          isDark
+                            ? index % 2 === 0
+                              ? "gray.600"
+                              : "gray.500"
+                            : index % 2 === 0
+                            ? "orange.100"
+                            : "orange.50"
+                        }
+                      >
+                        <EventsListItem
+                          {...eventsListItemProps}
+                          event={event}
+                          index={index}
+                          length={previousEvents.length}
+                        />
+                      </Tr>
+                    </React.Fragment>
+                  );
                 })}
             </Tbody>
           </Table>
@@ -363,47 +360,38 @@ export const EventsList = ({
                           getDayOfYear(currentDate) < getDayOfYear(minDate);
                         currentDate = minDate;
 
-                        return [
-                          <Tr key={`eventsList-header-${index}`}>
-                            <Td border={0} colSpan={3} p={0}>
-                              {addGridHeader ? (
-                                <GridHeader
-                                  borderTopRadius={
-                                    index === 0 ? "lg" : undefined
-                                  }
-                                >
-                                  <Heading size="sm" py={3}>
-                                    {format(minDate, "cccc d MMMM", {
-                                      locale: fr
-                                    })}
-                                  </Heading>
-                                </GridHeader>
-                              ) : (
-                                <GridItem></GridItem>
-                              )}
-                            </Td>
-                          </Tr>,
+                        return (
+                          <React.Fragment>
+                            {addGridHeader && (
+                              <EventsListHeader
+                                key={`eventsList-header-${index}`}
+                                borderTopRadius={index === 0 ? "lg" : undefined}
+                                bg={isDark ? "gray.800" : "orange.100"}
+                                minDate={minDate}
+                              />
+                            )}
 
-                          <Tr
-                            key={`eventsList-item-${index}`}
-                            bg={
-                              isDark
-                                ? index % 2 === 0
-                                  ? "gray.600"
-                                  : "gray.500"
-                                : index % 2 === 0
-                                ? "orange.100"
-                                : "orange.50"
-                            }
-                          >
-                            <EventsListItem
-                              {...eventsListItemProps}
-                              event={event}
-                              index={index}
-                              length={currentEvents.length}
-                            />
-                          </Tr>
-                        ];
+                            <Tr
+                              key={`eventsList-item-${index}`}
+                              bg={
+                                isDark
+                                  ? index % 2 === 0
+                                    ? "gray.600"
+                                    : "gray.500"
+                                  : index % 2 === 0
+                                  ? "orange.100"
+                                  : "orange.50"
+                              }
+                            >
+                              <EventsListItem
+                                {...eventsListItemProps}
+                                event={event}
+                                index={index}
+                                length={currentEvents.length}
+                              />
+                            </Tr>
+                          </React.Fragment>
+                        );
                       })}
                   </Tbody>
                 </Table>
@@ -460,48 +448,36 @@ export const EventsList = ({
                     getDayOfYear(currentDateN) < getDayOfYear(minDate);
                   currentDateN = minDate;
 
-                  return [
-                    <Tr key={`eventsList-header-${index}`}>
-                      <Td colSpan={3} p={0}>
-                        {addGridHeader ? (
-                          <GridHeader
-                            colSpan={3}
-                            borderTopRadius={index === 0 ? "lg" : undefined}
-                          >
-                            <Heading size="sm" py={3}>
-                              {format(minDate, "cccc d MMMM", {
-                                locale: fr
-                              })}
-                            </Heading>
-                          </GridHeader>
-                        ) : (
-                          <GridItem>
-                            <Spacer borderWidth={1} />
-                          </GridItem>
-                        )}
-                      </Td>
-                    </Tr>,
-
-                    <Tr
-                      key={`eventsList-item-${index}`}
-                      bg={
-                        isDark
-                          ? index % 2 === 0
-                            ? "gray.600"
-                            : "gray.500"
-                          : index % 2 === 0
-                          ? "orange.100"
-                          : "orange.50"
-                      }
-                    >
-                      <EventsListItem
-                        {...eventsListItemProps}
-                        event={event}
-                        index={index}
-                        length={nextEvents.length}
+                  return (
+                    <React.Fragment>
+                      <EventsListHeader
+                        key={`eventsList-header-${index}`}
+                        borderTopRadius={index === 0 ? "lg" : undefined}
+                        bg={isDark ? "gray.800" : "orange.100"}
+                        minDate={minDate}
                       />
-                    </Tr>
-                  ];
+
+                      <Tr
+                        key={`eventsList-item-${index}`}
+                        bg={
+                          isDark
+                            ? index % 2 === 0
+                              ? "gray.600"
+                              : "gray.500"
+                            : index % 2 === 0
+                            ? "orange.100"
+                            : "orange.50"
+                        }
+                      >
+                        <EventsListItem
+                          {...eventsListItemProps}
+                          event={event}
+                          index={index}
+                          length={nextEvents.length}
+                        />
+                      </Tr>
+                    </React.Fragment>
+                  );
                 })}
             </Tbody>
           </Table>
@@ -541,25 +517,30 @@ export const EventsList = ({
   return (
     <>
       {org && (
-        <>
+        <Flex>
           <Button
             colorScheme="teal"
             leftIcon={<AddIcon />}
             mb={5}
             onClick={() => {
+              let url = "/evenements/ajouter";
+
               if (!isSessionLoading) {
                 if (session) {
                   if (org) {
-                    if (isCreator || isSubscribed)
-                      setIsEventFormModalOpen(true);
-                    else
+                    if (isCreator || isSubscribed) {
+                      url = `/evenements/ajouter?orgId=${org._id}`;
+                      router.push(url, url, { shallow: true });
+                    } else
                       toast({
                         status: "error",
                         title: `Vous devez être adhérent ${orgTypeFull(
                           org.orgType
                         )} pour ajouter un événement`
                       });
-                  } else setIsEventFormModalOpen(true);
+                  } else {
+                    router.push(url, url, { shallow: true });
+                  }
                 } else setIsLogin(isLogin + 1);
               }
             }}
@@ -568,7 +549,7 @@ export const EventsList = ({
             Ajouter un événement
           </Button>
 
-          {session && isEventFormModalOpen && (
+          {/* {session && isEventFormModalOpen && (
             <EventFormModal
               initialEventOrgs={[org]}
               session={session}
@@ -583,8 +564,8 @@ export const EventsList = ({
                 });
               }}
             />
-          )}
-        </>
+          )} */}
+        </Flex>
       )}
 
       {eventsList}

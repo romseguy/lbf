@@ -97,7 +97,9 @@ export const EventCategoryForm = ({
       />
 
       <Flex justifyContent="space-between">
-        <Button onClick={onCancel}>Annuler</Button>
+        <Button colorScheme="red" onClick={onCancel}>
+          Annuler
+        </Button>
         <Button colorScheme="green" isLoading={isLoading} type="submit">
           Ajouter
         </Button>

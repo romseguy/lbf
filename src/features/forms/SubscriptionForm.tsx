@@ -293,7 +293,7 @@ export const SubscriptionForm = ({
       />
 
       <Flex>
-        <Button onClick={onCancel} mr={3}>
+        <Button colorScheme="red" onClick={onCancel} mr={3}>
           Annuler
         </Button>
         <Button

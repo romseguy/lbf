@@ -1,5 +1,6 @@
 import {
   Flex,
+  FlexProps,
   Heading as ChakraHeading,
   HeadingProps,
   useColorMode
@@ -7,21 +8,29 @@ import {
 
 export const Heading = ({
   children,
+  containerProps,
+  noContainer = false,
   ...props
-}: HeadingProps & { children: React.ReactNode }) => {
+}: HeadingProps & {
+  children: React.ReactNode;
+  containerProps?: FlexProps;
+  noContainer?: boolean;
+}) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  return (
-    <Flex>
-      <ChakraHeading
-        className={`rainbow-text ${isDark ? "dark" : ""}`}
-        fontFamily="DancingScript"
-        fontSize={["2xl", "4xl"]}
-        pl={1}
-        {...props}
-      >
-        {children}
-      </ChakraHeading>
-    </Flex>
+  const element = (
+    <ChakraHeading
+      className={`rainbow-text ${isDark ? "dark" : ""}`}
+      fontFamily="DancingScript"
+      fontSize={["2xl", "4xl"]}
+      pl={1}
+      {...props}
+    >
+      {children}
+    </ChakraHeading>
   );
+
+  if (noContainer) return element;
+
+  return <Flex>{element}</Flex>;
 };
