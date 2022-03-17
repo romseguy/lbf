@@ -41,7 +41,7 @@ export const UrlControl = ({
 }: SpaceProps & {
   label?: string;
   defaultValue?: string;
-  errors: { [key: string]: string };
+  errors: any;
   name: string;
   control: any;
   register: any;

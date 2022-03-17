@@ -1,7 +1,7 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { api } from "api";
 import { IEvent } from "models/Event";
 import { IEventNotification } from "models/INotification";
-import baseQuery, { objectToQueryString } from "utils/query";
+import { objectToQueryString } from "utils/query";
 
 export type AddEventPayload = Omit<IEvent, "_id" | "createdBy">;
 
@@ -18,10 +18,7 @@ export interface GetEventParams {
   populate?: string;
 }
 
-export const eventApi = createApi({
-  reducerPath: "eventsApi",
-  baseQuery,
-  tagTypes: ["Events"],
+export const eventApi = api.injectEndpoints({
   endpoints: (build) => ({
     addEvent: build.mutation<IEvent, AddEventPayload>({
       query: (payload) => {
@@ -35,33 +32,58 @@ export const eventApi = createApi({
           body: payload
         };
       },
-      invalidatesTags: [{ type: "Events", id: "LIST" }]
+      invalidatesTags: (result, error, params) =>
+        result
+          ? [
+              ...result.eventOrgs.map((org) => ({
+                type: "Orgs" as const,
+                id: org._id
+              })),
+              { type: "Events", id: "LIST" }
+            ]
+          : [{ type: "Events", id: "LIST" }]
     }),
     addEventNotif: build.mutation<
       { notifications: IEventNotification[] },
       {
         payload: AddEventNotifPayload;
-        eventUrl: string;
+        eventId: string;
       }
     >({
-      query: ({ payload, eventUrl }) => {
+      query: ({ payload, eventId }) => {
         console.groupCollapsed("addEventNotif");
-        console.log("addEventNotif: eventUrl", eventUrl);
+        console.log("addEventNotif: eventId", eventId);
         console.log("addEventNotif: payload", payload);
         console.groupEnd();
 
         return {
-          url: `event/${eventUrl}`,
+          url: `event/${eventId}`,
           method: "POST",
           body: payload
         };
-      }
+      },
+      invalidatesTags: (result, error, params) => [
+        { type: "Events", id: params.eventId }
+      ]
     }),
     deleteEvent: build.mutation<IEvent, { eventId: string }>({
-      query: ({ eventId }) => ({ url: `event/${eventId}`, method: "DELETE" })
+      query: ({ eventId }) => ({ url: `event/${eventId}`, method: "DELETE" }),
+      invalidatesTags: (result, error, params) =>
+        result
+          ? [
+              ...result.eventOrgs.map((org) => ({
+                type: "Orgs" as const,
+                id: org._id
+              })),
+              { type: "Events", id: "LIST" }
+            ]
+          : [
+              { type: "Orgs", id: "LIST" },
+              { type: "Events", id: "LIST" }
+            ]
     }),
     editEvent: build.mutation<
-      {},
+      IEvent,
       { payload: EditEventPayload; eventId?: string }
     >({
       query: ({ payload, eventId }) => {
@@ -81,7 +103,17 @@ export const eventApi = createApi({
           method: "PUT",
           body: payload
         };
-      }
+      },
+      invalidatesTags: (result, error, params) =>
+        result
+          ? [
+              ...result.eventOrgs.map((org) => ({
+                type: "Orgs" as const,
+                id: org._id
+              })),
+              { type: "Events", id: params.eventId }
+            ]
+          : [{ type: "Events", id: params.eventId }]
     }),
     getEvent: build.query<IEvent, GetEventParams>({
       query: ({ eventUrl, email, populate }) => {
@@ -98,7 +130,10 @@ export const eventApi = createApi({
             ? `event/${eventUrl}?populate=${populate}`
             : `event/${eventUrl}`
         };
-      }
+      },
+      providesTags: (result, error, params) => [
+        { type: "Events" as const, id: result?._id }
+      ]
     }),
     getEvents: build.query<IEvent[], { createdBy: string } | void>({
       query: (query) => {
@@ -111,7 +146,17 @@ export const eventApi = createApi({
         return {
           url: `events${query ? `?${objectToQueryString(query)}` : ""}`
         };
-      }
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ _id }) => ({
+                type: "Events" as const,
+                id: _id
+              })),
+              { type: "Events", id: "LIST" }
+            ]
+          : [{ type: "Events", id: "LIST" }]
     })
   })
 });

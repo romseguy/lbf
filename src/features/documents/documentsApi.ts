@@ -1,28 +1,24 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import baseQuery from "utils/query";
+import { api } from "api";
+import { objectToQueryString } from "utils/query";
 
-export const documentApi = createApi({
-  reducerPath: "documentsApi",
-  baseQuery,
-  tagTypes: ["Documents"],
+export const documentApi = api.injectEndpoints({
   endpoints: (build) => ({
-    addDocument: build.mutation<any, any>({
-      query: (body) => ({
-        url: process.env.NEXT_PUBLIC_API2,
-        method: "POST",
-        body
-      })
-    }),
-    getDocuments: build.query<string[], { orgId?: string; userId?: string }>({
-      query: ({ orgId, userId }) => {
+    getDocuments: build.query<
+      string[],
+      { orgId: string } | { userId: string } | {}
+    >({
+      query: (query) => {
+        console.groupCollapsed("getDocuments");
+        if ("orgId" in query) console.log("orgId", query.orgId);
+        if ("userId" in query) console.log("userId", query.userId);
+        console.groupEnd();
+
         return {
-          url: `${process.env.NEXT_PUBLIC_API2}${
-            orgId ? `?orgId=${orgId}` : userId ? `?userId=${userId}` : ""
-          }`
+          url: `${process.env.NEXT_PUBLIC_API2}?${objectToQueryString(query)}`
         };
       }
     })
   })
 });
 
-export const { useAddDocumentMutation, useGetDocumentsQuery } = documentApi;
+export const { useGetDocumentsQuery } = documentApi;

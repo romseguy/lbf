@@ -31,32 +31,26 @@ export const TopicFormModal = (props: {
 }) => {
   return (
     <Modal {...props} closeOnOverlayClick={false}>
-      {(setIsTouched, onCancel) => (
-        <ModalOverlay>
-          <ModalContent maxWidth="xl">
-            <ModalHeader display="flex" alignItems="center">
-              {props.topic ? (
-                <>
-                  <EditIcon mr={3} /> Modifier la discussion
-                </>
-              ) : (
-                <>
-                  <AddIcon mr={3} />
-                  Ajouter une discussion
-                </>
-              )}
-            </ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <TopicForm
-                {...props}
-                setIsTouched={setIsTouched}
-                onCancel={onCancel}
-              />
-            </ModalBody>
-          </ModalContent>
-        </ModalOverlay>
-      )}
+      <ModalOverlay>
+        <ModalContent maxWidth="xl">
+          <ModalHeader display="flex" alignItems="center">
+            {props.topic ? (
+              <>
+                <EditIcon mr={3} /> Modifier la discussion
+              </>
+            ) : (
+              <>
+                <AddIcon mr={3} />
+                Ajouter une discussion
+              </>
+            )}
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <TopicForm {...props} />
+          </ModalBody>
+        </ModalContent>
+      </ModalOverlay>
     </Modal>
   );
 };

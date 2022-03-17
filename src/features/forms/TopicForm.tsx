@@ -30,20 +30,19 @@ import { defaultErrorMessage, normalize } from "utils/string";
 import { useEditEventMutation } from "features/events/eventsApi";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { isEvent } from "models/Entity";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 
 export const TopicForm = ({
   org,
   event,
   query,
   subQuery,
-  setIsTouched,
   ...props
 }: {
   org?: IOrg;
   event?: IEvent;
   query: AppQuery<IEvent | IOrg>;
   subQuery: AppQuery<ISubscription>;
-  setIsTouched: React.Dispatch<React.SetStateAction<boolean>>;
   topic?: ITopic;
   isCreator?: boolean;
   isFollowed?: boolean;
@@ -74,15 +73,16 @@ export const TopicForm = ({
     setError,
     clearErrors,
     setValue,
-    watch
+    watch,
+    formState
   } = useForm({
     mode: "onChange"
   });
+  useLeaveConfirm({ formState });
 
   const topicVisibility = watch("topicVisibility");
 
   const onChange = () => {
-    setIsTouched(true);
     clearErrors("formErrorMessage");
   };
 
@@ -266,7 +266,6 @@ export const TopicForm = ({
                           ]
                         }
                       }).unwrap();
-                      query.refetch();
                       //}
 
                       setValue("topicCategory", {
@@ -324,10 +323,8 @@ export const TopicForm = ({
               return (
                 <RTEditor
                   placeholder="Contenu de votre message"
-                  onBlur={(html) => {
+                  onChange={({ html }) => {
                     renderProps.onChange(html);
-                    if (!html) return;
-                    setIsTouched(true);
                   }}
                 />
               );

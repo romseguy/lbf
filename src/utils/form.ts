@@ -1,11 +1,11 @@
 export const onCancelWithConfirm = ({
-  isTouched,
+  isDirty,
   onCancel
 }: {
-  isTouched: boolean;
+  isDirty: boolean;
   onCancel: () => void;
 }) => {
-  if (isTouched) {
+  if (isDirty) {
     const confirmed = confirm(
       "Le formulaire a été modifié, êtes-vous sûr de vouloir annuler ?"
     );
@@ -16,13 +16,13 @@ export const onCancelWithConfirm = ({
 };
 
 export const onCloseWithConfirm = ({
-  isTouched,
+  isDirty,
   onClose
 }: {
-  isTouched: boolean;
+  isDirty: boolean;
   onClose: () => void;
 }) => {
-  if (isTouched) {
+  if (isDirty) {
     const confirmed = confirm(
       "Le formulaire a été modifié, êtes-vous sûr de vouloir annuler ?"
     );

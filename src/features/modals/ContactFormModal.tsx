@@ -34,17 +34,15 @@ export const ContactFormModal = () => {
       isOpen={isOpen}
       onClose={onClose}
     >
-      {(setIsTouched, onCancel) => (
-        <ModalOverlay>
-          <ModalContent maxWidth="xl">
-            <ModalHeader>Formulaire de contact</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <ContactForm setIsTouched={setIsTouched} onClose={onClose} />
-            </ModalBody>
-          </ModalContent>
-        </ModalOverlay>
-      )}
+      <ModalOverlay>
+        <ModalContent maxWidth="xl">
+          <ModalHeader>Formulaire de contact</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <ContactForm onClose={onClose} />
+          </ModalBody>
+        </ModalContent>
+      </ModalOverlay>
     </Modal>
   );
 };

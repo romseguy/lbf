@@ -143,9 +143,11 @@ export const OrgPageTabs = ({
     >
       <EntityPageTabList>
         {tabs.map((tab, tabIndex) => {
+          const key = `org-${normalize(tab.label)}-tab`;
+
           return (
             <EntityPageTab
-              key={`org-${tab.label}-tab`}
+              key={key}
               currentTabIndex={currentTabIndex}
               icon={
                 defaultTabs.find(({ label }) => label === tab.label)?.icon ||
@@ -162,7 +164,7 @@ export const OrgPageTabs = ({
                   }
                 );
               }}
-              data-cy={`orgTab-${normalize(tab.label)}`}
+              data-cy={key}
             >
               {isMobile && tab.label === "" ? "Configuration" : tab.label}
             </EntityPageTab>
@@ -247,7 +249,6 @@ export const OrgPageTabs = ({
                                 orgId: org._id,
                                 payload: { orgTopics: [] }
                               }).unwrap();
-                              orgQuery.refetch();
                             }}
                           >
                             RAZ
@@ -264,7 +265,6 @@ export const OrgPageTabs = ({
               <Column {...columnProps}>
                 <EventsList
                   events={org.orgEvents}
-                  org={org}
                   orgQuery={orgQuery}
                   isCreator={isCreator}
                   isSubscribed={isSubscribed}
@@ -370,7 +370,6 @@ export const OrgPageTabs = ({
                           orgId: org._id,
                           payload: { orgTabs }
                         });
-                        orgQuery.refetch();
                       }}
                     />
                     <Input

@@ -6,37 +6,31 @@ import {
   Button,
   Flex,
   BoxProps,
-  Heading,
   Table,
   Tbody,
   Tr,
-  Td,
-  Text,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
-import { compareAsc, format, getDayOfYear } from "date-fns";
-import { fr } from "date-fns/locale";
+import { compareAsc, getDayOfYear } from "date-fns";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { LatLon } from "use-places-autocomplete";
-import { GridHeader, GridItem, Spacer, LocationButton } from "features/common";
+import { LocationButton } from "features/common";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
-import { refetchOrg } from "features/orgs/orgSlice";
 import {
   NotifModalState,
   EntityNotifModal
 } from "features/modals/EntityNotifModal";
 import { EntityModal } from "features/modals/EntityModal";
-import { EventFormModal } from "features/modals/EventFormModal";
 import { EventForwardFormModal } from "features/modals/EventForwardFormModal";
 import { MapModal } from "features/modals/MapModal";
 import { useSession } from "hooks/useAuth";
 import { getEvents, IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { useAppDispatch } from "store";
-import { AppQuery, AppQueryWithData } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 import {
   useDeleteEventMutation,
   useEditEventMutation,
@@ -52,7 +46,6 @@ import { EventsListHeader } from "./EventsListHeader";
 
 export const EventsList = ({
   events,
-  org,
   orgQuery,
   isCreator = false,
   isSubscribed,
@@ -61,7 +54,6 @@ export const EventsList = ({
   setTitle
 }: BoxProps & {
   events: IEvent[];
-  org?: IOrg;
   orgQuery?: AppQueryWithData<IOrg>;
   isCreator?: boolean;
   isSubscribed?: boolean;
@@ -74,7 +66,7 @@ export const EventsList = ({
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const dispatch = useAppDispatch();
+  const org = orgQuery?.data;
 
   //#region event
   const [deleteEvent] = useDeleteEventMutation();
@@ -164,7 +156,6 @@ export const EventsList = ({
   //#endregion
 
   //#region modal state
-  const [isEventFormModalOpen, setIsEventFormModalOpen] = useState(false);
   const [eventToShow, setEventToShow] = useState<IEvent | null>(null);
   const [eventToShowOnMap, setEventToShowOnMap] = useState<IEvent<
     string | Date
@@ -544,23 +535,6 @@ export const EventsList = ({
           >
             Ajouter un événement
           </Button>
-
-          {/* {session && isEventFormModalOpen && (
-            <EventFormModal
-              initialEventOrgs={[org]}
-              session={session}
-              onCancel={() => setIsEventFormModalOpen(false)}
-              onClose={() => setIsEventFormModalOpen(false)}
-              onSubmit={async (eventUrl) => {
-                if (org) {
-                  dispatch(refetchOrg());
-                }
-                await router.push(`/${eventUrl}`, `/${eventUrl}`, {
-                  shallow: true
-                });
-              }}
-            />
-          )} */}
         </Flex>
       )}
 

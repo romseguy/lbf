@@ -90,12 +90,11 @@ export const EventNotifForm = ({
 
     try {
       const { notifications } = await addEventNotif({
-        eventUrl: event.eventUrl,
+        eventId: event._id,
         payload
       }).unwrap();
 
       if (hasItems(notifications)) {
-        eventQuery.refetch();
         const s = notifications.length > 1 ? "s" : "";
 
         toast({

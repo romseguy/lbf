@@ -19,14 +19,9 @@ import {
 } from "features/common";
 import api from "utils/api";
 import { handleError } from "utils/form";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 
-export const ContactForm = ({
-  setIsTouched,
-  ...props
-}: {
-  setIsTouched?: React.Dispatch<React.SetStateAction<boolean>>;
-  onClose?: () => void;
-}) => {
+export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
   const router = useRouter();
 
   //#region local state
@@ -44,8 +39,11 @@ export const ContactForm = ({
     clearErrors,
     handleSubmit,
     setError,
-    setValue
+    setValue,
+    formState
   } = useForm();
+
+  useLeaveConfirm({ formState });
 
   const onClose = () => {
     clearErrors("formErrorMessage");
@@ -53,7 +51,6 @@ export const ContactForm = ({
   };
 
   const onChange = () => {
-    setIsTouched && setIsTouched(true);
     clearErrors("formErrorMessage");
   };
 
@@ -104,10 +101,6 @@ export const ContactForm = ({
             return (
               <RTEditor
                 placeholder="Écrire le message"
-                onBlur={(html) => {
-                  setIsTouched && setIsTouched(html !== "");
-                  renderProps.onChange(html);
-                }}
                 onChange={({ html }) => {
                   renderProps.onChange(html);
                 }}

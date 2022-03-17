@@ -21,8 +21,6 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { EntityButton } from "features/common";
-import { selectEventsRefetch } from "features/events/eventSlice";
-import { EventFormModal } from "features/modals/EventFormModal";
 import { useGetEventsQuery } from "features/events/eventsApi";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
@@ -30,7 +28,6 @@ import { selectUserEmail } from "features/users/userSlice";
 import { EEventInviteStatus } from "models/Event";
 import { hasItems } from "utils/array";
 
-let cachedRefetchEvents = false;
 let cachedRefetchSubscription = false;
 
 const EventPopoverContent = ({
@@ -82,25 +79,12 @@ const EventPopoverContent = ({
   //#endregion
 
   //#region local state
-  // const {
-  //   isOpen: isModalOpen,
-  //   onOpen: onModalOpen,
-  //   onClose: onModalClose
-  // } = useDisclosure();
   const [showEvents, setShowEvents] = useState<
     "showEventsAdded" | "showEventsFollowed" | "showEventsAttended"
   >("showEventsAdded");
   //#endregion
 
-  const refetchEvents = useSelector(selectEventsRefetch);
   const refetchSubscription = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    if (refetchEvents !== cachedRefetchEvents) {
-      cachedRefetchEvents = refetchEvents;
-      eventsQuery.refetch();
-      myEventsQuery.refetch();
-    }
-  }, [refetchEvents]);
   useEffect(() => {
     if (refetchSubscription !== cachedRefetchSubscription) {
       cachedRefetchSubscription = refetchSubscription;
@@ -232,20 +216,6 @@ const EventPopoverContent = ({
           Ajouter un événement
         </Button>
       </PopoverFooter>
-
-      {/* {isModalOpen && (
-        <EventFormModal
-          session={session}
-          onCancel={() => onModalClose()}
-          onClose={() => onModalClose()}
-          onSubmit={async (eventUrl) => {
-            //onModalClose();
-            await router.push(`/${eventUrl}`, `/${eventUrl}`, {
-              shallow: true
-            });
-          }}
-        />
-      )} */}
     </>
   );
 };

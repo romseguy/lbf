@@ -75,8 +75,7 @@ import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
-import { refetchEvents } from "features/events/eventSlice";
-import { useAppDispatch } from "store";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 
 type DaysMap = { [key: number]: DayState };
 type DayState = {
@@ -99,23 +98,29 @@ export const EventForm = withGoogleApi({
 })(
   ({
     orgId,
-    setIsTouched,
     ...props
   }: {
     session: Session;
     event?: IEvent;
     orgId?: string;
-    setIsTouched?: React.Dispatch<React.SetStateAction<boolean>>;
     onCancel?: () => void;
     onSubmit?: (eventUrl: string) => void;
   }) => {
-    const dispatch = useAppDispatch();
     const { colorMode } = useColorMode();
     const isDark = colorMode === "dark";
     const toast = useToast({ position: "top" });
     const now = new Date();
+
+    //#region event
     const [addEvent, addEventMutation] = useAddEventMutation();
     const [editEvent, editEventMutation] = useEditEventMutation();
+    const eventMinDefaultDate = props.event
+      ? parseISO(props.event.eventMinDate)
+      : null;
+    const eventMaxDefaultDate = props.event
+      ? parseISO(props.event.eventMaxDate)
+      : null;
+    //#endregion
 
     const { data: myOrgs } = useGetOrgsQuery({
       createdBy: props.session.user.userId
@@ -130,20 +135,32 @@ export const EventForm = withGoogleApi({
       clearErrors,
       watch,
       setValue,
-      getValues
-    }: { [key: string]: any } = useForm({
+      getValues,
+      formState
+    } = useForm({
       defaultValues: {
-        eventOrgs: props.event ? props.event.eventOrgs : [],
-        eventAddress: props.event?.eventAddress,
-        eventEmail: props.event?.eventEmail,
-        eventPhone: props.event?.eventPhone,
-        eventWeb: props.event?.eventWeb
+        eventName: props.event?.eventName || "",
+        eventCategory: props.event?.eventCategory,
+        eventMinDate: eventMinDefaultDate,
+        eventMaxDate: eventMaxDefaultDate,
+        eventDescription: props.event?.eventDescription || "",
+        eventVisibility:
+          props.event?.eventVisibility || EEventVisibility.PUBLIC,
+        eventOrgs: props.event?.eventOrgs || [],
+        eventAddress: props.event?.eventAddress || [],
+        eventEmail: props.event?.eventEmail || [],
+        eventPhone: props.event?.eventPhone || [],
+        eventWeb: props.event?.eventWeb || [],
+        repeat: props.event?.repeat
       },
       mode: "onChange"
     });
+    useLeaveConfirm({ formState });
 
+    const eventMinDate = watch("eventMinDate");
+    const eventMaxDate = watch("eventMaxDate");
     const eventVisibility = watch("eventVisibility");
-    const eventOrgs: IOrg[] = watch("eventOrgs");
+    const eventOrgs = watch("eventOrgs");
     const eventAddress = watch("eventAddress");
     const eventEmail = watch("eventEmail");
     const eventPhone = watch("eventPhone");
@@ -249,7 +266,6 @@ export const EventForm = withGoogleApi({
 
     //#region form handlers
     const onChange = () => {
-      setIsTouched && setIsTouched(true);
       clearErrors("formErrorMessage");
     };
 
@@ -336,10 +352,9 @@ export const EventForm = withGoogleApi({
         } else {
           const event = await addEvent(payload).unwrap();
           eventUrl = event.eventUrl;
-          dispatch(refetchEvents());
 
           toast({
-            title: `Vous allez être redirigé vers ${event.eventName}...`,
+            title: `Vous allez être redirigé vers l'événement : ${event.eventName}...`,
             status: "success"
           });
         }
@@ -363,14 +378,6 @@ export const EventForm = withGoogleApi({
     const [isRepeat, setIsRepeat] = useState(
       !!props.event?.repeat || hasItems(props.event?.otherDays)
     );
-
-    const eventMinDefaultDate =
-      (props.event && parseISO(props.event.eventMinDate)) || null;
-    const eventMaxDefaultDate =
-      (props.event && parseISO(props.event.eventMaxDate)) || null;
-
-    const eventMinDate: Date | null = watch("eventMinDate");
-    const eventMaxDate: Date | null = watch("eventMaxDate");
 
     const start = eventMinDate || eventMinDefaultDate;
     const startDay = start
@@ -535,7 +542,6 @@ export const EventForm = withGoogleApi({
               //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
               // }
             })}
-            defaultValue={props.event && props.event.eventName}
           />
           {!errors.eventName && !props.event && getValues("eventName") && (
             <Tooltip label={`Adresse de la page de l'événement`}>
@@ -651,7 +657,7 @@ export const EventForm = withGoogleApi({
 
         {/* otherDays */}
         {canRepeat1day && (
-          <FormControl isInvalid={!!errors["otherDays"]} mb={3}>
+          <FormControl mb={3}>
             <Checkbox
               isChecked={isRepeat}
               isDisabled={!start || !end}
@@ -932,10 +938,6 @@ export const EventForm = withGoogleApi({
                 })}
               </Box>
             )}
-
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="otherDays" />
-            </FormErrorMessage>
           </FormControl>
         )}
 
@@ -946,7 +948,6 @@ export const EventForm = withGoogleApi({
             <Select
               name="repeat"
               ref={register()}
-              defaultValue={props.event?.repeat}
               placeholder="Ne pas répéter"
               css={css`
                 ${isDark
@@ -982,7 +983,6 @@ export const EventForm = withGoogleApi({
           <Controller
             name="eventDescription"
             control={control}
-            defaultValue={props.event?.eventDescription || ""}
             render={(renderProps) => {
               return (
                 <RTEditor
@@ -990,12 +990,9 @@ export const EventForm = withGoogleApi({
                   event={props.event}
                   placeholder="Description de l'événement"
                   session={props.session}
-                  onBlur={(html) => {
+                  onChange={({ html }) => {
                     renderProps.onChange(html);
-                    if (!props.event && !html) return;
-                    setIsTouched && setIsTouched(true);
                   }}
-                  //onChange={({ html }) => renderProps.onChange(html)}
                 />
               );
             }}
@@ -1021,9 +1018,6 @@ export const EventForm = withGoogleApi({
               ref={register({
                 required: "Veuillez sélectionner la visibilité de l'événement"
               })}
-              defaultValue={
-                props.event?.eventVisibility || EEventVisibility.PUBLIC
-              }
               placeholder="Visibilité de l'événement"
               color={isDark ? "whiteAlpha.400" : "gray.400"}
             >

@@ -128,7 +128,7 @@ export const sendEventNotifications = async ({
         });
 
         await sendMail(mail);
-        eventNotifications.push({ ...eventNotification, email });
+        eventNotification = { ...eventNotification, email };
       }
 
       const eventCategoriesPush = orgSubscription.eventCategories.filter(
@@ -177,7 +177,7 @@ export const sendEventNotifications = async ({
             });
 
             await sendMail(mail);
-            eventNotifications.push({ ...eventNotification, email });
+            eventNotification = { ...eventNotification, email };
           }
         }
       }
@@ -206,21 +206,23 @@ export const sendEventNotifications = async ({
               url: event.eventUrl
             });
 
-            eventNotifications.push({
+            eventNotification = {
               ...eventNotification,
               user: subscription.user._id
-            });
+            };
           } catch (error) {
             console.error(error);
             if (process.env.NODE_ENV !== "production")
-              eventNotifications.push({
+              eventNotification = {
                 ...eventNotification,
                 user: subscription.user._id
-              });
+              };
           }
         }
       }
     }
+
+    eventNotifications.push(eventNotification);
   }
 
   event.eventNotifications =
@@ -513,7 +515,7 @@ export const sendTopicNotifications = async ({
           });
 
           await sendMail(mail);
-          topicNotifications.push({ ...topicNotification, email });
+          topicNotification = { ...topicNotification, email };
         }
       }
 
@@ -543,17 +545,17 @@ export const sendTopicNotifications = async ({
             url: getTopicUrl({ org, topic })
           });
 
-          topicNotifications.push({
+          topicNotification = {
             ...topicNotification,
             user: subscription.user._id
-          });
+          };
         } catch (error) {
           console.error(error);
           if (process.env.NODE_ENV !== "production")
-            topicNotifications.push({
+            topicNotification = {
               ...topicNotification,
               user: subscription.user._id
-            });
+            };
         }
       }
     } else if (event) {
@@ -592,7 +594,7 @@ export const sendTopicNotifications = async ({
             });
 
             await sendMail(mail);
-            topicNotifications.push({ ...topicNotification, email });
+            topicNotification = { ...topicNotification, email };
           }
         }
       }
@@ -622,20 +624,22 @@ export const sendTopicNotifications = async ({
             title: "Vous êtes invité à une discussion",
             url: getTopicUrl({ event, topic })
           });
-          topicNotifications.push({
+          topicNotification = {
             ...topicNotification,
             user: subscription.user._id
-          });
+          };
         } catch (error) {
           console.error(error);
           if (process.env.NODE_ENV !== "production")
-            topicNotifications.push({
+            topicNotification = {
               ...topicNotification,
               user: subscription.user._id
-            });
+            };
         }
       }
     }
+
+    topicNotifications.push(topicNotification);
   }
 
   topic.topicNotifications =

@@ -20,16 +20,14 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaFile, FaImage } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import {
   Column,
   DeleteButton,
   ErrorMessageText,
-  Heading,
   HostTag,
-  Link,
   LinkShare
 } from "features/common";
 import { useSession } from "hooks/useAuth";
@@ -61,7 +59,9 @@ export const DocumentsList = ({
   const toast = useToast({ position: "top" });
 
   //#region documents
-  const query = useGetDocumentsQuery({ orgId: org?._id, userId: user?._id });
+  const query = useGetDocumentsQuery(
+    org ? { orgId: org._id } : user ? { userId: user._id } : {}
+  );
   //#endregion
 
   //#region local state

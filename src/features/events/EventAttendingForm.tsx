@@ -92,7 +92,6 @@ export const EventAttendingForm = ({
       eventId: event._id,
       payload: { eventNotifications }
     });
-    eventQuery.refetch();
   };
 
   const unattend = async () => {
@@ -144,7 +143,6 @@ export const EventAttendingForm = ({
         eventNotifications
       }
     });
-    eventQuery.refetch();
   };
 
   return (

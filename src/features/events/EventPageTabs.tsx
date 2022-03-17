@@ -37,6 +37,7 @@ export const EventPageTabs = ({
       url: "/invitations"
     };
 
+  //#region componentDidMount
   useEffect(() => {
     Object.keys(defaultTabs).reduce((index, tab) => {
       if (normalize(tab) === normalize(currentTabLabel))
@@ -44,6 +45,7 @@ export const EventPageTabs = ({
       return index + 1;
     }, 0);
   }, []);
+  //#endregion
 
   return (
     <Tabs
@@ -55,19 +57,20 @@ export const EventPageTabs = ({
       lazyBehavior="keepMounted"
       variant="solid-rounded"
       background={isDark ? "black" : "lightcyan"}
-      borderWidth={1}
       borderColor={isDark ? "gray.600" : "gray.200"}
       borderRadius="lg"
+      borderWidth={1}
       p={3}
       pb={0}
     >
       <EntityPageTabList aria-hidden>
-        {Object.keys(defaultTabs).map((name, tabIndex) => {
-          const tab = defaultTabs[name];
+        {Object.keys(defaultTabs).map((tabLabel, tabIndex) => {
+          const tab = defaultTabs[tabLabel];
+          const key = `event-${normalize(tabLabel)}-tab`;
 
           return (
             <EntityPageTab
-              key={`eventTab-${tabIndex}`}
+              key={key}
               currentTabIndex={currentTabIndex}
               icon={tab.icon}
               isMobile={isMobile}
@@ -81,9 +84,9 @@ export const EventPageTabs = ({
                   }
                 );
               }}
-              data-cy={`eventTab-${name}`}
+              data-cy={key}
             >
-              {name}
+              {tabLabel}
             </EntityPageTab>
           );
         })}

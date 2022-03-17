@@ -6,5 +6,5 @@ export * from "./Footer";
 export * from "./EmailLoginPopover";
 export * from "./EventPopover";
 export * from "./OrgPopover";
-export * from "./SubscriptionPopover";
+export * from "./NotificationPopover";
 export * from "./TopicPopover";

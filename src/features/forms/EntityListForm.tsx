@@ -16,6 +16,7 @@ import { IOrg, IOrgList } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 
 const subscriptionsToOptions = (subscriptions: ISubscription[]) =>
   subscriptions.map((subscription) => {
@@ -42,10 +43,18 @@ export const EntityListForm = ({
   const [isLoading, setIsLoading] = useState(false);
 
   //#region form
-  const { control, register, handleSubmit, errors, setError, clearErrors } =
-    useForm({
-      mode: "onChange"
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    errors,
+    setError,
+    clearErrors,
+    formState
+  } = useForm({
+    mode: "onChange"
+  });
+  useLeaveConfirm({ formState });
 
   const defaultSubscriptions = props.list?.subscriptions || [];
   //const subscriptions: ISubscription[] = watch("subscriptions") || defaultSubscriptions;

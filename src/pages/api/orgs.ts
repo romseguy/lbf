@@ -23,20 +23,32 @@ handler.get<
   },
   NextApiResponse
 >(async function getOrgs(req, res) {
+  const session = await getSession({ req });
+
   try {
     const {
       query: { populate, createdBy }
     } = req;
 
-    let orgs: (IOrg & Document<any, IOrg>)[] = [];
-    const selector = createdBy
-      ? { createdBy }
-      : { orgVisibility: EOrgVisibility.PUBLIC };
+    let selector:
+      | {
+          orgVisibility: EOrgVisibility;
+        }
+      | { createdBy: string } = { orgVisibility: EOrgVisibility.PUBLIC };
 
-    //logJson(`GET /orgs: selector`, selector);
+    if (
+      createdBy &&
+      (session?.user.isAdmin || session?.user.userId === createdBy)
+    ) {
+      selector = { createdBy };
+    }
 
-    if (populate) orgs = await models.Org.find(selector).populate(populate);
-    else orgs = await models.Org.find(selector);
+    let orgs = await models.Org.find(selector);
+
+    if (populate)
+      orgs = await Promise.all(
+        orgs.map((org) => org.populate(populate).execPopulate())
+      );
 
     res.status(200).json(orgs);
   } catch (error) {

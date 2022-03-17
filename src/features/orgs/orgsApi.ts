@@ -1,6 +1,7 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { api } from "api";
 import { IOrg } from "models/Org";
-import baseQuery, { objectToQueryString } from "utils/query";
+import { objectToQueryString } from "utils/query";
+
 export type AddOrgPayload = Pick<
   IOrg,
   | "orgName"
@@ -27,10 +28,7 @@ export type GetOrgParams = {
   populate?: string;
 };
 
-export const orgApi = createApi({
-  reducerPath: "orgsApi",
-  baseQuery,
-  tagTypes: ["Orgs"],
+export const orgApi = api.injectEndpoints({
   endpoints: (build) => ({
     addOrg: build.mutation<IOrg, AddOrgPayload>({
       query: (payload) => {
@@ -43,13 +41,14 @@ export const orgApi = createApi({
           method: "POST",
           body: payload
         };
-      }
-      // invalidatesTags: [{ type: "Orgs", id: "LIST" }]
+      },
+      invalidatesTags: [{ type: "Orgs", id: "LIST" }]
     }),
     deleteOrg: build.mutation<IOrg, string>({
-      query: (orgId) => ({ url: `org/${orgId}`, method: "DELETE" })
+      query: (orgId) => ({ url: `org/${orgId}`, method: "DELETE" }),
+      invalidatesTags: [{ type: "Orgs", id: "LIST" }]
     }),
-    editOrg: build.mutation<{}, { payload: EditOrgPayload; orgId?: string }>({
+    editOrg: build.mutation<IOrg, { payload: EditOrgPayload; orgId?: string }>({
       query: ({ payload, orgId }) => {
         const id = orgId ? orgId : "_id" in payload ? payload._id : undefined;
 
@@ -63,10 +62,10 @@ export const orgApi = createApi({
           method: "PUT",
           body: payload
         };
-      }
-      // invalidatesTags: (result, error, params) => [
-      //   { type: "Orgs", id: params.payload._id }
-      // ]
+      },
+      invalidatesTags: (result, error, params) => [
+        { type: "Orgs", id: params.orgId }
+      ]
     }),
     getOrg: build.query<IOrg, GetOrgParams>({
       query: ({ orgUrl, ...query }) => {
@@ -79,10 +78,10 @@ export const orgApi = createApi({
         return {
           url: `org/${orgUrl}?${objectToQueryString(query)}`
         };
-      }
-      // providesTags: (result, error, params) => [
-      //   { type: "Orgs" as const, id: result?._id }
-      // ]
+      },
+      providesTags: (result, error, params) => [
+        { type: "Orgs" as const, id: result?._id }
+      ]
     }),
     getOrgs: build.query<
       IOrg[],
@@ -99,17 +98,17 @@ export const orgApi = createApi({
         return {
           url: `orgs${query ? `?${objectToQueryString(query)}` : ""}`
         };
-      }
-      // providesTags: (result) =>
-      //   result
-      //     ? [
-      //         ...result.map(({ _id }) => ({
-      //           type: "Orgs" as const,
-      //           id: _id
-      //         })),
-      //         { type: "Orgs", id: "LIST" }
-      //       ]
-      //     : [{ type: "Orgs", id: "LIST" }]
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ _id }) => ({
+                type: "Orgs" as const,
+                id: _id
+              })),
+              { type: "Orgs", id: "LIST" }
+            ]
+          : [{ type: "Orgs", id: "LIST" }]
     })
   })
 });

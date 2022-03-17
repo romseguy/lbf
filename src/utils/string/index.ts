@@ -21,6 +21,31 @@ export function bytesForHuman(bytes: number, decimals = 0) {
   return parseFloat(bytes.toFixed(decimals)) + " " + units[i];
 }
 
+export function transformRTEditorOutput(
+  str: string,
+  isMobile: boolean
+): Document {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(str.replace(/\n/g, ""), "text/html");
+  const links = (doc.firstChild as HTMLElement).getElementsByTagName("a");
+
+  for (let i = 0; i < links.length; i++) {
+    const link = links[i];
+    link.setAttribute("title", link.innerText);
+
+    if (
+      isMobile &&
+      (link.href.includes("http") || link.href.includes("mailto:"))
+    ) {
+      link.classList.add("clip");
+
+      if (link.href.includes("mailto:")) link.innerText = "@" + link.innerText;
+    }
+  }
+
+  return doc;
+}
+
 export function isImage(fileName: string) {
   const str = fileName.toLowerCase();
   return (

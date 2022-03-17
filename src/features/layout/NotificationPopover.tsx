@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
   Select,
+  Spinner,
   Text,
   VStack,
   useColorMode,
@@ -26,7 +27,7 @@ import { hasItems } from "utils/array";
 import { timeAgo } from "utils/date";
 import { isEvent, isTopic } from "models/Entity";
 
-const SubscriptionPopoverContent = ({ session }: { session: Session }) => {
+const NotificationPopoverContent = ({ session }: { session: Session }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const userEmail = useSelector(selectUserEmail) || session.user.email;
@@ -34,6 +35,7 @@ const SubscriptionPopoverContent = ({ session }: { session: Session }) => {
   const {
     eventsWithEmailNotifications,
     eventsWithPushNotifications,
+    isLoading: isEventsLoading,
     refetch: refetchEvents
   } = useGetEventsQuery(void 0, {
     selectFromResult: (query) => ({
@@ -52,6 +54,7 @@ const SubscriptionPopoverContent = ({ session }: { session: Session }) => {
   const {
     topicsWithEmailNotifications,
     topicsWithPushNotifications,
+    isLoading: isTopicsLoading,
     refetch: refetchTopics
   } = useGetTopicsQuery(void 0, {
     selectFromResult: (query) => ({
@@ -150,7 +153,9 @@ const SubscriptionPopoverContent = ({ session }: { session: Session }) => {
 
         {showNotifications === "showEmailNotifications" && (
           <>
-            {hasItems(emailNotifications) ? (
+            {isEventsLoading || isTopicsLoading ? (
+              <Spinner />
+            ) : hasItems(emailNotifications) ? (
               <VStack
                 alignItems="flex-start"
                 overflow="auto"
@@ -256,7 +261,7 @@ const SubscriptionPopoverContent = ({ session }: { session: Session }) => {
   );
 };
 
-export const SubscriptionPopover = ({
+export const NotificationPopover = ({
   boxSize,
   session,
   ...props
@@ -278,7 +283,7 @@ export const SubscriptionPopover = ({
           />
         </PopoverTrigger>
         <PopoverContent>
-          <SubscriptionPopoverContent session={session} />
+          <NotificationPopoverContent session={session} />
         </PopoverContent>
       </Popover>
     </Box>

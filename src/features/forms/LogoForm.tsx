@@ -135,7 +135,6 @@ export const LogoForm = ({
         payload,
         eventId: entity._id
       }).unwrap();
-      query.refetch();
       setIsLoading(false);
       setIsVisible({ ...isVisible, logo: false });
       toast({
@@ -173,7 +172,6 @@ export const LogoForm = ({
                 payload: ["orgLogo"],
                 eventId: entity._id
               }).unwrap();
-              query.refetch();
               setIsLoading(false);
               toast({
                 title: `Le logo ${

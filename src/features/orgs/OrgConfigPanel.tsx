@@ -1,15 +1,5 @@
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Button,
-  Input,
-  Text,
-  useToast,
-  Icon,
-  Switch,
-  FormControl,
-  FormLabel
-} from "@chakra-ui/react";
+import { Box, Button, Icon, Input, Text, useToast } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -25,11 +15,9 @@ import { OrgForm } from "features/forms/OrgForm";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
-import { useAppDispatch } from "store";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
-import { refetchOrgs } from "./orgSlice";
 
 export type OrgConfigVisibility = {
   isVisible: {
@@ -46,20 +34,17 @@ export const OrgConfigPanel = ({
   session,
   orgQuery,
   subQuery,
-  isConfig,
   isEdit,
   setIsConfig,
   setIsEdit
 }: {
-  session: Session | null;
+  session: Session;
   orgQuery: AppQueryWithData<IOrg>;
   subQuery: AppQuery<ISubscription>;
-  isConfig: boolean;
   isEdit: boolean;
   setIsConfig: (isConfig: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
 }) => {
-  const dispatch = useAppDispatch();
   const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
   const org = orgQuery.data;
   const router = useRouter();
@@ -92,7 +77,6 @@ export const OrgConfigPanel = ({
                   shallow: true
                 });
               } else {
-                orgQuery.refetch();
                 setIsEdit(false);
                 setIsConfig(false);
               }
@@ -150,7 +134,6 @@ export const OrgConfigPanel = ({
                   const deletedOrg = await deleteOrg(org._id).unwrap();
 
                   if (deletedOrg) {
-                    dispatch(refetchOrgs());
                     await router.push(`/`);
                     toast({
                       title: `${deletedOrg.orgName} a été supprimé !`,
@@ -199,6 +182,7 @@ export const OrgConfigPanel = ({
               setIsVisible={setIsVisible}
               mb={3}
             />
+
             <EntityConfigBannerPanel
               query={orgQuery}
               isVisible={isVisible}

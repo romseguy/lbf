@@ -38,11 +38,6 @@ const EventsPage = ({ ...props }: PageProps) => {
     string | undefined
   >();
 
-  useEffect(() => {
-    console.log("refetching events with new route", router.asPath);
-    eventsQuery.refetch();
-  }, [router.asPath]);
-
   return (
     <Layout {...props} isLogin={isLogin} pageTitle={title}>
       <Tooltip

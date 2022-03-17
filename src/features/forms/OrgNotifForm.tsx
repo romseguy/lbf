@@ -35,7 +35,7 @@ import { orgTypeFull, IOrg } from "models/Org";
 import { IProject } from "models/Project";
 import { hasItems } from "utils/array";
 import { equalsValue } from "utils/string";
-import { AppQuery } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 
 export interface OrgNotifFormState {
   email?: string;
@@ -44,14 +44,12 @@ export interface OrgNotifFormState {
 
 export const OrgNotifForm = ({
   entity,
-  org,
   query,
   onCancel,
   onSubmit
 }: {
   entity: IEntity;
-  org: IOrg;
-  query: AppQuery<IOrg>;
+  query: AppQueryWithData<IOrg>;
   onCancel?: () => void;
   onSubmit: (
     form: OrgNotifFormState,
@@ -60,6 +58,7 @@ export const OrgNotifForm = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const org = query.data;
 
   //#region local state
   const isE = isEvent(entity);

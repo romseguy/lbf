@@ -39,7 +39,7 @@ import {
 } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
-import { capitalize, sanitize } from "utils/string";
+import { capitalize, sanitize, transformRTEditorOutput } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { useGetOrgsQuery } from "./orgsApi";
 import { OrgsList } from "./OrgsList";
@@ -67,33 +67,11 @@ export const OrgPageHomeTabPanel = ({
     hasItems(org.orgWeb);
   //#endregion
 
-  //#region home tab
+  //#region local state
   const [description, setDescription] = useState<string | undefined>();
   useEffect(() => {
     if (!org.orgDescription) return setDescription(undefined);
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(
-      org.orgDescription.replace(/\n/g, ""),
-      "text/html"
-    );
-    const links = (doc.firstChild as HTMLElement).getElementsByTagName("a");
-
-    for (let i = 0; i < links.length; i++) {
-      const link = links[i];
-      link.setAttribute("title", link.innerText);
-
-      if (
-        isMobile &&
-        (link.href.includes("http") || link.href.includes("mailto:"))
-      ) {
-        link.classList.add("clip");
-
-        if (link.href.includes("mailto:"))
-          link.innerText = "@" + link.innerText;
-      }
-    }
-
+    const doc = transformRTEditorOutput(org.orgDescription, isMobile);
     setDescription(doc.body.innerHTML);
   }, [org]);
   const [isListOpen, setIsListOpen] = useState(true);

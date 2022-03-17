@@ -22,9 +22,7 @@ import React, { useEffect, useState } from "react";
 import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { EntityButton } from "features/common";
-import { OrgFormModal } from "features/modals/OrgFormModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
@@ -37,7 +35,6 @@ import {
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
 
-let cachedRefetchOrgs = false;
 let cachedRefetchSubscription = false;
 
 const OrgPopoverContent = ({
@@ -92,25 +89,12 @@ const OrgPopoverContent = ({
   //#endregion
 
   //#region local state
-  // const {
-  //   isOpen: isModalOpen,
-  //   onOpen: onModalOpen,
-  //   onClose: onModalClose
-  // } = useDisclosure();
   const [showOrgs, setShowOrgs] = useState<
     "showOrgsAdded" | "showOrgsFollowed" | "showOrgsSubscribed"
   >("showOrgsAdded");
   //#endregion
 
-  const refetchOrgs = useSelector(selectOrgsRefetch);
   const refetchSubscription = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    if (refetchOrgs !== cachedRefetchOrgs) {
-      cachedRefetchOrgs = refetchOrgs;
-      orgsQuery.refetch();
-      myOrgsQuery.refetch();
-    }
-  }, [refetchOrgs]);
   useEffect(() => {
     if (refetchSubscription !== cachedRefetchSubscription) {
       cachedRefetchSubscription = refetchSubscription;
@@ -243,20 +227,6 @@ const OrgPopoverContent = ({
           Ajouter une organisation
         </Button>
       </PopoverFooter>
-
-      {/* {isModalOpen && (
-        <OrgFormModal
-          session={session}
-          onCancel={onModalClose}
-          onClose={onModalClose}
-          onSubmit={async (orgUrl) => {
-            onModalClose();
-            await router.push(`/${orgUrl}`, `/${orgUrl}`, {
-              shallow: true
-            });
-          }}
-        />
-      )} */}
     </>
   );
 };
@@ -283,9 +253,7 @@ export const OrgPopover = ({
             _hover={{ bg: "transparent" }}
             icon={
               <Icon
-                as={
-                  orgType === EOrgType.NETWORK ? IoIosGitNetwork : IoIosPeople
-                }
+                as={IoIosPeople}
                 boxSize={boxSize}
                 _hover={{ color: "green" }}
               />

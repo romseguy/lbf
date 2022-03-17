@@ -121,7 +121,6 @@ export const BannerForm = ({
         payload,
         eventId: entity._id
       }).unwrap();
-      query.refetch();
       setIsLoading(false);
       setIsVisible({ ...isVisible, banner: false });
       toast({
@@ -161,7 +160,6 @@ export const BannerForm = ({
                 payload: ["orgBanner"],
                 eventId: entity._id
               }).unwrap();
-              query.refetch();
               setIsLoading(false);
               toast({
                 title: `La bannière ${

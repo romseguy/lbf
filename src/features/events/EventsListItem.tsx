@@ -36,7 +36,6 @@ export const EventsListItem = ({
   isCreator,
   isDark,
   org,
-  orgQuery,
   orgFollowersCount,
   length,
   session,
@@ -65,7 +64,6 @@ export const EventsListItem = ({
   isDark: boolean;
   length: number;
   org?: IOrg;
-  orgQuery?: any;
   orgFollowersCount?: number;
   eventToForward: IEvent | null;
   setEventToForward: (event: IEvent | null) => void;
@@ -402,7 +400,6 @@ export const EventsListItem = ({
                         });
                       }
 
-                      orgQuery.refetch();
                       toast({
                         title: `La rediffusion a été annulée.`,
                         status: "success"

@@ -275,11 +275,18 @@ export const OrgConfigListsPanel = ({
                               }
                               isIconOnly
                               onClick={async () => {
-                                await editOrg({
-                                  orgId: org._id,
-                                  payload: [`orgLists.listName=${listName}`]
-                                });
-                                orgQuery.refetch();
+                                try {
+                                  await editOrg({
+                                    orgId: org._id,
+                                    payload: [`orgLists.listName=${listName}`]
+                                  }).unwrap();
+                                } catch (error) {
+                                  console.error(error);
+                                  toast({
+                                    status: "error",
+                                    title: "La liste n'a pas pu être supprimée"
+                                  });
+                                }
                               }}
                               hasArrow
                               label="Supprimer la liste"

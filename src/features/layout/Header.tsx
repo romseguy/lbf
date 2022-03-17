@@ -43,6 +43,7 @@ export const Header = ({
   const router = useRouter();
   const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
   useEffect(() => {
+    if (router.asPath === "/") return;
     if (Array.isArray(router.query.name) && !!router.query.name[1]) return;
     executeScroll();
   }, [router.asPath]);

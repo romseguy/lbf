@@ -132,24 +132,19 @@ handler.post<
 
   try {
     const {
-      query: { eventUrl },
+      query: { eventUrl: _id },
       body
     }: {
       query: { eventUrl: string };
       body: AddEventNotifPayload;
     } = req;
 
-    let event = await models.Event.findOne({ eventUrl });
+    let event = await models.Event.findOne({ _id });
 
     if (!event) {
-      event = await models.Event.findOne({ _id: eventUrl });
-
-      if (!event)
-        return res
-          .status(404)
-          .json(
-            createServerError(new Error(`L'événement ${eventUrl} n'existe pas`))
-          );
+      return res
+        .status(404)
+        .json(createServerError(new Error(`L'événement ${_id} n'existe pas`)));
     }
 
     if (
@@ -219,7 +214,7 @@ handler.post<
         await event.save();
       }
     } else if (body.orgListsNames) {
-      //console.log(`POST /event/${eventUrl}: orgListsNames`, body.orgListsNames);
+      //console.log(`POST /event/${_id}: orgListsNames`, body.orgListsNames);
 
       for (const orgListName of body.orgListsNames) {
         const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
@@ -306,7 +301,7 @@ handler.put<
 
   try {
     const _id = req.query.eventUrl;
-    const event = await models.Event.findOne({ _id }).populate("eventOrgs");
+    let event = await models.Event.findOne({ _id }).populate("eventOrgs");
 
     if (!event) {
       return res
@@ -429,9 +424,19 @@ handler.put<
     }
 
     logJson(`PUT /event/${_id}:`, update || body);
-    await models.Event.updateOne({ _id }, update || body);
+    event = await models.Event.findOneAndUpdate({ _id }, update || body);
 
-    res.status(200).json({});
+    if (!event) {
+      return res
+        .status(400)
+        .json(
+          createServerError(
+            new Error(`L'événement ${_id} n'a pas pu être modifié`)
+          )
+        );
+    }
+
+    res.status(200).json(event);
   } catch (error) {
     res.status(500).json(createServerError(error));
   }

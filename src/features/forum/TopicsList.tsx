@@ -30,7 +30,7 @@ import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { getRefId } from "models/Entity";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { useDeleteTopicMutation, useAddTopicNotifMutation } from "./topicsApi";
 import { TopicsListItem } from "./TopicsListItem";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
@@ -49,7 +49,7 @@ export const TopicsList = ({
 }: GridProps & {
   event?: IEvent;
   org?: IOrg;
-  query: AppQuery<IEvent | IOrg>;
+  query: AppQueryWithData<IEvent | IOrg>;
   subQuery: AppQuery<ISubscription>;
   isCreator: boolean;
   isFollowed?: boolean;
@@ -315,8 +315,7 @@ export const TopicsList = ({
             <Text className="rainbow-text">Catégories</Text>
           </Flex>
           <TopicsListCategories
-            org={org}
-            orgQuery={query as AppQuery<IOrg>}
+            orgQuery={query as AppQueryWithData<IOrg>}
             isCreator={props.isCreator}
             isSubscribed={props.isSubscribed}
             selectedCategories={selectedCategories}

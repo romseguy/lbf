@@ -11,16 +11,11 @@ import {
   FormLabel
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import ReactSelect from "react-select";
-import { useSession } from "hooks/useAuth";
 import { ErrorMessageText } from "features/common";
-import {
-  useAddEventMutation,
-  useGetEventQuery
-} from "features/events/eventsApi";
+import { useAddEventMutation } from "features/events/eventsApi";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import type { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -36,21 +31,16 @@ export const EventForwardForm = ({
   onClose: () => void;
   onSubmit?: () => void;
 }) => {
-  const router = useRouter();
   const toast = useToast({ position: "top" });
 
-  const [addEvent, addEventMutation] = useAddEventMutation();
+  const [addEvent] = useAddEventMutation();
   //const { data: forwardedEvent } = useGetEventQuery({eventUrl: props.event._id})
 
   const [isLoading, setIsLoading] = useState(false);
 
   //#region form
   const { control, errors, handleSubmit, setError, clearErrors } = useForm();
-  const {
-    data: orgs,
-    isLoading: isQueryLoading,
-    refetch: refetchOrgs
-  } = useGetOrgsQuery({
+  const { data: orgs, isLoading: isQueryLoading } = useGetOrgsQuery({
     populate: "orgSubscriptions orgEvents",
     createdBy: session.user.userId
   });
@@ -64,9 +54,6 @@ export const EventForwardForm = ({
           orgEvent.forwardedFrom?.eventId === props.event._id
       )
   );
-  useEffect(() => {
-    refetchOrgs();
-  }, [router.asPath]);
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -90,7 +77,6 @@ export const EventForwardForm = ({
         status: "success"
       });
 
-      refetchOrgs();
       props.onSubmit && props.onSubmit();
     } catch (error) {
       handleError(error, (message, field) => {

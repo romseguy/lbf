@@ -33,7 +33,7 @@ import {
   EmailLoginPopover,
   EventPopover,
   OrgPopover,
-  SubscriptionPopover,
+  NotificationPopover,
   TopicPopover
 } from "features/layout";
 import { selectUserEmail } from "features/users/userSlice";
@@ -115,69 +115,68 @@ export const Nav = ({
                 </Td>
                 <Td border={0} p="8px 0 0 0">
                   <Flex alignItems="center">
-                    {session && (
-                      <Flex
-                        as="nav"
-                        bg={isDark ? "gray.800" : "lightcyan"}
-                        borderColor={isDark ? "gray.600" : "gray.200"}
-                        borderRadius={9999}
-                        borderStyle="solid"
-                        borderWidth={1}
-                        ml="auto"
-                        css={css`
-                          padding: 3px 0px 3px 0px;
-                        `}
-                      >
-                        <OrgPopover
-                          orgType={EOrgType.NETWORK}
-                          session={session}
-                          boxSize={[6, 6, 6]}
-                          ml={3}
-                          mr={2}
-                        />
-                        <EventPopover
-                          boxSize={[5, 5, 5]}
-                          session={session}
-                          mr={3}
-                        />
-                        <TopicPopover
-                          boxSize={[5, 5, 5]}
-                          session={session}
-                          mr={2}
-                        />
-                        <SubscriptionPopover
-                          boxSize={[6, 6, 6]}
-                          session={session}
-                          mr={3}
-                        />
-                      </Flex>
-                    )}
-
-                    {!session && (
-                      <>
-                        <EmailLoginPopover
-                          iconProps={{ boxSize: [8, 10, 10] }}
-                          popoverProps={{ offset: [-140, -25] }}
-                        />
-
-                        <Tooltip label="Connexion par mot de passe">
-                          <IconButton
-                            aria-label="Connexion"
-                            icon={
-                              <Icon
-                                as={FaKey}
-                                boxSize={[8, 8, 8]}
-                                _hover={{ color: "#00B5D8" }}
-                              />
-                            }
-                            bg="transparent"
-                            _hover={{ bg: "transparent", color: "#00B5D8" }}
-                            mx={3}
-                            onClick={() => setIsLoginModalOpen(true)}
+                    <Flex
+                      as="nav"
+                      bg={isDark ? "gray.800" : "lightcyan"}
+                      borderColor={isDark ? "gray.600" : "gray.200"}
+                      borderRadius={9999}
+                      borderStyle="solid"
+                      borderWidth={1}
+                      ml="auto"
+                      p="4px 8px 4px 8px"
+                    >
+                      {session && (
+                        <>
+                          <OrgPopover
+                            orgType={EOrgType.NETWORK}
+                            session={session}
+                            boxSize={[6, 6, 6]}
+                            mr={2}
                           />
-                        </Tooltip>
-                      </>
-                    )}
+                          <EventPopover
+                            boxSize={[5, 5, 5]}
+                            session={session}
+                            mr={3}
+                          />
+                          <TopicPopover
+                            boxSize={[5, 5, 5]}
+                            session={session}
+                            mr={2}
+                          />
+                          <NotificationPopover
+                            boxSize={[6, 6, 6]}
+                            session={session}
+                          />
+                        </>
+                      )}
+
+                      {!session && (
+                        <>
+                          <EmailLoginPopover
+                            iconProps={{ boxSize: [8, 10, 10] }}
+                            popoverProps={{ offset: [-140, -25] }}
+                            ml={2}
+                            mr={3}
+                          />
+
+                          <Tooltip label="Connexion par mot de passe">
+                            <IconButton
+                              aria-label="Connexion"
+                              icon={
+                                <Icon
+                                  as={FaKey}
+                                  boxSize={[8, 8, 8]}
+                                  _hover={{ color: "#00B5D8" }}
+                                />
+                              }
+                              bg="transparent"
+                              _hover={{ bg: "transparent", color: "#00B5D8" }}
+                              onClick={() => setIsLoginModalOpen(true)}
+                            />
+                          </Tooltip>
+                        </>
+                      )}
+                    </Flex>
 
                     {session && userEmail && (
                       <Menu>
@@ -298,7 +297,7 @@ export const Nav = ({
                           <TopicPopover boxSize={6} session={session} mx={3} />
                         </Box>
                         <Box {...popoverProps}>
-                          <SubscriptionPopover
+                          <NotificationPopover
                             boxSize={6}
                             session={session}
                             mx={3}

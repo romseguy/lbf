@@ -19,6 +19,7 @@ import type { ITopic } from "models/Topic";
 import type { ITopicMessage } from "models/TopicMessage";
 import { handleError } from "utils/form";
 import { useAddTopicMutation } from "features/forum/topicsApi";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 
 interface TopicMessageFormProps extends ChakraProps {
   org?: IOrg;
@@ -58,10 +59,12 @@ export const TopicMessageForm = ({
     clearErrors,
     watch,
     setValue,
-    getValues
+    getValues,
+    formState
   } = useForm({
     mode: "onChange"
   });
+  useLeaveConfirm({ formState });
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -149,17 +152,14 @@ export const TopicMessageForm = ({
                   //formats={props.formats}
                   readOnly={session === null}
                   defaultValue={topicMessageDefaultValue}
-                  onBlur={(html) => {
-                    clearErrors("topicMessage");
-                    renderProps.onChange(html);
-                    // if (html)
-                    // setIsTouched && setIsTouched(true);
-                  }}
                   placeholder={
                     session
                       ? "Cliquez ici pour répondre..."
                       : "Connectez vous pour répondre..."
                   }
+                  onChange={({ html }) => {
+                    renderProps.onChange(html);
+                  }}
                 />
               );
             }}

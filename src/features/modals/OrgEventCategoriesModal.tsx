@@ -125,7 +125,6 @@ export const OrgEventCategoriesModal = ({
                                   orgId: org._id,
                                   payload: [`orgEventCategories.label=${label}`]
                                 }).unwrap();
-                                orgQuery.refetch();
                                 toast({
                                   status: "success",
                                   title: "La catégorie a été supprimée !"

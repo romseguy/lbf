@@ -10,14 +10,14 @@ import { IProject, isAttending, EProjectInviteStatus } from "models/Project";
 import { IUser } from "models/User";
 import { useAppDispatch } from "store";
 import { emailR } from "utils/email";
-import { AppQuery } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 
 export const ProjectAttendingForm = ({
   project,
   query
 }: {
   project: IProject;
-  query: AppQuery<IOrg | IUser>;
+  query: AppQueryWithData<IOrg | IUser>;
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });

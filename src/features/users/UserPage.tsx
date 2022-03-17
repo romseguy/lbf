@@ -107,7 +107,6 @@ export const UserPage = ({
               session={session}
               user={user}
               onSubmit={async ({ userName }) => {
-                userQuery.refetch();
                 setIsEdit(false);
                 toast({
                   title: "Votre profil a été modifié !",

@@ -202,17 +202,15 @@ export const Layout = ({
           m={isMobile ? 1 : 3}
         />
 
-        {router.asPath !== "/" && (
-          <Header
-            event={event}
-            org={org}
-            defaultTitle="Chargement..."
-            pageTitle={pageTitle}
-            pageSubTitle={pageSubTitle}
-            m={isMobile ? 1 : 3}
-            mt={0}
-          />
-        )}
+        <Header
+          event={event}
+          org={org}
+          defaultTitle="Chargement..."
+          pageTitle={pageTitle}
+          pageSubTitle={pageSubTitle}
+          m={isMobile ? 1 : 3}
+          mt={0}
+        />
 
         <Box
           as="main"

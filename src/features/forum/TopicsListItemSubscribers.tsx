@@ -12,7 +12,7 @@ export const TopicsListItemSubscribers = ({
   topic: ITopic;
   isSubbedToTopic: boolean;
 }) => {
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
   const query = useGetSubscriptionsQuery({ topicId: topic._id });
 
   useEffect(() => {

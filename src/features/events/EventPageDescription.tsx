@@ -1,64 +1,51 @@
-import { EditIcon, AddIcon } from "@chakra-ui/icons";
-import { Button, Heading, Tooltip, IconButton, Text } from "@chakra-ui/react";
-import React from "react";
-import { GridItem, GridHeader } from "features/common";
+import { AddIcon } from "@chakra-ui/icons";
+import { Button, Text } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
 import { IEvent } from "models/Event";
-import { sanitize } from "utils/string";
+import { sanitize, transformRTEditorOutput } from "utils/string";
+import { AppQueryWithData } from "utils/types";
 
 export const EventPageDescription = ({
-  event,
+  eventQuery,
   isCreator,
+  isMobile,
   setIsEdit
 }: {
-  event: IEvent;
+  eventQuery: AppQueryWithData<IEvent>;
   isCreator: boolean;
+  isMobile: boolean;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  return (
-    <GridItem
-      rowSpan={3}
-      borderTopRadius="lg"
-      light={{ bg: "orange.100" }}
-      dark={{ bg: "gray.600" }}
-    >
-      <GridHeader display="flex" alignItems="center" borderTopRadius="lg">
-        <Heading size="sm" py={3}>
-          Présentation de l'événement
-        </Heading>
-        {event.eventDescription && isCreator && (
-          <Tooltip placement="bottom" label="Modifier la présentation">
-            <IconButton
-              aria-label="Modifier la présentation"
-              icon={<EditIcon />}
-              bg="transparent"
-              _hover={{ color: "green" }}
-              onClick={() => setIsEdit(true)}
-            />
-          </Tooltip>
-        )}
-      </GridHeader>
+  const event = eventQuery.data;
+  const [description, setDescription] = useState<string | undefined>();
+  useEffect(() => {
+    if (!event.eventDescription) return setDescription(undefined);
+    const doc = transformRTEditorOutput(event.eventDescription, isMobile);
+    setDescription(doc.body.innerHTML);
+  }, [event]);
 
-      <GridItem p={5}>
-        {event.eventDescription && event.eventDescription.length > 0 ? (
-          <div className="rteditor">
-            <div
-              dangerouslySetInnerHTML={{
-                __html: sanitize(event.eventDescription)
-              }}
-            />
-          </div>
-        ) : isCreator ? (
-          <Button
-            colorScheme="teal"
-            leftIcon={<AddIcon />}
-            onClick={() => setIsEdit(true)}
-          >
-            Ajouter
-          </Button>
-        ) : (
-          <Text fontStyle="italic">Aucune présentation.</Text>
-        )}
-      </GridItem>
-    </GridItem>
+  return (
+    <>
+      {description && description.length > 0 ? (
+        <div className="rteditor">
+          <div
+            dangerouslySetInnerHTML={{
+              __html: sanitize(description)
+            }}
+          />
+        </div>
+      ) : isCreator ? (
+        <Button
+          alignSelf="flex-start"
+          colorScheme="teal"
+          leftIcon={<AddIcon />}
+          onClick={() => setIsEdit(true)}
+        >
+          Ajouter
+        </Button>
+      ) : (
+        <Text fontStyle="italic">Aucune présentation.</Text>
+      )}
+    </>
   );
 };

@@ -23,6 +23,7 @@ import { hasItems } from "utils/array";
 import { emailR } from "utils/email";
 import { handleError } from "utils/form";
 import { phoneR } from "utils/string";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 
 export const SubscriptionForm = ({
   org,
@@ -46,10 +47,18 @@ export const SubscriptionForm = ({
   //#endregion
 
   //#region form
-  const { clearErrors, control, errors, handleSubmit, register, setError } =
-    useForm({
-      mode: "onChange"
-    });
+  const {
+    clearErrors,
+    control,
+    errors,
+    handleSubmit,
+    register,
+    setError,
+    formState
+  } = useForm({
+    mode: "onChange"
+  });
+  useLeaveConfirm({ formState });
 
   const onChange = () => clearErrors();
 

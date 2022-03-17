@@ -35,7 +35,6 @@ export const UserDescriptionForm = ({
         payload: { userDescription: description },
         slug: session.user.userId
       }).unwrap();
-      userQuery.refetch();
       setIsLoading(false);
       toast({
         title: "Votre présentation a été enregistrée",

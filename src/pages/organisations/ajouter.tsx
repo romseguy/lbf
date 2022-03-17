@@ -5,14 +5,11 @@ import { OrgForm } from "features/forms/OrgForm";
 import { Layout } from "features/layout";
 import { EOrgType, orgTypeFull3 } from "models/Org";
 import { PageProps } from "pages/_app";
-//import { onCancelWithConfirm } from "utils/form";
 
 const OrganisationsAddPage = (props: PageProps) => {
   const router = useRouter();
-  const [isTouched, setIsTouched] = useState(false);
   const [orgType, setOrgType] = useState<EOrgType>(EOrgType.GENERIC);
 
-  //const onCancel = () => onCancelWithConfirm({ isTouched, onCancel: () => {} });
   const onSubmit = async (orgUrl: string) => {
     await router.push(`/${orgUrl}`, `/${orgUrl}`, {
       shallow: true
@@ -26,8 +23,6 @@ const OrganisationsAddPage = (props: PageProps) => {
           {...props}
           orgType={orgType}
           setOrgType={setOrgType}
-          setIsTouched={setIsTouched}
-          //onCancel={onCancel}
           onSubmit={onSubmit}
         />
       </Column>

@@ -25,10 +25,10 @@ import { IProject, EProjectStatus, ProjectStatuses } from "models/Project";
 import { IUser } from "models/User";
 import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 
 export const ProjectForm = ({
   org,
-  setIsTouched,
   ...props
 }: {
   session: Session;
@@ -38,7 +38,6 @@ export const ProjectForm = ({
   isCreator?: boolean;
   isFollowed?: boolean;
   isSubscribed?: boolean;
-  setIsTouched: React.Dispatch<React.SetStateAction<boolean>>;
   onClose?: () => void;
   onCancel?: () => void;
   onSubmit?: (project: IProject | null) => void;
@@ -59,10 +58,12 @@ export const ProjectForm = ({
     errors,
     setError,
     clearErrors,
-    watch
+    watch,
+    formState
   } = useForm({
     mode: "onChange"
   });
+  useLeaveConfirm({ formState });
 
   const projectVisibility = watch("projectVisibility");
   const statusOptions: string[] = Object.keys(EProjectStatus).map(
@@ -70,7 +71,6 @@ export const ProjectForm = ({
   );
 
   const onChange = () => {
-    setIsTouched(true);
     clearErrors("formErrorMessage");
   };
 
@@ -155,12 +155,9 @@ export const ProjectForm = ({
               <RTEditor
                 defaultValue={props.project?.projectDescription}
                 placeholder="Description du projet"
-                onBlur={(html) => {
+                onChange={({ html }) => {
                   renderProps.onChange(html);
-                  if (!props.project && !html) return;
-                  setIsTouched(true);
                 }}
-                //onChange={({ html }) => renderProps.onChange(html)}
               />
             );
           }}

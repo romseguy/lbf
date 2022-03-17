@@ -8,7 +8,7 @@ export function normalize(
 
   if (underscores) out = out.replace(/\ /g, "_");
 
-  out = out.normalize("NFKD").replace(/[^\w\s.-_\/]/g, "");
+  out = out.normalize("NFKD").replace(/[^\w\s.-_\/\']/g, "");
   //out = out.replace(/\p{Diacritic}/gu, "");
   out = out.toLowerCase();
 

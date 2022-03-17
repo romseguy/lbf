@@ -118,59 +118,53 @@ handler.put<
       body.userName = normalize(body.userName);
     }
 
-    let selector;
+    let selector: {
+      _id?: string;
+      email?: string;
+      phone?: string;
+      userName?: string;
+    } = { userName: slug };
 
     if (emailR.test(slug)) {
       selector = { email: slug };
     } else if (phoneR.test(slug)) {
       selector = { phone: slug };
     }
+    let user = await models.User.findOne(selector);
 
-    if (!selector) {
-      let user = await models.User.findOne({ userName: slug });
+    if (!user) {
+      selector = { _id: slug };
+      user = await models.User.findOne(selector);
 
-      if (user) {
-        selector = { userName: slug };
-      } else {
-        user = await models.User.findOne({ _id: slug });
-
-        if (user) {
-          selector = { _id: slug };
-        } else {
-          return res
-            .status(400)
-            .json(
-              createServerError(new Error(`L'utilisateur ${slug} n'existe pas`))
-            );
-        }
+      if (!user) {
+        return res
+          .status(404)
+          .json(
+            createServerError(new Error(`L'utilisateur ${slug} n'existe pas`))
+          );
       }
+    }
 
-      if (body.userName && body.userName !== user.userName) {
-        const user = await models.User.findOne({ userName: body.userName });
-        if (user) throw duplicateError();
-      }
+    if (body.userName && body.userName !== user.userName) {
+      const user = await models.User.findOne({ userName: body.userName });
+      if (user) throw duplicateError();
     }
 
     logJson(`PUT /user/${slug}: selector`, selector);
     logJson(`PUT /user/${slug}: body`, body);
-    await models.User.updateOne(selector, body);
+    user = await models.User.findOneAndUpdate(selector, body);
 
-    // if (nModified === 1) {
-    res.status(200).json({});
-    // } else {
-    //   await models.User.updateOne({ _id: slug }, body);
-    //   if (nModified === 1) {
-    //     res.status(200).json({});
-    //   } else {
-    //     res
-    //       .status(400)
-    //       .json(
-    //         createServerError(
-    //           new Error(`L'utilisateur ${slug} n'a pas pu être modifié`)
-    //         )
-    //       );
-    //   }
-    // }
+    if (!user) {
+      return res
+        .status(400)
+        .json(
+          createServerError(
+            new Error(`L'utilisateur ${slug} n'a pas pu être modifié`)
+          )
+        );
+    }
+
+    res.status(200).json(user);
   } catch (error: any) {
     if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
       res.status(400).json({

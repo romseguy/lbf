@@ -36,7 +36,7 @@ import { IUser } from "models/User";
 import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
 import { sanitize } from "utils/string";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { ProjectAttendingForm } from "./ProjectAttendingForm";
 import { ProjectsListItemVisibility } from "./ProjectsListItemVisibility";
 import {
@@ -66,10 +66,10 @@ export const ProjectsList = ({
 }: {
   // either
   org?: IOrg;
-  orgQuery?: AppQuery<IOrg>;
+  orgQuery?: AppQueryWithData<IOrg>;
   // or
   user?: IUser;
-  userQuery?: AppQuery<IUser>;
+  userQuery?: AppQueryWithData<IUser>;
   // end either
   subQuery?: AppQuery<ISubscription>;
   isCreator?: boolean;
@@ -82,7 +82,7 @@ export const ProjectsList = ({
   const isDark = colorMode === "dark";
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
-  const query = (orgQuery || userQuery) as AppQuery<IOrg | IUser>;
+  const query = (orgQuery || userQuery) as AppQueryWithData<IOrg | IUser>;
 
   //#region local state
   const [currentProject, setCurrentProject] = useState<IProject | null>(null);
@@ -606,7 +606,7 @@ export const ProjectsList = ({
       {session && org && (
         <EntityNotifModal
           org={org}
-          query={query as AppQuery<IOrg>}
+          query={query as AppQueryWithData<IOrg>}
           mutation={addProjectNotifMutation}
           setModalState={setNotifyModalState}
           modalState={notifyModalState}

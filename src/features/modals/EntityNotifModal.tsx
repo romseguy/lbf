@@ -34,7 +34,7 @@ import { IOrg } from "models/Org";
 import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
-import { AppQuery } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 import { useEditProjectMutation } from "features/projects/projectsApi";
 
 export type NotifModalState<T> = {
@@ -44,7 +44,7 @@ export type NotifModalState<T> = {
 interface NotifyModalProps<T> {
   event?: IEvent<string | Date>;
   org?: IOrg;
-  query: AppQuery<IEvent | IOrg>;
+  query: AppQueryWithData<IEvent | IOrg>;
   mutation: any;
   setModalState: (modalState: NotifModalState<T>) => void;
   modalState: NotifModalState<T>;
@@ -85,9 +85,7 @@ export const EntityNotifModal = <
 
     try {
       const { notifications } = await postNotif({
-        [isEvent(entity) ? "eventUrl" : "topicId"]: isEvent(entity)
-          ? entity.eventUrl
-          : entity._id,
+        [isEvent(entity) ? "eventId" : "topicId"]: entity._id,
         payload
       }).unwrap();
 
@@ -100,8 +98,8 @@ export const EntityNotifModal = <
         onClose();
       } else
         toast({
-          status: "warning",
-          title: "Aucune invitations envoyée"
+          status: "info",
+          title: "Aucune invitations envoyées"
         });
 
       setIsLoading(false);
@@ -137,8 +135,7 @@ export const EntityNotifModal = <
 
                     <OrgNotifForm
                       entity={entity}
-                      org={org}
-                      query={query as AppQuery<IOrg>}
+                      query={query as AppQueryWithData<IOrg>}
                       onSubmit={async (
                         form: OrgNotifFormState,
                         type?: "single" | "multi"
@@ -167,7 +164,12 @@ export const EntityNotifModal = <
                         colorScheme="teal"
                         my={5}
                         isLoading={isLoading}
-                        onClick={() => postEntityNotifications({ event })}
+                        onClick={() => {
+                          const confirmed = confirm(
+                            "Êtes-vous sûr de vouloir inviter les abonnés de cet événement à la discussion ?"
+                          );
+                          if (confirmed) postEntityNotifications({ event });
+                        }}
                       >
                         Inviter les abonnés de cet événement à la discussion
                       </Button>

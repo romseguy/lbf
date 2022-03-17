@@ -117,6 +117,7 @@ export const defaultTabs: IOrgTabWithIcon[] = [
 //#region toString
 export const orgTypeFull = (orgType: EOrgType): string => {
   if (!orgType) return "";
+
   return `${
     [EOrgType.ASSO, EOrgType.GENERIC].includes(orgType) ? "de l'" : "du "
   }${OrgTypes[orgType].toLowerCase()}`;

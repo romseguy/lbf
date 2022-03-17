@@ -37,7 +37,6 @@ import {
   useEditOrgMutation,
   useGetOrgsQuery
 } from "features/orgs/orgsApi";
-import { refetchOrgs } from "features/orgs/orgSlice";
 import {
   IOrg,
   orgTypeFull,
@@ -51,12 +50,12 @@ import {
   IOrgWeb,
   IOrgAddress
 } from "models/Org";
-import { useAppDispatch } from "store";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
-import { capitalize, normalize } from "utils/string";
-import { AppQuery } from "utils/types";
+import { normalize } from "utils/string";
+import { AppQueryWithData } from "utils/types";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -64,13 +63,11 @@ export const OrgForm = withGoogleApi({
   ({
     session,
     orgQuery,
-    setIsTouched,
     ...props
   }: {
-    session: Session | null;
-    orgQuery: AppQuery<IOrg>;
+    session: Session;
+    orgQuery?: AppQueryWithData<IOrg>;
     orgType?: string;
-    setIsTouched?: React.Dispatch<React.SetStateAction<boolean>>;
     setOrgType?: (orgType: string) => void;
     onCancel?: () => void;
     onSubmit?: (orgUrl: string) => void;
@@ -78,10 +75,9 @@ export const OrgForm = withGoogleApi({
     const { colorMode } = useColorMode();
     const isDark = colorMode === "dark";
     const toast = useToast({ position: "top" });
-    const dispatch = useAppDispatch();
     const [addOrg] = useAddOrgMutation();
     const [editOrg] = useEditOrgMutation();
-    const org = orgQuery.data;
+    const org = orgQuery?.data;
     const orgsQuery = useGetOrgsQuery();
     const { data: myOrgs } = useGetOrgsQuery(
       {
@@ -121,6 +117,7 @@ export const OrgForm = withGoogleApi({
       errors,
       setError,
       clearErrors,
+      formState,
       watch,
       getValues,
       setValue
@@ -133,6 +130,7 @@ export const OrgForm = withGoogleApi({
       },
       mode: "onChange"
     });
+    useLeaveConfirm({ formState });
 
     const orgAddress = watch("orgAddress");
     const orgEmail = watch("orgEmail");
@@ -145,7 +143,6 @@ export const OrgForm = withGoogleApi({
     const orgWeb = watch("orgWeb");
 
     const onChange = () => {
-      setIsTouched && setIsTouched(true);
       clearErrors("formErrorMessage");
     };
 
@@ -232,10 +229,11 @@ export const OrgForm = withGoogleApi({
         } else {
           const org = await addOrg(payload).unwrap();
           orgUrl = org.orgUrl;
-          dispatch(refetchOrgs());
 
           toast({
-            title: `Vous allez être redirigé vers ${org.orgName}...`,
+            title: `Vous allez être redirigé vers ${orgTypeFull5(
+              org.orgType
+            )} ${org.orgName}...`,
             status: "success"
           });
         }
@@ -322,7 +320,9 @@ export const OrgForm = withGoogleApi({
           isInvalid={!!errors["orgs"]}
           display={orgType !== EOrgType.NETWORK ? "none" : undefined}
         >
-          <FormLabel>Organisations faisant partie du réseau</FormLabel>
+          <FormLabel>
+            Ajouter des organisations à l'arborescence du réseau
+          </FormLabel>
           <Controller
             name="orgs"
             as={ReactSelect}
@@ -333,15 +333,11 @@ export const OrgForm = withGoogleApi({
             isMulti
             isSearchable
             menuPlacement="top"
-            noOptionsMessage={() => "Aucun résultat"}
+            noOptionsMessage={() => "Aucune organisation trouvée"}
             options={session?.user.isAdmin ? orgsQuery.data : myOrgs}
             getOptionLabel={(option: any) => option.orgName}
             getOptionValue={(option: any) => option._id}
-            placeholder={
-              hasItems(myOrgs)
-                ? "Rechercher une organisation..."
-                : "Vous n'avez créé aucune organisations"
-            }
+            placeholder="Rechercher une organisation..."
             styles={{
               control: (defaultStyles: any) => {
                 return {
@@ -373,12 +369,9 @@ export const OrgForm = withGoogleApi({
                   org={org}
                   placeholder={`Écrire la description ${orgTypeLabel}`}
                   session={session}
-                  onBlur={(html) => {
+                  onChange={({ html }) => {
                     renderProps.onChange(html);
-                    if (!org && !html) return;
-                    setIsTouched && setIsTouched(true);
                   }}
-                  //onChange={({ html }) => renderProps.onChange(html)}
                 />
               );
             }}

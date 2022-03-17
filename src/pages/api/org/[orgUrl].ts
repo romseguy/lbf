@@ -339,7 +339,7 @@ handler.put<
 
   try {
     const _id = req.query.orgUrl;
-    const org = await models.Org.findOne({ _id });
+    let org = await models.Org.findOne({ _id });
 
     if (!org) {
       return res
@@ -446,9 +446,19 @@ handler.put<
     }
 
     logJson(`PUT /org/${_id}:`, update || body);
-    await models.Org.updateOne({ _id }, update || body);
+    org = await models.Org.findOneAndUpdate({ _id }, update || body);
 
-    res.status(200).json({});
+    if (!org) {
+      return res
+        .status(400)
+        .json(
+          createServerError(
+            new Error(`L'organisation ${_id} n'a pas pu être modifiée`)
+          )
+        );
+    }
+
+    res.status(200).json(org);
   } catch (error: any) {
     if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY)
       return res.status(400).json({

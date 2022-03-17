@@ -1,13 +1,14 @@
 import { ChatIcon } from "@chakra-ui/icons";
 import {
+  Box,
+  BoxProps,
+  IconButton,
   Popover,
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  IconButton,
   Select,
-  Box,
-  BoxProps,
+  Spinner,
   Text,
   VStack,
   useColorMode,
@@ -148,94 +149,98 @@ const TopicPopoverContent = ({
           </option>
         </Select>
 
-        {showTopics === "showTopicsAdded" &&
-          (Array.isArray(myTopicsQuery.data) &&
-          myTopicsQuery.data.length > 0 ? (
-            <VStack
-              aria-hidden
-              overflow="auto"
-              height="250px"
-              spacing={2}
-              pr={1}
-            >
-              {myTopicsQuery.data.map((topic, index) => {
-                if (topic.org === null || topic.event === null) return null;
-                return (
-                  <Box
-                    key={topic._id}
-                    alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
-                    borderColor={isDark ? "gray.600" : "gray.300"}
-                    borderRadius="lg"
-                    borderStyle="solid"
-                    borderWidth="1px"
-                    p={1}
-                  >
+        {showTopics === "showTopicsAdded" && (
+          <>
+            {myTopicsQuery.isLoading || myTopicsQuery.isFetching ? (
+              <Spinner />
+            ) : hasItems(myTopicsQuery.data) ? (
+              <VStack
+                aria-hidden
+                overflow="auto"
+                height="250px"
+                spacing={2}
+                pr={1}
+              >
+                {myTopicsQuery.data.map((topic, index) => {
+                  if (topic.org === null || topic.event === null) return null;
+                  return (
                     <Box
-                      display="flex"
-                      justifyContent={
-                        index % 2 === 0 ? "flex-start" : "flex-end"
-                      }
+                      key={topic._id}
+                      alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
+                      borderColor={isDark ? "gray.600" : "gray.300"}
+                      borderRadius="lg"
+                      borderStyle="solid"
+                      borderWidth="1px"
+                      p={1}
                     >
-                      <EntityButton
-                        topic={topic}
-                        org={topic.org}
-                        event={topic.event}
-                        p={1}
-                        onClick={() => {
-                          onClose();
-                          router.push(
-                            `/${
-                              topic.org
-                                ? topic.org.orgUrl
-                                : topic.event?.eventUrl
-                            }/discussions/${topic.topicName}`
-                          );
-                        }}
-                      />
-                    </Box>
+                      <Box
+                        display="flex"
+                        justifyContent={
+                          index % 2 === 0 ? "flex-start" : "flex-end"
+                        }
+                      >
+                        <EntityButton
+                          topic={topic}
+                          org={topic.org}
+                          event={topic.event}
+                          p={1}
+                          onClick={() => {
+                            onClose();
+                            router.push(
+                              `/${
+                                topic.org
+                                  ? topic.org.orgUrl
+                                  : topic.event?.eventUrl
+                              }/discussions/${topic.topicName}`
+                            );
+                          }}
+                        />
+                      </Box>
 
-                    {(topic.event || topic.org) && (
-                      <>
-                        <Box
-                          display="flex"
-                          alignItems="center"
-                          justifyContent={
-                            index % 2 === 0 ? "flex-start" : "flex-end"
-                          }
-                          mt={1}
-                        >
-                          <Text fontSize="smaller" mx={1}>
-                            dans
-                          </Text>
-                          <EntityButton
-                            event={topic.event}
-                            org={topic.org}
-                            p={1}
-                          />
-                        </Box>
-                        <Box
-                          display="flex"
-                          alignItems="center"
-                          justifyContent={
-                            index % 2 === 0 ? "flex-start" : "flex-end"
-                          }
-                          mt={1}
-                        >
-                          <Text fontSize="0.7em" fontStyle="italic" mx={1}>
-                            il y a {timeAgo(topic.createdAt).timeAgo}
-                          </Text>
-                        </Box>
-                      </>
-                    )}
-                  </Box>
-                );
-              })}
-            </VStack>
-          ) : (
-            <Text fontSize="smaller">
-              Vous n'avez ajouté aucune discussions.
-            </Text>
-          ))}
+                      {(topic.event || topic.org) && (
+                        <>
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent={
+                              index % 2 === 0 ? "flex-start" : "flex-end"
+                            }
+                            mt={1}
+                          >
+                            <Text fontSize="smaller" mx={1}>
+                              dans
+                            </Text>
+                            <EntityButton
+                              event={topic.event}
+                              org={topic.org}
+                              p={1}
+                            />
+                          </Box>
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent={
+                              index % 2 === 0 ? "flex-start" : "flex-end"
+                            }
+                            mt={1}
+                          >
+                            <Text fontSize="0.7em" fontStyle="italic" mx={1}>
+                              il y a {timeAgo(topic.createdAt).timeAgo}
+                            </Text>
+                          </Box>
+                        </>
+                      )}
+                    </Box>
+                  );
+                })}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller">
+                Vous n'avez ajouté aucune discussions.
+              </Text>
+            )}
+          </>
+        )}
 
         {showTopics === "showTopicsFollowed" &&
           (hasItems(followedTopics) ? (

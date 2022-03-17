@@ -97,14 +97,14 @@ const IndexPage = (props: PageProps) => {
   //#endregion
 
   //#region cross refetch
-  const refetchOrgs = useSelector(selectOrgsRefetch);
-  useEffect(() => {
-    if (refetchOrgs !== cachedRefetchOrgs) {
-      cachedRefetchOrgs = refetchOrgs;
-      console.log("refetching orgs");
-      orgsQuery.refetch();
-    }
-  }, [refetchOrgs]);
+  // const refetchOrgs = useSelector(selectOrgsRefetch);
+  // useEffect(() => {
+  //   if (refetchOrgs !== cachedRefetchOrgs) {
+  //     cachedRefetchOrgs = refetchOrgs;
+  //     console.log("refetching orgs");
+  //     orgsQuery.refetch();
+  //   }
+  // }, [refetchOrgs]);
   //#endregion
 
   return (
@@ -215,7 +215,12 @@ const IndexPage = (props: PageProps) => {
       </Column>
 
       {isAboutModalOpen && (
-        <AboutModal isOpen={isAboutModalOpen} onClose={closeAboutModal} />
+        <AboutModal
+          isMobile={props.isMobile}
+          isOpen={isAboutModalOpen}
+          session={props.session}
+          onClose={closeAboutModal}
+        />
       )}
 
       {isNetworksModalOpen && (

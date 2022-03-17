@@ -9,14 +9,10 @@ import { createWrapper } from "next-redux-wrapper";
 import { useDispatch } from "react-redux";
 import { Action } from "redux";
 
-import { documentApi } from "features/documents/documentsApi";
+import { api } from "api";
 
 import event from "features/events/eventSlice";
-import { eventApi } from "features/events/eventsApi";
-
 import org from "features/orgs/orgSlice";
-import { orgApi } from "features/orgs/orgsApi";
-
 import modal from "features/modals/modalSlice";
 
 import { projectApi } from "features/projects/projectsApi";
@@ -29,7 +25,6 @@ import { subscriptionApi } from "features/subscriptions/subscriptionsApi";
 import { topicsApi } from "features/forum/topicsApi";
 
 import user from "features/users/userSlice";
-import { userApi } from "features/users/usersApi";
 
 const uiSlice = createSlice({
   name: "ui",
@@ -58,23 +53,17 @@ const makeStore = () =>
       session,
       subscription,
       user,
-      [documentApi.reducerPath]: documentApi.reducer,
-      [eventApi.reducerPath]: eventApi.reducer,
-      [orgApi.reducerPath]: orgApi.reducer,
+      [api.reducerPath]: api.reducer,
       [projectApi.reducerPath]: projectApi.reducer,
       [subscriptionApi.reducerPath]: subscriptionApi.reducer,
-      [topicsApi.reducerPath]: topicsApi.reducer,
-      [userApi.reducerPath]: userApi.reducer
+      [topicsApi.reducerPath]: topicsApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({ serializableCheck: false }).concat(
-        documentApi.middleware,
-        eventApi.middleware,
-        orgApi.middleware,
+        api.middleware,
         projectApi.middleware,
         subscriptionApi.middleware,
-        topicsApi.middleware,
-        userApi.middleware
+        topicsApi.middleware
       ),
     devTools: process.env.NODE_ENV !== "production"
   });

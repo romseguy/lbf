@@ -10,25 +10,24 @@ export const Modal = ({
   onClose: () => void;
   children:
     | ((
-        setIsTouched: React.Dispatch<React.SetStateAction<boolean>>,
+        setIsDirty: React.Dispatch<React.SetStateAction<boolean>>,
         onCancel: () => void
       ) => React.ReactNode | React.ReactNodeArray)
     | React.ReactNode
     | React.ReactNodeArray;
 }) => {
-  const [isTouched, setIsTouched] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
   const onCancel = () =>
     props.onCancel
-      ? onCancelWithConfirm({ isTouched, onCancel: props.onCancel })
+      ? onCancelWithConfirm({ isDirty, onCancel: props.onCancel })
       : undefined;
 
-  const onClose = () =>
-    onCloseWithConfirm({ isTouched, onClose: props.onClose });
+  const onClose = () => onCloseWithConfirm({ isDirty, onClose: props.onClose });
 
   return (
     <ChakraModal {...props} trapFocus={false} onClose={onClose}>
       {typeof children === "function"
-        ? children(setIsTouched, onCancel)
+        ? children(setIsDirty, onCancel)
         : children}
     </ChakraModal>
   );

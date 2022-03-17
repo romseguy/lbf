@@ -13,12 +13,11 @@ import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessageText } from "features/common";
-import { refetchEvent } from "features/events/eventSlice";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import { getOrgEventCategories, IOrg } from "models/Org";
-import { useAppDispatch } from "store";
 import { handleError } from "utils/form";
 import { AppQueryWithData } from "utils/types";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 
 export const EventCategoryForm = ({
   orgQuery,
@@ -29,16 +28,17 @@ export const EventCategoryForm = ({
   onCancel: () => void;
   onSubmit: () => void;
 }) => {
-  const dispatch = useAppDispatch();
   const toast = useToast({ position: "top" });
 
   const [editOrg] = useEditOrgMutation();
   const org = orgQuery.data;
   const categories = getOrgEventCategories(org);
 
-  const { clearErrors, errors, handleSubmit, register, setError } = useForm({
-    mode: "onChange"
-  });
+  const { clearErrors, errors, handleSubmit, register, setError, formState } =
+    useForm({
+      mode: "onChange"
+    });
+  useLeaveConfirm({ formState });
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -55,8 +55,6 @@ export const EventCategoryForm = ({
           })
         }
       });
-      orgQuery.refetch();
-      dispatch(refetchEvent());
       setIsLoading(false);
       toast({ status: "success", title: "La catégorie a été ajoutée !" });
       props.onSubmit();

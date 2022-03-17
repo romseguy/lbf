@@ -126,12 +126,11 @@ export const OrgPage = ({
             tabItem={tabItem}
           />
         )}
-        {isCreator && (isConfig || isEdit) && (
+        {session && isCreator && (isConfig || isEdit) && (
           <OrgConfigPanel
             session={session}
             orgQuery={orgQuery}
             subQuery={subQuery}
-            isConfig={isConfig}
             isEdit={isEdit}
             setIsConfig={setIsConfig}
             setIsEdit={setIsEdit}
@@ -215,12 +214,11 @@ export const OrgPage = ({
         />
       )}
 
-      {isCreator && (isConfig || isEdit) && (
+      {session && isCreator && (isConfig || isEdit) && (
         <OrgConfigPanel
           session={session}
           orgQuery={orgQuery}
           subQuery={subQuery}
-          isConfig={isConfig}
           isEdit={isEdit}
           setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}

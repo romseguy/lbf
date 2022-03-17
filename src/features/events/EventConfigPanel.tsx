@@ -1,5 +1,5 @@
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
-import { Box, Button, Text, useToast, Icon, Input } from "@chakra-ui/react";
+import { Box, Button, Icon, Input, Text, useToast } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -13,9 +13,7 @@ import {
 } from "features/common";
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
-import { refetchOrg } from "features/orgs/orgSlice";
 import { IEvent } from "models/Event";
-import { useAppDispatch } from "store";
 import { AppQueryWithData } from "utils/types";
 
 export type EventConfigVisibility = {
@@ -29,31 +27,55 @@ export type EventConfigVisibility = {
 export const EventConfigPanel = ({
   session,
   eventQuery,
-  isConfig,
   isEdit,
-  isVisible,
   setIsConfig,
-  setIsEdit,
-  setIsVisible
-}: EventConfigVisibility & {
+  setIsEdit
+}: {
   session: Session;
   eventQuery: AppQueryWithData<IEvent>;
-  isConfig: boolean;
   isEdit: boolean;
   setIsConfig: (isConfig: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
 }) => {
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const event = eventQuery.data;
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const [isDisabled, setIsDisabled] = useState(true);
+  const [isVisible, setIsVisible] = useState<
+    EventConfigVisibility["isVisible"]
+  >({
+    banner: false,
+    logo: false
+  });
 
   return (
     <>
+      {isEdit && (
+        <Column>
+          <EventForm
+            session={session}
+            event={event}
+            onCancel={() => {
+              setIsEdit(false);
+              setIsConfig(true);
+            }}
+            onSubmit={async (eventUrl: string) => {
+              if (eventUrl !== event.eventUrl)
+                await router.push(`/${eventUrl}`, `/${eventUrl}`, {
+                  shallow: true
+                });
+              else {
+                setIsEdit(false);
+                setIsConfig(false);
+              }
+            }}
+          />
+        </Column>
+      )}
+
       <Box mb={3}>
-        {isConfig && !isEdit && (
+        {!isEdit && (
           <>
             <Button
               colorScheme="teal"
@@ -97,7 +119,6 @@ export const EventConfigPanel = ({
                   }).unwrap();
 
                   if (deletedEvent) {
-                    dispatch(refetchOrg());
                     await router.push(`/`);
                     toast({
                       title: `${deletedEvent.eventName} a été supprimé !`,
@@ -116,31 +137,7 @@ export const EventConfigPanel = ({
         )}
       </Box>
 
-      {isEdit && (
-        <Column>
-          <EventForm
-            session={session}
-            event={event}
-            onCancel={() => {
-              setIsEdit(false);
-              setIsConfig(true);
-            }}
-            onSubmit={async (eventUrl: string) => {
-              if (eventUrl !== event.eventUrl)
-                await router.push(`/${eventUrl}`, `/${eventUrl}`, {
-                  shallow: true
-                });
-              else {
-                eventQuery.refetch();
-                setIsEdit(false);
-                setIsConfig(false);
-              }
-            }}
-          />
-        </Column>
-      )}
-
-      {isConfig && !isEdit && (
+      {!isEdit && (
         <Column>
           <Heading mb={1} mt={3}>
             Apparence

@@ -12,11 +12,10 @@ import {
 import React, { useEffect, useState } from "react";
 import { DeleteButton } from "features/common";
 import { IOrg } from "models/Org";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 
 export const TopicsListCategories = ({
-  org,
   orgQuery,
   isCreator,
   isSubscribed,
@@ -24,8 +23,7 @@ export const TopicsListCategories = ({
   setSelectedCategories,
   ...props
 }: FlexProps & {
-  org: IOrg;
-  orgQuery: AppQuery<IOrg>;
+  orgQuery: AppQueryWithData<IOrg>;
   isCreator?: boolean;
   isSubscribed?: boolean;
   selectedCategories?: string[];
@@ -37,6 +35,7 @@ export const TopicsListCategories = ({
   const isDark = colorMode === "dark";
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const [editOrg] = useEditOrgMutation();
+  const org = orgQuery.data;
 
   useEffect(() => {
     if (!orgQuery.isFetching) {
@@ -145,7 +144,6 @@ export const TopicsListCategories = ({
                           orgId: org._id,
                           payload: [`orgTopicCategories=${catId}`]
                         });
-                        orgQuery.refetch();
                       } catch (error) {
                         setIsLoading({ [`category-${index}`]: false });
                         console.error(error);

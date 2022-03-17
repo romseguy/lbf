@@ -55,7 +55,6 @@ export const EntityConfigStyles = ({
         payload,
         eventId: entity._id
       }).unwrap();
-      query.refetch();
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);

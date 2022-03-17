@@ -1,7 +1,6 @@
 import {
   ArrowBackIcon,
   ArrowForwardIcon,
-  EmailIcon,
   SettingsIcon
 } from "@chakra-ui/icons";
 import {
@@ -10,7 +9,6 @@ import {
   Box,
   Button,
   Flex,
-  Grid,
   Text,
   TabPanel,
   TabPanels,
@@ -18,8 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useState } from "react";
 import { css } from "twin.macro";
 import {
   Column,
@@ -33,7 +30,6 @@ import { EventNotifForm } from "features/forms/EventNotifForm";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
-import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { IEvent, EEventVisibility } from "models/Event";
 import {
   ESubscriptionType,
@@ -44,18 +40,11 @@ import {
 import { PageProps } from "pages/_app";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { useEditEventMutation } from "./eventsApi";
-import { selectEventRefetch } from "./eventSlice";
 import { EventAttendingForm } from "./EventAttendingForm";
 import { EventConfigPanel, EventConfigVisibility } from "./EventConfigPanel";
-import { EventPageDescription } from "./EventPageDescription";
-import { EventPageOrgs } from "./EventPageOrgs";
-import { EventPageInfo } from "./EventPageInfo";
 import { EventPageTabs } from "./EventPageTabs";
-import { EventPageTimeline } from "./EventPageTimeline";
 import { getRefId } from "models/Entity";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
-
-let cachedRefetchEvent = false;
 
 export const EventPage = ({
   email,
@@ -109,12 +98,6 @@ export const EventPage = ({
   const [isConfig, setIsConfig] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
-  const [isVisible, setIsVisible] = useState<
-    EventConfigVisibility["isVisible"]
-  >({
-    banner: false,
-    logo: false
-  });
   const [showNotifForm, setShowNotifForm] = useState(false);
 
   let showAttendingForm = !isCreator;
@@ -134,17 +117,6 @@ export const EventPage = ({
       }
     }
   }
-  //#endregion
-
-  //#region cross refetch
-  const refetchEvent = useSelector(selectEventRefetch);
-  useEffect(() => {
-    if (refetchEvent !== cachedRefetchEvent) {
-      console.log("refetching event");
-      cachedRefetchEvent = refetchEvent;
-      eventQuery.refetch();
-    }
-  }, [refetchEvent]);
   //#endregion
 
   return (
@@ -285,7 +257,7 @@ export const EventPage = ({
             <TabPanel aria-hidden>
               <Heading mb={3}>Discussions</Heading>
 
-              <Column {...columnProps} pb={0}>
+              <Column {...columnProps}>
                 <TopicsList
                   event={event}
                   query={eventQuery}
@@ -379,16 +351,13 @@ export const EventPage = ({
         </EventPageTabs>
       )}
 
-      {session && (
+      {session && isCreator && (isConfig || isEdit) && (
         <EventConfigPanel
           session={session}
           eventQuery={eventQuery}
-          isConfig={isConfig}
           isEdit={isEdit}
-          isVisible={isVisible}
           setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}
-          setIsVisible={setIsVisible}
         />
       )}
     </Layout>

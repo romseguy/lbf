@@ -1,8 +1,6 @@
 import { Switch, useToast } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
-import { selectIsAppMounted, setIsAppMounted, useAppDispatch } from "store";
 import { base64ToUint8Array } from "utils/string";
 
 interface customWindow extends Window {
@@ -18,7 +16,6 @@ export const SubscribeSwitch = ({
   email: string;
   userName: string;
 }) => {
-  const dispatch = useAppDispatch();
   const toast = useToast({ position: "top" });
 
   const [editUser] = useEditUserMutation();
@@ -51,7 +48,6 @@ export const SubscribeSwitch = ({
           payload: { userSubscription: pushSubscription },
           slug: userName
         });
-        userQuery.refetch();
         toast({
           status: "success",
           title: "Les notifications mobile sont activées"
@@ -72,7 +68,6 @@ export const SubscribeSwitch = ({
         payload: { userSubscription: null },
         slug: userName
       });
-      userQuery.refetch();
       toast({
         status: "success",
         title: "Notifications mobiles désactivées"
@@ -83,7 +78,6 @@ export const SubscribeSwitch = ({
     }
   };
 
-  //const isAppMounted = useSelector(selectIsAppMounted);
   useEffect(() => {
     async function componentDidMount() {
       if (!("serviceWorker" in navigator)) {
@@ -112,10 +106,7 @@ export const SubscribeSwitch = ({
       }
     }
 
-    // if (!isAppMounted) {
-    //   dispatch(setIsAppMounted(true));
     componentDidMount();
-    //}
   }, []);
 
   return (
