@@ -75,6 +75,8 @@ import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
+import { refetchEvents } from "features/events/eventSlice";
+import { useAppDispatch } from "store";
 
 type DaysMap = { [key: number]: DayState };
 type DayState = {
@@ -107,6 +109,7 @@ export const EventForm = withGoogleApi({
     onCancel?: () => void;
     onSubmit?: (eventUrl: string) => void;
   }) => {
+    const dispatch = useAppDispatch();
     const { colorMode } = useColorMode();
     const isDark = colorMode === "dark";
     const toast = useToast({ position: "top" });
@@ -254,7 +257,8 @@ export const EventForm = withGoogleApi({
       console.log("submitted", form);
       setIsLoading(true);
 
-      let eventUrl: string | undefined = props.event?.eventUrl;
+      const eventName = form.eventName.trim();
+      let eventUrl = normalize(eventName);
       const eventAddress = form.eventAddress?.filter(
         ({ address }) => address !== ""
       );
@@ -264,7 +268,7 @@ export const EventForm = withGoogleApi({
 
       let payload = {
         ...form,
-        eventName: form.eventName.trim(),
+        eventName,
         // eventDescription: form.eventDescription
         //   ? normalizeQuill(form.eventDescription)
         //   : undefined,
@@ -321,8 +325,8 @@ export const EventForm = withGoogleApi({
 
         if (props.event) {
           await editEvent({
-            payload,
-            eventUrl: props.event.eventUrl
+            eventId: props.event._id,
+            payload
           }).unwrap();
 
           toast({
@@ -332,6 +336,7 @@ export const EventForm = withGoogleApi({
         } else {
           const event = await addEvent(payload).unwrap();
           eventUrl = event.eventUrl;
+          dispatch(refetchEvents());
 
           toast({
             title: `Vous allez être redirigé vers ${event.eventName}...`,

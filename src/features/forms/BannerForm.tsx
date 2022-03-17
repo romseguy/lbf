@@ -50,7 +50,6 @@ export const BannerForm = ({
     ? entity.eventBanner
     : entity.orgBanner;
   const entityName = isE ? entity.eventName : entity.orgName;
-  const entityUrl = isE ? entity.eventUrl : entity.orgUrl;
 
   //#region form
   const {
@@ -120,7 +119,7 @@ export const BannerForm = ({
 
       await edit({
         payload,
-        [`${isE ? "event" : "org"}Url`]: entityUrl
+        eventId: entity._id
       }).unwrap();
       query.refetch();
       setIsLoading(false);
@@ -158,9 +157,9 @@ export const BannerForm = ({
           onClick={async () => {
             try {
               setIsLoading(true);
-              await editOrg({
+              await edit({
                 payload: ["orgBanner"],
-                [`${isE ? "event" : "org"}Url`]: entityUrl
+                eventId: entity._id
               }).unwrap();
               query.refetch();
               setIsLoading(false);

@@ -30,7 +30,6 @@ export const EntityConfigStyles = ({
   const entity = (query.data || {}) as IEvent | IOrg;
   const isE = isEvent(entity);
   const edit = isE ? editEvent : editOrg;
-  const entityUrl = isE ? entity.eventUrl : entity.orgUrl;
 
   //#region form
   const { setError, errors, clearErrors } = useForm({
@@ -54,7 +53,7 @@ export const EntityConfigStyles = ({
       };
       await edit({
         payload,
-        [`${isE ? "event" : "org"}Url`]: entityUrl
+        eventId: entity._id
       }).unwrap();
       query.refetch();
       setIsLoading(false);

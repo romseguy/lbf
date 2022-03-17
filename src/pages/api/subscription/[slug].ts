@@ -120,33 +120,33 @@ handler.put<NextApiRequest & { query: { slug: string } }, NextApiResponse>(
     const session = await getSession({ req });
 
     if (!session) {
-      res
-        .status(403)
+      return res
+        .status(401)
         .json(createServerError(new Error("Vous devez être identifié")));
-    } else {
-      try {
-        const {
-          query: { slug }
-        } = req;
+    }
 
-        let body = req.body;
+    try {
+      const {
+        query: { slug }
+      } = req;
 
-        await models.Subscription.updateOne({ _id: slug }, body);
+      let body = req.body;
 
-        // if (nModified === 1) {
-        res.status(200).json({});
-        // } else {
-        //   res
-        //     .status(400)
-        //     .json(
-        //       createServerError(
-        //         new Error(`L'abonnement n'a pas pu être modifié`)
-        //       )
-        //     );
-        // }
-      } catch (error) {
-        res.status(500).json(createServerError(error));
-      }
+      await models.Subscription.updateOne({ _id: slug }, body);
+
+      // if (nModified === 1) {
+      res.status(200).json({});
+      // } else {
+      //   res
+      //     .status(400)
+      //     .json(
+      //       createServerError(
+      //         new Error(`L'abonnement n'a pas pu être modifié`)
+      //       )
+      //     );
+      // }
+    } catch (error) {
+      res.status(500).json(createServerError(error));
     }
   }
 );

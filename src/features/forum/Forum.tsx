@@ -29,7 +29,6 @@ export const Forum = ({
   const { data: session, loading: isSessionLoading } = useSession();
 
   //#region org
-  const mutation = useEditOrgMutation();
   const org = orgQuery.data;
   const isCreator =
     session?.user.userId === getRefId(org) || session?.user.isAdmin || false;
@@ -66,7 +65,6 @@ export const Forum = ({
       <TopicsList
         org={org}
         query={orgQuery}
-        mutation={mutation}
         subQuery={subQuery}
         isCreator={isCreator}
         isFollowed={isFollowed}

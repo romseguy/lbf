@@ -379,11 +379,11 @@ export const EventsListItem = ({
                     if (confirmed) {
                       if (event.eventOrgs.length <= 1) {
                         await deleteEvent({
-                          eventUrl: event.forwardedFrom?.eventId
+                          eventId: event.forwardedFrom?.eventId
                         }).unwrap();
                       } else {
                         await editEvent({
-                          eventUrl: event.forwardedFrom?.eventId,
+                          eventId: event.forwardedFrom?.eventId,
                           payload: {
                             eventOrgs: event.eventOrgs.filter((eventOrg) =>
                               typeof eventOrg === "object"
@@ -393,7 +393,7 @@ export const EventsListItem = ({
                           }
                         });
                         await editOrg({
-                          orgUrl: org.orgUrl,
+                          orgId: org._id,
                           payload: {
                             orgEvents: org.orgEvents.filter(
                               (orgEvent) => orgEvent._id !== event._id

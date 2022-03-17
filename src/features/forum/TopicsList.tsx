@@ -41,7 +41,6 @@ export const TopicsList = ({
   event,
   org,
   query,
-  mutation,
   subQuery,
   isLogin,
   setIsLogin,
@@ -51,7 +50,6 @@ export const TopicsList = ({
   event?: IEvent;
   org?: IOrg;
   query: AppQuery<IEvent | IOrg>;
-  mutation: any;
   subQuery: AppQuery<ISubscription>;
   isCreator: boolean;
   isFollowed?: boolean;
@@ -296,7 +294,6 @@ export const TopicsList = ({
             org={org}
             event={event}
             query={query}
-            mutation={mutation}
             subQuery={subQuery}
             isCreator={props.isCreator}
             isFollowed={props.isFollowed}
@@ -320,7 +317,6 @@ export const TopicsList = ({
           <TopicsListCategories
             org={org}
             orgQuery={query as AppQuery<IOrg>}
-            mutation={mutation}
             isCreator={props.isCreator}
             isSubscribed={props.isSubscribed}
             selectedCategories={selectedCategories}

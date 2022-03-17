@@ -307,10 +307,9 @@ export const EventsList = ({
                   currentDateP = minDate;
 
                   return (
-                    <React.Fragment>
+                    <React.Fragment key={`event-${index}`}>
                       {addGridHeader && (
                         <EventsListHeader
-                          key={`eventsList-header-${index}`}
                           borderTopRadius={index === 0 ? "lg" : undefined}
                           bg={isDark ? "gray.800" : "orange.200"}
                           minDate={minDate}
@@ -318,7 +317,6 @@ export const EventsList = ({
                       )}
 
                       <Tr
-                        key={`eventsList-item-${index}`}
                         bg={
                           isDark
                             ? index % 2 === 0
@@ -361,18 +359,16 @@ export const EventsList = ({
                         currentDate = minDate;
 
                         return (
-                          <React.Fragment>
+                          <React.Fragment key={`event-${index}`}>
                             {addGridHeader && (
                               <EventsListHeader
-                                key={`eventsList-header-${index}`}
                                 borderTopRadius={index === 0 ? "lg" : undefined}
-                                bg={isDark ? "gray.800" : "orange.100"}
+                                bg={isDark ? "gray.800" : "orange.200"}
                                 minDate={minDate}
                               />
                             )}
 
                             <Tr
-                              key={`eventsList-item-${index}`}
                               bg={
                                 isDark
                                   ? index % 2 === 0
@@ -449,16 +445,16 @@ export const EventsList = ({
                   currentDateN = minDate;
 
                   return (
-                    <React.Fragment>
-                      <EventsListHeader
-                        key={`eventsList-header-${index}`}
-                        borderTopRadius={index === 0 ? "lg" : undefined}
-                        bg={isDark ? "gray.800" : "orange.100"}
-                        minDate={minDate}
-                      />
+                    <React.Fragment key={`event-${index}`}>
+                      {addGridHeader && (
+                        <EventsListHeader
+                          borderTopRadius={index === 0 ? "lg" : undefined}
+                          bg={isDark ? "gray.800" : "orange.200"}
+                          minDate={minDate}
+                        />
+                      )}
 
                       <Tr
-                        key={`eventsList-item-${index}`}
                         bg={
                           isDark
                             ? index % 2 === 0

@@ -53,6 +53,7 @@ import { EventPageInfo } from "./EventPageInfo";
 import { EventPageTabs } from "./EventPageTabs";
 import { EventPageTimeline } from "./EventPageTimeline";
 import { getRefId } from "models/Entity";
+import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
 
 let cachedRefetchEvent = false;
 
@@ -273,55 +274,12 @@ export const EventPage = ({
             `}
           >
             <TabPanel aria-hidden>
-              <Grid
-                gridGap={5}
-                css={css`
-                  & {
-                    grid-template-columns: minmax(425px, 1fr) minmax(170px, 1fr);
-                  }
-                  @media (max-width: 700px) {
-                    & {
-                      grid-template-columns: 1fr !important;
-                    }
-                  }
-                `}
-              >
-                {isMobile ? (
-                  <>
-                    <EventPageOrgs event={event} />
-
-                    <EventPageInfo
-                      event={event}
-                      isCreator={isCreator}
-                      setIsEdit={setIsEdit}
-                    />
-
-                    <EventPageTimeline event={event} />
-
-                    <EventPageDescription
-                      event={event}
-                      isCreator={isCreator}
-                      setIsEdit={setIsEdit}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <EventPageDescription
-                      event={event}
-                      isCreator={isCreator}
-                      setIsEdit={setIsEdit}
-                    />
-
-                    <EventPageInfo
-                      event={event}
-                      isCreator={isCreator}
-                      setIsEdit={setIsEdit}
-                    />
-                    <EventPageTimeline event={event} />
-                    <EventPageOrgs event={event} />
-                  </>
-                )}
-              </Grid>
+              <EventPageHomeTabPanel
+                eventQuery={eventQuery}
+                isCreator={isCreator}
+                isMobile={isMobile}
+                setIsEdit={setIsEdit}
+              />
             </TabPanel>
 
             <TabPanel aria-hidden>
@@ -331,7 +289,6 @@ export const EventPage = ({
                 <TopicsList
                   event={event}
                   query={eventQuery}
-                  mutation={[editEvent, editEventMutation]}
                   isCreator={isCreator}
                   subQuery={subQuery}
                   isFollowed={isFollowed}

@@ -63,7 +63,7 @@ export const OrgPageTabs = ({
     bg: isDark ? "gray.700" : "lightblue"
   };
   const router = useRouter();
-  const editOrgMutation = useEditOrgMutation();
+  const [editOrg] = useEditOrgMutation();
   const org = orgQuery.data;
 
   //#region tabs
@@ -228,7 +228,6 @@ export const OrgPageTabs = ({
               <TopicsList
                 org={org}
                 query={orgQuery}
-                mutation={editOrgMutation}
                 isCreator={isCreator}
                 subQuery={subQuery}
                 isFollowed={isFollowed}
@@ -245,7 +244,7 @@ export const OrgPageTabs = ({
                           <Button
                             onClick={async () => {
                               await editOrg({
-                                orgUrl: org.orgUrl,
+                                orgId: org._id,
                                 payload: { orgTopics: [] }
                               }).unwrap();
                               orgQuery.refetch();
@@ -367,8 +366,8 @@ export const OrgPageTabs = ({
 
                         setCurrentTabIndex(orgTabs.length - 1);
 
-                        await editOrgMutation[0]({
-                          orgUrl: org.orgUrl,
+                        await editOrg({
+                          orgId: org._id,
                           payload: { orgTabs }
                         });
                         orgQuery.refetch();

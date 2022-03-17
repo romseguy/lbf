@@ -24,7 +24,7 @@ handler.put<
 
   if (!session && !body.projectNotifications) {
     res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
   } else {
     try {
@@ -142,7 +142,7 @@ handler.delete<
 
   if (!session) {
     res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
   } else {
     try {

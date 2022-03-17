@@ -190,7 +190,7 @@ export const EntityNotifModal = <
                 onClick={async () => {
                   if (isEvent(entity))
                     await editEvent({
-                      eventUrl: entity.eventUrl,
+                      eventId: entity._id,
                       payload: { eventNotifications: [] }
                     });
                   else if (isTopic(entity))

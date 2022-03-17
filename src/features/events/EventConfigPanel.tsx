@@ -93,7 +93,7 @@ export const EventConfigPanel = ({
               onClick={async () => {
                 try {
                   const deletedEvent = await deleteEvent({
-                    eventUrl: event.eventUrl
+                    eventId: event._id
                   }).unwrap();
 
                   if (deletedEvent) {
@@ -126,14 +126,14 @@ export const EventConfigPanel = ({
               setIsConfig(true);
             }}
             onSubmit={async (eventUrl: string) => {
-              setIsConfig(false);
-              setIsEdit(false);
               if (eventUrl !== event.eventUrl)
                 await router.push(`/${eventUrl}`, `/${eventUrl}`, {
                   shallow: true
                 });
               else {
                 eventQuery.refetch();
+                setIsEdit(false);
+                setIsConfig(false);
               }
             }}
           />

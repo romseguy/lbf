@@ -57,27 +57,27 @@ export const eventApi = createApi({
         };
       }
     }),
-    deleteEvent: build.mutation<IEvent, { eventUrl: string }>({
-      query: ({ eventUrl }) => ({ url: `event/${eventUrl}`, method: "DELETE" })
+    deleteEvent: build.mutation<IEvent, { eventId: string }>({
+      query: ({ eventId }) => ({ url: `event/${eventId}`, method: "DELETE" })
     }),
     editEvent: build.mutation<
       {},
-      { payload: EditEventPayload; eventUrl?: string }
+      { payload: EditEventPayload; eventId?: string }
     >({
-      query: ({ payload, eventUrl }) => {
+      query: ({ payload, eventId }) => {
+        const id = eventId
+          ? eventId
+          : "_id" in payload
+          ? payload._id
+          : undefined;
+
         console.groupCollapsed("editEvent");
-        console.log("eventUrl", eventUrl);
+        console.log("eventId", id);
         console.log("payload", payload);
         console.groupEnd();
 
         return {
-          url: `event/${
-            eventUrl
-              ? eventUrl
-              : "eventUrl" in payload
-              ? payload.eventUrl
-              : undefined
-          }`,
+          url: `event/${id}`,
           method: "PUT",
           body: payload
         };

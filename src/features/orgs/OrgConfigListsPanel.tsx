@@ -79,8 +79,8 @@ export const OrgConfigListsPanel = ({
       } else payload.orgLists = addOrReplaceList(org, form);
 
       await editOrg({
-        payload,
-        orgUrl: org.orgUrl
+        orgId: org._id,
+        payload
       }).unwrap();
       orgQuery.refetch();
       setIsAdd(false);
@@ -276,8 +276,8 @@ export const OrgConfigListsPanel = ({
                               isIconOnly
                               onClick={async () => {
                                 await editOrg({
-                                  payload: [`orgLists.listName=${listName}`],
-                                  orgUrl: org.orgUrl
+                                  orgId: org._id,
+                                  payload: [`orgLists.listName=${listName}`]
                                 });
                                 orgQuery.refetch();
                               }}

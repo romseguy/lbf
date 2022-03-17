@@ -50,7 +50,7 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
 
     if (!session) {
       return res
-        .status(403)
+        .status(401)
         .json(createServerError(new Error("Vous devez être identifié")));
     }
 

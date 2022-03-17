@@ -126,7 +126,7 @@ handler.post<
 
   if (!session) {
     return res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
   }
 
@@ -300,22 +300,20 @@ handler.put<
 
   if (!session && !eventNotifications) {
     return res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
   }
 
   try {
-    const eventUrl = req.query.eventUrl;
-    const event = await models.Event.findOne({ eventUrl }).populate(
-      "eventOrgs"
-    );
+    const _id = req.query.eventUrl;
+    const event = await models.Event.findOne({ _id }).populate("eventOrgs");
 
     if (!event) {
       return res
         .status(404)
         .json(
           createServerError(
-            new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
+            new Error(`L'événement ${_id} n'a pas pu être trouvé`)
           )
         );
     }
@@ -430,16 +428,8 @@ handler.put<
       }
     }
 
-    await models.Event.updateOne({ eventUrl }, update || body);
-
-    // if (nModified !== 1)
-    //   return res
-    //     .status(400)
-    //     .json(
-    //       createServerError(
-    //         new Error(`L'événement ${eventUrl} n'a pas pu être modifié`)
-    //       )
-    //     );
+    logJson(`PUT /event/${_id}:`, update || body);
+    await models.Event.updateOne({ _id }, update || body);
 
     res.status(200).json({});
   } catch (error) {
@@ -456,81 +446,68 @@ handler.delete<
   const session = await getSession({ req });
 
   if (!session) {
-    res
-      .status(403)
+    return res
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
-  } else {
-    try {
-      const eventUrl = req.query.eventUrl;
-      let event = await models.Event.findOne({ eventUrl });
+  }
 
-      if (!event) {
-        event = await models.Event.findOne({ _id: eventUrl });
+  try {
+    const _id = req.query.eventUrl;
+    let event = await models.Event.findOne({ _id });
 
-        if (!event) {
-          return res
-            .status(404)
-            .json(
-              createServerError(
-                new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
-              )
-            );
-        }
-      }
-
-      if (
-        !equals(event.createdBy, session.user.userId) &&
-        !session.user.isAdmin
-      ) {
-        return res
-          .status(403)
-          .json(
-            createServerError(
-              new Error(
-                "Vous ne pouvez pas supprimer un événement que vous n'avez pas créé."
-              )
-            )
-          );
-      }
-
-      const { deletedCount } = await models.Event.deleteOne({ eventUrl });
-      const deleteOrgRef = async (event: IEvent) => {
-        for (const eventOrgRef of event.eventOrgs) {
-          const eventOrg = await models.Org.findOne({
-            _id: getRefId(eventOrgRef)
-          });
-
-          if (eventOrg) {
-            eventOrg.orgEvents = eventOrg.orgEvents.filter(
-              (orgEvent) => !equals(orgEvent, event?._id)
-            );
-            await eventOrg.save();
-          }
-        }
-      };
-
-      if (deletedCount === 1) {
-        await deleteOrgRef(event);
-        res.status(200).json(event);
-      } else {
-        if (
-          (await models.Event.deleteOne({ _id: eventUrl })).deletedCount === 1
-        ) {
-          await deleteOrgRef(event);
-          res.status(200).json(event);
-        } else {
-          res
-            .status(400)
-            .json(
-              createServerError(
-                new Error(`L'événement ${eventUrl} n'a pas pu être supprimé`)
-              )
-            );
-        }
-      }
-    } catch (error) {
-      res.status(500).json(createServerError(error));
+    if (!event) {
+      return res
+        .status(404)
+        .json(
+          createServerError(
+            new Error(`L'événement ${_id} n'a pas pu être trouvé`)
+          )
+        );
     }
+
+    if (
+      !equals(event.createdBy, session.user.userId) &&
+      !session.user.isAdmin
+    ) {
+      return res
+        .status(403)
+        .json(
+          createServerError(
+            new Error(
+              "Vous ne pouvez pas supprimer un événement que vous n'avez pas créé."
+            )
+          )
+        );
+    }
+
+    const { deletedCount } = await models.Event.deleteOne({ _id });
+
+    if (deletedCount !== 1) {
+      return res
+        .status(400)
+        .json(
+          createServerError(
+            new Error(`L'événement ${_id} n'a pas pu être supprimé`)
+          )
+        );
+    }
+
+    for (const eventOrgRef of event.eventOrgs) {
+      const eventOrg = await models.Org.findOne({
+        _id: getRefId(eventOrgRef)
+      });
+
+      if (eventOrg) {
+        eventOrg.orgEvents = eventOrg.orgEvents.filter(
+          (orgEvent) => !equals(orgEvent, event?._id)
+        );
+        await eventOrg.save();
+      }
+    }
+
+    res.status(200).json(event);
+  } catch (error) {
+    res.status(500).json(createServerError(error));
   }
 });
 

@@ -19,7 +19,6 @@ export const TopicFormModal = (props: {
   org?: IOrg;
   event?: IEvent;
   query: AppQuery<IEvent | IOrg>;
-  mutation: any;
   subQuery: AppQuery<ISubscription>;
   topic?: ITopic;
   isOpen: boolean;

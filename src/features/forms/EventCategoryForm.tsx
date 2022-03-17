@@ -47,7 +47,7 @@ export const EventCategoryForm = ({
     setIsLoading(true);
     try {
       await editOrg({
-        orgUrl: org.orgUrl,
+        orgId: org._id,
         payload: {
           orgEventCategories: categories.concat({
             catId: `${categories.length}`,

@@ -60,11 +60,17 @@ export const projectApi = createApi({
       { payload: Partial<IProject>; projectId?: string }
     >({
       query: ({ payload, projectId }) => {
-        console.log("editProject: projectId", projectId);
+        const id = projectId
+          ? projectId
+          : "_id" in payload
+          ? payload._id
+          : undefined;
+
+        console.log("editProject: projectId", id);
         console.log("editProject: payload", payload);
 
         return {
-          url: `project/${projectId ? projectId : payload._id}`,
+          url: `project/${id}`,
           method: "PUT",
           body: payload
         };

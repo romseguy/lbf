@@ -101,7 +101,7 @@ handler.put<
 
   if (!session) {
     return res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
   }
 

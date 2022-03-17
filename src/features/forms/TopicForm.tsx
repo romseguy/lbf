@@ -27,12 +27,14 @@ import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { AppQuery, Optional } from "utils/types";
 import { defaultErrorMessage, normalize } from "utils/string";
+import { useEditEventMutation } from "features/events/eventsApi";
+import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { isEvent } from "models/Entity";
 
 export const TopicForm = ({
   org,
   event,
   query,
-  mutation,
   subQuery,
   setIsTouched,
   ...props
@@ -40,7 +42,6 @@ export const TopicForm = ({
   org?: IOrg;
   event?: IEvent;
   query: AppQuery<IEvent | IOrg>;
-  mutation: any;
   subQuery: AppQuery<ISubscription>;
   setIsTouched: React.Dispatch<React.SetStateAction<boolean>>;
   topic?: ITopic;
@@ -55,7 +56,10 @@ export const TopicForm = ({
 
   const [addTopic, addTopicMutation] = useAddTopicMutation();
   const [editTopic, editTopicMutation] = useEditTopicMutation();
-  const [editEntity] = mutation;
+  //const [editEvent] = useEditEventMutation();
+  const [editOrg] = useEditOrgMutation();
+  // const entity = (query.data || {}) as IEvent | IOrg;
+  // const isE = isEvent(entity);
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
@@ -246,9 +250,12 @@ export const TopicForm = ({
                     // }
 
                     try {
-                      const catId = org.orgTopicCategories.length;
-                      await editEntity({
-                        orgUrl: org.orgUrl,
+                      //if (isE) {
+                      //todo
+                      //} else {
+                      const catId = "" + org.orgTopicCategories.length;
+                      await editOrg({
+                        orgId: org._id,
                         payload: {
                           orgTopicCategories: [
                             ...org.orgTopicCategories,
@@ -259,8 +266,9 @@ export const TopicForm = ({
                           ]
                         }
                       }).unwrap();
-
                       query.refetch();
+                      //}
+
                       setValue("topicCategory", {
                         label: inputValue,
                         value: catId

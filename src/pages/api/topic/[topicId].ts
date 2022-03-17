@@ -30,7 +30,7 @@ handler.post<
 
   if (!session) {
     return res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
   }
 
@@ -196,10 +196,11 @@ handler.put<
 >(async function editTopic(req, res) {
   const session = await getSession({ req });
 
-  if (!session)
+  if (!session) {
     return res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
+  }
 
   try {
     const {
@@ -287,10 +288,11 @@ handler.delete<
 >(async function removeTopic(req, res) {
   const session = await getSession({ req });
 
-  if (!session)
+  if (!session) {
     return res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
+  }
 
   try {
     const topicId = req.query.topicId;

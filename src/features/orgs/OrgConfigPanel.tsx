@@ -92,7 +92,9 @@ export const OrgConfigPanel = ({
                   shallow: true
                 });
               } else {
+                orgQuery.refetch();
                 setIsEdit(false);
+                setIsConfig(false);
               }
             }}
           />
@@ -145,7 +147,7 @@ export const OrgConfigPanel = ({
               }
               onClick={async () => {
                 try {
-                  const deletedOrg = await deleteOrg(org.orgUrl).unwrap();
+                  const deletedOrg = await deleteOrg(org._id).unwrap();
 
                   if (deletedOrg) {
                     dispatch(refetchOrgs());

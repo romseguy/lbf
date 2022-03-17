@@ -50,7 +50,6 @@ export const LogoForm = ({
     ? entity.eventLogo
     : entity.orgLogo;
   const entityName = isE ? entity.eventName : entity.orgName;
-  const entityUrl = isE ? entity.eventUrl : entity.orgUrl;
 
   //#region form
   const {
@@ -134,7 +133,7 @@ export const LogoForm = ({
 
       await edit({
         payload,
-        [`${isE ? "event" : "org"}Url`]: entityUrl
+        eventId: entity._id
       }).unwrap();
       query.refetch();
       setIsLoading(false);
@@ -170,9 +169,9 @@ export const LogoForm = ({
           onClick={async () => {
             try {
               setIsLoading(true);
-              await editOrg({
+              await edit({
                 payload: ["orgLogo"],
-                [`${isE ? "event" : "org"}Url`]: entityUrl
+                eventId: entity._id
               }).unwrap();
               query.refetch();
               setIsLoading(false);

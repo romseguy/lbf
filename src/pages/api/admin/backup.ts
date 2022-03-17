@@ -19,7 +19,7 @@ handler.get<NextApiRequest, NextApiResponse>(async function exportData(
 
   if (!session) {
     return res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié.")));
   }
 
@@ -53,7 +53,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function importData(
 
   if (!session) {
     return res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié.")));
   }
 

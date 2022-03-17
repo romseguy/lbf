@@ -165,7 +165,8 @@ export const OrgForm = withGoogleApi({
       console.log("submitted", form);
       setIsLoading(true);
 
-      let orgUrl: string | undefined = org?.orgUrl;
+      const orgName = form.orgName.trim();
+      let orgUrl = normalize(orgName);
       const orgDescription = !form.orgDescription.length
         ? undefined
         : form.orgDescription;
@@ -183,7 +184,7 @@ export const OrgForm = withGoogleApi({
 
       let payload: AddOrgPayload = {
         ...form,
-        orgName: form.orgName.trim(),
+        orgName,
         orgType,
         orgDescription,
         orgAddress,
@@ -218,12 +219,11 @@ export const OrgForm = withGoogleApi({
         if (org) {
           if (form.orgVisibility === EOrgVisibility.PUBLIC && !!org.orgPassword)
             await editOrg({
-              orgUrl: org.orgUrl,
+              orgId: org._id,
               payload: ["orgPassword"]
             }).unwrap();
 
-          await editOrg({ payload, orgUrl: org.orgUrl }).unwrap();
-          orgQuery.refetch();
+          await editOrg({ orgId: org._id, payload }).unwrap();
 
           toast({
             title: `La modification a été effectuée !`,

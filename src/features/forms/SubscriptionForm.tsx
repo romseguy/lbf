@@ -132,7 +132,7 @@ export const SubscriptionForm = ({
                   return orgList;
                 })
               };
-              await editOrg({ orgUrl: org.orgUrl, payload });
+              await editOrg({ orgId: org._id, payload });
             }
           }
         else

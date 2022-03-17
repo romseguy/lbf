@@ -89,8 +89,8 @@ export const EventAttendingForm = ({
       });
 
     await editEvent({
-      payload: { eventNotifications },
-      eventUrl: event.eventUrl
+      eventId: event._id,
+      payload: { eventNotifications }
     });
     eventQuery.refetch();
   };
@@ -139,10 +139,10 @@ export const EventAttendingForm = ({
       });
 
     await editEvent({
+      eventId: event._id,
       payload: {
         eventNotifications
-      },
-      eventUrl: event.eventUrl
+      }
     });
     eventQuery.refetch();
   };

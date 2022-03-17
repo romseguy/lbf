@@ -333,20 +333,20 @@ handler.put<
 
   if (!session) {
     return res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
   }
 
   try {
-    const orgUrl = req.query.orgUrl;
-    const org = await models.Org.findOne({ orgUrl });
+    const _id = req.query.orgUrl;
+    const org = await models.Org.findOne({ _id });
 
     if (!org) {
       return res
         .status(404)
         .json(
           createServerError(
-            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
+            new Error(`L'organisation ${_id} n'a pas pu être trouvé`)
           )
         );
     }
@@ -445,19 +445,8 @@ handler.put<
       }
     }
 
-    logJson(`PUT /org/${orgUrl}:`, update || body);
-
-    await models.Org.updateOne({ orgUrl }, update || body);
-
-    // if (nModified !== 1) {
-    //   return res
-    //     .status(400)
-    //     .json(
-    //       createServerError(
-    //         new Error(`L'organisation ${orgUrl} n'a pas pu être modifiée`)
-    //       )
-    //     );
-    // }
+    logJson(`PUT /org/${_id}:`, update || body);
+    await models.Org.updateOne({ _id }, update || body);
 
     res.status(200).json({});
   } catch (error: any) {
@@ -480,20 +469,20 @@ handler.delete<
 
   if (!session) {
     return res
-      .status(403)
+      .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
   }
 
   try {
-    const orgUrl = req.query.orgUrl;
-    const org = await models.Org.findOne({ orgUrl });
+    const _id = req.query.orgUrl;
+    const org = await models.Org.findOne({ _id });
 
     if (!org) {
       return res
         .status(404)
         .json(
           createServerError(
-            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
+            new Error(`L'organisation ${_id} n'a pas pu être trouvé`)
           )
         );
     }
@@ -510,21 +499,21 @@ handler.delete<
         );
     }
 
-    const { deletedCount } = await models.Org.deleteOne({ orgUrl });
+    const { deletedCount } = await models.Org.deleteOne({ _id });
 
     // todo delete references to this org?
 
-    if (deletedCount === 1) {
-      res.status(200).json(org);
-    } else {
-      res
+    if (deletedCount !== 1) {
+      return res
         .status(400)
         .json(
           createServerError(
-            new Error(`L'organisation ${orgUrl} n'a pas pu être supprimé`)
+            new Error(`L'organisation ${_id} n'a pas pu être supprimé`)
           )
         );
     }
+
+    res.status(200).json(org);
   } catch (error) {
     res.status(500).json(createServerError(error));
   }

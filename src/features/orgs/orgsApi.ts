@@ -43,27 +43,30 @@ export const orgApi = createApi({
           method: "POST",
           body: payload
         };
-      },
-      invalidatesTags: [{ type: "Orgs", id: "LIST" }]
+      }
+      // invalidatesTags: [{ type: "Orgs", id: "LIST" }]
     }),
     deleteOrg: build.mutation<IOrg, string>({
-      query: (orgUrl) => ({ url: `org/${orgUrl}`, method: "DELETE" })
+      query: (orgId) => ({ url: `org/${orgId}`, method: "DELETE" })
     }),
-    editOrg: build.mutation<{}, { payload: EditOrgPayload; orgUrl?: string }>({
-      query: ({ payload, orgUrl }) => {
+    editOrg: build.mutation<{}, { payload: EditOrgPayload; orgId?: string }>({
+      query: ({ payload, orgId }) => {
+        const id = orgId ? orgId : "_id" in payload ? payload._id : undefined;
+
         console.groupCollapsed("editOrg");
-        console.log("orgUrl", orgUrl);
+        console.log("orgId", id);
         console.log("payload", payload);
         console.groupEnd();
 
         return {
-          url: `org/${
-            orgUrl ? orgUrl : "orgUrl" in payload ? payload.orgUrl : undefined
-          }`,
+          url: `org/${id}`,
           method: "PUT",
           body: payload
         };
       }
+      // invalidatesTags: (result, error, params) => [
+      //   { type: "Orgs", id: params.payload._id }
+      // ]
     }),
     getOrg: build.query<IOrg, GetOrgParams>({
       query: ({ orgUrl, ...query }) => {
@@ -77,6 +80,9 @@ export const orgApi = createApi({
           url: `org/${orgUrl}?${objectToQueryString(query)}`
         };
       }
+      // providesTags: (result, error, params) => [
+      //   { type: "Orgs" as const, id: result?._id }
+      // ]
     }),
     getOrgs: build.query<
       IOrg[],
@@ -94,6 +100,16 @@ export const orgApi = createApi({
           url: `orgs${query ? `?${objectToQueryString(query)}` : ""}`
         };
       }
+      // providesTags: (result) =>
+      //   result
+      //     ? [
+      //         ...result.map(({ _id }) => ({
+      //           type: "Orgs" as const,
+      //           id: _id
+      //         })),
+      //         { type: "Orgs", id: "LIST" }
+      //       ]
+      //     : [{ type: "Orgs", id: "LIST" }]
     })
   })
 });

@@ -122,7 +122,7 @@ export const OrgEventCategoriesModal = ({
                             onClick={async () => {
                               try {
                                 await editOrg({
-                                  orgUrl: org.orgUrl,
+                                  orgId: org._id,
                                   payload: [`orgEventCategories.label=${label}`]
                                 }).unwrap();
                                 orgQuery.refetch();
