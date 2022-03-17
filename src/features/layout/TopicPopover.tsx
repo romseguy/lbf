@@ -11,20 +11,26 @@ import {
   Text,
   VStack,
   useColorMode,
-  useDisclosure
+  useDisclosure,
+  useToast
 } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { FaBellSlash } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { EntityButton } from "features/common";
 import { useGetTopicsQuery } from "features/forum/topicsApi";
-import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
+import {
+  useDeleteSubscriptionMutation,
+  useGetSubscriptionQuery
+} from "features/subscriptions/subscriptionsApi";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
 import { selectUserEmail } from "features/users/userSlice";
+import { getRefId } from "models/Entity";
+import { OrgTypes } from "models/Org";
 import { hasItems } from "utils/array";
 import { timeAgo } from "utils/date";
-import { getRefId } from "models/Entity";
 
 let cachedRefetchSubscription = false;
 
@@ -38,7 +44,9 @@ const TopicPopoverContent = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
+  const toast = useToast({ position: "top" });
   const userEmail = useSelector(selectUserEmail) || session.user.email;
+  const [deleteSubscription] = useDeleteSubscriptionMutation();
 
   //#region topics
   const myTopicsQuery = useGetTopicsQuery(
@@ -241,27 +249,62 @@ const TopicPopoverContent = ({
               {followedTopics.map((topic, index) => (
                 <Box
                   key={`followed-${topic._id}`}
-                  alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
+                  //alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
                   borderColor={isDark ? "gray.600" : "gray.300"}
                   borderRadius="lg"
                   borderStyle="solid"
                   borderWidth="1px"
                   p={1}
                 >
-                  <Box
-                    display="flex"
-                    justifyContent={index % 2 === 0 ? "flex-start" : "flex-end"}
-                  >
-                    <EntityButton topic={topic} p={1} />
-                  </Box>
                   {(topic.event || topic.org) && (
-                    <Box display="flex" alignItems="center" mt={1}>
+                    <Box display="flex" alignItems="center" mb={1}>
                       <Text fontSize="smaller" mx={1}>
-                        dans
+                        {topic.org ? OrgTypes[topic.org.orgType] : "Événement"}
                       </Text>
-                      <EntityButton event={topic.event} org={topic.org} p={1} />
+                      <EntityButton event={topic.event} org={topic.org} />
                     </Box>
                   )}
+
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    //justifyContent={index % 2 === 0 ? "flex-start" : "flex-end"}
+                  >
+                    <EntityButton topic={topic} mr={1} />
+                    <IconButton
+                      aria-label="Se désabonner de la discussion"
+                      icon={<FaBellSlash />}
+                      variant="outline"
+                      colorScheme="red"
+                      ml="auto"
+                      onClick={async () => {
+                        const unsubscribe = confirm(
+                          `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
+                        );
+
+                        if (unsubscribe) {
+                          try {
+                            await deleteSubscription({
+                              subscriptionId: subQuery.data?._id || "",
+                              topicId: topic._id
+                            });
+                            subQuery.refetch();
+
+                            toast({
+                              title: `Vous êtes désabonné de ${topic.topicName}`,
+                              status: "success"
+                            });
+                          } catch (error) {
+                            console.error(error);
+                            toast({
+                              title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
+                              status: "error"
+                            });
+                          }
+                        }
+                      }}
+                    />
+                  </Box>
                 </Box>
               ))}
             </VStack>
