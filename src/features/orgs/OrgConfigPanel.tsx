@@ -8,6 +8,7 @@ import {
   DeleteButton,
   EntityConfigBannerPanel,
   EntityConfigLogoPanel,
+  EntityConfigTopicCategoriesPanel,
   EntityConfigStyles,
   Heading
 } from "features/common";
@@ -25,9 +26,13 @@ export type OrgConfigVisibility = {
     logo?: boolean;
     lists?: boolean;
     subscribers?: boolean;
+    topicCategories?: boolean;
     topics?: boolean;
   };
-  setIsVisible: (obj: OrgConfigVisibility["isVisible"]) => void;
+  toggleVisibility: (
+    key: keyof OrgConfigVisibility["isVisible"],
+    bool?: boolean
+  ) => void;
 };
 
 export const OrgConfigPanel = ({
@@ -52,12 +57,24 @@ export const OrgConfigPanel = ({
 
   //#region local state
   const [isDisabled, setIsDisabled] = useState(true);
-  const [isVisible, setIsVisible] = useState<OrgConfigVisibility["isVisible"]>({
+  const _isVisible = {
     logo: false,
     banner: false,
-    topics: false,
-    subscribers: false
-  });
+    subscribers: false,
+    topicCategories: false,
+    topics: false
+  };
+  const [isVisible, _setIsVisible] =
+    useState<OrgConfigVisibility["isVisible"]>(_isVisible);
+  const toggleVisibility = (
+    key?: keyof OrgConfigVisibility["isVisible"],
+    bool?: boolean
+  ) =>
+    _setIsVisible(
+      !key
+        ? _isVisible
+        : { ...isVisible, [key]: bool !== undefined ? bool : !isVisible[key] }
+    );
   //#endregion
 
   return (
@@ -94,12 +111,7 @@ export const OrgConfigPanel = ({
               mr={3}
               onClick={() => {
                 setIsEdit(true);
-                setIsVisible({
-                  banner: false,
-                  lists: false,
-                  logo: false,
-                  subscribers: false
-                });
+                toggleVisibility();
               }}
               data-cy="orgEdit"
             >
@@ -160,18 +172,18 @@ export const OrgConfigPanel = ({
               orgQuery={orgQuery}
               subQuery={subQuery}
               isVisible={isVisible}
-              setIsVisible={setIsVisible}
+              toggleVisibility={toggleVisibility}
               mb={3}
             />
 
             <OrgConfigListsPanel
               orgQuery={orgQuery}
               isVisible={isVisible}
-              setIsVisible={setIsVisible}
+              toggleVisibility={toggleVisibility}
             />
           </Column>
 
-          <Column pt={1}>
+          <Column mb={3} pt={1}>
             <Heading>Apparence</Heading>
 
             <EntityConfigStyles query={orgQuery} mt={3} mb={2} />
@@ -179,16 +191,31 @@ export const OrgConfigPanel = ({
             <EntityConfigLogoPanel
               query={orgQuery}
               isVisible={isVisible}
-              setIsVisible={setIsVisible}
+              toggleVisibility={toggleVisibility}
               mb={3}
             />
 
             <EntityConfigBannerPanel
               query={orgQuery}
               isVisible={isVisible}
-              setIsVisible={setIsVisible}
+              toggleVisibility={toggleVisibility}
             />
           </Column>
+
+          {/* <Column mb={3} pt={1}>
+            <Heading>Discussions</Heading>
+
+            <EntityConfigTopicCategoriesPanel
+              query={orgQuery}
+              isVisible={isVisible}
+              toggleVisibility={toggleVisibility}
+              mb={3}
+            />
+          </Column>
+
+          <Column pt={1}>
+            <Heading>Événements</Heading>
+          </Column> */}
         </>
       )}
     </>

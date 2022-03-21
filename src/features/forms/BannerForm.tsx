@@ -36,7 +36,7 @@ import { IEntityBanner, isEvent } from "models/Entity";
 export const BannerForm = ({
   query,
   isVisible,
-  setIsVisible
+  toggleVisibility
 }: (EventConfigVisibility | OrgConfigVisibility) & {
   query: AppQuery<IOrg | IEvent>;
 }) => {
@@ -122,7 +122,7 @@ export const BannerForm = ({
         eventId: entity._id
       }).unwrap();
       setIsLoading(false);
-      setIsVisible({ ...isVisible, banner: false });
+      toggleVisibility("banner");
       toast({
         title: `La bannière ${
           isE ? "de l'événement" : orgTypeFull(entity.orgType)

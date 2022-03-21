@@ -9,12 +9,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import {
-  Textarea,
-  ErrorMessageText,
-  Button,
-  ListsControl
-} from "features/common";
+import { ErrorMessageText, Button, ListsControl } from "features/common";
 import { EditOrgPayload, useEditOrgMutation } from "features/orgs/orgsApi";
 import { useAddSubscriptionMutation } from "features/subscriptions/subscriptionsApi";
 import { IOrg } from "models/Org";
@@ -24,6 +19,14 @@ import { emailR } from "utils/email";
 import { handleError } from "utils/form";
 import { phoneR } from "utils/string";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import { TagsControl } from "features/common/forms/TagsControl";
+import { ItemTag } from "@choc-ui/chakra-autocomplete";
+
+type FormData = {
+  emailList: string;
+  phoneList?: string;
+  orgLists: { label: string; value: string }[];
+};
 
 export const SubscriptionForm = ({
   org,
@@ -52,28 +55,29 @@ export const SubscriptionForm = ({
     control,
     errors,
     handleSubmit,
-    register,
     setError,
+    setValue,
     formState
-  } = useForm({
-    mode: "onChange"
+  } = useForm<FormData>({
+    mode: "onChange",
+    defaultValues: {
+      emailList: ""
+    }
   });
   useLeaveConfirm({ formState });
 
+  const [tags, setTags] = useState<ItemTag[]>([]);
+
   const onChange = () => clearErrors();
 
-  const onSubmit = async (form: {
-    emailList?: string;
-    phoneList?: string;
-    orgLists: { label: string; value: string }[];
-  }) => {
+  const onSubmit = async (form: FormData) => {
     console.log("submitted", form);
     setIsLoading(true);
     const { emailList, phoneList, orgLists } = form;
 
-    const emailArray: string[] = (emailList || "")
-      .split(/(\s+)/)
-      .filter((e: string) => e.trim().length > 0)
+    const emailArray: string[] = tags
+      .map(({ label }) => label)
+      .concat(emailList)
       .filter((email: string) => emailR.test(email));
 
     const phoneArray: string[] = (phoneList || "")
@@ -193,17 +197,67 @@ export const SubscriptionForm = ({
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <FormControl isInvalid={!!errors.emailList} mb={3}>
-        <FormLabel>
-          Entrez les adresses e-mails séparées par un espace ou un retour à la
-          ligne :{" "}
-        </FormLabel>
-        <Textarea ref={register()} name="emailList" />
+        <FormLabel>Entrez ou copiez-collez les adresses e-mails : </FormLabel>
+
+        <TagsControl
+          control={control}
+          name="emailList"
+          tags={tags}
+          setTags={setTags}
+          setValue={setValue}
+        />
+
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="emailList" />
         </FormErrorMessage>
       </FormControl>
 
-      {/* <FormControl isInvalid={!!errors.phoneList} mb={3}>
+      <ListsControl
+        control={control}
+        errors={errors}
+        label="Liste(s):"
+        lists={org.orgLists}
+        name="orgLists"
+        onChange={onChange}
+      />
+
+      <ErrorMessage
+        errors={errors}
+        name="formErrorMessage"
+        render={({ message }) => (
+          <Alert status="error" mb={3}>
+            <AlertIcon />
+            <ErrorMessageText>{message}</ErrorMessageText>
+          </Alert>
+        )}
+      />
+
+      <Flex justifyContent="space-between">
+        <Button colorScheme="red" onClick={onCancel} mr={3}>
+          Annuler
+        </Button>
+
+        <Button
+          colorScheme="green"
+          type="submit"
+          isDisabled={
+            Object.keys(errors).length > 0 ||
+            Object.keys(isSubscriptionLoading).some(
+              (_id) => !!isSubscriptionLoading[_id]
+            )
+          }
+          isLoading={isLoading}
+          data-cy="orgAddSubscribersSubmit"
+        >
+          Ajouter
+        </Button>
+      </Flex>
+    </form>
+  );
+};
+
+{
+  /* <FormControl isInvalid={!!errors.phoneList} mb={3}>
         <FormLabel>
           Entrez les numéros de téléphone mobile séparés par un espace ou un
           retour à la ligne :{" "}
@@ -217,18 +271,11 @@ export const SubscriptionForm = ({
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="phoneList" />
         </FormErrorMessage>
-      </FormControl> */}
+      </FormControl> */
+}
 
-      <ListsControl
-        control={control}
-        errors={errors}
-        label="Liste(s):"
-        lists={org.orgLists}
-        name="orgLists"
-        onChange={onChange}
-      />
-
-      {/*<FormControl isRequired isInvalid={!!errors.orgLists} mb={3}>
+{
+  /*<FormControl isRequired isInvalid={!!errors.orgLists} mb={3}>
         <CheckboxGroup>
           <Box
             display="flex"
@@ -288,38 +335,5 @@ export const SubscriptionForm = ({
             message="Veuillez cocher une case au minimum"
           />
         </FormErrorMessage>
-      </FormControl>*/}
-
-      <ErrorMessage
-        errors={errors}
-        name="formErrorMessage"
-        render={({ message }) => (
-          <Alert status="error" mb={3}>
-            <AlertIcon />
-            <ErrorMessageText>{message}</ErrorMessageText>
-          </Alert>
-        )}
-      />
-
-      <Flex>
-        <Button colorScheme="red" onClick={onCancel} mr={3}>
-          Annuler
-        </Button>
-        <Button
-          colorScheme="green"
-          type="submit"
-          isDisabled={
-            Object.keys(errors).length > 0 ||
-            Object.keys(isSubscriptionLoading).some(
-              (_id) => !!isSubscriptionLoading[_id]
-            )
-          }
-          isLoading={isLoading}
-          data-cy="orgAddSubscribersSubmit"
-        >
-          Ajouter
-        </Button>
-      </Flex>
-    </form>
-  );
-};
+      </FormControl>*/
+}

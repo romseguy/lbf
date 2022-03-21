@@ -11,8 +11,8 @@ export const GridItem = ({
   dark,
   ...props
 }: GridItemProps & {
-  light?: { [key: string]: any };
-  dark?: { [key: string]: any };
+  light?: GridItemProps;
+  dark?: GridItemProps;
 }) => {
   const styles = useColorModeValue(light, dark);
   return (

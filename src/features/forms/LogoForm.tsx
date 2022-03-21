@@ -36,7 +36,7 @@ import { AppQuery } from "utils/types";
 export const LogoForm = ({
   query,
   isVisible,
-  setIsVisible
+  toggleVisibility
 }: (EventConfigVisibility | OrgConfigVisibility) & {
   query: AppQuery<IOrg | IEvent>;
 }) => {
@@ -136,7 +136,7 @@ export const LogoForm = ({
         eventId: entity._id
       }).unwrap();
       setIsLoading(false);
-      setIsVisible({ ...isVisible, logo: false });
+      toggleVisibility("logo");
       toast({
         title: `Le logo ${
           isE ? "de l'événement" : orgTypeFull(entity.orgType)

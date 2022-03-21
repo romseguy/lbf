@@ -17,7 +17,7 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { handleError } from "utils/form";
 import { AppQueryWithData } from "utils/types";
-import { ErrorMessageText } from ".";
+import { ErrorMessageText } from "..";
 
 export const EntityConfigStyles = ({
   query,

@@ -3,17 +3,17 @@ import React from "react";
 import { FaMinusSquare, FaPlusSquare } from "react-icons/fa";
 import { Grid, GridHeader, GridItem, Link } from "features/common";
 import { EventConfigVisibility } from "features/events/EventConfigPanel";
-import { BannerForm } from "features/forms/BannerForm";
+import { LogoForm } from "features/forms/LogoForm";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
 import { isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { AppQueryWithData } from "utils/types";
 
-export const EntityConfigBannerPanel = ({
+export const EntityConfigLogoPanel = ({
   query,
   isVisible,
-  setIsVisible,
+  toggleVisibility,
   ...props
 }: GridProps &
   (EventConfigVisibility | OrgConfigVisibility) & {
@@ -24,47 +24,28 @@ export const EntityConfigBannerPanel = ({
 
   return (
     <Grid {...props}>
-      <Link
-        variant="no-underline"
-        onClick={() =>
-          setIsVisible(
-            isE
-              ? {
-                  ...isVisible,
-                  banner: !isVisible.banner,
-                  logo: false
-                }
-              : {
-                  ...isVisible,
-                  banner: !isVisible.banner,
-                  lists: false,
-                  logo: false,
-                  subscribers: false
-                }
-          )
-        }
-      >
+      <Link variant="no-underline" onClick={() => toggleVisibility("logo")}>
         <GridHeader
           borderTopRadius="lg"
-          borderBottomRadius={!isVisible.banner ? "lg" : undefined}
+          borderBottomRadius={!isVisible.logo ? "lg" : undefined}
           alignItems="center"
         >
-          <Flex flexDirection="row" alignItems="center">
-            {isVisible.banner ? <FaMinusSquare /> : <FaPlusSquare />}
+          <Flex alignItems="center">
+            {isVisible.logo ? <FaMinusSquare /> : <FaPlusSquare />}
             <Heading size="sm" ml={2} py={3}>
-              Bannière
+              Logo
             </Heading>
           </Flex>
         </GridHeader>
       </Link>
 
-      {isVisible.banner && (
+      {isVisible.logo && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
           <Box p={5}>
-            <BannerForm
+            <LogoForm
               query={query}
               isVisible={isVisible}
-              setIsVisible={setIsVisible}
+              toggleVisibility={toggleVisibility}
             />
           </Box>
         </GridItem>

@@ -1,4 +1,10 @@
-import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ChevronUpIcon,
+  CloseIcon,
+  SmallCloseIcon
+} from "@chakra-ui/icons";
 import { Button, Heading, Grid, GridProps, Flex } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
@@ -24,7 +30,7 @@ export const OrgConfigSubscribersPanel = ({
   orgQuery,
   subQuery,
   isVisible,
-  setIsVisible,
+  toggleVisibility,
   ...props
 }: GridProps &
   OrgConfigVisibility & {
@@ -49,8 +55,7 @@ export const OrgConfigSubscribersPanel = ({
     }, {})
   );
   useEffect(() => {
-    if (!hasItems(org.orgSubscriptions))
-      setIsVisible({ ...isVisible, subscribers: false });
+    if (!hasItems(org.orgSubscriptions)) toggleVisibility("subscribers");
   }, [org.orgSubscriptions]);
   //#endregion
 
@@ -157,14 +162,7 @@ export const OrgConfigSubscribersPanel = ({
         variant="no-underline"
         onClick={() => {
           if (!hasItems(org.orgSubscriptions)) setIsAdd(!isAdd);
-          setIsVisible({
-            banner: false,
-            lists: false,
-            logo: false,
-            subscribers: hasItems(org.orgSubscriptions)
-              ? !isVisible.subscribers
-              : false
-          });
+          else toggleVisibility("subscribers");
         }}
       >
         <GridHeader
@@ -172,6 +170,11 @@ export const OrgConfigSubscribersPanel = ({
           borderBottomRadius={
             !isVisible.subscribers && !isAdd ? "lg" : undefined
           }
+          light={{
+            _hover: {
+              bg: "orange.200"
+            }
+          }}
         >
           <Grid templateColumns="1fr auto" alignItems="center">
             <GridItem
@@ -204,17 +207,16 @@ export const OrgConfigSubscribersPanel = ({
               `}
             >
               <Button
-                rightIcon={isAdd ? <ChevronDownIcon /> : <ChevronRightIcon />}
-                colorScheme={isAdd ? "green" : "teal"}
+                colorScheme={isAdd ? "red" : "teal"}
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsAdd(!isAdd);
-                  setIsVisible({ ...isVisible, subscribers: false });
+                  toggleVisibility("subscribers", false);
                 }}
                 m={1}
                 data-cy="orgAddSubscribers"
               >
-                Ajouter
+                {isAdd ? "Annuler" : "Ajouter"}
               </Button>
             </GridItem>
           </Grid>
@@ -233,7 +235,7 @@ export const OrgConfigSubscribersPanel = ({
               orgQuery.refetch();
               subQuery.refetch();
               setIsAdd(false);
-              setIsVisible({ ...isVisible, subscribers: true });
+              toggleVisibility("subscribers");
               dispatch(refetchEvent());
             }}
           />

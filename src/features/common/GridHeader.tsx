@@ -1,24 +1,24 @@
 import React from "react";
-import {
-  BorderProps,
-  BoxProps,
-  SpacerProps,
-  GridItemProps
-} from "@chakra-ui/react";
+import { GridItemProps } from "@chakra-ui/react";
 import { GridItem } from "./GridItem";
 
 export const GridHeader = ({
   children,
-  light = { bg: "orange.300" },
-  dark = { bg: "gray.700" },
+  light = {},
+  dark = {},
   pl = 3,
   ...props
 }: GridItemProps & {
-  light?: { [key: string]: any };
-  dark?: { [key: string]: any };
+  light?: GridItemProps;
+  dark?: GridItemProps;
 }) => {
   return (
-    <GridItem light={light} dark={dark} pl={pl} {...props}>
+    <GridItem
+      light={{ bg: "orange.300", ...light }}
+      dark={{ bg: "gray.700", ...dark }}
+      pl={pl}
+      {...props}
+    >
       {children}
     </GridItem>
   );

@@ -20,8 +20,9 @@ export type EventConfigVisibility = {
   isVisible: {
     banner?: boolean;
     logo?: boolean;
+    topicCategories?: boolean;
   };
-  setIsVisible: (obj: EventConfigVisibility["isVisible"]) => void;
+  toggleVisibility: (key: keyof EventConfigVisibility["isVisible"]) => void;
 };
 
 export const EventConfigPanel = ({
@@ -42,12 +43,21 @@ export const EventConfigPanel = ({
   const event = eventQuery.data;
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const [isDisabled, setIsDisabled] = useState(true);
-  const [isVisible, setIsVisible] = useState<
-    EventConfigVisibility["isVisible"]
-  >({
+  const _isVisible = {
     banner: false,
     logo: false
-  });
+  };
+  const [isVisible, _setIsVisible] =
+    useState<EventConfigVisibility["isVisible"]>(_isVisible);
+  const toggleVisibility = (
+    key?: keyof EventConfigVisibility["isVisible"],
+    bool?: boolean
+  ) =>
+    _setIsVisible(
+      !key
+        ? _isVisible
+        : { ...isVisible, [key]: bool !== undefined ? bool : !isVisible[key] }
+    );
 
   return (
     <>
@@ -83,7 +93,7 @@ export const EventConfigPanel = ({
               mr={3}
               onClick={() => {
                 setIsEdit(true);
-                setIsVisible({ banner: false, logo: false });
+                toggleVisibility();
               }}
               data-cy="eventEdit"
             >
@@ -148,14 +158,14 @@ export const EventConfigPanel = ({
           <EntityConfigLogoPanel
             query={eventQuery}
             isVisible={isVisible}
-            setIsVisible={setIsVisible}
+            toggleVisibility={toggleVisibility}
             mb={3}
           />
 
           <EntityConfigBannerPanel
             query={eventQuery}
             isVisible={isVisible}
-            setIsVisible={setIsVisible}
+            toggleVisibility={toggleVisibility}
           />
         </Column>
       )}

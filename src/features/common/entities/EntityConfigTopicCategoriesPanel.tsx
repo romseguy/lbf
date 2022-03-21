@@ -10,39 +10,20 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { AppQueryWithData } from "utils/types";
 
-export const EntityConfigLogoPanel = ({
+export const EntityConfigTopicCategoriesPanel = ({
   query,
   isVisible,
-  setIsVisible,
+  toggleVisibility,
   ...props
 }: GridProps &
   (EventConfigVisibility | OrgConfigVisibility) & {
     query: AppQueryWithData<IEvent | IOrg>;
   }) => {
-  const entity = (query.data || {}) as IEvent | IOrg;
-  const isE = isEvent(entity);
-
   return (
     <Grid {...props}>
       <Link
         variant="no-underline"
-        onClick={() =>
-          setIsVisible(
-            isE
-              ? {
-                  ...isVisible,
-                  banner: false,
-                  logo: !isVisible.logo
-                }
-              : {
-                  ...isVisible,
-                  banner: false,
-                  lists: false,
-                  logo: !isVisible.logo,
-                  subscribers: false
-                }
-          )
-        }
+        onClick={() => toggleVisibility("topicCategories")}
       >
         <GridHeader
           borderTopRadius="lg"
@@ -64,7 +45,7 @@ export const EntityConfigLogoPanel = ({
             <LogoForm
               query={query}
               isVisible={isVisible}
-              setIsVisible={setIsVisible}
+              toggleVisibility={toggleVisibility}
             />
           </Box>
         </GridItem>

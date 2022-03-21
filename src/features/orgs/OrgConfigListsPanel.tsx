@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronRightIcon, EditIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronUpIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Button,
   Flex,
@@ -27,24 +27,17 @@ import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
 import { DeleteButton, GridHeader, GridItem, Link } from "features/common";
 import { EntityListForm } from "features/forms/EntityListForm";
-import {
-  addOrReplaceList,
-  editList,
-  getLists,
-  IOrg,
-  IOrgList
-} from "models/Org";
+import { addOrReplaceList, editList, IOrg, IOrgList } from "models/Org";
 import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
-import { AppQuery, AppQueryWithData } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
 import { EditOrgPayload, useEditOrgMutation } from "./orgsApi";
-import { IoIosPerson } from "react-icons/io";
 
 export const OrgConfigListsPanel = ({
   orgQuery,
   isVisible,
-  setIsVisible
+  toggleVisibility
 }: GridProps &
   OrgConfigVisibility & {
     orgQuery: AppQueryWithData<IOrg>;
@@ -62,7 +55,9 @@ export const OrgConfigListsPanel = ({
   const [listToEdit, setListToEdit] = useState<IOrgList>();
   const [listToShow, setListToShow] = useState<IOrgList>();
   useEffect(() => {
-    if (!hasItems(lists)) setIsVisible({ ...isVisible, lists: false });
+    if (!hasItems(lists)) {
+      toggleVisibility("lists");
+    }
   }, [lists]);
   //#endregion
 
@@ -84,7 +79,7 @@ export const OrgConfigListsPanel = ({
       }).unwrap();
       orgQuery.refetch();
       setIsAdd(false);
-      setIsVisible({ ...isVisible, lists: true });
+      toggleVisibility("lists");
 
       if (listToEdit)
         toast({ status: "success", title: "La liste a été modifiée !" });
@@ -105,17 +100,19 @@ export const OrgConfigListsPanel = ({
         variant="no-underline"
         onClick={() => {
           if (!hasItems(lists)) setIsAdd(!isAdd);
-          setIsVisible({
-            banner: false,
-            lists: hasItems(lists) ? !isVisible.lists : false,
-            logo: false,
-            subscribers: false
-          });
+          else {
+            toggleVisibility("lists");
+          }
         }}
       >
         <GridHeader
           borderTopRadius="lg"
           borderBottomRadius={!isVisible.lists && !isAdd ? "lg" : undefined}
+          light={{
+            _hover: {
+              bg: "orange.200"
+            }
+          }}
         >
           <Grid templateColumns="1fr auto" alignItems="center">
             <GridItem
@@ -149,17 +146,16 @@ export const OrgConfigListsPanel = ({
               `}
             >
               <Button
-                rightIcon={isAdd ? <ChevronDownIcon /> : <ChevronRightIcon />}
-                colorScheme={isAdd ? "green" : "teal"}
+                colorScheme={isAdd ? "red" : "teal"}
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsAdd(!isAdd);
-                  setIsVisible({ ...isVisible, lists: false });
+                  toggleVisibility("lists", false);
                 }}
                 m={1}
                 data-cy="org-list-add"
               >
-                Ajouter
+                {isAdd ? "Annuler" : "Ajouter"}
               </Button>
             </GridItem>
           </Grid>
