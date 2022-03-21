@@ -36,6 +36,8 @@ let cachedRefetchOrgs = false;
 let cachedUserEmail: string | undefined;
 
 const IndexPage = (props: PageProps) => {
+  console.log(props.session);
+
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const columnProps = {
@@ -225,14 +227,14 @@ const IndexPage = (props: PageProps) => {
 
       {isNetworksModalOpen && (
         <TreeChartModal
-          inputNodes={inputNodes}
-          isMobile={props.isMobile}
-          isOpen={isNetworksModalOpen}
           header={
             <Flex alignItems="center">
               Arborescence <HostTag ml={2} />
             </Flex>
           }
+          inputNodes={inputNodes}
+          isMobile={props.isMobile}
+          isOpen={isNetworksModalOpen}
           onClose={closeNetworksModal}
         />
       )}
@@ -240,7 +242,11 @@ const IndexPage = (props: PageProps) => {
       {isMapModalOpen && (
         <MapModal
           isOpen={isMapModalOpen}
-          header="Carte des réseaux"
+          header={
+            <Flex alignItems="center">
+              Carte <HostTag ml={2} />
+            </Flex>
+          }
           orgs={
             orgsQuery.data?.filter(
               (org) =>

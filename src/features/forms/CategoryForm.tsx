@@ -14,42 +14,53 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessageText } from "features/common";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
-import { getOrgEventCategories, IOrg } from "models/Org";
+import { IOrg } from "models/Org";
 import { handleError } from "utils/form";
 import { AppQueryWithData } from "utils/types";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import { IEntityCategory, IEntityCategoryKey, isEvent } from "models/Entity";
+import { IEvent } from "models/Event";
+import { useEditEventMutation } from "features/events/eventsApi";
 
-export const EventCategoryForm = ({
-  orgQuery,
+export const CategoryForm = ({
+  categories,
+  fieldName,
+  query,
   onCancel,
   ...props
 }: {
-  orgQuery: AppQueryWithData<IOrg>;
+  categories: IEntityCategory[];
+  fieldName: IEntityCategoryKey;
+  query: AppQueryWithData<IEvent | IOrg>;
   onCancel: () => void;
   onSubmit: () => void;
 }) => {
   const toast = useToast({ position: "top" });
-
+  const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
-  const org = orgQuery.data;
-  const categories = getOrgEventCategories(org);
+  const entity = query.data as IOrg;
+  const isE = isEvent(entity);
+  const edit = isE ? editEvent : editOrg;
 
+  //#region local state
+  const [isLoading, setIsLoading] = useState(false);
+  //#endregion
+
+  //#region form
   const { clearErrors, errors, handleSubmit, register, setError, formState } =
     useForm({
       mode: "onChange"
     });
   useLeaveConfirm({ formState });
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const onChange = () => clearErrors("formErrorMessage");
   const onSubmit = async (form: { category: string }) => {
     setIsLoading(true);
     try {
-      await editOrg({
-        orgId: org._id,
+      await edit({
+        [isE ? "eventId" : "orgId"]: entity._id,
         payload: {
-          orgEventCategories: categories.concat({
+          [fieldName]: categories.concat({
             catId: `${categories.length}`,
             label: form.category
           })
@@ -68,6 +79,8 @@ export const EventCategoryForm = ({
       });
     }
   };
+  //#endregion
+
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <FormControl isInvalid={!!errors.category} isRequired mb={3}>
@@ -77,6 +90,7 @@ export const EventCategoryForm = ({
           ref={register({
             required: "Veuillez saisir un nom de catégorie"
           })}
+          autoComplete="false"
         />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="category" />

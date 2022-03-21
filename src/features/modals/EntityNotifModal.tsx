@@ -42,8 +42,6 @@ export type NotifModalState<T> = {
 };
 
 interface NotifyModalProps<T> {
-  event?: IEvent<string | Date>;
-  org?: IOrg;
   query: AppQueryWithData<IEvent | IOrg>;
   mutation: any;
   setModalState: (modalState: NotifModalState<T>) => void;
@@ -54,8 +52,6 @@ interface NotifyModalProps<T> {
 export const EntityNotifModal = <
   T extends IEvent<string | Date> | IProject | ITopic
 >({
-  event,
-  org,
   query,
   mutation,
   setModalState,
@@ -64,6 +60,8 @@ export const EntityNotifModal = <
 }: NotifyModalProps<T>) => {
   const toast = useToast({ position: "top" });
   const [isLoading, setIsLoading] = useState(false);
+  const event = isEvent(query.data) ? query.data : undefined;
+  const org = isEvent(query.data) ? undefined : query.data;
 
   const { entity } = modalState;
   const onClose = () => {

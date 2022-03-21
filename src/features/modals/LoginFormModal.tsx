@@ -103,7 +103,7 @@ export const LoginFormModal = (props: {
         await signIn("credentials", { email });
       }
 
-      props.onSubmit && props.onSubmit();
+      //props.onSubmit && props.onSubmit();
     } catch (error) {
       setIsLoading(false);
       handleError(error, (message, field) => {

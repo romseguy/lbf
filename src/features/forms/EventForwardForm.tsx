@@ -25,7 +25,7 @@ export const EventForwardForm = ({
   session,
   ...props
 }: {
-  event: IEvent;
+  event: IEvent<Date>;
   session: Session;
   onCancel?: () => void;
   onClose: () => void;

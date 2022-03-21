@@ -154,7 +154,9 @@ export const Nav = ({
                         <>
                           <EmailLoginPopover
                             iconProps={{ boxSize: [8, 10, 10] }}
-                            popoverProps={{ offset: [-140, -25] }}
+                            popoverProps={
+                              isMobile ? {} : { offset: [-140, -25] }
+                            }
                             ml={2}
                             mr={3}
                           />

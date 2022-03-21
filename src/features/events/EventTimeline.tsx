@@ -13,6 +13,7 @@ import { fr } from "date-fns/locale";
 import React from "react";
 import { css } from "twin.macro";
 import { IEvent, monthRepeatOptions } from "models/Event";
+import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
 
 export type EventTimelineType = {
@@ -86,7 +87,7 @@ export const EventTimeline = ({
           <Box fontWeight="bold">
             {event.repeat === 99
               ? format(day.startDate, "cccc", { locale: fr })
-              : day.monthRepeat
+              : Array.isArray(day.monthRepeat) && day.monthRepeat.length > 0
               ? day.monthRepeat.map((monthRepeatOption) => (
                   <div key={`monthRepeat-${monthRepeatOption}`}>
                     Le {monthRepeatOptions[monthRepeatOption]}{" "}

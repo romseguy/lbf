@@ -14,7 +14,7 @@ import { EventForwardForm } from "features/forms/EventForwardForm";
 import { IEvent } from "models/Event";
 
 export const EventForwardFormModal = (props: {
-  event: IEvent;
+  event: IEvent<Date>;
   session: Session;
   onCancel?: () => void;
   onClose: () => void;

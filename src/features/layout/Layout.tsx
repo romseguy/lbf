@@ -172,7 +172,7 @@ export const Layout = ({
 
               <Tooltip
                 hasArrow
-                label="Un moyen simple de remercier le créateur de ce logiciel libre ♥"
+                label="Pour nous remercier d'avoir créé ce logiciel libre ♥"
                 placement="top-end"
               >
                 <Box mt={1}>
@@ -237,7 +237,7 @@ export const Layout = ({
             />
             <Tooltip
               hasArrow
-              label="Un moyen simple de remercier le créateur de ce logiciel libre ♥"
+              label="Pour nous remercier d'avoir créé ce logiciel libre ♥"
               placement="top-end"
             >
               <Box>

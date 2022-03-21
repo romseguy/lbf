@@ -10,7 +10,7 @@ import {
   FormLabel
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { defaultEventCategories, IEvent } from "models/Event";
+import { IEvent } from "models/Event";
 import {
   ISubscription,
   isOrgSubscription,
@@ -499,18 +499,20 @@ export const SubscriptionEditForm = ({
           </>
         )} */}
 
-        <Switch
-          {...switchProps}
-          isChecked={isAllProjects}
-          isDisabled={isLoading}
-          onChange={(e) => {
-            setIsAllProjects(e.target.checked);
-          }}
-        >
-          {isSelf
-            ? "vous êtes invité à un projet"
-            : "vous l'invitez à un projet"}
-        </Switch>
+        {org && (
+          <Switch
+            {...switchProps}
+            isChecked={isAllProjects}
+            isDisabled={isLoading}
+            onChange={(e) => {
+              setIsAllProjects(e.target.checked);
+            }}
+          >
+            {isSelf
+              ? "vous êtes invité à un projet"
+              : "vous l'invitez à un projet"}
+          </Switch>
+        )}
       </FormControl>
 
       <Button

@@ -13,12 +13,10 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { AppQuery } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 
 export const TopicFormModal = (props: {
-  org?: IOrg;
-  event?: IEvent;
-  query: AppQuery<IEvent | IOrg>;
+  query: AppQueryWithData<IEvent | IOrg>;
   subQuery: AppQuery<ISubscription>;
   topic?: ITopic;
   isOpen: boolean;

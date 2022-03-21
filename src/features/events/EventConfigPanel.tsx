@@ -7,6 +7,7 @@ import {
   Column,
   DeleteButton,
   EntityConfigBannerPanel,
+  EntityConfigCategoriesPanel,
   EntityConfigLogoPanel,
   EntityConfigStyles,
   Heading
@@ -14,15 +15,14 @@ import {
 import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
 import { IEvent } from "models/Event";
-import { AppQueryWithData } from "utils/types";
+import { AppQueryWithData, TypedMap } from "utils/types";
 
 export type EventConfigVisibility = {
-  isVisible: {
-    banner?: boolean;
-    logo?: boolean;
-    topicCategories?: boolean;
-  };
-  toggleVisibility: (key: keyof EventConfigVisibility["isVisible"]) => void;
+  isVisible: TypedMap<string, boolean>;
+  toggleVisibility: (
+    key?: keyof EventConfigVisibility["isVisible"],
+    bool?: boolean
+  ) => void;
 };
 
 export const EventConfigPanel = ({
@@ -45,7 +45,8 @@ export const EventConfigPanel = ({
   const [isDisabled, setIsDisabled] = useState(true);
   const _isVisible = {
     banner: false,
-    logo: false
+    logo: false,
+    topicCategories: false
   };
   const [isVisible, _setIsVisible] =
     useState<EventConfigVisibility["isVisible"]>(_isVisible);
@@ -56,7 +57,15 @@ export const EventConfigPanel = ({
     _setIsVisible(
       !key
         ? _isVisible
-        : { ...isVisible, [key]: bool !== undefined ? bool : !isVisible[key] }
+        : Object.keys(isVisible).reduce((obj, objKey) => {
+            if (objKey === key)
+              return {
+                ...obj,
+                [objKey]: bool !== undefined ? bool : !isVisible[key]
+              };
+
+            return { ...obj, [objKey]: false };
+          }, {})
     );
 
   return (
@@ -84,90 +93,101 @@ export const EventConfigPanel = ({
         </Column>
       )}
 
-      <Box mb={3}>
-        {!isEdit && (
-          <>
-            <Button
-              colorScheme="teal"
-              leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-              mr={3}
-              onClick={() => {
-                setIsEdit(true);
-                toggleVisibility();
-              }}
-              data-cy="eventEdit"
-            >
-              Modifier
-            </Button>
+      {!isEdit && (
+        <Box mb={3}>
+          <Button
+            colorScheme="teal"
+            leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+            mr={3}
+            onClick={() => {
+              setIsEdit(true);
+              toggleVisibility();
+            }}
+            data-cy="eventEdit"
+          >
+            Modifier
+          </Button>
 
-            <DeleteButton
-              isDisabled={isDisabled}
-              isLoading={deleteQuery.isLoading}
-              header={
-                <>
-                  Vous êtes sur le point de supprimer l'événement
-                  <Text display="inline" color="red" fontWeight="bold">
-                    {` ${event.eventName}`}
-                  </Text>
-                </>
-              }
-              body={
-                <>
-                  Saisissez le nom de l'événement pour confimer sa suppression :
-                  <Input
-                    autoComplete="off"
-                    onChange={(e) =>
-                      setIsDisabled(e.target.value !== event.eventName)
-                    }
-                  />
-                </>
-              }
-              onClick={async () => {
-                try {
-                  const deletedEvent = await deleteEvent({
-                    eventId: event._id
-                  }).unwrap();
-
-                  if (deletedEvent) {
-                    await router.push(`/`);
-                    toast({
-                      title: `${deletedEvent.eventName} a été supprimé !`,
-                      status: "success"
-                    });
+          <DeleteButton
+            isDisabled={isDisabled}
+            isLoading={deleteQuery.isLoading}
+            header={
+              <>
+                Vous êtes sur le point de supprimer l'événement
+                <Text display="inline" color="red" fontWeight="bold">
+                  {` ${event.eventName}`}
+                </Text>
+              </>
+            }
+            body={
+              <>
+                Saisissez le nom de l'événement pour confimer sa suppression :
+                <Input
+                  autoComplete="off"
+                  onChange={(e) =>
+                    setIsDisabled(e.target.value !== event.eventName)
                   }
-                } catch (error: any) {
+                />
+              </>
+            }
+            onClick={async () => {
+              try {
+                const deletedEvent = await deleteEvent({
+                  eventId: event._id
+                }).unwrap();
+
+                if (deletedEvent) {
+                  await router.push(`/`);
                   toast({
-                    title: error.data ? error.data.message : error.message,
-                    status: "error"
+                    title: `${deletedEvent.eventName} a été supprimé !`,
+                    status: "success"
                   });
                 }
-              }}
-            />
-          </>
-        )}
-      </Box>
+              } catch (error: any) {
+                toast({
+                  title: error.data ? error.data.message : error.message,
+                  status: "error"
+                });
+              }
+            }}
+          />
+        </Box>
+      )}
 
       {!isEdit && (
-        <Column>
-          <Heading mb={1} mt={3}>
-            Apparence
-          </Heading>
+        <>
+          <Column mb={3} pt={1}>
+            <Heading mb={1}>Apparence</Heading>
 
-          <EntityConfigStyles query={eventQuery} my={3} />
+            <EntityConfigStyles query={eventQuery} mb={3} />
 
-          <EntityConfigLogoPanel
-            query={eventQuery}
-            isVisible={isVisible}
-            toggleVisibility={toggleVisibility}
-            mb={3}
-          />
+            <EntityConfigLogoPanel
+              query={eventQuery}
+              isVisible={isVisible}
+              toggleVisibility={toggleVisibility}
+              mb={3}
+            />
 
-          <EntityConfigBannerPanel
-            query={eventQuery}
-            isVisible={isVisible}
-            toggleVisibility={toggleVisibility}
-          />
-        </Column>
+            <EntityConfigBannerPanel
+              query={eventQuery}
+              isVisible={isVisible}
+              toggleVisibility={toggleVisibility}
+            />
+          </Column>
+
+          <Column pt={1}>
+            <Heading>Discussions</Heading>
+
+            <EntityConfigCategoriesPanel
+              fieldName="eventTopicCategories"
+              categories={event.eventTopicCategories}
+              query={eventQuery}
+              isVisible={isVisible}
+              toggleVisibility={toggleVisibility}
+              mb={3}
+            />
+          </Column>
+        </>
       )}
     </>
   );

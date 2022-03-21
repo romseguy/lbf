@@ -259,7 +259,6 @@ export const EventPage = ({
 
               <Column {...columnProps}>
                 <TopicsList
-                  event={event}
                   query={eventQuery}
                   isCreator={isCreator}
                   subQuery={subQuery}

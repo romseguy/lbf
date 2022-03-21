@@ -1,17 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Session } from "next-auth";
 import { AppState } from "store";
 
-const initialState: { isOffline: boolean; refetchSession: boolean } = {
+const initialState: { isOffline: boolean; session: Session | null } = {
   isOffline: false,
-  refetchSession: false
+  session: null
 };
 
 export const sessionSlice = createSlice({
   name: "session",
   initialState,
   reducers: {
-    refetchSession: (state, action: PayloadAction<void>) => {
-      state.refetchSession = !state.refetchSession;
+    setSession: (state, action: PayloadAction<Session | null>) => {
+      state.session = action.payload;
     },
     setIsOffline: (state, action: PayloadAction<boolean>) => {
       state.isOffline = action.payload;
@@ -19,10 +20,9 @@ export const sessionSlice = createSlice({
   }
 });
 
-export const { refetchSession, setIsOffline } = sessionSlice.actions;
+export const { setSession, setIsOffline } = sessionSlice.actions;
 
-export const selectSessionRefetch = (state: AppState) =>
-  state.session.refetchSession;
+export const selectSession = (state: AppState) => state.session.session;
 export const selectIsOffline = (state: AppState) => state.session.isOffline;
 
 export default sessionSlice.reducer;

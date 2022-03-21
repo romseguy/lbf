@@ -63,7 +63,6 @@ export const Forum = ({
       </Flex>
 
       <TopicsList
-        org={org}
         query={orgQuery}
         subQuery={subQuery}
         isCreator={isCreator}

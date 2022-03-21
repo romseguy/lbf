@@ -49,7 +49,7 @@ const ReactSelectStyles = (props: Dict) => ({
           backgroundColor: mode("gray.400", "whiteAlpha.400")(props),
           borderRadius: "md",
           ".react-select__multi-value__label": {
-            color: mode("black", "white")(props)
+            color: mode("white", "white")(props)
           },
           ".react-select__multi-value__remove": {
             ":hover": {

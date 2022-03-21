@@ -13,7 +13,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { Button, Grid } from "features/common";
+import { Button, Grid, Heading } from "features/common";
 import {
   NotifModalState,
   EntityNotifModal
@@ -29,7 +29,7 @@ import { IOrg, IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
-import { getRefId } from "models/Entity";
+import { getCategoryLabel, getRefId, isEvent } from "models/Entity";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { useDeleteTopicMutation, useAddTopicNotifMutation } from "./topicsApi";
 import { TopicsListItem } from "./TopicsListItem";
@@ -38,8 +38,6 @@ import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicCategoryTag } from "./TopicCategoryTag";
 
 export const TopicsList = ({
-  event,
-  org,
   query,
   subQuery,
   isLogin,
@@ -47,8 +45,6 @@ export const TopicsList = ({
   currentTopicName,
   ...props
 }: GridProps & {
-  event?: IEvent;
-  org?: IOrg;
   query: AppQueryWithData<IEvent | IOrg>;
   subQuery: AppQuery<ISubscription>;
   isCreator: boolean;
@@ -62,16 +58,15 @@ export const TopicsList = ({
   const isDark = colorMode === "dark";
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
-
-  //#region subscription
-  const [deleteSubscription] = useDeleteSubscriptionMutation();
   const [addSubscription] = useAddSubscriptionMutation();
-  //#endregion
-
-  //#region topic
   const addTopicNotifMutation = useAddTopicNotifMutation();
+  const [deleteSubscription] = useDeleteSubscriptionMutation();
   const [deleteTopic] = useDeleteTopicMutation();
-  //#endregion
+  const entity = query.data;
+  const isE = isEvent(entity);
+  const topicCategories = isE
+    ? entity.eventTopicCategories
+    : entity.orgTopicCategories;
 
   //#region local state
   const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
@@ -84,50 +79,48 @@ export const TopicsList = ({
       else if (currentTopic) setCurrentTopic(cT);
     } else if (currentTopic) setCurrentTopic(null);
   }, [currentTopicName]);
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
   const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
-  const topics = org
-    ? org.orgTopics.filter((topic) => {
-        if (hasItems(selectedCategories) || hasItems(selectedLists)) {
-          let belongsToCategory = false;
-          let belongsToList = false;
+  const canDisplay = (topic: ITopic) => {
+    if (hasItems(selectedCategories) || hasItems(selectedLists)) {
+      let belongsToCategory = false;
+      let belongsToList = false;
 
-          if (
-            Array.isArray(selectedCategories) &&
-            selectedCategories.length > 0
-          ) {
-            if (
-              topic.topicCategory &&
-              selectedCategories.find(
-                (selectedCategory) => selectedCategory === topic.topicCategory
-              )
-            )
-              belongsToCategory = true;
-          }
+      if (Array.isArray(selectedCategories) && selectedCategories.length > 0) {
+        if (
+          topic.topicCategory &&
+          selectedCategories.find(
+            (selectedCategory) => selectedCategory === topic.topicCategory
+          )
+        )
+          belongsToCategory = true;
+      }
 
-          if (org.orgUrl === "forum") return belongsToCategory;
+      if (isE || entity.orgUrl === "forum") return belongsToCategory;
 
-          if (Array.isArray(selectedLists) && selectedLists.length > 0) {
-            if (hasItems(topic.topicVisibility)) {
-              let found = false;
+      if (Array.isArray(selectedLists) && selectedLists.length > 0) {
+        if (hasItems(topic.topicVisibility)) {
+          let found = false;
 
-              for (let i = 0; i < topic.topicVisibility.length; i++)
-                for (let j = 0; j < selectedLists.length; j++)
-                  if (selectedLists[j].listName === topic.topicVisibility[i])
-                    found = true;
+          for (let i = 0; i < topic.topicVisibility.length; i++)
+            for (let j = 0; j < selectedLists.length; j++)
+              if (selectedLists[j].listName === topic.topicVisibility[i])
+                found = true;
 
-              if (found) belongsToList = true;
-            }
-          }
-
-          return belongsToCategory || belongsToList;
+          if (found) belongsToList = true;
         }
+      }
 
-        return true;
-      })
-    : event
-    ? event.eventTopics
-    : [];
+      return belongsToCategory || belongsToList;
+    }
+
+    return true;
+  };
+
+  const topics = (isE ? entity.eventTopics : entity.orgTopics).filter(
+    canDisplay
+  );
   //#endregion
 
   //#region loading state
@@ -291,8 +284,6 @@ export const TopicsList = ({
         {topicModalState.isOpen && (
           <TopicFormModal
             {...topicModalState}
-            org={org}
-            event={event}
             query={query}
             subQuery={subQuery}
             isCreator={props.isCreator}
@@ -309,13 +300,11 @@ export const TopicsList = ({
         )}
       </Box>
 
-      {org && hasItems(org.orgTopicCategories) && (
+      {(props.isCreator || topicCategories.length > 0) && (
         <Flex flexDirection="column" mb={3}>
-          <Flex>
-            <Text className="rainbow-text">Catégories</Text>
-          </Flex>
+          <Heading smaller>Catégories</Heading>
           <TopicsListCategories
-            orgQuery={query as AppQueryWithData<IOrg>}
+            query={query}
             isCreator={props.isCreator}
             isSubscribed={props.isSubscribed}
             selectedCategories={selectedCategories}
@@ -324,21 +313,22 @@ export const TopicsList = ({
         </Flex>
       )}
 
-      {session && org && org.orgUrl !== "forum" && hasItems(org.orgLists) && (
-        <Flex flexDirection="column" mb={3}>
-          <Flex>
-            <Text className="rainbow-text">Listes</Text>
+      {!isE &&
+        session &&
+        entity.orgUrl !== "forum" &&
+        hasItems(entity.orgLists) && (
+          <Flex flexDirection="column" mb={3}>
+            <Heading smaller>Listes</Heading>
+            <TopicsListOrgLists
+              org={entity}
+              isCreator={props.isCreator}
+              selectedLists={selectedLists}
+              session={session}
+              setSelectedLists={setSelectedLists}
+              subQuery={subQuery}
+            />
           </Flex>
-          <TopicsListOrgLists
-            org={org}
-            isCreator={props.isCreator}
-            selectedLists={selectedLists}
-            session={session}
-            setSelectedLists={setSelectedLists}
-            subQuery={subQuery}
-          />
-        </Flex>
-      )}
+        )}
 
       <Grid data-cy="topic-list">
         {query.isLoading ? (
@@ -359,10 +349,10 @@ export const TopicsList = ({
                       <List listStyleType="square" ml={5}>
                         <ListItem mb={1}>
                           aux catégories :
-                          {selectedCategories.map((category, index) => (
+                          {selectedCategories.map((catId, index) => (
                             <>
                               <TopicCategoryTag key={index} mx={1}>
-                                {category}
+                                {getCategoryLabel(topicCategories, catId)}
                               </TopicCategoryTag>
                               {index !== selectedCategories.length - 1 && "ou"}
                             </>
@@ -453,8 +443,6 @@ export const TopicsList = ({
                 key={topic._id}
                 session={session}
                 isCreator={props.isCreator}
-                event={event}
-                org={org}
                 query={query}
                 currentTopicName={currentTopicName}
                 topic={topic}
@@ -481,8 +469,6 @@ export const TopicsList = ({
 
       {session && (
         <EntityNotifModal
-          event={event}
-          org={org}
           query={query}
           mutation={addTopicNotifMutation}
           setModalState={setNotifyModalState}

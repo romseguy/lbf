@@ -133,11 +133,12 @@ export const ProjectForm = ({
         <FormLabel>Nom du projet</FormLabel>
         <Input
           name="projectName"
-          placeholder="Nom du projet"
           ref={register({
             required: "Veuillez saisir le nom du projet"
           })}
+          autoComplete="off"
           defaultValue={props.project && props.project.projectName}
+          placeholder="Nom du projet"
         />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="projectName" />

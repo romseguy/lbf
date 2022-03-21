@@ -9,21 +9,24 @@ import React from "react";
 import { IconType } from "react-icons";
 import { FaGlobeEurope } from "react-icons/fa";
 import { IoMdPerson } from "react-icons/io";
+import { isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
+import { AppQueryWithData } from "utils/types";
 
 export const TopicsListItemVisibility = ({
-  event,
-  org,
+  query,
   topic,
   ...props
 }: Partial<IconButtonProps> & {
-  event?: IEvent;
-  org?: IOrg;
+  query: AppQueryWithData<IEvent | IOrg>;
   topic: ITopic;
 }) => {
+  const entity = query.data;
+  const isE = isEvent(entity);
+
   let icons: {
     label: string;
     icon: IconType | ComponentWithAs<"svg", IconProps>;
@@ -33,11 +36,9 @@ export const TopicsListItemVisibility = ({
     (listName) => !["Adhérents", "Abonnés"].includes(listName)
   );
 
-  const suffix = org
-    ? `${orgTypeFull(org.orgType)} "${org.orgName}"`
-    : event
-    ? "de " + event.eventName
-    : "";
+  const suffix = isE
+    ? "de " + entity.eventName
+    : `${orgTypeFull(entity.orgType)} "${entity.orgName}"`;
 
   if (Array.isArray(customLists) && customLists.length > 0) {
     icons = [

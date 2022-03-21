@@ -605,7 +605,6 @@ export const ProjectsList = ({
 
       {session && org && (
         <EntityNotifModal
-          org={org}
           query={query as AppQueryWithData<IOrg>}
           mutation={addProjectNotifMutation}
           setModalState={setNotifyModalState}

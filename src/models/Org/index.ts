@@ -12,22 +12,12 @@ import {
   IOrgEventCategory,
   IOrgTabWithIcon
 } from "./IOrg";
-import { defaultEventCategories } from "models/Event";
 
 export * from "./IOrg";
 
 //#region categories
 export const getOrgEventCategories = (org?: IOrg): IOrgEventCategory[] => {
-  let arr = defaultEventCategories;
-
-  if (org && hasItems(org.orgEventCategories)) {
-    if (!org.orgEventCategories.find(({ catId }) => catId === "0"))
-      return arr.concat(org.orgEventCategories);
-
-    return org.orgEventCategories;
-  }
-
-  return arr;
+  return org ? org.orgEventCategories : [];
 };
 //#endregion
 

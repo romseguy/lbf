@@ -12,22 +12,23 @@ import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessageText, RTEditor } from "features/common";
-import { useSession } from "hooks/useAuth";
-import type { IEvent } from "models/Event";
-import type { IOrg } from "models/Org";
-import type { ITopic } from "models/Topic";
-import type { ITopicMessage } from "models/TopicMessage";
-import { handleError } from "utils/form";
 import { useAddTopicMutation } from "features/forum/topicsApi";
+import { useSession } from "hooks/useAuth";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import { isEvent } from "models/Entity";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
+import { ITopic } from "models/Topic";
+import { ITopicMessage } from "models/TopicMessage";
+import { handleError } from "utils/form";
+import { AppQueryWithData } from "utils/types";
 
 interface TopicMessageFormProps extends ChakraProps {
-  org?: IOrg;
-  event?: IEvent;
   formats?: string[];
+  isDisabled?: boolean;
+  query: AppQueryWithData<IEvent | IOrg>;
   topic: ITopic;
   topicMessage?: ITopicMessage;
-  isDisabled?: boolean;
   onLoginClick: () => void;
   onCancel?: () => void;
   onSubmit?: (topicMessageName: string) => void;
@@ -35,10 +36,13 @@ interface TopicMessageFormProps extends ChakraProps {
 
 export const TopicMessageForm = ({
   isDisabled,
+  query,
   ...props
 }: TopicMessageFormProps) => {
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
+  const event = isEvent(query.data) ? query.data : undefined;
+  const org = isEvent(query.data) ? undefined : query.data;
 
   const [addTopic, addTopicMutation] = useAddTopicMutation();
 
@@ -80,8 +84,8 @@ export const TopicMessageForm = ({
     );
 
     const payload = {
-      org: props.org,
-      event: props.event,
+      org,
+      event,
       topic: {
         ...props.topic,
         topicMessages: [

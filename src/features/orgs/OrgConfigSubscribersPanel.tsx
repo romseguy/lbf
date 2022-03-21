@@ -1,15 +1,13 @@
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  CloseIcon,
-  SmallCloseIcon
-} from "@chakra-ui/icons";
-import { Button, Heading, Grid, GridProps, Flex } from "@chakra-ui/react";
+import { Box, Button, Heading, Grid, GridProps, Flex } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
-import { GridHeader, GridItem, Link } from "features/common";
+import {
+  GridHeader,
+  GridItem,
+  Heading as AppHeading,
+  Link
+} from "features/common";
 import { refetchEvent } from "features/events/eventSlice";
 import {
   useAddSubscriptionMutation,
@@ -54,9 +52,13 @@ export const OrgConfigSubscribersPanel = ({
       return { ...obj, [subscription._id]: false };
     }, {})
   );
-  useEffect(() => {
-    if (!hasItems(org.orgSubscriptions)) toggleVisibility("subscribers");
-  }, [org.orgSubscriptions]);
+  useEffect(
+    function onSubscriptionsChange() {
+      if (!hasItems(org.orgSubscriptions))
+        toggleVisibility("subscribers", false);
+    },
+    [org.orgSubscriptions]
+  );
   //#endregion
 
   const onTagClick = async ({
@@ -161,8 +163,8 @@ export const OrgConfigSubscribersPanel = ({
       <Link
         variant="no-underline"
         onClick={() => {
+          toggleVisibility("subscribers");
           if (!hasItems(org.orgSubscriptions)) setIsAdd(!isAdd);
-          else toggleVisibility("subscribers");
         }}
       >
         <GridHeader
@@ -188,7 +190,11 @@ export const OrgConfigSubscribersPanel = ({
               `}
             >
               <Flex alignItems="center">
-                {isVisible.subscribers ? <FaFolderOpen /> : <FaFolder />}
+                {isVisible.subscribers || isAdd ? (
+                  <FaFolderOpen size={24} color="white" />
+                ) : (
+                  <FaFolder />
+                )}
                 <Heading size="sm" ml={2}>
                   {org.orgSubscriptions.length} membre
                   {org.orgSubscriptions.length !== 1 ? "s" : ""}
@@ -224,21 +230,25 @@ export const OrgConfigSubscribersPanel = ({
       </Link>
 
       {isAdd && (
-        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }} p={5}>
-          <SubscriptionForm
-            org={org}
-            isSubscriptionLoading={isSubscriptionLoading}
-            onCancel={() => {
-              setIsAdd(false);
-            }}
-            onSubmit={() => {
-              orgQuery.refetch();
-              subQuery.refetch();
-              setIsAdd(false);
-              toggleVisibility("subscribers");
-              dispatch(refetchEvent());
-            }}
-          />
+        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }}>
+          <AppHeading>Ajouter des membres</AppHeading>
+
+          <Box p={5}>
+            <SubscriptionForm
+              org={org}
+              isSubscriptionLoading={isSubscriptionLoading}
+              onCancel={() => {
+                setIsAdd(false);
+              }}
+              onSubmit={() => {
+                orgQuery.refetch();
+                subQuery.refetch();
+                setIsAdd(false);
+                toggleVisibility("subscribers", true);
+                dispatch(refetchEvent());
+              }}
+            />
+          </Box>
         </GridItem>
       )}
 

@@ -42,7 +42,7 @@ import {
 import { Session } from "next-auth";
 import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import ReactSelect from "react-select";
 import { css } from "twin.macro";
 import { Suggestion } from "use-places-autocomplete";
@@ -58,11 +58,24 @@ import {
 import { UrlControl } from "features/common/forms/UrlControl";
 import { PhoneControl } from "features/common/forms/PhoneControl";
 import {
+  AddEventPayload,
+  EditEventPayload,
   useAddEventMutation,
   useEditEventMutation
 } from "features/events/eventsApi";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { useGetOrgQuery, useGetOrgsQuery } from "features/orgs/orgsApi";
+import {
+  IEntity,
+  IEntityAddress,
+  IEntityBanner,
+  IEntityCategory,
+  IEntityEmail,
+  IEntityLogo,
+  IEntityPhone,
+  IEntityStyles,
+  IEntityWeb
+} from "models/Entity";
 import {
   IEvent,
   monthRepeatOptions,
@@ -87,6 +100,7 @@ type DayState = {
   endTime: Date | null;
   monthRepeat?: number[];
 };
+type FormData = IEvent<Date | null> & { eventOrg: IOrg | null };
 
 const repeatOptions: number[] = [];
 for (let i = 1; i <= 10; i++) {
@@ -110,99 +124,18 @@ export const EventForm = withGoogleApi({
     const isDark = colorMode === "dark";
     const toast = useToast({ position: "top" });
     const now = new Date();
-
-    //#region event
     const [addEvent, addEventMutation] = useAddEventMutation();
     const [editEvent, editEventMutation] = useEditEventMutation();
-    const eventMinDefaultDate = props.event
-      ? parseISO(props.event.eventMinDate)
-      : null;
-    const eventMaxDefaultDate = props.event
-      ? parseISO(props.event.eventMaxDate)
-      : null;
-    //#endregion
-
     const { data: myOrgs } = useGetOrgsQuery({
       createdBy: props.session.user.userId
     });
 
-    const {
-      control,
-      register,
-      handleSubmit,
-      errors,
-      setError,
-      clearErrors,
-      watch,
-      setValue,
-      getValues,
-      formState
-    } = useForm({
-      defaultValues: {
-        eventName: props.event?.eventName || "",
-        eventCategory: props.event?.eventCategory,
-        eventMinDate: eventMinDefaultDate,
-        eventMaxDate: eventMaxDefaultDate,
-        eventDescription: props.event?.eventDescription || "",
-        eventVisibility:
-          props.event?.eventVisibility || EEventVisibility.PUBLIC,
-        eventOrgs: props.event?.eventOrgs || [],
-        eventAddress: props.event?.eventAddress || [],
-        eventEmail: props.event?.eventEmail || [],
-        eventPhone: props.event?.eventPhone || [],
-        eventWeb: props.event?.eventWeb || [],
-        repeat: props.event?.repeat
-      },
-      mode: "onChange"
-    });
-    useLeaveConfirm({ formState });
-
-    const eventMinDate = watch("eventMinDate");
-    const eventMaxDate = watch("eventMaxDate");
-    const eventVisibility = watch("eventVisibility");
-    const eventOrgs = watch("eventOrgs");
-    const eventAddress = watch("eventAddress");
-    const eventEmail = watch("eventEmail");
-    const eventPhone = watch("eventPhone");
-    const eventWeb = watch("eventWeb");
-
-    const { data: org } = useGetOrgQuery({ orgUrl: orgId || "" });
-    useEffect(() => {
-      if (org) setValue("eventOrgs", [org]);
-    }, [org]);
-
-    useEffect(() => {
-      if (!hasItems(eventAddress)) {
-        if (hasItems(eventOrgs)) {
-          if (eventOrgs[0].orgAddress[0]) {
-            setValue("eventAddress", eventOrgs[0].orgAddress);
-          }
-        } else {
-          setValue("eventAddress", []);
-        }
-      }
-    }, [eventOrgs]);
-
-    //#region form
-    const visibilityOptions = hasItems(eventOrgs)
-      ? Object.keys(EEventVisibility)
-      : [];
-
-    const eventOrgsRules: { required: string | boolean } = {
-      required:
-        eventVisibility === EEventVisibility.SUBSCRIBERS
-          ? "Veuillez sélectionner une ou plusieurs organisations"
-          : false
-    };
-    if (
-      !errors.eventOrgs &&
-      typeof eventOrgsRules.required === "string" &&
-      !hasItems(eventOrgs)
-    )
-      setError("eventOrgs", {
-        type: "manual",
-        message: eventOrgsRules.required
-      });
+    //#region local state
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRepeat, setIsRepeat] = useState(
+      !!props.event?.repeat || hasItems(props.event?.otherDays)
+    );
+    const [suggestion, setSuggestion] = useState<Suggestion>();
 
     let hasMonthRepeat = false;
     const [days, setDays] = useState<DaysMap>(
@@ -211,7 +144,7 @@ export const EventForm = withGoogleApi({
           ({ dayNumber }) => dayNumber === index
         );
 
-        if (otherDay?.monthRepeat) hasMonthRepeat = true;
+        if (otherDay && hasItems(otherDay.monthRepeat)) hasMonthRepeat = true;
 
         return {
           ...obj,
@@ -260,16 +193,144 @@ export const EventForm = withGoogleApi({
       );
     };
 
-    const [suggestion, setSuggestion] = useState<Suggestion>();
-    const [isLoading, setIsLoading] = useState(false);
+    const [duration, setDuration] = useState<Duration | undefined>();
+    const [canRepeat, setCanRepeat] = useState(false);
+    const [canRepeat1day, setCanRepeat1day] = useState(true);
+
     //#endregion
+
+    //#region form
+    const {
+      control,
+      register,
+      handleSubmit,
+      errors,
+      setError,
+      clearErrors,
+      setValue,
+      getValues,
+      formState
+    } = useForm<FormData>({
+      defaultValues: {
+        eventName: props.event?.eventName || "",
+        eventCategory: props.event?.eventCategory,
+        eventMinDate: props.event ? parseISO(props.event.eventMinDate) : null,
+        eventMaxDate: props.event ? parseISO(props.event.eventMaxDate) : null,
+        eventDescription: props.event?.eventDescription || "",
+        eventVisibility:
+          props.event?.eventVisibility || EEventVisibility.PUBLIC,
+        //eventOrgs: props.event?.eventOrgs || [],
+        eventOrg: props.event ? props.event.eventOrgs[0] : null,
+        eventAddress: props.event?.eventAddress || [],
+        eventEmail: props.event?.eventEmail || [],
+        eventPhone: props.event?.eventPhone || [],
+        eventWeb: props.event?.eventWeb || [],
+        repeat: props.event?.repeat
+      },
+      mode: "onChange"
+    });
+    useLeaveConfirm({ formState });
+
+    const eventMinDate = useWatch<Date | null | undefined>({
+      control,
+      name: "eventMinDate"
+    });
+    useEffect(() => {
+      if (!props.event && eventMinDate) {
+        if (end) {
+          if (isBefore(end, eventMinDate)) {
+            setEnd(undefined);
+            setValue("eventMaxDate", null);
+          }
+        } else {
+          if (getHours(eventMinDate) !== 0) {
+            setEnd(addHours(eventMinDate, eventMinDuration));
+            setValue("eventMaxDate", addHours(eventMinDate, eventMinDuration));
+            clearErrors("eventMaxDate");
+          }
+        }
+      }
+    }, [eventMinDate]);
+    const eventMaxDate = useWatch<Date | null | undefined>({
+      control,
+      name: "eventMaxDate"
+    });
+    useEffect(() => {
+      if (end?.toISOString() !== eventMaxDate?.toISOString()) {
+        // console.log("setting end to", eventMaxDate);
+        setEnd(eventMaxDate ? eventMaxDate : undefined);
+      }
+    }, [eventMaxDate]);
+
+    const start = eventMinDate;
+    const startDay = start
+      ? getDay(start) === 0
+        ? 6
+        : getDay(start) - 1
+      : undefined;
+    const [end, setEnd] = useState<Date | null | undefined>(eventMaxDate);
+    useEffect(() => {
+      if (start && end) {
+        const newDuration = intervalToDuration({ start, end });
+
+        if (newDuration !== duration) {
+          setDuration(newDuration);
+
+          if (newDuration.days !== undefined) {
+            setCanRepeat1day(newDuration.days === 0);
+            setCanRepeat(newDuration.days === 0 ? true : newDuration.days < 6);
+          }
+        }
+      }
+    }, [start, end]);
+
+    const eventOrg = useWatch<IOrg | null>({ control, name: "eventOrg" });
+    const categories = eventOrg ? getOrgEventCategories(eventOrg) : [];
+    const visibilities = eventOrg
+      ? [
+          EEventVisibility.PUBLIC,
+          EEventVisibility.FOLLOWERS,
+          EEventVisibility.SUBSCRIBERS
+        ]
+      : [];
+
+    const eventAddress = useWatch<IEntityAddress[]>({
+      control,
+      name: "eventAddress"
+    });
+    const eventEmail = useWatch<IEntityEmail[]>({
+      control,
+      name: "eventEmail"
+    });
+    const eventPhone = useWatch<IEntityPhone[]>({
+      control,
+      name: "eventPhone"
+    });
+    const eventWeb = useWatch<IEntityWeb[]>({ control, name: "eventWeb" });
+
+    const { data: org } = useGetOrgQuery({ orgUrl: orgId || "" });
+    useEffect(() => {
+      if (org) setValue("eventOrg", org);
+    }, [org]);
+
+    useEffect(() => {
+      if (!hasItems(eventAddress)) {
+        if (eventOrg) {
+          if (eventOrg.orgAddress[0]) {
+            setValue("eventAddress", eventOrg.orgAddress);
+          }
+        } else {
+          setValue("eventAddress", []);
+        }
+      }
+    }, [eventOrg]);
 
     //#region form handlers
     const onChange = () => {
       clearErrors("formErrorMessage");
     };
 
-    const onSubmit = async (form: IEvent) => {
+    const onSubmit = async (form: IEvent<Date> & { eventOrg: IOrg | null }) => {
       console.log("submitted", form);
       setIsLoading(true);
 
@@ -290,6 +351,7 @@ export const EventForm = withGoogleApi({
         //   : undefined,
         eventDescription: form.eventDescription,
         eventDescriptionHtml: form.eventDescription,
+        eventOrgs: form.eventOrg ? [form.eventOrg] : [],
         eventAddress:
           Array.isArray(eventAddress) && eventAddress.length > 0
             ? eventAddress
@@ -372,65 +434,6 @@ export const EventForm = withGoogleApi({
       }
     };
     //#endregion
-
-    //#region event
-    const categories = getOrgEventCategories(eventOrgs[0]);
-    const [isRepeat, setIsRepeat] = useState(
-      !!props.event?.repeat || hasItems(props.event?.otherDays)
-    );
-
-    const start = eventMinDate || eventMinDefaultDate;
-    const startDay = start
-      ? getDay(start) === 0
-        ? 6
-        : getDay(start) - 1
-      : undefined;
-    const [end, setEnd] = useState(eventMaxDate || eventMaxDefaultDate);
-
-    const eventMinDuration = 1;
-    const [duration, setDuration] = useState<Duration | undefined>();
-    const [canRepeat, setCanRepeat] = useState(false);
-    const [canRepeat1day, setCanRepeat1day] = useState(true);
-
-    useEffect(() => {
-      if (start && end) {
-        const newDuration = intervalToDuration({ start, end });
-
-        if (newDuration !== duration) {
-          setDuration(newDuration);
-
-          if (newDuration.days !== undefined) {
-            setCanRepeat1day(newDuration.days === 0);
-            setCanRepeat(newDuration.days === 0 ? true : newDuration.days < 6);
-          }
-        }
-      }
-    }, [start, end]);
-
-    useEffect(() => {
-      if (!props.event && eventMinDate) {
-        if (end) {
-          if (isBefore(end, eventMinDate)) {
-            // console.log("setting end to null");
-            setEnd(null);
-            setValue("eventMaxDate", null);
-          }
-        } else {
-          if (getHours(eventMinDate) !== 0) {
-            setEnd(addHours(eventMinDate, eventMinDuration));
-            setValue("eventMaxDate", addHours(eventMinDate, eventMinDuration));
-            clearErrors("eventMaxDate");
-          }
-        }
-      }
-    }, [eventMinDate]);
-
-    useEffect(() => {
-      if (end?.toISOString() !== eventMaxDate?.toISOString()) {
-        // console.log("setting end to", eventMaxDate);
-        setEnd(eventMaxDate);
-      }
-    }, [eventMaxDate]);
     //#endregion
 
     const containerProps = {
@@ -446,6 +449,7 @@ export const EventForm = withGoogleApi({
     };
 
     //#region datepicker props
+    const eventMinDuration = 1;
     const eventMinDatePickerProps = {
       minDate: now,
       maxDate: end && compareDesc(end, now) === 1 ? undefined : end,
@@ -480,8 +484,8 @@ export const EventForm = withGoogleApi({
 
     const eventMaxDateMinDate = eventMinDate
       ? addHours(eventMinDate, eventMinDuration)
-      : eventMinDefaultDate
-      ? addHours(eventMinDefaultDate, eventMinDuration)
+      : props.event
+      ? addHours(parseISO(props.event.eventMinDate), eventMinDuration)
       : addHours(now, eventMinDuration);
     const highlightDatesStart: Date[] = [];
     if (start) {
@@ -533,7 +537,6 @@ export const EventForm = withGoogleApi({
           <FormLabel>Nom de l'événement</FormLabel>
           <Input
             name="eventName"
-            placeholder="Nom de l'événement"
             ref={register({
               required: "Veuillez saisir un nom d'événement"
               // pattern: {
@@ -542,6 +545,9 @@ export const EventForm = withGoogleApi({
               //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
               // }
             })}
+            autoComplete="off"
+            defaultValue={props.event ? props.event.eventName : ""}
+            placeholder="Nom de l'événement"
           />
           {!errors.eventName && !props.event && getValues("eventName") && (
             <Tooltip label={`Adresse de la page de l'événement`}>
@@ -556,40 +562,12 @@ export const EventForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {/* eventCategory */}
-        <FormControl
-          isInvalid={!!errors["eventCategory"]}
-          onChange={async (e) => {
-            clearErrors("eventOrgs");
-          }}
-          mb={3}
-        >
-          <FormLabel>Catégorie</FormLabel>
-          <Select
-            name="eventCategory"
-            defaultValue={props.event ? props.event.eventCategory : undefined}
-            ref={register()}
-            placeholder="Catégorie de l'événement"
-            color="gray.400"
-          >
-            {categories.map(({ catId, label }) => (
-              <option key={`cat-${catId}`} value={catId}>
-                {label}
-              </option>
-            ))}
-          </Select>
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="eventCategory" />
-          </FormErrorMessage>
-        </FormControl>
-
         {/* eventMinDate */}
         <FormControl isRequired isInvalid={!!errors["eventMinDate"]} mb={3}>
           <FormLabel>Date de début</FormLabel>
           <Controller
             name="eventMinDate"
             control={control}
-            defaultValue={eventMinDefaultDate}
             rules={{ required: "Veuillez saisir une date" }}
             render={(props) => {
               return (
@@ -621,7 +599,6 @@ export const EventForm = withGoogleApi({
             <Controller
               name="eventMaxDate"
               control={control}
-              defaultValue={eventMaxDefaultDate}
               rules={{ required: "Veuillez saisir une date" }}
               render={({ onChange, value }) => {
                 return (
@@ -637,13 +614,13 @@ export const EventForm = withGoogleApi({
               }}
             />
 
-            {end !== null && (
+            {!!end && (
               <IconButton
                 aria-label="Date de fin remise à zéro"
                 icon={<DeleteIcon />}
                 ml={3}
                 onClick={() => {
-                  setEnd(null);
+                  setEnd(undefined);
                   setValue("eventMaxDate", null);
                 }}
               />
@@ -962,14 +939,14 @@ export const EventForm = withGoogleApi({
               <option key="all" value={99}>
                 Toutes les semaines
               </option>
-              {repeatOptions.map(
+              {/* {repeatOptions.map(
                 (i) =>
                   i > 1 && (
                     <option key={`${i}w`} value={i}>
                       {`Toutes les ${i} semaines`}
                     </option>
                   )
-              )}
+              )} */}
             </Select>
             <FormErrorMessage>
               <ErrorMessage errors={errors} name="repeat" />
@@ -1002,60 +979,25 @@ export const EventForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {/* eventVisibility */}
-        {visibilityOptions.length > 0 && (
-          <FormControl
-            isRequired
-            isInvalid={!!errors["eventVisibility"]}
-            onChange={async (e) => {
-              clearErrors("eventOrgs");
-            }}
-            mb={3}
-          >
-            <FormLabel>Visibilité</FormLabel>
-            <Select
-              name="eventVisibility"
-              ref={register({
-                required: "Veuillez sélectionner la visibilité de l'événement"
-              })}
-              placeholder="Visibilité de l'événement"
-              color={isDark ? "whiteAlpha.400" : "gray.400"}
-            >
-              {visibilityOptions.map((key) => {
-                const visibility = key as EEventVisibility;
-                return (
-                  <option key={visibility} value={visibility}>
-                    {EventVisibilities[visibility]}
-                  </option>
-                );
-              })}
-            </Select>
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="eventVisibility" />
-            </FormErrorMessage>
-          </FormControl>
-        )}
-
-        {/* eventOrgs */}
+        {/* eventOrg */}
         <FormControl
           mb={3}
-          isInvalid={!!errors["eventOrgs"]}
-          isRequired={
-            eventOrgsRules.required === false
-              ? false
-              : !!eventOrgsRules.required
-          }
+          isInvalid={!!errors["eventOrg"]}
+          // isRequired={
+          //   eventOrgsRules.required === false
+          //     ? false
+          //     : !!eventOrgsRules.required
+          // }
         >
-          <FormLabel>Organisateurs</FormLabel>
+          <FormLabel>Organisé par...</FormLabel>
           <Controller
-            name="eventOrgs"
-            rules={eventOrgsRules}
+            name="eventOrg"
+            //rules={eventOrgsRules}
             as={ReactSelect}
             control={control}
-            //defaultValue={defaultEventOrgs}
             closeMenuOnSelect
             isClearable
-            isMulti
+            //isMulti
             isSearchable
             menuPlacement="top"
             noOptionsMessage={() => "Aucun résultat"}
@@ -1081,9 +1023,39 @@ export const EventForm = withGoogleApi({
             onChange={(newValue: any /*, actionMeta*/) => newValue._id}
           />
           <FormErrorMessage>
-            <ErrorMessage errors={errors} name="eventOrgs" />
+            <ErrorMessage errors={errors} name="eventOrg" />
           </FormErrorMessage>
         </FormControl>
+
+        {/* eventCategory */}
+        {eventOrg && hasItems(eventOrg.orgEventCategories) && (
+          <FormControl
+            isInvalid={!!errors["eventCategory"]}
+            onChange={async (e) => {
+              clearErrors("eventOrgs");
+            }}
+            mb={3}
+          >
+            <FormLabel>Catégorie</FormLabel>
+            <Select
+              name="eventCategory"
+              ref={register()}
+              placeholder="Catégorie de l'événement"
+              color="gray.400"
+            >
+              {categories.map(({ catId, label }) => (
+                <option key={`cat-${catId}`} value={catId}>
+                  {label}
+                </option>
+              ))}
+            </Select>
+            <FormErrorMessage>
+              <ErrorMessage errors={errors} name="eventCategory" />
+            </FormErrorMessage>
+          </FormControl>
+        )}
+
+        <FormLabel>Coordonnées de l'événement</FormLabel>
 
         <AddressControl
           name="eventAddress"
@@ -1133,6 +1105,40 @@ export const EventForm = withGoogleApi({
           }
         />
 
+        {/* eventVisibility */}
+        {hasItems(visibilities) && (
+          <FormControl
+            isRequired
+            isInvalid={!!errors["eventVisibility"]}
+            onChange={async (e) => {
+              clearErrors("eventOrgs");
+            }}
+            mb={3}
+          >
+            <FormLabel>Visibilité de l'événement</FormLabel>
+            <Select
+              name="eventVisibility"
+              ref={register({
+                required: "Veuillez sélectionner la visibilité de l'événement"
+              })}
+              placeholder="Visibilité de l'événement"
+              color={isDark ? "whiteAlpha.400" : "gray.400"}
+            >
+              {visibilities.map((key) => {
+                const visibility = key as EEventVisibility;
+                return (
+                  <option key={visibility} value={visibility}>
+                    {EventVisibilities[visibility]}
+                  </option>
+                );
+              })}
+            </Select>
+            <FormErrorMessage>
+              <ErrorMessage errors={errors} name="eventVisibility" />
+            </FormErrorMessage>
+          </FormControl>
+        )}
+
         <ErrorMessage
           errors={errors}
           name="formErrorMessage"
@@ -1168,3 +1174,29 @@ export const EventForm = withGoogleApi({
     );
   }
 );
+
+{
+  /*
+    const eventVisibility = useWatch<string>({
+      control,
+      name: "eventVisibility"
+    });
+
+    const eventOrgsRules: { required: string | boolean } = {
+      required:
+        eventVisibility === EEventVisibility.SUBSCRIBERS
+          ? "Veuillez sélectionner une ou plusieurs organisations"
+          : false
+    };
+
+    if (
+      !errors.eventOrgs &&
+      typeof eventOrgsRules.required === "string" &&
+      !eventOrg
+    )
+      setError("eventOrg", {
+        type: "manual",
+        message: eventOrgsRules.required
+      });
+ */
+}

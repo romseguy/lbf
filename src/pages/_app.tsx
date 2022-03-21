@@ -6,7 +6,11 @@ import React, { useEffect } from "react";
 import { getSelectorsByUserAgent, isMobile } from "react-device-detect";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
-import { setIsOffline } from "features/session/sessionSlice";
+import {
+  selectSession,
+  setIsOffline,
+  setSession
+} from "features/session/sessionSlice";
 import { setUserEmail } from "features/users/userSlice";
 import { getSession } from "hooks/useAuth";
 import { useAppDispatch, wrapper } from "store";
@@ -14,6 +18,7 @@ import theme from "theme/theme";
 import api from "utils/api";
 //import { AppStateProvider } from "utils/context";
 import { isServer } from "utils/isServer";
+import { useSelector } from "react-redux";
 
 export interface PageProps {
   email?: string;
@@ -39,10 +44,15 @@ interface AppProps extends NextAppProps<PageProps> {
 const App = wrapper.withRedux(
   ({ Component, pageProps, cookies, ...props }: AppProps) => {
     const dispatch = useAppDispatch();
+    const session = useSelector(selectSession);
 
     useEffect(function clientDidMount() {
       if (pageProps.email) {
         dispatch(setUserEmail(pageProps.email));
+      }
+
+      if (pageProps.session && !session) {
+        dispatch(setSession(pageProps.session));
       }
 
       (async function checkOnlineStatus() {

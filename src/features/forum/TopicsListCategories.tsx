@@ -1,29 +1,36 @@
+import { SettingsIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Box,
   Flex,
   FlexProps,
+  IconButton,
   Tag,
   TagCloseButton,
   Text,
   Tooltip,
-  useColorMode
+  useColorMode,
+  useDisclosure
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { DeleteButton } from "features/common";
-import { IOrg } from "models/Org";
-import { AppQuery, AppQueryWithData } from "utils/types";
+import { useEditEventMutation } from "features/events/eventsApi";
+import { CategoriesModal } from "features/modals/CategoriesModal";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { isEvent } from "models/Entity";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
+import { AppQueryWithData } from "utils/types";
 
 export const TopicsListCategories = ({
-  orgQuery,
+  query,
   isCreator,
   isSubscribed,
   selectedCategories,
   setSelectedCategories,
   ...props
 }: FlexProps & {
-  orgQuery: AppQueryWithData<IOrg>;
+  query: AppQueryWithData<IEvent | IOrg>;
   isCreator?: boolean;
   isSubscribed?: boolean;
   selectedCategories?: string[];
@@ -33,27 +40,71 @@ export const TopicsListCategories = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
+  const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
-  const org = orgQuery.data;
+  const entity = query.data;
+  const isE = isEvent(entity);
+  const edit = isE ? editEvent : editOrg;
+
+  //#region modal state
+  const {
+    isOpen: isCategoriesModalOpen,
+    onOpen: openCategoriesModal,
+    onClose: closeCategoriesModal
+  } = useDisclosure();
+  //#endregion
+
+  //#region local state
+  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
+  const topicCategories = isE
+    ? entity.eventTopicCategories
+    : entity.orgTopicCategories;
+  const topics = isE ? entity.eventTopics : entity.orgTopics;
 
   useEffect(() => {
-    if (!orgQuery.isFetching) {
-      let newIsLoading = {};
-      Object.keys(isLoading).forEach((key) => {
-        isLoading[key] = false;
-      });
-      setIsLoading(newIsLoading);
+    if (!query.isFetching) {
+      setIsLoading(
+        Object.keys(isLoading).reduce(
+          (obj, key) => ({ ...obj, [key]: false }),
+          {}
+        )
+      );
     }
-  }, [orgQuery.isFetching]);
+  }, [query.isFetching]);
+  //#endregion
 
   return (
     <Flex {...props}>
-      {org.orgTopicCategories.map(({ catId, label }, index) => {
+      {isCreator && (
+        <>
+          <Tooltip label="Gérer les catégories de discussions">
+            <IconButton
+              aria-label="Gérer les catégories de discussions"
+              height="32px"
+              icon={<SettingsIcon />}
+              _hover={{ bg: "teal", color: "white" }}
+              mr={1}
+              onClick={openCategoriesModal}
+            ></IconButton>
+          </Tooltip>
+
+          <CategoriesModal
+            categories={
+              isE ? entity.eventTopicCategories : entity.orgTopicCategories
+            }
+            fieldName={isE ? "eventTopicCategories" : "orgTopicCategories"}
+            isOpen={isCategoriesModalOpen}
+            query={query}
+            onClose={closeCategoriesModal}
+          />
+        </>
+      )}
+
+      {topicCategories.map(({ catId, label }, index) => {
         const isSelected = selectedCategories?.find(
           (selectedCategory) => selectedCategory === catId
         );
-        const topicsCount = org.orgTopics.filter(
+        const topicsCount = topics.filter(
           (topic) => topic.topicCategory === catId
         ).length;
 
@@ -140,9 +191,13 @@ export const TopicsListCategories = ({
                     onClick={async () => {
                       setIsLoading({ [`category-${index}`]: true });
                       try {
-                        await editOrg({
-                          orgId: org._id,
-                          payload: [`orgTopicCategories=${catId}`]
+                        await edit({
+                          [isE ? "eventId" : "orgId"]: entity._id,
+                          payload: [
+                            isE
+                              ? `eventTopicCategories.catId=${catId}`
+                              : `orgTopicCategories.catId=${catId}`
+                          ]
                         });
                       } catch (error) {
                         setIsLoading({ [`category-${index}`]: false });

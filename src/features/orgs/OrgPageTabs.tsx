@@ -228,7 +228,6 @@ export const OrgPageTabs = ({
 
             <Column {...columnProps}>
               <TopicsList
-                org={org}
                 query={orgQuery}
                 isCreator={isCreator}
                 subQuery={subQuery}

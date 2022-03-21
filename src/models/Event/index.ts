@@ -326,13 +326,6 @@ export const getEvents = ({
 //#endregion
 
 //#region categories
-export const defaultEventCategories: IOrgEventCategory[] = [
-  {
-    catId: "0",
-    label: "Autre"
-  }
-];
-export const defaultCategory = defaultEventCategories[0];
 export const getEventCategories = (event: IEvent<string | Date>) => {
   return getOrgEventCategories(event.eventOrgs[0]);
 };

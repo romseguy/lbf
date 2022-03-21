@@ -2,9 +2,18 @@ import { IEvent } from "models/Event";
 import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 import { TypedMap } from "utils/types";
-import { IEntity } from "./IEntity";
+import { IEntity, IEntityCategory } from "./IEntity";
 
 export * from "./IEntity";
+
+export const getCategoryLabel = (
+  categories: IEntityCategory[],
+  catId: string
+) => {
+  const category = categories.find((category) => category.catId === catId);
+  if (!category) return "";
+  return category.label;
+};
 
 export const isEvent = (entity?: IEntity): entity is IEvent => {
   return !!entity && (entity as IEvent).eventUrl !== undefined;

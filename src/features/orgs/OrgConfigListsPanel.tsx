@@ -1,5 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon, EditIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Button,
   Flex,
   Grid,
@@ -25,7 +26,13 @@ import {
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
-import { DeleteButton, GridHeader, GridItem, Link } from "features/common";
+import {
+  DeleteButton,
+  GridHeader,
+  GridItem,
+  Heading as AppHeading,
+  Link
+} from "features/common";
 import { EntityListForm } from "features/forms/EntityListForm";
 import { addOrReplaceList, editList, IOrg, IOrgList } from "models/Org";
 import { breakpoints } from "theme/theme";
@@ -54,11 +61,14 @@ export const OrgConfigListsPanel = ({
   const [isAdd, setIsAdd] = useState(false);
   const [listToEdit, setListToEdit] = useState<IOrgList>();
   const [listToShow, setListToShow] = useState<IOrgList>();
-  useEffect(() => {
-    if (!hasItems(lists)) {
-      toggleVisibility("lists");
-    }
-  }, [lists]);
+  useEffect(
+    function onListsChange() {
+      if (!hasItems(lists)) {
+        toggleVisibility("lists", false);
+      }
+    },
+    [lists]
+  );
   //#endregion
 
   const onSubmit = async (form: IOrgList) => {
@@ -99,10 +109,8 @@ export const OrgConfigListsPanel = ({
       <Link
         variant="no-underline"
         onClick={() => {
+          toggleVisibility("lists");
           if (!hasItems(lists)) setIsAdd(!isAdd);
-          else {
-            toggleVisibility("lists");
-          }
         }}
       >
         <GridHeader
@@ -126,7 +134,11 @@ export const OrgConfigListsPanel = ({
               `}
             >
               <Flex alignItems="center">
-                {isVisible.lists ? <FaFolderOpen /> : <FaFolder />}
+                {isVisible.lists || isAdd ? (
+                  <FaFolderOpen size={24} color="white" />
+                ) : (
+                  <FaFolder />
+                )}
                 <Heading size="sm" ml={2}>
                   {lists
                     ? `${lists.length} liste${lists.length !== 1 ? "s" : ""}`
@@ -163,14 +175,18 @@ export const OrgConfigListsPanel = ({
       </Link>
 
       {isAdd && (
-        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }} p={5}>
-          <EntityListForm
-            org={org}
-            onCancel={() => {
-              setIsAdd(false);
-            }}
-            onSubmit={onSubmit}
-          />
+        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }}>
+          <AppHeading>Ajouter une liste</AppHeading>
+
+          <Box p={5}>
+            <EntityListForm
+              org={org}
+              onCancel={() => {
+                setIsAdd(false);
+              }}
+              onSubmit={onSubmit}
+            />
+          </Box>
         </GridItem>
       )}
 

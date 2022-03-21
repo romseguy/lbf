@@ -22,8 +22,8 @@ import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
 import { Link, GridItem, EntityButton } from "features/common";
 import { NotifModalState } from "features/modals/EntityNotifModal";
-import { defaultCategory, getEventCategories, IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { getEventCategories, IEvent } from "models/Event";
+import { IOrg, IOrgEventCategory } from "models/Org";
 import { hasItems } from "utils/array";
 import { EventsListItemVisibility } from "./EventsListItemVisibility";
 
@@ -65,8 +65,8 @@ export const EventsListItem = ({
   length: number;
   org?: IOrg;
   orgFollowersCount?: number;
-  eventToForward: IEvent | null;
-  setEventToForward: (event: IEvent | null) => void;
+  eventToForward: IEvent<Date> | null;
+  setEventToForward: (event: IEvent<Date> | null) => void;
   eventToShow: IEvent | null;
   setEventToShow: (event: IEvent | null) => void;
   eventToShowOnMap: IEvent<string | Date> | null;
@@ -94,9 +94,9 @@ export const EventsListItem = ({
       : false;
 
   const categories = getEventCategories(event);
-  const eventCategory =
-    categories.find(({ catId }) => catId === event.eventCategory) ||
-    defaultCategory;
+  const eventCategory: IOrgEventCategory | undefined = event.eventCategory
+    ? categories.find(({ catId }) => catId === event.eventCategory)
+    : undefined;
 
   return (
     <>
@@ -110,7 +110,7 @@ export const EventsListItem = ({
       >
         <Flex flexDirection="column" alignItems="center">
           {/* eventCategory */}
-          {typeof event.eventCategory === "string" && (
+          {eventCategory && (
             <GridItem mb={2}>
               <Tooltip
                 label={
@@ -348,8 +348,8 @@ export const EventsListItem = ({
                     onClick={() => {
                       setEventToForward({
                         ...event,
-                        eventMinDate: formatISO(minDate),
-                        eventMaxDate: formatISO(maxDate)
+                        eventMinDate: minDate,
+                        eventMaxDate: maxDate
                       });
                     }}
                   />

@@ -22,7 +22,7 @@ export const DeleteButton = ({
   isIconOnly,
   isLoading,
   isSmall = true,
-  header,
+  header = "Confirmez la suppression",
   body,
   onClick,
   hasArrow,
@@ -31,13 +31,13 @@ export const DeleteButton = ({
   ...props
 }: Omit<IconButtonProps, "aria-label"> & {
   "aria-label"?: string;
-  header: React.ReactNode;
+  header?: React.ReactNode;
   body?: React.ReactNode;
   isDisabled?: boolean;
   isIconOnly?: boolean;
   isLoading?: boolean;
   isSmall?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   // tooltip props
   hasArrow?: boolean;
   label?: string;
@@ -105,9 +105,11 @@ export const DeleteButton = ({
         >
           <AlertDialogOverlay>
             <AlertDialogContent>
-              <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                {header}
-              </AlertDialogHeader>
+              {header && (
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                  {header}
+                </AlertDialogHeader>
+              )}
 
               <AlertDialogBody>{body}</AlertDialogBody>
 
@@ -120,7 +122,7 @@ export const DeleteButton = ({
                   isLoading={isLoading}
                   colorScheme="red"
                   onClick={() => {
-                    onClick();
+                    onClick && onClick();
                     onClose();
                   }}
                   ml={3}

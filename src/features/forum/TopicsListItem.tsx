@@ -27,31 +27,29 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import * as dateUtils from "utils/date";
-import { AppQuery } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 import { TopicMessagesList } from "./TopicMessagesList";
 import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
 import { TopicsListItemSubscribers } from "./TopicsListItemSubscribers";
 import { TopicsListItemShare } from "./TopicsListItemShare";
-import { isEvent } from "models/Entity";
+import { getCategoryLabel, isEvent } from "models/Entity";
 
 interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
   session: Session | null;
-  event?: IEvent;
-  org?: IOrg;
-  isCreator: boolean;
-  query: AppQuery<IEvent | IOrg>;
   currentTopicName?: string;
-  topic: ITopic;
-  topicIndex: number;
+  isCreator: boolean;
   isSubbedToTopic: boolean;
   isCurrent: boolean;
   isTopicCreator: boolean;
   isDark: boolean;
   isLoading: boolean;
+  query: AppQueryWithData<IEvent | IOrg>;
   selectedCategories?: string[];
   setSelectedCategories: React.Dispatch<
     React.SetStateAction<string[] | undefined>
   >;
+  topic: ITopic;
+  topicIndex: number;
   onClick: (topic: ITopic | null) => void;
   onDeleteClick: (topic: ITopic) => void;
   onEditClick: (topic: ITopic) => void;
@@ -62,20 +60,18 @@ interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
 
 export const TopicsListItem = ({
   session,
-  event,
-  org,
-  isCreator,
-  query,
   currentTopicName,
-  topic,
-  topicIndex,
+  isCreator,
   isSubbedToTopic,
   isCurrent,
   isTopicCreator,
   isDark,
   isLoading,
+  query,
   selectedCategories,
   setSelectedCategories,
+  topic,
+  topicIndex,
   onClick,
   onDeleteClick,
   onEditClick,
@@ -86,14 +82,17 @@ export const TopicsListItem = ({
 }: TopicsListItemProps) => {
   const entity = query.data;
   const isE = isEvent(entity);
+  const topicCategories = isE
+    ? entity.eventTopicCategories
+    : entity.orgTopicCategories;
+  const topicCategoryLabel =
+    typeof topic.topicCategory === "string"
+      ? getCategoryLabel(topicCategories, topic.topicCategory)
+      : "";
+
   const hasCategorySelected = !!selectedCategories?.find(
     (category) => category === topic.topicCategory
   );
-  const catLabel = entity
-    ? (isE ? entity.eventTopicCategories : entity.orgTopicCategories).find(
-        ({ catId }) => catId === topic.topicCategory
-      )?.label || topic.topicCategory
-    : topic.topicCategory;
 
   const { timeAgo, fullDate } = dateUtils.timeAgo(topic.createdAt, true);
   const topicCreatedByUserName =
@@ -153,7 +152,7 @@ export const TopicsListItem = ({
                 <Tooltip
                   label={
                     !hasCategorySelected
-                      ? `Afficher les discussions de la catégorie ${catLabel}`
+                      ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
                       : ""
                   }
                   hasArrow
@@ -181,7 +180,7 @@ export const TopicsListItem = ({
                         ]);
                     }}
                   >
-                    {catLabel}
+                    {topicCategoryLabel}
                   </Button>
                 </Tooltip>
               )}
@@ -231,7 +230,7 @@ export const TopicsListItem = ({
                 ·
               </Box>
 
-              <TopicsListItemVisibility event={event} org={org} topic={topic} />
+              <TopicsListItemVisibility query={query} topic={topic} />
 
               <Box as="span" aria-hidden mx={1}>
                 ·
@@ -404,8 +403,7 @@ export const TopicsListItem = ({
             borderBottomRadius="xl"
           >
             <TopicMessageForm
-              event={event}
-              org={org}
+              query={query}
               topic={topic}
               //formats={formats.filter((f) => f !== "size")}
               isDisabled={topic.topicMessagesDisabled}

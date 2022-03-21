@@ -285,12 +285,12 @@ handler.post<
 handler.put<
   NextApiRequest & {
     query: { eventUrl: string };
-    body: EditEventPayload;
+    body: EditEventPayload<string>;
   },
   NextApiResponse
 >(async function editEvent(req, res) {
   const session = await getSession({ req });
-  let { body }: { body: EditEventPayload } = req;
+  let { body }: { body: EditEventPayload<string> } = req;
   const eventNotifications = !Array.isArray(body) && body.eventNotifications;
 
   if (!session && !eventNotifications) {

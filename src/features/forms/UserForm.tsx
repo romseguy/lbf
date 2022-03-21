@@ -17,7 +17,7 @@ import React, { useRef, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
 import { EmailControl, ErrorMessageText, HostTag } from "features/common";
-import { refetchSession } from "features/session/sessionSlice";
+import { setSession } from "features/session/sessionSlice";
 import {
   useAddUserMutation,
   useEditUserMutation
@@ -126,7 +126,7 @@ export const UserForm = (props: {
         payload
       }).unwrap();
       dispatch(refetchOrg());
-      dispatch(refetchSession());
+      dispatch(setSession(null));
       setIsLoading(false);
       props.onSubmit && props.onSubmit(payload);
     } catch (error) {

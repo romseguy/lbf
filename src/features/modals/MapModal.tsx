@@ -94,12 +94,12 @@ export const MapModal = withGoogleApi({
 
     return (
       <Modal
+        closeOnOverlayClick
         isOpen={isOpen}
+        size={size.fullSize.enabled ? "full" : "4xl"}
         onClose={() => {
           props.onClose && props.onClose();
         }}
-        size={size.fullSize.enabled ? "full" : undefined}
-        closeOnOverlayClick
       >
         <ModalOverlay>
           <ModalContent
@@ -112,18 +112,17 @@ export const MapModal = withGoogleApi({
                 : undefined
             }
           >
+            {/* Header */}
             {size.defaultSize.enabled && (
               <>
-                <ModalHeader>
-                  {header || (
-                    <Flex alignItems="center">
-                      {icon} {title}
-                    </Flex>
-                  )}
+                <ModalHeader display="flex" alignItems="center">
+                  {icon}
+                  {header ? header : title}
                 </ModalHeader>
                 <ModalCloseButton />
               </>
             )}
+
             <ModalBody
               ref={divRef}
               p={size.fullSize.enabled ? 0 : undefined}

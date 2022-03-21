@@ -1,8 +1,13 @@
 import {
   IEntity,
+  IEntityAddress,
   IEntityBanner,
+  IEntityCategory,
+  IEntityEmail,
   IEntityLogo,
-  IEntityStyles
+  IEntityPhone,
+  IEntityStyles,
+  IEntityWeb
 } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IProject } from "models/Project";
@@ -27,13 +32,13 @@ export interface IOrg extends IEntity {
   orgUrl: string;
   orgType: EOrgType;
   orgDescription?: string;
-  orgAddress: IOrgAddress[];
+  orgAddress: IEntityAddress[];
   orgCity?: string;
   orgLat?: number;
   orgLng?: number;
-  orgEmail: IOrgEmail[];
-  orgPhone: IOrgPhone[];
-  orgWeb: IOrgWeb[];
+  orgEmail: IEntityEmail[];
+  orgPhone: IEntityPhone[];
+  orgWeb: IEntityWeb[];
   orgEventCategories: IOrgEventCategory[];
   orgEvents: IEvent[];
   orgLists: IOrgList[];
@@ -52,27 +57,7 @@ export interface IOrg extends IEntity {
   isApproved?: boolean;
 }
 
-export interface IOrgAddress {
-  address: string;
-}
-
-export interface IOrgEmail {
-  email: string;
-}
-
-export interface IOrgPhone {
-  phone: string;
-}
-
-export interface IOrgWeb {
-  url: string;
-  prefix: string;
-}
-
-export interface IOrgEventCategory {
-  catId: string;
-  label: string;
-}
+export interface IOrgEventCategory extends IEntityCategory {}
 
 export interface IOrgList {
   listName: string;
@@ -88,7 +73,4 @@ export interface IOrgTabWithIcon extends IOrgTab {
   icon?: AppIcon;
 }
 
-export interface IOrgTopicCategory {
-  catId: string;
-  label: string;
-}
+export interface IOrgTopicCategory extends IEntityCategory {}

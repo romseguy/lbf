@@ -8,29 +8,22 @@ import {
   DeleteButton,
   EntityConfigBannerPanel,
   EntityConfigLogoPanel,
-  EntityConfigTopicCategoriesPanel,
+  EntityConfigCategoriesPanel,
   EntityConfigStyles,
   Heading
 } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
-import { IOrg } from "models/Org";
+import { getOrgEventCategories, IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
-import { AppQuery, AppQueryWithData } from "utils/types";
+import { AppQuery, AppQueryWithData, TypedMap } from "utils/types";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
 
 export type OrgConfigVisibility = {
-  isVisible: {
-    banner?: boolean;
-    logo?: boolean;
-    lists?: boolean;
-    subscribers?: boolean;
-    topicCategories?: boolean;
-    topics?: boolean;
-  };
+  isVisible: TypedMap<string, boolean>;
   toggleVisibility: (
-    key: keyof OrgConfigVisibility["isVisible"],
+    key?: keyof OrgConfigVisibility["isVisible"],
     bool?: boolean
   ) => void;
 };
@@ -60,21 +53,31 @@ export const OrgConfigPanel = ({
   const _isVisible = {
     logo: false,
     banner: false,
+    lists: false,
     subscribers: false,
-    topicCategories: false,
-    topics: false
+    eventCategories: false,
+    topicCategories: false
   };
   const [isVisible, _setIsVisible] =
     useState<OrgConfigVisibility["isVisible"]>(_isVisible);
   const toggleVisibility = (
     key?: keyof OrgConfigVisibility["isVisible"],
     bool?: boolean
-  ) =>
+  ) => {
     _setIsVisible(
       !key
         ? _isVisible
-        : { ...isVisible, [key]: bool !== undefined ? bool : !isVisible[key] }
+        : Object.keys(isVisible).reduce((obj, objKey) => {
+            if (objKey === key)
+              return {
+                ...obj,
+                [objKey]: bool !== undefined ? bool : !isVisible[objKey]
+              };
+
+            return { ...obj, [objKey]: false };
+          }, {})
     );
+  };
   //#endregion
 
   return (
@@ -102,9 +105,9 @@ export const OrgConfigPanel = ({
         </Column>
       )}
 
-      <Box mb={3}>
-        {!isEdit && (
-          <>
+      {!isEdit && (
+        <>
+          <Box mb={3}>
             <Button
               colorScheme="teal"
               leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
@@ -160,28 +163,7 @@ export const OrgConfigPanel = ({
                 }
               }}
             />
-          </>
-        )}
-      </Box>
-
-      {!isEdit && (
-        <>
-          <Column mb={3} pt={1}>
-            <Heading mb={1}>Gestion des membres</Heading>
-            <OrgConfigSubscribersPanel
-              orgQuery={orgQuery}
-              subQuery={subQuery}
-              isVisible={isVisible}
-              toggleVisibility={toggleVisibility}
-              mb={3}
-            />
-
-            <OrgConfigListsPanel
-              orgQuery={orgQuery}
-              isVisible={isVisible}
-              toggleVisibility={toggleVisibility}
-            />
-          </Column>
+          </Box>
 
           <Column mb={3} pt={1}>
             <Heading>Apparence</Heading>
@@ -202,20 +184,46 @@ export const OrgConfigPanel = ({
             />
           </Column>
 
-          {/* <Column mb={3} pt={1}>
-            <Heading>Discussions</Heading>
-
-            <EntityConfigTopicCategoriesPanel
-              query={orgQuery}
+          <Column mb={3} pt={1}>
+            <Heading mb={1}>Membres & Listes</Heading>
+            <OrgConfigSubscribersPanel
+              orgQuery={orgQuery}
+              subQuery={subQuery}
               isVisible={isVisible}
               toggleVisibility={toggleVisibility}
               mb={3}
+            />
+
+            <OrgConfigListsPanel
+              orgQuery={orgQuery}
+              isVisible={isVisible}
+              toggleVisibility={toggleVisibility}
+            />
+          </Column>
+
+          <Column mb={3} pt={1}>
+            <Heading>Discussions</Heading>
+
+            <EntityConfigCategoriesPanel
+              fieldName="orgTopicCategories"
+              categories={org.orgTopicCategories}
+              query={orgQuery}
+              isVisible={isVisible}
+              toggleVisibility={toggleVisibility}
             />
           </Column>
 
           <Column pt={1}>
             <Heading>Événements</Heading>
-          </Column> */}
+
+            <EntityConfigCategoriesPanel
+              fieldName="orgEventCategories"
+              categories={getOrgEventCategories(org)}
+              query={orgQuery}
+              isVisible={isVisible}
+              toggleVisibility={toggleVisibility}
+            />
+          </Column>
         </>
       )}
     </>

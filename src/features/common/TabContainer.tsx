@@ -28,7 +28,7 @@ export const TabContainerHeader = ({
   const isDark = colorMode === "dark";
 
   return (
-    <Flex bg={isDark ? "gray.700" : "orange.300"} borderTopRadius="lg">
+    <Flex bg={isDark ? "gray.700" : "lightblue"} borderTopRadius="lg">
       <Heading size="sm" pl={3} py={3}>
         {heading}
       </Heading>
@@ -50,7 +50,7 @@ export const TabContainerContent = ({
   return (
     <Flex
       flexDirection="column"
-      bg={isDark ? "gray.600" : "orange.100"}
+      bg={isDark ? "gray.600" : "cyan.100"}
       {...props}
     >
       {children}

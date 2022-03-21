@@ -21,8 +21,9 @@ import { FaRegCalendarCheck, FaRegCalendarTimes } from "react-icons/fa";
 import { css } from "twin.macro";
 import { Link, Heading } from "features/common";
 import { useScroll } from "hooks/useScroll";
-import { defaultCategory, getEventCategories, IEvent } from "models/Event";
+import { getEventCategories, IEvent } from "models/Event";
 import { IOrg, EOrgType } from "models/Org";
+import { EventCategoryTag } from "features/events/EventCategoryTag";
 
 export const Header = ({
   event,
@@ -127,20 +128,6 @@ export const Header = ({
     </Flex>
   );
 
-  const HeaderEventCategory = () => {
-    if (!event || !event.eventCategory) return null;
-    const categories = getEventCategories(event);
-    const eventCategory =
-      categories.find(({ catId }) => catId === event.eventCategory) ||
-      defaultCategory;
-
-    return (
-      <Tag variant="solid" bgColor="teal" color="white" ml={2}>
-        {eventCategory.label}
-      </Tag>
-    );
-  };
-
   if (org && !org.orgBanner && !org.orgLogo && !org.orgStyles.showTitle)
     return null;
   if (
@@ -197,10 +184,19 @@ export const Header = ({
           />
         </Link>
       )}
+
       {((!org && !event) ||
         (org && org.orgStyles.showTitle) ||
         (event && event.eventStyles.showTitle)) && <HeaderTitle />}
-      <HeaderEventCategory />
+
+      {event && typeof event.eventCategory === "string" && (
+        <EventCategoryTag
+          event={event}
+          selectedCategory={event.eventCategory}
+          ml={2}
+          variant="solid"
+        />
+      )}
 
       {banner &&
         (isBannerModalOpen ? (

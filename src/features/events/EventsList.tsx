@@ -3,9 +3,9 @@ import {
   Alert,
   AlertIcon,
   Box,
+  BoxProps,
   Button,
   Flex,
-  BoxProps,
   Table,
   Tbody,
   Tr,
@@ -17,7 +17,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { LatLon } from "use-places-autocomplete";
-import { LocationButton } from "features/common";
+import { Heading, LocationButton } from "features/common";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
 import {
   NotifModalState,
@@ -29,7 +29,6 @@ import { MapModal } from "features/modals/MapModal";
 import { useSession } from "hooks/useAuth";
 import { getEvents, IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
-import { useAppDispatch } from "store";
 import { AppQueryWithData } from "utils/types";
 import {
   useDeleteEventMutation,
@@ -160,7 +159,9 @@ export const EventsList = ({
   const [eventToShowOnMap, setEventToShowOnMap] = useState<IEvent<
     string | Date
   > | null>(null);
-  const [eventToForward, setEventToForward] = useState<IEvent | null>(null);
+  const [eventToForward, setEventToForward] = useState<IEvent<Date> | null>(
+    null
+  );
   const [notifyModalState, setNotifyModalState] = useState<
     NotifModalState<IEvent<string | Date>>
   >({});
@@ -214,16 +215,18 @@ export const EventsList = ({
 
     return (
       <>
-        <EventsListCategories
-          events={events}
-          org={org}
-          orgQuery={orgQuery}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          isCreator={isCreator}
-          // isLogin={isLogin}
-          // setIsLogin={setIsLogin}
-        />
+        <Flex flexDirection="column" mb={5}>
+          <Heading smaller>Catégories</Heading>
+          <EventsListCategories
+            events={events}
+            orgQuery={orgQuery}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            isCreator={isCreator}
+            // isLogin={isLogin}
+            // setIsLogin={setIsLogin}
+          />
+        </Flex>
 
         <Flex alignItems="center" flexWrap="wrap" mb={5} mt={-3}>
           {!showLocationButton ? (
@@ -578,7 +581,6 @@ export const EventsList = ({
 
       {session && orgQuery && (
         <EntityNotifModal
-          org={org}
           query={orgQuery}
           mutation={addEventNotifMutation}
           setModalState={setNotifyModalState}

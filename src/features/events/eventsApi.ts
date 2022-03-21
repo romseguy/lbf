@@ -3,14 +3,14 @@ import { IEvent } from "models/Event";
 import { IEventNotification } from "models/INotification";
 import { objectToQueryString } from "utils/query";
 
-export type AddEventPayload = Omit<IEvent, "_id" | "createdBy">;
+export type AddEventPayload<T> = Omit<IEvent<T>, "_id" | "createdBy">;
 
 export interface AddEventNotifPayload {
   orgListsNames?: string[];
   email?: string;
 }
 
-export type EditEventPayload = Partial<IEvent> | string[];
+export type EditEventPayload<T> = Partial<IEvent<T>> | string[];
 
 export interface GetEventParams {
   eventUrl: string;
@@ -20,7 +20,7 @@ export interface GetEventParams {
 
 export const eventApi = api.injectEndpoints({
   endpoints: (build) => ({
-    addEvent: build.mutation<IEvent, AddEventPayload>({
+    addEvent: build.mutation<IEvent, AddEventPayload<Date>>({
       query: (payload) => {
         console.groupCollapsed("addEvent");
         console.log("payload", payload);
@@ -84,7 +84,7 @@ export const eventApi = api.injectEndpoints({
     }),
     editEvent: build.mutation<
       IEvent,
-      { payload: EditEventPayload; eventId?: string }
+      { payload: EditEventPayload<Date>; eventId?: string }
     >({
       query: ({ payload, eventId }) => {
         const id = eventId

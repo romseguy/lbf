@@ -15,6 +15,7 @@ import { Controller, useForm } from "react-hook-form";
 import Creatable from "react-select/creatable";
 import { ErrorMessageText, MultiSelect, RTEditor } from "features/common";
 import {
+  AddTopicPayload,
   useAddTopicMutation,
   useEditTopicMutation
 } from "features/forum/topicsApi";
@@ -25,7 +26,7 @@ import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
-import { AppQuery, Optional } from "utils/types";
+import { AppQuery, AppQueryWithData, Optional } from "utils/types";
 import { defaultErrorMessage, normalize } from "utils/string";
 import { useEditEventMutation } from "features/events/eventsApi";
 import { useEditOrgMutation } from "features/orgs/orgsApi";
@@ -33,15 +34,11 @@ import { isEvent } from "models/Entity";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 
 export const TopicForm = ({
-  org,
-  event,
   query,
   subQuery,
   ...props
 }: {
-  org?: IOrg;
-  event?: IEvent;
-  query: AppQuery<IEvent | IOrg>;
+  query: AppQueryWithData<IEvent | IOrg>;
   subQuery: AppQuery<ISubscription>;
   topic?: ITopic;
   isCreator?: boolean;
@@ -55,10 +52,15 @@ export const TopicForm = ({
 
   const [addTopic, addTopicMutation] = useAddTopicMutation();
   const [editTopic, editTopicMutation] = useEditTopicMutation();
-  //const [editEvent] = useEditEventMutation();
+  const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
-  // const entity = (query.data || {}) as IEvent | IOrg;
-  // const isE = isEvent(entity);
+  const entity = query.data;
+  const isE = isEvent(entity);
+  const edit = isE ? editEvent : editOrg;
+  const topicCategories = isE
+    ? entity.eventTopicCategories
+    : entity.orgTopicCategories;
+  const topics = isE ? entity.eventTopics : entity.orgTopics;
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
@@ -137,11 +139,12 @@ export const TopicForm = ({
           ];
         }
 
-        const payload = {
-          org,
-          event,
+        let payload: AddTopicPayload = {
           topic
         };
+
+        if (isE) payload.event = entity;
+        else payload.org = entity;
 
         const newTopic = await addTopic({
           payload
@@ -183,134 +186,133 @@ export const TopicForm = ({
         <FormLabel>Objet de la discussion</FormLabel>
         <Input
           name="topicName"
-          placeholder="Objet"
           ref={register({
             required: "Veuillez saisir l'objet de la discussion"
           })}
+          autoComplete="off"
           defaultValue={props.topic ? props.topic.topicName : ""}
+          placeholder="Objet"
         />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="topicName" />
         </FormErrorMessage>
       </FormControl>
 
-      {org && (
-        <FormControl isInvalid={!!errors["topicCategory"]} mb={3}>
-          <FormLabel>Catégorie</FormLabel>
-          <Controller
-            name="topicCategory"
-            control={control}
-            defaultValue={
-              props.topic && props.topic.topicCategory
-                ? {
-                    label: props.topic.topicCategory,
-                    value: props.topic.topicCategory
+      <FormControl isInvalid={!!errors["topicCategory"]} mb={3}>
+        <FormLabel>Catégorie</FormLabel>
+        <Controller
+          name="topicCategory"
+          control={control}
+          defaultValue={
+            props.topic && props.topic.topicCategory
+              ? {
+                  label: props.topic.topicCategory,
+                  value: props.topic.topicCategory
+                }
+              : null
+          }
+          render={(renderProps) => {
+            return (
+              <Creatable
+                value={renderProps.value}
+                onChange={renderProps.onChange}
+                options={
+                  topicCategories.map(({ catId: value, label }) => ({
+                    label,
+                    value
+                  })) || []
+                }
+                allowCreateWhileLoading
+                formatCreateLabel={(inputValue: string) =>
+                  `Créer la catégorie "${inputValue}"`
+                }
+                onCreateOption={async (inputValue: string) => {
+                  if (!props.isSubscribed && !props.isCreator) {
+                    toast({
+                      status: "error",
+                      title: `Vous devez être adhérent ou créateur ${
+                        isE ? "de l'événement" : orgTypeFull(entity.orgType)
+                      } ${
+                        isE ? entity.eventName : entity.orgName
+                      } pour créer une catégorie`
+                    });
+                    return;
                   }
-                : null
-            }
-            render={(renderProps) => {
-              return (
-                <Creatable
-                  value={renderProps.value}
-                  onChange={renderProps.onChange}
-                  options={
-                    org.orgTopicCategories.map(({ catId: value, label }) => ({
-                      label,
-                      value
-                    })) || []
+
+                  // if (
+                  //   entity.orgTopicCategories.find(
+                  //     (orgTopicsCategory) =>
+                  //       orgTopicsCategory === normalize(inputValue, false)
+                  //   )
+                  // ) {
+                  //   toast({
+                  //     status: "error",
+                  //     title: `Ce nom de catégorie n'est pas disponible`,
+                  //                         //   });
+                  //   return;
+                  // }
+
+                  try {
+                    //if (isE) {
+                    //todo
+                    //} else {
+                    const catId = "" + topicCategories.length;
+                    await edit({
+                      [isE ? "eventId" : "orgId"]: entity._id,
+                      payload: {
+                        [isE ? "eventTopicCategories" : "orgTopicCategories"]: [
+                          ...topicCategories,
+                          {
+                            catId,
+                            label: inputValue
+                          }
+                        ]
+                      }
+                    }).unwrap();
+                    //}
+
+                    setValue("topicCategory", {
+                      label: inputValue,
+                      value: catId
+                    });
+                    toast({
+                      status: "success",
+                      title: "La catégorie a été ajoutée !"
+                    });
+                  } catch (error) {
+                    console.error(error);
+                    toast({
+                      status: "error",
+                      title: defaultErrorMessage
+                    });
                   }
-                  allowCreateWhileLoading
-                  formatCreateLabel={(inputValue: string) =>
-                    `Créer la catégorie "${inputValue}"`
+                }}
+                isClearable
+                placeholder="Créer ou rechercher une catégorie"
+                noOptionsMessage={() => "Aucun résultat"}
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={{
+                  control: (defaultStyles: any) => {
+                    return {
+                      ...defaultStyles,
+                      borderColor: "#e2e8f0"
+                    };
+                  },
+                  placeholder: () => {
+                    return {
+                      color: "#A0AEC0"
+                    };
                   }
-                  onCreateOption={async (inputValue: string) => {
-                    if (!org) return; // for TS
-
-                    if (!props.isSubscribed && !props.isCreator) {
-                      toast({
-                        status: "error",
-                        title: `Vous devez être adhérent ou créateur ${orgTypeFull(
-                          org.orgType
-                        )} ${org.orgName} pour créer une catégorie`
-                      });
-                      return;
-                    }
-
-                    // if (
-                    //   org.orgTopicCategories.find(
-                    //     (orgTopicsCategory) =>
-                    //       orgTopicsCategory === normalize(inputValue, false)
-                    //   )
-                    // ) {
-                    //   toast({
-                    //     status: "error",
-                    //     title: `Ce nom de catégorie n'est pas disponible`,
-                    //                         //   });
-                    //   return;
-                    // }
-
-                    try {
-                      //if (isE) {
-                      //todo
-                      //} else {
-                      const catId = "" + org.orgTopicCategories.length;
-                      await editOrg({
-                        orgId: org._id,
-                        payload: {
-                          orgTopicCategories: [
-                            ...org.orgTopicCategories,
-                            {
-                              catId,
-                              label: inputValue
-                            }
-                          ]
-                        }
-                      }).unwrap();
-                      //}
-
-                      setValue("topicCategory", {
-                        label: inputValue,
-                        value: catId
-                      });
-                      toast({
-                        status: "success",
-                        title: "La catégorie a été ajoutée !"
-                      });
-                    } catch (error) {
-                      console.error(error);
-                      toast({
-                        status: "error",
-                        title: defaultErrorMessage
-                      });
-                    }
-                  }}
-                  isClearable
-                  placeholder="Créer ou rechercher une catégorie"
-                  noOptionsMessage={() => "Aucun résultat"}
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (defaultStyles: any) => {
-                      return {
-                        ...defaultStyles,
-                        borderColor: "#e2e8f0"
-                      };
-                    },
-                    placeholder: () => {
-                      return {
-                        color: "#A0AEC0"
-                      };
-                    }
-                  }}
-                />
-              );
-            }}
-          />
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="topicCategory" />
-          </FormErrorMessage>
-        </FormControl>
-      )}
+                }}
+              />
+            );
+          }}
+        />
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="topicCategory" />
+        </FormErrorMessage>
+      </FormControl>
 
       {!props.topic && (
         <FormControl isInvalid={!!errors["topicMessage"]} mb={3}>
@@ -336,7 +338,7 @@ export const TopicForm = ({
         </FormControl>
       )}
 
-      {org && (
+      {!isE && (
         <FormControl mb={3}>
           <FormLabel>Visibilité</FormLabel>
           <Controller
@@ -354,7 +356,7 @@ export const TopicForm = ({
                   value={renderProps.value}
                   onChange={renderProps.onChange}
                   options={
-                    org.orgLists.map(({ listName }) => ({
+                    entity.orgLists.map(({ listName }) => ({
                       label: listName,
                       value: listName
                     })) || []

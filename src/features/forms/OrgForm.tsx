@@ -38,17 +38,19 @@ import {
   useGetOrgsQuery
 } from "features/orgs/orgsApi";
 import {
+  IEntityEmail,
+  IEntityPhone,
+  IEntityWeb,
+  IEntityAddress
+} from "models/Entity";
+import {
   IOrg,
   orgTypeFull,
   orgTypeFull5,
   OrgTypes,
   EOrgType,
   EOrgVisibility,
-  OrgVisibilities,
-  IOrgEmail,
-  IOrgPhone,
-  IOrgWeb,
-  IOrgAddress
+  OrgVisibilities
 } from "models/Org";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
@@ -154,10 +156,10 @@ export const OrgForm = withGoogleApi({
       orgVisibility: EOrgVisibility;
       orgPassword?: string;
       orgPasswordConfirm?: string;
-      orgAddress?: IOrgAddress[];
-      orgEmail?: IOrgEmail[];
-      orgPhone?: IOrgPhone[];
-      orgWeb?: IOrgWeb[];
+      orgAddress?: IEntityAddress[];
+      orgEmail?: IEntityEmail[];
+      orgPhone?: IEntityPhone[];
+      orgWeb?: IEntityWeb[];
     }) => {
       console.log("submitted", form);
       setIsLoading(true);
@@ -277,6 +279,7 @@ export const OrgForm = withGoogleApi({
               //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
               // }
             })}
+            autoComplete="off"
             defaultValue={org?.orgName}
             placeholder={`Saisir le nom ${orgTypeLabel}`}
           />

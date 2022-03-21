@@ -15,7 +15,8 @@ export function useLeaveConfirm<T>({
   message = defaultMessage
 }: Props<T>) {
   const router = useRouter();
-  const shouldWarn = formState.isDirty;
+  const shouldWarn =
+    formState.isDirty && !formState.isSubmitting && !formState.isSubmitted;
   const lastHistoryState = useRef(global.history?.state);
 
   useEffect(() => {

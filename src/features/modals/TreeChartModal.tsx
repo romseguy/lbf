@@ -68,7 +68,7 @@ export const TreeChartModal = ({
         },
         {
           id: "treeSvg",
-          initialZoom: 1,
+          initialZoom: 0.8,
           isFullscreen: true,
           isSorted: true,
           heightBetweenNodesCoeff: 1,
@@ -79,7 +79,9 @@ export const TreeChartModal = ({
           },
           padding: {},
           style: {
-            background: isDark ? theme.colors.gray["800"] : "white",
+            background: isDark
+              ? theme.colors.gray["800"]
+              : theme.colors.gray["50"],
             link: { stroke: isDark ? "#fff" : "#000" },
             node: { radius: 14 },
             text: { colors: { default: isDark ? "white" : "black" } }
@@ -116,7 +118,7 @@ export const TreeChartModal = ({
       }}
     >
       <ModalOverlay>
-        <ModalContent my={0} minHeight="100vh">
+        <ModalContent my={0} minHeight="100vh" borderRadius={0}>
           <ModalHeader display="flex" alignItems="center">
             <Icon as={IoIosGitNetwork} color="green" mr={3} />
             {header ? header : "Arborescence"}

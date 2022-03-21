@@ -40,21 +40,32 @@ export const SubscriptionsList = (props: SubscriptionsListProps) => {
   return (
     <Table data-cy="subscriptions-list">
       <Tbody>
-        {org.orgSubscriptions.map((subscription, index) => {
-          return (
-            <Fragment key={subscription._id}>
-              {isSubscriptionLoading[subscription._id] ? (
-                <Tr>
-                  <Td>
-                    <Spinner boxSize={4} />
-                  </Td>
-                </Tr>
-              ) : (
-                <SubscriptionsListItem {...props} subscription={subscription} />
-              )}
-            </Fragment>
-          );
-        })}
+        {orgQuery.isLoading || orgQuery.isFetching ? (
+          <Tr>
+            <Td>
+              <Spinner boxSize={4} />
+            </Td>
+          </Tr>
+        ) : (
+          org.orgSubscriptions.map((subscription, index) => {
+            return (
+              <Fragment key={subscription._id}>
+                {isSubscriptionLoading[subscription._id] ? (
+                  <Tr>
+                    <Td>
+                      <Spinner boxSize={4} />
+                    </Td>
+                  </Tr>
+                ) : (
+                  <SubscriptionsListItem
+                    {...props}
+                    subscription={subscription}
+                  />
+                )}
+              </Fragment>
+            );
+          })
+        )}
       </Tbody>
     </Table>
   );

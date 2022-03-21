@@ -9,11 +9,13 @@ import {
 export const Heading = ({
   children,
   containerProps,
+  smaller,
   noContainer = false,
   ...props
 }: HeadingProps & {
   children: React.ReactNode;
   containerProps?: FlexProps;
+  smaller?: boolean;
   noContainer?: boolean;
 }) => {
   const { colorMode } = useColorMode();
@@ -22,7 +24,7 @@ export const Heading = ({
     <ChakraHeading
       className={`rainbow-text ${isDark ? "dark" : ""}`}
       fontFamily="DancingScript"
-      fontSize={["2xl", "4xl"]}
+      fontSize={smaller ? "2xl" : ["2xl", "4xl"]}
       pl={1}
       {...props}
     >

@@ -6,7 +6,8 @@ import database, { models } from "database";
 import { createServerError } from "utils/errors";
 import { getSession } from "hooks/useAuth";
 // import { sendProjectToOrgFollowers } from "api/email";
-import { equals, normalize } from "utils/string";
+import { equals, logJson, normalize } from "utils/string";
+import { IProjectNotification } from "models/INotification";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -23,112 +24,82 @@ handler.put<
   const { body }: { body: IProject } = req;
 
   if (!session && !body.projectNotifications) {
-    res
+    return res
       .status(401)
       .json(createServerError(new Error("Vous devez être identifié")));
-  } else {
-    try {
-      const projectId = req.query.projectId;
+  }
 
-      const project = await models.Project.findOne({ _id: projectId }).populate(
-        "projectOrgs"
-      );
+  try {
+    const projectId = req.query.projectId;
 
-      if (!project) {
+    let project = await models.Project.findOne({ _id: projectId }).populate(
+      "projectOrgs"
+    );
+
+    if (!project) {
+      return res
+        .status(404)
+        .json(
+          createServerError(
+            new Error(`Le projet ${projectId} n'a pas pu être trouvé`)
+          )
+        );
+    }
+
+    if (!body.projectNotifications && session) {
+      if (
+        !equals(project.createdBy, session.user.userId) &&
+        !session.user.isAdmin
+      ) {
         return res
-          .status(404)
+          .status(403)
           .json(
             createServerError(
-              new Error(`Le projet ${projectId} n'a pas pu être trouvé`)
+              new Error(
+                "Vous ne pouvez pas modifier un projet que vous n'avez pas créé."
+              )
             )
           );
       }
+    }
 
-      if (!body.projectNotifications && session) {
-        if (
-          !equals(project.createdBy, session.user.userId) &&
-          !session.user.isAdmin
-        ) {
-          return res
-            .status(403)
-            .json(
-              createServerError(
-                new Error(
-                  "Vous ne pouvez pas modifier un projet que vous n'avez pas créé."
-                )
-              )
-            );
+    if (body.projectOrgs) {
+      const staleProjectOrgsIds: string[] = [];
+
+      for (const { _id } of body.projectOrgs) {
+        const org = await models.Org.findOne({ _id });
+
+        if (!org) {
+          staleProjectOrgsIds.push(_id);
+          continue;
         }
-      }
 
-      if (body.projectOrgs) {
-        const staleProjectOrgsIds: string[] = [];
-
-        for (const { _id } of body.projectOrgs) {
-          const org = await models.Org.findOne({ _id });
-
-          if (!org) {
-            staleProjectOrgsIds.push(_id);
-            continue;
-          }
-
-          if (org.orgProjects.indexOf(project._id) === -1) {
-            await models.Org.updateOne(
-              { _id: org._id },
-              {
-                $push: {
-                  orgProjects: project._id
-                }
+        if (org.orgProjects.indexOf(project._id) === -1) {
+          await models.Org.updateOne(
+            { _id: org._id },
+            {
+              $push: {
+                orgProjects: project._id
               }
-            );
-          }
-        }
-
-        if (staleProjectOrgsIds.length > 0) {
-          body.projectOrgs = body.projectOrgs.filter(
-            (projectOrg) =>
-              !staleProjectOrgsIds.find((id) => id === projectOrg._id)
+            }
           );
         }
       }
 
-      // project.projectNotif = body.projectNotif || [];
-      // const emailList = await sendProjectToOrgFollowers(project);
-
-      let projectNotifications;
-
-      if (body.projectNotifications) {
-        projectNotifications = body.projectNotifications;
+      if (staleProjectOrgsIds.length > 0) {
+        body.projectOrgs = body.projectOrgs.filter(
+          (projectOrg) =>
+            !staleProjectOrgsIds.find((id) => id === projectOrg._id)
+        );
       }
-      // else if (emailList.length > 0) {
-      //   projectNotifications = project.projectNotifications?.concat(
-      //     emailList.map((email) => ({
-      //       email,
-      //       status: StatusTypes.PENDING
-      //     }))
-      //   );
-      // }
-
-      await models.Project.updateOne(
-        { _id: projectId },
-        {
-          ...body,
-          projectNotifications
-        }
-      );
-
-      // if (nModified === 1) {
-      res.status(200).json({});
-      // } else {
-      //   res
-      //     .status(400)
-      //     .json(
-      //       createServerError(new Error("Le projet n'a pas pu être modifié"))
-      //     );
-      // }
-    } catch (error) {
-      res.status(500).json(createServerError(error));
     }
+
+    logJson(`PUT /project/${projectId}:`, body);
+    project = await models.Project.findOneAndUpdate({ _id: projectId }, body);
+
+    res.status(200).json(project);
+  } catch (error) {
+    res.status(500).json(createServerError(error));
   }
 });
 

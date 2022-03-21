@@ -4,7 +4,7 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { Link, SubscribeSwitch } from "features/common";
-import { refetchSession } from "features/session/sessionSlice";
+import { setSession } from "features/session/sessionSlice";
 import { resetUserEmail } from "features/users/userSlice";
 import { PageProps } from "pages/_app";
 import { useAppDispatch } from "store";
@@ -55,8 +55,8 @@ export const NavMenuList = ({
             redirect: false,
             callbackUrl: "/"
           });
-          dispatch(refetchSession());
           dispatch(resetUserEmail());
+          dispatch(setSession(null));
           router.push(url);
         }}
         data-cy="logout"
