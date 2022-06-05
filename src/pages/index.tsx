@@ -36,7 +36,7 @@ let cachedRefetchOrgs = false;
 let cachedUserEmail: string | undefined;
 
 const IndexPage = (props: PageProps) => {
-  console.log(props.session);
+  //console.log(props.session);
 
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -78,7 +78,17 @@ const IndexPage = (props: PageProps) => {
     onClose: closeNetworksModal
   } = useDisclosure({ defaultIsOpen: false });
 
-  const orgsQuery = useGetOrgsQuery({ populate: "orgs" }) as AppQuery<IOrg[]>;
+  const orgsQuery = useGetOrgsQuery(
+    { populate: "orgs" },
+    {
+      selectFromResult: (query) => ({
+        ...query,
+        data: query.data?.filter((org) =>
+          org ? org.orgType === EOrgType.NETWORK : true
+        )
+      })
+    }
+  ) as AppQuery<IOrg[]>;
   const inputNodes: InputNode[] = useMemo(() => {
     return orgsQuery.data
       ? orgsQuery.data
@@ -95,7 +105,7 @@ const IndexPage = (props: PageProps) => {
           })
       : [];
   }, [orgsQuery.data]);
-  const [isListOpen, setIsListOpen] = useState(true);
+  const [isListOpen, setIsListOpen] = useState(false);
   //#endregion
 
   //#region cross refetch
@@ -111,7 +121,7 @@ const IndexPage = (props: PageProps) => {
 
   return (
     <Layout {...props} pageTitle="Accueil">
-      <Column {...columnProps}>
+      {/* <Column {...columnProps}>
         <Text>
           Bienvenue sur l'outil de gestion en{" "}
           <Link variant="underline" onClick={openNetworksModal}>
@@ -155,7 +165,7 @@ const IndexPage = (props: PageProps) => {
           Vous êtes responsable de communication au sein d'une organisation
         </Button>
 
-        {/* <Button
+        <Button
           canWrap
           colorScheme="teal"
           isDisabled
@@ -164,12 +174,13 @@ const IndexPage = (props: PageProps) => {
           onClick={openAboutModal}
         >
           Vous êtes adhérent au sein d'une organisation
-        </Button> */}
-      </Column>
+        </Button>
+      </Column> */}
 
       <Column {...columnProps}>
-        <Flex>
-          <Heading mb={3}>Naviguer dans les organisations</Heading>
+        <Flex alignItems="center">
+          <Heading mb={3}>L'univers</Heading>
+          <HostTag ml={1} />
         </Flex>
 
         {orgsQuery.isLoading ? (
@@ -180,16 +191,22 @@ const IndexPage = (props: PageProps) => {
               alignSelf="flex-start"
               colorScheme="teal"
               leftIcon={<IoIosGitNetwork />}
+              rightIcon={
+                isNetworksModalOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
+              }
               mb={5}
               onClick={openNetworksModal}
             >
-              Arborescence
+              Organigramme
             </Button>
 
             <Button
               alignSelf="flex-start"
               colorScheme="teal"
               leftIcon={<FaRegMap />}
+              rightIcon={
+                isMapModalOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
+              }
               onClick={openMapModal}
               mb={5}
             >
@@ -227,11 +244,7 @@ const IndexPage = (props: PageProps) => {
 
       {isNetworksModalOpen && (
         <TreeChartModal
-          header={
-            <Flex alignItems="center">
-              Arborescence <HostTag ml={2} />
-            </Flex>
-          }
+          header={<Flex alignItems="center">Les planètes</Flex>}
           inputNodes={inputNodes}
           isMobile={props.isMobile}
           isOpen={isNetworksModalOpen}

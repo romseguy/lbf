@@ -93,7 +93,7 @@ export const DeleteButton = ({
           //   ${tw`bg-red-400`}
           // `}
         >
-          Supprimer
+          {label}
         </Button>
       )}
 

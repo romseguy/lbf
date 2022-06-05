@@ -20,7 +20,7 @@ import { LoginFormModal } from "features/modals/LoginFormModal";
 import { selectIsOffline } from "features/session/sessionSlice";
 import { resetUserEmail, selectUserEmail } from "features/users/userSlice";
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { EOrgType, IOrg } from "models/Org";
 import { PageProps } from "pages/_app";
 import { useAppDispatch } from "store";
 import { breakpoints } from "theme/theme";
@@ -28,7 +28,7 @@ import { Base64Image } from "utils/image";
 import { isServer } from "utils/isServer";
 
 const PAYPAL_BUTTON_WIDTH = 108;
-const defaultTitle = process.env.NEXT_PUBLIC_TITLE;
+const defaultTitle = process.env.NEXT_PUBLIC_SHORT_URL;
 let isNotified = false;
 
 interface customWindow extends Window {
@@ -114,11 +114,12 @@ export const Layout = ({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
-          {org || event || pageTitle
-            ? `${defaultTitle} – ${
-                org ? org.orgName : event ? event.eventName : pageTitle
+          {defaultTitle} –{" "}
+          {org
+            ? `${org.orgType === EOrgType.NETWORK ? "Planète" : "Arbre"} – ${
+                org.orgName
               }`
-            : defaultTitle}
+            : pageTitle}
         </title>
       </Head>
 
@@ -202,15 +203,17 @@ export const Layout = ({
           m={isMobile ? 1 : 3}
         />
 
-        <Header
-          event={event}
-          org={org}
-          defaultTitle="Chargement..."
-          pageTitle={pageTitle}
-          pageSubTitle={pageSubTitle}
-          m={isMobile ? 1 : 3}
-          mt={0}
-        />
+        {router.asPath !== "/" && (
+          <Header
+            event={event}
+            org={org}
+            defaultTitle="Chargement..."
+            pageTitle={pageTitle}
+            pageSubTitle={pageSubTitle}
+            m={isMobile ? 1 : 3}
+            mt={0}
+          />
+        )}
 
         <Box
           as="main"

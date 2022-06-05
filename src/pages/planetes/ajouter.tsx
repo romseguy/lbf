@@ -6,7 +6,7 @@ import { Layout } from "features/layout";
 import { EOrgType, orgTypeFull3 } from "models/Org";
 import { PageProps } from "pages/_app";
 
-const OrganisationsAddPage = (props: PageProps) => {
+const NetworksAddPage = (props: PageProps) => {
   const router = useRouter();
   const [orgType, setOrgType] = useState<EOrgType>(EOrgType.GENERIC);
 
@@ -17,11 +17,11 @@ const OrganisationsAddPage = (props: PageProps) => {
   };
 
   return (
-    <Layout {...props} pageTitle={`Ajouter ${orgTypeFull3(orgType)}`}>
+    <Layout {...props} pageTitle={`Ajouter une planète`}>
       <Column>
         <OrgForm
           {...props}
-          orgType={orgType}
+          orgType={EOrgType.NETWORK}
           setOrgType={setOrgType}
           onSubmit={onSubmit}
         />
@@ -30,4 +30,4 @@ const OrganisationsAddPage = (props: PageProps) => {
   );
 };
 
-export default OrganisationsAddPage;
+export default NetworksAddPage;

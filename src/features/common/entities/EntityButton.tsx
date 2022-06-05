@@ -10,13 +10,19 @@ import {
 import React from "react";
 import { IoIosGitNetwork, IoIosPeople, IoIosPerson } from "react-icons/io";
 import { Link } from "features/common";
-import { IOrg, orgTypeFull, EOrgType, EOrgVisibility } from "models/Org";
+import {
+  IOrg,
+  orgTypeFull,
+  EOrgType,
+  EOrgVisibility,
+  orgTypeFull5
+} from "models/Org";
 import { EEventVisibility as EventVisibility } from "models/Event";
 import { IEvent } from "models/Event";
 import { IUser } from "models/User";
 import { ITopic } from "models/Topic";
 import { useRouter } from "next/router";
-import { FaGlobeEurope } from "react-icons/fa";
+import { FaGlobeEurope, FaTree } from "react-icons/fa";
 
 export const EntityButton = ({
   event,
@@ -62,7 +68,7 @@ export const EntityButton = ({
             ? org.orgUrl === "forum"
               ? "Aller au forum"
               : org.orgType
-              ? `Aller à la page ${orgTypeFull(org.orgType)}`
+              ? `Visiter ${orgTypeFull5(org.orgType)}`
               : ""
             : event
             ? "Aller à la page de l'événement"
@@ -99,8 +105,8 @@ export const EntityButton = ({
                     ? org.orgUrl === "forum"
                       ? ChatIcon
                       : org.orgType === EOrgType.NETWORK
-                      ? IoIosGitNetwork
-                      : IoIosPeople
+                      ? FaGlobeEurope
+                      : FaTree
                     : event
                     ? CalendarIcon
                     : user

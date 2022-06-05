@@ -14,7 +14,13 @@ import {
 } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
 import { useDeleteOrgMutation } from "features/orgs/orgsApi";
-import { getOrgEventCategories, IOrg } from "models/Org";
+import {
+  EOrgType,
+  getOrgEventCategories,
+  IOrg,
+  orgTypeFull,
+  orgTypeFull5
+} from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData, TypedMap } from "utils/types";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
@@ -124,9 +130,15 @@ export const OrgConfigPanel = ({
             <DeleteButton
               isDisabled={isDisabled}
               isLoading={deleteQuery.isLoading}
+              label={`${
+                org.orgType === EOrgType.NETWORK ? "Détruire" : "Déraciner"
+              } ${orgTypeFull5(org.orgType)} ${org.orgName}`}
               header={
                 <>
-                  Vous êtes sur le point de supprimer l'organisation
+                  Vous êtes sur le point de{" "}
+                  {org.orgType === EOrgType.NETWORK
+                    ? "détruire la planète"
+                    : "déraciner l'arbre"}{" "}
                   <Text display="inline" color="red" fontWeight="bold">
                     {` ${org.orgName}`}
                   </Text>
@@ -134,12 +146,18 @@ export const OrgConfigPanel = ({
               }
               body={
                 <>
-                  Saisissez le nom de l'organisation pour confimer sa
-                  suppression :
+                  Saisissez le nom {orgTypeFull(org.orgType)} pour confimer{" "}
+                  {org.orgType === EOrgType.NETWORK
+                    ? "sa destruction"
+                    : "son déracinement"}{" "}
+                  :
                   <Input
                     autoComplete="off"
                     onChange={(e) =>
-                      setIsDisabled(e.target.value !== org.orgName)
+                      setIsDisabled(
+                        e.target.value.toLowerCase() !==
+                          org.orgName.toLowerCase()
+                      )
                     }
                   />
                 </>
@@ -151,7 +169,7 @@ export const OrgConfigPanel = ({
                   if (deletedOrg) {
                     await router.push(`/`);
                     toast({
-                      title: `${deletedOrg.orgName} a été supprimé !`,
+                      title: `${deletedOrg.orgName} a été détruite !`,
                       status: "success"
                     });
                   }

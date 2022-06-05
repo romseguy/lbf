@@ -87,9 +87,9 @@ export const OrgsList = ({
           <Tr>
             {[
               { key: "subscription", label: "" },
-              { key: "orgName", label: "Nom" },
-              { key: "orgType", label: "Type" },
-              { key: "orgCity", label: "Localité" }
+              { key: "orgName", label: "Nom de la planète" },
+              // { key: "orgType", label: "Type" },
+              { key: "orgCity", label: "Position" }
             ].map(({ key, label }) => {
               return (
                 <Th
@@ -148,7 +148,7 @@ export const OrgsList = ({
                       {org.orgName}
                     </Link>
                   </Td>
-                  <Td>{OrgTypes[org.orgType]}</Td>
+                  {/* <Td>{OrgTypes[org.orgType]}</Td> */}
                   <Td>
                     <Tooltip hasArrow label="Voir sur la carte" placement="top">
                       <span>

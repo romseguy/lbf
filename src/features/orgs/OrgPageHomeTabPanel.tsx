@@ -65,6 +65,21 @@ export const OrgPageHomeTabPanel = ({
     hasItems(org.orgEmail) ||
     hasItems(org.orgPhone) ||
     hasItems(org.orgWeb);
+  const { orgNetworks } = useGetOrgsQuery(
+    { populate: "orgs" },
+    {
+      selectFromResult: (query) => ({
+        orgNetworks: query.data?.filter(
+          (o) =>
+            o.orgName !== org.orgName &&
+            o.orgType === EOrgType.NETWORK &&
+            !!o.orgs?.find(({ orgName }) => orgName === org.orgName)
+        )
+      })
+    }
+  );
+  const hasNetworks = Array.isArray(orgNetworks) && orgNetworks.length > 0;
+  console.log("hasNetworks", hasNetworks);
   //#endregion
 
   //#region local state
@@ -97,25 +112,35 @@ export const OrgPageHomeTabPanel = ({
         : [],
     [org.orgs]
   );
-  const { orgNetworks } = useGetOrgsQuery(
-    { populate: "orgs" },
-    {
-      selectFromResult: (query) => ({
-        orgNetworks: query.data?.filter(
-          (o) =>
-            o.orgName !== org.orgName &&
-            o.orgType === EOrgType.NETWORK &&
-            !!o.orgs?.find(({ orgName }) => orgName === org.orgName)
-        )
-      })
-    }
-  );
   //#endregion
 
   return (
     <>
+      {hasNetworks && (
+        <TabContainer>
+          <TabContainerHeader
+            heading={
+              <>
+                {/* {capitalize(orgTypeFull5(org.orgType))}{" "} */}
+                <EntityButton org={org} onClick={null} /> est planté sur la
+                planète :
+              </>
+            }
+          />
+          <TabContainerContent p={3}>
+            {orgNetworks.map((network) => (
+              <Flex key={network._id}>
+                <EntityButton org={network} mb={1} />
+              </Flex>
+            ))}
+          </TabContainerContent>
+        </TabContainer>
+      )}
+
       <TabContainer>
-        <TabContainerHeader heading={`Coordonnées ${orgTypeFull(org.orgType)}`}>
+        <TabContainerHeader
+          heading={`Coordonnées ${orgTypeFull(org.orgType)} ${org.orgName}`}
+        >
           {hasInfo && isCreator && (
             <Tooltip
               hasArrow
@@ -153,15 +178,17 @@ export const OrgPageHomeTabPanel = ({
 
       {org.orgType === EOrgType.NETWORK && (
         <TabContainer>
-          <TabContainerHeader heading="Topologie du réseau">
+          <TabContainerHeader
+            heading={`Les arbres plantés sur la planète ${org.orgName}`}
+          >
             {isCreator && (
               <Tooltip
                 hasArrow
-                label="Ajouter ou supprimer des organisations du réseau"
+                label={`Planter ou déraciner des arbres de la planète ${org.orgName}`}
                 placement="bottom"
               >
                 <IconButton
-                  aria-label="Ajouter ou supprimer des organisations du réseau"
+                  aria-label={`Planter ou déraciner des arbres de la planète ${org.orgName}`}
                   icon={<EditIcon />}
                   bg="transparent"
                   _hover={{ color: "green" }}
@@ -248,36 +275,18 @@ export const OrgPageHomeTabPanel = ({
         </TabContainer>
       )}
 
-      {Array.isArray(orgNetworks) && orgNetworks.length > 0 && (
-        <TabContainer>
-          <TabContainerHeader
-            heading={`
-              ${capitalize(orgTypeFull5(org.orgType))} est
-              membre ${orgNetworks.length === 1 ? "du réseau" : "des réseaux"} :
-            `}
-          />
-          <TabContainerContent p={3}>
-            {orgNetworks.map((network) => (
-              <Flex key={network._id}>
-                <EntityButton org={network} mb={1} />
-              </Flex>
-            ))}
-          </TabContainerContent>
-        </TabContainer>
-      )}
-
       <TabContainer mb={0}>
         <TabContainerHeader
-          heading={`Présentation ${orgTypeFull(org.orgType)}`}
+          heading={`Description ${orgTypeFull(org.orgType)} ${org.orgName}`}
         >
           {org.orgDescription && isCreator && (
             <Tooltip
               hasArrow
-              label="Modifier la présentation"
+              label="Modifier la description"
               placement="bottom"
             >
               <IconButton
-                aria-label="Modifier la présentation"
+                aria-label="Modifier la description"
                 icon={<EditIcon />}
                 bg="transparent"
                 _hover={{ color: "green" }}
@@ -305,7 +314,7 @@ export const OrgPageHomeTabPanel = ({
               Ajouter
             </Button>
           ) : (
-            <Text fontStyle="italic">Aucune présentation.</Text>
+            <Text fontStyle="italic">Aucune description.</Text>
           )}
         </TabContainerContent>
       </TabContainer>

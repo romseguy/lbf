@@ -16,9 +16,9 @@ import { ITopic } from "models/Topic";
 import { AppIcon } from "utils/types";
 
 export enum EOrgType {
-  ASSO = "ASSO",
+  //ASSO = "ASSO",
   GENERIC = "GENERIC",
-  GROUP = "GROUP",
+  //GROUP = "GROUP",
   NETWORK = "NETWORK"
 }
 

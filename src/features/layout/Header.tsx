@@ -17,7 +17,12 @@ import {
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
-import { FaRegCalendarCheck, FaRegCalendarTimes } from "react-icons/fa";
+import {
+  FaGlobeEurope,
+  FaRegCalendarCheck,
+  FaRegCalendarTimes,
+  FaTree
+} from "react-icons/fa";
 import { css } from "twin.macro";
 import { Link, Heading } from "features/common";
 import { useScroll } from "hooks/useScroll";
@@ -61,8 +66,8 @@ export const Header = ({
       ? IoIosGitNetwork
       : org
       ? org.orgType === EOrgType.NETWORK
-        ? IoIosGitNetwork
-        : IoIosPeople
+        ? FaGlobeEurope
+        : FaTree
       : event
       ? event.isApproved
         ? FaRegCalendarCheck

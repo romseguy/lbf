@@ -95,7 +95,7 @@ export const Nav = ({
                 </Td>
                 <Td border={0} p={0}>
                   <Heading ml="auto">
-                    {session ? "Mon espace" : "Se connecter"}
+                    {session ? "Mon univers" : "Se connecter"}
                   </Heading>
                 </Td>
               </Tr>
@@ -255,7 +255,9 @@ export const Nav = ({
               <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
                   <Flex mt={1}>
-                    <Heading>{session ? "Mon espace" : "Se connecter"}</Heading>
+                    <Heading>
+                      {session ? "Mon univers" : "Se connecter"}
+                    </Heading>
                   </Flex>
                 </Td>
               </Tr>

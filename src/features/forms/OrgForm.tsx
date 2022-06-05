@@ -137,8 +137,9 @@ export const OrgForm = withGoogleApi({
     const orgAddress = watch("orgAddress");
     const orgEmail = watch("orgEmail");
     const orgPhone = watch("orgPhone");
-    const orgType = watch("orgType");
-    const orgTypeLabel = orgTypeFull(orgType) || "de l'organisation";
+    //const orgType = watch("orgType");
+    const orgType = props.orgType || EOrgType.GENERIC;
+    const orgTypeLabel = orgTypeFull(orgType) || "de l'arbre";
     const orgVisibility = watch("orgVisibility");
     const password = useRef({});
     password.current = watch("orgPassword", "");
@@ -295,7 +296,7 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        <FormControl isInvalid={!!errors["orgType"]} mb={3}>
+        {/* <FormControl isInvalid={!!errors["orgType"]} mb={3}>
           <FormLabel>Type de l'organisation</FormLabel>
           <Select
             name="orgType"
@@ -316,16 +317,14 @@ export const OrgForm = withGoogleApi({
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="orgType" />
           </FormErrorMessage>
-        </FormControl>
+        </FormControl> */}
 
         <FormControl
           mb={3}
           isInvalid={!!errors["orgs"]}
           display={orgType !== EOrgType.NETWORK ? "none" : undefined}
         >
-          <FormLabel>
-            Ajouter des organisations à l'arborescence du réseau
-          </FormLabel>
+          <FormLabel>Ajouter des arbres à la planète</FormLabel>
           <Controller
             name="orgs"
             as={ReactSelect}
@@ -336,11 +335,11 @@ export const OrgForm = withGoogleApi({
             isMulti
             isSearchable
             menuPlacement="top"
-            noOptionsMessage={() => "Aucune organisation trouvée"}
+            noOptionsMessage={() => "Aucun arbre trouvé"}
             options={session?.user.isAdmin ? orgsQuery.data : myOrgs}
             getOptionLabel={(option: any) => option.orgName}
             getOptionValue={(option: any) => option._id}
-            placeholder="Rechercher une organisation..."
+            placeholder="Rechercher un arbre..."
             styles={{
               control: (defaultStyles: any) => {
                 return {

@@ -108,39 +108,48 @@ export const defaultTabs: IOrgTabWithIcon[] = [
 export const orgTypeFull = (orgType: EOrgType): string => {
   if (!orgType) return "";
 
+  if (["ASSO", "GROUP"].includes(orgType)) {
+    orgType = EOrgType.GENERIC;
+  }
+
   return `${
-    [EOrgType.ASSO, EOrgType.GENERIC].includes(orgType) ? "de l'" : "du "
+    [EOrgType.GENERIC].includes(orgType) ? "de l'" : "de la "
   }${OrgTypes[orgType].toLowerCase()}`;
 };
 
 export const orgTypeFull2 = (orgType: EOrgType): string =>
-  `${
-    [EOrgType.ASSO, EOrgType.GENERIC].includes(orgType) ? "à l'" : "au "
-  }${OrgTypes[orgType].toLowerCase()}`;
+  `${[EOrgType.GENERIC].includes(orgType) ? "à l'" : "au "}${OrgTypes[
+    orgType
+  ].toLowerCase()}`;
 
 export const orgTypeFull3 = (orgType: EOrgType): string => {
   if (!orgType) return "une organisation";
 
-  return `${
-    [EOrgType.ASSO, EOrgType.GENERIC].includes(orgType) ? "une " : "un "
-  }${OrgTypes[orgType].toLowerCase()}`;
+  return `${[EOrgType.GENERIC].includes(orgType) ? "une " : "un "}${OrgTypes[
+    orgType
+  ].toLowerCase()}`;
 };
 
 export const orgTypeFull4 = (orgType: EOrgType): string =>
-  `${
-    [EOrgType.ASSO, EOrgType.GENERIC].includes(orgType) ? "cette " : "ce "
-  }${OrgTypes[orgType].toLowerCase()}`;
+  `${[EOrgType.GENERIC].includes(orgType) ? "cette " : "ce "}${OrgTypes[
+    orgType
+  ].toLowerCase()}`;
 
-export const orgTypeFull5 = (orgType: EOrgType): string =>
-  `${
-    [EOrgType.ASSO, EOrgType.GENERIC].includes(orgType) ? "l'" : "le "
-  }${OrgTypes[orgType].toLowerCase()}`;
+export const orgTypeFull5 = (orgType: EOrgType): string => {
+  if (["ASSO", "GROUP"].includes(orgType)) {
+    orgType = EOrgType.GENERIC;
+  }
+
+  return `${[EOrgType.NETWORK].includes(orgType) ? "la " : "l'"}${OrgTypes[
+    orgType
+  ].toLowerCase()}`;
+};
 
 export const OrgTypes: TypedMap<EOrgType, string> = {
-  [EOrgType.ASSO]: "Association",
-  [EOrgType.GENERIC]: "Organisation",
-  [EOrgType.GROUP]: "Groupe",
-  [EOrgType.NETWORK]: "Réseau"
+  //[EOrgType.ASSO]: "Association",
+  [EOrgType.GENERIC]: "Arbre",
+  //[EOrgType.GROUP]: "Groupe",
+  [EOrgType.NETWORK]: "Planète"
 };
 
 export const OrgVisibilities: TypedMap<EOrgVisibility, string> = {

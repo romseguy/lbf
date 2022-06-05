@@ -34,6 +34,7 @@ import {
 } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
+import { FaTree } from "react-icons/fa";
 
 let cachedRefetchSubscription = false;
 
@@ -61,13 +62,15 @@ const OrgPopoverContent = ({
       selectFromResult: (query) => ({
         ...query,
         data:
-          [...(query.data || [])].sort((a, b) => {
-            if (a.createdAt && b.createdAt) {
-              if (a.createdAt < b.createdAt) return 1;
-              else if (a.createdAt > b.createdAt) return -1;
-            }
-            return 0;
-          }) || []
+          [...(query.data || [])]
+            .sort((a, b) => {
+              if (a.createdAt && b.createdAt) {
+                if (a.createdAt < b.createdAt) return 1;
+                else if (a.createdAt > b.createdAt) return -1;
+              }
+              return 0;
+            })
+            .filter((org) => org.orgUrl !== "forum") || []
       })
     }
   );
@@ -120,15 +123,11 @@ const OrgPopoverContent = ({
             )
           }
         >
-          <option value="showOrgsAdded">
-            Les organisations que j'ai ajouté
-          </option>
+          <option value="showOrgsAdded">Les arbres que j'ai planté</option>
           <option value="showOrgsFollowed">
-            Les organisations où je suis abonné
+            Les arbres où je me suis abonné
           </option>
-          <option value="showOrgsSubscribed">
-            Les organisations où je suis adhérent
-          </option>
+          <option value="showOrgsSubscribed">Les arbres où j'ai adhéré</option>
         </Select>
 
         {showOrgs === "showOrgsAdded" && (
@@ -160,9 +159,7 @@ const OrgPopoverContent = ({
                 ))}
               </VStack>
             ) : (
-              <Text fontSize="smaller">
-                Vous n'avez ajouté aucune organisations.
-              </Text>
+              <Text fontSize="smaller">Vous n'avez planté aucun arbres.</Text>
             )}
           </>
         )}
@@ -181,9 +178,7 @@ const OrgPopoverContent = ({
                 ))}
               </VStack>
             ) : (
-              <Text fontSize="smaller">
-                Vous n'êtes abonné à aucune organisations.
-              </Text>
+              <Text fontSize="smaller">Vous n'êtes abonné à aucun arbres.</Text>
             )}
           </>
         )}
@@ -218,13 +213,28 @@ const OrgPopoverContent = ({
           size="sm"
           onClick={() => {
             onClose();
-            router.push("/organisations/ajouter", "/organisations/ajouter", {
+            router.push("/arbres/ajouter", "/arbres/ajouter", {
               shallow: true
             });
           }}
           data-cy="org-add-button"
         >
-          Ajouter une organisation
+          Ajouter un arbre
+        </Button>
+        <Button
+          colorScheme="teal"
+          leftIcon={<AddIcon />}
+          mt={1}
+          size="sm"
+          onClick={() => {
+            onClose();
+            router.push("/planetes/ajouter", "/planetes/ajouter", {
+              shallow: true
+            });
+          }}
+          data-cy="org-add-button"
+        >
+          Ajouter une planète
         </Button>
       </PopoverFooter>
     </>
@@ -247,16 +257,12 @@ export const OrgPopover = ({
       <Popover isLazy isOpen={isOpen} offset={[10, 25]} onClose={onClose}>
         <PopoverTrigger>
           <IconButton
-            aria-label="Organisations"
+            aria-label="Mes arbres"
             bg="transparent"
             color={isOpen ? "green" : undefined}
             _hover={{ bg: "transparent" }}
             icon={
-              <Icon
-                as={IoIosPeople}
-                boxSize={boxSize}
-                _hover={{ color: "green" }}
-              />
+              <Icon as={FaTree} boxSize={boxSize} _hover={{ color: "green" }} />
             }
             minWidth={0}
             onClick={onOpen}

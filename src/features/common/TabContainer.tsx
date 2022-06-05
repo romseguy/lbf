@@ -3,6 +3,7 @@ import React from "react";
 
 export const TabContainer = ({
   children,
+  mb = 5,
   ...props
 }: FlexProps & {
   children: React.ReactNode | React.ReactNodeArray;
@@ -11,7 +12,7 @@ export const TabContainer = ({
   const isDark = colorMode === "dark";
 
   return (
-    <Flex flexDirection="column" borderTopRadius="lg" mb={5} {...props}>
+    <Flex flexDirection="column" borderTopRadius="lg" mb={mb} {...props}>
       {children}
     </Flex>
   );
@@ -22,7 +23,7 @@ export const TabContainerHeader = ({
   heading
 }: {
   children?: React.ReactNode | React.ReactNodeArray;
-  heading: string;
+  heading: string | React.ReactNode;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";

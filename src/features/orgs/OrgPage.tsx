@@ -8,7 +8,7 @@ import { Button, Link } from "features/common";
 import { Forum } from "features/forum/Forum";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
-import { IOrg, orgTypeFull } from "models/Org";
+import { IOrg, orgTypeFull, orgTypeFull5 } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription,
@@ -83,7 +83,7 @@ export const OrgPage = ({
             onClick={() => setIsConfig(true)}
             mb={3}
           >
-            Configuration {orgTypeFull(org.orgType)}
+            Configuration {orgTypeFull(org.orgType)} {org.orgName}
           </Button>
         )}
 
@@ -106,7 +106,7 @@ export const OrgPage = ({
             onClick={() => setIsConfig(false)}
             mb={2}
           >
-            {`Revenir à la page ${orgTypeFull(org.orgType)}`}
+            {`Revenir à ${orgTypeFull5(org.orgType)} ${org.orgName}`}
           </Button>
         )}
       </>
