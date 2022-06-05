@@ -1,18 +1,21 @@
+import { MagicUserMetadata } from "@magic-sdk/types";
 import { NextPage, NextPageContext } from "next";
 import { AppProps as NextAppProps } from "next/app";
-import { Session } from "next-auth";
+import Router from "next/router";
 import { SessionProvider } from "next-auth/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { getSelectorsByUserAgent, isMobile } from "react-device-detect";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
 import {
   selectSession,
-  setIsOffline,
-  setSession
+  setIsOffline
+  //setSession
 } from "features/session/sessionSlice";
 import { setUserEmail } from "features/users/userSlice";
 import { getSession } from "hooks/useAuth";
+import { magic } from "lib/magic";
+import { Session, SessionContext } from "lib/SessionContext";
 import { useAppDispatch, wrapper } from "store";
 import theme from "theme/theme";
 import api from "utils/api";
@@ -21,9 +24,9 @@ import { isServer } from "utils/isServer";
 import { useSelector } from "react-redux";
 
 export interface PageProps {
-  email?: string;
+  email: string | null;
   isMobile: boolean;
-  session: Session | null;
+  session: Session;
 }
 
 if (!isServer() && process.env.NODE_ENV === "production") {
@@ -43,17 +46,35 @@ interface AppProps extends NextAppProps<PageProps> {
 
 const App = wrapper.withRedux(
   ({ Component, pageProps, cookies, ...props }: AppProps) => {
+    const [session, setSession] = useState<Session>();
+    const [isSessionLoading, setIsSessionLoading] = useState(true);
+
+    useEffect(() => {
+      magic.user.isLoggedIn().then((isLoggedIn) => {
+        if (isLoggedIn) {
+          magic.user.getMetadata().then((userData) => {
+            setSession({ user: userData });
+            setIsSessionLoading(false);
+          });
+        } else {
+          Router.push("/sandbox");
+          setSession(null);
+          setIsSessionLoading(false);
+        }
+      });
+    }, []);
+
     const dispatch = useAppDispatch();
-    const session = useSelector(selectSession);
+    //const session = useSelector(selectSession);
 
     useEffect(function clientDidMount() {
       if (pageProps.email) {
         dispatch(setUserEmail(pageProps.email));
       }
 
-      if (pageProps.session && !session) {
-        dispatch(setSession(pageProps.session));
-      }
+      // if (pageProps.session && !session) {
+      //   dispatch(setSession(pageProps.session));
+      // }
 
       (async function checkOnlineStatus() {
         try {
@@ -78,7 +99,9 @@ const App = wrapper.withRedux(
       <>
         <GlobalStyles />
 
-        <SessionProvider session={pageProps.session}>
+        <SessionContext.Provider
+          value={[session, isSessionLoading, setSession]}
+        >
           <Chakra theme={theme} cookies={cookies}>
             {/* <AppStateProvider isMobile={props.isMobile || isMobile}> */}
             <Component
@@ -87,7 +110,7 @@ const App = wrapper.withRedux(
             />
             {/* </AppStateProvider> */}
           </Chakra>
-        </SessionProvider>
+        </SessionContext.Provider>
       </>
     );
   }

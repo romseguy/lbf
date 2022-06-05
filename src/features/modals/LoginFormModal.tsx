@@ -33,6 +33,8 @@ import { getUser } from "features/users/usersApi";
 import { useAppDispatch } from "store";
 import api from "utils/api";
 import { handleError as handleError } from "utils/form";
+import { SocialLogins } from "features/session/SocialLogins";
+import { handleLoginWithSocial } from "lib/magic";
 
 export const LoginFormModal = (props: {
   onClose: () => void;
@@ -131,10 +133,11 @@ export const LoginFormModal = (props: {
               ? "Inscription"
               : isEmail
               ? "Connexion par e-mail"
-              : "Connexion par mot de passe"}
+              : "Connexion"}
           </ModalHeader>
           <ModalCloseButton />
-          <form
+          <SocialLogins onSubmit={handleLoginWithSocial} />
+          {/* <form
             onChange={onChange}
             onSubmit={handleSubmit(onSubmit)}
             data-cy="login-form"
@@ -277,7 +280,7 @@ export const LoginFormModal = (props: {
                 </Button>
               </ModalFooter>
             )}
-          </form>
+          </form> */}
         </ModalContent>
       </ModalOverlay>
     </Modal>
