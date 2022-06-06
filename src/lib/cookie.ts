@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { serialize } from "cookie";
 
 const TOKEN_NAME = "api_token";

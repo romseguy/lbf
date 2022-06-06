@@ -70,7 +70,7 @@ export const Layout = ({
   const userEmail = useSelector(selectUserEmail);
   const { isMobile } = props;
 
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
     router.asPath === "/?login" && !props.session
   );
   useEffect(() => {
@@ -255,13 +255,12 @@ export const Layout = ({
 
       {isLoginModalOpen && (
         <LoginFormModal
-          onClose={() => setIsLoginModalOpen(false)}
+          onClose={async () => {
+            setIsLoginModalOpen(false);
+            await router.push("/", "/", { shallow: true });
+          }}
           onSubmit={async () => {
             dispatch(resetUserEmail());
-            setIsLoginModalOpen(false);
-            if (router.asPath.includes("/?login")) {
-              await router.push("/", "/", { shallow: true });
-            }
           }}
         />
       )}

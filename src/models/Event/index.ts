@@ -336,7 +336,7 @@ export const isAttending = ({
   email,
   event
 }: {
-  email?: string;
+  email?: string | null;
   event: IEvent;
 }) => {
   if (!email) return false;
@@ -349,7 +349,7 @@ export const isNotAttending = ({
   email,
   event
 }: {
-  email?: string;
+  email?: string | null;
   event: IEvent;
 }) => {
   if (!email) return false;

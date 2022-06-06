@@ -1,5 +1,7 @@
+import { Button } from "@chakra-ui/react";
 import { OAuthProvider } from "@magic-ext/oauth";
 import React, { useState } from "react";
+import { FaGoogle, FaGooglePlusG } from "react-icons/fa";
 
 export const SocialLogins = ({
   onSubmit
@@ -19,40 +21,25 @@ export const SocialLogins = ({
       {providers.map((provider) => {
         return (
           <div key={provider}>
-            <button
-              type="submit"
-              className="social-btn"
+            <Button
+              key={provider}
+              isDisabled={isRedirecting}
+              leftIcon={<FaGoogle />}
               onClick={() => {
                 setIsRedirecting(true);
                 onSubmit(provider);
               }}
-              key={provider}
-              style={{ backgroundImage: `url(${provider}.png)` }}
             >
               {/* turns "google" to "Google" */}
               {provider.replace(/^\w/, (c) => c.toUpperCase())}
-            </button>
+            </Button>
           </div>
         );
       })}
 
-      {isRedirecting && <>Redirecting...</>}
-
-      <style jsx>{`
-        .social-btn {
-          cursor: pointer;
-          border-radius: 50px;
-          margin-bottom: 20px;
-          border: 1px solid #8a8a8a;
-          padding: 9px 24px 9px 35px;
-          width: 80%;
-
-          background-color: #fff;
-          background-size: 20px;
-          background-repeat: no-repeat;
-          background-position: 23% 50%;
-        }
-      `}</style>
+      {isRedirecting && (
+        <>Vous allez être redirigé vers la page de connexion Google...</>
+      )}
     </>
   );
 };

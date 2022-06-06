@@ -1,5 +1,6 @@
 import { IconProps } from "@chakra-ui/icons";
 import { ComponentWithAs } from "@chakra-ui/system";
+import { NextApiRequest } from "next";
 import { IconType } from "react-icons";
 
 export type AppIcon = ComponentWithAs<"svg", IconProps> | IconType;
@@ -28,3 +29,9 @@ export type Primitive = string | number | boolean | symbol;
 export type TypedMap<T extends string, K> = {
   [key in T]: K;
 };
+
+export interface NextApiRequestWithAuthorizationHeader extends NextApiRequest {
+  headers: {
+    authorization: string;
+  };
+}

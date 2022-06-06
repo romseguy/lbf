@@ -7,9 +7,7 @@ import api from "utils/api";
 import { isServer } from "utils/isServer";
 import sessionFixture from "../../cypress/fixtures/session.json";
 
-let cachedSession: Session = null;
-
-export async function getSession(params?: any): Promise<Session> {
+export async function getSession(params?: any): Promise<Session | null> {
   return null;
   // if (
   //   process.env.NEXT_PUBLIC_IS_TEST &&
@@ -58,7 +56,6 @@ export async function getSession(params?: any): Promise<Session> {
 
 export const useSession = () => {
   const [session, isSessionLoading, setSession] = useContext(SessionContext);
-  console.log("SESSION FROM CONTEXT", session, isSessionLoading);
 
   // app initial state
   if (session === undefined || session === null)

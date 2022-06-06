@@ -25,6 +25,8 @@ handler.post<NextApiRequest, NextApiResponse>(async function checkLoggedIn(
 ) {
   let user;
 
+  console.log(req.cookies);
+
   try {
     user = await Iron.unseal(
       CookieService.getAuthToken(req.cookies),

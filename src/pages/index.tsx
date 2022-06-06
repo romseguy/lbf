@@ -36,8 +36,6 @@ let cachedRefetchOrgs = false;
 let cachedUserEmail: string | undefined;
 
 const IndexPage = (props: PageProps) => {
-  //console.log(props.session);
-
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const columnProps = {

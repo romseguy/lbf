@@ -1,18 +1,17 @@
-import { MagicUserMetadata } from "@magic-sdk/types";
 import { NextPage, NextPageContext } from "next";
 import { AppProps as NextAppProps } from "next/app";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
 import { getSelectorsByUserAgent, isMobile } from "react-device-detect";
+//import { useSelector } from "react-redux";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
 import {
-  selectSession,
+  //selectSession,
   setIsOffline
   //setSession
 } from "features/session/sessionSlice";
 import { setUserEmail } from "features/users/userSlice";
-import { getSession } from "hooks/useAuth";
 import { magic } from "lib/magic";
 import { Session, SessionContext } from "lib/SessionContext";
 import { useAppDispatch, wrapper } from "store";
@@ -20,12 +19,11 @@ import theme from "theme/theme";
 import api from "utils/api";
 //import { AppStateProvider } from "utils/context";
 import { isServer } from "utils/isServer";
-import { useSelector } from "react-redux";
 
 export interface PageProps {
-  email: string | null;
+  email?: string | null;
   isMobile: boolean;
-  session: Session;
+  session: Session | null;
 }
 
 if (!isServer() && process.env.NODE_ENV === "production") {
@@ -45,22 +43,26 @@ interface AppProps extends NextAppProps<PageProps> {
 
 const App = wrapper.withRedux(
   ({ Component, pageProps, cookies, ...props }: AppProps) => {
-    const [session, setSession] = useState<Session>();
+    const [session, setSession] = useState<Session | null>(null);
     const [isSessionLoading, setIsSessionLoading] = useState(true);
 
     useEffect(() => {
-      magic.user.isLoggedIn().then((isLoggedIn) => {
+      (async () => {
+        const isLoggedIn = await magic.user.isLoggedIn();
+
         if (isLoggedIn) {
-          magic.user.getMetadata().then((userData) => {
-            setSession({ user: userData });
-            setIsSessionLoading(false);
-          });
-        } else {
-          Router.push("/sandbox");
-          setSession(null);
+          const { email } = await magic.user.getMetadata();
+          const { data } = await api.get("user");
+          const user = {
+            email: email as string,
+            userId: data.userId,
+            userImage: data.userImage,
+            userName: data.userName
+          };
+          setSession({ user });
           setIsSessionLoading(false);
         }
-      });
+      })();
     }, []);
 
     const dispatch = useAppDispatch();
@@ -102,12 +104,11 @@ const App = wrapper.withRedux(
           value={[session, isSessionLoading, setSession]}
         >
           <Chakra theme={theme} cookies={cookies}>
-            {/* <AppStateProvider isMobile={props.isMobile || isMobile}> */}
             <Component
               {...pageProps}
               isMobile={/*true ||*/ pageProps.isMobile || isMobile}
+              session={session}
             />
-            {/* </AppStateProvider> */}
           </Chakra>
         </SessionContext.Provider>
       </>
@@ -127,20 +128,16 @@ App.getInitialProps = async ({
   const cookies = headers?.cookie;
   const userAgent = headers?.["user-agent"] || navigator.userAgent;
   //#endregion
-
   let pageProps: Partial<PageProps> = {
     isMobile:
       typeof userAgent === "string"
         ? getSelectorsByUserAgent(userAgent).isMobile
-        : false,
-    session: await getSession({ req: ctx.req })
+        : false
   };
 
   //#region query
   if (ctx.query.email) {
     pageProps.email = ctx.query.email as string;
-  } else if (pageProps.session) {
-    pageProps.email = pageProps.session.user.email;
   }
   //#endregion
 

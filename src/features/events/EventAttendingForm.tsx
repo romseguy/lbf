@@ -28,7 +28,7 @@ export const EventAttendingForm = ({
   email,
   eventQuery
 }: {
-  email?: string;
+  email?: string | null;
   eventQuery: AppQueryWithData<IEvent>;
 }) => {
   const event = eventQuery.data;

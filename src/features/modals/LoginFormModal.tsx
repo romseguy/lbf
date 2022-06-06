@@ -104,7 +104,8 @@ export const LoginFormModal = (props: {
         //await signIn("credentials", { email });
       }
 
-      //props.onSubmit && props.onSubmit();
+      props.onSubmit && props.onSubmit();
+      props.onClose && props.onClose();
     } catch (error) {
       setIsLoading(false);
       handleError(error, (message, field) => {
@@ -135,7 +136,9 @@ export const LoginFormModal = (props: {
               : "Connexion"}
           </ModalHeader>
           <ModalCloseButton />
-          <SocialLogins onSubmit={handleLoginWithSocial} />
+          <ModalBody pt={0}>
+            <SocialLogins onSubmit={handleLoginWithSocial} />
+          </ModalBody>
           {/* <form
             onChange={onChange}
             onSubmit={handleSubmit(onSubmit)}

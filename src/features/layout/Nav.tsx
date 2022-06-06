@@ -42,6 +42,7 @@ import { PageProps } from "pages/_app";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
 import { capitalize } from "utils/string";
+import { useRouter } from "next/router";
 
 export const Nav = ({
   isMobile,
@@ -55,6 +56,7 @@ export const Nav = ({
   const userName = session?.user.userName || "";
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const router = useRouter();
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   const {
@@ -95,7 +97,7 @@ export const Nav = ({
                 </Td>
                 <Td border={0} p={0}>
                   <Heading ml="auto">
-                    {session ? "Mon univers" : "Se connecter"}
+                    {session ? "Mon univers" : "Connexion"}
                   </Heading>
                 </Td>
               </Tr>
@@ -152,16 +154,16 @@ export const Nav = ({
 
                       {!session && (
                         <>
-                          <EmailLoginPopover
+                          {/* <EmailLoginPopover
                             iconProps={{ boxSize: [8, 10, 10] }}
                             popoverProps={
                               isMobile ? {} : { offset: [-140, -25] }
                             }
                             ml={2}
                             mr={3}
-                          />
+                          /> */}
 
-                          <Tooltip label="Connexion par mot de passe">
+                          <Tooltip label="Connexion">
                             <IconButton
                               aria-label="Connexion"
                               icon={
@@ -173,7 +175,12 @@ export const Nav = ({
                               }
                               bg="transparent"
                               _hover={{ bg: "transparent", color: "#00B5D8" }}
-                              onClick={() => setIsLoginModalOpen(true)}
+                              onClick={async () => {
+                                setIsLoginModalOpen(true);
+                                await router.push("/?login", "/?login", {
+                                  shallow: true
+                                });
+                              }}
                             />
                           </Tooltip>
                         </>
@@ -196,11 +203,7 @@ export const Nav = ({
                           </MenuButton>
                         </Tooltip>
 
-                        <NavMenuList
-                          email={userEmail}
-                          session={session}
-                          userName={userName}
-                        />
+                        <NavMenuList email={userEmail} userName={userName} />
                       </Menu>
                     )}
                   </Flex>
@@ -255,9 +258,7 @@ export const Nav = ({
               <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
                   <Flex mt={1}>
-                    <Heading>
-                      {session ? "Mon univers" : "Se connecter"}
-                    </Heading>
+                    <Heading>{session ? "Mon univers" : "Connexion"}</Heading>
                   </Flex>
                 </Td>
               </Tr>
@@ -266,19 +267,24 @@ export const Nav = ({
                   <Flex mt={2}>
                     {!session && (
                       <>
-                        <EmailLoginPopover
+                        {/* <EmailLoginPopover
                           iconProps={{ boxSize: 8 }}
                           popoverProps={{ offset: [100, -20] }}
-                        />
+                        /> */}
 
-                        <Tooltip label="Connexion par mot de passe">
+                        <Tooltip label="Connexion">
                           <IconButton
                             aria-label="Connexion"
                             icon={<Icon as={FaPowerOff} boxSize={6} />}
                             bg="transparent"
                             _hover={{ bg: "transparent", color: "#00B5D8" }}
                             mx={3}
-                            onClick={() => setIsLoginModalOpen(true)}
+                            onClick={async () => {
+                              setIsLoginModalOpen(true);
+                              await router.push("/?login", "/?login", {
+                                shallow: true
+                              });
+                            }}
                           />
                         </Tooltip>
                       </>
@@ -325,7 +331,7 @@ export const Nav = ({
 
                           <NavMenuList
                             email={userEmail}
-                            session={session}
+                            //session={session}
                             userName={userName}
                           />
                         </Menu>
