@@ -1,25 +1,35 @@
-import { ArrowBackIcon, SettingsIcon } from "@chakra-ui/icons";
-import { Alert, AlertIcon, Box, Flex, Text } from "@chakra-ui/react";
+import { ArrowBackIcon, EditIcon, Icon, SettingsIcon } from "@chakra-ui/icons";
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Flex,
+  Input,
+  Text,
+  useToast
+} from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Button, Link } from "features/common";
+import { Button, DeleteButton, Link } from "features/common";
 import { Forum } from "features/forum/Forum";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
-import { IOrg, orgTypeFull, orgTypeFull5 } from "models/Org";
+import { getRefId } from "models/Entity";
+import { EOrgType, IOrg, orgTypeFull, orgTypeFull5 } from "models/Org";
 import {
   getFollowerSubscription,
   getSubscriberSubscription,
   ISubscription
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
-import { getRefId } from "models/Entity";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { OrgConfigPanel } from "./OrgConfigPanel";
+import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { selectOrgRefetch } from "./orgSlice";
+import { useDeleteOrgMutation } from "./orgsApi";
 
 let cachedRefetchOrg = false;
 
@@ -36,6 +46,10 @@ export const OrgPage = ({
   tab?: string;
   tabItem?: string;
 }) => {
+  const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
+  const router = useRouter();
+  const toast = useToast({ position: "top" });
+
   //#region org
   const org = orgQuery.data;
   const isCreator =
@@ -56,6 +70,7 @@ export const OrgPage = ({
 
   //#region local state
   const [isConfig, setIsConfig] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   const [isLogin, setIsLogin] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
   //#endregion
@@ -71,21 +86,130 @@ export const OrgPage = ({
   }, [refetchOrg]);
   //#endregion
 
+  const _isVisible = {
+    logo: false,
+    banner: false,
+    lists: false,
+    subscribers: false,
+    eventCategories: false,
+    topicCategories: false
+  };
+  const [isVisible, _setIsVisible] =
+    useState<OrgConfigVisibility["isVisible"]>(_isVisible);
+  const toggleVisibility = (
+    key?: keyof OrgConfigVisibility["isVisible"],
+    bool?: boolean
+  ) => {
+    _setIsVisible(
+      !key
+        ? _isVisible
+        : Object.keys(isVisible).reduce((obj, objKey) => {
+            if (objKey === key)
+              return {
+                ...obj,
+                [objKey]: bool !== undefined ? bool : !isVisible[objKey]
+              };
+
+            return { ...obj, [objKey]: false };
+          }, {})
+    );
+  };
   const configButtons = () => {
+    if (!isCreator) return null;
+
     return (
       <>
-        {isCreator && !isConfig && !isEdit && (
-          <Button
-            colorScheme="teal"
-            leftIcon={
-              <SettingsIcon boxSize={6} data-cy="org-settings-button" />
-            }
-            onClick={() => setIsConfig(true)}
-            mb={3}
-          >
-            Configuration {orgTypeFull(org.orgType)} {org.orgName}
-          </Button>
+        {!isConfig && !isEdit && (
+          <Flex mb={3}>
+            <Button
+              colorScheme="teal"
+              leftIcon={
+                <SettingsIcon boxSize={6} data-cy="org-settings-button" />
+              }
+              mr={3}
+              onClick={() => setIsConfig(true)}
+            >
+              Paramètres
+            </Button>
+            <Button
+              colorScheme="teal"
+              leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+              mr={3}
+              onClick={() => {
+                setIsEdit(true);
+                toggleVisibility();
+              }}
+              data-cy="orgEdit"
+            >
+              Modifier
+            </Button>
+
+            <DeleteButton
+              isDisabled={isDisabled}
+              isLoading={deleteQuery.isLoading}
+              label={`${
+                org.orgType === EOrgType.NETWORK ? "Détruire" : "Déraciner"
+              } ${orgTypeFull5(org.orgType)}`}
+              header={
+                <>
+                  Vous êtes sur le point de{" "}
+                  {org.orgType === EOrgType.NETWORK
+                    ? "détruire la planète"
+                    : "déraciner l'arbre"}{" "}
+                  <Text display="inline" color="red" fontWeight="bold">
+                    {` ${org.orgName}`}
+                  </Text>
+                </>
+              }
+              body={
+                <>
+                  Saisissez le nom {orgTypeFull(org.orgType)} pour confimer{" "}
+                  {org.orgType === EOrgType.NETWORK
+                    ? "sa destruction"
+                    : "son déracinement"}{" "}
+                  :
+                  <Input
+                    autoComplete="off"
+                    onChange={(e) =>
+                      setIsDisabled(
+                        e.target.value.toLowerCase() !==
+                          org.orgName.toLowerCase()
+                      )
+                    }
+                  />
+                </>
+              }
+              onClick={async () => {
+                try {
+                  const deletedOrg = await deleteOrg(org._id).unwrap();
+
+                  if (deletedOrg) {
+                    await router.push(`/`);
+                    toast({
+                      title: `${
+                        deletedOrg.orgType === EOrgType.NETWORK
+                          ? "La planète"
+                          : "L'arbre"
+                      } ${deletedOrg.orgName} a été ${
+                        deletedOrg.orgType === EOrgType.NETWORK
+                          ? "détruite"
+                          : "déraciné"
+                      } !`,
+                      status: "success"
+                    });
+                  }
+                } catch (error: any) {
+                  toast({
+                    title: error.data ? error.data.message : error.message,
+                    status: "error"
+                  });
+                }
+              }}
+            />
+          </Flex>
         )}
+
+        {!isConfig && !isEdit && <Flex></Flex>}
 
         {isEdit && (
           <Button
@@ -106,7 +230,8 @@ export const OrgPage = ({
             onClick={() => setIsConfig(false)}
             mb={2}
           >
-            {`Revenir à ${orgTypeFull5(org.orgType)} ${org.orgName}`}
+            {/* {`Revenir à ${orgTypeFull5(org.orgType)}`} */}
+            Retour
           </Button>
         )}
       </>
@@ -117,6 +242,7 @@ export const OrgPage = ({
     return (
       <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
         {configButtons()}
+
         {!isConfig && !isEdit && (
           <Forum
             isLogin={isLogin}
@@ -126,14 +252,17 @@ export const OrgPage = ({
             tabItem={tabItem}
           />
         )}
+
         {session && isCreator && (isConfig || isEdit) && (
           <OrgConfigPanel
             session={session}
             orgQuery={orgQuery}
             subQuery={subQuery}
             isEdit={isEdit}
+            isVisible={isVisible}
             setIsConfig={setIsConfig}
             setIsEdit={setIsEdit}
+            toggleVisibility={toggleVisibility}
           />
         )}
       </Layout>
@@ -209,6 +338,7 @@ export const OrgPage = ({
           setIsLogin={setIsLogin}
           orgQuery={orgQuery}
           session={session}
+          setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}
           subQuery={subQuery}
         />
@@ -220,8 +350,10 @@ export const OrgPage = ({
           orgQuery={orgQuery}
           subQuery={subQuery}
           isEdit={isEdit}
+          isVisible={isVisible}
           setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}
+          toggleVisibility={toggleVisibility}
         />
       )}
     </Layout>

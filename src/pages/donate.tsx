@@ -8,7 +8,7 @@ const DonatePage = (props: PageProps) => {
   let message = (
     <Alert status="warning">
       <AlertIcon />
-      Le créateur de cet outil vous remercie de votre générosité.
+      Nous vous remercions de votre générosité.
     </Alert>
   );
 

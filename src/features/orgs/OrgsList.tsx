@@ -15,7 +15,7 @@ import {
 import React, { useMemo, useState } from "react";
 import { css } from "twin.macro";
 import { Link } from "features/common";
-import { IOrg, OrgTypes } from "models/Org";
+import { EOrgType, IOrg, OrgTypes } from "models/Org";
 import { scrollbarStyles, tableStyles } from "theme/theme";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { AppQuery } from "utils/types";
@@ -24,10 +24,12 @@ import { MapModal } from "features/modals/MapModal";
 
 export const OrgsList = ({
   query,
-  subQuery
+  subQuery,
+  orgType = EOrgType.NETWORK
 }: {
   query: AppQuery<IOrg | IOrg[]>;
   subQuery: AppQuery<ISubscription>;
+  orgType?: EOrgType;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -87,7 +89,13 @@ export const OrgsList = ({
           <Tr>
             {[
               { key: "subscription", label: "" },
-              { key: "orgName", label: "Nom de la planète" },
+              {
+                key: "orgName",
+                label:
+                  orgType === EOrgType.GENERIC
+                    ? "Nom de l'arbre"
+                    : "Nom de la planète"
+              },
               // { key: "orgType", label: "Type" },
               { key: "orgCity", label: "Position" }
             ].map(({ key, label }) => {

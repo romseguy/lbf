@@ -138,7 +138,7 @@ export const DocumentsList = ({
                   if (org && !props.isSubscribed && !props.isCreator)
                     toast({
                       status: "error",
-                      title: `Vous devez être adhérent ${orgTypeFull(
+                      title: `Vous devez être adhérent ou créateur ${orgTypeFull(
                         org.orgType
                       )} pour ajouter un document`
                     });

@@ -3,7 +3,8 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
   EditIcon,
-  HamburgerIcon
+  HamburgerIcon,
+  SmallAddIcon
 } from "@chakra-ui/icons";
 import {
   Button,
@@ -17,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { FaRegMap } from "react-icons/fa";
+import { FaRegMap, FaTree } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
 import {
   Column,
@@ -79,7 +80,6 @@ export const OrgPageHomeTabPanel = ({
     }
   );
   const hasNetworks = Array.isArray(orgNetworks) && orgNetworks.length > 0;
-  console.log("hasNetworks", hasNetworks);
   //#endregion
 
   //#region local state
@@ -116,7 +116,7 @@ export const OrgPageHomeTabPanel = ({
 
   return (
     <>
-      {hasNetworks && (
+      {org.orgType === EOrgType.GENERIC && hasNetworks && (
         <TabContainer>
           <TabContainerHeader
             heading={
@@ -137,10 +137,116 @@ export const OrgPageHomeTabPanel = ({
         </TabContainer>
       )}
 
+      {org.orgType === EOrgType.NETWORK && (
+        <TabContainer>
+          <TabContainerHeader
+            heading={`
+              Arbres de la planète`}
+          ></TabContainerHeader>
+
+          <TabContainerContent p={3}>
+            {org.orgType === EOrgType.NETWORK && isCreator && (
+              <Flex>
+                <Button
+                  colorScheme="teal"
+                  leftIcon={
+                    <>
+                      <SmallAddIcon />
+                      <FaTree />
+                    </>
+                  }
+                  onClick={() => setIsEdit(true)}
+                >
+                  Planter un arbre
+                </Button>
+              </Flex>
+            )}
+
+            {orgQuery.isLoading && <Spinner />}
+
+            {org.orgs.length > 0 ? (
+              <>
+                {/* <Button
+                  alignSelf="flex-start"
+                  colorScheme="teal"
+                  leftIcon={<HamburgerIcon />}
+                  rightIcon={
+                    isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
+                  }
+                  onClick={() => setIsListOpen(!isListOpen)}
+                >
+                  Liste
+                </Button> */}
+
+                {isListOpen && (
+                  <Column
+                    maxWidth={undefined}
+                    mt={3}
+                    bg={isDark ? "gray.400" : "lightcyan"}
+                  >
+                    <OrgsList
+                      query={orgQuery}
+                      subQuery={subQuery}
+                      orgType={EOrgType.GENERIC}
+                    />
+                  </Column>
+                )}
+
+                <Button
+                  alignSelf="flex-start"
+                  colorScheme="teal"
+                  leftIcon={<IoIosGitNetwork />}
+                  my={3}
+                  onClick={openNetworksModal}
+                >
+                  Organigramme
+                </Button>
+
+                <Button
+                  alignSelf="flex-start"
+                  colorScheme="teal"
+                  leftIcon={<FaRegMap />}
+                  onClick={openMapModal}
+                  mb={3}
+                >
+                  Carte
+                </Button>
+
+                {isNetworksModalOpen && (
+                  <TreeChartModal
+                    inputNodes={inputNodes}
+                    isMobile={isMobile}
+                    isOpen={isNetworksModalOpen}
+                    rootName={org.orgName}
+                    onClose={closeNetworksModal}
+                  />
+                )}
+
+                {isMapModalOpen && (
+                  <MapModal
+                    isOpen={isMapModalOpen}
+                    header="Carte des réseaux"
+                    orgs={
+                      org.orgs.filter(
+                        (org) =>
+                          typeof org.orgLat === "number" &&
+                          typeof org.orgLng === "number" &&
+                          org.orgUrl !== "forum"
+                      ) || []
+                    }
+                    onClose={closeMapModal}
+                  />
+                )}
+              </>
+            ) : (
+              <i>Aucun arbres plantés sur cette planète.</i>
+            )}
+          </TabContainerContent>
+        </TabContainer>
+      )}
+
       <TabContainer>
-        <TabContainerHeader
-          heading={`Coordonnées ${orgTypeFull(org.orgType)} ${org.orgName}`}
-        >
+        <TabContainerHeader heading={`Coordonnées ${orgTypeFull(org.orgType)}`}>
           {hasInfo && isCreator && (
             <Tooltip
               hasArrow
@@ -176,109 +282,8 @@ export const OrgPageHomeTabPanel = ({
         </TabContainerContent>
       </TabContainer>
 
-      {org.orgType === EOrgType.NETWORK && (
-        <TabContainer>
-          <TabContainerHeader
-            heading={`Les arbres plantés sur la planète ${org.orgName}`}
-          >
-            {isCreator && (
-              <Tooltip
-                hasArrow
-                label={`Planter ou déraciner des arbres de la planète ${org.orgName}`}
-                placement="bottom"
-              >
-                <IconButton
-                  aria-label={`Planter ou déraciner des arbres de la planète ${org.orgName}`}
-                  icon={<EditIcon />}
-                  bg="transparent"
-                  _hover={{ color: "green" }}
-                  onClick={() => setIsEdit(true)}
-                />
-              </Tooltip>
-            )}
-          </TabContainerHeader>
-          <TabContainerContent p={3}>
-            {orgQuery.isLoading ? (
-              <Spinner />
-            ) : (
-              <>
-                <Button
-                  alignSelf="flex-start"
-                  colorScheme="teal"
-                  leftIcon={<IoIosGitNetwork />}
-                  mb={5}
-                  onClick={openNetworksModal}
-                >
-                  Arborescence
-                </Button>
-
-                <Button
-                  alignSelf="flex-start"
-                  colorScheme="teal"
-                  leftIcon={<FaRegMap />}
-                  onClick={openMapModal}
-                  mb={5}
-                >
-                  Carte
-                </Button>
-
-                <Button
-                  alignSelf="flex-start"
-                  colorScheme="teal"
-                  leftIcon={<HamburgerIcon />}
-                  rightIcon={
-                    isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
-                  }
-                  onClick={() => setIsListOpen(!isListOpen)}
-                >
-                  Liste
-                </Button>
-
-                {isListOpen && (
-                  <Column
-                    maxWidth={undefined}
-                    mt={3}
-                    bg={isDark ? "gray.400" : "lightcyan"}
-                  >
-                    <OrgsList query={orgQuery} subQuery={subQuery} />
-                  </Column>
-                )}
-
-                {isNetworksModalOpen && (
-                  <TreeChartModal
-                    inputNodes={inputNodes}
-                    isMobile={isMobile}
-                    isOpen={isNetworksModalOpen}
-                    rootName={org.orgName}
-                    onClose={closeNetworksModal}
-                  />
-                )}
-
-                {isMapModalOpen && (
-                  <MapModal
-                    isOpen={isMapModalOpen}
-                    header="Carte des réseaux"
-                    orgs={
-                      org.orgs.filter(
-                        (org) =>
-                          typeof org.orgLat === "number" &&
-                          typeof org.orgLng === "number" &&
-                          org.orgUrl !== "forum"
-                      ) || []
-                    }
-                    onClose={closeMapModal}
-                  />
-                )}
-              </>
-            )}
-          </TabContainerContent>
-        </TabContainer>
-      )}
-
       <TabContainer mb={0}>
-        <TabContainerHeader
-          heading={`Description ${orgTypeFull(org.orgType)} ${org.orgName}`}
-        >
+        <TabContainerHeader heading={`Description ${orgTypeFull(org.orgType)}`}>
           {org.orgDescription && isCreator && (
             <Tooltip
               hasArrow
@@ -400,4 +405,136 @@ const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!o
   </TabContainer>
 )}
 */
+}
+
+{
+  /*
+        <TabContainer>
+          <TabContainerHeader
+            heading={
+              orgQuery.isLoading
+                ? "Chargement..."
+                : `${
+                    org.orgs.length > 0
+                      ? `Les arbres plantés`
+                      : `Aucun arbres plantés`
+                  } sur la planète ${org.orgName}`
+            }
+          >
+            {isCreator && (
+              <Tooltip
+                hasArrow
+                label={`Planter ${
+                  org.orgs.length > 0 ? "ou déraciner" : ""
+                } des arbres de la planète ${org.orgName}`}
+                placement="bottom"
+              >
+                <IconButton
+                  aria-label={`Planter ${
+                    org.orgs.length > 0 ? "ou déraciner" : ""
+                  } des arbres de la planète ${org.orgName}`}
+                  icon={
+                    org.orgs.length > 0 ? (
+                      <EditIcon />
+                    ) : (
+                      <>
+                        <SmallAddIcon />
+                        <FaTree />
+                      </>
+                    )
+                  }
+                  my={2}
+                  ml={1}
+                  minWidth={0}
+                  height="auto"
+                  _hover={{ color: "green" }}
+                  onClick={() => setIsEdit(true)}
+                />
+              </Tooltip>
+            )}
+          </TabContainerHeader>
+
+          {org.orgs.length > 0 && (
+            <TabContainerContent p={3}>
+              {orgQuery.isLoading ? (
+                <Spinner />
+              ) : (
+                <>
+                  <Button
+                    alignSelf="flex-start"
+                    colorScheme="teal"
+                    leftIcon={<IoIosGitNetwork />}
+                    mb={5}
+                    onClick={openNetworksModal}
+                  >
+                    Arborescence
+                  </Button>
+
+                  <Button
+                    alignSelf="flex-start"
+                    colorScheme="teal"
+                    leftIcon={<FaRegMap />}
+                    onClick={openMapModal}
+                    mb={5}
+                  >
+                    Carte
+                  </Button>
+
+                  <Button
+                    alignSelf="flex-start"
+                    colorScheme="teal"
+                    leftIcon={<HamburgerIcon />}
+                    rightIcon={
+                      isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
+                    }
+                    onClick={() => setIsListOpen(!isListOpen)}
+                  >
+                    Liste
+                  </Button>
+
+                  {isListOpen && (
+                    <Column
+                      maxWidth={undefined}
+                      mt={3}
+                      bg={isDark ? "gray.400" : "lightcyan"}
+                    >
+                      <OrgsList
+                        query={orgQuery}
+                        subQuery={subQuery}
+                        orgType={EOrgType.GENERIC}
+                      />
+                    </Column>
+                  )}
+
+                  {isNetworksModalOpen && (
+                    <TreeChartModal
+                      inputNodes={inputNodes}
+                      isMobile={isMobile}
+                      isOpen={isNetworksModalOpen}
+                      rootName={org.orgName}
+                      onClose={closeNetworksModal}
+                    />
+                  )}
+
+                  {isMapModalOpen && (
+                    <MapModal
+                      isOpen={isMapModalOpen}
+                      header="Carte des réseaux"
+                      orgs={
+                        org.orgs.filter(
+                          (org) =>
+                            typeof org.orgLat === "number" &&
+                            typeof org.orgLng === "number" &&
+                            org.orgUrl !== "forum"
+                        ) || []
+                      }
+                      onClose={closeMapModal}
+                    />
+                  )}
+                </>
+              )}
+            </TabContainerContent>
+          )}
+        </TabContainer>
+ */
 }

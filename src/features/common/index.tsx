@@ -1,4 +1,5 @@
 export * from "./entities/EntityButton";
+export * from "./entities/EntityAddButton";
 export * from "./entities/EntityConfigBannerPanel";
 export * from "./entities/EntityConfigLogoPanel";
 export * from "./entities/EntityConfigCategoriesPanel";
@@ -42,6 +43,7 @@ export * from "./IconFooter";
 export * from "./Link";
 export * from "./LinkShare";
 export * from "./LocationButton";
+export * from "./LoginButton";
 export * from "./Modal";
 export * from "./OfflineIcon";
 export * from "./NotFound";

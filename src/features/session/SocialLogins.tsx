@@ -1,7 +1,7 @@
-import { Button } from "@chakra-ui/react";
+import { Alert, AlertIcon, Button } from "@chakra-ui/react";
 import { OAuthProvider } from "@magic-ext/oauth";
 import React, { useState } from "react";
-import { FaGoogle, FaGooglePlusG } from "react-icons/fa";
+import { FaFacebook, FaGoogle } from "react-icons/fa";
 
 export const SocialLogins = ({
   onSubmit
@@ -10,8 +10,8 @@ export const SocialLogins = ({
 }) => {
   const providers = [
     //"apple",
-    "google"
-    // "facebook",
+    "google",
+    "facebook"
     // "github"
   ] as OAuthProvider[];
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -24,7 +24,8 @@ export const SocialLogins = ({
             <Button
               key={provider}
               isDisabled={isRedirecting}
-              leftIcon={<FaGoogle />}
+              leftIcon={provider === "google" ? <FaGoogle /> : <FaFacebook />}
+              mb={3}
               onClick={() => {
                 setIsRedirecting(true);
                 onSubmit(provider);
@@ -38,7 +39,10 @@ export const SocialLogins = ({
       })}
 
       {isRedirecting && (
-        <>Vous allez être redirigé vers la page de connexion Google...</>
+        <Alert status="info">
+          <AlertIcon />
+          Vous allez être redirigé vers la page de connexion Google...
+        </Alert>
       )}
     </>
   );

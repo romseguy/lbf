@@ -7,6 +7,7 @@ type UserMetadata = {
   userId: string;
   userImage: Base64Image;
   userName: string;
+  isAdmin: boolean;
 };
 
 export type Session = {
@@ -15,11 +16,13 @@ export type Session = {
 
 export const SessionContext = createContext<
   [
-    // 1st tuple: user data
+    // 1st tuple: session
     Session | null,
     // 2nd tuple: session loading state
     boolean,
     // 3rd tuple: session setter
-    React.Dispatch<React.SetStateAction<Session | null>>
+    React.Dispatch<React.SetStateAction<Session | null>>,
+    // 4th tuple: session loading state setter
+    React.Dispatch<React.SetStateAction<boolean>>
   ]
->([null, true, () => {}]);
+>([null, true, () => {}, () => {}]);

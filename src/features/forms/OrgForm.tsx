@@ -86,12 +86,16 @@ export const OrgForm = withGoogleApi({
         createdBy: session?.user.userId
       },
       {
-        selectFromResult: (query) => ({
-          ...query,
-          data: query.data?.filter((org) =>
-            org ? org.orgName !== org.orgName : true
-          )
-        })
+        selectFromResult: (query) => {
+          const data = query.data?.filter((myOrg) => {
+            return org ? myOrg.orgName !== org.orgName : true;
+          });
+
+          return {
+            ...query,
+            data
+          };
+        }
       }
     );
 
@@ -138,7 +142,9 @@ export const OrgForm = withGoogleApi({
     const orgEmail = watch("orgEmail");
     const orgPhone = watch("orgPhone");
     //const orgType = watch("orgType");
-    const orgType = (props.orgType || EOrgType.GENERIC) as EOrgType;
+    const orgType = (props.orgType ||
+      org?.orgType ||
+      EOrgType.GENERIC) as EOrgType;
     const orgTypeLabel = orgTypeFull(orgType) || "de l'arbre";
     const orgVisibility = watch("orgVisibility");
     const password = useRef({});
@@ -170,7 +176,6 @@ export const OrgForm = withGoogleApi({
       const orgDescription = !form.orgDescription.length
         ? undefined
         : form.orgDescription;
-      const orgType = form.orgType || EOrgType.GENERIC;
       const orgAddress = (form.orgAddress || []).filter(
         ({ address }) => address !== ""
       );
@@ -234,9 +239,9 @@ export const OrgForm = withGoogleApi({
           orgUrl = org.orgUrl;
 
           toast({
-            title: `Vous allez être redirigé vers ${orgTypeFull5(
-              org.orgType
-            )} ${org.orgName}...`,
+            title: `Vous allez être redirigé vers ${orgTypeFull5(orgType)} ${
+              org.orgName
+            }...`,
             status: "success"
           });
         }
@@ -324,7 +329,7 @@ export const OrgForm = withGoogleApi({
           isInvalid={!!errors["orgs"]}
           display={orgType !== EOrgType.NETWORK ? "none" : undefined}
         >
-          <FormLabel>Ajouter des arbres à la planète</FormLabel>
+          <FormLabel>Les arbres de la planète</FormLabel>
           <Controller
             name="orgs"
             as={ReactSelect}
@@ -336,7 +341,17 @@ export const OrgForm = withGoogleApi({
             isSearchable
             menuPlacement="top"
             noOptionsMessage={() => "Aucun arbre trouvé"}
-            options={session?.user.isAdmin ? orgsQuery.data : myOrgs}
+            options={
+              session?.user.isAdmin
+                ? orgsQuery.data?.filter(
+                    (org) =>
+                      org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
+                  )
+                : myOrgs?.filter(
+                    (org) =>
+                      org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
+                  )
+            }
             getOptionLabel={(option: any) => option.orgName}
             getOptionValue={(option: any) => option._id}
             placeholder="Rechercher un arbre..."

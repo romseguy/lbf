@@ -1,13 +1,11 @@
 import { MenuList, MenuItem, useColorMode } from "@chakra-ui/react";
-//import { useRouter } from "next/router";
 import React from "react";
 import { Link, SubscribeSwitch } from "features/common";
-// import { setSession } from "features/session/sessionSlice";
-// import { resetUserEmail } from "features/users/userSlice";
-import { magic } from "lib/magic";
-//import { Session } from "lib/SessionContext";
-//import { useAppDispatch } from "store";
+import { resetUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
+import { magic } from "lib/magic";
+import { useAppDispatch } from "store";
+import api from "utils/api";
 
 export const NavMenuList = ({
   email,
@@ -18,9 +16,13 @@ export const NavMenuList = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  //const dispatch = useAppDispatch();
-  //const router = useRouter();
-  const { data: session, loading, setSession } = useSession();
+  const dispatch = useAppDispatch();
+  const {
+    data: session,
+    loading,
+    setSession,
+    setIsSessionLoading
+  } = useSession();
 
   if (!session) return null;
 
@@ -52,16 +54,12 @@ export const NavMenuList = ({
 
       <MenuItem
         onClick={async () => {
-          // const { url } = await signOut({
-          //   redirect: false,
-          //   callbackUrl: "/"
-          // });
-          // dispatch(resetUserEmail());
-          // dispatch(setSession(null));
-          magic.user.logout().then(() => {
-            setSession(null);
-          });
-          //router.push(url);
+          setIsSessionLoading(true);
+          dispatch(resetUserEmail());
+          await magic.user.logout();
+          await api.get("logout");
+          setSession(null);
+          setIsSessionLoading(false);
         }}
         data-cy="logout"
       >

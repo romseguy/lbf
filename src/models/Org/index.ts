@@ -118,7 +118,7 @@ export const orgTypeFull = (orgType: EOrgType): string => {
 };
 
 export const orgTypeFull2 = (orgType: EOrgType): string =>
-  `${[EOrgType.GENERIC].includes(orgType) ? "à l'" : "au "}${OrgTypes[
+  `${[EOrgType.GENERIC].includes(orgType) ? "à l'" : "à la "}${OrgTypes[
     orgType
   ].toLowerCase()}`;
 

@@ -29,9 +29,11 @@ export const EventConfigPanel = ({
   session,
   eventQuery,
   isEdit,
+  isVisible,
   setIsConfig,
-  setIsEdit
-}: {
+  setIsEdit,
+  toggleVisibility
+}: EventConfigVisibility & {
   session: Session;
   eventQuery: AppQueryWithData<IEvent>;
   isEdit: boolean;
@@ -39,34 +41,7 @@ export const EventConfigPanel = ({
   setIsEdit: (isEdit: boolean) => void;
 }) => {
   const router = useRouter();
-  const toast = useToast({ position: "top" });
   const event = eventQuery.data;
-  const [deleteEvent, deleteQuery] = useDeleteEventMutation();
-  const [isDisabled, setIsDisabled] = useState(true);
-  const _isVisible = {
-    banner: false,
-    logo: false,
-    topicCategories: false
-  };
-  const [isVisible, _setIsVisible] =
-    useState<EventConfigVisibility["isVisible"]>(_isVisible);
-  const toggleVisibility = (
-    key?: keyof EventConfigVisibility["isVisible"],
-    bool?: boolean
-  ) =>
-    _setIsVisible(
-      !key
-        ? _isVisible
-        : Object.keys(isVisible).reduce((obj, objKey) => {
-            if (objKey === key)
-              return {
-                ...obj,
-                [objKey]: bool !== undefined ? bool : !isVisible[key]
-              };
-
-            return { ...obj, [objKey]: false };
-          }, {})
-    );
 
   return (
     <>
@@ -91,67 +66,6 @@ export const EventConfigPanel = ({
             }}
           />
         </Column>
-      )}
-
-      {!isEdit && (
-        <Box mb={3}>
-          <Button
-            colorScheme="teal"
-            leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-            mr={3}
-            onClick={() => {
-              setIsEdit(true);
-              toggleVisibility();
-            }}
-            data-cy="eventEdit"
-          >
-            Modifier
-          </Button>
-
-          <DeleteButton
-            isDisabled={isDisabled}
-            isLoading={deleteQuery.isLoading}
-            header={
-              <>
-                Vous êtes sur le point de supprimer l'événement
-                <Text display="inline" color="red" fontWeight="bold">
-                  {` ${event.eventName}`}
-                </Text>
-              </>
-            }
-            body={
-              <>
-                Saisissez le nom de l'événement pour confimer sa suppression :
-                <Input
-                  autoComplete="off"
-                  onChange={(e) =>
-                    setIsDisabled(e.target.value !== event.eventName)
-                  }
-                />
-              </>
-            }
-            onClick={async () => {
-              try {
-                const deletedEvent = await deleteEvent({
-                  eventId: event._id
-                }).unwrap();
-
-                if (deletedEvent) {
-                  await router.push(`/`);
-                  toast({
-                    title: `${deletedEvent.eventName} a été supprimé !`,
-                    status: "success"
-                  });
-                }
-              } catch (error: any) {
-                toast({
-                  title: error.data ? error.data.message : error.message,
-                  status: "error"
-                });
-              }
-            }}
-          />
-        </Box>
       )}
 
       {!isEdit && (

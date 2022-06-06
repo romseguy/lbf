@@ -230,7 +230,7 @@ export const TopicForm = ({
                   if (!props.isSubscribed && !props.isCreator) {
                     toast({
                       status: "error",
-                      title: `Vous devez être adhérent ou créateur ${
+                      title: `Vous devez être adhérent ou créateur ou créateur ${
                         isE ? "de l'événement" : orgTypeFull(entity.orgType)
                       } ${
                         isE ? entity.eventName : entity.orgName

@@ -1,7 +1,7 @@
 //@ts-nocheck
 import { serialize } from "cookie";
 
-const TOKEN_NAME = "api_token";
+export const TOKEN_NAME = "api_token";
 const MAX_AGE = 60 * 60 * 8;
 
 function createCookie(name, data, options = {}) {

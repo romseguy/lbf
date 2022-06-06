@@ -197,7 +197,7 @@ export const ProjectsList = ({
                   if (!isCreator && !isSubscribed) {
                     toast({
                       status: "error",
-                      title: `Vous devez être adhérent ${orgTypeFull(
+                      title: `Vous devez être adhérent ou créateur ${orgTypeFull(
                         org.orgType
                       )} pour ajouter un projet`
                     });

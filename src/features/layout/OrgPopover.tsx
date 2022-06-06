@@ -21,7 +21,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { EntityButton } from "features/common";
+import { EntityAddButton, EntityButton } from "features/common";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
@@ -34,14 +34,16 @@ import {
 } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
-import { FaTree } from "react-icons/fa";
+import { FaGlobeEurope, FaTree } from "react-icons/fa";
 
 let cachedRefetchSubscription = false;
 
 const OrgPopoverContent = ({
+  orgType,
   session,
   onClose
 }: {
+  orgType: EOrgType;
   session: Session;
   onClose: () => void;
 }) => {
@@ -70,7 +72,9 @@ const OrgPopoverContent = ({
               }
               return 0;
             })
-            .filter((org) => org.orgUrl !== "forum") || []
+            .filter(
+              (org) => org.orgUrl !== "forum" && org.orgType === orgType
+            ) || []
       })
     }
   );
@@ -123,11 +127,18 @@ const OrgPopoverContent = ({
             )
           }
         >
-          <option value="showOrgsAdded">Les arbres que j'ai planté</option>
-          <option value="showOrgsFollowed">
-            Les arbres où je me suis abonné
+          <option value="showOrgsAdded">
+            Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} que j'ai{" "}
+            {orgType === EOrgType.NETWORK ? "créé" : "planté"}
           </option>
-          <option value="showOrgsSubscribed">Les arbres où j'ai adhéré</option>
+          <option value="showOrgsFollowed">
+            Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} où je me
+            suis abonné
+          </option>
+          <option value="showOrgsSubscribed">
+            Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} où j'ai
+            adhéré
+          </option>
         </Select>
 
         {showOrgs === "showOrgsAdded" && (
@@ -159,7 +170,13 @@ const OrgPopoverContent = ({
                 ))}
               </VStack>
             ) : (
-              <Text fontSize="smaller">Vous n'avez planté aucun arbres.</Text>
+              <Text fontSize="smaller">
+                Vous n'avez planté{" "}
+                {orgType === EOrgType.NETWORK
+                  ? "aucune planètes"
+                  : "aucun arbres"}
+                .
+              </Text>
             )}
           </>
         )}
@@ -178,7 +195,13 @@ const OrgPopoverContent = ({
                 ))}
               </VStack>
             ) : (
-              <Text fontSize="smaller">Vous n'êtes abonné à aucun arbres.</Text>
+              <Text fontSize="smaller">
+                Vous n'êtes abonné{" "}
+                {orgType === EOrgType.NETWORK
+                  ? "aucune planètes"
+                  : "aucun arbres"}
+                .
+              </Text>
             )}
           </>
         )}
@@ -206,36 +229,11 @@ const OrgPopoverContent = ({
         )}
       </PopoverBody>
       <PopoverFooter>
-        <Button
-          colorScheme="teal"
-          leftIcon={<AddIcon />}
-          mt={1}
-          size="sm"
-          onClick={() => {
-            onClose();
-            router.push("/arbres/ajouter", "/arbres/ajouter", {
-              shallow: true
-            });
-          }}
-          data-cy="org-add-button"
-        >
-          Ajouter un arbre
-        </Button>
-        <Button
-          colorScheme="teal"
-          leftIcon={<AddIcon />}
-          mt={1}
-          size="sm"
-          onClick={() => {
-            onClose();
-            router.push("/planetes/ajouter", "/planetes/ajouter", {
-              shallow: true
-            });
-          }}
-          data-cy="org-add-button"
-        >
-          Ajouter une planète
-        </Button>
+        {orgType === EOrgType.NETWORK ? (
+          <EntityAddButton orgType={EOrgType.NETWORK} mt={1} />
+        ) : (
+          <EntityAddButton mt={1} />
+        )}
       </PopoverFooter>
     </>
   );
@@ -243,7 +241,7 @@ const OrgPopoverContent = ({
 
 export const OrgPopover = ({
   boxSize,
-  orgType,
+  orgType = EOrgType.GENERIC,
   session,
   ...props
 }: BoxProps & {
@@ -262,7 +260,11 @@ export const OrgPopover = ({
             color={isOpen ? "green" : undefined}
             _hover={{ bg: "transparent" }}
             icon={
-              <Icon as={FaTree} boxSize={boxSize} _hover={{ color: "green" }} />
+              <Icon
+                as={orgType === EOrgType.NETWORK ? FaGlobeEurope : FaTree}
+                boxSize={boxSize}
+                _hover={{ color: "green" }}
+              />
             }
             minWidth={0}
             onClick={onOpen}
@@ -270,7 +272,11 @@ export const OrgPopover = ({
           />
         </PopoverTrigger>
         <PopoverContent>
-          <OrgPopoverContent session={session} onClose={onClose} />
+          <OrgPopoverContent
+            orgType={orgType}
+            session={session}
+            onClose={onClose}
+          />
         </PopoverContent>
       </Popover>
     </Box>

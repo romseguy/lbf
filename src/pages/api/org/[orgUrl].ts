@@ -435,7 +435,7 @@ handler.put<
             .json(
               createServerError(
                 new Error(
-                  `Vous devez être adhérent ou créateur ${orgTypeFull(
+                  `Vous devez être adhérent ou créateur ou créateur ${orgTypeFull(
                     org.orgType
                   )} "${org.orgName}" pour créer une catégorie de discussions`
                 )

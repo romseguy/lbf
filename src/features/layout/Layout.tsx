@@ -26,6 +26,7 @@ import { useAppDispatch } from "store";
 import { breakpoints } from "theme/theme";
 import { Base64Image } from "utils/image";
 import { isServer } from "utils/isServer";
+import { useSession } from "hooks/useAuth";
 
 const PAYPAL_BUTTON_WIDTH = 108;
 const defaultTitle = process.env.NEXT_PUBLIC_SHORT_URL;
@@ -57,10 +58,12 @@ export const Layout = ({
   pageHeader,
   pageTitle,
   pageSubTitle,
+  setSession,
   org,
   event,
   ...props
 }: LayoutProps) => {
+  const { isMobile } = props;
   const dispatch = useAppDispatch();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -68,13 +71,15 @@ export const Layout = ({
   const toast = useToast({ position: "top" });
   const isOffline = useSelector(selectIsOffline);
   const userEmail = useSelector(selectUserEmail);
-  const { isMobile } = props;
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
     router.asPath === "/?login" && !props.session
   );
+
   useEffect(() => {
-    if (isLogin !== 0) setIsLoginModalOpen(true);
+    if (isLogin !== 0) {
+      setIsLoginModalOpen(true);
+    }
   }, [isLogin]);
 
   const notify = (title: string) => {
@@ -171,7 +176,7 @@ export const Layout = ({
             <Flex alignItems="center">
               <IconFooter mr={2} />
 
-              <Tooltip
+              {/* <Tooltip
                 hasArrow
                 label="Pour nous remercier d'avoir créé ce logiciel libre ♥"
                 placement="top-end"
@@ -179,7 +184,7 @@ export const Layout = ({
                 <Box mt={1}>
                   <PaypalButton />
                 </Box>
-              </Tooltip>
+              </Tooltip> */}
             </Flex>
           </Box>
         )}
@@ -203,7 +208,7 @@ export const Layout = ({
           m={isMobile ? 1 : 3}
         />
 
-        {router.asPath !== "/" && (
+        {router.pathname !== "/" && (
           <Header
             event={event}
             org={org}
@@ -238,7 +243,7 @@ export const Layout = ({
                     }px`
               }
             />
-            <Tooltip
+            {/* <Tooltip
               hasArrow
               label="Pour nous remercier d'avoir créé ce logiciel libre ♥"
               placement="top-end"
@@ -246,7 +251,7 @@ export const Layout = ({
               <Box>
                 <PaypalButton />
               </Box>
-            </Tooltip>
+            </Tooltip> */}
           </Footer>
         )}
       </Flex>
@@ -255,9 +260,9 @@ export const Layout = ({
 
       {isLoginModalOpen && (
         <LoginFormModal
-          onClose={async () => {
+          onClose={() => {
             setIsLoginModalOpen(false);
-            await router.push("/", "/", { shallow: true });
+            if (router.asPath === "/?login") router.back();
           }}
           onSubmit={async () => {
             dispatch(resetUserEmail());

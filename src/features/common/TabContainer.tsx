@@ -12,7 +12,13 @@ export const TabContainer = ({
   const isDark = colorMode === "dark";
 
   return (
-    <Flex flexDirection="column" borderTopRadius="lg" mb={mb} {...props}>
+    <Flex
+      flexDirection="column"
+      bg={isDark ? "gray.700" : "cyan.100"}
+      borderTopRadius="lg"
+      mb={mb}
+      {...props}
+    >
       {children}
     </Flex>
   );

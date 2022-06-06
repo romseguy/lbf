@@ -1,6 +1,6 @@
 import { Box, Spinner } from "@chakra-ui/react";
-import React, { useEffect } from "react";
 import { useRouter } from "next/router";
+import React, { useEffect } from "react";
 import { useSession } from "hooks/useAuth";
 import { magic } from "lib/magic";
 import { PageProps } from "./_app";
@@ -22,31 +22,25 @@ const CallbackPage = (props: PageProps) => {
   };
 
   const authenticateWithServer = async (didToken: string | null) => {
-    let res = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + didToken
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + didToken
+        }
+      });
+
+      if (res.status === 200) {
+        //const user = await magic.user.getMetadata();
+        const user = await res.json();
+        console.log("user", user);
+
+        setSession({ user });
+        router.push("/", "/", { shallow: true });
       }
-    });
-
-    if (res.status === 200) {
-      //const user = await magic.user.getMetadata();
-      const user = await res.json();
-      console.log("user", user);
-
-      setSession({ user });
-      router.push("/", "/", { shallow: true });
-
-      // res = await fetch("/api/check", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: "Bearer " + didToken
-      //   }
-      // });
-      // data = await res.json();
-      // console.log("data2", data);
+    } catch (error) {
+      console.error(error);
     }
   };
 

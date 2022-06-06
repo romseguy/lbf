@@ -215,18 +215,20 @@ export const EventsList = ({
 
     return (
       <>
-        <Flex flexDirection="column" mb={5}>
-          <Heading smaller>Catégories</Heading>
-          <EventsListCategories
-            events={events}
-            orgQuery={orgQuery}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            isCreator={isCreator}
-            // isLogin={isLogin}
-            // setIsLogin={setIsLogin}
-          />
-        </Flex>
+        {router.asPath !== "/evenements" && (
+          <Flex flexDirection="column" mb={5}>
+            <Heading smaller>Catégories</Heading>
+            <EventsListCategories
+              events={events}
+              orgQuery={orgQuery}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              isCreator={isCreator}
+              // isLogin={isLogin}
+              // setIsLogin={setIsLogin}
+            />
+          </Flex>
+        )}
 
         <Flex alignItems="center" flexWrap="wrap" mb={5} mt={-3}>
           {!showLocationButton ? (
@@ -524,7 +526,7 @@ export const EventsList = ({
                     } else
                       toast({
                         status: "error",
-                        title: `Vous devez être adhérent ${orgTypeFull(
+                        title: `Vous devez être adhérent ou créateur ${orgTypeFull(
                           org.orgType
                         )} pour ajouter un événement`
                       });

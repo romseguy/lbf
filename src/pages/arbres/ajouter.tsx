@@ -1,9 +1,11 @@
+import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { Column } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
 import { Layout } from "features/layout";
-import { EOrgType, orgTypeFull3 } from "models/Org";
+import { getSession } from "hooks/useAuth";
+import { EOrgType } from "models/Org";
 import { PageProps } from "pages/_app";
 
 const OrganisationsAddPage = (props: PageProps) => {
@@ -29,5 +31,16 @@ const OrganisationsAddPage = (props: PageProps) => {
     </Layout>
   );
 };
+
+export async function getServerSideProps(
+  ctx: GetServerSidePropsContext
+): Promise<GetServerSidePropsResult<{}>> {
+  const session = await getSession({ req: ctx.req });
+
+  if (!session)
+    return { redirect: { permanent: false, destination: "/?login" } };
+
+  return { props: {} };
+}
 
 export default OrganisationsAddPage;

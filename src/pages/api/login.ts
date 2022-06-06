@@ -33,7 +33,8 @@ handler.post<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
           email: data.email,
           userId: user._id,
           userImage: user.userImage,
-          userName: user.userName
+          userName: user.userName,
+          isAdmin: user.isAdmin
         };
       } else if (data.email) {
         let userName = normalize(data.email.replace(/@.+/, ""));

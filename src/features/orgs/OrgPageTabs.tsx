@@ -1,5 +1,6 @@
-import { QuestionIcon } from "@chakra-ui/icons";
+import { QuestionIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
+  Button,
   Flex,
   Input,
   Switch,
@@ -22,7 +23,7 @@ import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
 import { TopicsList } from "features/forum/TopicsList";
 import { ProjectsList } from "features/projects/ProjectsList";
-import { defaultTabs, IOrg, IOrgTabWithIcon } from "models/Org";
+import { defaultTabs, IOrg, IOrgTabWithIcon, orgTypeFull } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { sortOn } from "utils/array";
 import { normalize } from "utils/string";
@@ -40,6 +41,7 @@ export const OrgPageTabs = ({
   isMobile,
   orgQuery,
   session,
+  setIsConfig,
   setIsEdit,
   setIsLogin,
   subQuery
@@ -53,6 +55,7 @@ export const OrgPageTabs = ({
   isMobile: boolean;
   orgQuery: AppQueryWithData<IOrg>;
   session: Session | null;
+  setIsConfig: React.Dispatch<React.SetStateAction<boolean>>;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
   setIsLogin: React.Dispatch<React.SetStateAction<number>>;
   subQuery: AppQuery<ISubscription>;
@@ -313,6 +316,11 @@ export const OrgPageTabs = ({
 
         {session && isCreator && (
           <TabPanel aria-hidden>
+            <Heading mb={3}>
+              Activer / désactiver les fonctionnalités{" "}
+              {orgTypeFull(org.orgType)}
+            </Heading>
+
             {defaultTabs
               .filter((defaultTab) => defaultTab.label !== "")
               .map((defaultTab) => {
@@ -395,6 +403,21 @@ export const OrgPageTabs = ({
                   </Flex>
                 );
               })}
+
+            <Heading mb={3}>
+              Configuration {orgTypeFull(org.orgType)} {org.orgName}
+            </Heading>
+
+            <Button
+              colorScheme="teal"
+              leftIcon={
+                <SettingsIcon boxSize={6} data-cy="org-settings-button" />
+              }
+              onClick={() => setIsConfig(true)}
+              mb={3}
+            >
+              Panneau de configuration {orgTypeFull(org.orgType)} {org.orgName}
+            </Button>
           </TabPanel>
         )}
       </TabPanels>

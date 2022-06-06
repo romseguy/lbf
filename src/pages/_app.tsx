@@ -1,39 +1,25 @@
 import { NextPage, NextPageContext } from "next";
-import { AppProps as NextAppProps } from "next/app";
-import Router from "next/router";
+import { AppInitialProps, AppProps as NextAppProps } from "next/app";
 import React, { useEffect, useState } from "react";
 import { getSelectorsByUserAgent, isMobile } from "react-device-detect";
-//import { useSelector } from "react-redux";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
-import {
-  //selectSession,
-  setIsOffline
-  //setSession
-} from "features/session/sessionSlice";
-import { setUserEmail } from "features/users/userSlice";
+import { setIsOffline } from "features/session/sessionSlice";
+import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { magic } from "lib/magic";
 import { Session, SessionContext } from "lib/SessionContext";
 import { useAppDispatch, wrapper } from "store";
 import theme from "theme/theme";
 import api from "utils/api";
+import { useSelector } from "react-redux";
 //import { AppStateProvider } from "utils/context";
-import { isServer } from "utils/isServer";
 
 export interface PageProps {
   email?: string | null;
   isMobile: boolean;
+  isSessionLoading?: boolean;
   session: Session | null;
-}
-
-if (!isServer() && process.env.NODE_ENV === "production") {
-  const CleanConsole = require("@eaboy/clean-console");
-  CleanConsole.init({
-    initialMessages: [
-      { message: `Bienvenue sur ${process.env.NEXT_PUBLIC_SHORT_URL}` }
-    ],
-    debugLocalStoregeKey: "allowConsole"
-  });
+  setSession?: React.Dispatch<React.SetStateAction<Session | null>>;
 }
 
 interface AppProps extends NextAppProps<PageProps> {
@@ -41,93 +27,115 @@ interface AppProps extends NextAppProps<PageProps> {
   pageProps: PageProps;
 }
 
-const App = wrapper.withRedux(
-  ({ Component, pageProps, cookies, ...props }: AppProps) => {
-    const [session, setSession] = useState<Session | null>(null);
-    const [isSessionLoading, setIsSessionLoading] = useState(true);
+const App = wrapper.withRedux(({ Component, pageProps, cookies }: AppProps) => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [isSessionLoading, setIsSessionLoading] = useState(true);
 
-    useEffect(() => {
-      (async () => {
-        const isLoggedIn = await magic.user.isLoggedIn();
+  const dispatch = useAppDispatch();
+  const userEmail = useSelector(selectUserEmail);
 
-        if (isLoggedIn) {
-          const { email } = await magic.user.getMetadata();
-          const { data } = await api.get("user");
-          const user = {
-            email: email as string,
-            userId: data.userId,
-            userImage: data.userImage,
-            userName: data.userName
-          };
-          setSession({ user });
-          setIsSessionLoading(false);
+  useEffect(function clientDidMount() {
+    (async function checkLoginStatus() {
+      try {
+        const { data: session } = await api.get("user");
+
+        if (session.user) {
+          console.log("COOKIE SESSION", session);
+          setSession(session);
+        } else {
+          const isLoggedIn = await magic.user.isLoggedIn();
+
+          if (isLoggedIn) {
+            console.log("MAGIC SESSION", isLoggedIn);
+            const didToken = await magic.user.getIdToken({
+              lifespan: 60 * 60 * 10
+            });
+
+            const res = await fetch("/api/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + didToken
+              }
+            });
+
+            if (res.status === 200) {
+              const user = await res.json();
+              console.log("user", user);
+
+              setSession({ user });
+            }
+          }
         }
-      })();
-    }, []);
 
-    const dispatch = useAppDispatch();
-    //const session = useSelector(selectSession);
-
-    useEffect(function clientDidMount() {
-      if (pageProps.email) {
-        dispatch(setUserEmail(pageProps.email));
+        setIsSessionLoading(false);
+      } catch (error) {
+        setSession(null);
+        setIsSessionLoading(false);
       }
+    })();
 
-      // if (pageProps.session && !session) {
-      //   dispatch(setSession(pageProps.session));
-      // }
-
-      (async function checkOnlineStatus() {
-        try {
-          await api.get("check");
-        } catch (error) {
-          dispatch(setIsOffline(true));
-        }
-      })();
-
-      window.addEventListener("offline", () => {
-        console.log("offline_event");
+    (async function checkOnlineStatus() {
+      try {
+        await api.get("https://lekoala.org/check");
+      } catch (error) {
         dispatch(setIsOffline(true));
-      });
+        setIsSessionLoading(false);
+      }
+    })();
 
-      window.addEventListener("online", () => {
-        console.log("online_event");
-        dispatch(setIsOffline(false));
-      });
-    }, []);
+    window.addEventListener("offline", () => {
+      console.log("offline_event");
+      dispatch(setIsOffline(true));
+    });
 
-    return (
-      <>
-        <GlobalStyles />
+    window.addEventListener("online", () => {
+      console.log("online_event");
+      dispatch(setIsOffline(false));
+    });
+  }, []);
 
-        <SessionContext.Provider
-          value={[session, isSessionLoading, setSession]}
-        >
-          <Chakra theme={theme} cookies={cookies}>
-            <Component
-              {...pageProps}
-              isMobile={/*true ||*/ pageProps.isMobile || isMobile}
-              session={session}
-            />
-          </Chakra>
-        </SessionContext.Provider>
-      </>
-    );
-  }
-);
+  return (
+    <>
+      <GlobalStyles />
 
-App.getInitialProps = async ({
+      <SessionContext.Provider
+        value={[session, isSessionLoading, setSession, setIsSessionLoading]}
+      >
+        <Chakra theme={theme} cookies={cookies}>
+          <Component
+            email={
+              session
+                ? session.user.email
+                : pageProps.email
+                ? pageProps.email
+                : userEmail
+            }
+            isMobile={pageProps.isMobile || isMobile}
+            //isMobile
+            isSessionLoading={isSessionLoading}
+            session={session}
+            setSession={setSession}
+          />
+        </Chakra>
+      </SessionContext.Provider>
+    </>
+  );
+});
+
+App.getInitialProps = async function AppGetInitialProps({
   Component,
   ctx
 }: {
   Component: NextPage;
   ctx: NextPageContext;
-}) => {
+}): Promise<AppInitialProps & { cookies?: string }> {
   //#region headers
   const headers = ctx.req?.headers;
   const cookies = headers?.cookie;
   const userAgent = headers?.["user-agent"] || navigator.userAgent;
   //#endregion
+
   let pageProps: Partial<PageProps> = {
     isMobile:
       typeof userAgent === "string"

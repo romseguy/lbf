@@ -35,9 +35,7 @@ export const EventPageHomeTabPanel = ({
   const tabContainerProps = isMobile ? {} : {};
 
   const Small = () => {
-    const tabContainerProps = isMobile
-      ? {}
-      : { width: "32%", bg: isMobile ? "" : "orange.100" };
+    const tabContainerProps = isMobile ? {} : { width: "32%" };
 
     return (
       <Box

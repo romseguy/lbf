@@ -7,7 +7,7 @@ export const OfflineIcon = ({}: IconProps) => {
 
   return (
     <Tooltip
-      label="Vérifiez votre connexion à internet pour continuer à utiliser l'application dans de bonnes conditions."
+      label="Connectez-vous à internet pour continuer à utiliser l'application."
       placement="top-start"
       hasArrow
     >

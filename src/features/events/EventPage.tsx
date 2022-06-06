@@ -1,6 +1,8 @@
 import {
   ArrowBackIcon,
   ArrowForwardIcon,
+  EditIcon,
+  Icon,
   SettingsIcon
 } from "@chakra-ui/icons";
 import {
@@ -9,17 +11,21 @@ import {
   Box,
   Button,
   Flex,
+  Input,
   Text,
   TabPanel,
   TabPanels,
-  useColorMode
+  useColorMode,
+  useToast
 } from "@chakra-ui/react";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { css } from "twin.macro";
 import {
   Column,
+  DeleteButton,
   EmailPreview,
   EntityButton,
   EntityNotified,
@@ -30,6 +36,7 @@ import { EventNotifForm } from "features/forms/EventNotifForm";
 import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
+import { getRefId } from "models/Entity";
 import { IEvent, EEventVisibility } from "models/Event";
 import {
   ESubscriptionType,
@@ -39,12 +46,11 @@ import {
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { useEditEventMutation } from "./eventsApi";
+import { useDeleteEventMutation, useEditEventMutation } from "./eventsApi";
 import { EventAttendingForm } from "./EventAttendingForm";
 import { EventConfigPanel, EventConfigVisibility } from "./EventConfigPanel";
-import { EventPageTabs } from "./EventPageTabs";
-import { getRefId } from "models/Entity";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
+import { EventPageTabs } from "./EventPageTabs";
 
 export const EventPage = ({
   email,
@@ -65,6 +71,10 @@ export const EventPage = ({
   const columnProps = {
     bg: isDark ? "gray.700" : "lightblue"
   };
+
+  const [deleteEvent, deleteQuery] = useDeleteEventMutation();
+  const router = useRouter();
+  const toast = useToast({ position: "top" });
 
   //#region event
   const [editEvent, editEventMutation] = useEditEventMutation();
@@ -96,8 +106,35 @@ export const EventPage = ({
 
   //#region local state
   const [isConfig, setIsConfig] = useState(false);
-  const [isLogin, setIsLogin] = useState(0);
+  const [isDisabled, setIsDisabled] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
+  const [isLogin, setIsLogin] = useState(0);
+
+  const _isVisible = {
+    banner: false,
+    logo: false,
+    topicCategories: false
+  };
+  const [isVisible, _setIsVisible] =
+    useState<EventConfigVisibility["isVisible"]>(_isVisible);
+  const toggleVisibility = (
+    key?: keyof EventConfigVisibility["isVisible"],
+    bool?: boolean
+  ) =>
+    _setIsVisible(
+      !key
+        ? _isVisible
+        : Object.keys(isVisible).reduce((obj, objKey) => {
+            if (objKey === key)
+              return {
+                ...obj,
+                [objKey]: bool !== undefined ? bool : !isVisible[key]
+              };
+
+            return { ...obj, [objKey]: false };
+          }, {})
+    );
+
   const [showNotifForm, setShowNotifForm] = useState(false);
 
   let showAttendingForm = !isCreator;
@@ -126,37 +163,102 @@ export const EventPage = ({
       isMobile={isMobile}
       session={session}
     >
-      {isCreator && !isConfig && !isEdit && (
-        <Button
-          colorScheme="teal"
-          leftIcon={<SettingsIcon boxSize={6} data-cy="eventSettings" />}
-          onClick={() => setIsConfig(true)}
-          mb={2}
-        >
-          Configuration de l'événement
-        </Button>
-      )}
+      {isCreator && (
+        <>
+          {!isConfig && !isEdit && (
+            <Flex mb={3}>
+              <Button
+                colorScheme="teal"
+                leftIcon={<SettingsIcon boxSize={6} data-cy="eventSettings" />}
+                mr={3}
+                onClick={() => setIsConfig(true)}
+              >
+                Paramètres
+              </Button>
 
-      {isEdit && (
-        <Button
-          colorScheme="teal"
-          leftIcon={<ArrowBackIcon boxSize={6} />}
-          onClick={() => setIsEdit(false)}
-          mb={2}
-        >
-          Retour
-        </Button>
-      )}
+              <Button
+                colorScheme="teal"
+                leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+                mr={3}
+                onClick={() => {
+                  setIsEdit(true);
+                  toggleVisibility();
+                }}
+                data-cy="eventEdit"
+              >
+                Modifier
+              </Button>
 
-      {!isEdit && isConfig && (
-        <Button
-          colorScheme="teal"
-          leftIcon={<ArrowBackIcon boxSize={6} />}
-          onClick={() => setIsConfig(false)}
-          mb={2}
-        >
-          Revenir à la page de l'événement
-        </Button>
+              <DeleteButton
+                isDisabled={isDisabled}
+                isLoading={deleteQuery.isLoading}
+                label="Supprimer l'événement"
+                header={
+                  <>
+                    Vous êtes sur le point de supprimer l'événement
+                    <Text display="inline" color="red" fontWeight="bold">
+                      {` ${event.eventName}`}
+                    </Text>
+                  </>
+                }
+                body={
+                  <>
+                    Saisissez le nom de l'événement pour confimer sa suppression
+                    :
+                    <Input
+                      autoComplete="off"
+                      onChange={(e) =>
+                        setIsDisabled(e.target.value !== event.eventName)
+                      }
+                    />
+                  </>
+                }
+                onClick={async () => {
+                  try {
+                    const deletedEvent = await deleteEvent({
+                      eventId: event._id
+                    }).unwrap();
+
+                    if (deletedEvent) {
+                      await router.push(`/`);
+                      toast({
+                        title: `L'événement ${deletedEvent.eventName} a été supprimé !`,
+                        status: "success"
+                      });
+                    }
+                  } catch (error: any) {
+                    toast({
+                      title: error.data ? error.data.message : error.message,
+                      status: "error"
+                    });
+                  }
+                }}
+              />
+            </Flex>
+          )}
+
+          {isEdit && (
+            <Button
+              colorScheme="teal"
+              leftIcon={<ArrowBackIcon boxSize={6} />}
+              onClick={() => setIsEdit(false)}
+              mb={2}
+            >
+              Retour
+            </Button>
+          )}
+
+          {!isEdit && isConfig && (
+            <Button
+              colorScheme="teal"
+              leftIcon={<ArrowBackIcon boxSize={6} />}
+              onClick={() => setIsConfig(false)}
+              mb={2}
+            >
+              Revenir à l'événement
+            </Button>
+          )}
+        </>
       )}
 
       {!isConfig && !isEdit && !subQuery.isLoading && (
@@ -355,8 +457,10 @@ export const EventPage = ({
           session={session}
           eventQuery={eventQuery}
           isEdit={isEdit}
+          isVisible={isVisible}
           setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}
+          toggleVisibility={toggleVisibility}
         />
       )}
     </Layout>

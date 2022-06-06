@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { isBefore, addDays, format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { NextApiRequest, NextApiResponse } from "next";

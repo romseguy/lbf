@@ -167,7 +167,8 @@ export const SubscribePopover = ({
               }}
               data-cy="subscribe-button"
             >
-              S'abonner
+              S'abonner{" "}
+              {event ? "à l'événement" : org ? orgTypeFull2(org.orgType) : ""}
             </Button>
           )}
         </PopoverTrigger>

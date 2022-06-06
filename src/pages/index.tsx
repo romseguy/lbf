@@ -1,5 +1,4 @@
 import {
-  ArrowForwardIcon,
   ChevronRightIcon,
   ChevronUpIcon,
   HamburgerIcon
@@ -12,10 +11,18 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
-import { FaRegMap } from "react-icons/fa";
+import { FaGlobeEurope, FaRegMap } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { Button, Column, Heading, HostTag, Link } from "features/common";
+import {
+  Button,
+  Column,
+  EntityAddButton,
+  Heading,
+  HostTag,
+  Link,
+  LoginButton
+} from "features/common";
 import { Layout } from "features/layout";
 import { AboutModal } from "features/modals/AboutModal";
 import { MapModal } from "features/modals/MapModal";
@@ -32,7 +39,6 @@ import { AppQuery } from "utils/types";
 import { PageProps } from "./_app";
 import { useRouter } from "next/router";
 
-let cachedRefetchOrgs = false;
 let cachedUserEmail: string | undefined;
 
 const IndexPage = (props: PageProps) => {
@@ -43,9 +49,31 @@ const IndexPage = (props: PageProps) => {
     m: "0 auto",
     mb: 3
   };
-  const router = useRouter();
   const userEmail = useSelector(selectUserEmail);
 
+  const router = useRouter();
+  useEffect(() => {
+    if (router.asPath === "/?login") setIsLogin(isLogin + 1);
+  }, [router.asPath]);
+
+  //#region org query
+  const orgsQuery = useGetOrgsQuery(
+    { populate: "orgs" },
+    {
+      selectFromResult: (query) => ({
+        ...query,
+        data: query.data?.filter((org) =>
+          org ? org.orgType === EOrgType.NETWORK : true
+        )
+      })
+    }
+  ) as AppQuery<IOrg[]>;
+  useEffect(() => {
+    if (!orgsQuery.isLoading) setIsLoading(false);
+  }, [orgsQuery.isLoading]);
+  //#endregion
+
+  //#region subscription query
   const subQuery = useGetSubscriptionQuery({
     email: userEmail
   }) as AppQuery<ISubscription>;
@@ -58,8 +86,15 @@ const IndexPage = (props: PageProps) => {
       subQuery.refetch();
     }
   }, [userEmail]);
+  //#endregion
 
   //#region local state
+  const [isListOpen, setIsListOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLogin, setIsLogin] = useState(0);
+  //#endregion
+
+  //#region modal state
   const {
     isOpen: isAboutModalOpen,
     onOpen: openAboutModal,
@@ -75,18 +110,6 @@ const IndexPage = (props: PageProps) => {
     onOpen: openNetworksModal,
     onClose: closeNetworksModal
   } = useDisclosure({ defaultIsOpen: false });
-
-  const orgsQuery = useGetOrgsQuery(
-    { populate: "orgs" },
-    {
-      selectFromResult: (query) => ({
-        ...query,
-        data: query.data?.filter((org) =>
-          org ? org.orgType === EOrgType.NETWORK : true
-        )
-      })
-    }
-  ) as AppQuery<IOrg[]>;
   const inputNodes: InputNode[] = useMemo(() => {
     return orgsQuery.data
       ? orgsQuery.data
@@ -103,77 +126,32 @@ const IndexPage = (props: PageProps) => {
           })
       : [];
   }, [orgsQuery.data]);
-  const [isListOpen, setIsListOpen] = useState(false);
-  //#endregion
-
-  //#region cross refetch
-  // const refetchOrgs = useSelector(selectOrgsRefetch);
-  // useEffect(() => {
-  //   if (refetchOrgs !== cachedRefetchOrgs) {
-  //     cachedRefetchOrgs = refetchOrgs;
-  //     console.log("refetching orgs");
-  //     orgsQuery.refetch();
-  //   }
-  // }, [refetchOrgs]);
   //#endregion
 
   return (
-    <Layout {...props} pageTitle="Accueil">
-      {/* <Column {...columnProps}>
-        <Text>
-          Bienvenue sur l'outil de gestion en{" "}
-          <Link variant="underline" onClick={openNetworksModal}>
-            arborescence
-          </Link>{" "}
-          <HostTag />
-        </Text>
-
-        <Button
-          canWrap
-          colorScheme="teal"
-          leftIcon={<ArrowForwardIcon />}
-          my={5}
-          onClick={() =>
-            router.push(
-              "/nom_de_votre_organisation",
-              "/nom_de_votre_organisation",
-              { shallow: true }
-            )
-          }
-        >
-          Exemple de page d'une organisation (association, groupe, pôle
-          thématique, etc)
-        </Button>
-
-        <Text>Bonne découverte !</Text>
-      </Column>
-
+    <Layout {...props} isLogin={isLogin} pageTitle="Accueil">
       <Column {...columnProps}>
-        <Flex mb={3}>
-          <Heading>Informations supplémentaires</Heading>
+        <Heading mb={3}>Premiers pas</Heading>
+        {!props.session && (
+          <Flex>
+            <LoginButton
+              mb={3}
+              onClick={() => {
+                setIsLogin(isLogin + 1);
+              }}
+            >
+              Connectez-vous à votre koala
+            </LoginButton>
+          </Flex>
+        )}
+        <Flex>
+          <EntityAddButton orgType={EOrgType.NETWORK} mb={3} />
         </Flex>
-
-        <Button
-          canWrap
-          colorScheme="teal"
-          leftIcon={<ArrowForwardIcon />}
-          mb={5}
-          onClick={openAboutModal}
-        >
-          Vous êtes responsable de communication au sein d'une organisation
-        </Button>
-
-        <Button
-          canWrap
-          colorScheme="teal"
-          isDisabled
-          leftIcon={<ArrowForwardIcon />}
-          mb={5}
-          onClick={openAboutModal}
-        >
-          Vous êtes adhérent au sein d'une organisation
-        </Button>
-      </Column> */}
+        <Text>
+          Ajoutez des discussions, des événements, partagez des fichiers, au
+          sein de votre planète.
+        </Text>
+      </Column>
 
       <Column {...columnProps}>
         <Flex alignItems="center">
@@ -181,7 +159,7 @@ const IndexPage = (props: PageProps) => {
           <HostTag ml={1} />
         </Flex>
 
-        {orgsQuery.isLoading ? (
+        {isLoading ? (
           <Spinner />
         ) : (
           <>
@@ -280,3 +258,61 @@ const IndexPage = (props: PageProps) => {
 };
 
 export default IndexPage;
+
+{
+  /* <Column {...columnProps}>
+        <Text>
+          Bienvenue sur l'outil de gestion en{" "}
+          <Link variant="underline" onClick={openNetworksModal}>
+            arborescence
+          </Link>{" "}
+          <HostTag />
+        </Text>
+
+        <Button
+          canWrap
+          colorScheme="teal"
+          leftIcon={<ArrowForwardIcon />}
+          my={5}
+          onClick={() =>
+            router.push(
+              "/nom_de_votre_organisation",
+              "/nom_de_votre_organisation",
+              { shallow: true }
+            )
+          }
+        >
+          Exemple de page d'une organisation (association, groupe, pôle
+          thématique, etc)
+        </Button>
+
+        <Text>Bonne découverte !</Text>
+      </Column>
+
+      <Column {...columnProps}>
+        <Flex mb={3}>
+          <Heading>Informations supplémentaires</Heading>
+        </Flex>
+
+        <Button
+          canWrap
+          colorScheme="teal"
+          leftIcon={<ArrowForwardIcon />}
+          mb={5}
+          onClick={openAboutModal}
+        >
+          Vous êtes responsable de communication au sein d'une organisation
+        </Button>
+
+        <Button
+          canWrap
+          colorScheme="teal"
+          isDisabled
+          leftIcon={<ArrowForwardIcon />}
+          mb={5}
+          onClick={openAboutModal}
+        >
+          Vous êtes adhérent au sein d'une organisation
+        </Button>
+      </Column> */
+}

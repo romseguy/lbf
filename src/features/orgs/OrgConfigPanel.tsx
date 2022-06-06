@@ -39,9 +39,11 @@ export const OrgConfigPanel = ({
   orgQuery,
   subQuery,
   isEdit,
+  isVisible,
   setIsConfig,
-  setIsEdit
-}: {
+  setIsEdit,
+  toggleVisibility
+}: OrgConfigVisibility & {
   session: Session;
   orgQuery: AppQueryWithData<IOrg>;
   subQuery: AppQuery<ISubscription>;
@@ -49,41 +51,10 @@ export const OrgConfigPanel = ({
   setIsConfig: (isConfig: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
 }) => {
-  const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
   const org = orgQuery.data;
   const router = useRouter();
-  const toast = useToast({ position: "top" });
 
   //#region local state
-  const [isDisabled, setIsDisabled] = useState(true);
-  const _isVisible = {
-    logo: false,
-    banner: false,
-    lists: false,
-    subscribers: false,
-    eventCategories: false,
-    topicCategories: false
-  };
-  const [isVisible, _setIsVisible] =
-    useState<OrgConfigVisibility["isVisible"]>(_isVisible);
-  const toggleVisibility = (
-    key?: keyof OrgConfigVisibility["isVisible"],
-    bool?: boolean
-  ) => {
-    _setIsVisible(
-      !key
-        ? _isVisible
-        : Object.keys(isVisible).reduce((obj, objKey) => {
-            if (objKey === key)
-              return {
-                ...obj,
-                [objKey]: bool !== undefined ? bool : !isVisible[objKey]
-              };
-
-            return { ...obj, [objKey]: false };
-          }, {})
-    );
-  };
   //#endregion
 
   return (
@@ -95,7 +66,7 @@ export const OrgConfigPanel = ({
             orgQuery={orgQuery as AppQuery<IOrg>}
             onCancel={() => {
               setIsEdit(false);
-              setIsConfig(true);
+              setIsConfig(false);
             }}
             onSubmit={async (orgUrl: string) => {
               if (orgUrl !== org.orgUrl) {
@@ -113,76 +84,6 @@ export const OrgConfigPanel = ({
 
       {!isEdit && (
         <>
-          <Box mb={3}>
-            <Button
-              colorScheme="teal"
-              leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-              mr={3}
-              onClick={() => {
-                setIsEdit(true);
-                toggleVisibility();
-              }}
-              data-cy="orgEdit"
-            >
-              Modifier
-            </Button>
-
-            <DeleteButton
-              isDisabled={isDisabled}
-              isLoading={deleteQuery.isLoading}
-              label={`${
-                org.orgType === EOrgType.NETWORK ? "Détruire" : "Déraciner"
-              } ${orgTypeFull5(org.orgType)} ${org.orgName}`}
-              header={
-                <>
-                  Vous êtes sur le point de{" "}
-                  {org.orgType === EOrgType.NETWORK
-                    ? "détruire la planète"
-                    : "déraciner l'arbre"}{" "}
-                  <Text display="inline" color="red" fontWeight="bold">
-                    {` ${org.orgName}`}
-                  </Text>
-                </>
-              }
-              body={
-                <>
-                  Saisissez le nom {orgTypeFull(org.orgType)} pour confimer{" "}
-                  {org.orgType === EOrgType.NETWORK
-                    ? "sa destruction"
-                    : "son déracinement"}{" "}
-                  :
-                  <Input
-                    autoComplete="off"
-                    onChange={(e) =>
-                      setIsDisabled(
-                        e.target.value.toLowerCase() !==
-                          org.orgName.toLowerCase()
-                      )
-                    }
-                  />
-                </>
-              }
-              onClick={async () => {
-                try {
-                  const deletedOrg = await deleteOrg(org._id).unwrap();
-
-                  if (deletedOrg) {
-                    await router.push(`/`);
-                    toast({
-                      title: `${deletedOrg.orgName} a été détruite !`,
-                      status: "success"
-                    });
-                  }
-                } catch (error: any) {
-                  toast({
-                    title: error.data ? error.data.message : error.message,
-                    status: "error"
-                  });
-                }
-              }}
-            />
-          </Box>
-
           <Column mb={3} pt={1}>
             <Heading>Apparence</Heading>
 
