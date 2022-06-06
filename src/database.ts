@@ -66,8 +66,6 @@ if (!cached) {
   cached = global.mongo = { conn: null, promise: null };
 }
 
-global._mongoClientPromise = clientPromise;
-
 async function database(
   req: IncomingMessage,
   res: ServerResponse,

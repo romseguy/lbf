@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { format, formatISO, getMinutes, getDay } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
 import { Link, GridItem, EntityButton } from "features/common";

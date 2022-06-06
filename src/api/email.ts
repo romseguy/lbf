@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import nodemailer, { SendMailOptions as Mail } from "nodemailer";
 import { models } from "database";
 import { IEvent, EEventInviteStatus } from "models/Event";

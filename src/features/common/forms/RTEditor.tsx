@@ -1,7 +1,7 @@
 import { Spinner, useToast } from "@chakra-ui/react";
 import { Editor, IAllProps } from "@tinymce/tinymce-react";
 import axios from "axios";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import React, { useEffect, useRef, useState } from "react";
 import type {
   Editor as TinyMCEEditor,

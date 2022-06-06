@@ -8,7 +8,7 @@ import {
   Tabs,
   useColorMode
 } from "@chakra-ui/react";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { css } from "twin.macro";

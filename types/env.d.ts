@@ -3,7 +3,6 @@ import type { MongoClient, Db } from "mongodb";
 declare global {
   namespace NodeJS {
     interface Global {
-      _mongoClientPromise: Promise<MongoClient>; //next-auth
       mongo: {
         conn: {
           client: MongoClient;

@@ -1,6 +1,6 @@
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
 import { Box, Button, Icon, Input, Text, useToast } from "@chakra-ui/react";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import {

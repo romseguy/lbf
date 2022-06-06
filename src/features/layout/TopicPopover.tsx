@@ -15,7 +15,7 @@ import {
   useDisclosure,
   useToast
 } from "@chakra-ui/react";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaBellSlash } from "react-icons/fa";

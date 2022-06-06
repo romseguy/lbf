@@ -2,7 +2,6 @@ import { MagicUserMetadata } from "@magic-sdk/types";
 import { NextPage, NextPageContext } from "next";
 import { AppProps as NextAppProps } from "next/app";
 import Router from "next/router";
-import { SessionProvider } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { getSelectorsByUserAgent, isMobile } from "react-device-detect";
 import { Chakra } from "features/common";

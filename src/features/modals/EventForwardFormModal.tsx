@@ -7,7 +7,7 @@ import {
   ModalCloseButton,
   useDisclosure
 } from "@chakra-ui/react";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import React from "react";
 import { Modal } from "features/common";
 import { EventForwardForm } from "features/forms/EventForwardForm";

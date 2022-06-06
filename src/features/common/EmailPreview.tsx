@@ -1,5 +1,5 @@
 import { FlexProps } from "@chakra-ui/react";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import { Column } from "features/common";
 import { isEvent, isTopic } from "models/Entity";
 import { IEvent } from "models/Event";

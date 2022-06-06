@@ -1,6 +1,5 @@
 import { Button, Alert, AlertIcon, Flex } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import { signIn } from "next-auth/react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { EmailControl, ErrorMessageText } from "features/common";
@@ -21,7 +20,7 @@ export const EmailLoginForm = ({ ...props }: { onCancel?: () => void }) => {
   const onSubmit = async ({ email }: { email: string }) => {
     setIsLoading(true);
     try {
-      await signIn("email", { email });
+      //await signIn("email", { email });
     } catch (error) {
       console.error(error);
     } finally {

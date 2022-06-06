@@ -1,6 +1,5 @@
 import { MenuList, MenuItem, useColorMode } from "@chakra-ui/react";
-import { Session } from "next-auth";
-import { signOut } from "next-auth/react";
+import { Session } from "lib/SessionContext";
 import { useRouter } from "next/router";
 import React from "react";
 import { Link, SubscribeSwitch } from "features/common";
@@ -51,10 +50,10 @@ export const NavMenuList = ({
 
       <MenuItem
         onClick={async () => {
-          const { url } = await signOut({
-            redirect: false,
-            callbackUrl: "/"
-          });
+          // const { url } = await signOut({
+          //   redirect: false,
+          //   callbackUrl: "/"
+          // });
           dispatch(resetUserEmail());
           dispatch(setSession(null));
           router.push(url);

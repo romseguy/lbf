@@ -39,7 +39,7 @@ import {
   parseISO,
   setDay
 } from "date-fns";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { Controller, useForm, useWatch } from "react-hook-form";

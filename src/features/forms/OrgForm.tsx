@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import React, { useState, useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import ReactSelect from "react-select";

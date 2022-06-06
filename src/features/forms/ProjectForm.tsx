@@ -11,7 +11,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessageText, ListsControl, RTEditor } from "features/common";

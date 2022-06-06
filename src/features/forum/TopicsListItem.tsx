@@ -11,7 +11,7 @@ import {
   Text,
   Tooltip
 } from "@chakra-ui/react";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import React, { useEffect } from "react";
 import {
   FaBellSlash,

@@ -1,10 +1,5 @@
 import { useContext } from "react";
 import { Session, SessionContext } from "lib/SessionContext";
-import {
-  useSession as useNextAuthSession,
-  getSession as getNextAuthSession,
-  GetSessionParams
-} from "next-auth/react";
 import { useSelector } from "react-redux";
 import { selectSession, setSession } from "features/session/sessionSlice";
 import { useAppDispatch } from "store";
@@ -14,7 +9,7 @@ import sessionFixture from "../../cypress/fixtures/session.json";
 
 let cachedSession: Session = null;
 
-export async function getSession(params?: GetSessionParams): Promise<Session> {
+export async function getSession(params?: any): Promise<Session> {
   return null;
   // if (
   //   process.env.NEXT_PUBLIC_IS_TEST &&

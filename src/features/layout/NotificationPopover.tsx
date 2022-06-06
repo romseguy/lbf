@@ -15,7 +15,7 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { compareAsc, compareDesc, parseISO } from "date-fns";
-import { Session } from "next-auth";
+import { Session } from "lib/SessionContext";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { EntityButton } from "features/common";
