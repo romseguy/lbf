@@ -29,7 +29,6 @@ describe("CRUD entities", () => {
       cy.k("org-popover-button").click();
       cy.k("org-add-button").click();
       cy.get("input[name=orgName]").type(orgName);
-      cy.get("select[name=orgType]").select(OrgTypes[EOrgType.ASSO]);
       cy.get("form").submit();
       cy.location("pathname", { timeout: 20000 }).should(
         "include",
@@ -123,7 +122,6 @@ describe("CRUD entities", () => {
       cy.k("org-popover-button").click();
       cy.k("org-add-button").click();
       cy.get("input[name=orgName]").type("1234");
-      cy.get("select[name=orgType]").select(OrgTypes[EOrgType.ASSO]);
       cy.get("select[name=orgVisibility]").select(EOrgVisibility.PRIVATE);
       cy.get("input[name=orgPassword]").type("1234");
       cy.get("input[name=orgPasswordConfirm]").type("1234");

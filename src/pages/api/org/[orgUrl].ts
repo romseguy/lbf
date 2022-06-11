@@ -56,7 +56,7 @@ handler.get<
 
     const session = await getSession({ req });
     const isCreator =
-      orgUrl === "nom_de_votre_organisation" ||
+      orgUrl === "nom_de_votre_planete" ||
       equals(getRefId(org), session?.user.userId) ||
       session?.user.isAdmin;
 
@@ -485,6 +485,7 @@ handler.delete<
 
   try {
     const _id = req.query.orgUrl;
+
     const org = await models.Org.findOne({ _id });
 
     if (!org) {
@@ -509,9 +510,7 @@ handler.delete<
         );
     }
 
-    const { deletedCount } = await models.Org.deleteOne({ _id });
-
-    // todo delete references to this org?
+    const { deletedCount /*, n, ok */ } = await models.Org.deleteOne({ _id });
 
     if (deletedCount !== 1) {
       return res
@@ -522,6 +521,16 @@ handler.delete<
           )
         );
     }
+
+    /*const { deletedCount, n, ok } = */ await models.Project.deleteMany({
+      _id: { $in: org.orgProjects }
+    });
+    /*const { deletedCount, n, ok } = */ await models.Subscription.deleteMany({
+      _id: { $in: org.orgSubscriptions }
+    });
+    /*const { deletedCount, n, ok } = */ await models.Topic.deleteMany({
+      _id: { $in: org.orgTopics }
+    });
 
     res.status(200).json(org);
   } catch (error) {

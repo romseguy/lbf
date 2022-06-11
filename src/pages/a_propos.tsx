@@ -80,11 +80,11 @@ export const AboutPage = ({
     </a>
   );
   const OrgTag = () => {
-    const url = `${process.env.NEXT_PUBLIC_URL}/nom_de_votre_organisation`;
+    const url = `${process.env.NEXT_PUBLIC_URL}/nom_de_votre_planete`;
     const urlElement = (
       <Flex flexWrap="wrap" my={2}>
         {process.env.NEXT_PUBLIC_URL}
-        <b>/nom_de_votre_organisation</b>
+        <b>/nom_de_votre_planete</b>
       </Flex>
     );
     const iconButtonProps: Omit<IconButtonProps, "aria-label"> = isMobile

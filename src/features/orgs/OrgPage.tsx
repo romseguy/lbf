@@ -53,7 +53,7 @@ export const OrgPage = ({
   //#region org
   const org = orgQuery.data;
   const isCreator =
-    org.orgUrl === "nom_de_votre_organisation" || // demo page
+    org.orgUrl === "nom_de_votre_planete" || // demo page
     session?.user.userId === getRefId(org) ||
     session?.user.isAdmin ||
     false;
@@ -120,92 +120,105 @@ export const OrgPage = ({
     return (
       <>
         {!isConfig && !isEdit && (
-          <Flex mb={3}>
-            <Button
-              colorScheme="teal"
-              leftIcon={
-                <SettingsIcon boxSize={6} data-cy="org-settings-button" />
-              }
-              mr={3}
-              onClick={() => setIsConfig(true)}
-            >
-              Paramètres
-            </Button>
-            <Button
-              colorScheme="teal"
-              leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-              mr={3}
-              onClick={() => {
-                setIsEdit(true);
-                toggleVisibility();
-              }}
-              data-cy="orgEdit"
-            >
-              Modifier
-            </Button>
+          <Flex flexDirection={isMobile ? "column" : "row"} mb={3}>
+            <Flex mb={isMobile ? 3 : 0}>
+              <Button
+                colorScheme="teal"
+                leftIcon={
+                  <SettingsIcon boxSize={6} data-cy="org-settings-button" />
+                }
+                mr={3}
+                onClick={() => setIsConfig(true)}
+              >
+                Paramètres
+              </Button>
+            </Flex>
 
-            <DeleteButton
-              isDisabled={isDisabled}
-              isLoading={deleteQuery.isLoading}
-              label={`${
-                org.orgType === EOrgType.NETWORK ? "Détruire" : "Déraciner"
-              } ${orgTypeFull5(org.orgType)}`}
-              header={
-                <>
-                  Vous êtes sur le point de{" "}
-                  {org.orgType === EOrgType.NETWORK
-                    ? "détruire la planète"
-                    : "déraciner l'arbre"}{" "}
-                  <Text display="inline" color="red" fontWeight="bold">
-                    {` ${org.orgName}`}
-                  </Text>
-                </>
-              }
-              body={
-                <>
-                  Saisissez le nom {orgTypeFull(org.orgType)} pour confimer{" "}
-                  {org.orgType === EOrgType.NETWORK
-                    ? "sa destruction"
-                    : "son déracinement"}{" "}
-                  :
-                  <Input
-                    autoComplete="off"
-                    onChange={(e) =>
-                      setIsDisabled(
-                        e.target.value.toLowerCase() !==
-                          org.orgName.toLowerCase()
-                      )
+            <Flex mb={isMobile ? 3 : 0}>
+              <Button
+                colorScheme="teal"
+                leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+                mr={3}
+                onClick={() => {
+                  setIsEdit(true);
+                  toggleVisibility();
+                }}
+                data-cy="orgEdit"
+              >
+                Modifier
+              </Button>
+            </Flex>
+
+            <Flex>
+              <DeleteButton
+                isDisabled={isDisabled}
+                isLoading={deleteQuery.isLoading}
+                label={`${
+                  org.orgType === EOrgType.NETWORK ? "Détruire" : "Déraciner"
+                } ${orgTypeFull5(org.orgType)}`}
+                header={
+                  <>
+                    Vous êtes sur le point de{" "}
+                    {org.orgType === EOrgType.NETWORK
+                      ? "détruire la planète"
+                      : "déraciner l'arbre"}{" "}
+                    <Text display="inline" color="red" fontWeight="bold">
+                      {` ${org.orgName}`}
+                    </Text>
+                  </>
+                }
+                body={
+                  <>
+                    <Alert status="warning">
+                      <AlertIcon />
+                      <Box>
+                        Les <b>discussions</b>, les <b>projets</b> et les
+                        adresses e-mail associés seront supprimés.
+                      </Box>
+                    </Alert>
+                    <Text mb={1} mt={3}>
+                      Confirmez en saisissant le nom {orgTypeFull(org.orgType)}{" "}
+                      :
+                    </Text>
+                    <Input
+                      autoComplete="off"
+                      onChange={(e) =>
+                        setIsDisabled(
+                          e.target.value.toLowerCase() !==
+                            org.orgName.toLowerCase()
+                        )
+                      }
+                    />
+                  </>
+                }
+                onClick={async () => {
+                  try {
+                    const deletedOrg = await deleteOrg(org._id).unwrap();
+
+                    if (deletedOrg) {
+                      await router.push(`/`);
+                      toast({
+                        title: `${
+                          deletedOrg.orgType === EOrgType.NETWORK
+                            ? "La planète"
+                            : "L'arbre"
+                        } ${deletedOrg.orgName} a été ${
+                          deletedOrg.orgType === EOrgType.NETWORK
+                            ? "détruite"
+                            : "déraciné"
+                        } !`,
+                        status: "success"
+                      });
                     }
-                  />
-                </>
-              }
-              onClick={async () => {
-                try {
-                  const deletedOrg = await deleteOrg(org._id).unwrap();
-
-                  if (deletedOrg) {
-                    await router.push(`/`);
+                  } catch (error: any) {
                     toast({
-                      title: `${
-                        deletedOrg.orgType === EOrgType.NETWORK
-                          ? "La planète"
-                          : "L'arbre"
-                      } ${deletedOrg.orgName} a été ${
-                        deletedOrg.orgType === EOrgType.NETWORK
-                          ? "détruite"
-                          : "déraciné"
-                      } !`,
-                      status: "success"
+                      title: error.data ? error.data.message : error.message,
+                      status: "error"
                     });
                   }
-                } catch (error: any) {
-                  toast({
-                    title: error.data ? error.data.message : error.message,
-                    status: "error"
-                  });
-                }
-              }}
-            />
+                }}
+              />
+            </Flex>
           </Flex>
         )}
 
@@ -287,9 +300,7 @@ export const OrgPage = ({
 
           <Box mt={3}>
             <SubscribePopover
-              isDisabled={
-                org.orgUrl === "nom_de_votre_organisation" && !session
-              }
+              isDisabled={org.orgUrl === "nom_de_votre_planete" && !session}
               org={org}
               query={orgQuery}
               subQuery={subQuery}

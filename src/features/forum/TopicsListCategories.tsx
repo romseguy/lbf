@@ -120,6 +120,11 @@ export const TopicsListCategories = ({
                 ? "#81E6D9"
                 : "#319795"
             }
+            color={isDark ? "black" : "white"}
+            cursor="pointer"
+            fontWeight="normal"
+            mr={1}
+            p={0}
             _hover={{
               bg: isSelected
                 ? isDark
@@ -129,11 +134,6 @@ export const TopicsListCategories = ({
                 ? "#4FD1C5"
                 : "#2C7A7B"
             }}
-            color={isDark ? "black" : "white"}
-            cursor="pointer"
-            fontWeight="normal"
-            mr={1}
-            p={0}
             onClick={() => {
               selectedCategories?.find(
                 (selectedCategory) => selectedCategory === catId
@@ -183,7 +183,7 @@ export const TopicsListCategories = ({
                     // other props
                     header={
                       <>
-                        Êtes vous sûr de vouloir supprimer la catégorie {catId}{" "}
+                        Êtes vous sûr de vouloir supprimer la catégorie {label}{" "}
                         ?
                       </>
                     }

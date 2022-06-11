@@ -2,6 +2,7 @@ import { NextPage, NextPageContext } from "next";
 import { AppInitialProps, AppProps as NextAppProps } from "next/app";
 import React, { useEffect, useState } from "react";
 import { getSelectorsByUserAgent, isMobile } from "react-device-detect";
+import { useSelector } from "react-redux";
 import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
 import { setIsOffline } from "features/session/sessionSlice";
@@ -11,7 +12,7 @@ import { Session, SessionContext } from "lib/SessionContext";
 import { useAppDispatch, wrapper } from "store";
 import theme from "theme/theme";
 import api from "utils/api";
-import { useSelector } from "react-redux";
+import { isServer } from "utils/isServer";
 //import { AppStateProvider } from "utils/context";
 
 export interface PageProps {
@@ -77,7 +78,8 @@ const App = wrapper.withRedux(({ Component, pageProps, cookies }: AppProps) => {
 
     (async function checkOnlineStatus() {
       try {
-        await api.get("https://lekoala.org/check");
+        const res = await api.get("check");
+        if (res.status === 404) throw new Error();
       } catch (error) {
         dispatch(setIsOffline(true));
         setIsSessionLoading(false);
@@ -133,7 +135,8 @@ App.getInitialProps = async function AppGetInitialProps({
   //#region headers
   const headers = ctx.req?.headers;
   const cookies = headers?.cookie;
-  const userAgent = headers?.["user-agent"] || navigator.userAgent;
+  let userAgent = headers?.["user-agent"];
+  if (!userAgent && !isServer()) userAgent = navigator.userAgent;
   //#endregion
 
   let pageProps: Partial<PageProps> = {

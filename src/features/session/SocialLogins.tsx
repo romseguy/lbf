@@ -2,46 +2,43 @@ import { Alert, AlertIcon, Button } from "@chakra-ui/react";
 import { OAuthProvider } from "@magic-ext/oauth";
 import React, { useState } from "react";
 import { FaFacebook, FaGoogle } from "react-icons/fa";
+import { capitalize } from "utils/string";
 
 export const SocialLogins = ({
   onSubmit
 }: {
   onSubmit: (provider: OAuthProvider) => void;
 }) => {
-  const providers = [
-    //"apple",
-    "google",
-    "facebook"
-    // "github"
-  ] as OAuthProvider[];
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const providers = ["google", "facebook"] as OAuthProvider[];
+  const [provider, setProvider] = useState<string>();
 
   return (
     <>
-      {providers.map((provider) => {
+      {providers.map((p) => {
         return (
-          <div key={provider}>
+          <div key={p}>
             <Button
-              key={provider}
-              isDisabled={isRedirecting}
-              leftIcon={provider === "google" ? <FaGoogle /> : <FaFacebook />}
+              key={p}
+              isDisabled={!!provider}
+              leftIcon={p === "google" ? <FaGoogle /> : <FaFacebook />}
               mb={3}
               onClick={() => {
-                setIsRedirecting(true);
-                onSubmit(provider);
+                setProvider(p);
+                onSubmit(p);
               }}
             >
-              {/* turns "google" to "Google" */}
-              {provider.replace(/^\w/, (c) => c.toUpperCase())}
+              {/* {p.replace(/^\w/, (c) => c.toUpperCase())} */}
+              {capitalize(p)}
             </Button>
           </div>
         );
       })}
 
-      {isRedirecting && (
+      {provider && (
         <Alert status="info">
           <AlertIcon />
-          Vous allez être redirigé vers la page de connexion Google...
+          Vous allez être redirigé vers la page de connexion{" "}
+          {capitalize(provider)}...
         </Alert>
       )}
     </>

@@ -215,7 +215,7 @@ export const EventsList = ({
 
     return (
       <>
-        {router.asPath !== "/evenements" && (
+        {router.asPath !== "/evenements" && orgQuery && (
           <Flex flexDirection="column" mb={5}>
             <Heading smaller>Catégories</Heading>
             <EventsListCategories

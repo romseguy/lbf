@@ -11,6 +11,7 @@ const sealOptions = {
 
 export async function getSession(params?: any): Promise<Session | null> {
   const cookies = params.req.cookies;
+  //console.log("GETSESSION COOKIES", cookies);
 
   if (!cookies[TOKEN_NAME]) return null;
 

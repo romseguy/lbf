@@ -22,42 +22,32 @@ handler.post<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
       magic.token.validate(didToken);
 
       const data = await magic.users.getMetadataByToken(didToken);
-      const user = await models.User.findOne({ email: data.email });
+      let user = await models.User.findOne({ email: data.email });
 
-      console.log("POST /login user from DB: ", user);
-
-      let userToken;
-
-      if (user) {
-        userToken = {
-          email: data.email,
-          userId: user._id,
-          userImage: user.userImage,
-          userName: user.userName,
-          isAdmin: user.isAdmin
-        };
-      } else if (data.email) {
+      if (!user && data.email) {
         let userName = normalize(data.email.replace(/@.+/, ""));
         if (await models.User.findOne({ userName }))
           userName += "-" + randomNumber(2);
 
-        const user = await models.User.create({
+        user = await models.User.create({
           email: data.email,
           userName
         });
-
-        userToken = {
-          email: data.email,
-          userId: user._id,
-          userName
-        };
       }
+
+      if (!user) throw new Error();
+
+      const userToken = {
+        email: data.email,
+        isAdmin: user.isAdmin,
+        userId: user._id,
+        userName: user.userName
+      };
 
       const token = await Iron.seal(userToken, process.env.SECRET, sealOptions);
       CookieService.setTokenCookie(res, token);
 
-      //res.status(200).json({ authenticated: true });
-      res.status(200).json(userToken);
+      res.status(200).json({ ...userToken, userImage: user.userImage });
     } catch (error: any) {
       res.status(500).json(createServerError(error));
     }

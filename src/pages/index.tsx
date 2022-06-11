@@ -276,8 +276,8 @@ export default IndexPage;
           my={5}
           onClick={() =>
             router.push(
-              "/nom_de_votre_organisation",
-              "/nom_de_votre_organisation",
+              "/nom_de_votre_planete",
+              "/nom_de_votre_planete",
               { shallow: true }
             )
           }
