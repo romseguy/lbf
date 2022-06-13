@@ -38,7 +38,7 @@ import { OrgsList } from "features/orgs/OrgsList";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { InputNode } from "features/treeChart/types";
 import { selectUserEmail } from "features/users/userSlice";
-import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
+import { EOrgType, EOrgVisibility, IOrg, OrgVisibilities } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { AppQuery } from "utils/types";
 import { PageProps } from "./_app";
@@ -125,7 +125,12 @@ const IndexPage = (props: PageProps) => {
           .map((org) => {
             return {
               name: org.orgName,
-              children: org.orgs.map(({ orgName }) => ({ name: orgName }))
+              children: org.orgs
+                .filter(
+                  ({ orgVisibility }) =>
+                    orgVisibility !== EOrgVisibility.PRIVATE
+                )
+                .map(({ orgName }) => ({ name: orgName }))
             };
           })
       : [];

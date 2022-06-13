@@ -1,16 +1,20 @@
 import {
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
-  useToast,
-  Flex,
   Alert,
   AlertIcon,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Icon,
+  Input,
+  List,
+  ListItem,
   Select,
   Tag,
+  Text,
   Tooltip,
-  useColorMode
+  useColorMode,
+  useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
@@ -19,6 +23,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import useFormPersist from "react-hook-form-persist";
 import ReactSelect from "react-select";
+import Creatable from "react-select/creatable";
 import { Suggestion } from "use-places-autocomplete";
 import {
   AddressControl,
@@ -29,7 +34,8 @@ import {
   ErrorMessageText,
   RTEditor,
   PasswordControl,
-  PasswordConfirmControl
+  PasswordConfirmControl,
+  EntityTag
 } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import {
@@ -56,9 +62,10 @@ import {
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
-import { normalize } from "utils/string";
+import { defaultErrorMessage, normalize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import { FaTree } from "react-icons/fa";
 
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -80,6 +87,10 @@ export const OrgForm = withGoogleApi({
     const [addOrg] = useAddOrgMutation();
     const [editOrg] = useEditOrgMutation();
     const org = orgQuery?.data;
+    const [orgTrees, setOrgTrees] = useState(
+      org ? org.orgs.filter((org) => org.orgType === EOrgType.GENERIC) : []
+    );
+
     const orgsQuery = useGetOrgsQuery();
     const { data: myOrgs } = useGetOrgsQuery(
       {
@@ -98,6 +109,18 @@ export const OrgForm = withGoogleApi({
         }
       }
     );
+    const trees = session.user.isAdmin
+      ? orgsQuery.data?.filter(
+          (org) => org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
+        )
+      : myOrgs?.filter(
+          (org) => org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
+        );
+    const orgsOptions = trees
+      ? trees.filter(
+          (tree) => !orgTrees?.find((orgTree) => orgTree._id === tree._id)
+        )
+      : [];
 
     //#region local state
     const containerProps = {
@@ -175,6 +198,7 @@ export const OrgForm = withGoogleApi({
       const orgDescription = !form.orgDescription.length
         ? undefined
         : form.orgDescription;
+      const orgs = form.orgs.concat(orgTrees);
       const orgAddress = (form.orgAddress || []).filter(
         ({ address }) => address !== ""
       );
@@ -191,6 +215,7 @@ export const OrgForm = withGoogleApi({
         orgName,
         orgType,
         orgDescription,
+        orgs,
         orgAddress,
         orgEmail,
         orgPhone,
@@ -329,73 +354,144 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {/* <FormControl isInvalid={!!errors["orgType"]} mb={3}>
-          <FormLabel>Type de l'organisation</FormLabel>
-          <Select
-            name="orgType"
-            ref={register()}
-            defaultValue={org?.orgType || orgType}
-            placeholder={`Type de l'organisation`}
-            color={isDark ? "whiteAlpha.400" : "gray.400"}
-          >
-            {Object.keys(EOrgType).map((k) => {
-              const orgType = k as EOrgType;
-              return (
-                <option key={orgType} value={orgType}>
-                  {OrgTypes[orgType]}
-                </option>
-              );
-            })}
-          </Select>
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="orgType" />
-          </FormErrorMessage>
-        </FormControl> */}
-
         <FormControl
           mb={3}
           isInvalid={!!errors["orgs"]}
           display={orgType !== EOrgType.NETWORK ? "none" : undefined}
         >
-          <FormLabel>Les arbres de la planète</FormLabel>
-          <Controller
-            name="orgs"
-            as={ReactSelect}
-            control={control}
-            defaultValue={org ? org.orgs : []}
-            closeMenuOnSelect
-            isClearable
-            isMulti
-            isSearchable
-            menuPlacement="top"
-            noOptionsMessage={() => "Aucun arbre trouvé"}
-            options={
-              session.user.isAdmin
-                ? orgsQuery.data?.filter(
-                    (org) =>
-                      org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
-                  )
-                : myOrgs?.filter(
-                    (org) =>
-                      org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
-                  )
-            }
-            getOptionLabel={(option: any) => option.orgName}
-            getOptionValue={(option: any) => option._id}
-            placeholder="Rechercher un arbre..."
-            styles={{
-              control: (defaultStyles: any) => {
-                return {
-                  ...defaultStyles,
-                  borderColor: "#e2e8f0",
-                  paddingLeft: "8px"
-                };
-              }
-            }}
-            className="react-select-container"
-            classNamePrefix="react-select"
-            onChange={(newValue: any /*, actionMeta*/) => newValue._id}
-          />
+          <FormLabel>Arbres de la planète</FormLabel>
+
+          {Array.isArray(orgTrees) && orgTrees.length > 0 && (
+            <List>
+              {orgTrees.map((orgTree) => (
+                <ListItem key={orgTree._id}>
+                  <EntityTag
+                    entity={orgTree}
+                    body={
+                      <>
+                        <Icon as={FaTree} mx={1} />
+                        <Text mr={3}>{orgTree.orgName}</Text>
+                      </>
+                    }
+                    mb={3}
+                    onCloseClick={() => {
+                      setOrgTrees(
+                        orgTrees.filter(({ _id }) => _id !== orgTree._id)
+                      );
+                    }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
+
+          {org ? (
+            <Controller
+              name="orgs"
+              control={control}
+              defaultValue={[]}
+              render={(renderProps) => {
+                return (
+                  <Creatable
+                    isMulti
+                    placeholder="Créer ou rechercher un arbre"
+                    value={renderProps.value}
+                    onChange={renderProps.onChange}
+                    options={orgsOptions.map(({ _id, orgName }) => ({
+                      label: orgName,
+                      value: _id
+                    }))}
+                    allowCreateWhileLoading
+                    formatCreateLabel={(inputValue: string) =>
+                      `Créer l'arbre "${inputValue}"`
+                    }
+                    isClearable
+                    noOptionsMessage={() => "Aucun résultat"}
+                    onCreateOption={async (inputValue: string) => {
+                      try {
+                        const payload: AddOrgPayload = {
+                          orgName: inputValue,
+                          orgType: EOrgType.GENERIC,
+                          orgs: [org],
+                          orgVisibility: EOrgVisibility.PUBLIC,
+                          orgAddress: [],
+                          orgEmail: [],
+                          orgPhone: [],
+                          orgWeb: []
+                        };
+
+                        const addedOrg = await addOrg(payload).unwrap();
+
+                        setValue(
+                          "orgs",
+                          renderProps.value.concat({
+                            label: addedOrg.orgName,
+                            value: addedOrg._id
+                          })
+                        );
+
+                        toast({
+                          status: "success",
+                          title: "L'arbre a bien été créé !"
+                        });
+                      } catch (error: any) {
+                        console.error(error);
+                        toast({
+                          status: "error",
+                          title: error.message
+                        });
+                      }
+                    }}
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    styles={{
+                      control: (defaultStyles: any) => {
+                        return {
+                          ...defaultStyles,
+                          borderColor: "#e2e8f0"
+                        };
+                      },
+                      placeholder: () => {
+                        return {
+                          color: "#A0AEC0"
+                        };
+                      }
+                    }}
+                  />
+                );
+              }}
+            />
+          ) : (
+            <Controller
+              name="orgs"
+              as={ReactSelect}
+              control={control}
+              defaultValue={[]}
+              closeMenuOnSelect
+              isClearable
+              isMulti
+              isSearchable
+              menuPlacement="top"
+              noOptionsMessage={() => "Aucun arbre trouvé"}
+              options={orgTrees}
+              getOptionLabel={(option: any) => option.orgName}
+              getOptionValue={(option: any) => option._id}
+              placeholder="Rechercher un arbre..."
+              styles={{
+                control: (defaultStyles: any) => {
+                  return {
+                    ...defaultStyles,
+                    borderColor: "#e2e8f0",
+                    paddingLeft: "8px"
+                  };
+                }
+              }}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              onChange={(newValue: any) => newValue._id}
+            />
+          )}
+
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="orgs" />
           </FormErrorMessage>
@@ -414,7 +510,7 @@ export const OrgForm = withGoogleApi({
                     org?.orgDescription || orgDescriptionDefaultValue
                   }
                   org={org}
-                  placeholder={`Écrire la description ${orgTypeLabel}`}
+                  placeholder={`Saisir la description ${orgTypeLabel}`}
                   session={session}
                   onChange={({ html }) => {
                     renderProps.onChange(html);
@@ -560,3 +656,28 @@ export const OrgForm = withGoogleApi({
     );
   }
 );
+
+{
+  /* <FormControl isInvalid={!!errors["orgType"]} mb={3}>
+          <FormLabel>Type de l'organisation</FormLabel>
+          <Select
+            name="orgType"
+            ref={register()}
+            defaultValue={org?.orgType || orgType}
+            placeholder={`Type de l'organisation`}
+            color={isDark ? "whiteAlpha.400" : "gray.400"}
+          >
+            {Object.keys(EOrgType).map((k) => {
+              const orgType = k as EOrgType;
+              return (
+                <option key={orgType} value={orgType}>
+                  {OrgTypes[orgType]}
+                </option>
+              );
+            })}
+          </Select>
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="orgType" />
+          </FormErrorMessage>
+        </FormControl> */
+}

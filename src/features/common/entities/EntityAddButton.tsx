@@ -60,7 +60,7 @@ export const EntityAddButton = ({
       data-cy="org-add-button"
       {...props}
     >
-      Planter un arbre
+      Créer un arbre
     </Button>
   );
 };
