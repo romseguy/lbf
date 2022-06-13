@@ -1,8 +1,8 @@
 import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { sendEventNotifications, sendMail } from "api/email";
 import database, { models } from "database";
+import { sendEventNotifications, sendMail } from "features/api/email";
 import {
   AddEventNotifPayload,
   EditEventPayload,

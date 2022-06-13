@@ -1,8 +1,8 @@
 import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { sendToAdmin } from "api/email";
 import database, { models } from "database";
+import { sendToAdmin } from "features/api/email";
 import { getSession } from "hooks/useAuth";
 import { IProject } from "models/Project";
 import api from "utils/api";

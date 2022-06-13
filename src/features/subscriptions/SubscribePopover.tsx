@@ -17,6 +17,7 @@ import {
   PopoverContent,
   PopoverBody,
   PopoverFooter,
+  Tooltip,
   useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
@@ -28,7 +29,7 @@ import { useSelector } from "react-redux";
 import { HostTag } from "features/common";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { IEvent } from "models/Event";
-import { IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
+import { EOrgType, IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
 import {
   getFollowerSubscription,
   ISubscription,
@@ -226,33 +227,45 @@ export const SubscribePopover = ({
     );
 
   if (isIconOnly) {
-    return (
-      <IconButton
-        aria-label={isFollowed ? "Se désabonner" : "S'abonner"}
-        isLoading={isLoading}
-        icon={<Icon as={isFollowed ? FaBellSlash : BellIcon} boxSize={6} />}
-        colorScheme="teal"
-        onClick={async () => {
-          if (isFollowed) {
-            const unsubscribe = confirm(
-              `Êtes-vous sûr de vouloir vous désabonner ${
-                org ? orgTypeFull(org.orgType) : "de l'événement"
-              } ${org ? org.orgName : event?.eventName} ?`
-            );
+    const label = `${isFollowed ? "Se désabonner" : "S'abonner"} ${
+      org
+        ? org.orgType === EOrgType.GENERIC
+          ? "à l'arbre"
+          : "à la planète"
+        : event
+        ? "à l'événement"
+        : ""
+    }`;
 
-            if (unsubscribe) {
-              const url = `/unsubscribe/${
-                org ? org.orgUrl : event?.eventUrl
-              }?subscriptionId=${subQuery.data!._id}`;
-              router.push(url);
-              setIsOpen(false);
+    return (
+      <Tooltip label={label} placement="right">
+        <IconButton
+          aria-label={label}
+          isLoading={isLoading}
+          icon={<Icon as={isFollowed ? FaBellSlash : BellIcon} boxSize={6} />}
+          colorScheme="teal"
+          onClick={async () => {
+            if (isFollowed) {
+              const unsubscribe = confirm(
+                `Êtes-vous sûr de vouloir vous désabonner ${
+                  org ? orgTypeFull(org.orgType) : "de l'événement"
+                } ${org ? org.orgName : event?.eventName} ?`
+              );
+
+              if (unsubscribe) {
+                const url = `/unsubscribe/${
+                  org ? org.orgUrl : event?.eventUrl
+                }?subscriptionId=${subQuery.data!._id}`;
+                router.push(url);
+                setIsOpen(false);
+              }
+            } else {
+              addFollowerSubscription();
             }
-          } else {
-            addFollowerSubscription();
-          }
-        }}
-        data-cy="subscribe-button"
-      />
+          }}
+          data-cy="subscribe-button"
+        />
+      </Tooltip>
     );
   }
 

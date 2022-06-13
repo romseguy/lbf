@@ -126,6 +126,7 @@ export const ProjectForm = ({
 
       setIsLoading(false);
       props.onSubmit && props.onSubmit(props.project || null);
+      localStorage.removeItem("storageKey");
     } catch (error) {
       setIsLoading(false);
       handleError(error, (message, field) => {

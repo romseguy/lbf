@@ -23,106 +23,114 @@ export interface PageProps {
   setSession?: React.Dispatch<React.SetStateAction<Session | null>>;
 }
 
-interface AppProps extends NextAppProps<PageProps> {
-  cookies?: string;
-  pageProps: PageProps;
-}
+const App = wrapper.withRedux(
+  ({
+    Component,
+    pageProps,
+    cookies
+  }: NextAppProps<{
+    pageProps: {
+      email?: string;
+      isMobile: boolean;
+    };
+  }> & {
+    cookies?: string;
+  }) => {
+    const [session, setSession] = useState<Session | null>(null);
+    const [isSessionLoading, setIsSessionLoading] = useState(true);
 
-const App = wrapper.withRedux(({ Component, pageProps, cookies }: AppProps) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [isSessionLoading, setIsSessionLoading] = useState(true);
+    const dispatch = useAppDispatch();
+    const userEmail = useSelector(selectUserEmail);
 
-  const dispatch = useAppDispatch();
-  const userEmail = useSelector(selectUserEmail);
+    useEffect(function clientDidMount() {
+      (async function checkLoginStatus() {
+        try {
+          const { data: session } = await api.get("user");
 
-  useEffect(function clientDidMount() {
-    (async function checkLoginStatus() {
-      try {
-        const { data: session } = await api.get("user");
+          if (session.user) {
+            setSession(session);
+            dispatch(setUserEmail(session.user.email));
+          } else {
+            const isLoggedIn = await magic.user.isLoggedIn();
 
-        if (session.user) {
-          console.log("COOKIE SESSION", session);
-          setSession(session);
-        } else {
-          const isLoggedIn = await magic.user.isLoggedIn();
+            if (isLoggedIn) {
+              const didToken = await magic.user.getIdToken({
+                lifespan: 60 * 60 * 10
+              });
 
-          if (isLoggedIn) {
-            console.log("MAGIC SESSION", isLoggedIn);
-            const didToken = await magic.user.getIdToken({
-              lifespan: 60 * 60 * 10
-            });
+              const res = await fetch("/api/login", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + didToken
+                }
+              });
 
-            const res = await fetch("/api/login", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + didToken
+              if (res.status === 200) {
+                const user = await res.json();
+                setSession({ user });
+                dispatch(setUserEmail(session.user.email));
               }
-            });
-
-            if (res.status === 200) {
-              const user = await res.json();
-              console.log("user", user);
-              setSession({ user });
             }
           }
+
+          setIsSessionLoading(false);
+        } catch (error) {
+          setSession(null);
+          setIsSessionLoading(false);
         }
+      })();
 
-        setIsSessionLoading(false);
-      } catch (error) {
-        setSession(null);
-        setIsSessionLoading(false);
-      }
-    })();
+      (async function checkOnlineStatus() {
+        try {
+          const res = await api.get("check");
+          if (res.status === 404) throw new Error();
+        } catch (error) {
+          dispatch(setIsOffline(true));
+          //setIsSessionLoading(false);
+        }
+      })();
 
-    (async function checkOnlineStatus() {
-      try {
-        const res = await api.get("check");
-        if (res.status === 404) throw new Error();
-      } catch (error) {
+      window.addEventListener("offline", () => {
+        console.log("offline_event");
         dispatch(setIsOffline(true));
-        //setIsSessionLoading(false);
-      }
-    })();
+      });
 
-    window.addEventListener("offline", () => {
-      console.log("offline_event");
-      dispatch(setIsOffline(true));
-    });
+      window.addEventListener("online", () => {
+        console.log("online_event");
+        dispatch(setIsOffline(false));
+      });
+    }, []);
 
-    window.addEventListener("online", () => {
-      console.log("online_event");
-      dispatch(setIsOffline(false));
-    });
-  }, []);
+    return (
+      <>
+        <GlobalStyles />
 
-  return (
-    <>
-      <GlobalStyles />
-
-      <SessionContext.Provider
-        value={[session, isSessionLoading, setSession, setIsSessionLoading]}
-      >
-        <Chakra theme={theme} cookies={cookies}>
-          <Component
-            email={
-              session
-                ? session.user.email
-                : pageProps.email
-                ? pageProps.email
-                : userEmail
-            }
-            isMobile={pageProps.isMobile || isMobile}
-            //isMobile
-            isSessionLoading={isSessionLoading}
-            session={session}
-            setSession={setSession}
-          />
-        </Chakra>
-      </SessionContext.Provider>
-    </>
-  );
-});
+        <SessionContext.Provider
+          value={[session, isSessionLoading, setSession, setIsSessionLoading]}
+        >
+          <Chakra theme={theme} cookies={cookies}>
+            <Component
+              {...pageProps}
+              email={
+                session
+                  ? session.user.email
+                  : pageProps.email
+                  ? pageProps.email
+                  : userEmail
+              }
+              isMobile={pageProps.isMobile || isMobile}
+              //isMobile
+              isSessionLoading={isSessionLoading}
+              session={session}
+              setSession={setSession}
+            />
+          </Chakra>
+        </SessionContext.Provider>
+      </>
+    );
+  }
+);
 
 App.getInitialProps = async function AppGetInitialProps({
   Component,
@@ -138,6 +146,7 @@ App.getInitialProps = async function AppGetInitialProps({
   if (!userAgent && !isServer()) userAgent = navigator.userAgent;
   //#endregion
 
+  //#region pageProps
   let pageProps: Partial<PageProps> = {
     isMobile:
       typeof userAgent === "string"
@@ -145,24 +154,14 @@ App.getInitialProps = async function AppGetInitialProps({
         : false
   };
 
-  //#region query
-  if (ctx.query.email) {
-    pageProps.email = ctx.query.email as string;
-  }
-  //#endregion
+  if (ctx.query.email) pageProps.email = ctx.query.email as string;
 
-  if (Component.getInitialProps) {
-    const componentInitialProps = await Component.getInitialProps(ctx);
-    console.log(
-      `componentInitialProps ${Component.displayName}`,
-      componentInitialProps
-    );
-
+  if (Component.getInitialProps)
     pageProps = {
       ...pageProps,
-      ...componentInitialProps
+      ...(await Component.getInitialProps(ctx))
     };
-  }
+  //#endregion
 
   return {
     cookies,

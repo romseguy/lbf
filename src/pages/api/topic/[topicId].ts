@@ -1,8 +1,8 @@
 import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { sendMail, sendTopicNotifications } from "api/email";
 import database, { models } from "database";
+import { sendMail, sendTopicNotifications } from "features/api/email";
 import {
   EditTopicPayload,
   AddTopicNotifPayload
@@ -67,9 +67,16 @@ handler.post<
     let notifications: ITopicNotification[] = [];
 
     if (typeof body.email === "string" && body.email.length > 0) {
-      const subscription = await models.Subscription.findOne({
+      let subscription = await models.Subscription.findOne({
         email: body.email
       });
+
+      if (!subscription) {
+        const user = await models.User.findOne({ email: body.email });
+
+        if (user)
+          subscription = await models.Subscription.findOne({ user: user._id });
+      }
 
       const mail = createTopicEmailNotif({
         email: body.email,

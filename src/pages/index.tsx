@@ -1,17 +1,23 @@
 import {
+  ArrowForwardIcon,
+  CalendarIcon,
+  ChatIcon,
   ChevronRightIcon,
   ChevronUpIcon,
-  HamburgerIcon
+  HamburgerIcon,
+  SmallAddIcon
 } from "@chakra-ui/icons";
 import {
   Flex,
+  Icon,
   Spinner,
   Text,
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
-import { FaGlobeEurope, FaRegMap } from "react-icons/fa";
+import { FaRegMap, FaTree, FaFile } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
 import {
@@ -28,7 +34,6 @@ import { AboutModal } from "features/modals/AboutModal";
 import { MapModal } from "features/modals/MapModal";
 import { TreeChartModal } from "features/modals/TreeChartModal";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { selectOrgsRefetch } from "features/orgs/orgSlice";
 import { OrgsList } from "features/orgs/OrgsList";
 import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
 import { InputNode } from "features/treeChart/types";
@@ -37,7 +42,6 @@ import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { AppQuery } from "utils/types";
 import { PageProps } from "./_app";
-import { useRouter } from "next/router";
 
 let cachedUserEmail: string | undefined;
 
@@ -147,16 +151,32 @@ const IndexPage = (props: PageProps) => {
         <Flex>
           <EntityAddButton orgType={EOrgType.NETWORK} mb={3} />
         </Flex>
-        <Text>
-          Ajoutez des discussions, des événements, partagez des fichiers, au
-          sein de votre planète.
-        </Text>
+        <Flex alignItems="center">
+          <SmallAddIcon />
+          <ChatIcon mr={1} />
+          Ajoutez des discussions à votre planète,
+        </Flex>
+        <Flex alignItems="center">
+          <SmallAddIcon />
+          <CalendarIcon mr={1} />
+          des événements,
+        </Flex>
+        <Flex alignItems="center">
+          <SmallAddIcon />
+          <Icon as={FaFile} mr={1} />
+          des fichiers,
+        </Flex>
+        <Flex alignItems="center">
+          <SmallAddIcon />
+          <Icon as={FaTree} color="green" mr={1} /> des arbres, et accédez de
+          nouveau à ces fonctionnalités.
+        </Flex>
       </Column>
 
       <Column {...columnProps}>
         <Flex alignItems="center">
           <Heading mb={3}>L'univers</Heading>
-          <HostTag ml={1} />
+          {/* <HostTag ml={1} /> */}
         </Flex>
 
         {isLoading ? (
@@ -220,7 +240,12 @@ const IndexPage = (props: PageProps) => {
 
       {isNetworksModalOpen && (
         <TreeChartModal
-          header={<Flex alignItems="center">Les planètes</Flex>}
+          header={
+            <>
+              <Heading mb={3}>L'univers</Heading>
+              {/* <HostTag ml={1} /> */}
+            </>
+          }
           inputNodes={inputNodes}
           isMobile={props.isMobile}
           isOpen={isNetworksModalOpen}

@@ -1,20 +1,16 @@
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
-import {
-  createServerError,
-  databaseErrorCodes,
-  duplicateError
-} from "utils/errors";
+import { sendToAdmin } from "features/api/email";
+import { AddEventPayload } from "features/events/eventsApi";
 import { getSession } from "hooks/useAuth";
-import { sendToAdmin } from "api/email";
-import { equals, normalize } from "utils/string";
 import { IEvent, EEventVisibility } from "models/Event";
 import { IOrg } from "models/Org";
 import api from "utils/api";
+import { createServerError } from "utils/errors";
 import { randomNumber } from "utils/randomNumber";
-import { AddEventPayload } from "features/events/eventsApi";
+import { equals, normalize } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 

@@ -187,6 +187,7 @@ export const SubscriptionForm = ({
       //setValue("orgLists", []);
       setIsLoading(false);
       props.onSubmit && props.onSubmit();
+      localStorage.removeItem("storageKey");
     } catch (error) {
       setIsLoading(false);
       handleError(error, (message, field) => {

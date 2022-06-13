@@ -138,6 +138,7 @@ export const TopicForm = ({
 
         setIsLoading(false);
         props.onSubmit && props.onSubmit(props.topic);
+        localStorage.removeItem("storageKey");
       } else {
         if (typeof form.topicMessage === "string" && form.topicMessage !== "") {
           topic.topicMessages = [

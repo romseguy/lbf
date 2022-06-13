@@ -1,5 +1,5 @@
 import { Alert, AlertIcon } from "@chakra-ui/react";
-import { GetServerSidePropsContext } from "next";
+import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { Layout } from "features/layout";
 import { IEvent } from "models/Event";
@@ -9,12 +9,12 @@ import { ITopic } from "models/Topic";
 import { PageProps } from "pages/_app";
 import api, { ResponseType } from "utils/api";
 
-type UnsubscribePageProps = {
+interface UnsubscribePageProps {
   unsubscribed: boolean;
   org?: IOrg;
   event?: IEvent;
   topic?: ITopic;
-};
+}
 
 const UnsubscribePage = (props: PageProps & UnsubscribePageProps) => {
   const { unsubscribed, event, org, topic, ...rest } = props;
@@ -44,84 +44,97 @@ const UnsubscribePage = (props: PageProps & UnsubscribePageProps) => {
 
 export async function getServerSideProps(
   ctx: GetServerSidePropsContext
-): Promise<{ props: UnsubscribePageProps }> {
+): Promise<GetServerSidePropsResult<UnsubscribePageProps>> {
   const entityUrl = (ctx.params as ParsedUrlQuery).entityUrl as string;
   const {
     subscriptionId,
     topicId
   }: { subscriptionId?: string; topicId?: string } = ctx.query;
 
-  if (subscriptionId) {
-    const { data: subscription }: ResponseType<ISubscription> = await api.get(
-      "subscription/" + subscriptionId + "?populate=user"
-    );
+  console.log("/unsubscribe entityUrl: ", entityUrl);
+  console.log("/unsubscribe subscriptionId: ", subscriptionId);
+  console.log("/unsubscribe topicId: ", topicId);
 
-    if (subscription) {
-      if (topicId) {
-        const topicSubscription = subscription.topics?.find(
-          ({ topic }) => topic._id === topicId
-        );
+  try {
+    if (subscriptionId) {
+      const { data: subscription }: ResponseType<ISubscription> = await api.get(
+        "subscription/" + subscriptionId + "?populate=user"
+      );
 
-        if (topicSubscription) {
-          const { data: subscription } = await api.remove(
-            `subscription/${subscriptionId}`,
-            {
-              topicId
-            }
+      if (subscription) {
+        if (topicId) {
+          const topicSubscription = subscription.topics?.find(
+            ({ topic }) => topic._id === topicId
           );
 
-          if (subscription)
-            return {
-              props: {
-                unsubscribed: true,
-                topic: topicSubscription.topic
-              }
-            };
-        }
-      } else {
-        const { data: org }: ResponseType<IOrg> = await api.get(
-          "org/" + entityUrl
-        );
-
-        if (org) {
-          const { data: subscription } = await api.remove(
-            `subscription/${subscriptionId}`,
-            {
-              orgs: [
-                {
-                  orgId: org._id,
-                  type: ESubscriptionType.FOLLOWER
-                }
-              ]
-            }
-          );
-
-          if (subscription) return { props: { unsubscribed: true, org } };
-        } else {
-          const { data: event }: ResponseType<IEvent> = await api.get(
-            "event/" + entityUrl
-          );
-
-          if (event) {
+          if (topicSubscription) {
             const { data: subscription } = await api.remove(
               `subscription/${subscriptionId}`,
               {
-                events: [
+                topicId
+              }
+            );
+
+            if (subscription)
+              return {
+                props: {
+                  unsubscribed: true,
+                  topic: topicSubscription.topic
+                }
+              };
+          }
+        } else {
+          const { data: org }: ResponseType<IOrg> = await api.get(
+            "org/" + entityUrl
+          );
+
+          if (org) {
+            const { data: deletedSubscription } = await api.remove(
+              `subscription/${subscriptionId}`,
+              {
+                orgs: [
                   {
-                    eventId: event._id
+                    orgId: org._id,
+                    type: ESubscriptionType.FOLLOWER
                   }
                 ]
               }
             );
 
-            if (subscription) return { props: { unsubscribed: true, event } };
+            if (deletedSubscription)
+              return { props: { unsubscribed: true, org } };
+          } else {
+            const { data: event }: ResponseType<IEvent> = await api.get(
+              "event/" + entityUrl
+            );
+
+            if (event) {
+              const { data: deletedSubscription } = await api.remove(
+                `subscription/${subscriptionId}`,
+                {
+                  events: [
+                    {
+                      eventId: event._id
+                    }
+                  ]
+                }
+              );
+
+              if (deletedSubscription)
+                return { props: { unsubscribed: true, event } };
+            }
           }
         }
+      } else {
+        console.log("/unsubscribe could not find subscription");
       }
     }
-  }
 
-  return { props: { unsubscribed: false } };
+    return { props: { unsubscribed: false } };
+  } catch (error) {
+    console.error("/unsubscribe error", error);
+    return { props: { unsubscribed: false } };
+  }
 }
 
 export default UnsubscribePage;

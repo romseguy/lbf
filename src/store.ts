@@ -9,8 +9,7 @@ import { createWrapper } from "next-redux-wrapper";
 import { useDispatch } from "react-redux";
 import { Action } from "redux";
 
-import { api } from "api";
-
+import { api } from "features/api";
 import event from "features/events/eventSlice";
 import org from "features/orgs/orgSlice";
 import modal from "features/modals/modalSlice";

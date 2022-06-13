@@ -3,7 +3,7 @@ import { isBefore, addDays, format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { sendMail } from "api/email";
+import { sendMail } from "features/api/email";
 import { getSession } from "hooks/useAuth";
 import { backgroundColor, textColor, mainBackgroundColor } from "utils/email";
 import { createServerError } from "utils/errors";

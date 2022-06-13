@@ -426,6 +426,7 @@ export const EventForm = withGoogleApi({
 
         setIsLoading(false);
         props.onSubmit && props.onSubmit(eventUrl as string);
+        localStorage.removeItem("storageKey");
       } catch (error) {
         setIsLoading(false);
         handleError(error, (message, field) => {
@@ -453,7 +454,20 @@ export const EventForm = withGoogleApi({
     useFormPersist("storageKey", {
       watch,
       setValue,
-      storage
+      storage,
+      exclude: props.event
+        ? [
+            "eventName",
+            "eventMinDate",
+            "eventMaxDate",
+            "eventDescription",
+            "eventOrg",
+            "eventAddress",
+            "eventEmail",
+            "eventPhone",
+            "eventWeb"
+          ]
+        : []
     });
     //#endregion
 

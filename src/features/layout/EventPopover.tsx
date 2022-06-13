@@ -202,7 +202,12 @@ const EventPopoverContent = ({
       <PopoverFooter>
         <Button
           colorScheme="teal"
-          leftIcon={<AddIcon />}
+          leftIcon={
+            <>
+              <AddIcon mr={2} />
+              <CalendarIcon />
+            </>
+          }
           mt={1}
           size="sm"
           onClick={() => {

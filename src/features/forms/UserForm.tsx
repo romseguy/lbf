@@ -39,6 +39,8 @@ export const UserForm = (props: {
   session: Session;
   onSubmit: (user: Partial<IUser>) => void;
 }) => {
+  console.log(props);
+
   const dispatch = useAppDispatch();
   const [editUser] = useEditUserMutation();
 

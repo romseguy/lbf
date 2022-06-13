@@ -120,7 +120,6 @@ export const TreeChartModal = ({
       <ModalOverlay>
         <ModalContent my={0} minHeight="100vh" borderRadius={0}>
           <ModalHeader display="flex" alignItems="center">
-            <Icon as={IoIosGitNetwork} color="green" mr={3} />
             {header ? header : "Arborescence"}
           </ModalHeader>
           <ModalCloseButton />

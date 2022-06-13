@@ -13,6 +13,11 @@ const buttonBackgroundColor = "#346df1";
 const buttonBorderColor = "#346df1";
 const buttonTextColor = "#ffffff";
 
+const linkStyle = (bold?: boolean) =>
+  `text-decoration: underline; color: #15c; ${
+    bold ? "font-weight: bold;" : ""
+  }`;
+
 export const emailR = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
 export const getProjectUrl = ({
@@ -224,6 +229,9 @@ export const createTopicEmailNotif = ({
   const entityType = org ? orgTypeFull(org.orgType) : "de l'événement";
   const topicUrl = getTopicUrl({ event, org, topic });
   const subject = `Vous êtes invité à une discussion : ${topic.topicName}`;
+  const footerLink = `${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
+    org ? org.orgUrl : event?.eventUrl
+  }?subscriptionId=${subscriptionId}`;
 
   return {
     from: process.env.EMAIL_FROM,
@@ -231,48 +239,59 @@ export const createTopicEmailNotif = ({
     subject,
     html: `
       <body style="background: ${backgroundColor};">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <strong>${process.env.NEXT_PUBLIC_SHORT_URL}</strong>
-          </td>
-        </tr>
+      <table width="100%">
+        <tbody>
+          <tr>
+            <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
+              <a
+                href="${process.env.NEXT_PUBLIC_URL}"
+                style="${linkStyle(true)}"
+              >
+                ${process.env.NEXT_PUBLIC_SHORT_URL}
+              </a>
+            </td>
+          </tr>
+        </tbody>
       </table>
-      <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
-        <tr>
-          <td align="center" style="padding: 0px 0px 0px 0px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <h2>${subject}</h2>
-            ${
-              topic.topicMessages[0]
-                ? `
-                  <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${descriptionBackgroundColor}; border-radius: 10px;">
-                    <tr>
-                      <td>
-                        ${topic.topicMessages[0].messageHtml}
-                      </td>
-                    </tr>
-                  </table>
-                `
-                : ""
-            }
-            <p><a href="${topicUrl}">Cliquez ici</a> pour participer à la discussion.</p>
-          </td>
-        </tr>
+      <table width="100%" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
+        <tbody>
+          <tr>
+            <td align="center" style="padding: 0px 12px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
+              <h2 style="font-weight: bold; font-size: 1.5em; margin-block-start: 0.83em; margin-block-end: 0.83em;">${subject}</h2>
+              ${
+                topic.topicMessages[0]
+                  ? `
+                    <table width="100%" style="background: ${descriptionBackgroundColor}; border-radius: 10px;">
+                      <tr>
+                        <td style="padding: 12px">${topic.topicMessages[0].messageHtml}</td>
+                      </tr>
+                    </table>
+                  `
+                  : ""
+              }
+              <p style="margin-block-start: 1em; margin-block-end: 1em;">
+                ${`${`<a href="${topicUrl}" style="${linkStyle(
+                  false
+                )}">Cliquez ici</a>`} pour participer à la discussion.`}
+              </p>
+            </td>
+          </tr>
+        </tbody>
       </table>
       <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor}; text-decoration: underline;">
-            ${`
-              <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
-              org ? org.orgUrl : event?.eventUrl
-            }?subscriptionId=${subscriptionId}">Se désabonner ${
-              entityUrl === "forum"
-                ? `du forum ${process.env.NEXT_PUBLIC_SHORT_URL}`
-                : `${entityType} ${entityName}`
-            }</a>
-            `}
-          </td>
-        </tr>
+        <tbody>
+          <tr>
+            <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor}; text-decoration: underline;">
+              <a href="${footerLink}" style="${linkStyle(false)}">
+                Se désabonner ${
+                  entityUrl === "forum"
+                    ? `du forum ${process.env.NEXT_PUBLIC_SHORT_URL}`
+                    : `${entityType} ${entityName}`
+                }
+              </a>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </body>
     `

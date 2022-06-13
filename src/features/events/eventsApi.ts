@@ -1,4 +1,4 @@
-import { api } from "api";
+import { api } from "features/api";
 import { IEvent } from "models/Event";
 import { IEventNotification } from "models/INotification";
 import { objectToQueryString } from "utils/query";

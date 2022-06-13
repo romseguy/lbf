@@ -247,6 +247,7 @@ export const OrgForm = withGoogleApi({
 
         setIsLoading(false);
         props.onSubmit && props.onSubmit(orgUrl as string);
+        localStorage.removeItem("storageKey");
       } catch (error) {
         setIsLoading(false);
         handleError(error, (message, field) => {
@@ -265,15 +266,30 @@ export const OrgForm = withGoogleApi({
     const [storage, setStorage] = useState<Storage | undefined>();
     useEffect(() => {
       setStorage(window.localStorage);
-      const formData = window.localStorage.getItem("storageKey");
-      if (formData) {
-        setOrgDescriptionDefaultValue(JSON.parse(formData).orgDescription);
+
+      if (!org) {
+        const formData = window.localStorage.getItem("storageKey");
+        if (formData) {
+          setOrgDescriptionDefaultValue(JSON.parse(formData).orgDescription);
+        }
       }
     }, []);
     useFormPersist("storageKey", {
       watch,
       setValue,
-      storage
+      storage,
+      exclude: org
+        ? [
+            "orgName",
+            "orgs",
+            "orgDescription",
+            "orgVisibility",
+            "orgAddress",
+            "orgEmail",
+            "orgPhone",
+            "orgWeb"
+          ]
+        : []
     });
     //#endregion
 

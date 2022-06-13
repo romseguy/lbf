@@ -171,10 +171,10 @@ const OrgPopoverContent = ({
               </VStack>
             ) : (
               <Text fontSize="smaller">
-                Vous n'avez planté{" "}
+                Vous n'avez{" "}
                 {orgType === EOrgType.NETWORK
-                  ? "aucune planètes"
-                  : "aucun arbres"}
+                  ? "créé aucune planètes"
+                  : "planté aucun arbres"}
                 .
               </Text>
             )}

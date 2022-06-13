@@ -203,7 +203,10 @@ export const Nav = ({
 
                       {session && userEmail && (
                         <Menu>
-                          <Tooltip label={`Connecté en tant que ${userEmail}`}>
+                          <Tooltip
+                            label={`Connecté en tant que ${userEmail}`}
+                            placement="left"
+                          >
                             <MenuButton ml={1} data-cy="avatar-button">
                               <Avatar
                                 boxSize={10}
@@ -346,6 +349,7 @@ export const Nav = ({
                           <Menu>
                             <Tooltip
                               label={`Connecté en tant que ${userEmail}`}
+                              placement="left"
                             >
                               <MenuButton data-cy="avatar-button">
                                 <Avatar

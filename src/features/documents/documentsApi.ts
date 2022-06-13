@@ -1,4 +1,4 @@
-import { api } from "api";
+import { api } from "features/api";
 import { objectToQueryString } from "utils/query";
 
 export const documentApi = api.injectEndpoints({

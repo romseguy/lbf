@@ -1,10 +1,10 @@
 import { Document, Types } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { sendTopicMessageNotifications } from "api/email";
 import database, { models } from "database";
-import { getSession } from "hooks/useAuth";
+import { sendTopicMessageNotifications } from "features/api/email";
 import { AddTopicPayload } from "features/forum/topicsApi";
+import { getSession } from "hooks/useAuth";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";

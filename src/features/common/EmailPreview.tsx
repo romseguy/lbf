@@ -50,12 +50,12 @@ export const EmailPreview = ({
     : undefined;
 
   return (
-    <Column bg="white" {...props}>
+    <Column bg="#F9F9F9" {...props}>
       <div
         dangerouslySetInnerHTML={{
           __html: sanitize(
             notif
-              ? notif.html.replaceAll("\\n", "<br/>")
+              ? notif.html //.replaceAll("\\n", "<br/>")
               : "L'aperçu n'a pas pu être affiché"
           )
         }}
