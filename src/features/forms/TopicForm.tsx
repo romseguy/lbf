@@ -12,26 +12,27 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import useFormPersist from "react-hook-form-persist";
 import Creatable from "react-select/creatable";
 import { ErrorMessageText, MultiSelect, RTEditor } from "features/common";
+import { useEditEventMutation } from "features/events/eventsApi";
+import { useEditOrgMutation } from "features/orgs/orgsApi";
 import {
   AddTopicPayload,
   useAddTopicMutation,
   useEditTopicMutation
 } from "features/forum/topicsApi";
 import { useSession } from "hooks/useAuth";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import { isEvent } from "models/Entity";
 import type { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
+import { defaultErrorMessage } from "utils/string";
 import { AppQuery, AppQueryWithData, Optional } from "utils/types";
-import { defaultErrorMessage, normalize } from "utils/string";
-import { useEditEventMutation } from "features/events/eventsApi";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
-import { isEvent } from "models/Entity";
-import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 
 export const TopicForm = ({
   query,
@@ -60,7 +61,6 @@ export const TopicForm = ({
   const topicCategories = isE
     ? entity.eventTopicCategories
     : entity.orgTopicCategories;
-  const topics = isE ? entity.eventTopics : entity.orgTopics;
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
@@ -81,6 +81,16 @@ export const TopicForm = ({
     mode: "onChange"
   });
   useLeaveConfirm({ formState });
+  useFormPersist("storageKey", {
+    watch,
+    setValue,
+    storage: window.localStorage // default window.sessionStorage
+  });
+  let topicMessageDefaultValue: string | undefined;
+  const formData = localStorage.getItem("storageKey");
+  if (formData) {
+    topicMessageDefaultValue = JSON.parse(formData).topicMessage;
+  }
 
   const topicVisibility = watch("topicVisibility");
 
@@ -320,10 +330,11 @@ export const TopicForm = ({
           <Controller
             name="topicMessage"
             control={control}
-            defaultValue=""
+            defaultValue={topicMessageDefaultValue}
             render={(renderProps) => {
               return (
                 <RTEditor
+                  defaultValue={topicMessageDefaultValue}
                   placeholder="Contenu de votre message"
                   onChange={({ html }) => {
                     renderProps.onChange(html);

@@ -26,6 +26,7 @@ import { IUser } from "models/User";
 import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import useFormPersist from "react-hook-form-persist";
 
 export const ProjectForm = ({
   org,
@@ -59,11 +60,22 @@ export const ProjectForm = ({
     setError,
     clearErrors,
     watch,
-    formState
+    formState,
+    setValue
   } = useForm({
     mode: "onChange"
   });
   useLeaveConfirm({ formState });
+  useFormPersist("storageKey", {
+    watch,
+    setValue,
+    storage: window.localStorage // default window.sessionStorage
+  });
+  let projectDescriptionDefaultValue: string | undefined;
+  const formData = localStorage.getItem("storageKey");
+  if (formData) {
+    projectDescriptionDefaultValue = JSON.parse(formData).topicMessage;
+  }
 
   const projectVisibility = watch("projectVisibility");
   const statusOptions: string[] = Object.keys(EProjectStatus).map(
@@ -154,7 +166,10 @@ export const ProjectForm = ({
           render={(renderProps) => {
             return (
               <RTEditor
-                defaultValue={props.project?.projectDescription}
+                defaultValue={
+                  props.project?.projectDescription ||
+                  projectDescriptionDefaultValue
+                }
                 placeholder="Description du projet"
                 onChange={({ html }) => {
                   renderProps.onChange(html);

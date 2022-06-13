@@ -63,7 +63,6 @@ const App = wrapper.withRedux(({ Component, pageProps, cookies }: AppProps) => {
             if (res.status === 200) {
               const user = await res.json();
               console.log("user", user);
-
               setSession({ user });
             }
           }
@@ -82,7 +81,7 @@ const App = wrapper.withRedux(({ Component, pageProps, cookies }: AppProps) => {
         if (res.status === 404) throw new Error();
       } catch (error) {
         dispatch(setIsOffline(true));
-        setIsSessionLoading(false);
+        //setIsSessionLoading(false);
       }
     })();
 

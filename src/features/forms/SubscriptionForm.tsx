@@ -19,6 +19,7 @@ import { emailR } from "utils/email";
 import { handleError } from "utils/form";
 import { phoneR } from "utils/string";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import useFormPersist from "react-hook-form-persist";
 import { TagsControl } from "features/common/forms/TagsControl";
 import { ItemTag } from "@choc-ui/chakra-autocomplete";
 
@@ -57,7 +58,8 @@ export const SubscriptionForm = ({
     handleSubmit,
     setError,
     setValue,
-    formState
+    formState,
+    watch
   } = useForm<FormData>({
     mode: "onChange",
     defaultValues: {
@@ -65,6 +67,11 @@ export const SubscriptionForm = ({
     }
   });
   useLeaveConfirm({ formState });
+  useFormPersist("storageKey", {
+    watch,
+    setValue,
+    storage: window.localStorage // default window.sessionStorage
+  });
 
   const [tags, setTags] = useState<ItemTag[]>([]);
 

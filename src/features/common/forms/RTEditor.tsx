@@ -61,9 +61,10 @@ export const RTEditor = ({
 }) => {
   const dispatch = useAppDispatch();
   const toast = useToast({ position: "top" });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isTouched, setIsTouched] = useState(false);
 
-  const currentIndex = useSelector(selectRTEditorIndex);
-  const [shortId, setShortId] = useState<string | undefined>();
+  //#region tinymce
   const editorRef = useRef<TinyMCEEditor | null>(null);
   const closeToolbar = () => {
     if (editorRef.current) {
@@ -76,10 +77,8 @@ export const RTEditor = ({
       }
     }
   };
-
-  const [isLoading, setIsLoading] = useState(true);
   const init: IAllProps["init"] = {
-    // -- styling
+    //#region styling
     branding: false,
     content_css: "default",
     content_style: `
@@ -92,7 +91,7 @@ export const RTEditor = ({
     `,
     height: props.height || undefined,
     placeholder,
-    // --
+    //endregion
     language: "fr_FR",
     language_url: "/tinymce/langs/fr_FR.js",
     max_height: 500,
@@ -122,24 +121,24 @@ export const RTEditor = ({
             | link unlink | image media \
             | removeformat | code help",
     file_picker_types: "image",
-    file_picker_callback: function (
+    file_picker_callback: (
       cb: Function,
       value: any,
       meta: Record<string, any>
-    ) {
-      var input = document.createElement("input");
+    ) => {
+      const input = document.createElement("input");
       input.setAttribute("type", "file");
       input.setAttribute("accept", "image/*");
-      input.onchange = function () {
+      input.onchange = () => {
         //@ts-expect-error
-        var file = this.files[0];
-        var reader = new FileReader();
+        const file = this.files[0];
+        const reader = new FileReader();
         reader.onload = () => {
           if (typeof reader.result !== "string") return;
-          var id = "blobid" + new Date().getTime();
-          var blobCache = editorRef.current!.editorUpload.blobCache;
-          var base64 = reader.result.split(",")[1];
-          var blobInfo = blobCache.create(id, file, base64);
+          const id = "blobid" + new Date().getTime();
+          const blobCache = editorRef.current!.editorUpload.blobCache;
+          const base64 = reader.result.split(",")[1];
+          const blobInfo = blobCache.create(id, file, base64);
           blobCache.add(blobInfo);
           cb(blobInfo.blobUri(), { title: file.name });
         };
@@ -200,20 +199,19 @@ export const RTEditor = ({
       }
     }
   };
+  //#endregion
 
+  //#region componentDidMount
+  const currentIndex = useSelector(selectRTEditorIndex);
+  const [shortId, setShortId] = useState<string | undefined>();
   useEffect(() => {
     dispatch(incrementRTEditorIndex());
+    setShortId(`rteditor-${currentIndex + 1}`);
+    //   if (editorRef.current) {
+    //     console.log(editorRef.current.getContent());
+    //   }
   }, []);
-
-  useEffect(() => {
-    setShortId(`rteditor-${currentIndex}`);
-  }, [currentIndex]);
-
-  // useEffect(() => {
-  //   if (editorRef.current) {
-  //     console.log(editorRef.current.getContent());
-  //   }
-  // }, [editorRef.current]);
+  //#endregion
 
   return (
     <RTEditorStyles>
@@ -232,14 +230,17 @@ export const RTEditor = ({
           disabled={readOnly}
           id={shortId}
           init={init}
-          initialValue={defaultValue}
+          initialValue={isTouched ? undefined : defaultValue}
           tinymceScriptSrc="/tinymce/tinymce.min.js"
           onBlur={(e, editor) => {
             closeToolbar();
             onBlur && onBlur(editor.getContent());
           }}
           onEditorChange={(html, editor) => {
-            onChange && onChange({ html });
+            if (html !== defaultValue) {
+              setIsTouched(true);
+              onChange && onChange({ html });
+            }
           }}
           onInit={(evt, editor) => {
             setIsLoading(false);

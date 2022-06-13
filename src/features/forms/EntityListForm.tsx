@@ -17,6 +17,7 @@ import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import useFormPersist from "react-hook-form-persist";
 
 const subscriptionsToOptions = (subscriptions: ISubscription[]) =>
   subscriptions.map((subscription) => {
@@ -50,11 +51,18 @@ export const EntityListForm = ({
     errors,
     setError,
     clearErrors,
-    formState
+    formState,
+    watch,
+    setValue
   } = useForm({
     mode: "onChange"
   });
   useLeaveConfirm({ formState });
+  useFormPersist("storageKey", {
+    watch,
+    setValue,
+    storage: window.localStorage // default window.sessionStorage
+  });
 
   const defaultSubscriptions = props.list?.subscriptions || [];
   //const subscriptions: ISubscription[] = watch("subscriptions") || defaultSubscriptions;

@@ -89,6 +89,8 @@ import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import useFormPersist from "react-hook-form-persist";
+import { isServer } from "utils/isServer";
 
 type DaysMap = { [key: number]: DayState };
 type DayState = {
@@ -209,7 +211,8 @@ export const EventForm = withGoogleApi({
       clearErrors,
       setValue,
       getValues,
-      formState
+      formState,
+      watch
     } = useForm<FormData>({
       defaultValues: {
         eventName: props.event?.eventName || "",
@@ -434,6 +437,24 @@ export const EventForm = withGoogleApi({
       }
     };
     //#endregion
+    //#endregion
+
+    //#region componentDidMount
+    const [eventDescriptionDefaultValue, setEventDescriptionDefaultValue] =
+      useState<string>();
+    const [storage, setStorage] = useState<Storage | undefined>();
+    useEffect(() => {
+      setStorage(window.localStorage);
+      const formData = window.localStorage.getItem("storageKey");
+      if (formData) {
+        setEventDescriptionDefaultValue(JSON.parse(formData).eventDescription);
+      }
+    }, []);
+    useFormPersist("storageKey", {
+      watch,
+      setValue,
+      storage
+    });
     //#endregion
 
     const containerProps = {
@@ -963,7 +984,10 @@ export const EventForm = withGoogleApi({
             render={(renderProps) => {
               return (
                 <RTEditor
-                  defaultValue={props.event?.eventDescription}
+                  defaultValue={
+                    props.event?.eventDescription ||
+                    eventDescriptionDefaultValue
+                  }
                   event={props.event}
                   placeholder="Description de l'événement"
                   session={props.session}

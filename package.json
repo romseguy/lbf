@@ -75,6 +75,7 @@
     "react-geolocated": "^3.2.0",
     "react-google-recaptcha": "^2.1.0",
     "react-hook-form": "^6.8.2",
+    "react-hook-form-persist": "^3.0.0",
     "react-icons": "^4.2.0",
     "react-redux": "^7.2.4",
     "react-select": "5.2.1",

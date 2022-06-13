@@ -1,35 +1,19 @@
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
-import { Column } from "features/common";
-import { OrgForm } from "features/forms/OrgForm";
-import { Layout } from "features/layout";
+import React, { useEffect } from "react";
+import { EntityAddPage } from "features/common";
 import { getSession } from "hooks/useAuth";
 import { EOrgType } from "models/Org";
 import { PageProps } from "pages/_app";
 
 const OrganisationsAddPage = (props: PageProps) => {
   const router = useRouter();
-  const [orgType, setOrgType] = useState<EOrgType>(EOrgType.GENERIC);
+  useEffect(() => {
+    if (!props.isSessionLoading && !props.session)
+      router.push("/?login", "/?login", { shallow: true });
+  }, [props.isSessionLoading]);
 
-  const onSubmit = async (orgUrl: string) => {
-    await router.push(`/${orgUrl}`, `/${orgUrl}`, {
-      shallow: true
-    });
-  };
-
-  return (
-    <Layout {...props} pageTitle={`Ajouter un arbre`}>
-      <Column>
-        <OrgForm
-          {...props}
-          orgType={EOrgType.GENERIC}
-          setOrgType={setOrgType}
-          onSubmit={onSubmit}
-        />
-      </Column>
-    </Layout>
-  );
+  return <EntityAddPage orgType={EOrgType.GENERIC} {...props} />;
 };
 
 export async function getServerSideProps(

@@ -20,6 +20,7 @@ import {
 import api from "utils/api";
 import { handleError } from "utils/form";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import useFormPersist from "react-hook-form-persist";
 
 export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
   const router = useRouter();
@@ -40,10 +41,21 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
     handleSubmit,
     setError,
     setValue,
-    formState
+    formState,
+    watch
   } = useForm();
 
   useLeaveConfirm({ formState });
+  useFormPersist("storageKey", {
+    watch,
+    setValue,
+    storage: window.localStorage // default window.sessionStorage
+  });
+  let messageDefaultValue: string | undefined;
+  const formData = localStorage.getItem("storageKey");
+  if (formData) {
+    messageDefaultValue = JSON.parse(formData).topicMessage;
+  }
 
   const onClose = () => {
     clearErrors("formErrorMessage");
@@ -100,6 +112,7 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
           render={(renderProps) => {
             return (
               <RTEditor
+                defaultValue={messageDefaultValue}
                 placeholder="Écrire le message"
                 onChange={({ html }) => {
                   renderProps.onChange(html);

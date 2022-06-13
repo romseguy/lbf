@@ -17,6 +17,7 @@ import bcrypt from "bcryptjs";
 import { Session } from "lib/SessionContext";
 import React, { useState, useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
+import useFormPersist from "react-hook-form-persist";
 import ReactSelect from "react-select";
 import { Suggestion } from "use-places-autocomplete";
 import {
@@ -70,7 +71,6 @@ export const OrgForm = withGoogleApi({
     session: Session;
     orgQuery?: AppQueryWithData<IOrg>;
     orgType?: string;
-    setOrgType?: (orgType: string) => void;
     onCancel?: () => void;
     onSubmit?: (orgUrl: string) => void;
   }) => {
@@ -83,7 +83,7 @@ export const OrgForm = withGoogleApi({
     const orgsQuery = useGetOrgsQuery();
     const { data: myOrgs } = useGetOrgsQuery(
       {
-        createdBy: session?.user.userId
+        createdBy: session.user.userId
       },
       {
         selectFromResult: (query) => {
@@ -141,7 +141,6 @@ export const OrgForm = withGoogleApi({
     const orgAddress = watch("orgAddress");
     const orgEmail = watch("orgEmail");
     const orgPhone = watch("orgPhone");
-    //const orgType = watch("orgType");
     const orgType = (props.orgType ||
       org?.orgType ||
       EOrgType.GENERIC) as EOrgType;
@@ -258,12 +257,25 @@ export const OrgForm = withGoogleApi({
         });
       }
     };
-
     //#endregion
 
+    //#region componentDidMount
+    const [orgDescriptionDefaultValue, setOrgDescriptionDefaultValue] =
+      useState<string>();
+    const [storage, setStorage] = useState<Storage | undefined>();
     useEffect(() => {
-      if (props.setOrgType) props.setOrgType(orgType);
-    }, [orgType]);
+      setStorage(window.localStorage);
+      const formData = window.localStorage.getItem("storageKey");
+      if (formData) {
+        setOrgDescriptionDefaultValue(JSON.parse(formData).orgDescription);
+      }
+    }, []);
+    useFormPersist("storageKey", {
+      watch,
+      setValue,
+      storage
+    });
+    //#endregion
 
     return (
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
@@ -342,7 +354,7 @@ export const OrgForm = withGoogleApi({
             menuPlacement="top"
             noOptionsMessage={() => "Aucun arbre trouvé"}
             options={
-              session?.user.isAdmin
+              session.user.isAdmin
                 ? orgsQuery.data?.filter(
                     (org) =>
                       org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
@@ -382,7 +394,9 @@ export const OrgForm = withGoogleApi({
             render={(renderProps) => {
               return (
                 <RTEditor
-                  defaultValue={org?.orgDescription}
+                  defaultValue={
+                    org?.orgDescription || orgDescriptionDefaultValue
+                  }
                   org={org}
                   placeholder={`Écrire la description ${orgTypeLabel}`}
                   session={session}

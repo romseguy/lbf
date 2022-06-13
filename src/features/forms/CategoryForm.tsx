@@ -18,6 +18,7 @@ import { IOrg } from "models/Org";
 import { handleError } from "utils/form";
 import { AppQueryWithData } from "utils/types";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import useFormPersist from "react-hook-form-persist";
 import { IEntityCategory, IEntityCategoryKey, isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { useEditEventMutation } from "features/events/eventsApi";
@@ -47,11 +48,24 @@ export const CategoryForm = ({
   //#endregion
 
   //#region form
-  const { clearErrors, errors, handleSubmit, register, setError, formState } =
-    useForm({
-      mode: "onChange"
-    });
+  const {
+    clearErrors,
+    errors,
+    handleSubmit,
+    register,
+    setError,
+    formState,
+    watch,
+    setValue
+  } = useForm({
+    mode: "onChange"
+  });
   useLeaveConfirm({ formState });
+  useFormPersist("storageKey", {
+    watch,
+    setValue,
+    storage: window.localStorage // default window.sessionStorage
+  });
 
   const onChange = () => clearErrors("formErrorMessage");
   const onSubmit = async (form: { category: string }) => {

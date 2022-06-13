@@ -9,12 +9,13 @@ import {
   AlertIcon
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessageText, RTEditor } from "features/common";
 import { useAddTopicMutation } from "features/forum/topicsApi";
 import { useSession } from "hooks/useAuth";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import useFormPersist from "react-hook-form-persist";
 import { isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -69,6 +70,17 @@ export const TopicMessageForm = ({
     mode: "onChange"
   });
   useLeaveConfirm({ formState });
+  useFormPersist("storageKey", {
+    watch,
+    setValue,
+    storage: window.localStorage // default window.sessionStorage
+  });
+  const formData = localStorage.getItem("storageKey");
+  useEffect(() => {
+    if (formData) {
+      setTopicMessageDefaultValue(JSON.parse(formData).topicMessage);
+    }
+  }, [formData]);
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -153,7 +165,6 @@ export const TopicMessageForm = ({
             render={(renderProps) => {
               return (
                 <RTEditor
-                  //formats={props.formats}
                   readOnly={session === null}
                   defaultValue={topicMessageDefaultValue}
                   placeholder={
