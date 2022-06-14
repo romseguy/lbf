@@ -69,6 +69,8 @@ export const OrgConfigPanel = ({
               setIsConfig(false);
             }}
             onSubmit={async (orgUrl: string) => {
+              localStorage.removeItem("storageKey");
+
               if (orgUrl !== org.orgUrl) {
                 await router.push(`/${orgUrl}`, `/${orgUrl}`, {
                   shallow: true

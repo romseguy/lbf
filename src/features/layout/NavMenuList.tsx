@@ -1,4 +1,5 @@
 import { MenuList, MenuItem, useColorMode } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React from "react";
 import { Link, SubscribeSwitch } from "features/common";
 import { resetUserEmail } from "features/users/userSlice";
@@ -17,6 +18,7 @@ export const NavMenuList = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const {
     data: session,
     loading,
@@ -60,6 +62,7 @@ export const NavMenuList = ({
           await api.get("logout");
           setSession(null);
           setIsSessionLoading(false);
+          router.push("/", "/", { shallow: true });
         }}
         data-cy="logout"
       >

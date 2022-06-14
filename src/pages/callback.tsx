@@ -1,11 +1,14 @@
 import { Box, Spinner } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
+import { setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
 import { magic } from "lib/magic";
+import { useAppDispatch } from "store";
 import { PageProps } from "./_app";
 
 const CallbackPage = (props: PageProps) => {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const { setSession } = useSession();
 
@@ -36,6 +39,7 @@ const CallbackPage = (props: PageProps) => {
         const user = await res.json();
         console.log("user", user);
 
+        dispatch(setUserEmail(user.email));
         setSession({ user });
         router.push("/", "/", { shallow: true });
       }
