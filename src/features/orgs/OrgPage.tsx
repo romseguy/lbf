@@ -198,11 +198,9 @@ export const OrgPage = ({
                     if (deletedOrg) {
                       await router.push(`/`);
                       toast({
-                        title: `${
-                          deletedOrg.orgType === EOrgType.NETWORK
-                            ? "La planète"
-                            : "L'arbre"
-                        } ${deletedOrg.orgName} a été ${
+                        title: `${orgTypeFull5(deletedOrg.orgType, true)} ${
+                          deletedOrg.orgName
+                        } a été ${
                           deletedOrg.orgType === EOrgType.NETWORK
                             ? "détruite"
                             : "déraciné"

@@ -2,7 +2,7 @@ import { ChatIcon, CalendarIcon, SettingsIcon } from "@chakra-ui/icons";
 import { FaHome, FaTools, FaImages } from "react-icons/fa";
 import { ESubscriptionType } from "models/Subscription";
 import { hasItems } from "utils/array";
-import { equals } from "utils/string";
+import { capitalize, equals } from "utils/string";
 import { TypedMap } from "utils/types";
 import {
   EOrgType,
@@ -108,10 +108,6 @@ export const defaultTabs: IOrgTabWithIcon[] = [
 export const orgTypeFull = (orgType: EOrgType): string => {
   if (!orgType) return "";
 
-  if (["ASSO", "GROUP"].includes(orgType)) {
-    orgType = EOrgType.GENERIC;
-  }
-
   return `${
     [EOrgType.GENERIC].includes(orgType) ? "de l'" : "de la "
   }${OrgTypes[orgType].toLowerCase()}`;
@@ -125,7 +121,7 @@ export const orgTypeFull2 = (orgType: EOrgType): string =>
 export const orgTypeFull3 = (orgType: EOrgType): string => {
   if (!orgType) return "une organisation";
 
-  return `${[EOrgType.GENERIC].includes(orgType) ? "une " : "un "}${OrgTypes[
+  return `${[EOrgType.GENERIC].includes(orgType) ? "un " : "une "}${OrgTypes[
     orgType
   ].toLowerCase()}`;
 };
@@ -135,20 +131,21 @@ export const orgTypeFull4 = (orgType: EOrgType): string =>
     orgType
   ].toLowerCase()}`;
 
-export const orgTypeFull5 = (orgType: EOrgType): string => {
-  if (["ASSO", "GROUP"].includes(orgType)) {
-    orgType = EOrgType.GENERIC;
-  }
-
-  return `${[EOrgType.NETWORK].includes(orgType) ? "la " : "l'"}${OrgTypes[
+export const orgTypeFull5 = (
+  orgType: EOrgType,
+  isCapitalized?: boolean
+): string => {
+  const str = `${[EOrgType.NETWORK].includes(orgType) ? "la " : "l'"}${OrgTypes[
     orgType
   ].toLowerCase()}`;
+
+  if (isCapitalized) return capitalize(str);
+
+  return str;
 };
 
 export const OrgTypes: TypedMap<EOrgType, string> = {
-  //[EOrgType.ASSO]: "Association",
   [EOrgType.GENERIC]: "Arbre",
-  //[EOrgType.GROUP]: "Groupe",
   [EOrgType.NETWORK]: "Planète"
 };
 

@@ -20,13 +20,12 @@ import { LoginFormModal } from "features/modals/LoginFormModal";
 import { selectIsOffline } from "features/session/sessionSlice";
 import { resetUserEmail, selectUserEmail } from "features/users/userSlice";
 import { IEvent } from "models/Event";
-import { EOrgType, IOrg } from "models/Org";
+import { EOrgType, IOrg, OrgTypes } from "models/Org";
 import { PageProps } from "pages/_app";
 import { useAppDispatch } from "store";
 import { breakpoints } from "theme/theme";
 import { Base64Image } from "utils/image";
 import { isServer } from "utils/isServer";
-import { useSession } from "hooks/useAuth";
 
 const PAYPAL_BUTTON_WIDTH = 108;
 const defaultTitle = process.env.NEXT_PUBLIC_SHORT_URL;
@@ -120,11 +119,7 @@ export const Layout = ({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
           {defaultTitle} –{" "}
-          {org
-            ? `${org.orgType === EOrgType.NETWORK ? "Planète" : "Arbre"} – ${
-                org.orgName
-              }`
-            : pageTitle}
+          {org ? `${OrgTypes[org.orgType]} – ${org.orgName}` : pageTitle}
         </title>
       </Head>
 
@@ -262,7 +257,15 @@ export const Layout = ({
         <LoginFormModal
           onClose={() => {
             setIsLoginModalOpen(false);
-            if (router.asPath === "/?login") router.back();
+            const path = localStorage.getItem("path") || "/";
+            const protectedRoutes = [
+              "/arbres/ajouter",
+              "/evenements/ajouter",
+              "/planetes/ajouter"
+            ];
+            if (protectedRoutes.includes(path))
+              router.push("/", "/", { shallow: true });
+            else router.push(path, path, { shallow: true });
           }}
           onSubmit={async () => {
             dispatch(resetUserEmail());

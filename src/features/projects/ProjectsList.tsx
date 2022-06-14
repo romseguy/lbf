@@ -584,6 +584,7 @@ export const ProjectsList = ({
             })
           }
           onSubmit={async (project) => {
+            localStorage.removeItem("storageKey");
             query.refetch();
             // subQuery.refetch();
             setProjectModalState({

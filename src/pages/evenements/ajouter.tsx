@@ -3,13 +3,16 @@ import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { EntityAddPage } from "features/common";
 import { getSession } from "hooks/useAuth";
+import { Session } from "lib/SessionContext";
 import { PageProps } from "pages/_app";
 
 const EventsAddPage = (props: PageProps) => {
   const router = useRouter();
   useEffect(() => {
-    if (!props.isSessionLoading && !props.session)
+    if (!props.isSessionLoading && !props.session) {
+      window.localStorage.setItem("path", router.asPath);
       router.push("/?login", "/?login", { shallow: true });
+    }
   }, [props.isSessionLoading]);
 
   return <EntityAddPage {...props} />;
@@ -17,13 +20,13 @@ const EventsAddPage = (props: PageProps) => {
 
 export async function getServerSideProps(
   ctx: GetServerSidePropsContext
-): Promise<GetServerSidePropsResult<{}>> {
+): Promise<GetServerSidePropsResult<{ session: Session | null }>> {
   const session = await getSession({ req: ctx.req });
 
-  if (!session)
-    return { redirect: { permanent: false, destination: "/?login" } };
+  // if (!session)
+  //   return { redirect: { permanent: false, destination: "/?login" } };
 
-  return { props: {} };
+  return { props: { session } };
 }
 
 export default EventsAddPage;

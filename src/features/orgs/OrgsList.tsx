@@ -15,7 +15,7 @@ import {
 import React, { useMemo, useState } from "react";
 import { css } from "twin.macro";
 import { Link } from "features/common";
-import { EOrgType, IOrg, OrgTypes } from "models/Org";
+import { EOrgType, IOrg, orgTypeFull5, OrgTypes } from "models/Org";
 import { scrollbarStyles, tableStyles } from "theme/theme";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { AppQuery } from "utils/types";
@@ -91,10 +91,7 @@ export const OrgsList = ({
               { key: "subscription", label: "" },
               {
                 key: "orgName",
-                label:
-                  orgType === EOrgType.GENERIC
-                    ? "Nom de l'arbre"
-                    : "Nom de la planète"
+                label: `Nom de ${orgTypeFull5(orgType)}`
               },
               // { key: "orgType", label: "Type" },
               { key: "orgCity", label: "Position" }
@@ -152,9 +149,21 @@ export const OrgsList = ({
                     />
                   </Td>
                   <Td>
-                    <Link variant="underline" href={`/${org.orgUrl}`} shallow>
-                      {org.orgName}
-                    </Link>
+                    <Tooltip
+                      hasArrow
+                      label={`Visiter ${orgTypeFull5(org.orgType)}`}
+                      placement="top"
+                    >
+                      <span>
+                        <Link
+                          variant="underline"
+                          href={`/${org.orgUrl}`}
+                          shallow
+                        >
+                          {org.orgName}
+                        </Link>
+                      </span>
+                    </Tooltip>
                   </Td>
                   {/* <Td>{OrgTypes[org.orgType]}</Td> */}
                   <Td>

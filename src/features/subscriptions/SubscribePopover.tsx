@@ -29,7 +29,13 @@ import { useSelector } from "react-redux";
 import { HostTag } from "features/common";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { IEvent } from "models/Event";
-import { EOrgType, IOrg, orgTypeFull, orgTypeFull2 } from "models/Org";
+import {
+  EOrgType,
+  IOrg,
+  orgTypeFull,
+  orgTypeFull2,
+  orgTypeFull5
+} from "models/Org";
 import {
   getFollowerSubscription,
   ISubscription,
@@ -228,13 +234,7 @@ export const SubscribePopover = ({
 
   if (isIconOnly) {
     const label = `${isFollowed ? "Se désabonner" : "S'abonner"} ${
-      org
-        ? org.orgType === EOrgType.GENERIC
-          ? "à l'arbre"
-          : "à la planète"
-        : event
-        ? "à l'événement"
-        : ""
+      org ? `à ${orgTypeFull5(org.orgType)}` : event ? "à l'événement" : ""
     }`;
 
     return (
