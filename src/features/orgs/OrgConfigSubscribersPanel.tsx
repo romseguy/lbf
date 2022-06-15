@@ -8,11 +8,11 @@ import {
   Heading as AppHeading,
   Link
 } from "features/common";
-import { refetchEvent } from "features/events/eventSlice";
+import { refetchEvent } from "store/eventSlice";
 import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
-} from "features/subscriptions/subscriptionsApi";
+} from "features/api/subscriptionsApi";
 import { SubscriptionsList } from "features/subscriptions/SubscriptionsList";
 import { IOrg, orgTypeFull } from "models/Org";
 import { ISubscription, ESubscriptionType } from "models/Subscription";

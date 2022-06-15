@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
-import { getSession } from "hooks/useAuth";
+import { getSession } from "utils/auth";
 import { equals, logJson } from "utils/string";
 import { emailR } from "utils/email";
 import { IUser } from "models/User";

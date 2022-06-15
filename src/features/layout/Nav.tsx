@@ -36,7 +36,7 @@ import {
   NotificationPopover,
   TopicPopover
 } from "features/layout";
-import { selectUserEmail } from "features/users/userSlice";
+import { selectUserEmail } from "store/userSlice";
 import { EOrgType } from "models/Org";
 import { PageProps } from "pages/_app";
 import { capitalize } from "utils/string";

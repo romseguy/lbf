@@ -39,7 +39,7 @@ import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
 import { AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
-import { EditOrgPayload, useEditOrgMutation } from "./orgsApi";
+import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
 
 export const OrgConfigListsPanel = ({
   orgQuery,

@@ -1,9 +1,9 @@
-import { Box, BoxProps, IconButton, Image, Tooltip } from "@chakra-ui/react";
+import { EmailIcon } from "@chakra-ui/icons";
+import { Box, BoxProps, IconButton, Tooltip } from "@chakra-ui/react";
 import React from "react";
 import { Link } from "features/common";
 import { useAppDispatch } from "store";
-import { setIsContactModalOpen } from "features/modals/modalSlice";
-import { EmailIcon } from "@chakra-ui/icons";
+import { setIsContactModalOpen } from "store/modalSlice";
 
 export const IconFooter = ({
   noContainer = false,

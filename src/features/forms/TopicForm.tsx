@@ -15,14 +15,14 @@ import { Controller, useForm } from "react-hook-form";
 import useFormPersist from "react-hook-form-persist";
 import Creatable from "react-select/creatable";
 import { ErrorMessageText, MultiSelect, RTEditor } from "features/common";
-import { useEditEventMutation } from "features/events/eventsApi";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditEventMutation } from "features/api/eventsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   AddTopicPayload,
   useAddTopicMutation,
   useEditTopicMutation
-} from "features/forum/topicsApi";
-import { useSession } from "hooks/useAuth";
+} from "features/api/topicsApi";
+import { useSession } from "hooks/useSession";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import { isEvent } from "models/Entity";
 import type { IEvent } from "models/Event";

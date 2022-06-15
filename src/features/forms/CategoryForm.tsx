@@ -13,7 +13,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessageText } from "features/common";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import { IOrg } from "models/Org";
 import { handleError } from "utils/form";
 import { AppQueryWithData } from "utils/types";
@@ -21,7 +21,7 @@ import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import useFormPersist from "react-hook-form-persist";
 import { IEntityCategory, IEntityCategoryKey, isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
-import { useEditEventMutation } from "features/events/eventsApi";
+import { useEditEventMutation } from "features/api/eventsApi";
 
 export const CategoryForm = ({
   categories,

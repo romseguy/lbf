@@ -35,9 +35,9 @@ import {
   Column
 } from "features/common";
 import { Layout } from "features/layout";
-import { setIsContactModalOpen } from "features/modals/modalSlice";
 import { useDiskUsage } from "hooks/useDiskUsage";
 import { useAppDispatch } from "store";
+import { setIsContactModalOpen } from "store/modalSlice";
 import { bytesForHuman } from "utils/string";
 import { PageProps } from "./_app";
 

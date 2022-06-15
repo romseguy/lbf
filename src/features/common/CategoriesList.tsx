@@ -1,8 +1,8 @@
 import { Spinner, Table, Tbody, Td, Text, Tr } from "@chakra-ui/react";
 import React from "react";
 import { DeleteButton } from "features/common";
-import { useEditEventMutation } from "features/events/eventsApi";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditEventMutation } from "features/api/eventsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import { IEntityCategory, IEntityCategoryKey, isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";

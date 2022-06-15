@@ -2,7 +2,7 @@ import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
-import { getSession } from "hooks/useAuth";
+import { getSession } from "utils/auth";
 import { IUser } from "models/User";
 import { emailR } from "utils/email";
 import {

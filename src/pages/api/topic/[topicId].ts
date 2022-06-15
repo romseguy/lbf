@@ -3,11 +3,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { sendMail, sendTopicNotifications } from "features/api/email";
-import {
-  EditTopicPayload,
-  AddTopicNotifPayload
-} from "features/forum/topicsApi";
-import { getSession } from "hooks/useAuth";
+import { EditTopicPayload, AddTopicNotifPayload } from "features/api/topicsApi";
+import { getSession } from "utils/auth";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ITopicNotification } from "models/INotification";
 import { ISubscription, ESubscriptionType } from "models/Subscription";

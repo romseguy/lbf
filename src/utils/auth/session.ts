@@ -1,6 +1,7 @@
-//import { MagicUserMetadata } from "@magic-sdk/types";
+import Iron from "@hapi/iron";
 import { createContext } from "react";
 import { Base64Image } from "utils/image";
+import { getAuthToken, sealOptions, TOKEN_NAME } from "./";
 
 type UserMetadata = {
   email: string;
@@ -26,3 +27,19 @@ export const SessionContext = createContext<
     React.Dispatch<React.SetStateAction<boolean>>
   ]
 >([null, true, () => {}, () => {}]);
+
+export async function getSession(params?: any): Promise<Session | null> {
+  const cookies = params.req.cookies;
+
+  if (!cookies[TOKEN_NAME]) return null;
+
+  const user = await Iron.unseal(
+    getAuthToken(cookies),
+    process.env.SECRET,
+    sealOptions
+  );
+
+  if (!user) return null;
+
+  return { user };
+}

@@ -10,8 +10,8 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { DeleteButton } from "features/common";
-import { refetchEvent } from "features/events/eventSlice";
-import { getUser } from "features/users/usersApi";
+import { refetchEvent } from "store/eventSlice";
+import { getUser } from "features/api/usersApi";
 import { orgTypeFull } from "models/Org";
 import {
   getFollowerSubscription,
@@ -25,7 +25,7 @@ import React from "react";
 import { IoIosPerson } from "react-icons/io";
 import { useAppDispatch } from "store";
 import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
-import { useDeleteSubscriptionMutation } from "./subscriptionsApi";
+import { useDeleteSubscriptionMutation } from "features/api/subscriptionsApi";
 import { SubscriptionsListProps } from "./SubscriptionsList";
 
 export const SubscriptionsListItem = ({

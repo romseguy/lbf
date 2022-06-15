@@ -29,7 +29,7 @@ import { Session } from "utils/auth";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
-import { useEditOrgMutation } from "./orgsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 
 export const OrgPageTabs = ({
   currentItemName,

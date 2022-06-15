@@ -1,4 +1,4 @@
-import { BellIcon, EmailIcon, PhoneIcon } from "@chakra-ui/icons";
+import { EmailIcon, PhoneIcon } from "@chakra-ui/icons";
 import {
   Text,
   PopoverContent,
@@ -15,16 +15,11 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import React, { useState } from "react";
+import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import { SubscriptionEditForm } from "features/forms/SubscriptionEditForm";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
-import {
-  getFollowerSubscription,
-  IEventSubscription,
-  IOrgSubscription,
-  ISubscription
-} from "models/Subscription";
-import { useGetSubscriptionQuery } from "./subscriptionsApi";
+import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { AppQuery } from "utils/types";
 
 export const SubscriptionEditPopover = ({

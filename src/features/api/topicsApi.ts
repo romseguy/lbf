@@ -31,7 +31,7 @@ export interface EditTopicPayload {
   topicMessageId?: string;
 }
 
-export const topicsApi = createApi({
+export const topicApi = createApi({
   reducerPath: "topicsApi", // We only specify this because there are many services. This would not be common in most applications
   //baseQuery: baseQueryWithRetry,
   baseQuery,
@@ -125,10 +125,10 @@ export const {
   useGetTopicsQuery
   // useGetTopicByNameQuery,
   // useGetTopicsByCreatorQuery
-} = topicsApi;
+} = topicApi;
 
 export const {
   endpoints: {
     /* getTopicByName, getTopics, getTopicsByCreator */
   }
-} = topicsApi;
+} = topicApi;

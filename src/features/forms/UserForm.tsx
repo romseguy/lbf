@@ -17,10 +17,10 @@ import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
 import { EmailControl, ErrorMessageText, HostTag } from "features/common";
 import { PhoneControl } from "features/common/forms/PhoneControl";
-import { refetchOrg } from "features/orgs/orgSlice";
-import { useEditUserMutation } from "features/users/usersApi";
+import { useEditUserMutation } from "features/api/usersApi";
 import type { IUser } from "models/User";
 import { useAppDispatch } from "store";
+import { refetchOrg } from "store/orgSlice";
 import { Session } from "utils/auth";
 import { handleError } from "utils/form";
 import {

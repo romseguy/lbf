@@ -18,7 +18,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { LatLon } from "use-places-autocomplete";
 import { Heading, LocationButton } from "features/common";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   NotifModalState,
   EntityNotifModal
@@ -26,7 +26,7 @@ import {
 import { EntityModal } from "features/modals/EntityModal";
 import { EventForwardFormModal } from "features/modals/EventForwardFormModal";
 import { MapModal } from "features/modals/MapModal";
-import { useSession } from "hooks/useAuth";
+import { useSession } from "hooks/useSession";
 import { getEvents, IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { AppQueryWithData } from "utils/types";
@@ -34,7 +34,7 @@ import {
   useDeleteEventMutation,
   useEditEventMutation,
   useAddEventNotifMutation
-} from "./eventsApi";
+} from "features/api/eventsApi";
 import { EventsListCategories } from "./EventsListCategories";
 import { EventCategoryTag } from "./EventCategoryTag";
 import { EventsListDistanceSelect } from "./EventsListDistance";

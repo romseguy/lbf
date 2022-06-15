@@ -42,7 +42,7 @@ import {
   useAddOrgMutation,
   useEditOrgMutation,
   useGetOrgsQuery
-} from "features/orgs/orgsApi";
+} from "features/api/orgsApi";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import {
   IEntityEmail,

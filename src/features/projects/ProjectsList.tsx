@@ -20,7 +20,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
 import { FaFolderOpen, FaFolder } from "react-icons/fa";
-import { useSession } from "hooks/useAuth";
+import { useSession } from "hooks/useSession";
 import { DeleteButton, Grid, GridItem, Link } from "features/common";
 import { ProjectFormModal } from "features/modals/ProjectFormModal";
 import { IOrg, orgTypeFull } from "models/Org";
@@ -42,7 +42,7 @@ import { ProjectsListItemVisibility } from "./ProjectsListItemVisibility";
 import {
   useAddProjectNotifMutation,
   useDeleteProjectMutation
-} from "./projectsApi";
+} from "features/api/projectsApi";
 import { ProjectsListFilters } from "./ProjectsListFilters";
 import { ISelectedOrder, ProjectsListOrder } from "./ProjectsListOrder";
 import {

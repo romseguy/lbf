@@ -9,8 +9,8 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { DeleteButton } from "features/common";
-import { useDeleteEventMutation } from "features/events/eventsApi";
-import { useDeleteOrgMutation } from "features/orgs/orgsApi";
+import { useDeleteEventMutation } from "features/api/eventsApi";
+import { useDeleteOrgMutation } from "features/api/orgsApi";
 import { IEntity, isEvent } from "models/Entity";
 import { orgTypeFull5, IOrg } from "models/Org";
 

@@ -30,14 +30,14 @@ import {
   HostTag,
   LinkShare
 } from "features/common";
-import { useSession } from "hooks/useAuth";
+import { useSession } from "hooks/useSession";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
+import { useGetDocumentsQuery } from "features/api/documentsApi";
 import api from "utils/api";
 import { handleError } from "utils/form";
 import * as stringUtils from "utils/string";
 import { hasItems } from "utils/array";
-import { useGetDocumentsQuery } from "./documentsApi";
 import { useDiskUsage } from "hooks/useDiskUsage";
 
 export const DocumentsList = ({

@@ -1,4 +1,4 @@
-import { api } from "features/api";
+import { api } from "./";
 import { IOrg } from "models/Org";
 import { objectToQueryString } from "utils/query";
 

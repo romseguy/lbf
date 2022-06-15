@@ -7,11 +7,11 @@ import {
   databaseErrorCodes,
   duplicateError
 } from "utils/errors";
-import { getSession } from "hooks/useAuth";
+import { getSession } from "utils/auth";
 import { logJson, normalize } from "utils/string";
 import { IOrg, EOrgVisibility } from "models/Org";
 import { randomNumber } from "utils/randomNumber";
-import { AddOrgPayload } from "features/orgs/orgsApi";
+import { AddOrgPayload } from "features/api/orgsApi";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 

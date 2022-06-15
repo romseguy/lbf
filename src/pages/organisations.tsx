@@ -4,7 +4,7 @@ import { FaRegMap } from "react-icons/fa";
 import { Column } from "features/common";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
-import { useGetOrgsQuery } from "features/orgs/orgsApi";
+import { useGetOrgsQuery } from "features/api/orgsApi";
 import { OrgsList } from "features/orgs/OrgsList";
 import { EOrgType } from "models/Org";
 import { PageProps } from "./_app";

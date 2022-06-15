@@ -2,7 +2,7 @@ import axios from "axios";
 import cors from "cors";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { getSession } from "hooks/useAuth";
+import { getSession } from "utils/auth";
 import { createServerError } from "utils/errors";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>()

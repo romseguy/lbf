@@ -1,7 +1,7 @@
 import { Document } from "mongodb";
 import nextConnect from "next-connect";
 import database, { db, models, collectionToModelKeys } from "database";
-import { getSession } from "hooks/useAuth";
+import { getSession } from "utils/auth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createServerError } from "utils/errors";
 import { IEntity } from "models/Entity";

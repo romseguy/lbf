@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
-import { AddSubscriptionPayload } from "features/subscriptions/subscriptionsApi";
-import { getSession } from "hooks/useAuth";
+import { AddSubscriptionPayload } from "features/api/subscriptionsApi";
+import { getSession } from "utils/auth";
 import { IOrg } from "models/Org";
 import {
   getFollowerSubscription,

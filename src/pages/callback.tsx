@@ -1,8 +1,8 @@
 import { Box, Spinner } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
-import { setUserEmail } from "features/users/userSlice";
-import { useSession } from "hooks/useAuth";
+import { setUserEmail } from "store/userSlice";
+import { useSession } from "hooks/useSession";
 import { useAppDispatch } from "store";
 import { magic } from "utils/auth";
 import { PageProps } from "./_app";
@@ -37,7 +37,7 @@ const CallbackPage = (props: PageProps) => {
       if (res.status === 200) {
         //const user = await magic.user.getMetadata();
         const user = await res.json();
-        console.log("user", user);
+        console.log("/callback user:", user);
 
         dispatch(setUserEmail(user.email));
         setSession({ user });

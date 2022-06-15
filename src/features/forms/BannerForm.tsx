@@ -22,10 +22,10 @@ import {
   Input,
   UrlControl
 } from "features/common";
-import { useEditEventMutation } from "features/events/eventsApi";
+import { useEditEventMutation } from "features/api/eventsApi";
 import { EventConfigVisibility } from "features/events/EventConfigPanel";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { handleError } from "utils/form";

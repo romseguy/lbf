@@ -20,13 +20,13 @@ import React, { useEffect, useState } from "react";
 import { FaBellSlash } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { EntityButton } from "features/common";
-import { useGetTopicsQuery } from "features/forum/topicsApi";
+import { useGetTopicsQuery } from "features/api/topicsApi";
 import {
   useDeleteSubscriptionMutation,
   useGetSubscriptionQuery
-} from "features/subscriptions/subscriptionsApi";
-import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
-import { selectUserEmail } from "features/users/userSlice";
+} from "features/api/subscriptionsApi";
+import { selectSubscriptionRefetch } from "store/subscriptionSlice";
+import { selectUserEmail } from "store/userSlice";
 import { getRefId } from "models/Entity";
 import { OrgTypes } from "models/Org";
 import { hasItems } from "utils/array";

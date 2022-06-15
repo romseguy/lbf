@@ -14,9 +14,9 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { DeleteButton } from "features/common";
-import { useEditEventMutation } from "features/events/eventsApi";
+import { useEditEventMutation } from "features/api/eventsApi";
 import { CategoriesModal } from "features/modals/CategoriesModal";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import { isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";

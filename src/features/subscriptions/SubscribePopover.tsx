@@ -26,26 +26,20 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaBellSlash } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import { useAddSubscriptionMutation } from "features/api/subscriptionsApi";
 import { HostTag } from "features/common";
-import { selectUserEmail, setUserEmail } from "features/users/userSlice";
 import { IEvent } from "models/Event";
-import {
-  EOrgType,
-  IOrg,
-  orgTypeFull,
-  orgTypeFull2,
-  orgTypeFull5
-} from "models/Org";
+import { IOrg, orgTypeFull, orgTypeFull2, orgTypeFull5 } from "models/Org";
 import {
   getFollowerSubscription,
   ISubscription,
   ESubscriptionType
 } from "models/Subscription";
 import { useAppDispatch } from "store";
+import { selectUserEmail, setUserEmail } from "store/userSlice";
 import { emailR } from "utils/email";
 import { AppQuery } from "utils/types";
 import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
-import { useAddSubscriptionMutation } from "./subscriptionsApi";
 
 export const SubscribePopover = ({
   event,

@@ -20,11 +20,11 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { EntityButton } from "features/common";
-import { useGetEventsQuery } from "features/events/eventsApi";
-import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
-import { selectUserEmail } from "features/users/userSlice";
+import { useGetEventsQuery } from "features/api/eventsApi";
+import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import { EEventInviteStatus } from "models/Event";
+import { selectSubscriptionRefetch } from "store/subscriptionSlice";
+import { selectUserEmail } from "store/userSlice";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 

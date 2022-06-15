@@ -20,8 +20,8 @@ import { breakpoints } from "theme/theme";
 import { hasItems } from "utils/array";
 import { css } from "twin.macro";
 import { CategoryForm } from "features/forms/CategoryForm";
-import { useEditEventMutation } from "features/events/eventsApi";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditEventMutation } from "features/api/eventsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 
 type EntityConfigCategoriesPanelProps = {
   categories: IEntityCategory[];

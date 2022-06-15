@@ -1,9 +1,9 @@
 import { Flex, Spinner, Tag, Text } from "@chakra-ui/react";
 import React, { useEffect } from "react";
-import { useSession } from "hooks/useAuth";
+import { useSession } from "hooks/useSession";
 import { ITopic } from "models/Topic";
 import { Link } from "features/common";
-import { useGetSubscriptionsQuery } from "features/subscriptions/subscriptionsApi";
+import { useGetSubscriptionsQuery } from "features/api/subscriptionsApi";
 
 export const TopicsListItemSubscribers = ({
   topic,

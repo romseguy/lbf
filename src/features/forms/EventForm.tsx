@@ -60,9 +60,9 @@ import { PhoneControl } from "features/common/forms/PhoneControl";
 import {
   useAddEventMutation,
   useEditEventMutation
-} from "features/events/eventsApi";
+} from "features/api/eventsApi";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
-import { useGetOrgQuery, useGetOrgsQuery } from "features/orgs/orgsApi";
+import { useGetOrgQuery, useGetOrgsQuery } from "features/api/orgsApi";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import {
   IEntityAddress,

@@ -1,7 +1,7 @@
 import { Button, Flex, useToast } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { RTEditor } from "features/common";
-import { useEditUserMutation } from "features/users/usersApi";
+import { useEditUserMutation } from "features/api/usersApi";
 import { IUser } from "models/User";
 import { Session } from "utils/auth";
 import { AppQueryWithData } from "utils/types";

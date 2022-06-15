@@ -28,8 +28,8 @@ import { PageProps } from "pages/_app";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
-import { selectOrgRefetch } from "./orgSlice";
-import { useDeleteOrgMutation } from "./orgsApi";
+import { selectOrgRefetch } from "store/orgSlice";
+import { useDeleteOrgMutation } from "features/api/orgsApi";
 
 let cachedRefetchOrg = false;
 

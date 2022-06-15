@@ -26,7 +26,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import React, { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EmailControl, EntityButton, ErrorMessageText } from "features/common";
-import { useAddEventNotifMutation } from "features/events/eventsApi";
+import { useAddEventNotifMutation } from "features/api/eventsApi";
 import { IEvent } from "models/Event";
 import { orgTypeFull } from "models/Org";
 import { hasItems } from "utils/array";

@@ -42,7 +42,7 @@ import { ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { capitalize, sanitize, transformRTEditorOutput } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { useGetOrgsQuery } from "./orgsApi";
+import { useGetOrgsQuery } from "features/api/orgsApi";
 import { OrgsList } from "./OrgsList";
 
 export const OrgPageHomeTabPanel = ({

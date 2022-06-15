@@ -22,8 +22,8 @@ import { TopicFormModal } from "features/modals/TopicFormModal";
 import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
-} from "features/subscriptions/subscriptionsApi";
-import { useSession } from "hooks/useAuth";
+} from "features/api/subscriptionsApi";
+import { useSession } from "hooks/useSession";
 import { IEvent } from "models/Event";
 import { IOrg, IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
@@ -31,7 +31,10 @@ import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { getCategoryLabel, getRefId, isEvent } from "models/Entity";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { useDeleteTopicMutation, useAddTopicNotifMutation } from "./topicsApi";
+import {
+  useDeleteTopicMutation,
+  useAddTopicNotifMutation
+} from "features/api/topicsApi";
 import { TopicsListItem } from "./TopicsListItem";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { TopicsListCategories } from "./TopicsListCategories";

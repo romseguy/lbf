@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { createServerError } from "utils/errors";
-import { getSession } from "hooks/useAuth";
+import { getSession } from "utils/auth";
 // import { sendProjectToOrgFollowers } from "api/email";
 import { equals, logJson, normalize } from "utils/string";
 import { IProjectNotification } from "models/INotification";

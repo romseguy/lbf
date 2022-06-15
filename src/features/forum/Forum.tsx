@@ -1,8 +1,8 @@
 import { Box, Flex, Spinner } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { useEditOrgMutation, useGetOrgQuery } from "features/orgs/orgsApi";
+import { useEditOrgMutation, useGetOrgQuery } from "features/api/orgsApi";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
-import { useSession } from "hooks/useAuth";
+import { useSession } from "hooks/useSession";
 import {
   getFollowerSubscription,
   getSubscriberSubscription,

@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
-import { EditOrgPayload, GetOrgParams } from "features/orgs/orgsApi";
-import { getSession } from "hooks/useAuth";
+import { EditOrgPayload, GetOrgParams } from "features/api/orgsApi";
+import { getSession } from "utils/auth";
 import { EEventVisibility } from "models/Event";
 import { getLists, IOrg, orgTypeFull } from "models/Org";
 import {

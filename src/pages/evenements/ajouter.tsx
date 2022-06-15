@@ -2,7 +2,7 @@ import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { EntityAddPage } from "features/common";
-import { getSession } from "hooks/useAuth";
+import { getSession } from "utils/auth";
 import { PageProps } from "pages/_app";
 import { Session } from "utils/auth";
 

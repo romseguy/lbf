@@ -23,9 +23,9 @@ import {
   UrlControl
 } from "features/common";
 import { EventConfigVisibility } from "features/events/EventConfigPanel";
-import { useEditEventMutation } from "features/events/eventsApi";
+import { useEditEventMutation } from "features/api/eventsApi";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import { isEvent, IEntityLogo } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";

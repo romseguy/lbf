@@ -15,7 +15,7 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { DeleteButton } from "features/common";
 import { CategoriesModal } from "features/modals/CategoriesModal";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import { IEvent } from "models/Event";
 import { getOrgEventCategories, IOrg, IOrgEventCategory } from "models/Org";
 import { AppQueryWithData, TypedMap } from "utils/types";

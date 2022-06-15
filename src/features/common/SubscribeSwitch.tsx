@@ -1,6 +1,6 @@
 import { Switch, useToast } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { useEditUserMutation, useGetUserQuery } from "features/users/usersApi";
+import { useEditUserMutation, useGetUserQuery } from "features/api/usersApi";
 import { base64ToUint8Array } from "utils/string";
 
 interface customWindow extends Window {

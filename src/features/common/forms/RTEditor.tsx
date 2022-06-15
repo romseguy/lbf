@@ -7,11 +7,8 @@ import type { Editor as TinyMCEEditor } from "tinymce";
 import { styled } from "twin.macro";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import {
-  incrementRTEditorIndex,
-  selectRTEditorIndex,
-  useAppDispatch
-} from "store";
+import { useAppDispatch } from "store";
+import { incrementRTEditorIndex, selectRTEditorIndex } from "store/uiSlice";
 import { Session } from "utils/auth";
 import { bindEvent } from "utils/element";
 

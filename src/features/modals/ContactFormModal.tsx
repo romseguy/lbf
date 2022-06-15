@@ -11,7 +11,10 @@ import { useSelector } from "react-redux";
 import { Modal } from "features/common";
 import { ContactForm } from "features/forms/ContactForm";
 import { useAppDispatch } from "store";
-import { selectIsContactModalOpen, setIsContactModalOpen } from "./modalSlice";
+import {
+  selectIsContactModalOpen,
+  setIsContactModalOpen
+} from "store/modalSlice";
 
 export const ContactFormModal = () => {
   const dispatch = useAppDispatch();

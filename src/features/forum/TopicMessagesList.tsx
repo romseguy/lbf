@@ -16,14 +16,14 @@ import {
   Link,
   RTEditor
 } from "features/common";
-import { useSession } from "hooks/useAuth";
+import { useSession } from "hooks/useSession";
 import { IEvent } from "models/Event";
 import { ITopic } from "models/Topic";
 import { IOrg } from "models/Org";
 import * as dateUtils from "utils/date";
 import { sanitize } from "utils/string";
 import { AppQuery, TypedMap } from "utils/types";
-import { useEditTopicMutation } from "./topicsApi";
+import { useEditTopicMutation } from "features/api/topicsApi";
 import { TopicMessagesListItem } from "./TopicMessagesListItem";
 
 export const TopicMessagesList = ({

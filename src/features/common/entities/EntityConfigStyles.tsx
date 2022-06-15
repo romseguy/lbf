@@ -10,8 +10,8 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useEditEventMutation } from "features/events/eventsApi";
-import { useEditOrgMutation } from "features/orgs/orgsApi";
+import { useEditEventMutation } from "features/api/eventsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import { isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";

@@ -46,7 +46,10 @@ import {
 } from "models/Subscription";
 import { PageProps } from "pages/_app";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { useDeleteEventMutation, useEditEventMutation } from "./eventsApi";
+import {
+  useDeleteEventMutation,
+  useEditEventMutation
+} from "features/api/eventsApi";
 import { EventAttendingForm } from "./EventAttendingForm";
 import { EventConfigPanel, EventConfigVisibility } from "./EventConfigPanel";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";

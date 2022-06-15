@@ -21,7 +21,7 @@ import {
 } from "models/Subscription";
 import { getOrgEventCategories, IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
-import { useAddSubscriptionMutation } from "features/subscriptions/subscriptionsApi";
+import { useAddSubscriptionMutation } from "features/api/subscriptionsApi";
 import { AppQuery } from "utils/types";
 import { ArrowForwardIcon, ArrowRightIcon } from "@chakra-ui/icons";
 

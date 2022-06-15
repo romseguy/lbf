@@ -4,11 +4,11 @@ import React, { useEffect, useState } from "react";
 import { FaRegMap } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { Button, Column } from "features/common";
-import { useGetEventsQuery } from "features/events/eventsApi";
+import { useGetEventsQuery } from "features/api/eventsApi";
 import { EventsList } from "features/events/EventsList";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
-import { selectIsOffline } from "features/session/sessionSlice";
+import { selectIsOffline } from "store/sessionSlice";
 import { EEventVisibility } from "models/Event";
 import { PageProps } from "./_app";
 

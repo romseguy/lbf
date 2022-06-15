@@ -21,13 +21,13 @@ import {
 import {
   AddEventNotifPayload,
   useEditEventMutation
-} from "features/events/eventsApi";
+} from "features/api/eventsApi";
 import { OrgNotifForm, OrgNotifFormState } from "features/forms/OrgNotifForm";
 import {
   AddTopicNotifPayload,
   useEditTopicMutation
-} from "features/forum/topicsApi";
-import { useEditProjectMutation } from "features/projects/projectsApi";
+} from "features/api/topicsApi";
+import { useEditProjectMutation } from "features/api/projectsApi";
 import { isEvent, isTopic } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";

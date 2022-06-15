@@ -2,8 +2,8 @@ import { MenuList, MenuItem, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { Link, SubscribeSwitch } from "features/common";
-import { resetUserEmail } from "features/users/userSlice";
-import { useSession } from "hooks/useAuth";
+import { resetUserEmail } from "store/userSlice";
+import { useSession } from "hooks/useSession";
 import { useAppDispatch } from "store";
 import api from "utils/api";
 import { magic } from "utils/auth";
@@ -46,7 +46,13 @@ export const NavMenuList = ({
         />
       )}
 
-      <Link href={`/${userName}`} aria-hidden data-cy="my-page">
+      <Link
+        aria-hidden
+        data-cy="my-page"
+        onClick={() => {
+          router.push(`/${userName}`, `/${userName}`, { shallow: true });
+        }}
+      >
         <MenuItem>Ma page</MenuItem>
       </Link>
 

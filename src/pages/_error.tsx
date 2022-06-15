@@ -1,7 +1,7 @@
 import { NextPageContext } from "next";
 import { isMobile } from "react-device-detect";
 import { Layout } from "features/layout";
-import { useSession } from "hooks/useAuth";
+import { useSession } from "hooks/useSession";
 
 function Error({ statusCode }: { statusCode: number }) {
   const { data: session } = useSession();

@@ -19,7 +19,7 @@ import {
   AddProjectPayload,
   useAddProjectMutation,
   useEditProjectMutation
-} from "features/projects/projectsApi";
+} from "features/api/projectsApi";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import { IOrg } from "models/Org";
 import { IProject, EProjectStatus, ProjectStatuses } from "models/Project";

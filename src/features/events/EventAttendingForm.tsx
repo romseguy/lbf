@@ -11,9 +11,9 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { Button } from "features/common";
-import { useEditEventMutation } from "features/events/eventsApi";
-import { setUserEmail } from "features/users/userSlice";
-import { useSession } from "hooks/useAuth";
+import { useEditEventMutation } from "features/api/eventsApi";
+import { setUserEmail } from "store/userSlice";
+import { useSession } from "hooks/useSession";
 import {
   IEvent,
   isAttending,

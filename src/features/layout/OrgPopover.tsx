@@ -19,10 +19,10 @@ import React, { useEffect, useState } from "react";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { EntityAddButton, EntityButton } from "features/common";
-import { useGetOrgsQuery } from "features/orgs/orgsApi";
-import { useGetSubscriptionQuery } from "features/subscriptions/subscriptionsApi";
-import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSlice";
-import { selectUserEmail } from "features/users/userSlice";
+import { useGetOrgsQuery } from "features/api/orgsApi";
+import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
+import { selectSubscriptionRefetch } from "store/subscriptionSlice";
+import { selectUserEmail } from "store/userSlice";
 import { EOrgType } from "models/Org";
 import {
   getFollowerSubscription,

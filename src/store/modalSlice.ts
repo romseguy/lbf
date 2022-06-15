@@ -1,6 +1,5 @@
-import type { PayloadAction } from "@reduxjs/toolkit";
-import type { AppState } from "store";
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { AppState } from "./";
 
 type ModalState = {
   isContactModalOpen: boolean;
