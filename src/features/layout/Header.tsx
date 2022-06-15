@@ -29,6 +29,7 @@ import { useScroll } from "hooks/useScroll";
 import { getEventCategories, IEvent } from "models/Event";
 import { IOrg, EOrgType } from "models/Org";
 import { EventCategoryTag } from "features/events/EventCategoryTag";
+import { FullscreenModal } from "features/modals/FullscreenModal";
 
 export const Header = ({
   event,
@@ -203,64 +204,44 @@ export const Header = ({
         />
       )}
 
-      {banner &&
-        (isBannerModalOpen ? (
-          <Modal
-            size="full"
-            isOpen
-            closeOnOverlayClick
-            onClose={() => {
-              setIsBannerModalOpen(false);
-            }}
-          >
-            <ModalOverlay>
-              <ModalContent bg="transparent" mt={0} minHeight="auto">
-                <ModalHeader bg="blackAlpha.700" color="white">
-                  Bannière de {org ? org.orgName : event ? event.eventName : ""}
-                </ModalHeader>
-                <ModalCloseButton color="white" />
-                <ModalBody display="flex" flexDirection="column" p={0}>
-                  <Image
-                    alignSelf="center"
-                    src={banner.url || banner.base64}
-                    height={banner.height || 140}
-                    width={banner.width || 1154}
-                  />
-                </ModalBody>
-              </ModalContent>
-            </ModalOverlay>
-          </Modal>
-        ) : (
-          logo &&
-          isLogoModalOpen && (
-            <Modal
-              size="full"
-              isOpen
-              closeOnOverlayClick
-              onClose={() => {
-                setIsLogoModalOpen(false);
-              }}
-            >
-              <ModalOverlay>
-                <ModalContent bg="transparent" mt={0} minHeight="auto">
-                  <ModalHeader bg="blackAlpha.700" color="white">
-                    Logo de {org ? org.orgName : event ? event.eventName : ""}
-                  </ModalHeader>
-                  <ModalCloseButton color="white" />
-                  <ModalBody display="flex" flexDirection="column" p={0}>
-                    <Box
-                      alignSelf="center"
-                      bg={logoBgImage}
-                      bgRepeat="no-repeat"
-                      height={logo.height}
-                      width={logo.width}
-                    ></Box>
-                  </ModalBody>
-                </ModalContent>
-              </ModalOverlay>
-            </Modal>
-          )
-        ))}
+      {banner && isBannerModalOpen && (
+        <FullscreenModal
+          header={
+            <>Bannière de {org ? org.orgName : event ? event.eventName : ""}</>
+          }
+          body={
+            <Image
+              alignSelf="center"
+              src={(banner.url || banner.base64) as string}
+              height={banner.height || 140}
+              width={banner.width || 1154}
+            />
+          }
+          onClose={() => {
+            setIsBannerModalOpen(false);
+          }}
+        />
+      )}
+
+      {logo && isLogoModalOpen && (
+        <FullscreenModal
+          header={
+            <>Logo de {org ? org.orgName : event ? event.eventName : ""}</>
+          }
+          body={
+            <Box
+              alignSelf="center"
+              bg={logoBgImage}
+              bgRepeat="no-repeat"
+              height={logo.height}
+              width={logo.width}
+            ></Box>
+          }
+          onClose={() => {
+            setIsLogoModalOpen(false);
+          }}
+        />
+      )}
     </Flex>
   );
 };

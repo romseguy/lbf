@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { EditOrgPayload, GetOrgParams } from "features/api/orgsApi";
-import { getSession } from "utils/auth";
+import { getRefId } from "models/Entity";
 import { EEventVisibility } from "models/Event";
 import { getLists, IOrg, orgTypeFull } from "models/Org";
 import {
@@ -10,13 +10,14 @@ import {
   getFollowerSubscription,
   getSubscriberSubscription
 } from "models/Subscription";
+import api from "utils/api";
 import { hasItems } from "utils/array";
+import { getSession } from "utils/auth";
 import {
   createServerError,
   databaseErrorCodes,
   duplicateError
 } from "utils/errors";
-import { getRefId } from "models/Entity";
 import { equals, logJson, normalize } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -530,6 +531,10 @@ handler.delete<
     });
     /*const { deletedCount, n, ok } = */ await models.Topic.deleteMany({
       _id: { $in: org.orgTopics }
+    });
+
+    await api.remove(`${process.env.NEXT_PUBLIC_API2}/folder`, {
+      orgId: org._id
     });
 
     res.status(200).json(org);

@@ -76,6 +76,7 @@ export const Layout = ({
 
   useEffect(() => {
     if (isLogin !== 0) {
+      window.localStorage.setItem("path", router.asPath);
       setIsLoginModalOpen(true);
     }
   }, [isLogin]);
@@ -118,7 +119,11 @@ export const Layout = ({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
           {defaultTitle} –{" "}
-          {org ? `${OrgTypes[org.orgType]} – ${org.orgName}` : pageTitle}
+          {org
+            ? `${OrgTypes[org.orgType]} – ${org.orgName}`
+            : event
+            ? `Événement – ${event.eventName}`
+            : pageTitle}
         </title>
       </Head>
 

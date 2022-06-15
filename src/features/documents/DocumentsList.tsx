@@ -1,33 +1,38 @@
-import { AddIcon, ChevronRightIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import {
+  AddIcon,
+  ChevronRightIcon,
+  ChevronUpIcon,
+  DownloadIcon
+} from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
   Box,
   Button,
   Flex,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
   Icon,
-  Input,
+  IconButton,
+  Image,
   Progress,
   Table,
   Tbody,
   Td,
   Text,
+  Tooltip,
   Tr,
+  UseDisclosureProps,
   useToast
 } from "@chakra-ui/react";
-import { ErrorMessage } from "@hookform/error-message";
-import axios from "axios";
-import React, { useState } from "react";
+import AbortController from "abort-controller";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 import { FaFile, FaImage } from "react-icons/fa";
-import { useForm } from "react-hook-form";
 import {
   Column,
   DeleteButton,
-  ErrorMessageText,
+  Heading,
   HostTag,
+  Link,
   LinkShare
 } from "features/common";
 import { useSession } from "hooks/useSession";
@@ -35,16 +40,83 @@ import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
 import { useGetDocumentsQuery } from "features/api/documentsApi";
 import api from "utils/api";
-import { handleError } from "utils/form";
 import * as stringUtils from "utils/string";
-import { hasItems } from "utils/array";
 import { useDiskUsage } from "hooks/useDiskUsage";
+import { breakpoints, pxBreakpoints } from "theme/theme";
+import { FullscreenModal } from "features/modals/FullscreenModal";
+import { getMeta } from "utils/image";
+import { DocumentForm } from "features/forms/DocumentForm";
+import { divideArray, hasItems } from "utils/array";
+
+const controller = new AbortController();
+const signal = controller.signal;
+
+const ImageElement = ({
+  url,
+  columnCount,
+  screenWidth,
+  onClick,
+  ...props
+}: {
+  url: string;
+  width: number;
+  columnCount: number;
+  screenWidth: number;
+  onClick: () => void;
+}) => {
+  const [width, setWidth] = useState<number>();
+  useEffect(() => {
+    (async () => {
+      // console.group();
+      // console.log(url.match(/[^=]+$/)![0]);
+
+      let marginAround = 2 * (4 * 12 + 24);
+      const marginBetween = (columnCount - 1) * 24;
+      let newMW = screenWidth - marginAround;
+
+      if (screenWidth > pxBreakpoints["2xl"]) {
+        marginAround = 2 * (5 * 12 + 20 + 84);
+        newMW = (screenWidth - marginAround - marginBetween) / columnCount;
+      } else if (columnCount !== 1) {
+        marginAround = 2 * (4 * 12 + 20);
+        newMW = (screenWidth - marginAround - marginBetween) / columnCount;
+      }
+
+      const newW = props.width > newMW ? newMW : props.width;
+      setWidth(newW);
+
+      // console.log(screenWidth > pxBreakpoints["2xl"], columnCount, newW, newMW);
+      // console.groupEnd();
+    })();
+  }, [screenWidth]);
+
+  if (!width) return null;
+
+  return (
+    <Image
+      src={url}
+      width={`${width}px`}
+      borderRadius="12px"
+      cursor="pointer"
+      mb={3}
+      mx={3}
+      onClick={onClick}
+    />
+  );
+};
+
+interface RemoteImage {
+  url: string;
+  height: number;
+  width: number;
+}
 
 export const DocumentsList = ({
   org,
   user,
   isLogin,
   setIsLogin,
+  isMobile,
   ...props
 }: {
   org?: IOrg;
@@ -54,74 +126,95 @@ export const DocumentsList = ({
   isSubscribed?: boolean;
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
+  isMobile: boolean;
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
+  const router = useRouter();
   const toast = useToast({ position: "top" });
+  const diskUsage = useDiskUsage();
+  const [isAdd, setIsAdd] = useState(false);
 
-  //#region documents
+  //#region images state
   const query = useGetDocumentsQuery(
     org ? { orgId: org._id } : user ? { userId: user._id } : {}
   );
-  //#endregion
+  const [images, setImages] = useState<RemoteImage[]>([]);
 
-  //#region local state
-  const diskUsage = useDiskUsage();
-  const [loaded, setLoaded] = useState(0);
-  const [isAdd, setIsAdd] = useState(false);
+  useEffect(() => {
+    const xhr = async (data: string[]) => {
+      let newImages: RemoteImage[] = [];
 
-  const [isLoading, setIsLoading] = useState(false);
-  //#endregion
-
-  //#region form
-  const { register, handleSubmit, setError, errors, clearErrors, watch } =
-    useForm({
-      mode: "onChange"
-    });
-
-  const onChange = () => {
-    clearErrors("formErrorMessage");
-  };
-  const onSubmit = async (form: any) => {
-    console.log("submitted", form);
-    setIsLoading(true);
-
-    try {
-      const file = form.files[0];
-      const data = new FormData();
-      data.append("file", file, file.name);
-
-      if (org) data.append("orgId", org._id);
-      else if (user) data.append("userId", user._id);
-
-      const { statusText } = await axios.post(
-        process.env.NEXT_PUBLIC_API2,
-        data,
-        {
-          onUploadProgress: (ProgressEvent) => {
-            setLoaded((ProgressEvent.loaded / ProgressEvent.total) * 100);
-          }
+      for (const fileName of data) {
+        if (stringUtils.isImage(fileName)) {
+          const url = `${process.env.NEXT_PUBLIC_API2}/view?${
+            org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
+          }&fileName=${fileName}`;
+          const { height, width } = await getMeta(url);
+          newImages.push({ url, height, width });
         }
-      );
-
-      if (statusText === "OK") {
-        toast({
-          title: "Votre document a été ajouté !",
-          status: "success"
-        });
-        query.refetch();
-        setIsAdd(false);
       }
-    } catch (error) {
-      handleError(error, (message) =>
-        setError("formErrorMessage", {
-          type: "manual",
-          message
-        })
-      );
-    } finally {
-      setIsLoading(false);
-    }
+
+      setImages(newImages);
+      setMasonry(divideArray<RemoteImage>(newImages, columnCount));
+    };
+
+    if (query.data) xhr(query.data);
+  }, [query.data]);
+  //#endregion
+
+  //#region masonry state
+  const [columnCount, setColumnCount] = useState(1);
+  const [masonry, setMasonry] = useState<RemoteImage[][]>([]);
+  useEffect(() => {
+    if (hasItems(images))
+      setMasonry(divideArray<RemoteImage>(images, columnCount));
+  }, [columnCount]);
+  //#endregion
+
+  //#region modal state
+  const [modalState, setModalState] = useState<
+    UseDisclosureProps & Partial<RemoteImage>
+  >({
+    isOpen: false
+  });
+  const onClose = () =>
+    setModalState({
+      ...modalState,
+      isOpen: false,
+      height: undefined,
+      url: undefined,
+      width: undefined
+    });
+  const onOpen = async (image: RemoteImage) => {
+    setModalState({ ...modalState, ...image, isOpen: true });
   };
+  //#endregion
+
+  //#region componentDidMount
+  const [screenWidth, setScreenWidth] = useState<number>(0);
+  useEffect(() => {
+    if (screenWidth) {
+      let col = 1;
+      if (screenWidth >= pxBreakpoints.xl) col = 4;
+      else if (screenWidth >= pxBreakpoints.lg) col = 3;
+      else if (screenWidth >= pxBreakpoints.md) col = 2;
+      if (col != columnCount) setColumnCount(col);
+    }
+  }, [screenWidth]);
+  useEffect(() => {
+    if (!isMobile) {
+      const updateScreenWidth = () => setScreenWidth(window.innerWidth - 15);
+      updateScreenWidth();
+      window.addEventListener("resize", updateScreenWidth);
+      signal.addEventListener("abort", () => {
+        window.removeEventListener("resize", updateScreenWidth);
+      });
+    }
+
+    return () => {
+      if (!isMobile) controller.abort();
+    };
+  }, []);
   //#endregion
 
   return (
@@ -170,97 +263,97 @@ export const DocumentsList = ({
 
       {isAdd && (
         <Column m="0 0 20px 0">
-          <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-            <FormControl isInvalid={!!errors["files"]} mb={3}>
-              <FormLabel>Sélectionnez un fichier :</FormLabel>
-              <Input
-                height="auto"
-                py={3}
-                name="files"
-                type="file"
-                accept="*"
-                onChange={async (e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    setLoaded(0);
-                    clearErrors("file");
-                    clearErrors("formErrorMessage");
-                  }
-                }}
-                ref={register({
-                  required: "Vous devez sélectionner un fichier",
-                  validate: (file) => {
-                    if (file && file[0] && file[0].size >= 50000000) {
-                      return "Le fichier ne doit pas dépasser 50Mo.";
-                    }
-                    return true;
-                  }
-                })}
-              />
-              <FormErrorMessage>
-                <ErrorMessage errors={errors} name="files" />
-              </FormErrorMessage>
-            </FormControl>
-
-            {loaded > 0 && loaded !== 100 && (
-              <Progress mb={3} hasStripe value={loaded} />
-            )}
-
-            <ErrorMessage
-              errors={errors}
-              name="formErrorMessage"
-              render={({ message }) => (
-                <Alert status="error" mb={3}>
-                  <AlertIcon />
-                  <ErrorMessageText>{message}</ErrorMessageText>
-                </Alert>
-              )}
-            />
-
-            <Button
-              colorScheme="green"
-              type="submit"
-              isLoading={isLoading}
-              isDisabled={Object.keys(errors).length > 0}
-            >
-              Ajouter
-            </Button>
-          </form>
+          <DocumentForm
+            org={org}
+            user={user}
+            onSubmit={() => {
+              query.refetch();
+              setIsAdd(false);
+            }}
+          />
         </Column>
       )}
 
       {query.isLoading || query.isFetching ? (
         <Text>Chargement des documents...</Text>
-      ) : Array.isArray(query.data) ? (
-        <Column overflowX="auto" m="" maxWidth={undefined} p={0}>
-          <Table>
-            <Tbody>
-              {hasItems(query.data) ? (
-                query.data.map((fileName) => {
+      ) : Array.isArray(query.data) && query.data.length > 0 ? (
+        <>
+          <Column overflowX="auto" m="" maxWidth={undefined} mb={3} p={0}>
+            <Heading px={3} pb={3}>
+              Liste des fichiers
+            </Heading>
+            <Table>
+              <Tbody>
+                {query.data.map((fileName) => {
                   const isImage = stringUtils.isImage(fileName);
-                  const isPdf = fileName.includes(".pdf");
-                  const url = `${process.env.NEXT_PUBLIC_API2}/${
-                    isImage || isPdf ? "view" : "download"
-                  }?${
+                  // const isPdf = fileName.includes(".pdf");
+                  // const url = `${process.env.NEXT_PUBLIC_API2}/${
+                  //   isImage || isPdf ? "view" : "download"
+                  // }?${
+                  //   org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
+                  // }&fileName=${fileName}`;
+
+                  const url = `${process.env.NEXT_PUBLIC_API2}/view?${
+                    org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
+                  }&fileName=${fileName}`;
+                  const downloadUrl = `${
+                    process.env.NEXT_PUBLIC_API2
+                  }/download?${
                     org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
                   }&fileName=${fileName}`;
 
                   return (
                     <Tr key={fileName}>
                       <Td p="16px 12px 16px 12px">
-                        <a href={url} target="_blank">
-                          <Box display="flex" alignItems="center">
-                            <Icon as={isImage ? FaImage : FaFile} mr={3} />
-                            {fileName}
-                          </Box>
-                        </a>
+                        <Box display="flex" alignItems="center">
+                          <Icon as={isImage ? FaImage : FaFile} mr={3} />
+                          <Tooltip
+                            hasArrow
+                            label={`Ouvrir ${
+                              isImage ? "l'image" : "le fichier"
+                            }`}
+                            placement="top"
+                          >
+                            <span>
+                              <Link
+                                // href={url}
+                                // target="_blank"
+                                variant="underline"
+                                onClick={() => {
+                                  if (isImage) {
+                                    const image = images.find(
+                                      (image) => image.url === url
+                                    );
+                                    if (image) onOpen(image);
+                                  }
+                                }}
+                              >
+                                {fileName}
+                              </Link>
+                            </span>
+                          </Tooltip>
+                        </Box>
                       </Td>
 
                       <Td p="0 8px 0 0" textAlign="right" whiteSpace="nowrap">
+                        <Tooltip label="Télécharger le fichier">
+                          <IconButton
+                            aria-label="Télécharger le fichier"
+                            colorScheme="green"
+                            icon={<DownloadIcon />}
+                            mr={2}
+                            variant="outline"
+                            onClick={() => {
+                              router.push(downloadUrl);
+                            }}
+                          />
+                        </Tooltip>
+
                         <LinkShare
-                          label="Copier l'adresse du lien"
-                          url={url}
                           colorScheme="blue"
+                          label="Copier l'adresse du lien"
                           mr={2}
+                          url={url}
                           variant="outline"
                           tooltipProps={{ placement: "bottom" }}
                         />
@@ -317,21 +410,60 @@ export const DocumentsList = ({
                       </Td>
                     </Tr>
                   );
-                })
-              ) : (
-                <Alert status="warning">
-                  <AlertIcon />
-                  Aucun documents.
-                </Alert>
-              )}
-            </Tbody>
-          </Table>
-        </Column>
+                })}
+              </Tbody>
+            </Table>
+          </Column>
+
+          <Column p={0}>
+            <Heading px={3} pb={3}>
+              Portfolio
+            </Heading>
+
+            <Flex justifyContent="center">
+              {masonry.map((column, index) => {
+                return (
+                  <Flex key={index} flexDirection="column" width="100%">
+                    {column.map((image, imageIndex) => {
+                      return (
+                        <ImageElement
+                          key={`image-${imageIndex}`}
+                          columnCount={columnCount}
+                          screenWidth={screenWidth}
+                          url={image.url}
+                          width={image.width}
+                          onClick={() => {
+                            onOpen(image);
+                          }}
+                        />
+                      );
+                    })}
+                  </Flex>
+                );
+              })}
+            </Flex>
+          </Column>
+        </>
       ) : (
-        <Alert status="warning">
+        <Alert status="info">
           <AlertIcon />
           Aucun documents.
         </Alert>
+      )}
+
+      {modalState.isOpen && modalState.url && (
+        <FullscreenModal
+          header={modalState.url.match(/[^=]+$/)![0]}
+          body={
+            <Image
+              alignSelf="center"
+              src={modalState.url}
+              height={`${modalState.height}px`}
+              width={`${modalState.width}px`}
+            />
+          }
+          onClose={onClose}
+        />
       )}
     </>
   );

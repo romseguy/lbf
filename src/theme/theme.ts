@@ -13,6 +13,14 @@ export const breakpoints = createBreakpoints({
   nav: "1003px"
 });
 
+export const pxBreakpoints = {
+  sm: 448,
+  md: 640,
+  lg: 832,
+  xl: 1024,
+  "2xl": 1280
+};
+
 export type LinkVariant = "underline" | "no-underline";
 
 // https://stackoverflow.com/a/66926531

@@ -320,7 +320,7 @@ export const UserPage = ({
                 </Grid>
               </TabPanel>
 
-              {isSelf && (
+              {/* {isSelf && (
                 <TabPanel aria-hidden>
                   <ProjectsList
                     user={user}
@@ -329,7 +329,7 @@ export const UserPage = ({
                     setIsLogin={setIsLogin}
                   />
                 </TabPanel>
-              )}
+              )} */}
 
               {isSelf && (
                 <TabPanel aria-hidden>
@@ -337,6 +337,7 @@ export const UserPage = ({
                     user={user}
                     isLogin={isLogin}
                     setIsLogin={setIsLogin}
+                    isMobile={isMobile}
                   />
                 </TabPanel>
               )}

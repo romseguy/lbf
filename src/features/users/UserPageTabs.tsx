@@ -5,9 +5,9 @@ import { EntityPageTab, EntityPageTabList } from "features/common";
 import { AppIcon } from "utils/types";
 
 export const defaultTabs: UserPageTabsType = {
-  Accueil: { icon: FaHome, url: "" }
+  Accueil: { icon: FaHome, url: "" },
   // Projets: { icon: FaTools, url: "/projets" },
-  // Galerie: { icon: FaImages, url: "/galerie" }
+  Galerie: { icon: FaImages, url: "/galerie" }
 };
 
 export type UserPageTabsType = {

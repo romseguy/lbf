@@ -172,8 +172,9 @@ export const OrgPage = ({
                     <Alert status="warning">
                       <AlertIcon />
                       <Box>
-                        Les <b>discussions</b>, les <b>projets</b> et les
-                        adresses e-mail associés seront supprimés.
+                        Les <b>discussions</b>, les <b>projets</b>, les{" "}
+                        <b>fichiers</b>, et les adresses e-mail associés seront
+                        supprimés.
                       </Box>
                     </Alert>
                     <Text mb={1} mt={3}>

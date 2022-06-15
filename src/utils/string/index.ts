@@ -18,7 +18,7 @@ export function bytesForHuman(bytes: number, decimals = 0) {
     bytes /= 1024;
   }
 
-  return parseFloat(bytes.toFixed(decimals)) + " " + units[i];
+  return parseFloat(bytes.toFixed(decimals)) + units[i];
 }
 
 export function transformRTEditorOutput(

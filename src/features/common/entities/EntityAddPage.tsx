@@ -15,10 +15,10 @@ export const EntityAddPage = ({
   const router = useRouter();
   const { orgId }: { orgId?: string } = router.query;
   const onSubmit = async (url: string) => {
-    localStorage.removeItem("storageKey");
     await router.push(`/${url}`, `/${url}`, {
       shallow: true
     });
+    localStorage.removeItem("storageKey");
   };
 
   return (

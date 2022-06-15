@@ -35,7 +35,6 @@ import { IEntityBanner, isEvent } from "models/Entity";
 
 export const BannerForm = ({
   query,
-  isVisible,
   toggleVisibility
 }: (EventConfigVisibility | OrgConfigVisibility) & {
   query: AppQuery<IOrg | IEvent>;
@@ -119,7 +118,7 @@ export const BannerForm = ({
 
       await edit({
         payload,
-        eventId: entity._id
+        [isE ? "eventId" : "orgId"]: entity._id
       }).unwrap();
       setIsLoading(false);
       toggleVisibility("banner");
@@ -157,8 +156,8 @@ export const BannerForm = ({
             try {
               setIsLoading(true);
               await edit({
-                payload: ["orgBanner"],
-                eventId: entity._id
+                payload: isE ? ["eventBanner"] : ["orgBanner"],
+                [isE ? "eventId" : "orgId"]: entity._id
               }).unwrap();
               setIsLoading(false);
               toast({

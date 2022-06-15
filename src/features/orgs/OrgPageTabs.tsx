@@ -309,6 +309,7 @@ export const OrgPageTabs = ({
                 isSubscribed={isSubscribed}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
+                isMobile={isMobile}
               />
             </Column>
           </TabPanel>

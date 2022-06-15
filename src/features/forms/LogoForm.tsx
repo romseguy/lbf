@@ -35,7 +35,6 @@ import { AppQuery } from "utils/types";
 
 export const LogoForm = ({
   query,
-  isVisible,
   toggleVisibility
 }: (EventConfigVisibility | OrgConfigVisibility) & {
   query: AppQuery<IOrg | IEvent>;
@@ -133,7 +132,7 @@ export const LogoForm = ({
 
       await edit({
         payload,
-        eventId: entity._id
+        [isE ? "eventId" : "orgId"]: entity._id
       }).unwrap();
       setIsLoading(false);
       toggleVisibility("logo");

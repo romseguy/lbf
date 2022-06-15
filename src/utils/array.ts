@@ -1,3 +1,21 @@
+export function divideArray<T>(array: T[], length: number): T[][] {
+  const newArray = [...array];
+  const divideRes = Math.floor(newArray.length / length);
+  let results = [];
+
+  for (let i = 0; i < length; i++) {
+    results.push(newArray.splice(0, divideRes));
+  }
+
+  for (let i = 0; i < newArray.length; i++) {
+    results[i].push(newArray[i]);
+  }
+
+  results = results.filter((item) => item.length);
+
+  return results;
+}
+
 export const hasItems = (any: any) => Array.isArray(any) && any.length > 0;
 
 export const indexOfbyKey = (
