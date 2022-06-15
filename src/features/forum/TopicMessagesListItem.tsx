@@ -7,21 +7,16 @@ import {
   IconButton,
   Tooltip
 } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import React from "react";
-import {
-  DeleteButton,
-  //formats,
-  Link,
-  RTEditor
-} from "features/common";
+import { DeleteButton, Link, RTEditor } from "features/common";
+import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
+import { ITopic } from "models/Topic";
+import { ITopicMessage } from "models/TopicMessage";
+import { Session } from "utils/auth";
 import * as dateUtils from "utils/date";
 import { sanitize } from "utils/string";
 import { AppQuery, TypedMap } from "utils/types";
-import { ITopicMessage } from "models/TopicMessage";
-import { ITopic } from "models/Topic";
-import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
 
 export const TopicMessagesListItem = ({
   index,

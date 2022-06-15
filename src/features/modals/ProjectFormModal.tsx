@@ -6,11 +6,11 @@ import {
   ModalCloseButton
 } from "@chakra-ui/react";
 import React from "react";
-import { Session } from "lib/SessionContext";
 import { Modal } from "features/common";
 import { ProjectForm } from "features/forms/ProjectForm";
 import { IOrg } from "models/Org";
 import { IProject } from "models/Project";
+import { Session } from "utils/auth";
 
 export const ProjectFormModal = (props: {
   session: Session;

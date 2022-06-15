@@ -7,11 +7,11 @@ import {
   ModalCloseButton,
   useDisclosure
 } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import React from "react";
 import { Modal } from "features/common";
 import { EventForwardForm } from "features/forms/EventForwardForm";
 import { IEvent } from "models/Event";
+import { Session } from "utils/auth";
 
 export const EventForwardFormModal = (props: {
   event: IEvent<Date>;

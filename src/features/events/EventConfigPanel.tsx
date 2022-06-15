@@ -1,20 +1,16 @@
-import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
-import { Box, Button, Icon, Input, Text, useToast } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React from "react";
 import {
   Column,
-  DeleteButton,
   EntityConfigBannerPanel,
   EntityConfigCategoriesPanel,
   EntityConfigLogoPanel,
   EntityConfigStyles,
   Heading
 } from "features/common";
-import { useDeleteEventMutation } from "features/events/eventsApi";
 import { EventForm } from "features/forms/EventForm";
 import { IEvent } from "models/Event";
+import { Session } from "utils/auth";
 import { AppQueryWithData, TypedMap } from "utils/types";
 
 export type EventConfigVisibility = {

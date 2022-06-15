@@ -23,7 +23,6 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import { Session } from "lib/SessionContext";
 import React, { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EmailControl, EntityButton, ErrorMessageText } from "features/common";
@@ -31,6 +30,7 @@ import { useAddEventNotifMutation } from "features/events/eventsApi";
 import { IEvent } from "models/Event";
 import { orgTypeFull } from "models/Org";
 import { hasItems } from "utils/array";
+import { Session } from "utils/auth";
 import { handleError } from "utils/form";
 import { equalsValue } from "utils/string";
 import { AppQuery } from "utils/types";

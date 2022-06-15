@@ -1,11 +1,7 @@
-import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
-import { Box, Button, Icon, Input, Text, useToast } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React from "react";
 import {
   Column,
-  DeleteButton,
   EntityConfigBannerPanel,
   EntityConfigLogoPanel,
   EntityConfigCategoriesPanel,
@@ -13,15 +9,9 @@ import {
   Heading
 } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
-import { useDeleteOrgMutation } from "features/orgs/orgsApi";
-import {
-  EOrgType,
-  getOrgEventCategories,
-  IOrg,
-  orgTypeFull,
-  orgTypeFull5
-} from "models/Org";
+import { getOrgEventCategories, IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
+import { Session } from "utils/auth";
 import { AppQuery, AppQueryWithData, TypedMap } from "utils/types";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";

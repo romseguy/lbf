@@ -24,14 +24,13 @@ import {
   Td,
   Spinner
 } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
+import { useRouter } from "next/router";
 import React from "react";
 import { FaKey } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import { Heading } from "features/common";
 import {
-  EmailLoginPopover,
   EventPopover,
   OrgPopover,
   NotificationPopover,
@@ -40,10 +39,9 @@ import {
 import { selectUserEmail } from "features/users/userSlice";
 import { EOrgType } from "models/Org";
 import { PageProps } from "pages/_app";
+import { capitalize } from "utils/string";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
-import { capitalize } from "utils/string";
-import { useRouter } from "next/router";
 
 export const Nav = ({
   isMobile,

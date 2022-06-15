@@ -11,22 +11,22 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import { Session } from "lib/SessionContext";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import useFormPersist from "react-hook-form-persist";
 import { ErrorMessageText, ListsControl, RTEditor } from "features/common";
 import {
   AddProjectPayload,
   useAddProjectMutation,
   useEditProjectMutation
 } from "features/projects/projectsApi";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import { IOrg } from "models/Org";
 import { IProject, EProjectStatus, ProjectStatuses } from "models/Project";
 import { IUser } from "models/User";
-import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
-import { useLeaveConfirm } from "hooks/useLeaveConfirm";
-import useFormPersist from "react-hook-form-persist";
+import { Session } from "utils/auth";
+import { handleError } from "utils/form";
 
 export const ProjectForm = ({
   org,

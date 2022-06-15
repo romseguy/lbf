@@ -12,17 +12,16 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
-import { Session } from "lib/SessionContext";
 import React, { useRef, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
 import { EmailControl, ErrorMessageText, HostTag } from "features/common";
-import {
-  useAddUserMutation,
-  useEditUserMutation
-} from "features/users/usersApi";
+import { PhoneControl } from "features/common/forms/PhoneControl";
+import { refetchOrg } from "features/orgs/orgSlice";
+import { useEditUserMutation } from "features/users/usersApi";
 import type { IUser } from "models/User";
 import { useAppDispatch } from "store";
+import { Session } from "utils/auth";
 import { handleError } from "utils/form";
 import {
   Base64Image,
@@ -31,8 +30,6 @@ import {
   getPicaInstance
 } from "utils/image";
 import { normalize } from "utils/string";
-import { PhoneControl } from "features/common/forms/PhoneControl";
-import { refetchOrg } from "features/orgs/orgSlice";
 
 export const UserForm = (props: {
   user: IUser;

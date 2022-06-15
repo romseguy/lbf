@@ -9,7 +9,6 @@ import {
   Tabs,
   useColorMode
 } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { css } from "twin.macro";
@@ -26,6 +25,7 @@ import { ProjectsList } from "features/projects/ProjectsList";
 import { defaultTabs, IOrg, IOrgTabWithIcon, orgTypeFull } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { sortOn } from "utils/array";
+import { Session } from "utils/auth";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";

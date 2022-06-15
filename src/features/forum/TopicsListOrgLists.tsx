@@ -6,10 +6,10 @@ import {
   Tooltip,
   useColorMode
 } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import React from "react";
 import { IOrg, IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
+import { Session } from "utils/auth";
 import { AppQuery } from "utils/types";
 
 export const TopicsListOrgLists = ({

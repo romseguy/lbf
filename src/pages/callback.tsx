@@ -3,8 +3,8 @@ import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { setUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
-import { magic } from "lib/magic";
 import { useAppDispatch } from "store";
+import { magic } from "utils/auth";
 import { PageProps } from "./_app";
 
 const CallbackPage = (props: PageProps) => {

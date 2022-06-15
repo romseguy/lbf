@@ -4,9 +4,9 @@ import React from "react";
 import { Link, SubscribeSwitch } from "features/common";
 import { resetUserEmail } from "features/users/userSlice";
 import { useSession } from "hooks/useAuth";
-import { magic } from "lib/magic";
 import { useAppDispatch } from "store";
 import api from "utils/api";
+import { magic } from "utils/auth";
 
 export const NavMenuList = ({
   email,

@@ -7,11 +7,10 @@ import { Chakra } from "features/common";
 import { GlobalStyles } from "features/layout";
 import { setIsOffline } from "features/session/sessionSlice";
 import { selectUserEmail, setUserEmail } from "features/users/userSlice";
-import { magic } from "lib/magic";
-import { Session, SessionContext } from "lib/SessionContext";
 import { useAppDispatch, wrapper } from "store";
 import theme from "theme/theme";
 import api from "utils/api";
+import { magic, Session, SessionContext } from "utils/auth";
 import { isServer } from "utils/isServer";
 //import { AppStateProvider } from "utils/context";
 

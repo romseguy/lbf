@@ -1,8 +1,6 @@
-import { AddIcon } from "@chakra-ui/icons";
 import {
   Box,
   BoxProps,
-  Button,
   Popover,
   PopoverBody,
   PopoverContent,
@@ -16,10 +14,9 @@ import {
   VStack,
   useDisclosure
 } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
+import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { EntityAddButton, EntityButton } from "features/common";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
@@ -33,8 +30,8 @@ import {
   ISubscription
 } from "models/Subscription";
 import { hasItems } from "utils/array";
+import { Session } from "utils/auth";
 import { AppQuery } from "utils/types";
-import { FaGlobeEurope, FaTree } from "react-icons/fa";
 
 let cachedRefetchSubscription = false;
 

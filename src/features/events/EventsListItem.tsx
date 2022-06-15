@@ -17,7 +17,6 @@ import {
 } from "@chakra-ui/react";
 import { format, formatISO, getMinutes, getDay } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Session } from "lib/SessionContext";
 import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
 import { Link, GridItem, EntityButton } from "features/common";
@@ -25,6 +24,7 @@ import { NotifModalState } from "features/modals/EntityNotifModal";
 import { getEventCategories, IEvent } from "models/Event";
 import { IOrg, IOrgEventCategory } from "models/Org";
 import { hasItems } from "utils/array";
+import { Session } from "utils/auth";
 import { EventsListItemVisibility } from "./EventsListItemVisibility";
 
 export const EventsListItem = ({

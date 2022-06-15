@@ -16,7 +16,6 @@ import {
   VStack,
   useDisclosure
 } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -27,6 +26,7 @@ import { selectSubscriptionRefetch } from "features/subscriptions/subscriptionSl
 import { selectUserEmail } from "features/users/userSlice";
 import { EEventInviteStatus } from "models/Event";
 import { hasItems } from "utils/array";
+import { Session } from "utils/auth";
 
 let cachedRefetchSubscription = false;
 

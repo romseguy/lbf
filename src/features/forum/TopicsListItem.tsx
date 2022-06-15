@@ -11,7 +11,6 @@ import {
   Text,
   Tooltip
 } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import React, { useEffect } from "react";
 import {
   FaBellSlash,
@@ -23,16 +22,17 @@ import {
 import { DeleteButton, GridItem } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { useScroll } from "hooks/useScroll";
+import { getCategoryLabel, isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
+import { Session } from "utils/auth";
 import * as dateUtils from "utils/date";
 import { AppQueryWithData } from "utils/types";
 import { TopicMessagesList } from "./TopicMessagesList";
-import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
-import { TopicsListItemSubscribers } from "./TopicsListItemSubscribers";
 import { TopicsListItemShare } from "./TopicsListItemShare";
-import { getCategoryLabel, isEvent } from "models/Entity";
+import { TopicsListItemSubscribers } from "./TopicsListItemSubscribers";
+import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
 
 interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
   session: Session | null;

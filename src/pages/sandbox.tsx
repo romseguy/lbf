@@ -1,9 +1,9 @@
-import React from "react";
-import { handleLoginWithSocial, magic } from "lib/magic";
 import { Spinner } from "@chakra-ui/react";
+import React from "react";
 import { SocialLogins } from "features/session/SocialLogins";
-import { useSession } from "hooks/useAuth";
 import { Link } from "features/common";
+import { useSession } from "hooks/useAuth";
+import { handleLoginWithSocial, magic } from "utils/auth";
 
 const Sandbox = () => {
   const { data: session, loading, setSession } = useSession();

@@ -10,7 +10,6 @@ import {
   useToast,
   FormLabel
 } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import ReactSelect from "react-select";
@@ -19,6 +18,7 @@ import { useAddEventMutation } from "features/events/eventsApi";
 import { useGetOrgsQuery } from "features/orgs/orgsApi";
 import type { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
+import { Session } from "utils/auth";
 import { handleError } from "utils/form";
 
 export const EventForwardForm = ({

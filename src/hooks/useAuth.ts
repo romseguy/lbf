@@ -1,7 +1,6 @@
 import Iron from "@hapi/iron";
 import { useContext } from "react";
-import CookieService, { TOKEN_NAME } from "lib/cookie";
-import { Session, SessionContext } from "lib/SessionContext";
+import { getAuthToken, Session, SessionContext, TOKEN_NAME } from "utils/auth";
 
 const sealOptions = {
   ...Iron.defaults,
@@ -16,7 +15,7 @@ export async function getSession(params?: any): Promise<Session | null> {
   if (!cookies[TOKEN_NAME]) return null;
 
   const user = await Iron.unseal(
-    CookieService.getAuthToken(cookies),
+    getAuthToken(cookies),
     process.env.SECRET,
     sealOptions
   );

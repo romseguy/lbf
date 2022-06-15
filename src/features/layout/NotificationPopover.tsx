@@ -15,17 +15,17 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { compareAsc, compareDesc, parseISO } from "date-fns";
-import { Session } from "lib/SessionContext";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { EntityButton } from "features/common";
 import { useGetEventsQuery } from "features/events/eventsApi";
 import { useGetTopicsQuery } from "features/forum/topicsApi";
 import { selectUserEmail } from "features/users/userSlice";
+import { isEvent, isTopic } from "models/Entity";
 import { IEmailNotification, IPushNotification } from "models/INotification";
 import { hasItems } from "utils/array";
+import { Session } from "utils/auth";
 import { timeAgo } from "utils/date";
-import { isEvent, isTopic } from "models/Entity";
 
 const NotificationPopoverContent = ({ session }: { session: Session }) => {
   const { colorMode } = useColorMode();

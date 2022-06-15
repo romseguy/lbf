@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Session } from "lib/SessionContext";
 import { AppState } from "store";
 
 const initialState: { isOffline: boolean } = {

@@ -1,19 +1,18 @@
 import { Document } from "mongoose";
-import { Session } from "lib/SessionContext";
 import nodemailer, { SendMailOptions as Mail } from "nodemailer";
 import { models } from "database";
 import { IEvent, EEventInviteStatus } from "models/Event";
-import { IOrg } from "models/Org";
 import {
   IEventNotification,
   IProjectNotification,
   ITopicNotification
 } from "models/INotification";
+import { IOrg } from "models/Org";
 import { EProjectInviteStatus, IProject } from "models/Project";
-import { ITopic } from "models/Topic";
 import { ESubscriptionType, ISubscription } from "models/Subscription";
+import { ITopic } from "models/Topic";
 import api from "utils/api";
-import { equals, logJson } from "utils/string";
+import { Session } from "utils/auth";
 import {
   createEventEmailNotif,
   createProjectEmailNotif,
@@ -21,6 +20,7 @@ import {
   getProjectUrl,
   getTopicUrl
 } from "utils/email";
+import { equals, logJson } from "utils/string";
 
 export const sendMail = async (mail: Mail, session?: Session | null) => {
   try {

@@ -3,12 +3,12 @@ import Iron from "@hapi/iron";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
-import CookieService from "lib/cookie";
-import { sealOptions } from "utils/query";
-import { NextApiRequestWithAuthorizationHeader } from "utils/types";
+import { setTokenCookie } from "utils/auth";
 import { createServerError } from "utils/errors";
-import { normalize } from "utils/string";
+import { sealOptions } from "utils/query";
 import { randomNumber } from "utils/randomNumber";
+import { normalize } from "utils/string";
+import { NextApiRequestWithAuthorizationHeader } from "utils/types";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 handler.use(database);
@@ -45,7 +45,7 @@ handler.post<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
       };
 
       const token = await Iron.seal(userToken, process.env.SECRET, sealOptions);
-      CookieService.setTokenCookie(res, token);
+      setTokenCookie(res, token);
 
       res.status(200).json({ ...userToken, userImage: user.userImage });
     } catch (error: any) {

@@ -11,7 +11,6 @@ import {
   ModalOverlay,
   useToast
 } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import React, { useState } from "react";
 import {
   EmailPreview,
@@ -28,14 +27,15 @@ import {
   AddTopicNotifPayload,
   useEditTopicMutation
 } from "features/forum/topicsApi";
+import { useEditProjectMutation } from "features/projects/projectsApi";
 import { isEvent, isTopic } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
+import { Session } from "utils/auth";
 import { AppQueryWithData } from "utils/types";
-import { useEditProjectMutation } from "features/projects/projectsApi";
 
 export type NotifModalState<T> = {
   entity?: T;

@@ -39,10 +39,10 @@ import {
   parseISO,
   setDay
 } from "date-fns";
-import { Session } from "lib/SessionContext";
 import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import useFormPersist from "react-hook-form-persist";
 import ReactSelect from "react-select";
 import { css } from "twin.macro";
 import { Suggestion } from "use-places-autocomplete";
@@ -58,22 +58,16 @@ import {
 import { UrlControl } from "features/common/forms/UrlControl";
 import { PhoneControl } from "features/common/forms/PhoneControl";
 import {
-  AddEventPayload,
-  EditEventPayload,
   useAddEventMutation,
   useEditEventMutation
 } from "features/events/eventsApi";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { useGetOrgQuery, useGetOrgsQuery } from "features/orgs/orgsApi";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import {
-  IEntity,
   IEntityAddress,
-  IEntityBanner,
-  IEntityCategory,
   IEntityEmail,
-  IEntityLogo,
   IEntityPhone,
-  IEntityStyles,
   IEntityWeb
 } from "models/Entity";
 import {
@@ -84,13 +78,11 @@ import {
 } from "models/Event";
 import { getOrgEventCategories, IOrg } from "models/Org";
 import { hasItems } from "utils/array";
+import { Session } from "utils/auth";
 import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
-import { useLeaveConfirm } from "hooks/useLeaveConfirm";
-import useFormPersist from "react-hook-form-persist";
-import { isServer } from "utils/isServer";
 
 type DaysMap = { [key: number]: DayState };
 type DayState = {

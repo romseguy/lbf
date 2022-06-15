@@ -1,9 +1,9 @@
 import { Button, Flex, useToast } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import React, { useState } from "react";
 import { RTEditor } from "features/common";
 import { useEditUserMutation } from "features/users/usersApi";
 import { IUser } from "models/User";
+import { Session } from "utils/auth";
 import { AppQueryWithData } from "utils/types";
 
 export const UserDescriptionForm = ({

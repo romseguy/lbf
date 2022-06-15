@@ -1,11 +1,11 @@
 import { FlexProps } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import { Column } from "features/common";
 import { isEvent, isTopic } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
+import { Session } from "utils/auth";
 import {
   createEventEmailNotif,
   createProjectEmailNotif,

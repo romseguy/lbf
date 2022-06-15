@@ -10,10 +10,10 @@ import {
   useToast
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { SocialLogins } from "features/session/SocialLogins";
-import { handleLoginWithSocial, magic } from "lib/magic";
-import { EmailControl } from "features/common";
 import { useForm } from "react-hook-form";
+import { EmailControl } from "features/common";
+import { SocialLogins } from "features/session/SocialLogins";
+import { handleLoginWithSocial, magic } from "utils/auth";
 
 export const LoginFormModal = (props: {
   onClose: () => void;

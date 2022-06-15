@@ -15,7 +15,6 @@ import {
   useDisclosure,
   useToast
 } from "@chakra-ui/react";
-import { Session } from "lib/SessionContext";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaBellSlash } from "react-icons/fa";
@@ -31,6 +30,7 @@ import { selectUserEmail } from "features/users/userSlice";
 import { getRefId } from "models/Entity";
 import { OrgTypes } from "models/Org";
 import { hasItems } from "utils/array";
+import { Session } from "utils/auth";
 import { timeAgo } from "utils/date";
 
 let cachedRefetchSubscription = false;

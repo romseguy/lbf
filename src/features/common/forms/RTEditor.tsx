@@ -1,13 +1,9 @@
 import { Spinner, useToast } from "@chakra-ui/react";
 import { Editor, IAllProps } from "@tinymce/tinymce-react";
 import axios from "axios";
-import { Session } from "lib/SessionContext";
 import React, { useEffect, useRef, useState } from "react";
-import type {
-  Editor as TinyMCEEditor,
-  EditorEvent,
-  RawEditorSettings
-} from "tinymce";
+import { useSelector } from "react-redux";
+import type { Editor as TinyMCEEditor } from "tinymce";
 import { styled } from "twin.macro";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -16,7 +12,7 @@ import {
   selectRTEditorIndex,
   useAppDispatch
 } from "store";
-import { useSelector } from "react-redux";
+import { Session } from "utils/auth";
 import { bindEvent } from "utils/element";
 
 interface BlobInfo {

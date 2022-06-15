@@ -18,7 +18,6 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
-import { Session } from "lib/SessionContext";
 import React, { useState, useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import useFormPersist from "react-hook-form-persist";
@@ -60,9 +59,10 @@ import {
   OrgVisibilities
 } from "models/Org";
 import { hasItems } from "utils/array";
+import { Session } from "utils/auth";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
-import { defaultErrorMessage, normalize } from "utils/string";
+import { normalize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
 
 export const OrgForm = withGoogleApi({
