@@ -12,7 +12,8 @@ import {
   Flex,
   Icon,
   IconButton,
-  Image,
+  Image as ChakraImage,
+  ImageProps,
   Progress,
   Table,
   Tbody,
@@ -42,7 +43,7 @@ import { useGetDocumentsQuery } from "features/api/documentsApi";
 import api from "utils/api";
 import * as stringUtils from "utils/string";
 import { useDiskUsage } from "hooks/useDiskUsage";
-import { breakpoints, pxBreakpoints } from "theme/theme";
+import { pxBreakpoints } from "theme/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { getMeta } from "utils/image";
 import { DocumentForm } from "features/forms/DocumentForm";
@@ -51,24 +52,23 @@ import { divideArray, hasItems } from "utils/array";
 const controller = new AbortController();
 const signal = controller.signal;
 
-const ImageElement = ({
-  url,
+const Image = ({
   columnCount,
+  image,
   screenWidth,
   onClick,
   ...props
-}: {
-  url: string;
-  width: number;
+}: ImageProps & {
   columnCount: number;
+  image: RemoteImage;
   screenWidth: number;
-  onClick: () => void;
+  onClick?: () => void;
 }) => {
   const [width, setWidth] = useState<number>();
   useEffect(() => {
     (async () => {
       // console.group();
-      // console.log(url.match(/[^=]+$/)![0]);
+      // console.log(image.url.match(/[^=]+$/)![0]);
 
       let marginAround = 2 * (4 * 12 + 24);
       const marginBetween = (columnCount - 1) * 24;
@@ -82,7 +82,7 @@ const ImageElement = ({
         newMW = (screenWidth - marginAround - marginBetween) / columnCount;
       }
 
-      const newW = props.width > newMW ? newMW : props.width;
+      const newW = image.width > newMW ? newMW : image.width;
       setWidth(newW);
 
       // console.log(screenWidth > pxBreakpoints["2xl"], columnCount, newW, newMW);
@@ -93,14 +93,17 @@ const ImageElement = ({
   if (!width) return null;
 
   return (
-    <Image
-      src={url}
+    <ChakraImage
+      src={image.url}
       width={`${width}px`}
       borderRadius="12px"
       cursor="pointer"
       mb={3}
       mx={3}
-      onClick={onClick}
+      onClick={() => {
+        onClick && onClick();
+      }}
+      {...props}
     />
   );
 };
@@ -173,7 +176,7 @@ export const DocumentsList = ({
 
   //#region modal state
   const [modalState, setModalState] = useState<
-    UseDisclosureProps & Partial<RemoteImage>
+    UseDisclosureProps & { image?: RemoteImage }
   >({
     isOpen: false
   });
@@ -181,12 +184,10 @@ export const DocumentsList = ({
     setModalState({
       ...modalState,
       isOpen: false,
-      height: undefined,
-      url: undefined,
-      width: undefined
+      image: undefined
     });
   const onOpen = async (image: RemoteImage) => {
-    setModalState({ ...modalState, ...image, isOpen: true });
+    setModalState({ ...modalState, image, isOpen: true });
   };
   //#endregion
 
@@ -233,7 +234,7 @@ export const DocumentsList = ({
                       status: "error",
                       title: `Vous devez être adhérent ou créateur ${orgTypeFull(
                         org.orgType
-                      )} pour ajouter un document`
+                      )} pour ajouter un fichier`
                     });
                   else setIsAdd(!isAdd);
                 } else {
@@ -426,15 +427,12 @@ export const DocumentsList = ({
                   <Flex key={index} flexDirection="column" width="100%">
                     {column.map((image, imageIndex) => {
                       return (
-                        <ImageElement
+                        <Image
                           key={`image-${imageIndex}`}
                           columnCount={columnCount}
+                          image={image}
                           screenWidth={screenWidth}
-                          url={image.url}
-                          width={image.width}
-                          onClick={() => {
-                            onOpen(image);
-                          }}
+                          onClick={() => onOpen(image)}
                         />
                       );
                     })}
@@ -451,19 +449,18 @@ export const DocumentsList = ({
         </Alert>
       )}
 
-      {modalState.isOpen && modalState.url && (
+      {modalState.isOpen && modalState.image && (
         <FullscreenModal
-          header={modalState.url.match(/[^=]+$/)![0]}
-          body={
-            <Image
-              alignSelf="center"
-              src={modalState.url}
-              height={`${modalState.height}px`}
-              width={`${modalState.width}px`}
-            />
-          }
+          header={modalState.image.url.match(/[^=]+$/)![0]}
+          bodyProps={{ bg: "black" }}
           onClose={onClose}
-        />
+        >
+          <ChakraImage
+            alignSelf="center"
+            src={modalState.image.url}
+            width={`${modalState.image.width}px`}
+          />
+        </FullscreenModal>
       )}
     </>
   );

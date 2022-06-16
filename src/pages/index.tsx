@@ -120,7 +120,8 @@ const IndexPage = (props: PageProps) => {
           .filter(
             (org) =>
               org.orgType === EOrgType.NETWORK &&
-              org.orgVisibility !== EOrgVisibility.PRIVATE
+              org.orgVisibility !== EOrgVisibility.PRIVATE &&
+              org.orgUrl !== "forum"
           )
           .map((org) => {
             return {

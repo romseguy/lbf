@@ -209,8 +209,7 @@ export const Layout = ({
 
         {router.pathname !== "/" && (
           <Header
-            event={event}
-            org={org}
+            entity={event || org}
             defaultTitle="Chargement..."
             pageTitle={pageTitle}
             pageSubTitle={pageSubTitle}
@@ -279,27 +278,3 @@ export const Layout = ({
     </>
   );
 };
-
-{
-  /*
-  const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false);
-  useEffect(() => {
-    const handleResize = () => {
-      let scrollHeight = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-        document.body.offsetHeight,
-        document.documentElement.offsetHeight,
-        document.body.clientHeight,
-        document.documentElement.clientHeight
-      );
-
-      if (scrollHeight >= window.innerHeight) {
-        setHasVerticalScrollbar(true);
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    handleResize();
-  }, []);
-*/
-}

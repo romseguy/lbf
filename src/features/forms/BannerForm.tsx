@@ -1,10 +1,10 @@
 import {
   Alert,
   AlertIcon,
-  Box,
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Image,
   Radio,
   RadioGroup,
   Select,
@@ -12,9 +12,9 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import React, { useRef, useState } from "react";
-import AvatarEditor from "react-avatar-editor";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useEditEventMutation } from "features/api/eventsApi";
 import {
   Button,
   DeleteButton,
@@ -22,16 +22,16 @@ import {
   Input,
   UrlControl
 } from "features/common";
-import { useEditEventMutation } from "features/api/eventsApi";
 import { EventConfigVisibility } from "features/events/EventConfigPanel";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
 import { useEditOrgMutation } from "features/api/orgsApi";
+import { IEntityBanner, isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
+import { bannerWidth } from "theme/theme";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
 import { AppQuery } from "utils/types";
-import { IEntityBanner, isEvent } from "models/Entity";
 
 export const BannerForm = ({
   query,
@@ -58,7 +58,6 @@ export const BannerForm = ({
     setError,
     errors,
     clearErrors,
-    getValues,
     setValue,
     watch
   } = useForm({
@@ -67,6 +66,10 @@ export const BannerForm = ({
 
   //#region form state
   const [isLoading, setIsLoading] = useState(false);
+  const [image, setImage] = useState<Base64Image>();
+  const [uploadType, setUploadType] = useState<"url" | "local">("local");
+  const url = watch("url");
+
   const [heights, setHeights] = useState([
     { label: "Petit", height: 140 },
     { label: "Moyen", height: 240 },
@@ -76,16 +79,15 @@ export const BannerForm = ({
     heights.find(({ height }) => height === entityBanner?.headerHeight) ||
     heights[0];
   const formHeight = watch("height") || defaultHeight;
-  const [uploadType, setUploadType] = useState<"url" | "local">(
-    entityBanner?.url ? "url" : "local"
-  );
-  const [upImg, setUpImg] = useState<Base64Image>();
-  const setEditorRef = useRef<AvatarEditor | null>(null);
   //#endregion
 
   //#region form handlers
   const onChange = () => clearErrors("formErrorMessage");
-  const onSubmit = async (form: { url?: string; height: number }) => {
+  const onSubmit = async (form: {
+    file?: FileList;
+    url?: string;
+    height: number;
+  }) => {
     console.log("submitted", form);
     setIsLoading(true);
 
@@ -93,41 +95,40 @@ export const BannerForm = ({
       const key = `${isE ? "event" : "org"}Banner`;
       let payload = {};
 
-      if (uploadType === "url" && form.url) {
-        const { height } = await getMeta(form.url);
+      if (form.url) {
+        const { height, width } = await getMeta(form.url);
+
         payload = {
           [key]: {
             url: form.url,
+            headerHeight: form.height,
             height,
-            headerHeight: form.height
+            width
           }
         };
-      } else {
-        if (!upImg) throw new Error("Vous devez choisir une bannière");
-
+      } else if (image) {
         payload = {
           [key]: {
-            base64: setEditorRef?.current?.getImageScaledToCanvas().toDataURL(),
-            height: form.height, // todo actual height
+            ...image,
             headerHeight: form.height
           }
         };
 
-        setUpImg(undefined);
-      }
+        setImage(undefined);
+      } else throw new Error("Vous devez choisir une bannière");
 
       await edit({
         payload,
         [isE ? "eventId" : "orgId"]: entity._id
       }).unwrap();
       setIsLoading(false);
-      toggleVisibility("banner");
       toast({
         title: `La bannière ${
           isE ? "de l'événement" : orgTypeFull(entity.orgType)
         } a été modifiée !`,
         status: "success"
       });
+      toggleVisibility("banner");
     } catch (error) {
       setIsLoading(false);
       handleError(error, (message) =>
@@ -144,39 +145,49 @@ export const BannerForm = ({
   return (
     <>
       {entityBanner && (
-        <DeleteButton
-          header={
-            <>
-              Êtes vous sûr de vouloir supprimer la bannière de {entityName} ?
-            </>
-          }
-          isLoading={isLoading}
-          mb={3}
-          onClick={async () => {
-            try {
-              setIsLoading(true);
-              await edit({
-                payload: isE ? ["eventBanner"] : ["orgBanner"],
-                [isE ? "eventId" : "orgId"]: entity._id
-              }).unwrap();
-              setIsLoading(false);
-              toast({
-                title: `La bannière ${
-                  isE ? "de l'événement" : orgTypeFull(entity.orgType)
-                } a été supprimée !`,
-                status: "success"
-              });
-            } catch (error) {
-              setIsLoading(false);
-              toast({
-                title: `La bannière ${
-                  isE ? "de l'événement" : orgTypeFull(entity.orgType)
-                } n'a pas pu être supprimée`,
-                status: "error"
-              });
+        <>
+          <Image
+            src={entityBanner.url || entityBanner.base64}
+            height={entityBanner.headerHeight}
+            width={bannerWidth}
+            mb={3}
+          />
+
+          <DeleteButton
+            header={
+              <>
+                Êtes vous sûr de vouloir supprimer la bannière de {entityName} ?
+              </>
             }
-          }}
-        />
+            isLoading={isLoading}
+            mb={3}
+            onClick={async () => {
+              try {
+                setIsLoading(true);
+                await edit({
+                  payload: isE ? ["eventBanner"] : ["orgBanner"],
+                  [isE ? "eventId" : "orgId"]: entity._id
+                }).unwrap();
+                setIsLoading(false);
+                toast({
+                  title: `La bannière ${
+                    isE ? "de l'événement" : orgTypeFull(entity.orgType)
+                  } a été supprimée !`,
+                  status: "success"
+                });
+                toggleVisibility("banner");
+              } catch (error) {
+                setIsLoading(false);
+                toast({
+                  title: `La bannière ${
+                    isE ? "de l'événement" : orgTypeFull(entity.orgType)
+                  } n'a pas pu être supprimée`,
+                  status: "error"
+                });
+              }
+            }}
+          />
+        </>
       )}
 
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
@@ -212,79 +223,72 @@ export const BannerForm = ({
           </Select>
         </FormControl>
 
-        {uploadType === "url" ? (
-          <UrlControl
-            name="url"
-            register={register}
-            setValue={setValue}
-            control={control}
-            errors={errors}
-            label="Adresse internet de l'image"
-            defaultValue={entityBanner?.url}
-            isMultiple={false}
-            isRequired
-            mb={3}
-          />
-        ) : (
-          <FormControl isInvalid={!!errors["file"]} mb={3}>
-            <FormLabel>Image</FormLabel>
-            <Input
-              height="auto"
-              py={3}
-              name="file"
-              type="file"
-              accept="image/*"
-              onChange={async (e) => {
-                if (e.target.files && e.target.files[0]) {
-                  if (e.target.files[0].size < 1000000) {
-                    setUpImg(await getBase64(e.target.files[0]));
-                    clearErrors("file");
-                  }
-                }
-              }}
-              ref={register({
-                validate: (file) => {
-                  if (file && file[0] && file[0].size >= 1000000) {
-                    return "L'image ne doit pas dépasser 1Mo.";
-                  }
-                  return true;
-                }
-              })}
+        {uploadType === "url" && (
+          <>
+            <UrlControl
+              name="url"
+              register={register}
+              setValue={setValue}
+              control={control}
+              errors={errors}
+              label="Adresse internet de l'image"
+              defaultValue={entityBanner?.url}
+              isMultiple={false}
+              isRequired
+              mb={3}
             />
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="file" />
-            </FormErrorMessage>
-          </FormControl>
+
+            {url && (
+              <Image
+                src={url}
+                height={parseInt(formHeight)}
+                width={bannerWidth}
+              />
+            )}
+          </>
         )}
 
-        <Box mb={3}>
-          {(getValues("url") || entityBanner?.url) && (
-            <AvatarEditor
-              ref={setEditorRef}
-              border={0}
-              color={[255, 255, 255, 0.6]} // RGBA
-              height={parseInt(formHeight)}
-              image={getValues("url") || entityBanner?.url}
-              rotate={0}
-              scale={1}
-              width={1154}
-              position={{ x: 0, y: 0 }}
-            />
-          )}
+        {uploadType === "local" && (
+          <>
+            <FormControl isInvalid={!!errors["file"]} mb={3}>
+              <FormLabel>Image</FormLabel>
+              <Input
+                height="auto"
+                py={3}
+                name="file"
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    if (e.target.files[0].size < 1000000) {
+                      setImage(await getBase64(e.target.files[0]));
+                      clearErrors("file");
+                    }
+                  }
+                }}
+                ref={register({
+                  validate: (file) => {
+                    if (file && file[0] && file[0].size >= 1000000) {
+                      return "L'image ne doit pas dépasser 1Mo.";
+                    }
+                    return true;
+                  }
+                })}
+              />
+              <FormErrorMessage>
+                <ErrorMessage errors={errors} name="file" />
+              </FormErrorMessage>
+            </FormControl>
 
-          {upImg && upImg.base64 && (
-            <AvatarEditor
-              ref={setEditorRef}
-              border={0}
-              color={[255, 255, 255, 0.6]} // RGBA
-              height={parseInt(formHeight)}
-              image={upImg.base64}
-              rotate={0}
-              scale={1}
-              width={1154}
-            />
-          )}
-        </Box>
+            {image?.base64 && (
+              <Image
+                src={image.base64}
+                height={parseInt(formHeight)}
+                width={bannerWidth}
+              />
+            )}
+          </>
+        )}
 
         <ErrorMessage
           errors={errors}
@@ -302,6 +306,7 @@ export const BannerForm = ({
           type="submit"
           isLoading={isLoading}
           isDisabled={Object.keys(errors).length > 0}
+          mt={3}
         >
           Valider
         </Button>

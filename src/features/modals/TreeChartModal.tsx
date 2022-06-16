@@ -43,6 +43,8 @@ export const TreeChartModal = ({
   useEffect(() => {
     const onClick = (node: TreeNodeWithId) => {
       const url = "/" + normalize(node.name);
+      console.log(url);
+
       router.push(url, url, { shallow: true });
       props.onClose();
     };

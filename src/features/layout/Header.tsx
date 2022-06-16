@@ -1,47 +1,25 @@
-import { ChatIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Flex,
-  Icon,
-  Image,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  Tag,
-  useColorMode,
-  FlexProps
-} from "@chakra-ui/react";
+import { Flex, Image, useColorMode, FlexProps } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { IoIosGitNetwork, IoIosPeople } from "react-icons/io";
-import {
-  FaGlobeEurope,
-  FaRegCalendarCheck,
-  FaRegCalendarTimes,
-  FaTree
-} from "react-icons/fa";
 import { css } from "twin.macro";
-import { Link, Heading } from "features/common";
+import { Link } from "features/common";
 import { useScroll } from "hooks/useScroll";
-import { getEventCategories, IEvent } from "models/Event";
-import { IOrg, EOrgType } from "models/Org";
+import { IOrg, orgTypeFull } from "models/Org";
 import { EventCategoryTag } from "features/events/EventCategoryTag";
 import { FullscreenModal } from "features/modals/FullscreenModal";
+import { IEntity, IEntityBanner, IEntityLogo, isEvent } from "models/Entity";
+import { logoHeight } from "theme/theme";
+import { HeaderTitle } from "./HeaderTitle";
 
 export const Header = ({
-  event,
-  org,
   defaultTitle,
+  entity,
   pageTitle,
   pageSubTitle,
   ...props
 }: FlexProps & {
-  event?: IEvent;
-  org?: IOrg;
   defaultTitle: string;
+  entity?: IEntity;
   pageTitle?: string;
   pageSubTitle?: React.ReactNode;
 }) => {
@@ -49,100 +27,30 @@ export const Header = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
   const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
+  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
   useEffect(() => {
     if (router.asPath === "/") return;
     if (Array.isArray(router.query.name) && !!router.query.name[1]) return;
     executeScroll();
   }, [router.asPath]);
 
-  //#region event/org
-  const banner = event?.eventBanner || org?.orgBanner;
-  const bgImage = banner ? `url("${banner.base64 || banner.url}")` : undefined;
-  const icon =
-    pageTitle === "Forum"
-      ? ChatIcon
-      : pageTitle === "Organisations"
-      ? IoIosPeople
-      : pageTitle === "Réseaux"
-      ? IoIosGitNetwork
-      : org
-      ? org.orgType === EOrgType.NETWORK
-        ? FaGlobeEurope
-        : FaTree
-      : event
-      ? event.isApproved
-        ? FaRegCalendarCheck
-        : FaRegCalendarTimes
-      : null;
-  const logo = event?.eventLogo || org?.orgLogo;
-  const logoBgImage = logo ? `url("${logo.url || logo.base64}")` : "";
-  const logoBgSize = "110px";
-  //#endregion
+  const isE = isEvent(entity);
+  let banner: IEntityBanner | undefined;
+  let logo: IEntityLogo | undefined;
+  let showTitle = true;
+  if (isE) {
+    banner = entity.eventBanner;
+    logo = entity.eventLogo;
+    showTitle = entity.eventStyles.showTitle;
+  } else if (entity) {
+    const org = entity as IOrg;
+    banner = org.orgBanner;
+    logo = org.orgLogo;
+    showTitle = org.orgStyles.showTitle;
+  }
 
-  //#region local state
-  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
-  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
-  //#endregion
-
-  const HeaderTitle = () => (
-    <Flex
-      alignItems="center"
-      bg={banner ? "black" : isDark ? "whiteAlpha.400" : "blackAlpha.200"}
-      borderRadius="lg"
-      pb={4}
-      pl={4}
-      pr={4}
-      pt={2}
-      ml={logo ? 5 : undefined}
-    >
-      {icon && (
-        <Icon
-          as={icon}
-          boxSize={8}
-          color={
-            event
-              ? event.isApproved
-                ? "green"
-                : "red"
-              : banner
-              ? "white"
-              : isDark
-              ? "green.200"
-              : "green"
-          }
-          mt={1}
-          mr={2}
-          title={
-            event?.isApproved
-              ? "Événement approuvé"
-              : event
-              ? "Événement en attente de modération"
-              : undefined
-          }
-        />
-      )}
-
-      <Link href={router.asPath} variant="no-underline">
-        <Heading pr={1}>
-          {org
-            ? org.orgName
-            : event
-            ? event.eventName
-            : pageTitle || defaultTitle}
-        </Heading>
-      </Link>
-    </Flex>
-  );
-
-  if (org && !org.orgBanner && !org.orgLogo && !org.orgStyles.showTitle)
-    return null;
-  if (
-    event &&
-    !event.eventBanner &&
-    !event.eventLogo &&
-    !event.eventStyles.showTitle
-  )
-    return null;
+  if (!banner && !logo && !showTitle) return null;
 
   return (
     <Flex
@@ -158,18 +66,22 @@ export const Header = ({
         banner && !logo
           ? "0 12px 0 12px"
           : banner && logo
-          ? "0 12px 0 12px"
+          ? "0 12px 0 0"
           : !banner && !logo
           ? 3
           : !banner && logo
-          ? "10px 12px 0 12px"
+          ? "0 12px 0 0"
           : undefined
       }
-      css={css`
-        background-image: ${bgImage};
-        background-size: cover;
-        background-repeat: no-repeat;
-      `}
+      css={
+        banner
+          ? css`
+              background-image: url("${banner.base64 || banner.url}");
+              background-size: 100% 100%;
+              background-repeat: no-repeat;
+            `
+          : undefined
+      }
       onClick={(e) => {
         e.stopPropagation();
         setIsBannerModalOpen(true);
@@ -178,6 +90,7 @@ export const Header = ({
     >
       {logo && (
         <Link
+          alignSelf="flex-end"
           onClick={(e) => {
             e.stopPropagation();
             setIsLogoModalOpen(true);
@@ -185,20 +98,22 @@ export const Header = ({
         >
           <Image
             src={logo.url || logo.base64}
-            borderTopRightRadius="lg"
-            height={logoBgSize}
+            borderBottomLeftRadius="lg"
+            borderTopLeftRadius={!banner && logo ? "lg" : undefined}
+            borderTopRightRadius={!banner && logo ? undefined : "lg"}
+            height={`${logoHeight}px`}
           />
         </Link>
       )}
 
-      {((!org && !event) ||
-        (org && org.orgStyles.showTitle) ||
-        (event && event.eventStyles.showTitle)) && <HeaderTitle />}
+      {(!entity || showTitle) && (
+        <HeaderTitle entity={entity} pageTitle={pageTitle || defaultTitle} />
+      )}
 
-      {event && typeof event.eventCategory === "string" && (
+      {isE && typeof entity.eventCategory === "string" && (
         <EventCategoryTag
-          event={event}
-          selectedCategory={event.eventCategory}
+          event={entity}
+          selectedCategory={entity.eventCategory}
           ml={2}
           variant="solid"
         />
@@ -207,40 +122,45 @@ export const Header = ({
       {banner && isBannerModalOpen && (
         <FullscreenModal
           header={
-            <>Bannière de {org ? org.orgName : event ? event.eventName : ""}</>
+            <>
+              Bannière{" "}
+              {isE ? "de l'événement" : orgTypeFull((entity as IOrg).orgType)}
+            </>
           }
-          body={
-            <Image
-              alignSelf="center"
-              src={(banner.url || banner.base64) as string}
-              height={banner.height || 140}
-              width={banner.width || 1154}
-            />
-          }
+          bodyProps={{ bg: "black" }}
           onClose={() => {
             setIsBannerModalOpen(false);
           }}
-        />
+        >
+          <Image
+            alignSelf="center"
+            src={(banner.url || banner.base64) as string}
+            height={banner.height || 140}
+            width={banner.width || 1154}
+          />
+        </FullscreenModal>
       )}
 
       {logo && isLogoModalOpen && (
         <FullscreenModal
           header={
-            <>Logo de {org ? org.orgName : event ? event.eventName : ""}</>
+            <>
+              Logo{" "}
+              {isE ? "de l'événement" : orgTypeFull((entity as IOrg).orgType)}
+            </>
           }
-          body={
-            <Box
-              alignSelf="center"
-              bg={logoBgImage}
-              bgRepeat="no-repeat"
-              height={logo.height}
-              width={logo.width}
-            ></Box>
-          }
+          bodyProps={{ bg: "black" }}
           onClose={() => {
             setIsLogoModalOpen(false);
           }}
-        />
+        >
+          <Image
+            alignSelf="center"
+            src={(logo.url || logo.base64) as string}
+            height={logo.height}
+            width={logo.width}
+          />
+        </FullscreenModal>
       )}
     </Flex>
   );

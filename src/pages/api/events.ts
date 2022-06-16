@@ -6,11 +6,12 @@ import { sendToAdmin } from "features/api/email";
 import { AddEventPayload } from "features/api/eventsApi";
 import { getSession } from "utils/auth";
 import { IEvent, EEventVisibility } from "models/Event";
-import { IOrg } from "models/Org";
+import { EOrgVisibility, IOrg } from "models/Org";
 import api from "utils/api";
 import { createServerError } from "utils/errors";
 import { randomNumber } from "utils/randomNumber";
 import { equals, normalize } from "utils/string";
+import { hasItems } from "utils/array";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -124,7 +125,10 @@ handler.post<
         };
       }
 
-      let isApproved = session.user.isAdmin;
+      let isApproved =
+        session.user.isAdmin ||
+        (hasItems(body.eventOrgs) &&
+          body.eventOrgs[0].orgVisibility === EOrgVisibility.PRIVATE);
 
       for (const eventOrg of body.eventOrgs) {
         const o = await models.Org.findOne({ _id: eventOrg._id });

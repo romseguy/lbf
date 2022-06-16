@@ -10,7 +10,6 @@ import { IOrg } from "models/Org";
 import { useAppDispatch } from "store";
 import { incrementRTEditorIndex, selectRTEditorIndex } from "store/uiSlice";
 import { Session } from "utils/auth";
-import { bindEvent } from "utils/element";
 
 interface BlobInfo {
   id: () => string;
@@ -25,6 +24,17 @@ interface BlobInfo {
 interface UploadFailureOptions {
   remove?: boolean;
 }
+
+const bindEvent = (
+  target: Document | Element,
+  eventName: string,
+  fun: () => void
+) => {
+  if (target.addEventListener) {
+    target.removeEventListener(eventName, fun, false);
+    target.addEventListener(eventName, fun, false);
+  }
+};
 
 const RTEditorStyles = styled("div")((props) => {
   return ``;

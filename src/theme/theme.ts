@@ -21,7 +21,19 @@ export const pxBreakpoints = {
   "2xl": 1280
 };
 
-export type LinkVariant = "underline" | "no-underline";
+export const getViewportWidth = () => {
+  const screenWidth = window.innerWidth - 15;
+  let marginAround = 2 * (5 * 12 + 20 + 84);
+
+  if (screenWidth < pxBreakpoints["2xl"]) {
+    marginAround = 2 * (4 * 12 + 20);
+  }
+
+  return screenWidth - marginAround;
+};
+
+export const bannerWidth = 1154;
+export const logoHeight = 110;
 
 // https://stackoverflow.com/a/66926531
 export const scrollbarStyles = `

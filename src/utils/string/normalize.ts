@@ -1,3 +1,5 @@
+import latinize from "latinize";
+
 export function normalize(
   str: string,
   underscores: boolean | undefined = true
@@ -8,7 +10,7 @@ export function normalize(
 
   if (underscores) out = out.replace(/\ /g, "_");
 
-  out = out.normalize("NFKD").replace(/[^\w\s.-_\/\']/g, "");
+  out = latinize(out);
   //out = out.replace(/\p{Diacritic}/gu, "");
   out = out.toLowerCase();
 

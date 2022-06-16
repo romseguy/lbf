@@ -4,7 +4,6 @@ import {
   Link as ChakraLink,
   LinkProps as ChakraLinkProps
 } from "@chakra-ui/react";
-import { LinkVariant } from "theme/theme";
 
 // import { SerializedStyles } from "@emotion/react";
 // declare type Url = string;
@@ -25,7 +24,7 @@ import { LinkVariant } from "theme/theme";
 // };
 
 export type LinkProps = Partial<NextLinkProps> &
-  ChakraLinkProps & { variant?: LinkVariant };
+  ChakraLinkProps & { variant?: "underline" | "no-underline" };
 
 export const Link = ({
   // NextLink

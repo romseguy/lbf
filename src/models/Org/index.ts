@@ -105,34 +105,30 @@ export const defaultTabs: IOrgTabWithIcon[] = [
 //#endregion
 
 //#region toString
-export const orgTypeFull = (orgType: EOrgType): string => {
-  if (!orgType) return "";
-
+export const orgTypeFull = (orgType: EOrgType = EOrgType.GENERIC): string => {
   return `${
     [EOrgType.GENERIC].includes(orgType) ? "de l'" : "de la "
   }${OrgTypes[orgType].toLowerCase()}`;
 };
 
-export const orgTypeFull2 = (orgType: EOrgType): string =>
+export const orgTypeFull2 = (orgType: EOrgType = EOrgType.GENERIC): string =>
   `${[EOrgType.GENERIC].includes(orgType) ? "à l'" : "à la "}${OrgTypes[
     orgType
   ].toLowerCase()}`;
 
-export const orgTypeFull3 = (orgType: EOrgType): string => {
-  if (!orgType) return "une organisation";
-
+export const orgTypeFull3 = (orgType: EOrgType = EOrgType.GENERIC): string => {
   return `${[EOrgType.GENERIC].includes(orgType) ? "un " : "une "}${OrgTypes[
     orgType
   ].toLowerCase()}`;
 };
 
-export const orgTypeFull4 = (orgType: EOrgType): string =>
+export const orgTypeFull4 = (orgType: EOrgType = EOrgType.GENERIC): string =>
   `${[EOrgType.GENERIC].includes(orgType) ? "cette " : "ce "}${OrgTypes[
     orgType
   ].toLowerCase()}`;
 
 export const orgTypeFull5 = (
-  orgType: EOrgType,
+  orgType: EOrgType = EOrgType.GENERIC,
   isCapitalized?: boolean
 ): string => {
   const str = `${[EOrgType.NETWORK].includes(orgType) ? "la " : "l'"}${OrgTypes[

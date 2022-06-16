@@ -5,7 +5,7 @@
   "background_color": "#FF0000",
   "theme_color": "#FF0000",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "splash_pages": null,
   "scope": "/",
   "start_url": "/",

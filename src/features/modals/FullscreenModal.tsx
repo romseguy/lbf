@@ -5,17 +5,19 @@ import {
   ModalContent,
   ModalHeader,
   ModalCloseButton,
-  ModalBody
+  ModalBody,
+  ModalBodyProps
 } from "@chakra-ui/react";
 import React from "react";
 
 export const FullscreenModal = ({
+  children,
   header,
-  body,
+  bodyProps,
   ...props
-}: Omit<ModalProps, "children" | "isOpen"> & {
+}: Omit<ModalProps, "isOpen"> & {
   header: React.ReactNode;
-  body: React.ReactNode;
+  bodyProps?: ModalBodyProps;
 }) => {
   return (
     <Modal size="full" isOpen closeOnOverlayClick {...props}>
@@ -25,8 +27,8 @@ export const FullscreenModal = ({
             {header}
           </ModalHeader>
           <ModalCloseButton color="white" />
-          <ModalBody display="flex" flexDirection="column" p={0}>
-            {body}
+          <ModalBody display="flex" flexDirection="column" p={0} {...bodyProps}>
+            {children}
           </ModalBody>
         </ModalContent>
       </ModalOverlay>

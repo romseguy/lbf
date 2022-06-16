@@ -5,6 +5,7 @@ import {
   Box,
   Flex,
   Input,
+  Spinner,
   Text,
   useToast
 } from "@chakra-ui/react";
@@ -114,6 +115,7 @@ export const OrgPage = ({
           }, {})
     );
   };
+
   const configButtons = () => {
     if (!isCreator) return null;
 
@@ -250,6 +252,32 @@ export const OrgPage = ({
     );
   };
 
+  const subscribeButtons = () => {
+    if (orgQuery.isLoading || isConfig || isEdit) return null;
+
+    if (subQuery.isLoading) return <Spinner />;
+
+    return (
+      <Flex flexWrap="wrap" mt={-3}>
+        {isFollowed && (
+          <Box mr={3} mt={3}>
+            <SubscribePopover org={org} query={orgQuery} subQuery={subQuery} />
+          </Box>
+        )}
+
+        <Box mt={3}>
+          <SubscribePopover
+            isDisabled={org.orgUrl === "nom_de_votre_planete" && !session}
+            org={org}
+            query={orgQuery}
+            subQuery={subQuery}
+            notifType="push"
+          />
+        </Box>
+      </Flex>
+    );
+  };
+
   if (org.orgUrl === "forum") {
     return (
       <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
@@ -285,29 +313,7 @@ export const OrgPage = ({
     <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
       {configButtons()}
 
-      {!isConfig && !isEdit && !subQuery.isLoading && (
-        <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
-          {isFollowed && (
-            <Box mr={3} mt={3}>
-              <SubscribePopover
-                org={org}
-                query={orgQuery}
-                subQuery={subQuery}
-              />
-            </Box>
-          )}
-
-          <Box mt={3}>
-            <SubscribePopover
-              isDisabled={org.orgUrl === "nom_de_votre_planete" && !session}
-              org={org}
-              query={orgQuery}
-              subQuery={subQuery}
-              notifType="push"
-            />
-          </Box>
-        </Flex>
-      )}
+      {subscribeButtons()}
 
       <Box my={3}>
         <Text fontSize="smaller">
