@@ -17,7 +17,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React from "react";
 import { useFieldArray } from "react-hook-form";
-import { StyleProps } from "theme/styles";
+import { StyleProps } from "features/layout/theme/styles";
 import { Link } from "../Link";
 
 type EmailControlValue = [{ email: string }] | null;

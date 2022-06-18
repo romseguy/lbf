@@ -25,6 +25,7 @@ import { IEvent } from "models/Event";
 import { IOrg, EOrgType } from "models/Org";
 import { hasItems } from "utils/array";
 import { SizeMap } from "utils/maps";
+import { AppIcon } from "utils/types";
 
 export const MapModal = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -53,6 +54,8 @@ export const MapModal = withGoogleApi({
   }) => {
     const isOffline = props.loaded && !props.google;
 
+    const canDisplay =
+      props.loaded && props.google && hasItems(events || orgs || []);
     const [center, setCenter] = useState<LatLon | undefined>(props.center);
 
     const divRef = useRef<HTMLDivElement>(null);
@@ -62,35 +65,6 @@ export const MapModal = withGoogleApi({
     });
 
     let title;
-    let icon = <Icon as={FaRegMap} mr={3} />;
-    if (events)
-      if (events.length === 1) {
-        title = (
-          <Link
-            href={`/${events[0].eventUrl}`}
-            size="larger"
-            className="rainbow-text"
-          >
-            {events[0].eventName}
-          </Link>
-        );
-        icon = <CalendarIcon mr={3} />;
-      } else title = "Carte des événements";
-    else if (orgs)
-      if (orgs.length === 1) {
-        title = (
-          <Link
-            href={`/${orgs[0].orgUrl}`}
-            size="larger"
-            className="rainbow-text"
-          >
-            {orgs[0].orgName}
-          </Link>
-        );
-        icon = <Icon as={IoIosPeople} mr={3} />;
-      } else if (orgs.find(({ orgType }) => orgType === EOrgType.NETWORK))
-        title = "Carte des réseaux";
-      else title = "Carte des organisations";
 
     return (
       <Modal
@@ -105,18 +79,21 @@ export const MapModal = withGoogleApi({
           <ModalContent
             my={size.fullSize.enabled ? 0 : undefined}
             minHeight={
-              !isOffline && size.defaultSize.enabled
+              !canDisplay
+                ? 0
+                : !isOffline && size.defaultSize.enabled
                 ? "calc(100vh - 180px)"
                 : size.fullSize.enabled
                 ? "100vh"
                 : undefined
             }
+            width={canDisplay ? undefined : "auto"}
           >
             {/* Header */}
             {size.defaultSize.enabled && (
               <>
-                <ModalHeader display="flex" alignItems="center">
-                  {icon}
+                <ModalHeader display="flex" alignItems="center" pb={0}>
+                  {/* {icon} */}
                   {header ? header : title}
                 </ModalHeader>
                 <ModalCloseButton />
@@ -125,13 +102,11 @@ export const MapModal = withGoogleApi({
 
             <ModalBody
               ref={divRef}
-              p={size.fullSize.enabled ? 0 : undefined}
+              p={!canDisplay ? 5 : size.fullSize.enabled ? 0 : undefined}
               display="flex"
               flexDirection="column"
             >
-              {props.loaded &&
-              props.google &&
-              hasItems(events || orgs || []) ? (
+              {canDisplay ? (
                 <>
                   {isSearch && (
                     <MapSearch
@@ -182,3 +157,38 @@ export const MapModal = withGoogleApi({
     );
   }
 );
+
+{
+  /**
+    let icon: AppIcon | undefined;
+
+    if (events)
+      if (events.length === 1) {
+        title = (
+          <Link
+            href={`/${events[0].eventUrl}`}
+            size="larger"
+            className="rainbow-text"
+          >
+            {events[0].eventName}
+          </Link>
+        );
+        icon = <CalendarIcon mr={3} />;
+      } else title = "Carte des événements";
+    else if (orgs)
+      if (orgs.length === 1) {
+        title = (
+          <Link
+            href={`/${orgs[0].orgUrl}`}
+            size="larger"
+            className="rainbow-text"
+          >
+            {orgs[0].orgName}
+          </Link>
+        );
+        icon = <Icon as={IoIosPeople} mr={3} />;
+      } else if (orgs.find(({ orgType }) => orgType === EOrgType.NETWORK))
+        title = "Carte des réseaux";
+      else title = "Carte des organisations";
+ */
+}

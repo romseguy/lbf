@@ -8,7 +8,7 @@ import { IOrg, orgTypeFull } from "models/Org";
 import { EventCategoryTag } from "features/events/EventCategoryTag";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { IEntity, IEntityBanner, IEntityLogo, isEvent } from "models/Entity";
-import { logoHeight } from "theme/theme";
+import { logoHeight } from "features/layout/theme/theme";
 import { HeaderTitle } from "./HeaderTitle";
 
 export const Header = ({

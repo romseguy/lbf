@@ -263,7 +263,13 @@ export const Nav = ({
                           </Heading>
                         </DrawerHeader>
                         <DrawerBody>
-                          <NavButtonsList direction="column" isMobile />
+                          <NavButtonsList
+                            direction="column"
+                            isMobile
+                            onClose={() => {
+                              if (isMobile) onDrawerClose();
+                            }}
+                          />
                         </DrawerBody>
                       </DrawerContent>
                     </Drawer>

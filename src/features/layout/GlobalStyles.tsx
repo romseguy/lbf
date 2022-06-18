@@ -1,5 +1,5 @@
 import { Global, css } from "@emotion/react";
-import { breakpoints } from "theme/theme";
+import { breakpoints } from "features/layout/theme/theme";
 import { zIndex } from "utils/string";
 
 export const GlobalStyles = () => (
@@ -35,7 +35,7 @@ export const GlobalStyles = () => (
       //#region large screens
       @media (min-width: ${breakpoints["2xl"]}) {
         .chakra-ui-light {
-          background: white;
+          background: url(/images/bg.jpg);
         }
         .chakra-ui-dark {
           background: black;

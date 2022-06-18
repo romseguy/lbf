@@ -43,7 +43,7 @@ import { useGetDocumentsQuery } from "features/api/documentsApi";
 import api from "utils/api";
 import * as stringUtils from "utils/string";
 import { useDiskUsage } from "hooks/useDiskUsage";
-import { pxBreakpoints } from "theme/theme";
+import { pxBreakpoints } from "features/layout/theme/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { getMeta } from "utils/image";
 import { DocumentForm } from "features/forms/DocumentForm";

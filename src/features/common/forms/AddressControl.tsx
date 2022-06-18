@@ -17,7 +17,7 @@ import { Control, Controller, useFieldArray } from "react-hook-form";
 import { Suggestion } from "use-places-autocomplete";
 import { AutoCompletePlacesControl, Link } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
-import { StyleProps } from "theme/styles";
+import { StyleProps } from "features/layout/theme/styles";
 import { zIndex } from "utils/string";
 
 type AddressControlValue = [{ address: string }] | null;

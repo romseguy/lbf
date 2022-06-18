@@ -1,17 +1,12 @@
-import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
-import {
-  createServerError,
-  databaseErrorCodes,
-  duplicateError
-} from "utils/errors";
-import { getSession } from "utils/auth";
-import { logJson, normalize } from "utils/string";
-import { IOrg, EOrgVisibility } from "models/Org";
-import { randomNumber } from "utils/randomNumber";
 import { AddOrgPayload } from "features/api/orgsApi";
+import { EOrgVisibility } from "models/Org";
+import { getCurrentId } from "store/utils";
+import { getSession } from "utils/auth";
+import { createServerError } from "utils/errors";
+import { logJson, normalize } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -78,12 +73,11 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
         isApproved: session.user.isAdmin
       };
 
+      const event = await models.Event.findOne({ eventUrl: orgUrl });
       const org = await models.Org.findOne({ orgUrl });
       const user = await models.User.findOne({ userName: orgUrl });
-      const event = await models.Event.findOne({ eventUrl: orgUrl });
-
-      if (org || user || event) {
-        const uid = randomNumber(2);
+      if (event || org || user) {
+        const uid = (await getCurrentId()) + 1;
         newOrg = {
           ...newOrg,
           orgName: orgName + "-" + uid,

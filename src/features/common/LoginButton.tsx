@@ -14,7 +14,6 @@ export const LoginButton = ({
     <Button
       colorScheme="teal"
       leftIcon={<FaKey />}
-      size="sm"
       onClick={(e) => {
         onClick && onClick(e);
         router.push("/?login", "/?login", {

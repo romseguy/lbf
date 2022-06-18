@@ -19,7 +19,7 @@ import React, { useState } from "react";
 import { useFieldArray } from "react-hook-form";
 import { FaGlobeEurope } from "react-icons/fa";
 import { css } from "twin.macro";
-import { StyleProps } from "theme/styles";
+import { StyleProps } from "features/layout/theme/styles";
 import { optionalProtocolUrlR, urlR } from "utils/url";
 import { Link } from "../Link";
 

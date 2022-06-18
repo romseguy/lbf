@@ -18,7 +18,7 @@ import { IOrg, orgTypeFull } from "models/Org";
 import { ISubscription, ESubscriptionType } from "models/Subscription";
 import { IUser } from "models/User";
 import { useAppDispatch } from "store";
-import { breakpoints } from "theme/theme";
+import { breakpoints } from "features/layout/theme/theme";
 import { hasItems } from "utils/array";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";

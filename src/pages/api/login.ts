@@ -3,10 +3,10 @@ import Iron from "@hapi/iron";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
+import { getCurrentId } from "store/utils";
 import { setTokenCookie } from "utils/auth";
 import { createServerError } from "utils/errors";
 import { sealOptions } from "utils/query";
-import { randomNumber } from "utils/randomNumber";
 import { normalize } from "utils/string";
 import { NextApiRequestWithAuthorizationHeader } from "utils/types";
 
@@ -26,8 +26,15 @@ handler.post<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
 
       if (!user && data.email) {
         let userName = normalize(data.email.replace(/@.+/, ""));
-        if (await models.User.findOne({ userName }))
-          userName += "-" + randomNumber(2);
+
+        if (
+          (await models.Event.findOne({ eventUrl: userName })) ||
+          (await models.Org.findOne({ orgUrl: userName })) ||
+          (await models.User.findOne({ userName }))
+        ) {
+          const uid = (await getCurrentId()) + 1;
+          userName = userName + "-" + uid;
+        }
 
         user = await models.User.create({
           email: data.email,

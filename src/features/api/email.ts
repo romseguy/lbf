@@ -711,6 +711,8 @@ export const sendToAdmin = async ({
     to: process.env.EMAIL_ADMIN
   };
 
+  console.log(event);
+
   if (event) {
     if (event.isApproved) return;
 

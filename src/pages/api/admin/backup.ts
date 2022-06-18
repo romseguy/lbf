@@ -1,6 +1,6 @@
 import { Document } from "mongodb";
 import nextConnect from "next-connect";
-import database, { db, models, collectionToModelKeys } from "database";
+import database, { db, models } from "database";
 import { getSession } from "utils/auth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createServerError } from "utils/errors";
@@ -44,6 +44,23 @@ handler.get<NextApiRequest, NextApiResponse>(async function exportData(
     res.status(500).json(createServerError(error));
   }
 });
+
+const collectionToModelKeys: {
+  [key: string]:
+    | "Event"
+    | "Org"
+    | "Project"
+    | "Subscription"
+    | "Topic"
+    | "User";
+} = {
+  events: "Event",
+  orgs: "Org",
+  projects: "Project",
+  subscriptions: "Subscription",
+  topics: "Topic",
+  users: "User"
+};
 
 handler.post<NextApiRequest, NextApiResponse>(async function importData(
   req,

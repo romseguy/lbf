@@ -1,6 +1,11 @@
 import { IEvent } from "models/Event";
+import { IOrg } from "models/Org";
 import { IProject } from "models/Project";
+import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
+import { IUser } from "models/User";
+import { Model } from "mongoose";
+import { hasItems } from "utils/array";
 import { TypedMap } from "utils/types";
 import { IEntity, IEntityCategory } from "./IEntity";
 
@@ -15,6 +20,14 @@ export const getCategoryLabel = (
   return category.label;
 };
 
+export const getRefId = (entity: TypedMap<string, any>, key?: string) => {
+  const value = entity[key || "createdBy"];
+
+  if (typeof value === "object") return value._id;
+
+  return value;
+};
+
 export const isEvent = (entity?: IEntity): entity is IEvent => {
   return !!entity && (entity as IEvent).eventUrl !== undefined;
 };
@@ -25,12 +38,4 @@ export const isProject = (entity?: IEntity): entity is IProject => {
 
 export const isTopic = (entity?: IEntity): entity is ITopic => {
   return !!entity && (entity as ITopic).topicName !== undefined;
-};
-
-export const getRefId = (entity: TypedMap<string, any>, key?: string) => {
-  const value = entity[key || "createdBy"];
-
-  if (typeof value === "object") return value._id;
-
-  return value;
 };

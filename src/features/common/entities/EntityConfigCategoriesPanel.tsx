@@ -16,7 +16,7 @@ import { IEntityCategory, IEntityCategoryKey, isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { AppQueryWithData } from "utils/types";
-import { breakpoints } from "theme/theme";
+import { breakpoints } from "features/layout/theme/theme";
 import { hasItems } from "utils/array";
 import { css } from "twin.macro";
 import { CategoryForm } from "features/forms/CategoryForm";

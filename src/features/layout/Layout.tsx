@@ -22,7 +22,7 @@ import { PageProps } from "pages/_app";
 import { useAppDispatch } from "store";
 import { selectIsOffline } from "store/sessionSlice";
 import { resetUserEmail, selectUserEmail } from "store/userSlice";
-import { breakpoints } from "theme/theme";
+import { breakpoints } from "features/layout/theme/theme";
 import { Base64Image } from "utils/image";
 import { isServer } from "utils/isServer";
 

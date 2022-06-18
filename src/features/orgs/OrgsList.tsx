@@ -16,7 +16,7 @@ import React, { useMemo, useState } from "react";
 import { css } from "twin.macro";
 import { Link } from "features/common";
 import { EOrgType, IOrg, orgTypeFull5, OrgTypes } from "models/Org";
-import { scrollbarStyles, tableStyles } from "theme/theme";
+import { scrollbarStyles, tableStyles } from "features/layout/theme/theme";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { AppQuery } from "utils/types";
 import { ISubscription } from "models/Subscription";

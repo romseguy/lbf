@@ -8,7 +8,7 @@ import { GlobalStyles } from "features/layout";
 import { setIsOffline } from "store/sessionSlice";
 import { selectUserEmail, setUserEmail } from "store/userSlice";
 import { useAppDispatch, wrapper } from "store";
-import theme from "theme/theme";
+import theme from "features/layout/theme/theme";
 import api from "utils/api";
 import { magic, Session, SessionContext } from "utils/auth";
 import { isServer } from "utils/isServer";

@@ -4,14 +4,14 @@ import nextConnect from "next-connect";
 import database, { models } from "database";
 import { sendToAdmin } from "features/api/email";
 import { AddEventPayload } from "features/api/eventsApi";
-import { getSession } from "utils/auth";
 import { IEvent, EEventVisibility } from "models/Event";
 import { EOrgVisibility, IOrg } from "models/Org";
+import { getCurrentId } from "store/utils";
 import api from "utils/api";
-import { createServerError } from "utils/errors";
-import { randomNumber } from "utils/randomNumber";
-import { equals, normalize } from "utils/string";
 import { hasItems } from "utils/array";
+import { getSession } from "utils/auth";
+import { createServerError } from "utils/errors";
+import { equals, normalize } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -115,9 +115,8 @@ handler.post<
       event = await models.Event.findOne({ eventUrl });
       const org = await models.Org.findOne({ orgUrl: eventUrl });
       const user = await models.User.findOne({ userName: eventUrl });
-
       if (event || org || user) {
-        const uid = randomNumber(2);
+        const uid = (await getCurrentId()) + 1;
         newEvent = {
           ...newEvent,
           eventName: eventName + "-" + uid,

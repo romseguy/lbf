@@ -35,7 +35,7 @@ import {
 } from "features/common";
 import { EntityListForm } from "features/forms/EntityListForm";
 import { addOrReplaceList, editList, IOrg, IOrgList } from "models/Org";
-import { breakpoints } from "theme/theme";
+import { breakpoints } from "features/layout/theme/theme";
 import { hasItems } from "utils/array";
 import { AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";

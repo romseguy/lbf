@@ -19,7 +19,7 @@ import React from "react";
 import { useFieldArray } from "react-hook-form";
 import { Link } from "../Link";
 import { phoneR } from "utils/string";
-import { StyleProps } from "theme/styles";
+import { StyleProps } from "features/layout/theme/styles";
 
 type PhoneControlValue = [{ address: string }] | null;
 

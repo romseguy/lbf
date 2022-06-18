@@ -1,7 +1,7 @@
-import { IncomingMessage, ServerResponse } from "http";
 import type { Db } from "mongodb";
 import mongoose, { Model } from "mongoose";
-import nextConnect, { NextHandler } from "next-connect";
+import { NextApiRequest, NextApiResponse } from "next";
+import { NextHandler } from "next-connect";
 import { IEvent } from "models/Event";
 import { EventSchema } from "models/Event/EventSchema";
 import { IOrg } from "models/Org";
@@ -15,37 +15,12 @@ import { TopicSchema } from "models/Topic/TopicSchema";
 import { IUser } from "models/User";
 import { UserSchema } from "models/User/UserSchema";
 
-export type AppModelKey =
-  | "Event"
-  | "Org"
-  | "Project"
-  | "Subscription"
-  | "Topic"
-  | "User";
-export type AppModels = {
-  Event: Model<IEvent, {}, {}>;
-  Org: Model<IOrg, {}, {}>;
-  Project: Model<IProject, {}, {}>;
-  Subscription: Model<ISubscription, {}, {}>;
-  Topic: Model<ITopic, {}, {}>;
-  User: Model<IUser, {}, {}>;
-};
-
-export const collectionToModelKeys: { [key: string]: AppModelKey } = {
-  events: "Event",
-  orgs: "Org",
-  projects: "Project",
-  subscriptions: "Subscription",
-  topics: "Topic",
-  users: "User"
-};
-export let db: Db;
-export let models: AppModels;
-
+let cached = global.mongo;
+if (!cached) {
+  cached = global.mongo = { conn: null, promise: null };
+}
 const connection = mongoose.createConnection(process.env.DATABASE_URL);
-export const clientPromise = connection.then((connection) =>
-  connection.getClient()
-);
+const clientPromise = connection.then((connection) => connection.getClient());
 const modelsPromise = connection.then((connection) => {
   return {
     Event: connection.model<IEvent>("Event", EventSchema),
@@ -60,15 +35,18 @@ const modelsPromise = connection.then((connection) => {
   };
 });
 
-let cached = global.mongo;
-
-if (!cached) {
-  cached = global.mongo = { conn: null, promise: null };
-}
-
-async function database(
-  req: IncomingMessage,
-  res: ServerResponse,
+export let db: Db;
+export let models: {
+  Event: Model<IEvent, {}, {}>;
+  Org: Model<IOrg, {}, {}>;
+  Project: Model<IProject, {}, {}>;
+  Subscription: Model<ISubscription, {}, {}>;
+  Topic: Model<ITopic, {}, {}>;
+  User: Model<IUser, {}, {}>;
+};
+export default async function database(
+  req: NextApiRequest,
+  res: NextApiResponse,
   next: NextHandler
 ) {
   if (!cached.promise) {
@@ -93,7 +71,3 @@ async function database(
 
   return next();
 }
-
-const middleware = nextConnect();
-middleware.use(database);
-export default middleware;

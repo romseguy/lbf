@@ -1,5 +1,4 @@
 import {
-  ArrowForwardIcon,
   CalendarIcon,
   ChatIcon,
   ChevronRightIcon,
@@ -11,7 +10,6 @@ import {
   Flex,
   Icon,
   Spinner,
-  Text,
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
@@ -25,8 +23,6 @@ import {
   Column,
   EntityAddButton,
   Heading,
-  HostTag,
-  Link,
   LoginButton
 } from "features/common";
 import { Layout } from "features/layout";
@@ -48,17 +44,11 @@ let cachedUserEmail: string | undefined;
 const IndexPage = (props: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const columnProps = {
-    maxWidth: "4xl",
-    m: "0 auto",
-    mb: 3
-  };
-  const userEmail = useSelector(selectUserEmail);
-
   const router = useRouter();
-  useEffect(() => {
-    if (router.asPath === "/?login") setIsLogin(isLogin + 1);
-  }, [router.asPath]);
+  const userEmail = useSelector(selectUserEmail);
+  const [isListOpen, setIsListOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLogin, setIsLogin] = useState(0);
 
   //#region org query
   const orgsQuery = useGetOrgsQuery(
@@ -82,6 +72,7 @@ const IndexPage = (props: PageProps) => {
     email: userEmail
   }) as AppQuery<ISubscription>;
   useEffect(() => {
+    if (router.asPath === "/?login") setIsLogin(isLogin + 1);
     subQuery.refetch();
   }, [router.asPath]);
   useEffect(() => {
@@ -90,12 +81,6 @@ const IndexPage = (props: PageProps) => {
       subQuery.refetch();
     }
   }, [userEmail]);
-  //#endregion
-
-  //#region local state
-  const [isListOpen, setIsListOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLogin, setIsLogin] = useState(0);
   //#endregion
 
   //#region modal state
@@ -138,6 +123,12 @@ const IndexPage = (props: PageProps) => {
   }, [orgsQuery.data]);
   //#endregion
 
+  const columnProps = {
+    maxWidth: "4xl",
+    m: "0 auto",
+    mb: 3
+  };
+
   return (
     <Layout {...props} isLogin={isLogin} pageTitle="Accueil">
       <Column {...columnProps}>
@@ -155,7 +146,7 @@ const IndexPage = (props: PageProps) => {
           </Flex>
         )}
         <Flex>
-          <EntityAddButton orgType={EOrgType.NETWORK} mb={3} />
+          <EntityAddButton orgType={EOrgType.NETWORK} size="md" mb={3} />
         </Flex>
         <Flex alignItems="center">
           <SmallAddIcon />
@@ -246,12 +237,7 @@ const IndexPage = (props: PageProps) => {
 
       {isNetworksModalOpen && (
         <TreeChartModal
-          header={
-            <>
-              <Heading mb={3}>L'univers</Heading>
-              {/* <HostTag ml={1} /> */}
-            </>
-          }
+          header={<Heading mb={3}>Organigramme</Heading>}
           inputNodes={inputNodes}
           isMobile={props.isMobile}
           isOpen={isNetworksModalOpen}
@@ -262,11 +248,7 @@ const IndexPage = (props: PageProps) => {
       {isMapModalOpen && (
         <MapModal
           isOpen={isMapModalOpen}
-          header={
-            <Flex alignItems="center">
-              Carte <HostTag ml={2} />
-            </Flex>
-          }
+          header={<Heading>Carte</Heading>}
           orgs={
             orgsQuery.data?.filter(
               (org) =>

@@ -8,10 +8,12 @@ import { css } from "twin.macro";
 
 export const NavButtonsList = ({
   direction = "row",
-  isMobile
+  isMobile,
+  onClose
 }: {
   direction?: "row" | "column";
   isMobile: boolean;
+  onClose?: () => void;
 }) => {
   const router = useRouter();
   const { colorMode } = useColorMode();
@@ -19,8 +21,7 @@ export const NavButtonsList = ({
   const linkProps: Partial<LinkProps> = {
     "aria-hidden": true,
     alignSelf: "flex-start",
-    variant: "no-underline",
-    shallow: true
+    variant: "no-underline"
   };
   const styleProps = {
     colorScheme: isDark ? "gray" : "cyan",
@@ -38,7 +39,13 @@ export const NavButtonsList = ({
         }
       `}
     >
-      <Link href="/" {...linkProps}>
+      <Link
+        {...linkProps}
+        onClick={() => {
+          router.push("/", "/", { shallow: true });
+          onClose && onClose();
+        }}
+      >
         <Button
           leftIcon={<FaHome />}
           isActive={router.asPath === "/"}
@@ -48,7 +55,13 @@ export const NavButtonsList = ({
         </Button>
       </Link>
 
-      <Link href="/evenements" {...linkProps}>
+      <Link
+        {...linkProps}
+        onClick={() => {
+          router.push("/evenements", "/evenements", { shallow: true });
+          onClose && onClose();
+        }}
+      >
         <Button
           leftIcon={<CalendarIcon />}
           isActive={router.asPath === "/evenements"}
@@ -58,7 +71,13 @@ export const NavButtonsList = ({
         </Button>
       </Link>
 
-      <Link href="/forum" {...linkProps}>
+      <Link
+        {...linkProps}
+        onClick={() => {
+          router.push("/forum", "/forum", { shallow: true });
+          onClose && onClose();
+        }}
+      >
         <Button
           leftIcon={<ChatIcon />}
           isActive={router.asPath === "/forum"}
