@@ -5,19 +5,25 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Input,
   Progress,
   Text,
   useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
+import { FileInput } from "features/common";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessageText } from "features/common";
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
 import { handleError } from "utils/form";
+import { hasItems } from "utils/array";
+
+type FormValues = {
+  files: FileList;
+  formErrorMessage: { message: string };
+};
 
 export const DocumentForm = ({
   org,
@@ -30,53 +36,66 @@ export const DocumentForm = ({
 }) => {
   const toast = useToast({ position: "top" });
   const [isLoading, setIsLoading] = useState(false);
-  const [loaded, setLoaded] = useState(0);
+  const [loaded, setLoaded] = useState<{ [fileName: string]: number }>({});
 
   //#region form state
-  const { register, handleSubmit, setError, errors, clearErrors, watch } =
-    useForm({
+  const { register, handleSubmit, errors, clearErrors, setError, setValue } =
+    useForm<FormValues>({
       mode: "onChange"
     });
+
   const onChange = () => {
-    clearErrors("formErrorMessage");
+    clearErrors();
+    setLoaded({});
   };
-  const onSubmit = async (form: any) => {
+  const onSubmit = async (form: { files?: File[] }) => {
     console.log("submitted", form);
     setIsLoading(true);
 
     try {
-      const file = form.files[0];
-      const data = new FormData();
-      data.append("file", file, file.name);
+      if (!form.files || !hasItems(form.files))
+        throw `Veuillez sélectionner un ou plusieurs fichiers`;
 
-      if (org) data.append("orgId", org._id);
-      else if (user) data.append("userId", user._id);
+      for (const file of Array.from(form.files)) {
+        setLoaded({ ...loaded, [file.name]: 0 });
+        const fsMb = file.size / (1024 * 1024);
 
-      const { statusText } = await axios.post(
-        process.env.NEXT_PUBLIC_API2,
-        data,
-        {
+        if (fsMb > 10) throw `${file.name} est trop volumineux`;
+
+        const data = new FormData();
+        data.append("file", file, file.name);
+        if (org) data.append("orgId", org._id);
+        else if (user) data.append("userId", user._id);
+
+        await axios.post(process.env.NEXT_PUBLIC_API2, data, {
           onUploadProgress: (ProgressEvent) => {
-            setLoaded((ProgressEvent.loaded / ProgressEvent.total) * 100);
+            setLoaded({
+              ...loaded,
+              [file.name]: (ProgressEvent.loaded / ProgressEvent.total) * 100
+            });
           }
-        }
-      );
-
-      if (statusText === "OK") {
-        toast({
-          title: "Votre document a été ajouté !",
-          status: "success"
         });
       }
 
+      toast({
+        title: "Vos fichiers ont été ajoutés !",
+        status: "success"
+      });
+
       props.onSubmit && props.onSubmit();
     } catch (error) {
-      handleError(error, (message) =>
+      if (typeof error === "string")
         setError("formErrorMessage", {
           type: "manual",
-          message
-        })
-      );
+          message: error
+        });
+      else
+        handleError(error, (message) =>
+          setError("formErrorMessage", {
+            type: "manual",
+            message
+          })
+        );
     } finally {
       setIsLoading(false);
     }
@@ -84,43 +103,38 @@ export const DocumentForm = ({
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <FormControl isInvalid={!!errors["files"]} mb={3}>
-        <FormLabel display="inline">
-          Sélectionnez un fichier. Taille maximum :{" "}
+        <FormLabel>
+          Sélectionnez un ou plusieurs fichiers. Taille maximum par fichier :{" "}
           <Text as="span" color="red">
             10Mo
           </Text>
         </FormLabel>
-        <Input
+        <FileInput
+          {...register("files")}
+          id="files"
+          multiple
+          //color="transparent"
           height="auto"
           py={3}
-          name="files"
-          type="file"
-          accept="*"
-          onChange={async (e) => {
-            if (e.target.files && e.target.files[0]) {
-              setLoaded(0);
-              clearErrors("file");
-              clearErrors("formErrorMessage");
-            }
+          onChange={async (files) => {
+            onChange();
+
+            //@ts-expect-error
+            document.getElementById("files").value = "";
+            setValue("files", hasItems(files) ? files : undefined);
           }}
-          ref={register({
-            required: "Vous devez sélectionner un fichier",
-            validate: (file) => {
-              if (file && file[0] && file[0].size >= 10000000) {
-                return "Le fichier ne doit pas dépasser 10Mo.";
-              }
-              return true;
-            }
-          })}
         />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="files" />
         </FormErrorMessage>
       </FormControl>
 
-      {loaded > 0 && loaded !== 100 && (
-        <Progress mb={3} hasStripe value={loaded} />
-      )}
+      {Object.keys(loaded).map((fileName, i) => (
+        <React.Fragment key={i}>
+          <Text>{fileName}</Text>
+          <Progress mb={3} hasStripe value={loaded[fileName]} />
+        </React.Fragment>
+      ))}
 
       <ErrorMessage
         errors={errors}
@@ -144,3 +158,38 @@ export const DocumentForm = ({
     </form>
   );
 };
+
+{
+  /*
+    if (statusText === "OK") {
+      toast({
+        title: "Votre document a été ajouté !",
+        status: "success"
+      });
+    }
+
+    const file = form.files[0];
+    const data = new FormData();
+    data.append("file", file, file.name);
+
+    if (org) data.append("orgId", org._id);
+    else if (user) data.append("userId", user._id);
+
+    const { statusText } = await axios.post(
+      process.env.NEXT_PUBLIC_API2,
+      data,
+      {
+        onUploadProgress: (ProgressEvent) => {
+          setLoaded((ProgressEvent.loaded / ProgressEvent.total) * 100);
+        }
+      }
+    );
+
+    if (statusText === "OK") {
+      toast({
+        title: "Votre document a été ajouté !",
+        status: "success"
+      });
+    }
+  */
+}

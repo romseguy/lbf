@@ -69,7 +69,7 @@ export const AboutPage = ({
       contactez-nous
     </Link>
   );
-  const diskUsage = useDiskUsage();
+  const [diskUsage] = useDiskUsage();
   const license = (
     <a
       href="https://www.gnu.org/licenses/why-affero-gpl.fr.html"

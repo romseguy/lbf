@@ -3,7 +3,6 @@ import { FaHome, FaTools, FaImages } from "react-icons/fa";
 import { ESubscriptionType } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { capitalize, equals } from "utils/string";
-import { TypedMap } from "utils/types";
 import {
   EOrgType,
   EOrgVisibility,
@@ -140,12 +139,12 @@ export const orgTypeFull5 = (
   return str;
 };
 
-export const OrgTypes: TypedMap<EOrgType, string> = {
+export const OrgTypes: Record<EOrgType, string> = {
   [EOrgType.GENERIC]: "Arbre",
   [EOrgType.NETWORK]: "Planète"
 };
 
-export const OrgVisibilities: TypedMap<EOrgVisibility, string> = {
+export const OrgVisibilities: Record<EOrgVisibility, string> = {
   [EOrgVisibility.PUBLIC]: "Publique",
   [EOrgVisibility.PRIVATE]: "Protégée par un mot de passe"
 };

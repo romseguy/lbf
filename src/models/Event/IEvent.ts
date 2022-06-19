@@ -8,7 +8,6 @@ import { IEventNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { TypedMap } from "utils/types";
 
 export enum EEventInviteStatus {
   PENDING = "PENDING",

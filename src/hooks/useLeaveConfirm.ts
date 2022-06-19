@@ -75,49 +75,52 @@ export function useLeaveConfirm<T>({
   }, [message, shouldWarn]);
 }
 
-// import { useRouter } from "next/router";
-// import { useCallback, useEffect } from "react";
+{
+  /*
+    import { useRouter } from "next/router";
+    import { useCallback, useEffect } from "react";
 
-// const defaultMessage =
-//   "Le formulaire a été modifié, êtes-vous sûr de vouloir quitter ?";
+    const defaultMessage = "Le formulaire a été modifié, êtes-vous sûr de vouloir quitter ?";
 
-// export function useLeaveConfirm<T>({
-//   formState,
-//   message = defaultMessage
-// }: Props<T>) {
-//   const router = useRouter();
+    export function useLeaveConfirm<T>({
+      formState,
+      message = defaultMessage
+    }: Props<T>) {
+      const router = useRouter();
 
-//   const confirmLeave = useCallback(() => {
-//     if (formState.isDirty) {
-//       if (window.confirm(message)) {
-//         return true;
-//       }
-//       throw "Abort route change by user's confirmation.";
-//     }
-//   }, [formState]);
+      const confirmLeave = useCallback(() => {
+        if (formState.isDirty) {
+          if (window.confirm(message)) {
+            return true;
+          }
+          throw "Abort route change by user's confirmation.";
+        }
+      }, [formState]);
 
-//   const handleWindowClose = useCallback((e) => {
-//     e.preventDefault();
-//     return (e.returnValue = defaultMessage);
-//   }, []);
+      const handleWindowClose = useCallback((e) => {
+        e.preventDefault();
+        return (e.returnValue = defaultMessage);
+      }, []);
 
-//   useEffect(() => {
-//     window.addEventListener("beforeunload", handleWindowClose);
+      useEffect(() => {
+        window.addEventListener("beforeunload", handleWindowClose);
 
-//     return () => {
-//       window.removeEventListener("beforeunload", handleWindowClose);
-//     };
-//   }, []);
+        return () => {
+          window.removeEventListener("beforeunload", handleWindowClose);
+        };
+      }, []);
 
-//   useEffect(() => {
-//     //window.addEventListener("beforeunload", handleWindowClose);
-//     router.events.on("routeChangeStart", confirmLeave);
+      useEffect(() => {
+        //window.addEventListener("beforeunload", handleWindowClose);
+        router.events.on("routeChangeStart", confirmLeave);
 
-//     return () => {
-//       //window.removeEventListener("beforeunload", handleWindowClose);
-//       router.events.off("routeChangeStart", confirmLeave);
-//     };
-//   }, [confirmLeave]);
+        return () => {
+          //window.removeEventListener("beforeunload", handleWindowClose);
+          router.events.off("routeChangeStart", confirmLeave);
+        };
+      }, [confirmLeave]);
 
-//   return;
-// }
+      return;
+    }
+  */
+}

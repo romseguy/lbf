@@ -18,7 +18,7 @@ import { CategoriesModal } from "features/modals/CategoriesModal";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import { IEvent } from "models/Event";
 import { getOrgEventCategories, IOrg, IOrgEventCategory } from "models/Org";
-import { AppQueryWithData, TypedMap } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 
 export const EventsListCategories = ({
   events,
@@ -51,7 +51,7 @@ export const EventsListCategories = ({
   //#region local state
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const eventCategoriesByOrg = useMemo(() => {
-    let categoriesByOrg: TypedMap<string, IOrgEventCategory[]> = {};
+    let categoriesByOrg: Record<string, IOrgEventCategory[]> = {};
 
     for (const event of events) {
       for (const eventOrg of event.eventOrgs) {

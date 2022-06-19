@@ -11,10 +11,10 @@ import {
 import { EventForm } from "features/forms/EventForm";
 import { IEvent } from "models/Event";
 import { Session } from "utils/auth";
-import { AppQueryWithData, TypedMap } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 
 export type EventConfigVisibility = {
-  isVisible: TypedMap<string, boolean>;
+  isVisible: Record<string, boolean>;
   toggleVisibility: (
     key?: keyof EventConfigVisibility["isVisible"],
     bool?: boolean

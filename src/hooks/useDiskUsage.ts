@@ -1,31 +1,35 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-export function useDiskUsage() {
-  const [diskUsage, setDiskUsage] = useState<{
-    current?: number;
-    max?: number;
-    pct?: number | undefined;
-  }>({});
+type DiskUsage = {
+  current?: number;
+  max?: number;
+  pct?: number | undefined;
+};
+
+export function useDiskUsage(): [DiskUsage, () => void] {
+  const [diskUsage, setDiskUsage] = useState<DiskUsage>({});
+
+  const refreshDiskUsage = async () => {
+    try {
+      const {
+        data: { current, max }
+      }: { data: { current: number; max: number } } = await axios.get(
+        process.env.NEXT_PUBLIC_API2 + "/size"
+      );
+      setDiskUsage({
+        current,
+        max,
+        pct: (current / max) * 100
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const {
-          data: { current, max }
-        }: { data: { current: number; max: number } } = await axios.get(
-          process.env.NEXT_PUBLIC_API2 + "/size"
-        );
-        setDiskUsage({
-          current,
-          max,
-          pct: (current / max) * 100
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    })();
+    refreshDiskUsage();
   }, []);
 
-  return diskUsage;
+  return [diskUsage, refreshDiskUsage];
 }

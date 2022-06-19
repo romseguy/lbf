@@ -65,6 +65,19 @@ import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
 
+type FormValues = {
+  orgName: string;
+  orgType?: EOrgType;
+  orgs: { label: string; value: string }[];
+  orgDescription: string;
+  orgVisibility: EOrgVisibility;
+  orgPassword?: string;
+  orgPasswordConfirm?: string;
+  orgAddress?: IEntityAddress[];
+  orgEmail?: IEntityEmail[];
+  orgPhone?: IEntityPhone[];
+  orgWeb?: IEntityWeb[];
+};
 export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 })(
@@ -148,7 +161,7 @@ export const OrgForm = withGoogleApi({
       watch,
       getValues,
       setValue
-    }: { [key: string]: any } = useForm({
+    } = useForm<FormValues>({
       defaultValues: {
         orgAddress: org?.orgAddress,
         orgEmail: org?.orgEmail,
@@ -471,7 +484,7 @@ export const OrgForm = withGoogleApi({
         </FormControl>
 
         <FormControl isInvalid={!!errors["orgDescription"]} mb={3}>
-          <FormLabel>Description</FormLabel>
+          <FormLabel>Description {orgTypeLabel}</FormLabel>
           <Controller
             name="orgDescription"
             control={control}
@@ -505,15 +518,15 @@ export const OrgForm = withGoogleApi({
           }}
           mb={3}
         >
-          <FormLabel>Visibilité</FormLabel>
+          <FormLabel>Visibilité {orgTypeLabel}</FormLabel>
           <Select
             name="orgVisibility"
             ref={register({
-              required: "Veuillez sélectionner la visibilité de l'organisation"
+              required: `Veuillez sélectionner la visibilité ${orgTypeLabel}`
             })}
-            defaultValue={org?.orgVisibility || EOrgVisibility.PUBLIC}
-            placeholder="Visibilité de l'organisation"
             color={isDark ? "whiteAlpha.400" : "gray.400"}
+            defaultValue={org?.orgVisibility || EOrgVisibility.PUBLIC}
+            placeholder={`Visibilité ${orgTypeLabel}`}
           >
             {Object.keys(EOrgVisibility).map((key) => {
               const visibility = key as EOrgVisibility;
@@ -529,24 +542,25 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {orgVisibility === EOrgVisibility.PRIVATE && (
-          <>
-            <PasswordControl
-              name="orgPassword"
-              errors={errors}
-              register={register}
-              mb={3}
-              //isRequired={orgVisibility === Visibility.PRIVATE}
-            />
-            <PasswordConfirmControl
-              name="orgPasswordConfirm"
-              errors={errors}
-              register={register}
-              password={password}
-              mb={3}
-            />
-          </>
-        )}
+        {formState.dirtyFields.orgVisibility &&
+          orgVisibility === EOrgVisibility.PRIVATE && (
+            <>
+              <PasswordControl
+                name="orgPassword"
+                errors={errors}
+                register={register}
+                mb={3}
+                //isRequired={orgVisibility === Visibility.PRIVATE}
+              />
+              <PasswordConfirmControl
+                name="orgPasswordConfirm"
+                errors={errors}
+                register={register}
+                password={password}
+                mb={3}
+              />
+            </>
+          )}
 
         <AddressControl
           name="orgAddress"

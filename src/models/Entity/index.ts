@@ -6,7 +6,6 @@ import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
 import { Model } from "mongoose";
 import { hasItems } from "utils/array";
-import { TypedMap } from "utils/types";
 import { IEntity, IEntityCategory } from "./IEntity";
 
 export * from "./IEntity";
@@ -20,7 +19,7 @@ export const getCategoryLabel = (
   return category.label;
 };
 
-export const getRefId = (entity: TypedMap<string, any>, key?: string) => {
+export const getRefId = (entity: Record<string, any>, key?: string) => {
   const value = entity[key || "createdBy"];
 
   if (typeof value === "object") return value._id;

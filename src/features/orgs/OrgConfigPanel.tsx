@@ -12,12 +12,12 @@ import { OrgForm } from "features/forms/OrgForm";
 import { getOrgEventCategories, IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { Session } from "utils/auth";
-import { AppQuery, AppQueryWithData, TypedMap } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
 
 export type OrgConfigVisibility = {
-  isVisible: TypedMap<string, boolean>;
+  isVisible: Record<string, boolean>;
   toggleVisibility: (
     key?: keyof OrgConfigVisibility["isVisible"],
     bool?: boolean

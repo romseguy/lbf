@@ -12,8 +12,7 @@ import {
   Flex,
   Icon,
   IconButton,
-  Image as ChakraImage,
-  ImageProps,
+  Image,
   Progress,
   Table,
   Tbody,
@@ -52,62 +51,6 @@ import { divideArray, hasItems } from "utils/array";
 const controller = new AbortController();
 const signal = controller.signal;
 
-const Image = ({
-  columnCount,
-  image,
-  screenWidth,
-  onClick,
-  ...props
-}: ImageProps & {
-  columnCount: number;
-  image: RemoteImage;
-  screenWidth: number;
-  onClick?: () => void;
-}) => {
-  const [width, setWidth] = useState<number>();
-  useEffect(() => {
-    (async () => {
-      // console.group();
-      // console.log(image.url.match(/[^=]+$/)![0]);
-
-      let marginAround = 2 * (4 * 12 + 24);
-      const marginBetween = (columnCount - 1) * 24;
-      let newMW = screenWidth - marginAround;
-
-      if (screenWidth > pxBreakpoints["2xl"]) {
-        marginAround = 2 * (5 * 12 + 20 + 84);
-        newMW = (screenWidth - marginAround - marginBetween) / columnCount;
-      } else if (columnCount !== 1) {
-        marginAround = 2 * (4 * 12 + 20);
-        newMW = (screenWidth - marginAround - marginBetween) / columnCount;
-      }
-
-      const newW = image.width > newMW ? newMW : image.width;
-      setWidth(newW);
-
-      // console.log(screenWidth > pxBreakpoints["2xl"], columnCount, newW, newMW);
-      // console.groupEnd();
-    })();
-  }, [screenWidth]);
-
-  if (!width) return null;
-
-  return (
-    <ChakraImage
-      src={image.url}
-      width={`${width}px`}
-      borderRadius="12px"
-      cursor="pointer"
-      mb={3}
-      mx={3}
-      onClick={() => {
-        onClick && onClick();
-      }}
-      {...props}
-    />
-  );
-};
-
 interface RemoteImage {
   url: string;
   height: number;
@@ -134,7 +77,7 @@ export const DocumentsList = ({
   const { data: session, loading: isSessionLoading } = useSession();
   const router = useRouter();
   const toast = useToast({ position: "top" });
-  const diskUsage = useDiskUsage();
+  const [diskUsage, refreshDiskUsage] = useDiskUsage();
   const [isAdd, setIsAdd] = useState(false);
 
   //#region images state
@@ -194,14 +137,15 @@ export const DocumentsList = ({
   //#region componentDidMount
   const [screenWidth, setScreenWidth] = useState<number>(0);
   useEffect(() => {
-    if (screenWidth) {
+    if (hasItems(images) && screenWidth) {
       let col = 1;
-      if (screenWidth >= pxBreakpoints.xl) col = 4;
+      if (screenWidth >= pxBreakpoints.xl)
+        col = images.length >= 4 ? 4 : images.length;
       else if (screenWidth >= pxBreakpoints.lg) col = 3;
       else if (screenWidth >= pxBreakpoints.md) col = 2;
       if (col != columnCount) setColumnCount(col);
     }
-  }, [screenWidth]);
+  }, [images, screenWidth]);
   useEffect(() => {
     if (!isMobile) {
       const updateScreenWidth = () => setScreenWidth(window.innerWidth - 15);
@@ -268,6 +212,7 @@ export const DocumentsList = ({
             org={org}
             user={user}
             onSubmit={() => {
+              refreshDiskUsage();
               query.refetch();
               setIsAdd(false);
             }}
@@ -398,6 +343,7 @@ export const DocumentsList = ({
                                 title: `Le document ${fileName} a été supprimé !`,
                                 status: "success"
                               });
+                              refreshDiskUsage();
                               query.refetch();
                             } catch (error) {
                               console.error(error);
@@ -416,31 +362,65 @@ export const DocumentsList = ({
             </Table>
           </Column>
 
-          <Column p={0}>
-            <Heading px={3} pb={3}>
-              Portfolio
-            </Heading>
+          {hasItems(masonry) && (
+            <Column p={0}>
+              <Heading px={3} pb={3}>
+                Portfolio
+              </Heading>
 
-            <Flex justifyContent="center">
-              {masonry.map((column, index) => {
-                return (
-                  <Flex key={index} flexDirection="column" width="100%">
-                    {column.map((image, imageIndex) => {
-                      return (
-                        <Image
-                          key={`image-${imageIndex}`}
-                          columnCount={columnCount}
-                          image={image}
-                          screenWidth={screenWidth}
-                          onClick={() => onOpen(image)}
-                        />
-                      );
-                    })}
-                  </Flex>
-                );
-              })}
-            </Flex>
-          </Column>
+              <Flex justifyContent="center">
+                {masonry.map((column, index) => {
+                  return (
+                    <Flex key={index} flexDirection="column" width="100%">
+                      {column.map((image, imageIndex) => {
+                        let marginAround = 2 * (4 * 12 + 24);
+                        const marginBetween = (columnCount - 1) * 24;
+                        let newMW = screenWidth - marginAround;
+
+                        if (screenWidth > pxBreakpoints["2xl"]) {
+                          marginAround = 2 * (5 * 12 + 20 + 84);
+                          newMW =
+                            (screenWidth - marginAround - marginBetween) /
+                            columnCount;
+                          console.log(
+                            "1",
+                            columnCount,
+                            screenWidth,
+                            newMW,
+                            marginAround,
+                            marginBetween
+                          );
+                        } else if (columnCount !== 1) {
+                          console.log("2");
+                          marginAround = 2 * (4 * 12 + 20);
+                          newMW =
+                            (screenWidth - marginAround - marginBetween) /
+                            columnCount;
+                        }
+
+                        const width = image.width > newMW ? newMW : image.width;
+
+                        return (
+                          <Image
+                            key={`image-${imageIndex}`}
+                            src={image.url}
+                            width={`${width}px`}
+                            borderRadius="12px"
+                            cursor="pointer"
+                            mb={3}
+                            mx={3}
+                            onClick={() => {
+                              onOpen(image);
+                            }}
+                          />
+                        );
+                      })}
+                    </Flex>
+                  );
+                })}
+              </Flex>
+            </Column>
+          )}
         </>
       ) : (
         <Alert status="info">
@@ -455,7 +435,7 @@ export const DocumentsList = ({
           bodyProps={{ bg: "black" }}
           onClose={onClose}
         >
-          <ChakraImage
+          <Image
             alignSelf="center"
             src={modalState.image.url}
             width={`${modalState.image.width}px`}

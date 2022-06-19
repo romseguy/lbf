@@ -125,7 +125,7 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
 
       <Box mb={3}>
         <ReCAPTCHA
-          sitekey="6LeBibQdAAAAANMB-5I49ty5RpkqxkVh6rwfZ7t5"
+          sitekey="6LermYEgAAAAAGOmWf5en3tnn06KA24DPsPIidsq"
           onChange={useCallback(() => setIsDisabled(false), [])}
         />
       </Box>

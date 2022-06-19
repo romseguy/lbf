@@ -5,7 +5,6 @@ import { getSession } from "utils/auth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createServerError } from "utils/errors";
 import { IEntity } from "models/Entity";
-import { TypedMap } from "utils/types";
 
 const handler = nextConnect();
 
@@ -33,7 +32,7 @@ handler.get<NextApiRequest, NextApiResponse>(async function exportData(
     const collectionKeys = (await db.listCollections().toArray()).map(
       (collection) => collection.name
     );
-    const data: TypedMap<string, Document[]> = {};
+    const data: Record<string, Document[]> = {};
 
     for (const key of collectionKeys) {
       data[key] = await db.collection(key).find({}).toArray();

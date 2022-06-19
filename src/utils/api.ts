@@ -2,9 +2,9 @@ import axios, { AxiosResponse } from "axios";
 import { databaseErrorCodes } from "utils/errors";
 import { isServer } from "utils/isServer";
 import { objectToQueryString } from "./query";
-import { Primitive, TypedMap } from "./types";
+import { Primitive } from "./types";
 
-type ParamsType = TypedMap<string, any> | Primitive;
+type ParamsType = Record<string, any> | Primitive;
 export type ResponseType<T> = { data?: T; error?: any; status?: number };
 
 async function request(endpoint: string, params?: ParamsType, method = "GET") {

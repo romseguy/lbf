@@ -22,7 +22,7 @@ import { ITopic } from "models/Topic";
 import { IOrg } from "models/Org";
 import * as dateUtils from "utils/date";
 import { sanitize } from "utils/string";
-import { AppQuery, TypedMap } from "utils/types";
+import { AppQuery } from "utils/types";
 import { useEditTopicMutation } from "features/api/topicsApi";
 import { TopicMessagesListItem } from "./TopicMessagesListItem";
 
@@ -41,7 +41,7 @@ export const TopicMessagesList = ({
   const mutation = useEditTopicMutation();
 
   const [isEdit, setIsEdit] = useState<
-    TypedMap<
+    Record<
       string,
       {
         html?: string;
@@ -49,7 +49,7 @@ export const TopicMessagesList = ({
       }
     >
   >({});
-  const [isLoading, setIsLoading] = useState<TypedMap<string, boolean>>({});
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
 
   if (!topic) return null;
 

@@ -16,7 +16,6 @@ import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
 import { getDistance } from "utils/maps";
 import { IEvent, EEventInviteStatus, EEventVisibility } from "models/Event";
 import { hasItems } from "utils/array";
-import { TypedMap } from "utils/types";
 
 export * from "./IEvent";
 
@@ -366,13 +365,13 @@ export const monthRepeatOptions: { [key: number]: string } = {
   2: "3ème",
   3: "dernier"
 };
-export const EventInviteStatuses: TypedMap<EEventInviteStatus, string> = {
+export const EventInviteStatuses: Record<EEventInviteStatus, string> = {
   [EEventInviteStatus.PENDING]: "La personne n'a pas encore indiqué participer",
   [EEventInviteStatus.OK]: "Participant",
   [EEventInviteStatus.NOK]: "Invitation refusée"
 };
 
-export const EventVisibilities: TypedMap<EEventVisibility, string> = {
+export const EventVisibilities: Record<EEventVisibility, string> = {
   [EEventVisibility.FOLLOWERS]: "Abonnés",
   [EEventVisibility.PUBLIC]: "Publique",
   [EEventVisibility.SUBSCRIBERS]: "Adhérents"

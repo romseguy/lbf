@@ -16,7 +16,7 @@ import { ITopicMessage } from "models/TopicMessage";
 import { Session } from "utils/auth";
 import * as dateUtils from "utils/date";
 import { sanitize } from "utils/string";
-import { AppQuery, TypedMap } from "utils/types";
+import { AppQuery } from "utils/types";
 
 export const TopicMessagesListItem = ({
   index,
@@ -33,20 +33,20 @@ export const TopicMessagesListItem = ({
 }: {
   index: number;
   isDark: boolean;
-  isEdit: TypedMap<
+  isEdit: Record<
     string,
     {
       html?: string | undefined;
       isOpen: boolean;
     }
   >;
-  isLoading: TypedMap<string, boolean>;
+  isLoading: Record<string, boolean>;
   mutation: any;
   query: AppQuery<IEvent | IOrg>;
   session: Session | null;
   setIsEdit: React.Dispatch<
     React.SetStateAction<
-      TypedMap<
+      Record<
         string,
         {
           html?: string | undefined;
@@ -55,7 +55,7 @@ export const TopicMessagesListItem = ({
       >
     >
   >;
-  setIsLoading: React.Dispatch<React.SetStateAction<TypedMap<string, boolean>>>;
+  setIsLoading: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   topic: ITopic;
   topicMessage: ITopicMessage;
 }) => {

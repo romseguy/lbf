@@ -53,7 +53,7 @@ export const NavMenuList = ({
           router.push(`/${userName}`, `/${userName}`, { shallow: true });
         }}
       >
-        <MenuItem>Ma page</MenuItem>
+        <MenuItem>Mon soleil</MenuItem>
       </Link>
 
       <MenuItem>
