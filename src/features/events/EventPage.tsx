@@ -39,7 +39,7 @@ import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { getRefId } from "models/Entity";
 import { IEvent, EEventVisibility } from "models/Event";
 import {
-  ESubscriptionType,
+  EOrgSubscriptionType,
   getFollowerSubscription,
   IOrgSubscription,
   ISubscription
@@ -92,19 +92,6 @@ export const EventPage = ({
 
   //#region sub
   const isFollowed = !!getFollowerSubscription({ event, subQuery });
-  const isSubscribedToAtLeastOneOrg = !!subQuery.data?.orgs?.find(
-    (orgSubscription: IOrgSubscription) => {
-      for (const org of event.eventOrgs) {
-        if (
-          org._id === orgSubscription.orgId &&
-          orgSubscription.type === ESubscriptionType.SUBSCRIBER
-        )
-          return true;
-      }
-
-      return false;
-    }
-  );
   //#endregion
 
   //#region local state
@@ -141,7 +128,7 @@ export const EventPage = ({
   const [showNotifForm, setShowNotifForm] = useState(false);
 
   let showAttendingForm = !isCreator;
-  if (!isConfig && !isEdit) {
+  /*if (!isConfig && !isEdit) {
     if (session) {
       if (isSubscribedToAtLeastOneOrg) showAttendingForm = true;
     } else {
@@ -156,7 +143,7 @@ export const EventPage = ({
         showAttendingForm = true;
       }
     }
-  }
+  }*/
   //#endregion
 
   return (
@@ -308,29 +295,11 @@ export const EventPage = ({
             <Text>Votre événement est en attente de modération.</Text>
             <Text fontSize="smaller">
               Vous devez attendre son approbation avant de pouvoir envoyer un
-              e-mail d'invitation aux adhérents des organisateurs.
+              e-mail d'invitation à cet événement.
             </Text>
           </Box>
         </Alert>
       )}
-
-      {event.eventVisibility === EEventVisibility.SUBSCRIBERS &&
-        !isConfig &&
-        !isEdit &&
-        !isSubscribedToAtLeastOneOrg && (
-          <Alert status="warning" mb={3}>
-            <AlertIcon />
-            <Box>
-              <Text as="h3">
-                Cet événement est réservé aux adhérents des organisations
-                suivantes :
-                {event.eventOrgs.map((org) => (
-                  <EntityButton key={org._id} org={org} ml={3} mb={1} p={1} />
-                ))}
-              </Text>
-            </Box>
-          </Alert>
-        )}
 
       {showAttendingForm && (
         <EventAttendingForm email={email} eventQuery={eventQuery} />

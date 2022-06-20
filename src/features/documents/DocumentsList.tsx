@@ -69,7 +69,6 @@ export const DocumentsList = ({
   user?: IUser;
   isCreator?: boolean;
   isFollowed?: boolean;
-  isSubscribed?: boolean;
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
   isMobile: boolean;
@@ -173,10 +172,10 @@ export const DocumentsList = ({
             onClick={() => {
               if (!isSessionLoading) {
                 if (session) {
-                  if (org && !props.isSubscribed && !props.isCreator)
+                  if (org && !props.isCreator)
                     toast({
                       status: "error",
-                      title: `Vous devez être adhérent ou créateur ${orgTypeFull(
+                      title: `Vous n'avez pas la permission ${orgTypeFull(
                         org.orgType
                       )} pour ajouter un fichier`
                     });

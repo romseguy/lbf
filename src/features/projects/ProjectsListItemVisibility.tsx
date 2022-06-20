@@ -27,7 +27,7 @@ export const ProjectsListItemVisibility = ({
   }[] = [];
 
   const customLists = projectVisibility?.filter(
-    (listName) => !["Adhérents", "Abonnés"].includes(listName)
+    (listName) => !["Abonnés"].includes(listName)
   );
 
   const suffix = org ? `${orgTypeFull(org.orgType)} "${org.orgName}"` : "";
@@ -51,13 +51,6 @@ export const ProjectsListItemVisibility = ({
     icons.push({
       label: `Projet réservé aux abonnés ${suffix}`,
       icon: EmailIcon
-    });
-  }
-
-  if (projectVisibility?.includes("Adhérents")) {
-    icons.push({
-      label: `Projet réservé aux adhérents ${suffix}`,
-      icon: IoMdPerson
     });
   }
 

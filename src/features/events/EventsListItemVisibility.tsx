@@ -16,9 +16,6 @@ export const EventsListItemVisibility = ({
   if (eventVisibility === EEventVisibility.FOLLOWERS) {
     label = "Événement réservé aux abonnés";
     icon = <EmailIcon />;
-  } else if (eventVisibility === EEventVisibility.SUBSCRIBERS) {
-    label = "Événement réservé aux adhérents";
-    icon = <IoMdPerson />;
   }
 
   return (

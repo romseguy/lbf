@@ -182,6 +182,7 @@ export const OrgForm = withGoogleApi({
     const orgTypeLabel = orgTypeFull(orgType) || "de l'arbre";
     const orgVisibility = watch("orgVisibility");
     const password = useRef({});
+    //@ts-expect-error
     password.current = watch("orgPassword", "");
     const orgWeb = watch("orgWeb");
 

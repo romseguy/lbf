@@ -136,7 +136,7 @@ export const EntityListForm = ({
                       )
                     )
                   )}
-                  allOptionLabel="Tous les adhérents et abonnés"
+                  allOptionLabel="Tous les abonnés"
                   closeMenuOnSelect={false}
                   placeholder="Rechercher un e-mail ou un numéro de téléphone..."
                   menuPlacement="top"
@@ -209,67 +209,3 @@ export const EntityListForm = ({
     </form>
   );
 };
-
-/*
- import { MultiSelect } from "react-multi-select-component";
-
- const overrideStrings = {
-   allItemsAreSelected: "Tous les adhérents sont sélectionnés",
-   clearSearch: "Effacer la recherche",
-   noOptions: "Aucun adhérent",
-   search: "Rechercher un adhérent...",
-   selectAll: "Sélectionner tous les adhérents",
-   selectAllFiltered: "Tout sélectionner (Filtré)",
-   selectSomeItems: "Sélectionner..."
- };
-
-<Controller
-  name="subscriptions"
-  control={control}
-  defaultValue={list.subscriptions.map((subscription) => {
-    let label = subscription.email || subscription.phone || "";
-    if (label === "" && typeof subscription.user === "object")
-      label = subscription.user.email;
-
-    return {
-      label,
-      value: subscription
-    };
-  })}
-  render={({ onChange, value }) => {
-    return (
-      <MultiSelect
-        value={value}
-        options={org.orgSubscriptions
-          .filter((subscription) =>
-            subscription.orgs.find(
-              (orgSubscription) =>
-                orgSubscription.orgId === org._id &&
-                orgSubscription.type === ESubscriptionType.SUBSCRIBER
-            )
-          )
-          .map((subscription) => {
-            let label = subscription.email || subscription.phone || "";
-            if (label === "" && typeof subscription.user === "object")
-              label = subscription.user.email;
-
-            return {
-              label,
-              value: subscription
-            };
-          })}
-        // isCreatable
-        labelledBy="Sélectionner un ou plusieurs adhérents"
-        overrideStrings={overrideStrings}
-        onChange={onChange}
-        // onCreateOption={(value: string) => {
-        //   return {
-        //     label: value,
-        //     value: value.toUpperCase()
-        //   };
-        // }}
-      />
-    );
-  }}
-/>
-*/

@@ -5,11 +5,7 @@ import { EditOrgPayload, GetOrgParams } from "features/api/orgsApi";
 import { getRefId } from "models/Entity";
 import { EEventVisibility } from "models/Event";
 import { getLists, IOrg, orgTypeFull } from "models/Org";
-import {
-  ISubscription,
-  getFollowerSubscription,
-  getSubscriberSubscription
-} from "models/Subscription";
+import { ISubscription, getFollowerSubscription } from "models/Subscription";
 import api from "utils/api";
 import { hasItems } from "utils/array";
 import { getSession } from "utils/auth";
@@ -126,16 +122,11 @@ handler.get<
             org,
             subscription: subscription as ISubscription
           });
-          const isSubscribed = !!getSubscriberSubscription({
-            org,
-            subscription: subscription as ISubscription
-          });
 
           org.orgEvents = org.orgEvents.filter(
             ({ eventVisibility }) =>
               eventVisibility === EEventVisibility.PUBLIC ||
-              (eventVisibility === EEventVisibility.FOLLOWERS && isFollowed) ||
-              (eventVisibility === EEventVisibility.SUBSCRIBERS && isSubscribed)
+              (eventVisibility === EEventVisibility.FOLLOWERS && isFollowed)
           );
         }
       }
@@ -203,17 +194,12 @@ handler.get<
             org,
             subscription: subscription as ISubscription
           });
-          const isSubscribed = !!getSubscriberSubscription({
-            org,
-            subscription: subscription as ISubscription
-          });
 
           org.orgProjects = org.orgProjects.filter(
             ({ projectVisibility }) =>
               !projectVisibility ||
               !hasItems(projectVisibility) ||
-              (projectVisibility.includes("Abonnés") && isFollowed) ||
-              (projectVisibility.includes("Adhérents") && isSubscribed)
+              (projectVisibility.includes("Abonnés") && isFollowed)
           );
         }
       }
@@ -268,16 +254,7 @@ handler.get<
                 if (!hasItems(topicVisibility)) return true;
 
                 for (const listName of topicVisibility) {
-                  if (listName === "Adhérents") {
-                    if (
-                      getSubscriberSubscription({
-                        org: org as IOrg,
-                        subscription
-                      })
-                    ) {
-                      return true;
-                    }
-                  } else if (listName === "Abonnés") {
+                  if (listName === "Abonnés") {
                     if (
                       getFollowerSubscription({
                         org: org as IOrg,
@@ -423,22 +400,15 @@ handler.put<
       }
 
       if (orgTopicCategories) {
-        const subscription = await models.Subscription.findOne({
-          email: session?.user.email
-        });
-
-        if (
-          !isCreator &&
-          (!subscription || !getSubscriberSubscription({ org, subscription }))
-        ) {
+        if (!isCreator) {
           return res
             .status(400)
             .json(
               createServerError(
                 new Error(
-                  `Vous devez être adhérent ou créateur ou créateur ${orgTypeFull(
+                  `Vous n'avez pas la permission ${orgTypeFull(
                     org.orgType
-                  )} "${org.orgName}" pour créer une catégorie de discussions`
+                  )} pour créer une catégorie de discussions`
                 )
               )
             );

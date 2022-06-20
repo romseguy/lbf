@@ -9,7 +9,7 @@ import {
 } from "models/INotification";
 import { IOrg } from "models/Org";
 import { EProjectInviteStatus, IProject } from "models/Project";
-import { ESubscriptionType, ISubscription } from "models/Subscription";
+import { EOrgSubscriptionType, ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import api from "utils/api";
 import { Session } from "utils/auth";
@@ -92,7 +92,7 @@ export const sendEventNotifications = async ({
 
     const orgSubscription = subscription.orgs?.find(
       ({ orgId, type }) =>
-        equals(orgId, org._id) && type === ESubscriptionType.FOLLOWER
+        equals(orgId, org._id) && type === EOrgSubscriptionType.FOLLOWER
     );
 
     if (!orgSubscription) {
@@ -268,7 +268,7 @@ export const sendProjectNotifications = async ({
     if (org) {
       const orgSubscription = subscription.orgs?.find(
         ({ orgId, type }) =>
-          equals(orgId, org._id) && type === ESubscriptionType.FOLLOWER
+          equals(orgId, org._id) && type === EOrgSubscriptionType.FOLLOWER
       );
 
       if (!orgSubscription) {
@@ -477,7 +477,7 @@ export const sendTopicNotifications = async ({
     if (org) {
       const orgSubscription = subscription.orgs?.find(
         ({ orgId, type }) =>
-          equals(orgId, org._id) && type === ESubscriptionType.FOLLOWER
+          equals(orgId, org._id) && type === EOrgSubscriptionType.FOLLOWER
       );
 
       if (!orgSubscription) {

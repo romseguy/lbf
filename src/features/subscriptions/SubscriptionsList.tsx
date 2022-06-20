@@ -17,7 +17,6 @@ export interface SubscriptionsListProps {
       [key: string]: boolean;
     }>
   >;
-  onTagClick: (arg0: any) => void;
 }
 
 export const SubscriptionsList = (props: SubscriptionsListProps) => {

@@ -22,7 +22,6 @@ export const TopicFormModal = (props: {
   isOpen: boolean;
   isCreator?: boolean;
   isFollowed?: boolean;
-  isSubscribed?: boolean;
   onCancel: () => void;
   onClose: () => void;
   onSubmit: (topic?: ITopic) => void;

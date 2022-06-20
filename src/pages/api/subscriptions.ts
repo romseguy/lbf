@@ -6,11 +6,10 @@ import { getSession } from "utils/auth";
 import { IOrg } from "models/Org";
 import {
   getFollowerSubscription,
-  getSubscriberSubscription,
   IOrgSubscription,
   ISubscription,
   setFollowerSubscriptionTagType,
-  ESubscriptionType
+  EOrgSubscriptionType
 } from "models/Subscription";
 import { IUser } from "models/User";
 import { createServerError } from "utils/errors";
@@ -176,7 +175,7 @@ handler.post<
           continue;
         }
 
-        if (newOrgSubscription.type === ESubscriptionType.FOLLOWER) {
+        if (newOrgSubscription.type === EOrgSubscriptionType.FOLLOWER) {
           const followerSubscription = getFollowerSubscription({
             org,
             subscription
@@ -187,22 +186,7 @@ handler.post<
             updateOrgSubscription(
               org,
               subscription,
-              ESubscriptionType.FOLLOWER,
-              newOrgSubscription
-            );
-        } else if (newOrgSubscription.type === ESubscriptionType.SUBSCRIBER) {
-          const subscriberSubscription = getSubscriberSubscription({
-            org,
-            subscription
-          });
-
-          if (!subscriberSubscription)
-            subscription.orgs.push(newOrgSubscription);
-          else
-            updateOrgSubscription(
-              org,
-              subscription,
-              ESubscriptionType.SUBSCRIBER,
+              EOrgSubscriptionType.FOLLOWER,
               newOrgSubscription
             );
         }

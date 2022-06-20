@@ -23,14 +23,12 @@ export * from "./IEvent";
 export const getEvents = ({
   events,
   isCreator,
-  isSubscribed,
   origin,
   distance,
   selectedCategories
 }: {
   events: IEvent[];
   isCreator?: boolean;
-  isSubscribed?: boolean;
   origin?: LatLon;
   distance: number;
   selectedCategories: string[];
@@ -49,12 +47,7 @@ export const getEvents = ({
       continue;
     }
 
-    if (
-      isCreator ||
-      event.eventVisibility === EEventVisibility.PUBLIC ||
-      (event.eventVisibility === EEventVisibility.SUBSCRIBERS &&
-        (isSubscribed || isCreator))
-    ) {
+    if (isCreator || event.eventVisibility === EEventVisibility.PUBLIC) {
       if (origin && event.eventLat && event.eventLng) {
         const d = getDistance(origin, {
           lat: event.eventLat,
@@ -373,7 +366,6 @@ export const EventInviteStatuses: Record<EEventInviteStatus, string> = {
 
 export const EventVisibilities: Record<EEventVisibility, string> = {
   [EEventVisibility.FOLLOWERS]: "Abonnés",
-  [EEventVisibility.PUBLIC]: "Publique",
-  [EEventVisibility.SUBSCRIBERS]: "Adhérents"
+  [EEventVisibility.PUBLIC]: "Publique"
 };
 //#endregion

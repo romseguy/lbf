@@ -15,7 +15,7 @@ import {
 } from "features/api/subscriptionsApi";
 import { SubscriptionsList } from "features/subscriptions/SubscriptionsList";
 import { IOrg, orgTypeFull } from "models/Org";
-import { ISubscription, ESubscriptionType } from "models/Subscription";
+import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
 import { IUser } from "models/User";
 import { useAppDispatch } from "store";
 import { breakpoints } from "features/layout/theme/theme";
@@ -38,11 +38,6 @@ export const OrgConfigSubscribersPanel = ({
   const org = orgQuery.data;
   const dispatch = useAppDispatch();
 
-  //#region subscription
-  const [addSubscription] = useAddSubscriptionMutation();
-  const [deleteSubscription] = useDeleteSubscriptionMutation();
-  //#endregion
-
   //#region local state
   const [isAdd, setIsAdd] = useState(false);
   const [isSubscriptionLoading, setIsSubscriptionLoading] = useState<{
@@ -60,103 +55,6 @@ export const OrgConfigSubscribersPanel = ({
     [org.orgSubscriptions]
   );
   //#endregion
-
-  const onTagClick = async ({
-    type,
-    followerSubscription,
-    subscriberSubscription,
-    email,
-    phone,
-    user,
-    subscription
-  }: {
-    type: string;
-    followerSubscription?: any;
-    subscriberSubscription?: any;
-    email?: string;
-    phone?: string;
-    user?: IUser | string;
-    subscription: ISubscription;
-  }) => {
-    if (isSubscriptionLoading[subscription._id]) return;
-
-    setIsSubscriptionLoading({
-      ...isSubscriptionLoading,
-      [subscription._id]: true
-    });
-
-    const userEmail = typeof user === "object" ? user.email : email;
-
-    if (type === ESubscriptionType.FOLLOWER) {
-      if (followerSubscription) {
-        const unsubscribe = confirm(
-          `Êtes vous sûr de vouloir retirer ${userEmail} de la liste des abonnés ${orgTypeFull(
-            org.orgType
-          )} ${org.orgName} ?`
-        );
-        if (unsubscribe) {
-          await deleteSubscription({
-            subscriptionId: subscription._id,
-            payload: {
-              orgs: [followerSubscription]
-            }
-          });
-          orgQuery.refetch();
-        }
-      } else {
-        await addSubscription({
-          email,
-          phone,
-          user,
-          orgs: [
-            {
-              orgId: org._id,
-              org,
-              type: ESubscriptionType.FOLLOWER
-            }
-          ]
-        });
-        orgQuery.refetch();
-      }
-    } else if (type === ESubscriptionType.SUBSCRIBER) {
-      if (subscriberSubscription) {
-        const unsubscribe = confirm(
-          `Êtes vous sûr de vouloir retirer ${userEmail} de la liste des adhérents ${orgTypeFull(
-            org.orgType
-          )} ${org.orgName} ?`
-        );
-        if (unsubscribe) {
-          await deleteSubscription({
-            subscriptionId: subscription._id,
-            payload: {
-              orgs: [subscriberSubscription]
-            }
-          });
-          orgQuery.refetch();
-          subQuery.refetch();
-        }
-      } else {
-        await addSubscription({
-          email,
-          phone,
-          user,
-          orgs: [
-            {
-              orgId: org._id,
-              org,
-              type: ESubscriptionType.SUBSCRIBER
-            }
-          ]
-        });
-        orgQuery.refetch();
-      }
-    }
-
-    setIsSubscriptionLoading({
-      ...isSubscriptionLoading,
-      [subscription._id]: false
-    });
-  };
 
   return (
     <Grid {...props}>
@@ -265,7 +163,6 @@ export const OrgConfigSubscribersPanel = ({
             subQuery={subQuery}
             isSubscriptionLoading={isSubscriptionLoading}
             setIsSubscriptionLoading={setIsSubscriptionLoading}
-            onTagClick={onTagClick}
           />
         </GridItem>
       )}

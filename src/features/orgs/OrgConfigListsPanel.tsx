@@ -249,7 +249,7 @@ export const OrgConfigListsPanel = ({
                       </Td>
 
                       <Td textAlign="right" whiteSpace="nowrap">
-                        {!["Abonnés", "Adhérents"].includes(list.listName) && (
+                        {!["Abonnés"].includes(list.listName) && (
                           <>
                             <Tooltip
                               label="Modifier la liste"

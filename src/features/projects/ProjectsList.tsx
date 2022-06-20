@@ -60,7 +60,6 @@ export const ProjectsList = ({
   isCreator,
   isFollowed,
   isLogin,
-  isSubscribed,
   setIsLogin,
   ...props
 }: {
@@ -75,7 +74,6 @@ export const ProjectsList = ({
   isCreator?: boolean;
   isFollowed?: boolean;
   isLogin: number;
-  isSubscribed?: boolean;
   setIsLogin: (isLogin: number) => void;
 }) => {
   const { colorMode } = useColorMode();
@@ -194,10 +192,10 @@ export const ProjectsList = ({
             if (!isSessionLoading) {
               if (session) {
                 if (org) {
-                  if (!isCreator && !isSubscribed) {
+                  if (!isCreator) {
                     toast({
                       status: "error",
-                      title: `Vous devez être adhérent ou créateur ${orgTypeFull(
+                      title: `Vous n'avez pas la permission ${orgTypeFull(
                         org.orgType
                       )} pour ajouter un projet`
                     });
@@ -575,7 +573,6 @@ export const ProjectsList = ({
           org={org}
           isCreator={isCreator}
           isFollowed={isFollowed}
-          isSubscribed={isSubscribed}
           onCancel={() =>
             setProjectModalState({
               ...projectModalState,

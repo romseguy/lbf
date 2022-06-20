@@ -282,11 +282,7 @@ export const EventForm = withGoogleApi({
     const eventOrg = useWatch<IOrg | null>({ control, name: "eventOrg" });
     const categories = eventOrg ? getOrgEventCategories(eventOrg) : [];
     const visibilities = eventOrg
-      ? [
-          EEventVisibility.PUBLIC,
-          EEventVisibility.FOLLOWERS,
-          EEventVisibility.SUBSCRIBERS
-        ]
+      ? [EEventVisibility.PUBLIC, EEventVisibility.FOLLOWERS]
       : [];
 
     const eventAddress = useWatch<IEntityAddress[]>({
@@ -1135,7 +1131,7 @@ export const EventForm = withGoogleApi({
         />
 
         {/* eventVisibility */}
-        {hasItems(visibilities) && (
+        {/* {hasItems(visibilities) && (
           <FormControl
             isRequired
             isInvalid={!!errors["eventVisibility"]}
@@ -1166,7 +1162,7 @@ export const EventForm = withGoogleApi({
               <ErrorMessage errors={errors} name="eventVisibility" />
             </FormErrorMessage>
           </FormControl>
-        )}
+        )} */}
 
         <ErrorMessage
           errors={errors}

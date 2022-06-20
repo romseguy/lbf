@@ -3,8 +3,7 @@ import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
 
-export enum ESubscriptionType {
-  SUBSCRIBER = "SUBSCRIBER",
+export enum EOrgSubscriptionType {
   FOLLOWER = "FOLLOWER"
 }
 
@@ -35,7 +34,7 @@ export interface IEventSubscription {
 export interface IOrgSubscription {
   org: IOrg;
   orgId: string;
-  type?: string;
+  type?: EOrgSubscriptionType;
   tagTypes?: TagType[];
   eventCategories?: IOrgSubscriptionEventCategory[];
 }

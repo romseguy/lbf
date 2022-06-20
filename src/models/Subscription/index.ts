@@ -4,7 +4,7 @@ import { hasItems } from "utils/array";
 import { equals, logJson } from "utils/string";
 import { AppQuery } from "utils/types";
 import {
-  ESubscriptionType,
+  EOrgSubscriptionType,
   IOrgSubscription,
   IEventSubscription,
   ISubscription,
@@ -45,28 +45,9 @@ export const getFollowerSubscription = ({
     return sub.orgs?.find(
       (orgSubscription: IOrgSubscription) =>
         equals(orgSubscription.orgId, org._id) &&
-        orgSubscription.type === ESubscriptionType.FOLLOWER
+        orgSubscription.type === EOrgSubscriptionType.FOLLOWER
     );
   }
-};
-
-export const getSubscriberSubscription = ({
-  org,
-  subQuery,
-  subscription
-}: {
-  org?: IOrg;
-  subQuery?: AppQuery<ISubscription>;
-  subscription?: ISubscription;
-}): IOrgSubscription | undefined => {
-  const sub = subQuery?.data || subscription;
-  if (!org || !sub || !sub.orgs) return;
-
-  return sub.orgs.find(
-    (orgSubscription: IOrgSubscription) =>
-      equals(orgSubscription.orgId, org._id) &&
-      orgSubscription.type === ESubscriptionType.SUBSCRIBER
-  );
 };
 
 export const setFollowerSubscriptionTagType = (

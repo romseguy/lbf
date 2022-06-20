@@ -18,7 +18,6 @@ export const ProjectFormModal = (props: {
   project?: IProject;
   isCreator?: boolean;
   isFollowed?: boolean;
-  isSubscribed?: boolean;
   onCancel: () => void;
   onClose: () => void;
   onSubmit: (project: IProject | null) => void;

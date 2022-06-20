@@ -40,14 +40,13 @@ import { EventCategoryTag } from "./EventCategoryTag";
 import { EventsListDistanceSelect } from "./EventsListDistance";
 import { EventsListItem } from "./EventsListItem";
 import { EventsListToggle } from "./EventsListToggle";
-import { ESubscriptionType } from "models/Subscription";
+import { EOrgSubscriptionType } from "models/Subscription";
 import { EventsListHeader } from "./EventsListHeader";
 
 export const EventsList = ({
   events,
   orgQuery,
   isCreator = false,
-  isSubscribed,
   isLogin,
   setIsLogin,
   setTitle
@@ -55,7 +54,6 @@ export const EventsList = ({
   events: IEvent[];
   orgQuery?: AppQueryWithData<IOrg>;
   isCreator?: boolean;
-  isSubscribed?: boolean;
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
   setTitle?: (title?: string) => void;
@@ -81,7 +79,7 @@ export const EventsList = ({
         (subscription.orgs || []).filter((orgSubscription) => {
           return (
             orgSubscription.orgId === org?._id &&
-            orgSubscription.type === ESubscriptionType.FOLLOWER
+            orgSubscription.type === EOrgSubscriptionType.FOLLOWER
           );
         }).length
     )
@@ -207,7 +205,6 @@ export const EventsList = ({
     let { previousEvents, currentEvents, nextEvents } = getEvents({
       events,
       isCreator,
-      isSubscribed,
       origin,
       distance,
       selectedCategories
@@ -520,13 +517,13 @@ export const EventsList = ({
               if (!isSessionLoading) {
                 if (session) {
                   if (org) {
-                    if (isCreator || isSubscribed) {
+                    if (isCreator) {
                       url = `/evenements/ajouter?orgId=${org._id}`;
                       router.push(url, url, { shallow: true });
                     } else
                       toast({
                         status: "error",
-                        title: `Vous devez être adhérent ou créateur ${orgTypeFull(
+                        title: `Vous n'avez pas la permission ${orgTypeFull(
                           org.orgType
                         )} pour ajouter un événement`
                       });

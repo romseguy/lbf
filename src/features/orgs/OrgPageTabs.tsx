@@ -37,7 +37,6 @@ export const OrgPageTabs = ({
   isCreator,
   isFollowed,
   isLogin,
-  isSubscribed,
   isMobile,
   orgQuery,
   session,
@@ -51,7 +50,6 @@ export const OrgPageTabs = ({
   isCreator: boolean;
   isFollowed: boolean;
   isLogin: number;
-  isSubscribed: boolean;
   isMobile: boolean;
   orgQuery: AppQueryWithData<IOrg>;
   session: Session | null;
@@ -235,7 +233,6 @@ export const OrgPageTabs = ({
                 isCreator={isCreator}
                 subQuery={subQuery}
                 isFollowed={isFollowed}
-                isSubscribed={isSubscribed}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
                 currentTopicName={currentItemName}
@@ -269,7 +266,6 @@ export const OrgPageTabs = ({
                   events={org.orgEvents}
                   orgQuery={orgQuery}
                   isCreator={isCreator}
-                  isSubscribed={isSubscribed}
                   isLogin={isLogin}
                   setIsLogin={setIsLogin}
                   setTitle={setTitle}
@@ -290,7 +286,6 @@ export const OrgPageTabs = ({
                 subQuery={subQuery}
                 isCreator={isCreator}
                 isFollowed={isFollowed}
-                isSubscribed={isSubscribed}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
               />
@@ -306,7 +301,6 @@ export const OrgPageTabs = ({
               <DocumentsList
                 org={org}
                 isCreator={isCreator}
-                isSubscribed={isSubscribed}
                 isLogin={isLogin}
                 setIsLogin={setIsLogin}
                 isMobile={isMobile}

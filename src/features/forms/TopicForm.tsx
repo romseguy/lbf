@@ -44,7 +44,6 @@ export const TopicForm = ({
   topic?: ITopic;
   isCreator?: boolean;
   isFollowed?: boolean;
-  isSubscribed?: boolean;
   onCancel?: () => void;
   onSubmit?: (topic?: ITopic) => void;
 }) => {
@@ -238,14 +237,12 @@ export const TopicForm = ({
                   `Créer la catégorie "${inputValue}"`
                 }
                 onCreateOption={async (inputValue: string) => {
-                  if (!props.isSubscribed && !props.isCreator) {
+                  if (!props.isCreator) {
                     toast({
                       status: "error",
-                      title: `Vous devez être adhérent ou créateur ou créateur ${
+                      title: `Vous n'avez pas la permission ${
                         isE ? "de l'événement" : orgTypeFull(entity.orgType)
-                      } ${
-                        isE ? entity.eventName : entity.orgName
-                      } pour créer une catégorie`
+                      } pour ajouter une catégorie`
                     });
                     return;
                   }

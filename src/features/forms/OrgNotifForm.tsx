@@ -221,8 +221,6 @@ export const OrgNotifForm = ({
                               {!hasItems(list.subscriptions) ? (
                                 list.listName === "Abonnés" ? (
                                   "0 abonnés"
-                                ) : list.listName === "Adhérents" ? (
-                                  "0 adhérents"
                                 ) : (
                                   "0 membres"
                                 )

@@ -25,14 +25,12 @@ import { AppQueryWithData } from "utils/types";
 export const TopicsListCategories = ({
   query,
   isCreator,
-  isSubscribed,
   selectedCategories,
   setSelectedCategories,
   ...props
 }: FlexProps & {
   query: AppQueryWithData<IEvent | IOrg>;
   isCreator?: boolean;
-  isSubscribed?: boolean;
   selectedCategories?: string[];
   setSelectedCategories: React.Dispatch<
     React.SetStateAction<string[] | undefined>
@@ -166,7 +164,7 @@ export const TopicsListCategories = ({
               </Flex>
             </Tooltip>
 
-            {(isCreator || isSubscribed) && (
+            {isCreator && (
               <Box
                 borderColor={isDark ? "#BAC1CB" : "gray.500"}
                 borderLeftWidth="1px"

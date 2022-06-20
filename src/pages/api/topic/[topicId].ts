@@ -7,7 +7,7 @@ import { EditTopicPayload, AddTopicNotifPayload } from "features/api/topicsApi";
 import { getSession } from "utils/auth";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ITopicNotification } from "models/INotification";
-import { ISubscription, ESubscriptionType } from "models/Subscription";
+import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
 import { createTopicEmailNotif } from "utils/email";
 import { createServerError } from "utils/errors";
 import { equals } from "utils/string";
@@ -134,7 +134,7 @@ handler.post<
 
         let subscriptions: ISubscription[] = [];
 
-        if (["Abonnés", "Adhérents"].includes(listName)) {
+        if (["Abonnés"].includes(listName)) {
           org = await org
             .populate({
               path: "orgSubscriptions",
@@ -145,14 +145,12 @@ handler.post<
               }
             })
             .execPopulate();
-          subscriptions = subscriptions.concat(
-            getSubscriptions(
-              org,
-              listName === "Abonnés"
-                ? ESubscriptionType.FOLLOWER
-                : ESubscriptionType.SUBSCRIBER
-            )
-          );
+
+          if (listName === "Abonnés") {
+            subscriptions = subscriptions.concat(
+              getSubscriptions(org, EOrgSubscriptionType.FOLLOWER)
+            );
+          }
         } else {
           org = await org
             .populate({

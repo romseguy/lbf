@@ -148,7 +148,6 @@ export const EntityButton = ({
             {topic ? (
               <Icon
                 as={
-                  topic.topicVisibility.includes("Adhérents") ||
                   topic.topicVisibility.includes("Abonnés")
                     ? IoIosPeople
                     : FaGlobeEurope
@@ -167,14 +166,7 @@ export const EntityButton = ({
                 />
               ) : null
             ) : event ? (
-              <Icon
-                as={
-                  event.eventVisibility === EventVisibility.SUBSCRIBERS
-                    ? LockIcon
-                    : FaGlobeEurope
-                }
-                ml={2}
-              />
+              <Icon as={FaGlobeEurope} ml={2} />
             ) : null}
           </Button>
         </Link>

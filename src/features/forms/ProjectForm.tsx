@@ -38,7 +38,6 @@ export const ProjectForm = ({
   user?: IUser;
   isCreator?: boolean;
   isFollowed?: boolean;
-  isSubscribed?: boolean;
   onClose?: () => void;
   onCancel?: () => void;
   onSubmit?: (project: IProject | null) => void;

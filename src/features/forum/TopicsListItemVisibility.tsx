@@ -33,7 +33,7 @@ export const TopicsListItemVisibility = ({
   }[] = [];
 
   const customLists = topic.topicVisibility.filter(
-    (listName) => !["Adhérents", "Abonnés"].includes(listName)
+    (listName) => !["Abonnés"].includes(listName)
   );
 
   const suffix = isE
@@ -59,13 +59,6 @@ export const TopicsListItemVisibility = ({
     icons.push({
       label: `Discussion réservée aux abonnés ${suffix}`,
       icon: EmailIcon
-    });
-  }
-
-  if (topic.topicVisibility.includes("Adhérents")) {
-    icons.push({
-      label: `Discussion réservée aux adhérents ${suffix}`,
-      icon: IoMdPerson
     });
   }
 

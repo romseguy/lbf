@@ -33,7 +33,7 @@ import { IOrg, orgTypeFull, orgTypeFull2, orgTypeFull5 } from "models/Org";
 import {
   getFollowerSubscription,
   ISubscription,
-  ESubscriptionType
+  EOrgSubscriptionType
 } from "models/Subscription";
 import { useAppDispatch } from "store";
 import { selectUserEmail, setUserEmail } from "store/userSlice";
@@ -88,7 +88,7 @@ export const SubscribePopover = ({
         {
           org,
           orgId: org._id,
-          type: ESubscriptionType.FOLLOWER,
+          type: EOrgSubscriptionType.FOLLOWER,
           tagTypes: [
             { type: "Events", emailNotif: true, pushNotif: true },
             { type: "Projects", emailNotif: true, pushNotif: true },

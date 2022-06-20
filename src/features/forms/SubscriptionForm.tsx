@@ -13,7 +13,7 @@ import { ErrorMessageText, Button, ListsControl } from "features/common";
 import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
 import { useAddSubscriptionMutation } from "features/api/subscriptionsApi";
 import { IOrg } from "models/Org";
-import { ESubscriptionType } from "models/Subscription";
+import { EOrgSubscriptionType } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { emailR } from "utils/email";
 import { handleError } from "utils/form";
@@ -23,7 +23,7 @@ import useFormPersist from "react-hook-form-persist";
 import { TagsControl } from "features/common/forms/TagsControl";
 import { ItemTag } from "@choc-ui/chakra-autocomplete";
 
-type FormData = {
+type FormValues = {
   emailList: string;
   phoneList?: string;
   orgLists: { label: string; value: string }[];
@@ -60,7 +60,7 @@ export const SubscriptionForm = ({
     setValue,
     formState,
     watch
-  } = useForm<FormData>({
+  } = useForm<FormValues>({
     mode: "onChange",
     defaultValues: {
       emailList: ""
@@ -77,7 +77,7 @@ export const SubscriptionForm = ({
 
   const onChange = () => clearErrors();
 
-  const onSubmit = async (form: FormData) => {
+  const onSubmit = async (form: FormValues) => {
     console.log("submitted", form);
     setIsLoading(true);
     const { emailList, phoneList, orgLists } = form;
@@ -101,8 +101,7 @@ export const SubscriptionForm = ({
         if (hasItems(orgLists))
           for (const { value: listName } of orgLists) {
             let type;
-            if (listName === "Adhérents") type = ESubscriptionType.SUBSCRIBER;
-            else if (listName === "Abonnés") type = ESubscriptionType.FOLLOWER;
+            if (listName === "Abonnés") type = EOrgSubscriptionType.FOLLOWER;
 
             if (type)
               await addSubscription({
@@ -263,85 +262,3 @@ export const SubscriptionForm = ({
     </form>
   );
 };
-
-{
-  /* <FormControl isInvalid={!!errors.phoneList} mb={3}>
-        <FormLabel>
-          Entrez les numéros de téléphone mobile séparés par un espace ou un
-          retour à la ligne :{" "}
-        </FormLabel>
-        <Textarea
-          ref={register()}
-          name="phoneList"
-          dark={{ _hover: { borderColor: "white" } }}
-          onChange={onChange}
-        />
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="phoneList" />
-        </FormErrorMessage>
-      </FormControl> */
-}
-
-{
-  /*<FormControl isRequired isInvalid={!!errors.orgLists} mb={3}>
-        <CheckboxGroup>
-          <Box
-            display="flex"
-            flexDirection="column"
-            css={css`
-              .chakra-checkbox__control {
-                border-color: black;
-              }
-            `}
-            color="black"
-          >
-            <Box
-              display="flex"
-              flexDirection="column"
-              bg={"green.100"}
-              borderRadius="lg"
-              mb={3}
-              p={3}
-            >
-              <Checkbox
-                ref={register({ required: true })}
-                name="orgLists"
-                value={ESubscriptionType.FOLLOWER}
-                data-cy="follower-checkbox"
-              >
-                Abonné
-                <Text fontSize="smaller">
-                Vous pourrez inviter cette personne aux discussions, événements,
-                et projets de {orgTypeFull4(org.orgType)}.
-              </Text>
-              </Checkbox>
-            </Box>
-
-            <Checkbox
-              ref={register({ required: true })}
-              name="orgLists"
-              value={ESubscriptionType.SUBSCRIBER}
-              bg={"purple.100"}
-              borderRadius="lg"
-              p={3}
-              data-cy="subscriber-checkbox"
-            >
-              Adhérent
-              <Text fontSize="smaller">
-                La personne aura également accès aux discussions, événements, et
-                projets réservés aux adhérents.
-                Donner accès au contenu réservé aux adhérents.
-              </Text>
-            </Checkbox>
-          </Box>
-        </CheckboxGroup> 
-
-        <FormErrorMessage>
-          <ErrorMessage
-            errors={errors}
-            name="orgLists"
-            message="Veuillez cocher une case au minimum"
-          />
-        </FormErrorMessage>
-      </FormControl>*/
-}

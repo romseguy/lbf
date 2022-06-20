@@ -24,11 +24,7 @@ import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import { selectSubscriptionRefetch } from "store/subscriptionSlice";
 import { selectUserEmail } from "store/userSlice";
 import { EOrgType } from "models/Org";
-import {
-  getFollowerSubscription,
-  getSubscriberSubscription,
-  ISubscription
-} from "models/Subscription";
+import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import { AppQuery } from "utils/types";
@@ -83,13 +79,6 @@ const OrgPopoverContent = ({
         (org) => !!getFollowerSubscription({ org, subQuery })
       )) ||
     [];
-  const subscribedOrgs =
-    (Array.isArray(orgsQuery.data) &&
-      orgsQuery.data.length > 0 &&
-      orgsQuery.data.filter(
-        (org) => !!getSubscriberSubscription({ org, subQuery })
-      )) ||
-    [];
   //#endregion
 
   //#region local state
@@ -131,10 +120,6 @@ const OrgPopoverContent = ({
           <option value="showOrgsFollowed">
             Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} où je me
             suis abonné
-          </option>
-          <option value="showOrgsSubscribed">
-            Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} où j'ai
-            adhéré
           </option>
         </Select>
 
@@ -198,28 +183,6 @@ const OrgPopoverContent = ({
                   ? "aucune planètes"
                   : "aucun arbres"}
                 .
-              </Text>
-            )}
-          </>
-        )}
-
-        {showOrgs === "showOrgsSubscribed" && (
-          <>
-            {hasItems(subscribedOrgs) ? (
-              <VStack
-                alignItems="flex-start"
-                overflowX="auto"
-                height="200px"
-                spacing={2}
-              >
-                {subscribedOrgs.map((org, index) => (
-                  <EntityButton key={org._id} org={org} p={1} />
-                ))}
-              </VStack>
-            ) : (
-              <Text fontSize="smaller">
-                Personne ne vous a inscrit en tant qu'adhérent, bientôt
-                peut-être ?
               </Text>
             )}
           </>

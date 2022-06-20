@@ -20,11 +20,7 @@ import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { getRefId } from "models/Entity";
 import { EOrgType, IOrg, orgTypeFull, orgTypeFull5 } from "models/Org";
-import {
-  getFollowerSubscription,
-  getSubscriberSubscription,
-  ISubscription
-} from "models/Subscription";
+import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { PageProps } from "pages/_app";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
@@ -66,7 +62,6 @@ export const OrgPage = ({
 
   //#region sub
   const isFollowed = !!getFollowerSubscription({ org, subQuery });
-  const isSubscribed = !!getSubscriberSubscription({ org, subQuery });
   //#endregion
 
   //#region local state
@@ -329,26 +324,12 @@ export const OrgPage = ({
         </Text>
       </Box>
 
-      {isSubscribed && !isConfig && (
-        <Alert status="info" mb={3}>
-          <AlertIcon />
-          <Box>
-            Vous êtes adhérent {orgTypeFull(org.orgType)} {org.orgName}.
-            <Text fontSize="smaller">
-              Vous avez donc également accès aux événements, discussions et
-              projets réservés aux adhérents.
-            </Text>
-          </Box>
-        </Alert>
-      )}
-
       {!isConfig && !isEdit && (
         <OrgPageTabs
           currentItemName={tabItem}
           currentTabLabel={tab}
           isCreator={isCreator}
           isFollowed={isFollowed}
-          isSubscribed={isSubscribed}
           isLogin={isLogin}
           isMobile={isMobile}
           setIsLogin={setIsLogin}

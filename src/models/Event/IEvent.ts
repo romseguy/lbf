@@ -17,8 +17,7 @@ export enum EEventInviteStatus {
 
 export enum EEventVisibility {
   FOLLOWERS = "FOLLOWERS",
-  PUBLIC = "PUBLIC",
-  SUBSCRIBERS = "SUBSCRIBERS"
+  PUBLIC = "PUBLIC"
 }
 
 export interface IEvent<T = string> extends IEntity {

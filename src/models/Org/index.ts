@@ -1,6 +1,6 @@
 import { ChatIcon, CalendarIcon, SettingsIcon } from "@chakra-ui/icons";
 import { FaHome, FaTools, FaImages } from "react-icons/fa";
-import { ESubscriptionType } from "models/Subscription";
+import { EOrgSubscriptionType } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { capitalize, equals } from "utils/string";
 import {
@@ -59,13 +59,7 @@ export const getLists = (org?: IOrg): IOrgList[] => {
   if (!lists.find(({ listName }) => listName === "Abonnés"))
     lists.push({
       listName: "Abonnés",
-      subscriptions: getSubscriptions(org, ESubscriptionType.FOLLOWER)
-    });
-
-  if (!lists.find(({ listName }) => listName === "Adhérents"))
-    lists.push({
-      listName: "Adhérents",
-      subscriptions: getSubscriptions(org, ESubscriptionType.SUBSCRIBER)
+      subscriptions: getSubscriptions(org, EOrgSubscriptionType.FOLLOWER)
     });
 
   return lists;

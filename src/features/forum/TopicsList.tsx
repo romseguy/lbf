@@ -52,7 +52,6 @@ export const TopicsList = ({
   subQuery: AppQuery<ISubscription>;
   isCreator: boolean;
   isFollowed?: boolean;
-  isSubscribed?: boolean;
   isLogin: number;
   setIsLogin: (isLogin: number) => void;
   currentTopicName?: string;
@@ -291,7 +290,6 @@ export const TopicsList = ({
             subQuery={subQuery}
             isCreator={props.isCreator}
             isFollowed={props.isFollowed}
-            isSubscribed={props.isSubscribed}
             onCancel={onClose}
             onSubmit={async (topic) => {
               query.refetch();
@@ -309,7 +307,6 @@ export const TopicsList = ({
           <TopicsListCategories
             query={query}
             isCreator={props.isCreator}
-            isSubscribed={props.isSubscribed}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
           />

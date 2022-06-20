@@ -4,7 +4,7 @@ import { ParsedUrlQuery } from "querystring";
 import { Layout } from "features/layout";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
-import { ISubscription, ESubscriptionType } from "models/Subscription";
+import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { PageProps } from "pages/_app";
 import api, { ResponseType } from "utils/api";
@@ -95,7 +95,7 @@ export async function getServerSideProps(
                 orgs: [
                   {
                     orgId: org._id,
-                    type: ESubscriptionType.FOLLOWER
+                    type: EOrgSubscriptionType.FOLLOWER
                   }
                 ]
               }
@@ -149,7 +149,7 @@ export default UnsubscribePage;
             {
               orgId: org._id,
               org,
-              type: ESubscriptionType.FOLLOWER
+              type: EOrgSubscriptionType.FOLLOWER
             }
           ]
         }

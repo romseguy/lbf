@@ -12,7 +12,7 @@ import { getSession } from "utils/auth";
 import { EEventInviteStatus, IEvent } from "models/Event";
 import { IEventNotification } from "models/INotification";
 import { getLists, getSubscriptions, IOrg } from "models/Org";
-import { ISubscription, ESubscriptionType } from "models/Subscription";
+import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
 import { createServerError } from "utils/errors";
 import { createEventEmailNotif } from "utils/email";
 import { equals, logJson, normalize } from "utils/string";
@@ -225,7 +225,7 @@ handler.post<
 
         let subscriptions: ISubscription[] = [];
 
-        if (["Abonnés", "Adhérents"].includes(listName)) {
+        if (["Abonnés"].includes(listName)) {
           org = await org
             .populate({
               path: "orgSubscriptions",
@@ -237,12 +237,7 @@ handler.post<
             })
             .execPopulate();
           subscriptions = subscriptions.concat(
-            getSubscriptions(
-              org,
-              listName === "Abonnés"
-                ? ESubscriptionType.FOLLOWER
-                : ESubscriptionType.SUBSCRIBER
-            )
+            getSubscriptions(org, EOrgSubscriptionType.FOLLOWER)
           );
         } else {
           org = await org

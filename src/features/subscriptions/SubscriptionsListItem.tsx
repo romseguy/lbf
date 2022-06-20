@@ -15,10 +15,9 @@ import { getUser } from "features/api/usersApi";
 import { orgTypeFull } from "models/Org";
 import {
   getFollowerSubscription,
-  getSubscriberSubscription,
   IOrgSubscription,
   ISubscription,
-  ESubscriptionType
+  EOrgSubscriptionType
 } from "models/Subscription";
 import router from "next/router";
 import React from "react";
@@ -34,7 +33,6 @@ export const SubscriptionsListItem = ({
   subQuery,
   isSubscriptionLoading,
   setIsSubscriptionLoading,
-  onTagClick,
   subscription
 }: SubscriptionsListProps & {
   subscription: ISubscription;
@@ -44,10 +42,6 @@ export const SubscriptionsListItem = ({
   const [deleteSubscription, deleteSubscriptionMutation] =
     useDeleteSubscriptionMutation();
   const followerSubscription = getFollowerSubscription({
-    org,
-    subscription
-  }) as IOrgSubscription;
-  const subscriberSubscription = getSubscriberSubscription({
     org,
     subscription
   }) as IOrgSubscription;
@@ -70,72 +64,6 @@ export const SubscriptionsListItem = ({
         </Td>
       ) : (
         <>
-          <Td whiteSpace="nowrap">
-            <Tooltip
-              placement="top"
-              hasArrow
-              label={`${
-                followerSubscription ? "Retirer de" : "Ajouter à"
-              } la liste des abonnés`}
-            >
-              <Tag
-                variant={followerSubscription ? "solid" : "outline"}
-                colorScheme="green"
-                cursor="pointer"
-                mr={3}
-                onClick={() =>
-                  onTagClick({
-                    type: ESubscriptionType.FOLLOWER,
-                    followerSubscription,
-                    email,
-                    phone,
-                    user,
-                    subscription
-                  })
-                }
-                data-cy={
-                  followerSubscription
-                    ? "orgSubscriberUnfollow"
-                    : "orgSubscriberFollow"
-                }
-              >
-                <TagLabel>Abonné</TagLabel>
-              </Tag>
-            </Tooltip>
-
-            <Tooltip
-              placement="top"
-              hasArrow
-              label={`${
-                subscriberSubscription ? "Retirer de" : "Ajouter à"
-              } la liste des adhérents`}
-            >
-              <Tag
-                variant={subscriberSubscription ? "solid" : "outline"}
-                colorScheme="purple"
-                cursor="pointer"
-                mr={3}
-                onClick={() =>
-                  onTagClick({
-                    type: ESubscriptionType.SUBSCRIBER,
-                    subscriberSubscription,
-                    email,
-                    phone,
-                    user,
-                    subscription
-                  })
-                }
-                data-cy={
-                  subscriberSubscription
-                    ? "orgSubscriberUnsubscribe"
-                    : "orgSubscriberSubscribe"
-                }
-              >
-                <TagLabel>Adhérent</TagLabel>
-              </Tag>
-            </Tooltip>
-          </Td>
-
           <Td whiteSpace="nowrap">
             {followerSubscription && email && (
               <>

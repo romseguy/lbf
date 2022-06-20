@@ -1,13 +1,8 @@
 import { Box, Flex, Spinner } from "@chakra-ui/react";
-import React, { useState } from "react";
-import { useEditOrgMutation, useGetOrgQuery } from "features/api/orgsApi";
+import React from "react";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { useSession } from "hooks/useSession";
-import {
-  getFollowerSubscription,
-  getSubscriberSubscription,
-  ISubscription
-} from "models/Subscription";
+import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { TopicsList } from "./TopicsList";
 import { IOrg } from "models/Org";
@@ -36,7 +31,6 @@ export const Forum = ({
 
   //#region subscription
   const isFollowed = !!getFollowerSubscription({ org, subQuery });
-  const isSubscribed = !!getSubscriberSubscription({ org, subQuery });
   //#endregion
 
   if (orgQuery.isLoading) {
@@ -67,7 +61,6 @@ export const Forum = ({
         subQuery={subQuery}
         isCreator={isCreator}
         isFollowed={isFollowed}
-        isSubscribed={isSubscribed}
         setIsLogin={setIsLogin}
         isLogin={isLogin}
         currentTopicName={tabItem}
