@@ -437,7 +437,7 @@ export const OrgForm = withGoogleApi({
 
                       toast({
                         status: "success",
-                        title: "L'arbre a bien été créé !"
+                        title: "L'arbre a bien été ajouté !"
                       });
                     } catch (error: any) {
                       console.error(error);
@@ -450,12 +450,12 @@ export const OrgForm = withGoogleApi({
                   //#region ui
                   allowCreateWhileLoading
                   formatCreateLabel={(inputValue: string) =>
-                    `Créer l'arbre "${inputValue}"`
+                    `Ajouter l'arbre "${inputValue}"`
                   }
                   isClearable
                   isMulti
                   noOptionsMessage={() => "Aucun résultat"}
-                  placeholder="Créer ou rechercher un arbre"
+                  placeholder="Rechercher ou ajouter un arbre"
                   //#endregion
                   //#region styling
                   className="react-select-container"

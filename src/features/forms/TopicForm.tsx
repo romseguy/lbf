@@ -234,7 +234,7 @@ export const TopicForm = ({
                 }
                 allowCreateWhileLoading
                 formatCreateLabel={(inputValue: string) =>
-                  `Créer la catégorie "${inputValue}"`
+                  `Ajouter la catégorie "${inputValue}"`
                 }
                 onCreateOption={async (inputValue: string) => {
                   if (!props.isCreator) {
@@ -296,7 +296,7 @@ export const TopicForm = ({
                   }
                 }}
                 isClearable
-                placeholder="Créer ou rechercher une catégorie"
+                placeholder="Rechercher ou ajouter une catégorie"
                 noOptionsMessage={() => "Aucun résultat"}
                 className="react-select-container"
                 classNamePrefix="react-select"

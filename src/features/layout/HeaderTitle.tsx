@@ -1,4 +1,4 @@
-import { ChatIcon } from "@chakra-ui/icons";
+import { ChatIcon, SunIcon } from "@chakra-ui/icons";
 import { Flex, Icon, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
@@ -9,8 +9,15 @@ import {
   FaTree
 } from "react-icons/fa";
 import { Link, Heading, LinkShare } from "features/common";
+import {
+  IEntity,
+  IEntityBanner,
+  IEntityLogo,
+  isEvent,
+  isOrg,
+  isUser
+} from "models/Entity";
 import { EOrgType, IOrg, orgTypeFull } from "models/Org";
-import { IEntity, IEntityBanner, IEntityLogo, isEvent } from "models/Entity";
 import { AppIcon } from "utils/types";
 
 export const HeaderTitle = ({
@@ -24,6 +31,8 @@ export const HeaderTitle = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
   const isE = isEvent(entity);
+  const isO = isOrg(entity);
+  const isU = isUser(entity);
 
   let banner: IEntityBanner | undefined;
   let logo: IEntityLogo | undefined;
@@ -35,12 +44,14 @@ export const HeaderTitle = ({
     logo = entity.eventLogo;
     name = entity.eventName;
     url = entity.eventUrl;
-  } else if (entity) {
-    const org = entity as IOrg;
-    banner = org.orgBanner;
-    logo = org.orgLogo;
-    name = org.orgName;
-    url = org.orgUrl;
+  } else if (isO) {
+    banner = entity.orgBanner;
+    logo = entity.orgLogo;
+    name = entity.orgName;
+    url = entity.orgUrl;
+  } else if (isU) {
+    name = entity.userName;
+    url = entity.userName;
   }
 
   let icon: AppIcon | undefined = pageTitle === "Forum" ? ChatIcon : undefined;
@@ -49,9 +60,11 @@ export const HeaderTitle = ({
   if (isE) {
     icon = entity.isApproved ? FaRegCalendarCheck : FaRegCalendarTimes;
     iconColor = entity.isApproved ? "green" : "red";
-  } else if (entity) {
+  } else if (isO) {
     const org = entity as IOrg;
     icon = org.orgType === EOrgType.NETWORK ? FaGlobeEurope : FaTree;
+  } else if (isU) {
+    icon = SunIcon;
   }
 
   return (

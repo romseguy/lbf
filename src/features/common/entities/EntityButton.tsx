@@ -8,16 +8,9 @@ import {
   TooltipProps
 } from "@chakra-ui/react";
 import React from "react";
-import { IoIosGitNetwork, IoIosPeople, IoIosPerson } from "react-icons/io";
+import { IoIosPeople, IoIosPerson } from "react-icons/io";
 import { Link } from "features/common";
-import {
-  IOrg,
-  orgTypeFull,
-  EOrgType,
-  EOrgVisibility,
-  orgTypeFull5
-} from "models/Org";
-import { EEventVisibility as EventVisibility } from "models/Event";
+import { IOrg, EOrgType, EOrgVisibility, orgTypeFull5 } from "models/Org";
 import { IEvent } from "models/Event";
 import { IUser } from "models/User";
 import { ITopic } from "models/Topic";
@@ -145,28 +138,10 @@ export const EntityButton = ({
               ? user.userName
               : ""}
 
-            {topic ? (
-              <Icon
-                as={
-                  topic.topicVisibility.includes("Abonnés")
-                    ? IoIosPeople
-                    : FaGlobeEurope
-                }
-                ml={2}
-              />
-            ) : org ? (
-              org.orgUrl !== "forum" ? (
-                <Icon
-                  as={
-                    org.orgVisibility === EOrgVisibility.PRIVATE
-                      ? LockIcon
-                      : FaGlobeEurope
-                  }
-                  ml={2}
-                />
-              ) : null
-            ) : event ? (
-              <Icon as={FaGlobeEurope} ml={2} />
+            {topic && topic.topicVisibility.includes("Abonnés") ? (
+              <Icon as={IoIosPeople} ml={2} />
+            ) : org && org.orgVisibility === EOrgVisibility.PRIVATE ? (
+              <Icon as={LockIcon} ml={2} />
             ) : null}
           </Button>
         </Link>

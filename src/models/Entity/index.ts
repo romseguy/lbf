@@ -31,10 +31,18 @@ export const isEvent = (entity?: IEntity): entity is IEvent => {
   return !!entity && (entity as IEvent).eventUrl !== undefined;
 };
 
+export const isOrg = (entity?: IEntity): entity is IOrg => {
+  return !!entity && (entity as IOrg).orgUrl !== undefined;
+};
+
 export const isProject = (entity?: IEntity): entity is IProject => {
   return !!entity && (entity as IProject).projectName !== undefined;
 };
 
 export const isTopic = (entity?: IEntity): entity is ITopic => {
   return !!entity && (entity as ITopic).topicName !== undefined;
+};
+
+export const isUser = (entity?: IEntity): entity is IUser => {
+  return !!entity && (entity as IUser).email !== undefined;
 };

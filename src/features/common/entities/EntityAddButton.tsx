@@ -36,7 +36,7 @@ export const EntityAddButton = ({
         data-cy="org-add-button"
         {...props}
       >
-        Créer une planète
+        Ajouter une planète
       </Button>
     );
 
@@ -60,7 +60,7 @@ export const EntityAddButton = ({
       data-cy="org-add-button"
       {...props}
     >
-      Créer un arbre
+      Ajouter un arbre
     </Button>
   );
 };

@@ -126,7 +126,7 @@ const Hash = ({ ...props }: PageProps) => {
       <NotFound
         {...props}
         isRedirect={false}
-        message="Veuillez créer l'organisation forum."
+        message="Veuillez ajouter la planète forum."
       />
     );
   }

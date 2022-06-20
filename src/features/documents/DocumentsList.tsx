@@ -364,7 +364,7 @@ export const DocumentsList = ({
           {hasItems(masonry) && (
             <Column p={0}>
               <Heading px={3} pb={3}>
-                Portfolio
+                Visionneuse d'images
               </Heading>
 
               <Flex justifyContent="center">

@@ -1031,8 +1031,8 @@ export const EventForm = withGoogleApi({
             getOptionValue={(option: any) => option._id}
             placeholder={
               hasItems(myOrgs)
-                ? "Rechercher..."
-                : "Vous n'avez créé aucune organisations"
+                ? "Rechercher une planète ou un arbre..."
+                : "Vous n'avez ajouté aucune planètes ou arbres"
             }
             styles={{
               control: (defaultStyles: any) => {

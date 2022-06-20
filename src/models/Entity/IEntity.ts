@@ -4,7 +4,7 @@ import { Base64Image } from "utils/image";
 export interface IEntity {
   _id: string;
   createdAt?: string;
-  createdBy: IUser | string;
+  createdBy?: IUser | string;
 }
 
 export interface IEntityAddress {

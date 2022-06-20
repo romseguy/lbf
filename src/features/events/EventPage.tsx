@@ -12,6 +12,7 @@ import {
   Button,
   Flex,
   Input,
+  Spinner,
   Text,
   TabPanel,
   TabPanels,
@@ -146,17 +147,15 @@ export const EventPage = ({
   }*/
   //#endregion
 
-  return (
-    <Layout
-      event={event}
-      isLogin={isLogin}
-      isMobile={isMobile}
-      session={session}
-    >
-      {isCreator && (
-        <>
-          {!isConfig && !isEdit && (
-            <Flex mb={3}>
+  const configButtons = () => {
+    if (!isCreator) return null;
+
+    return (
+      <Column mb={3}>
+        <Heading mb={3}>Administration de l'événement</Heading>
+        {!isConfig && !isEdit && (
+          <Flex flexDirection={isMobile ? "column" : "row"}>
+            <Flex mb={isMobile ? 3 : 0}>
               <Button
                 colorScheme="teal"
                 leftIcon={<SettingsIcon boxSize={6} data-cy="eventSettings" />}
@@ -165,7 +164,9 @@ export const EventPage = ({
               >
                 Paramètres
               </Button>
+            </Flex>
 
+            <Flex mb={isMobile ? 3 : 0}>
               <Button
                 colorScheme="teal"
                 leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
@@ -178,7 +179,9 @@ export const EventPage = ({
               >
                 Modifier
               </Button>
+            </Flex>
 
+            <Flex>
               <DeleteButton
                 isDisabled={isDisabled}
                 isLoading={deleteQuery.isLoading}
@@ -225,54 +228,72 @@ export const EventPage = ({
                 }}
               />
             </Flex>
-          )}
+          </Flex>
+        )}
 
-          {isEdit && (
-            <Button
-              colorScheme="teal"
-              leftIcon={<ArrowBackIcon boxSize={6} />}
-              onClick={() => setIsEdit(false)}
-              mb={2}
-            >
-              Retour
-            </Button>
-          )}
+        {isEdit && (
+          <Button
+            colorScheme="teal"
+            leftIcon={<ArrowBackIcon boxSize={6} />}
+            onClick={() => setIsEdit(false)}
+            mb={2}
+          >
+            Retour
+          </Button>
+        )}
 
-          {!isEdit && isConfig && (
-            <Button
-              colorScheme="teal"
-              leftIcon={<ArrowBackIcon boxSize={6} />}
-              onClick={() => setIsConfig(false)}
-              mb={2}
-            >
-              Revenir à l'événement
-            </Button>
-          )}
-        </>
-      )}
+        {!isEdit && isConfig && (
+          <Button
+            colorScheme="teal"
+            leftIcon={<ArrowBackIcon boxSize={6} />}
+            onClick={() => setIsConfig(false)}
+            mb={2}
+          >
+            Revenir à l'événement
+          </Button>
+        )}
+      </Column>
+    );
+  };
 
-      {!isConfig && !isEdit && !subQuery.isLoading && (
-        <Flex flexDirection="row" flexWrap="wrap" mt={-3}>
-          {isFollowed && (
-            <Box mr={3} mt={3}>
-              <SubscribePopover
-                event={event}
-                query={eventQuery}
-                subQuery={subQuery}
-              />
-            </Box>
-          )}
+  const subscribeButtons = () => {
+    if (eventQuery.isLoading || isConfig || isEdit) return null;
 
-          <Box mt={3}>
+    if (subQuery.isLoading) return <Spinner />;
+
+    return (
+      <Flex flexWrap="wrap" mt={-3}>
+        {isFollowed && (
+          <Box mr={3} mt={3}>
             <SubscribePopover
               event={event}
               query={eventQuery}
               subQuery={subQuery}
-              notifType="push"
             />
           </Box>
-        </Flex>
-      )}
+        )}
+
+        <Box mt={3}>
+          <SubscribePopover
+            event={event}
+            query={eventQuery}
+            subQuery={subQuery}
+            notifType="push"
+          />
+        </Box>
+      </Flex>
+    );
+  };
+
+  return (
+    <Layout
+      entity={event}
+      isLogin={isLogin}
+      isMobile={isMobile}
+      session={session}
+    >
+      {configButtons()}
+      {subscribeButtons()}
 
       <Box my={3}>
         <Text fontSize="smaller" pt={1}>

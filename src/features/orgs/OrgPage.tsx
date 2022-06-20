@@ -14,7 +14,7 @@ import { fr } from "date-fns/locale";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Button, DeleteButton, Link } from "features/common";
+import { Button, Column, DeleteButton, Heading, Link } from "features/common";
 import { Forum } from "features/forum/Forum";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
@@ -115,9 +115,10 @@ export const OrgPage = ({
     if (!isCreator) return null;
 
     return (
-      <>
+      <Column mb={3}>
+        <Heading mb={3}>Administration de la planète</Heading>
         {!isConfig && !isEdit && (
-          <Flex flexDirection={isMobile ? "column" : "row"} mb={3}>
+          <Flex flexDirection={isMobile ? "column" : "row"}>
             <Flex mb={isMobile ? 3 : 0}>
               <Button
                 colorScheme="teal"
@@ -169,14 +170,14 @@ export const OrgPage = ({
                     <Alert status="warning">
                       <AlertIcon />
                       <Box>
-                        Les <b>discussions</b>, les <b>projets</b>, les{" "}
-                        <b>fichiers</b>, et les adresses e-mail associés seront
-                        supprimés.
+                        Toutes les données associées à{" "}
+                        {orgTypeFull5(org.orgType)} seront supprimées. Cette
+                        action est <strong>irréversible</strong> !
                       </Box>
                     </Alert>
                     <Text mb={1} mt={3}>
-                      Confirmez en saisissant le nom {orgTypeFull(org.orgType)}{" "}
-                      :
+                      <strong>Confirmez</strong> en saisissant le nom{" "}
+                      {orgTypeFull(org.orgType)} :
                     </Text>
                     <Input
                       autoComplete="off"
@@ -218,20 +219,18 @@ export const OrgPage = ({
           </Flex>
         )}
 
-        {!isConfig && !isEdit && <Flex></Flex>}
-
-        {isEdit && (
+        {!isConfig && isEdit && (
           <Button
+            canWrap
             colorScheme="teal"
             leftIcon={<ArrowBackIcon boxSize={6} />}
             onClick={() => setIsEdit(false)}
-            mb={3}
           >
             Retour
           </Button>
         )}
 
-        {!isEdit && isConfig && (
+        {isConfig && !isEdit && (
           <Button
             canWrap
             colorScheme="teal"
@@ -243,7 +242,7 @@ export const OrgPage = ({
             Retour
           </Button>
         )}
-      </>
+      </Column>
     );
   };
 
@@ -275,7 +274,12 @@ export const OrgPage = ({
 
   if (org.orgUrl === "forum") {
     return (
-      <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
+      <Layout
+        entity={org}
+        isLogin={isLogin}
+        isMobile={isMobile}
+        session={session}
+      >
         {configButtons()}
 
         {!isConfig && !isEdit && (
@@ -305,7 +309,12 @@ export const OrgPage = ({
   }
 
   return (
-    <Layout org={org} isLogin={isLogin} isMobile={isMobile} session={session}>
+    <Layout
+      entity={org}
+      isLogin={isLogin}
+      isMobile={isMobile}
+      session={session}
+    >
       {configButtons()}
 
       {subscribeButtons()}

@@ -25,6 +25,7 @@ import { resetUserEmail, selectUserEmail } from "store/userSlice";
 import { breakpoints } from "features/layout/theme/theme";
 import { Base64Image } from "utils/image";
 import { isServer } from "utils/isServer";
+import { IEntity, isEvent, isOrg, isUser } from "models/Entity";
 
 const PAYPAL_BUTTON_WIDTH = 108;
 const defaultTitle = process.env.NEXT_PUBLIC_SHORT_URL;
@@ -41,24 +42,22 @@ export interface LayoutProps extends PageProps, BoxProps {
   banner?: Base64Image & { mode: "dark" | "light" };
   logo?: Base64Image;
   isLogin?: number;
-  event?: IEvent;
-  org?: IOrg;
+  entity?: IEntity;
   pageHeader?: React.ReactNode | React.ReactNodeArray;
   pageSubTitle?: React.ReactNode;
   pageTitle?: string;
 }
 
 export const Layout = ({
-  isLogin = 0,
-  logo,
   banner,
   children,
+  entity,
+  isLogin = 0,
+  logo,
   pageHeader,
-  pageTitle,
   pageSubTitle,
+  pageTitle,
   setSession,
-  org,
-  event,
   ...props
 }: LayoutProps) => {
   const { isMobile } = props;
@@ -112,6 +111,10 @@ export const Layout = ({
     }
   }, []);
 
+  const isE = isEvent(entity);
+  const isO = isOrg(entity);
+  const isU = isUser(entity);
+
   return (
     <>
       <Head>
@@ -119,10 +122,12 @@ export const Layout = ({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
           {defaultTitle} –{" "}
-          {org
-            ? `${OrgTypes[org.orgType]} – ${org.orgName}`
-            : event
-            ? `Événement – ${event.eventName}`
+          {isO
+            ? `${OrgTypes[entity.orgType]} – ${entity.orgName}`
+            : isE
+            ? `Événement – ${entity.eventName}`
+            : isU
+            ? `${entity.userName}`
             : pageTitle}
         </title>
       </Head>
@@ -209,8 +214,8 @@ export const Layout = ({
 
         {router.pathname !== "/" && (
           <Header
-            entity={event || org}
-            defaultTitle="Chargement..."
+            entity={entity}
+            defaultTitle="Veuillez patienter..."
             pageTitle={pageTitle}
             pageSubTitle={pageSubTitle}
             m={isMobile ? 1 : 3}

@@ -16,24 +16,17 @@ import { format } from "date-fns";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { css } from "twin.macro";
-import {
-  Link,
-  GridHeader,
-  GridItem,
-  IconFooter,
-  Column
-} from "features/common";
+import { Link, GridHeader, GridItem, Column } from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
+import { UserDescriptionForm } from "features/forms/UserDescriptionForm";
 import { UserForm } from "features/forms/UserForm";
 import { Layout } from "features/layout";
-import { ProjectsList } from "features/projects/ProjectsList";
 import { IUser } from "models/User";
 import { PageProps } from "pages/_app";
 import api from "utils/api";
 import { sanitize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
 import { defaultTabs, UserPageTabs } from "./UserPageTabs";
-import { UserDescriptionForm } from "features/forms/UserDescriptionForm";
 
 export const UserPage = ({
   email,
@@ -59,10 +52,17 @@ export const UserPage = ({
   const [isEdit, setIsEdit] = useState(false);
   const [isDescriptionEdit, setIsDescriptionEdit] = useState(false);
   const [isLogin, setIsLogin] = useState(0);
+  const tabs = isSelf
+    ? defaultTabs
+    : Object.keys(defaultTabs).reduce((tabs, tabLabel) => {
+        if (["Accueil"].includes(tabLabel))
+          return { ...tabs, [tabLabel]: defaultTabs[tabLabel] };
+        return tabs;
+      }, {});
 
   return (
     <Layout
-      pageTitle={user.userName}
+      entity={user}
       isLogin={isLogin}
       isMobile={isMobile}
       session={session}
@@ -122,19 +122,7 @@ export const UserPage = ({
         )}
 
         {!isEdit && (
-          <UserPageTabs
-            isMobile={isMobile}
-            tabs={
-              isSelf
-                ? defaultTabs
-                : Object.keys(defaultTabs).reduce((tabs, tabLabel) => {
-                    if (["Accueil", "Galerie"].includes(tabLabel))
-                      return { ...tabs, [tabLabel]: defaultTabs[tabLabel] };
-                    return tabs;
-                  }, {})
-            }
-            height="auto"
-          >
+          <UserPageTabs isMobile={isMobile} tabs={tabs} height="auto">
             <TabPanels
               css={css`
                 & > * {

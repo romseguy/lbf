@@ -36,7 +36,8 @@ export const UserPageTabs = ({
   }, 0);
   const [currentTabIndex, setCurrentTabIndex] = useState(defaultTabIndex || 0);
 
-  if (!Object.keys(tabs).length) return <Tabs>{children}</Tabs>;
+  if (Object.keys(tabs).length === 0 || Object.keys(tabs).length === 1)
+    return <Tabs>{children}</Tabs>;
 
   return (
     <Tabs

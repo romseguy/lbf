@@ -354,7 +354,7 @@ export const SubscriptionEditForm = ({
             </>
           ) : (
             <>
-              Cette personne a accepté de recevoir{" "}
+              Cette personne recevra{" "}
               <b>
                 {notifType === "email"
                   ? "un e-mail"

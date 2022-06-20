@@ -340,7 +340,7 @@ export const ProjectsList = ({
 
                         <Tooltip
                           placement="bottom"
-                          label={`Projet créé le ${fullDate}`}
+                          label={`Projet ajouté le ${fullDate}`}
                         >
                           <Text
                             cursor="default"

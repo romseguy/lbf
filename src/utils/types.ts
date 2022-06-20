@@ -1,5 +1,5 @@
 import { IconProps } from "@chakra-ui/icons";
-import { ComponentWithAs } from "@chakra-ui/system";
+import { ComponentWithAs } from "@chakra-ui/react";
 import { NextApiRequest } from "next";
 import { IconType } from "react-icons";
 

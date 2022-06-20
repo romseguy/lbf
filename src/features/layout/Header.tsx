@@ -3,12 +3,18 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { css } from "twin.macro";
 import { Link } from "features/common";
-import { useScroll } from "hooks/useScroll";
-import { IOrg, orgTypeFull } from "models/Org";
 import { EventCategoryTag } from "features/events/EventCategoryTag";
-import { FullscreenModal } from "features/modals/FullscreenModal";
-import { IEntity, IEntityBanner, IEntityLogo, isEvent } from "models/Entity";
 import { logoHeight } from "features/layout/theme/theme";
+import { FullscreenModal } from "features/modals/FullscreenModal";
+import { useScroll } from "hooks/useScroll";
+import {
+  IEntity,
+  IEntityBanner,
+  IEntityLogo,
+  isEvent,
+  isOrg
+} from "models/Entity";
+import { IOrg, orgTypeFull } from "models/Org";
 import { HeaderTitle } from "./HeaderTitle";
 
 export const Header = ({
@@ -36,6 +42,7 @@ export const Header = ({
   }, [router.asPath]);
 
   const isE = isEvent(entity);
+  const isO = isOrg(entity);
   let banner: IEntityBanner | undefined;
   let logo: IEntityLogo | undefined;
   let showTitle = true;
@@ -43,11 +50,10 @@ export const Header = ({
     banner = entity.eventBanner;
     logo = entity.eventLogo;
     showTitle = entity.eventStyles.showTitle;
-  } else if (entity) {
-    const org = entity as IOrg;
-    banner = org.orgBanner;
-    logo = org.orgLogo;
-    showTitle = org.orgStyles.showTitle;
+  } else if (isO) {
+    banner = entity.orgBanner;
+    logo = entity.orgLogo;
+    showTitle = entity.orgStyles.showTitle;
   }
 
   if (!banner && !logo && !showTitle) return null;
