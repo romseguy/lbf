@@ -1,6 +1,5 @@
-import { ChevronDownIcon, ChevronUpIcon, EditIcon } from "@chakra-ui/icons";
+import { EditIcon } from "@chakra-ui/icons";
 import {
-  Box,
   Button,
   Flex,
   Grid,
@@ -26,6 +25,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
+import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
 import {
   DeleteButton,
   GridHeader,
@@ -34,12 +34,11 @@ import {
   Link
 } from "features/common";
 import { EntityListForm } from "features/forms/EntityListForm";
+import { breakpoints } from "features/layout/theme";
 import { addOrReplaceList, editList, IOrg, IOrgList } from "models/Org";
-import { breakpoints } from "features/layout/theme/theme";
 import { hasItems } from "utils/array";
 import { AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
-import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
 
 export const OrgConfigListsPanel = ({
   orgQuery,
@@ -175,18 +174,12 @@ export const OrgConfigListsPanel = ({
       </Link>
 
       {isAdd && (
-        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }}>
-          <AppHeading>Ajouter une liste</AppHeading>
+        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }} p={5}>
+          <AppHeading smaller mb={3}>
+            Ajouter une liste
+          </AppHeading>
 
-          <Box p={5}>
-            <EntityListForm
-              org={org}
-              onCancel={() => {
-                setIsAdd(false);
-              }}
-              onSubmit={onSubmit}
-            />
-          </Box>
+          <EntityListForm org={org} onSubmit={onSubmit} />
         </GridItem>
       )}
 
@@ -251,18 +244,12 @@ export const OrgConfigListsPanel = ({
                       <Td textAlign="right" whiteSpace="nowrap">
                         {!["Abonnés"].includes(list.listName) && (
                           <>
-                            <Tooltip
-                              label="Modifier la liste"
-                              hasArrow
-                              placement="top"
-                            >
+                            <Tooltip label="Modifier" placement="left">
                               <IconButton
-                                aria-label="Modifier la liste"
-                                bg="transparent"
-                                _hover={{ bg: "transparent", color: "green" }}
+                                aria-label="Modifier"
                                 icon={<EditIcon />}
-                                height="auto"
-                                minWidth={0}
+                                colorScheme="green"
+                                variant="outline"
                                 mr={3}
                                 onClick={async () => {
                                   setListToEdit(list);
@@ -286,6 +273,9 @@ export const OrgConfigListsPanel = ({
                                 </>
                               }
                               isIconOnly
+                              isSmall={false}
+                              label="Supprimer"
+                              variant="outline"
                               onClick={async () => {
                                 try {
                                   await editOrg({
@@ -300,9 +290,6 @@ export const OrgConfigListsPanel = ({
                                   });
                                 }
                               }}
-                              hasArrow
-                              label="Supprimer la liste"
-                              placement="top"
                               data-cy={`org-list-${listName}-remove`}
                             />
                           </>

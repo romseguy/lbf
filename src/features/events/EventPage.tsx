@@ -45,7 +45,7 @@ import {
   IOrgSubscription,
   ISubscription
 } from "models/Subscription";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import {
   useDeleteEventMutation,

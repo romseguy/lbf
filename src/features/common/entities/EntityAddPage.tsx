@@ -6,7 +6,7 @@ import { EventForm } from "features/forms/EventForm";
 import { OrgForm } from "features/forms/OrgForm";
 import { Layout } from "features/layout";
 import { EOrgType, orgTypeFull3 } from "models/Org";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 
 export const EntityAddPage = ({
   orgType,

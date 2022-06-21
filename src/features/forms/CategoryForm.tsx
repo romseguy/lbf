@@ -33,7 +33,7 @@ export const CategoryForm = ({
   categories: IEntityCategory[];
   fieldName: IEntityCategoryKey;
   query: AppQueryWithData<IEvent | IOrg>;
-  onCancel: () => void;
+  onCancel?: () => void;
   onSubmit: () => void;
 }) => {
   const toast = useToast({ position: "top" });
@@ -123,9 +123,11 @@ export const CategoryForm = ({
       />
 
       <Flex justifyContent="space-between">
-        <Button colorScheme="red" onClick={onCancel}>
-          Annuler
-        </Button>
+        {onCancel && (
+          <Button colorScheme="red" onClick={onCancel}>
+            Annuler
+          </Button>
+        )}
         <Button colorScheme="green" isLoading={isLoading} type="submit">
           Ajouter
         </Button>

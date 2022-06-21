@@ -1,7 +1,8 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import {
-  Flex,
   Box,
+  Flex,
+  IconButton,
   Spinner,
   Table,
   Tbody,
@@ -13,14 +14,16 @@ import {
   useColorMode
 } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
+import { FaRegMap } from "react-icons/fa";
 import { css } from "twin.macro";
-import { Link } from "features/common";
-import { EOrgType, IOrg, orgTypeFull5, OrgTypes } from "models/Org";
-import { scrollbarStyles, tableStyles } from "features/layout/theme/theme";
-import { SubscribePopover } from "features/subscriptions/SubscribePopover";
-import { AppQuery } from "utils/types";
-import { ISubscription } from "models/Subscription";
+import { EntityButton, Link } from "features/common";
+import { scrollbarStyles, tableStyles } from "features/layout/theme";
 import { MapModal } from "features/modals/MapModal";
+import { SubscribePopover } from "features/subscriptions/SubscribePopover";
+import { EOrgType, IOrg, orgTypeFull5, OrgTypes } from "models/Org";
+import { ISubscription } from "models/Subscription";
+import { IUser } from "models/User";
+import { AppQuery } from "utils/types";
 
 export const OrgsList = ({
   query,
@@ -94,7 +97,8 @@ export const OrgsList = ({
                 label: `Nom de ${orgTypeFull5(orgType)}`
               },
               // { key: "orgType", label: "Type" },
-              { key: "orgCity", label: "Position" }
+              // { key: "orgCity", label: "Position" },
+              { key: "createdBy", label: "Koala" }
             ].map(({ key, label }) => {
               return (
                 <Th
@@ -147,6 +151,16 @@ export const OrgsList = ({
                       subQuery={subQuery}
                       isIconOnly
                     />
+                    {org.orgCity && (
+                      <Tooltip label="Afficher sur la carte" placement="right">
+                        <IconButton
+                          aria-label="Afficher sur la carte"
+                          icon={<FaRegMap />}
+                          ml={2}
+                          onClick={() => setOrgToShow(org)}
+                        />
+                      </Tooltip>
+                    )}
                   </Td>
                   <Td>
                     <Tooltip
@@ -166,7 +180,7 @@ export const OrgsList = ({
                     </Tooltip>
                   </Td>
                   {/* <Td>{OrgTypes[org.orgType]}</Td> */}
-                  <Td>
+                  {/* <Td>
                     <Tooltip hasArrow label="Voir sur la carte" placement="top">
                       <span>
                         <Link
@@ -177,6 +191,12 @@ export const OrgsList = ({
                         </Link>
                       </span>
                     </Tooltip>
+                  </Td> */}
+                  <Td>
+                    <EntityButton
+                      user={{ userName: (org.createdBy as IUser).userName }}
+                      tooltipProps={{ placement: "top" }}
+                    />
                   </Td>
                 </Tr>
               );

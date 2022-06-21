@@ -22,7 +22,7 @@ import { UserDescriptionForm } from "features/forms/UserDescriptionForm";
 import { UserForm } from "features/forms/UserForm";
 import { Layout } from "features/layout";
 import { IUser } from "models/User";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 import api from "utils/api";
 import { sanitize } from "utils/string";
 import { AppQueryWithData } from "utils/types";

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { Heading, Row } from "features/common";
 import { Layout } from "features/layout";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 
 export const NotFound = ({
   isRedirect = false,

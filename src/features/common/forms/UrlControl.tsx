@@ -1,6 +1,7 @@
 import { AtSignIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
   Box,
+  CSSObject,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -19,7 +20,7 @@ import React, { useState } from "react";
 import { useFieldArray } from "react-hook-form";
 import { FaGlobeEurope } from "react-icons/fa";
 import { css } from "twin.macro";
-import { StyleProps } from "features/layout/theme/styles";
+
 import { optionalProtocolUrlR, urlR } from "utils/url";
 import { Link } from "../Link";
 
@@ -46,7 +47,7 @@ export const UrlControl = ({
   control: any;
   register: any;
   setValue: (name: string, value: UrlControlValue | string) => void;
-  containerProps?: StyleProps;
+  containerProps?: CSSObject;
   isRequired?: boolean;
   placeholder?: string;
   isMultiple?: boolean;
@@ -96,7 +97,7 @@ export const UrlControl = ({
   );
 
   return (
-    <Box {...containerProps}>
+    <Box sx={containerProps}>
       {fields.map((field, index) => {
         return (
           <FormControl

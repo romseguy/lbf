@@ -43,7 +43,7 @@ export const TopicsListItemVisibility = ({
   if (Array.isArray(customLists) && customLists.length > 0) {
     icons = [
       {
-        label: `Discussion réservée aux membres ${
+        label: `Discussion réservée aux koalas ${
           customLists.length === 1
             ? `de la liste "${customLists[0]}"`
             : `des listes ${customLists.map(

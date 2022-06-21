@@ -1,8 +1,8 @@
 import { CalendarIcon, ChatIcon, LockIcon } from "@chakra-ui/icons";
 import {
   Button,
-  StyleProps,
   Icon,
+  StyleProps,
   ThemingProps,
   Tooltip,
   TooltipProps
@@ -66,7 +66,7 @@ export const EntityButton = ({
             : event
             ? "Aller à la page de l'événement"
             : user
-            ? "Aller à la page de l'utilisateur"
+            ? "Visiter le soleil de ce koala"
             : ""
           : ""
       }

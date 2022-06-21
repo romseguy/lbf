@@ -401,7 +401,7 @@ export const TopicForm = ({
       {hasItems(topicVisibility) && (
         <Alert status="warning" mb={3}>
           <AlertIcon />
-          La discussion ne sera visible que par les membres des listes
+          La discussion ne sera visible que par les koalas des listes
           sélectionnées.
         </Alert>
       )}

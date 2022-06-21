@@ -22,7 +22,7 @@ import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { PageProps } from "./_app";
+import { PageProps } from "main";
 
 let cachedEmail: string | undefined;
 let cachedRefetchSubscription = false;

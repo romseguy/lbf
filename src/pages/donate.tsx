@@ -1,7 +1,7 @@
 import { Alert, AlertIcon } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { Layout } from "features/layout";
-import { PageProps } from "./_app";
+import { PageProps } from "main";
 
 const DonatePage = (props: PageProps) => {
   const { query } = useRouter();

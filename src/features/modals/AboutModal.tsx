@@ -7,7 +7,7 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { AboutPage } from "pages/a_propos";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 
 interface AboutModalProps extends PageProps {
   isOpen: boolean;

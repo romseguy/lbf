@@ -10,7 +10,7 @@ import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
 import { selectIsOffline } from "store/sessionSlice";
 import { EEventVisibility } from "models/Event";
-import { PageProps } from "./_app";
+import { PageProps } from "main";
 
 const EventsPage = ({ ...props }: PageProps) => {
   const { colorMode } = useColorMode();

@@ -47,11 +47,11 @@ export const DeleteButton = ({
   const isDark = colorMode === "dark";
   const { onOpen, onClose, isOpen } = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement | null>(null);
-  let styleProps = {};
+  let CSSObject = {};
 
   if (isIconOnly && isSmall)
-    styleProps = {
-      ...styleProps,
+    CSSObject = {
+      ...CSSObject,
       bg: "transparent",
       color: isDark ? "white" : "black",
       _hover: { bg: "transparent", color: "red" },
@@ -68,7 +68,7 @@ export const DeleteButton = ({
             colorScheme="red"
             icon={<DeleteIcon />}
             isLoading={isLoading}
-            {...styleProps}
+            {...CSSObject}
             {...props}
             onClick={(e) => {
               e.stopPropagation();

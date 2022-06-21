@@ -38,7 +38,7 @@ export const EntityListForm = ({
 }: {
   list?: IOrgList;
   org: IOrg;
-  onCancel: () => void;
+  onCancel?: () => void;
   onSubmit: (form: IOrgList) => Promise<void>;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -118,7 +118,7 @@ export const EntityListForm = ({
 
       {hasItems(org.orgSubscriptions) && (
         <FormControl mb={3}>
-          <FormLabel>Membres</FormLabel>
+          <FormLabel>Koalas</FormLabel>
 
           <Controller
             name="subscriptions"
@@ -193,9 +193,11 @@ export const EntityListForm = ({
       />
 
       <Flex justifyContent="space-between">
-        <Button colorScheme="red" onClick={onCancel} mr={3}>
-          Annuler
-        </Button>
+        {onCancel && (
+          <Button colorScheme="red" onClick={onCancel} mr={3}>
+            Annuler
+          </Button>
+        )}
 
         <Button
           colorScheme="green"

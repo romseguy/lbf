@@ -1,7 +1,7 @@
 import React from "react";
 import { css } from "twin.macro";
 import { Layout } from "features/layout";
-import { PageProps } from "./_app";
+import { PageProps } from "main";
 
 const styles = css`
   .body {

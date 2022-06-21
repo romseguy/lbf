@@ -1,6 +1,9 @@
-import { Box, Flex, GridProps, Heading } from "@chakra-ui/react";
+import { Flex, GridProps, Heading } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
+import { css } from "twin.macro";
+import { useEditEventMutation } from "features/api/eventsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   Button,
   CategoriesList,
@@ -11,17 +14,14 @@ import {
   Link
 } from "features/common";
 import { EventConfigVisibility } from "features/events/EventConfigPanel";
+import { CategoryForm } from "features/forms/CategoryForm";
+import { breakpoints } from "features/layout/theme";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
 import { IEntityCategory, IEntityCategoryKey, isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { AppQueryWithData } from "utils/types";
-import { breakpoints } from "features/layout/theme/theme";
 import { hasItems } from "utils/array";
-import { css } from "twin.macro";
-import { CategoryForm } from "features/forms/CategoryForm";
-import { useEditEventMutation } from "features/api/eventsApi";
-import { useEditOrgMutation } from "features/api/orgsApi";
+import { AppQueryWithData } from "utils/types";
 
 type EntityConfigCategoriesPanelProps = {
   categories: IEntityCategory[];
@@ -132,28 +132,23 @@ export const EntityConfigCategoriesPanel = ({
       </Link>
 
       {isAdd && (
-        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }}>
-          <AppHeading>
+        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }} p={5}>
+          <AppHeading smaller mb={3}>
             Ajouter une catégorie{" "}
             {visibilityKey === "topicCategories"
               ? "de discussions"
               : "d'événements"}
           </AppHeading>
 
-          <Box p={5}>
-            <CategoryForm
-              categories={categories}
-              fieldName={fieldName}
-              query={query}
-              onCancel={() => {
-                setIsAdd(false);
-              }}
-              onSubmit={() => {
-                setIsAdd(false);
-                toggleVisibility(visibilityKey, true);
-              }}
-            />
-          </Box>
+          <CategoryForm
+            categories={categories}
+            fieldName={fieldName}
+            query={query}
+            onSubmit={() => {
+              setIsAdd(false);
+              toggleVisibility(visibilityKey, true);
+            }}
+          />
         </GridItem>
       )}
 

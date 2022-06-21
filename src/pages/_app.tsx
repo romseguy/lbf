@@ -1,132 +1,40 @@
 import { NextPage, NextPageContext } from "next";
-import { AppInitialProps, AppProps as NextAppProps } from "next/app";
-import React, { useEffect, useState } from "react";
+import { AppProps as NextAppProps } from "next/app";
+import React, { useState } from "react";
 import { getSelectorsByUserAgent, isMobile } from "react-device-detect";
-import { useSelector } from "react-redux";
 import { Chakra } from "features/common";
-import { GlobalStyles } from "features/layout";
-import { setIsOffline } from "store/sessionSlice";
-import { selectUserEmail, setUserEmail } from "store/userSlice";
-import { useAppDispatch, wrapper } from "store";
-import theme from "features/layout/theme/theme";
-import api from "utils/api";
-import { magic, Session, SessionContext } from "utils/auth";
+import theme from "features/layout/theme";
+import { wrapper } from "store";
+import { Session, SessionContext } from "utils/auth";
 import { isServer } from "utils/isServer";
-//import { AppStateProvider } from "utils/context";
+import { Main, PageProps } from "main";
 
-export interface PageProps {
-  email?: string | null;
-  isMobile: boolean;
-  isSessionLoading?: boolean;
-  session: Session | null;
-  setSession?: React.Dispatch<React.SetStateAction<Session | null>>;
+interface AppProps {
+  cookies?: string;
+  pageProps: Partial<PageProps>;
 }
 
 const App = wrapper.withRedux(
-  ({
-    Component,
-    pageProps,
-    cookies
-  }: NextAppProps<{
-    pageProps: {
-      email?: string;
-      isMobile: boolean;
-    };
-  }> & {
-    cookies?: string;
-  }) => {
+  ({ Component, cookies, pageProps }: NextAppProps<PageProps> & AppProps) => {
     const [session, setSession] = useState<Session | null>(null);
     const [isSessionLoading, setIsSessionLoading] = useState(true);
 
-    const dispatch = useAppDispatch();
-    const userEmail = useSelector(selectUserEmail);
-
-    useEffect(function clientDidMount() {
-      (async function checkLoginStatus() {
-        try {
-          const { data: session } = await api.get("user");
-
-          if (session.user) {
-            setSession(session);
-            dispatch(setUserEmail(session.user.email));
-          } else {
-            const isLoggedIn = await magic.user.isLoggedIn();
-
-            if (isLoggedIn) {
-              const didToken = await magic.user.getIdToken({
-                lifespan: 60 * 60 * 10
-              });
-
-              const res = await fetch("/api/login", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + didToken
-                }
-              });
-
-              if (res.status === 200) {
-                const user = await res.json();
-                setSession({ user });
-                dispatch(setUserEmail(session.user.email));
-              }
-            }
-          }
-
-          setIsSessionLoading(false);
-        } catch (error) {
-          setSession(null);
-          setIsSessionLoading(false);
-        }
-      })();
-
-      (async function checkOnlineStatus() {
-        try {
-          const res = await api.get("check");
-          if (res.status === 404) throw new Error();
-        } catch (error) {
-          dispatch(setIsOffline(true));
-          //setIsSessionLoading(false);
-        }
-      })();
-
-      window.addEventListener("offline", () => {
-        console.log("offline_event");
-        dispatch(setIsOffline(true));
-      });
-
-      window.addEventListener("online", () => {
-        console.log("online_event");
-        dispatch(setIsOffline(false));
-      });
-    }, []);
-
     return (
-      <>
-        <GlobalStyles />
-
-        <SessionContext.Provider
-          value={[session, isSessionLoading, setSession, setIsSessionLoading]}
-        >
-          <Chakra theme={theme} cookies={cookies}>
-            <Component
-              {...pageProps}
-              email={
-                session
-                  ? session.user.email
-                  : pageProps.email
-                  ? pageProps.email
-                  : userEmail
-              }
-              isMobile={pageProps.isMobile || isMobile}
-              //isMobile
-              isSessionLoading={isSessionLoading}
-              session={session}
-              setSession={setSession}
-            />
-          </Chakra>
-        </SessionContext.Provider>
-      </>
+      <SessionContext.Provider
+        value={[session, isSessionLoading, setSession, setIsSessionLoading]}
+      >
+        <Chakra theme={theme} cookies={cookies}>
+          <Main
+            Component={Component}
+            email={pageProps.email}
+            isMobile={pageProps.isMobile || isMobile}
+            isSessionLoading={isSessionLoading}
+            setIsSessionLoading={setIsSessionLoading}
+            session={session}
+            setSession={setSession}
+          />
+        </Chakra>
+      </SessionContext.Provider>
     );
   }
 );
@@ -137,7 +45,7 @@ App.getInitialProps = async function AppGetInitialProps({
 }: {
   Component: NextPage;
   ctx: NextPageContext;
-}): Promise<AppInitialProps & { cookies?: string }> {
+}): Promise<AppProps> {
   //#region headers
   const headers = ctx.req?.headers;
   const cookies = headers?.cookie;
@@ -145,8 +53,7 @@ App.getInitialProps = async function AppGetInitialProps({
   if (!userAgent && !isServer()) userAgent = navigator.userAgent;
   //#endregion
 
-  //#region pageProps
-  let pageProps: Partial<PageProps> = {
+  let pageProps: AppProps["pageProps"] = {
     isMobile:
       typeof userAgent === "string"
         ? getSelectorsByUserAgent(userAgent).isMobile
@@ -160,7 +67,6 @@ App.getInitialProps = async function AppGetInitialProps({
       ...pageProps,
       ...(await Component.getInitialProps(ctx))
     };
-  //#endregion
 
   return {
     cookies,

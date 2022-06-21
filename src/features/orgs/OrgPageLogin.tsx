@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessageText, PasswordControl } from "features/common";
 import { Layout } from "features/layout";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 
 export const OrgPageLogin = ({
   status,

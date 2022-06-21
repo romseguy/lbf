@@ -21,7 +21,7 @@ import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { getRefId } from "models/Entity";
 import { EOrgType, IOrg, orgTypeFull, orgTypeFull5 } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";

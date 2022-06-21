@@ -6,7 +6,7 @@ import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 import api, { ResponseType } from "utils/api";
 
 interface UnsubscribePageProps {

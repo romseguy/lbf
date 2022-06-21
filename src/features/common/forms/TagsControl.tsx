@@ -8,15 +8,18 @@ import {
 } from "@choc-ui/chakra-autocomplete";
 import React, { useEffect, useState } from "react";
 import { Control, Controller, useWatch, UseFormMethods } from "react-hook-form";
+import { css } from "twin.macro";
 
 export const TagsControl = ({
   control,
+  leftElement,
   name,
   setValue,
   tags,
   setTags
 }: {
   control: Control;
+  leftElement?: React.ReactNode;
   name: string;
   tags: ItemTag[];
   setTags: React.Dispatch<React.SetStateAction<ItemTag[]>>;
@@ -68,9 +71,21 @@ export const TagsControl = ({
         return (
           <AutoComplete multiple>
             <InputGroup>
+              {leftElement}
               <AutoCompleteInput
                 value={renderProps.value}
                 onChange={renderProps.onChange}
+                css={css`
+                  ul {
+                    &:first-of-type {
+                      padding-left: 16px !important;
+                    }
+
+                    & > li > input {
+                      padding-left: 0 !important;
+                    }
+                  }
+                `}
               >
                 {tags.map((tag, tid) => (
                   <AutoCompleteTag

@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { EntityAddPage } from "features/common";
 import { getSession } from "utils/auth";
 import { EOrgType } from "models/Org";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 import { Session } from "utils/auth";
 
 const NetworksAddPage = (props: PageProps) => {

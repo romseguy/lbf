@@ -1,10 +1,11 @@
 import {
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
   Alert,
   AlertIcon,
-  Flex
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Flex,
+  InputLeftElement
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
@@ -22,6 +23,7 @@ import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import useFormPersist from "react-hook-form-persist";
 import { TagsControl } from "features/common/forms/TagsControl";
 import { ItemTag } from "@choc-ui/chakra-autocomplete";
+import { AtSignIcon } from "@chakra-ui/icons";
 
 type FormValues = {
   emailList: string;
@@ -36,11 +38,10 @@ export const SubscriptionForm = ({
   ...props
 }: {
   org: IOrg;
-
   isSubscriptionLoading: {
     [key: string]: boolean;
   };
-  onCancel: () => void;
+  onCancel?: () => void;
   onSubmit: () => void;
 }) => {
   const [addSubscription] = useAddSubscriptionMutation();
@@ -204,10 +205,13 @@ export const SubscriptionForm = ({
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <FormControl isInvalid={!!errors.emailList} mb={3}>
-        <FormLabel>Entrez ou copiez-collez les adresses e-mails : </FormLabel>
+        <FormLabel>Adresse(s) e-mail : </FormLabel>
 
         <TagsControl
           control={control}
+          leftElement={
+            <InputLeftElement cursor="pointer" children={<AtSignIcon />} />
+          }
           name="emailList"
           tags={tags}
           setTags={setTags}
@@ -222,7 +226,7 @@ export const SubscriptionForm = ({
       <ListsControl
         control={control}
         errors={errors}
-        label="Liste(s):"
+        label="Liste(s) :"
         lists={org.orgLists}
         name="orgLists"
         onChange={onChange}
@@ -240,9 +244,11 @@ export const SubscriptionForm = ({
       />
 
       <Flex justifyContent="space-between">
-        <Button colorScheme="red" onClick={onCancel} mr={3}>
-          Annuler
-        </Button>
+        {onCancel && (
+          <Button colorScheme="red" onClick={onCancel} mr={3}>
+            Annuler
+          </Button>
+        )}
 
         <Button
           colorScheme="green"

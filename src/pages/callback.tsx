@@ -5,7 +5,7 @@ import { setUserEmail } from "store/userSlice";
 import { useSession } from "hooks/useSession";
 import { useAppDispatch } from "store";
 import { magic } from "utils/auth";
-import { PageProps } from "./_app";
+import { PageProps } from "main";
 
 const CallbackPage = (props: PageProps) => {
   const dispatch = useAppDispatch();

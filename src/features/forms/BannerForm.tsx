@@ -28,7 +28,7 @@ import { useEditOrgMutation } from "features/api/orgsApi";
 import { IEntityBanner, isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
-import { bannerWidth } from "features/layout/theme/theme";
+import { bannerWidth } from "features/layout/theme";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
 import { AppQuery } from "utils/types";

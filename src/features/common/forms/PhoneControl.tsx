@@ -1,6 +1,7 @@
 import { ErrorMessage } from "@hookform/error-message";
 import {
   Box,
+  CSSObject,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -19,7 +20,6 @@ import React from "react";
 import { useFieldArray } from "react-hook-form";
 import { Link } from "../Link";
 import { phoneR } from "utils/string";
-import { StyleProps } from "features/layout/theme/styles";
 
 type PhoneControlValue = [{ address: string }] | null;
 
@@ -46,7 +46,7 @@ export const PhoneControl = ({
   control: any;
   register: any;
   setValue: (name: string, value: PhoneControlValue) => void;
-  containerProps?: StyleProps;
+  containerProps?: CSSObject;
   isRequired?: boolean;
   placeholder?: string;
   isMultiple?: boolean;
@@ -97,7 +97,7 @@ export const PhoneControl = ({
   );
 
   return (
-    <Box {...containerProps}>
+    <Box sx={containerProps}>
       {fields.map((field, index) => {
         return (
           <FormControl

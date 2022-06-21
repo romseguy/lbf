@@ -145,7 +145,7 @@ export const EventNotifForm = ({
                 setType("multi");
               }}
             >
-              Inviter les membres d'une ou plusieurs listes des organisateurs de{" "}
+              Inviter les koalas
               <EntityButton event={event} p={1} onClick={null} />
             </Radio>
             <Radio
@@ -277,7 +277,7 @@ export const EventNotifForm = ({
                                   </Checkbox>
                                 </Td>
                                 <Td>
-                                  {i} membre{s} n'{s ? "ont" : "a"} pas été
+                                  {i} koala{s} n'{s ? "ont" : "a"} pas été
                                   invité
                                 </Td>
                               </Tr>

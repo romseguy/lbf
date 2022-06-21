@@ -38,7 +38,7 @@ import {
 } from "features/layout";
 import { selectUserEmail } from "store/userSlice";
 import { EOrgType } from "models/Org";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 import { capitalize } from "utils/string";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
@@ -50,7 +50,7 @@ export const Nav = ({
   setIsLoginModalOpen,
   ...props
 }: FlexProps &
-  PageProps & {
+  Partial<PageProps> & {
     setIsLoginModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   }) => {
   const userName = session?.user.userName || "";
@@ -98,7 +98,7 @@ export const Nav = ({
                 <Td border={0} p={0}>
                   {!isSessionLoading && (
                     <Heading ml="auto">
-                      {session ? "Mon univers" : "Connexion"}
+                      {session ? "L'univers de mon koala" : "Connexion"}
                     </Heading>
                   )}
                 </Td>

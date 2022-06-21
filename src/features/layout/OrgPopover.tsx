@@ -115,7 +115,7 @@ const OrgPopoverContent = ({
         >
           <option value="showOrgsAdded">
             Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} que j'ai{" "}
-            {orgType === EOrgType.NETWORK ? "ajouté" : "planté"}
+            {orgType === EOrgType.NETWORK ? "ajouté" : "ajouté"}
           </option>
           <option value="showOrgsFollowed">
             Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} où je me

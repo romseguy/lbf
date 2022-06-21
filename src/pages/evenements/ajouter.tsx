@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { EntityAddPage } from "features/common";
 import { getSession } from "utils/auth";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 import { Session } from "utils/auth";
 
 const EventsAddPage = (props: PageProps) => {

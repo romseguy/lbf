@@ -39,7 +39,7 @@ import { useDiskUsage } from "hooks/useDiskUsage";
 import { useAppDispatch } from "store";
 import { setIsContactModalOpen } from "store/modalSlice";
 import { bytesForHuman } from "utils/string";
-import { PageProps } from "./_app";
+import { PageProps } from "main";
 
 const columnStyles: (isDark: boolean) => FlexProps = (isDark) => ({
   bg: isDark ? "gray.600" : "lightcyan"

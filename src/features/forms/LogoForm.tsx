@@ -27,7 +27,7 @@ import { useEditOrgMutation } from "features/api/orgsApi";
 import { isEvent, IEntityLogo } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
-import { logoHeight } from "features/layout/theme/theme";
+import { logoHeight } from "features/layout/theme";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
 import { AppQuery } from "utils/types";

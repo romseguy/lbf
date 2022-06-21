@@ -23,7 +23,7 @@ export const NavButtonsList = ({
     alignSelf: "flex-start",
     variant: "no-underline"
   };
-  const styleProps = {
+  const CSSObject = {
     colorScheme: isDark ? "gray" : "cyan",
     my: isMobile ? 2 : undefined
   };
@@ -49,7 +49,7 @@ export const NavButtonsList = ({
         <Button
           leftIcon={<FaHome />}
           isActive={router.asPath === "/"}
-          {...styleProps}
+          {...CSSObject}
         >
           Accueil
         </Button>
@@ -65,7 +65,7 @@ export const NavButtonsList = ({
         <Button
           leftIcon={<CalendarIcon />}
           isActive={router.asPath === "/evenements"}
-          {...styleProps}
+          {...CSSObject}
         >
           Événements
         </Button>
@@ -81,7 +81,7 @@ export const NavButtonsList = ({
         <Button
           leftIcon={<ChatIcon />}
           isActive={router.asPath === "/forum"}
-          {...styleProps}
+          {...CSSObject}
         >
           Forum
         </Button>

@@ -96,7 +96,7 @@ export const OrgConfigPanel = ({
           </Column>
 
           <Column mb={3} pt={1}>
-            <Heading mb={1}>Membres & Listes</Heading>
+            <Heading mb={1}>Koalas & Listes</Heading>
             <OrgConfigSubscribersPanel
               orgQuery={orgQuery}
               subQuery={subQuery}

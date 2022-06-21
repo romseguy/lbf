@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { treeChart } from "features/treeChart/treeChart";
 import { InputNode, TreeNodeWithId } from "features/treeChart/types";
-import theme from "features/layout/theme/theme";
+import theme from "features/layout/theme";
 import { normalize } from "utils/string";
 import { IoIosGitNetwork } from "react-icons/io";
 

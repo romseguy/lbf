@@ -38,12 +38,20 @@ export const NavMenuList = ({
       />
 
       {process.env.NODE_ENV === "development" && (
-        <MenuItem
-          aria-hidden
-          command={`${session.user.userId}`}
-          cursor="default"
-          _hover={{ bg: isDark ? "gray.700" : "white" }}
-        />
+        <>
+          <MenuItem
+            aria-hidden
+            command={`${session.user.userId}`}
+            cursor="default"
+            _hover={{ bg: isDark ? "gray.700" : "white" }}
+          />
+          <MenuItem
+            aria-hidden
+            command={`${session.user.userName}`}
+            cursor="default"
+            _hover={{ bg: isDark ? "gray.700" : "white" }}
+          />
+        </>
       )}
 
       <Link
@@ -53,7 +61,7 @@ export const NavMenuList = ({
           router.push(`/${userName}`, `/${userName}`, { shallow: true });
         }}
       >
-        <MenuItem>Mon soleil</MenuItem>
+        <MenuItem>Le soleil de mon koala</MenuItem>
       </Link>
 
       <MenuItem>

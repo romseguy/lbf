@@ -9,7 +9,8 @@ import {
   Box,
   IconButton,
   InputRightAddon,
-  useColorMode
+  useColorMode,
+  CSSObject
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React from "react";
@@ -17,7 +18,7 @@ import { Control, Controller, useFieldArray } from "react-hook-form";
 import { Suggestion } from "use-places-autocomplete";
 import { AutoCompletePlacesControl, Link } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
-import { StyleProps } from "features/layout/theme/styles";
+
 import { zIndex } from "utils/string";
 
 type AddressControlValue = [{ address: string }] | null;
@@ -58,7 +59,7 @@ export const AddressControl = withGoogleApi({
     noLabel?: boolean;
     isMultiple?: boolean;
     rightAddon?: React.ReactNode;
-    containerProps?: StyleProps;
+    containerProps?: CSSObject;
     onSuggestionSelect?: (suggestion: Suggestion) => void;
     onClick?: () => void;
     onChange?: (description: string) => void;
@@ -152,7 +153,7 @@ export const AddressControl = withGoogleApi({
       });
 
     return (
-      <Box mb={3} {...containerProps}>
+      <Box mb={3} sx={containerProps}>
         {fields.map((field, index) => {
           return (
             <FormControl

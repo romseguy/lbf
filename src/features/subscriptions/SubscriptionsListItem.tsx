@@ -9,7 +9,7 @@ import {
   Tr,
   useToast
 } from "@chakra-ui/react";
-import { DeleteButton } from "features/common";
+import { DeleteButton, Link } from "features/common";
 import { refetchEvent } from "store/eventSlice";
 import { getUser } from "features/api/usersApi";
 import { orgTypeFull } from "models/Org";
@@ -26,6 +26,7 @@ import { useAppDispatch } from "store";
 import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
 import { useDeleteSubscriptionMutation } from "features/api/subscriptionsApi";
 import { SubscriptionsListProps } from "./SubscriptionsList";
+import { EditIcon } from "@chakra-ui/icons";
 
 export const SubscriptionsListItem = ({
   org,
@@ -86,24 +87,15 @@ export const SubscriptionsListItem = ({
             )}
           </Td>
 
-          <Td width="100%">{phone || email}</Td>
-
-          <Td whiteSpace="nowrap" textAlign="right">
-            {/* {isSubscriptionLoading[subscription._id] ? (
-          <Spinner boxSize={4} />
-        ) : ( */}
-            <Box>
-              <Tooltip
-                label="Aller à la page de l'utilisateur"
-                hasArrow
-                placement="top"
-              >
-                <IconButton
-                  aria-label="Aller à la page de l'utilisateur"
-                  bg="transparent"
-                  _hover={{ bg: "transparent", color: "green" }}
-                  icon={<IoIosPerson />}
-                  height="auto"
+          <Td width="100%">
+            <Tooltip
+              label="Aller à la page de l'utilisateur"
+              hasArrow
+              placement="top"
+            >
+              <span>
+                <Link
+                  variant="underline"
                   onClick={async () => {
                     setIsSubscriptionLoading({
                       ...isSubscriptionLoading,
@@ -152,6 +144,28 @@ export const SubscriptionsListItem = ({
                       }
                     }
                   }}
+                >
+                  {phone || email}
+                </Link>
+              </span>
+            </Tooltip>
+          </Td>
+
+          <Td whiteSpace="nowrap" textAlign="right">
+            {/* {isSubscriptionLoading[subscription._id] ? (
+          <Spinner boxSize={4} />
+        ) : ( */}
+            <>
+              <Tooltip label="Modifier" placement="left">
+                <IconButton
+                  aria-label="Modifier"
+                  colorScheme="green"
+                  icon={<EditIcon />}
+                  variant="outline"
+                  mr={3}
+                  onClick={() => {
+                    //onEditClick(topic);
+                  }}
                 />
               </Tooltip>
 
@@ -163,6 +177,8 @@ export const SubscriptionsListItem = ({
                   </>
                 }
                 isIconOnly
+                isSmall={false}
+                variant="outline"
                 onClick={async () => {
                   setIsSubscriptionLoading({
                     ...isSubscriptionLoading,
@@ -182,12 +198,10 @@ export const SubscriptionsListItem = ({
                     [subscription._id]: false
                   });
                 }}
-                hasArrow
                 label="Supprimer"
-                placement="top"
                 data-cy="orgUnsubscribe"
               />
-            </Box>
+            </>
             {/* )} */}
           </Td>
         </>

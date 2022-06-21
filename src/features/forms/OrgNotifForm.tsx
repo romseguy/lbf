@@ -101,7 +101,7 @@ export const OrgNotifForm = ({
               setType("multi");
             }}
           >
-            Inviter les membres d'une ou plusieurs listes à{" "}
+            Inviter les koalas à{" "}
             {isT ? "cette discussion" : isE ? "cet événement" : "ce projet"}
           </Radio>
           <Radio
@@ -110,7 +110,7 @@ export const OrgNotifForm = ({
               setType("single");
             }}
           >
-            Inviter une personne à{" "}
+            Inviter une seule adresse e-mail à{" "}
             {isT ? "cette discussion" : isE ? "cet événement" : "ce projet"}
           </Radio>
         </Stack>
@@ -222,11 +222,11 @@ export const OrgNotifForm = ({
                                 list.listName === "Abonnés" ? (
                                   "0 abonnés"
                                 ) : (
-                                  "0 membres"
+                                  "0 koalas"
                                 )
                               ) : (
                                 <Text>
-                                  {i} membre{s} n'{s ? "ont" : "a"} pas été
+                                  {i} koala{s} n'{s ? "ont" : "a"} pas été
                                   invité
                                 </Text>
                               )}

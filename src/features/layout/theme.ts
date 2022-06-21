@@ -1,6 +1,6 @@
 import { extendTheme } from "@chakra-ui/react";
 import { createBreakpoints, mode } from "@chakra-ui/theme-tools";
-import styles from "features/layout/theme/styles";
+import { Dict } from "@chakra-ui/utils";
 
 const fonts = { mono: `'Menlo', monospace` };
 
@@ -154,7 +154,9 @@ const theme = extendTheme({
       }
     }
   },
-  styles,
+  styles: {
+    global: (props: Dict) => ({})
+  },
   colors: {
     black: "#16161D"
   },

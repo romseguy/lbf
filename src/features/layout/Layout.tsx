@@ -18,11 +18,11 @@ import { ContactFormModal } from "features/modals/ContactFormModal";
 import { LoginFormModal } from "features/modals/LoginFormModal";
 import { IEvent } from "models/Event";
 import { IOrg, OrgTypes } from "models/Org";
-import { PageProps } from "pages/_app";
+import { PageProps } from "main";
 import { useAppDispatch } from "store";
 import { selectIsOffline } from "store/sessionSlice";
 import { resetUserEmail, selectUserEmail } from "store/userSlice";
-import { breakpoints } from "features/layout/theme/theme";
+import { breakpoints } from "features/layout/theme";
 import { Base64Image } from "utils/image";
 import { isServer } from "utils/isServer";
 import { IEntity, isEvent, isOrg, isUser } from "models/Entity";
@@ -37,7 +37,7 @@ interface customWindow extends Window {
 
 declare const window: customWindow;
 
-export interface LayoutProps extends PageProps, BoxProps {
+export interface LayoutProps extends Partial<PageProps>, BoxProps {
   children: React.ReactNode | React.ReactNodeArray;
   banner?: Base64Image & { mode: "dark" | "light" };
   logo?: Base64Image;

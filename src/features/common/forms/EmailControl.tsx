@@ -1,6 +1,7 @@
 import { AtSignIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
   Box,
+  CSSObject,
   FormControl,
   FormControlProps,
   FormErrorMessage,
@@ -17,7 +18,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React from "react";
 import { useFieldArray } from "react-hook-form";
-import { StyleProps } from "features/layout/theme/styles";
+
 import { Link } from "../Link";
 
 type EmailControlValue = [{ email: string }] | null;
@@ -47,7 +48,7 @@ export const EmailControl = ({
   noLabel?: boolean;
   control?: any;
   setValue?: (name: string, value: EmailControlValue | string) => void;
-  containerProps?: StyleProps;
+  containerProps?: CSSObject;
   inputProps?: InputProps;
   isMultiple?: boolean;
   isRequired?: boolean;
@@ -110,7 +111,7 @@ export const EmailControl = ({
   );
 
   return (
-    <Box {...containerProps}>
+    <Box sx={containerProps}>
       {fields.map((field, index) => {
         return (
           <FormControl

@@ -1,4 +1,4 @@
-import { Box, Button, Heading, Grid, GridProps, Flex } from "@chakra-ui/react";
+import { Button, Heading, Grid, GridProps, Flex } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
@@ -8,21 +8,16 @@ import {
   Heading as AppHeading,
   Link
 } from "features/common";
-import { refetchEvent } from "store/eventSlice";
-import {
-  useAddSubscriptionMutation,
-  useDeleteSubscriptionMutation
-} from "features/api/subscriptionsApi";
+import { SubscriptionForm } from "features/forms/SubscriptionForm";
+import { breakpoints } from "features/layout/theme";
 import { SubscriptionsList } from "features/subscriptions/SubscriptionsList";
-import { IOrg, orgTypeFull } from "models/Org";
-import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
-import { IUser } from "models/User";
+import { IOrg, orgTypeFull5 } from "models/Org";
+import { ISubscription } from "models/Subscription";
 import { useAppDispatch } from "store";
-import { breakpoints } from "features/layout/theme/theme";
+import { refetchEvent } from "store/eventSlice";
 import { hasItems } from "utils/array";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
-import { SubscriptionForm } from "features/forms/SubscriptionForm";
 
 export const OrgConfigSubscribersPanel = ({
   orgQuery,
@@ -61,8 +56,9 @@ export const OrgConfigSubscribersPanel = ({
       <Link
         variant="no-underline"
         onClick={() => {
-          toggleVisibility("subscribers");
-          if (!hasItems(org.orgSubscriptions)) setIsAdd(!isAdd);
+          if (hasItems(org.orgSubscriptions)) {
+            toggleVisibility("subscribers");
+          } else setIsAdd(!isAdd);
         }}
       >
         <GridHeader
@@ -94,7 +90,7 @@ export const OrgConfigSubscribersPanel = ({
                   <FaFolder />
                 )}
                 <Heading size="sm" ml={2}>
-                  {org.orgSubscriptions.length} membre
+                  {org.orgSubscriptions.length} koala
                   {org.orgSubscriptions.length !== 1 ? "s" : ""}
                 </Heading>
               </Flex>
@@ -128,25 +124,22 @@ export const OrgConfigSubscribersPanel = ({
       </Link>
 
       {isAdd && (
-        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }}>
-          <AppHeading>Ajouter des membres</AppHeading>
+        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }} p={5}>
+          <AppHeading smaller mb={3}>
+            Inscrire des koalas à {orgTypeFull5(org.orgType)}
+          </AppHeading>
 
-          <Box p={5}>
-            <SubscriptionForm
-              org={org}
-              isSubscriptionLoading={isSubscriptionLoading}
-              onCancel={() => {
-                setIsAdd(false);
-              }}
-              onSubmit={() => {
-                orgQuery.refetch();
-                subQuery.refetch();
-                setIsAdd(false);
-                toggleVisibility("subscribers", true);
-                dispatch(refetchEvent());
-              }}
-            />
-          </Box>
+          <SubscriptionForm
+            org={org}
+            isSubscriptionLoading={isSubscriptionLoading}
+            onSubmit={() => {
+              orgQuery.refetch();
+              subQuery.refetch();
+              setIsAdd(false);
+              toggleVisibility("subscribers", true);
+              dispatch(refetchEvent());
+            }}
+          />
         </GridItem>
       )}
 

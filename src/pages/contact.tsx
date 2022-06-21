@@ -1,6 +1,6 @@
 import { ContactForm } from "features/forms/ContactForm";
 import { Layout } from "features/layout";
-import { PageProps } from "./_app";
+import { PageProps } from "main";
 
 const ContactPage = (props: PageProps) => {
   return (

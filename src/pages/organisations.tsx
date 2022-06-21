@@ -7,7 +7,7 @@ import { MapModal } from "features/modals/MapModal";
 import { useGetOrgsQuery } from "features/api/orgsApi";
 import { OrgsList } from "features/orgs/OrgsList";
 import { EOrgType } from "models/Org";
-import { PageProps } from "./_app";
+import { PageProps } from "main";
 
 const OrganisationsPage = (props: PageProps) => {
   const [isOffline, setIsOffline] = useState(false);

@@ -37,7 +37,7 @@ import { selectUserEmail } from "store/userSlice";
 import { EOrgType, EOrgVisibility, IOrg, OrgVisibilities } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { AppQuery } from "utils/types";
-import { PageProps } from "./_app";
+import { PageProps } from "main";
 
 let cachedUserEmail: string | undefined;
 
@@ -52,7 +52,7 @@ const IndexPage = (props: PageProps) => {
 
   //#region org query
   const orgsQuery = useGetOrgsQuery(
-    { populate: "orgs" },
+    { populate: "orgs createdBy" },
     {
       selectFromResult: (query) => ({
         ...query,
@@ -172,7 +172,7 @@ const IndexPage = (props: PageProps) => {
 
       <Column {...columnProps}>
         <Flex alignItems="center">
-          <Heading mb={3}>L'univers</Heading>
+          <Heading mb={3}>L'univers des koalas</Heading>
           {/* <HostTag ml={1} /> */}
         </Flex>
 
@@ -228,9 +228,8 @@ const IndexPage = (props: PageProps) => {
 
       {isAboutModalOpen && (
         <AboutModal
-          isMobile={props.isMobile}
+          {...props}
           isOpen={isAboutModalOpen}
-          session={props.session}
           onClose={closeAboutModal}
         />
       )}

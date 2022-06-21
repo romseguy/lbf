@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { css } from "twin.macro";
 import { Link } from "features/common";
 import { EventCategoryTag } from "features/events/EventCategoryTag";
-import { logoHeight } from "features/layout/theme/theme";
+import { logoHeight } from "features/layout/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { useScroll } from "hooks/useScroll";
 import {
