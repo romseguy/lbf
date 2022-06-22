@@ -17,7 +17,7 @@ import { DeleteButton } from "features/common";
 import { CategoriesModal } from "features/modals/CategoriesModal";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import { IEvent } from "models/Event";
-import { getOrgEventCategories, IOrg, IOrgEventCategory } from "models/Org";
+import { getEventCategories, IOrg, IOrgEventCategory } from "models/Org";
 import { AppQueryWithData } from "utils/types";
 
 export const EventsListCategories = ({
@@ -193,7 +193,7 @@ export const EventsListCategories = ({
           </Tooltip>
 
           <CategoriesModal
-            categories={getOrgEventCategories(orgQuery.data)}
+            categories={getEventCategories(orgQuery.data)}
             fieldName="orgEventCategories"
             isOpen={isCategoriesModalOpen}
             query={orgQuery}
@@ -202,7 +202,7 @@ export const EventsListCategories = ({
         </>
       )}
 
-      {orgQuery && getOrgEventCategories(org).map(renderCategory)}
+      {orgQuery && getEventCategories(org).map(renderCategory)}
 
       {!orgQuery &&
         Object.keys(eventCategoriesByOrg).map((orgId) => {

@@ -9,7 +9,7 @@ import {
   Heading
 } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
-import { getOrgEventCategories, IOrg } from "models/Org";
+import { getEventCategories, IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { Session } from "utils/auth";
 import { AppQuery, AppQueryWithData } from "utils/types";
@@ -129,7 +129,7 @@ export const OrgConfigPanel = ({
 
             <EntityConfigCategoriesPanel
               fieldName="orgEventCategories"
-              categories={getOrgEventCategories(org)}
+              categories={getEventCategories(org)}
               query={orgQuery}
               isVisible={isVisible}
               toggleVisibility={toggleVisibility}

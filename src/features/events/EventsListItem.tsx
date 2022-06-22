@@ -21,7 +21,7 @@ import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
 import { Link, GridItem, EntityButton } from "features/common";
 import { NotifModalState } from "features/modals/EntityNotifModal";
-import { getEventCategories, IEvent } from "models/Event";
+import { getCategories, IEvent } from "models/Event";
 import { IOrg, IOrgEventCategory } from "models/Org";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
@@ -93,7 +93,7 @@ export const EventsListItem = ({
       ? selectedCategories.includes(event.eventCategory)
       : false;
 
-  const categories = getEventCategories(event);
+  const categories = getCategories(event);
   const eventCategory: IOrgEventCategory | undefined = event.eventCategory
     ? categories.find(({ catId }) => catId === event.eventCategory)
     : undefined;

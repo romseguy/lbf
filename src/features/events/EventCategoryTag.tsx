@@ -1,7 +1,7 @@
 import { Tag, TagProps } from "@chakra-ui/react";
 import React from "react";
-import { getOrgEventCategories, IOrg } from "models/Org";
-import { getEventCategories, IEvent } from "models/Event";
+import { getEventCategories, IOrg } from "models/Org";
+import { getCategories, IEvent } from "models/Event";
 
 export const EventCategoryTag = ({
   event,
@@ -13,9 +13,7 @@ export const EventCategoryTag = ({
   org?: IOrg;
   selectedCategory: string;
 }) => {
-  const categories = event
-    ? getEventCategories(event)
-    : getOrgEventCategories(org);
+  const categories = event ? getCategories(event) : getEventCategories(org);
   const category = categories.find(({ catId }) => catId === selectedCategory);
 
   if (!category) return null;

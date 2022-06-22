@@ -14,6 +14,7 @@ import React, { useState } from "react";
 import { FaKey } from "react-icons/fa";
 
 export const PasswordControl = ({
+  label = "Mot de passe",
   errors,
   register,
   isRequired = true,
@@ -29,7 +30,7 @@ export const PasswordControl = ({
 
   return (
     <FormControl isRequired={isRequired} isInvalid={!!errors[name]} {...props}>
-      <FormLabel>Mot de passe</FormLabel>
+      <FormLabel>{label}</FormLabel>
       <InputGroup>
         <InputLeftElement pointerEvents="none" children={<FaKey />} />
         <Input

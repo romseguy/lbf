@@ -19,7 +19,7 @@ import {
   IEventSubscription,
   IOrgSubscriptionEventCategory
 } from "models/Subscription";
-import { getOrgEventCategories, IOrg } from "models/Org";
+import { getEventCategories, IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { useAddSubscriptionMutation } from "features/api/subscriptionsApi";
 import { AppQuery } from "utils/types";
@@ -67,7 +67,7 @@ export const SubscriptionEditForm = ({
   const [eventCategories, setEventCategories] =
     useState<EventCategoriesCheckboxes>(
       org
-        ? getOrgEventCategories(org).reduce((obj, orgEventCategory) => {
+        ? getEventCategories(org).reduce((obj, orgEventCategory) => {
             if (!isOrgSubscription(followerSubscription)) return obj;
 
             const checked = !!followerSubscription.eventCategories?.find(
@@ -407,7 +407,7 @@ export const SubscriptionEditForm = ({
                   <CheckboxGroup>
                     <VStack alignItems="flex-start" ml={3}>
                       {Object.keys(eventCategories).map((key) => {
-                        const cat = getOrgEventCategories(org).find(
+                        const cat = getEventCategories(org).find(
                           ({ catId }) => catId === key
                         );
 

@@ -36,7 +36,8 @@ import {
   orgTypeFull,
   orgTypeFull5,
   EOrgType,
-  EOrgVisibility as OrgVisibility
+  EOrgVisibility as OrgVisibility,
+  getNetworks
 } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
@@ -66,20 +67,8 @@ export const OrgPageHomeTabPanel = ({
     hasItems(org.orgEmail) ||
     hasItems(org.orgPhone) ||
     hasItems(org.orgWeb);
-  const { orgNetworks } = useGetOrgsQuery(
-    { populate: "orgs" },
-    {
-      selectFromResult: (query) => ({
-        orgNetworks: query.data?.filter(
-          (o) =>
-            o.orgName !== org.orgName &&
-            o.orgType === EOrgType.NETWORK &&
-            !!o.orgs?.find(({ orgName }) => orgName === org.orgName)
-        )
-      })
-    }
-  );
-  const hasNetworks = Array.isArray(orgNetworks) && orgNetworks.length > 0;
+  // const orgNetworks = getNetworks(org);
+  // const hasNetworks = Array.isArray(orgNetworks) && orgNetworks.length > 0;
   //#endregion
 
   //#region local state
@@ -116,12 +105,11 @@ export const OrgPageHomeTabPanel = ({
 
   return (
     <>
-      {org.orgType === EOrgType.GENERIC && hasNetworks && (
+      {/* {org.orgType === EOrgType.GENERIC && hasNetworks && (
         <TabContainer>
           <TabContainerHeader
             heading={
               <>
-                {/* {capitalize(orgTypeFull5(org.orgType))}{" "} */}
                 <EntityButton org={org} onClick={null} /> est planté sur la
                 planète :
               </>
@@ -135,7 +123,7 @@ export const OrgPageHomeTabPanel = ({
             ))}
           </TabContainerContent>
         </TabContainer>
-      )}
+      )} */}
 
       {org.orgType === EOrgType.NETWORK && (
         <TabContainer>
@@ -166,18 +154,6 @@ export const OrgPageHomeTabPanel = ({
 
             {org.orgs.length > 0 ? (
               <>
-                {/* <Button
-                  alignSelf="flex-start"
-                  colorScheme="teal"
-                  leftIcon={<HamburgerIcon />}
-                  rightIcon={
-                    isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
-                  }
-                  onClick={() => setIsListOpen(!isListOpen)}
-                >
-                  Liste
-                </Button> */}
-
                 {isListOpen && (
                   <Column
                     maxWidth={undefined}

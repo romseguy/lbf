@@ -76,7 +76,7 @@ import {
   EventVisibilities,
   EEventVisibility
 } from "models/Event";
-import { getOrgEventCategories, IOrg } from "models/Org";
+import { getEventCategories, IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import * as dateUtils from "utils/date";
@@ -280,7 +280,7 @@ export const EventForm = withGoogleApi({
     }, [start, end]);
 
     const eventOrg = useWatch<IOrg | null>({ control, name: "eventOrg" });
-    const categories = eventOrg ? getOrgEventCategories(eventOrg) : [];
+    const categories = eventOrg ? getEventCategories(eventOrg) : [];
     const visibilities = eventOrg
       ? [EEventVisibility.PUBLIC, EEventVisibility.FOLLOWERS]
       : [];

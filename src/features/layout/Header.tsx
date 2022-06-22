@@ -21,13 +21,11 @@ export const Header = ({
   defaultTitle,
   entity,
   pageTitle,
-  pageSubTitle,
   ...props
 }: FlexProps & {
   defaultTitle: string;
   entity?: IEntity;
   pageTitle?: string;
-  pageSubTitle?: React.ReactNode;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";

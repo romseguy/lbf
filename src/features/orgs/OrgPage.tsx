@@ -14,19 +14,25 @@ import { fr } from "date-fns/locale";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useDeleteOrgMutation, useGetOrgsQuery } from "features/api/orgsApi";
 import { Button, Column, DeleteButton, Heading, Link } from "features/common";
 import { Forum } from "features/forum/Forum";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
-import { getRefId } from "models/Entity";
-import { EOrgType, IOrg, orgTypeFull, orgTypeFull5 } from "models/Org";
-import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { PageProps } from "main";
+import { getRefId } from "models/Entity";
+import {
+  EOrgType,
+  getNetworks,
+  IOrg,
+  orgTypeFull,
+  orgTypeFull5
+} from "models/Org";
+import { getFollowerSubscription, ISubscription } from "models/Subscription";
+import { selectOrgRefetch } from "store/orgSlice";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
-import { selectOrgRefetch } from "store/orgSlice";
-import { useDeleteOrgMutation } from "features/api/orgsApi";
 
 let cachedRefetchOrg = false;
 

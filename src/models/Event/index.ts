@@ -10,7 +10,7 @@ import {
   addWeeks,
   setSeconds
 } from "date-fns";
-import { getOrgEventCategories, IOrgEventCategory } from "models/Org";
+import { getEventCategories } from "models/Org";
 import { LatLon } from "use-places-autocomplete";
 import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
 import { getDistance } from "utils/maps";
@@ -318,8 +318,8 @@ export const getEvents = ({
 //#endregion
 
 //#region categories
-export const getEventCategories = (event: IEvent<string | Date>) => {
-  return getOrgEventCategories(event.eventOrgs[0]);
+export const getCategories = (event: IEvent<string | Date>) => {
+  return getEventCategories(event.eventOrgs[0]);
 };
 //#endregion
 

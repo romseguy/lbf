@@ -44,7 +44,6 @@ export interface LayoutProps extends Partial<PageProps>, BoxProps {
   isLogin?: number;
   entity?: IEntity;
   pageHeader?: React.ReactNode | React.ReactNodeArray;
-  pageSubTitle?: React.ReactNode;
   pageTitle?: string;
 }
 
@@ -55,7 +54,6 @@ export const Layout = ({
   isLogin = 0,
   logo,
   pageHeader,
-  pageSubTitle,
   pageTitle,
   setSession,
   ...props
@@ -217,7 +215,6 @@ export const Layout = ({
             entity={entity}
             defaultTitle="Veuillez patienter..."
             pageTitle={pageTitle}
-            pageSubTitle={pageSubTitle}
             m={isMobile ? 1 : 3}
             mt={0}
           />

@@ -466,7 +466,14 @@ export const OrgForm = withGoogleApi({
                     value: _id
                   }))}
                   value={renderProps.value}
-                  onChange={renderProps.onChange}
+                  onChange={(options, { action, option }) => {
+                    if (action === "select-option") {
+                      const tree = trees?.find(
+                        ({ _id }) => _id === option.value
+                      );
+                      if (tree) setOrgTrees([...orgTrees, tree]);
+                    } else renderProps.onChange;
+                  }}
                   onCreateOption={async (inputValue: string) => {
                     try {
                       const payload: AddOrgPayload = {

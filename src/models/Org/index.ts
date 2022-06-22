@@ -11,11 +11,13 @@ import {
   IOrgEventCategory,
   IOrgTabWithIcon
 } from "./IOrg";
+import { useGetOrgsQuery } from "features/api/orgsApi";
+import { Session } from "utils/auth";
 
 export * from "./IOrg";
 
 //#region categories
-export const getOrgEventCategories = (org?: IOrg): IOrgEventCategory[] => {
+export const getEventCategories = (org?: IOrg): IOrgEventCategory[] => {
   return org ? org.orgEventCategories : [];
 };
 //#endregion
@@ -63,6 +65,44 @@ export const getLists = (org?: IOrg): IOrgList[] => {
     });
 
   return lists;
+};
+//#endregion
+
+//#region networks
+export const getNetworks = (org: IOrg, session: Session | null) => {
+  const { data: myOrgs } = useGetOrgsQuery({
+    createdBy: session?.user.userId,
+    populate: "orgs"
+  });
+
+  const { orgNetworks } = useGetOrgsQuery(
+    { populate: "orgs" },
+    {
+      selectFromResult: (query) => {
+        let data: IOrg[] | undefined;
+
+        if (Array.isArray(query.data) && query.data.length > 0)
+          data = myOrgs
+            ? myOrgs.concat(
+                query.data.filter(
+                  ({ _id }) => !myOrgs.find((myOrg) => myOrg._id === _id)
+                )
+              )
+            : query.data;
+
+        return {
+          orgNetworks: data?.filter(
+            (o) =>
+              o.orgName !== org.orgName &&
+              o.orgType === EOrgType.NETWORK &&
+              !!o.orgs?.find(({ orgName }) => orgName === org.orgName)
+          )
+        };
+      }
+    }
+  );
+
+  return orgNetworks;
 };
 //#endregion
 

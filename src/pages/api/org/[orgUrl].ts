@@ -97,7 +97,7 @@ handler.get<
       }
 
       if (modelKey === "orgs") {
-        org = org.populate("orgs");
+        org = org.populate({ path: "orgs", populate: { path: "createdBy" } });
       }
 
       if (modelKey === "orgEvents") {
