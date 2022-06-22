@@ -4,10 +4,10 @@ import React, { useState } from "react";
 import { getSelectorsByUserAgent, isMobile } from "react-device-detect";
 import { Chakra } from "features/common";
 import theme from "features/layout/theme";
+import { Main, PageProps } from "main";
 import { wrapper } from "store";
 import { Session, SessionContext } from "utils/auth";
 import { isServer } from "utils/isServer";
-import { Main, PageProps } from "main";
 
 interface AppProps {
   cookies?: string;

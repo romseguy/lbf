@@ -2,6 +2,7 @@ import { CalendarIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
+  Icon,
   ModalBody,
   ModalCloseButton,
   ModalContent,
@@ -12,11 +13,12 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import React from "react";
+import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { isMobile } from "react-device-detect";
 import { EntityInfo, Link, Modal } from "features/common";
 import { EventTimeline } from "features/events/EventTimeline";
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { EOrgType, IOrg } from "models/Org";
 import { sanitize } from "utils/string";
 
 export const EntityModal = ({
@@ -53,7 +55,17 @@ export const EntityModal = ({
         <ModalContent maxWidth="xl">
           <ModalHeader px={3} pt={1} pb={0}>
             <Flex alignItems="center">
-              <CalendarIcon mr={3} />
+              <Icon
+                as={
+                  event
+                    ? CalendarIcon
+                    : org?.orgType === EOrgType.NETWORK
+                    ? FaGlobeEurope
+                    : FaTree
+                }
+                mr={1}
+              />
+
               <Link
                 href={`/${entityUrl}`}
                 size="larger"

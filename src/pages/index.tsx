@@ -51,17 +51,12 @@ const IndexPage = (props: PageProps) => {
   const [isLogin, setIsLogin] = useState(0);
 
   //#region org query
-  const orgsQuery = useGetOrgsQuery(
-    { populate: "orgs createdBy" },
-    {
-      selectFromResult: (query) => ({
-        ...query,
-        data: query.data?.filter((org) =>
-          org ? org.orgType === EOrgType.NETWORK : true
-        )
-      })
-    }
-  ) as AppQuery<IOrg[]>;
+  const orgsQuery = useGetOrgsQuery({ populate: "orgs createdBy" }) as AppQuery<
+    IOrg[]
+  >;
+  const planets = orgsQuery.data?.filter((org) =>
+    org ? org.orgType === EOrgType.NETWORK : true
+  );
   useEffect(() => {
     if (!orgsQuery.isLoading) setIsLoading(false);
   }, [orgsQuery.isLoading]);
@@ -100,8 +95,8 @@ const IndexPage = (props: PageProps) => {
     onClose: closeNetworksModal
   } = useDisclosure({ defaultIsOpen: false });
   const inputNodes: InputNode[] = useMemo(() => {
-    return orgsQuery.data
-      ? orgsQuery.data
+    return planets
+      ? planets
           .filter(
             (org) =>
               org.orgType === EOrgType.NETWORK &&
@@ -120,7 +115,7 @@ const IndexPage = (props: PageProps) => {
             };
           })
       : [];
-  }, [orgsQuery.data]);
+  }, [planets]);
   //#endregion
 
   const columnProps = {

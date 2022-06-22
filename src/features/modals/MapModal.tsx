@@ -1,4 +1,3 @@
-import { CalendarIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
@@ -9,23 +8,17 @@ import {
   Text,
   Alert,
   AlertIcon,
-  Spinner,
-  Flex,
-  Icon
+  Spinner
 } from "@chakra-ui/react";
 import React, { useRef, useState } from "react";
-import { FaRegMap } from "react-icons/fa";
-import { IoIosPeople } from "react-icons/io";
 import { LatLon } from "use-places-autocomplete";
-import { Link } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { Map, MapProps } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
 import { IEvent } from "models/Event";
-import { IOrg, EOrgType } from "models/Org";
+import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import { SizeMap } from "utils/maps";
-import { AppIcon } from "utils/types";
 
 export const MapModal = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY

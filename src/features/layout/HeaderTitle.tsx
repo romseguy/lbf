@@ -75,7 +75,7 @@ export const HeaderTitle = ({
       pb={4}
       pl={4}
       pr={4}
-      pt={2}
+      pt={icon ? 0 : 2}
       ml={logo ? 5 : undefined}
     >
       {icon && (
@@ -83,7 +83,7 @@ export const HeaderTitle = ({
           as={icon}
           boxSize={8}
           color={iconColor}
-          mt={1}
+          mt={3}
           mr={2}
           title={
             isE && !entity.isApproved
@@ -105,7 +105,7 @@ export const HeaderTitle = ({
             isE ? "de l'événement" : orgTypeFull((entity as IOrg).orgType)
           }`}
           url={`${process.env.NEXT_PUBLIC_URL}/${url}`}
-          mt={1}
+          mt={3}
           ml={2}
         />
       )}

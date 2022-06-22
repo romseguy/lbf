@@ -116,7 +116,7 @@ export const OrgPage = ({
 
     return (
       <Column mb={3}>
-        <Heading mb={3}>Administration de la planète</Heading>
+        <Heading mb={3}>Configuration {orgTypeFull(org.orgType)}</Heading>
         {!isConfig && !isEdit && (
           <Flex flexDirection={isMobile ? "column" : "row"}>
             <Flex mb={isMobile ? 3 : 0}>

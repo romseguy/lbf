@@ -169,7 +169,13 @@ export const SubscribePopover = ({
               data-cy="subscribe-button"
             >
               S'abonner{" "}
-              {event ? "à l'événement" : org ? orgTypeFull2(org.orgType) : ""}
+              {event
+                ? "à l'événement"
+                : org && org.orgUrl === "forum"
+                ? "au forum"
+                : org
+                ? orgTypeFull2(org.orgType)
+                : ""}
             </Button>
           )}
         </PopoverTrigger>

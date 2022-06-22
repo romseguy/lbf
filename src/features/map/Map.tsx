@@ -2,7 +2,7 @@ import MarkerClusterer, {
   ClusterIconStyle
 } from "@googlemaps/markerclustererplus";
 import GoogleMap from "google-map-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { render } from "react-dom";
 import { LatLon } from "use-places-autocomplete";
 import { IEvent } from "models/Event";
