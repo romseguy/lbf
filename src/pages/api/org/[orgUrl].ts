@@ -59,7 +59,14 @@ handler.get<
 
     if (!isCreator) {
       if (org.orgPassword) {
-        if (!hash) return res.status(200).json({ orgSalt: org.orgSalt });
+        if (!hash)
+          return res.status(200).json({
+            orgName: org.orgName,
+            orgSalt: org.orgSalt,
+            orgStyles: org.orgStyles,
+            orgType: org.orgType,
+            orgUrl: org.orgUrl
+          });
 
         if (org.orgPassword !== hash)
           return res

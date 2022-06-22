@@ -1,6 +1,7 @@
 import {
   Alert,
   AlertIcon,
+  Box,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -34,7 +35,8 @@ import {
   RTEditor,
   PasswordControl,
   PasswordConfirmControl,
-  EntityTag
+  EntityTag,
+  Link
 } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import {
@@ -146,6 +148,7 @@ export const OrgForm = withGoogleApi({
       p: 3
     };
     const [isLoading, setIsLoading] = useState(false);
+    const [isPassword, setIsPassword] = useState(false);
     const [suggestion, setSuggestion] = useState<Suggestion>();
     //#endregion
 
@@ -181,6 +184,9 @@ export const OrgForm = withGoogleApi({
       EOrgType.GENERIC) as EOrgType;
     const orgTypeLabel = orgTypeFull(orgType) || "de l'arbre";
     const orgVisibility = watch("orgVisibility");
+    useEffect(() => {
+      if (orgVisibility !== EOrgVisibility.PRIVATE) setIsPassword(false);
+    }, [orgVisibility]);
     const password = useRef({});
     //@ts-expect-error
     password.current = watch("orgPassword", "");
@@ -329,6 +335,57 @@ export const OrgForm = withGoogleApi({
         : []
     });
     //#endregion
+
+    const passwordControl = (
+      <>
+        <PasswordControl
+          name="orgPassword"
+          errors={errors}
+          register={register}
+          my={3}
+          //isRequired={orgVisibility === Visibility.PRIVATE}
+        />
+        <PasswordConfirmControl
+          name="orgPasswordConfirm"
+          errors={errors}
+          register={register}
+          password={password}
+        />
+      </>
+    );
+    const visibilityControl = (
+      <FormControl
+        isRequired
+        isInvalid={!!errors["orgVisibility"]}
+        onChange={async (e) => {
+          clearErrors("orgOrgs");
+        }}
+        mb={3}
+      >
+        <FormLabel>Visibilité {orgTypeLabel}</FormLabel>
+        <Select
+          name="orgVisibility"
+          ref={register({
+            required: `Veuillez sélectionner la visibilité ${orgTypeLabel}`
+          })}
+          color={isDark ? "whiteAlpha.400" : "gray.400"}
+          defaultValue={org?.orgVisibility || EOrgVisibility.PUBLIC}
+          placeholder={`Visibilité ${orgTypeLabel}`}
+        >
+          {Object.keys(EOrgVisibility).map((key) => {
+            const visibility = key as EOrgVisibility;
+            return (
+              <option key={visibility} value={visibility}>
+                {OrgVisibilities[visibility]}
+              </option>
+            );
+          })}
+        </Select>
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="orgVisibility" />
+        </FormErrorMessage>
+      </FormControl>
+    );
 
     return (
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
@@ -511,57 +568,30 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        <FormControl
-          isRequired
-          isInvalid={!!errors["orgVisibility"]}
-          onChange={async (e) => {
-            clearErrors("orgOrgs");
-          }}
+        <Box
+          borderColor={isDark ? "whiteAlpha.300" : "gray.200"}
+          borderRadius="lg"
+          borderWidth={1}
+          p={3}
           mb={3}
         >
-          <FormLabel>Visibilité {orgTypeLabel}</FormLabel>
-          <Select
-            name="orgVisibility"
-            ref={register({
-              required: `Veuillez sélectionner la visibilité ${orgTypeLabel}`
-            })}
-            color={isDark ? "whiteAlpha.400" : "gray.400"}
-            defaultValue={org?.orgVisibility || EOrgVisibility.PUBLIC}
-            placeholder={`Visibilité ${orgTypeLabel}`}
-          >
-            {Object.keys(EOrgVisibility).map((key) => {
-              const visibility = key as EOrgVisibility;
-              return (
-                <option key={visibility} value={visibility}>
-                  {OrgVisibilities[visibility]}
-                </option>
-              );
-            })}
-          </Select>
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="orgVisibility" />
-          </FormErrorMessage>
-        </FormControl>
+          {visibilityControl}
 
-        {formState.dirtyFields.orgVisibility &&
-          orgVisibility === EOrgVisibility.PRIVATE && (
-            <>
-              <PasswordControl
-                name="orgPassword"
-                errors={errors}
-                register={register}
-                mb={3}
-                //isRequired={orgVisibility === Visibility.PRIVATE}
-              />
-              <PasswordConfirmControl
-                name="orgPasswordConfirm"
-                errors={errors}
-                register={register}
-                password={password}
-                mb={3}
-              />
-            </>
+          {orgVisibility === EOrgVisibility.PRIVATE && org && (
+            <Link
+              variant="underline"
+              onClick={() => {
+                setIsPassword(!isPassword);
+              }}
+            >
+              {isPassword ? "Annuler" : "Changer le mot de passe"}
+            </Link>
           )}
+
+          {orgVisibility === EOrgVisibility.PRIVATE && (!org || isPassword)
+            ? passwordControl
+            : null}
+        </Box>
 
         <AddressControl
           name="orgAddress"

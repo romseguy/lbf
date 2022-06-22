@@ -5,12 +5,16 @@ import { useForm } from "react-hook-form";
 import { ErrorMessageText, PasswordControl } from "features/common";
 import { Layout } from "features/layout";
 import { PageProps } from "main";
+import { IOrg, orgTypeFull } from "models/Org";
+import { AppQueryWithData } from "utils/types";
 
 export const OrgPageLogin = ({
+  orgQuery,
   status,
   onSubmit,
   ...props
 }: PageProps & {
+  orgQuery: AppQueryWithData<IOrg>;
   status: number;
   onSubmit: (orgPassword: string) => Promise<void>;
 }) => {
@@ -31,7 +35,7 @@ export const OrgPageLogin = ({
   }, [status]);
 
   return (
-    <Layout {...props}>
+    <Layout {...props} entity={orgQuery.data}>
       <form
         onChange={() => clearErrors()}
         onSubmit={handleSubmit(async (form: { orgPassword: string }) => {

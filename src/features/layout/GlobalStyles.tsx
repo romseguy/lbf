@@ -3,8 +3,6 @@ import theme, { breakpoints } from "features/layout/theme";
 import { zIndex } from "utils/string";
 
 export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
-  console.log(theme.colors);
-
   return (
     <Global
       styles={css`
@@ -300,13 +298,13 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
         .react-select-container {
           .react-select__control {
             background-color: ${isDark ? "transparent" : "transparent"};
-            border-color: ${isDark ? "#8894a7" : "#E2E8F0"};
+            border-color: ${isDark ? theme.colors.whiteAlpha[300] : "#E2E8F0"};
             padding-left: 0;
 
             &:hover {
               border-color: ${isDark
-                ? theme.colors.gray["400"]
-                : theme.colors.gray["400"]};
+                ? theme.colors.gray[400]
+                : theme.colors.gray[300]};
             }
 
             .react-select__clear-indicator {
@@ -317,11 +315,17 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
               color: ${isDark ? "white" : "black"};
             }
 
+            .react-select__indicator-separator {
+              background-color: ${isDark
+                ? theme.colors.whiteAlpha[300]
+                : theme.colors.gray[200]};
+            }
+
             .react-select__value-container {
               .react-select__placeholder {
                 color: ${isDark
-                  ? theme.colors.gray["400"]
-                  : theme.colors.gray["400"]};
+                  ? theme.colors.gray[400]
+                  : theme.colors.gray[400]};
                 padding-left: 12px;
               }
 
@@ -333,16 +337,16 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
               .react-select__input-container {
                 color: ${isDark ? "white" : "black"};
                 background-color: ${isDark
-                  ? theme.colors.whiteAlpha["300"]
-                  : theme.colors.blackAlpha["100"]};
+                  ? theme.colors.whiteAlpha[300]
+                  : theme.colors.blackAlpha[100]};
                 border-radius: 12px;
                 padding: 4px 8px;
               }
 
               .react-select__multi-value {
                 background-color: ${isDark
-                  ? theme.colors.gray["600"]
-                  : theme.colors.orange["400"]};
+                  ? theme.colors.gray[600]
+                  : theme.colors.orange[400]};
                 border-radius: 12px;
                 .react-select__multi-value__label {
                   color: ${isDark ? "white" : "black"};
@@ -359,7 +363,7 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
 
           .react-select__menu {
             z-index: ${zIndex()} !important;
-            background-color: ${isDark ? theme.colors.gray["700"] : "white"};
+            background-color: ${isDark ? theme.colors.gray[700] : "white"};
 
             .react-select__menu-list {
               padding: 0;
@@ -375,8 +379,8 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
                 &:hover {
                   cursor: pointer;
                   background-color: ${isDark
-                    ? theme.colors.whiteAlpha["400"]
-                    : theme.colors.orange["100"]};
+                    ? theme.colors.whiteAlpha[400]
+                    : theme.colors.orange[100]};
                   color: ${isDark ? "white" : "black"};
                 }
               }

@@ -159,6 +159,7 @@ const Hash = ({ ...props }: PageProps) => {
     return (
       <OrgPageLogin
         {...props}
+        orgQuery={orgQuery as AppQueryWithData<IOrg>}
         status={orgQueryStatus}
         onSubmit={async (orgPassword) => {
           const hash = bcrypt.hashSync(orgPassword, orgQuery.data!.orgSalt);
