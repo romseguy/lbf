@@ -297,7 +297,7 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
         //#region react-select
         .react-select-container {
           .react-select__control {
-            background-color: ${isDark ? "transparent" : "transparent"};
+            background-color: ${isDark ? "transparent" : "white"};
             border-color: ${isDark ? theme.colors.whiteAlpha[300] : "#E2E8F0"};
             padding-left: 0;
 
@@ -364,8 +364,11 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
           .react-select__menu {
             z-index: ${zIndex()} !important;
             background-color: ${isDark ? theme.colors.gray[700] : "white"};
+            //padding-top: 0 !important;
+            margin-top: 0.5px !important;
 
             .react-select__menu-list {
+              border: 0 !important;
               padding: 0;
               border-width: 2px;
               border-radius: md;
@@ -374,14 +377,11 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
               color: ${isDark ? "white" : "black"};
 
               .react-select__option {
-                background-color: ${isDark ? "transparent" : "white"};
-                color: ${isDark ? "white" : "black"};
+                background-color: ${isDark ? theme.colors.gray[700] : "white"};
                 &:hover {
                   cursor: pointer;
-                  background-color: ${isDark
-                    ? theme.colors.whiteAlpha[400]
-                    : theme.colors.orange[100]};
-                  color: ${isDark ? "white" : "black"};
+                  background-color: #2684ff;
+                  color: ${isDark ? "white" : "white"};
                 }
               }
             }

@@ -58,6 +58,7 @@ import {
 import { UrlControl } from "features/common/forms/UrlControl";
 import { PhoneControl } from "features/common/forms/PhoneControl";
 import {
+  AddEventPayload,
   useAddEventMutation,
   useEditEventMutation
 } from "features/api/eventsApi";
@@ -215,7 +216,7 @@ export const EventForm = withGoogleApi({
         eventVisibility:
           props.event?.eventVisibility || EEventVisibility.PUBLIC,
         //eventOrgs: props.event?.eventOrgs || [],
-        eventOrg: props.event ? props.event.eventOrgs[0] : null,
+        eventOrg: props.event ? props.event.eventOrgs[0] : {},
         eventAddress: props.event?.eventAddress || [],
         eventEmail: props.event?.eventEmail || [],
         eventPhone: props.event?.eventPhone || [],
@@ -334,7 +335,7 @@ export const EventForm = withGoogleApi({
       const eventPhone = form.eventPhone?.filter(({ phone }) => phone !== "");
       const eventWeb = form.eventWeb?.filter(({ url }) => url !== "");
 
-      let payload = {
+      let payload: AddEventPayload<Date> = {
         ...form,
         eventName,
         // eventDescription: form.eventDescription
@@ -343,6 +344,7 @@ export const EventForm = withGoogleApi({
         eventDescription: form.eventDescription,
         eventDescriptionHtml: form.eventDescription,
         eventOrgs: form.eventOrg ? [form.eventOrg] : [],
+        eventVisibility: EEventVisibility.PUBLIC,
         eventAddress:
           Array.isArray(eventAddress) && eventAddress.length > 0
             ? eventAddress

@@ -8,6 +8,7 @@ import {
   Flex,
   Table,
   Tbody,
+  Tooltip,
   Tr,
   useColorMode,
   useToast
@@ -198,17 +199,39 @@ export const EventsList = ({
     toast
   };
 
-  const eventsList = useMemo(() => {
-    let currentDateP: Date | null = null;
-    let currentDate: Date | null = null;
-    let currentDateN: Date | null = null;
-    let { previousEvents, currentEvents, nextEvents } = getEvents({
+  const { previousEvents, currentEvents, nextEvents } = useMemo(() => {
+    return getEvents({
       events,
       isCreator,
       origin,
       distance,
       selectedCategories
     });
+  }, [events, isCreator, origin, distance, selectedCategories]);
+
+  const eventsList = useMemo(() => {
+    let currentDateP: Date | null = null;
+    let currentDate: Date | null = null;
+    let currentDateN: Date | null = null;
+
+    const showGeoFilter =
+      city ||
+      (showPreviousEvents &&
+        previousEvents.length > 1 &&
+        previousEvents.find(
+          ({ eventLat, eventLng }) => !!eventLat && !!eventLng
+        )) ||
+      (showNextEvents &&
+        nextEvents.length > 1 &&
+        nextEvents.find(
+          ({ eventLat, eventLng }) => !!eventLat && !!eventLng
+        )) ||
+      (!showPreviousEvents &&
+        !showNextEvents &&
+        currentEvents.length > 1 &&
+        currentEvents.find(
+          ({ eventLat, eventLng }) => !!eventLat && !!eventLng
+        ));
 
     return (
       <>
@@ -227,65 +250,76 @@ export const EventsList = ({
           </Flex>
         )}
 
-        <Flex alignItems="center" flexWrap="wrap" mb={5} mt={-3}>
-          {!showLocationButton ? (
-            <Button
-              colorScheme="purple"
-              color={isDark ? "black" : "white"}
-              isDisabled={!events.length}
-              leftIcon={<FaMapMarkerAlt />}
-              mr={3}
-              mt={3}
-              size="sm"
-              onClick={() => {
-                setShowLocationButton(!showLocationButton);
-              }}
-            >
-              Définir la ville
-            </Button>
-          ) : (
-            <LocationButton
-              colorScheme="purple"
-              color={isDark ? "black" : "white"}
-              mr={3}
-              mt={3}
-              size="sm"
-              city={city}
-              setCity={setCity}
-              location={origin}
-              setLocation={setOrigin}
-              inputProps={{
-                bg: isDark ? undefined : "white",
-                borderColor: isDark ? undefined : "black",
-                borderRadius: "lg",
-                color: isDark ? undefined : "black",
-                mr: 3,
-                _placeholder: { color: isDark ? undefined : "black" }
-              }}
-              //onLocationChange={(coordinates) => setOrigin(coordinates)}
-            />
+        <Flex alignItems="center" flexWrap="wrap" mb={3}>
+          {showGeoFilter && (
+            <>
+              <EventsListDistanceSelect
+                distance={distance}
+                setDistance={setDistance}
+                borderColor={isDark ? undefined : "black"}
+                borderRadius="md"
+                isDisabled={!city}
+                size="sm"
+                mr={3}
+              />
+
+              {!showLocationButton ? (
+                <Tooltip label={city ? "Changer la ville" : city}>
+                  <Button
+                    colorScheme="purple"
+                    color={isDark ? "black" : "white"}
+                    isDisabled={!events.length}
+                    leftIcon={<FaMapMarkerAlt />}
+                    size="sm"
+                    onClick={() => {
+                      setShowLocationButton(!showLocationButton);
+                    }}
+                  >
+                    {city || "Définir la ville"}
+                  </Button>
+                </Tooltip>
+              ) : (
+                <LocationButton
+                  city={city}
+                  setCity={setCity}
+                  location={origin}
+                  setLocation={setOrigin}
+                  //--
+                  colorScheme="purple"
+                  color={isDark ? "black" : "white"}
+                  isRound
+                  size="sm"
+                  mr={3}
+                  inputProps={{
+                    bg: isDark ? undefined : "white",
+                    borderColor: isDark ? undefined : "black",
+                    borderRadius: "lg",
+                    color: isDark ? undefined : "black",
+                    _placeholder: { color: isDark ? undefined : "black" }
+                  }}
+                  onClick={() => setShowLocationButton(false)}
+                  //onLocationChange={(coordinates) => setOrigin(coordinates)}
+                  onSuggestionSelect={() => {
+                    setShowLocationButton(false);
+                  }}
+                />
+              )}
+            </>
           )}
-          <EventsListDistanceSelect
-            distance={distance}
-            setDistance={setDistance}
-            borderColor={isDark ? undefined : "black"}
-            borderRadius="md"
-            isDisabled={!events.length}
-            size="sm"
-            mt={3}
-          />
         </Flex>
 
-        <EventsListToggle
-          previousEvents={previousEvents}
-          showPreviousEvents={showPreviousEvents}
-          setShowPreviousEvents={setShowPreviousEvents}
-          currentEvents={currentEvents}
-          nextEvents={nextEvents}
-          showNextEvents={showNextEvents}
-          setShowNextEvents={setShowNextEvents}
-          mb={5}
-        />
+        {(previousEvents.length > 0 || nextEvents.length > 0) && (
+          <EventsListToggle
+            previousEvents={previousEvents}
+            showPreviousEvents={showPreviousEvents}
+            setShowPreviousEvents={setShowPreviousEvents}
+            currentEvents={currentEvents}
+            nextEvents={nextEvents}
+            showNextEvents={showNextEvents}
+            setShowNextEvents={setShowNextEvents}
+            mb={5}
+          />
+        )}
 
         {showPreviousEvents && (
           <Table>

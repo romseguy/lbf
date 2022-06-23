@@ -48,13 +48,13 @@ export const getEvents = ({
     }
 
     if (isCreator || event.eventVisibility === EEventVisibility.PUBLIC) {
-      if (origin && event.eventLat && event.eventLng) {
+      if (distance > 0 && origin && event.eventLat && event.eventLng) {
         const d = getDistance(origin, {
           lat: event.eventLat,
           lng: event.eventLng
         });
 
-        if (distance > 0 && d / 1000 > distance) continue;
+        if (d / 1000 > distance) continue;
 
         const eventDistance = d > 1000 ? Math.round(d / 1000) + "km" : d + "m";
 

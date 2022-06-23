@@ -1,6 +1,6 @@
-import { api } from "./";
-import { IOrg } from "models/Org";
+import { EOrgType, IOrg } from "models/Org";
 import { objectToQueryString } from "utils/query";
+import { api } from "./";
 
 export type AddOrgPayload = Pick<
   IOrg,
@@ -26,6 +26,12 @@ export type GetOrgParams = {
   orgUrl: string;
   hash?: string | void;
   populate?: string;
+};
+
+export type GetOrgsParams = {
+  orgType?: EOrgType;
+  populate?: string;
+  createdBy?: string;
 };
 
 export const orgApi = api.injectEndpoints({
@@ -83,10 +89,7 @@ export const orgApi = api.injectEndpoints({
         { type: "Orgs" as const, id: result?._id }
       ]
     }),
-    getOrgs: build.query<
-      IOrg[],
-      { populate?: string; createdBy?: string } | void
-    >({
+    getOrgs: build.query<IOrg[], GetOrgsParams | void>({
       query: (query) => {
         console.groupCollapsed("getOrgs");
         if (query) {

@@ -1,9 +1,10 @@
 import {
-  Button,
-  ButtonProps,
+  IconButton,
+  IconButtonProps,
   Flex,
   InputProps,
   Spinner,
+  Tooltip,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
@@ -14,6 +15,7 @@ import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { getCity, unwrapSuggestion } from "utils/maps";
 import { LatLon, Suggestion } from "use-places-autocomplete";
 import { AddressControl } from ".";
+import { removeProps } from "utils/object";
 
 export const LocationButton = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
@@ -36,9 +38,10 @@ export const LocationButton = withGoogleApi({
       location,
       setLocation,
       onLocationChange,
+      onSuggestionSelect,
       inputProps,
       ...props
-    }: ButtonProps & {
+    }: IconButtonProps & {
       loaded: boolean;
       google: typeof google;
       /**
@@ -66,6 +69,7 @@ export const LocationButton = withGoogleApi({
       location: LatLon;
       setLocation: (location: LatLon) => void;
       onLocationChange?: (coordinates?: LatLon) => void;
+      onSuggestionSelect?: () => void;
       inputProps: InputProps;
     }) => {
       const toast = useToast();
@@ -109,9 +113,13 @@ export const LocationButton = withGoogleApi({
 
       return (
         <Flex alignItems="center">
-          <Button leftIcon={<FaMapMarkerAlt />} {...props}>
-            {city || "Définir la ville"}
-          </Button>
+          {/* <Tooltip label={city ? "Changer la ville" : ""}> */}
+          <IconButton
+            aria-label="Définir la ville"
+            icon={<FaMapMarkerAlt />}
+            {...removeProps(props, ["google"])}
+          />
+          {/* </Tooltip> */}
           <AddressControl
             inputProps={inputProps}
             isMultiple={false}
@@ -120,6 +128,7 @@ export const LocationButton = withGoogleApi({
               const { lat, lng, city } = await unwrapSuggestion(suggestion);
               if (lat && lng) setLocation({ lat, lng });
               if (city) setCity(city);
+              onSuggestionSelect && onSuggestionSelect();
             }}
           />
         </Flex>

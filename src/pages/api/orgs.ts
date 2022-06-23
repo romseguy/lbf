@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
-import { AddOrgPayload } from "features/api/orgsApi";
-import { EOrgVisibility } from "models/Org";
+import { AddOrgPayload, GetOrgsParams } from "features/api/orgsApi";
+import { EOrgType, EOrgVisibility } from "models/Org";
 import { getCurrentId } from "store/utils";
 import { getSession } from "utils/auth";
 import { createServerError } from "utils/errors";
@@ -14,7 +14,7 @@ handler.use(database);
 
 handler.get<
   NextApiRequest & {
-    query: { populate?: string; createdBy?: string };
+    query: GetOrgsParams;
   },
   NextApiResponse
 >(async function getOrgs(req, res) {
@@ -22,14 +22,15 @@ handler.get<
 
   try {
     const {
-      query: { populate, createdBy }
+      query: { orgType, populate, createdBy }
     } = req;
 
-    let selector:
-      | {
-          orgVisibility: EOrgVisibility;
-        }
-      | { createdBy: string } = { orgVisibility: EOrgVisibility.PUBLIC };
+    let selector: GetOrgsParams & {
+      orgVisibility?: EOrgVisibility;
+    } = {
+      orgType,
+      orgVisibility: EOrgVisibility.PUBLIC
+    };
 
     if (
       createdBy &&

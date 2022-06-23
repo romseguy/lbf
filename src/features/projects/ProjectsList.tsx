@@ -503,7 +503,7 @@ export const ProjectsList = ({
                     </GridItem>
 
                     <GridItem
-                      bg={isDark ? "#314356" : "blue.100"}
+                      bg={isDark ? "#314356" : "orange.200"}
                       overflowX="auto"
                       borderBottomRadius="xl"
                       minHeight="12px"
@@ -540,7 +540,7 @@ export const ProjectsList = ({
                                   )
                                 ) : (
                                   <Tr>
-                                    <Td>
+                                    <Td border={0}>
                                       <Text fontStyle="italic">
                                         Personne n'a indiqué participer.
                                       </Text>
@@ -581,7 +581,6 @@ export const ProjectsList = ({
             })
           }
           onSubmit={async (project) => {
-            localStorage.removeItem("storageKey");
             query.refetch();
             // subQuery.refetch();
             setProjectModalState({
@@ -590,6 +589,7 @@ export const ProjectsList = ({
               project: undefined
             });
             setCurrentProject(project ? project : null);
+            localStorage.removeItem("storageKey");
           }}
           onClose={() =>
             setProjectModalState({

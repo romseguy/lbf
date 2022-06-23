@@ -9,7 +9,6 @@ import {
   Alert,
   AlertIcon,
   Box,
-  Button,
   Flex,
   Input,
   Spinner,
@@ -25,6 +24,7 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { css } from "twin.macro";
 import {
+  Button,
   Column,
   DeleteButton,
   EmailPreview,
@@ -233,6 +233,7 @@ export const EventPage = ({
 
         {isEdit && (
           <Button
+            canWrap
             colorScheme="teal"
             leftIcon={<ArrowBackIcon boxSize={6} />}
             onClick={() => setIsEdit(false)}
@@ -244,12 +245,14 @@ export const EventPage = ({
 
         {!isEdit && isConfig && (
           <Button
+            canWrap
             colorScheme="teal"
             leftIcon={<ArrowBackIcon boxSize={6} />}
             onClick={() => setIsConfig(false)}
             mb={2}
           >
-            Revenir à l'événement
+            {/* Revenir à l'événement */}
+            Retour
           </Button>
         )}
       </Column>

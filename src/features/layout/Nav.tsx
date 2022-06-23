@@ -42,6 +42,7 @@ import { PageProps } from "main";
 import { capitalize } from "utils/string";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
+import { removeProps } from "utils/object";
 
 export const Nav = ({
   isMobile,
@@ -84,7 +85,7 @@ export const Nav = ({
         borderRadius="lg"
         p={3}
         pt={0}
-        {...props}
+        {...removeProps(props, ["setIsSessionLoading"])}
       >
         <Table role="navigation">
           {!isMobile && (

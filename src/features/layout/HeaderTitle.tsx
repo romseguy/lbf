@@ -94,14 +94,18 @@ export const HeaderTitle = ({
 
       {entity && (
         <LinkShare
-          variant="outline"
+          url={`${process.env.NEXT_PUBLIC_URL}/${url}`}
           colorScheme="blue"
           label={`Copier l'adresse ${
-            isE ? "de l'événement" : orgTypeFull((entity as IOrg).orgType)
+            isE
+              ? "de l'événement"
+              : isO
+              ? orgTypeFull(entity.orgType)
+              : "du soleil"
           }`}
-          url={`${process.env.NEXT_PUBLIC_URL}/${url}`}
-          //mt={3}
           ml={2}
+          tooltipProps={{ placement: "right" }}
+          variant="outline"
         />
       )}
     </Flex>

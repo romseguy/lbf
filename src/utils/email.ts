@@ -18,6 +18,15 @@ const linkStyle = (bold?: boolean) =>
     bold ? "font-weight: bold;" : ""
   }`;
 
+const title = `
+  <a
+    href="${process.env.NEXT_PUBLIC_URL}"
+    style="${linkStyle(true)}"
+  >
+    ${process.env.NEXT_PUBLIC_SHORT_URL}
+  </a>
+`;
+
 export const emailR = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
 export const getProjectUrl = ({
@@ -156,6 +165,9 @@ export const createProjectEmailNotif = ({
   const entityType = org ? orgTypeFull(org.orgType) : "de l'événement";
   const projectUrl = getProjectUrl({ event, org, project });
   const subject = `Vous êtes invité à un projet : ${project.projectName}`;
+  const footerLink = `${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
+    org ? org.orgUrl : event?.eventUrl
+  }?subscriptionId=${subscriptionId}`;
 
   return {
     from: process.env.EMAIL_FROM,
@@ -166,14 +178,14 @@ export const createProjectEmailNotif = ({
       <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
           <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <strong>${process.env.NEXT_PUBLIC_SHORT_URL}</strong>
+            ${title}
           </td>
         </tr>
       </table>
       <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
         <tr>
-          <td align="center" style="padding: 0px 0px 0px 0px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <h2>${subject}</h2>
+          <td align="center" style="padding: 0px 12px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
+            <h2 style="font-weight: bold; font-size: 1.5em; margin-block-start: 0.83em; margin-block-end: 0.83em;">${subject}</h2>
             ${
               project.projectDescription
                 ? `
@@ -187,22 +199,24 @@ export const createProjectEmailNotif = ({
                 `
                 : ""
             }
-            <p><a href="${projectUrl}">Cliquez ici</a> pour participer au projet.</p>
+            <p style="margin-block-start: 1em; margin-block-end: 1em;">
+              ${`${`<a href="${projectUrl}" style="${linkStyle(
+                false
+              )}">Cliquez ici</a>`} pour participer à la discussion.`}
+            </p>
           </td>
         </tr>
       </table>
       <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
           <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor}; text-decoration: underline;">
-            ${`
-              <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
-              org ? org.orgUrl : event?.eventUrl
-            }?subscriptionId=${subscriptionId}">Se désabonner ${
+            <a href="${footerLink}" style="${linkStyle(false)}">
+            Se désabonner ${
               entityUrl === "forum"
                 ? `du forum ${process.env.NEXT_PUBLIC_SHORT_URL}`
                 : `${entityType} ${entityName}`
-            }</a>
-            `}
+            }
+            </a>
           </td>
         </tr>
       </table>
@@ -243,12 +257,7 @@ export const createTopicEmailNotif = ({
         <tbody>
           <tr>
             <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-              <a
-                href="${process.env.NEXT_PUBLIC_URL}"
-                style="${linkStyle(true)}"
-              >
-                ${process.env.NEXT_PUBLIC_SHORT_URL}
-              </a>
+              ${title}
             </td>
           </tr>
         </tbody>

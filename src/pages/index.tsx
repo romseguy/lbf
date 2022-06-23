@@ -18,6 +18,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FaRegMap, FaTree, FaFile } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
+import { useGetOrgsQuery } from "features/api/orgsApi";
+import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import {
   Button,
   Column,
@@ -29,15 +31,13 @@ import { Layout } from "features/layout";
 import { AboutModal } from "features/modals/AboutModal";
 import { MapModal } from "features/modals/MapModal";
 import { TreeChartModal } from "features/modals/TreeChartModal";
-import { useGetOrgsQuery } from "features/api/orgsApi";
 import { OrgsList } from "features/orgs/OrgsList";
-import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import { InputNode } from "features/treeChart/types";
-import { selectUserEmail } from "store/userSlice";
-import { EOrgType, EOrgVisibility, IOrg, OrgVisibilities } from "models/Org";
-import { ISubscription } from "models/Subscription";
-import { AppQuery } from "utils/types";
 import { PageProps } from "main";
+import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
+import { ISubscription } from "models/Subscription";
+import { selectUserEmail } from "store/userSlice";
+import { AppQuery } from "utils/types";
 
 let cachedUserEmail: string | undefined;
 
@@ -51,9 +51,10 @@ const IndexPage = (props: PageProps) => {
   const [isLogin, setIsLogin] = useState(0);
 
   //#region org query
-  const orgsQuery = useGetOrgsQuery({ populate: "orgs createdBy" }) as AppQuery<
-    IOrg[]
-  >;
+  const orgsQuery = useGetOrgsQuery({
+    orgType: EOrgType.NETWORK,
+    populate: "orgs createdBy"
+  }) as AppQuery<IOrg[]>;
   const planets = orgsQuery.data?.filter((org) =>
     org ? org.orgType === EOrgType.NETWORK : true
   );

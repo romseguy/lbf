@@ -116,12 +116,70 @@ const theme = extendTheme({
     },
     Input: {
       baseStyle: {
-        ".chakra-ui-dark &": {
-          border: "1px solid white",
-          _hover: {
-            border: "1px solid white"
+        field: {
+          //backgroundColor: "gray.100"
+        }
+      },
+      variants: {
+        /**
+         * Input component will use "outline" styles by default.
+         * Styles set here will override anything in { baseStyle } and { sizes }
+         */
+        outline: {
+          field: {
+            background: "white",
+            border: "1px solid",
+            borderColor: "inherit",
+            _focus: {
+              zIndex: 1,
+              borderColor: "#3182ce",
+              boxShadow: "0 0 0 1px #3182ce"
+            },
+            _hover: { borderColor: "gray.300" }
+          }
+        },
+        filled: {
+          field: {
+            background: "gray.100",
+            border: "2px solid",
+            borderColor: "transparent",
+            _focus: {
+              background: "transparent",
+              borderColor: "#3182ce"
+            },
+            _hover: {
+              background: "gray.300"
+            }
+          }
+        },
+        flushed: {
+          field: {
+            background: "transparent",
+            borderBottom: "1px solid",
+            borderColor: "inherit",
+            borderRadius: 0,
+            paddingX: 0,
+            _focus: {
+              borderColor: "#3182ce",
+              boxShadow: "0 0 0 1px #3182ce"
+            }
+          }
+        },
+        unstyled: {
+          field: {
+            background: "transparent",
+            borderRadius: "md",
+            height: "auto",
+            paddingX: 0
           }
         }
+      },
+      defaultProps: {
+        /**
+         * Set either or both of these to null to use only what's in { baseStyle }
+         */
+        size: "md",
+        variant: "outline"
       }
     },
     Link: {
@@ -142,6 +200,16 @@ const theme = extendTheme({
         },
         underline: {
           textDecoration: "underline"
+        }
+      }
+    },
+    Select: {
+      baseStyle: {
+        field: {
+          backgroundColor: "white",
+          ".chakra-ui-dark &": {
+            backgroundColor: "whiteAlpha.300"
+          }
         }
       }
     },
