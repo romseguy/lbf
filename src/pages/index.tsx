@@ -4,17 +4,21 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
   HamburgerIcon,
+  QuestionIcon,
   SmallAddIcon
 } from "@chakra-ui/icons";
 import {
   Flex,
   Icon,
+  IconButton,
   Spinner,
+  Tooltip,
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import useOnclickOutside from "react-cool-onclickoutside";
 import { FaRegMap, FaTree, FaFile } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
@@ -49,6 +53,10 @@ const IndexPage = (props: PageProps) => {
   const [isListOpen, setIsListOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLogin, setIsLogin] = useState(0);
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+  const ref = useOnclickOutside(() => {
+    if (isTooltipOpen) setIsTooltipOpen(false);
+  });
 
   //#region org query
   const orgsQuery = useGetOrgsQuery({
@@ -130,19 +138,46 @@ const IndexPage = (props: PageProps) => {
       <Column {...columnProps}>
         <Heading mb={3}>Premiers pas</Heading>
         {!props.session && (
-          <Flex>
+          <Flex ref={ref}>
             <LoginButton
               mb={3}
+              size={props.isMobile ? "xs" : undefined}
               onClick={() => {
                 setIsLogin(isLogin + 1);
               }}
             >
               Connectez-vous à votre compte Koala
             </LoginButton>
+            <Tooltip
+              label="Un Koala vous permet de créer des planètes, afin de partager des informations et inviter d'autres Koalas à discuter et à collaborer."
+              isOpen={isTooltipOpen}
+            >
+              <IconButton
+                aria-label="Qu'est ce qu'un Koala"
+                background="transparent"
+                _hover={{ background: "transparent" }}
+                minWidth={0}
+                height="auto"
+                icon={<QuestionIcon />}
+                boxSize={props.isMobile ? 6 : 10}
+                color="purple"
+                onMouseEnter={
+                  props.isMobile ? undefined : () => setIsTooltipOpen(true)
+                }
+                onMouseLeave={
+                  props.isMobile ? undefined : () => setIsTooltipOpen(false)
+                }
+                onClick={() => setIsTooltipOpen(!isTooltipOpen)}
+              />
+            </Tooltip>
           </Flex>
         )}
         <Flex>
-          <EntityAddButton orgType={EOrgType.NETWORK} size="md" mb={3} />
+          <EntityAddButton
+            orgType={EOrgType.NETWORK}
+            size={props.isMobile ? "xs" : "md"}
+            mb={3}
+          />
         </Flex>
         <Flex alignItems="center">
           <SmallAddIcon />

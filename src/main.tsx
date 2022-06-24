@@ -36,6 +36,7 @@ export const Main = ({
 
         if (session.user) {
           props.setSession(session);
+          console.log("SETTING SERVER SESSION");
           dispatch(setUserEmail(session.user.email));
         } else {
           const isLoggedIn = await magic.user.isLoggedIn();
@@ -55,6 +56,7 @@ export const Main = ({
 
             if (res.status === 200) {
               const user = await res.json();
+              console.log("SETTING MAGIC SESSION");
               props.setSession({ user });
               dispatch(setUserEmail(session.user.email));
             }
@@ -76,6 +78,7 @@ export const Main = ({
         dispatch(setIsOffline(true));
         props.setIsSessionLoading(false);
         if (process.env.NODE_ENV === "development") {
+          console.log("SETTING DEV SESSION");
           props.setSession(devSession);
         }
       }
@@ -97,6 +100,7 @@ export const Main = ({
       <GlobalStyles isDark={isDark} />
       <Component
         {...props}
+        //isMobile
         email={
           props.session ? props.session.user.email : email ? email : userEmail
         }
