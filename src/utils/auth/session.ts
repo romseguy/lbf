@@ -48,12 +48,12 @@ export async function getSession(params?: any): Promise<Session | null> {
   return { user };
 }
 
-// export const devSession = {
-//   user: {
-//     email: "rom.seguy@gmail.com",
-//     userId: "61138a879544b000088318ae",
-//     userName: "romseguy66"
-//   }
-// };
+export const devSession = {
+  user: {
+    email: "rom.seguy@gmail.com",
+    userId: "61138a879544b000088318ae",
+    userName: "romseguy66"
+  }
+};
 
-export const devSession = null;
+//export const devSession = null;

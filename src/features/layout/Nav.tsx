@@ -5,6 +5,7 @@ import {
   Button,
   Flex,
   FlexProps,
+  Image,
   Menu,
   MenuButton,
   Icon,
@@ -92,33 +93,23 @@ export const Nav = ({
             <Tbody role="rowgroup">
               <Tr role="rowheader">
                 <Td border={0} p={0}>
-                  <Heading>
+                  <Heading fontFamily="Lato">
                     {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
                   </Heading>
                 </Td>
-                <Td border={0} p={0}>
+                <Td border={0} display="flex" p={0}>
                   {!isSessionLoading && (
-                    <Heading containerProps={{ ml: "auto" }}>
+                    <Heading fontFamily="Lato" noContainer ml="auto">
                       {session ? "L'univers de mon koala" : "Connexion"}
                     </Heading>
                   )}
                 </Td>
               </Tr>
-              <Tr role="row">
-                <Td
-                  border={0}
-                  css={css`
-                    button {
-                      background: ${isDark ? "#1A202C" : "lightcyan"};
-                      margin-right: 12px;
-                      border-radius: 9999px;
-                    }
-                  `}
-                  p="28px 0 0 0"
-                >
-                  <NavButtonsList isMobile={false} />
+              <Tr>
+                <Td border={0} p={0}>
+                  <Image height="100px" src="/images/bg.png" />
                 </Td>
-                <Td border={0} p="8px 0 0 0">
+                <Td border={0} p={0}>
                   {isSessionLoading ? (
                     <Flex>
                       <Spinner ml="auto" />
@@ -215,6 +206,21 @@ export const Nav = ({
                       )}
                     </Flex>
                   )}
+                </Td>
+              </Tr>
+              <Tr role="row">
+                <Td
+                  border={0}
+                  css={css`
+                    button {
+                      background: ${isDark ? "#1A202C" : "lightcyan"};
+                      margin-right: 12px;
+                      border-radius: 9999px;
+                    }
+                  `}
+                  p="28px 0 0 0"
+                >
+                  <NavButtonsList isMobile={false} />
                 </Td>
               </Tr>
             </Tbody>

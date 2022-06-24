@@ -11,12 +11,14 @@ import { rainbowTextCss } from "features/layout/theme";
 export const Heading = ({
   children,
   containerProps,
+  fontFamily = "Roboto",
   smaller,
   noContainer = false,
   ...props
 }: HeadingProps & {
   children: React.ReactNode;
   containerProps?: FlexProps;
+  fontFamily?: string;
   smaller?: boolean;
   noContainer?: boolean;
 }) => {
@@ -24,8 +26,8 @@ export const Heading = ({
   const isDark = colorMode === "dark";
   const element = (
     <ChakraHeading
-      fontFamily="DancingScript"
-      fontSize={smaller ? "2xl" : ["2xl", "4xl"]}
+      fontFamily={fontFamily}
+      fontSize={smaller ? "2xl" : ["3xl", "4xl"]}
       pl={1}
       css={css(rainbowTextCss(isDark))}
       {...props}

@@ -18,6 +18,11 @@ import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { LatLon } from "use-places-autocomplete";
+import {
+  useDeleteEventMutation,
+  useEditEventMutation,
+  useAddEventNotifMutation
+} from "features/api/eventsApi";
 import { Heading, LocationButton } from "features/common";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import {
@@ -30,18 +35,14 @@ import { MapModal } from "features/modals/MapModal";
 import { useSession } from "hooks/useSession";
 import { getEvents, IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
+import { EOrgSubscriptionType } from "models/Subscription";
 import { AppQueryWithData } from "utils/types";
-import {
-  useDeleteEventMutation,
-  useEditEventMutation,
-  useAddEventNotifMutation
-} from "features/api/eventsApi";
+import { hasItems } from "utils/array";
 import { EventsListCategories } from "./EventsListCategories";
 import { EventCategoryTag } from "./EventCategoryTag";
 import { EventsListDistanceSelect } from "./EventsListDistance";
 import { EventsListItem } from "./EventsListItem";
 import { EventsListToggle } from "./EventsListToggle";
-import { EOrgSubscriptionType } from "models/Subscription";
 import { EventsListHeader } from "./EventsListHeader";
 
 export const EventsList = ({
@@ -235,20 +236,22 @@ export const EventsList = ({
 
     return (
       <>
-        {router.asPath !== "/evenements" && orgQuery && (
-          <Flex flexDirection="column" mb={5}>
-            <Heading smaller>Catégories</Heading>
-            <EventsListCategories
-              events={events}
-              orgQuery={orgQuery}
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
-              isCreator={isCreator}
-              // isLogin={isLogin}
-              // setIsLogin={setIsLogin}
-            />
-          </Flex>
-        )}
+        {router.asPath !== "/evenements" &&
+          orgQuery &&
+          hasItems(orgQuery.data.orgEventCategories) && (
+            <Flex flexDirection="column" mb={5}>
+              <Heading smaller>Catégories</Heading>
+              <EventsListCategories
+                events={events}
+                orgQuery={orgQuery}
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                isCreator={isCreator}
+                // isLogin={isLogin}
+                // setIsLogin={setIsLogin}
+              />
+            </Flex>
+          )}
 
         <Flex alignItems="center" flexWrap="wrap" mb={3}>
           {showGeoFilter && (

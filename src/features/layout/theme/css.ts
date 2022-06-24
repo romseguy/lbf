@@ -5,7 +5,7 @@ background-clip: text;
 background-image: linear-gradient(to left, ${
   isDark
     ? "violet, violet, white, green, yellow, orange, red"
-    : "red, green, green, red, green, green, red"
+    : "red, green, green, brown, green, green, brown"
 });
 color: transparent;
 -webkit-background-clip: text;

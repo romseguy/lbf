@@ -7,7 +7,11 @@ import { rainbowTextCss } from "./css";
 const theme = extendTheme({
   breakpoints: createBreakpoints(breakpoints),
   colors: {
-    black: "#16161D"
+    black: "#16161D",
+    brown: {
+      50: "#c6b7a2",
+      100: "#442727"
+    }
   },
   components: {
     // https://stackoverflow.com/questions/68531930/style-chakra-ui-formcontrol-and-label-at-application-theme-level

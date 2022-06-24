@@ -8,10 +8,14 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
       styles={css`
         //#region fonts
         @font-face {
-          font-family: "DancingScript";
-          src: url("/fonts/DancingScript-Regular.ttf");
-          src: url("/fonts/DancingScript-Bold.ttf");
-          src: url("/fonts/DancingScript-SemiBold.ttf");
+          font-family: "Lato";
+          src: url("/fonts/Lato-Regular.ttf");
+          src: url("/fonts/Lato-Bold.ttf");
+        }
+        @font-face {
+          font-family: "Roboto";
+          src: url("/fonts/RobotoCondensed-Regular.ttf");
+          src: url("/fonts/RobotoCondensed-Bold.ttf");
         }
         /* @font-face {
         font-family: "Aladin";
@@ -35,11 +39,12 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
 
         //#region large screens
         @media (min-width: ${breakpoints["2xl"]}) {
-          .chakra-ui-light {
-            background: url(/images/bg.jpg);
-          }
-          .chakra-ui-dark {
-            background: black;
+          body {
+            background: url(/images/bg.png);
+            background-color: ${theme.colors.green["100"]};
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
           }
         }
         //#endregion
