@@ -24,9 +24,11 @@ import { capitalize } from "utils/string";
 
 export const HeaderTitle = ({
   entity,
+  pageHeader,
   pageTitle
 }: {
   entity?: IEntity;
+  pageHeader?: React.ReactNode;
   pageTitle?: string;
 }) => {
   const { colorMode } = useColorMode();
@@ -67,6 +69,7 @@ export const HeaderTitle = ({
   } else if (isO) {
     const org = entity as IOrg;
     icon = org.orgType === EOrgType.NETWORK ? FaGlobeEurope : FaTree;
+    iconColor = org.orgType === EOrgType.NETWORK ? "blue" : "green";
   } else if (isU) {
     icon = SunIcon;
   }
@@ -89,7 +92,11 @@ export const HeaderTitle = ({
       )}
 
       <Link href={router.asPath} variant="no-underline">
-        <Heading pr={1}>{capitalize(name || pageTitle || "")}</Heading>
+        {pageHeader ? (
+          pageHeader
+        ) : (
+          <Heading pr={1}>{capitalize(name || pageTitle || "")}</Heading>
+        )}
       </Link>
 
       {entity && (

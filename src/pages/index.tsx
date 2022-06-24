@@ -137,7 +137,7 @@ const IndexPage = (props: PageProps) => {
                 setIsLogin(isLogin + 1);
               }}
             >
-              Connectez-vous à votre koala
+              Connectez-vous à votre compte Koala
             </LoginButton>
           </Flex>
         )}

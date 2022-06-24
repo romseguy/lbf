@@ -392,8 +392,6 @@ export const OrgForm = withGoogleApi({
         <FormControl
           isRequired
           isInvalid={!!errors["orgName"]}
-          display="flex"
-          flexDirection="column"
           mb={getValues("orgName") ? 0 : 3}
         >
           <FormLabel>Nom {orgTypeLabel}</FormLabel>
@@ -599,6 +597,8 @@ export const OrgForm = withGoogleApi({
             ? passwordControl
             : null}
         </Box>
+
+        <FormLabel>Coordonnées {orgTypeFull(orgType)}</FormLabel>
 
         <AddressControl
           name="orgAddress"

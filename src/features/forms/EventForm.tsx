@@ -280,7 +280,10 @@ export const EventForm = withGoogleApi({
       }
     }, [start, end]);
 
-    const eventOrg = useWatch<IOrg | null>({ control, name: "eventOrg" });
+    let eventOrg = useWatch<IOrg>({ control, name: "eventOrg" });
+    eventOrg =
+      eventOrg && Object.keys(eventOrg).length === 0 ? undefined : eventOrg;
+
     const categories = eventOrg ? getEventCategories(eventOrg) : [];
     const visibilities = eventOrg
       ? [EEventVisibility.PUBLIC, EEventVisibility.FOLLOWERS]
@@ -554,8 +557,6 @@ export const EventForm = withGoogleApi({
         <FormControl
           isRequired
           isInvalid={!!errors["eventName"]}
-          display="flex"
-          flexDirection="column"
           mb={!props.event && getValues("eventName") ? 0 : 3}
         >
           <FormLabel>Nom de l'événement</FormLabel>

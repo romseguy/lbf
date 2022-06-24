@@ -1,7 +1,13 @@
-import { QuestionIcon, SettingsIcon } from "@chakra-ui/icons";
+import {
+  CalendarIcon,
+  ChatIcon,
+  QuestionIcon,
+  SettingsIcon
+} from "@chakra-ui/icons";
 import {
   Button,
   Flex,
+  Icon,
   Input,
   Switch,
   TabPanel,
@@ -11,6 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
+import { FaImages, FaTools } from "react-icons/fa";
 import { css } from "twin.macro";
 import {
   Column,
@@ -193,39 +200,12 @@ export const OrgPageTabs = ({
 
         {!!tabs.find(({ label }) => label === "Discussions") && (
           <TabPanel aria-hidden>
-            {/* <Alert status="info" mb={5}>
-              <AlertIcon />
-              <Box>
-                Cette section a pour vocation principale de proposer une
-                alternative plus pratique et respectueuse aux{" "}
-                <Tooltip label="synonymes : mailing lists, newsletters">
-                  <Text
-                    display="inline"
-                    borderBottom={`1px dotted ${isDark ? "white" : "black"}`}
-                    cursor="pointer"
-                  >
-                    listes de diffusion
-                  </Text>
-                </Tooltip>{" "}
-                traditionnelles. Également libre à vous de l'utiliser comme bon
-                vous semble, et de faire des suggestions sur le{" "}
-                <Link variant="underline" href="/forum">
-                  forum
-                </Link>{" "}
-                ou en{" "}
-                <Link
-                  variant="underline"
-                  onClick={() => {
-                    dispatch(setIsContactModalOpen(true));
-                  }}
-                >
-                  nous écrivant un message
-                </Link>
-                .
-              </Box>
-            </Alert> */}
-
-            <Heading mb={3}>Discussions</Heading>
+            <Flex>
+              <ChatIcon boxSize={6} mr={3} mt={3} />
+              <Heading noContainer mb={3}>
+                Discussions
+              </Heading>
+            </Flex>
 
             <Column {...columnProps}>
               <TopicsList
@@ -238,46 +218,39 @@ export const OrgPageTabs = ({
                 currentTopicName={currentItemName}
               />
             </Column>
-
-            {/* {process.env.NODE_ENV === "development" &&
-                      session?.user.isAdmin && (
-                        <Box mb={5}>
-                          <Button
-                            onClick={async () => {
-                              await editOrg({
-                                orgId: org._id,
-                                payload: { orgTopics: [] }
-                              }).unwrap();
-                            }}
-                          >
-                            RAZ
-                          </Button>
-                        </Box>
-                      )} */}
           </TabPanel>
         )}
 
         {!!tabs.find(({ label }) => label === "Événements") && (
           <TabPanel aria-hidden>
-            <>
-              <Heading mb={3}>{title}</Heading>
-              <Column {...columnProps}>
-                <EventsList
-                  events={org.orgEvents}
-                  orgQuery={orgQuery}
-                  isCreator={isCreator}
-                  isLogin={isLogin}
-                  setIsLogin={setIsLogin}
-                  setTitle={setTitle}
-                />
-              </Column>
-            </>
+            <Flex>
+              <CalendarIcon boxSize={6} mr={3} mt={3} />
+              <Heading noContainer mb={3}>
+                {title}
+              </Heading>
+            </Flex>
+
+            <Column {...columnProps}>
+              <EventsList
+                events={org.orgEvents}
+                orgQuery={orgQuery}
+                isCreator={isCreator}
+                isLogin={isLogin}
+                setIsLogin={setIsLogin}
+                setTitle={setTitle}
+              />
+            </Column>
           </TabPanel>
         )}
 
         {!!tabs.find(({ label }) => label === "Projets") && (
           <TabPanel aria-hidden>
-            <Heading mb={3}>Projets</Heading>
+            <Flex>
+              <Icon as={FaTools} boxSize={6} mr={3} mt={3} />
+              <Heading noContainer mb={3}>
+                Projets
+              </Heading>
+            </Flex>
 
             <Column {...columnProps}>
               <ProjectsList
@@ -295,7 +268,12 @@ export const OrgPageTabs = ({
 
         {!!tabs.find(({ label }) => label === "Galerie") && (
           <TabPanel aria-hidden>
-            <Heading mb={3}>Galerie</Heading>
+            <Flex>
+              <Icon as={FaImages} boxSize={6} mr={3} mt={3} />
+              <Heading noContainer mb={3}>
+                Galerie
+              </Heading>
+            </Flex>
 
             <Column {...columnProps}>
               <DocumentsList
@@ -419,3 +397,59 @@ export const OrgPageTabs = ({
     </Tabs>
   );
 };
+
+{
+  /*
+    {process.env.NODE_ENV === "development" &&
+      session?.user.isAdmin && (
+          <Box mb={5}>
+            <Button
+              onClick={async () => {
+                await editOrg({
+                  orgId: org._id,
+                  payload: { orgTopics: [] }
+                }).unwrap();
+              }}
+            >
+              RAZ
+            </Button>
+          </Box>
+        )}
+  */
+}
+
+{
+  /*
+    <Alert status="info" mb={5}>
+      <AlertIcon />
+      <Box>
+        Cette section a pour vocation principale de proposer une
+        alternative plus pratique et respectueuse aux{" "}
+        <Tooltip label="synonymes : mailing lists, newsletters">
+          <Text
+            display="inline"
+            borderBottom={`1px dotted ${isDark ? "white" : "black"}`}
+            cursor="pointer"
+          >
+            listes de diffusion
+          </Text>
+        </Tooltip>{" "}
+        traditionnelles. Également libre à vous de l'utiliser comme bon
+        vous semble, et de faire des suggestions sur le{" "}
+        <Link variant="underline" href="/forum">
+          forum
+        </Link>{" "}
+        ou en{" "}
+        <Link
+          variant="underline"
+          onClick={() => {
+            dispatch(setIsContactModalOpen(true));
+          }}
+        >
+          nous écrivant un message
+        </Link>
+        .
+      </Box>
+    </Alert>
+  */
+}

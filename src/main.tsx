@@ -7,7 +7,7 @@ import { useAppDispatch } from "store";
 import { setIsOffline } from "store/sessionSlice";
 import { selectUserEmail, setUserEmail } from "store/userSlice";
 import api from "utils/api";
-import { magic, Session } from "utils/auth";
+import { devSession, magic, Session } from "utils/auth";
 
 export interface PageProps {
   email: string;
@@ -74,7 +74,10 @@ export const Main = ({
         if (res.status === 404) throw new Error();
       } catch (error) {
         dispatch(setIsOffline(true));
-        //setIsSessionLoading(false);
+        props.setIsSessionLoading(false);
+        if (process.env.NODE_ENV === "development") {
+          props.setSession(devSession);
+        }
       }
     })();
 

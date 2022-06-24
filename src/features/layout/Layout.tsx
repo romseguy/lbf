@@ -7,25 +7,25 @@ import {
   useToast
 } from "@chakra-ui/react";
 import Head from "next/head";
-import NextNprogress from "nextjs-progressbar";
 import { useRouter } from "next/router";
+import NextNprogress from "nextjs-progressbar";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
 import { Header, Nav, Footer } from "features/layout";
+import { breakpoints } from "features/layout/theme";
 import { ContactFormModal } from "features/modals/ContactFormModal";
 import { LoginFormModal } from "features/modals/LoginFormModal";
-import { IEvent } from "models/Event";
-import { IOrg, OrgTypes } from "models/Org";
 import { PageProps } from "main";
+import { IEntity, isEvent, isOrg, isUser } from "models/Entity";
+import { OrgTypes } from "models/Org";
 import { useAppDispatch } from "store";
 import { selectIsOffline } from "store/sessionSlice";
 import { resetUserEmail, selectUserEmail } from "store/userSlice";
-import { breakpoints } from "features/layout/theme";
 import { Base64Image } from "utils/image";
 import { isServer } from "utils/isServer";
-import { IEntity, isEvent, isOrg, isUser } from "models/Entity";
+import { capitalize } from "utils/string";
 
 const PAYPAL_BUTTON_WIDTH = 108;
 const defaultTitle = process.env.NEXT_PUBLIC_SHORT_URL;
@@ -43,7 +43,7 @@ export interface LayoutProps extends Partial<PageProps>, BoxProps {
   logo?: Base64Image;
   isLogin?: number;
   entity?: IEntity;
-  pageHeader?: React.ReactNode | React.ReactNodeArray;
+  pageHeader?: React.ReactNode;
   pageTitle?: string;
 }
 
@@ -119,14 +119,16 @@ export const Layout = ({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
-          {defaultTitle} –{" "}
+          {defaultTitle}
           {isO
-            ? `${OrgTypes[entity.orgType]} – ${entity.orgName}`
+            ? ` – ${OrgTypes[entity.orgType]} – ${entity.orgName}`
             : isE
-            ? `Événement – ${entity.eventName}`
+            ? ` – Événement – ${entity.eventName}`
             : isU
-            ? `${entity.userName}`
-            : pageTitle}
+            ? ` – ${entity.userName}`
+            : pageTitle
+            ? ` – ${capitalize(pageTitle)}`
+            : " – Veuillez patienter..."}
         </title>
       </Head>
 
@@ -214,6 +216,7 @@ export const Layout = ({
           <Header
             entity={entity}
             defaultTitle="Veuillez patienter..."
+            pageHeader={pageHeader}
             pageTitle={pageTitle}
             m={isMobile ? 1 : 3}
             mt={0}

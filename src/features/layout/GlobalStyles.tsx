@@ -69,231 +69,6 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
         }
         //#endregion
 
-        //#region quill
-        /* .ql-editor {
-        padding: 0;
-
-        a {
-          text-decoration: underline;
-        }
-
-        a.clip {
-          text-overflow: ellipsis;
-          display: inline-block;
-          white-space: nowrap;
-          overflow: hidden;
-          max-width: 75px;
-          vertical-align: top;
-        }
-
-        blockquote {
-          border-left: 4px solid #ccc;
-          margin-bottom: 5px;
-          margin-top: 5px;
-          padding-left: 16px;
-        }
-
-        ul {
-          padding: 0;
-        }
-      } */
-        //#endregion
-
-        //#region linear rainbow text
-        .rainbow-text {
-          background-clip: text;
-          -webkit-background-clip: text;
-          background-image: linear-gradient(
-            to left,
-            indigo,
-            indigo,
-            blue,
-            green,
-            orange,
-            orange,
-            red
-          );
-          color: transparent;
-          -webkit-text-fill-color: transparent;
-        }
-        .rainbow-text.dark {
-          background-image: linear-gradient(
-            to left,
-            violet,
-            violet,
-            white,
-            green,
-            yellow,
-            orange,
-            red
-          );
-        }
-        .chakra-ui-dark .rainbow-text {
-          background-image: linear-gradient(
-            to left,
-            violet,
-            violet,
-            white,
-            green,
-            yellow,
-            orange,
-            red
-          );
-        }
-        .rainbow-text-animated {
-          animation: rainbow 5s infinite;
-          -ms-animation: rainbow 5s infinite;
-          -webkit-animation: rainbow 5s infinite;
-          @keyframes rainbow {
-            0% {
-              color: orange;
-            }
-            10% {
-              color: purple;
-            }
-            20% {
-              color: red;
-            }
-            30% {
-              color: CadetBlue;
-            }
-            40% {
-              color: yellow;
-            }
-            50% {
-              color: coral;
-            }
-            60% {
-              color: green;
-            }
-            70% {
-              color: cyan;
-            }
-            80% {
-              color: DeepPink;
-            }
-            90% {
-              color: DodgerBlue;
-            }
-            100% {
-              color: orange;
-            }
-          }
-        }
-        //#endregion
-
-        //#region rainbow-conic text
-        .rainbow-conic-text {
-          cursor: default;
-          /* Set the background size and repeat properties. */
-          /* Animate the text when loading the element. */
-          /* This animates it on page load and when hovering out. */
-          animation: rainbow-conic-text-animation-rev 0.5s ease forwards;
-        }
-
-        .chakra-ui-light .rainbow-conic-text {
-          /* Create a conic gradient. */
-          /* Double percentages to avoid blur (#000 10%, #fff 10%, #fff 20%, ...). */
-          /* background: #ffffff;
-        background-color: #ffffff; */
-          background: conic-gradient(
-            #000000 16.666%,
-            #000000 16.666%,
-            #a7489b 33.333%,
-            #000000 33.333%,
-            #000000 50%,
-            #000000 50%,
-            #000000 66.666%,
-            #a7489b 66.666%,
-            #ffee00 83.333%,
-            #a7489b 83.333%
-              /* #a7489b 66.666%,
-          #ff0000 83.333%,
-          #a7489b 83.333% */
-          );
-          /* Use the text as a mask for the background. */
-          /* This will show the gradient as a text color rather than element bg. */
-          background-clip: text;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        .chakra-ui-dark .rainbow-conic-text {
-          /* Create a conic gradient. */
-          /* Double percentages to avoid blur (#000 10%, #fff 10%, #fff 20%, ...). */
-          background: #ca4246;
-          background-color: #ca4246;
-          /* background: conic-gradient(
-          #ca4246 16.666%,
-          #ca4246 16.666%,
-          #ffee00 33.333%,
-          #ffee00 33.333%,
-          #a7489b 50%,
-          #8b9862 50%,
-          #8b9862 66.666%,
-          #ffee00 66.666%,
-          #81e6d9 83.333%,
-          #ffee00 83.333%
-        ); */
-          background: conic-gradient(
-            #ffffff 16.666%,
-            #ffffff 16.666%,
-            #ff0000 33.333%,
-            #ffffff 33.333%,
-            #ffffff 50%,
-            #ffffff 50%,
-            #81e6d9 66.666%,
-            #ffffff 66.666%,
-            #ffffff 83.333%,
-            #ffffff 83.333%
-          );
-          /* Use the text as a mask for the background. */
-          /* This will show the gradient as a text color rather than element bg. */
-          background-clip: text;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        /* Add animation on hover. */
-        .rainbow-conic-text:hover {
-          animation: rainbow-conic-text-animation 0.5s ease forwards;
-        }
-
-        /* Move the background and make it larger. */
-        /* Animation shown when hovering over the text. */
-        @keyframes rainbow-conic-text-animation {
-          0% {
-            background-size: 57%;
-            background-position: 0 0;
-          }
-          20% {
-            background-size: 57%;
-            background-position: 0 1em;
-          }
-          100% {
-            background-size: 300%;
-            background-position: -9em 1em;
-          }
-        }
-
-        /* Move the background and make it smaller. */
-        /* Animation shown when entering the page and after the hover animation. */
-        @keyframes rainbow-conic-text-animation-rev {
-          0% {
-            background-size: 300%;
-            background-position: -9em 1em;
-          }
-          20% {
-            background-size: 57%;
-            background-position: 0 1em;
-          }
-          100% {
-            background-size: 57%;
-            background-position: 0 0;
-          }
-        }
-        //#endregion
-
         //#region react-select
         .react-select-container {
           .react-select__control {
@@ -539,7 +314,7 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
         //#endregion
 
         //#region toast
-        .chakra-ui-light {
+        /* .chakra-ui-light {
           .chakra-toast {
             .chakra-alert {
               background: rgba(255, 255, 255, 0.66);
@@ -553,9 +328,244 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
               background: rgba(0, 0, 0, 0.66);
             }
           }
-        }
+        } */
         //#endregion
       `}
     />
   );
 };
+
+// //#region linear rainbow text
+// .rainbow-text {
+//   background-clip: text;
+//   -webkit-background-clip: text;
+//   /* background-image: linear-gradient(
+//     to left,
+//     indigo,
+//     indigo,
+//     blue,
+//     green,
+//     orange,
+//     orange,
+//     red
+//   ); */
+//   background-image: linear-gradient(
+//     to left,
+//     indigo,
+//     indigo,
+//     blue,
+//     green,
+//     green,
+//     red,
+//     red
+//   );
+//   color: transparent;
+//   -webkit-text-fill-color: transparent;
+// }
+// .rainbow-text.dark {
+//   background-image: linear-gradient(
+//     to left,
+//     violet,
+//     violet,
+//     white,
+//     green,
+//     yellow,
+//     orange,
+//     red
+//   );
+// }
+// .chakra-ui-dark .rainbow-text {
+//   background-image: linear-gradient(
+//     to left,
+//     violet,
+//     violet,
+//     white,
+//     green,
+//     yellow,
+//     orange,
+//     red
+//   );
+// }
+// .rainbow-text-animated {
+//   animation: rainbow 5s infinite;
+//   -ms-animation: rainbow 5s infinite;
+//   -webkit-animation: rainbow 5s infinite;
+//   @keyframes rainbow {
+//     0% {
+//       color: orange;
+//     }
+//     10% {
+//       color: purple;
+//     }
+//     20% {
+//       color: red;
+//     }
+//     30% {
+//       color: CadetBlue;
+//     }
+//     40% {
+//       color: yellow;
+//     }
+//     50% {
+//       color: coral;
+//     }
+//     60% {
+//       color: green;
+//     }
+//     70% {
+//       color: cyan;
+//     }
+//     80% {
+//       color: DeepPink;
+//     }
+//     90% {
+//       color: DodgerBlue;
+//     }
+//     100% {
+//       color: orange;
+//     }
+//   }
+// }
+// //#endregion
+
+// //#region rainbow-conic text
+// .rainbow-conic-text {
+//   cursor: default;
+//   /* Set the background size and repeat properties. */
+//   /* Animate the text when loading the element. */
+//   /* This animates it on page load and when hovering out. */
+//   animation: rainbow-conic-text-animation-rev 0.5s ease forwards;
+// }
+
+// .chakra-ui-light .rainbow-conic-text {
+//   /* Create a conic gradient. */
+//   /* Double percentages to avoid blur (#000 10%, #fff 10%, #fff 20%, ...). */
+//   /* background: #ffffff;
+// background-color: #ffffff; */
+//   background: conic-gradient(
+//     #000000 16.666%,
+//     #000000 16.666%,
+//     #a7489b 33.333%,
+//     #000000 33.333%,
+//     #000000 50%,
+//     #000000 50%,
+//     #000000 66.666%,
+//     #a7489b 66.666%,
+//     #ffee00 83.333%,
+//     #a7489b 83.333%
+//       /* #a7489b 66.666%,
+//   #ff0000 83.333%,
+//   #a7489b 83.333% */
+//   );
+//   /* Use the text as a mask for the background. */
+//   /* This will show the gradient as a text color rather than element bg. */
+//   background-clip: text;
+//   -webkit-background-clip: text;
+//   -webkit-text-fill-color: transparent;
+// }
+
+// .chakra-ui-dark .rainbow-conic-text {
+//   /* Create a conic gradient. */
+//   /* Double percentages to avoid blur (#000 10%, #fff 10%, #fff 20%, ...). */
+//   background: #ca4246;
+//   background-color: #ca4246;
+//   /* background: conic-gradient(
+//   #ca4246 16.666%,
+//   #ca4246 16.666%,
+//   #ffee00 33.333%,
+//   #ffee00 33.333%,
+//   #a7489b 50%,
+//   #8b9862 50%,
+//   #8b9862 66.666%,
+//   #ffee00 66.666%,
+//   #81e6d9 83.333%,
+//   #ffee00 83.333%
+// ); */
+//   background: conic-gradient(
+//     #ffffff 16.666%,
+//     #ffffff 16.666%,
+//     #ff0000 33.333%,
+//     #ffffff 33.333%,
+//     #ffffff 50%,
+//     #ffffff 50%,
+//     #81e6d9 66.666%,
+//     #ffffff 66.666%,
+//     #ffffff 83.333%,
+//     #ffffff 83.333%
+//   );
+//   /* Use the text as a mask for the background. */
+//   /* This will show the gradient as a text color rather than element bg. */
+//   background-clip: text;
+//   -webkit-background-clip: text;
+//   -webkit-text-fill-color: transparent;
+// }
+
+// /* Add animation on hover. */
+// .rainbow-conic-text:hover {
+//   animation: rainbow-conic-text-animation 0.5s ease forwards;
+// }
+
+// /* Move the background and make it larger. */
+// /* Animation shown when hovering over the text. */
+// @keyframes rainbow-conic-text-animation {
+//   0% {
+//     background-size: 57%;
+//     background-position: 0 0;
+//   }
+//   20% {
+//     background-size: 57%;
+//     background-position: 0 1em;
+//   }
+//   100% {
+//     background-size: 300%;
+//     background-position: -9em 1em;
+//   }
+// }
+
+// /* Move the background and make it smaller. */
+// /* Animation shown when entering the page and after the hover animation. */
+// @keyframes rainbow-conic-text-animation-rev {
+//   0% {
+//     background-size: 300%;
+//     background-position: -9em 1em;
+//   }
+//   20% {
+//     background-size: 57%;
+//     background-position: 0 1em;
+//   }
+//   100% {
+//     background-size: 57%;
+//     background-position: 0 0;
+//   }
+// }
+// //#endregion
+
+// //#region quill
+//    .ql-editor {
+//   padding: 0;
+
+//   a {
+//     text-decoration: underline;
+//   }
+
+//   a.clip {
+//     text-overflow: ellipsis;
+//     display: inline-block;
+//     white-space: nowrap;
+//     overflow: hidden;
+//     max-width: 75px;
+//     vertical-align: top;
+//   }
+
+//   blockquote {
+//     border-left: 4px solid #ccc;
+//     margin-bottom: 5px;
+//     margin-top: 5px;
+//     padding-left: 16px;
+//   }
+
+//   ul {
+//     padding: 0;
+//   }
+// }
+// //#endregion

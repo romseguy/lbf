@@ -17,7 +17,7 @@ import React, { useMemo, useState } from "react";
 import { FaRegMap } from "react-icons/fa";
 import { css } from "twin.macro";
 import { EntityButton, Link } from "features/common";
-import { scrollbarStyles, tableStyles } from "features/layout/theme";
+import { scrollbarCss, tableCss } from "features/layout/theme";
 import { MapModal } from "features/modals/MapModal";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { EOrgType, IOrg, orgTypeFull5, OrgTypes } from "models/Org";
@@ -84,10 +84,10 @@ export const OrgsList = ({
     <Box
       overflowX="auto"
       css={css`
-        ${scrollbarStyles}
+        ${scrollbarCss}
       `}
     >
-      <Table css={css(tableStyles)}>
+      <Table css={css(tableCss)}>
         <Thead>
           <Tr>
             {[

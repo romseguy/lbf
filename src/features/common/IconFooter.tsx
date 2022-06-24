@@ -5,12 +5,7 @@ import { Link } from "features/common";
 import { useAppDispatch } from "store";
 import { setIsContactModalOpen } from "store/modalSlice";
 
-export const IconFooter = ({
-  noContainer = false,
-  ...props
-}: BoxProps & {
-  noContainer?: boolean;
-}) => {
+export const IconFooter = ({ ...props }: BoxProps & {}) => {
   const dispatch = useAppDispatch();
   const label = "Contactez-nous  ͡❛ ͜ʖ ͡❛";
   const link = (

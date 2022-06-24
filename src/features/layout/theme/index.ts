@@ -1,117 +1,33 @@
 import { extendTheme } from "@chakra-ui/react";
-import { createBreakpoints, mode } from "@chakra-ui/theme-tools";
-import { Dict } from "@chakra-ui/utils";
-
-const fonts = { mono: `'Menlo', monospace` };
-
-export const breakpoints = createBreakpoints({
-  sm: "28em",
-  md: "40em",
-  lg: "52em",
-  xl: "64em",
-  "2xl": "80em",
-  nav: "1003px"
-});
-
-export const pxBreakpoints = {
-  sm: 448,
-  md: 640,
-  lg: 832,
-  xl: 1024,
-  "2xl": 1280
-};
-
-export const getViewportWidth = () => {
-  const screenWidth = window.innerWidth - 15;
-  let marginAround = 2 * (5 * 12 + 20 + 84);
-
-  if (screenWidth < pxBreakpoints["2xl"]) {
-    marginAround = 2 * (4 * 12 + 20);
-  }
-
-  return screenWidth - marginAround;
-};
-
-export const bannerWidth = 1154;
-export const logoHeight = 110;
-
-// https://stackoverflow.com/a/66926531
-export const scrollbarStyles = `
-  &::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  /* Thumb */
-  &::-webkit-scrollbar-thumb {
-    background: rgba(49, 151, 149, 0.35);
-    border-radius: 8px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: rgba(49, 151, 149, 1);
-  }
-
-  &::-webkit-scrollbar-thumb:active {
-    background: #2c7a7b;
-  }
-
-  &::-webkit-scrollbar-thumb:horizontal {
-    /*border-right: solid 2px rgba(33, 33, 33, 0.5);
-    border-left: solid 2px rgba(33, 33, 33, 0.5);*/
-  }
-
-  /* Buttons */
-  &::-webkit-scrollbar-button {
-    border-style: solid;
-    width: 16px;
-  }
-
-  /* Left */
-  &::-webkit-scrollbar-button:horizontal:decrement {
-    border-width: 5px 10px 5px 0;
-    border-color: transparent #319795 transparent transparent;
-  }
-
-  &::-webkit-scrollbar-button:horizontal:decrement:hover {
-    border-color: transparent #2c7a7b transparent transparent;
-  }
-
-  /* Right */
-  &::-webkit-scrollbar-button:horizontal:increment {
-    border-width: 5px 0 5px 10px;
-    border-color: transparent transparent transparent #319795;
-  }
-
-  &::-webkit-scrollbar-button:horizontal:increment:hover {
-    border-color: transparent transparent transparent #2c7a7b;
-  }
-`;
-
-export const tableStyles = `
-  th {
-    padding: 4px;
-  }
-  td {
-    padding: 8px;
-  }
-
-  @media (max-width: ${breakpoints.sm}) {
-    td,
-    th {
-      padding: 2px;
-    }
-    td {
-      padding-right: 12px;
-    }
-  }
-`;
+import { createBreakpoints } from "@chakra-ui/theme-tools";
+import { getStyleObjectFromString } from "utils/string";
+import { breakpoints } from "./breakpoints";
+import { rainbowTextCss } from "./css";
 
 const theme = extendTheme({
+  breakpoints: createBreakpoints(breakpoints),
+  colors: {
+    black: "#16161D"
+  },
   components: {
+    // https://stackoverflow.com/questions/68531930/style-chakra-ui-formcontrol-and-label-at-application-theme-level
+    Form: {
+      // The styles all button have in common
+      parts: ["container"],
+      baseStyle: {
+        /// The container styles the FormControl
+        container: {
+          display: "flex",
+          flexDirection: "column"
+        }
+      }
+    },
     FormLabel: {
       baseStyle: {
-        fontWeight: "bold"
+        alignSelf: "flex-start",
+        //display: "inline",
+        ...getStyleObjectFromString(rainbowTextCss(false)),
+        ".chakra-ui-dark &": getStyleObjectFromString(rainbowTextCss(true))
       }
     },
     Input: {
@@ -222,14 +138,10 @@ const theme = extendTheme({
       }
     }
   },
-  styles: {
-    global: (props: Dict) => ({})
-  },
-  colors: {
-    black: "#16161D"
-  },
-  fonts,
-  breakpoints
+  fonts: { mono: `'Menlo', monospace` }
 });
 
+export * from "./breakpoints";
+export * from "./css";
+export * from "./size";
 export default theme;

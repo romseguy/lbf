@@ -29,7 +29,6 @@ export const LoginFormModal = (props: {
   const { register, control, errors, handleSubmit, setValue, watch } =
     useForm();
   const email = watch("email");
-  console.log(email);
   //#endregion
 
   const onSubmit = async (form: { email: string }) => {
@@ -63,8 +62,9 @@ export const LoginFormModal = (props: {
           <ModalCloseButton />
           <ModalBody pt={0}>
             <Alert status="info" mb={3}>
-              <AlertIcon /> Pour vous connecter, pas besoin de s'inscrire,
-              saisissez simplement votre adresse e-mail ci-dessous :
+              <AlertIcon /> Pour vous connecter à votre compte Koala, pas besoin
+              d'inscription, saisissez simplement votre adresse e-mail
+              ci-dessous :
             </Alert>
 
             <form onSubmit={handleSubmit(onSubmit)}>

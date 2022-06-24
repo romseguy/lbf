@@ -98,7 +98,7 @@ export const Nav = ({
                 </Td>
                 <Td border={0} p={0}>
                   {!isSessionLoading && (
-                    <Heading ml="auto">
+                    <Heading containerProps={{ ml: "auto" }}>
                       {session ? "L'univers de mon koala" : "Connexion"}
                     </Heading>
                   )}
@@ -167,15 +167,6 @@ export const Nav = ({
 
                         {!isSessionLoading && !session && (
                           <>
-                            {/* <EmailLoginPopover
-                            iconProps={{ boxSize: [8, 10, 10] }}
-                            popoverProps={
-                              isMobile ? {} : { offset: [-140, -25] }
-                            }
-                            ml={2}
-                            mr={3}
-                          /> */}
-
                             <Tooltip label="Connexion">
                               <IconButton
                                 aria-label="Connexion"
@@ -293,11 +284,6 @@ export const Nav = ({
                     <Flex mt={2}>
                       {!session && (
                         <>
-                          {/* <EmailLoginPopover
-                          iconProps={{ boxSize: 8 }}
-                          popoverProps={{ offset: [100, -20] }}
-                        /> */}
-
                           <Tooltip label="Connexion">
                             <IconButton
                               aria-label="Connexion"
@@ -388,3 +374,25 @@ export const Nav = ({
     </>
   );
 };
+
+{
+  /*
+    <EmailLoginPopover
+      iconProps={{ boxSize: [8, 10, 10] }}
+      popoverProps={
+        isMobile ? {} : { offset: [-140, -25] }
+      }
+      ml={2}
+      mr={3}
+    />
+  */
+}
+
+{
+  /*
+    <EmailLoginPopover
+      iconProps={{ boxSize: 8 }}
+      popoverProps={{ offset: [100, -20] }}
+    />
+  */
+}

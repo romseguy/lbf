@@ -6,9 +6,9 @@ import { getAuthToken, sealOptions, TOKEN_NAME } from "./";
 type UserMetadata = {
   email: string;
   userId: string;
-  userImage: Base64Image;
+  userImage?: Base64Image;
   userName: string;
-  isAdmin: boolean;
+  isAdmin?: boolean;
 };
 
 export type Session = {
@@ -31,7 +31,10 @@ export const SessionContext = createContext<
 export async function getSession(params?: any): Promise<Session | null> {
   const cookies = params.req.cookies;
 
-  if (!cookies[TOKEN_NAME]) return null;
+  if (!cookies[TOKEN_NAME]) {
+    if (process.env.NODE_ENV === "development") return devSession;
+    return null;
+  }
 
   const user = await Iron.unseal(
     getAuthToken(cookies),
@@ -43,3 +46,11 @@ export async function getSession(params?: any): Promise<Session | null> {
 
   return { user };
 }
+
+export const devSession = {
+  user: {
+    email: "rom.seguy@gmail.com",
+    userId: "61138a879544b000088318ae",
+    userName: "romseguy66"
+  }
+};

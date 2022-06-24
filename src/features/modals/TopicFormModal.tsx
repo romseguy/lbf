@@ -1,4 +1,4 @@
-import { EditIcon, AddIcon } from "@chakra-ui/icons";
+import { EditIcon, AddIcon, SmallAddIcon, ChatIcon } from "@chakra-ui/icons";
 import {
   ModalOverlay,
   ModalContent,
@@ -33,11 +33,13 @@ export const TopicFormModal = (props: {
           <ModalHeader display="flex" alignItems="center">
             {props.topic ? (
               <>
-                <EditIcon mr={3} /> Modifier la discussion
+                <EditIcon />
+                <ChatIcon mr={3} /> Modifier la discussion
               </>
             ) : (
               <>
-                <AddIcon mr={3} />
+                <SmallAddIcon />
+                <ChatIcon mr={3} />
                 Ajouter une discussion
               </>
             )}

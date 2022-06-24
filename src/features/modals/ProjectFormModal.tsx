@@ -1,4 +1,6 @@
+import { EditIcon, SmallAddIcon } from "@chakra-ui/icons";
 import {
+  Icon,
   ModalOverlay,
   ModalContent,
   ModalHeader,
@@ -6,6 +8,7 @@ import {
   ModalCloseButton
 } from "@chakra-ui/react";
 import React from "react";
+import { FaTools } from "react-icons/fa";
 import { Modal } from "features/common";
 import { ProjectForm } from "features/forms/ProjectForm";
 import { IOrg } from "models/Org";
@@ -26,8 +29,19 @@ export const ProjectFormModal = (props: {
     <Modal {...props} isOpen closeOnOverlayClick={false}>
       <ModalOverlay>
         <ModalContent maxWidth="xl">
-          <ModalHeader>
-            {props.project ? "Modifier le projet" : "Ajouter un projet"}
+          <ModalHeader display="flex" alignItems="center">
+            {props.project ? (
+              <>
+                <EditIcon />
+                <Icon as={FaTools} mr={3} /> Modifier la discussion
+              </>
+            ) : (
+              <>
+                <SmallAddIcon />
+                <Icon as={FaTools} mr={3} />
+                Ajouter une discussion
+              </>
+            )}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>

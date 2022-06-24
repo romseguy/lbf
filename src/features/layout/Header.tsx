@@ -20,11 +20,13 @@ import { HeaderTitle } from "./HeaderTitle";
 export const Header = ({
   defaultTitle,
   entity,
+  pageHeader,
   pageTitle,
   ...props
 }: FlexProps & {
   defaultTitle: string;
   entity?: IEntity;
+  pageHeader?: React.ReactNode;
   pageTitle?: string;
 }) => {
   const { colorMode } = useColorMode();
@@ -111,7 +113,11 @@ export const Header = ({
       )}
 
       {(!entity || showTitle) && (
-        <HeaderTitle entity={entity} pageTitle={pageTitle || defaultTitle} />
+        <HeaderTitle
+          entity={entity}
+          pageHeader={pageHeader}
+          pageTitle={pageTitle || defaultTitle}
+        />
       )}
 
       {isE && typeof entity.eventCategory === "string" && (

@@ -5,6 +5,8 @@ import {
   HeadingProps,
   useColorMode
 } from "@chakra-ui/react";
+import { css } from "twin.macro";
+import { rainbowTextCss } from "features/layout/theme";
 
 export const Heading = ({
   children,
@@ -22,10 +24,10 @@ export const Heading = ({
   const isDark = colorMode === "dark";
   const element = (
     <ChakraHeading
-      className={`rainbow-text ${isDark ? "dark" : ""}`}
       fontFamily="DancingScript"
       fontSize={smaller ? "2xl" : ["2xl", "4xl"]}
       pl={1}
+      css={css(rainbowTextCss(isDark))}
       {...props}
     >
       {children}
@@ -34,5 +36,5 @@ export const Heading = ({
 
   if (noContainer) return element;
 
-  return <Flex>{element}</Flex>;
+  return <Flex {...containerProps}>{element}</Flex>;
 };
