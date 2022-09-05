@@ -26,8 +26,6 @@ export const EventsListCategories = ({
   selectedCategories,
   setSelectedCategories,
   isCreator,
-  // isLogin,
-  // setIsLogin,
   ...props
 }: SpaceProps & {
   events: IEvent<string | Date>[];
@@ -35,8 +33,6 @@ export const EventsListCategories = ({
   selectedCategories: string[];
   setSelectedCategories: (selectedCategories: string[]) => void;
   isCreator: boolean;
-  // isLogin: number;
-  // setIsLogin: (isLogin: number) => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -227,7 +223,7 @@ export const EventsListCategories = ({
             size="xs"
             onClick={async () => {
               if (!session) {
-                setIsLogin(isLogin + 1);
+                router.push("/login", "/login", { shallow: true });
               } else {
                 const category = prompt(
                   "Entrez le nom de la nouvelle catégorie que vous voulez proposer"

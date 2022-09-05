@@ -30,7 +30,7 @@ export const EntityTag = ({
   const isDark = colorMode === "dark";
   const isE = isEvent(entity);
   const [isLoading, setIsLoading] = useState(false);
-  const canDelete = true;
+  const canDelete = !!onCloseClick;
 
   const [deleteOrg, _] = useDeleteOrgMutation();
   const [deleteEvent, __] = useDeleteEventMutation();

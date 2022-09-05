@@ -204,7 +204,7 @@ export async function getServerSideProps(
     let entityUrl = ctx.query.name[0];
 
     if (entityUrl === "login")
-      return { redirect: { permanent: false, destination: "/?login" } };
+      return { redirect: { permanent: false, destination: "/login" } };
 
     if (entityUrl.indexOf(" ") !== -1) {
       const destination = `/${entityUrl.replace(/\ /g, "_")}`;

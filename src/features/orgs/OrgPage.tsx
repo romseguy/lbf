@@ -1,33 +1,16 @@
-import { ArrowBackIcon, EditIcon, Icon, SettingsIcon } from "@chakra-ui/icons";
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Flex,
-  Input,
-  Spinner,
-  Text,
-  useToast
-} from "@chakra-ui/react";
+import { ArrowBackIcon, SettingsIcon } from "@chakra-ui/icons";
+import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useDeleteOrgMutation, useGetOrgsQuery } from "features/api/orgsApi";
-import { Button, Column, DeleteButton, Heading, Link } from "features/common";
+import { Button, Link } from "features/common";
 import { Forum } from "features/forum/Forum";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { PageProps } from "main";
 import { getRefId } from "models/Entity";
-import {
-  EOrgType,
-  getNetworks,
-  IOrg,
-  orgTypeFull,
-  orgTypeFull5
-} from "models/Org";
+import { IOrg } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { selectOrgRefetch } from "store/orgSlice";
 import { AppQuery, AppQueryWithData } from "utils/types";
@@ -35,6 +18,12 @@ import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 
 let cachedRefetchOrg = false;
+
+export interface IsEditConfig {
+  isAddingChild?: boolean;
+  isAddingDescription?: boolean;
+  isAddingInfo?: boolean;
+}
 
 export const OrgPage = ({
   isMobile,
@@ -49,10 +38,6 @@ export const OrgPage = ({
   tab?: string;
   tabItem?: string;
 }) => {
-  const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
-  const router = useRouter();
-  const toast = useToast({ position: "top" });
-
   //#region org
   const org = orgQuery.data;
   const isCreator =
@@ -72,9 +57,17 @@ export const OrgPage = ({
 
   //#region local state
   const [isConfig, setIsConfig] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(true);
-  const [isLogin, setIsLogin] = useState(0);
-  const [isEdit, setIsEdit] = useState(false);
+  const [isEdit, _setIsEdit] = useState(false);
+  const [isEditConfig, setIsEditConfig] = useState<IsEditConfig>({});
+  const setIsEdit = (arg: boolean | IsEditConfig) => {
+    if (typeof arg === "boolean") {
+      _setIsEdit(arg);
+      if (!arg) setIsEditConfig({});
+    } else {
+      setIsEdit(Object.keys(arg).length > 0);
+      setIsEditConfig(arg);
+    }
+  };
   //#endregion
 
   //#region cross refetch
@@ -121,134 +114,43 @@ export const OrgPage = ({
     if (!isCreator) return null;
 
     return (
-      <Column mb={3}>
-        <Heading mb={3}>Configuration {orgTypeFull(org.orgType)}</Heading>
+      <>
+        {/* <Column mb={3}>
+         <Heading mb={3}>Configuration {orgTypeFull(org.orgType)}</Heading> */}
+
         {!isConfig && !isEdit && (
           <Flex flexDirection={isMobile ? "column" : "row"}>
-            <Flex mb={isMobile ? 3 : 0}>
+            <Flex mb={isMobile ? 3 : 3}>
               <Button
-                colorScheme="teal"
+                colorScheme="red"
                 leftIcon={
                   <SettingsIcon boxSize={6} data-cy="org-settings-button" />
                 }
-                mr={3}
                 onClick={() => setIsConfig(true)}
               >
-                Paramètres
+                Configurer
               </Button>
-            </Flex>
-
-            <Flex mb={isMobile ? 3 : 0}>
-              <Button
-                colorScheme="teal"
-                leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-                mr={3}
-                onClick={() => {
-                  setIsEdit(true);
-                  toggleVisibility();
-                }}
-                data-cy="orgEdit"
-              >
-                Modifier
-              </Button>
-            </Flex>
-
-            <Flex>
-              <DeleteButton
-                isDisabled={isDisabled}
-                isLoading={deleteQuery.isLoading}
-                label={`${
-                  org.orgType === EOrgType.NETWORK ? "Détruire" : "Déraciner"
-                } ${orgTypeFull5(org.orgType)}`}
-                header={
-                  <>
-                    Vous êtes sur le point de{" "}
-                    {org.orgType === EOrgType.NETWORK
-                      ? "détruire la planète"
-                      : "déraciner l'arbre"}{" "}
-                    <Text display="inline" color="red" fontWeight="bold">
-                      {` ${org.orgName}`}
-                    </Text>
-                  </>
-                }
-                body={
-                  <>
-                    <Alert status="warning">
-                      <AlertIcon />
-                      <Box>
-                        Toutes les données associées à{" "}
-                        {orgTypeFull5(org.orgType)} seront supprimées. Cette
-                        action est <strong>irréversible</strong> !
-                      </Box>
-                    </Alert>
-                    <Text mb={1} mt={3}>
-                      <strong>Confirmez</strong> en saisissant le nom{" "}
-                      {orgTypeFull(org.orgType)} :
-                    </Text>
-                    <Input
-                      autoComplete="off"
-                      onChange={(e) =>
-                        setIsDisabled(
-                          e.target.value.toLowerCase() !==
-                            org.orgName.toLowerCase()
-                        )
-                      }
-                    />
-                  </>
-                }
-                onClick={async () => {
-                  try {
-                    const deletedOrg = await deleteOrg(org._id).unwrap();
-
-                    if (deletedOrg) {
-                      await router.push(`/`);
-                      toast({
-                        title: `${orgTypeFull5(deletedOrg.orgType, true)} ${
-                          deletedOrg.orgName
-                        } a été ${
-                          deletedOrg.orgType === EOrgType.NETWORK
-                            ? "détruite"
-                            : "déraciné"
-                        } !`,
-                        status: "success"
-                      });
-                    }
-                  } catch (error: any) {
-                    toast({
-                      title: error.data ? error.data.message : error.message,
-                      status: "error"
-                    });
-                  }
-                }}
-              />
             </Flex>
           </Flex>
         )}
 
-        {!isConfig && isEdit && (
+        {(isConfig || isEdit) && (
           <Button
             canWrap
             colorScheme="teal"
             leftIcon={<ArrowBackIcon boxSize={6} />}
-            onClick={() => setIsEdit(false)}
-          >
-            Retour
-          </Button>
-        )}
-
-        {isConfig && !isEdit && (
-          <Button
-            canWrap
-            colorScheme="teal"
-            leftIcon={<ArrowBackIcon boxSize={6} />}
-            onClick={() => setIsConfig(false)}
-            mb={2}
+            onClick={() => {
+              if (isEdit) setIsEdit(false);
+              else setIsConfig(false);
+            }}
+            mb={3}
           >
             {/* {`Revenir à ${orgTypeFull5(org.orgType)}`} */}
             Retour
           </Button>
         )}
-      </Column>
+        {/* </Column> */}
+      </>
     );
   };
 
@@ -280,22 +182,11 @@ export const OrgPage = ({
 
   if (org.orgUrl === "forum") {
     return (
-      <Layout
-        entity={org}
-        isLogin={isLogin}
-        isMobile={isMobile}
-        session={session}
-      >
+      <Layout entity={org} isMobile={isMobile} session={session}>
         {configButtons()}
 
         {!isConfig && !isEdit && (
-          <Forum
-            isLogin={isLogin}
-            setIsLogin={setIsLogin}
-            orgQuery={orgQuery}
-            subQuery={subQuery}
-            tabItem={tabItem}
-          />
+          <Forum orgQuery={orgQuery} subQuery={subQuery} tabItem={tabItem} />
         )}
 
         {session && isCreator && (isConfig || isEdit) && (
@@ -304,6 +195,7 @@ export const OrgPage = ({
             orgQuery={orgQuery}
             subQuery={subQuery}
             isEdit={isEdit}
+            isMobile={isMobile}
             isVisible={isVisible}
             setIsConfig={setIsConfig}
             setIsEdit={setIsEdit}
@@ -315,29 +207,26 @@ export const OrgPage = ({
   }
 
   return (
-    <Layout
-      entity={org}
-      isLogin={isLogin}
-      isMobile={isMobile}
-      session={session}
-    >
+    <Layout entity={org} isMobile={isMobile} session={session}>
       {configButtons()}
 
       {subscribeButtons()}
 
-      <Box my={3}>
-        <Text fontSize="smaller">
-          Organisation ajoutée le{" "}
-          {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
-            locale: fr
-          })}{" "}
-          par :{" "}
-          <Link variant="underline" href={`/${orgCreatedByUserName}`}>
-            {orgCreatedByUserName}
-          </Link>{" "}
-          {isCreator && session && !session.user.isAdmin && "(Vous)"}
-        </Text>
-      </Box>
+      {!isEdit && !isConfig && (
+        <Box my={3}>
+          <Text fontSize="smaller">
+            Organisation ajoutée le{" "}
+            {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
+              locale: fr
+            })}{" "}
+            par :{" "}
+            <Link variant="underline" href={`/${orgCreatedByUserName}`}>
+              {orgCreatedByUserName}
+            </Link>{" "}
+            {isCreator && session && !session.user.isAdmin && "(Vous)"}
+          </Text>
+        </Box>
+      )}
 
       {!isConfig && !isEdit && (
         <OrgPageTabs
@@ -345,9 +234,7 @@ export const OrgPage = ({
           currentTabLabel={tab}
           isCreator={isCreator}
           isFollowed={isFollowed}
-          isLogin={isLogin}
           isMobile={isMobile}
-          setIsLogin={setIsLogin}
           orgQuery={orgQuery}
           session={session}
           setIsConfig={setIsConfig}
@@ -356,18 +243,23 @@ export const OrgPage = ({
         />
       )}
 
-      {session && isCreator && (isConfig || isEdit) && (
-        <OrgConfigPanel
-          session={session}
-          orgQuery={orgQuery}
-          subQuery={subQuery}
-          isEdit={isEdit}
-          isVisible={isVisible}
-          setIsConfig={setIsConfig}
-          setIsEdit={setIsEdit}
-          toggleVisibility={toggleVisibility}
-        />
-      )}
+      {session &&
+        (isCreator || !!org.orgPermissions) &&
+        (isConfig || isEdit) && (
+          <OrgConfigPanel
+            session={session}
+            orgQuery={orgQuery}
+            subQuery={subQuery}
+            isCreator={isCreator}
+            isEdit={isEdit}
+            isEditConfig={isEditConfig}
+            isMobile={isMobile}
+            isVisible={isVisible}
+            setIsConfig={setIsConfig}
+            setIsEdit={setIsEdit}
+            toggleVisibility={toggleVisibility}
+          />
+        )}
     </Layout>
   );
 };

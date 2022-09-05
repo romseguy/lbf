@@ -12,6 +12,7 @@ import { EventForm } from "features/forms/EventForm";
 import { IEvent } from "models/Event";
 import { Session } from "utils/auth";
 import { AppQueryWithData } from "utils/types";
+import { EventConfigButtons } from "./EventConfigButtons";
 
 export type EventConfigVisibility = {
   isVisible: Record<string, boolean>;
@@ -25,6 +26,7 @@ export const EventConfigPanel = ({
   session,
   eventQuery,
   isEdit,
+  isMobile,
   isVisible,
   setIsConfig,
   setIsEdit,
@@ -33,6 +35,7 @@ export const EventConfigPanel = ({
   session: Session;
   eventQuery: AppQueryWithData<IEvent>;
   isEdit: boolean;
+  isMobile: boolean;
   setIsConfig: (isConfig: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
 }) => {
@@ -68,6 +71,15 @@ export const EventConfigPanel = ({
 
       {!isEdit && (
         <>
+          <EventConfigButtons
+            isEdit={isEdit}
+            isMobile={isMobile}
+            isVisible={isVisible}
+            eventQuery={eventQuery}
+            setIsEdit={setIsEdit}
+            toggleVisibility={toggleVisibility}
+          />
+
           <Column mb={3} pt={1}>
             <Heading mb={1}>Apparence</Heading>
 

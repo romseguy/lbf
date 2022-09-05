@@ -18,6 +18,7 @@ export type AddOrgPayload = Pick<
   | "orgEmail"
   | "orgPhone"
   | "orgWeb"
+  | "orgPermissions"
 >;
 
 export type EditOrgPayload = Partial<IOrg> | string[];

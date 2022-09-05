@@ -6,10 +6,12 @@ import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { EOrgType } from "models/Org";
 
 export const EntityAddButton = ({
+  label,
   orgType = EOrgType.GENERIC,
   onClose,
   ...props
 }: ButtonProps & {
+  label?: string;
   orgType?: EOrgType;
   onClose?: () => void;
 }) => {
@@ -36,7 +38,7 @@ export const EntityAddButton = ({
         data-cy="org-add-button"
         {...props}
       >
-        Ajouter une planète
+        {label || "Ajouter une planète"}
       </Button>
     );
 
@@ -60,7 +62,7 @@ export const EntityAddButton = ({
       data-cy="org-add-button"
       {...props}
     >
-      Ajouter un arbre
+      {label || "Ajouter un arbre"}
     </Button>
   );
 };

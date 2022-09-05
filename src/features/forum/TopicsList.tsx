@@ -12,6 +12,7 @@ import {
   useColorMode,
   useToast
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Button, Grid, Heading } from "features/common";
 import {
@@ -43,8 +44,6 @@ import { TopicCategoryTag } from "./TopicCategoryTag";
 export const TopicsList = ({
   query,
   subQuery,
-  isLogin,
-  setIsLogin,
   currentTopicName,
   ...props
 }: GridProps & {
@@ -52,12 +51,11 @@ export const TopicsList = ({
   subQuery: AppQuery<ISubscription>;
   isCreator: boolean;
   isFollowed?: boolean;
-  isLogin: number;
-  setIsLogin: (isLogin: number) => void;
   currentTopicName?: string;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
   const [addSubscription] = useAddSubscriptionMutation();
@@ -274,7 +272,7 @@ export const TopicsList = ({
                 //setCurrentTopic(null);
                 setTopicModalState({ ...topicModalState, isOpen: true });
               } else {
-                setIsLogin(isLogin + 1);
+                router.push("/login", "/login", { shallow: true });
               }
             }
           }}
@@ -460,7 +458,9 @@ export const TopicsList = ({
                 onEditClick={onEditClick}
                 onNotifClick={onNotifClick}
                 onSubscribeClick={onSubscribeClick}
-                onLoginClick={() => setIsLogin(isLogin + 1)}
+                onLoginClick={() => {
+                  router.push("/login", "/login", { shallow: true });
+                }}
               />
             );
           })

@@ -15,6 +15,8 @@ import { Session } from "utils/auth";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
+import { IsEditConfig } from "./OrgPage";
+import { OrgConfigButtons } from "./OrgConfigButtons";
 
 export type OrgConfigVisibility = {
   isVisible: Record<string, boolean>;
@@ -28,7 +30,10 @@ export const OrgConfigPanel = ({
   session,
   orgQuery,
   subQuery,
+  isCreator,
   isEdit,
+  isEditConfig,
+  isMobile,
   isVisible,
   setIsConfig,
   setIsEdit,
@@ -37,9 +42,12 @@ export const OrgConfigPanel = ({
   session: Session;
   orgQuery: AppQueryWithData<IOrg>;
   subQuery: AppQuery<ISubscription>;
+  isCreator?: boolean;
   isEdit: boolean;
+  isEditConfig?: IsEditConfig;
+  isMobile: boolean;
   setIsConfig: (isConfig: boolean) => void;
-  setIsEdit: (isEdit: boolean) => void;
+  setIsEdit: (arg: boolean | IsEditConfig) => void;
 }) => {
   const org = orgQuery.data;
   const router = useRouter();
@@ -52,11 +60,13 @@ export const OrgConfigPanel = ({
       {isEdit && (
         <Column>
           <OrgForm
+            isCreator={isCreator}
+            isEditConfig={isEditConfig}
             session={session}
             orgQuery={orgQuery as AppQuery<IOrg>}
             onCancel={() => {
               setIsEdit(false);
-              setIsConfig(false);
+              //setIsConfig(false);
             }}
             onSubmit={async (orgUrl: string) => {
               localStorage.removeItem("storageKey");
@@ -76,6 +86,15 @@ export const OrgConfigPanel = ({
 
       {!isEdit && (
         <>
+          <OrgConfigButtons
+            isEdit={isEdit}
+            isMobile={isMobile}
+            isVisible={isVisible}
+            orgQuery={orgQuery}
+            setIsEdit={setIsEdit}
+            toggleVisibility={toggleVisibility}
+          />
+
           <Column mb={3} pt={1}>
             <Heading>Apparence</Heading>
 

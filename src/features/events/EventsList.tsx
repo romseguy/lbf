@@ -49,15 +49,11 @@ export const EventsList = ({
   events,
   orgQuery,
   isCreator = false,
-  isLogin,
-  setIsLogin,
   setTitle
 }: BoxProps & {
   events: IEvent[];
   orgQuery?: AppQueryWithData<IOrg>;
   isCreator?: boolean;
-  isLogin: number;
-  setIsLogin: (isLogin: number) => void;
   setTitle?: (title?: string) => void;
 }) => {
   const router = useRouter();
@@ -247,8 +243,6 @@ export const EventsList = ({
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
                 isCreator={isCreator}
-                // isLogin={isLogin}
-                // setIsLogin={setIsLogin}
               />
             </Flex>
           )}
@@ -567,7 +561,9 @@ export const EventsList = ({
                   } else {
                     router.push(url, url, { shallow: true });
                   }
-                } else setIsLogin(isLogin + 1);
+                } else {
+                  router.push("/login", "/login", { shallow: true });
+                }
               }
             }}
             data-cy="addEvent"

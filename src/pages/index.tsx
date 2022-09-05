@@ -17,9 +17,9 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";
-import { FaRegMap, FaTree, FaFile } from "react-icons/fa";
+import { FaRegMap, FaTree, FaFile, FaTools } from "react-icons/fa";
 import { IoIosGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { useGetOrgsQuery } from "features/api/orgsApi";
@@ -50,9 +50,9 @@ const IndexPage = (props: PageProps) => {
   const isDark = colorMode === "dark";
   const router = useRouter();
   const userEmail = useSelector(selectUserEmail);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [isListOpen, setIsListOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLogin, setIsLogin] = useState(0);
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const ref = useOnclickOutside(() => {
     if (isTooltipOpen) setIsTooltipOpen(false);
@@ -75,10 +75,6 @@ const IndexPage = (props: PageProps) => {
   const subQuery = useGetSubscriptionQuery({
     email: userEmail
   }) as AppQuery<ISubscription>;
-  useEffect(() => {
-    if (router.asPath === "/?login") setIsLogin(isLogin + 1);
-    subQuery.refetch();
-  }, [router.asPath]);
   useEffect(() => {
     if (cachedUserEmail !== userEmail) {
       cachedUserEmail = userEmail;
@@ -134,76 +130,104 @@ const IndexPage = (props: PageProps) => {
   };
 
   return (
-    <Layout {...props} isLogin={isLogin} pageTitle="Accueil">
-      <Column {...columnProps}>
-        <Heading mb={3}>Premiers pas</Heading>
-        {!props.session && (
-          <Flex ref={ref}>
-            <LoginButton
-              mb={3}
-              size={props.isMobile ? "xs" : undefined}
-              onClick={() => {
-                setIsLogin(isLogin + 1);
-              }}
-            >
-              Connectez-vous à votre compte Koala
-            </LoginButton>
-            <Tooltip
-              label="Un Koala vous permet de créer des planètes, afin de partager des informations et inviter d'autres Koalas à discuter et à collaborer."
-              isOpen={isTooltipOpen}
-            >
-              <IconButton
-                aria-label="Qu'est ce qu'un Koala"
-                background="transparent"
-                _hover={{ background: "transparent" }}
-                minWidth={0}
-                height="auto"
-                icon={<QuestionIcon />}
-                boxSize={props.isMobile ? 6 : 10}
-                color="purple"
-                onMouseEnter={
-                  props.isMobile ? undefined : () => setIsTooltipOpen(true)
-                }
-                onMouseLeave={
-                  props.isMobile ? undefined : () => setIsTooltipOpen(false)
-                }
-                onClick={() => setIsTooltipOpen(!isTooltipOpen)}
+    <Layout {...props} pageTitle="Accueil">
+      <Column
+        {...columnProps}
+        cursor="pointer"
+        _hover={{ backgroundColor: "white" }}
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        <Flex alignItems="center" mb={2}>
+          <Heading>Premiers pas</Heading>
+          {isCollapsed ? (
+            <ChevronRightIcon boxSize={9} mt={2} />
+          ) : (
+            <ChevronUpIcon boxSize={9} mt={2} />
+          )}
+        </Flex>
+
+        {!isCollapsed && (
+          <>
+            {!props.session && !props.isSessionLoading && (
+              <Flex ref={ref}>
+                <LoginButton
+                  mb={3}
+                  size={props.isMobile ? "xs" : undefined}
+                  onClick={() => {
+                    router.push("/login", "/login", { shallow: true });
+                  }}
+                >
+                  Connectez-vous à votre compte Koala
+                </LoginButton>
+                <Tooltip
+                  label="Un Koala vous permet de créer des planètes, afin de partager des informations et inviter d'autres Koalas à discuter et à collaborer."
+                  isOpen={isTooltipOpen}
+                >
+                  <IconButton
+                    aria-label="Qu'est ce qu'un Koala"
+                    background="transparent"
+                    _hover={{ background: "transparent" }}
+                    minWidth={0}
+                    height="auto"
+                    icon={<QuestionIcon />}
+                    boxSize={props.isMobile ? 6 : 10}
+                    color="purple"
+                    onMouseEnter={
+                      props.isMobile ? undefined : () => setIsTooltipOpen(true)
+                    }
+                    onMouseLeave={
+                      props.isMobile ? undefined : () => setIsTooltipOpen(false)
+                    }
+                    onClick={() => setIsTooltipOpen(!isTooltipOpen)}
+                  />
+                </Tooltip>
+              </Flex>
+            )}
+
+            <Flex>
+              <EntityAddButton
+                label="Ajoutez une planète"
+                orgType={EOrgType.NETWORK}
+                size={props.isMobile ? "xs" : "md"}
+                mb={3}
               />
-            </Tooltip>
-          </Flex>
+            </Flex>
+
+            <Heading mb={3}>Et créez :</Heading>
+
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <ChatIcon mr={1} />
+              des discussions,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <CalendarIcon mr={1} />
+              des événements,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <Icon as={FaTools} mr={1} />
+              des projets,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <Icon as={FaFile} mr={1} />
+              des fichiers,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <Icon as={FaTree} color="green" mr={1} /> des arbres.
+            </Flex>
+          </>
         )}
-        <Flex>
-          <EntityAddButton
-            orgType={EOrgType.NETWORK}
-            size={props.isMobile ? "xs" : "md"}
-            mb={3}
-          />
-        </Flex>
-        <Flex alignItems="center">
-          <SmallAddIcon />
-          <ChatIcon mr={1} />
-          Ajoutez des discussions à votre planète,
-        </Flex>
-        <Flex alignItems="center">
-          <SmallAddIcon />
-          <CalendarIcon mr={1} />
-          des événements,
-        </Flex>
-        <Flex alignItems="center">
-          <SmallAddIcon />
-          <Icon as={FaFile} mr={1} />
-          des fichiers,
-        </Flex>
-        <Flex alignItems="center">
-          <SmallAddIcon />
-          <Icon as={FaTree} color="green" mr={1} /> des arbres, et accédez de
-          nouveau à ces fonctionnalités.
-        </Flex>
       </Column>
 
       <Column {...columnProps}>
         <Flex alignItems="center">
-          <Heading mb={3}>L'univers des koalas</Heading>
+          <Heading mb={3}>
+            L'univers {process.env.NEXT_PUBLIC_SHORT_URL}
+          </Heading>
           {/* <HostTag ml={1} /> */}
         </Flex>
 
@@ -250,7 +274,11 @@ const IndexPage = (props: PageProps) => {
 
             {isListOpen && (
               <Column bg={isDark ? "black" : "white"}>
-                <OrgsList query={orgsQuery} subQuery={subQuery} />
+                <OrgsList
+                  isMobile={props.isMobile}
+                  query={orgsQuery}
+                  subQuery={subQuery}
+                />
               </Column>
             )}
           </>

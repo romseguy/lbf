@@ -2,6 +2,7 @@ import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
+  Icon,
   IconButton,
   Spinner,
   Table,
@@ -14,7 +15,7 @@ import {
   useColorMode
 } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
-import { FaRegMap } from "react-icons/fa";
+import { FaGlobeEurope, FaMapMarkedAlt } from "react-icons/fa";
 import { css } from "twin.macro";
 import { EntityButton, Link } from "features/common";
 import { scrollbarCss, tableCss } from "features/layout/theme";
@@ -26,10 +27,12 @@ import { IUser } from "models/User";
 import { AppQuery } from "utils/types";
 
 export const OrgsList = ({
+  isMobile,
   query,
   subQuery,
   orgType = EOrgType.NETWORK
 }: {
+  isMobile?: boolean;
   query: AppQuery<IOrg | IOrg[]>;
   subQuery: AppQuery<ISubscription>;
   orgType?: EOrgType;
@@ -57,10 +60,14 @@ export const OrgsList = ({
         ? [...data].sort((a, b) => {
             const key = selectedOrder?.key || "orgName";
             const order = selectedOrder?.order || "asc";
-            //@ts-expect-error
-            const valueA = a[key]?.toLowerCase() || "";
-            //@ts-expect-error
-            const valueB = b[key]?.toLowerCase() || "";
+
+            let valueA = a[key as keyof IOrg];
+            if (typeof valueA === "string") valueA = valueA.toLowerCase();
+            else valueA = (valueA as IUser).userName.toLowerCase();
+
+            let valueB = b[key as keyof IOrg];
+            if (typeof valueB === "string") valueB = valueB.toLowerCase();
+            else valueB = (valueB as IUser).userName.toLowerCase();
 
             if (order === "asc") {
               if (valueA < valueB) return -1;
@@ -98,7 +105,7 @@ export const OrgsList = ({
               },
               // { key: "orgType", label: "Type" },
               // { key: "orgCity", label: "Position" },
-              { key: "createdBy", label: "Koala" }
+              { key: "createdBy", label: "Créé par" }
             ].map(({ key, label }) => {
               return (
                 <Th
@@ -150,13 +157,15 @@ export const OrgsList = ({
                       query={query}
                       subQuery={subQuery}
                       isIconOnly
+                      my={isMobile ? 2 : 0}
                     />
                     {org.orgCity && (
                       <Tooltip label="Afficher sur la carte" placement="right">
                         <IconButton
                           aria-label="Afficher sur la carte"
-                          icon={<FaRegMap />}
-                          ml={2}
+                          icon={<FaMapMarkedAlt />}
+                          ml={isMobile ? 0 : 2}
+                          mb={isMobile ? 2 : 0}
                           onClick={() => setOrgToShow(org)}
                         />
                       </Tooltip>
@@ -207,6 +216,12 @@ export const OrgsList = ({
 
       {orgToShow && (
         <MapModal
+          header={
+            <>
+              <Icon as={FaGlobeEurope} color="blue" mr={2} />{" "}
+              {orgToShow.orgName}
+            </>
+          }
           isOpen
           isSearch={false}
           orgs={[orgToShow]}

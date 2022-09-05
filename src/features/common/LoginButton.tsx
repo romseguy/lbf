@@ -16,7 +16,7 @@ export const LoginButton = ({
       leftIcon={<FaKey />}
       onClick={(e) => {
         onClick && onClick(e);
-        router.push("/?login", "/?login", {
+        router.push("/login", "/login", {
           shallow: true
         });
       }}

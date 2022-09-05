@@ -14,15 +14,13 @@ import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
 import { Header, Nav, Footer } from "features/layout";
-import { breakpoints } from "features/layout/theme";
+import theme, { breakpoints } from "features/layout/theme";
 import { ContactFormModal } from "features/modals/ContactFormModal";
-import { LoginFormModal } from "features/modals/LoginFormModal";
 import { PageProps } from "main";
 import { IEntity, isEvent, isOrg, isUser } from "models/Entity";
 import { OrgTypes } from "models/Org";
-import { useAppDispatch } from "store";
 import { selectIsOffline } from "store/sessionSlice";
-import { resetUserEmail, selectUserEmail } from "store/userSlice";
+import { selectUserEmail } from "store/userSlice";
 import { Base64Image } from "utils/image";
 import { isServer } from "utils/isServer";
 import { capitalize } from "utils/string";
@@ -41,7 +39,6 @@ export interface LayoutProps extends Partial<PageProps>, BoxProps {
   children: React.ReactNode | React.ReactNodeArray;
   banner?: Base64Image & { mode: "dark" | "light" };
   logo?: Base64Image;
-  isLogin?: number;
   entity?: IEntity;
   pageHeader?: React.ReactNode;
   pageTitle?: string;
@@ -51,7 +48,6 @@ export const Layout = ({
   banner,
   children,
   entity,
-  isLogin = 0,
   logo,
   pageHeader,
   pageTitle,
@@ -59,24 +55,12 @@ export const Layout = ({
   ...props
 }: LayoutProps) => {
   const { isMobile } = props;
-  const dispatch = useAppDispatch();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const isOffline = useSelector(selectIsOffline);
   const userEmail = useSelector(selectUserEmail);
-
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(
-    router.asPath === "/?login" && !props.session
-  );
-
-  useEffect(() => {
-    if (isLogin !== 0) {
-      window.localStorage.setItem("path", router.asPath);
-      setIsLoginModalOpen(true);
-    }
-  }, [isLogin]);
 
   const notify = (title: string) => {
     if (!isNotified) {
@@ -128,7 +112,7 @@ export const Layout = ({
             ? ` – ${entity.userName}`
             : pageTitle
             ? ` – ${capitalize(pageTitle)}`
-            : " – Veuillez patienter..."}
+            : " – Merci de patienter..."}
         </title>
       </Head>
 
@@ -138,6 +122,9 @@ export const Layout = ({
           flex-grow: 1;
 
           @media (min-width: ${breakpoints["2xl"]}) {
+            background-color: ${isDark
+              ? theme.colors.black
+              : theme.colors.white};
             margin: 0 auto;
             width: 1180px;
             ${isDark
@@ -205,17 +192,12 @@ export const Layout = ({
           </Box>
         )}
 
-        <Nav
-          {...props}
-          email={userEmail}
-          setIsLoginModalOpen={setIsLoginModalOpen}
-          m={isMobile ? 1 : 3}
-        />
+        <Nav {...props} email={userEmail} m={isMobile ? 1 : 3} />
 
         {router.pathname !== "/" && (
           <Header
             entity={entity}
-            defaultTitle="Veuillez patienter..."
+            defaultTitle="Merci de patienter..."
             pageHeader={pageHeader}
             pageTitle={pageTitle}
             m={isMobile ? 1 : 3}
@@ -261,7 +243,7 @@ export const Layout = ({
 
       <ContactFormModal />
 
-      {isLoginModalOpen && (
+      {/* {isLoginModalOpen && (
         <LoginFormModal
           onClose={() => {
             setIsLoginModalOpen(false);
@@ -279,7 +261,7 @@ export const Layout = ({
             dispatch(resetUserEmail());
           }}
         />
-      )}
+      )} */}
     </>
   );
 };

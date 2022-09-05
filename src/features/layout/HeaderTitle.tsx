@@ -134,7 +134,7 @@ export const HeaderTitle = ({
                 <EntityButton
                   org={orgNetwork}
                   tooltipProps={{
-                    label: `Cet arbre est planté sur la planète ${orgNetwork.orgName}`
+                    label: `Cet arbre est dans la forêt de la planète ${orgNetwork.orgName}`
                   }}
                   mb={index !== orgNetworks.length - 1 ? 3 : 0}
                 />

@@ -49,12 +49,8 @@ export const Nav = ({
   isMobile,
   isSessionLoading,
   session,
-  setIsLoginModalOpen,
   ...props
-}: FlexProps &
-  Partial<PageProps> & {
-    setIsLoginModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  }) => {
+}: FlexProps & Partial<PageProps>) => {
   const userName = session?.user.userName || "";
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -100,7 +96,7 @@ export const Nav = ({
                 <Td border={0} display="flex" p={0}>
                   {!isSessionLoading && (
                     <Heading fontFamily="Lato" noContainer ml="auto">
-                      {session ? "L'univers de mon koala" : "Connexion"}
+                      {session ? session.user.userName : "Connexion"}
                     </Heading>
                   )}
                 </Td>
@@ -171,8 +167,7 @@ export const Nav = ({
                                 bg="transparent"
                                 _hover={{ bg: "transparent", color: "#00B5D8" }}
                                 onClick={async () => {
-                                  setIsLoginModalOpen(true);
-                                  await router.push("/?login", "/?login", {
+                                  await router.push("/login", "/login", {
                                     shallow: true
                                   });
                                 }}
@@ -278,7 +273,9 @@ export const Nav = ({
               <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
                   <Flex mt={1}>
-                    <Heading>{session ? "Mon univers" : "Connexion"}</Heading>
+                    <Heading>
+                      {session ? session.user.userName : "Connexion"}
+                    </Heading>
                   </Flex>
                 </Td>
               </Tr>
@@ -298,8 +295,7 @@ export const Nav = ({
                               _hover={{ bg: "transparent", color: "#00B5D8" }}
                               mx={3}
                               onClick={async () => {
-                                setIsLoginModalOpen(true);
-                                await router.push("/?login", "/?login", {
+                                await router.push("/login", "/login", {
                                   shallow: true
                                 });
                               }}

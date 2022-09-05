@@ -52,6 +52,7 @@ export interface IOrg extends IEntity {
   orgTabs?: IOrgTab[];
   orgVisibility: string;
   orgs: IOrg[];
+  orgPermissions?: IOrgPermissions;
   isApproved?: boolean;
 }
 
@@ -72,3 +73,7 @@ export interface IOrgTabWithIcon extends IOrgTab {
 }
 
 export interface IOrgTopicCategory extends IEntityCategory {}
+
+export interface IOrgPermissions {
+  anyoneCanAddChildren: boolean;
+}

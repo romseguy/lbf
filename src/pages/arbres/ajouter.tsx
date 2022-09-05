@@ -12,7 +12,7 @@ const OrganisationsAddPage = (props: PageProps) => {
   useEffect(() => {
     if (!props.isSessionLoading && !props.session) {
       window.localStorage.setItem("path", router.asPath);
-      router.push("/?login", "/?login", { shallow: true });
+      router.push("/login", "/login", { shallow: true });
     }
   }, [props.isSessionLoading]);
 
@@ -25,7 +25,7 @@ export async function getServerSideProps(
   const session = await getSession({ req: ctx.req });
 
   // if (!session)
-  //   return { redirect: { permanent: false, destination: "/?login" } };
+  //   return { redirect: { permanent: false, destination: "/login" } };
 
   return { props: { session } };
 }

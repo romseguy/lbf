@@ -18,7 +18,9 @@ export const Marker = ({
   setItemToShow: (item: IEvent | IOrg | null) => void;
 }) => {
   const name = "eventName" in item ? item.eventName : item.orgName;
-  const [fill, setFill] = useState("green");
+  const defaultFill = "red";
+  const defaultFillOnEnter = "eventName" in item ? "green" : "blue";
+  const [fill, setFill] = useState(defaultFill);
 
   // if (lat && lng) {
   //   const world = latLng2World({ lat, lng });
@@ -41,8 +43,8 @@ export const Marker = ({
       })}
       cursor="pointer"
       maxWidth={3}
-      onMouseEnter={() => setFill("blue")}
-      onMouseLeave={() => setFill("green")}
+      onMouseEnter={() => setFill(defaultFillOnEnter)}
+      onMouseLeave={() => setFill(defaultFill)}
       onClick={() => setItemToShow(item)}
     />
   );

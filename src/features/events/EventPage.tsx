@@ -1,8 +1,6 @@
 import {
   ArrowBackIcon,
   ArrowForwardIcon,
-  EditIcon,
-  Icon,
   SettingsIcon
 } from "@chakra-ui/icons";
 import {
@@ -10,23 +8,19 @@ import {
   AlertIcon,
   Box,
   Flex,
-  Input,
   Spinner,
   Text,
   TabPanel,
   TabPanels,
-  useColorMode,
-  useToast
+  useColorMode
 } from "@chakra-ui/react";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { css } from "twin.macro";
 import {
   Button,
   Column,
-  DeleteButton,
   EmailPreview,
   EntityButton,
   EntityNotified,
@@ -38,19 +32,10 @@ import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { getRefId } from "models/Entity";
-import { IEvent, EEventVisibility } from "models/Event";
-import {
-  EOrgSubscriptionType,
-  getFollowerSubscription,
-  IOrgSubscription,
-  ISubscription
-} from "models/Subscription";
+import { IEvent } from "models/Event";
+import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { PageProps } from "main";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import {
-  useDeleteEventMutation,
-  useEditEventMutation
-} from "features/api/eventsApi";
 import { EventAttendingForm } from "./EventAttendingForm";
 import { EventConfigPanel, EventConfigVisibility } from "./EventConfigPanel";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
@@ -76,12 +61,7 @@ export const EventPage = ({
     bg: isDark ? "gray.700" : "lightblue"
   };
 
-  const [deleteEvent, deleteQuery] = useDeleteEventMutation();
-  const router = useRouter();
-  const toast = useToast({ position: "top" });
-
   //#region event
-  const [editEvent, editEventMutation] = useEditEventMutation();
   const event = eventQuery.data;
   const eventCreatedByUserName =
     event.createdBy && typeof event.createdBy === "object"
@@ -97,9 +77,7 @@ export const EventPage = ({
 
   //#region local state
   const [isConfig, setIsConfig] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
-  const [isLogin, setIsLogin] = useState(0);
 
   const _isVisible = {
     banner: false,
@@ -151,111 +129,42 @@ export const EventPage = ({
     if (!isCreator) return null;
 
     return (
-      <Column mb={3}>
-        <Heading mb={3}>Administration de l'événement</Heading>
+      <>
+        {/* <Column mb={3}>
+        <Heading mb={3}>Configuration de l'événement</Heading> */}
         {!isConfig && !isEdit && (
           <Flex flexDirection={isMobile ? "column" : "row"}>
-            <Flex mb={isMobile ? 3 : 0}>
+            <Flex mb={isMobile ? 3 : 3}>
               <Button
-                colorScheme="teal"
-                leftIcon={<SettingsIcon boxSize={6} data-cy="eventSettings" />}
-                mr={3}
+                colorScheme="red"
+                leftIcon={
+                  <SettingsIcon boxSize={6} data-cy="event-settings-button" />
+                }
                 onClick={() => setIsConfig(true)}
               >
                 Paramètres
               </Button>
             </Flex>
-
-            <Flex mb={isMobile ? 3 : 0}>
-              <Button
-                colorScheme="teal"
-                leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-                mr={3}
-                onClick={() => {
-                  setIsEdit(true);
-                  toggleVisibility();
-                }}
-                data-cy="eventEdit"
-              >
-                Modifier
-              </Button>
-            </Flex>
-
-            <Flex>
-              <DeleteButton
-                isDisabled={isDisabled}
-                isLoading={deleteQuery.isLoading}
-                label="Supprimer l'événement"
-                header={
-                  <>
-                    Vous êtes sur le point de supprimer l'événement
-                    <Text display="inline" color="red" fontWeight="bold">
-                      {` ${event.eventName}`}
-                    </Text>
-                  </>
-                }
-                body={
-                  <>
-                    Saisissez le nom de l'événement pour confimer sa suppression
-                    :
-                    <Input
-                      autoComplete="off"
-                      onChange={(e) =>
-                        setIsDisabled(e.target.value !== event.eventName)
-                      }
-                    />
-                  </>
-                }
-                onClick={async () => {
-                  try {
-                    const deletedEvent = await deleteEvent({
-                      eventId: event._id
-                    }).unwrap();
-
-                    if (deletedEvent) {
-                      await router.push(`/`);
-                      toast({
-                        title: `L'événement ${deletedEvent.eventName} a été supprimé !`,
-                        status: "success"
-                      });
-                    }
-                  } catch (error: any) {
-                    toast({
-                      title: error.data ? error.data.message : error.message,
-                      status: "error"
-                    });
-                  }
-                }}
-              />
-            </Flex>
           </Flex>
         )}
 
-        {isEdit && (
+        {(isConfig || isEdit) && (
           <Button
             canWrap
             colorScheme="teal"
             leftIcon={<ArrowBackIcon boxSize={6} />}
-            onClick={() => setIsEdit(false)}
-            mb={2}
-          >
-            Retour
-          </Button>
-        )}
-
-        {!isEdit && isConfig && (
-          <Button
-            canWrap
-            colorScheme="teal"
-            leftIcon={<ArrowBackIcon boxSize={6} />}
-            onClick={() => setIsConfig(false)}
-            mb={2}
+            onClick={() => {
+              if (isEdit) setIsEdit(false);
+              else setIsConfig(false);
+            }}
+            mb={3}
           >
             {/* Revenir à l'événement */}
             Retour
           </Button>
         )}
-      </Column>
+        {/* </Column> */}
+      </>
     );
   };
 
@@ -289,28 +198,26 @@ export const EventPage = ({
   };
 
   return (
-    <Layout
-      entity={event}
-      isLogin={isLogin}
-      isMobile={isMobile}
-      session={session}
-    >
+    <Layout entity={event} isMobile={isMobile} session={session}>
       {configButtons()}
+
       {subscribeButtons()}
 
-      <Box my={3}>
-        <Text fontSize="smaller" pt={1}>
-          Événement ajouté le{" "}
-          {format(parseISO(event.createdAt!), "eeee d MMMM yyyy", {
-            locale: fr
-          })}{" "}
-          par :{" "}
-          <Link variant="underline" href={`/${eventCreatedByUserName}`}>
-            {eventCreatedByUserName}
-          </Link>{" "}
-          {isCreator && "(Vous)"}
-        </Text>
-      </Box>
+      {!isEdit && !isConfig && (
+        <Box my={3}>
+          <Text fontSize="smaller" pt={1}>
+            Événement ajouté le{" "}
+            {format(parseISO(event.createdAt!), "eeee d MMMM yyyy", {
+              locale: fr
+            })}{" "}
+            par :{" "}
+            <Link variant="underline" href={`/${eventCreatedByUserName}`}>
+              {eventCreatedByUserName}
+            </Link>{" "}
+            {isCreator && "(Vous)"}
+          </Text>
+        </Box>
+      )}
 
       {isCreator && !event.isApproved && (
         <Alert status="info" mb={3}>
@@ -361,8 +268,6 @@ export const EventPage = ({
                   isCreator={isCreator}
                   subQuery={subQuery}
                   isFollowed={isFollowed}
-                  isLogin={isLogin}
-                  setIsLogin={setIsLogin}
                   currentTopicName={tabItem}
                 />
               </Column>
@@ -453,6 +358,7 @@ export const EventPage = ({
           session={session}
           eventQuery={eventQuery}
           isEdit={isEdit}
+          isMobile={isMobile}
           isVisible={isVisible}
           setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}

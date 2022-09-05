@@ -19,6 +19,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { FaImages, FaTools } from "react-icons/fa";
 import { css } from "twin.macro";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   Column,
   EntityPageTab,
@@ -35,34 +36,30 @@ import { sortOn } from "utils/array";
 import { Session } from "utils/auth";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
+import { IsEditConfig } from "./OrgPage";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
-import { useEditOrgMutation } from "features/api/orgsApi";
 
 export const OrgPageTabs = ({
   currentItemName,
   currentTabLabel = "Accueil",
   isCreator,
   isFollowed,
-  isLogin,
   isMobile,
   orgQuery,
   session,
   setIsConfig,
   setIsEdit,
-  setIsLogin,
   subQuery
 }: {
   currentItemName?: string;
   currentTabLabel?: string;
   isCreator: boolean;
   isFollowed: boolean;
-  isLogin: number;
   isMobile: boolean;
   orgQuery: AppQueryWithData<IOrg>;
   session: Session | null;
   setIsConfig: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsLogin: React.Dispatch<React.SetStateAction<number>>;
+  setIsEdit: (arg: boolean | IsEditConfig) => void;
   subQuery: AppQuery<ISubscription>;
 }) => {
   const { colorMode } = useColorMode();
@@ -213,8 +210,6 @@ export const OrgPageTabs = ({
                 isCreator={isCreator}
                 subQuery={subQuery}
                 isFollowed={isFollowed}
-                isLogin={isLogin}
-                setIsLogin={setIsLogin}
                 currentTopicName={currentItemName}
               />
             </Column>
@@ -235,8 +230,6 @@ export const OrgPageTabs = ({
                 events={org.orgEvents}
                 orgQuery={orgQuery}
                 isCreator={isCreator}
-                isLogin={isLogin}
-                setIsLogin={setIsLogin}
                 setTitle={setTitle}
               />
             </Column>
@@ -259,8 +252,6 @@ export const OrgPageTabs = ({
                 subQuery={subQuery}
                 isCreator={isCreator}
                 isFollowed={isFollowed}
-                isLogin={isLogin}
-                setIsLogin={setIsLogin}
               />
             </Column>
           </TabPanel>
@@ -279,8 +270,6 @@ export const OrgPageTabs = ({
               <DocumentsList
                 org={org}
                 isCreator={isCreator}
-                isLogin={isLogin}
-                setIsLogin={setIsLogin}
                 isMobile={isMobile}
               />
             </Column>
@@ -289,10 +278,7 @@ export const OrgPageTabs = ({
 
         {session && isCreator && (
           <TabPanel aria-hidden>
-            <Heading mb={3}>
-              Activer / désactiver les fonctionnalités{" "}
-              {orgTypeFull(org.orgType)}
-            </Heading>
+            <Heading mb={3}>Fonctionnalités {orgTypeFull(org.orgType)}</Heading>
 
             {defaultTabs
               .filter((defaultTab) => defaultTab.label !== "")
@@ -376,21 +362,6 @@ export const OrgPageTabs = ({
                   </Flex>
                 );
               })}
-
-            <Heading mb={3}>
-              Configuration {orgTypeFull(org.orgType)} {org.orgName}
-            </Heading>
-
-            <Button
-              colorScheme="teal"
-              leftIcon={
-                <SettingsIcon boxSize={6} data-cy="org-settings-button" />
-              }
-              onClick={() => setIsConfig(true)}
-              mb={3}
-            >
-              Panneau de configuration {orgTypeFull(org.orgType)} {org.orgName}
-            </Button>
           </TabPanel>
         )}
       </TabPanels>

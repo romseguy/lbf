@@ -51,7 +51,6 @@ export const UserPage = ({
 
   const [isEdit, setIsEdit] = useState(false);
   const [isDescriptionEdit, setIsDescriptionEdit] = useState(false);
-  const [isLogin, setIsLogin] = useState(0);
   const tabs = isSelf
     ? defaultTabs
     : Object.keys(defaultTabs).reduce((tabs, tabLabel) => {
@@ -61,12 +60,7 @@ export const UserPage = ({
       }, {});
 
   return (
-    <Layout
-      entity={user}
-      isLogin={isLogin}
-      isMobile={isMobile}
-      session={session}
-    >
+    <Layout entity={user} isMobile={isMobile} session={session}>
       <>
         {session && (isSelf || session.user.isAdmin) && (
           <>
@@ -313,20 +307,13 @@ export const UserPage = ({
                   <ProjectsList
                     user={user}
                     userQuery={userQuery}
-                    isLogin={isLogin}
-                    setIsLogin={setIsLogin}
                   />
                 </TabPanel>
               )} */}
 
               {isSelf && (
                 <TabPanel aria-hidden>
-                  <DocumentsList
-                    user={user}
-                    isLogin={isLogin}
-                    setIsLogin={setIsLogin}
-                    isMobile={isMobile}
-                  />
+                  <DocumentsList user={user} isMobile={isMobile} />
                 </TabPanel>
               )}
             </TabPanels>

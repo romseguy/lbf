@@ -4,7 +4,7 @@ import database, { models } from "database";
 import { EditOrgPayload, GetOrgParams } from "features/api/orgsApi";
 import { getRefId } from "models/Entity";
 import { EEventVisibility } from "models/Event";
-import { getLists, IOrg, orgTypeFull } from "models/Org";
+import { getLists, IOrg, orgTypeFull, orgTypeFull4 } from "models/Org";
 import { ISubscription, getFollowerSubscription } from "models/Subscription";
 import api from "utils/api";
 import { hasItems } from "utils/array";
@@ -336,22 +336,32 @@ handler.put<
         );
     }
 
-    let { body }: { body: EditOrgPayload } = req;
+    //#region edit permissions
     const isCreator =
       equals(getRefId(org), session?.user.userId) || session?.user.isAdmin;
-    const orgTopicCategories = !Array.isArray(body) && body.orgTopicCategories;
-
-    if (!isCreator && !orgTopicCategories) {
+    let { body }: { body: EditOrgPayload } = req;
+    let isAddingChildren = false;
+    let isAddingTopicCategories = false;
+    if (!Array.isArray(body) && Object.keys(body).length === 1) {
+      if (body.orgs && org.orgPermissions?.anyoneCanAddChildren)
+        isAddingChildren = true;
+      if (body.orgTopicCategories) isAddingTopicCategories = true;
+    }
+    let canEdit = isCreator || isAddingChildren || isAddingTopicCategories;
+    if (!canEdit) {
       return res
         .status(403)
         .json(
           createServerError(
             new Error(
-              "Vous ne pouvez pas modifier un organisation que vous n'avez pas créé."
+              `Vous n'avez pas la permission de modifier ${orgTypeFull4(
+                org.orgType
+              )}`
             )
           )
         );
     }
+    //#endregion
 
     let update:
       | {
@@ -406,7 +416,7 @@ handler.put<
           throw duplicateError();
       }
 
-      if (orgTopicCategories) {
+      if (isAddingTopicCategories) {
         if (!isCreator) {
           return res
             .status(400)

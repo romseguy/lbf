@@ -18,6 +18,7 @@ import {
   useColorMode,
   useToast
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
 import { FaFolderOpen, FaFolder } from "react-icons/fa";
 import { useSession } from "hooks/useSession";
@@ -59,8 +60,6 @@ export const ProjectsList = ({
   subQuery,
   isCreator,
   isFollowed,
-  isLogin,
-  setIsLogin,
   ...props
 }: {
   // either
@@ -73,11 +72,10 @@ export const ProjectsList = ({
   subQuery?: AppQuery<ISubscription>;
   isCreator?: boolean;
   isFollowed?: boolean;
-  isLogin: number;
-  setIsLogin: (isLogin: number) => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
   const query = (orgQuery || userQuery) as AppQueryWithData<IOrg | IUser>;
@@ -205,7 +203,7 @@ export const ProjectsList = ({
 
                 setProjectModalState({ ...projectModalState, isOpen: true });
               } else {
-                setIsLogin(isLogin + 1);
+                router.push("/login", "/login", { shallow: true });
               }
             }
           }}

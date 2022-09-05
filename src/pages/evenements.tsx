@@ -17,7 +17,6 @@ const EventsPage = ({ ...props }: PageProps) => {
   const isDark = colorMode === "dark";
   const router = useRouter();
 
-  const [isLogin, setIsLogin] = useState(0);
   const isOffline = useSelector(selectIsOffline);
 
   const eventsQuery = useGetEventsQuery();
@@ -39,7 +38,7 @@ const EventsPage = ({ ...props }: PageProps) => {
   >();
 
   return (
-    <Layout {...props} isLogin={isLogin} pageTitle={title}>
+    <Layout {...props} pageTitle={title}>
       <Tooltip
         label={
           !eventsQuery.data || !eventsQuery.data.length
@@ -68,14 +67,7 @@ const EventsPage = ({ ...props }: PageProps) => {
         {eventsQuery.isLoading ? (
           <Text>Chargement des événements publics...</Text>
         ) : (
-          events && (
-            <EventsList
-              events={events}
-              isLogin={isLogin}
-              setIsLogin={setIsLogin}
-              setTitle={setTitle}
-            />
-          )
+          events && <EventsList events={events} setTitle={setTitle} />
         )}
       </Column>
 

@@ -149,9 +149,10 @@ export const SubscribePopover = ({
           {isIconOnly ? (
             <IconButton
               aria-label="S'abonner"
-              isLoading={isLoading}
               icon={<BellIcon boxSize={6} />}
               colorScheme="teal"
+              {...props}
+              isLoading={isLoading}
               onClick={async () => {
                 setIsOpen(!isOpen);
               }}
@@ -159,10 +160,10 @@ export const SubscribePopover = ({
             />
           ) : (
             <Button
-              {...props}
-              isLoading={isLoading}
               leftIcon={<BellIcon boxSize={6} />}
               colorScheme="teal"
+              {...props}
+              isLoading={isLoading}
               onClick={async () => {
                 setIsOpen(!isOpen);
               }}
@@ -241,9 +242,10 @@ export const SubscribePopover = ({
       <Tooltip label={label} placement="right">
         <IconButton
           aria-label={label}
-          isLoading={isLoading}
           icon={<Icon as={isFollowed ? FaBellSlash : BellIcon} boxSize={6} />}
           colorScheme="teal"
+          {...props}
+          isLoading={isLoading}
           onClick={async () => {
             if (isFollowed) {
               const unsubscribe = confirm(

@@ -130,6 +130,10 @@ export const OrgSchema = new Schema<IOrg>(
       required: true
     },
     orgs: { type: [{ type: Schema.Types.ObjectId, ref: "Org" }], default: [] },
+    orgPermissions: {
+      type: { anyoneCanAddChildren: Boolean },
+      default: undefined
+    },
     isApproved: Boolean,
     createdBy: {
       type: Schema.Types.ObjectId,

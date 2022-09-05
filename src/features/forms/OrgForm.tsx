@@ -2,6 +2,7 @@ import {
   Alert,
   AlertIcon,
   Box,
+  BoxProps,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -11,6 +12,7 @@ import {
   List,
   ListItem,
   Select,
+  Switch,
   Tag,
   Text,
   Tooltip,
@@ -58,7 +60,8 @@ import {
   orgTypeFull5,
   EOrgType,
   EOrgVisibility,
-  OrgVisibilities
+  OrgVisibilities,
+  orgTypeFull2
 } from "models/Org";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
@@ -66,6 +69,7 @@ import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
+import { IsEditConfig } from "features/orgs/OrgPage";
 
 type FormValues = {
   orgName: string;
@@ -84,10 +88,14 @@ export const OrgForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 })(
   ({
+    isCreator,
+    isEditConfig,
     session,
     orgQuery,
     ...props
   }: {
+    isCreator?: boolean;
+    isEditConfig?: IsEditConfig;
     session: Session;
     orgQuery?: AppQueryWithData<IOrg>;
     orgType?: string;
@@ -197,13 +205,14 @@ export const OrgForm = withGoogleApi({
     };
 
     const onSubmit = async (form: {
-      orgName: string;
+      orgName?: string;
       orgType?: EOrgType;
       orgs: { label: string; value: string }[];
-      orgDescription: string;
-      orgVisibility: EOrgVisibility;
+      orgDescription?: string;
+      orgVisibility?: EOrgVisibility;
       orgPassword?: string;
       orgPasswordConfirm?: string;
+      anyoneCanAddChildren: boolean;
       orgAddress?: IEntityAddress[];
       orgEmail?: IEntityEmail[];
       orgPhone?: IEntityPhone[];
@@ -212,42 +221,55 @@ export const OrgForm = withGoogleApi({
       console.log("submitted", form);
       setIsLoading(true);
 
-      const orgName = form.orgName.trim();
-      let orgUrl = normalize(orgName);
-      const orgDescription = !form.orgDescription.length
-        ? undefined
-        : form.orgDescription;
-      const orgs = orgTrees;
-      const orgAddress = (form.orgAddress || []).filter(
-        ({ address }) => address !== ""
-      );
-      const orgEmail = (form.orgEmail || []).filter(
-        ({ email }) => email !== ""
-      );
-      const orgPhone = (form.orgPhone || []).filter(
-        ({ phone }) => phone !== ""
-      );
-      const orgWeb = (form.orgWeb || []).filter(({ url }) => url !== "");
-
-      let payload: AddOrgPayload = {
-        ...form,
-        orgName,
-        orgType,
-        orgDescription,
-        orgs,
-        orgAddress,
-        orgEmail,
-        orgPhone,
-        orgWeb
-      };
-
-      if (form.orgPassword) {
-        const salt = await bcrypt.genSalt(10);
-        payload.orgPassword = await bcrypt.hash(form.orgPassword, salt);
-        payload.orgSalt = salt;
-      }
-
       try {
+        const orgName = form.orgName ? form.orgName.trim() : org?.orgName;
+        if (!orgName) throw new Error("Une erreur inattendue est survenue.");
+
+        let orgUrl = normalize(orgName);
+        const orgDescription =
+          !form.orgDescription || !form.orgDescription.length
+            ? undefined
+            : form.orgDescription;
+        const orgs = orgTrees;
+        const orgPermissions = org?.orgPermissions
+          ? {
+              ...org?.orgPermissions,
+              anyoneCanAddChildren: form.anyoneCanAddChildren
+            }
+          : { anyoneCanAddChildren: form.anyoneCanAddChildren };
+        const orgAddress = (form.orgAddress || []).filter(
+          ({ address }) => address !== ""
+        );
+        const orgEmail = (form.orgEmail || []).filter(
+          ({ email }) => email !== ""
+        );
+        const orgPhone = (form.orgPhone || []).filter(
+          ({ phone }) => phone !== ""
+        );
+        const orgWeb = (form.orgWeb || []).filter(({ url }) => url !== "");
+
+        let payload: AddOrgPayload = {
+          ...form,
+          orgName,
+          orgType,
+          orgDescription,
+          orgs,
+          orgVisibility:
+            form.orgVisibility || org?.orgVisibility || EOrgVisibility.PUBLIC,
+          orgAddress,
+          orgEmail,
+          orgPhone,
+          orgWeb,
+          orgPermissions
+        };
+
+        if (form.orgPassword) {
+          const salt = await bcrypt.genSalt(10);
+          payload.orgPassword = await bcrypt.hash(form.orgPassword, salt);
+          payload.orgSalt = salt;
+        }
+
+        //#region todo simplify logic
         if (
           suggestion &&
           (!org ||
@@ -263,15 +285,23 @@ export const OrgForm = withGoogleApi({
           } = await unwrapSuggestion(suggestion);
           payload = { ...payload, orgLat, orgLng, orgCity };
         }
+        //#endregion
 
         if (org) {
-          if (form.orgVisibility === EOrgVisibility.PUBLIC && !!org.orgPassword)
+          if (isEditConfig?.isAddingChild && hasItems(orgs)) {
+            await editOrg({ orgId: org._id, payload: { orgs } }).unwrap();
+          } else if (
+            form.orgVisibility === EOrgVisibility.PUBLIC &&
+            !!org.orgPassword
+          ) {
             await editOrg({
               orgId: org._id,
               payload: ["orgPassword"]
             }).unwrap();
-
-          await editOrg({ orgId: org._id, payload }).unwrap();
+            await editOrg({ orgId: org._id, payload }).unwrap();
+          } else {
+            await editOrg({ orgId: org._id, payload }).unwrap();
+          }
 
           toast({
             title: `La modification a été effectuée !`,
@@ -336,268 +366,197 @@ export const OrgForm = withGoogleApi({
     });
     //#endregion
 
-    const passwordControl = (
-      <>
-        <PasswordControl
-          name="orgPassword"
-          errors={errors}
-          register={register}
-          my={3}
-          //isRequired={orgVisibility === Visibility.PRIVATE}
-        />
-        <PasswordConfirmControl
-          name="orgPasswordConfirm"
-          errors={errors}
-          register={register}
-          password={password}
-        />
-      </>
-    );
-    const visibilityControl = (
+    //#region form controls
+    const ChildrenFormControl = (
       <FormControl
-        isRequired
-        isInvalid={!!errors["orgVisibility"]}
-        onChange={async (e) => {
-          clearErrors("orgOrgs");
-        }}
         mb={3}
+        isInvalid={!!errors["orgs"]}
+        display={orgType !== EOrgType.NETWORK ? "none" : undefined}
       >
-        <FormLabel>Visibilité {orgTypeLabel}</FormLabel>
-        <Select
-          name="orgVisibility"
-          ref={register({
-            required: `Veuillez sélectionner la visibilité ${orgTypeLabel}`
-          })}
-          color={isDark ? "whiteAlpha.400" : "gray.400"}
-          defaultValue={org?.orgVisibility || EOrgVisibility.PUBLIC}
-          placeholder={`Visibilité ${orgTypeLabel}`}
-        >
-          {Object.keys(EOrgVisibility).map((key) => {
-            const visibility = key as EOrgVisibility;
+        <FormLabel>Arbres de la planète</FormLabel>
+
+        {Array.isArray(orgTrees) && orgTrees.length > 0 && (
+          <List>
+            {orgTrees.map((orgTree) => (
+              <ListItem key={orgTree._id}>
+                <EntityTag
+                  entity={orgTree}
+                  body={
+                    <>
+                      <Icon as={FaTree} mx={1} />
+                      <Text mr={3}>{orgTree.orgName}</Text>
+                    </>
+                  }
+                  mb={3}
+                  onCloseClick={
+                    isCreator
+                      ? () => {
+                          setOrgTrees(
+                            orgTrees.filter(({ _id }) => _id !== orgTree._id)
+                          );
+                        }
+                      : undefined
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
+        )}
+
+        <Controller
+          name="orgs"
+          control={control}
+          defaultValue={[]}
+          render={(renderProps) => {
             return (
-              <option key={visibility} value={visibility}>
-                {OrgVisibilities[visibility]}
-              </option>
+              <Creatable
+                options={orgsOptions.map(({ _id, orgName }) => ({
+                  label: orgName,
+                  value: _id
+                }))}
+                value={renderProps.value}
+                onChange={(options, { action, option }) => {
+                  if (action === "select-option") {
+                    const tree = trees?.find(({ _id }) => _id === option.value);
+                    if (tree) setOrgTrees([...orgTrees, tree]);
+                  } else renderProps.onChange;
+                }}
+                onCreateOption={async (inputValue: string) => {
+                  try {
+                    const payload: AddOrgPayload = {
+                      orgName: inputValue,
+                      orgType: EOrgType.GENERIC,
+                      orgs: org ? [org] : [],
+                      orgVisibility: EOrgVisibility.PUBLIC,
+                      orgAddress: [],
+                      orgEmail: [],
+                      orgPhone: [],
+                      orgWeb: []
+                    };
+
+                    const addedOrg = await addOrg(payload).unwrap();
+
+                    setOrgTrees(orgTrees.concat(addedOrg));
+
+                    // setValue(
+                    //   "orgs",
+                    //   renderProps.value.concat({
+                    //     label: addedOrg.orgName,
+                    //     value: addedOrg._id
+                    //   })
+                    // );
+
+                    // toast({
+                    //   status: "success",
+                    //   title: "L'arbre a bien été créé !"
+                    // });
+                  } catch (error: any) {
+                    console.error(error);
+                    toast({
+                      status: "error",
+                      title: error.message
+                    });
+                  }
+                }}
+                //#region ui
+                allowCreateWhileLoading
+                formatCreateLabel={(inputValue: string) =>
+                  `Ajouter l'arbre "${inputValue}"`
+                }
+                isClearable
+                isMulti
+                noOptionsMessage={() => "Aucun résultat"}
+                placeholder="Rechercher ou ajouter un arbre"
+                //#endregion
+                //#region styling
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={{
+                  control: (defaultStyles: any) => {
+                    return {
+                      ...defaultStyles,
+                      borderColor: "#e2e8f0"
+                    };
+                  },
+                  placeholder: () => {
+                    return {
+                      color: "#A0AEC0"
+                    };
+                  }
+                }}
+                //#endregion
+              />
             );
-          })}
-        </Select>
+          }}
+        />
+
         <FormErrorMessage>
-          <ErrorMessage errors={errors} name="orgVisibility" />
+          <ErrorMessage errors={errors} name="orgs" />
         </FormErrorMessage>
       </FormControl>
     );
 
-    return (
-      <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-        <FormControl
-          isRequired
-          isInvalid={!!errors["orgName"]}
-          mb={getValues("orgName") ? 0 : 3}
-        >
-          <FormLabel>Nom {orgTypeLabel}</FormLabel>
-          <Input
-            name="orgName"
-            ref={register({
-              required: `Veuillez saisir le nom ${orgTypeLabel}`
-              // pattern: {
-              //   value: /^[A-zÀ-ú0-9 ]+$/i,
-              //   message:
-              //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
-              // }
-            })}
-            autoComplete="off"
-            defaultValue={org?.orgName}
-            placeholder={`Saisir le nom ${orgTypeLabel}`}
-          />
-          {getValues("orgName") && (
-            <Tooltip label={`Adresse de la page de ${orgTypeLabel}`}>
-              <Tag mt={3} alignSelf="flex-end" cursor="help">
-                {process.env.NEXT_PUBLIC_URL}/{normalize(getValues("orgName"))}
-              </Tag>
-            </Tooltip>
+    const DescriptionFormControl = (
+      <FormControl isInvalid={!!errors["orgDescription"]} mb={3}>
+        <FormLabel>Description {orgTypeLabel}</FormLabel>
+        <Controller
+          name="orgDescription"
+          control={control}
+          defaultValue={org?.orgDescription || ""}
+          render={(renderProps) => {
+            return (
+              <RTEditor
+                defaultValue={org?.orgDescription || orgDescriptionDefaultValue}
+                org={org}
+                placeholder={`Saisir la description ${orgTypeLabel}`}
+                session={session}
+                onChange={({ html }) => {
+                  renderProps.onChange(html);
+                }}
+              />
+            );
+          }}
+        />
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="orgDescription" />
+        </FormErrorMessage>
+      </FormControl>
+    );
+
+    const FooterFormControl = (
+      <>
+        <ErrorMessage
+          errors={errors}
+          name="formErrorMessage"
+          render={({ message }) => (
+            <Alert status="error" mb={3}>
+              <AlertIcon />
+              <ErrorMessageText>{message}</ErrorMessageText>
+            </Alert>
           )}
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="orgName" />
-          </FormErrorMessage>
-        </FormControl>
+        />
 
-        <FormControl
-          mb={3}
-          isInvalid={!!errors["orgs"]}
-          display={orgType !== EOrgType.NETWORK ? "none" : undefined}
-        >
-          <FormLabel>Arbres de la planète</FormLabel>
-
-          {Array.isArray(orgTrees) && orgTrees.length > 0 && (
-            <List>
-              {orgTrees.map((orgTree) => (
-                <ListItem key={orgTree._id}>
-                  <EntityTag
-                    entity={orgTree}
-                    body={
-                      <>
-                        <Icon as={FaTree} mx={1} />
-                        <Text mr={3}>{orgTree.orgName}</Text>
-                      </>
-                    }
-                    mb={3}
-                    onCloseClick={() => {
-                      setOrgTrees(
-                        orgTrees.filter(({ _id }) => _id !== orgTree._id)
-                      );
-                    }}
-                  />
-                </ListItem>
-              ))}
-            </List>
+        <Flex justifyContent="space-between">
+          {props.onCancel && (
+            <Button colorScheme="red" onClick={props.onCancel}>
+              Annuler
+            </Button>
           )}
 
-          <Controller
-            name="orgs"
-            control={control}
-            defaultValue={[]}
-            render={(renderProps) => {
-              return (
-                <Creatable
-                  options={orgsOptions.map(({ _id, orgName }) => ({
-                    label: orgName,
-                    value: _id
-                  }))}
-                  value={renderProps.value}
-                  onChange={(options, { action, option }) => {
-                    if (action === "select-option") {
-                      const tree = trees?.find(
-                        ({ _id }) => _id === option.value
-                      );
-                      if (tree) setOrgTrees([...orgTrees, tree]);
-                    } else renderProps.onChange;
-                  }}
-                  onCreateOption={async (inputValue: string) => {
-                    try {
-                      const payload: AddOrgPayload = {
-                        orgName: inputValue,
-                        orgType: EOrgType.GENERIC,
-                        orgs: org ? [org] : [],
-                        orgVisibility: EOrgVisibility.PUBLIC,
-                        orgAddress: [],
-                        orgEmail: [],
-                        orgPhone: [],
-                        orgWeb: []
-                      };
+          <Button
+            colorScheme="green"
+            type="submit"
+            isLoading={isLoading}
+            isDisabled={Object.keys(errors).length > 0}
+          >
+            {org ? "Valider" : "Ajouter"}
+          </Button>
+        </Flex>
+      </>
+    );
 
-                      const addedOrg = await addOrg(payload).unwrap();
-
-                      setOrgTrees(orgTrees.concat(addedOrg));
-
-                      // setValue(
-                      //   "orgs",
-                      //   renderProps.value.concat({
-                      //     label: addedOrg.orgName,
-                      //     value: addedOrg._id
-                      //   })
-                      // );
-
-                      toast({
-                        status: "success",
-                        title: "L'arbre a bien été ajouté !"
-                      });
-                    } catch (error: any) {
-                      console.error(error);
-                      toast({
-                        status: "error",
-                        title: error.message
-                      });
-                    }
-                  }}
-                  //#region ui
-                  allowCreateWhileLoading
-                  formatCreateLabel={(inputValue: string) =>
-                    `Ajouter l'arbre "${inputValue}"`
-                  }
-                  isClearable
-                  isMulti
-                  noOptionsMessage={() => "Aucun résultat"}
-                  placeholder="Rechercher ou ajouter un arbre"
-                  //#endregion
-                  //#region styling
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (defaultStyles: any) => {
-                      return {
-                        ...defaultStyles,
-                        borderColor: "#e2e8f0"
-                      };
-                    },
-                    placeholder: () => {
-                      return {
-                        color: "#A0AEC0"
-                      };
-                    }
-                  }}
-                  //#endregion
-                />
-              );
-            }}
-          />
-
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="orgs" />
-          </FormErrorMessage>
-        </FormControl>
-
-        <FormControl isInvalid={!!errors["orgDescription"]} mb={3}>
-          <FormLabel>Description {orgTypeLabel}</FormLabel>
-          <Controller
-            name="orgDescription"
-            control={control}
-            defaultValue={org?.orgDescription || ""}
-            render={(renderProps) => {
-              return (
-                <RTEditor
-                  defaultValue={
-                    org?.orgDescription || orgDescriptionDefaultValue
-                  }
-                  org={org}
-                  placeholder={`Saisir la description ${orgTypeLabel}`}
-                  session={session}
-                  onChange={({ html }) => {
-                    renderProps.onChange(html);
-                  }}
-                />
-              );
-            }}
-          />
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="orgDescription" />
-          </FormErrorMessage>
-        </FormControl>
-
-        <Box
-          borderColor={isDark ? "whiteAlpha.300" : "gray.200"}
-          borderRadius="lg"
-          borderWidth={1}
-          p={3}
-          mb={3}
-        >
-          {visibilityControl}
-
-          {orgVisibility === EOrgVisibility.PRIVATE && org && (
-            <Link
-              variant="underline"
-              onClick={() => {
-                setIsPassword(!isPassword);
-              }}
-            >
-              {isPassword ? "Annuler" : "Changer le mot de passe"}
-            </Link>
-          )}
-
-          {orgVisibility === EOrgVisibility.PRIVATE && (!org || isPassword)
-            ? passwordControl
-            : null}
-        </Box>
-
+    const InfoFormControl = (
+      <>
         <FormLabel>Coordonnées {orgTypeFull(orgType)}</FormLabel>
 
         <AddressControl
@@ -649,34 +608,189 @@ export const OrgForm = withGoogleApi({
             orgWeb && orgWeb[0] ? { ...containerProps, mb: 3 } : { mb: 3 }
           }
         />
+      </>
+    );
 
-        <ErrorMessage
+    const PasswordFormControl = (
+      <>
+        <PasswordControl
+          name="orgPassword"
           errors={errors}
-          name="formErrorMessage"
-          render={({ message }) => (
-            <Alert status="error" mb={3}>
-              <AlertIcon />
-              <ErrorMessageText>{message}</ErrorMessageText>
-            </Alert>
-          )}
+          register={register}
+          my={3}
+          //isRequired={orgVisibility === Visibility.PRIVATE}
         />
+        <PasswordConfirmControl
+          name="orgPasswordConfirm"
+          errors={errors}
+          register={register}
+          password={password}
+        />
+      </>
+    );
 
-        <Flex justifyContent="space-between">
-          {props.onCancel && (
-            <Button colorScheme="red" onClick={props.onCancel}>
-              Annuler
-            </Button>
+    const VisibilityFormControl = (
+      <FormControl
+        isRequired
+        isInvalid={!!errors["orgVisibility"]}
+        onChange={async (e) => {
+          clearErrors("orgOrgs");
+        }}
+        mb={3}
+      >
+        <FormLabel>Visibilité {orgTypeLabel}</FormLabel>
+        <Select
+          name="orgVisibility"
+          ref={register({
+            required: `Veuillez sélectionner la visibilité ${orgTypeLabel}`
+          })}
+          color={isDark ? "whiteAlpha.400" : "gray.400"}
+          defaultValue={org?.orgVisibility || EOrgVisibility.PUBLIC}
+          placeholder={`Visibilité ${orgTypeLabel}`}
+        >
+          {Object.keys(EOrgVisibility).map((key) => {
+            const visibility = key as EOrgVisibility;
+            return (
+              <option key={visibility} value={visibility}>
+                {OrgVisibilities[visibility]}
+              </option>
+            );
+          })}
+        </Select>
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="orgVisibility" />
+        </FormErrorMessage>
+      </FormControl>
+    );
+    //#endregion
+
+    const formBoxProps: BoxProps = {
+      borderColor: isDark ? "whiteAlpha.300" : "gray.200",
+      borderRadius: "lg",
+      borderWidth: 1,
+      p: 3,
+      mb: 3
+    };
+
+    if (isEditConfig?.isAddingChild)
+      return (
+        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+          {ChildrenFormControl}
+          {FooterFormControl}
+        </form>
+      );
+
+    if (isEditConfig?.isAddingDescription)
+      return (
+        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+          {DescriptionFormControl}
+          {FooterFormControl}
+        </form>
+      );
+
+    if (isEditConfig?.isAddingInfo)
+      return (
+        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+          {InfoFormControl}
+          {FooterFormControl}
+        </form>
+      );
+
+    return (
+      <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+        <FormControl
+          isRequired
+          isInvalid={!!errors["orgName"]}
+          mb={getValues("orgName") ? 0 : 3}
+        >
+          <FormLabel>Nom {orgTypeLabel}</FormLabel>
+          <Input
+            name="orgName"
+            ref={register({
+              required: `Veuillez saisir le nom ${orgTypeLabel}`
+              // pattern: {
+              //   value: /^[A-zÀ-ú0-9 ]+$/i,
+              //   message:
+              //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
+              // }
+            })}
+            autoComplete="off"
+            defaultValue={org?.orgName}
+            placeholder={`Saisir le nom ${orgTypeLabel}`}
+          />
+          {getValues("orgName") && (
+            <Tooltip label={`Adresse de la page de ${orgTypeLabel}`}>
+              <Tag mt={3} alignSelf="flex-end" cursor="help">
+                {process.env.NEXT_PUBLIC_URL}/{normalize(getValues("orgName"))}
+              </Tag>
+            </Tooltip>
+          )}
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="orgName" />
+          </FormErrorMessage>
+        </FormControl>
+
+        {ChildrenFormControl}
+
+        {DescriptionFormControl}
+
+        <Box {...formBoxProps}>
+          {VisibilityFormControl}
+
+          {orgVisibility === EOrgVisibility.PRIVATE && org && (
+            <Link
+              variant="underline"
+              onClick={() => {
+                setIsPassword(!isPassword);
+              }}
+            >
+              {isPassword ? "Annuler" : "Changer le mot de passe"}
+            </Link>
           )}
 
-          <Button
-            colorScheme="green"
-            type="submit"
-            isLoading={isLoading}
-            isDisabled={Object.keys(errors).length > 0}
-          >
-            {org ? "Modifier" : "Ajouter"}
-          </Button>
-        </Flex>
+          {orgVisibility === EOrgVisibility.PRIVATE && (!org || isPassword)
+            ? PasswordFormControl
+            : null}
+        </Box>
+
+        {orgType === EOrgType.NETWORK && (
+          <Box {...formBoxProps}>
+            <FormLabel>Politique {orgTypeFull(orgType)}</FormLabel>
+
+            <Switch
+              name="anyoneCanAddChildren"
+              ref={register()}
+              defaultChecked={!!org?.orgPermissions?.anyoneCanAddChildren}
+              //   isChecked={!!org?.orgPermissions?.anyoneCanAddChildren}
+              //   onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
+              //     try {
+              //       setIsLoading(true);
+              //       const permission = { anyoneCanAddChildren: e.target.checked };
+              //       const payload = {
+              //         orgPermissions: org?.orgPermissions
+              //           ? { ...org.orgPermissions, permission }
+              //           : permission
+              //       };
+              // await editOrg({ orgId: org._id, payload }).unwrap();
+              //     } catch (error) {
+              //       setIsLoading(false);
+              //       handleError(error, (message) =>
+              //         setError("formErrorMessage", {
+              //           type: "manual",
+              //           message
+              //         })
+              //       );
+              //     }
+              //   }}
+            >
+              Tout le monde peut ajouter un arbre {orgTypeFull2(orgType)}
+            </Switch>
+          </Box>
+        )}
+
+        <Box {...formBoxProps}>{InfoFormControl}</Box>
+
+        {FooterFormControl}
       </form>
     );
   }

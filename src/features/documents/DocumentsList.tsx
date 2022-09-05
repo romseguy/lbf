@@ -60,8 +60,6 @@ interface RemoteImage {
 export const DocumentsList = ({
   org,
   user,
-  isLogin,
-  setIsLogin,
   isMobile,
   ...props
 }: {
@@ -69,8 +67,6 @@ export const DocumentsList = ({
   user?: IUser;
   isCreator?: boolean;
   isFollowed?: boolean;
-  isLogin: number;
-  setIsLogin: (isLogin: number) => void;
   isMobile: boolean;
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
@@ -181,7 +177,7 @@ export const DocumentsList = ({
                     });
                   else setIsAdd(!isAdd);
                 } else {
-                  setIsLogin(isLogin + 1);
+                  router.push("/login", "/login", { shallow: true });
                 }
               }
             }}

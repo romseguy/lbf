@@ -4,7 +4,7 @@ describe("AUTH", () => {
   beforeEach(() => {});
 
   it("should display login form", () => {
-    cy.visit("/?login");
+    cy.visit("/login");
     cy.k("email-input").should("exist");
     cy.k("password-input").should("exist");
   });

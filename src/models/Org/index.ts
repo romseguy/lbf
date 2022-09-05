@@ -156,7 +156,7 @@ export const orgTypeFull3 = (orgType: EOrgType = EOrgType.GENERIC): string => {
 };
 
 export const orgTypeFull4 = (orgType: EOrgType = EOrgType.GENERIC): string =>
-  `${[EOrgType.GENERIC].includes(orgType) ? "cette " : "ce "}${OrgTypes[
+  `${[EOrgType.GENERIC].includes(orgType) ? "cet " : "cette "}${OrgTypes[
     orgType
   ].toLowerCase()}`;
 

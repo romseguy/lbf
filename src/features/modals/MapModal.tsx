@@ -1,14 +1,14 @@
 import {
+  Alert,
+  AlertIcon,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalCloseButton,
-  Text,
-  Alert,
-  AlertIcon,
-  Spinner
+  Spinner,
+  Text
 } from "@chakra-ui/react";
 import React, { useRef, useState } from "react";
 import { LatLon } from "use-places-autocomplete";
@@ -57,7 +57,7 @@ export const MapModal = withGoogleApi({
       fullSize: { enabled: false }
     });
 
-    let title;
+    let title = "Carte";
 
     return (
       <Modal
@@ -130,7 +130,7 @@ export const MapModal = withGoogleApi({
                   />
                 </>
               ) : isOffline ? (
-                <Alert status="error" mb={3}>
+                <Alert status="error" mt={3}>
                   <AlertIcon />
                   Échec du chargement de la carte. Êtes-vous connecté à internet
                   ?
