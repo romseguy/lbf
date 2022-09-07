@@ -22,6 +22,22 @@ export const getEventCategories = (org?: IOrg): IOrgEventCategory[] => {
 };
 //#endregion
 
+//#region descriptions
+export const getOrgDescriptionByType = (orgType?: EOrgType): string => {
+  if (orgType === EOrgType.TREETOOLS)
+    return `
+    <b>Liste du matériel disponible :</b><br/><br/>
+    - Débroussailleuse<br/><br/>
+    - Tronçonneuse : à aiguiser<br/><br/>
+    <b>Conditions d'échange :</b><br/><br/>
+    Tarif fixe, libre, troc, ...<br /><br />
+    <b>Durée d'emprunt :</b><br/><br/>
+    3 jours à partir de la remise en main propre
+    `;
+  return "";
+};
+//#endregion
+
 //#region lists
 export const addOrReplaceList = (org: IOrg, list: IOrgList) => {
   let orgListExists = false;
@@ -140,33 +156,49 @@ export const defaultTabs: IOrgTabWithIcon[] = [
 //#region toString
 export const orgTypeFull = (orgType: EOrgType = EOrgType.GENERIC): string => {
   return `${
-    [EOrgType.GENERIC].includes(orgType) ? "de l'" : "de la "
+    [EOrgType.GENERIC].includes(orgType)
+      ? "de l'"
+      : [EOrgType.TREETOOLS].includes(orgType)
+      ? "du "
+      : "de la "
   }${OrgTypes[orgType].toLowerCase()}`;
 };
 
 export const orgTypeFull2 = (orgType: EOrgType = EOrgType.GENERIC): string =>
-  `${[EOrgType.GENERIC].includes(orgType) ? "à l'" : "à la "}${OrgTypes[
-    orgType
-  ].toLowerCase()}`;
+  `${
+    [EOrgType.GENERIC].includes(orgType)
+      ? "à l'"
+      : [EOrgType.TREETOOLS].includes(orgType)
+      ? "au "
+      : "à la "
+  }${OrgTypes[orgType].toLowerCase()}`;
 
 export const orgTypeFull3 = (orgType: EOrgType = EOrgType.GENERIC): string => {
-  return `${[EOrgType.GENERIC].includes(orgType) ? "un " : "une "}${OrgTypes[
-    orgType
-  ].toLowerCase()}`;
+  return `${
+    [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(orgType) ? "un " : "une "
+  }${OrgTypes[orgType].toLowerCase()}`;
 };
 
 export const orgTypeFull4 = (orgType: EOrgType = EOrgType.GENERIC): string =>
-  `${[EOrgType.GENERIC].includes(orgType) ? "cet " : "cette "}${OrgTypes[
-    orgType
-  ].toLowerCase()}`;
+  `${
+    [EOrgType.GENERIC].includes(orgType)
+      ? "cet "
+      : [EOrgType.TREETOOLS].includes(orgType)
+      ? "ce "
+      : "cette "
+  }${OrgTypes[orgType].toLowerCase()}`;
 
 export const orgTypeFull5 = (
   orgType: EOrgType = EOrgType.GENERIC,
   isCapitalized?: boolean
 ): string => {
-  const str = `${[EOrgType.NETWORK].includes(orgType) ? "la " : "l'"}${OrgTypes[
-    orgType
-  ].toLowerCase()}`;
+  const str = `${
+    [EOrgType.NETWORK].includes(orgType)
+      ? "la "
+      : [EOrgType.TREETOOLS].includes(orgType)
+      ? "le "
+      : "l'"
+  }${OrgTypes[orgType].toLowerCase()}`;
 
   if (isCapitalized) return capitalize(str);
 
@@ -175,7 +207,8 @@ export const orgTypeFull5 = (
 
 export const OrgTypes: Record<EOrgType, string> = {
   [EOrgType.GENERIC]: "Arbre",
-  [EOrgType.NETWORK]: "Planète"
+  [EOrgType.NETWORK]: "Planète",
+  [EOrgType.TREETOOLS]: "Noisettier"
 };
 
 export const OrgVisibilities: Record<EOrgVisibility, string> = {

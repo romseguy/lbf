@@ -26,9 +26,19 @@ export const EntityConfigLogoPanel = ({
     <Grid {...props}>
       <Link variant="no-underline" onClick={() => toggleVisibility("logo")}>
         <GridHeader
+          alignItems="center"
           borderTopRadius="lg"
           borderBottomRadius={!isVisible.logo ? "lg" : undefined}
-          alignItems="center"
+          dark={{
+            _hover: {
+              bg: "whiteAlpha.400"
+            }
+          }}
+          light={{
+            _hover: {
+              bg: "orange.200"
+            }
+          }}
         >
           <Flex alignItems="center">
             {isVisible.logo ? <FaMinusSquare /> : <FaPlusSquare />}
@@ -40,7 +50,7 @@ export const EntityConfigLogoPanel = ({
       </Link>
 
       {isVisible.logo && (
-        <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
+        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "whiteAlpha.500" }}>
           <Box p={5}>
             <LogoForm
               query={query}

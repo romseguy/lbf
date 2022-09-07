@@ -8,6 +8,7 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  useColorMode,
   useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
@@ -38,6 +39,8 @@ export const LogoForm = ({
 }: (EventConfigVisibility | OrgConfigVisibility) & {
   query: AppQuery<IOrg | IEvent>;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
   const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
@@ -194,14 +197,15 @@ export const LogoForm = ({
           <>
             <UrlControl
               name="url"
+              control={control}
+              defaultValue={entityLogo?.url}
+              errors={errors}
               register={register}
               setValue={setValue}
-              control={control}
-              errors={errors}
-              label="Adresse internet de l'image"
-              defaultValue={entityLogo?.url}
               isMultiple={false}
               isRequired
+              label="Adresse internet de l'image"
+              placeholder=""
               mb={3}
             />
 
@@ -214,6 +218,7 @@ export const LogoForm = ({
             <FormControl isInvalid={!!errors["file"]} mb={3}>
               <FormLabel>Image</FormLabel>
               <Input
+                backgroundColor={isDark ? "whiteAlpha.400" : "white"}
                 height="auto"
                 py={3}
                 name="file"

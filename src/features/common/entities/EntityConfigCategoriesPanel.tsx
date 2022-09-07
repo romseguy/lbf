@@ -74,6 +74,11 @@ export const EntityConfigCategoriesPanel = ({
         <GridHeader
           borderTopRadius="lg"
           borderBottomRadius={isAdd || isOpen ? undefined : "lg"}
+          dark={{
+            _hover: {
+              bg: "whiteAlpha.400"
+            }
+          }}
           light={{
             _hover: {
               bg: "orange.200"
@@ -132,7 +137,7 @@ export const EntityConfigCategoriesPanel = ({
       </Link>
 
       {isAdd && (
-        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }} p={5}>
+        <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }} p={5}>
           <AppHeading smaller mb={3}>
             Ajouter une catégorie{" "}
             {visibilityKey === "topicCategories"
@@ -154,8 +159,8 @@ export const EntityConfigCategoriesPanel = ({
 
       {isOpen && (
         <GridItem
-          light={{ bg: "orange.100" }}
-          dark={{ bg: "gray.500" }}
+          light={{ bg: "orange.50" }}
+          dark={{ bg: "whiteAlpha.500" }}
           overflowX="auto"
           aria-hidden
         >

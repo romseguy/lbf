@@ -2,7 +2,6 @@ import {
   Alert,
   AlertIcon,
   Box,
-  BoxProps,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -12,6 +11,8 @@ import {
   List,
   ListItem,
   Select,
+  Spinner,
+  Stack,
   Switch,
   Tag,
   Text,
@@ -22,7 +23,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
 import React, { useState, useEffect, useRef } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import useFormPersist from "react-hook-form-persist";
 import { FaTree } from "react-icons/fa";
 import Creatable from "react-select/creatable";
@@ -56,12 +57,15 @@ import {
 } from "models/Entity";
 import {
   IOrg,
+  IOrgPermissions,
   orgTypeFull,
   orgTypeFull5,
   EOrgType,
   EOrgVisibility,
   OrgVisibilities,
-  orgTypeFull2
+  orgTypeFull2,
+  OrgTypes,
+  getOrgDescriptionByType
 } from "models/Org";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
@@ -70,6 +74,7 @@ import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
 import { IsEditConfig } from "features/orgs/OrgPage";
+import { formBoxProps } from "features/layout/theme";
 
 type FormValues = {
   orgName: string;
@@ -108,12 +113,19 @@ export const OrgForm = withGoogleApi({
     const [addOrg] = useAddOrgMutation();
     const [editOrg] = useEditOrgMutation();
     const org = orgQuery?.data;
+    const allowedChildrenTypes = Object.keys(
+      org?.orgPermissions?.allowedChildrenTypes || {}
+    );
     const [orgTrees, setOrgTrees] = useState(
-      org ? org.orgs.filter((org) => org.orgType === EOrgType.GENERIC) : []
+      org
+        ? org.orgs.filter((org) =>
+            [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(org.orgType)
+          )
+        : []
     );
 
     const orgsQuery = useGetOrgsQuery();
-    const { data: myOrgs } = useGetOrgsQuery(
+    const myOrgsQuery = useGetOrgsQuery(
       {
         createdBy: session.user.userId
       },
@@ -130,18 +142,31 @@ export const OrgForm = withGoogleApi({
         }
       }
     );
+    const myOrgs = myOrgsQuery.data;
     const trees = session.user.isAdmin
       ? orgsQuery.data?.filter(
           (org) => org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
         )
-      : myOrgs?.filter(
-          (org) => org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
-        );
+      : myOrgs?.filter((myOrg) => {
+          if (myOrg.orgUrl === "forum") return false;
+
+          if (!allowedChildrenTypes.length)
+            return [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(
+              myOrg.orgType
+            );
+
+          return allowedChildrenTypes.includes(myOrg.orgType);
+        });
     const orgsOptions = trees
       ? trees.filter(
           (tree) => !orgTrees?.find((orgTree) => orgTree._id === tree._id)
         )
       : [];
+    const orgsPlaceholder = `Sélectionner ou créez ${
+      allowedChildrenTypes.length > 0
+        ? "le " + OrgTypes[allowedChildrenTypes[0] as EOrgType].toLowerCase()
+        : "l'arbre"
+    } que vous voulez planter`;
 
     //#region local state
     const containerProps = {
@@ -183,6 +208,10 @@ export const OrgForm = withGoogleApi({
     });
     useLeaveConfirm({ formState });
 
+    const hasSelectedChildrenTypes = useWatch<string>({
+      control,
+      name: "hasSelectedChildrenTypes"
+    });
     const orgAddress = watch("orgAddress");
     const orgEmail = watch("orgEmail");
     const orgPhone = watch("orgPhone");
@@ -212,11 +241,14 @@ export const OrgForm = withGoogleApi({
       orgVisibility?: EOrgVisibility;
       orgPassword?: string;
       orgPasswordConfirm?: string;
-      anyoneCanAddChildren: boolean;
       orgAddress?: IEntityAddress[];
       orgEmail?: IEntityEmail[];
       orgPhone?: IEntityPhone[];
       orgWeb?: IEntityWeb[];
+      // permissions
+      allowedChildrenTypes: string;
+      anyoneCanAddChildren: boolean;
+      hasSelectedChildrenTypes: boolean;
     }) => {
       console.log("submitted", form);
       setIsLoading(true);
@@ -224,19 +256,9 @@ export const OrgForm = withGoogleApi({
       try {
         const orgName = form.orgName ? form.orgName.trim() : org?.orgName;
         if (!orgName) throw new Error("Une erreur inattendue est survenue.");
-
         let orgUrl = normalize(orgName);
-        const orgDescription =
-          !form.orgDescription || !form.orgDescription.length
-            ? undefined
-            : form.orgDescription;
+        const orgDescription = form.orgDescription || "";
         const orgs = orgTrees;
-        const orgPermissions = org?.orgPermissions
-          ? {
-              ...org?.orgPermissions,
-              anyoneCanAddChildren: form.anyoneCanAddChildren
-            }
-          : { anyoneCanAddChildren: form.anyoneCanAddChildren };
         const orgAddress = (form.orgAddress || []).filter(
           ({ address }) => address !== ""
         );
@@ -247,6 +269,21 @@ export const OrgForm = withGoogleApi({
           ({ phone }) => phone !== ""
         );
         const orgWeb = (form.orgWeb || []).filter(({ url }) => url !== "");
+
+        let permissions: IOrgPermissions = {
+          anyoneCanAddChildren: form.anyoneCanAddChildren
+        };
+        if (form.hasSelectedChildrenTypes) {
+          permissions.allowedChildrenTypes = {
+            [form.allowedChildrenTypes]: true
+          };
+        } else permissions.allowedChildrenTypes = {};
+        const orgPermissions = org?.orgPermissions
+          ? {
+              ...org?.orgPermissions,
+              ...permissions
+            }
+          : permissions;
 
         let payload: AddOrgPayload = {
           ...form,
@@ -339,13 +376,12 @@ export const OrgForm = withGoogleApi({
     const [storage, setStorage] = useState<Storage | undefined>();
     useEffect(() => {
       setStorage(window.localStorage);
-
-      if (!org) {
-        const formData = window.localStorage.getItem("storageKey");
-        if (formData) {
-          setOrgDescriptionDefaultValue(JSON.parse(formData).orgDescription);
-        }
-      }
+      const formData = window.localStorage.getItem("storageKey");
+      if (formData && formData.includes("orgDescription")) {
+        const parsed = JSON.parse(formData);
+        if (parsed.orgDescription)
+          setOrgDescriptionDefaultValue(parsed.orgDescription);
+      } else setOrgDescriptionDefaultValue(getOrgDescriptionByType(orgType));
     }, []);
     useFormPersist("storageKey", {
       watch,
@@ -373,7 +409,11 @@ export const OrgForm = withGoogleApi({
         isInvalid={!!errors["orgs"]}
         display={orgType !== EOrgType.NETWORK ? "none" : undefined}
       >
-        <FormLabel>Arbres de la planète</FormLabel>
+        <FormLabel>
+          {isEditConfig?.isAddingChild
+            ? orgsPlaceholder + " :"
+            : "Forêt de la planète"}
+        </FormLabel>
 
         {Array.isArray(orgTrees) && orgTrees.length > 0 && (
           <List>
@@ -403,92 +443,113 @@ export const OrgForm = withGoogleApi({
           </List>
         )}
 
-        <Controller
-          name="orgs"
-          control={control}
-          defaultValue={[]}
-          render={(renderProps) => {
-            return (
-              <Creatable
-                options={orgsOptions.map(({ _id, orgName }) => ({
-                  label: orgName,
-                  value: _id
-                }))}
-                value={renderProps.value}
-                onChange={(options, { action, option }) => {
-                  if (action === "select-option") {
-                    const tree = trees?.find(({ _id }) => _id === option.value);
-                    if (tree) setOrgTrees([...orgTrees, tree]);
-                  } else renderProps.onChange;
-                }}
-                onCreateOption={async (inputValue: string) => {
-                  try {
-                    const payload: AddOrgPayload = {
-                      orgName: inputValue,
-                      orgType: EOrgType.GENERIC,
-                      orgs: org ? [org] : [],
-                      orgVisibility: EOrgVisibility.PUBLIC,
-                      orgAddress: [],
-                      orgEmail: [],
-                      orgPhone: [],
-                      orgWeb: []
-                    };
+        {myOrgsQuery.isLoading ? (
+          <Spinner />
+        ) : (
+          <Controller
+            name="orgs"
+            control={control}
+            defaultValue={[]}
+            render={(renderProps) => {
+              return (
+                <Creatable
+                  options={orgsOptions.map(({ _id, orgName }) => ({
+                    label: orgName,
+                    value: _id
+                  }))}
+                  value={renderProps.value}
+                  onChange={(options, { action, option }) => {
+                    if (action === "select-option") {
+                      const tree = trees?.find(
+                        ({ _id }) => _id === option.value
+                      );
+                      if (tree) setOrgTrees([...orgTrees, tree]);
+                    } else renderProps.onChange;
+                  }}
+                  onCreateOption={async (inputValue: string) => {
+                    try {
+                      const allowedChildrenTypes = Object.keys(
+                        org?.orgPermissions?.allowedChildrenTypes || {}
+                      );
+                      const payload: AddOrgPayload = {
+                        orgName: inputValue,
+                        orgType:
+                          allowedChildrenTypes.length > 0
+                            ? (allowedChildrenTypes[0] as EOrgType)
+                            : EOrgType.GENERIC,
+                        orgs: org ? [org] : [],
+                        orgVisibility: EOrgVisibility.PUBLIC,
+                        orgAddress: [],
+                        orgEmail: [],
+                        orgPhone: [],
+                        orgWeb: []
+                      };
 
-                    const addedOrg = await addOrg(payload).unwrap();
+                      const addedOrg = await addOrg(payload).unwrap();
 
-                    setOrgTrees(orgTrees.concat(addedOrg));
+                      setOrgTrees(orgTrees.concat(addedOrg));
 
-                    // setValue(
-                    //   "orgs",
-                    //   renderProps.value.concat({
-                    //     label: addedOrg.orgName,
-                    //     value: addedOrg._id
-                    //   })
-                    // );
+                      // setValue(
+                      //   "orgs",
+                      //   renderProps.value.concat({
+                      //     label: addedOrg.orgName,
+                      //     value: addedOrg._id
+                      //   })
+                      // );
 
-                    // toast({
-                    //   status: "success",
-                    //   title: "L'arbre a bien été créé !"
-                    // });
-                  } catch (error: any) {
-                    console.error(error);
-                    toast({
-                      status: "error",
-                      title: error.message
-                    });
+                      // toast({
+                      //   status: "success",
+                      //   title: "L'arbre a bien été créé !"
+                      // });
+                    } catch (error: any) {
+                      console.error(error);
+                      toast({
+                        status: "error",
+                        title: error.message
+                      });
+                    }
+                  }}
+                  //#region ui
+                  allowCreateWhileLoading
+                  formatCreateLabel={(inputValue: string) =>
+                    `Planter ${
+                      allowedChildrenTypes.length > 0
+                        ? "le " +
+                          OrgTypes[
+                            allowedChildrenTypes[0] as EOrgType
+                          ].toLowerCase()
+                        : "l'arbre"
+                    } "${inputValue}"`
                   }
-                }}
-                //#region ui
-                allowCreateWhileLoading
-                formatCreateLabel={(inputValue: string) =>
-                  `Ajouter l'arbre "${inputValue}"`
-                }
-                isClearable
-                isMulti
-                noOptionsMessage={() => "Aucun résultat"}
-                placeholder="Rechercher ou ajouter un arbre"
-                //#endregion
-                //#region styling
-                className="react-select-container"
-                classNamePrefix="react-select"
-                styles={{
-                  control: (defaultStyles: any) => {
-                    return {
-                      ...defaultStyles,
-                      borderColor: "#e2e8f0"
-                    };
-                  },
-                  placeholder: () => {
-                    return {
-                      color: "#A0AEC0"
-                    };
+                  isClearable
+                  isMulti
+                  noOptionsMessage={() => "Aucun résultat"}
+                  placeholder={
+                    isEditConfig?.isAddingChild ? "" : orgsPlaceholder
                   }
-                }}
-                //#endregion
-              />
-            );
-          }}
-        />
+                  //#endregion
+                  //#region styling
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (defaultStyles: any) => {
+                      return {
+                        ...defaultStyles,
+                        borderColor: "#e2e8f0"
+                      };
+                    },
+                    placeholder: () => {
+                      return {
+                        color: "#A0AEC0"
+                      };
+                    }
+                  }}
+                  //#endregion
+                />
+              );
+            }}
+          />
+        )}
 
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="orgs" />
@@ -664,14 +725,6 @@ export const OrgForm = withGoogleApi({
     );
     //#endregion
 
-    const formBoxProps: BoxProps = {
-      borderColor: isDark ? "whiteAlpha.300" : "gray.200",
-      borderRadius: "lg",
-      borderWidth: 1,
-      p: 3,
-      mb: 3
-    };
-
     if (isEditConfig?.isAddingChild)
       return (
         <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
@@ -734,61 +787,70 @@ export const OrgForm = withGoogleApi({
 
         {DescriptionFormControl}
 
-        <Box {...formBoxProps}>
+        <Box {...formBoxProps(isDark)}>
           {VisibilityFormControl}
 
-          {orgVisibility === EOrgVisibility.PRIVATE && org && (
-            <Link
-              variant="underline"
-              onClick={() => {
-                setIsPassword(!isPassword);
-              }}
-            >
-              {isPassword ? "Annuler" : "Changer le mot de passe"}
-            </Link>
-          )}
+          {orgVisibility === EOrgVisibility.PRIVATE && (
+            <>
+              {org?.orgPassword ? (
+                <>
+                  <Link
+                    variant="underline"
+                    onClick={() => {
+                      setIsPassword(!isPassword);
+                    }}
+                  >
+                    {isPassword ? "Annuler" : "Changer le mot de passe"}
+                  </Link>
 
-          {orgVisibility === EOrgVisibility.PRIVATE && (!org || isPassword)
-            ? PasswordFormControl
-            : null}
+                  {isPassword && PasswordFormControl}
+                </>
+              ) : (
+                <>{PasswordFormControl}</>
+              )}
+            </>
+          )}
         </Box>
 
         {orgType === EOrgType.NETWORK && (
-          <Box {...formBoxProps}>
+          <Box {...formBoxProps(isDark)}>
             <FormLabel>Politique {orgTypeFull(orgType)}</FormLabel>
 
-            <Switch
-              name="anyoneCanAddChildren"
-              ref={register()}
-              defaultChecked={!!org?.orgPermissions?.anyoneCanAddChildren}
-              //   isChecked={!!org?.orgPermissions?.anyoneCanAddChildren}
-              //   onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-              //     try {
-              //       setIsLoading(true);
-              //       const permission = { anyoneCanAddChildren: e.target.checked };
-              //       const payload = {
-              //         orgPermissions: org?.orgPermissions
-              //           ? { ...org.orgPermissions, permission }
-              //           : permission
-              //       };
-              // await editOrg({ orgId: org._id, payload }).unwrap();
-              //     } catch (error) {
-              //       setIsLoading(false);
-              //       handleError(error, (message) =>
-              //         setError("formErrorMessage", {
-              //           type: "manual",
-              //           message
-              //         })
-              //       );
-              //     }
-              //   }}
-            >
-              Tout le monde peut ajouter un arbre {orgTypeFull2(orgType)}
-            </Switch>
+            <Stack flexDirection="column" spacing={3}>
+              <Switch
+                name="anyoneCanAddChildren"
+                ref={register()}
+                defaultChecked={!!org?.orgPermissions?.anyoneCanAddChildren}
+                cursor="pointer"
+                display="flex"
+                alignItems="center"
+              >
+                Tout le monde peut ajouter un arbre {orgTypeFull2(orgType)}
+              </Switch>
+
+              <Switch
+                name="hasSelectedChildrenTypes"
+                ref={register()}
+                defaultChecked={!!org?.orgPermissions?.allowedChildrenTypes}
+                cursor="pointer"
+                display="flex"
+                alignItems="center"
+              >
+                Restreindre la forêt à un {/*ou plusieurs*/} type d'arbre
+              </Switch>
+
+              {hasSelectedChildrenTypes && (
+                <Select name="allowedChildrenTypes" ref={register()}>
+                  <option value={EOrgType.TREETOOLS}>
+                    {OrgTypes[EOrgType.TREETOOLS]}
+                  </option>
+                </Select>
+              )}
+            </Stack>
           </Box>
         )}
 
-        <Box {...formBoxProps}>{InfoFormControl}</Box>
+        <Box {...formBoxProps(isDark)}>{InfoFormControl}</Box>
 
         {FooterFormControl}
       </form>

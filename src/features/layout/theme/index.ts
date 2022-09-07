@@ -35,11 +35,11 @@ const theme = extendTheme({
       }
     },
     Input: {
-      baseStyle: {
-        field: {
-          //backgroundColor: "gray.100"
-        }
-      },
+      // baseStyle: {
+      //   field: {
+      //     backgroundColor: "gray.100"
+      //   }
+      // },
       variants: {
         /**
          * Input component will use "outline" styles by default.
@@ -47,50 +47,74 @@ const theme = extendTheme({
          */
         outline: {
           field: {
-            background: "white",
-            border: "1px solid",
-            borderColor: "inherit",
-            _focus: {
-              zIndex: 1,
-              borderColor: "#3182ce",
-              boxShadow: "0 0 0 1px #3182ce"
+            ".chakra-ui-light &": {
+              background: "white",
+              border: "1px solid",
+              borderColor: "inherit",
+              _focus: {
+                zIndex: 1,
+                borderColor: "#3182ce",
+                boxShadow: "0 0 0 1px #3182ce"
+              },
+              _hover: { borderColor: "gray.300" }
             },
-            _hover: { borderColor: "gray.300" }
+            ".chakra-ui-dark &": {
+              backgroundColor: "#9EA4AF"
+            },
+            "::placeholder": { color: "white" }
           }
         },
         filled: {
           field: {
-            background: "gray.100",
-            border: "2px solid",
-            borderColor: "transparent",
-            _focus: {
-              background: "transparent",
-              borderColor: "#3182ce"
+            ".chakra-ui-light &": {
+              background: "gray.100",
+              border: "2px solid",
+              borderColor: "transparent",
+              _focus: {
+                background: "transparent",
+                borderColor: "#3182ce"
+              },
+              _hover: {
+                background: "gray.300"
+              }
             },
-            _hover: {
-              background: "gray.300"
+            ".chakra-ui-dark &": {
+              background: "yellow"
             }
           }
         },
         flushed: {
           field: {
-            background: "transparent",
-            borderBottom: "1px solid",
-            borderColor: "inherit",
-            borderRadius: 0,
-            paddingX: 0,
-            _focus: {
-              borderColor: "#3182ce",
-              boxShadow: "0 0 0 1px #3182ce"
+            ".chakra-ui-light &": {
+              background: "transparent",
+              borderBottom: "1px solid",
+              borderColor: "inherit",
+              borderRadius: 0,
+              paddingX: 0,
+              _focus: {
+                borderColor: "#3182ce",
+                boxShadow: "0 0 0 1px #3182ce"
+              }
+            },
+            ".chakra-ui-dark &": {
+              background: "green"
             }
           }
         },
         unstyled: {
           field: {
-            background: "transparent",
-            borderRadius: "md",
-            height: "auto",
-            paddingX: 0
+            ".chakra-ui-light &": {
+              background: "transparent",
+              borderRadius: "md",
+              height: "auto",
+              paddingX: 0
+            },
+            ".chakra-ui-dark &": {
+              background: "transparent",
+              borderRadius: "md",
+              height: "auto",
+              paddingX: 0
+            }
           }
         }
       },

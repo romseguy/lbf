@@ -41,7 +41,9 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
         @media (min-width: ${breakpoints["2xl"]}) {
           body {
             background: url(/images/bg.png);
-            background-color: ${theme.colors.green["100"]};
+            background-color: ${isDark
+              ? theme.colors.black
+              : theme.colors.green["100"]};
             background-position: center center;
             background-repeat: no-repeat;
             background-attachment: fixed;
@@ -99,6 +101,10 @@ export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
               background-color: ${isDark
                 ? theme.colors.whiteAlpha[300]
                 : theme.colors.gray[200]};
+            }
+
+            .react-select__placeholder {
+              color: ${isDark ? "white !important" : undefined};
             }
 
             .react-select__value-container {

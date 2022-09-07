@@ -1,10 +1,19 @@
+import { BoxProps } from "@chakra-ui/react";
 import { breakpoints } from "./breakpoints";
+
+export const formBoxProps = (isDark?: boolean): BoxProps => ({
+  borderColor: isDark ? "whiteAlpha.300" : "gray.200",
+  borderRadius: "lg",
+  borderWidth: 1,
+  p: 3,
+  mb: 3
+});
 
 export const rainbowTextCss = (isDark?: boolean) => `
 background-clip: text;
 background-image: linear-gradient(to left, ${
   isDark
-    ? "violet, violet, white, green, yellow, orange, red"
+    ? "violet, violet, lightgreen, lightgreen, yellow, orange, red"
     : "red, green, green, brown, green, green, brown"
 });
 color: transparent;

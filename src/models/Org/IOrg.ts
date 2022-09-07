@@ -17,7 +17,8 @@ import { AppIcon } from "utils/types";
 
 export enum EOrgType {
   GENERIC = "GENERIC",
-  NETWORK = "NETWORK"
+  NETWORK = "NETWORK",
+  TREETOOLS = "TREETOOLS"
 }
 
 export enum EOrgVisibility {
@@ -75,5 +76,6 @@ export interface IOrgTabWithIcon extends IOrgTab {
 export interface IOrgTopicCategory extends IEntityCategory {}
 
 export interface IOrgPermissions {
-  anyoneCanAddChildren: boolean;
+  allowedChildrenTypes?: { [key: string]: boolean };
+  anyoneCanAddChildren?: boolean;
 }

@@ -66,6 +66,11 @@ export const OrgConfigSubscribersPanel = ({
           borderBottomRadius={
             !isVisible.subscribers && !isAdd ? "lg" : undefined
           }
+          dark={{
+            _hover: {
+              bg: "whiteAlpha.400"
+            }
+          }}
           light={{
             _hover: {
               bg: "orange.200"
@@ -124,7 +129,7 @@ export const OrgConfigSubscribersPanel = ({
       </Link>
 
       {isAdd && (
-        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }} p={5}>
+        <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }} p={5}>
           <AppHeading smaller mb={3}>
             Inscrire des koalas à {orgTypeFull5(org.orgType)}
           </AppHeading>
@@ -145,8 +150,8 @@ export const OrgConfigSubscribersPanel = ({
 
       {isVisible.subscribers && (
         <GridItem
-          light={{ bg: "orange.100" }}
-          dark={{ bg: "gray.500" }}
+          light={{ bg: "orange.50" }}
+          dark={{ bg: "whiteAlpha.500" }}
           overflowX="auto"
           aria-hidden
         >

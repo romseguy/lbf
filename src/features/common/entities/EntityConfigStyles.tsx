@@ -4,14 +4,15 @@ import {
   Box,
   BoxProps,
   FormControl,
-  FormLabel,
-  Switch
+  Switch,
+  useColorMode
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useEditEventMutation } from "features/api/eventsApi";
 import { useEditOrgMutation } from "features/api/orgsApi";
+import { formBoxProps } from "features/layout/theme";
 import { isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -25,6 +26,8 @@ export const EntityConfigStyles = ({
 }: BoxProps & {
   query: AppQueryWithData<IEvent | IOrg>;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
   const entity = (query.data || {}) as IEvent | IOrg;
@@ -72,16 +75,21 @@ export const EntityConfigStyles = ({
   return (
     <Box {...props}>
       <form onChange={onChange}>
-        <FormControl display="flex">
-          <FormLabel>Afficher l'entête</FormLabel>
-          <Switch
-            isChecked={
-              isE ? entity.eventStyles.showTitle : entity.orgStyles.showTitle
-            }
-            isDisabled={isLoading}
-            onChange={onShowTitleChange}
-          />
-        </FormControl>
+        <Box {...formBoxProps(isDark)} mb={0}>
+          <FormControl>
+            <Switch
+              isChecked={
+                isE ? entity.eventStyles.showTitle : entity.orgStyles.showTitle
+              }
+              isDisabled={isLoading}
+              onChange={onShowTitleChange}
+              display="flex"
+              alignItems="center"
+            >
+              Afficher l'entête
+            </Switch>
+          </FormControl>
+        </Box>
 
         <ErrorMessage
           errors={errors}

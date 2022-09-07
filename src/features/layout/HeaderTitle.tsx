@@ -95,7 +95,7 @@ export const HeaderTitle = ({
         {pageHeader ? (
           pageHeader
         ) : (
-          <Heading pr={1}>{capitalize(name || pageTitle || "")}</Heading>
+          <Heading pr={1}>{name || pageTitle || ""}</Heading>
         )}
       </Link>
 

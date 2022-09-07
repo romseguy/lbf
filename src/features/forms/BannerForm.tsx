@@ -9,6 +9,7 @@ import {
   RadioGroup,
   Select,
   Stack,
+  useColorMode,
   useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
@@ -39,6 +40,8 @@ export const BannerForm = ({
 }: (EventConfigVisibility | OrgConfigVisibility) & {
   query: AppQuery<IOrg | IEvent>;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
   const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
@@ -227,14 +230,15 @@ export const BannerForm = ({
           <>
             <UrlControl
               name="url"
+              control={control}
+              defaultValue={entityBanner?.url}
+              errors={errors}
               register={register}
               setValue={setValue}
-              control={control}
-              errors={errors}
-              label="Adresse internet de l'image"
-              defaultValue={entityBanner?.url}
               isMultiple={false}
               isRequired
+              label="Adresse internet de l'image"
+              placeholder=""
               mb={3}
             />
 
@@ -253,6 +257,7 @@ export const BannerForm = ({
             <FormControl isInvalid={!!errors["file"]} mb={3}>
               <FormLabel>Image</FormLabel>
               <Input
+                backgroundColor={isDark ? "whiteAlpha.400" : "white"}
                 height="auto"
                 py={3}
                 name="file"

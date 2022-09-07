@@ -65,9 +65,15 @@ const OrgPopoverContent = ({
               }
               return 0;
             })
-            .filter(
-              (org) => org.orgUrl !== "forum" && org.orgType === orgType
-            ) || []
+            .filter((org) => {
+              if (org.orgUrl === "forum") return false;
+              if (
+                orgType === EOrgType.GENERIC &&
+                org.orgType !== EOrgType.NETWORK
+              )
+                return true;
+              return org.orgType === orgType;
+            }) || []
       })
     }
   );

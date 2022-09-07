@@ -26,9 +26,19 @@ export const EntityConfigBannerPanel = ({
     <Grid {...props}>
       <Link variant="no-underline" onClick={() => toggleVisibility("banner")}>
         <GridHeader
+          alignItems="center"
           borderTopRadius="lg"
           borderBottomRadius={!isVisible.banner ? "lg" : undefined}
-          alignItems="center"
+          dark={{
+            _hover: {
+              bg: "whiteAlpha.400"
+            }
+          }}
+          light={{
+            _hover: {
+              bg: "orange.200"
+            }
+          }}
         >
           <Flex flexDirection="row" alignItems="center">
             {isVisible.banner ? <FaMinusSquare /> : <FaPlusSquare />}
@@ -40,7 +50,7 @@ export const EntityConfigBannerPanel = ({
       </Link>
 
       {isVisible.banner && (
-        <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }}>
+        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "whiteAlpha.500" }}>
           <Box p={5}>
             <BannerForm
               query={query}

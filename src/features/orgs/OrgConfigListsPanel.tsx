@@ -115,6 +115,11 @@ export const OrgConfigListsPanel = ({
         <GridHeader
           borderTopRadius="lg"
           borderBottomRadius={!isVisible.lists && !isAdd ? "lg" : undefined}
+          dark={{
+            _hover: {
+              bg: "whiteAlpha.400"
+            }
+          }}
           light={{
             _hover: {
               bg: "orange.200"
@@ -174,7 +179,7 @@ export const OrgConfigListsPanel = ({
       </Link>
 
       {isAdd && (
-        <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.500" }} p={5}>
+        <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }} p={5}>
           <AppHeading smaller mb={3}>
             Ajouter une liste
           </AppHeading>
@@ -188,8 +193,8 @@ export const OrgConfigListsPanel = ({
           <Text>Chargement des listes...</Text>
         ) : hasItems(lists) ? (
           <GridItem
-            light={{ bg: "orange.100" }}
-            dark={{ bg: "gray.500" }}
+            light={{ bg: "orange.50" }}
+            dark={{ bg: "whiteAlpha.500" }}
             overflowX="auto"
             aria-hidden
           >
@@ -204,7 +209,7 @@ export const OrgConfigListsPanel = ({
             >
               <Thead>
                 <Tr>
-                  <Th>Nom</Th>
+                  <Th>Nom de la liste</Th>
                   <Th></Th>
                   <Th></Th>
                 </Tr>

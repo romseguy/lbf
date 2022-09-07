@@ -31,7 +31,8 @@ import {
   IOrg,
   orgTypeFull,
   EOrgType,
-  EOrgVisibility as OrgVisibility
+  EOrgVisibility as OrgVisibility,
+  orgTypeFull2
 } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
@@ -213,6 +214,7 @@ export const OrgPageHomeTabPanel = ({
                           <FaTree />
                         </>
                       }
+                      pr={1}
                       onClick={() => setIsEdit({ isAddingChild: true })}
                     />
                   </Tooltip>
@@ -250,10 +252,12 @@ export const OrgPageHomeTabPanel = ({
           ) : isCreator ? (
             <Tooltip
               placement="right"
-              label="Ajouter des coordonnées à la planète"
+              label={`Ajouter des coordonnées ${orgTypeFull2(org.orgType)}`}
             >
               <IconButton
-                aria-label="Ajouter des coordonnées à la planète"
+                aria-label={`Ajouter des coordonnées ${orgTypeFull2(
+                  org.orgType
+                )}`}
                 alignSelf="flex-start"
                 colorScheme="teal"
                 icon={
@@ -262,6 +266,7 @@ export const OrgPageHomeTabPanel = ({
                     <FaMapMarkedAlt />
                   </>
                 }
+                pr={1}
                 onClick={() => setIsEdit({ isAddingInfo: true })}
               />
             </Tooltip>
@@ -301,10 +306,12 @@ export const OrgPageHomeTabPanel = ({
           ) : isCreator ? (
             <Tooltip
               placement="right"
-              label="Ajouter une description à la planète"
+              label={`Ajouter une description ${orgTypeFull2(org.orgType)}`}
             >
               <IconButton
-                aria-label="Ajouter une description à la planète"
+                aria-label={`Ajouter une description ${orgTypeFull2(
+                  org.orgType
+                )}`}
                 alignSelf="flex-start"
                 colorScheme="teal"
                 icon={
@@ -313,6 +320,7 @@ export const OrgPageHomeTabPanel = ({
                     <FaNewspaper />
                   </>
                 }
+                pr={1}
                 onClick={() => setIsEdit({ isAddingDescription: true })}
               />
             </Tooltip>

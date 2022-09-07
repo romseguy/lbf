@@ -106,10 +106,10 @@ export const EntityListForm = ({
         <Input
           name="listName"
           ref={register({
-            required: "Veuillez saisir un nom"
+            required: "Veuillez saisir un nom de liste"
           })}
           defaultValue={props.list?.listName}
-          placeholder="Nom de la liste"
+          //placeholder="Nom de la liste"
         />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="listName" />
@@ -138,7 +138,8 @@ export const EntityListForm = ({
                   )}
                   allOptionLabel="Tous les abonnés"
                   closeMenuOnSelect={false}
-                  placeholder="Rechercher un e-mail ou un numéro de téléphone..."
+                  //placeholder="Rechercher un e-mail ou un numéro de téléphone..."
+                  placeholder="Rechercher un e-mail..."
                   menuPlacement="top"
                   noOptionsMessage={() => "Aucun résultat"}
                   isClearable

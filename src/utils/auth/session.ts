@@ -48,15 +48,20 @@ export async function getSession(params?: any): Promise<Session | null> {
   return { user };
 }
 
-export const devSession = {
-  user: {
-    email: "rom.seguy@lilo.org",
-    userId: "60e340cb56ef290008d2e75d",
-    userName: "romain"
-    //     email: "rom.seguy@gmail.com",
-    //     userId: "61138a879544b000088318ae",
-    //     userName: "romseguy66"
-  }
-};
-
-//export const devSession = null;
+export const devSession =
+  // null
+  // admin
+  {
+    user: {
+      email: "rom.seguy@lilo.org",
+      userId: "60e340cb56ef290008d2e75d",
+      userName: "romain"
+    }
+  };
+// {
+//   user: {
+//     email: "rom.seguy@gmail.com",
+//     userId: "61138a879544b000088318ae",
+//     userName: "romseguy66"
+//   }
+// };

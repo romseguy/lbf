@@ -15,7 +15,7 @@ export const GridHeader = ({
   return (
     <GridItem
       light={{ bg: "orange.300", ...light }}
-      dark={{ bg: "gray.700", ...dark }}
+      dark={{ bg: "whiteAlpha.300", ...dark }}
       pl={pl}
       {...props}
     >
