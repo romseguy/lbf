@@ -1,12 +1,4 @@
-import {
-  Alert,
-  AlertIcon,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Flex,
-  InputLeftElement
-} from "@chakra-ui/react";
+import { Alert, AlertIcon, Flex, InputLeftElement } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -76,7 +68,7 @@ export const SubscriptionForm = ({
 
   const [tags, setTags] = useState<ItemTag[]>([]);
 
-  const onChange = () => clearErrors();
+  const onChange = () => clearErrors("formErrorMessage");
 
   const onSubmit = async (form: FormValues) => {
     console.log("submitted", form);
@@ -204,31 +196,29 @@ export const SubscriptionForm = ({
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-      <FormControl isInvalid={!!errors.emailList} mb={3}>
-        <FormLabel>Adresse(s) e-mail : </FormLabel>
-
-        <TagsControl
-          control={control}
-          leftElement={
-            <InputLeftElement cursor="pointer" children={<AtSignIcon />} />
-          }
-          name="emailList"
-          tags={tags}
-          setTags={setTags}
-          setValue={setValue}
-        />
-
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="emailList" />
-        </FormErrorMessage>
-      </FormControl>
-
-      <ListsControl
+      <TagsControl
+        name="emailList"
         control={control}
         errors={errors}
+        setError={setError}
+        setValue={setValue}
+        isRequired
+        label="Adresse(s) e-mail : "
+        leftElement={
+          <InputLeftElement cursor="pointer" children={<AtSignIcon />} />
+        }
+        tags={tags}
+        setTags={setTags}
+      />
+
+      <ListsControl
+        name="orgLists"
+        control={control}
+        errors={errors}
+        setError={setError}
+        isRequired
         label="Liste(s) :"
         lists={org.orgLists}
-        name="orgLists"
         onChange={onChange}
       />
 

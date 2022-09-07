@@ -156,7 +156,7 @@ export const SubscriptionsListItem = ({
           <Spinner boxSize={4} />
         ) : ( */}
             <>
-              <Tooltip label="Modifier" placement="left">
+              {/* <Tooltip label="Modifier" placement="left">
                 <IconButton
                   aria-label="Modifier"
                   colorScheme="green"
@@ -164,10 +164,9 @@ export const SubscriptionsListItem = ({
                   variant="outline"
                   mr={3}
                   onClick={() => {
-                    //onEditClick(topic);
                   }}
                 />
-              </Tooltip>
+              </Tooltip> */}
 
               <DeleteButton
                 header={

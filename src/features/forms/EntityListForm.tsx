@@ -1,23 +1,26 @@
 import {
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
   Alert,
   AlertIcon,
-  Flex,
   Button,
-  Input
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ErrorMessageText, MultiSelect } from "features/common";
+import useFormPersist from "react-hook-form-persist";
+import Creatable from "react-select/creatable";
+import { ErrorMessageText } from "features/common";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import { IOrg, IOrgList } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
-import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
-import { useLeaveConfirm } from "hooks/useLeaveConfirm";
-import useFormPersist from "react-hook-form-persist";
+import { handleError } from "utils/form";
+import { emailR } from "utils/email";
 
 const subscriptionsToOptions = (subscriptions: ISubscription[]) =>
   subscriptions.map((subscription) => {
@@ -32,15 +35,18 @@ const subscriptionsToOptions = (subscriptions: ISubscription[]) =>
   });
 
 export const EntityListForm = ({
+  allOptionLabel,
   org,
   onCancel,
   ...props
 }: {
+  allOptionLabel?: string;
   list?: IOrgList;
   org: IOrg;
   onCancel?: () => void;
   onSubmit: (form: IOrgList) => Promise<void>;
 }) => {
+  const toast = useToast({ position: "top" });
   const [isLoading, setIsLoading] = useState(false);
 
   //#region form
@@ -116,71 +122,111 @@ export const EntityListForm = ({
         </FormErrorMessage>
       </FormControl>
 
-      {hasItems(org.orgSubscriptions) && (
-        <FormControl mb={3}>
-          <FormLabel>Koalas</FormLabel>
+      <FormControl mb={3}>
+        <FormLabel>Koalas</FormLabel>
 
-          <Controller
-            name="subscriptions"
-            control={control}
-            defaultValue={subscriptionsToOptions(defaultSubscriptions)}
-            render={(renderProps) => {
-              return (
-                <MultiSelect
-                  value={renderProps.value}
-                  onChange={renderProps.onChange}
-                  options={subscriptionsToOptions(
-                    org.orgSubscriptions.filter((subscription) =>
-                      subscription.orgs?.find(
-                        (orgSubscription) => orgSubscription.orgId === org._id
+        <Controller
+          name="subscriptions"
+          control={control}
+          defaultValue={subscriptionsToOptions(defaultSubscriptions)}
+          render={(renderProps) => {
+            return (
+              <Creatable
+                options={subscriptionsToOptions(
+                  org.orgSubscriptions.filter((subscription) => {
+                    if (
+                      defaultSubscriptions.find(
+                        ({ _id }) => _id === subscription._id
                       )
                     )
-                  )}
-                  allOptionLabel="Tous les abonnés"
-                  closeMenuOnSelect={false}
-                  //placeholder="Rechercher un e-mail ou un numéro de téléphone..."
-                  placeholder="Rechercher un e-mail..."
-                  menuPlacement="top"
-                  noOptionsMessage={() => "Aucun résultat"}
-                  isClearable
-                  isMulti
-                  isSearchable
-                  styles={{
-                    control: (defaultStyles: any) => {
-                      return {
-                        ...defaultStyles,
-                        borderColor: "#e2e8f0",
-                        paddingLeft: "8px"
-                      };
-                    },
-                    multiValue: (defaultStyles: any, option: any) => {
-                      const subscription: ISubscription = option.data.value;
-                      const followerSubscription = getFollowerSubscription({
-                        org,
-                        subscription
-                      });
+                      return false;
 
-                      return {
-                        ...defaultStyles,
-                        backgroundColor: `${
-                          !!followerSubscription ? "green" : "purple"
-                        } !important`
-                      };
-                    },
-                    placeholder: () => {
-                      return {
-                        color: "#A0AEC0"
-                      };
-                    }
-                  }}
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                />
-              );
-            }}
-          />
-        </FormControl>
-      )}
+                    return subscription.orgs?.find(
+                      (orgSubscription) => orgSubscription.orgId === org._id
+                    );
+                  })
+                )}
+                value={renderProps.value}
+                onChange={renderProps.onChange}
+                onCreateOption={async (inputValue: string) => {
+                  try {
+                    if (!emailR.test(inputValue))
+                      throw new Error("Adresse e-mail invalide");
+
+                    //TODO
+                    toast({
+                      status: "info",
+                      title: "En cours de développement"
+                    });
+                    // await addSubscription({
+                    //   email,
+                    //   orgs: [
+                    //     {
+                    //       org,
+                    //       orgId: org._id,
+                    //       type,
+                    //       tagTypes: [
+                    //         { type: "Events", emailNotif: true, pushNotif: true },
+                    //         { type: "Projects", emailNotif: true, pushNotif: true },
+                    //         { type: "Topics", emailNotif: true, pushNotif: true }
+                    //       ]
+                    //     }
+                    //   ]
+                    // });
+                  } catch (error: any) {
+                    console.error(error);
+                    toast({
+                      status: "error",
+                      title: error.message
+                    });
+                  }
+                }}
+                //#region ui
+                closeMenuOnSelect={false}
+                placeholder="Sélectionner ou créer un koala..."
+                menuPlacement="top"
+                isClearable
+                isMulti
+                isSearchable
+                noOptionsMessage={() => "Aucun résultat"}
+                //#endregion
+                //#region styling
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={{
+                  control: (defaultStyles: any) => {
+                    return {
+                      ...defaultStyles,
+                      borderColor: "#e2e8f0",
+                      paddingLeft: "8px"
+                    };
+                  },
+                  multiValue: (defaultStyles: any, option: any) => {
+                    const subscription: ISubscription = option.data.value;
+                    const followerSubscription = getFollowerSubscription({
+                      org,
+                      subscription
+                    });
+
+                    return {
+                      ...defaultStyles,
+                      backgroundColor: `${
+                        !!followerSubscription ? "green" : "purple"
+                      } !important`
+                    };
+                  },
+                  placeholder: () => {
+                    return {
+                      color: "#A0AEC0"
+                    };
+                  }
+                }}
+                //#endregion
+              />
+            );
+          }}
+        />
+      </FormControl>
 
       <ErrorMessage
         errors={errors}

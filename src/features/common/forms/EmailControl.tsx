@@ -18,6 +18,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React from "react";
 import { useFieldArray } from "react-hook-form";
+import { emailR } from "utils/email";
 
 import { Link } from "../Link";
 
@@ -77,7 +78,7 @@ export const EmailControl = ({
             placeholder={placeholder}
             ref={register({
               pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                value: emailR,
                 message: "Adresse email invalide"
               },
               ...formRules
@@ -137,7 +138,7 @@ export const EmailControl = ({
                 defaultValue={`${field.email}`} // make sure to set up defaultValue
                 ref={register({
                   pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    value: emailR,
                     message: "Adresse email invalide"
                   },
                   ...formRules

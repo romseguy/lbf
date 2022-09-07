@@ -184,7 +184,11 @@ export const OrgConfigListsPanel = ({
             Ajouter une liste
           </AppHeading>
 
-          <EntityListForm org={org} onSubmit={onSubmit} />
+          <EntityListForm
+            allOptionLabel="Tous les koalas"
+            org={org}
+            onSubmit={onSubmit}
+          />
         </GridItem>
       )}
 
@@ -241,7 +245,7 @@ export const OrgConfigListsPanel = ({
                           }}
                           data-cy="org-list-link"
                         >
-                          {hasSubscriptions ? subscriptions.length : 0} membre
+                          {hasSubscriptions ? subscriptions.length : 0} koala
                           {hasSubscriptions ? s : "s"}
                         </Link>
                       </Td>
@@ -324,6 +328,7 @@ export const OrgConfigListsPanel = ({
                   <ModalBody>
                     {listToEdit && (
                       <EntityListForm
+                        allOptionLabel="Tous les koalas"
                         list={listToEdit}
                         org={org}
                         onCancel={() => setListToEdit(undefined)}

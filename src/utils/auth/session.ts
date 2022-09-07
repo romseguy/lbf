@@ -49,7 +49,6 @@ export async function getSession(params?: any): Promise<Session | null> {
 }
 
 export const devSession =
-  // null
   // admin
   {
     user: {
@@ -65,3 +64,4 @@ export const devSession =
 //     userName: "romseguy66"
 //   }
 // };
+//null;

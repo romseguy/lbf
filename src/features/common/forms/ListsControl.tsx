@@ -1,19 +1,23 @@
 import { FormControl, FormLabel, FormErrorMessage } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Control,
   Controller,
   DeepMap,
   FieldError,
-  FieldValues
+  FieldValues,
+  UseFormMethods,
+  useWatch
 } from "react-hook-form";
 import { MultiSelect } from "features/common";
 import { IOrgList } from "models/Org";
+import { hasItems } from "utils/array";
 
 export const ListsControl = ({
   control,
   errors,
+  setError,
   isRequired = false,
   label = "Visibilité",
   lists,
@@ -22,12 +26,21 @@ export const ListsControl = ({
 }: {
   control: Control<FieldValues>;
   errors: DeepMap<FieldValues, FieldError>;
+  setError?: UseFormMethods["setError"];
   isRequired?: boolean;
   label?: string;
   lists?: IOrgList[];
   name: string;
   onChange?: () => void;
 }) => {
+  const value = useWatch<string[]>({ control, name }) || "";
+
+  useEffect(() => {
+    if (isRequired && setError && !hasItems(value)) {
+      setError(name, { message: "" });
+    }
+  }, [value]);
+
   return (
     <FormControl isInvalid={!!errors[name]} isRequired={isRequired} mb={3}>
       <FormLabel>{label}</FormLabel>
