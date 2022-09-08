@@ -15,6 +15,7 @@ import {
   FaMapMarkedAlt,
   FaNewspaper,
   FaPaperclip,
+  FaRecycle,
   FaRegMap,
   FaTree
 } from "react-icons/fa";
@@ -178,20 +179,7 @@ export const OrgPageHomeTabPanel = ({
                         <Button
                           borderTopRadius={0}
                           colorScheme="teal"
-                          leftIcon={
-                            <>
-                              <FaTree />
-                              <FaTree />
-                              <FaTree />
-                            </>
-                          }
-                          rightIcon={
-                            <>
-                              <FaTree />
-                              <FaTree />
-                              <FaTree />
-                            </>
-                          }
+                          leftIcon={<FaRecycle />}
                           onClick={() => setIsEdit({ isAddingChild: true })}
                         >
                           Gérer la forêt

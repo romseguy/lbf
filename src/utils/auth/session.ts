@@ -50,18 +50,18 @@ export async function getSession(params?: any): Promise<Session | null> {
 
 export const devSession =
   // admin
+  // {
+  //   user: {
+  //     email: "rom.seguy@lilo.org",
+  //     userId: "60e340cb56ef290008d2e75d",
+  //     userName: "romain"
+  //   }
+  // };
   {
     user: {
-      email: "rom.seguy@lilo.org",
-      userId: "60e340cb56ef290008d2e75d",
-      userName: "romain"
+      email: "rom.seguy@gmail.com",
+      userId: "61138a879544b000088318ae",
+      userName: "romseguy66"
     }
   };
-// {
-//   user: {
-//     email: "rom.seguy@gmail.com",
-//     userId: "61138a879544b000088318ae",
-//     userName: "romseguy66"
-//   }
-// };
 //null;

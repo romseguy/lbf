@@ -41,6 +41,8 @@ export const Marker = ({
         height: 25,
         width: 25
       })}
+      marginLeft="-12.5px"
+      marginTop="-12.5px"
       cursor="pointer"
       maxWidth={3}
       onMouseEnter={() => setFill(defaultFillOnEnter)}

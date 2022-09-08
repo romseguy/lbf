@@ -6,7 +6,7 @@ import React, { useRef, useState } from "react";
 import { render } from "react-dom";
 import { LatLon } from "use-places-autocomplete";
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { EOrgType, IOrg } from "models/Org";
 import { FullscreenControl } from "./FullscreenControl";
 import { withGoogleApi } from "./GoogleApiWrapper";
 import { Marker } from "./Marker";
@@ -107,17 +107,28 @@ export const Map = withGoogleApi({
         return gMarker;
       });
 
+      const orgType = orgs
+        ? orgs[0].orgType === EOrgType.NETWORK
+          ? EOrgType.NETWORK
+          : EOrgType.GENERIC
+        : undefined;
+      const height = 25;
+      const width = 25;
       const styles: ClusterIconStyle[] = [
         {
           url: getMarkerUrl({
-            id: orgs ? "org" : "event",
+            id: !orgType
+              ? "event"
+              : orgType === EOrgType.NETWORK
+              ? "planet"
+              : "trees",
             fill: "green",
-            height: 25,
-            width: 25
+            height,
+            width
           }),
-          anchorText: [17, 0],
-          height: 25,
-          width: 25
+          anchorText: [23, 0],
+          height,
+          width
         }
       ];
 
