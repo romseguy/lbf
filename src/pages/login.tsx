@@ -169,7 +169,10 @@ const LoginPage = () => {
             </Alert>
 
             <Column m="0 auto" pb={0} mb={5}>
-              <SocialLogins onSubmit={handleLoginWithSocial} />
+              <SocialLogins
+                flexDirection="column"
+                onSubmit={handleLoginWithSocial}
+              />
             </Column>
           </>
         )}

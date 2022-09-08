@@ -59,9 +59,10 @@ const theme = extendTheme({
               _hover: { borderColor: "gray.300" }
             },
             ".chakra-ui-dark &": {
-              backgroundColor: "#9EA4AF"
-            },
-            "::placeholder": { color: "white" }
+              //backgroundColor: "#9EA4AF",
+              backgroundColor: "#677080",
+              "::placeholder": { color: "white" }
+            }
           }
         },
         filled: {
