@@ -17,10 +17,9 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";
 import { FaRegMap, FaTree, FaFile, FaTools } from "react-icons/fa";
-import { IoIosGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { useGetOrgsQuery } from "features/api/orgsApi";
 import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
@@ -34,11 +33,9 @@ import {
 import { Layout } from "features/layout";
 import { AboutModal } from "features/modals/AboutModal";
 import { MapModal } from "features/modals/MapModal";
-import { TreeChartModal } from "features/modals/TreeChartModal";
 import { OrgsList } from "features/orgs/OrgsList";
-import { InputNode } from "features/treeChart/types";
 import { PageProps } from "main";
-import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
+import { EOrgType, IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { selectUserEmail } from "store/userSlice";
 import { AppQuery } from "utils/types";
@@ -63,9 +60,6 @@ const IndexPage = (props: PageProps) => {
     orgType: EOrgType.NETWORK,
     populate: "orgs createdBy"
   }) as AppQuery<IOrg[]>;
-  const planets = orgsQuery.data?.filter((org) =>
-    org ? org.orgType === EOrgType.NETWORK : true
-  );
   useEffect(() => {
     if (!orgsQuery.isLoading) setIsLoading(false);
   }, [orgsQuery.isLoading]);
@@ -94,33 +88,6 @@ const IndexPage = (props: PageProps) => {
     onOpen: openMapModal,
     onClose: closeMapModal
   } = useDisclosure({ defaultIsOpen: false });
-  const {
-    isOpen: isNetworksModalOpen,
-    onOpen: openNetworksModal,
-    onClose: closeNetworksModal
-  } = useDisclosure({ defaultIsOpen: false });
-  const inputNodes: InputNode[] = useMemo(() => {
-    return planets
-      ? planets
-          .filter(
-            (org) =>
-              org.orgType === EOrgType.NETWORK &&
-              org.orgVisibility !== EOrgVisibility.PRIVATE &&
-              org.orgUrl !== "forum"
-          )
-          .map((org) => {
-            return {
-              name: org.orgName,
-              children: org.orgs
-                .filter(
-                  ({ orgVisibility }) =>
-                    orgVisibility !== EOrgVisibility.PRIVATE
-                )
-                .map(({ orgName }) => ({ name: orgName }))
-            };
-          })
-      : [];
-  }, [planets]);
   //#endregion
 
   const columnProps = {
@@ -134,7 +101,7 @@ const IndexPage = (props: PageProps) => {
       <Column
         {...columnProps}
         cursor="pointer"
-        _hover={{ backgroundColor: "white" }}
+        _hover={{ backgroundColor: isDark ? "gray.500" : "white" }}
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <Flex alignItems="center" mb={2}>
@@ -238,19 +205,6 @@ const IndexPage = (props: PageProps) => {
             <Button
               alignSelf="flex-start"
               colorScheme="teal"
-              leftIcon={<IoIosGitNetwork />}
-              rightIcon={
-                isNetworksModalOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
-              }
-              mb={5}
-              onClick={openNetworksModal}
-            >
-              Organigramme
-            </Button>
-
-            <Button
-              alignSelf="flex-start"
-              colorScheme="teal"
               leftIcon={<FaRegMap />}
               rightIcon={
                 isMapModalOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
@@ -290,16 +244,6 @@ const IndexPage = (props: PageProps) => {
           {...props}
           isOpen={isAboutModalOpen}
           onClose={closeAboutModal}
-        />
-      )}
-
-      {isNetworksModalOpen && (
-        <TreeChartModal
-          header={<Heading mb={3}>Organigramme</Heading>}
-          inputNodes={inputNodes}
-          isMobile={props.isMobile}
-          isOpen={isNetworksModalOpen}
-          onClose={closeNetworksModal}
         />
       )}
 
