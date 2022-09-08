@@ -1,5 +1,3 @@
-import React, { KeyboardEvent, useEffect, useState } from "react";
-import useOnclickOutside from "react-cool-onclickoutside";
 import {
   Input,
   InputProps,
@@ -11,8 +9,11 @@ import {
   SpaceProps,
   useColorMode
 } from "@chakra-ui/react";
-import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
+import React, { KeyboardEvent, useEffect, useState } from "react";
+import useOnclickOutside from "react-cool-onclickoutside";
 import { FaMapMarkedAlt } from "react-icons/fa";
+import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
+import { hasItems } from "utils/array";
 
 let cachedVal = "";
 const acceptedKeys = ["ArrowUp", "ArrowDown", "Escape", "Enter"];
@@ -69,6 +70,9 @@ export const AutoCompletePlacesControl = ({
   }, [value]);
 
   const ref = useOnclickOutside(() => {
+    if (hasItems(data) && onSuggestionSelect) {
+      onSuggestionSelect(data[0]);
+    }
     dismissSuggestions();
   });
 

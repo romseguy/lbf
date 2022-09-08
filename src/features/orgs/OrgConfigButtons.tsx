@@ -105,7 +105,7 @@ export const OrgConfigButtons = ({
                     deletedOrg.orgName
                   } a été ${
                     deletedOrg.orgType === EOrgType.NETWORK
-                      ? "détruite"
+                      ? "supprimée"
                       : "déraciné"
                   } !`,
                   status: "success"

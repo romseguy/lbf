@@ -250,7 +250,7 @@ export const OrgForm = withGoogleApi({
       anyoneCanAddChildren: boolean;
       hasSelectedChildrenTypes: boolean;
     }) => {
-      console.log("submitted", form);
+      console.log("submitted", form, suggestion);
       setIsLoading(true);
 
       try {
@@ -306,23 +306,21 @@ export const OrgForm = withGoogleApi({
           payload.orgSalt = salt;
         }
 
-        //#region todo simplify logic
-        if (
-          suggestion &&
-          (!org ||
-            !hasItems(org.orgAddress) ||
-            (orgAddress[0] &&
+        if (hasItems(orgAddress) && suggestion)
+          if (
+            !(
+              org &&
               org.orgAddress[0] &&
-              org.orgAddress[0].address !== orgAddress[0].address))
-        ) {
-          const {
-            lat: orgLat,
-            lng: orgLng,
-            city: orgCity
-          } = await unwrapSuggestion(suggestion);
-          payload = { ...payload, orgLat, orgLng, orgCity };
-        }
-        //#endregion
+              org.orgAddress[0].address === orgAddress[0].address
+            )
+          ) {
+            const {
+              lat: orgLat,
+              lng: orgLng,
+              city: orgCity
+            } = await unwrapSuggestion(suggestion);
+            payload = { ...payload, orgLat, orgLng, orgCity };
+          }
 
         if (org) {
           if (isEditConfig?.isAddingChild && hasItems(orgs)) {
