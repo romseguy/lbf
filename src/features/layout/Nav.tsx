@@ -30,20 +30,20 @@ import React from "react";
 import { FaKey } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
-import { Heading } from "features/common";
+import { Heading, Link } from "features/common";
 import {
   EventPopover,
   OrgPopover,
   NotificationPopover,
   TopicPopover
 } from "features/layout";
-import { selectUserEmail } from "store/userSlice";
-import { EOrgType } from "models/Org";
 import { PageProps } from "main";
+import { EOrgType } from "models/Org";
+import { selectUserEmail } from "store/userSlice";
+import { removeProps } from "utils/object";
 import { capitalize } from "utils/string";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
-import { removeProps } from "utils/object";
 
 export const Nav = ({
   isMobile,
@@ -81,6 +81,7 @@ export const Nav = ({
         bg={isDark ? "gray.700" : "lightblue"}
         borderRadius="lg"
         p={3}
+        pl={isMobile ? 1 : undefined}
         pt={0}
         {...removeProps(props, ["setIsSessionLoading"])}
       >
@@ -89,9 +90,13 @@ export const Nav = ({
             <Tbody role="rowgroup">
               <Tr role="rowheader">
                 <Td border={0} p={0}>
-                  <Heading fontFamily="Lato">
-                    {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
-                  </Heading>
+                  <Flex>
+                    <Link href="/" variant="no-underline">
+                      <Heading fontFamily="Lato">
+                        {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
+                      </Heading>
+                    </Link>
+                  </Flex>
                 </Td>
                 <Td border={0} display="flex" p={0}>
                   {!isSessionLoading && (
@@ -103,7 +108,15 @@ export const Nav = ({
               </Tr>
               <Tr>
                 <Td border={0} p={0}>
-                  <Image height="100px" src="/images/bg.png" />
+                  <Flex>
+                    <Link
+                      href="/"
+                      variant="no-underline"
+                      _focus={{ border: 0 }}
+                    >
+                      <Image height="100px" src="/images/bg.png" />
+                    </Link>
+                  </Flex>
                 </Td>
                 <Td border={0} p={0}>
                   {isSessionLoading ? (

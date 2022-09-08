@@ -28,7 +28,7 @@ export const Heading = ({
     <ChakraHeading
       fontFamily={fontFamily}
       fontSize={smaller ? "2xl" : ["3xl", "4xl"]}
-      pl={1}
+      //pl={1}
       css={css(rainbowTextCss(isDark))}
       {...props}
     >
