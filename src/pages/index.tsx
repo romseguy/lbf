@@ -101,7 +101,7 @@ const IndexPage = (props: PageProps) => {
       <Column
         {...columnProps}
         cursor="pointer"
-        _hover={{ backgroundColor: isDark ? "gray.500" : "white" }}
+        _hover={{ backgroundColor: isDark ? "gray.500" : "blue.50" }}
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <Flex alignItems="center" mb={2}>

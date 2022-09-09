@@ -11,7 +11,7 @@ import {
 import { SubscriptionForm } from "features/forms/SubscriptionForm";
 import { breakpoints } from "features/layout/theme";
 import { SubscriptionsList } from "features/subscriptions/SubscriptionsList";
-import { IOrg, orgTypeFull5 } from "models/Org";
+import { IOrg, orgTypeFull2 } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { useAppDispatch } from "store";
 import { refetchEvent } from "store/eventSlice";
@@ -131,7 +131,7 @@ export const OrgConfigSubscribersPanel = ({
       {isAdd && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }} p={5}>
           <AppHeading smaller mb={3}>
-            Inscrire des koalas à {orgTypeFull5(org.orgType)}
+            Inscrire des koalas {orgTypeFull2(org.orgType)}
           </AppHeading>
 
           <SubscriptionForm

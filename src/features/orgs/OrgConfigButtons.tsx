@@ -12,7 +12,13 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useDeleteOrgMutation } from "features/api/orgsApi";
 import { Button, DeleteButton } from "features/common";
-import { EOrgType, IOrg, orgTypeFull, orgTypeFull5 } from "models/Org";
+import {
+  EOrgType,
+  IOrg,
+  orgTypeFull,
+  orgTypeFull2,
+  orgTypeFull5
+} from "models/Org";
 import { AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
 import { IsEditConfig } from "./OrgPage";
@@ -75,7 +81,7 @@ export const OrgConfigButtons = ({
               <Alert status="warning">
                 <AlertIcon />
                 <Box>
-                  Toutes les données associées à {orgTypeFull5(org.orgType)}{" "}
+                  Toutes les données associées {orgTypeFull2(org.orgType)}{" "}
                   seront supprimées. Cette action est{" "}
                   <strong>irréversible</strong> !
                 </Box>

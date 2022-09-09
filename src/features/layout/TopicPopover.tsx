@@ -381,9 +381,9 @@ export const TopicPopover = ({
           <IconButton
             aria-label="Discussions"
             bg="transparent"
-            color={isOpen ? "green" : undefined}
+            color={isOpen ? "cyan.600" : undefined}
             _hover={{ bg: "transparent" }}
-            icon={<ChatIcon boxSize={boxSize} _hover={{ color: "green" }} />}
+            icon={<ChatIcon boxSize={boxSize} _hover={{ color: "cyan.600" }} />}
             minWidth={0}
             onClick={onOpen}
             data-cy="topicPopover"

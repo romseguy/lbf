@@ -223,13 +223,13 @@ export const OrgPopover = ({
           <IconButton
             aria-label="Mes arbres"
             bg="transparent"
-            color={isOpen ? "green" : undefined}
+            color={isOpen ? "cyan.600" : undefined}
             _hover={{ bg: "transparent" }}
             icon={
               <Icon
                 as={orgType === EOrgType.NETWORK ? FaGlobeEurope : FaTree}
                 boxSize={boxSize}
-                _hover={{ color: "green" }}
+                _hover={{ color: "cyan.600" }}
               />
             }
             minWidth={0}

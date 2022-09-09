@@ -172,6 +172,9 @@ export const OrgsList = ({
                     )}
                   </Td>
                   <Td>
+                    {org.orgType === EOrgType.TREETOOLS
+                      ? OrgTypes[org.orgType] + " : "
+                      : ""}
                     <Tooltip
                       hasArrow
                       label={`Visiter ${orgTypeFull5(org.orgType)}`}

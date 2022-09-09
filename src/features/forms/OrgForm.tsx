@@ -216,10 +216,27 @@ export const OrgForm = withGoogleApi({
     const orgEmail = watch("orgEmail");
     const orgPhone = watch("orgPhone");
     const orgName = watch("orgName");
-    const orgType = (props.orgType ||
+    const orgType = (getValues("orgType") ||
+      props.orgType ||
       org?.orgType ||
       EOrgType.GENERIC) as EOrgType;
     const orgTypeLabel = orgTypeFull(orgType) || "de l'arbre";
+    useEffect(() => {
+      const currentDescription = getValues("orgDescription");
+
+      if (!currentDescription) {
+        if (orgType === EOrgType.TREETOOLS) {
+          setValue("orgDescription", getOrgDescriptionByType(orgType));
+        }
+      } else {
+        if (
+          orgType === EOrgType.GENERIC &&
+          currentDescription === getOrgDescriptionByType(EOrgType.TREETOOLS)
+        ) {
+          setValue("orgDescription", "");
+        }
+      }
+    }, [orgType]);
     const orgVisibility = watch("orgVisibility");
     useEffect(() => {
       if (orgVisibility !== EOrgVisibility.PRIVATE) setIsPassword(false);
@@ -379,7 +396,8 @@ export const OrgForm = withGoogleApi({
         const parsed = JSON.parse(formData);
         if (parsed.orgDescription)
           setOrgDescriptionDefaultValue(parsed.orgDescription);
-      } else setOrgDescriptionDefaultValue(getOrgDescriptionByType(orgType));
+      }
+      //else setOrgDescriptionDefaultValue(getOrgDescriptionByType(orgType));
     }, []);
     useFormPersist("storageKey", {
       watch,
@@ -569,6 +587,7 @@ export const OrgForm = withGoogleApi({
                 org={org}
                 placeholder={`Saisir la description ${orgTypeLabel}`}
                 session={session}
+                value={renderProps.value}
                 onChange={({ html }) => {
                   renderProps.onChange(html);
                 }}
@@ -780,6 +799,18 @@ export const OrgForm = withGoogleApi({
             <ErrorMessage errors={errors} name="orgName" />
           </FormErrorMessage>
         </FormControl>
+
+        {props.orgType === EOrgType.GENERIC && (
+          <FormControl mb={3}>
+            <FormLabel>Type de l'arbre</FormLabel>
+            <Select name="orgType" ref={register()}>
+              <option value={EOrgType.GENERIC}>-</option>
+              <option value={EOrgType.TREETOOLS}>
+                {OrgTypes[EOrgType.TREETOOLS]}
+              </option>
+            </Select>
+          </FormControl>
+        )}
 
         {ChildrenFormControl}
 

@@ -10,7 +10,13 @@ import {
 import React from "react";
 import { IoIosPeople, IoIosPerson } from "react-icons/io";
 import { Link } from "features/common";
-import { IOrg, EOrgType, EOrgVisibility, orgTypeFull5 } from "models/Org";
+import {
+  IOrg,
+  EOrgType,
+  EOrgVisibility,
+  orgTypeFull5,
+  OrgTypes
+} from "models/Org";
 import { IEvent } from "models/Event";
 import { IUser } from "models/User";
 import { ITopic } from "models/Topic";
@@ -131,7 +137,11 @@ export const EntityButton = ({
               : org
               ? org.orgUrl === "forum"
                 ? "Forum"
-                : org.orgName
+                : `${
+                    org.orgType === EOrgType.TREETOOLS
+                      ? OrgTypes[org.orgType] + " : "
+                      : ""
+                  }${org.orgName}`
               : event
               ? event.eventName
               : user

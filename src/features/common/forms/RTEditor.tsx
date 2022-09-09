@@ -47,6 +47,7 @@ export const RTEditor = ({
   placeholder,
   readOnly,
   session,
+  value,
   onBlur,
   onChange,
   ...props
@@ -59,6 +60,7 @@ export const RTEditor = ({
   session?: Session | null;
   height?: string;
   width?: string;
+  value?: string;
   onBlur?: (html: string) => void;
   onChange?: ({ html }: { html: string }) => void;
 }) => {
@@ -235,6 +237,7 @@ export const RTEditor = ({
           init={init}
           initialValue={isTouched ? undefined : defaultValue}
           tinymceScriptSrc="/tinymce/tinymce.min.js"
+          value={value}
           onBlur={(e, editor) => {
             closeToolbar();
             onBlur && onBlur(editor.getContent());

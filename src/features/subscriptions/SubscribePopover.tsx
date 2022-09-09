@@ -235,7 +235,7 @@ export const SubscribePopover = ({
 
   if (isIconOnly) {
     const label = `${isFollowed ? "Se désabonner" : "S'abonner"} ${
-      org ? `à ${orgTypeFull5(org.orgType)}` : event ? "à l'événement" : ""
+      org ? `${orgTypeFull2(org.orgType)}` : event ? "à l'événement" : ""
     }`;
 
     return (

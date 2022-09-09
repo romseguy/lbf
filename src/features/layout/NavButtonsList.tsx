@@ -1,11 +1,10 @@
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { Button, Flex, useColorMode, useDisclosure } from "@chakra-ui/react";
-import { props } from "cypress/types/bluebird";
 import { useGetOrgsQuery } from "features/api/orgsApi";
 import { Heading, Link, LinkProps } from "features/common";
 import { TreeChartModal } from "features/modals/TreeChartModal";
 import { InputNode } from "features/treeChart/types";
-import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
+import { EOrgType, EOrgVisibility, IOrg, OrgTypes } from "models/Org";
 import { useRouter } from "next/router";
 import React, { useMemo } from "react";
 import { FaHome } from "react-icons/fa";
@@ -56,7 +55,15 @@ export const NavButtonsList = ({
                   ({ orgVisibility }) =>
                     orgVisibility !== EOrgVisibility.PRIVATE
                 )
-                .map(({ orgName }) => ({ name: orgName }))
+                .map(({ orgName, orgType }) => {
+                  const name = `${
+                    orgType === EOrgType.TREETOOLS
+                      ? OrgTypes[orgType] + " : "
+                      : ""
+                  }${orgName}`;
+
+                  return { name };
+                })
             };
           })
       : [];
