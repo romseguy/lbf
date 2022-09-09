@@ -22,7 +22,8 @@ import {
   FaHandshake,
   FaQuoteLeft,
   FaLightbulb,
-  FaShare
+  FaShare,
+  FaGlobeEurope
 } from "react-icons/fa";
 import { IoIosPeople } from "react-icons/io";
 import { css } from "twin.macro";
@@ -99,7 +100,7 @@ export const AboutPage = ({
 
     return (
       <Tag bg={isDark ? "gray.500" : "orange.100"} px={1} py={1} {...tagProps}>
-        <Icon as={IoIosPeople} boxSize={6} color="green" mr={2} />
+        <Icon as={FaGlobeEurope} boxSize={6} color="green" mr={2} />
         {urlElement}
         <IconButton
           aria-label="Page d'accueil d'une organisation"
@@ -155,6 +156,9 @@ export const AboutPage = ({
       </Tag>
     );
   };
+  const lightbulb = (
+    <Icon as={FaLightbulb} color={isDark ? "yellow" : "green"} mr={1} />
+  );
 
   return (
     <Box
@@ -164,20 +168,29 @@ export const AboutPage = ({
         }
       `}
     >
-      <Heading>Équipez votre organisation</Heading>
+      <Heading>Créez votre univers</Heading>
 
       <Column {...columnStyles(isDark)}>
-        <List listStyleType="bullet" ml={5}>
+        <List listStyleType="bullet" ml={5} spacing={1}>
           <ListItem>
             <Text mb={1}>
-              Avec une page d'accueil et une adresse facile à retenir, par
+              Créez une planète et disposez d'une adresse facile à retenir, par
               exemple :
             </Text>
 
             <OrgTag />
           </ListItem>
 
-          <ListItem mt={2}>
+          <ListItem>
+            <Text mb={1}>
+              Créez des événements depuis votre planète et disposez d'une
+              adresse facile à retenir, par exemple :
+            </Text>
+
+            <EventTag />
+          </ListItem>
+
+          {/* <ListItem mt={2}>
             <Text>
               Avec un outil de communication plus puissant qu'un outil de
               mailing traditionnel :
@@ -190,7 +203,7 @@ export const AboutPage = ({
                 <EventTag />
               </ListItem>
             </List>
-          </ListItem>
+          </ListItem> */}
 
           <Flex flexDirection="column"></Flex>
 
@@ -215,17 +228,28 @@ export const AboutPage = ({
         </List>
       </Column>
 
-      <Heading>Invitez vos adhérents</Heading>
+      <Heading>Communiquez depuis votre planète</Heading>
 
       <Column {...columnStyles(isDark)}>
-        <Text mb={3}>
-          Informez vos adhérents de vos projets et événements à venir.
-          <br />
-          Créez des discussions et envoyez des invitations par e-mail ou par
-          notification mobile.
-        </Text>
-
         <Row
+          {...rowStyles(isDark)}
+          bg={isDark ? "gray.500" : "orange.100"}
+          px={3}
+        >
+          {lightbulb}
+          Ajoutez des adresses e-mail à la liste d'abonnés ou aux listes de
+          votre choix.
+        </Row>
+        <Row
+          {...rowStyles(isDark)}
+          bg={isDark ? "gray.500" : "orange.100"}
+          px={3}
+        >
+          {lightbulb}
+          Invitez les personnes de ces listes aux discussions et événements.
+        </Row>
+
+        {/* <Row
           {...rowStyles(isDark)}
           bg={isDark ? "gray.500" : "orange.100"}
           px={3}
@@ -233,7 +257,7 @@ export const AboutPage = ({
           <Icon as={FaLightbulb} color={isDark ? "yellow" : "green"} mr={1} />
           Créez vos propres listes pour envoyer des invitations seulement aux
           personnes concernés.
-        </Row>
+        </Row> */}
       </Column>
 
       <Heading>Partage & Limitations</Heading>
@@ -314,18 +338,3 @@ const About = (props: PageProps) => (
 );
 
 export default About;
-
-{
-  /* <LinkShare
-              // _hover={{ bg: "transparent", color: "white" }}
-              // bg="transparent"
-              //height="auto"
-              label="Copier l'adresse du lien"
-              //minWidth={0}
-              ml={1}
-              url={url}
-              tooltipProps={{
-                placement: "right"
-              }}
-            /> */
-}

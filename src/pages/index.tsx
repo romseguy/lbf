@@ -28,6 +28,7 @@ import {
   Column,
   EntityAddButton,
   Heading,
+  Link,
   LoginButton
 } from "features/common";
 import { Layout } from "features/layout";
@@ -35,9 +36,10 @@ import { AboutModal } from "features/modals/AboutModal";
 import { MapModal } from "features/modals/MapModal";
 import { OrgsList } from "features/orgs/OrgsList";
 import { PageProps } from "main";
-import { EOrgType, IOrg } from "models/Org";
+import { EOrgType, IOrg, orgTypeFull } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { selectUserEmail } from "store/userSlice";
+import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
 
 let cachedUserEmail: string | undefined;
@@ -48,14 +50,22 @@ const IndexPage = (props: PageProps) => {
   const router = useRouter();
   const userEmail = useSelector(selectUserEmail);
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const [isListOpen, setIsListOpen] = useState(false);
+  const [isListOpen, setIsListOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const ref = useOnclickOutside(() => {
     if (isTooltipOpen) setIsTooltipOpen(false);
   });
 
-  //#region org query
+  //#region modal
+  const {
+    isOpen: isMapModalOpen,
+    onOpen: openMapModal,
+    onClose: closeMapModal
+  } = useDisclosure({ defaultIsOpen: false });
+  //#endregion
+
+  //#region orgs
   const orgsQuery = useGetOrgsQuery({
     orgType: EOrgType.NETWORK,
     populate: "orgs createdBy"
@@ -65,35 +75,22 @@ const IndexPage = (props: PageProps) => {
   }, [orgsQuery.isLoading]);
   //#endregion
 
-  //#region subscription query
+  //#region subscription
   const subQuery = useGetSubscriptionQuery({
     email: userEmail
   }) as AppQuery<ISubscription>;
   useEffect(() => {
-    if (cachedUserEmail !== userEmail) {
+    if (!cachedUserEmail) cachedUserEmail = userEmail;
+    else if (cachedUserEmail !== userEmail) {
       cachedUserEmail = userEmail;
       subQuery.refetch();
     }
   }, [userEmail]);
   //#endregion
 
-  //#region modal state
-  const {
-    isOpen: isAboutModalOpen,
-    onOpen: openAboutModal,
-    onClose: closeAboutModal
-  } = useDisclosure({ defaultIsOpen: false });
-  const {
-    isOpen: isMapModalOpen,
-    onOpen: openMapModal,
-    onClose: closeMapModal
-  } = useDisclosure({ defaultIsOpen: false });
-  //#endregion
-
   const columnProps = {
     maxWidth: "4xl",
-    m: "0 auto",
-    mb: 3
+    m: "0 auto"
   };
 
   return (
@@ -102,6 +99,7 @@ const IndexPage = (props: PageProps) => {
         {...columnProps}
         cursor="pointer"
         _hover={{ backgroundColor: isDark ? "gray.500" : "blue.50" }}
+        mb={3}
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <Flex alignItems="center" mb={2}>
@@ -186,6 +184,17 @@ const IndexPage = (props: PageProps) => {
               <SmallAddIcon />
               <Icon as={FaTree} color="green" mr={1} /> des arbres.
             </Flex>
+
+            <Flex>
+              <Link
+                href="a_propos"
+                variant="underline"
+                mt={3}
+                onClick={(e) => e.stopPropagation()}
+              >
+                En savoir plus
+              </Link>
+            </Flex>
           </>
         )}
       </Column>
@@ -200,7 +209,7 @@ const IndexPage = (props: PageProps) => {
 
         {isLoading ? (
           <Spinner />
-        ) : (
+        ) : hasItems(orgsQuery.data) ? (
           <>
             <Button
               alignSelf="flex-start"
@@ -220,7 +229,7 @@ const IndexPage = (props: PageProps) => {
               colorScheme="teal"
               leftIcon={<HamburgerIcon />}
               rightIcon={isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />}
-              mb={3}
+              mb={isListOpen ? 3 : 0}
               onClick={() => setIsListOpen(!isListOpen)}
             >
               Liste
@@ -229,6 +238,24 @@ const IndexPage = (props: PageProps) => {
             {isListOpen && (
               <Column bg={isDark ? "black" : "white"}>
                 <OrgsList
+                  keys={
+                    props.isMobile
+                      ? (orgType) => [
+                          { key: "subscription", label: "" },
+                          {
+                            key: "orgName",
+                            label: `Nom de ${orgTypeFull(orgType)}`
+                          }
+                        ]
+                      : (orgType) => [
+                          { key: "subscription", label: "" },
+                          {
+                            key: "orgName",
+                            label: `Nom de ${orgTypeFull(orgType)}`
+                          },
+                          { key: "createdBy", label: "Créé par" }
+                        ]
+                  }
                   isMobile={props.isMobile}
                   query={orgsQuery}
                   subQuery={subQuery}
@@ -236,16 +263,17 @@ const IndexPage = (props: PageProps) => {
               </Column>
             )}
           </>
+        ) : (
+          <Flex>
+            <EntityAddButton
+              label="Ajoutez une planète"
+              orgType={EOrgType.NETWORK}
+              size={props.isMobile ? "xs" : "md"}
+              mb={3}
+            />
+          </Flex>
         )}
       </Column>
-
-      {isAboutModalOpen && (
-        <AboutModal
-          {...props}
-          isOpen={isAboutModalOpen}
-          onClose={closeAboutModal}
-        />
-      )}
 
       {isMapModalOpen && (
         <MapModal

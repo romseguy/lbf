@@ -2,8 +2,8 @@ import { ArrowBackIcon, SettingsIcon } from "@chakra-ui/icons";
 import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { Button, Link } from "features/common";
 import { Forum } from "features/forum/Forum";
 import { Layout } from "features/layout";
@@ -12,18 +12,17 @@ import { PageProps } from "main";
 import { getRefId } from "models/Entity";
 import { IOrg } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
-import { selectOrgRefetch } from "store/orgSlice";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
-
-let cachedRefetchOrg = false;
 
 export interface IsEditConfig {
   isAddingChild?: boolean;
   isAddingDescription?: boolean;
   isAddingInfo?: boolean;
 }
+
+let isFirstLoad = true;
 
 export const OrgPage = ({
   isMobile,
@@ -38,6 +37,16 @@ export const OrgPage = ({
   tab?: string;
   tabItem?: string;
 }) => {
+  const router = useRouter();
+  useEffect(() => {
+    if ((router.asPath.match(/\//g) || []).length > 1) {
+      isFirstLoad = false;
+      return;
+    }
+    if (!isFirstLoad) orgQuery.refetch();
+    isFirstLoad = false;
+  }, [router.asPath]);
+
   //#region org
   const org = orgQuery.data;
   const isCreator =
@@ -55,7 +64,7 @@ export const OrgPage = ({
   const isFollowed = !!getFollowerSubscription({ org, subQuery });
   //#endregion
 
-  //#region local state
+  //#region config
   const [isConfig, setIsConfig] = useState(false);
   const [isEdit, _setIsEdit] = useState(false);
   const [isEditConfig, setIsEditConfig] = useState<IsEditConfig>({});
@@ -70,17 +79,7 @@ export const OrgPage = ({
   };
   //#endregion
 
-  //#region cross refetch
-  const refetchOrg = useSelector(selectOrgRefetch);
-  useEffect(() => {
-    if (refetchOrg !== cachedRefetchOrg) {
-      console.log("refetching org");
-      cachedRefetchOrg = refetchOrg;
-      orgQuery.refetch();
-    }
-  }, [refetchOrg]);
-  //#endregion
-
+  //#region visibility
   const _isVisible = {
     logo: false,
     banner: false,
@@ -109,15 +108,13 @@ export const OrgPage = ({
           }, {})
     );
   };
+  //#endregion
 
   const configButtons = () => {
     if (!isCreator) return null;
 
     return (
       <>
-        {/* <Column mb={3}>
-         <Heading mb={3}>Configuration {orgTypeFull(org.orgType)}</Heading> */}
-
         {!isConfig && !isEdit && (
           <Flex flexDirection={isMobile ? "column" : "row"}>
             <Flex mb={isMobile ? 3 : 3}>
@@ -145,11 +142,9 @@ export const OrgPage = ({
             }}
             mb={3}
           >
-            {/* {`Revenir à ${orgTypeFull5(org.orgType)}`} */}
             Retour
           </Button>
         )}
-        {/* </Column> */}
       </>
     );
   };
@@ -212,35 +207,35 @@ export const OrgPage = ({
 
       {subscribeButtons()}
 
-      {!isEdit && !isConfig && (
-        <Box my={3}>
-          <Text fontSize="smaller">
-            Organisation ajoutée le{" "}
-            {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
-              locale: fr
-            })}{" "}
-            par :{" "}
-            <Link variant="underline" href={`/${orgCreatedByUserName}`}>
-              {orgCreatedByUserName}
-            </Link>{" "}
-            {isCreator && session && !session.user.isAdmin && "(Vous)"}
-          </Text>
-        </Box>
-      )}
-
       {!isConfig && !isEdit && (
-        <OrgPageTabs
-          currentItemName={tabItem}
-          currentTabLabel={tab}
-          isCreator={isCreator}
-          isFollowed={isFollowed}
-          isMobile={isMobile}
-          orgQuery={orgQuery}
-          session={session}
-          setIsConfig={setIsConfig}
-          setIsEdit={setIsEdit}
-          subQuery={subQuery}
-        />
+        <>
+          <Box my={3}>
+            <Text fontSize="smaller">
+              Organisation ajoutée le{" "}
+              {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
+                locale: fr
+              })}{" "}
+              par :{" "}
+              <Link variant="underline" href={`/${orgCreatedByUserName}`}>
+                {orgCreatedByUserName}
+              </Link>{" "}
+              {isCreator && session && !session.user.isAdmin && "(Vous)"}
+            </Text>
+          </Box>
+
+          <OrgPageTabs
+            currentItemName={tabItem}
+            currentTabLabel={tab}
+            isCreator={isCreator}
+            isFollowed={isFollowed}
+            isMobile={isMobile}
+            orgQuery={orgQuery}
+            session={session}
+            setIsConfig={setIsConfig}
+            setIsEdit={setIsEdit}
+            subQuery={subQuery}
+          />
+        </>
       )}
 
       {session &&

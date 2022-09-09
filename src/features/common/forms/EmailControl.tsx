@@ -178,7 +178,8 @@ export const EmailControl = ({
           append({ email: "" });
         }}
       >
-        <AtSignIcon mr={1} /> Ajouter une adresse e-mail
+        <AtSignIcon mr={1} /> Ajouter une adresse e-mail{" "}
+        {fields.length > 0 && "supplémentaire"}
       </Link>
     </Box>
   );

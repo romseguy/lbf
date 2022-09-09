@@ -1,5 +1,7 @@
-import { AddIcon, SmallAddIcon, EditIcon } from "@chakra-ui/icons";
+import { SmallAddIcon, EditIcon } from "@chakra-ui/icons";
 import {
+  Alert,
+  AlertIcon,
   Button,
   Flex,
   IconButton,
@@ -9,12 +11,10 @@ import {
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
-import React, { useEffect, useMemo, useState } from "react";
-import { isMobile } from "react-device-detect";
+import React, { useEffect, useState } from "react";
 import {
   FaMapMarkedAlt,
   FaNewspaper,
-  FaPaperclip,
   FaRecycle,
   FaRegMap,
   FaTree
@@ -22,21 +22,16 @@ import {
 import {
   Column,
   EntityInfo,
+  Link,
   TabContainer,
   TabContainerContent,
   TabContainerHeader
 } from "features/common";
 import { MapModal } from "features/modals/MapModal";
-import { InputNode } from "features/treeChart/types";
-import {
-  IOrg,
-  orgTypeFull,
-  EOrgType,
-  EOrgVisibility as OrgVisibility,
-  orgTypeFull2
-} from "models/Org";
+import { IOrg, orgTypeFull, EOrgType, orgTypeFull2 } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
+import { Session } from "utils/auth";
 import { sanitize, transformRTEditorOutput } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgsList } from "./OrgsList";
@@ -44,14 +39,18 @@ import { IsEditConfig } from "./OrgPage";
 
 export const OrgPageHomeTabPanel = ({
   isCreator,
+  isMobile,
   orgQuery,
-  subQuery,
-  setIsEdit
+  session,
+  setIsEdit,
+  subQuery
 }: {
   isCreator: boolean;
+  isMobile: boolean;
   orgQuery: AppQueryWithData<IOrg>;
-  subQuery: AppQuery<ISubscription>;
+  session: Session | null;
   setIsEdit: (arg: boolean | IsEditConfig) => void;
+  subQuery: AppQuery<ISubscription>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -85,42 +84,10 @@ export const OrgPageHomeTabPanel = ({
     onOpen: openNetworksModal,
     onClose: closeNetworksModal
   } = useDisclosure({ defaultIsOpen: false });
-  const inputNodes: InputNode[] = useMemo(
-    () =>
-      org.orgs
-        ? org.orgs
-            .filter((o) => o.orgVisibility !== OrgVisibility.PRIVATE)
-            .map((o) => ({
-              name: o.orgName,
-              children: o.orgs?.map(({ orgName }) => ({ name: orgName }))
-            }))
-        : [],
-    [org.orgs]
-  );
   //#endregion
 
   return (
     <>
-      {/* {org.orgType === EOrgType.GENERIC && hasNetworks && (
-        <TabContainer>
-          <TabContainerHeader
-            heading={
-              <>
-                <EntityButton org={org} onClick={null} /> est planté sur la
-                planète :
-              </>
-            }
-          />
-          <TabContainerContent p={3}>
-            {orgNetworks.map((network) => (
-              <Flex key={network._id}>
-                <EntityButton org={network} mb={1} />
-              </Flex>
-            ))}
-          </TabContainerContent>
-        </TabContainer>
-      )} */}
-
       {org.orgType === EOrgType.NETWORK && (
         <TabContainer>
           <TabContainerHeader
@@ -171,19 +138,41 @@ export const OrgPageHomeTabPanel = ({
                           bg={isDark ? "gray.400" : "lightcyan"}
                         >
                           <OrgsList
+                            keys={
+                              isMobile
+                                ? (orgType) => [
+                                    { key: "subscription", label: "" },
+                                    {
+                                      key: "orgName",
+                                      label: `Nom de ${orgTypeFull(orgType)}`
+                                    }
+                                  ]
+                                : (orgType) => [
+                                    { key: "subscription", label: "" },
+                                    {
+                                      key: "orgName",
+                                      label: `Nom de ${orgTypeFull(orgType)}`
+                                    },
+                                    { key: "createdBy", label: "Créé par" }
+                                  ]
+                            }
+                            isMobile={isMobile}
                             query={orgQuery}
                             subQuery={subQuery}
                             orgType={EOrgType.GENERIC}
                           />
                         </Column>
-                        <Button
-                          borderTopRadius={0}
-                          colorScheme="teal"
-                          leftIcon={<FaRecycle />}
-                          onClick={() => setIsEdit({ isAddingChild: true })}
-                        >
-                          Gérer la forêt
-                        </Button>
+
+                        {session && (
+                          <Button
+                            borderTopRadius={0}
+                            colorScheme="teal"
+                            leftIcon={<FaRecycle />}
+                            onClick={() => setIsEdit({ isAddingChild: true })}
+                          >
+                            Gérer la forêt
+                          </Button>
+                        )}
                       </>
                     )}
                   </>
@@ -213,6 +202,24 @@ export const OrgPageHomeTabPanel = ({
             )}
           </TabContainerContent>
         </TabContainer>
+      )}
+
+      {org.orgType === EOrgType.TREETOOLS && !org.orgLat && (
+        <Alert status="info" mb={3}>
+          <AlertIcon />
+          <Text>
+            Cet arbre est un <b>noisettier</b>, sa vocation première est de
+            rendre disponible du matériel (prêt, location, don) à son voisinage,
+            veuillez donc{" "}
+            <Link
+              variant="underline"
+              onClick={() => setIsEdit({ isAddingInfo: true })}
+            >
+              indiquer sa localisation
+            </Link>
+            .
+          </Text>
+        </Alert>
       )}
 
       <TabContainer>
@@ -265,15 +272,15 @@ export const OrgPageHomeTabPanel = ({
       </TabContainer>
 
       <TabContainer mb={0}>
-        <TabContainerHeader heading={`Description ${orgTypeFull(org.orgType)}`}>
+        <TabContainerHeader
+          heading={`${
+            org.orgType === EOrgType.TREETOOLS ? "Matériel" : "Description"
+          } ${orgTypeFull(org.orgType)}`}
+        >
           {org.orgDescription && isCreator && (
-            <Tooltip
-              hasArrow
-              label="Modifier la description"
-              placement="bottom"
-            >
+            <Tooltip hasArrow label="Modifier" placement="bottom">
               <IconButton
-                aria-label="Modifier la description"
+                aria-label="Modifier"
                 icon={<EditIcon />}
                 bg="transparent"
                 _hover={{ color: "green" }}
@@ -500,16 +507,6 @@ const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!o
                     </Column>
                   )}
 
-                  {isNetworksModalOpen && (
-                    <TreeChartModal
-                      inputNodes={inputNodes}
-                      isMobile={isMobile}
-                      isOpen={isNetworksModalOpen}
-                      rootName={org.orgName}
-                      onClose={closeNetworksModal}
-                    />
-                  )}
-
                   {isMapModalOpen && (
                     <MapModal
                       isOpen={isMapModalOpen}
@@ -548,15 +545,24 @@ const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!o
 }
 
 {
-  /* 
-  {isNetworksModalOpen && (
-    <TreeChartModal
-      inputNodes={inputNodes}
-      isMobile={isMobile}
-      isOpen={isNetworksModalOpen}
-      rootName={org.orgName}
-      onClose={closeNetworksModal}
-    />
-  )} 
-  */
+  /* {org.orgType === EOrgType.GENERIC && hasNetworks && (
+        <TabContainer>
+          <TabContainerHeader
+            heading={
+              <>
+                <EntityButton org={org} onClick={null} /> est planté sur la
+                planète :
+              </>
+            }
+          />
+          <TabContainerContent p={3}>
+            {orgNetworks.map((network) => (
+              <Flex key={network._id}>
+                <EntityButton org={network} mb={1} />
+              </Flex>
+            ))}
+          </TabContainerContent>
+        </TabContainer>
+      )}
+    */
 }

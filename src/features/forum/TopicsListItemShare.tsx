@@ -47,7 +47,7 @@ export const TopicsListItemShare = ({
       </PopoverTrigger>
       <PopoverContent width="auto">
         <PopoverBody onClick={(e) => e.stopPropagation()}>
-          <LinkShare label="Copier l'adresse de la discussion" url={url} />
+          <LinkShare label="Copier le lien de la discussion" url={url} />
         </PopoverBody>
       </PopoverContent>
     </Popover>

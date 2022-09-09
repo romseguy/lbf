@@ -74,14 +74,15 @@ export const scrollbarCss = `
   }
 `;
 
-export const tableCss = `
+export const tableCss = (isMobile?: boolean) => `
   th {
-    padding: 4px;
+    padding: ${isMobile ? 0 : "4px"};
   }
   td {
-    padding: 8px;
+    padding: ${isMobile ? 0 : "8px"};
   }
 
+  /*
   @media (max-width: ${breakpoints.sm}) {
     td,
     th {
@@ -91,4 +92,5 @@ export const tableCss = `
       padding-right: 12px;
     }
   }
+  */
 `;

@@ -103,7 +103,7 @@ export const HeaderTitle = ({
         <LinkShare
           url={`${process.env.NEXT_PUBLIC_URL}/${url}`}
           colorScheme="blue"
-          label={`Copier l'adresse ${
+          label={`Copier le lien ${
             isE
               ? "de l'événement"
               : isO

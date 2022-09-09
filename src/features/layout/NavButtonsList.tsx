@@ -56,13 +56,13 @@ export const NavButtonsList = ({
                     orgVisibility !== EOrgVisibility.PRIVATE
                 )
                 .map(({ orgName, orgType }) => {
-                  const name = `${
-                    orgType === EOrgType.TREETOOLS
-                      ? OrgTypes[orgType] + " : "
-                      : ""
-                  }${orgName}`;
-
-                  return { name };
+                  return {
+                    name: orgName,
+                    prefix:
+                      orgType === EOrgType.TREETOOLS
+                        ? OrgTypes[orgType] + " : "
+                        : ""
+                  };
                 })
             };
           })

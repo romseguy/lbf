@@ -1,9 +1,10 @@
 import {
   Box,
-  Flex,
   BoxProps,
-  useColorMode,
+  Flex,
+  Text,
   Tooltip,
+  useColorMode,
   useToast
 } from "@chakra-ui/react";
 import Head from "next/head";
@@ -12,7 +13,13 @@ import NextNprogress from "nextjs-progressbar";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
-import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
+import {
+  Column,
+  DarkModeSwitch,
+  IconFooter,
+  Link,
+  OfflineIcon
+} from "features/common";
 import { Header, Nav, Footer } from "features/layout";
 import theme, { breakpoints } from "features/layout/theme";
 import { ContactFormModal } from "features/modals/ContactFormModal";
@@ -192,7 +199,13 @@ export const Layout = ({
           </Box>
         )}
 
-        <Nav {...props} email={userEmail} m={isMobile ? 1 : 3} />
+        <Nav
+          {...props}
+          email={userEmail}
+          m={isMobile ? 1 : 3}
+          mt={isMobile ? 0 : undefined}
+          borderTopRadius={isMobile ? 0 : undefined}
+        />
 
         {router.pathname !== "/" && (
           <Header
@@ -217,7 +230,25 @@ export const Layout = ({
           {children}
         </Box>
 
-        {isMobile && (
+        <Column
+          bg={isDark ? "gray.700" : "lightblue"}
+          border={0}
+          borderBottomRadius={0}
+          fontSize="smaller"
+          mx={isMobile ? 1 : 3}
+        >
+          <Flex>
+            <Link href="/a_propos" variant="underline">
+              À propos
+            </Link>
+            <Text mx={1}>|</Text>
+            <Link href="/contact" variant="underline">
+              Contact
+            </Link>
+          </Flex>
+        </Column>
+
+        {/* {isMobile && (
           <Footer display="flex" alignItems="center" pl={3} pb={1}>
             <IconFooter
               minWidth={
@@ -228,40 +259,49 @@ export const Layout = ({
                     }px`
               }
             />
-            {/* <Tooltip
-              hasArrow
-              label="Pour nous remercier d'avoir créé ce logiciel libre ♥"
-              placement="top-end"
-            >
-              <Box>
-                <PaypalButton />
-              </Box>
-            </Tooltip> */}
           </Footer>
-        )}
+        )} */}
       </Flex>
 
       <ContactFormModal />
-
-      {/* {isLoginModalOpen && (
-        <LoginFormModal
-          onClose={() => {
-            setIsLoginModalOpen(false);
-            const path = localStorage.getItem("path") || "/";
-            const protectedRoutes = [
-              "/arbres/ajouter",
-              "/evenements/ajouter",
-              "/planetes/ajouter"
-            ];
-            if (protectedRoutes.includes(path))
-              router.push("/", "/", { shallow: true });
-            else router.push(path, path, { shallow: true });
-          }}
-          onSubmit={async () => {
-            dispatch(resetUserEmail());
-          }}
-        />
-      )} */}
     </>
   );
 };
+
+{
+  /*
+    {isLoginModalOpen && (
+      <LoginFormModal
+        onClose={() => {
+          setIsLoginModalOpen(false);
+          const path = localStorage.getItem("path") || "/";
+          const protectedRoutes = [
+            "/arbres/ajouter",
+            "/evenements/ajouter",
+            "/planetes/ajouter"
+          ];
+          if (protectedRoutes.includes(path))
+            router.push("/", "/", { shallow: true });
+          else router.push(path, path, { shallow: true });
+        }}
+        onSubmit={async () => {
+          dispatch(resetUserEmail());
+        }}
+      />
+    )}
+  */
+}
+
+{
+  /* 
+    <Tooltip
+      hasArrow
+      label="Pour nous remercier d'avoir créé ce logiciel libre ♥"
+      placement="top-end"
+    >
+      <Box>
+        <PaypalButton />
+      </Box>
+    </Tooltip>
+  */
+}

@@ -6,7 +6,7 @@ import { PageProps } from "main";
 const DonatePage = (props: PageProps) => {
   const { query } = useRouter();
   let message = (
-    <Alert status="warning">
+    <Alert status="success">
       <AlertIcon />
       Nous vous remercions de votre générosité.
     </Alert>

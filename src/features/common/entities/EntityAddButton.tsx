@@ -29,7 +29,8 @@ export const EntityAddButton = ({
         }
         mt={1}
         size="sm"
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           onClose && onClose();
           router.push("/planetes/ajouter", "/planetes/ajouter", {
             shallow: true

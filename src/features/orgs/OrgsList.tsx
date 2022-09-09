@@ -21,17 +21,45 @@ import { EntityButton, Link } from "features/common";
 import { scrollbarCss, tableCss } from "features/layout/theme";
 import { MapModal } from "features/modals/MapModal";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
-import { EOrgType, IOrg, orgTypeFull5, OrgTypes } from "models/Org";
+import {
+  EOrgType,
+  IOrg,
+  orgTypeFull,
+  orgTypeFull5,
+  OrgTypes
+} from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
 import { AppQuery } from "utils/types";
+
+const defaultKeys = (orgType: EOrgType) => [
+  {
+    key: "subscription",
+    label: ""
+  },
+  {
+    key: "orgName",
+    label: `Nom de ${orgTypeFull(orgType)}`
+  },
+  // { key: "orgType", label: "Type" },
+  // { key: "orgCity", label: "Position" },
+  {
+    key: "createdBy",
+    label: "Créé par"
+  }
+];
 
 export const OrgsList = ({
   isMobile,
   query,
   subQuery,
-  orgType = EOrgType.NETWORK
+  orgType = EOrgType.NETWORK,
+  ...props
 }: {
+  keys?: (orgType: EOrgType) => {
+    key: string;
+    label: string;
+  }[];
   isMobile?: boolean;
   query: AppQuery<IOrg | IOrg[]>;
   subQuery: AppQuery<ISubscription>;
@@ -87,6 +115,8 @@ export const OrgsList = ({
     boxSize: 6
   };
 
+  const keys = props.keys ? props.keys(orgType) : defaultKeys(orgType);
+
   return (
     <Box
       overflowX="auto"
@@ -94,19 +124,10 @@ export const OrgsList = ({
         ${scrollbarCss}
       `}
     >
-      <Table css={css(tableCss)}>
+      <Table css={css(tableCss(isMobile))}>
         <Thead>
           <Tr>
-            {[
-              { key: "subscription", label: "" },
-              {
-                key: "orgName",
-                label: `Nom de ${orgTypeFull5(orgType)}`
-              },
-              // { key: "orgType", label: "Type" },
-              // { key: "orgCity", label: "Position" },
-              { key: "createdBy", label: "Créé par" }
-            ].map(({ key, label }) => {
+            {keys.map(({ key, label }) => {
               return (
                 <Th
                   color={isDark ? "white" : "black"}
@@ -151,46 +172,52 @@ export const OrgsList = ({
               if (org.orgUrl === "forum") return;
               return (
                 <Tr key={`org-${org._id}`}>
-                  <Td>
-                    <SubscribePopover
-                      org={org}
-                      query={query}
-                      subQuery={subQuery}
-                      isIconOnly
-                      my={isMobile ? 2 : 0}
-                    />
-                    {org.orgCity && (
-                      <Tooltip label="Afficher sur la carte" placement="right">
-                        <IconButton
-                          aria-label="Afficher sur la carte"
-                          icon={<FaMapMarkedAlt />}
-                          ml={isMobile ? 0 : 2}
-                          mb={isMobile ? 2 : 0}
-                          onClick={() => setOrgToShow(org)}
-                        />
+                  {keys.find(({ key }) => key === "subscription") && (
+                    <Td p={isMobile ? 0 : undefined}>
+                      <SubscribePopover
+                        org={org}
+                        query={query}
+                        subQuery={subQuery}
+                        isIconOnly
+                        my={isMobile ? 2 : 0}
+                        mr={isMobile ? 2 : 0}
+                      />
+                    </Td>
+                  )}
+                  {keys.find(({ key }) => key === "orgName") && (
+                    <Td>
+                      {org.orgType === EOrgType.TREETOOLS
+                        ? OrgTypes[org.orgType] + " : "
+                        : ""}
+                      <Tooltip
+                        hasArrow
+                        label={`Visiter ${orgTypeFull5(org.orgType)}`}
+                        placement="top"
+                      >
+                        <span>
+                          <Link
+                            variant="underline"
+                            href={`/${org.orgUrl}`}
+                            shallow
+                          >
+                            {org.orgName}
+                          </Link>
+                        </span>
                       </Tooltip>
-                    )}
-                  </Td>
-                  <Td>
-                    {org.orgType === EOrgType.TREETOOLS
-                      ? OrgTypes[org.orgType] + " : "
-                      : ""}
-                    <Tooltip
-                      hasArrow
-                      label={`Visiter ${orgTypeFull5(org.orgType)}`}
-                      placement="top"
-                    >
-                      <span>
-                        <Link
-                          variant="underline"
-                          href={`/${org.orgUrl}`}
-                          shallow
-                        >
-                          {org.orgName}
-                        </Link>
-                      </span>
-                    </Tooltip>
-                  </Td>
+
+                      {org.orgCity && (
+                        <Tooltip label="Afficher sur la carte" placement="top">
+                          <IconButton
+                            aria-label="Afficher sur la carte"
+                            icon={<FaMapMarkedAlt />}
+                            ml={2}
+                            my={isMobile ? 2 : 0}
+                            onClick={() => setOrgToShow(org)}
+                          />
+                        </Tooltip>
+                      )}
+                    </Td>
+                  )}
                   {/* <Td>{OrgTypes[org.orgType]}</Td> */}
                   {/* <Td>
                     <Tooltip hasArrow label="Voir sur la carte" placement="top">
@@ -204,12 +231,14 @@ export const OrgsList = ({
                       </span>
                     </Tooltip>
                   </Td> */}
-                  <Td>
-                    <EntityButton
-                      user={{ userName: (org.createdBy as IUser).userName }}
-                      tooltipProps={{ placement: "top" }}
-                    />
-                  </Td>
+                  {keys.find(({ key }) => key === "createdBy") && (
+                    <Td>
+                      <EntityButton
+                        user={{ userName: (org.createdBy as IUser).userName }}
+                        tooltipProps={{ placement: "top" }}
+                      />
+                    </Td>
+                  )}
                 </Tr>
               );
             })

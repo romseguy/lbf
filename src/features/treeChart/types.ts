@@ -50,6 +50,7 @@ export interface InputNode {
 
 export interface TreeNode extends d3.layout.tree.Node {
   name: string;
+  prefix?: string;
   children?: TreeNode[];
   _children?: TreeNode[];
 }

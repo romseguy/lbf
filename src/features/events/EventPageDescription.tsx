@@ -1,6 +1,7 @@
-import { AddIcon } from "@chakra-ui/icons";
-import { Button, Text } from "@chakra-ui/react";
+import { SmallAddIcon } from "@chakra-ui/icons";
+import { IconButton, Text, Tooltip } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
+import { FaNewspaper } from "react-icons/fa";
 import { IEvent } from "models/Event";
 import { sanitize, transformRTEditorOutput } from "utils/string";
 import { AppQueryWithData } from "utils/types";
@@ -35,14 +36,21 @@ export const EventPageDescription = ({
           />
         </div>
       ) : isCreator ? (
-        <Button
-          alignSelf="flex-start"
-          colorScheme="teal"
-          leftIcon={<AddIcon />}
-          onClick={() => setIsEdit(true)}
-        >
-          Ajouter
-        </Button>
+        <Tooltip placement="right" label={`Ajouter une affiche à l'événement`}>
+          <IconButton
+            aria-label={`Ajouter une affiche à l'événement`}
+            alignSelf="flex-start"
+            colorScheme="teal"
+            icon={
+              <>
+                <SmallAddIcon />
+                <FaNewspaper />
+              </>
+            }
+            pr={1}
+            onClick={() => setIsEdit(true)}
+          />
+        </Tooltip>
       ) : (
         <Text fontStyle="italic">Aucune présentation.</Text>
       )}

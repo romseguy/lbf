@@ -19,8 +19,8 @@ import { EmailControl, ErrorMessageText, HostTag } from "features/common";
 import { PhoneControl } from "features/common/forms/PhoneControl";
 import { useEditUserMutation } from "features/api/usersApi";
 import type { IUser } from "models/User";
-import { useAppDispatch } from "store";
-import { refetchOrg } from "store/orgSlice";
+// import { useAppDispatch } from "store";
+// import { refetchOrg } from "store/orgSlice";
 import { Session } from "utils/auth";
 import { handleError } from "utils/form";
 import {
@@ -36,9 +36,7 @@ export const UserForm = (props: {
   session: Session;
   onSubmit: (user: Partial<IUser>) => void;
 }) => {
-  console.log(props);
-
-  const dispatch = useAppDispatch();
+  //const dispatch = useAppDispatch();
   const [editUser] = useEditUserMutation();
 
   //#region local state
@@ -123,7 +121,6 @@ export const UserForm = (props: {
         slug: props.user.email,
         payload
       }).unwrap();
-      dispatch(refetchOrg());
       setIsLoading(false);
       props.onSubmit && props.onSubmit(payload);
     } catch (error) {

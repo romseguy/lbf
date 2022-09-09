@@ -33,7 +33,7 @@ const Hash = ({ ...props }: PageProps) => {
   //#region routing
   const router = useRouter();
   const { isLoading: isRouterLoading } = useRouterLoading();
-  let [entityUrl, entityTab, entityTabItem] =
+  let [entityUrl, entityTab = "accueil", entityTabItem] =
     "name" in router.query && Array.isArray(router.query.name)
       ? router.query.name
       : [];

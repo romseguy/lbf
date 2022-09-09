@@ -292,7 +292,7 @@ export const DocumentsList = ({
 
                         <LinkShare
                           colorScheme="blue"
-                          label="Copier l'adresse du lien"
+                          label="Copier le lien du fichier"
                           mr={2}
                           url={url}
                           variant="outline"

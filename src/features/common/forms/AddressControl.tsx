@@ -30,6 +30,7 @@ export const AddressControl = withGoogleApi({
     loaded,
     name,
     label = "Adresse",
+    labelAdd = "Ajouter une adresse postale",
     errors,
     control,
     setValue,
@@ -49,6 +50,7 @@ export const AddressControl = withGoogleApi({
     loaded: boolean;
     name?: string;
     label?: string;
+    labelAdd?: string;
     errors: { [key: string]: string };
     control?: Control<any>;
     setValue: (name: string, value: AddressControlValue) => void;
@@ -230,7 +232,8 @@ export const AddressControl = withGoogleApi({
             append({ address: "" });
           }}
         >
-          <EmailIcon mr={1} /> Ajouter une adresse postale
+          <EmailIcon mr={1} /> {labelAdd}{" "}
+          {fields.length > 0 && "supplémentaire"}
         </Link>
       </Box>
     );

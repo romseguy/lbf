@@ -7,7 +7,7 @@ import {
   Flex
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/router";
@@ -46,13 +46,17 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
   } = useForm();
 
   useLeaveConfirm({ formState });
+  const [storage, setStorage] = useState<Storage | undefined>();
+  useEffect(() => {
+    setStorage(window.localStorage);
+  }, []);
   useFormPersist("storageKey", {
     watch,
     setValue,
-    storage: window.localStorage // default window.sessionStorage
+    storage
   });
   let messageDefaultValue: string | undefined;
-  const formData = localStorage.getItem("storageKey");
+  const formData = storage?.getItem("storageKey");
   if (formData) {
     messageDefaultValue = JSON.parse(formData).topicMessage;
   }

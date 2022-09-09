@@ -94,7 +94,7 @@ export const EntityButton = ({
             aria-hidden
             _hover={onClick ? undefined : {}}
             cursor={hasLink ? "pointer" : "default"}
-            fontSize="sm"
+            //fontSize="sm"
             leftIcon={
               <Icon
                 as={

@@ -188,9 +188,11 @@ export const OrgPageTabs = ({
           <TabPanel aria-hidden>
             <OrgPageHomeTabPanel
               isCreator={isCreator}
+              isMobile={isMobile}
               orgQuery={orgQuery}
-              subQuery={subQuery}
+              session={session}
               setIsEdit={setIsEdit}
+              subQuery={subQuery}
             />
           </TabPanel>
         )}

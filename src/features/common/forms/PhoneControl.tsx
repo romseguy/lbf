@@ -160,7 +160,8 @@ export const PhoneControl = ({
           append({ phone: "" });
         }}
       >
-        <PhoneIcon mr={1} /> Ajouter un numéro de téléphone
+        <PhoneIcon mr={1} /> Ajouter un numéro de téléphone{" "}
+        {fields.length > 0 && "supplémentaire"}
       </Link>
     </Box>
   );

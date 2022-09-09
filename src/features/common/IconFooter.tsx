@@ -1,4 +1,4 @@
-import { EmailIcon } from "@chakra-ui/icons";
+import { EmailIcon, QuestionIcon } from "@chakra-ui/icons";
 import { Box, BoxProps, IconButton, Tooltip } from "@chakra-ui/react";
 import React from "react";
 import { Link } from "features/common";
@@ -7,7 +7,7 @@ import { setIsContactModalOpen } from "store/modalSlice";
 
 export const IconFooter = ({ ...props }: BoxProps & {}) => {
   const dispatch = useAppDispatch();
-  const label = "Contactez-nous  ͡❛ ͜ʖ ͡❛";
+  const label = "Une question ? Contactez-nous  ͡❛ ͜ʖ ͡❛";
   const link = (
     <Link
       onClick={() => {
@@ -19,7 +19,7 @@ export const IconFooter = ({ ...props }: BoxProps & {}) => {
         <IconButton
           aria-label={label}
           colorScheme="purple"
-          icon={<EmailIcon />}
+          icon={<QuestionIcon />}
         />
       </Tooltip>
     </Link>

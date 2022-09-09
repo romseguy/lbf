@@ -1,7 +1,8 @@
-import { AddIcon } from "@chakra-ui/icons";
-import { Text } from "@chakra-ui/react";
+import { SmallAddIcon } from "@chakra-ui/icons";
+import { IconButton, Text, Tooltip } from "@chakra-ui/react";
 import React from "react";
-import { EntityInfo, Button } from "features/common";
+import { FaMapMarkedAlt } from "react-icons/fa";
+import { EntityInfo } from "features/common";
 import { IEvent } from "models/Event";
 import { hasItems } from "utils/array";
 import { AppQueryWithData } from "utils/types";
@@ -27,14 +28,24 @@ export const EventPageInfo = ({
       {hasInfo ? (
         <EntityInfo event={event} />
       ) : isCreator ? (
-        <Button
-          alignSelf="flex-start"
-          colorScheme="teal"
-          leftIcon={<AddIcon />}
-          onClick={() => setIsEdit(true)}
+        <Tooltip
+          placement="right"
+          label={`Ajouter des coordonnées à l'événement`}
         >
-          Ajouter
-        </Button>
+          <IconButton
+            aria-label={`Ajouter des coordonnées à l'événement`}
+            alignSelf="flex-start"
+            colorScheme="teal"
+            icon={
+              <>
+                <SmallAddIcon />
+                <FaMapMarkedAlt />
+              </>
+            }
+            pr={1}
+            onClick={() => setIsEdit(true)}
+          />
+        </Tooltip>
       ) : (
         <Text fontStyle="italic">Aucunes coordonnées.</Text>
       )}

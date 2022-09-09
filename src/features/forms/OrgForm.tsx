@@ -642,12 +642,15 @@ export const OrgForm = withGoogleApi({
           control={control}
           errors={errors}
           setValue={setValue}
-          mb={3}
           containerProps={
             orgAddress && orgAddress[0]
               ? { ...containerProps, mt: 0 }
               : { mb: 3 }
           }
+          label="Adresse ou localité"
+          labelAdd="Ajouter une adresse postale ou une localité"
+          placeholder="Saisir une adresse ou une localité..."
+          mb={3}
           onSuggestionSelect={(suggestion: Suggestion) => {
             setSuggestion(suggestion);
           }}

@@ -25,7 +25,7 @@ export const getEventCategories = (org?: IOrg): IOrgEventCategory[] => {
 //#region descriptions
 export const getOrgDescriptionByType = (orgType?: EOrgType): string => {
   if (orgType === EOrgType.TREETOOLS)
-    return `<p><strong>Liste du mat&eacute;riel disponible :</strong><br /><br />- D&eacute;broussailleuse<br /><br />- Tron&ccedil;onneuse : &agrave; aiguiser<br /><br /><strong>Conditions d'&eacute;change :</strong><br /><br />Tarif fixe, libre, troc, ...<br /><br /><strong>Dur&eacute;e d'emprunt :</strong><br /><br />3 jours &agrave; partir de la remise en main propre</p>`;
+    return `<p>- D&eacute;broussailleuse<br /><br />- Tron&ccedil;onneuse : &agrave; aiguiser<br /><br /><strong>Conditions d'&eacute;change :</strong><br /><br />Tarif fixe, libre, troc, ...<br /><br /><strong>Dur&eacute;e d'emprunt :</strong><br /><br />3 jours &agrave; partir de la remise en main propre</p>`;
   // return `
   // <b>Liste du matériel disponible :</b><br/><br/>
   // - Débroussailleuse<br/><br/>

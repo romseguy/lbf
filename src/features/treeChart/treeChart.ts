@@ -379,7 +379,7 @@ export const treeChart = (
       //#endregion
 
       // update the text to reflect whether node has children or not
-      nodePool.select("text").text((d) => d.name);
+      nodePool.select("text").text((d) => `${d.prefix || ""}${d.name}`);
 
       // change the circle fill depending on whether it has children and is collapsed
       // nodePool.select("circle").style({
