@@ -236,7 +236,7 @@ const IndexPage = (props: PageProps) => {
             </Button>
 
             {isListOpen && (
-              <Column bg={isDark ? "black" : "white"}>
+              <Column bg={isDark ? "gray.700" : "white"}>
                 <OrgsList
                   keys={
                     props.isMobile

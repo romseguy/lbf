@@ -135,7 +135,7 @@ export const OrgPageHomeTabPanel = ({
                           borderBottomRadius={0}
                           maxWidth={undefined}
                           mt={3}
-                          bg={isDark ? "gray.400" : "lightcyan"}
+                          bg={isDark ? "gray.700" : "lightcyan"}
                         >
                           <OrgsList
                             keys={

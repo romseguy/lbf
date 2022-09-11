@@ -15,13 +15,17 @@ export const SocialLogins = ({
 
   return (
     <Flex {...props}>
-      {providers.map((p) => {
+      {providers.map((p, index) => {
         return (
           <Button
             key={p}
+            colorScheme={
+              p === "google" ? "red" : p === "facebook" ? "blue" : undefined
+            }
             isDisabled={!!provider}
             leftIcon={p === "google" ? <FaGoogle /> : <FaFacebook />}
             mb={3}
+            //mr={index !== providers.length - 1 ? 3 : undefined}
             onClick={() => {
               setProvider(p);
               onSubmit(p);
@@ -32,8 +36,6 @@ export const SocialLogins = ({
           </Button>
         );
       })}
-
-      {provider && <Spinner mb={3} />}
     </Flex>
   );
 };

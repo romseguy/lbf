@@ -28,8 +28,6 @@ const theme = extendTheme({
     },
     FormLabel: {
       baseStyle: {
-        alignSelf: "flex-start",
-        //display: "inline",
         ...getStyleObjectFromString(rainbowTextCss(false)),
         ".chakra-ui-dark &": getStyleObjectFromString(rainbowTextCss(true))
       }

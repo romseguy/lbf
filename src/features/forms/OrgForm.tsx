@@ -342,6 +342,24 @@ export const OrgForm = withGoogleApi({
         if (org) {
           if (isEditConfig?.isAddingChild && hasItems(orgs)) {
             await editOrg({ orgId: org._id, payload: { orgs } }).unwrap();
+          } else if (isEditConfig?.isAddingDescription) {
+            await editOrg({
+              orgId: org._id,
+              payload: { orgDescription }
+            }).unwrap();
+          } else if (isEditConfig?.isAddingInfo) {
+            await editOrg({
+              orgId: org._id,
+              payload: {
+                orgAddress,
+                orgEmail,
+                orgPhone,
+                orgWeb,
+                orgCity: payload.orgCity,
+                orgLat: payload.orgLat,
+                orgLng: payload.orgLng
+              }
+            }).unwrap();
           } else if (
             form.orgVisibility === EOrgVisibility.PUBLIC &&
             !!org.orgPassword

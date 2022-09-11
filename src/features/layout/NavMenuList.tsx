@@ -2,9 +2,9 @@ import { MenuList, MenuItem, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { Link, SubscribeSwitch } from "features/common";
-import { resetUserEmail } from "store/userSlice";
 import { useSession } from "hooks/useSession";
 import { useAppDispatch } from "store";
+import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
 import { magic } from "utils/auth";
 
