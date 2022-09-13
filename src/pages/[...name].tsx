@@ -4,25 +4,26 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { GetEventParams, useGetEventQuery } from "features/api/eventsApi";
+import { GetOrgParams, useGetOrgQuery } from "features/api/orgsApi";
+import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
+import { useGetUserQuery, UserQueryParams } from "features/api/usersApi";
 import { NotFound } from "features/common";
 import { EventPage } from "features/events/EventPage";
-import { GetEventParams, useGetEventQuery } from "features/api/eventsApi";
 import { Layout } from "features/layout";
 import { OrgPage } from "features/orgs/OrgPage";
 import { OrgPageLogin } from "features/orgs/OrgPageLogin";
-import { GetOrgParams, useGetOrgQuery } from "features/api/orgsApi";
-import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
-import { selectSubscriptionRefetch } from "store/subscriptionSlice";
 import { UserPage } from "features/users/UserPage";
-import { useGetUserQuery, UserQueryParams } from "features/api/usersApi";
-import { selectUserEmail } from "store/userSlice";
 import { useRouterLoading } from "hooks/useRouterLoading";
+import { PageProps } from "main";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
+import { selectSubscriptionRefetch } from "store/subscriptionSlice";
+import { selectUserEmail } from "store/userSlice";
+import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { PageProps } from "main";
 
 let cachedEmail: string | undefined;
 let cachedRefetchSubscription = false;
@@ -203,19 +204,16 @@ export async function getServerSideProps(
   if (Array.isArray(ctx.query.name) && typeof ctx.query.name[0] === "string") {
     let entityUrl = ctx.query.name[0];
 
-    if (entityUrl === "login")
-      return { redirect: { permanent: false, destination: "/login" } };
+    const normalizedEntityUrl = normalize(entityUrl);
+    console.log(entityUrl, normalizedEntityUrl);
 
-    if (entityUrl.indexOf(" ") !== -1) {
-      const destination = `/${entityUrl.replace(/\ /g, "_")}`;
-
+    if (entityUrl !== normalizedEntityUrl)
       return {
         redirect: {
           permanent: false,
-          destination
+          destination: normalizedEntityUrl
         }
       };
-    }
   }
 
   return { props: {} };
