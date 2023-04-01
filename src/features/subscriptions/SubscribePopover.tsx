@@ -29,7 +29,7 @@ import { useSelector } from "react-redux";
 import { useAddSubscriptionMutation } from "features/api/subscriptionsApi";
 import { HostTag } from "features/common";
 import { IEvent } from "models/Event";
-import { IOrg, orgTypeFull, orgTypeFull2, orgTypeFull5 } from "models/Org";
+import { IOrg, orgTypeFull, orgTypeFull2, orgTypeFull4 } from "models/Org";
 import {
   getFollowerSubscription,
   ISubscription,
@@ -188,7 +188,8 @@ export const SubscribePopover = ({
                 <AlertIcon />
                 <Box>
                   En vous abonnant, vous acceptez de rendre votre adresse e-mail
-                  visible à l'administrateur de cette organisation et de{" "}
+                  visible au créateur de{" "}
+                  {org ? orgTypeFull4(org.orgType) : "cet événement"} et de{" "}
                   <HostTag />
                 </Box>
               </Alert>

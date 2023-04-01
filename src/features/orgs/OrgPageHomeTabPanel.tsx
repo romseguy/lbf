@@ -115,7 +115,7 @@ export const OrgPageHomeTabPanel = ({
                       {isMapModalOpen && (
                         <MapModal
                           isOpen={isMapModalOpen}
-                          header="Carte des réseaux"
+                          header="Carte de la planète"
                           orgs={
                             org.orgs.filter(
                               (org) =>

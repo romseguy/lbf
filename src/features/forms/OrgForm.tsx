@@ -162,7 +162,7 @@ export const OrgForm = withGoogleApi({
           (tree) => !orgTrees?.find((orgTree) => orgTree._id === tree._id)
         )
       : [];
-    const orgsPlaceholder = `Sélectionner ou créez ${
+    const orgsPlaceholder = `Sélectionnez ou créez ${
       allowedChildrenTypes.length > 0
         ? "le " + OrgTypes[allowedChildrenTypes[0] as EOrgType].toLowerCase()
         : "l'arbre"
@@ -443,39 +443,42 @@ export const OrgForm = withGoogleApi({
         isInvalid={!!errors["orgs"]}
         display={orgType !== EOrgType.NETWORK ? "none" : undefined}
       >
+        {Array.isArray(orgTrees) && orgTrees.length > 0 && (
+          <>
+            <FormLabel>Forêt de la planète :</FormLabel>
+            <List>
+              {orgTrees.map((orgTree) => (
+                <ListItem key={orgTree._id}>
+                  <EntityTag
+                    entity={orgTree}
+                    body={
+                      <>
+                        <Icon as={FaTree} mx={1} />
+                        <Text mr={3}>{orgTree.orgName}</Text>
+                      </>
+                    }
+                    mb={3}
+                    onCloseClick={
+                      isCreator
+                        ? () => {
+                            setOrgTrees(
+                              orgTrees.filter(({ _id }) => _id !== orgTree._id)
+                            );
+                          }
+                        : undefined
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </>
+        )}
+
         <FormLabel>
           {isEditConfig?.isAddingChild
             ? orgsPlaceholder + " :"
             : "Forêt de la planète"}
         </FormLabel>
-
-        {Array.isArray(orgTrees) && orgTrees.length > 0 && (
-          <List>
-            {orgTrees.map((orgTree) => (
-              <ListItem key={orgTree._id}>
-                <EntityTag
-                  entity={orgTree}
-                  body={
-                    <>
-                      <Icon as={FaTree} mx={1} />
-                      <Text mr={3}>{orgTree.orgName}</Text>
-                    </>
-                  }
-                  mb={3}
-                  onCloseClick={
-                    isCreator
-                      ? () => {
-                          setOrgTrees(
-                            orgTrees.filter(({ _id }) => _id !== orgTree._id)
-                          );
-                        }
-                      : undefined
-                  }
-                />
-              </ListItem>
-            ))}
-          </List>
-        )}
 
         {myOrgsQuery.isLoading ? (
           <Spinner />

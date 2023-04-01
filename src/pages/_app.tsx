@@ -32,6 +32,7 @@ const App = wrapper.withRedux(
             setIsSessionLoading={setIsSessionLoading}
             session={session}
             setSession={setSession}
+            {...pageProps}
           />
         </Chakra>
       </SessionContext.Provider>
