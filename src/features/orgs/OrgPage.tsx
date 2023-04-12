@@ -10,7 +10,7 @@ import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { PageProps } from "main";
 import { getRefId } from "models/Entity";
-import { IOrg } from "models/Org";
+import { EOrgType, IOrg } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
@@ -211,7 +211,10 @@ export const OrgPage = ({
         <>
           <Box my={3}>
             <Text fontSize="smaller">
-              Organisation ajoutée le{" "}
+              {org.orgType === EOrgType.GENERIC
+                ? "Arbre créé"
+                : "Planète créée"}{" "}
+              le{" "}
               {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
                 locale: fr
               })}{" "}

@@ -205,7 +205,7 @@ export async function getServerSideProps(
     let entityUrl = ctx.query.name[0];
 
     const normalizedEntityUrl = normalize(entityUrl);
-    console.log(entityUrl, normalizedEntityUrl);
+    //console.log(entityUrl, normalizedEntityUrl);
 
     if (entityUrl !== normalizedEntityUrl)
       return {

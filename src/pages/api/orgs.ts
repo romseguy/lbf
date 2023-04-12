@@ -28,18 +28,20 @@ handler.get<
     let selector: GetOrgsParams & {
       orgVisibility?: EOrgVisibility;
     } = {
-      orgType,
       orgVisibility: EOrgVisibility.PUBLIC
     };
 
-    if (
-      createdBy &&
-      (session?.user.isAdmin || session?.user.userId === createdBy)
-    ) {
-      selector = { createdBy };
+    if (createdBy) {
+      if (session?.user.isAdmin || session?.user.userId === createdBy)
+        selector = { createdBy };
+      else selector.createdBy = createdBy;
     }
 
-    let orgs = await models.Org.find(selector);
+    if (orgType) selector.orgType = orgType;
+
+    let orgs = await models.Org.find({ orgVisibility: "PUBLIC" });
+    console.log("selector", selector, orgs);
+    console.log("populate", populate);
 
     if (populate)
       orgs = await Promise.all(

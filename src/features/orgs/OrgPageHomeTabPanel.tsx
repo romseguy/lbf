@@ -5,6 +5,8 @@ import {
   Button,
   Flex,
   IconButton,
+  List,
+  ListItem,
   Spinner,
   Text,
   Tooltip,
@@ -21,6 +23,7 @@ import {
 } from "react-icons/fa";
 import {
   Column,
+  EntityButton,
   EntityInfo,
   Link,
   TabContainer,
@@ -28,7 +31,13 @@ import {
   TabContainerHeader
 } from "features/common";
 import { MapModal } from "features/modals/MapModal";
-import { IOrg, orgTypeFull, EOrgType, orgTypeFull2 } from "models/Org";
+import {
+  IOrg,
+  getNetworks,
+  orgTypeFull,
+  EOrgType,
+  orgTypeFull2
+} from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
@@ -62,8 +71,8 @@ export const OrgPageHomeTabPanel = ({
     hasItems(org.orgEmail) ||
     hasItems(org.orgPhone) ||
     hasItems(org.orgWeb);
-  // const orgNetworks = getNetworks(org);
-  // const hasNetworks = Array.isArray(orgNetworks) && orgNetworks.length > 0;
+  let orgNetworks: IOrg[] | undefined;
+  if (org.orgType === EOrgType.GENERIC) orgNetworks = getNetworks(org, session);
   //#endregion
 
   //#region local state
@@ -270,6 +279,21 @@ export const OrgPageHomeTabPanel = ({
           )}
         </TabContainerContent>
       </TabContainer>
+
+      {Array.isArray(orgNetworks) && orgNetworks.length > 0 && (
+        <TabContainer>
+          <TabContainerHeader heading="Planètes sur lesquelles cet arbre a été planté"></TabContainerHeader>
+          <TabContainerContent p={3}>
+            <List>
+              {orgNetworks.map((orgNetwork, i) => (
+                <ListItem mt={i !== 0 ? 3 : 0}>
+                  <EntityButton org={orgNetwork} />
+                </ListItem>
+              ))}
+            </List>
+          </TabContainerContent>
+        </TabContainer>
+      )}
 
       <TabContainer mb={0}>
         <TabContainerHeader
