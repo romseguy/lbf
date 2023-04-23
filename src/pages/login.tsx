@@ -62,11 +62,11 @@ const LoginPage = ({ isMobile }: PageProps) => {
       magic.auth.loginWithMagicLink({
         email: form.email,
         redirectURI,
-        showUI: false
+        showUI: true
       });
-      setIsLoading(false);
-      setIsSent(true);
-      setEmail(form.email);
+      // setIsLoading(false);
+      // setIsSent(true);
+      // setEmail(form.email);
       //props.onClose && props.onClose();
     } catch (error) {
       console.log(error);

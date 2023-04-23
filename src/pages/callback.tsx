@@ -1,4 +1,5 @@
 import { Box, Spinner } from "@chakra-ui/react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { setUserEmail } from "store/userSlice";
@@ -13,11 +14,14 @@ const CallbackPage = (props: PageProps) => {
   const { setSession } = useSession();
 
   const finishSocialLogin = async () => {
+    console.log("finishSocialLogin", router.query.provider);
     let result = await magic.oauth.getRedirectResult();
     authenticateWithServer(result.magic.idToken);
   };
 
   const finishEmailRedirectLogin = () => {
+    console.log("finishEmailRedirectLogin", router.query.magic_credential);
+
     if (router.query.magic_credential)
       magic.auth
         .loginWithCredential()
@@ -26,6 +30,8 @@ const CallbackPage = (props: PageProps) => {
 
   const authenticateWithServer = async (didToken: string | null) => {
     try {
+      console.log("authenticateWithServer", didToken);
+
       const res = await fetch("/api/login", {
         method: "POST",
         headers: {
@@ -49,7 +55,10 @@ const CallbackPage = (props: PageProps) => {
   };
 
   useEffect(() => {
-    router.query.provider ? finishSocialLogin() : finishEmailRedirectLogin();
+    console.log("router.query", router.query);
+
+    if (router.query.provider) finishSocialLogin();
+    else finishEmailRedirectLogin();
   }, [router.query]);
 
   return (
@@ -59,4 +68,6 @@ const CallbackPage = (props: PageProps) => {
   );
 };
 
-export default CallbackPage;
+const NoSSRCallbackPage = dynamic(async () => CallbackPage, { ssr: false });
+
+export default NoSSRCallbackPage;

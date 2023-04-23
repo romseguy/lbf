@@ -39,7 +39,7 @@ handler.get<
 
     if (orgType) selector.orgType = orgType;
 
-    let orgs = await models.Org.find({ orgVisibility: "PUBLIC" });
+    let orgs = await models.Org.find(selector);
     console.log("selector", selector, orgs);
     console.log("populate", populate);
 

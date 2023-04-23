@@ -4,7 +4,14 @@ import database, { models } from "database";
 import { EditOrgPayload, GetOrgParams } from "features/api/orgsApi";
 import { getRefId } from "models/Entity";
 import { EEventVisibility } from "models/Event";
-import { getLists, IOrg, orgTypeFull, orgTypeFull4 } from "models/Org";
+import {
+  EOrgType,
+  EOrgVisibility,
+  getLists,
+  IOrg,
+  orgTypeFull,
+  orgTypeFull4
+} from "models/Org";
 import { ISubscription, getFollowerSubscription } from "models/Subscription";
 import api from "utils/api";
 import { hasItems } from "utils/array";
@@ -59,7 +66,7 @@ handler.get<
 
     if (!isCreator) {
       if (org.orgPassword) {
-        if (!hash)
+        if (!hash) {
           return res.status(200).json({
             orgName: org.orgName,
             orgSalt: org.orgSalt,
@@ -67,6 +74,7 @@ handler.get<
             orgType: org.orgType,
             orgUrl: org.orgUrl
           });
+        }
 
         if (org.orgPassword !== hash)
           return res
@@ -74,6 +82,37 @@ handler.get<
             .json(createServerError(new Error("Mot de passe incorrect")));
 
         org.orgPassword = undefined;
+      } else if (
+        org.orgType === EOrgType.GENERIC ||
+        org.orgType === EOrgType.TREETOOLS
+      ) {
+        const privateNetworks = await models.Org.find(
+          {
+            orgType: EOrgType.NETWORK,
+            orgVisibility: EOrgVisibility.PRIVATE
+          },
+          "+orgPassword"
+        ).populate("orgs");
+        const orgNetwork = privateNetworks.find(
+          ({ orgs }) => !!orgs.find(({ orgName }) => orgName === org!.orgName)
+        );
+        const orgBelongsToAtLeastOnePrivateNetwork = !!orgNetwork;
+
+        if (orgBelongsToAtLeastOnePrivateNetwork) {
+          if (!hash)
+            return res.status(200).json({
+              orgName: org.orgName,
+              orgSalt: orgNetwork.orgSalt,
+              orgStyles: org.orgStyles,
+              orgType: org.orgType,
+              orgUrl: org.orgUrl
+            });
+
+          if (orgNetwork.orgPassword !== hash)
+            return res
+              .status(403)
+              .json(createServerError(new Error("Mot de passe incorrect")));
+        }
       }
     }
 

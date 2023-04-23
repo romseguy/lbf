@@ -840,30 +840,32 @@ export const OrgForm = withGoogleApi({
 
         {DescriptionFormControl}
 
-        <Box {...formBoxProps(isDark)}>
-          {VisibilityFormControl}
+        {orgType === EOrgType.NETWORK && (
+          <Box {...formBoxProps(isDark)}>
+            {VisibilityFormControl}
 
-          {orgVisibility === EOrgVisibility.PRIVATE && (
-            <>
-              {org?.orgPassword ? (
-                <>
-                  <Link
-                    variant="underline"
-                    onClick={() => {
-                      setIsPassword(!isPassword);
-                    }}
-                  >
-                    {isPassword ? "Annuler" : "Changer le mot de passe"}
-                  </Link>
+            {orgVisibility === EOrgVisibility.PRIVATE && (
+              <>
+                {org?.orgPassword ? (
+                  <>
+                    <Link
+                      variant="underline"
+                      onClick={() => {
+                        setIsPassword(!isPassword);
+                      }}
+                    >
+                      {isPassword ? "Annuler" : "Changer le mot de passe"}
+                    </Link>
 
-                  {isPassword && PasswordFormControl}
-                </>
-              ) : (
-                <>{PasswordFormControl}</>
-              )}
-            </>
-          )}
-        </Box>
+                    {isPassword && PasswordFormControl}
+                  </>
+                ) : (
+                  <>{PasswordFormControl}</>
+                )}
+              </>
+            )}
+          </Box>
+        )}
 
         {orgType === EOrgType.NETWORK && (
           <Box {...formBoxProps(isDark)}>

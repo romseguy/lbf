@@ -71,8 +71,10 @@ export const OrgPageHomeTabPanel = ({
     hasItems(org.orgEmail) ||
     hasItems(org.orgPhone) ||
     hasItems(org.orgWeb);
-  let orgNetworks: IOrg[] | undefined;
-  if (org.orgType === EOrgType.GENERIC) orgNetworks = getNetworks(org, session);
+  // TODO: adding condition crashes
+  // let orgNetworks: IOrg[] | undefined;
+  // if (org.orgType === EOrgType.GENERIC)
+  const orgNetworks = getNetworks(org, session);
   //#endregion
 
   //#region local state
