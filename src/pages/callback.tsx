@@ -1,14 +1,50 @@
 import { Box, Spinner } from "@chakra-ui/react";
-import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
+import Router from "next/router";
 import React, { useEffect } from "react";
-import { setUserEmail } from "store/userSlice";
-import { useSession } from "hooks/useSession";
-import { useAppDispatch } from "store";
 import { magic } from "utils/auth";
 import { PageProps } from "main";
 
 const CallbackPage = (props: PageProps) => {
+  useEffect(() => {
+    // On mount, we try to login with a Magic credential in the URL query.
+    if (Router.query.provider) {
+      magic.oauth.getRedirectResult().then(async (result) => {
+        const didToken = result.magic.idToken;
+        const res = await fetch("/api/login", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + didToken
+          }
+        });
+        res.status === 200 && Router.push("/");
+      });
+    } else {
+      magic.auth.loginWithCredential().then(async (didToken) => {
+        const res = await fetch("/api/login", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + didToken
+          }
+        });
+        res.status === 200 && Router.push("/");
+      });
+    }
+  }, []);
+
+  return (
+    <Box position="absolute" top="50%" left="50%">
+      <Spinner />
+    </Box>
+  );
+};
+
+/*
+  import { useRouter } from "next/router";
+  import { setUserEmail } from "store/userSlice";
+  import { useSession } from "hooks/useSession";
+  import { useAppDispatch } from "store";
+
+  const CallbackPageWithSocialLogin = (props: PageProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { setSession } = useSession();
@@ -67,7 +103,9 @@ const CallbackPage = (props: PageProps) => {
     </Box>
   );
 };
+*/
 
-const NoSSRCallbackPage = dynamic(async () => CallbackPage, { ssr: false });
-
-export default NoSSRCallbackPage;
+export default CallbackPage;
+// import dynamic from "next/dynamic";
+// const NoSSRCallbackPage = dynamic(async () => CallbackPage, { ssr: false });
+// export default NoSSRCallbackPage;

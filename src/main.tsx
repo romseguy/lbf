@@ -1,6 +1,8 @@
+//import type { MagicUserMetadata } from 'magic-sdk';
+
 import { useColorMode } from "@chakra-ui/react";
 import { NextPage } from "next";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { GlobalStyles } from "features/layout";
 import { useAppDispatch } from "store";
@@ -30,6 +32,40 @@ export const Main = ({
   const userEmail = useSelector(selectUserEmail);
 
   useEffect(function clientDidMount() {
+    // On mount, we check if a user is logged in.
+    // If so, we'll retrieve the authenticated user's profile.
+    (async function checkLoginStatus() {
+      try {
+        const magicIsLoggedIn = await magic.user.isLoggedIn();
+
+        if (magicIsLoggedIn) {
+          const metadata = await magic.user.getMetadata();
+          //console.log("metadata", metadata);
+
+          if (metadata.email) {
+            dispatch(setUserEmail(metadata.email));
+
+            const res = await fetch(`/api/user/${metadata.email}`);
+            //console.log(`res GET /api/user/${metadata.email}`, res);
+
+            if (res.status === 200) {
+              const user = await res.json();
+              console.log("user", user);
+              props.setSession({
+                user: { ...user, email: metadata.email, userId: user.id }
+              });
+            }
+          }
+        }
+
+        props.setIsSessionLoading(false);
+      } catch (error) {
+        props.setSession(null);
+        props.setIsSessionLoading(false);
+      }
+    })();
+
+    /*
     (async function checkLoginStatus() {
       try {
         const { data: session } = await api.get("user");
@@ -56,7 +92,7 @@ export const Main = ({
 
             if (res.status === 200) {
               const user = await res.json();
-              console.log("SETTING MAGIC SESSION");
+              console.log("SETTING MAGIC SESSION", user);
               props.setSession({ user });
               dispatch(setUserEmail(session.user.email));
             }
@@ -69,6 +105,7 @@ export const Main = ({
         props.setIsSessionLoading(false);
       }
     })();
+    */
 
     (async function checkOnlineStatus() {
       try {

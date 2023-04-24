@@ -29,7 +29,7 @@ export const SessionContext = createContext<
 >([null, true, () => {}, () => {}]);
 
 export async function getSession(params?: any): Promise<Session | null> {
-  if (process.env.NODE_ENV === "development") return devSession;
+  //if (process.env.NODE_ENV === "development") return devSession;
 
   const cookies = params.req.cookies;
 
@@ -57,11 +57,11 @@ export const devSession =
   //     userName: "romain"
   //   }
   // };
-  {
-    user: {
-      email: "rom.seguy@gmail.com",
-      userId: "61138a879544b000088318ae",
-      userName: "romseguy66"
-    }
-  };
-// null;
+  // {
+  //   user: {
+  //     email: "rom.seguy@gmail.com",
+  //     userId: "61138a879544b000088318ae",
+  //     userName: "romseguy66"
+  //   }
+  // };
+  null;

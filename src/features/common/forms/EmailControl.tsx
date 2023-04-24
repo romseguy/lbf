@@ -74,6 +74,7 @@ export const EmailControl = ({
         <InputGroup>
           <InputLeftElement pointerEvents="none" children={<AtSignIcon />} />
           <Input
+            type="email"
             name={name}
             placeholder={placeholder}
             ref={register({
@@ -133,6 +134,7 @@ export const EmailControl = ({
                 children={<AtSignIcon />}
               />
               <Input
+                type="email"
                 name={`${name}[${index}].email`}
                 placeholder={placeholder}
                 defaultValue={`${field.email}`} // make sure to set up defaultValue
