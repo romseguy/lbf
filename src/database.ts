@@ -10,6 +10,8 @@ import { IProject } from "models/Project";
 import { ProjectSchema } from "models/Project/ProjectSchema";
 import { ISubscription } from "models/Subscription";
 import { SubscriptionSchema } from "models/Subscription/SubscriptionSchema";
+import { ISetting } from "models/Setting";
+import { SettingSchema } from "models/Setting/SettingSchema";
 import { ITopic } from "models/Topic";
 import { TopicSchema } from "models/Topic/TopicSchema";
 import { IUser } from "models/User";
@@ -30,17 +32,33 @@ const modelsPromise = connection.then((connection) => {
       "Subscription",
       SubscriptionSchema
     ),
+    Setting: connection.model<ISetting>("Setting", SettingSchema),
     Topic: connection.model<ITopic>("Topic", TopicSchema),
     User: connection.model<IUser>("User", UserSchema)
   };
 });
 
+export const unauthorizedEntityUrls = [
+  "404",
+  "a_propos",
+  "admin",
+  "callback",
+  "contact",
+  "donate",
+  "evenements",
+  "login",
+  "organisations",
+  "privacy",
+  "sandbox",
+  "sent"
+];
 export let db: Db;
 export let models: {
   Event: Model<IEvent, {}, {}>;
   Org: Model<IOrg, {}, {}>;
   Project: Model<IProject, {}, {}>;
   Subscription: Model<ISubscription, {}, {}>;
+  Setting: Model<ISetting, {}, {}>;
   Topic: Model<ITopic, {}, {}>;
   User: Model<IUser, {}, {}>;
 };

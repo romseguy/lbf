@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "database";
+import database, { models, unauthorizedEntityUrls } from "database";
 import { AddOrgPayload, GetOrgsParams } from "features/api/orgsApi";
 import { EOrgType, EOrgVisibility } from "models/Org";
 import { getCurrentId } from "store/utils";
@@ -68,6 +68,17 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
       const { body }: { body: AddOrgPayload } = req;
       const orgName = body.orgName.trim();
       const orgUrl = normalize(orgName);
+
+      if (unauthorizedEntityUrls.includes(orgUrl)) {
+        return res
+          .status(400)
+          .json(
+            createServerError(
+              new Error(`Ce nom d'organisation n'est pas autorisé`)
+            )
+          );
+      }
+
       let newOrg = {
         ...body,
         createdBy: session.user.userId,

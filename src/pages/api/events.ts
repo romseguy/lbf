@@ -1,7 +1,7 @@
 import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "database";
+import database, { models, unauthorizedEntityUrls } from "database";
 import { sendToAdmin } from "features/api/email";
 import { AddEventPayload } from "features/api/eventsApi";
 import { IEvent, EEventVisibility } from "models/Event";
@@ -71,6 +71,15 @@ handler.post<
     let { body }: { body: AddEventPayload<string> } = req;
     const eventName = body.eventName.trim();
     const eventUrl = normalize(eventName);
+
+    if (unauthorizedEntityUrls.includes(eventUrl)) {
+      return res
+        .status(400)
+        .json(
+          createServerError(new Error(`Ce nom d'événement n'est pas autorisé`))
+        );
+    }
+
     let newEvent = {
       ...body,
       createdBy: session.user.userId,
