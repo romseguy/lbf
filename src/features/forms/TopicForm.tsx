@@ -60,6 +60,10 @@ export const TopicForm = ({
   const topicCategories = isE
     ? entity.eventTopicCategories
     : entity.orgTopicCategories;
+  const topicCategory =
+    props.topic &&
+    props.topic.topicCategory &&
+    topicCategories.find(({ catId }) => catId === props.topic!.topicCategory);
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
@@ -167,6 +171,7 @@ export const TopicForm = ({
 
         setIsLoading(false);
         props.onSubmit && props.onSubmit(newTopic);
+        localStorage.removeItem("storageKey");
       }
     } catch (error: any) {
       setIsLoading(false);
@@ -181,17 +186,6 @@ export const TopicForm = ({
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-      <ErrorMessage
-        errors={errors}
-        name="formErrorMessage"
-        render={({ message }) => (
-          <Alert status="error" mb={3}>
-            <AlertIcon />
-            <ErrorMessageText>{message}</ErrorMessageText>
-          </Alert>
-        )}
-      />
-
       <FormControl isRequired isInvalid={!!errors["topicName"]} mb={3}>
         <FormLabel>Objet de la discussion</FormLabel>
         <Input
@@ -213,24 +207,26 @@ export const TopicForm = ({
         <Controller
           name="topicCategory"
           control={control}
+          //defaultValue={null}
           defaultValue={
-            props.topic && props.topic.topicCategory
-              ? {
-                  label: props.topic.topicCategory,
-                  value: props.topic.topicCategory
-                }
+            topicCategory
+              ? { label: topicCategory.label, value: topicCategory.catId }
               : null
           }
           render={(renderProps) => {
+            let value = renderProps.value;
+
             return (
               <Creatable
-                value={renderProps.value}
+                value={value}
                 onChange={renderProps.onChange}
                 options={
-                  topicCategories.map(({ catId: value, label }) => ({
-                    label,
-                    value
-                  })) || []
+                  topicCategories.map(({ catId: value, label }) => {
+                    return {
+                      label,
+                      value
+                    };
+                  }) || []
                 }
                 allowCreateWhileLoading
                 formatCreateLabel={(inputValue: string) =>
@@ -405,6 +401,17 @@ export const TopicForm = ({
           sélectionnées.
         </Alert>
       )}
+
+      <ErrorMessage
+        errors={errors}
+        name="formErrorMessage"
+        render={({ message }) => (
+          <Alert status="error" mb={3}>
+            <AlertIcon />
+            <ErrorMessageText>{message}</ErrorMessageText>
+          </Alert>
+        )}
+      />
 
       <Flex justifyContent="space-between">
         {props.onCancel && (

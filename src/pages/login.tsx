@@ -1,5 +1,4 @@
 import {
-  useColorMode,
   Flex,
   Heading,
   Image,
@@ -8,9 +7,13 @@ import {
   Alert,
   AlertIcon,
   Stack,
-  Text
+  Text,
+  useColorMode
 } from "@chakra-ui/react";
+import { ArrowBackIcon } from "@chakra-ui/icons";
+import { FaPowerOff } from "react-icons/fa";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import NextNprogress from "nextjs-progressbar";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -32,13 +35,13 @@ const LoginPage = ({ isMobile }: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const {
     data: session,
     loading,
     setSession,
     setIsSessionLoading
   } = useSession();
-  console.log(session);
 
   //#region form
   const { register, control, errors, handleSubmit, setValue } = useForm();
@@ -133,29 +136,40 @@ const LoginPage = ({ isMobile }: PageProps) => {
             >
               <Alert bg={isDark ? "gray.600" : undefined} status="success">
                 <AlertIcon />
-                <Stack spacing={3}>
+                <Stack spacing={3} textAlign="center">
                   <Text>Vous êtes déjà connecté avec l'adresse e-mail :</Text>
 
                   <Text fontWeight="bold" ml={1}>
                     {session.user.email}
                   </Text>
-
-                  <Button
-                    colorScheme="red"
-                    onClick={async () => {
-                      setIsSessionLoading(true);
-                      dispatch(resetUserEmail());
-                      await magic.user.logout();
-                      await api.get("logout");
-                      setSession(null);
-                      setIsSessionLoading(false);
-                      //router.push("/login", "/login", { shallow: true });
-                    }}
-                  >
-                    Déconnexion
-                  </Button>
                 </Stack>
               </Alert>
+
+              <Button
+                colorScheme="blue"
+                leftIcon={<ArrowBackIcon />}
+                mt={3}
+                onClick={() => router.push("/", "/", { shallow: true })}
+              >
+                Retour à l'accueil
+              </Button>
+
+              <Button
+                colorScheme="red"
+                leftIcon={<FaPowerOff />}
+                mt={3}
+                onClick={async () => {
+                  setIsSessionLoading(true);
+                  dispatch(resetUserEmail());
+                  await magic.user.logout();
+                  await api.get("logout");
+                  setSession(null);
+                  setIsSessionLoading(false);
+                  //router.push("/login", "/login", { shallow: true });
+                }}
+              >
+                Déconnexion
+              </Button>
             </Column>
           ) : (
             <>

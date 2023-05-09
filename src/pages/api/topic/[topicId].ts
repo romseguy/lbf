@@ -223,10 +223,23 @@ handler.put<
 
     if (body.topic) {
       if (body.topicMessage) {
-        if (
-          !equals(body.topicMessage.createdBy, session.user.userId) &&
-          !session.user.isAdmin
-        )
+        const topicMessage = body.topic.topicMessages?.find(
+          ({ _id }) => _id === body.topicMessage!._id
+        );
+
+        if (!topicMessage || !topicMessage.createdBy)
+          return res
+            .status(404)
+            .json(
+              createServerError(new Error("Le message n'a pas été trouvé."))
+            );
+
+        const createdBy =
+          typeof topicMessage.createdBy === "string"
+            ? topicMessage.createdBy
+            : topicMessage.createdBy._id;
+
+        if (!equals(createdBy, session.user.userId) && !session.user.isAdmin)
           return res
             .status(403)
             .json(

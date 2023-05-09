@@ -51,7 +51,7 @@ const AdminPage = () => {
   const [editSetting] = useEditSettingMutation();
 
   const { register, control, errors, clearErrors, setError, handleSubmit } =
-    useForm<AdminFormState>();
+    useForm();
 
   const onChange = () => {
     clearErrors("formErrorMessage");

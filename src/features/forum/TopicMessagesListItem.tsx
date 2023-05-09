@@ -7,6 +7,7 @@ import {
   IconButton,
   Tooltip
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React from "react";
 import { DeleteButton, Link, RTEditor } from "features/common";
 import { IEvent } from "models/Event";
@@ -59,6 +60,7 @@ export const TopicMessagesListItem = ({
   topic: ITopic;
   topicMessage: ITopicMessage;
 }) => {
+  const router = useRouter();
   const editTopic = mutation[0];
 
   const { message, createdBy, createdAt, ...rest } = topicMessage;
@@ -80,9 +82,13 @@ export const TopicMessagesListItem = ({
 
   return (
     <Flex key={_id} pb={3} data-cy="topic-message">
-      <Link variant="no-underline" href={userName}>
-        <Avatar name={userName} boxSize={10} src={userImage} />
-      </Link>
+      <Avatar
+        name={userName}
+        boxSize={10}
+        src={userImage}
+        cursor="pointer"
+        onClick={() => router.push(userName, userName, { shallow: true })}
+      />
 
       <Box ml={2}>
         <Box borderRadius={18} bg={isDark ? "gray.600" : "white"} px={3}>
