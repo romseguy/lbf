@@ -78,9 +78,10 @@ export const TopicsListCategories = ({
           <Tooltip label="Gérer les catégories de discussions">
             <IconButton
               aria-label="Gérer les catégories de discussions"
+              colorScheme="teal"
               height="32px"
               icon={<SettingsIcon />}
-              _hover={{ bg: "teal", color: "white" }}
+              //_hover={{ bg: "teal", color: "white" }}
               mr={1}
               onClick={openCategoriesModal}
             ></IconButton>

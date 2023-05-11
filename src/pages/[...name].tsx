@@ -15,6 +15,7 @@ import { OrgPage } from "features/orgs/OrgPage";
 import { OrgPageLogin } from "features/orgs/OrgPageLogin";
 import { UserPage } from "features/users/UserPage";
 import { useRouterLoading } from "hooks/useRouterLoading";
+import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -29,6 +30,8 @@ let cachedEmail: string | undefined;
 let cachedRefetchSubscription = false;
 
 const Hash = ({ ...props }: PageProps) => {
+  const { data } = useSession();
+  const session = data || props.session;
   const userEmail = useSelector(selectUserEmail);
 
   //#region routing
@@ -144,6 +147,7 @@ const Hash = ({ ...props }: PageProps) => {
     return (
       <EventPage
         {...props}
+        session={session}
         email={userEmail}
         eventQuery={eventQuery as AppQueryWithData<IEvent>}
         subQuery={subQuery}
@@ -174,6 +178,7 @@ const Hash = ({ ...props }: PageProps) => {
     return (
       <OrgPage
         {...props}
+        session={session}
         orgQuery={orgQuery as AppQueryWithData<IOrg>}
         subQuery={subQuery}
         tab={entityTab}
@@ -186,6 +191,7 @@ const Hash = ({ ...props }: PageProps) => {
     return (
       <UserPage
         {...props}
+        session={session}
         email={userEmail}
         userQuery={userQuery as AppQueryWithData<IUser>}
       />

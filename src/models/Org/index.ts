@@ -1,7 +1,9 @@
 import { ChatIcon, CalendarIcon, SettingsIcon } from "@chakra-ui/icons";
 import { FaHome, FaTools, FaImages } from "react-icons/fa";
+import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
 import { EOrgSubscriptionType } from "models/Subscription";
 import { hasItems } from "utils/array";
+import { Session } from "utils/auth";
 import { capitalize, equals } from "utils/string";
 import {
   EOrgType,
@@ -11,8 +13,7 @@ import {
   IOrgEventCategory,
   IOrgTabWithIcon
 } from "./IOrg";
-import { useGetOrgsQuery } from "features/api/orgsApi";
-import { Session } from "utils/auth";
+import { AppDispatch } from "store";
 
 export * from "./IOrg";
 
@@ -86,40 +87,38 @@ export const getLists = (org?: IOrg): IOrgList[] => {
 //#endregion
 
 //#region networks
-export const getNetworks = (org: IOrg, session: Session | null) => {
-  const { data: myOrgs } = useGetOrgsQuery({
-    createdBy: session?.user.userId,
-    populate: "orgs"
-  });
-
-  const { orgNetworks } = useGetOrgsQuery(
-    { populate: "orgs" },
-    {
-      selectFromResult: (query) => {
-        let data: IOrg[] | undefined;
-
-        if (Array.isArray(query.data) && query.data.length > 0)
-          data = myOrgs
-            ? myOrgs.concat(
-                query.data.filter(
-                  ({ _id }) => !myOrgs.find((myOrg) => myOrg._id === _id)
-                )
-              )
-            : query.data;
-
-        return {
-          orgNetworks: data?.filter(
-            (o) =>
-              o.orgName !== org.orgName &&
-              o.orgType === EOrgType.NETWORK &&
-              !!o.orgs?.find(({ orgName }) => orgName === org.orgName)
-          )
-        };
-      }
-    }
+export const getNetworks = async (
+  org: IOrg,
+  session: Session | null,
+  dispatch: AppDispatch
+) => {
+  const { data: myOrgs } = await dispatch(
+    getOrgs.initiate({
+      createdBy: session?.user.userId,
+      populate: "orgs"
+    })
   );
 
-  return orgNetworks;
+  const { data: orgs } = await dispatch(
+    getOrgs.initiate({
+      populate: "orgs"
+    })
+  );
+
+  let orgNetworks = orgs;
+
+  if (myOrgs && orgs) {
+    orgNetworks = myOrgs.concat(
+      orgs.filter(({ _id }) => !myOrgs.find((myOrg) => myOrg._id === _id))
+    );
+  }
+
+  return orgNetworks?.filter(
+    (o) =>
+      o.orgName !== org.orgName &&
+      o.orgType === EOrgType.NETWORK &&
+      !!o.orgs?.find(({ orgName }) => orgName === org.orgName)
+  );
 };
 //#endregion
 

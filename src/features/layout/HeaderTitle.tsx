@@ -1,7 +1,7 @@
 import { ChatIcon, SunIcon } from "@chakra-ui/icons";
 import { Flex, Icon, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaGlobeEurope,
   FaRegCalendarCheck,
@@ -20,7 +20,7 @@ import {
 } from "models/Entity";
 import { EOrgType, getNetworks, IOrg, orgTypeFull } from "models/Org";
 import { AppIcon } from "utils/types";
-import { capitalize } from "utils/string";
+import { useAppDispatch } from "store";
 
 export const HeaderTitle = ({
   entity,
@@ -33,11 +33,24 @@ export const HeaderTitle = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const { data: session } = useSession();
+
   const isE = isEvent(entity);
   const isO = isOrg(entity);
   const isU = isUser(entity);
+  const [orgNetworks, setOrgNetworks] = useState<IOrg[]>([]);
+  useEffect(() => {
+    setOrgNetworks([]);
+
+    (async () => {
+      if (isO && entity.orgType === EOrgType.GENERIC) {
+        const networks = await getNetworks(entity, session, dispatch);
+        networks && setOrgNetworks(networks);
+      }
+    })();
+  }, [entity]);
 
   let banner: IEntityBanner | undefined;
   let logo: IEntityLogo | undefined;
@@ -118,16 +131,19 @@ export const HeaderTitle = ({
     </Flex>
   );
 
-  let subtitle: React.ReactNode | undefined;
-
-  if (isO) {
-    const org = entity as IOrg;
-
-    if (org.orgType === EOrgType.GENERIC) {
-      const orgNetworks = getNetworks(org, session);
-
-      if (Array.isArray(orgNetworks) && orgNetworks.length > 0) {
-        subtitle = (
+  return (
+    <Flex
+      alignItems="center"
+      bg={banner ? "black" : isDark ? "whiteAlpha.400" : "blackAlpha.200"}
+      borderRadius="lg"
+      pb={4}
+      pl={4}
+      pr={4}
+      ml={logo ? 5 : undefined}
+    >
+      <Flex flexDirection={orgNetworks.length > 0 ? "column" : "row"}>
+        {title}
+        {orgNetworks.length > 0 && (
           <Flex flexDirection="column" mt={3}>
             {orgNetworks.map((orgNetwork, index) => (
               <Flex key={orgNetwork._id}>
@@ -141,24 +157,7 @@ export const HeaderTitle = ({
               </Flex>
             ))}
           </Flex>
-        );
-      }
-    }
-  }
-
-  return (
-    <Flex
-      alignItems="center"
-      bg={banner ? "black" : isDark ? "whiteAlpha.400" : "blackAlpha.200"}
-      borderRadius="lg"
-      pb={4}
-      pl={4}
-      pr={4}
-      ml={logo ? 5 : undefined}
-    >
-      <Flex flexDirection={subtitle ? "column" : "row"}>
-        {title}
-        {subtitle}
+        )}
       </Flex>
     </Flex>
   );

@@ -6,18 +6,14 @@ import { setIsOffline } from "store/sessionSlice";
 import { setSetting } from "store/settingSlice";
 import { setUserEmail } from "store/userSlice";
 import api from "utils/api";
-import { magic } from "utils/auth";
+import { devSession, magic } from "utils/auth";
 
 export const GlobalConfig = ({ ...props }: PageProps) => {
   const dispatch = useAppDispatch();
-  const {
-    data: session,
-    loading,
-    setIsSessionLoading,
-    setSession
-  } = useSession();
+  const { data, loading, setIsSessionLoading, setSession } = useSession();
+  const session = data || props.session;
 
-  console.log("CLIENT SIDE SESSION", session);
+  console.log("GlobalConfig: session", session);
 
   // useEffect(() => {
   //   if (props.session) {
@@ -72,15 +68,16 @@ export const GlobalConfig = ({ ...props }: PageProps) => {
       } catch (error) {
         dispatch(setIsOffline(true));
         dispatch(setIsSessionLoading(false));
-        // if (process.env.NODE_ENV === "development") {
-        //   console.log("SETTING DEV SESSION");
-        //   dispatch(setSession(devSession));
-        // }
       }
     })();
 
     (async function initializeSettings() {
       try {
+        if (devSession && process.env.NODE_ENV === "development") {
+          console.log("SETTING DEV SESSION");
+          dispatch(setSession(devSession));
+        }
+
         const res = await fetch(`/api/settings`);
 
         if (res.status === 200) {

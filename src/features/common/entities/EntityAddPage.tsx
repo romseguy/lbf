@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Flex, Icon } from "@chakra-ui/react";
+import { Alert, AlertIcon, Flex, Icon, Spinner } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
@@ -61,16 +61,23 @@ export const EntityAddPage = ({
         {session ? (
           <>
             {orgType ? (
-              <OrgForm {...props} orgType={orgType} onSubmit={onSubmit} />
+              <OrgForm
+                {...props}
+                session={session}
+                orgType={orgType}
+                onSubmit={onSubmit}
+              />
             ) : (
-              <EventForm {...props} orgId={orgId} onSubmit={onSubmit} />
+              <EventForm
+                {...props}
+                session={session}
+                orgId={orgId}
+                onSubmit={onSubmit}
+              />
             )}
           </>
         ) : (
-          <Alert status="info">
-            <AlertIcon />
-            Vous allez être redirigé vers la fenêtre de connexion...
-          </Alert>
+          <Spinner />
         )}
       </Column>
     </Layout>

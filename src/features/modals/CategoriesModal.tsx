@@ -10,6 +10,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  useColorMode,
   UseDisclosureProps
 } from "@chakra-ui/react";
 import React, { useState } from "react";
@@ -32,6 +33,8 @@ export const CategoriesModal = ({
   fieldName: IEntityCategoryKey;
   query: AppQueryWithData<IEvent | IOrg>;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const entity = query.data;
   const isE = isEvent(entity);
 
@@ -49,7 +52,7 @@ export const CategoriesModal = ({
   return (
     <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent maxWidth="xl">
+      <ModalContent bg={isDark ? "gray.600" : "lightcyan"} maxWidth="xl">
         <ModalHeader display="flex" flexDirection="column">
           <Flex alignItems="center">
             <Icon as={IoIosPeople} color="green" mr={3} boxSize={6} />
@@ -87,7 +90,11 @@ export const CategoriesModal = ({
               onSubmit={() => setIsAdd(false)}
             />
           ) : categories.length > 0 ? (
-            <Column overflowX="auto">
+            <Column
+              bg={isDark ? "whiteAlpha.300" : "lightblue"}
+              overflowX="auto"
+              p={0}
+            >
               <CategoriesList
                 categories={categories}
                 fieldName={fieldName}

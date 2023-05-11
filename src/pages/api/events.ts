@@ -144,12 +144,23 @@ handler.post<
         if (!o) {
           console.log("POST /events: skipping unknown eventOrg");
           continue;
-        } else {
-          eventOrgs.push(o);
+        }
 
-          if (o.isApproved) {
-            isApproved = true;
-          }
+        if (!equals(o.createdBy, session.user.userId))
+          return res
+            .status(401)
+            .json(
+              createServerError(
+                new Error(
+                  "Vous n'avez pas la permission d'ajouter un événement à cette planète"
+                )
+              )
+            );
+
+        eventOrgs.push(o);
+
+        if (o.isApproved) {
+          isApproved = true;
         }
       }
 

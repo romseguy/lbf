@@ -375,18 +375,19 @@ handler.put<
         );
     }
 
-    //#region edit permissions
+    let { body }: { body: EditOrgPayload } = req;
     const isCreator =
       equals(getRefId(org), session?.user.userId) || session?.user.isAdmin;
-    let { body }: { body: EditOrgPayload } = req;
-    let isAddingChildren = false;
-    let isAddingTopicCategories = false;
-    if (!Array.isArray(body) && Object.keys(body).length === 1) {
-      if (body.orgs && org.orgPermissions?.anyoneCanAddChildren)
-        isAddingChildren = true;
-      if (body.orgTopicCategories) isAddingTopicCategories = true;
+    let canEdit = isCreator;
+
+    if (!Array.isArray(body)) {
+      canEdit =
+        canEdit ||
+        Array.isArray(body.orgTopicCategories) ||
+        Array.isArray(body.orgLists) ||
+        (Array.isArray(body.orgs) && org.orgPermissions?.anyoneCanAddChildren);
     }
-    let canEdit = isCreator || isAddingChildren || isAddingTopicCategories;
+
     if (!canEdit) {
       return res
         .status(403)
@@ -400,7 +401,6 @@ handler.put<
           )
         );
     }
-    //#endregion
 
     let update:
       | {
@@ -455,16 +455,42 @@ handler.put<
           throw duplicateError();
       }
 
-      if (isAddingTopicCategories) {
+      if (Array.isArray(body.orgLists) && body.orgLists.length > 0) {
         if (!isCreator) {
           return res
-            .status(400)
+            .status(401)
             .json(
               createServerError(
                 new Error(
                   `Vous n'avez pas la permission ${orgTypeFull(
                     org.orgType
-                  )} pour créer une catégorie de discussions`
+                  )} pour gérer les listes`
+                )
+              )
+            );
+        }
+
+        if (!body.orgLists[0].listName)
+          return res
+            .status(400)
+            .json(createServerError(new Error("Liste invalide")));
+
+        // TODO: if listName === "Abonnés"
+        // remove subscriptions.orgs.orgSubscription
+        // that were in org.orgLists
+        // but are not in body.org.orgLists
+      }
+
+      if (body.orgTopicCategories) {
+        if (!isCreator) {
+          return res
+            .status(401)
+            .json(
+              createServerError(
+                new Error(
+                  `Vous n'avez pas la permission ${orgTypeFull(
+                    org.orgType
+                  )} pour gérer les catégories de discussions`
                 )
               )
             );

@@ -64,11 +64,11 @@ export const EntityListForm = ({
     mode: "onChange"
   });
   useLeaveConfirm({ formState });
-  useFormPersist("storageKey", {
-    watch,
-    setValue,
-    storage: window.localStorage // default window.sessionStorage
-  });
+  // useFormPersist("storageKey", {
+  //   watch,
+  //   setValue,
+  //   storage: window.localStorage // default window.sessionStorage
+  // });
 
   const defaultSubscriptions = props.list?.subscriptions || [];
   //const subscriptions: ISubscription[] = watch("subscriptions") || defaultSubscriptions;
@@ -107,7 +107,12 @@ export const EntityListForm = ({
       onChange={() => clearErrors("formErrorMessage")}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <FormControl isInvalid={!!errors.listName} isRequired mb={3}>
+      <FormControl
+        isInvalid={!!errors.listName}
+        isRequired
+        mb={3}
+        display={props.list?.listName === "Abonnés" ? "none" : "block"}
+      >
         <FormLabel>Nom de la liste</FormLabel>
         <Input
           name="listName"
@@ -183,7 +188,7 @@ export const EntityListForm = ({
                 }}
                 //#region ui
                 closeMenuOnSelect={false}
-                placeholder="Sélectionner ou créer un koala..."
+                placeholder="Sélectionner ou saisir un e-mail..."
                 menuPlacement="top"
                 isClearable
                 isMulti

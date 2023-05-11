@@ -375,16 +375,19 @@ export const TopicsList = ({
                         <>
                           Aucune discussions appartenant à la catégorie{" "}
                           <TopicCategoryTag>
-                            {selectedCategories[0]}
+                            {getCategoryLabel(
+                              topicCategories,
+                              selectedCategories[0]
+                            )}
                           </TopicCategoryTag>
                         </>
                       ) : (
                         <>
                           Aucune discussions appartenant aux catégories
-                          {selectedCategories.map((category, index) => (
+                          {selectedCategories.map((catId, index) => (
                             <>
-                              <TopicCategoryTag mx={1}>
-                                {category}
+                              <TopicCategoryTag key={index} mx={1}>
+                                {getCategoryLabel(topicCategories, catId)}
                               </TopicCategoryTag>
                               {index !== selectedCategories.length - 1 && "ou"}
                             </>

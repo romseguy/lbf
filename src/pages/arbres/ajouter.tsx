@@ -7,15 +7,15 @@ import { EOrgType } from "models/Org";
 
 const OrganisationsAddPage = (props: PageProps) => {
   const router = useRouter();
-  const { data } = useSession();
+  const { data, loading } = useSession();
   const session = data || props.session;
 
   useEffect(() => {
-    if (!session) {
+    if (!session && !loading) {
       window.localStorage.setItem("path", router.asPath);
       router.push("/login", "/login", { shallow: true });
     }
-  }, []);
+  }, [session, loading]);
 
   return <EntityAddPage orgType={EOrgType.GENERIC} {...props} />;
 };

@@ -303,7 +303,16 @@ export const EventForm = withGoogleApi({
     });
     const eventWeb = useWatch<IEntityWeb[]>({ control, name: "eventWeb" });
 
-    const { data: org } = useGetOrgQuery({ orgUrl: orgId || "" });
+    const { data: org } = useGetOrgQuery(
+      { orgUrl: orgId || "" },
+      {
+        selectFromResult: (query) => {
+          if (!myOrgs?.find(({ _id }) => _id === orgId))
+            return { ...query, data: undefined };
+          return query;
+        }
+      }
+    );
     useEffect(() => {
       if (org) setValue("eventOrg", org);
     }, [org]);
@@ -459,7 +468,7 @@ export const EventForm = withGoogleApi({
             "eventPhone",
             "eventWeb"
           ]
-        : []
+        : ["eventMinDate", "eventMaxDate"]
     });
     //#endregion
 
@@ -1133,40 +1142,6 @@ export const EventForm = withGoogleApi({
           }
         />
 
-        {/* eventVisibility */}
-        {/* {hasItems(visibilities) && (
-          <FormControl
-            isRequired
-            isInvalid={!!errors["eventVisibility"]}
-            onChange={async (e) => {
-              clearErrors("eventOrgs");
-            }}
-            mb={3}
-          >
-            <FormLabel>Visibilité de l'événement</FormLabel>
-            <Select
-              name="eventVisibility"
-              ref={register({
-                required: "Veuillez sélectionner la visibilité de l'événement"
-              })}
-              placeholder="Visibilité de l'événement"
-              color={isDark ? "whiteAlpha.400" : "gray.400"}
-            >
-              {visibilities.map((key) => {
-                const visibility = key as EEventVisibility;
-                return (
-                  <option key={visibility} value={visibility}>
-                    {EventVisibilities[visibility]}
-                  </option>
-                );
-              })}
-            </Select>
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="eventVisibility" />
-            </FormErrorMessage>
-          </FormControl>
-        )} */}
-
         <ErrorMessage
           errors={errors}
           name="formErrorMessage"
@@ -1227,4 +1202,41 @@ export const EventForm = withGoogleApi({
         message: eventOrgsRules.required
       });
  */
+}
+{
+  /* eventVisibility */
+}
+{
+  /* {hasItems(visibilities) && (
+          <FormControl
+            isRequired
+            isInvalid={!!errors["eventVisibility"]}
+            onChange={async (e) => {
+              clearErrors("eventOrgs");
+            }}
+            mb={3}
+          >
+            <FormLabel>Visibilité de l'événement</FormLabel>
+            <Select
+              name="eventVisibility"
+              ref={register({
+                required: "Veuillez sélectionner la visibilité de l'événement"
+              })}
+              placeholder="Visibilité de l'événement"
+              color={isDark ? "whiteAlpha.400" : "gray.400"}
+            >
+              {visibilities.map((key) => {
+                const visibility = key as EEventVisibility;
+                return (
+                  <option key={visibility} value={visibility}>
+                    {EventVisibilities[visibility]}
+                  </option>
+                );
+              })}
+            </Select>
+            <FormErrorMessage>
+              <ErrorMessage errors={errors} name="eventVisibility" />
+            </FormErrorMessage>
+          </FormControl>
+        )} */
 }

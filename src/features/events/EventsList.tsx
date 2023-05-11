@@ -247,63 +247,65 @@ export const EventsList = ({
             </Flex>
           )}
 
-        <Flex alignItems="center" flexWrap="wrap" mb={3}>
-          {showGeoFilter && (
-            <>
-              <EventsListDistanceSelect
-                distance={distance}
-                setDistance={setDistance}
-                borderColor={isDark ? undefined : "black"}
-                borderRadius="md"
-                isDisabled={!city}
-                size="sm"
-                mr={3}
-              />
-
-              {!showLocationButton ? (
-                <Tooltip label={city ? "Changer la ville" : city}>
-                  <Button
-                    colorScheme="purple"
-                    color={isDark ? "black" : "white"}
-                    isDisabled={!events.length}
-                    leftIcon={<FaMapMarkerAlt />}
-                    size="sm"
-                    onClick={() => {
-                      setShowLocationButton(!showLocationButton);
-                    }}
-                  >
-                    {city || "Définir la ville"}
-                  </Button>
-                </Tooltip>
-              ) : (
-                <LocationButton
-                  city={city}
-                  setCity={setCity}
-                  location={origin}
-                  setLocation={setOrigin}
-                  //--
-                  colorScheme="purple"
-                  color={isDark ? "black" : "white"}
-                  isRound
+        {currentEvents.length > 0 && (
+          <Flex alignItems="center" flexWrap="wrap" mb={3}>
+            {showGeoFilter && (
+              <>
+                <EventsListDistanceSelect
+                  distance={distance}
+                  setDistance={setDistance}
+                  borderColor={isDark ? undefined : "black"}
+                  borderRadius="md"
+                  isDisabled={!city}
                   size="sm"
                   mr={3}
-                  inputProps={{
-                    bg: isDark ? undefined : "white",
-                    borderColor: isDark ? undefined : "black",
-                    borderRadius: "lg",
-                    color: isDark ? undefined : "black",
-                    _placeholder: { color: isDark ? undefined : "black" }
-                  }}
-                  onClick={() => setShowLocationButton(false)}
-                  //onLocationChange={(coordinates) => setOrigin(coordinates)}
-                  onSuggestionSelect={() => {
-                    setShowLocationButton(false);
-                  }}
                 />
-              )}
-            </>
-          )}
-        </Flex>
+
+                {!showLocationButton ? (
+                  <Tooltip label={city ? "Changer la ville" : city}>
+                    <Button
+                      colorScheme="purple"
+                      color={isDark ? "black" : "white"}
+                      isDisabled={!events.length}
+                      leftIcon={<FaMapMarkerAlt />}
+                      size="sm"
+                      onClick={() => {
+                        setShowLocationButton(!showLocationButton);
+                      }}
+                    >
+                      {city || "Définir la ville"}
+                    </Button>
+                  </Tooltip>
+                ) : (
+                  <LocationButton
+                    city={city}
+                    setCity={setCity}
+                    location={origin}
+                    setLocation={setOrigin}
+                    //--
+                    colorScheme="purple"
+                    color={isDark ? "black" : "white"}
+                    isRound
+                    size="sm"
+                    mr={3}
+                    inputProps={{
+                      bg: isDark ? undefined : "white",
+                      borderColor: isDark ? undefined : "black",
+                      borderRadius: "lg",
+                      color: isDark ? undefined : "black",
+                      _placeholder: { color: isDark ? undefined : "black" }
+                    }}
+                    onClick={() => setShowLocationButton(false)}
+                    //onLocationChange={(coordinates) => setOrigin(coordinates)}
+                    onSuggestionSelect={() => {
+                      setShowLocationButton(false);
+                    }}
+                  />
+                )}
+              </>
+            )}
+          </Flex>
+        )}
 
         {(previousEvents.length > 0 || nextEvents.length > 0) && (
           <EventsListToggle
@@ -543,27 +545,23 @@ export const EventsList = ({
             leftIcon={<AddIcon />}
             mb={5}
             onClick={() => {
-              let url = "/evenements/ajouter";
+              try {
+                let url = "/evenements/ajouter";
 
-              if (!isSessionLoading) {
-                if (session) {
-                  if (org) {
-                    if (isCreator) {
-                      url = `/evenements/ajouter?orgId=${org._id}`;
-                      router.push(url, url, { shallow: true });
-                    } else
-                      toast({
-                        status: "error",
-                        title: `Vous n'avez pas la permission ${orgTypeFull(
-                          org.orgType
-                        )} pour ajouter un événement`
-                      });
-                  } else {
-                    router.push(url, url, { shallow: true });
-                  }
-                } else {
-                  router.push("/login", "/login", { shallow: true });
-                }
+                if (org && !isCreator)
+                  throw new Error(
+                    `Vous n'avez pas la permission ${orgTypeFull(
+                      org.orgType
+                    )} pour ajouter un événement`
+                  );
+
+                url = `/evenements/ajouter?orgId=${org._id}`;
+                router.push(url, url, { shallow: true });
+              } catch (error: any) {
+                toast({
+                  status: "error",
+                  title: error.message
+                });
               }
             }}
             data-cy="addEvent"

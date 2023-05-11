@@ -1,4 +1,4 @@
-import { EditIcon } from "@chakra-ui/icons";
+import { EditIcon, HamburgerIcon } from "@chakra-ui/icons";
 import {
   Button,
   Flex,
@@ -72,27 +72,32 @@ export const OrgConfigListsPanel = ({
 
   const onSubmit = async (form: IOrgList) => {
     try {
-      let payload: EditOrgPayload = {};
-
-      if (listToEdit && listToEdit.listName !== form.listName) {
+      // TODO
+      // despite ... :
+      // OrgSchema.orgLists.listName.unique = true
+      if (listToEdit && listToEdit.listName !== form.listName)
         for (const orgList of org.orgLists)
           if (orgList.listName === form.listName)
             throw { listName: "Ce nom n'est pas disponible." };
 
-        payload.orgLists = editList(org, listToEdit, form);
-      } else payload.orgLists = addOrReplaceList(org, form);
-
       await editOrg({
         orgId: org._id,
-        payload
+        payload: {
+          orgLists:
+            listToEdit && listToEdit.listName !== form.listName
+              ? editList(org, listToEdit, form)
+              : addOrReplaceList(org, form)
+        }
       }).unwrap();
-      orgQuery.refetch();
+      //orgQuery.refetch();
       setIsAdd(false);
-      toggleVisibility("lists");
 
       if (listToEdit)
         toast({ status: "success", title: "La liste a été modifiée !" });
-      else toast({ status: "success", title: "La liste a été ajoutée !" });
+      else {
+        toggleVisibility("lists");
+        toast({ status: "success", title: "La liste a été ajoutée !" });
+      }
     } catch (error) {
       if (listToEdit)
         toast({ status: "error", title: "La liste n'a pas pu être modifiée" });
@@ -222,13 +227,6 @@ export const OrgConfigListsPanel = ({
               <Tbody>
                 {lists?.map((list, index) => {
                   const { listName, subscriptions } = list;
-                  const hasSubscriptions =
-                    subscriptions && subscriptions.length > 0;
-                  const s =
-                    subscriptions &&
-                    (subscriptions.length > 1 || !subscriptions.length)
-                      ? "s"
-                      : "";
 
                   return (
                     <Tr key={`list-${index}`}>
@@ -236,37 +234,35 @@ export const OrgConfigListsPanel = ({
 
                       <Td whiteSpace="nowrap">
                         <Link
-                          cursor={hasSubscriptions ? "pointer" : "default"}
-                          variant={
-                            hasSubscriptions ? "underline" : "no-underline"
-                          }
+                          cursor={"pointer"}
+                          variant={"underline"}
                           onClick={() => {
-                            if (hasSubscriptions) setListToShow(list);
+                            setListToShow(list);
                           }}
                           data-cy="org-list-link"
                         >
-                          {hasSubscriptions ? subscriptions.length : 0} koala
-                          {hasSubscriptions ? s : "s"}
+                          {subscriptions.length} koala
+                          {subscriptions && subscriptions.length > 1 && "s"}
                         </Link>
                       </Td>
 
                       <Td textAlign="right" whiteSpace="nowrap">
-                        {!["Abonnés"].includes(list.listName) && (
-                          <>
-                            <Tooltip label="Modifier" placement="left">
-                              <IconButton
-                                aria-label="Modifier"
-                                icon={<EditIcon />}
-                                colorScheme="green"
-                                variant="outline"
-                                mr={3}
-                                onClick={async () => {
-                                  setListToEdit(list);
-                                }}
-                                data-cy={`org-list-${listName}-edit`}
-                              />
-                            </Tooltip>
+                        <>
+                          <Tooltip label="Modifier" placement="left">
+                            <IconButton
+                              aria-label="Modifier"
+                              icon={<EditIcon />}
+                              colorScheme="green"
+                              variant="outline"
+                              mr={3}
+                              onClick={async () => {
+                                setListToEdit(list);
+                              }}
+                              data-cy={`org-list-${listName}-edit`}
+                            />
+                          </Tooltip>
 
+                          {!["Abonnés"].includes(list.listName) && (
                             <DeleteButton
                               header={
                                 <>
@@ -301,8 +297,8 @@ export const OrgConfigListsPanel = ({
                               }}
                               data-cy={`org-list-${listName}-remove`}
                             />
-                          </>
-                        )}
+                          )}
+                        </>
                       </Td>
                     </Tr>
                   );
@@ -321,8 +317,17 @@ export const OrgConfigListsPanel = ({
                 <ModalOverlay />
                 <ModalContent maxWidth={listToEdit && "xl"}>
                   <ModalHeader>
-                    {listToEdit && `Modifier la liste : ${listToEdit.listName}`}
-                    {listToShow && `Liste : ${listToShow.listName}`}
+                    {listToEdit && (
+                      <Flex alignItems="center">
+                        <EditIcon mr={3} />{" "}
+                        {`Modifier la liste : ${listToEdit.listName}`}
+                      </Flex>
+                    )}
+                    {listToShow && (
+                      <Flex alignItems="center">
+                        <HamburgerIcon mr={3} /> {`${listToShow.listName}`}
+                      </Flex>
+                    )}
                   </ModalHeader>
                   <ModalCloseButton />
                   <ModalBody>
@@ -339,25 +344,32 @@ export const OrgConfigListsPanel = ({
                       />
                     )}
 
-                    {listToShow && listToShow.subscriptions && (
-                      <Table>
-                        <Tbody>
-                          {listToShow.subscriptions.map((subscription) => {
-                            const label =
-                              subscription.email ||
-                              subscription.phone ||
-                              (typeof subscription.user === "object"
-                                ? subscription.user.email
-                                : "");
+                    {listToShow && (
+                      <>
+                        {Array.isArray(listToShow.subscriptions) &&
+                        listToShow.subscriptions.length > 0 ? (
+                          <Table>
+                            <Tbody>
+                              {listToShow.subscriptions.map((subscription) => {
+                                const label =
+                                  subscription.email ||
+                                  subscription.phone ||
+                                  (typeof subscription.user === "object"
+                                    ? subscription.user.email
+                                    : "");
 
-                            return (
-                              <Tr key={subscription._id}>
-                                <Td pl={0}>{label}</Td>
-                              </Tr>
-                            );
-                          })}
-                        </Tbody>
-                      </Table>
+                                return (
+                                  <Tr key={subscription._id}>
+                                    <Td pl={0}>{label}</Td>
+                                  </Tr>
+                                );
+                              })}
+                            </Tbody>
+                          </Table>
+                        ) : (
+                          <Text>Cette liste est vide.</Text>
+                        )}
+                      </>
                     )}
                   </ModalBody>
                 </ModalContent>

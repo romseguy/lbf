@@ -57,7 +57,7 @@ export const OrgSchema = new Schema<IOrg>(
     orgLists: {
       type: [
         {
-          listName: { type: String, required: true, trim: true },
+          listName: { type: String, required: true, trim: true, unique: true },
           subscriptions: {
             type: [
               {

@@ -67,7 +67,7 @@ export const EntityConfigCategoriesPanel = ({
       <Link
         variant="no-underline"
         onClick={() => {
-          toggleVisibility(visibilityKey);
+          if (!isAdd) toggleVisibility(visibilityKey);
           if (!hasItems(categories)) setIsAdd(!isAdd);
         }}
       >

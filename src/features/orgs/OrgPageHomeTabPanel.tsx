@@ -45,6 +45,7 @@ import { sanitize, transformRTEditorOutput } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgsList } from "./OrgsList";
 import { IsEditConfig } from "./OrgPage";
+import { useAppDispatch } from "store";
 
 export const OrgPageHomeTabPanel = ({
   isCreator,
@@ -63,6 +64,7 @@ export const OrgPageHomeTabPanel = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const dispatch = useAppDispatch();
 
   //#region org
   const org = orgQuery.data;
@@ -71,10 +73,17 @@ export const OrgPageHomeTabPanel = ({
     hasItems(org.orgEmail) ||
     hasItems(org.orgPhone) ||
     hasItems(org.orgWeb);
-  // TODO: adding condition crashes
-  // let orgNetworks: IOrg[] | undefined;
-  // if (org.orgType === EOrgType.GENERIC)
-  const orgNetworks = getNetworks(org, session);
+  const [orgNetworks, setOrgNetworks] = useState<IOrg[]>([]);
+  useEffect(() => {
+    setOrgNetworks([]);
+
+    (async () => {
+      if (org.orgType === EOrgType.GENERIC) {
+        const networks = await getNetworks(org, session, dispatch);
+        networks && setOrgNetworks(networks);
+      }
+    })();
+  }, [org]);
   //#endregion
 
   //#region local state
@@ -282,7 +291,7 @@ export const OrgPageHomeTabPanel = ({
         </TabContainerContent>
       </TabContainer>
 
-      {Array.isArray(orgNetworks) && orgNetworks.length > 0 && (
+      {orgNetworks.length > 0 && (
         <TabContainer>
           <TabContainerHeader heading="Planètes sur lesquelles cet arbre a été planté"></TabContainerHeader>
           <TabContainerContent p={3}>

@@ -94,8 +94,8 @@ const AdminPage = () => {
         lazyBehavior="keepMounted"
       >
         <TabList>
-          <Tab>Réseaux</Tab>
-          <Tab>Organisations</Tab>
+          <Tab>Général</Tab>
+          <Tab>Autres</Tab>
         </TabList>
 
         <TabPanels>
@@ -116,7 +116,7 @@ const AdminPage = () => {
                         isInvalid={!!errors["networkLabel"]}
                         mb={3}
                       >
-                        <FormLabel>Dénomination</FormLabel>
+                        <FormLabel>Network label</FormLabel>
                         <Input
                           name="networkLabel"
                           ref={register({
@@ -160,7 +160,7 @@ const AdminPage = () => {
           <TabPanel>
             <TabContainer>
               <TabContainerHeader heading="Configuration"></TabContainerHeader>
-              <TabContainerContent>todoo</TabContainerContent>
+              <TabContainerContent>Autres</TabContainerContent>
             </TabContainer>
           </TabPanel>
         </TabPanels>
