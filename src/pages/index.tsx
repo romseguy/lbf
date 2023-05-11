@@ -32,9 +32,9 @@ import {
   LoginButton
 } from "features/common";
 import { Layout } from "features/layout";
-import { AboutModal } from "features/modals/AboutModal";
 import { MapModal } from "features/modals/MapModal";
 import { OrgsList } from "features/orgs/OrgsList";
+import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { EOrgType, IOrg, orgTypeFull } from "models/Org";
 import { ISubscription } from "models/Subscription";
@@ -48,6 +48,7 @@ const IndexPage = (props: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
+  const { data: session, loading: isSessionLoading } = useSession();
   const userEmail = useSelector(selectUserEmail);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isListOpen, setIsListOpen] = useState(true);
@@ -113,7 +114,7 @@ const IndexPage = (props: PageProps) => {
 
         {!isCollapsed && (
           <>
-            {!props.session && !props.isSessionLoading && (
+            {!session && !isSessionLoading && (
               <Flex ref={ref}>
                 <LoginButton
                   mb={3}

@@ -1,8 +1,12 @@
+import { useColorMode } from "@chakra-ui/react";
 import { Global, css } from "@emotion/react";
 import theme, { breakpoints } from "features/layout/theme";
 import { zIndex } from "utils/string";
 
-export const GlobalStyles = ({ isDark }: { isDark: boolean }) => {
+export const GlobalStyles = () => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
   return (
     <Global
       styles={css`

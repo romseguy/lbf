@@ -1,7 +1,8 @@
 import Iron from "@hapi/iron";
-import { createContext } from "react";
+import { IncomingMessage } from "http";
+import { NextApiRequest } from "next";
 import { Base64Image } from "utils/image";
-import { getAuthToken, sealOptions, TOKEN_NAME } from "./";
+import { getAuthToken, sealOptions } from "./";
 
 type UserMetadata = {
   email: string;
@@ -15,36 +16,17 @@ export type Session = {
   user: UserMetadata;
 };
 
-export const SessionContext = createContext<
-  [
-    // 1st tuple: session
-    Session | null,
-    // 2nd tuple: session loading state
-    boolean,
-    // 3rd tuple: session setter
-    React.Dispatch<React.SetStateAction<Session | null>>,
-    // 4th tuple: session loading state setter
-    React.Dispatch<React.SetStateAction<boolean>>
-  ]
->([null, true, () => {}, () => {}]);
-
-export async function getSession(params?: any): Promise<Session | null> {
-  if (process.env.NODE_ENV === "development") return devSession;
-
+export async function getSession(params: {
+  req:
+    | NextApiRequest
+    | (IncomingMessage & { cookies: /*NextApiRequestCookies*/ any });
+}): Promise<Session | null> {
+  //if (process.env.NODE_ENV === "development") return devSession;
   const cookies = params.req.cookies;
-
-  if (!cookies[TOKEN_NAME]) {
-    return null;
-  }
-
-  const user = await Iron.unseal(
-    getAuthToken(cookies),
-    process.env.SECRET,
-    sealOptions
-  );
-
+  const authToken = getAuthToken(cookies);
+  if (!authToken) return null;
+  const user = await Iron.unseal(authToken, process.env.SECRET, sealOptions);
   if (!user) return null;
-
   return { user };
 }
 

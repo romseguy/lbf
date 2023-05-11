@@ -1,32 +1,32 @@
 import { Box, Spinner } from "@chakra-ui/react";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { magic } from "utils/auth";
 import { PageProps } from "main";
 
 const CallbackPage = (props: PageProps) => {
+  const router = useRouter();
   useEffect(() => {
-    // On mount, we try to login with a Magic credential in the URL query.
-    if (Router.query.provider) {
+    if (router.query.provider) {
       magic.oauth.getRedirectResult().then(async (result) => {
         const didToken = result.magic.idToken;
-        const res = await fetch("/api/login", {
+        await fetch("/api/login", {
           headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer " + didToken
           }
         });
-        res.status === 200 && Router.push("/");
+        window.location.href = "/";
       });
     } else {
       magic.auth.loginWithCredential().then(async (didToken) => {
-        const res = await fetch("/api/login", {
+        await fetch("/api/login", {
           headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer " + didToken
           }
         });
-        res.status === 200 && Router.push("/");
+        window.location.href = "/";
       });
     }
   }, []);
@@ -38,7 +38,8 @@ const CallbackPage = (props: PageProps) => {
   );
 };
 
-/*
+{
+  /*
   import { useRouter } from "next/router";
   import { setUserEmail } from "store/userSlice";
   import { useSession } from "hooks/useSession";
@@ -104,6 +105,7 @@ const CallbackPage = (props: PageProps) => {
   );
 };
 */
+}
 
 export default CallbackPage;
 // import dynamic from "next/dynamic";

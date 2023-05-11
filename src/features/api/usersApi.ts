@@ -29,12 +29,12 @@ export const userApi = api.injectEndpoints({
     getUser: build.query<IUser, UserQueryParams>({
       query: ({ slug, ...query }) => {
         const hasQueryParams = Object.keys(query).length > 0;
+        console.groupCollapsed("getUser");
         if (hasQueryParams) {
-          console.groupCollapsed("getUser");
           console.log("populate", query.populate);
           console.log("select", query.select);
-          console.groupEnd();
-        } else console.log("getUser");
+        }
+        console.groupEnd();
 
         return {
           url: `user/${slug}${

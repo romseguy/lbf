@@ -1,18 +1,14 @@
-import { useContext } from "react";
-import { SessionContext } from "utils/auth";
+import { useSelector } from "react-redux";
+import {
+  selectIsSessionLoading,
+  selectSession,
+  setIsSessionLoading,
+  setSession
+} from "store/sessionSlice";
 
 export const useSession = () => {
-  const [session, isSessionLoading, setSession, setIsSessionLoading] =
-    useContext(SessionContext);
-
-  // app initial state
-  if (session === undefined || session === null)
-    return {
-      data: null,
-      loading: isSessionLoading,
-      setSession,
-      setIsSessionLoading
-    };
+  const session = useSelector(selectSession);
+  const isSessionLoading = useSelector(selectIsSessionLoading);
 
   return {
     data: session,

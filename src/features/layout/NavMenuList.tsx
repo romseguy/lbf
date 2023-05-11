@@ -21,7 +21,7 @@ export const NavMenuList = ({
   const router = useRouter();
   const {
     data: session,
-    loading,
+    loading: isSessionLoading,
     setSession,
     setIsSessionLoading
   } = useSession();
@@ -70,13 +70,13 @@ export const NavMenuList = ({
 
       <MenuItem
         onClick={async () => {
-          setIsSessionLoading(true);
+          dispatch(setIsSessionLoading(true));
           dispatch(resetUserEmail());
           await magic.user.logout();
           await api.get("logout");
-          setSession(null);
-          setIsSessionLoading(false);
-          router.push("/", "/", { shallow: true });
+          dispatch(setSession(null));
+          dispatch(setIsSessionLoading(false));
+          router.push("/", "/", { shallow: false });
         }}
         data-cy="logout"
       >

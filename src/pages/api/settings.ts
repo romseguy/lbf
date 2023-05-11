@@ -34,8 +34,8 @@ handler.get<
       );
     }
 
-    console.log("GET /settings: selector", selector);
-    console.log("GET /settings: settings", settings);
+    // console.log("GET /settings: selector", selector);
+    // console.log("GET /settings: settings", settings);
     res.status(200).json(settings);
   } catch (error) {
     res.status(500).json(createServerError(error));

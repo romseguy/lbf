@@ -1,14 +1,21 @@
 import { Spinner } from "@chakra-ui/react";
+import { OAuthProvider } from "@magic-ext/oauth";
 import React from "react";
 import { SocialLogins } from "features/session/SocialLogins";
 import { Link } from "features/common";
 import { useSession } from "hooks/useSession";
-import { handleLoginWithSocial, magic } from "utils/auth";
+import { magic } from "utils/auth";
 
 const Sandbox = () => {
   const { data: session, loading, setSession } = useSession();
+  console.log("SANDBOX SESSION", session, loading);
 
-  console.log("SANDBOX SESSION", session, loading, setSession);
+  const onLoginWithSocial = async (provider: OAuthProvider) => {
+    await magic.oauth.loginWithRedirect({
+      provider,
+      redirectURI: new URL("/callback", window.location.origin).href
+    });
+  };
 
   if (loading) return <Spinner />;
 
@@ -25,7 +32,7 @@ const Sandbox = () => {
       </Link>
     );
 
-  return <SocialLogins onSubmit={handleLoginWithSocial} />;
+  return <SocialLogins onSubmit={onLoginWithSocial} />;
 };
 
 export default Sandbox;

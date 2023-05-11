@@ -58,7 +58,6 @@ export const Layout = ({
   logo,
   pageHeader,
   pageTitle,
-  setSession,
   ...props
 }: LayoutProps) => {
   const { isMobile } = props;

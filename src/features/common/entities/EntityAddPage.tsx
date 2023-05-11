@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Flex, Icon, Spinner } from "@chakra-ui/react";
+import { Alert, AlertIcon, Flex, Icon } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
@@ -6,6 +6,7 @@ import { Column, Heading } from "features/common";
 import { EventForm } from "features/forms/EventForm";
 import { OrgForm } from "features/forms/OrgForm";
 import { Layout } from "features/layout";
+import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { EOrgType, orgTypeFull3 } from "models/Org";
 import { CalendarIcon } from "@chakra-ui/icons";
@@ -16,6 +17,9 @@ export const EntityAddPage = ({
 }: PageProps & { orgType?: EOrgType }) => {
   const router = useRouter();
   const { orgId }: { orgId?: string } = router.query;
+  const { data } = useSession();
+  const session = data || props.session;
+
   const onSubmit = async (url: string) => {
     await router.push(`/${url}`, `/${url}`, {
       shallow: true
@@ -54,9 +58,7 @@ export const EntityAddPage = ({
       pageTitle={`Ajouter ${!orgType ? "un événement" : orgTypeFull3(orgType)}`}
     >
       <Column>
-        {props.isSessionLoading ? (
-          <Spinner />
-        ) : props.session ? (
+        {session ? (
           <>
             {orgType ? (
               <OrgForm {...props} orgType={orgType} onSubmit={onSubmit} />

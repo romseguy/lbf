@@ -1,4 +1,4 @@
-//@ts-nocheck
+import Iron from "@hapi/iron";
 import { serialize } from "cookie";
 import { NextApiResponse } from "next";
 
@@ -17,13 +17,20 @@ function createCookie(name: string, data: string, options = {}) {
   });
 }
 
+export function getAuthToken(cookies?: Record<string, string>) {
+  if (!cookies) return "";
+  return cookies[TOKEN_NAME];
+}
+
+export const sealOptions = {
+  ...Iron.defaults,
+  encryption: { ...Iron.defaults.encryption, minPasswordlength: 0 },
+  integrity: { ...Iron.defaults.integrity, minPasswordlength: 0 }
+};
+
 export function setTokenCookie(res: NextApiResponse, token: string) {
   res.setHeader("Set-Cookie", [
     createCookie(TOKEN_NAME, token),
-    createCookie("authed", true, { httpOnly: false })
+    createCookie("authed", token ? "true" : "false", { httpOnly: false })
   ]);
-}
-
-export function getAuthToken(cookies) {
-  return cookies[TOKEN_NAME];
 }

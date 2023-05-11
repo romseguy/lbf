@@ -37,6 +37,7 @@ import {
   NotificationPopover,
   TopicPopover
 } from "features/layout";
+import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { EOrgType } from "models/Org";
 import { selectUserEmail } from "store/userSlice";
@@ -45,12 +46,10 @@ import { capitalize } from "utils/string";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
 
-export const Nav = ({
-  isMobile,
-  isSessionLoading,
-  session,
-  ...props
-}: FlexProps & Partial<PageProps>) => {
+export const Nav = ({ isMobile, ...props }: FlexProps & Partial<PageProps>) => {
+  const { data, loading } = useSession();
+  const session = data || props.session;
+  const isSessionLoading = props.session ? false : loading;
   const userName = session?.user.userName || "";
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -83,7 +82,7 @@ export const Nav = ({
         p={3}
         pl={isMobile ? 1 : undefined}
         pt={0}
-        {...removeProps(props, ["setIsSessionLoading"])}
+        {...removeProps(props, ["isSessionLoading"])}
       >
         <Table role="navigation">
           {!isMobile && (
