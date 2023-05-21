@@ -8,8 +8,10 @@ import { createServerError } from "utils/errors";
 const handler = nextConnect<NextApiRequest, NextApiResponse>()
   .use(cors())
   .get<NextApiRequest, NextApiResponse>(async function check(req, res) {
+    console.log("GET /check", `${process.env.NEXT_PUBLIC_API2}/check`);
+
     try {
-      await axios.get("https://api.demo.com/check");
+      await axios.get(`${process.env.NEXT_PUBLIC_API2}/check`);
       res.status(200).json({});
     } catch (error) {
       res.status(404).json(createServerError(error));

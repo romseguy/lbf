@@ -42,16 +42,16 @@ App.getInitialProps = async function AppGetInitialProps({
   const headers = ctx.req?.headers;
 
   const cookies = headers?.cookie;
-  console.log("App.getInitialProps: cookies", cookies);
+  //console.log("App.getInitialProps: cookies", cookies);
   let session: Session | null = null;
 
   if (cookies) {
     const p = parse(cookies);
-    console.log("App.getInitialProps: parsed cookies", p);
+    //console.log("App.getInitialProps: parsed cookies", p);
     const authToken = getAuthToken(p);
 
     if (authToken) {
-      console.log("App.getInitialProps: authToken", authToken);
+      //console.log("App.getInitialProps: authToken", authToken);
       const user = await Iron.unseal(
         authToken,
         process.env.SECRET,

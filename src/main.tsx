@@ -16,7 +16,7 @@ export const Main = ({
   //email,
   ...props
 }: PageProps & { Component: NextPage<PageProps> }) => {
-  console.log("Main.props", props);
+  //console.log("Main.props", props);
   const router = useRouter();
   //const userEmail = useSelector(selectUserEmail);
 

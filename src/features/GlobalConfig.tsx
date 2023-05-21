@@ -10,14 +10,11 @@ import { devSession, magic } from "utils/auth";
 
 export const GlobalConfig = ({ ...props }: PageProps) => {
   const dispatch = useAppDispatch();
-  const { data, loading, setIsSessionLoading, setSession } = useSession();
-  const session = data || props.session;
-
-  console.log("GlobalConfig: session", session, loading);
+  const { setIsSessionLoading, setSession } = useSession();
 
   useEffect(() => {
     if (props.session) {
-      console.log("GOT SESSION FROM COOKIES => UPDATING CLIENT SIDE SESSION");
+      console.log("GlobalConfig: persisting props.session");
       dispatch(setSession(props.session));
       dispatch(setIsSessionLoading(false));
     }
@@ -25,15 +22,18 @@ export const GlobalConfig = ({ ...props }: PageProps) => {
 
   useEffect(function clientDidMount() {
     (async function checkLoginStatus() {
-      if (props.session) return;
+      if (props.session) {
+        dispatch(setIsSessionLoading(false));
+        return;
+      }
 
       try {
         const magicIsLoggedIn = await magic.user.isLoggedIn();
 
         if (magicIsLoggedIn) {
-          console.log("checkLoginStatus: magicIsLoggedIn");
+          //console.log("checkLoginStatus: magicIsLoggedIn");
           const metadata = await magic.user.getMetadata();
-          console.log("checkLoginStatus: metadata", metadata);
+          //console.log("checkLoginStatus: metadata", metadata);
 
           if (metadata.email) {
             dispatch(setUserEmail(metadata.email));
@@ -43,7 +43,7 @@ export const GlobalConfig = ({ ...props }: PageProps) => {
 
             if (res.status === 200) {
               const user = await res.json();
-              console.log("checkLoginStatus: matched user profile", user);
+              //console.log("checkLoginStatus: matched user profile", user);
               dispatch(
                 setSession({
                   user: { ...user, email: metadata.email, userId: user.id }
@@ -54,12 +54,12 @@ export const GlobalConfig = ({ ...props }: PageProps) => {
             const metadataa = await magic.user.getMetadata();
             console.log("checkLoginStatus: metadataa", metadataa);
           }
-        } else console.log("checkLoginStatus: magicIsLoggedOut");
-
-        console.log("checkLoginStatus: isSessionLoading", false);
-        dispatch(setIsSessionLoading(false));
+        } else {
+          //console.log("checkLoginStatus: magicIsLoggedOut");
+          dispatch(setIsSessionLoading(false));
+        }
       } catch (error) {
-        console.log("checkLoginStatus: isSessionLoading", false);
+        //console.log("checkLoginStatus: isSessionLoading", false);
         dispatch(setIsSessionLoading(false));
       }
     })();
@@ -70,14 +70,13 @@ export const GlobalConfig = ({ ...props }: PageProps) => {
         if (res.status === 404) throw new Error();
       } catch (error) {
         dispatch(setIsOffline(true));
-        //dispatch(setIsSessionLoading(false));
       }
     })();
 
     (async function initializeSettings() {
       try {
         // if (devSession && process.env.NODE_ENV === "development") {
-        //   console.log("SETTING DEV SESSION");
+        //   //console.log("SETTING DEV SESSION");
         //   dispatch(setSession(devSession));
         // }
 
@@ -94,12 +93,12 @@ export const GlobalConfig = ({ ...props }: PageProps) => {
     })();
 
     window.addEventListener("offline", () => {
-      console.log("offline_event");
+      //console.log("offline_event");
       dispatch(setIsOffline(true));
     });
 
     window.addEventListener("online", () => {
-      console.log("online_event");
+      //console.log("online_event");
       dispatch(setIsOffline(false));
     });
   }, []);

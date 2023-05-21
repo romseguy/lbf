@@ -164,7 +164,7 @@ export const Nav = ({ isMobile, ...props }: FlexProps & Partial<PageProps>) => {
                           </>
                         )}
 
-                        {!isSessionLoading && !session && (
+                        {!session && (
                           <>
                             <Tooltip label="Connexion">
                               <IconButton
@@ -285,9 +285,11 @@ export const Nav = ({ isMobile, ...props }: FlexProps & Partial<PageProps>) => {
               <Tr role="rowheader">
                 <Td border={0} lineHeight="auto" p={0}>
                   <Flex mt={1}>
-                    <Heading>
-                      {session ? session.user.userName : "Connexion"}
-                    </Heading>
+                    {!isSessionLoading && (
+                      <Heading>
+                        {session ? session.user.userName : "Connexion"}
+                      </Heading>
+                    )}
                   </Flex>
                 </Td>
               </Tr>
