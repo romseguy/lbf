@@ -21,7 +21,7 @@ export async function getSession(params: {
     | NextApiRequest
     | (IncomingMessage & { cookies: /*NextApiRequestCookies*/ any });
 }): Promise<Session | null> {
-  if (process.env.NODE_ENV === "development") return devSession;
+  //if (process.env.NODE_ENV === "development") return devSession;
   const cookies = params.req.cookies;
   const authToken = getAuthToken(cookies);
   if (!authToken) return null;

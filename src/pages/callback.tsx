@@ -6,30 +6,40 @@ import { PageProps } from "main";
 
 const CallbackPage = (props: PageProps) => {
   const router = useRouter();
+
   useEffect(() => {
-    if (router.query.provider) {
-      magic.oauth.getRedirectResult().then(async (result) => {
-        const didToken = result.magic.idToken;
-        await fetch("/api/login", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + didToken
-          }
-        });
+    (async function onRouterQueryChange() {
+      try {
+        console.log(
+          "CallbackPage.onRouterQueryChange : router.query",
+          router.query
+        );
+        if (router.query.provider) {
+          const result = await magic.oauth.getRedirectResult();
+          const didToken = result.magic.idToken;
+          await fetch("/api/login", {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + didToken
+            }
+          });
+          window.location.href = "/";
+        } else {
+          const didToken = await magic.auth.loginWithCredential();
+          const response = await fetch("/api/login", {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + didToken
+            }
+          });
+          const json = await response.json();
+          window.location.href = "/";
+        }
+      } catch (error) {
         window.location.href = "/";
-      });
-    } else {
-      magic.auth.loginWithCredential().then(async (didToken) => {
-        await fetch("/api/login", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + didToken
-          }
-        });
-        window.location.href = "/";
-      });
-    }
-  }, []);
+      }
+    })();
+  }, [router.query]);
 
   return (
     <Box position="absolute" top="50%" left="50%">

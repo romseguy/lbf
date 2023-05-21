@@ -1,13 +1,14 @@
 import {
+  Alert,
+  AlertIcon,
+  Box,
   Flex,
   Heading,
   Image,
-  Box,
-  Tooltip,
-  Alert,
-  AlertIcon,
+  Spinner,
   Stack,
   Text,
+  Tooltip,
   useColorMode
 } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
@@ -165,6 +166,8 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
                 Déconnexion
               </Button>
             </Column>
+          ) : isSessionLoading ? (
+            <Spinner />
           ) : (
             <>
               <Alert

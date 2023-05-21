@@ -57,6 +57,8 @@ export const TopicsList = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
+  console.log("TopicsList: session", session, isSessionLoading);
+
   const toast = useToast({ position: "top" });
   const [addSubscription] = useAddSubscriptionMutation();
   const addTopicNotifMutation = useAddTopicNotifMutation();
@@ -266,14 +268,13 @@ export const TopicsList = ({
           colorScheme="teal"
           leftIcon={<AddIcon />}
           mb={5}
+          isLoading={isSessionLoading}
           onClick={() => {
-            if (!isSessionLoading) {
-              if (session) {
-                //setCurrentTopic(null);
-                setTopicModalState({ ...topicModalState, isOpen: true });
-              } else {
-                router.push("/login", "/login", { shallow: true });
-              }
+            if (session) {
+              //setCurrentTopic(null);
+              setTopicModalState({ ...topicModalState, isOpen: true });
+            } else {
+              router.push("/login", "/login", { shallow: true });
             }
           }}
           data-cy="topic-add-button"

@@ -9,7 +9,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
   .use(cors())
   .get<NextApiRequest, NextApiResponse>(async function check(req, res) {
     try {
-      await axios.get("https://api.lekoala.org/check");
+      await axios.get("https://api.demo.com/check");
       res.status(200).json({});
     } catch (error) {
       res.status(404).json(createServerError(error));

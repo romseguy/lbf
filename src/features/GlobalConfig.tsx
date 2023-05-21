@@ -13,17 +13,20 @@ export const GlobalConfig = ({ ...props }: PageProps) => {
   const { data, loading, setIsSessionLoading, setSession } = useSession();
   const session = data || props.session;
 
-  console.log("GlobalConfig: session", session);
+  console.log("GlobalConfig: session", session, loading);
 
-  // useEffect(() => {
-  //   if (props.session) {
-  //     console.log("GOT SESSION FROM COOKIES => UPDATING CLIENT SIDE SESSION");
-  //     dispatch(setSession(props.session));
-  //   }
-  // }, [props.session]);
+  useEffect(() => {
+    if (props.session) {
+      console.log("GOT SESSION FROM COOKIES => UPDATING CLIENT SIDE SESSION");
+      dispatch(setSession(props.session));
+      dispatch(setIsSessionLoading(false));
+    }
+  }, [props.session]);
 
   useEffect(function clientDidMount() {
     (async function checkLoginStatus() {
+      if (props.session) return;
+
       try {
         const magicIsLoggedIn = await magic.user.isLoggedIn();
 
@@ -67,16 +70,16 @@ export const GlobalConfig = ({ ...props }: PageProps) => {
         if (res.status === 404) throw new Error();
       } catch (error) {
         dispatch(setIsOffline(true));
-        dispatch(setIsSessionLoading(false));
+        //dispatch(setIsSessionLoading(false));
       }
     })();
 
     (async function initializeSettings() {
       try {
-        if (devSession && process.env.NODE_ENV === "development") {
-          console.log("SETTING DEV SESSION");
-          dispatch(setSession(devSession));
-        }
+        // if (devSession && process.env.NODE_ENV === "development") {
+        //   console.log("SETTING DEV SESSION");
+        //   dispatch(setSession(devSession));
+        // }
 
         const res = await fetch(`/api/settings`);
 
