@@ -21,7 +21,7 @@ import React, { useEffect, useState } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";
 import { FaRegMap, FaTree, FaFile, FaTools } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { useGetOrgsQuery } from "features/api/orgsApi";
+import { orgApi, useGetOrgsQuery } from "features/api/orgsApi";
 import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import {
   Button,
@@ -41,15 +41,21 @@ import { ISubscription } from "models/Subscription";
 import { selectUserEmail } from "store/userSlice";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
+import { GetServerSidePropsContext } from "next";
+import { AppStore, wrapper } from "store";
 
 let cachedUserEmail: string | undefined;
+const orgsQueryParams = {
+  orgType: EOrgType.NETWORK,
+  populate: "orgs createdBy"
+};
 
 const IndexPage = (props: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
-  const userEmail = useSelector(selectUserEmail);
+  const userEmail = useSelector(selectUserEmail) || session?.user.email;
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isListOpen, setIsListOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,10 +73,7 @@ const IndexPage = (props: PageProps) => {
   //#endregion
 
   //#region orgs
-  const orgsQuery = useGetOrgsQuery({
-    orgType: EOrgType.NETWORK,
-    populate: "orgs createdBy"
-  }) as AppQuery<IOrg[]>;
+  const orgsQuery = useGetOrgsQuery(orgsQueryParams) as AppQuery<IOrg[]>;
   useEffect(() => {
     if (!orgsQuery.isLoading) setIsLoading(false);
   }, [orgsQuery.isLoading]);
@@ -300,6 +303,17 @@ const IndexPage = (props: PageProps) => {
     </Layout>
   );
 };
+
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async (ctx) => {
+    store.dispatch(orgApi.endpoints.getOrgs.initiate(orgsQueryParams));
+    await Promise.all(store.dispatch(orgApi.util.getRunningQueriesThunk()));
+
+    return {
+      props: {}
+    };
+  }
+);
 
 export default IndexPage;
 

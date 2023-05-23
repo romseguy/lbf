@@ -27,17 +27,20 @@ import api from "utils/api";
 import { sanitize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
 import { defaultTabs, UserPageTabs } from "./UserPageTabs";
+import { useSession } from "hooks/useSession";
+import { useSelector } from "react-redux";
+import { selectUserEmail } from "store/userSlice";
 
 export const UserPage = ({
-  email,
   isMobile,
-  session,
   userQuery
 }: PageProps & {
   userQuery: AppQueryWithData<IUser>;
 }) => {
   const router = useRouter();
+  const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
+  const email = useSelector(selectUserEmail) || session?.user.email;
 
   const isSelf =
     userQuery.data._id === session?.user.userId || session?.user.isAdmin;
@@ -60,7 +63,7 @@ export const UserPage = ({
       }, {});
 
   return (
-    <Layout entity={user} isMobile={isMobile} session={session}>
+    <Layout entity={user} isMobile={isMobile}>
       <>
         {session && (isSelf || session.user.isAdmin) && (
           <>

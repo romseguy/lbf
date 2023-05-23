@@ -14,12 +14,14 @@ import {
   IconButton,
   Image,
   Progress,
+  Spinner,
   Table,
   Tbody,
   Td,
   Text,
   Tooltip,
   Tr,
+  useColorMode,
   UseDisclosureProps,
   useToast
 } from "@chakra-ui/react";
@@ -70,10 +72,14 @@ export const DocumentsList = ({
   isMobile: boolean;
 }) => {
   const { data: session, loading: isSessionLoading } = useSession();
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const [diskUsage, refreshDiskUsage] = useDiskUsage();
   const [isAdd, setIsAdd] = useState(false);
+  const [isMasonryLoading, setIsMasonryLoading] = useState(false);
+  console.log(isMasonryLoading);
 
   //#region images state
   const query = useGetDocumentsQuery(
@@ -82,7 +88,7 @@ export const DocumentsList = ({
   const [images, setImages] = useState<RemoteImage[]>([]);
 
   useEffect(() => {
-    const xhr = async (data: string[]) => {
+    const buildMasonry = async (data: string[]) => {
       let newImages: RemoteImage[] = [];
 
       for (const fileName of data) {
@@ -97,9 +103,17 @@ export const DocumentsList = ({
 
       setImages(newImages);
       setMasonry(divideArray<RemoteImage>(newImages, columnCount));
+      setIsMasonryLoading(false);
     };
 
-    if (query.data) xhr(query.data);
+    if (query.data) {
+      buildMasonry(query.data);
+      if (
+        !masonry.length &&
+        query.data.find((fileName) => stringUtils.isImage(fileName))
+      )
+        setIsMasonryLoading(true);
+    }
   }, [query.data]);
   //#endregion
 
@@ -357,7 +371,19 @@ export const DocumentsList = ({
             </Table>
           </Column>
 
-          {hasItems(masonry) && (
+          {isMasonryLoading && (
+            <Column p={0}>
+              <Heading px={3} pb={3}>
+                Visionneuse d'images
+              </Heading>
+
+              <Flex justifyContent="center" mb={3}>
+                <Spinner />
+              </Flex>
+            </Column>
+          )}
+
+          {!isMasonryLoading && hasItems(masonry) && (
             <Column p={0}>
               <Heading px={3} pb={3}>
                 Visionneuse d'images
@@ -386,7 +412,6 @@ export const DocumentsList = ({
                             marginBetween
                           );
                         } else if (columnCount !== 1) {
-                          console.log("2");
                           marginAround = 2 * (4 * 12 + 20);
                           newMW =
                             (screenWidth - marginAround - marginBetween) /

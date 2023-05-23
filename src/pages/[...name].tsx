@@ -30,9 +30,8 @@ let cachedEmail: string | undefined;
 let cachedRefetchSubscription = false;
 
 const Hash = ({ ...props }: PageProps) => {
-  const { data } = useSession();
-  const session = data || props.session;
-  const userEmail = useSelector(selectUserEmail);
+  const { data: session } = useSession();
+  const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region routing
   const router = useRouter();
@@ -75,8 +74,7 @@ const Hash = ({ ...props }: PageProps) => {
   }) as AppQuery<ISubscription>;
   const userQuery = useGetUserQuery({
     slug: entityUrl,
-    populate:
-      props.session?.user.userName === entityUrl ? "userProjects" : undefined
+    populate: session?.user.userName === entityUrl ? "userProjects" : undefined
   }) as AppQuery<IUser>;
   //#endregion
 
@@ -147,8 +145,6 @@ const Hash = ({ ...props }: PageProps) => {
     return (
       <EventPage
         {...props}
-        session={session}
-        email={userEmail}
         eventQuery={eventQuery as AppQueryWithData<IEvent>}
         subQuery={subQuery}
         tab={entityTab}
@@ -178,7 +174,6 @@ const Hash = ({ ...props }: PageProps) => {
     return (
       <OrgPage
         {...props}
-        session={session}
         orgQuery={orgQuery as AppQueryWithData<IOrg>}
         subQuery={subQuery}
         tab={entityTab}
@@ -189,12 +184,7 @@ const Hash = ({ ...props }: PageProps) => {
 
   if (userQueryStatus === 200) {
     return (
-      <UserPage
-        {...props}
-        session={session}
-        email={userEmail}
-        userQuery={userQuery as AppQueryWithData<IUser>}
-      />
+      <UserPage {...props} userQuery={userQuery as AppQueryWithData<IUser>} />
     );
   }
 

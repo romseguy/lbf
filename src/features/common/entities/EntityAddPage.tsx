@@ -17,8 +17,7 @@ export const EntityAddPage = ({
 }: PageProps & { orgType?: EOrgType }) => {
   const router = useRouter();
   const { orgId }: { orgId?: string } = router.query;
-  const { data } = useSession();
-  const session = data || props.session;
+  const { data: session } = useSession();
 
   const onSubmit = async (url: string) => {
     await router.push(`/${url}`, `/${url}`, {

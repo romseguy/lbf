@@ -1,6 +1,6 @@
-import type { PayloadAction } from "@reduxjs/toolkit";
-import type { AppState } from "store";
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { HYDRATE } from "next-redux-wrapper";
+import { AppState } from "store";
 
 type UserState = {
   userEmail: string;
@@ -17,6 +17,14 @@ export const userSlice = createSlice({
     },
     setUserEmail: (state, action: PayloadAction<string>) => {
       state.userEmail = action.payload;
+    }
+  },
+  extraReducers: {
+    [HYDRATE]: (state, action) => {
+      return {
+        ...state,
+        ...action.payload.user
+      };
     }
   }
 });

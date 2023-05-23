@@ -6,8 +6,7 @@ import { PageProps } from "main";
 
 const EventsAddPage = (props: PageProps) => {
   const router = useRouter();
-  const { data, loading } = useSession();
-  const session = data || props.session;
+  const { data: session, loading } = useSession();
 
   useEffect(() => {
     if (!session && !loading) {

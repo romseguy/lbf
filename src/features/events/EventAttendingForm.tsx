@@ -12,7 +12,7 @@ import {
 import React from "react";
 import { Button } from "features/common";
 import { useEditEventMutation } from "features/api/eventsApi";
-import { setUserEmail } from "store/userSlice";
+import { selectUserEmail, setUserEmail } from "store/userSlice";
 import { useSession } from "hooks/useSession";
 import {
   IEvent,
@@ -23,18 +23,18 @@ import {
 import { useAppDispatch } from "store";
 import { emailR } from "utils/email";
 import { AppQuery, AppQueryWithData } from "utils/types";
+import { useSelector } from "react-redux";
 
 export const EventAttendingForm = ({
-  email,
   eventQuery
 }: {
-  email?: string | null;
   eventQuery: AppQueryWithData<IEvent>;
 }) => {
   const event = eventQuery.data;
   const dispatch = useAppDispatch();
   const { data: session, loading: isSessionLoading } = useSession();
   const toast = useToast({ position: "top" });
+  const email = useSelector(selectUserEmail) || session?.user.email;
 
   const [editEvent, editEventMutation] = useEditEventMutation();
   const status = isAttending({ email, event })

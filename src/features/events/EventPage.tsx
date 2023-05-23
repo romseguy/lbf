@@ -41,15 +41,14 @@ import { EventAttendingForm } from "./EventAttendingForm";
 import { EventConfigPanel, EventConfigVisibility } from "./EventConfigPanel";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
 import { EventPageTabs } from "./EventPageTabs";
+import { useSession } from "hooks/useSession";
 
 let isFirstLoad = true;
 
 export const EventPage = ({
-  email,
   eventQuery,
   subQuery,
   isMobile,
-  session,
   tab,
   tabItem
 }: PageProps & {
@@ -61,6 +60,7 @@ export const EventPage = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
+  const { data: session, loading: isSessionLoading } = useSession();
   useEffect(() => {
     if ((router.asPath.match(/\//g) || []).length > 1) {
       isFirstLoad = false;
@@ -193,7 +193,7 @@ export const EventPage = ({
   };
 
   return (
-    <Layout entity={event} isMobile={isMobile} session={session}>
+    <Layout entity={event} isMobile={isMobile}>
       {configButtons()}
 
       {subscribeButtons()}
@@ -202,7 +202,7 @@ export const EventPage = ({
         <>
           <Box my={3}>
             {tab === "accueil" && showAttendingForm && (
-              <EventAttendingForm email={email} eventQuery={eventQuery} />
+              <EventAttendingForm eventQuery={eventQuery} />
             )}
 
             {tab === "invitations" && isCreator && !event.isApproved && (

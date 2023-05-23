@@ -15,6 +15,7 @@ import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
+import { useSession } from "hooks/useSession";
 
 export interface IsEditConfig {
   isAddingChild?: boolean;
@@ -28,7 +29,6 @@ export const OrgPage = ({
   isMobile,
   orgQuery,
   subQuery,
-  session,
   tab,
   tabItem
 }: PageProps & {
@@ -38,6 +38,7 @@ export const OrgPage = ({
   tabItem?: string;
 }) => {
   const router = useRouter();
+  const { data: session, loading: isSessionLoading } = useSession();
   useEffect(() => {
     if ((router.asPath.match(/\//g) || []).length > 1) {
       isFirstLoad = false;
@@ -177,7 +178,7 @@ export const OrgPage = ({
 
   if (org.orgUrl === "forum") {
     return (
-      <Layout entity={org} isMobile={isMobile} session={session}>
+      <Layout entity={org} isMobile={isMobile}>
         {configButtons()}
 
         {!isConfig && !isEdit && (
@@ -202,7 +203,7 @@ export const OrgPage = ({
   }
 
   return (
-    <Layout entity={org} isMobile={isMobile} session={session}>
+    <Layout entity={org} isMobile={isMobile}>
       {configButtons()}
 
       {subscribeButtons()}

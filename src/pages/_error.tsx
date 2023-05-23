@@ -6,7 +6,7 @@ import { useSession } from "hooks/useSession";
 function Error({ statusCode }: { statusCode: number }) {
   const { data: session } = useSession();
   return (
-    <Layout isMobile={isMobile} pageTitle="Erreur" session={session}>
+    <Layout isMobile={isMobile} pageTitle="Erreur">
       {`Une erreur ${
         statusCode ? `(${statusCode})` : ""
       } est survenue, merci de contacter le créateur de cet outil.`}

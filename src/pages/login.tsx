@@ -39,12 +39,11 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const {
-    data,
+    data: session,
     loading: isSessionLoading,
     setSession,
     setIsSessionLoading
   } = useSession();
-  const session = data || props.session;
   const { register, control, errors, handleSubmit, setValue } = useForm();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 

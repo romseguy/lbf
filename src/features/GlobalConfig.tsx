@@ -10,28 +10,17 @@ import { devSession, magic } from "utils/auth";
 
 export const GlobalConfig = ({ ...props }: PageProps) => {
   const dispatch = useAppDispatch();
-  const { setIsSessionLoading, setSession } = useSession();
-
-  useEffect(() => {
-    if (props.session) {
-      console.log("GlobalConfig: persisting props.session");
-      dispatch(setSession(props.session));
-      dispatch(setIsSessionLoading(false));
-    }
-  }, [props.session]);
+  const { data: session, setIsSessionLoading, setSession } = useSession();
 
   useEffect(function clientDidMount() {
     (async function checkLoginStatus() {
-      if (props.session) {
-        dispatch(setIsSessionLoading(false));
-        return;
-      }
+      if (session) return;
 
       try {
         const magicIsLoggedIn = await magic.user.isLoggedIn();
+        console.log("checkLoginStatus: magicIsLoggedIn", magicIsLoggedIn);
 
         if (magicIsLoggedIn) {
-          //console.log("checkLoginStatus: magicIsLoggedIn");
           const metadata = await magic.user.getMetadata();
           //console.log("checkLoginStatus: metadata", metadata);
 

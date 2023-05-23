@@ -66,7 +66,6 @@ export const Layout = ({
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const isOffline = useSelector(selectIsOffline);
-  const userEmail = useSelector(selectUserEmail);
 
   const notify = (title: string) => {
     if (!isNotified) {
@@ -200,7 +199,6 @@ export const Layout = ({
 
         <Nav
           {...props}
-          email={userEmail}
           m={isMobile ? 1 : 3}
           mt={isMobile ? 0 : undefined}
           borderTopRadius={isMobile ? 0 : undefined}

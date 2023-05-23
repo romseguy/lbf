@@ -128,9 +128,9 @@ const styles = css`
   }
 `;
 
-const PrivacyPage = ({ isMobile, session }: PageProps) => {
+const PrivacyPage = ({ isMobile }: PageProps) => {
   return (
-    <Layout isMobile={isMobile} pageTitle="Privacy Policy" session={session}>
+    <Layout isMobile={isMobile} pageTitle="Privacy Policy">
       <div css={styles}>
         <div className="body">
           <div className="page">
