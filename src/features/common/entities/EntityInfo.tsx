@@ -72,9 +72,9 @@ export const EntityInfo = ({
                 ? true
                 : !!emailCollapsed[index];
             let shortEmail = email;
-            let canCollapse = email.length > 9 && isMobile;
+            let canCollapse = email.length > 16 && isMobile;
             if (canCollapse && isCollapsed)
-              shortEmail = email.substr(0, 9) + "...";
+              shortEmail = email.substr(0, 16) + "...";
 
             return (
               <Flex key={`email-${index}`} alignItems="center">
@@ -159,8 +159,8 @@ export const EntityInfo = ({
               : url;
             uri = uri.replace(/\/$/, "");
             let shortUrl = uri;
-            let canCollapse = uri.length > 9 && isMobile;
-            if (canCollapse && isCollapsed) shortUrl = uri.substr(0, 9) + "...";
+            let canCollapse = uri.length > 16 && isMobile;
+            if (canCollapse && isCollapsed) shortUrl = uri.substr(0, 16) + "...";
 
             return (
               <Flex key={`web-${index}`} alignItems="center">

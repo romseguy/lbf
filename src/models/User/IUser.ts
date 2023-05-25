@@ -9,7 +9,7 @@ export interface IUser extends Omit<IEntity, "createdBy"> {
   securityCode: string;
   userName: string;
   userImage?: Base64Image;
-  userSubscription?: unknown;
+  userSubscription?: PushSubscription;
   // userSubscription?: {
   //   endpoint: string;
   //   expirationTime: string | null;

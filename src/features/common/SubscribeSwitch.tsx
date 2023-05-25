@@ -79,35 +79,44 @@ export const SubscribeSwitch = ({
   };
 
   useEffect(() => {
-    async function componentDidMount() {
+    (async function checkSubscription() {
+      if (!userQuery.data) {
+        if (process.env.NODE_ENV === "production")
+          console.warn("SubscribeSwitch.checkSubscription : no user");
+        return;
+      }
+
       if (!("serviceWorker" in navigator)) {
         if (process.env.NODE_ENV === "production")
-          console.warn("navigator.serviceWorker is missing");
+          console.warn(
+            "SubscribeSwitch.checkSubscription : navigator.serviceWorker is missing"
+          );
         return;
       }
 
       if (!window.workbox) {
         if (process.env.NODE_ENV === "production")
-          console.warn("window.workbox is missing");
+          console.warn(
+            "SubscribeSwitch.checkSubscription : window.workbox is missing"
+          );
         return;
       }
 
       try {
         const serviceWorkerRegistration = await navigator.serviceWorker.ready;
-        setRegistration(serviceWorkerRegistration);
+        if (!registration) setRegistration(serviceWorkerRegistration);
 
         const pushSubscription =
-          await serviceWorkerRegistration.pushManager.getSubscription();
+          userQuery.data.userSubscription ||
+          (await serviceWorkerRegistration.pushManager.getSubscription());
 
         if (pushSubscription) setSubscription(pushSubscription);
         else await subscribe(serviceWorkerRegistration);
       } catch (error) {
         console.error("cdm", error);
       }
-    }
-
-    componentDidMount();
-  }, []);
+    })();
+  }, [userQuery.data]);
 
   return (
     <Switch
