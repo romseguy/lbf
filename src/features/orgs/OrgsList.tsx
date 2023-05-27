@@ -15,7 +15,7 @@ import {
   useColorMode
 } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
-import { FaGlobeEurope, FaMapMarkedAlt } from "react-icons/fa";
+import { FaGlobeEurope, FaMapMarkedAlt, FaTree } from "react-icons/fa";
 import { css } from "twin.macro";
 import { EntityButton, Link } from "features/common";
 import { scrollbarCss, tableCss } from "features/layout/theme";
@@ -172,6 +172,23 @@ export const OrgsList = ({
               if (org.orgUrl === "forum") return;
               return (
                 <Tr key={`org-${org._id}`}>
+                  {keys.find(({ key }) => key === "icon") && (
+                    <Td p={isMobile ? 0 : undefined}>
+                      <Icon
+                        as={
+                          org.orgType === EOrgType.NETWORK
+                            ? FaGlobeEurope
+                            : FaTree
+                        }
+                        color={
+                          org.orgType === EOrgType.NETWORK
+                            ? "blue.500"
+                            : "green.500"
+                        }
+                      />
+                    </Td>
+                  )}
+
                   {keys.find(({ key }) => key === "subscription") && (
                     <Td p={isMobile ? 0 : undefined}>
                       <SubscribePopover
@@ -184,6 +201,7 @@ export const OrgsList = ({
                       />
                     </Td>
                   )}
+
                   {keys.find(({ key }) => key === "orgName") && (
                     <Td>
                       {org.orgType === EOrgType.TREETOOLS
@@ -218,19 +236,7 @@ export const OrgsList = ({
                       )}
                     </Td>
                   )}
-                  {/* <Td>{OrgTypes[org.orgType]}</Td> */}
-                  {/* <Td>
-                    <Tooltip hasArrow label="Voir sur la carte" placement="top">
-                      <span>
-                        <Link
-                          variant="underline"
-                          onClick={() => setOrgToShow(org)}
-                        >
-                          {org.orgCity}
-                        </Link>
-                      </span>
-                    </Tooltip>
-                  </Td> */}
+
                   {keys.find(({ key }) => key === "createdBy") && (
                     <Td>
                       <EntityButton

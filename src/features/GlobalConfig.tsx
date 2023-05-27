@@ -12,6 +12,10 @@ export const GlobalConfig = ({ ...props }: PageProps) => {
   const dispatch = useAppDispatch();
   const { data: session, setIsSessionLoading, setSession } = useSession();
 
+  useEffect(() => {
+    if (session) dispatch(setIsSessionLoading(false));
+  }, [session]);
+
   useEffect(function clientDidMount() {
     (async function checkLoginStatus() {
       if (session) return;
@@ -45,8 +49,9 @@ export const GlobalConfig = ({ ...props }: PageProps) => {
           }
         } else {
           //console.log("checkLoginStatus: magicIsLoggedOut");
-          dispatch(setIsSessionLoading(false));
         }
+
+        dispatch(setIsSessionLoading(false));
       } catch (error) {
         //console.log("checkLoginStatus: isSessionLoading", false);
         dispatch(setIsSessionLoading(false));

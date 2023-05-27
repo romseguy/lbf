@@ -33,7 +33,8 @@ import {
   Heading,
   HostTag,
   Link,
-  Column
+  Column,
+  LinkProps
 } from "features/common";
 import { Layout } from "features/layout";
 import { useDiskUsage } from "hooks/useDiskUsage";
@@ -53,6 +54,19 @@ const rowStyles: (isDark: boolean) => FlexProps = (isDark) => ({
   p: 2
 });
 
+const ContactLink = (props: LinkProps) => {
+  const dispatch = useAppDispatch();
+  return (
+    <Link
+      variant="underline"
+      onClick={() => dispatch(setIsContactModalOpen(true))}
+      {...props}
+    >
+      contactez-nous
+    </Link>
+  );
+};
+
 export const AboutPage = ({
   isMobile,
   ...props
@@ -62,14 +76,6 @@ export const AboutPage = ({
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const contactLink = (
-    <Link
-      variant="underline"
-      onClick={() => dispatch(setIsContactModalOpen(true))}
-    >
-      contactez-nous
-    </Link>
-  );
   const [diskUsage] = useDiskUsage();
   const license = (
     <a
@@ -162,6 +168,8 @@ export const AboutPage = ({
 
   return (
     <Box
+      width={isMobile ? "auto" : "2xl"}
+      m="0 auto"
       css={css`
         & > * {
           margin-bottom: 12px !important;
@@ -237,8 +245,7 @@ export const AboutPage = ({
           px={3}
         >
           {lightbulb}
-          Ajoutez des adresses e-mail à la liste d'abonnés ou aux listes de
-          votre choix.
+          Créez des listes d'abonnés. votre choix.
         </Row>
         <Row
           {...rowStyles(isDark)}
@@ -289,50 +296,58 @@ export const AboutPage = ({
         <Icon as={FaGift} color="green" boxSize={[5, 4]} />
         <Text ml={3}>
           Cet outil est un logiciel libre et open-source mis à disposition
-          gratuitement, {contactLink} pour obtenir son code source.
+          gratuitement, <ContactLink /> pour obtenir son code source.
         </Text>
       </Row>
 
       <Row {...rowStyles(isDark)}>
         <Icon as={FaKey} color="green" boxSize={[5, 4]} />
-        <Text ml={3}>
-          Pour qu'il reste libre et open-source, la license {license} a été
-          choisie.
-        </Text>
-      </Row>
-
-      <Row {...rowStyles(isDark)}>
-        <Icon as={FaHandshake} color="green" boxSize={[5, 4]} />
         <Flex flexDirection="column" ml={3}>
+          <Text>
+            Pour qu'il reste libre et open-source, la license {license} a été
+            choisie.
+          </Text>
+
           <Text
             bg={isDark ? "black" : "white"}
             border="1px solid black"
             borderRadius="lg"
-            fontSize="xs"
-            mb={2}
+            fontSize="small"
+            my={2}
             p={2}
           >
-            <Icon as={FaQuoteLeft} /> La license {license} ne s'intéresse pas au
-            problème du SaaSS (service se substituant au logiciel). On parle de
-            SaaSS lorsque les utilisateurs font leurs propres tâches
+            <Icon as={FaQuoteLeft} mr={1} /> La license {license} ne s'intéresse
+            pas au problème du SaaSS (service se substituant au logiciel). On
+            parle de SaaSS lorsque les utilisateurs font leurs propres tâches
             informatiques sur l'ordinateur de quelqu'un d'autre. Ceci les oblige
             à envoyer leurs données au serveur ; ce dernier les traite et leur
             renvoie les résultats.
           </Text>
 
-          <Text>
-            Si vous ne souhaitez pas faire confiance à <HostTag /> pour le
-            traitement de vos données, {contactLink} pour installer cet outil
-            sur la machine de votre choix.
-          </Text>
+          <Flex flexDirection="column" alignItems="center">
+            <Text>
+              Si vous ne souhaitez pas faire confiance à <HostTag mx={1} /> pour
+              le traitement de vos données, <ContactLink /> pour installer cet
+              outil sur la machine de votre choix.
+            </Text>
+          </Flex>
         </Flex>
       </Row>
+
+      {/* <Row {...rowStyles(isDark)}>
+        <Icon as={FaHandshake} color="green" boxSize={[5, 4]} />
+        <Flex flexDirection="column" ml={3}>
+        </Flex>
+      </Row> */}
     </Box>
   );
 };
 
 const About = (props: PageProps) => (
-  <Layout pageTitle="À propos" {...props}>
+  <Layout
+    pageTitle={`À propos de ${process.env.NEXT_PUBLIC_SHORT_URL}`}
+    {...props}
+  >
     <AboutPage {...props} />
   </Layout>
 );

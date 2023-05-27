@@ -26,7 +26,7 @@ export const EntityAddButton = ({
         leftIcon={
           <>
             <AddIcon mr={1} />
-            <Icon as={FaGlobeEurope} color={isDark ? "purple" : "lightblue"} />
+            <Icon as={FaGlobeEurope} color={isDark ? "black" : "white"} />
           </>
         }
         mt={1}

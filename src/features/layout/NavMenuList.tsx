@@ -19,12 +19,7 @@ export const NavMenuList = ({
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const {
-    data: session,
-    loading: isSessionLoading,
-    setSession,
-    setIsSessionLoading
-  } = useSession();
+  const { data: session, setSession, setIsSessionLoading } = useSession();
 
   if (!session) return null;
 

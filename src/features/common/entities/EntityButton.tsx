@@ -116,7 +116,9 @@ export const EntityButton = ({
                   topic
                     ? "blue.500"
                     : org
-                    ? "green.500"
+                    ? org.orgType === EOrgType.NETWORK
+                      ? "blue.500"
+                      : "green.500"
                     : event
                     ? "green.500"
                     : "blue.500"

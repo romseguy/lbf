@@ -57,9 +57,9 @@ export const TopicsList = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
-  console.log("TopicsList: session", session, isSessionLoading);
-
   const toast = useToast({ position: "top" });
+
+  //#region local state
   const [addSubscription] = useAddSubscriptionMutation();
   const addTopicNotifMutation = useAddTopicNotifMutation();
   const [deleteSubscription] = useDeleteSubscriptionMutation();
@@ -69,8 +69,6 @@ export const TopicsList = ({
   const topicCategories = isE
     ? entity.eventTopicCategories
     : entity.orgTopicCategories;
-
-  //#region local state
   const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
   useEffect(() => {
     if (currentTopicName) {

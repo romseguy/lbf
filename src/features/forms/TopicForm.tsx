@@ -50,6 +50,7 @@ export const TopicForm = ({
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
 
+  //#region local state
   const [addTopic, addTopicMutation] = useAddTopicMutation();
   const [editTopic, editTopicMutation] = useEditTopicMutation();
   const [editEvent] = useEditEventMutation();
@@ -64,8 +65,6 @@ export const TopicForm = ({
     props.topic &&
     props.topic.topicCategory &&
     topicCategories.find(({ catId }) => catId === props.topic!.topicCategory);
-
-  //#region local state
   const [isLoading, setIsLoading] = useState(false);
   //#endregion
 
@@ -343,7 +342,7 @@ export const TopicForm = ({
         </FormControl>
       )}
 
-      {!isE && (
+      {!isE && entity.orgUrl !== "forum" && (
         <FormControl mb={3}>
           <FormLabel>Visibilité</FormLabel>
           <Controller

@@ -11,7 +11,7 @@ import { wrapper } from "store";
 import { getAuthToken, sealOptions, Session } from "utils/auth";
 import { isServer } from "utils/isServer";
 import { setUserEmail } from "store/userSlice";
-import { setIsSessionLoading, setSession } from "store/sessionSlice";
+import { setSession } from "store/sessionSlice";
 
 interface AppProps {
   cookies?: string;
@@ -64,7 +64,6 @@ App.getInitialProps = wrapper.getInitialAppProps(
           );
 
           if (user) store.dispatch(setSession({ user }));
-          store.dispatch(setIsSessionLoading(false));
         }
       }
 

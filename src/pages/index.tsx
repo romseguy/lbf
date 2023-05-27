@@ -56,13 +56,20 @@ const IndexPage = (props: PageProps) => {
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
+
+  //#region local state
+  const orgsQuery = useGetOrgsQuery(orgsQueryParams) as AppQuery<IOrg[]>;
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isListOpen, setIsListOpen] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const ref = useOnclickOutside(() => {
     if (isTooltipOpen) setIsTooltipOpen(false);
   });
+  const columnProps = {
+    maxWidth: "4xl",
+    m: "0 auto"
+  };
+  //#endregion
 
   //#region modal
   const {
@@ -72,30 +79,18 @@ const IndexPage = (props: PageProps) => {
   } = useDisclosure({ defaultIsOpen: false });
   //#endregion
 
-  //#region orgs
-  const orgsQuery = useGetOrgsQuery(orgsQueryParams) as AppQuery<IOrg[]>;
-  useEffect(() => {
-    if (!orgsQuery.isLoading) setIsLoading(false);
-  }, [orgsQuery.isLoading]);
-  //#endregion
-
   //#region subscription
-  const subQuery = useGetSubscriptionQuery({
-    email: userEmail
-  }) as AppQuery<ISubscription>;
-  useEffect(() => {
-    if (!cachedUserEmail) cachedUserEmail = userEmail;
-    else if (cachedUserEmail !== userEmail) {
-      cachedUserEmail = userEmail;
-      subQuery.refetch();
-    }
-  }, [userEmail]);
+  // const subQuery = useGetSubscriptionQuery({
+  //   email: userEmail
+  // }) as AppQuery<ISubscription>;
+  // useEffect(() => {
+  //   if (!cachedUserEmail) cachedUserEmail = userEmail;
+  //   else if (cachedUserEmail !== userEmail) {
+  //     cachedUserEmail = userEmail;
+  //     subQuery.refetch();
+  //   }
+  // }, [userEmail]);
   //#endregion
-
-  const columnProps = {
-    maxWidth: "4xl",
-    m: "0 auto"
-  };
 
   return (
     <Layout {...props} pageTitle="Accueil">
@@ -121,6 +116,7 @@ const IndexPage = (props: PageProps) => {
               <Flex ref={ref}>
                 <LoginButton
                   mb={3}
+                  mr={3}
                   size={props.isMobile ? "xs" : undefined}
                   onClick={() => {
                     router.push("/login", "/login", { shallow: true });
@@ -129,18 +125,16 @@ const IndexPage = (props: PageProps) => {
                   Connectez-vous à votre compte Koala
                 </LoginButton>
                 <Tooltip
-                  label="Un Koala vous permet de créer des planètes, afin de partager des informations et inviter d'autres Koalas à discuter et à collaborer."
+                  label="Un compte Koala vous permet de créer des planètes, et d'inviter d'autres Koalas à collaborer."
                   isOpen={isTooltipOpen}
                 >
                   <IconButton
                     aria-label="Qu'est ce qu'un Koala"
-                    background="transparent"
-                    _hover={{ background: "transparent" }}
+                    icon={<QuestionIcon />}
+                    colorScheme="purple"
                     minWidth={0}
                     height="auto"
-                    icon={<QuestionIcon />}
                     boxSize={props.isMobile ? 6 : 10}
-                    color="purple"
                     onMouseEnter={
                       props.isMobile ? undefined : () => setIsTooltipOpen(true)
                     }
@@ -160,33 +154,6 @@ const IndexPage = (props: PageProps) => {
                 size={props.isMobile ? "xs" : "md"}
                 mb={3}
               />
-            </Flex>
-
-            <Heading mb={3}>Et créez :</Heading>
-
-            <Flex alignItems="center">
-              <SmallAddIcon />
-              <ChatIcon mr={1} />
-              des discussions,
-            </Flex>
-            <Flex alignItems="center">
-              <SmallAddIcon />
-              <CalendarIcon mr={1} />
-              des événements,
-            </Flex>
-            <Flex alignItems="center">
-              <SmallAddIcon />
-              <Icon as={FaTools} mr={1} />
-              des projets,
-            </Flex>
-            <Flex alignItems="center">
-              <SmallAddIcon />
-              <Icon as={FaFile} mr={1} />
-              des fichiers,
-            </Flex>
-            <Flex alignItems="center">
-              <SmallAddIcon />
-              <Icon as={FaTree} color="green" mr={1} /> des arbres.
             </Flex>
 
             <Flex>
@@ -211,9 +178,7 @@ const IndexPage = (props: PageProps) => {
           {/* <HostTag ml={1} /> */}
         </Flex>
 
-        {isLoading ? (
-          <Spinner />
-        ) : hasItems(orgsQuery.data) ? (
+        {hasItems(orgsQuery.data) ? (
           <>
             <Button
               alignSelf="flex-start"
@@ -245,14 +210,14 @@ const IndexPage = (props: PageProps) => {
                   keys={
                     props.isMobile
                       ? (orgType) => [
-                          { key: "subscription", label: "" },
+                          { key: "icon", label: "" },
                           {
                             key: "orgName",
                             label: `Nom de ${orgTypeFull(orgType)}`
                           }
                         ]
                       : (orgType) => [
-                          { key: "subscription", label: "" },
+                          { key: "icon", label: "" },
                           {
                             key: "orgName",
                             label: `Nom de ${orgTypeFull(orgType)}`
@@ -262,7 +227,7 @@ const IndexPage = (props: PageProps) => {
                   }
                   isMobile={props.isMobile}
                   query={orgsQuery}
-                  subQuery={subQuery}
+                  //subQuery={subQuery}
                 />
               </Column>
             )}
@@ -373,4 +338,33 @@ export default IndexPage;
           Vous êtes adhérent au sein d'une organisation
         </Button>
       </Column> */
+}
+
+{
+  /* <Heading mb={3}>Et créez :</Heading>
+
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <ChatIcon mr={1} />
+              des discussions,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <CalendarIcon mr={1} />
+              des événements,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <Icon as={FaTools} mr={1} />
+              des projets,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <Icon as={FaFile} mr={1} />
+              des fichiers,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <Icon as={FaTree} color="green" mr={1} /> des arbres.
+            </Flex> */
 }

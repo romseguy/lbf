@@ -20,7 +20,13 @@ import NextNprogress from "nextjs-progressbar";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { css } from "twin.macro";
-import { Button, Column, DarkModeSwitch, EmailControl } from "features/common";
+import {
+  Button,
+  Column,
+  DarkModeSwitch,
+  EmailControl,
+  Link
+} from "features/common";
 import { breakpoints } from "features/layout/theme";
 import { SocialLogins } from "features/session/SocialLogins";
 import { useSession } from "hooks/useSession";
@@ -30,8 +36,6 @@ import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
 import { magic } from "utils/auth";
 import { capitalize } from "utils/string";
-
-const defaultTitle = process.env.NEXT_PUBLIC_SHORT_URL;
 
 const LoginPage = ({ isMobile, ...props }: PageProps) => {
   const { colorMode } = useColorMode();
@@ -73,7 +77,7 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
       <Head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{defaultTitle} – Connexion</title>
+        <title>{process.env.NEXT_PUBLIC_SHORT_URL} – Connexion</title>
       </Head>
 
       <Flex
@@ -112,135 +116,135 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
           </Tooltip>
         </Box>
 
-        <Flex flexDirection="column" m="0 auto" my={3}>
-          <Heading fontFamily="Lato">
-            {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
-          </Heading>
-          <Box m="0 auto">
-            <Image height="100px" src="/images/bg.png" />
-          </Box>
-        </Flex>
+        <Flex
+          flexDirection="column"
+          width={isMobile ? "auto" : "md"}
+          m="0 auto"
+        >
+          <Link href="/" m="0 auto">
+            <Heading fontFamily="Lato">
+              {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
+            </Heading>
+          </Link>
 
-        <Box m="0 auto">
-          {session ? (
-            <Column
-              borderRadius={isMobile ? 0 : undefined}
-              mb={3}
-              width={isMobile ? "auto" : "md"}
-            >
-              <Alert bg={isDark ? "gray.600" : undefined} status="success">
-                <AlertIcon />
-                <Stack spacing={3} textAlign="center">
-                  <Text>Vous êtes déjà connecté avec l'adresse e-mail :</Text>
+          <Link href="/" m="0 auto" mb="3">
+            <Image height="100px" src="/images/bg.png" m="0 auto" />
+          </Link>
 
-                  <Text fontWeight="bold" ml={1}>
-                    {session.user.email}
-                  </Text>
-                </Stack>
-              </Alert>
+          {isSessionLoading && (
+            <Box m="0 auto" mb="3">
+              <Spinner />
+            </Box>
+          )}
 
-              <Button
-                colorScheme="blue"
-                leftIcon={<ArrowBackIcon />}
-                mt={3}
-                onClick={() => router.push("/", "/", { shallow: true })}
-              >
-                Retour à l'accueil
-              </Button>
-
-              <Button
-                colorScheme="red"
-                leftIcon={<FaPowerOff />}
-                mt={3}
-                onClick={async () => {
-                  dispatch(setIsSessionLoading(true));
-                  dispatch(resetUserEmail());
-                  await magic.user.logout();
-                  await api.get("logout");
-                  dispatch(setSession(null));
-                  dispatch(setIsSessionLoading(false));
-                  //router.push("/login", "/login", { shallow: true });
-                }}
-              >
-                Déconnexion
-              </Button>
-            </Column>
-          ) : isSessionLoading ? (
-            <Spinner />
-          ) : (
+          {!isSessionLoading && (
             <>
-              <Alert
-                bg={isDark ? "gray.600" : "lightcyan"}
-                status="info"
-                py={5}
-                width={isMobile ? "auto" : "md"}
-                css={css`
-                  margin-bottom: 12px;
-                  margin: 0 auto;
-                `}
-              >
-                <AlertIcon /> Pour vous connecter à votre compte Koala, pas
-                besoin d'inscription, saisissez votre adresse e-mail ci-dessous
-                pour recevoir un e-mail de connexion :
-              </Alert>
+              {session && (
+                <Column borderRadius={isMobile ? 0 : undefined} mb={3}>
+                  <Alert bg={isDark ? "gray.600" : undefined} status="success">
+                    <AlertIcon />
+                    <Stack spacing={3} textAlign="center">
+                      <Text>
+                        Vous êtes déjà connecté avec l'adresse e-mail :
+                      </Text>
 
-              <Column
-                borderRadius={isMobile ? 0 : undefined}
-                m="0 auto"
-                my={3}
-                width={isMobile ? "auto" : "md"}
-              >
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <EmailControl
-                    name="email"
-                    register={register}
-                    control={control}
-                    errors={errors}
-                    isDisabled={isLoggingIn || Object.keys(errors).length > 0}
-                    isMultiple={false}
-                    isRequired
-                    setValue={setValue}
-                    mb={3}
-                  />
+                      <Text fontWeight="bold" ml={1}>
+                        {session.user.email}
+                      </Text>
+                    </Stack>
+                  </Alert>
 
                   <Button
-                    colorScheme="green"
-                    isDisabled={isLoggingIn || Object.keys(errors).length > 0}
-                    fontSize="sm"
-                    type="submit"
-                    mb={3}
+                    colorScheme="blue"
+                    leftIcon={<ArrowBackIcon />}
+                    mt={3}
+                    onClick={() => router.push("/", "/", { shallow: true })}
                   >
-                    Envoyer un e-mail de connexion
+                    Retour à l'accueil
                   </Button>
-                </form>
-              </Column>
 
-              <Alert
-                bg={isDark ? "gray.600" : "lightcyan"}
-                status="info"
-                m="0 auto"
-                mb={3}
-                py={5}
-                width={isMobile ? "auto" : "md"}
-              >
-                <AlertIcon />
-                Ou connectez-vous grâce aux réseaux sociaux :
-              </Alert>
+                  <Button
+                    colorScheme="red"
+                    leftIcon={<FaPowerOff />}
+                    mt={3}
+                    onClick={async () => {
+                      dispatch(setIsSessionLoading(true));
+                      dispatch(resetUserEmail());
+                      await magic.user.logout();
+                      await api.get("logout");
+                      dispatch(setSession(null));
+                      dispatch(setIsSessionLoading(false));
+                      //router.push("/login", "/login", { shallow: true });
+                    }}
+                  >
+                    Déconnexion
+                  </Button>
+                </Column>
+              )}
 
-              <Column
-                borderRadius={isMobile ? 0 : undefined}
-                m="0 auto"
-                mb={5}
-                pb={0}
-              >
-                <SocialLogins
-                  flexDirection="column"
-                  onSubmit={onLoginWithSocial}
-                />
-              </Column>
+              {!session && (
+                <>
+                  <Alert
+                    bg={isDark ? "gray.600" : "lightcyan"}
+                    status="info"
+                    py={5}
+                  >
+                    <AlertIcon /> Pour vous connecter à votre compte Koala, pas
+                    besoin d'inscription, saisissez votre adresse e-mail
+                    ci-dessous pour recevoir un e-mail de connexion :
+                  </Alert>
+
+                  <Column borderRadius={isMobile ? 0 : undefined} my={3}>
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                      <EmailControl
+                        name="email"
+                        register={register}
+                        control={control}
+                        errors={errors}
+                        isDisabled={
+                          isLoggingIn || Object.keys(errors).length > 0
+                        }
+                        isMultiple={false}
+                        isRequired
+                        setValue={setValue}
+                        mb={3}
+                      />
+
+                      <Button
+                        colorScheme="green"
+                        isDisabled={
+                          isLoggingIn || Object.keys(errors).length > 0
+                        }
+                        fontSize="sm"
+                        type="submit"
+                        mb={3}
+                      >
+                        Envoyer un e-mail de connexion
+                      </Button>
+                    </form>
+                  </Column>
+
+                  <Alert
+                    bg={isDark ? "gray.600" : "lightcyan"}
+                    status="info"
+                    mb={3}
+                    py={5}
+                  >
+                    <AlertIcon />
+                    Ou connectez-vous grâce aux réseaux sociaux :
+                  </Alert>
+
+                  <Column borderRadius={isMobile ? 0 : undefined} mb={5} pb={0}>
+                    <SocialLogins
+                      flexDirection="column"
+                      onSubmit={onLoginWithSocial}
+                    />
+                  </Column>
+                </>
+              )}
             </>
           )}
-        </Box>
+        </Flex>
       </Flex>
     </>
   );

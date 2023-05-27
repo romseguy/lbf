@@ -73,7 +73,7 @@ export const HeaderTitle = ({
     url = entity.userName;
   }
 
-  let icon: AppIcon | undefined = pageTitle === "Forum" ? ChatIcon : undefined;
+  let icon: AppIcon | undefined;
   let iconColor = banner ? "white" : isDark ? "green.200" : "green";
 
   if (isE) {
@@ -81,7 +81,12 @@ export const HeaderTitle = ({
     iconColor = entity.isApproved ? "green" : "red";
   } else if (isO) {
     const org = entity as IOrg;
-    icon = org.orgType === EOrgType.NETWORK ? FaGlobeEurope : FaTree;
+    icon =
+      org.orgUrl === "forum"
+        ? ChatIcon
+        : org.orgType === EOrgType.NETWORK
+        ? FaGlobeEurope
+        : FaTree;
     iconColor = org.orgType === EOrgType.NETWORK ? "blue" : "green";
   } else if (isU) {
     icon = SunIcon;
@@ -112,7 +117,7 @@ export const HeaderTitle = ({
         )}
       </Link>
 
-      {entity && (
+      {entity && url !== "forum" && (
         <LinkShare
           url={`${process.env.NEXT_PUBLIC_URL}/${url}`}
           colorScheme="blue"
