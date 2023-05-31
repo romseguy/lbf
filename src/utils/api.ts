@@ -8,12 +8,11 @@ type ParamsType = Record<string, any> | Primitive;
 export type ResponseType<T> = { data?: T; error?: any; status?: number };
 
 async function request(endpoint: string, params?: ParamsType, method = "GET") {
-  if (!isServer()) {
-    console.log(
-      `${method} ${endpoint.includes("http") ? endpoint : "/" + endpoint}`
-    );
-    if (params) console.log(params);
-  }
+  const prefix = `${method} ${
+    endpoint.includes("http") ? endpoint : "/" + endpoint
+  }`;
+  console.log(prefix);
+  if (params) console.log(params);
 
   try {
     const options: {
@@ -37,6 +36,8 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
         : `${process.env.NEXT_PUBLIC_API}/${endpoint}`,
       options
     );
+
+    console.log(prefix + " STATUS : " + response.status);
 
     if (response.status === 200) {
       const data = await response.json();

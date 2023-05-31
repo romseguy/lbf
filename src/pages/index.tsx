@@ -1,28 +1,21 @@
 import {
-  CalendarIcon,
-  ChatIcon,
   ChevronRightIcon,
   ChevronUpIcon,
   HamburgerIcon,
-  QuestionIcon,
-  SmallAddIcon
+  QuestionIcon
 } from "@chakra-ui/icons";
 import {
   Flex,
-  Icon,
   IconButton,
-  Spinner,
   Tooltip,
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";
-import { FaRegMap, FaTree, FaFile, FaTools } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { FaRegMap } from "react-icons/fa";
 import { orgApi, useGetOrgsQuery } from "features/api/orgsApi";
-import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import {
   Button,
   Column,
@@ -37,14 +30,10 @@ import { OrgsList } from "features/orgs/OrgsList";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { EOrgType, IOrg, orgTypeFull } from "models/Org";
-import { ISubscription } from "models/Subscription";
-import { selectUserEmail } from "store/userSlice";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
-import { GetServerSidePropsContext } from "next";
-import { AppStore, wrapper } from "store";
+import { wrapper } from "store";
 
-let cachedUserEmail: string | undefined;
 const orgsQueryParams = {
   orgType: EOrgType.NETWORK,
   populate: "orgs createdBy"
@@ -55,7 +44,6 @@ const IndexPage = (props: PageProps) => {
   const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session, loading: isSessionLoading } = useSession();
-  const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   //#region local state
   const orgsQuery = useGetOrgsQuery(orgsQueryParams) as AppQuery<IOrg[]>;
@@ -80,6 +68,8 @@ const IndexPage = (props: PageProps) => {
   //#endregion
 
   //#region subscription
+  // let cachedUserEmail: string | undefined;
+  // const userEmail = useSelector(selectUserEmail) || session?.user.email;
   // const subQuery = useGetSubscriptionQuery({
   //   email: userEmail
   // }) as AppQuery<ISubscription>;

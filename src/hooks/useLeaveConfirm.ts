@@ -33,6 +33,14 @@ export function useLeaveConfirm<T>({
     let isWarned = false;
 
     const routeChangeStart = (url: string) => {
+      console.log(
+        "useLeaveConfirm: routeChangeStart",
+        router.asPath,
+        url,
+        shouldWarn,
+        isWarned
+      );
+
       if (router.asPath !== url && shouldWarn && !isWarned) {
         isWarned = true;
         if (window.confirm(message)) {

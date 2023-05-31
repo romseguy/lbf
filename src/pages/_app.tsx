@@ -1,6 +1,5 @@
 import Iron from "@hapi/iron";
 import { parse } from "cookie";
-import { NextPage, NextPageContext } from "next";
 import { AppProps as NextAppProps } from "next/app";
 import React from "react";
 import { getSelectorsByUserAgent, isMobile } from "react-device-detect";
@@ -80,6 +79,8 @@ App.getInitialProps = wrapper.getInitialAppProps(
     }
 );
 
+export default App;
+
 {
   /*
 App.getInitialProps = async function AppGetInitialProps({
@@ -140,5 +141,3 @@ App.getInitialProps = async function AppGetInitialProps({
 };
 */
 }
-
-export default App;

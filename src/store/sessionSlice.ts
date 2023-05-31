@@ -9,7 +9,7 @@ const initialState: {
   session: Session | null;
 } = {
   isOffline: false,
-  isSessionLoading: true,
+  isSessionLoading: false,
   session: null
 };
 

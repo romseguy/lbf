@@ -50,7 +50,7 @@ interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
   >;
   topic: ITopic;
   topicIndex: number;
-  onClick: (topic: ITopic | null) => void;
+  onClick: (topic: ITopic) => void;
   onDeleteClick: (topic: ITopic) => void;
   onEditClick: (topic: ITopic) => void;
   onNotifClick: (topic: ITopic) => void;
@@ -112,7 +112,7 @@ export const TopicsListItem = ({
       <Link
         as="div"
         variant="no-underline"
-        onClick={() => onClick(isCurrent ? null : topic)}
+        onClick={() => onClick(topic)}
         data-cy="topic-list-item"
       >
         <Flex
@@ -408,7 +408,9 @@ export const TopicsListItem = ({
               //formats={formats.filter((f) => f !== "size")}
               isDisabled={topic.topicMessagesDisabled}
               onLoginClick={onLoginClick}
-              onSubmit={() => query.refetch()}
+              onSubmit={() => {
+                query.refetch();
+              }}
             />
           </GridItem>
         </>

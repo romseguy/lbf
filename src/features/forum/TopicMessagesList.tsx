@@ -58,6 +58,7 @@ export const TopicMessagesList = ({
       <Box>
         {topic.topicMessages.map((topicMessage, index) => (
           <TopicMessagesListItem
+            key={`topic-messages-list-item-${index}`}
             index={index}
             isDark={isDark}
             isEdit={isEdit}

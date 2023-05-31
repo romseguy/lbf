@@ -49,9 +49,8 @@ export const TopicMessageForm = ({
 
   //#region local state
   const [isLoading, setIsLoading] = useState(false);
-  const [topicMessageDefaultValue, setTopicMessageDefaultValue] = useState<
-    string | undefined
-  >();
+  const [topicMessageDefaultValue, setTopicMessageDefaultValue] =
+    useState<string>("");
   //#endregion
 
   //#region form
@@ -75,12 +74,39 @@ export const TopicMessageForm = ({
     setValue,
     storage: window.localStorage // default window.sessionStorage
   });
+
   const formData = localStorage.getItem("storageKey");
   useEffect(() => {
     if (formData) {
-      setTopicMessageDefaultValue(JSON.parse(formData).topicMessage);
+      const parsed = JSON.parse(formData);
+
+      if (parsed) {
+        const value = parsed.topicMessage;
+
+        if (typeof value === "string") {
+          setTopicMessageDefaultValue(value);
+          //setValue("topicMessage", value);
+        }
+      }
     }
   }, [formData]);
+
+  // useEffect(() => {
+  //   if (formData) {
+  //     const parsed = JSON.parse(formData);
+
+  //     if (parsed) {
+  //       const value = parsed.topicMessage;
+  //       setValue("topicMessage", value);
+  //       setTopicMessageDefaultValue(value);
+  //       console.log("storage changed!", value);
+  //     }
+  //   } else {
+  //     console.log("nothing stored");
+  //     setValue("topicMessage", "");
+  //     setTopicMessageDefaultValue("");
+  //   }
+  // }, [formData]);
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -88,12 +114,8 @@ export const TopicMessageForm = ({
 
   const onSubmit = async (form: { topicMessage: string }) => {
     console.log("submitted", form);
-    if (!session) return;
 
     setIsLoading(true);
-    setTopicMessageDefaultValue(
-      topicMessageDefaultValue === undefined ? "" : undefined
-    );
 
     const payload = {
       org,
@@ -104,7 +126,7 @@ export const TopicMessageForm = ({
           {
             message: form.topicMessage,
             messageHtml: form.topicMessage,
-            createdBy: session.user.userId
+            createdBy: session!.user.userId
           }
         ]
       }
@@ -122,6 +144,7 @@ export const TopicMessageForm = ({
 
       setIsLoading(false);
       clearErrors("topicMessage");
+      setValue("topicMessage", "");
       props.onSubmit && props.onSubmit(form.topicMessage);
     } catch (error) {
       setIsLoading(false);
@@ -149,7 +172,7 @@ export const TopicMessageForm = ({
         )}
       />
 
-      {!isDisabled && (
+      {!isDisabled && session && (
         <FormControl
           isDisabled={isDisabled}
           isRequired
@@ -160,18 +183,14 @@ export const TopicMessageForm = ({
           <Controller
             name="topicMessage"
             control={control}
-            defaultValue={topicMessageDefaultValue || ""}
+            defaultValue={topicMessageDefaultValue}
             rules={{ required: "Veuillez saisir un message" }}
             render={(renderProps) => {
               return (
                 <RTEditor
-                  readOnly={session === null}
                   defaultValue={topicMessageDefaultValue}
-                  placeholder={
-                    session
-                      ? "Cliquez ici pour répondre..."
-                      : "Connectez vous pour répondre..."
-                  }
+                  value={renderProps.value}
+                  placeholder={"Cliquez ici pour répondre..."}
                   onChange={({ html }) => {
                     renderProps.onChange(html);
                   }}
@@ -193,7 +212,13 @@ export const TopicMessageForm = ({
           </Button>
         )}
 
-        {session || isDisabled ? (
+        {!session && (
+          <Button variant="outline" onClick={props.onLoginClick} mr={3}>
+            Se connecter pour répondre
+          </Button>
+        )}
+
+        {session && (
           <Button
             colorScheme="green"
             type="submit"
@@ -206,10 +231,6 @@ export const TopicMessageForm = ({
               : props.topicMessage
               ? "Modifier"
               : "Répondre"}
-          </Button>
-        ) : (
-          <Button variant="outline" onClick={props.onLoginClick} mr={3}>
-            Connexion
           </Button>
         )}
       </Flex>

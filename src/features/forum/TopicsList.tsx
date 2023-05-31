@@ -155,7 +155,15 @@ export const TopicsList = ({
   >({});
   //#endregion
 
-  const onClick = (topic: ITopic | null) => setCurrentTopic(topic);
+  const onClick = (topic: ITopic) => {
+    let url = `${router.asPath}/${topic.topicName}`;
+
+    if (router.asPath.includes(topic.topicName)) {
+      url = `/${isE ? entity.eventUrl : entity.orgUrl}/discussions`;
+    }
+
+    router.push(url, url, { shallow: true });
+  };
 
   const onDeleteClick = async (topic: ITopic) => {
     setIsLoading({
@@ -266,7 +274,6 @@ export const TopicsList = ({
           colorScheme="teal"
           leftIcon={<AddIcon />}
           mb={5}
-          isLoading={isSessionLoading}
           onClick={() => {
             if (session) {
               //setCurrentTopic(null);

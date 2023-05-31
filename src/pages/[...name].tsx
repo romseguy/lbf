@@ -4,10 +4,19 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { GetEventParams, useGetEventQuery } from "features/api/eventsApi";
-import { GetOrgParams, useGetOrgQuery } from "features/api/orgsApi";
+import { wrapper } from "store";
+import {
+  eventApi,
+  GetEventParams,
+  useGetEventQuery
+} from "features/api/eventsApi";
+import { GetOrgParams, orgApi, useGetOrgQuery } from "features/api/orgsApi";
 import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
-import { useGetUserQuery, UserQueryParams } from "features/api/usersApi";
+import {
+  useGetUserQuery,
+  userApi,
+  UserQueryParams
+} from "features/api/usersApi";
 import { NotFound } from "features/common";
 import { EventPage } from "features/events/EventPage";
 import { Layout } from "features/layout";
@@ -28,6 +37,18 @@ import { AppQuery, AppQueryWithData } from "utils/types";
 
 let cachedEmail: string | undefined;
 let cachedRefetchSubscription = false;
+const initialEventQueryParams = (entityUrl: string) => ({
+  eventUrl: entityUrl,
+  populate: "eventOrgs"
+});
+const initialOrgQueryParams = (entityUrl: string) => ({
+  orgUrl: entityUrl,
+  populate:
+    "orgBanner orgEvents orgLogo orgLists orgProjects orgSubscriptions orgTopics orgs"
+});
+const initialUserQueryParams = (entityUrl: string) => ({
+  slug: entityUrl
+});
 
 const Hash = ({ ...props }: PageProps) => {
   const { data: session } = useSession();
@@ -52,18 +73,15 @@ const Hash = ({ ...props }: PageProps) => {
   //#endregion
 
   //#region queries parameters
-  const [eventQueryParams, setEventQueryParams] = useState<GetEventParams>({
-    eventUrl: entityUrl,
-    populate: "eventOrgs"
-  });
-  const [orgQueryParams, setOrgQueryParams] = useState<GetOrgParams>({
-    orgUrl: entityUrl,
-    populate:
-      "orgBanner orgEvents orgLogo orgLists orgProjects orgSubscriptions orgTopics orgs"
-  });
-  const [userQueryParams, setUserQueryParams] = useState<UserQueryParams>({
-    slug: entityUrl
-  });
+  const [eventQueryParams, setEventQueryParams] = useState<GetEventParams>(
+    initialEventQueryParams(entityUrl)
+  );
+  const [orgQueryParams, setOrgQueryParams] = useState<GetOrgParams>(
+    initialOrgQueryParams(entityUrl)
+  );
+  const [userQueryParams, setUserQueryParams] = useState<UserQueryParams>(
+    initialUserQueryParams(entityUrl)
+  );
   //#endregion
 
   //#region queries
@@ -191,28 +209,56 @@ const Hash = ({ ...props }: PageProps) => {
   return <NotFound {...props} />;
 };
 
-export async function getServerSideProps(
-  ctx: GetServerSidePropsContext
-): Promise<{
-  props?: {};
-  redirect?: { permanent: boolean; destination: string };
-}> {
-  if (Array.isArray(ctx.query.name) && typeof ctx.query.name[0] === "string") {
-    let entityUrl = ctx.query.name[0];
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async (ctx) => {
+    if (
+      Array.isArray(ctx.query.name) &&
+      typeof ctx.query.name[0] === "string"
+    ) {
+      const entityUrl = ctx.query.name[0];
+      if (entityUrl === "api") return { props: {} };
 
-    const normalizedEntityUrl = normalize(entityUrl);
-    //console.log(entityUrl, normalizedEntityUrl);
+      const normalizedEntityUrl = normalize(entityUrl);
+      //console.log(entityUrl, normalizedEntityUrl);
 
-    if (entityUrl !== normalizedEntityUrl)
-      return {
-        redirect: {
-          permanent: false,
-          destination: normalizedEntityUrl
+      if (entityUrl !== normalizedEntityUrl)
+        return {
+          redirect: {
+            permanent: false,
+            destination: normalizedEntityUrl
+          }
+        };
+
+      const orgQueryPromise = store.dispatch(
+        orgApi.endpoints.getOrg.initiate(initialOrgQueryParams(entityUrl))
+      );
+      await Promise.all(store.dispatch(orgApi.util.getRunningQueriesThunk()));
+      if (!(await orgQueryPromise).data?._id) {
+        const eventQueryPromise = store.dispatch(
+          eventApi.endpoints.getEvent.initiate(
+            initialEventQueryParams(entityUrl)
+          )
+        );
+        await Promise.all(
+          store.dispatch(eventApi.util.getRunningQueriesThunk())
+        );
+        if (!(await eventQueryPromise).data?._id) {
+          store.dispatch(
+            userApi.endpoints.getUser.initiate(
+              initialUserQueryParams(entityUrl)
+            )
+          );
+          await Promise.all(
+            store.dispatch(userApi.util.getRunningQueriesThunk())
+          );
         }
-      };
-  }
+      }
+    }
 
-  return { props: {} };
-}
+    return { props: {} };
+  }
+);
+
+// export async function getServerSideProps( ctx: GetServerSidePropsContext): Promise<{ props?: {}; redirect?: { permanent: boolean; destination: string }; }> {}
 
 export default Hash;

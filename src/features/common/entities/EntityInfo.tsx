@@ -159,12 +159,30 @@ export const EntityInfo = ({
               : url;
             uri = uri.replace(/\/$/, "");
             let shortUrl = uri;
-            let canCollapse = uri.length > 16 && isMobile;
-            if (canCollapse && isCollapsed) shortUrl = uri.substr(0, 16) + "...";
+            const collapseLength = isMobile ? 16 : 64;
+            let canCollapse = uri.length > collapseLength;
+            if (canCollapse && isCollapsed)
+              shortUrl = uri.substr(0, collapseLength) + "...";
 
             return (
               <Flex key={`web-${index}`} alignItems="center">
-                <Icon as={icon} mr={3} />
+                {!isCollapsed ? (
+                  <Tooltip
+                    label="Réduire l'adresse du site internet"
+                    placement="top"
+                  >
+                    <ViewOffIcon
+                      cursor="pointer"
+                      mr={3}
+                      onClick={() =>
+                        setWebCollapsed({ ...webCollapsed, [index]: true })
+                      }
+                    />
+                  </Tooltip>
+                ) : (
+                  <Icon as={icon} mr={3} />
+                )}
+
                 <Link
                   target="_blank"
                   variant="underline"
@@ -173,29 +191,19 @@ export const EntityInfo = ({
                   {shortUrl}
                 </Link>
 
-                {canCollapse ? (
-                  isCollapsed ? (
-                    <Tooltip
-                      label="Voir en entier l'adresse du site internet"
-                      placement="top"
-                    >
-                      <ViewIcon
-                        cursor="pointer"
-                        ml={2}
-                        onClick={() =>
-                          setWebCollapsed({ ...webCollapsed, [index]: false })
-                        }
-                      />
-                    </Tooltip>
-                  ) : (
-                    <ViewOffIcon
+                {canCollapse && isCollapsed ? (
+                  <Tooltip
+                    label="Voir en entier l'adresse du site internet"
+                    placement="top"
+                  >
+                    <ViewIcon
                       cursor="pointer"
                       ml={2}
                       onClick={() =>
-                        setWebCollapsed({ ...webCollapsed, [index]: true })
+                        setWebCollapsed({ ...webCollapsed, [index]: false })
                       }
                     />
-                  )
+                  </Tooltip>
                 ) : null}
               </Flex>
             );

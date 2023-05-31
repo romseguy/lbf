@@ -18,10 +18,7 @@ export const Main = ({
     <>
       {router.pathname !== "/callback" && <GlobalConfig {...props} />}
       <GlobalStyles />
-      <Component
-        {...props}
-        //isMobile
-      />
+      <Component {...props} />
     </>
   );
 };

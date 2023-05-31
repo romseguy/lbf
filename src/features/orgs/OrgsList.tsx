@@ -62,7 +62,7 @@ export const OrgsList = ({
   }[];
   isMobile?: boolean;
   query: AppQuery<IOrg | IOrg[]>;
-  subQuery: AppQuery<ISubscription>;
+  subQuery?: AppQuery<ISubscription>;
   orgType?: EOrgType;
 }) => {
   const { colorMode } = useColorMode();
@@ -189,18 +189,19 @@ export const OrgsList = ({
                     </Td>
                   )}
 
-                  {keys.find(({ key }) => key === "subscription") && (
-                    <Td p={isMobile ? 0 : undefined}>
-                      <SubscribePopover
-                        org={org}
-                        query={query}
-                        subQuery={subQuery}
-                        isIconOnly
-                        my={isMobile ? 2 : 0}
-                        mr={isMobile ? 2 : 0}
-                      />
-                    </Td>
-                  )}
+                  {keys.find(({ key }) => key === "subscription") &&
+                    subQuery && (
+                      <Td p={isMobile ? 0 : undefined}>
+                        <SubscribePopover
+                          org={org}
+                          query={query}
+                          subQuery={subQuery}
+                          isIconOnly
+                          my={isMobile ? 2 : 0}
+                          mr={isMobile ? 2 : 0}
+                        />
+                      </Td>
+                    )}
 
                   {keys.find(({ key }) => key === "orgName") && (
                     <Td>

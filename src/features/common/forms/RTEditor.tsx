@@ -102,6 +102,7 @@ export const RTEditor = ({
     max_height: 500,
     menubar: false,
     mobile: {
+      toolbar_location: "bottom",
       toolbar_mode: "floating"
     },
     // plugins: [

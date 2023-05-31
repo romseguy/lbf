@@ -297,7 +297,7 @@ export const OrgPageHomeTabPanel = ({
           <TabContainerContent p={3}>
             <List>
               {orgNetworks.map((orgNetwork, i) => (
-                <ListItem mt={i !== 0 ? 3 : 0}>
+                <ListItem key={`org-network-${i}`} mt={i !== 0 ? 3 : 0}>
                   <EntityButton org={orgNetwork} />
                 </ListItem>
               ))}
