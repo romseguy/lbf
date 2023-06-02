@@ -19,7 +19,7 @@ export const ProjectAttendingForm = ({
   project: IProject;
   query: AppQueryWithData<IOrg | IUser>;
 }) => {
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
 

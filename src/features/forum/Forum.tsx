@@ -17,7 +17,7 @@ export const Forum = ({
   subQuery: AppQuery<ISubscription>;
   tabItem?: string;
 }) => {
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
 
   //#region org
   const org = orgQuery.data;

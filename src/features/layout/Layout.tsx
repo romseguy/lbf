@@ -9,7 +9,6 @@ import {
 } from "@chakra-ui/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import NextNprogress from "nextjs-progressbar";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
@@ -147,14 +146,6 @@ export const Layout = ({
           }
         `}
       >
-        <NextNprogress
-          color="#29D"
-          startPosition={0.3}
-          stopDelayMs={200}
-          height={3}
-          showOnShallow={true}
-        />
-
         <Box position="fixed" right={4} bottom={1}>
           <Tooltip
             placement="top-start"

@@ -24,8 +24,10 @@ const CallbackPage = (props: PageProps) => {
             }
           });
           window.location.href = "/";
-        } else {
-          const didToken = await magic.auth.loginWithCredential();
+        } else if (typeof router.query.magic_credential === "string") {
+          const didToken = await magic.auth.loginWithCredential(
+            router.query.magic_credential
+          );
           const response = await fetch("/api/login", {
             headers: {
               "Content-Type": "application/json",

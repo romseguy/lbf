@@ -11,11 +11,12 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ErrorMessageText, RTEditor } from "features/common";
-import { useAddTopicMutation } from "features/api/topicsApi";
-import { useSession } from "hooks/useSession";
-import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import useFormPersist from "react-hook-form-persist";
+import { useRouter } from "next/router";
+import { useAddTopicMutation } from "features/api/topicsApi";
+import { ErrorMessageText, RTEditor } from "features/common";
+import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import { useSession } from "hooks/useSession";
 import { isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -30,7 +31,6 @@ interface TopicMessageFormProps extends ChakraProps {
   query: AppQueryWithData<IEvent | IOrg>;
   topic: ITopic;
   topicMessage?: ITopicMessage;
-  onLoginClick: () => void;
   onCancel?: () => void;
   onSubmit?: (topicMessageName: string) => void;
 }
@@ -40,6 +40,7 @@ export const TopicMessageForm = ({
   query,
   ...props
 }: TopicMessageFormProps) => {
+  const router = useRouter();
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const event = isEvent(query.data) ? query.data : undefined;
@@ -213,7 +214,13 @@ export const TopicMessageForm = ({
         )}
 
         {!session && (
-          <Button variant="outline" onClick={props.onLoginClick} mr={3}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              router.push("/login", "/login", { shallow: true });
+            }}
+            mr={3}
+          >
             Se connecter pour répondre
           </Button>
         )}

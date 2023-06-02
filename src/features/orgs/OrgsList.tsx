@@ -17,7 +17,7 @@ import {
 import React, { useMemo, useState } from "react";
 import { FaGlobeEurope, FaMapMarkedAlt, FaTree } from "react-icons/fa";
 import { css } from "twin.macro";
-import { EntityButton, Link } from "features/common";
+import { EntityButton } from "features/common";
 import { scrollbarCss, tableCss } from "features/layout/theme";
 import { MapModal } from "features/modals/MapModal";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
@@ -205,7 +205,7 @@ export const OrgsList = ({
 
                   {keys.find(({ key }) => key === "orgName") && (
                     <Td>
-                      {org.orgType === EOrgType.TREETOOLS
+                      {/* {org.orgType === EOrgType.TREETOOLS
                         ? OrgTypes[org.orgType] + " : "
                         : ""}
                       <Tooltip
@@ -222,7 +222,8 @@ export const OrgsList = ({
                             {org.orgName}
                           </Link>
                         </span>
-                      </Tooltip>
+                      </Tooltip> */}
+                      <EntityButton org={org} />
 
                       {org.orgCity && (
                         <Tooltip label="Afficher sur la carte" placement="top">

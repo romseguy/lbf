@@ -56,7 +56,7 @@ export const TopicsList = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
 
   //#region local state
@@ -275,12 +275,12 @@ export const TopicsList = ({
           leftIcon={<AddIcon />}
           mb={5}
           onClick={() => {
-            if (session) {
-              //setCurrentTopic(null);
-              setTopicModalState({ ...topicModalState, isOpen: true });
-            } else {
+            if (!session) {
               router.push("/login", "/login", { shallow: true });
+              return;
             }
+
+            setTopicModalState({ ...topicModalState, isOpen: true });
           }}
           data-cy="topic-add-button"
         >
@@ -467,9 +467,6 @@ export const TopicsList = ({
                 onEditClick={onEditClick}
                 onNotifClick={onNotifClick}
                 onSubscribeClick={onSubscribeClick}
-                onLoginClick={() => {
-                  router.push("/login", "/login", { shallow: true });
-                }}
               />
             );
           })

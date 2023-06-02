@@ -16,8 +16,10 @@ export const Main = ({
 
   return (
     <>
-      {router.pathname !== "/callback" && <GlobalConfig {...props} />}
       <GlobalStyles />
+
+      {!router.pathname.includes("/callback") && <GlobalConfig {...props} />}
+
       <Component {...props} />
     </>
   );

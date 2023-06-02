@@ -76,7 +76,7 @@ export const ProjectsList = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const query = (orgQuery || userQuery) as AppQueryWithData<IOrg | IUser>;
 
@@ -187,25 +187,22 @@ export const ProjectsList = ({
           leftIcon={<AddIcon />}
           mb={5}
           onClick={() => {
-            if (!isSessionLoading) {
-              if (session) {
-                if (org) {
-                  if (!isCreator) {
-                    toast({
-                      status: "error",
-                      title: `Vous n'avez pas la permission ${orgTypeFull(
-                        org.orgType
-                      )} pour ajouter un projet`
-                    });
-                    return;
-                  }
-                }
-
-                setProjectModalState({ ...projectModalState, isOpen: true });
-              } else {
-                router.push("/login", "/login", { shallow: true });
-              }
+            if (!session) {
+              router.push("/login", "/login", { shallow: true });
+              return;
             }
+
+            // if (org && !isCreator) {
+            //   toast({
+            //     status: "error",
+            //     title: `Vous n'avez pas la permission ${orgTypeFull(
+            //       org.orgType
+            //     )} pour ajouter un projet`
+            //   });
+            //   return;
+            // }
+
+            setProjectModalState({ ...projectModalState, isOpen: true });
           }}
         >
           Ajouter un projet

@@ -38,7 +38,7 @@ export const UserPage = ({
   userQuery: AppQueryWithData<IUser>;
 }) => {
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const email = useSelector(selectUserEmail) || session?.user.email;
 

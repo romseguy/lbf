@@ -62,11 +62,11 @@ export const subscriptionApi = createApi({
       { email?: string; populate?: string }
     >({
       query: ({ email, populate }) => {
-        if (!email) return "";
-
         console.groupCollapsed("getSubscription");
-        console.log("email", email);
+        console.log("email", typeof email, email);
         console.groupEnd();
+
+        if (!email) return "";
 
         return {
           url: `subscription/${email}${populate ? `?populate=${populate}` : ""}`

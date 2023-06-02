@@ -60,7 +60,7 @@ export const EventPage = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
   useEffect(() => {
     if ((router.asPath.match(/\//g) || []).length > 1) {
       isFirstLoad = false;

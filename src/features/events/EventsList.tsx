@@ -57,7 +57,7 @@ export const EventsList = ({
   setTitle?: (title?: string) => void;
 }) => {
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";

@@ -32,7 +32,7 @@ export const EventAttendingForm = ({
 }) => {
   const event = eventQuery.data;
   const dispatch = useAppDispatch();
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const email = useSelector(selectUserEmail) || session?.user.email;
 

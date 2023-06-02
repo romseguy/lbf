@@ -109,7 +109,7 @@ export const HeaderTitle = ({
         />
       )}
 
-      <Link href={router.asPath} variant="no-underline">
+      <Link href={`/${url}`} variant="no-underline">
         {pageHeader ? (
           pageHeader
         ) : (

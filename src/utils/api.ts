@@ -37,7 +37,7 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
       options
     );
 
-    console.log(prefix + " STATUS : " + response.status);
+    console.log(prefix + ": " + response.status);
 
     if (response.status === 200) {
       const data = await response.json();

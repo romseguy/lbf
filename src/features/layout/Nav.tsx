@@ -169,8 +169,8 @@ export const Nav = ({ isMobile, ...props }: FlexProps & Partial<PageProps>) => {
                               }
                               bg="transparent"
                               _hover={{ bg: "transparent", color: "#00B5D8" }}
-                              onClick={async () => {
-                                await router.push("/login", "/login", {
+                              onClick={() => {
+                                router.push("/login", "/login", {
                                   shallow: true
                                 });
                               }}
@@ -293,8 +293,8 @@ export const Nav = ({ isMobile, ...props }: FlexProps & Partial<PageProps>) => {
                             bg="transparent"
                             _hover={{ bg: "transparent", color: "#00B5D8" }}
                             mx={3}
-                            onClick={async () => {
-                              await router.push("/login", "/login", {
+                            onClick={() => {
+                              router.push("/login", "/login", {
                                 shallow: true
                               });
                             }}

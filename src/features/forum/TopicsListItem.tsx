@@ -55,7 +55,6 @@ interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
   onEditClick: (topic: ITopic) => void;
   onNotifClick: (topic: ITopic) => void;
   onSubscribeClick: (topic: ITopic, isSubbedToTopic: boolean) => void;
-  onLoginClick: () => void;
 }
 
 export const TopicsListItem = ({
@@ -77,7 +76,6 @@ export const TopicsListItem = ({
   onEditClick,
   onNotifClick,
   onSubscribeClick,
-  onLoginClick,
   ...props
 }: TopicsListItemProps) => {
   const entity = query.data;
@@ -407,7 +405,6 @@ export const TopicsListItem = ({
               topic={topic}
               //formats={formats.filter((f) => f !== "size")}
               isDisabled={topic.topicMessagesDisabled}
-              onLoginClick={onLoginClick}
               onSubmit={() => {
                 query.refetch();
               }}

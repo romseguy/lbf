@@ -31,7 +31,8 @@ handler.get<
       orgVisibility: EOrgVisibility.PUBLIC
     };
 
-    if (createdBy) {
+    if (typeof createdBy === "string") {
+      console.log("🚀 ~ file: orgs.ts:35 ~ getOrgs ~ createdBy:", createdBy);
       if (session?.user.isAdmin || session?.user.userId === createdBy)
         selector = { createdBy };
       else selector.createdBy = createdBy;
@@ -40,8 +41,6 @@ handler.get<
     if (orgType) selector.orgType = orgType;
 
     let orgs = await models.Org.find(selector);
-    //console.log("selector", selector, orgs);
-    //console.log("populate", populate);
 
     if (populate)
       orgs = await Promise.all(

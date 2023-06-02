@@ -71,7 +71,7 @@ export const DocumentsList = ({
   isFollowed?: boolean;
   isMobile: boolean;
 }) => {
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -79,7 +79,6 @@ export const DocumentsList = ({
   const [diskUsage, refreshDiskUsage] = useDiskUsage();
   const [isAdd, setIsAdd] = useState(false);
   const [isMasonryLoading, setIsMasonryLoading] = useState(false);
-  console.log(isMasonryLoading);
 
   //#region images state
   const query = useGetDocumentsQuery(
@@ -180,20 +179,22 @@ export const DocumentsList = ({
             leftIcon={<AddIcon />}
             rightIcon={isAdd ? <ChevronUpIcon /> : <ChevronRightIcon />}
             onClick={() => {
-              if (!isSessionLoading) {
-                if (session) {
-                  if (org && !props.isCreator)
-                    toast({
-                      status: "error",
-                      title: `Vous n'avez pas la permission ${orgTypeFull(
-                        org.orgType
-                      )} pour ajouter un fichier`
-                    });
-                  else setIsAdd(!isAdd);
-                } else {
-                  router.push("/login", "/login", { shallow: true });
-                }
+              if (!session) {
+                router.push("/login", "/login", { shallow: true });
+                return;
               }
+
+              // if (org && !props.isCreator) {
+              //   toast({
+              //     status: "error",
+              //     title: `Vous n'avez pas la permission ${orgTypeFull(
+              //       org.orgType
+              //     )} pour ajouter un fichier`
+              //   });
+              //   return;
+              // }
+
+              setIsAdd(!isAdd);
             }}
           >
             Ajouter un fichier

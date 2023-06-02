@@ -9,6 +9,7 @@ export interface AppQuery<T> {
   data?: T;
   isFetching: boolean;
   isLoading: boolean;
+  isSuccess: boolean;
   refetch: () => void;
   error?: {
     status: number;

@@ -161,14 +161,16 @@ export const OrgPageHomeTabPanel = ({
                             keys={
                               isMobile
                                 ? (orgType) => [
-                                    { key: "subscription", label: "" },
+                                    //{ key: "subscription", label: "" },
+                                    //{ key: "icon", label: "" },
                                     {
                                       key: "orgName",
                                       label: `Nom de ${orgTypeFull(orgType)}`
                                     }
                                   ]
                                 : (orgType) => [
-                                    { key: "subscription", label: "" },
+                                    //{ key: "subscription", label: "" },
+                                    //{ key: "icon", label: "" },
                                     {
                                       key: "orgName",
                                       label: `Nom de ${orgTypeFull(orgType)}`

@@ -174,7 +174,6 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
                       await api.get("logout");
                       dispatch(setSession(null));
                       dispatch(setIsSessionLoading(false));
-                      //router.push("/login", "/login", { shallow: true });
                     }}
                   >
                     Déconnexion

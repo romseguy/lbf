@@ -21,7 +21,7 @@ export async function getSession(params: {
     | NextApiRequest
     | (IncomingMessage & { cookies: /*NextApiRequestCookies*/ any });
 }): Promise<Session | null> {
-  //if (process.env.NODE_ENV === "development") return devSession;
+  if (devSession && process.env.NODE_ENV === "development") return devSession;
   const cookies = params.req.cookies;
   const authToken = getAuthToken(cookies);
   if (!authToken) return null;
@@ -32,18 +32,18 @@ export async function getSession(params: {
 
 export const devSession =
   // admin
-  {
-    user: {
-      email: "rom.seguy@lilo.org",
-      userId: "60e340cb56ef290008d2e75d",
-      userName: "romain"
-    }
-  };
-// {
-//   user: {
-//     email: "rom.seguy@gmail.com",
-//     userId: "61138a879544b000088318ae",
-//     userName: "romseguy66"
-//   }
-// };
-// null;
+  // {
+  //   user: {
+  //     email: "rom.seguy@lilo.org",
+  //     userId: "60e340cb56ef290008d2e75d",
+  //     userName: "romain"
+  //   }
+  // };
+  // {
+  //   user: {
+  //     email: "rom.seguy@gmail.com",
+  //     userId: "61138a879544b000088318ae",
+  //     userName: "romseguy66"
+  //   }
+  // };
+  null;

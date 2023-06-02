@@ -127,7 +127,7 @@ export const OrgPageTabs = ({
       )
         setCurrentTabIndex(tabIndex);
     });
-  }, []);
+  }, [router.asPath]);
   //#endregion
 
   return (

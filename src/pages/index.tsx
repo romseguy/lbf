@@ -43,7 +43,7 @@ const IndexPage = (props: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
+  const { data: session } = useSession();
 
   //#region local state
   const orgsQuery = useGetOrgsQuery(orgsQueryParams) as AppQuery<IOrg[]>;
@@ -102,7 +102,7 @@ const IndexPage = (props: PageProps) => {
 
         {!isCollapsed && (
           <>
-            {!session && !isSessionLoading && (
+            {!session && (
               <Flex ref={ref}>
                 <LoginButton
                   mb={3}
@@ -131,7 +131,10 @@ const IndexPage = (props: PageProps) => {
                     onMouseLeave={
                       props.isMobile ? undefined : () => setIsTooltipOpen(false)
                     }
-                    onClick={() => setIsTooltipOpen(!isTooltipOpen)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsTooltipOpen(!isTooltipOpen);
+                    }}
                   />
                 </Tooltip>
               </Flex>
@@ -200,14 +203,12 @@ const IndexPage = (props: PageProps) => {
                   keys={
                     props.isMobile
                       ? (orgType) => [
-                          { key: "icon", label: "" },
                           {
                             key: "orgName",
                             label: `Nom de ${orgTypeFull(orgType)}`
                           }
                         ]
                       : (orgType) => [
-                          { key: "icon", label: "" },
                           {
                             key: "orgName",
                             label: `Nom de ${orgTypeFull(orgType)}`

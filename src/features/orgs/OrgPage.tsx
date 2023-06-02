@@ -23,7 +23,7 @@ export interface IsEditConfig {
   isAddingInfo?: boolean;
 }
 
-let isFirstLoad = true;
+//let isFirstLoad = true;
 
 export const OrgPage = ({
   isMobile,
@@ -37,16 +37,16 @@ export const OrgPage = ({
   tab?: string;
   tabItem?: string;
 }) => {
-  const router = useRouter();
-  const { data: session, loading: isSessionLoading } = useSession();
-  useEffect(() => {
-    if ((router.asPath.match(/\//g) || []).length > 1) {
-      isFirstLoad = false;
-      return;
-    }
-    if (!isFirstLoad) orgQuery.refetch();
-    isFirstLoad = false;
-  }, [router.asPath]);
+  //const router = useRouter();
+  const { data: session } = useSession();
+  // useEffect(() => {
+  //   if ((router.asPath.match(/\//g) || []).length > 1) {
+  //     isFirstLoad = false;
+  //     return;
+  //   }
+  //   if (!isFirstLoad) orgQuery.refetch();
+  //   isFirstLoad = false;
+  // }, [router.asPath]);
 
   //#region org
   const org = orgQuery.data;
@@ -151,9 +151,7 @@ export const OrgPage = ({
   };
 
   const subscribeButtons = () => {
-    if (orgQuery.isLoading || isConfig || isEdit) return null;
-
-    if (subQuery.isLoading) return <Spinner />;
+    if (isConfig || isEdit) return null;
 
     return (
       <Flex flexWrap="wrap" mt={-3}>
