@@ -46,6 +46,22 @@ export function transformRTEditorOutput(
   return doc;
 }
 
+export function getExtension(path: string) {
+  // extract file name from full path ...
+  // (supports `\\` and `/` separators)
+  const basename = path.split(/[\\/]/).pop();
+
+  if (!basename) return "";
+
+  // get last position of `.`
+  const pos = basename.lastIndexOf(".");
+
+  if (pos < 1) return "";
+
+  // extract extension ignoring `.`
+  return basename.slice(pos + 1).toLowerCase();
+}
+
 export function isImage(fileName: string) {
   const str = fileName.toLowerCase();
   return (

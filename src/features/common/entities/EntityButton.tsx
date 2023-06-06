@@ -37,7 +37,7 @@ export const EntityButton = ({
     org?: Partial<IOrg>;
     topic?: ITopic;
     user?: Partial<IUser>;
-    onClick?: null;
+    onClick?: null | (() => void);
     tooltipProps?: Partial<TooltipProps>;
   }) => {
   if (!org && !event && !user && !topic) return null;
@@ -114,10 +114,12 @@ export const EntityButton = ({
           m={0}
           p={1}
           pr={2}
-          // override
           textAlign="left"
           whiteSpace="normal"
-          onClick={() => router.push(entityUrl!, entityUrl, { shallow: true })}
+          onClick={() => {
+            if (onClick) onClick();
+            else router.push(entityUrl!, entityUrl, { shallow: true });
+          }}
           {...props}
         >
           {topic

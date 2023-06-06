@@ -15,7 +15,7 @@ export function useDiskUsage(): [DiskUsage, () => void] {
       const {
         data: { current, max }
       }: { data: { current: number; max: number } } = await axios.get(
-        process.env.NEXT_PUBLIC_API2 + "/size"
+        process.env.NEXT_PUBLIC_API + "/size"
       );
       setDiskUsage({
         current,

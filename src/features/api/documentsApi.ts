@@ -14,7 +14,7 @@ export const documentApi = api.injectEndpoints({
         console.groupEnd();
 
         return {
-          url: `${process.env.NEXT_PUBLIC_API2}?${objectToQueryString(query)}`
+          url: `documents?${objectToQueryString(query)}`
         };
       }
     })

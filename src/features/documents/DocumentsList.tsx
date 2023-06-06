@@ -46,7 +46,6 @@ import * as stringUtils from "utils/string";
 import { useDiskUsage } from "hooks/useDiskUsage";
 import { pxBreakpoints } from "features/layout/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
-import { getMeta } from "utils/image";
 import { DocumentForm } from "features/forms/DocumentForm";
 import { divideArray, hasItems } from "utils/array";
 
@@ -92,10 +91,17 @@ export const DocumentsList = ({
 
       for (const fileName of data) {
         if (stringUtils.isImage(fileName)) {
-          const url = `${process.env.NEXT_PUBLIC_API2}/view?${
+          const url = `${process.env.NEXT_PUBLIC_API}/documents/view?${
             org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
           }&fileName=${fileName}`;
-          const { height, width } = await getMeta(url);
+
+          const {
+            data: { height, width }
+          } = await api.get(
+            `documents/dimensions?${
+              org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
+            }&fileName=${fileName}`
+          );
           newImages.push({ url, height, width });
         }
       }
@@ -249,12 +255,12 @@ export const DocumentsList = ({
                   //   org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
                   // }&fileName=${fileName}`;
 
-                  const url = `${process.env.NEXT_PUBLIC_API2}/view?${
+                  const url = `${process.env.NEXT_PUBLIC_API}/documents/view?${
                     org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
                   }&fileName=${fileName}`;
                   const downloadUrl = `${
-                    process.env.NEXT_PUBLIC_API2
-                  }/download?${
+                    process.env.NEXT_PUBLIC_API
+                  }/documents/download?${
                     org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
                   }&fileName=${fileName}`;
 

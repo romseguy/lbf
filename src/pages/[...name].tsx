@@ -9,10 +9,7 @@ import {
   useGetEventQuery
 } from "features/api/eventsApi";
 import { GetOrgParams, orgApi, useGetOrgQuery } from "features/api/orgsApi";
-import {
-  subscriptionApi,
-  useGetSubscriptionQuery
-} from "features/api/subscriptionsApi";
+import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import {
   useGetUserQuery,
   userApi,
@@ -23,7 +20,6 @@ import { EventPage } from "features/events/EventPage";
 import { OrgPage } from "features/orgs/OrgPage";
 import { OrgPageLogin } from "features/orgs/OrgPageLogin";
 import { UserPage } from "features/users/UserPage";
-import { useRouterLoading } from "hooks/useRouterLoading";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEvent } from "models/Event";
@@ -50,13 +46,16 @@ const subQueryParams = (email: string) => ({
   email
 });
 
-const HashPage = ({ ...props }: PageProps) => {
+interface HashPageProps extends PageProps {
+  entityTab?: string;
+}
+
+const HashPage = ({ ...props }: HashPageProps) => {
+  const router = useRouter();
   const { data: session } = useSession();
   const userEmail = useSelector(selectUserEmail);
 
   //#region routing
-  const router = useRouter();
-  const { isLoading: isRouterLoading } = useRouterLoading();
   let [entityUrl, entityTab = "accueil", entityTabItem] =
     "name" in router.query && Array.isArray(router.query.name)
       ? router.query.name
@@ -174,9 +173,15 @@ export const getServerSideProps = wrapper.getServerSideProps(
       typeof ctx.query.name[0] === "string"
     ) {
       const entityUrl = ctx.query.name[0];
-      if (entityUrl === "api") return { props: {} };
-
       const normalizedEntityUrl = normalize(entityUrl);
+
+      if (normalizedEntityUrl === "api")
+        return {
+          redirect: {
+            permanent: false,
+            destination: "/"
+          }
+        };
 
       if (entityUrl !== normalizedEntityUrl)
         return {
@@ -202,6 +207,12 @@ export const getServerSideProps = wrapper.getServerSideProps(
             )
           );
         }
+      }
+
+      if (typeof ctx.query.name[1] === "string") {
+        return {
+          props: { entityTab: ctx.query.name[1] }
+        };
       }
     }
 

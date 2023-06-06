@@ -16,7 +16,7 @@ import {
   useColorMode
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FaImages, FaTools } from "react-icons/fa";
 import { css } from "twin.macro";
 import { useEditOrgMutation } from "features/api/orgsApi";
@@ -69,10 +69,9 @@ export const OrgPageTabs = ({
   };
   const router = useRouter();
   const [editOrg] = useEditOrgMutation();
-  const org = orgQuery.data;
 
   //#region tabs
-  const [currentTabIndex, setCurrentTabIndex] = useState(0);
+  const org = orgQuery.data;
   const tabs: IOrgTabWithIcon[] = useMemo(() => {
     return [...(org.orgTabs || defaultTabs)]
       .filter((tab) => (tab.label === "" && !session ? false : true))
@@ -99,35 +98,42 @@ export const OrgPageTabs = ({
         return tab;
       });
   }, [org.orgTabs]);
-  const [tabsState, setTabsState] = useState<
-    (IOrgTabWithIcon & { checked: boolean })[]
-  >(tabs.map((t) => ({ ...t, checked: true })));
-  useEffect(() => {
-    setTabsState(
-      tabs.map((t) => ({
-        ...t,
-        checked: true
-      }))
-    );
-  }, [org]);
   //#endregion
 
-  //#region events tab
+  //#region current tab index
+  const getCurrentTabIndex = useCallback(
+    (tabs: IOrgTabWithIcon[]) => {
+      for (let tabIndex = 0; tabIndex <= tabs.length; tabIndex++) {
+        const tab = tabs[tabIndex];
+
+        if (
+          normalize(tab.label) ===
+          normalize(currentTabLabel === "parametres" ? "" : currentTabLabel)
+        )
+          return tabIndex;
+      }
+      return 0;
+    },
+    [currentTabLabel]
+  );
+  const [currentTabIndex, setCurrentTabIndex] = useState(
+    getCurrentTabIndex(tabs)
+  );
+  useEffect(() => {
+    setCurrentTabIndex(getCurrentTabIndex(tabs));
+  }, [router.asPath]);
+  //#endregion
+
+  //#region events TabPanel
   const [title = "Événements des 7 prochains jours", setTitle] = useState<
     string | undefined
   >();
   //#endregion
 
-  //#region componentDidMount
-  useEffect(() => {
-    tabs.forEach((tab, tabIndex) => {
-      if (
-        normalize(tab.label) ===
-        normalize(currentTabLabel === "parametres" ? "" : currentTabLabel)
-      )
-        setCurrentTabIndex(tabIndex);
-    });
-  }, [router.asPath]);
+  //#region parameters TabPanel
+  const [tabsState, setTabsState] = useState<
+    (IOrgTabWithIcon & { checked: boolean })[]
+  >(tabs.map((t) => ({ ...t, checked: true })));
   //#endregion
 
   return (
@@ -425,4 +431,17 @@ export const OrgPageTabs = ({
       </Box>
     </Alert>
   */
+}
+
+{
+  /*
+  useEffect(() => {
+    setTabsState(
+      tabs.map((t) => ({
+        ...t,
+        checked: true
+      }))
+    );
+  }, [org]);
+ */
 }

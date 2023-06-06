@@ -2,8 +2,8 @@ import axios from "axios";
 import cors from "cors";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { getSession } from "utils/auth";
 import { createServerError } from "utils/errors";
+import { objectToQueryString } from "utils/query";
 
 import https from "https";
 const agent = new https.Agent({
@@ -19,24 +19,18 @@ const client = axios.create({
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>()
   .use(cors())
-  .get<NextApiRequest, NextApiResponse>(async function check(req, res) {
+  .get<NextApiRequest, NextApiResponse>(async function dimensions(req, res) {
     try {
-      await client.get(`check`);
-      res.status(200).json({});
+      let {
+        query: { eventId, orgId, userId, fileName }
+      } = req;
+
+      const url = `dimensions/?${objectToQueryString(req.query)}`;
+
+      const { data } = await client.get(url);
+      res.status(200).json(data);
     } catch (error) {
       res.status(404).json(createServerError(error));
-    }
-  })
-  .post<NextApiRequest, NextApiResponse>(async function checkLoggedIn(
-    req,
-    res
-  ) {
-    try {
-      const session = await getSession({ req });
-      res.status(200).json(session);
-    } catch (error) {
-      console.error("POST /check error: ", error);
-      res.status(401).json(createServerError(error));
     }
   });
 

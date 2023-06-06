@@ -2,8 +2,8 @@ import axios from "axios";
 import cors from "cors";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { getSession } from "utils/auth";
 import { createServerError } from "utils/errors";
+import { objectToQueryString } from "utils/query";
 
 import https from "https";
 const agent = new https.Agent({
@@ -19,24 +19,22 @@ const client = axios.create({
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>()
   .use(cors())
-  .get<NextApiRequest, NextApiResponse>(async function check(req, res) {
+  .get<NextApiRequest, NextApiResponse>(async function view(req, res) {
     try {
-      await client.get(`check`);
-      res.status(200).json({});
+      let {
+        query: { orgId, userId, fileName }
+      } = req;
+
+      const url = `view?${objectToQueryString(req.query)}`;
+      const buffer = await client.get(url, {
+        responseType: "arraybuffer"
+      });
+      res.status(200).write(buffer.data);
+      // const buffer = Buffer.from(arrayBuffer.data, "binary").toString("base64");
+      // const image = `data:${arrayBuffer.headers["content-type"]};base64,${buffer}`;
+      // res.status(200).send(image);
     } catch (error) {
       res.status(404).json(createServerError(error));
-    }
-  })
-  .post<NextApiRequest, NextApiResponse>(async function checkLoggedIn(
-    req,
-    res
-  ) {
-    try {
-      const session = await getSession({ req });
-      res.status(200).json(session);
-    } catch (error) {
-      console.error("POST /check error: ", error);
-      res.status(401).json(createServerError(error));
     }
   });
 
