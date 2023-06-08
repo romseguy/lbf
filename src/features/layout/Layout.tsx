@@ -146,36 +146,6 @@ export const Layout = ({
           }
         `}
       >
-        <Box position="fixed" right={4} bottom={1}>
-          <Tooltip
-            placement="top-start"
-            label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
-            hasArrow
-          >
-            <Box>
-              <DarkModeSwitch />
-            </Box>
-          </Tooltip>
-        </Box>
-
-        {!isMobile && (
-          <Box position="fixed" left={4} bottom={2}>
-            <Flex alignItems="center">
-              <IconFooter mr={2} />
-
-              {/* <Tooltip
-                hasArrow
-                label="Pour nous remercier d'avoir créé ce logiciel libre ♥"
-                placement="top-end"
-              >
-                <Box mt={1}>
-                  <PaypalButton />
-                </Box>
-              </Tooltip> */}
-            </Flex>
-          </Box>
-        )}
-
         {isOffline && (
           <Box
             position="fixed"
@@ -218,6 +188,7 @@ export const Layout = ({
           {children}
         </Box>
 
+        {/*Footer*/}
         <Column
           bg={isDark ? "gray.700" : "lightblue"}
           border={0}
@@ -235,6 +206,38 @@ export const Layout = ({
             </Link>
           </Flex>
         </Column>
+
+        {/*Right Floating Footer*/}
+        <Box position="fixed" right={4} bottom={1}>
+          <Tooltip
+            placement="top-start"
+            label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
+            hasArrow
+          >
+            <Box>
+              <DarkModeSwitch />
+            </Box>
+          </Tooltip>
+        </Box>
+
+        {/*Left Floating Footer*/}
+        {!isMobile && (
+          <Box position="fixed" left={4} bottom={2}>
+            <Flex alignItems="center">
+              <IconFooter mr={2} />
+
+              {/* <Tooltip
+                hasArrow
+                label="Pour nous remercier d'avoir créé ce logiciel libre ♥"
+                placement="top-end"
+              >
+                <Box mt={1}>
+                  <PaypalButton />
+                </Box>
+              </Tooltip> */}
+            </Flex>
+          </Box>
+        )}
 
         {/* {isMobile && (
           <Footer display="flex" alignItems="center" pl={3} pb={1}>

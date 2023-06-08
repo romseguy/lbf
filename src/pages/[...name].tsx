@@ -1,3 +1,4 @@
+import { Spinner } from "@chakra-ui/react";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -29,6 +30,9 @@ import { IUser } from "models/User";
 import { selectUserEmail } from "store/userSlice";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
+import { isServer } from "utils/isServer";
+import { Layout } from "features/layout";
+import { getRefId } from "models/Entity";
 
 const initialEventQueryParams = (entityUrl: string) => ({
   eventUrl: entityUrl,
@@ -95,6 +99,16 @@ const HashPage = ({ ...props }: HashPageProps) => {
   }) as AppQuery<IUser>;
   //#endregion
 
+  useEffect(() => {
+    if (
+      orgQuery.data &&
+      !orgQuery.data._id &&
+      session?.user.userId === getRefId(orgQuery.data)
+    ) {
+      orgQuery.refetch();
+    }
+  }, []);
+
   //#region queries status codes
   const eventQueryStatus = eventQuery.error?.status || 200;
   const orgQueryStatus = orgQuery.error?.status || 200;
@@ -119,7 +133,7 @@ const HashPage = ({ ...props }: HashPageProps) => {
     return <NotFound {...props} />;
   }
 
-  if (eventQuery.isSuccess) {
+  if (eventQuery.data) {
     return (
       <EventPage
         {...props}
@@ -131,7 +145,18 @@ const HashPage = ({ ...props }: HashPageProps) => {
     );
   }
 
-  if (orgQueryStatus === 403 || (orgQuery.isSuccess && !orgQuery.data?._id)) {
+  if (userQuery.data) {
+    return (
+      <UserPage {...props} userQuery={userQuery as AppQueryWithData<IUser>} />
+    );
+  }
+
+  if (
+    orgQueryStatus === 403 ||
+    (orgQuery.data &&
+      !orgQuery.data._id &&
+      session?.user.userId !== getRefId(orgQuery.data))
+  ) {
     return (
       <OrgPageLogin
         {...props}
@@ -145,25 +170,21 @@ const HashPage = ({ ...props }: HashPageProps) => {
     );
   }
 
-  if (orgQuery.isSuccess && orgQuery.data?._id) {
-    return (
-      <OrgPage
-        {...props}
-        orgQuery={orgQuery as AppQueryWithData<IOrg>}
-        subQuery={subQuery}
-        tab={entityTab}
-        tabItem={entityTabItem}
-      />
-    );
+  if (orgQuery.data) {
+    if (orgQuery.data._id) {
+      return (
+        <OrgPage
+          {...props}
+          orgQuery={orgQuery as AppQueryWithData<IOrg>}
+          subQuery={subQuery}
+          tab={entityTab}
+          tabItem={entityTabItem}
+        />
+      );
+    }
   }
 
-  if (userQuery.isSuccess) {
-    return (
-      <UserPage {...props} userQuery={userQuery as AppQueryWithData<IUser>} />
-    );
-  }
-
-  return null;
+  return <></>;
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(
@@ -194,13 +215,16 @@ export const getServerSideProps = wrapper.getServerSideProps(
       const orgQueryPromise = store.dispatch(
         orgApi.endpoints.getOrg.initiate(initialOrgQueryParams(entityUrl))
       );
-      if (!(await orgQueryPromise).data?._id) {
+      const { data: org } = await orgQueryPromise;
+      if (!org) {
         const eventQueryPromise = store.dispatch(
           eventApi.endpoints.getEvent.initiate(
             initialEventQueryParams(entityUrl)
           )
         );
-        if (!(await eventQueryPromise).data?._id) {
+        const { data: event } = await eventQueryPromise;
+
+        if (!event) {
           store.dispatch(
             userApi.endpoints.getUser.initiate(
               initialUserQueryParams(entityUrl)

@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models, unauthorizedEntityUrls } from "database";
 import { AddOrgPayload, GetOrgsParams } from "features/api/orgsApi";
-import { EOrgType, EOrgVisibility } from "models/Org";
+import { EOrgVisibility } from "models/Org";
 import { getCurrentId } from "store/utils";
 import { getSession } from "utils/auth";
 import { createServerError } from "utils/errors";
@@ -32,7 +32,6 @@ handler.get<
     };
 
     if (typeof createdBy === "string") {
-      console.log("🚀 ~ file: orgs.ts:35 ~ getOrgs ~ createdBy:", createdBy);
       if (session?.user.isAdmin || session?.user.userId === createdBy)
         selector = { createdBy };
       else selector.createdBy = createdBy;

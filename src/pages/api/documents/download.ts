@@ -1,23 +1,10 @@
-import axios from "axios";
 import cors from "cors";
-import fs from "fs";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
+import api from "utils/api";
 import { createServerError } from "utils/errors";
 import { objectToQueryString } from "utils/query";
-
-import https from "https";
 import { getExtension } from "utils/string";
-const agent = new https.Agent({
-  rejectUnauthorized: false,
-  requestCert: false
-});
-const client = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API2,
-  responseType: "json",
-  withCredentials: true,
-  httpsAgent: agent
-});
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>()
   .use(cors())
@@ -29,7 +16,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
         } = req;
 
         const url = `view?${objectToQueryString(req.query)}`;
-        const response = await client.get(url, {
+        const response = await api.client.get(url, {
           responseType: "arraybuffer"
         });
         res.setHeader("Content-Type", `image/${getExtension(fileName)}`);

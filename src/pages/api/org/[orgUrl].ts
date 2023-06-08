@@ -67,12 +67,15 @@ handler.get<
     if (!isCreator) {
       if (org.orgPassword) {
         if (!hash) {
+          org = await org.populate("createdBy", "_id userName").execPopulate();
           return res.status(200).json({
             orgName: org.orgName,
             orgSalt: org.orgSalt,
             orgStyles: org.orgStyles,
             orgType: org.orgType,
-            orgUrl: org.orgUrl
+            orgUrl: org.orgUrl,
+            createdAt: org.createdAt,
+            createdBy: org.createdBy
           });
         }
 
@@ -585,8 +588,8 @@ handler.delete<
       _id: { $in: org.orgTopics }
     });
 
-    await api.remove(`${process.env.NEXT_PUBLIC_API2}/folder`, {
-      orgId: org._id
+    await api.client.delete(`folder`, {
+      data: { orgId: org._id }
     });
 
     res.status(200).json(org);

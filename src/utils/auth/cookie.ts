@@ -3,7 +3,7 @@ import { serialize } from "cookie";
 import { NextApiResponse } from "next";
 
 export const TOKEN_NAME = "api_token";
-const MAX_AGE = 60 * 60 * 8;
+const MAX_AGE = 60 * 60 * 24 * 7;
 
 function createCookie(name: string, data: string, options = {}) {
   return serialize(name, data, {

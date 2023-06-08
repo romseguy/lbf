@@ -1,11 +1,22 @@
 import axios, { AxiosResponse } from "axios";
-import { databaseErrorCodes } from "utils/errors";
+import https from "https";
 import { isServer } from "utils/isServer";
-import { objectToQueryString } from "./query";
-import { Primitive } from "./types";
+import { objectToQueryString } from "../query";
+import { Primitive } from "../types";
 
 type ParamsType = Record<string, any> | Primitive;
 export type ResponseType<T> = { data?: T; error?: any; status?: number };
+
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+  requestCert: false
+});
+const client = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API2,
+  responseType: "json",
+  withCredentials: true,
+  httpsAgent: agent
+});
 
 async function request(endpoint: string, params?: ParamsType, method = "GET") {
   const prefix = `${method} ${
@@ -128,10 +139,10 @@ async function sendPushNotification({
 }
 
 export default {
+  client,
   get,
   post,
   update,
   remove,
-  databaseErrorCodes,
   sendPushNotification
 };
