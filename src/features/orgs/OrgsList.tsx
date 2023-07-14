@@ -223,7 +223,7 @@ export const OrgsList = ({
                           </Link>
                         </span>
                       </Tooltip> */}
-                      <EntityButton org={org} />
+                      <EntityButton org={org} my={isMobile ? 2 : 0} />
 
                       {org.orgCity && (
                         <Tooltip label="Afficher sur la carte" placement="top">
@@ -231,7 +231,6 @@ export const OrgsList = ({
                             aria-label="Afficher sur la carte"
                             icon={<FaMapMarkedAlt />}
                             ml={2}
-                            my={isMobile ? 2 : 0}
                             onClick={() => setOrgToShow(org)}
                           />
                         </Tooltip>

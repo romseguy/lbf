@@ -34,6 +34,7 @@ const App = wrapper.withRedux(
             Component={Component}
             isMobile={pageProps.isMobile || isMobile}
             {...pageProps}
+            //isMobile
           />
         </Chakra>
       </>

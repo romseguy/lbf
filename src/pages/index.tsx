@@ -83,12 +83,82 @@ const IndexPage = (props: PageProps) => {
   //#endregion
 
   return (
-    <Layout {...props} pageTitle="Accueil">
+    <Layout {...props} pageTitle="L'univers">
+      <Column {...columnProps}>
+        <Flex alignItems="center">
+          <Heading mb={3}>L'univers</Heading>
+          {/* <HostTag ml={1} /> */}
+        </Flex>
+
+        {hasItems(orgsQuery.data) ? (
+          <>
+            <Button
+              alignSelf="flex-start"
+              colorScheme="teal"
+              leftIcon={<FaRegMap />}
+              rightIcon={
+                isMapModalOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
+              }
+              onClick={openMapModal}
+              mb={5}
+            >
+              Carte
+            </Button>
+
+            <Button
+              alignSelf="flex-start"
+              colorScheme="teal"
+              leftIcon={<HamburgerIcon />}
+              rightIcon={isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />}
+              mb={isListOpen ? 3 : 0}
+              onClick={() => setIsListOpen(!isListOpen)}
+            >
+              Liste
+            </Button>
+
+            {isListOpen && (
+              <Column bg={isDark ? "gray.700" : "white"}>
+                <OrgsList
+                  keys={
+                    props.isMobile
+                      ? (orgType) => [
+                          {
+                            key: "orgName",
+                            label: `Nom de ${orgTypeFull(orgType)}`
+                          }
+                        ]
+                      : (orgType) => [
+                          {
+                            key: "orgName",
+                            label: `Nom de ${orgTypeFull(orgType)}`
+                          },
+                          { key: "createdBy", label: "Créé par" }
+                        ]
+                  }
+                  isMobile={props.isMobile}
+                  query={orgsQuery}
+                  //subQuery={subQuery}
+                />
+              </Column>
+            )}
+          </>
+        ) : (
+          <Flex>
+            <EntityAddButton
+              label="Ajoutez une planète"
+              orgType={EOrgType.NETWORK}
+              size={props.isMobile ? "xs" : "md"}
+              mb={3}
+            />
+          </Flex>
+        )}
+      </Column>
+
       <Column
         {...columnProps}
         cursor="pointer"
         _hover={{ backgroundColor: isDark ? "gray.500" : "blue.50" }}
-        mb={3}
+        mt={3}
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <Flex alignItems="center" mb={2}>
@@ -160,78 +230,6 @@ const IndexPage = (props: PageProps) => {
               </Link>
             </Flex>
           </>
-        )}
-      </Column>
-
-      <Column {...columnProps}>
-        <Flex alignItems="center">
-          <Heading mb={3}>
-            L'univers {process.env.NEXT_PUBLIC_SHORT_URL}
-          </Heading>
-          {/* <HostTag ml={1} /> */}
-        </Flex>
-
-        {hasItems(orgsQuery.data) ? (
-          <>
-            <Button
-              alignSelf="flex-start"
-              colorScheme="teal"
-              leftIcon={<FaRegMap />}
-              rightIcon={
-                isMapModalOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
-              }
-              onClick={openMapModal}
-              mb={5}
-            >
-              Carte
-            </Button>
-
-            <Button
-              alignSelf="flex-start"
-              colorScheme="teal"
-              leftIcon={<HamburgerIcon />}
-              rightIcon={isListOpen ? <ChevronUpIcon /> : <ChevronRightIcon />}
-              mb={isListOpen ? 3 : 0}
-              onClick={() => setIsListOpen(!isListOpen)}
-            >
-              Liste
-            </Button>
-
-            {isListOpen && (
-              <Column bg={isDark ? "gray.700" : "white"}>
-                <OrgsList
-                  keys={
-                    props.isMobile
-                      ? (orgType) => [
-                          {
-                            key: "orgName",
-                            label: `Nom de ${orgTypeFull(orgType)}`
-                          }
-                        ]
-                      : (orgType) => [
-                          {
-                            key: "orgName",
-                            label: `Nom de ${orgTypeFull(orgType)}`
-                          },
-                          { key: "createdBy", label: "Créé par" }
-                        ]
-                  }
-                  isMobile={props.isMobile}
-                  query={orgsQuery}
-                  //subQuery={subQuery}
-                />
-              </Column>
-            )}
-          </>
-        ) : (
-          <Flex>
-            <EntityAddButton
-              label="Ajoutez une planète"
-              orgType={EOrgType.NETWORK}
-              size={props.isMobile ? "xs" : "md"}
-              mb={3}
-            />
-          </Flex>
         )}
       </Column>
 

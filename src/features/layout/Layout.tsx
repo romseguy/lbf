@@ -32,7 +32,6 @@ import { isServer } from "utils/isServer";
 import { capitalize } from "utils/string";
 
 const PAYPAL_BUTTON_WIDTH = 108;
-const defaultTitle = process.env.NEXT_PUBLIC_SHORT_URL;
 let isNotified = false;
 
 interface customWindow extends Window {
@@ -100,6 +99,15 @@ export const Layout = ({
   const isE = isEvent(entity);
   const isO = isOrg(entity);
   const isU = isUser(entity);
+  const title = isO
+    ? ` ${OrgTypes[entity.orgType]} – ${entity.orgName}`
+    : isE
+    ? ` Événement – ${entity.eventName}`
+    : isU
+    ? ` ${entity.userName}`
+    : pageTitle
+    ? ` ${capitalize(pageTitle)}`
+    : "Merci de patienter...";
 
   return (
     <>
@@ -107,16 +115,8 @@ export const Layout = ({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
-          {defaultTitle}
-          {isO
-            ? ` – ${OrgTypes[entity.orgType]} – ${entity.orgName}`
-            : isE
-            ? ` – Événement – ${entity.eventName}`
-            : isU
-            ? ` – ${entity.userName}`
-            : pageTitle
-            ? ` – ${capitalize(pageTitle)}`
-            : " – Merci de patienter..."}
+          {/*process.env.NEXT_PUBLIC_SHORT_URL*/}
+          {title}
         </title>
       </Head>
 
@@ -160,9 +160,10 @@ export const Layout = ({
 
         <Nav
           {...props}
+          title={title}
+          borderTopRadius={isMobile ? 0 : undefined}
           m={isMobile ? 1 : 3}
           mt={isMobile ? 0 : undefined}
-          borderTopRadius={isMobile ? 0 : undefined}
         />
 
         {router.pathname !== "/" && (

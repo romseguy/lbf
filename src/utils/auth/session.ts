@@ -39,11 +39,11 @@ export const devSession =
   //     userName: "romain"
   //   }
   // };
-  // {
-  //   user: {
-  //     email: "rom.seguy@gmail.com",
-  //     userId: "61138a879544b000088318ae",
-  //     userName: "romseguy66"
-  //   }
-  // };
-  null;
+  {
+    user: {
+      email: "rom.seguy@gmail.com",
+      userId: "61138a879544b000088318ae",
+      userName: "romseguy66"
+    }
+  };
+// null;

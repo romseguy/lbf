@@ -30,7 +30,7 @@ import React from "react";
 import { FaKey } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
-import { Heading, Link } from "features/common";
+import { Heading, Link, LoginButton } from "features/common";
 import {
   EventPopover,
   OrgPopover,
@@ -46,12 +46,20 @@ import { capitalize } from "utils/string";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
 
-export const Nav = ({ isMobile, ...props }: FlexProps & Partial<PageProps>) => {
+export const Nav = ({
+  isMobile,
+  title,
+  ...props
+}: FlexProps & Partial<PageProps> & { title?: string }) => {
   const { data: session } = useSession();
   const userName = session?.user.userName || "";
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
+  const isEntityPage =
+    router.pathname !== "/" &&
+    !title?.includes("Forum") &&
+    !router.pathname.includes("evenements");
   const userEmail = useSelector(selectUserEmail) || session?.user.email;
 
   const {
@@ -72,61 +80,58 @@ export const Nav = ({ isMobile, ...props }: FlexProps & Partial<PageProps>) => {
   };
 
   return (
-    <>
-      <Box
-        as="nav"
-        bg={isDark ? "gray.700" : "lightblue"}
-        borderRadius="lg"
-        p={3}
-        pl={isMobile ? 1 : undefined}
-        pt={0}
-        {...removeProps(props, ["isSessionLoading"])}
-      >
-        <Table role="navigation">
-          {!isMobile && (
-            <Tbody role="rowgroup">
-              <Tr role="rowheader">
-                <Td border={0} p={0}>
-                  <Flex>
-                    <Link href="/" variant="no-underline">
-                      <Heading fontFamily="Lato">
-                        {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
-                      </Heading>
-                    </Link>
-                  </Flex>
-                </Td>
-                <Td border={0} display="flex" p={0}>
-                  <Heading fontFamily="Lato" noContainer ml="auto">
-                    {session ? session.user.userName : "Connexion"}
-                  </Heading>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td border={0} p={0}>
-                  <Flex>
-                    <Link
-                      href="/"
-                      variant="no-underline"
-                      _focus={{ border: 0 }}
-                    >
-                      <Image height="100px" src="/images/bg.png" />
-                    </Link>
-                  </Flex>
-                </Td>
-                <Td border={0} p={0}>
-                  <Flex alignItems="center">
-                    <Flex
-                      as="nav"
-                      bg={isDark ? "gray.800" : "lightcyan"}
-                      borderColor={isDark ? "gray.600" : "gray.200"}
-                      borderRadius={9999}
-                      borderStyle="solid"
-                      borderWidth={1}
-                      ml="auto"
-                      p="4px 8px 4px 8px"
-                    >
+    <Box
+      as="nav"
+      bg={isDark ? "gray.700" : "lightblue"}
+      borderRadius="lg"
+      p={3}
+      pt={isMobile ? undefined : 2}
+      {...removeProps(props, ["isSessionLoading"])}
+    >
+      <Table role="navigation">
+        {!isMobile && (
+          <Tbody role="rowgroup">
+            {!isEntityPage && (
+              <>
+                <Tr role="rowheader">
+                  <Td border={0} p={0}>
+                    <Flex>
+                      <Link href="/" variant="no-underline">
+                        <Heading fontFamily="Lato">Bienvenue</Heading>
+                      </Link>
+                    </Flex>
+                  </Td>
+                  <Td border={0} display="flex" p={0}>
+                    <Heading fontFamily="Lato" noContainer ml="auto">
+                      {session ? session.user.userName : ""}
+                    </Heading>
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td border={0} p={0}>
+                    <Flex>
+                      <Link
+                        href="/"
+                        variant="no-underline"
+                        _focus={{ border: 0 }}
+                      >
+                        <Image height="100px" src="/images/bg.png" />
+                      </Link>
+                    </Flex>
+                  </Td>
+                  <Td border={0} p={0}>
+                    <Flex alignItems="center">
                       {session && (
-                        <>
+                        <Flex
+                          as="nav"
+                          bg={isDark ? "gray.800" : "lightcyan"}
+                          borderColor={isDark ? "gray.600" : "gray.200"}
+                          borderRadius={9999}
+                          borderStyle="solid"
+                          borderWidth={1}
+                          ml="auto"
+                          p="4px 8px 4px 8px"
+                        >
                           <OrgPopover
                             orgType={EOrgType.NETWORK}
                             session={session}
@@ -152,158 +157,126 @@ export const Nav = ({ isMobile, ...props }: FlexProps & Partial<PageProps>) => {
                             boxSize={[6, 6, 6]}
                             session={session}
                           />
-                        </>
+                        </Flex>
                       )}
 
-                      {!session && (
-                        <>
-                          <Tooltip label="Connexion">
-                            <IconButton
-                              aria-label="Connexion"
-                              icon={
-                                <Icon
-                                  as={FaKey}
-                                  boxSize={[8, 8, 8]}
-                                  _hover={{ color: "#00B5D8" }}
-                                />
-                              }
-                              bg="transparent"
-                              _hover={{ bg: "transparent", color: "#00B5D8" }}
-                              onClick={() => {
-                                router.push("/login", "/login", {
-                                  shallow: true
-                                });
-                              }}
-                            />
+                      {session && userEmail && (
+                        <Menu>
+                          <Tooltip
+                            label={`Connecté en tant que ${userEmail}`}
+                            placement="left"
+                          >
+                            <MenuButton ml={1} data-cy="avatar-button">
+                              <Avatar
+                                boxSize={10}
+                                name={userName}
+                                src={
+                                  session.user.userImage
+                                    ? session.user.userImage.base64
+                                    : undefined
+                                }
+                              />
+                            </MenuButton>
                           </Tooltip>
-                        </>
+
+                          <NavMenuList email={userEmail} userName={userName} />
+                        </Menu>
                       )}
                     </Flex>
+                  </Td>
+                </Tr>
+              </>
+            )}
+            <Tr role="row">
+              <Td
+                border={0}
+                display="flex"
+                justifyContent="space-between"
+                p="28px 0 0 0"
+              >
+                <NavButtonsList title={title} isMobile={false} />
+                {!session && (
+                  <LoginButton colorScheme="cyan" bg="lightcyan">
+                    Se connecter
+                  </LoginButton>
+                )}
+              </Td>
+            </Tr>
+          </Tbody>
+        )}
 
-                    {session && userEmail && (
-                      <Menu>
-                        <Tooltip
-                          label={`Connecté en tant que ${userEmail}`}
-                          placement="left"
-                        >
-                          <MenuButton ml={1} data-cy="avatar-button">
-                            <Avatar
-                              boxSize={10}
-                              name={userName}
-                              src={
-                                session.user.userImage
-                                  ? session.user.userImage.base64
-                                  : undefined
-                              }
-                            />
-                          </MenuButton>
-                        </Tooltip>
+        {isMobile && (
+          <Tbody role="rowgroup">
+            {/* <Tr role="rowheader">
+              <Td border={0} lineHeight="auto" p={0}>
+                <Heading mb={1}>Bienvenue</Heading>
+              </Td>
+            </Tr> */}
+            <Tr role="row">
+              <Td border={0} p={0}>
+                <Flex justifyContent="space-between">
+                  <Button
+                    colorScheme="cyan"
+                    bg="lightcyan"
+                    leftIcon={<HamburgerIcon />}
+                    onClick={onDrawerOpen}
+                  >
+                    Ouvrir le menu
+                  </Button>
+                  <Drawer
+                    placement="left"
+                    isOpen={isDrawerOpen}
+                    onClose={onDrawerClose}
+                  >
+                    <DrawerOverlay />
+                    <DrawerContent>
+                      <DrawerCloseButton />
+                      <DrawerHeader>
+                        {/* <Heading>{title}</Heading> */}
+                      </DrawerHeader>
+                      <DrawerBody>
+                        <NavButtonsList
+                          direction="column"
+                          isMobile
+                          onClose={() => {
+                            if (isMobile) onDrawerClose();
+                          }}
+                        />
+                      </DrawerBody>
+                    </DrawerContent>
+                  </Drawer>
+                  {!session && (
+                    <Tooltip label="Connexion">
+                      <Button
+                        colorScheme="cyan"
+                        bg="lightcyan"
+                        leftIcon={<Icon as={FaKey} />}
+                        onClick={() => {
+                          router.push("/login", "/login", {
+                            shallow: true
+                          });
+                        }}
+                      >
+                        Se connecter
+                      </Button>
+                    </Tooltip>
+                  )}
+                </Flex>
+              </Td>
+            </Tr>
 
-                        <NavMenuList email={userEmail} userName={userName} />
-                      </Menu>
-                    )}
-                  </Flex>
-                </Td>
-              </Tr>
-              <Tr role="row">
-                <Td
-                  border={0}
-                  css={css`
-                    button {
-                      background: ${isDark ? "#1A202C" : "lightcyan"};
-                      margin-right: 12px;
-                      border-radius: 9999px;
-                    }
-                  `}
-                  p="28px 0 0 0"
-                >
-                  <NavButtonsList isMobile={false} />
-                </Td>
-              </Tr>
-            </Tbody>
-          )}
-
-          {isMobile && (
-            <Tbody role="rowgroup">
-              <Tr role="rowheader">
-                <Td border={0} lineHeight="auto" p={0}>
-                  <Heading mb={1}>
-                    {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
-                  </Heading>
-                </Td>
-              </Tr>
-              <Tr role="row">
-                <Td border={0} p={0}>
-                  <Flex my={2}>
-                    <Button
-                      alignSelf="flex-start"
-                      colorScheme="cyan"
-                      bg="lightcyan"
-                      leftIcon={<HamburgerIcon />}
-                      onClick={onDrawerOpen}
-                    >
-                      Ouvrir le menu
-                    </Button>
-                    <Drawer
-                      placement="left"
-                      isOpen={isDrawerOpen}
-                      onClose={onDrawerClose}
-                    >
-                      <DrawerOverlay />
-                      <DrawerContent>
-                        <DrawerCloseButton />
-                        <DrawerHeader>
-                          <Heading>
-                            {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
-                          </Heading>
-                        </DrawerHeader>
-                        <DrawerBody>
-                          <NavButtonsList
-                            direction="column"
-                            isMobile
-                            onClose={() => {
-                              if (isMobile) onDrawerClose();
-                            }}
-                          />
-                        </DrawerBody>
-                      </DrawerContent>
-                    </Drawer>
-                  </Flex>
-                </Td>
-              </Tr>
-
-              <Tr role="rowheader">
-                <Td border={0} lineHeight="auto" p={0}>
-                  <Flex mt={1}>
-                    <Heading>
-                      {session ? session.user.userName : "Connexion"}
-                    </Heading>
-                  </Flex>
-                </Td>
-              </Tr>
-              <Tr role="row">
-                <Td border={0} p={0}>
-                  <Flex mt={2}>
-                    {!session && (
-                      <>
-                        <Tooltip label="Connexion">
-                          <IconButton
-                            aria-label="Connexion"
-                            icon={<Icon as={FaKey} boxSize={6} />}
-                            bg="transparent"
-                            _hover={{ bg: "transparent", color: "#00B5D8" }}
-                            mx={3}
-                            onClick={() => {
-                              router.push("/login", "/login", {
-                                shallow: true
-                              });
-                            }}
-                          />
-                        </Tooltip>
-                      </>
-                    )}
-
-                    {session && userEmail && (
+            {session && userEmail && (
+              <>
+                <Tr role="rowheader">
+                  <Td border={0} lineHeight="auto" p={0}>
+                    <Flex mt={1}>
+                      <Heading>{session.user.userName}</Heading>
+                    </Flex>
+                  </Td>
+                </Tr>
+                <Tr role="row">
+                  <Td border={0} p={0}>
+                    <Flex mt={2}>
                       <>
                         <Box {...popoverProps}>
                           <OrgPopover
@@ -355,15 +328,15 @@ export const Nav = ({ isMobile, ...props }: FlexProps & Partial<PageProps>) => {
                           />
                         </Menu>
                       </>
-                    )}
-                  </Flex>
-                </Td>
-              </Tr>
-            </Tbody>
-          )}
-        </Table>
-      </Box>
-    </>
+                    </Flex>
+                  </Td>
+                </Tr>
+              </>
+            )}
+          </Tbody>
+        )}
+      </Table>
+    </Box>
   );
 };
 
@@ -386,5 +359,34 @@ export const Nav = ({ isMobile, ...props }: FlexProps & Partial<PageProps>) => {
       iconProps={{ boxSize: 8 }}
       popoverProps={{ offset: [100, -20] }}
     />
+  */
+}
+
+{
+  /*
+    {!session && (
+      <Tooltip label="Connexion">
+        <IconButton
+          aria-label="Connexion"
+          icon={
+            <Icon
+              as={FaKey}
+              boxSize={[8, 8, 8]}
+              _hover={{ color: "#00B5D8" }}
+            />
+          }
+          bg="transparent"
+          _hover={{
+            bg: "transparent",
+            color: "#00B5D8"
+          }}
+          onClick={() => {
+            router.push("/login", "/login", {
+              shallow: true
+            });
+          }}
+        />
+      </Tooltip>
+    )} 
   */
 }

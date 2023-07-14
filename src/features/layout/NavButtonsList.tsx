@@ -14,14 +14,21 @@ import { AppQuery } from "utils/types";
 
 export const NavButtonsList = ({
   direction = "row",
+  title,
   isMobile,
   onClose
 }: {
   direction?: "row" | "column";
+  title?: string;
   isMobile: boolean;
   onClose?: () => void;
 }) => {
   const router = useRouter();
+  const isEntityPage =
+    router.pathname !== "/" &&
+    !title?.includes("Forum") &&
+    !router.pathname.includes("evenements");
+
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
@@ -75,8 +82,11 @@ export const NavButtonsList = ({
     alignSelf: "flex-start",
     variant: "no-underline"
   };
-  const CSSObject = {
+  const buttonProps = {
+    borderRadius: "9999px",
     colorScheme: isDark ? "gray" : "cyan",
+    background: isDark ? "#1A202C" : "lightcyan",
+    marginRight: "12px",
     my: isMobile ? 2 : undefined
   };
 
@@ -101,7 +111,7 @@ export const NavButtonsList = ({
         <Button
           leftIcon={<FaHome />}
           isActive={router.asPath === "/"}
-          {...CSSObject}
+          {...buttonProps}
         >
           Accueil
         </Button>
@@ -113,18 +123,14 @@ export const NavButtonsList = ({
           openNetworksModal();
         }}
       >
-        <Button leftIcon={<IoIosGitNetwork />} {...CSSObject}>
-          Naviguer
+        <Button leftIcon={<IoIosGitNetwork />} {...buttonProps}>
+          Parcourir
         </Button>
       </Link>
 
       {isNetworksModalOpen && (
         <TreeChartModal
-          header={
-            <Heading mb={3}>
-              L'univers {process.env.NEXT_PUBLIC_SHORT_URL}
-            </Heading>
-          }
+          header={<Heading mb={3}>L'univers</Heading>}
           inputNodes={inputNodes}
           isMobile={isMobile}
           isOpen={isNetworksModalOpen}
@@ -132,37 +138,41 @@ export const NavButtonsList = ({
         />
       )}
 
-      <Link
-        {...linkProps}
-        onClick={() => {
-          router.push("/evenements", "/evenements", { shallow: true });
-          onClose && onClose();
-        }}
-      >
-        <Button
-          leftIcon={<CalendarIcon />}
-          isActive={router.asPath === "/evenements"}
-          {...CSSObject}
+      {!isEntityPage && (
+        <Link
+          {...linkProps}
+          onClick={() => {
+            router.push("/evenements", "/evenements", { shallow: true });
+            onClose && onClose();
+          }}
         >
-          Événements
-        </Button>
-      </Link>
+          <Button
+            leftIcon={<CalendarIcon />}
+            isActive={router.asPath === "/evenements"}
+            {...buttonProps}
+          >
+            Événements
+          </Button>
+        </Link>
+      )}
 
-      <Link
-        {...linkProps}
-        onClick={() => {
-          router.push("/forum", "/forum", { shallow: true });
-          onClose && onClose();
-        }}
-      >
-        <Button
-          leftIcon={<ChatIcon />}
-          isActive={router.asPath === "/forum"}
-          {...CSSObject}
+      {!isEntityPage && (
+        <Link
+          {...linkProps}
+          onClick={() => {
+            router.push("/forum", "/forum", { shallow: true });
+            onClose && onClose();
+          }}
         >
-          Forum
-        </Button>
-      </Link>
+          <Button
+            leftIcon={<ChatIcon />}
+            isActive={router.asPath === "/forum"}
+            {...buttonProps}
+          >
+            Forum
+          </Button>
+        </Link>
+      )}
     </Flex>
   );
 };
