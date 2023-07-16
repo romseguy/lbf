@@ -24,7 +24,7 @@ export const TopicFormModal = (props: {
   isFollowed?: boolean;
   onCancel: () => void;
   onClose: () => void;
-  onSubmit: (topic?: ITopic) => void;
+  onSubmit: (topic: ITopic) => void;
 }) => {
   return (
     <Modal {...props} closeOnOverlayClick={false}>

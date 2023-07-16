@@ -61,7 +61,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
         store.dispatch(setSession(devSession));
       } else if (cookies) {
         const p = parse(cookies);
-        //console.log("App.getInitialProps: parsed cookies", p);
+        console.log("App.getInitialProps: parsed cookies", p);
         const authToken = getAuthToken(p);
 
         if (authToken) {

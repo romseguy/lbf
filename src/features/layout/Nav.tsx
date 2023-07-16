@@ -1,4 +1,4 @@
-import { HamburgerIcon } from "@chakra-ui/icons";
+import { ChevronLeftIcon, HamburgerIcon } from "@chakra-ui/icons";
 import {
   Avatar,
   Box,
@@ -23,13 +23,12 @@ import {
   Tbody,
   Tr,
   Td,
-  Spinner
+  Text
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { FaKey } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { css } from "twin.macro";
 import { Heading, Link, LoginButton } from "features/common";
 import {
   EventPopover,
@@ -42,7 +41,7 @@ import { PageProps } from "main";
 import { EOrgType } from "models/Org";
 import { selectUserEmail } from "store/userSlice";
 import { removeProps } from "utils/object";
-import { capitalize } from "utils/string";
+import { normalize } from "utils/string";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
 
@@ -187,12 +186,44 @@ export const Nav = ({
                 </Tr>
               </>
             )}
+
+            {isEntityPage && (
+              <Tr role="row">
+                <Td
+                  alignItems="center"
+                  border={0}
+                  display="flex"
+                  fontSize="sm"
+                  p={0}
+                >
+                  {typeof window !== "undefined" &&
+                  window.history?.state?.idx > 0 ? (
+                    <Link onClick={() => router.back()}>
+                      <ChevronLeftIcon /> Retour
+                    </Link>
+                  ) : (
+                    <Text fontSize="sm">
+                      {/* {typeof window !== "undefined" && window.location.origin
+                        ? window.location.origin
+                        : ""} */}
+                      {router.query && Array.isArray(router.query.name)
+                        ? router.query.name.reduce((acc, value, index) => {
+                            if (index > 0) return acc + "/" + value;
+                            return value;
+                          }, "")
+                        : router.asPath}
+                    </Text>
+                  )}
+                </Td>
+              </Tr>
+            )}
+
             <Tr role="row">
               <Td
                 border={0}
                 display="flex"
                 justifyContent="space-between"
-                p="28px 0 0 0"
+                p={isEntityPage ? "16px 0 0 0" : "28px 0 0 0"}
               >
                 <NavButtonsList title={title} isMobile={false} />
                 {!session && (

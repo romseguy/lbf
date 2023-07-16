@@ -5,7 +5,8 @@ import {
   Button,
   Flex,
   IconButton,
-  Tooltip
+  Tooltip,
+  Text
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
@@ -82,18 +83,19 @@ export const TopicMessagesListItem = ({
 
   return (
     <Flex key={_id} pb={3} data-cy="topic-message">
-      <Avatar
-        name={userName}
-        boxSize={10}
-        src={userImage}
-        cursor="pointer"
-        onClick={() => router.push(userName, userName, { shallow: true })}
-      />
-
       <Box ml={2}>
-        <Box borderRadius={18} bg={isDark ? "gray.600" : "white"} px={3}>
-          <Link href={`/${userName}`} fontWeight="bold">
-            {userName}
+        <Box borderRadius={18} bg={isDark ? "gray.600" : "white"} px={3} py={2}>
+          <Link href={`/${userName}`} shallow variant="no-underline">
+            <Box alignItems="center" display="inline-flex">
+              <Avatar
+                name={userName}
+                boxSize={10}
+                src={userImage}
+                cursor="pointer"
+                mr={2}
+              />
+              <Text fontWeight="bold">{userName}</Text>
+            </Box>
           </Link>
 
           {_id && isEdit[_id] && isEdit[_id].isOpen ? (

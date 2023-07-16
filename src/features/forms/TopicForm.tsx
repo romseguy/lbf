@@ -45,7 +45,7 @@ export const TopicForm = ({
   isCreator?: boolean;
   isFollowed?: boolean;
   onCancel?: () => void;
-  onSubmit?: (topic?: ITopic) => void;
+  onSubmit?: (topic: ITopic) => void;
 }) => {
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });

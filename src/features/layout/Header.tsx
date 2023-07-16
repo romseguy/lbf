@@ -39,6 +39,7 @@ export const Header = ({
     if (router.asPath === "/") return;
     if (Array.isArray(router.query.name) && !!router.query.name[1]) return;
     executeScroll();
+    console.log("🚀 ~ file: Header.tsx:41 ~ useEffect ~ executeScroll:");
   }, [router.asPath]);
 
   const isE = isEvent(entity);

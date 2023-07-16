@@ -11,7 +11,7 @@ import {
   Text,
   Tooltip
 } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import React, { forwardRef, useEffect } from "react";
 import {
   FaBellSlash,
   FaBell,
@@ -21,7 +21,6 @@ import {
 } from "react-icons/fa";
 import { DeleteButton, GridItem } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
-import { useScroll } from "hooks/useScroll";
 import { getCategoryLabel, isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -57,361 +56,366 @@ interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
   onSubscribeClick: (topic: ITopic, isSubbedToTopic: boolean) => void;
 }
 
-export const TopicsListItem = ({
-  session,
-  currentTopicName,
-  isCreator,
-  isSubbedToTopic,
-  isCurrent,
-  isTopicCreator,
-  isDark,
-  isLoading,
-  query,
-  selectedCategories,
-  setSelectedCategories,
-  topic,
-  topicIndex,
-  onClick,
-  onDeleteClick,
-  onEditClick,
-  onNotifClick,
-  onSubscribeClick,
-  ...props
-}: TopicsListItemProps) => {
-  const entity = query.data;
-  const isE = isEvent(entity);
-  const topicCategories = isE
-    ? entity.eventTopicCategories
-    : entity.orgTopicCategories;
-  const topicCategoryLabel =
-    typeof topic.topicCategory === "string"
-      ? getCategoryLabel(topicCategories, topic.topicCategory)
-      : "";
+export const TopicsListItem = forwardRef(
+  (
+    {
+      session,
+      currentTopicName,
+      isCreator,
+      isSubbedToTopic,
+      isCurrent,
+      isTopicCreator,
+      isDark,
+      isLoading,
+      query,
+      selectedCategories,
+      setSelectedCategories,
+      topic,
+      topicIndex,
+      onClick,
+      onDeleteClick,
+      onEditClick,
+      onNotifClick,
+      onSubscribeClick,
+      ...props
+    }: TopicsListItemProps,
+    ref
+  ) => {
+    const entity = query.data;
+    const isE = isEvent(entity);
+    const topicCategories = isE
+      ? entity.eventTopicCategories
+      : entity.orgTopicCategories;
+    const topicCategoryLabel =
+      typeof topic.topicCategory === "string"
+        ? getCategoryLabel(topicCategories, topic.topicCategory)
+        : "";
 
-  const hasCategorySelected = !!selectedCategories?.find(
-    (category) => category === topic.topicCategory
-  );
+    const hasCategorySelected = !!selectedCategories?.find(
+      (category) => category === topic.topicCategory
+    );
 
-  const { timeAgo, fullDate } = dateUtils.timeAgo(topic.createdAt, true);
-  const topicCreatedByUserName =
-    typeof topic.createdBy === "object"
-      ? topic.createdBy.userName || topic.createdBy.email?.replace(/@.+/, "")
-      : "";
+    const { timeAgo, fullDate } = dateUtils.timeAgo(topic.createdAt, true);
+    const topicCreatedByUserName =
+      typeof topic.createdBy === "object"
+        ? topic.createdBy.userName || topic.createdBy.email?.replace(/@.+/, "")
+        : "";
 
-  const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
-  useEffect(() => {
-    if (!query.isLoading && currentTopicName === topic.topicName) {
-      executeScroll();
-    }
-  }, [query.isLoading]);
-
-  return (
-    <Box ref={elementToScrollRef} {...props}>
-      <Link
-        as="div"
-        variant="no-underline"
-        onClick={() => onClick(topic)}
-        data-cy="topic-list-item"
-      >
-        <Flex
-          flexWrap="wrap"
-          borderTopRadius="xl"
-          borderBottomRadius={!isCurrent ? "lg" : undefined}
-          bg={
-            topicIndex % 2 === 0
-              ? isDark
-                ? "gray.600"
-                : "orange.200"
-              : isDark
-              ? "gray.500"
-              : "orange.100"
-          }
-          _hover={{ bg: isDark ? "#314356" : "blue.100" }}
+    return (
+      <Box ref={ref} {...props}>
+        <Link
+          as="div"
+          variant="no-underline"
+          onClick={() => onClick(topic)}
+          data-cy="topic-list-item"
         >
-          <Flex flexDirection="column" flexGrow={1} px={3} py={1}>
-            <Flex>
-              {isCurrent ? (
-                <Icon
-                  as={FaFolderOpen}
-                  boxSize={6}
-                  color={isDark ? "teal.200" : "teal"}
-                  mr={2}
-                />
-              ) : (
-                <Icon
-                  as={FaFolder}
-                  boxSize={6}
-                  color={isDark ? "teal.200" : "teal"}
-                  mr={2}
-                />
-              )}
-
-              {topic.topicCategory && (
-                <Tooltip
-                  label={
-                    !hasCategorySelected
-                      ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
-                      : ""
-                  }
-                  hasArrow
-                >
-                  <Button
-                    colorScheme={hasCategorySelected ? "pink" : "teal"}
-                    fontSize="small"
-                    fontWeight="normal"
-                    height="auto"
+          <Flex
+            flexWrap="wrap"
+            borderTopRadius="xl"
+            borderBottomRadius={!isCurrent ? "lg" : undefined}
+            bg={
+              topicIndex % 2 === 0
+                ? isDark
+                  ? "gray.600"
+                  : "orange.200"
+                : isDark
+                ? "gray.500"
+                : "orange.100"
+            }
+            _hover={{ bg: isDark ? "#314356" : "blue.100" }}
+          >
+            <Flex flexDirection="column" flexGrow={1} px={3} py={1}>
+              <Flex>
+                {isCurrent ? (
+                  <Icon
+                    as={FaFolderOpen}
+                    boxSize={6}
+                    color={isDark ? "teal.200" : "teal"}
                     mr={2}
-                    p={1}
-                    onClick={(e) => {
-                      e.stopPropagation();
+                  />
+                ) : (
+                  <Icon
+                    as={FaFolder}
+                    boxSize={6}
+                    color={isDark ? "teal.200" : "teal"}
+                    mr={2}
+                  />
+                )}
 
-                      if (hasCategorySelected)
-                        setSelectedCategories(
-                          selectedCategories!.filter(
-                            (category) => category !== topic.topicCategory
-                          )
-                        );
-                      else if (topic.topicCategory)
-                        setSelectedCategories([
-                          ...(selectedCategories || []),
-                          topic.topicCategory
-                        ]);
-                    }}
+                {topic.topicCategory && (
+                  <Tooltip
+                    label={
+                      !hasCategorySelected
+                        ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
+                        : ""
+                    }
+                    hasArrow
                   >
-                    {topicCategoryLabel}
-                  </Button>
-                </Tooltip>
-              )}
+                    <Button
+                      colorScheme={hasCategorySelected ? "pink" : "teal"}
+                      fontSize="small"
+                      fontWeight="normal"
+                      height="auto"
+                      mr={2}
+                      p={1}
+                      onClick={(e) => {
+                        e.stopPropagation();
 
-              <Link variant="no-underline" fontWeight="bold">
-                {topic.topicName}
-              </Link>
-            </Flex>
+                        if (hasCategorySelected)
+                          setSelectedCategories(
+                            selectedCategories!.filter(
+                              (category) => category !== topic.topicCategory
+                            )
+                          );
+                        else if (topic.topicCategory)
+                          setSelectedCategories([
+                            ...(selectedCategories || []),
+                            topic.topicCategory
+                          ]);
+                      }}
+                    >
+                      {topicCategoryLabel}
+                    </Button>
+                  </Tooltip>
+                )}
 
-            <Flex
-              flexWrap="wrap"
-              fontSize="smaller"
-              color={isDark ? "white" : "purple"}
-              ml={8}
-            >
-              <Tooltip label="Aller à la page de l'utilisateur">
-                <Link
-                  href={`/${topicCreatedByUserName}`}
-                  _hover={{
-                    color: isDark ? "white" : "white",
-                    textDecoration: "underline"
-                  }}
-                >
-                  {topicCreatedByUserName}
+                <Link variant="no-underline" fontWeight="bold">
+                  {topic.topicName}
                 </Link>
-              </Tooltip>
+              </Flex>
 
-              <Box as="span" aria-hidden mx={1}>
-                ·
-              </Box>
-
-              <Tooltip
-                placement="bottom"
-                label={`Discussion ajoutée le ${fullDate}`}
+              <Flex
+                flexWrap="wrap"
+                fontSize="smaller"
+                color={isDark ? "white" : "purple"}
+                ml={8}
               >
-                <Text
-                  cursor="default"
-                  _hover={{
-                    color: isDark ? "white" : "white"
-                  }}
-                >
-                  {timeAgo}
-                </Text>
-              </Tooltip>
-
-              <Box as="span" aria-hidden mx={1}>
-                ·
-              </Box>
-
-              <TopicsListItemVisibility query={query} topic={topic} />
-
-              <Box as="span" aria-hidden mx={1}>
-                ·
-              </Box>
-
-              <TopicsListItemShare aria-label="Partager" topic={topic} />
-
-              {isCreator && (
-                <>
-                  <Box as="span" aria-hidden mx={1}>
-                    ·
-                  </Box>
-
+                <Tooltip label="Aller à la page de l'utilisateur">
                   <Link
+                    href={`/${topicCreatedByUserName}`}
                     _hover={{
                       color: isDark ? "white" : "white",
                       textDecoration: "underline"
                     }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onNotifClick(topic);
+                  >
+                    {topicCreatedByUserName}
+                  </Link>
+                </Tooltip>
+
+                <Box as="span" aria-hidden mx={1}>
+                  ·
+                </Box>
+
+                <Tooltip
+                  placement="bottom"
+                  label={`Discussion ajoutée le ${fullDate}`}
+                >
+                  <Text
+                    cursor="default"
+                    _hover={{
+                      color: isDark ? "white" : "white"
                     }}
                   >
-                    {topic.topicNotifications.length} personnes invitées
-                  </Link>
-                </>
-              )}
-            </Flex>
-          </Flex>
+                    {timeAgo}
+                  </Text>
+                </Tooltip>
 
-          <Flex alignItems="center" flexWrap="wrap" mb={-1} ml={2}>
-            {isLoading && <Spinner mr={3} mt={1} mb={2} />}
+                <Box as="span" aria-hidden mx={1}>
+                  ·
+                </Box>
 
-            {!isLoading && session && (
-              <>
+                <TopicsListItemVisibility query={query} topic={topic} />
+
+                <Box as="span" aria-hidden mx={1}>
+                  ·
+                </Box>
+
+                <TopicsListItemShare aria-label="Partager" topic={topic} />
+
                 {isCreator && (
-                  <Tooltip placement="bottom" label="Envoyer des invitations">
-                    <IconButton
-                      aria-label="Envoyer des invitations"
-                      icon={<EmailIcon />}
-                      variant="outline"
-                      colorScheme="blue"
-                      mr={3}
-                      mt={1}
-                      mb={2}
+                  <>
+                    <Box as="span" aria-hidden mx={1}>
+                      ·
+                    </Box>
+
+                    <Link
+                      _hover={{
+                        color: isDark ? "white" : "white",
+                        textDecoration: "underline"
+                      }}
                       onClick={(e) => {
                         e.stopPropagation();
                         onNotifClick(topic);
                       }}
-                    />
-                  </Tooltip>
+                    >
+                      {topic.topicNotifications.length} personnes invitées
+                    </Link>
+                  </>
                 )}
+              </Flex>
+            </Flex>
 
-                {isTopicCreator && (
-                  <>
-                    <Tooltip placement="bottom" label="Modifier la discussion">
+            <Flex alignItems="center" flexWrap="wrap" mb={-1} ml={2}>
+              {isLoading && <Spinner mr={3} mt={1} mb={2} />}
+
+              {!isLoading && session && (
+                <>
+                  {isCreator && (
+                    <Tooltip placement="bottom" label="Envoyer des invitations">
                       <IconButton
-                        aria-label="Modifier la discussion"
-                        icon={<EditIcon />}
-                        colorScheme="green"
+                        aria-label="Envoyer des invitations"
+                        icon={<EmailIcon />}
                         variant="outline"
+                        colorScheme="blue"
                         mr={3}
                         mt={1}
                         mb={2}
                         onClick={(e) => {
                           e.stopPropagation();
-                          onEditClick(topic);
+                          onNotifClick(topic);
                         }}
                       />
                     </Tooltip>
+                  )}
 
-                    <DeleteButton
-                      header={
-                        <>
-                          Êtes vous sûr de vouloir supprimer la discussion
-                          <Text display="inline" color="red" fontWeight="bold">
-                            {` ${topic.topicName}`}
-                          </Text>{" "}
-                          ?
-                        </>
-                      }
-                      isIconOnly
-                      isSmall={false}
-                      mb={2}
-                      mr={3}
-                      mt={1}
-                      placement="bottom"
-                      variant="outline"
-                      onClick={() => onDeleteClick(topic)}
-                      data-cy="topic-list-item-delete"
-                    />
-                  </>
-                )}
-              </>
-            )}
+                  {isTopicCreator && (
+                    <>
+                      <Tooltip
+                        placement="bottom"
+                        label="Modifier la discussion"
+                      >
+                        <IconButton
+                          aria-label="Modifier la discussion"
+                          icon={<EditIcon />}
+                          colorScheme="green"
+                          variant="outline"
+                          mr={3}
+                          mt={1}
+                          mb={2}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditClick(topic);
+                          }}
+                        />
+                      </Tooltip>
 
-            {!isLoading && (
-              <Flex>
-                {session && (
-                  <Tooltip
-                    label={
-                      isSubbedToTopic
-                        ? "Se désabonner de la discussion"
-                        : "S'abonner à la discussion"
-                    }
-                  >
-                    <IconButton
-                      aria-label={
+                      <DeleteButton
+                        header={
+                          <>
+                            Êtes vous sûr de vouloir supprimer la discussion
+                            <Text
+                              display="inline"
+                              color="red"
+                              fontWeight="bold"
+                            >
+                              {` ${topic.topicName}`}
+                            </Text>{" "}
+                            ?
+                          </>
+                        }
+                        isIconOnly
+                        isSmall={false}
+                        mb={2}
+                        mr={3}
+                        mt={1}
+                        placement="bottom"
+                        variant="outline"
+                        onClick={() => onDeleteClick(topic)}
+                        data-cy="topic-list-item-delete"
+                      />
+                    </>
+                  )}
+                </>
+              )}
+
+              {!isLoading && (
+                <Flex>
+                  {session && (
+                    <Tooltip
+                      label={
                         isSubbedToTopic
                           ? "Se désabonner de la discussion"
                           : "S'abonner à la discussion"
                       }
-                      icon={isSubbedToTopic ? <FaBellSlash /> : <FaBell />}
-                      variant="outline"
-                      colorScheme="blue"
-                      mr={3}
+                    >
+                      <IconButton
+                        aria-label={
+                          isSubbedToTopic
+                            ? "Se désabonner de la discussion"
+                            : "S'abonner à la discussion"
+                        }
+                        icon={isSubbedToTopic ? <FaBellSlash /> : <FaBell />}
+                        variant="outline"
+                        colorScheme="blue"
+                        mr={3}
+                        mt={1}
+                        mb={2}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          onSubscribeClick(topic, isSubbedToTopic);
+                        }}
+                        data-cy={
+                          isSubbedToTopic
+                            ? "topic-list-item-unsubscribe"
+                            : "topic-list-item-subscribe"
+                        }
+                      />
+                    </Tooltip>
+                  )}
+
+                  <Tooltip label="Répondre">
+                    <IconButton
+                      aria-label="Répondre"
+                      icon={<FaReply />}
+                      colorScheme="green"
+                      mr={2}
                       mt={1}
                       mb={2}
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        onSubscribeClick(topic, isSubbedToTopic);
-                      }}
-                      data-cy={
-                        isSubbedToTopic
-                          ? "topic-list-item-unsubscribe"
-                          : "topic-list-item-subscribe"
-                      }
                     />
                   </Tooltip>
-                )}
-
-                <Tooltip label="Répondre">
-                  <IconButton
-                    aria-label="Répondre"
-                    icon={<FaReply />}
-                    colorScheme="green"
-                    mr={2}
-                    mt={1}
-                    mb={2}
-                  />
-                </Tooltip>
-              </Flex>
-            )}
+                </Flex>
+              )}
+            </Flex>
           </Flex>
-        </Flex>
-      </Link>
+        </Link>
 
-      {isCurrent && (
-        <>
-          <GridItem
-            bg={isDark ? "#314356" : "blue.100"}
-            px={3}
-            py={2}
-            data-cy="topic-subscribers"
-          >
-            <TopicsListItemSubscribers
-              topic={topic}
-              isSubbedToTopic={isSubbedToTopic}
-            />
-          </GridItem>
+        {isCurrent && (
+          <>
+            <GridItem
+              bg={isDark ? "#314356" : "blue.100"}
+              px={3}
+              py={2}
+              data-cy="topic-subscribers"
+            >
+              <TopicsListItemSubscribers
+                topic={topic}
+                isSubbedToTopic={isSubbedToTopic}
+              />
+            </GridItem>
 
-          <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.700" }}>
-            <TopicMessagesList query={query} topic={topic} pt={3} px={3} />
-          </GridItem>
+            <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.700" }}>
+              <TopicMessagesList query={query} topic={topic} pt={3} px={3} />
+            </GridItem>
 
-          <GridItem
-            light={{ bg: "orange.50" }}
-            dark={{ bg: "gray.700" }}
-            pb={3}
-            borderBottomRadius="xl"
-          >
-            <TopicMessageForm
-              query={query}
-              topic={topic}
-              //formats={formats.filter((f) => f !== "size")}
-              isDisabled={topic.topicMessagesDisabled}
-              onSubmit={() => {
-                query.refetch();
-              }}
-            />
-          </GridItem>
-        </>
-      )}
-    </Box>
-  );
-};
+            <GridItem
+              light={{ bg: "orange.50" }}
+              dark={{ bg: "gray.700" }}
+              pb={3}
+              borderBottomRadius="xl"
+            >
+              <TopicMessageForm
+                query={query}
+                topic={topic}
+                //formats={formats.filter((f) => f !== "size")}
+                isDisabled={topic.topicMessagesDisabled}
+                onSubmit={() => {
+                  query.refetch();
+                }}
+              />
+            </GridItem>
+          </>
+        )}
+      </Box>
+    );
+  }
+);

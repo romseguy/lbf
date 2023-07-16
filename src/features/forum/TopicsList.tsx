@@ -14,32 +14,33 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import {
+  useAddSubscriptionMutation,
+  useDeleteSubscriptionMutation
+} from "features/api/subscriptionsApi";
+import {
+  useDeleteTopicMutation,
+  useAddTopicNotifMutation
+} from "features/api/topicsApi";
 import { Button, Grid, Heading } from "features/common";
 import {
   NotifModalState,
   EntityNotifModal
 } from "features/modals/EntityNotifModal";
 import { TopicFormModal } from "features/modals/TopicFormModal";
-import {
-  useAddSubscriptionMutation,
-  useDeleteSubscriptionMutation
-} from "features/api/subscriptionsApi";
 import { useSession } from "hooks/useSession";
+import { getCategoryLabel, getRefId, isEvent } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg, IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
-import { getCategoryLabel, getRefId, isEvent } from "models/Entity";
+import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import {
-  useDeleteTopicMutation,
-  useAddTopicNotifMutation
-} from "features/api/topicsApi";
-import { TopicsListItem } from "./TopicsListItem";
-import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicCategoryTag } from "./TopicCategoryTag";
+import { TopicsListItem } from "./TopicsListItem";
+import { TopicsListOrgLists } from "./TopicsListOrgLists";
 
 export const TopicsList = ({
   query,
@@ -71,13 +72,26 @@ export const TopicsList = ({
     : entity.orgTopicCategories;
   const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
   useEffect(() => {
-    if (currentTopicName) {
-      const cT =
-        topics.find((topic) => topic.topicName === currentTopicName) || null;
+    if (!currentTopicName) {
+      setCurrentTopic(null);
+      return;
+    }
 
-      if (cT) setCurrentTopic(cT);
-      else if (currentTopic) setCurrentTopic(cT);
-    } else if (currentTopic) setCurrentTopic(null);
+    const topic =
+      topics.find(
+        (topic) => normalize(topic.topicName) === normalize(currentTopicName!)
+      ) || null;
+
+    if (topic) {
+      setCurrentTopic(topic);
+      const topicRef = refs[topic._id].current;
+
+      if (topicRef)
+        topicRef.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+    }
   }, [currentTopicName]);
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
@@ -121,6 +135,13 @@ export const TopicsList = ({
   const topics = (isE ? entity.eventTopics : entity.orgTopics).filter(
     canDisplay
   );
+  const refs = topics.reduce(
+    (acc: Record<string, React.RefObject<any>>, value) => {
+      acc[value._id] = React.createRef();
+      return acc;
+    },
+    {}
+  );
   //#endregion
 
   //#region loading state
@@ -156,12 +177,20 @@ export const TopicsList = ({
   //#endregion
 
   const onClick = (topic: ITopic) => {
-    let url = `${router.asPath}/${topic.topicName}`;
-
-    if (router.asPath.includes(topic.topicName)) {
-      url = `/${isE ? entity.eventUrl : entity.orgUrl}/discussions`;
-    }
-
+    const topicName = normalize(topic.topicName);
+    const baseUrl = `/${isE ? entity.eventUrl : entity.orgUrl}/discussions`;
+    let url = `${baseUrl}/${topicName}`;
+    const regex = new RegExp(`${baseUrl}\/([^\/]+)`);
+    const matches = router.asPath.match(regex);
+    const closeTopic = matches && matches[1] === topicName;
+    if (closeTopic) url = baseUrl;
+    // else {
+    //   refs[topic._id].current.scrollIntoView({
+    //     behavior: "smooth",
+    //     block: "start"
+    //   });
+    //   console.log("scroll");
+    // }
     router.push(url, url, { shallow: true });
   };
 
@@ -298,6 +327,12 @@ export const TopicsList = ({
             onSubmit={async (topic) => {
               query.refetch();
               subQuery.refetch();
+              const topicName = normalize(topic.topicName);
+              const baseUrl = `/${
+                isE ? entity.eventUrl : entity.orgUrl
+              }/discussions`;
+              const url = `${baseUrl}/${topicName}`;
+              router.push(url);
               onClose();
             }}
             onClose={onClose}
@@ -448,6 +483,7 @@ export const TopicsList = ({
             return (
               <TopicsListItem
                 key={topic._id}
+                ref={refs[topic._id]}
                 session={session}
                 isCreator={props.isCreator}
                 query={query}

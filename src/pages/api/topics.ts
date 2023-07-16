@@ -196,11 +196,19 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       }
       //#endregion
 
-      res.status(200).json({});
+      res.status(200).json(topic);
     } catch (error: any) {
       res.status(500).json(createServerError(error));
     }
   }
 );
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "50mb"
+    }
+  }
+};
 
 export default handler;
