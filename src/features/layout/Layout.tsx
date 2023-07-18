@@ -30,6 +30,7 @@ import { selectUserEmail } from "store/userSlice";
 import { Base64Image } from "utils/image";
 import { isServer } from "utils/isServer";
 import { capitalize } from "utils/string";
+import { ChevronUpIcon } from "@chakra-ui/icons";
 
 const PAYPAL_BUTTON_WIDTH = 108;
 let isNotified = false;
@@ -64,6 +65,7 @@ export const Layout = ({
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const isOffline = useSelector(selectIsOffline);
+  const [showButton, setShowButton] = useState(false);
 
   const notify = (title: string) => {
     if (!isNotified) {
@@ -94,6 +96,15 @@ export const Layout = ({
           : original(Array.prototype.slice.apply(args).join(" "));
       };
     }
+
+    function handleScrollButtonVisibility() {
+      setShowButton(window.scrollY > 200);
+    }
+
+    window.addEventListener("scroll", handleScrollButtonVisibility);
+    return () => {
+      window.removeEventListener("scroll", handleScrollButtonVisibility);
+    };
   }, []);
 
   const isE = isEvent(entity);
@@ -210,15 +221,33 @@ export const Layout = ({
 
         {/*Right Floating Footer*/}
         <Box position="fixed" right={4} bottom={1}>
-          <Tooltip
-            placement="top-start"
-            label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
-            hasArrow
-          >
-            <Box>
-              <DarkModeSwitch />
-            </Box>
-          </Tooltip>
+          <Flex flexDirection="column" alignItems="center">
+            {showButton && (
+              <ChevronUpIcon
+                background={isDark ? "whiteAlpha.300" : "blackAlpha.400"}
+                borderRadius={20}
+                boxSize={10}
+                cursor="pointer"
+                mb={3}
+                _hover={{
+                  background: isDark ? "whiteAlpha.400" : "blackAlpha.500"
+                }}
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              />
+            )}
+
+            <Tooltip
+              placement="top-start"
+              label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
+              hasArrow
+            >
+              <Box>
+                <DarkModeSwitch />
+              </Box>
+            </Tooltip>
+          </Flex>
         </Box>
 
         {/*Left Floating Footer*/}

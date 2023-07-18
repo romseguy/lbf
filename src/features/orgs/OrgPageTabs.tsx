@@ -1,11 +1,8 @@
 import {
   CalendarIcon,
   ChatIcon,
-  QuestionIcon,
-  SettingsIcon
-} from "@chakra-ui/icons";
+  QuestionIcon} from "@chakra-ui/icons";
 import {
-  Button,
   Flex,
   Icon,
   Input,
@@ -30,6 +27,7 @@ import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
 import { TopicsList } from "features/forum/TopicsList";
 import { ProjectsList } from "features/projects/ProjectsList";
+import { useScroll } from "hooks/useScroll";
 import { defaultTabs, IOrg, IOrgTabWithIcon, orgTypeFull } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { sortOn } from "utils/array";
@@ -38,6 +36,52 @@ import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { IsEditConfig } from "./OrgPage";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
+
+const TopicsTabPanel = ({
+  currentItemName,
+  isCreator,
+  isFollowed,
+  orgQuery,
+  subQuery
+}: {
+  currentItemName?: string;
+  isCreator: boolean;
+  isFollowed: boolean;
+  orgQuery: AppQueryWithData<IOrg>;
+  subQuery: AppQuery<ISubscription>;
+}) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+  const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
+
+  useEffect(() => {
+    executeScroll();
+    console.log(
+      "🚀 ~ file: OrgPageTabs.tsx:TopicsTabPanel:62 ~ useEffect ~ executeScroll:"
+    );
+  }, []);
+
+  return (
+    <>
+      <Flex ref={elementToScrollRef as React.ForwardedRef<HTMLDivElement>}>
+        <ChatIcon boxSize={6} mr={3} mt={3} />
+        <Heading noContainer mb={3}>
+          Discussions
+        </Heading>
+      </Flex>
+
+      <Column bg={isDark ? "gray.700" : "lightblue"}>
+        <TopicsList
+          currentTopicName={currentItemName}
+          isCreator={isCreator}
+          isFollowed={isFollowed}
+          query={orgQuery}
+          subQuery={subQuery}
+        />
+      </Column>
+    </>
+  );
+};
 
 export const OrgPageTabs = ({
   currentItemName,
@@ -205,22 +249,13 @@ export const OrgPageTabs = ({
 
         {!!tabs.find(({ label }) => label === "Discussions") && (
           <TabPanel aria-hidden>
-            <Flex>
-              <ChatIcon boxSize={6} mr={3} mt={3} />
-              <Heading noContainer mb={3}>
-                Discussions
-              </Heading>
-            </Flex>
-
-            <Column {...columnProps}>
-              <TopicsList
-                query={orgQuery}
-                isCreator={isCreator}
-                subQuery={subQuery}
-                isFollowed={isFollowed}
-                currentTopicName={currentItemName}
-              />
-            </Column>
+            <TopicsTabPanel
+              currentItemName={currentItemName}
+              isCreator={isCreator}
+              isFollowed={isFollowed}
+              orgQuery={orgQuery}
+              subQuery={subQuery}
+            />
           </TabPanel>
         )}
 
