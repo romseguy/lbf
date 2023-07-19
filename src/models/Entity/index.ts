@@ -27,22 +27,22 @@ export const getRefId = (entity: Record<string, any>, key?: string) => {
   return value;
 };
 
-export const isEvent = (entity?: IEntity): entity is IEvent => {
+export const isEvent = (entity?: IEntity | null): entity is IEvent => {
   return !!entity && (entity as IEvent).eventUrl !== undefined;
 };
 
-export const isOrg = (entity?: IEntity): entity is IOrg => {
+export const isOrg = (entity?: IEntity | null): entity is IOrg => {
   return !!entity && (entity as IOrg).orgUrl !== undefined;
 };
 
-export const isProject = (entity?: IEntity): entity is IProject => {
+export const isProject = (entity?: IEntity | null): entity is IProject => {
   return !!entity && (entity as IProject).projectName !== undefined;
 };
 
-export const isTopic = (entity?: IEntity): entity is ITopic => {
+export const isTopic = (entity?: IEntity | null): entity is ITopic => {
   return !!entity && (entity as ITopic).topicName !== undefined;
 };
 
-export const isUser = (entity?: IEntity): entity is IUser => {
+export const isUser = (entity?: IEntity | null): entity is IUser => {
   return !!entity && (entity as IUser).email !== undefined;
 };

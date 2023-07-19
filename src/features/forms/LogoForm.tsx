@@ -25,32 +25,30 @@ import { EventConfigVisibility } from "features/events/EventConfigPanel";
 import { useEditEventMutation } from "features/api/eventsApi";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
 import { useEditOrgMutation } from "features/api/orgsApi";
-import { isEvent, IEntityLogo } from "models/Entity";
-import { IEvent } from "models/Event";
-import { IOrg, orgTypeFull } from "models/Org";
+import { isEvent, IEntity, isOrg } from "models/Entity";
+import { orgTypeFull } from "models/Org";
 import { logoHeight } from "features/layout/theme";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
-import { AppQuery } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 
 export const LogoForm = ({
   query,
   toggleVisibility
 }: (EventConfigVisibility | OrgConfigVisibility) & {
-  query: AppQuery<IOrg | IEvent>;
+  query: AppQueryWithData<IEntity>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
   const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
-  const entity = (query.data || {}) as IEvent | IOrg;
+  const entity = query.data;
   const isE = isEvent(entity);
+  const isO = isOrg(entity);
   const edit = isE ? editEvent : editOrg;
-  const entityLogo: IEntityLogo | undefined = isE
-    ? entity.eventLogo
-    : entity.orgLogo;
-  const entityName = isE ? entity.eventName : entity.orgName;
+  const entityLogo = isE ? entity.eventLogo : isO ? entity.orgLogo : undefined;
+  const entityName = isE ? entity.eventName : isO ? entity.orgName : entity._id;
 
   //#region form
   const {
@@ -108,7 +106,7 @@ export const LogoForm = ({
       setIsLoading(false);
       toast({
         title: `Le logo ${
-          isE ? "de l'événement" : orgTypeFull(entity.orgType)
+          isE ? "de l'événement" : isO ? orgTypeFull(entity.orgType) : ""
         } a été modifié !`,
         status: "success"
       });
@@ -152,7 +150,11 @@ export const LogoForm = ({
                 setIsLoading(false);
                 toast({
                   title: `Le logo ${
-                    isE ? "de l'événement" : orgTypeFull(entity.orgType)
+                    isE
+                      ? "de l'événement"
+                      : isO
+                      ? orgTypeFull(entity.orgType)
+                      : ""
                   } a été supprimé !`,
                   status: "success"
                 });
@@ -161,7 +163,11 @@ export const LogoForm = ({
                 setIsLoading(false);
                 toast({
                   title: `Le logo ${
-                    isE ? "de l'événement" : orgTypeFull(entity.orgType)
+                    isE
+                      ? "de l'événement"
+                      : isO
+                      ? orgTypeFull(entity.orgType)
+                      : ""
                   } n'a pas pu être supprimé`,
                   status: "error"
                 });

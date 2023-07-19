@@ -2,8 +2,6 @@ import { Flex, GridProps, Heading } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
-import { useEditEventMutation } from "features/api/eventsApi";
-import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   Button,
   CategoriesList,
@@ -17,16 +15,14 @@ import { EventConfigVisibility } from "features/events/EventConfigPanel";
 import { CategoryForm } from "features/forms/CategoryForm";
 import { breakpoints } from "features/layout/theme";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
-import { IEntityCategory, IEntityCategoryKey, isEvent } from "models/Entity";
-import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { IEntity, IEntityCategory, IEntityCategoryKey } from "models/Entity";
 import { hasItems } from "utils/array";
 import { AppQueryWithData } from "utils/types";
 
 type EntityConfigCategoriesPanelProps = {
   categories: IEntityCategory[];
   fieldName: IEntityCategoryKey;
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
 };
 
 export const EntityConfigCategoriesPanel = ({
@@ -39,14 +35,6 @@ export const EntityConfigCategoriesPanel = ({
 }: GridProps &
   (EventConfigVisibility | OrgConfigVisibility) &
   EntityConfigCategoriesPanelProps) => {
-  const [editEvent] = useEditEventMutation();
-  const [editOrg] = useEditOrgMutation();
-
-  const entity = query.data;
-  const isE = isEvent(entity);
-  const edit = isE ? editEvent : editOrg;
-
-  //#region local state
   const [isAdd, setIsAdd] = useState(false);
   const visibilityKey = ["eventTopicCategories", "orgTopicCategories"].includes(
     fieldName
@@ -54,13 +42,13 @@ export const EntityConfigCategoriesPanel = ({
     ? "topicCategories"
     : "eventCategories";
   const isOpen = isVisible[visibilityKey];
+
   useEffect(
     function onCategoriesChange() {
       if (!hasItems(categories)) toggleVisibility(visibilityKey, false);
     },
     [categories]
   );
-  //#endregion
 
   return (
     <Grid {...props}>

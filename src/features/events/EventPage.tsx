@@ -25,11 +25,11 @@ import {
   EmailPreview,
   EntityButton,
   EntityNotified,
+  EntityPageTopics,
   Heading,
   Link
 } from "features/common";
 import { EventNotifForm } from "features/forms/EventNotifForm";
-import { TopicsList } from "features/forum/TopicsList";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { getRefId } from "models/Entity";
@@ -254,17 +254,13 @@ export const EventPage = ({
               </TabPanel>
 
               <TabPanel aria-hidden>
-                <Heading mb={3}>Discussions</Heading>
-
-                <Column {...columnProps}>
-                  <TopicsList
-                    query={eventQuery}
-                    isCreator={isCreator}
-                    subQuery={subQuery}
-                    isFollowed={isFollowed}
-                    currentTopicName={tabItem}
-                  />
-                </Column>
+                <EntityPageTopics
+                  currentItemName={tabItem}
+                  isCreator={isCreator}
+                  isFollowed={isFollowed}
+                  query={eventQuery}
+                  subQuery={subQuery}
+                />
               </TabPanel>
 
               {session && isCreator && (

@@ -19,7 +19,13 @@ import { handleError } from "utils/form";
 import { AppQueryWithData } from "utils/types";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import useFormPersist from "react-hook-form-persist";
-import { IEntityCategory, IEntityCategoryKey, isEvent } from "models/Entity";
+import {
+  IEntity,
+  IEntityCategory,
+  IEntityCategoryKey,
+  isEvent,
+  isOrg
+} from "models/Entity";
 import { IEvent } from "models/Event";
 import { useEditEventMutation } from "features/api/eventsApi";
 
@@ -32,7 +38,7 @@ export const CategoryForm = ({
 }: {
   categories: IEntityCategory[];
   fieldName: IEntityCategoryKey;
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
   onCancel?: () => void;
   onSubmit: () => void;
 }) => {
@@ -41,6 +47,7 @@ export const CategoryForm = ({
   const [editOrg] = useEditOrgMutation();
   const entity = query.data as IOrg;
   const isE = isEvent(entity);
+  const isO = isOrg(entity);
   const edit = isE ? editEvent : editOrg;
 
   //#region local state
@@ -72,7 +79,7 @@ export const CategoryForm = ({
     setIsLoading(true);
     try {
       await edit({
-        [isE ? "eventId" : "orgId"]: entity._id,
+        [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id,
         payload: {
           [fieldName]: categories.concat({
             catId: `${categories.length}`,

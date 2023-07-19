@@ -9,15 +9,15 @@ import {
   AlertIcon
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import useFormPersist from "react-hook-form-persist";
-import { useRouter } from "next/router";
-import { useAddTopicMutation } from "features/api/topicsApi";
+import { AddTopicPayload, useAddTopicMutation } from "features/api/topicsApi";
 import { ErrorMessageText, RTEditor } from "features/common";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import { useSession } from "hooks/useSession";
-import { isEvent } from "models/Entity";
+import { IEntity, isEvent, isOrg } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
@@ -28,7 +28,7 @@ import { AppQueryWithData } from "utils/types";
 interface TopicMessageFormProps extends ChakraProps {
   formats?: string[];
   isDisabled?: boolean;
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
   topic: ITopic;
   topicMessage?: ITopicMessage;
   onCancel?: () => void;
@@ -43,8 +43,11 @@ export const TopicMessageForm = ({
   const router = useRouter();
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
-  const event = isEvent(query.data) ? query.data : undefined;
-  const org = isEvent(query.data) ? undefined : query.data;
+  const entity = query.data;
+  const isE = isEvent(entity);
+  const isO = isOrg(entity);
+  const event = isE ? (query.data as IEvent) : undefined;
+  const org = isO ? (query.data as IOrg) : undefined;
 
   const [addTopic, addTopicMutation] = useAddTopicMutation();
 
@@ -118,7 +121,7 @@ export const TopicMessageForm = ({
 
     setIsLoading(true);
 
-    const payload = {
+    const payload: AddTopicPayload = {
       org,
       event,
       topic: {

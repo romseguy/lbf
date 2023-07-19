@@ -24,7 +24,7 @@ import {
 } from "features/api/topicsApi";
 import { useSession } from "hooks/useSession";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
-import { isEvent } from "models/Entity";
+import { IEntity, isEvent, isOrg } from "models/Entity";
 import type { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { ISubscription } from "models/Subscription";
@@ -39,7 +39,7 @@ export const TopicForm = ({
   subQuery,
   ...props
 }: {
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
   subQuery: AppQuery<ISubscription>;
   topic?: ITopic;
   isCreator?: boolean;
@@ -57,10 +57,15 @@ export const TopicForm = ({
   const [editOrg] = useEditOrgMutation();
   const entity = query.data;
   const isE = isEvent(entity);
+  const isO = isOrg(entity);
+  const event = isE ? (query.data as IEvent) : undefined;
+  const org = isO ? (query.data as IOrg) : undefined;
   const edit = isE ? editEvent : editOrg;
   const topicCategories = isE
     ? entity.eventTopicCategories
-    : entity.orgTopicCategories;
+    : isO
+    ? entity.orgTopicCategories
+    : [];
   const topicCategory =
     props.topic &&
     props.topic.topicCategory &&
@@ -153,11 +158,10 @@ export const TopicForm = ({
         }
 
         let payload: AddTopicPayload = {
+          event,
+          org,
           topic
         };
-
-        if (isE) payload.event = entity;
-        else payload.org = entity;
 
         const newTopic = await addTopic({
           payload
@@ -236,7 +240,11 @@ export const TopicForm = ({
                     toast({
                       status: "error",
                       title: `Vous n'avez pas la permission ${
-                        isE ? "de l'événement" : orgTypeFull(entity.orgType)
+                        isE
+                          ? "de l'événement"
+                          : isO
+                          ? orgTypeFull(entity.orgType)
+                          : ""
                       } pour ajouter une catégorie`
                     });
                     return;
@@ -342,7 +350,7 @@ export const TopicForm = ({
         </FormControl>
       )}
 
-      {!isE && entity.orgUrl !== "forum" && (
+      {org && org.orgUrl !== "forum" && (
         <FormControl mb={3}>
           <FormLabel>Visibilité</FormLabel>
           <Controller
@@ -360,7 +368,7 @@ export const TopicForm = ({
                   value={renderProps.value}
                   onChange={renderProps.onChange}
                   options={
-                    entity.orgLists.map(({ listName }) => ({
+                    org.orgLists.map(({ listName }) => ({
                       label: listName,
                       value: listName
                     })) || []

@@ -4,10 +4,11 @@ import nextConnect from "next-connect";
 import database, { models } from "database";
 import { sendMail, sendTopicNotifications } from "features/api/email";
 import { EditTopicPayload, AddTopicNotifPayload } from "features/api/topicsApi";
-import { getSession } from "utils/auth";
-import { getSubscriptions, IOrg } from "models/Org";
+import { getRefId } from "models/Entity";
 import { ITopicNotification } from "models/INotification";
+import { getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
+import { getSession } from "utils/auth";
 import { createTopicEmailNotif } from "utils/email";
 import { createServerError } from "utils/errors";
 import { equals } from "utils/string";
@@ -56,7 +57,7 @@ handler.post<
         .json(
           createServerError(
             new Error(
-              "Vous ne pouvez pas envoyer des notifications pour une discussion que vous n'avez pas créé."
+              "Vous ne pouvez pas envoyer des notifications pour une discussion que vous n'avez pas créé"
             )
           )
         );
@@ -234,12 +235,9 @@ handler.put<
               createServerError(new Error("Le message n'a pas été trouvé."))
             );
 
-        const createdBy =
-          typeof topicMessage.createdBy === "string"
-            ? topicMessage.createdBy
-            : topicMessage.createdBy._id;
+        const isCreator = equals(getRefId(topicMessage), session.user.userId);
 
-        if (!equals(createdBy, session.user.userId) && !session.user.isAdmin)
+        if (!isCreator && !session.user.isAdmin)
           return res
             .status(403)
             .json(
@@ -277,7 +275,7 @@ handler.put<
             .json(
               createServerError(
                 new Error(
-                  "Vous ne pouvez pas modifier une discussion que vous n'avez pas créé."
+                  "Vous ne pouvez pas modifier une discussion que vous n'avez pas créé"
                 )
               )
             );
@@ -311,7 +309,7 @@ handler.delete<
 
   try {
     const topicId = req.query.topicId;
-    const topic = await models.Topic.findOne({ _id: topicId });
+    let topic = await models.Topic.findOne({ _id: topicId });
 
     if (!topic)
       return res
@@ -320,18 +318,25 @@ handler.delete<
           createServerError(new Error(`La discussion n'a pas pu être trouvée`))
         );
 
-    if (!equals(topic.createdBy, session.user.userId) && !session.user.isAdmin)
+    topic = await topic.populate("org event").execPopulate();
+    const isCreator = equals(
+      getRefId(topic.org || topic.event || {}),
+      session.user.userId
+    );
+    const isTopicCreator = equals(getRefId(topic), session.user.userId);
+
+    if (!isCreator && !isTopicCreator && !session.user.isAdmin)
       return res
         .status(403)
         .json(
           createServerError(
             new Error(
-              "Vous ne pouvez pas supprimer une discussion que vous n'avez pas créé."
+              "Vous ne pouvez pas supprimer une discussion que vous n'avez pas créé"
             )
           )
         );
 
-    //#region org reference
+    //#region entity references
     if (topic.org) {
       console.log("deleting org reference to topic", topic.org);
       await models.Org.updateOne(

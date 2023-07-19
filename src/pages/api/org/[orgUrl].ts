@@ -560,7 +560,7 @@ handler.delete<
         .json(
           createServerError(
             new Error(
-              "Vous ne pouvez pas supprimer une organisation que vous n'avez pas créé."
+              "Vous ne pouvez pas supprimer une organisation que vous n'avez pas créé"
             )
           )
         );

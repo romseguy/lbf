@@ -12,7 +12,7 @@ import { withGoogleApi } from "./GoogleApiWrapper";
 import { Marker } from "./Marker";
 import { getMarkerUrl, SizeMap } from "utils/maps";
 import { EntityModal } from "features/modals/EntityModal";
-import { isEvent } from "models/Entity";
+import { IEntity, isEvent, isOrg } from "models/Entity";
 
 const defaultCenter = {
   lat: 46.227638,
@@ -20,13 +20,15 @@ const defaultCenter = {
 };
 const defaultZoomLevel = 5;
 
-function getMarkers(items: IEvent[] | IOrg[]) {
+function getMarkers(items: IEntity[]) {
   let hash: { [key: string]: boolean } = {};
 
-  return items.map((item: IOrg | IEvent, index: number) => {
+  return items.map((item, index: number) => {
+    const isE = isEvent(item);
+    const isO = isOrg(item);
     const key = `marker-${index}`;
-    let lat = "eventName" in item ? item.eventLat : item.orgLat;
-    let lng = "eventName" in item ? item.eventLng : item.orgLng;
+    let lat = isE ? item.eventLat : isO ? item.orgLat : undefined;
+    let lng = isE ? item.eventLng : isO ? item.orgLng : undefined;
 
     if (lat && lng) {
       const latLng = `${lat}_${lng}`;
@@ -75,7 +77,7 @@ export const Map = withGoogleApi({
   }) => {
     const mapRef = useRef(null);
 
-    const [itemToShow, setItemToShow] = useState<IEvent | IOrg | null>(null);
+    const [itemToShow, setItemToShow] = useState<IEntity | null>(null);
     const [zoomLevel, setZoomLevel] = useState<number>(
       props.zoomLevel || defaultZoomLevel
     );
@@ -218,15 +220,10 @@ export const Map = withGoogleApi({
           ))}
         </GoogleMap>
 
-        {itemToShow ? (
-          isEvent(itemToShow) ? (
-            <EntityModal
-              event={itemToShow}
-              onClose={() => setItemToShow(null)}
-            />
-          ) : (
-            <EntityModal org={itemToShow} onClose={() => setItemToShow(null)} />
-          )
+        {isEvent(itemToShow) ? (
+          <EntityModal event={itemToShow} onClose={() => setItemToShow(null)} />
+        ) : isOrg(itemToShow) ? (
+          <EntityModal org={itemToShow} onClose={() => setItemToShow(null)} />
         ) : null}
       </>
     );

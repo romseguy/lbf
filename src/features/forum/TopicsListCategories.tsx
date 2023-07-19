@@ -17,7 +17,7 @@ import { DeleteButton } from "features/common";
 import { useEditEventMutation } from "features/api/eventsApi";
 import { CategoriesModal } from "features/modals/CategoriesModal";
 import { useEditOrgMutation } from "features/api/orgsApi";
-import { isEvent } from "models/Entity";
+import { IEntity, isEvent, isOrg } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { AppQueryWithData } from "utils/types";
@@ -29,7 +29,7 @@ export const TopicsListCategories = ({
   setSelectedCategories,
   ...props
 }: FlexProps & {
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
   isCreator?: boolean;
   selectedCategories?: string[];
   setSelectedCategories: React.Dispatch<
@@ -42,6 +42,7 @@ export const TopicsListCategories = ({
   const [editOrg] = useEditOrgMutation();
   const entity = query.data;
   const isE = isEvent(entity);
+  const isO = isOrg(entity);
   const edit = isE ? editEvent : editOrg;
 
   //#region modal state
@@ -56,8 +57,10 @@ export const TopicsListCategories = ({
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const topicCategories = isE
     ? entity.eventTopicCategories
-    : entity.orgTopicCategories;
-  const topics = isE ? entity.eventTopics : entity.orgTopics;
+    : isO
+    ? entity.orgTopicCategories
+    : [];
+  const topics = isE ? entity.eventTopics : isO ? entity.orgTopics : [];
 
   useEffect(() => {
     if (!query.isFetching) {
@@ -88,9 +91,7 @@ export const TopicsListCategories = ({
           </Tooltip>
 
           <CategoriesModal
-            categories={
-              isE ? entity.eventTopicCategories : entity.orgTopicCategories
-            }
+            categories={topicCategories}
             fieldName={isE ? "eventTopicCategories" : "orgTopicCategories"}
             isOpen={isCategoriesModalOpen}
             query={query}

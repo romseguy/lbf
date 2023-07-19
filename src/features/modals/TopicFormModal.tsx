@@ -9,6 +9,7 @@ import {
 import React, { useState } from "react";
 import { Modal } from "features/common";
 import { TopicForm } from "features/forms/TopicForm";
+import { IEntity } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
@@ -16,7 +17,7 @@ import { ITopic } from "models/Topic";
 import { AppQuery, AppQueryWithData } from "utils/types";
 
 export const TopicFormModal = (props: {
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
   subQuery: AppQuery<ISubscription>;
   topic?: ITopic;
   isOpen: boolean;

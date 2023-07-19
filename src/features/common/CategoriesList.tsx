@@ -3,7 +3,13 @@ import React from "react";
 import { DeleteButton } from "features/common";
 import { useEditEventMutation } from "features/api/eventsApi";
 import { useEditOrgMutation } from "features/api/orgsApi";
-import { IEntityCategory, IEntityCategoryKey, isEvent } from "models/Entity";
+import {
+  IEntity,
+  IEntityCategory,
+  IEntityCategoryKey,
+  isEvent,
+  isOrg
+} from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { AppQueryWithData } from "utils/types";
@@ -15,12 +21,13 @@ export const CategoriesList = ({
 }: {
   categories: IEntityCategory[];
   fieldName: IEntityCategoryKey;
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
 }) => {
   const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
   const entity = query.data as IOrg;
   const isE = isEvent(entity);
+  const isO = isOrg(entity);
   const edit = isE ? editEvent : editOrg;
 
   return (
@@ -51,7 +58,8 @@ export const CategoriesList = ({
                   isIconOnly
                   onClick={async () => {
                     await edit({
-                      [isE ? "eventId" : "orgId"]: entity._id,
+                      [isE ? "eventId" : isO ? "orgId" : "entityId"]:
+                        entity._id,
                       payload: {
                         [fieldName]: categories.filter(
                           (categoryToDelete) => categoryToDelete.label !== label

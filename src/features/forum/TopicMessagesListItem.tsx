@@ -19,6 +19,7 @@ import { Session } from "utils/auth";
 import * as dateUtils from "utils/date";
 import { sanitize } from "utils/string";
 import { AppQuery } from "utils/types";
+import { IEntity } from "models/Entity";
 
 export const TopicMessagesListItem = ({
   index,
@@ -44,7 +45,7 @@ export const TopicMessagesListItem = ({
   >;
   isLoading: Record<string, boolean>;
   mutation: any;
-  query: AppQuery<IEvent | IOrg>;
+  query: AppQuery<IEntity>;
   session: Session | null;
   setIsEdit: React.Dispatch<
     React.SetStateAction<

@@ -25,6 +25,7 @@ import { sanitize } from "utils/string";
 import { AppQuery } from "utils/types";
 import { useEditTopicMutation } from "features/api/topicsApi";
 import { TopicMessagesListItem } from "./TopicMessagesListItem";
+import { IEntity } from "models/Entity";
 
 export const TopicMessagesList = ({
   topic,
@@ -32,7 +33,7 @@ export const TopicMessagesList = ({
   ...props
 }: FlexProps & {
   topic: ITopic;
-  query: AppQuery<IEvent | IOrg>;
+  query: AppQuery<IEntity>;
 }) => {
   const { data: session } = useSession();
   const { colorMode } = useColorMode();

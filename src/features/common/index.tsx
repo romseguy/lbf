@@ -9,6 +9,7 @@ export * from "./entities/EntityInfo";
 export * from "./entities/EntityNotified";
 export * from "./entities/EntityPageTab";
 export * from "./entities/EntityPageTabList";
+export * from "./entities/EntityPageTopics";
 export * from "./entities/EntityTag";
 
 export * from "./forms/AddressControl";

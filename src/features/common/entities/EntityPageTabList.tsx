@@ -6,7 +6,7 @@ import { useScroll } from "hooks/useScroll";
 export const EntityPageTabList = ({ children, ...props }: TabListProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const router = useRouter();
+  // const router = useRouter();
   // const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
   // useEffect(() => {
   //   if (

@@ -29,7 +29,13 @@ import {
 } from "features/modals/EntityNotifModal";
 import { TopicFormModal } from "features/modals/TopicFormModal";
 import { useSession } from "hooks/useSession";
-import { getCategoryLabel, getRefId, isEvent } from "models/Entity";
+import {
+  getCategoryLabel,
+  getRefId,
+  IEntity,
+  isEvent,
+  isOrg
+} from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg, IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
@@ -41,6 +47,7 @@ import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicCategoryTag } from "./TopicCategoryTag";
 import { TopicsListItem } from "./TopicsListItem";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
+import { ServerError } from "utils/errors";
 
 export const TopicsList = ({
   query,
@@ -48,7 +55,7 @@ export const TopicsList = ({
   currentTopicName,
   ...props
 }: GridProps & {
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
   subQuery: AppQuery<ISubscription>;
   isCreator: boolean;
   isFollowed?: boolean;
@@ -67,9 +74,16 @@ export const TopicsList = ({
   const [deleteTopic] = useDeleteTopicMutation();
   const entity = query.data;
   const isE = isEvent(entity);
+  const isO = isOrg(entity);
+  const baseUrl = `/${
+    isE ? entity.eventUrl : isO ? entity.orgUrl : entity._id
+  }/discussions`;
   const topicCategories = isE
     ? entity.eventTopicCategories
-    : entity.orgTopicCategories;
+    : isO
+    ? entity.orgTopicCategories
+    : [];
+
   const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
   useEffect(() => {
     if (!currentTopicName) {
@@ -111,7 +125,7 @@ export const TopicsList = ({
           belongsToCategory = true;
       }
 
-      if (isE || entity.orgUrl === "forum") return belongsToCategory;
+      if (isE || (isO && entity.orgUrl === "forum")) return belongsToCategory;
 
       if (Array.isArray(selectedLists) && selectedLists.length > 0) {
         if (hasItems(topic.topicVisibility)) {
@@ -132,9 +146,10 @@ export const TopicsList = ({
     return true;
   };
 
-  const topics = (isE ? entity.eventTopics : entity.orgTopics).filter(
-    canDisplay
-  );
+  const topics = (
+    isE ? entity.eventTopics : isO ? entity.orgTopics : []
+  ).filter(canDisplay);
+
   const refs = topics.reduce(
     (acc: Record<string, React.RefObject<any>>, value) => {
       acc[value._id] = React.createRef();
@@ -176,25 +191,19 @@ export const TopicsList = ({
   >({});
   //#endregion
 
-  const onClick = (topic: ITopic) => {
-    const topicName = normalize(topic.topicName);
-    const baseUrl = `/${isE ? entity.eventUrl : entity.orgUrl}/discussions`;
-    let url = `${baseUrl}/${topicName}`;
-    const regex = new RegExp(`${baseUrl}\/([^\/]+)`);
-    const matches = router.asPath.match(regex);
-    const closeTopic = matches && matches[1] === topicName;
-    if (closeTopic) url = baseUrl;
-    // else {
+  const onClick = (topic: ITopic, isCurrent: boolean) => {
+    const url = isCurrent
+      ? baseUrl
+      : `${baseUrl}/${normalize(topic.topicName)}`;
+    router.push(url, url, { shallow: true });
+
     //   refs[topic._id].current.scrollIntoView({
     //     behavior: "smooth",
     //     block: "start"
     //   });
-    //   console.log("scroll");
-    // }
-    router.push(url, url, { shallow: true });
   };
 
-  const onDeleteClick = async (topic: ITopic) => {
+  const onDeleteClick = async (topic: ITopic, isCurrent: boolean) => {
     setIsLoading({
       [topic._id]: true
     });
@@ -207,9 +216,15 @@ export const TopicsList = ({
         title: `${deletedTopic.topicName} a été supprimé !`,
         status: "success"
       });
-    } catch (error: any) {
+
+      if (isCurrent) {
+        router.push(baseUrl, baseUrl, { shallow: true });
+      }
+    } catch (error: ServerError | any) {
       toast({
-        title: `La discussion ${topic.topicName} n'a pas pu être supprimée`,
+        title:
+          error.data.message ||
+          `La discussion ${topic.topicName} n'a pas pu être supprimée`,
         status: "error"
       });
     } finally {
@@ -329,7 +344,7 @@ export const TopicsList = ({
               subQuery.refetch();
               const topicName = normalize(topic.topicName);
               const baseUrl = `/${
-                isE ? entity.eventUrl : entity.orgUrl
+                isE ? entity.eventUrl : isO ? entity.orgUrl : entity._id
               }/discussions`;
               const url = `${baseUrl}/${topicName}`;
               router.push(url);
@@ -352,9 +367,9 @@ export const TopicsList = ({
         </Flex>
       )}
 
-      {!isE &&
-        session &&
+      {isO &&
         entity.orgUrl !== "forum" &&
+        session &&
         hasItems(entity.orgLists) && (
           <Flex flexDirection="column" mb={3}>
             <Heading smaller>Listes</Heading>

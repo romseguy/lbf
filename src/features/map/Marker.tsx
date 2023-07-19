@@ -1,6 +1,7 @@
 import { Image, Tooltip } from "@chakra-ui/react";
 import React, { useState } from "react";
 import type { IEvent } from "models/Event";
+import { IEntity, isEvent, isOrg } from "models/Entity";
 import { EOrgType, IOrg } from "models/Org";
 import { getMarkerUrl, latLng2World, world2Screen } from "utils/maps";
 
@@ -11,13 +12,15 @@ export const Marker = ({
   zoomLevel,
   setItemToShow
 }: {
-  item: IEvent | IOrg;
+  item: IEntity;
   lat?: number;
   lng?: number;
   zoomLevel: number;
-  setItemToShow: (item: IEvent | IOrg | null) => void;
+  setItemToShow: (item: IEntity | null) => void;
 }) => {
-  const name = "eventName" in item ? item.eventName : item.orgName;
+  const isE = isEvent(item);
+  const isO = isOrg(item);
+  const name = isE ? item.eventName : isO ? item.orgName : item._id;
   const defaultFill = "red";
   const defaultFillOnEnter = "eventName" in item ? "green" : "blue";
   const [fill, setFill] = useState(defaultFill);
@@ -31,12 +34,11 @@ export const Marker = ({
   const image = (
     <Image
       src={getMarkerUrl({
-        id:
-          "eventName" in item
-            ? "event"
-            : "orgType" in item && item.orgType === EOrgType.NETWORK
-            ? "planet"
-            : "tree",
+        id: isE
+          ? "event"
+          : isO && item.orgType === EOrgType.NETWORK
+          ? "planet"
+          : "tree",
         fill,
         height: 25,
         width: 25

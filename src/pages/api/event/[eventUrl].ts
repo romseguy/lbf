@@ -319,7 +319,7 @@ handler.put<
         .json(
           createServerError(
             new Error(
-              "Vous ne pouvez pas modifier un événement que vous n'avez pas créé."
+              "Vous ne pouvez pas modifier un événement que vous n'avez pas créé"
             )
           )
         );
@@ -474,7 +474,7 @@ handler.delete<
         .json(
           createServerError(
             new Error(
-              "Vous ne pouvez pas supprimer un événement que vous n'avez pas créé."
+              "Vous ne pouvez pas supprimer un événement que vous n'avez pas créé"
             )
           )
         );

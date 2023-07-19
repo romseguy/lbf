@@ -5,9 +5,7 @@ import { Grid, GridHeader, GridItem, Link } from "features/common";
 import { EventConfigVisibility } from "features/events/EventConfigPanel";
 import { BannerForm } from "features/forms/BannerForm";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
-import { isEvent } from "models/Entity";
-import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { IEntity } from "models/Entity";
 import { AppQueryWithData } from "utils/types";
 
 export const EntityConfigBannerPanel = ({
@@ -17,11 +15,8 @@ export const EntityConfigBannerPanel = ({
   ...props
 }: GridProps &
   (EventConfigVisibility | OrgConfigVisibility) & {
-    query: AppQueryWithData<IEvent | IOrg>;
+    query: AppQueryWithData<IEntity>;
   }) => {
-  const entity = (query.data || {}) as IEvent | IOrg;
-  const isE = isEvent(entity);
-
   return (
     <Grid {...props}>
       <Link variant="no-underline" onClick={() => toggleVisibility("banner")}>

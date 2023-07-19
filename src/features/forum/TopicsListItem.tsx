@@ -21,7 +21,7 @@ import {
 } from "react-icons/fa";
 import { DeleteButton, GridItem } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
-import { getCategoryLabel, isEvent } from "models/Entity";
+import { getCategoryLabel, IEntity, isEvent, isOrg } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
@@ -42,15 +42,15 @@ interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
   isTopicCreator: boolean;
   isDark: boolean;
   isLoading: boolean;
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
   selectedCategories?: string[];
   setSelectedCategories: React.Dispatch<
     React.SetStateAction<string[] | undefined>
   >;
   topic: ITopic;
   topicIndex: number;
-  onClick: (topic: ITopic) => void;
-  onDeleteClick: (topic: ITopic) => void;
+  onClick: (topic: ITopic, isCurrent: boolean) => void;
+  onDeleteClick: (topic: ITopic, isCurrent: boolean) => void;
   onEditClick: (topic: ITopic) => void;
   onNotifClick: (topic: ITopic) => void;
   onSubscribeClick: (topic: ITopic, isSubbedToTopic: boolean) => void;
@@ -79,13 +79,16 @@ export const TopicsListItem = forwardRef(
       onSubscribeClick,
       ...props
     }: TopicsListItemProps,
-    ref
+    ref: React.ForwardedRef<HTMLDivElement>
   ) => {
     const entity = query.data;
     const isE = isEvent(entity);
+    const isO = isOrg(entity);
     const topicCategories = isE
       ? entity.eventTopicCategories
-      : entity.orgTopicCategories;
+      : isO
+      ? entity.orgTopicCategories
+      : [];
     const topicCategoryLabel =
       typeof topic.topicCategory === "string"
         ? getCategoryLabel(topicCategories, topic.topicCategory)
@@ -101,12 +104,19 @@ export const TopicsListItem = forwardRef(
         ? topic.createdBy.userName || topic.createdBy.email?.replace(/@.+/, "")
         : "";
 
+    useEffect(() => {
+      if (ref && isCurrent && !isLoading) {
+        //@ts-expect-error
+        ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, [ref, isCurrent, isLoading]);
+
     return (
       <Box ref={ref} {...props}>
         <Link
           as="div"
           variant="no-underline"
-          onClick={() => onClick(topic)}
+          onClick={() => onClick(topic, isCurrent)}
           data-cy="topic-list-item"
         >
           <Flex
@@ -320,7 +330,9 @@ export const TopicsListItem = forwardRef(
                         mt={1}
                         placement="bottom"
                         variant="outline"
-                        onClick={() => onDeleteClick(topic)}
+                        onClick={() => {
+                          onDeleteClick(topic, isCurrent);
+                        }}
                         data-cy="topic-list-item-delete"
                       />
                     </>

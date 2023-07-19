@@ -17,7 +17,13 @@ import React, { useState } from "react";
 import { IoIosPeople } from "react-icons/io";
 import { CategoriesList, Column } from "features/common";
 import { CategoryForm } from "features/forms/CategoryForm";
-import { IEntityCategory, IEntityCategoryKey, isEvent } from "models/Entity";
+import {
+  IEntity,
+  IEntityCategory,
+  IEntityCategoryKey,
+  isEvent,
+  isOrg
+} from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { AppQueryWithData } from "utils/types";
@@ -31,12 +37,13 @@ export const CategoriesModal = ({
 }: UseDisclosureProps & {
   categories: IEntityCategory[];
   fieldName: IEntityCategoryKey;
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const entity = query.data;
   const isE = isEvent(entity);
+  const isO = isOrg(entity);
 
   const [isAdd, setIsAdd] = useState(false);
   const string =
@@ -56,7 +63,7 @@ export const CategoriesModal = ({
         <ModalHeader display="flex" flexDirection="column">
           <Flex alignItems="center">
             <Icon as={IoIosPeople} color="green" mr={3} boxSize={6} />
-            {isE ? entity.eventName : entity.orgName}
+            {isE ? entity.eventName : isO ? entity.orgName : entity._id}
           </Flex>
           <Flex alignItems="center">
             <SettingsIcon mr={3} />

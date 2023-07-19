@@ -5,9 +5,7 @@ import { Grid, GridHeader, GridItem, Link } from "features/common";
 import { EventConfigVisibility } from "features/events/EventConfigPanel";
 import { LogoForm } from "features/forms/LogoForm";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
-import { isEvent } from "models/Entity";
-import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { IEntity } from "models/Entity";
 import { AppQueryWithData } from "utils/types";
 
 export const EntityConfigLogoPanel = ({
@@ -17,11 +15,8 @@ export const EntityConfigLogoPanel = ({
   ...props
 }: GridProps &
   (EventConfigVisibility | OrgConfigVisibility) & {
-    query: AppQueryWithData<IEvent | IOrg>;
+    query: AppQueryWithData<IEntity>;
   }) => {
-  const entity = (query.data || {}) as IEvent | IOrg;
-  const isE = isEvent(entity);
-
   return (
     <Grid {...props}>
       <Link variant="no-underline" onClick={() => toggleVisibility("logo")}>

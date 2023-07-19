@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import { useEditEventMutation } from "features/api/eventsApi";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import { formBoxProps } from "features/layout/theme";
-import { isEvent } from "models/Entity";
+import { IEntity, isEvent, isOrg } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { handleError } from "utils/form";
@@ -24,14 +24,15 @@ export const EntityConfigStyles = ({
   query,
   ...props
 }: BoxProps & {
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
-  const entity = (query.data || {}) as IEvent | IOrg;
+  const entity = query.data;
   const isE = isEvent(entity);
+  const isO = isOrg(entity);
   const edit = isE ? editEvent : editOrg;
 
   //#region form
@@ -48,7 +49,7 @@ export const EntityConfigStyles = ({
   const onShowTitleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setIsLoading(true);
-      const key = `${isE ? "event" : "org"}Styles`;
+      const key = isE ? "eventStyles" : isO ? "orgStyles" : "";
       const payload = {
         [key]: {
           showTitle: e.target.checked
@@ -79,7 +80,11 @@ export const EntityConfigStyles = ({
           <FormControl>
             <Switch
               isChecked={
-                isE ? entity.eventStyles.showTitle : entity.orgStyles.showTitle
+                isE
+                  ? entity.eventStyles.showTitle
+                  : isO
+                  ? entity.orgStyles.showTitle
+                  : false
               }
               isDisabled={isLoading}
               onChange={onShowTitleChange}

@@ -28,7 +28,7 @@ import {
   useEditTopicMutation
 } from "features/api/topicsApi";
 import { useEditProjectMutation } from "features/api/projectsApi";
-import { isEvent, isTopic } from "models/Entity";
+import { IEntity, isEvent, isOrg, isTopic } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { IProject } from "models/Project";
@@ -42,7 +42,7 @@ export type NotifModalState<T> = {
 };
 
 interface NotifyModalProps<T> {
-  query: AppQueryWithData<IEvent | IOrg>;
+  query: AppQueryWithData<IEntity>;
   mutation: any;
   setModalState: (modalState: NotifModalState<T>) => void;
   modalState: NotifModalState<T>;
@@ -60,8 +60,10 @@ export const EntityNotifModal = <
 }: NotifyModalProps<T>) => {
   const toast = useToast({ position: "top" });
   const [isLoading, setIsLoading] = useState(false);
-  const event = isEvent(query.data) ? query.data : undefined;
-  const org = isEvent(query.data) ? undefined : query.data;
+  const isE = isEvent(query.data);
+  const isO = isOrg(query.data);
+  const event = isE ? (query.data as IEvent) : undefined;
+  const org = isO ? (query.data as IOrg) : undefined;
 
   const { entity } = modalState;
   const onClose = () => {

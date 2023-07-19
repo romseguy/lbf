@@ -31,16 +31,16 @@ export const Header = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const router = useRouter();
-  const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
-  useEffect(() => {
-    if (router.asPath === "/") return;
-    if (Array.isArray(router.query.name) && !!router.query.name[1]) return;
-    executeScroll();
-    console.log("🚀 ~ file: Header.tsx:41 ~ useEffect ~ executeScroll:");
-  }, [router.asPath]);
+  // const router = useRouter();
+  // const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
+  // useEffect(() => {
+  //   if (router.asPath === "/") return;
+  //   if (Array.isArray(router.query.name) && !!router.query.name[1]) return;
+  //   executeScroll();
+  //   console.log("🚀 ~ file: Header.tsx:41 ~ useEffect ~ executeScroll:");
+  // }, [router.asPath]);
 
   const isE = isEvent(entity);
   const isO = isOrg(entity);
@@ -61,7 +61,7 @@ export const Header = ({
 
   return (
     <Flex
-      ref={elementToScrollRef as React.ForwardedRef<HTMLDivElement>}
+      //ref={elementToScrollRef as React.ForwardedRef<HTMLDivElement>}
       as="header"
       alignItems="center"
       bg={isDark ? "gray.700" : "lightblue"}
