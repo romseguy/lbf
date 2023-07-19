@@ -86,17 +86,23 @@ export const TopicMessagesListItem = ({
     <Flex key={_id} pb={3} data-cy="topic-message">
       <Box ml={2}>
         <Box borderRadius={18} bg={isDark ? "gray.600" : "white"} px={3} py={2}>
-          <Link href={`/${userName}`} shallow variant="no-underline">
-            <Box alignItems="center" display="inline-flex">
-              <Avatar
-                name={userName}
-                boxSize={10}
-                src={userImage}
-                cursor="pointer"
-                mr={2}
-              />
-              <Text fontWeight="bold">{userName}</Text>
-            </Box>
+          <Link
+            variant="no-underline"
+            alignItems="center"
+            display="inline-flex"
+            mb={2}
+            onClick={() =>
+              router.push(`/${userName}`, `/${userName}`, { shallow: true })
+            }
+          >
+            <Avatar
+              name={userName}
+              boxSize={10}
+              src={userImage}
+              cursor="pointer"
+              mr={2}
+            />
+            <Text fontWeight="bold">{userName}</Text>
           </Link>
 
           {_id && isEdit[_id] && isEdit[_id].isOpen ? (

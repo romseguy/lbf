@@ -128,7 +128,7 @@ export const EntityListForm = ({
       </FormControl>
 
       <FormControl mb={3}>
-        <FormLabel>Koalas</FormLabel>
+        <FormLabel>Membres</FormLabel>
 
         <Controller
           name="subscriptions"

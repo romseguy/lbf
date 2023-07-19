@@ -1,4 +1,4 @@
-import { ChevronLeftIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { HamburgerIcon } from "@chakra-ui/icons";
 import {
   Avatar,
   Box,
@@ -9,7 +9,6 @@ import {
   Menu,
   MenuButton,
   Icon,
-  IconButton,
   Tooltip,
   useColorMode,
   Drawer,
@@ -22,8 +21,7 @@ import {
   Table,
   Tbody,
   Tr,
-  Td,
-  Text
+  Td
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
@@ -41,7 +39,6 @@ import { PageProps } from "main";
 import { EOrgType } from "models/Org";
 import { selectUserEmail } from "store/userSlice";
 import { removeProps } from "utils/object";
-import { normalize } from "utils/string";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
 
@@ -56,6 +53,7 @@ export const Nav = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
   const isEntityPage =
+    Array.isArray(router.query.name) &&
     router.pathname !== "/" &&
     !title?.includes("Forum") &&
     !router.pathname.includes("evenements");
@@ -185,37 +183,6 @@ export const Nav = ({
                   </Td>
                 </Tr>
               </>
-            )}
-
-            {isEntityPage && (
-              <Tr role="row">
-                <Td
-                  alignItems="center"
-                  border={0}
-                  display="flex"
-                  fontSize="sm"
-                  p={0}
-                >
-                  {typeof window !== "undefined" &&
-                  window.history?.state?.idx > 0 ? (
-                    <Link onClick={() => router.back()}>
-                      <ChevronLeftIcon /> Retour
-                    </Link>
-                  ) : (
-                    <Text fontSize="sm">
-                      {/* {typeof window !== "undefined" && window.location.origin
-                        ? window.location.origin
-                        : ""} */}
-                      {router.query && Array.isArray(router.query.name)
-                        ? router.query.name.reduce((acc, value, index) => {
-                            if (index > 0) return acc + "/" + value;
-                            return value;
-                          }, "")
-                        : router.asPath}
-                    </Text>
-                  )}
-                </Td>
-              </Tr>
             )}
 
             <Tr role="row">
@@ -420,4 +387,45 @@ export const Nav = ({
       </Tooltip>
     )} 
   */
+}
+
+{
+  /*
+    <Tr role="row">
+      <Td
+        alignItems="center"
+        border={0}
+        display="flex"
+        fontSize="sm"
+        p={0}
+      >
+        {typeof window !== "undefined" &&
+        window.history?.state?.idx > 0 ? (
+          <Link onClick={() => router.back()}>
+            <ChevronLeftIcon /> Retour
+          </Link>
+        ) : (
+          <>
+            <ChevronLeftIcon /> Retour
+          </>
+        )}
+      </Td>
+    </Tr>
+  */
+}
+
+{
+  /*
+    <Text fontSize="sm">
+      {typeof window !== "undefined" && window.location.origin
+        ? window.location.origin
+        : ""}
+      {router.query && Array.isArray(router.query.name)
+        ? router.query.name.reduce((acc, value, index) => {
+            if (index > 0) return acc + "/" + value;
+            return value;
+          }, "")
+        : router.asPath}
+    </Text>
+ */
 }

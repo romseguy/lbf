@@ -340,7 +340,7 @@ handler.delete<
     if (topic.org) {
       console.log("deleting org reference to topic", topic.org);
       await models.Org.updateOne(
-        { _id: typeof topic.org === "object" ? topic.org._id : topic.org },
+        { _id: topic.org._id },
         {
           $pull: { orgTopics: topic._id }
         }
@@ -364,7 +364,7 @@ handler.delete<
     for (const subscription of subscriptions) {
       if (!subscription.topics) continue;
       subscription.topics = subscription.topics.filter((topicSubscription) => {
-        if (equals(topicSubscription.topic._id, topic._id)) {
+        if (equals(topicSubscription.topic._id, topic!._id)) {
           count++;
           return false;
         }

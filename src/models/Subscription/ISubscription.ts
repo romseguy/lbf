@@ -4,7 +4,8 @@ import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
 
 export enum EOrgSubscriptionType {
-  FOLLOWER = "FOLLOWER"
+  FOLLOWER = "FOLLOWER",
+  SUBSCRIBER = "SUBSCRIBER"
 }
 
 export interface ISubscription {

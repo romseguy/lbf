@@ -1,5 +1,5 @@
 {
-  "name": "assolidaires",
+  "name": "lbf",
   "version": "0.1.0",
   "engines": {
     "node": "16.x"
@@ -10,7 +10,7 @@
     "build": "next build",
     "build:test": "NODE_ENV=test next build",
     "build:size": "ANALYZE=true yarn build",
-    "start": "next start",
+    "start": "next start -p 8000",
     "start:test": "NODE_ENV=test next start -p 3004",
     "test": "yarn build:test && yarn start:test",
     "test:headless": "cypress run --config video=false",

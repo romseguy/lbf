@@ -145,7 +145,7 @@ export const EventNotifForm = ({
                 setType("multi");
               }}
             >
-              Inviter les koalas
+              Inviter des utilisateurs
               <EntityButton event={event} p={1} onClick={null} />
             </Radio>
             <Radio
@@ -154,7 +154,7 @@ export const EventNotifForm = ({
                 setType("single");
               }}
             >
-              Inviter une seule adresse e-mail
+              Inviter une adresse e-mail
             </Radio>
           </Stack>
         </RadioGroup>
@@ -277,7 +277,7 @@ export const EventNotifForm = ({
                                   </Checkbox>
                                 </Td>
                                 <Td>
-                                  {i} koala{s} n'{s ? "ont" : "a"} pas été
+                                  {i} membre{s} n'{s ? "ont" : "a"} pas été
                                   invité
                                 </Td>
                               </Tr>

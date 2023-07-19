@@ -76,11 +76,16 @@ export const getLists = (org?: IOrg): IOrgList[] => {
 
   let lists = org.orgLists;
 
-  if (!lists.find(({ listName }) => listName === "Abonnés"))
-    lists.push({
-      listName: "Abonnés",
-      subscriptions: getSubscriptions(org, EOrgSubscriptionType.FOLLOWER)
-    });
+  if (
+    Array.isArray(lists) &&
+    !lists.find(({ listName }) => listName === "Abonnés")
+  )
+    lists = [
+      {
+        listName: "Abonnés",
+        subscriptions: getSubscriptions(org, EOrgSubscriptionType.FOLLOWER)
+      }
+    ].concat(lists);
 
   return lists;
 };

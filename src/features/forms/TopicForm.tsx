@@ -350,7 +350,7 @@ export const TopicForm = ({
         </FormControl>
       )}
 
-      {org && org.orgUrl !== "forum" && (
+      {/* {org && org.orgUrl !== "forum" && (
         <FormControl mb={3}>
           <FormLabel>Visibilité</FormLabel>
           <Controller
@@ -399,12 +399,12 @@ export const TopicForm = ({
             }}
           />
         </FormControl>
-      )}
+      )} */}
 
       {hasItems(topicVisibility) && (
         <Alert status="warning" mb={3}>
           <AlertIcon />
-          La discussion ne sera visible que par les koalas des listes
+          La discussion ne sera visible que par les membres des listes
           sélectionnées.
         </Alert>
       )}

@@ -224,7 +224,8 @@ export const ProjectForm = ({
       {hasItems(projectVisibility) && (
         <Alert status="info" mb={3}>
           <AlertIcon />
-          Le projet ne sera visible que par les koalas des listes sélectionnées.
+          Le projet ne sera visible que par les membres des listes
+          sélectionnées.
         </Alert>
       )}
 

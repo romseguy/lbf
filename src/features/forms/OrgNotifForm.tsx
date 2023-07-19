@@ -21,8 +21,8 @@ import {
   AlertIcon
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import React, { Fragment, useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { Fragment, useMemo, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { css } from "twin.macro";
 import {
   EmailControl,
@@ -31,7 +31,7 @@ import {
   ErrorMessageText
 } from "features/common";
 import { IEntity, isEvent, isTopic } from "models/Entity";
-import { orgTypeFull, IOrg } from "models/Org";
+import { orgTypeFull, IOrg, getLists } from "models/Org";
 import { IProject } from "models/Project";
 import { hasItems } from "utils/array";
 import { equalsValue } from "utils/string";
@@ -59,6 +59,7 @@ export const OrgNotifForm = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const org = query.data;
+  const lists = useMemo(() => getLists(org), [org]);
 
   //#region local state
   const isE = isEvent(entity);
@@ -79,8 +80,8 @@ export const OrgNotifForm = ({
   } = useForm({
     mode: "onChange"
   });
-  const email = watch("email");
-  const orgListsNames = watch("orgListsNames");
+  const email = useWatch<string>({ control, name: "email" });
+  const orgListsNames = useWatch<string[]>({ control, name: "orgListsNames" });
   //#endregion
 
   return (
@@ -101,7 +102,7 @@ export const OrgNotifForm = ({
               setType("multi");
             }}
           >
-            Inviter les koalas à{" "}
+            Inviter des membres à{" "}
             {isT ? "cette discussion" : isE ? "cet événement" : "ce projet"}
           </Radio>
           <Radio
@@ -110,7 +111,7 @@ export const OrgNotifForm = ({
               setType("single");
             }}
           >
-            Inviter une seule adresse e-mail à{" "}
+            Inviter une adresse e-mail à{" "}
             {isT ? "cette discussion" : isE ? "cet événement" : "ce projet"}
           </Radio>
         </Stack>
@@ -174,7 +175,7 @@ export const OrgNotifForm = ({
                         </Td>
                       </Tr>
 
-                      {org.orgLists.map((list) => {
+                      {lists.map((list, listIndex) => {
                         let i = 0;
                         for (const subscription of list.subscriptions || []) {
                           const notifications = isT
@@ -205,7 +206,7 @@ export const OrgNotifForm = ({
                           >
                             <Td>
                               <Checkbox
-                                name="orgListsNames"
+                                name={`orgListsNames[${listIndex}]`}
                                 ref={register({
                                   required:
                                     "Veuillez sélectionner une liste au minimum"
@@ -222,11 +223,11 @@ export const OrgNotifForm = ({
                                 list.listName === "Abonnés" ? (
                                   "0 abonnés"
                                 ) : (
-                                  "0 koalas"
+                                  "0 membres"
                                 )
                               ) : (
                                 <Text>
-                                  {i} koala{s} n'{s ? "ont" : "a"} pas été
+                                  {i} membre{s} n'{s ? "ont" : "a"} pas été
                                   invité
                                 </Text>
                               )}

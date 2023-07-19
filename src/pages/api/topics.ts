@@ -11,6 +11,7 @@ import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { createServerError } from "utils/errors";
 import { equals, logJson, toString } from "utils/string";
+import { getRefId } from "models/Entity";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -147,16 +148,17 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           createdBy: session.user.userId
         });
 
-        if (!topic) throw new Error("La discussion n'a pas pu être créée");
-
         if (event) {
           event.eventTopics.push(topic);
           await event.save();
           //log(`POST /topics: event`, event);
         } else if (org) {
-          org.orgTopics.push(topic);
-          await org.save();
-          //log(`POST /topics: org`, org);
+          await models.Org.updateOne(
+            { _id: org._id },
+            {
+              $push: { orgTopics: topic._id }
+            }
+          );
         }
       }
       //#endregion
@@ -175,27 +177,26 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
             topics: [{ topic: topic._id, emailNotif: true, pushNotif: true }]
           });
 
-        if (!subscription) throw new Error("Impossible de créer un abonnement");
-
         const topicSubscription = subscription.topics?.find(({ topic: t }) =>
-          equals(t._id, body.topic!._id)
+          equals(getRefId(t), topic!._id)
         );
 
         if (!topicSubscription) {
-          // console.log("no sub for this topic => adding one", subscription);
-          subscription.topics = (subscription.topics || []).concat([
+          await models.Subscription.updateOne(
+            { _id: subscription._id },
             {
-              topic: topic._id,
-              emailNotif: true,
-              pushNotif: true
+              $push: {
+                topics: {
+                  topic: topic._id,
+                  emailNotif: true,
+                  pushNotif: true
+                }
+              }
             }
-          ]);
-          await subscription.save();
-          // console.log("subscription saved", subscription);
+          );
         }
       }
       //#endregion
-
       res.status(200).json(topic);
     } catch (error: any) {
       res.status(500).json(createServerError(error));

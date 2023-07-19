@@ -1,6 +1,5 @@
 import { ChatIcon, SunIcon } from "@chakra-ui/icons";
 import { Flex, Icon, useColorMode } from "@chakra-ui/react";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import {
   FaGlobeEurope,
@@ -34,7 +33,6 @@ export const HeaderTitle = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const { data: session } = useSession();
 
   const isE = isEvent(entity);
@@ -72,6 +70,7 @@ export const HeaderTitle = ({
     name = entity.userName;
     url = entity.userName;
   }
+  const heading = <Heading pr={1}>{name || pageTitle || ""}</Heading>;
 
   let icon: AppIcon | undefined;
   let iconColor = banner ? "white" : isDark ? "green.200" : "green";
@@ -109,13 +108,15 @@ export const HeaderTitle = ({
         />
       )}
 
-      <Link href={`/${url}`} variant="no-underline">
-        {pageHeader ? (
-          pageHeader
-        ) : (
-          <Heading pr={1}>{name || pageTitle || ""}</Heading>
-        )}
-      </Link>
+      {url ? (
+        <Link href={`/${url}`} variant="no-underline">
+          {pageHeader ? pageHeader : heading}
+        </Link>
+      ) : pageHeader ? (
+        pageHeader
+      ) : (
+        heading
+      )}
 
       {entity && url !== "forum" && (
         <LinkShare

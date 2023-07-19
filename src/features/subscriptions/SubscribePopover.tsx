@@ -70,8 +70,7 @@ export const SubscribePopover = ({
   });
   const isFollowed = !!followerSubscription;
   const [isOpen, setIsOpen] = useState(false);
-  const [isL, setIsLoading] = useState(false);
-  const isLoading = isL || query.isLoading || subQuery.isLoading;
+  const [isLoading, setIsLoading] = useState(false);
   //#endregion
 
   //#region form

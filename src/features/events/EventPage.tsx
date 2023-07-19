@@ -164,15 +164,16 @@ export const EventPage = ({
   };
 
   const subscribeButtons = () => {
-    if (eventQuery.isLoading || isConfig || isEdit) return null;
+    if (isConfig || isEdit) return null;
 
-    if (subQuery.isLoading) return <Spinner />;
+    const isDisabled = eventQuery.isFetching || subQuery.isFetching;
 
     return (
       <Flex flexWrap="wrap" mt={-3}>
         {isFollowed && (
           <Box mr={3} mt={3}>
             <SubscribePopover
+              isDisabled={isDisabled}
               event={event}
               query={eventQuery}
               subQuery={subQuery}
@@ -182,6 +183,7 @@ export const EventPage = ({
 
         <Box mt={3}>
           <SubscribePopover
+            isDisabled={isDisabled}
             event={event}
             query={eventQuery}
             subQuery={subQuery}

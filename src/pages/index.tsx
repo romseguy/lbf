@@ -83,10 +83,10 @@ const IndexPage = (props: PageProps) => {
   //#endregion
 
   return (
-    <Layout {...props} pageTitle="L'univers">
+    <Layout {...props} pageTitle="Tous les forums">
       <Column {...columnProps}>
         <Flex alignItems="center">
-          <Heading mb={3}>L'univers</Heading>
+          <Heading mb={3}>Tous les forums</Heading>
           {/* <HostTag ml={1} /> */}
         </Flex>
 
@@ -162,7 +162,7 @@ const IndexPage = (props: PageProps) => {
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <Flex alignItems="center" mb={2}>
-          <Heading>Premiers pas</Heading>
+          <Heading>Créez vos forums</Heading>
           {isCollapsed ? (
             <ChevronRightIcon boxSize={9} mt={2} />
           ) : (
@@ -182,31 +182,8 @@ const IndexPage = (props: PageProps) => {
                     router.push("/login", "/login", { shallow: true });
                   }}
                 >
-                  Connectez-vous à votre compte Koala
+                  Connectez-vous à votre compte
                 </LoginButton>
-                <Tooltip
-                  label="Un compte Koala vous permet de créer des planètes, et d'inviter d'autres Koalas à collaborer."
-                  isOpen={isTooltipOpen}
-                >
-                  <IconButton
-                    aria-label="Qu'est ce qu'un Koala"
-                    icon={<QuestionIcon />}
-                    colorScheme="purple"
-                    minWidth={0}
-                    height="auto"
-                    boxSize={props.isMobile ? 6 : 10}
-                    onMouseEnter={
-                      props.isMobile ? undefined : () => setIsTooltipOpen(true)
-                    }
-                    onMouseLeave={
-                      props.isMobile ? undefined : () => setIsTooltipOpen(false)
-                    }
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsTooltipOpen(!isTooltipOpen);
-                    }}
-                  />
-                </Tooltip>
               </Flex>
             )}
 
@@ -356,4 +333,32 @@ export default IndexPage;
               <SmallAddIcon />
               <Icon as={FaTree} color="green" mr={1} /> des arbres.
             </Flex> */
+}
+
+{
+  /*
+                <Tooltip
+                  label="Un compte vous permet de créer des planètes, et d'inviter d'autres personnes à collaborer."
+                  isOpen={isTooltipOpen}
+                >
+                  <IconButton
+                    aria-label="Qu'est ce qu'un Koala"
+                    icon={<QuestionIcon />}
+                    colorScheme="purple"
+                    minWidth={0}
+                    height="auto"
+                    boxSize={props.isMobile ? 6 : 10}
+                    onMouseEnter={
+                      props.isMobile ? undefined : () => setIsTooltipOpen(true)
+                    }
+                    onMouseLeave={
+                      props.isMobile ? undefined : () => setIsTooltipOpen(false)
+                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsTooltipOpen(!isTooltipOpen);
+                    }}
+                  />
+                </Tooltip>
+*/
 }

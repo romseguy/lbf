@@ -20,6 +20,7 @@ declare global {
       NEXT_PUBLIC_API2: string;
       NEXT_PUBLIC_GOOGLE_ENABLED: string;
       NEXT_PUBLIC_GOOGLE_PLACES_API_KEY: string;
+      NEXT_PUBLIC_GOOGLE_RECAPTCHA_SITE_KEY: string;
       NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY: string;
       NEXT_PUBLIC_SHORT_URL: string;
       NEXT_PUBLIC_TITLE: string;

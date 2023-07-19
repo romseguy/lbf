@@ -1,4 +1,4 @@
-import { CalendarIcon, EmailIcon } from "@chakra-ui/icons";
+import { EmailIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Box,
@@ -6,11 +6,9 @@ import {
   FlexProps,
   Icon,
   IconButton,
-  IconButtonProps,
   List,
   ListItem,
   Tag,
-  TagProps,
   Text,
   useColorMode
 } from "@chakra-ui/react";
@@ -19,13 +17,11 @@ import React from "react";
 import {
   FaGift,
   FaKey,
-  FaHandshake,
   FaQuoteLeft,
   FaLightbulb,
   FaShare,
   FaGlobeEurope
 } from "react-icons/fa";
-import { IoIosPeople } from "react-icons/io";
 import { css } from "twin.macro";
 import {
   Row,
@@ -86,18 +82,16 @@ export const AboutPage = ({
       GNU AGPL
     </a>
   );
-  const OrgTag = () => {
-    const url = `${process.env.NEXT_PUBLIC_URL}/nom_de_votre_planete`;
+  const OrgTag = ({ orgUrl = "nom_de_votre_planete" }: { orgUrl?: string }) => {
+    const url = `${process.env.NEXT_PUBLIC_URL}/${orgUrl}`;
     const urlElement = (
       <Flex flexWrap="wrap" my={2}>
         {process.env.NEXT_PUBLIC_URL}
-        <b>/nom_de_votre_planete</b>
+        <b>/{orgUrl}</b>
       </Flex>
     );
-    const iconButtonProps: Omit<IconButtonProps, "aria-label"> = isMobile
-      ? {}
-      : { ml: 2 };
-    const tagProps: TagProps = isMobile
+    const iconButtonProps = isMobile ? {} : { ml: 2 };
+    const tagProps: any = isMobile
       ? {
           flexDirection: "column",
           alignItems: "flex-start"
@@ -109,53 +103,12 @@ export const AboutPage = ({
         <Icon as={FaGlobeEurope} boxSize={6} color="green" mr={2} />
         {urlElement}
         <IconButton
-          aria-label="Page d'accueil d'une organisation"
+          aria-label="Page d'accueil d'un forum"
           colorScheme="teal"
           icon={<FaShare />}
           onClick={() => {
             props.onClose && props.onClose();
             router.push(url, url, { shallow: true });
-          }}
-          {...iconButtonProps}
-        />
-      </Tag>
-    );
-  };
-  const EventTag = () => {
-    const eventUrl = `${process.env.NEXT_PUBLIC_URL}/nom_d'un_evenement`;
-    const eventUrlElement = (
-      <Flex flexWrap="wrap" my={2}>
-        {process.env.NEXT_PUBLIC_URL}
-        <b>/nom_d'un_evenement</b>
-      </Flex>
-    );
-    const iconButtonProps: Omit<IconButtonProps, "aria-label"> = isMobile
-      ? {}
-      : { ml: 2 };
-    const tagProps: TagProps = isMobile
-      ? {
-          flexDirection: "column",
-          alignItems: "flex-start"
-        }
-      : {};
-
-    return (
-      <Tag
-        bg={isDark ? "gray.500" : "orange.100"}
-        m="0 auto"
-        px={1}
-        py={1}
-        {...tagProps}
-      >
-        <CalendarIcon boxSize={5} color="green" mr={2.5} />
-        {eventUrlElement}
-        <IconButton
-          aria-label="Page d'accueil d'un événement"
-          colorScheme="teal"
-          icon={<FaShare />}
-          onClick={() => {
-            props.onClose && props.onClose();
-            router.push(eventUrl, eventUrl, { shallow: true });
           }}
           {...iconButtonProps}
         />
@@ -176,14 +129,17 @@ export const AboutPage = ({
         }
       `}
     >
-      <Heading>Créez votre univers</Heading>
+      <Heading>Créez votre forum</Heading>
 
       <Column {...columnStyles(isDark)}>
         <List listStyleType="bullet" ml={5} spacing={1}>
           <ListItem>
             <Text mb={1}>
-              Créez une planète et disposez d'une adresse facile à retenir, par
-              exemple :
+              <Link href="/planetes/ajouter" shallow>
+                Créez une planète
+              </Link>{" "}
+              et disposez d'une adresse facile à retenir pour votre <b>forum</b>
+              , par exemple :
             </Text>
 
             <OrgTag />
@@ -191,11 +147,14 @@ export const AboutPage = ({
 
           <ListItem>
             <Text mb={1}>
-              Créez des événements depuis votre planète et disposez d'une
-              adresse facile à retenir, par exemple :
+              <Link href="/arbres/ajouter" shallow>
+                Créez un arbre
+              </Link>{" "}
+              et plantez le sur votre planète et disposez d'une adresse facile à
+              retenir pour votre <b>sous-forum</b>, par exemple :
             </Text>
 
-            <EventTag />
+            <OrgTag orgUrl="nom_de_votre_arbre" />
           </ListItem>
 
           {/* <ListItem mt={2}>
@@ -234,37 +193,6 @@ export const AboutPage = ({
             </Button>
           </Box> */}
         </List>
-      </Column>
-
-      <Heading>Communiquez depuis votre planète</Heading>
-
-      <Column {...columnStyles(isDark)}>
-        <Row
-          {...rowStyles(isDark)}
-          bg={isDark ? "gray.500" : "orange.100"}
-          px={3}
-        >
-          {lightbulb}
-          Créez des listes d'abonnés. votre choix.
-        </Row>
-        <Row
-          {...rowStyles(isDark)}
-          bg={isDark ? "gray.500" : "orange.100"}
-          px={3}
-        >
-          {lightbulb}
-          Invitez les personnes de ces listes aux discussions et événements.
-        </Row>
-
-        {/* <Row
-          {...rowStyles(isDark)}
-          bg={isDark ? "gray.500" : "orange.100"}
-          px={3}
-        >
-          <Icon as={FaLightbulb} color={isDark ? "yellow" : "green"} mr={1} />
-          Créez vos propres listes pour envoyer des invitations seulement aux
-          personnes concernés.
-        </Row> */}
       </Column>
 
       <Heading>Partage & Limitations</Heading>
@@ -353,3 +281,84 @@ const About = (props: PageProps) => (
 );
 
 export default About;
+
+{
+  /*
+    const EventTag = () => {
+      const eventUrl = `${process.env.NEXT_PUBLIC_URL}/nom_d'un_evenement`;
+      const eventUrlElement = (
+        <Flex flexWrap="wrap" my={2}>
+          {process.env.NEXT_PUBLIC_URL}
+          <b>/nom_d'un_evenement</b>
+        </Flex>
+      );
+      const iconButtonProps: Omit<IconButtonProps, "aria-label"> = isMobile
+        ? {}
+        : { ml: 2 };
+      const tagProps: TagProps = isMobile
+        ? {
+            flexDirection: "column",
+            alignItems: "flex-start"
+          }
+        : {};
+
+      return (
+        <Tag
+          bg={isDark ? "gray.500" : "orange.100"}
+          m="0 auto"
+          px={1}
+          py={1}
+          {...tagProps}
+        >
+          <CalendarIcon boxSize={5} color="green" mr={2.5} />
+          {eventUrlElement}
+          <IconButton
+            aria-label="Page d'accueil d'un événement"
+            colorScheme="teal"
+            icon={<FaShare />}
+            onClick={() => {
+              props.onClose && props.onClose();
+              router.push(eventUrl, eventUrl, { shallow: true });
+            }}
+            {...iconButtonProps}
+          />
+        </Tag>
+      );
+    };
+  */
+}
+
+{
+  /*
+    <Heading>Communiquez depuis votre planète</Heading>
+
+    <Column {...columnStyles(isDark)}>
+      <Row
+        {...rowStyles(isDark)}
+        bg={isDark ? "gray.500" : "orange.100"}
+        px={3}
+      >
+        {lightbulb}
+        Créez des listes d'abonnés. votre choix.
+      </Row>
+      <Row
+        {...rowStyles(isDark)}
+        bg={isDark ? "gray.500" : "orange.100"}
+        px={3}
+      >
+        {lightbulb}
+        Invitez les personnes de ces listes aux discussions et événements.
+      </Row>
+
+      <Row
+        {...rowStyles(isDark)}
+        bg={isDark ? "gray.500" : "orange.100"}
+        px={3}
+      >
+        <Icon as={FaLightbulb} color={isDark ? "yellow" : "green"} mr={1} />
+        Créez vos propres listes pour envoyer des invitations seulement aux
+        personnes concernés.
+      </Row>
+    </Column>
+  */
+}

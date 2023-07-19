@@ -128,14 +128,19 @@ export const RTEditor = ({
             | removeformat | code help",
     file_picker_types: "image",
     file_picker_callback: (
-      cb: Function,
+      cb: Function
+      /*
       value: any,
       meta: Record<string, any>
+      */
     ) => {
       const input = document.createElement("input");
       input.setAttribute("type", "file");
       input.setAttribute("accept", "image/*");
-      input.onchange = () => {
+      input.onchange = onFileInputChange;
+      input.click();
+
+      function onFileInputChange() {
         //@ts-expect-error
         const file = this.files[0];
         const reader = new FileReader();
@@ -149,9 +154,7 @@ export const RTEditor = ({
           cb(blobInfo.blobUri(), { title: file.name });
         };
         reader.readAsDataURL(file);
-      };
-
-      input.click();
+      }
     },
     image_upload_handler: async (
       blobInfo: BlobInfo,

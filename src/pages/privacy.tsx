@@ -183,7 +183,7 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
                         <strong>Company</strong> (referred to as either
                         &quot;the Company&quot;, &quot;We&quot;, &quot;Us&quot;
                         or &quot;Our&quot; in this Agreement) refers to
-                        demo.com.
+                        lebonforum.fr.
                       </p>
                     </li>
                     <li>
@@ -247,14 +247,14 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
                     </li>
                     <li>
                       <p>
-                        <strong>Website</strong> refers to demo.com, accessible
-                        from{" "}
+                        <strong>Website</strong> refers to lebonforum.fr,
+                        accessible from{" "}
                         <a
-                          href="https://demo.com"
+                          href="https://lebonforum.fr"
                           rel="external nofollow noopener"
                           target="_blank"
                         >
-                          https://demo.com
+                          https://lebonforum.fr
                         </a>
                       </p>
                     </li>
@@ -726,7 +726,9 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
                   <ul>
                     <li>
                       By email:{" "}
-                      <a href="mailto:contact@demo.com">contact@demo.com</a>
+                      <a href="mailto:contact@lebonforum.fr">
+                        contact@lebonforum.fr
+                      </a>
                     </li>
                   </ul>
                 </div>

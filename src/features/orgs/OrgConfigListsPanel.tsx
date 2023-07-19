@@ -35,7 +35,13 @@ import {
 } from "features/common";
 import { EntityListForm } from "features/forms/EntityListForm";
 import { breakpoints } from "features/layout/theme";
-import { addOrReplaceList, editList, IOrg, IOrgList } from "models/Org";
+import {
+  addOrReplaceList,
+  editList,
+  getLists,
+  IOrg,
+  IOrgList
+} from "models/Org";
 import { hasItems } from "utils/array";
 import { AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
@@ -43,7 +49,8 @@ import { OrgConfigVisibility } from "./OrgConfigPanel";
 export const OrgConfigListsPanel = ({
   orgQuery,
   isVisible,
-  toggleVisibility
+  toggleVisibility,
+  ...props
 }: GridProps &
   OrgConfigVisibility & {
     orgQuery: AppQueryWithData<IOrg>;
@@ -56,7 +63,7 @@ export const OrgConfigListsPanel = ({
   //#endregion
 
   //#region local state
-  const lists = org.orgLists;
+  const lists = getLists(org);
   const [isAdd, setIsAdd] = useState(false);
   const [listToEdit, setListToEdit] = useState<IOrgList>();
   const [listToShow, setListToShow] = useState<IOrgList>();
@@ -109,7 +116,7 @@ export const OrgConfigListsPanel = ({
   };
 
   return (
-    <Grid>
+    <Grid {...props}>
       <Link
         variant="no-underline"
         onClick={() => {
@@ -190,7 +197,7 @@ export const OrgConfigListsPanel = ({
           </AppHeading>
 
           <EntityListForm
-            allOptionLabel="Tous les koalas"
+            allOptionLabel="Tous les membres"
             org={org}
             onSubmit={onSubmit}
           />
@@ -200,184 +207,187 @@ export const OrgConfigListsPanel = ({
       {isVisible.lists &&
         (orgQuery.isLoading ? (
           <Text>Chargement des listes...</Text>
-        ) : hasItems(lists) ? (
-          <GridItem
-            light={{ bg: "orange.50" }}
-            dark={{ bg: "whiteAlpha.500" }}
-            overflowX="auto"
-            aria-hidden
-          >
-            <Table
-              css={css`
-                @media (max-width: 700px) {
-                  td {
-                    padding: 6px;
-                  }
-                }
-              `}
+        ) : (
+          hasItems(lists) && (
+            <GridItem
+              light={{ bg: "orange.50" }}
+              dark={{ bg: "whiteAlpha.500" }}
+              overflowX="auto"
+              aria-hidden
             >
-              <Thead>
-                <Tr>
-                  <Th>Nom de la liste</Th>
-                  <Th></Th>
-                  <Th></Th>
-                </Tr>
-              </Thead>
+              <Table
+                css={css`
+                  @media (max-width: 700px) {
+                    td {
+                      padding: 6px;
+                    }
+                  }
+                `}
+              >
+                <Thead>
+                  <Tr>
+                    <Th>Nom de la liste</Th>
+                    <Th></Th>
+                    <Th></Th>
+                  </Tr>
+                </Thead>
 
-              <Tbody>
-                {lists?.map((list, index) => {
-                  const { listName, subscriptions } = list;
+                <Tbody>
+                  {lists?.map((list, index) => {
+                    const { listName, subscriptions } = list;
 
-                  return (
-                    <Tr key={`list-${index}`}>
-                      <Td>{listName}</Td>
+                    return (
+                      <Tr key={`list-${index}`}>
+                        <Td>{listName}</Td>
 
-                      <Td whiteSpace="nowrap">
-                        <Link
-                          cursor={"pointer"}
-                          variant={"underline"}
-                          onClick={() => {
-                            setListToShow(list);
-                          }}
-                          data-cy="org-list-link"
-                        >
-                          {subscriptions.length} koala
-                          {subscriptions && subscriptions.length > 1 && "s"}
-                        </Link>
-                      </Td>
+                        <Td whiteSpace="nowrap">
+                          <Link
+                            cursor={"pointer"}
+                            variant={"underline"}
+                            onClick={() => {
+                              setListToShow(list);
+                            }}
+                            data-cy="org-list-link"
+                          >
+                            {subscriptions.length} membre
+                            {subscriptions && subscriptions.length > 1 && "s"}
+                          </Link>
+                        </Td>
 
-                      <Td textAlign="right" whiteSpace="nowrap">
-                        <>
-                          <Tooltip label="Modifier" placement="left">
-                            <IconButton
-                              aria-label="Modifier"
-                              icon={<EditIcon />}
-                              colorScheme="green"
-                              variant="outline"
-                              mr={3}
-                              onClick={async () => {
-                                setListToEdit(list);
-                              }}
-                              data-cy={`org-list-${listName}-edit`}
-                            />
-                          </Tooltip>
+                        <Td textAlign="right" whiteSpace="nowrap">
+                          <>
+                            <Tooltip label="Modifier" placement="left">
+                              <IconButton
+                                aria-label="Modifier"
+                                icon={<EditIcon />}
+                                colorScheme="green"
+                                variant="outline"
+                                mr={3}
+                                onClick={async () => {
+                                  setListToEdit(list);
+                                }}
+                                data-cy={`org-list-${listName}-edit`}
+                              />
+                            </Tooltip>
 
-                          {!["Abonnés"].includes(list.listName) && (
-                            <DeleteButton
-                              header={
-                                <>
-                                  Êtes vous sûr de vouloir supprimer la liste{" "}
-                                  <Text
-                                    display="inline"
-                                    color="red"
-                                    fontWeight="bold"
-                                  >
-                                    {listName}
-                                  </Text>{" "}
-                                  ?
-                                </>
-                              }
-                              isIconOnly
-                              isSmall={false}
-                              label="Supprimer"
-                              variant="outline"
-                              onClick={async () => {
-                                try {
-                                  await editOrg({
-                                    orgId: org._id,
-                                    payload: [`orgLists.listName=${listName}`]
-                                  }).unwrap();
-                                } catch (error) {
-                                  console.error(error);
-                                  toast({
-                                    status: "error",
-                                    title: "La liste n'a pas pu être supprimée"
-                                  });
+                            {!["Abonnés"].includes(list.listName) && (
+                              <DeleteButton
+                                header={
+                                  <>
+                                    Êtes vous sûr de vouloir supprimer la liste{" "}
+                                    <Text
+                                      display="inline"
+                                      color="red"
+                                      fontWeight="bold"
+                                    >
+                                      {listName}
+                                    </Text>{" "}
+                                    ?
+                                  </>
                                 }
-                              }}
-                              data-cy={`org-list-${listName}-remove`}
-                            />
+                                isIconOnly
+                                isSmall={false}
+                                label="Supprimer"
+                                variant="outline"
+                                onClick={async () => {
+                                  try {
+                                    await editOrg({
+                                      orgId: org._id,
+                                      payload: [`orgLists.listName=${listName}`]
+                                    }).unwrap();
+                                  } catch (error) {
+                                    console.error(error);
+                                    toast({
+                                      status: "error",
+                                      title:
+                                        "La liste n'a pas pu être supprimée"
+                                    });
+                                  }
+                                }}
+                                data-cy={`org-list-${listName}-remove`}
+                              />
+                            )}
+                          </>
+                        </Td>
+                      </Tr>
+                    );
+                  })}
+                </Tbody>
+              </Table>
+
+              {(listToEdit || listToShow) && (
+                <Modal
+                  isOpen
+                  onClose={() => {
+                    setListToEdit(undefined);
+                    setListToShow(undefined);
+                  }}
+                >
+                  <ModalOverlay />
+                  <ModalContent maxWidth={listToEdit && "xl"}>
+                    <ModalHeader>
+                      {listToEdit && (
+                        <Flex alignItems="center">
+                          <EditIcon mr={3} />{" "}
+                          {`Modifier la liste : ${listToEdit.listName}`}
+                        </Flex>
+                      )}
+                      {listToShow && (
+                        <Flex alignItems="center">
+                          <HamburgerIcon mr={3} /> {`${listToShow.listName}`}
+                        </Flex>
+                      )}
+                    </ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                      {listToEdit && (
+                        <EntityListForm
+                          allOptionLabel="Tous les membres"
+                          list={listToEdit}
+                          org={org}
+                          onCancel={() => setListToEdit(undefined)}
+                          onSubmit={async (payload) => {
+                            await onSubmit(payload);
+                            setListToEdit(undefined);
+                          }}
+                        />
+                      )}
+
+                      {listToShow && (
+                        <>
+                          {Array.isArray(listToShow.subscriptions) &&
+                          listToShow.subscriptions.length > 0 ? (
+                            <Table>
+                              <Tbody>
+                                {listToShow.subscriptions.map(
+                                  (subscription) => {
+                                    const label =
+                                      subscription.email ||
+                                      subscription.phone ||
+                                      (typeof subscription.user === "object"
+                                        ? subscription.user.email
+                                        : "");
+
+                                    return (
+                                      <Tr key={subscription._id}>
+                                        <Td pl={0}>{label}</Td>
+                                      </Tr>
+                                    );
+                                  }
+                                )}
+                              </Tbody>
+                            </Table>
+                          ) : (
+                            <Text>Cette liste est vide.</Text>
                           )}
                         </>
-                      </Td>
-                    </Tr>
-                  );
-                })}
-              </Tbody>
-            </Table>
-
-            {(listToEdit || listToShow) && (
-              <Modal
-                isOpen
-                onClose={() => {
-                  setListToEdit(undefined);
-                  setListToShow(undefined);
-                }}
-              >
-                <ModalOverlay />
-                <ModalContent maxWidth={listToEdit && "xl"}>
-                  <ModalHeader>
-                    {listToEdit && (
-                      <Flex alignItems="center">
-                        <EditIcon mr={3} />{" "}
-                        {`Modifier la liste : ${listToEdit.listName}`}
-                      </Flex>
-                    )}
-                    {listToShow && (
-                      <Flex alignItems="center">
-                        <HamburgerIcon mr={3} /> {`${listToShow.listName}`}
-                      </Flex>
-                    )}
-                  </ModalHeader>
-                  <ModalCloseButton />
-                  <ModalBody>
-                    {listToEdit && (
-                      <EntityListForm
-                        allOptionLabel="Tous les koalas"
-                        list={listToEdit}
-                        org={org}
-                        onCancel={() => setListToEdit(undefined)}
-                        onSubmit={async (payload) => {
-                          await onSubmit(payload);
-                          setListToEdit(undefined);
-                        }}
-                      />
-                    )}
-
-                    {listToShow && (
-                      <>
-                        {Array.isArray(listToShow.subscriptions) &&
-                        listToShow.subscriptions.length > 0 ? (
-                          <Table>
-                            <Tbody>
-                              {listToShow.subscriptions.map((subscription) => {
-                                const label =
-                                  subscription.email ||
-                                  subscription.phone ||
-                                  (typeof subscription.user === "object"
-                                    ? subscription.user.email
-                                    : "");
-
-                                return (
-                                  <Tr key={subscription._id}>
-                                    <Td pl={0}>{label}</Td>
-                                  </Tr>
-                                );
-                              })}
-                            </Tbody>
-                          </Table>
-                        ) : (
-                          <Text>Cette liste est vide.</Text>
-                        )}
-                      </>
-                    )}
-                  </ModalBody>
-                </ModalContent>
-              </Modal>
-            )}
-          </GridItem>
-        ) : (
-          <Text>Aucune listes de diffusion.</Text>
+                      )}
+                    </ModalBody>
+                  </ModalContent>
+                </Modal>
+              )}
+            </GridItem>
+          )
         ))}
     </Grid>
   );

@@ -1,4 +1,9 @@
-import { FormControl, FormLabel, FormErrorMessage } from "@chakra-ui/react";
+import {
+  FormControl,
+  FormControlProps,
+  FormLabel,
+  FormErrorMessage
+} from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useEffect } from "react";
 import {
@@ -22,8 +27,9 @@ export const ListsControl = ({
   label = "Visibilité",
   lists,
   name,
-  onChange
-}: {
+  onChange,
+  ...props
+}: FormControlProps & {
   control: Control<FieldValues>;
   errors: DeepMap<FieldValues, FieldError>;
   setError?: UseFormMethods["setError"];
@@ -42,8 +48,9 @@ export const ListsControl = ({
   }, [value]);
 
   return (
-    <FormControl isInvalid={!!errors[name]} isRequired={isRequired} mb={3}>
+    <FormControl isInvalid={!!errors[name]} isRequired={isRequired} {...props}>
       <FormLabel>{label}</FormLabel>
+
       <Controller
         name={name}
         control={control}
@@ -89,6 +96,7 @@ export const ListsControl = ({
           );
         }}
       />
+
       <FormErrorMessage>
         <ErrorMessage errors={errors} name={name} />
       </FormErrorMessage>

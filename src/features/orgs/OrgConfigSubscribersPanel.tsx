@@ -95,7 +95,7 @@ export const OrgConfigSubscribersPanel = ({
                   <FaFolder />
                 )}
                 <Heading size="sm" ml={2}>
-                  {org.orgSubscriptions.length} koala
+                  {org.orgSubscriptions.length} membre
                   {org.orgSubscriptions.length !== 1 ? "s" : ""}
                 </Heading>
               </Flex>
@@ -131,7 +131,7 @@ export const OrgConfigSubscribersPanel = ({
       {isAdd && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }} p={5}>
           <AppHeading smaller mb={3}>
-            Inscrire des koalas {orgTypeFull2(org.orgType)}
+            Inscrire des membres {orgTypeFull2(org.orgType)}
           </AppHeading>
 
           <SubscriptionForm

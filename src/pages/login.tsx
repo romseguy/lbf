@@ -188,9 +188,9 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
                     status="info"
                     py={5}
                   >
-                    <AlertIcon /> Pour vous connecter à votre compte Koala, pas
-                    besoin d'inscription, saisissez votre adresse e-mail
-                    ci-dessous pour recevoir un e-mail de connexion :
+                    <AlertIcon /> Pour vous connecter à votre compte, pas besoin
+                    d'inscription, saisissez votre adresse e-mail ci-dessous
+                    pour recevoir un e-mail de connexion :
                   </Alert>
 
                   <Column borderRadius={isMobile ? 0 : undefined} my={3}>

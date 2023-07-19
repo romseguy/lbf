@@ -1,6 +1,7 @@
 import { SmallCloseIcon } from "@chakra-ui/icons";
 import {
   FormControl,
+  FormControlProps,
   FormLabel,
   FormErrorMessage,
   InputGroup,
@@ -36,8 +37,9 @@ export const TagsControl = ({
   name,
   setTags,
   setValue,
-  tags
-}: {
+  tags,
+  ...props
+}: FormControlProps & {
   control: Control<FieldValues>;
   errors: DeepMap<FieldValues, FieldError>;
   setError: UseFormMethods["setError"];
@@ -96,8 +98,9 @@ export const TagsControl = ({
   }, [value]);
 
   return (
-    <FormControl isInvalid={!!errors[name]} isRequired={isRequired} mb={3}>
+    <FormControl isInvalid={!!errors[name]} isRequired={isRequired} {...props}>
       <FormLabel>{label}</FormLabel>
+
       <Controller
         name={name}
         control={control}

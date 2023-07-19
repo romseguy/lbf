@@ -24,7 +24,16 @@ import { equals, logJson } from "utils/string";
 
 export const sendMail = async (mail: Mail, session?: Session | null) => {
   try {
-    const server = process.env.EMAIL_SERVER;
+    const server = {
+      pool: true,
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: true, // use TLS
+      auth: {
+        user: "rom.seguy@lilo.org",
+        pass: "hQj2dKDg0ML5yHNZ"
+      }
+    };
 
     if (process.env.NODE_ENV === "production") {
       const transport = nodemailer.createTransport(server);

@@ -69,7 +69,7 @@ export const EntityButton = ({
             : event
             ? "Aller à la page de l'événement"
             : user
-            ? "Visiter le soleil de ce koala"
+            ? "Visiter la page de l'utilisateur"
             : ""
           : ""
       }

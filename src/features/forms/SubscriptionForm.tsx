@@ -1,11 +1,11 @@
 import { Alert, AlertIcon, Flex, InputLeftElement } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessageText, Button, ListsControl } from "features/common";
 import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
 import { useAddSubscriptionMutation } from "features/api/subscriptionsApi";
-import { IOrg } from "models/Org";
+import { getLists, IOrg } from "models/Org";
 import { EOrgSubscriptionType } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { emailR } from "utils/email";
@@ -38,10 +38,9 @@ export const SubscriptionForm = ({
 }) => {
   const [addSubscription] = useAddSubscriptionMutation();
   const [editOrg] = useEditOrgMutation();
-
-  //#region local state
   const [isLoading, setIsLoading] = useState(false);
-  //#endregion
+  const lists = useMemo(() => getLists(org), [org]);
+  const [tags, setTags] = useState<ItemTag[]>([]);
 
   //#region form
   const {
@@ -51,8 +50,8 @@ export const SubscriptionForm = ({
     handleSubmit,
     setError,
     setValue,
-    formState,
-    watch
+    formState
+    // watch
   } = useForm<FormValues>({
     mode: "onChange",
     defaultValues: {
@@ -60,13 +59,16 @@ export const SubscriptionForm = ({
     }
   });
   useLeaveConfirm({ formState });
-  useFormPersist("storageKey", {
-    watch,
-    setValue,
-    storage: window.localStorage // default window.sessionStorage
-  });
-
-  const [tags, setTags] = useState<ItemTag[]>([]);
+  // useFormPersist("storageKey", {
+  //   watch,
+  //   setValue,
+  //   storage: window.localStorage // default window.sessionStorage
+  // });
+  const isDisabled =
+    Object.keys(errors).length > 0 ||
+    Object.keys(isSubscriptionLoading).some(
+      (_id) => !!isSubscriptionLoading[_id]
+    );
 
   const onChange = () => clearErrors("formErrorMessage");
 
@@ -203,12 +205,13 @@ export const SubscriptionForm = ({
         setError={setError}
         setValue={setValue}
         isRequired
-        label="Adresse(s) e-mail : "
+        label="Adresses e-mail séparées par un espace : "
         leftElement={
           <InputLeftElement cursor="pointer" children={<AtSignIcon />} />
         }
         tags={tags}
         setTags={setTags}
+        mb={3}
       />
 
       <ListsControl
@@ -218,7 +221,8 @@ export const SubscriptionForm = ({
         setError={setError}
         isRequired
         label="Liste(s) :"
-        lists={org.orgLists}
+        lists={lists}
+        mb={3}
         onChange={onChange}
       />
 
@@ -243,12 +247,7 @@ export const SubscriptionForm = ({
         <Button
           colorScheme="green"
           type="submit"
-          isDisabled={
-            Object.keys(errors).length > 0 ||
-            Object.keys(isSubscriptionLoading).some(
-              (_id) => !!isSubscriptionLoading[_id]
-            )
-          }
+          isDisabled={isDisabled}
           isLoading={isLoading}
           data-cy="orgAddSubscribersSubmit"
         >

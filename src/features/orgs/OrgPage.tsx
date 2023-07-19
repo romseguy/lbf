@@ -153,17 +153,27 @@ export const OrgPage = ({
   const subscribeButtons = () => {
     if (isConfig || isEdit) return null;
 
+    const isDisabled =
+      orgQuery.isFetching ||
+      subQuery.isFetching ||
+      (org.orgUrl === "nom_de_votre_planete" && !session);
+
     return (
       <Flex flexWrap="wrap" mt={-3}>
         {isFollowed && (
           <Box mr={3} mt={3}>
-            <SubscribePopover org={org} query={orgQuery} subQuery={subQuery} />
+            <SubscribePopover
+              isDisabled={isDisabled}
+              org={org}
+              query={orgQuery}
+              subQuery={subQuery}
+            />
           </Box>
         )}
 
         <Box mt={3}>
           <SubscribePopover
-            isDisabled={org.orgUrl === "nom_de_votre_planete" && !session}
+            isDisabled={isDisabled}
             org={org}
             query={orgQuery}
             subQuery={subQuery}
