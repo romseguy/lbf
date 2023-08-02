@@ -83,11 +83,12 @@ export const AboutPage = ({
     </a>
   );
   const OrgTag = ({ orgUrl = "nom_de_votre_planete" }: { orgUrl?: string }) => {
-    const url = `${process.env.NEXT_PUBLIC_URL}/${orgUrl}`;
+    const url = `${process.env.NEXT_PUBLIC_URL}/${orgUrl}/discussions`;
     const urlElement = (
       <Flex flexWrap="wrap" my={2}>
         {process.env.NEXT_PUBLIC_URL}
         <b>/{orgUrl}</b>
+        /discussions
       </Flex>
     );
     const iconButtonProps = isMobile ? {} : { ml: 2 };
@@ -129,17 +130,16 @@ export const AboutPage = ({
         }
       `}
     >
-      <Heading>Créez votre forum</Heading>
+      <Heading>Créez l'arborescence de votre forum</Heading>
 
       <Column {...columnStyles(isDark)}>
-        <List listStyleType="bullet" ml={5} spacing={1}>
-          <ListItem>
+        <List listStyleType="bullet" ml={5}>
+          <ListItem mb={3}>
             <Text mb={1}>
-              <Link href="/planetes/ajouter" shallow>
+              <Link href="/planetes/ajouter" shallow variant="underline">
                 Créez une planète
-              </Link>{" "}
-              et disposez d'une adresse facile à retenir pour votre <b>forum</b>
-              , par exemple :
+              </Link>
+              , et accédez à votre <b>forum</b> par cette adresse :
             </Text>
 
             <OrgTag />
@@ -147,11 +147,11 @@ export const AboutPage = ({
 
           <ListItem>
             <Text mb={1}>
-              <Link href="/arbres/ajouter" shallow>
+              <Link href="/arbres/ajouter" shallow variant="underline">
                 Créez un arbre
-              </Link>{" "}
-              et plantez le sur votre planète et disposez d'une adresse facile à
-              retenir pour votre <b>sous-forum</b>, par exemple :
+              </Link>
+              , ajoutez le à la forêt de votre planète, et accéder à votre{" "}
+              <b>sous-forum</b> par cette adresse :{" "}
             </Text>
 
             <OrgTag orgUrl="nom_de_votre_arbre" />
@@ -195,7 +195,7 @@ export const AboutPage = ({
         </List>
       </Column>
 
-      <Heading>Partage & Limitations</Heading>
+      {/* <Heading>Partage & Limitations</Heading>
 
       <Row {...rowStyles(isDark)}>
         <Icon as={EmailIcon} color="green" boxSize={[5, 4]} mr={3} />
@@ -260,7 +260,7 @@ export const AboutPage = ({
             </Text>
           </Flex>
         </Flex>
-      </Row>
+      </Row> */}
 
       {/* <Row {...rowStyles(isDark)}>
         <Icon as={FaHandshake} color="green" boxSize={[5, 4]} />

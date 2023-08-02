@@ -127,7 +127,7 @@ export const Layout = ({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
           {/*process.env.NEXT_PUBLIC_SHORT_URL*/}
-          {title}
+          Lebonforum – {title}
         </title>
       </Head>
 
@@ -216,6 +216,22 @@ export const Layout = ({
             <Link href="/contact" variant="underline">
               Contact
             </Link>
+            {isMobile && (
+              <>
+                <Text mx={1}>|</Text>
+                <Link href="/privacy" variant="underline">
+                  CGU
+                </Link>
+              </>
+            )}
+
+            {!isMobile && (
+              <Flex ml="auto">
+                <Link href="/privacy" variant="underline">
+                  CGU
+                </Link>
+              </Flex>
+            )}
           </Flex>
         </Column>
 

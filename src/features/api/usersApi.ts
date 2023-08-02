@@ -30,6 +30,7 @@ export const userApi = api.injectEndpoints({
       query: ({ slug, ...query }) => {
         const hasQueryParams = Object.keys(query).length > 0;
         console.groupCollapsed("getUser");
+        console.log("slug", slug);
         if (hasQueryParams) {
           console.log("populate", query.populate);
           console.log("select", query.select);

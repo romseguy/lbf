@@ -1,741 +1,1405 @@
-import React from "react";
+import { ChevronRightIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import { Box, Flex, Heading, Text, Table, Tr, Td } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
 import { css } from "twin.macro";
+import { Column, Link } from "features/common";
 import { Layout } from "features/layout";
 import { PageProps } from "main";
+import { useScroll } from "hooks/useScroll";
+
+import { EmailIcon } from "@chakra-ui/icons";
+import { Badge, FlexProps, Icon, useColorMode } from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import { FaGift, FaKey, FaQuoteLeft } from "react-icons/fa";
+import { Row, EntityButton, HostTag, LinkProps } from "features/common";
+import { useDiskUsage } from "hooks/useDiskUsage";
+import { useAppDispatch } from "store";
+import { setIsContactModalOpen } from "store/modalSlice";
+import { bytesForHuman } from "utils/string";
+
+const columnStyles: (isDark: boolean) => FlexProps = (isDark) => ({
+  bg: isDark ? "gray.600" : "lightcyan"
+});
+
+const hostTagProps = { mr: 0, mt: 0 };
+const rowStyles: (isDark: boolean) => FlexProps = (isDark) => ({
+  bg: isDark ? "gray.600" : "lightcyan",
+  border: 0,
+  fontSize: "sm",
+  p: 2,
+  mb: 3
+});
+
+const ContactLink = (props: LinkProps) => {
+  const dispatch = useAppDispatch();
+  return (
+    <Link
+      variant="underline"
+      onClick={() => dispatch(setIsContactModalOpen(true))}
+      {...props}
+    >
+      contactez-nous
+    </Link>
+  );
+};
 
 const styles = css`
-  .body {
-    color: #000;
-    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-    font-size: 16px;
-    line-height: 28px;
-    margin: 0;
-  }
-  h1,
   h2,
-  h3,
+  h4 {
+    font-weight: bold;
+    font-size: 1.3rem;
+  }
+  h2,
   h4,
-  h5,
-  h6,
-  li,
   p {
-    margin: 0 0 16px;
-  }
-  h1 {
-    font-size: 40px;
-    line-height: 60px;
-  }
-  h1,
-  h2 {
-    font-weight: 700;
-  }
-  h2 {
-    font-size: 32px;
-    line-height: 48px;
-  }
-  h3 {
-    font-size: 24px;
-    line-height: 36px;
-  }
-  h3,
-  h4 {
-    font-weight: 700;
-  }
-  h4 {
-    font-size: 20px;
-    line-height: 30px;
-  }
-  h5,
-  h6 {
-    font-size: 16px;
-    line-height: 24px;
-    font-weight: 700;
-  }
-  a {
-    text-decoration: none;
-    cursor: pointer;
-    color: #000;
-  }
-  a:hover,
-  a[rel~="nofollow"] {
-    text-decoration: underline;
-  }
-  a[rel~="nofollow"] {
-    color: #008461;
-  }
-  a[rel~="nofollow"]:hover {
-    text-decoration: none;
+    margin: 12px 0;
   }
   ul {
-    margin-left: 24px;
-  }
-  .visible {
-    display: block;
-  }
-  .hidden {
-    display: none;
-  }
-  .page {
-    width: 100%;
-  }
-  .container {
-    position: relative;
-    background-color: lightcyan;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 1024px;
-    margin: 0 auto;
-    padding: 12px;
-  }
-  .header {
-    background: #464855;
-    color: #fff;
-    padding: 16px 0;
-    margin: 0 0 16px;
-  }
-  .header .title {
-    font-size: 16px;
-    line-height: 24px;
-    font-weight: 700;
-    margin: 0;
-  }
-  .content {
-    padding-bottom: 32px;
-  }
-  .translations-list-container {
-    border-bottom: 1px solid #eee;
-    padding-bottom: 16px;
-    margin: 0 0 32px;
-  }
-  .translations-list-container .translations-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .translations-list-container .translations-list .translations-list-item {
-    display: inline-block;
-    padding: 0;
-    margin: 0 8px 8px 0;
-    font-weight: 700;
-    color: #008461;
-  }
-  .translations-list-container .translations-list .translations-list-item a {
-    display: inline-block;
-    color: #008461;
-    border: 2px solid #008461;
-    border-radius: 4px;
-    padding: 4px 8px;
+    padding-left: 20px;
   }
 `;
-
 const PrivacyPage = ({ isMobile }: PageProps) => {
+  const [isTOSCollapsed, setIsTOSCollapsed] = useState(true);
+  const [isPolicyCollapsed, setIsPolicyCollapsed] = useState(true);
+  const [isNoticeCollapsed, setIsNoticeCollapsed] = useState(true);
+  const [isLicenseCollapsed, setIsLicenseCollapsed] = useState(true);
+  const [executeScrollToTOS, TOSRef] = useScroll<HTMLDivElement>();
+  const [executeScrollToPolicy, PolicyRef] = useScroll<HTMLDivElement>();
+  const [executeScrollToNotice, NoticeRef] = useScroll<HTMLDivElement>();
+  const [executeScrollToLicense, LicenseRef] = useScroll<HTMLDivElement>();
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+
+    if (!isTOSCollapsed) {
+      timer = setTimeout(() => {
+        if (!isTOSCollapsed) {
+          executeScrollToTOS();
+        }
+      }, 1000);
+    }
+
+    return () => timer && clearTimeout(timer);
+  }, [isTOSCollapsed]);
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+
+    if (!isPolicyCollapsed) {
+      timer = setTimeout(() => {
+        if (!isPolicyCollapsed) {
+          executeScrollToPolicy();
+        }
+      }, 1000);
+    }
+
+    return () => timer && clearTimeout(timer);
+  }, [isPolicyCollapsed]);
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+
+    if (!isNoticeCollapsed) {
+      timer = setTimeout(() => {
+        if (!isNoticeCollapsed) {
+          executeScrollToNotice();
+        }
+      }, 1000);
+    }
+
+    return () => timer && clearTimeout(timer);
+  }, [isNoticeCollapsed]);
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+
+    if (!isLicenseCollapsed) {
+      timer = setTimeout(() => {
+        if (!isLicenseCollapsed) {
+          executeScrollToLicense();
+        }
+      }, 1000);
+    }
+
+    return () => timer && clearTimeout(timer);
+  }, [isLicenseCollapsed]);
+
+  const columnProps = {
+    maxWidth: "4xl",
+    m: "0 auto",
+    mb: 3,
+    py: "0"
+  };
+
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  const [diskUsage] = useDiskUsage();
+  const license = (
+    <a
+      href="https://www.gnu.org/licenses/why-affero-gpl.fr.html"
+      target="_blank"
+      style={{ textDecoration: "underline" }}
+    >
+      GNU AGPL
+    </a>
+  );
+
   return (
-    <Layout isMobile={isMobile} pageTitle="Privacy Policy">
+    <Layout isMobile={isMobile} pageTitle="Conditions Générales d'Utilisation">
       <div css={styles}>
-        <div className="body">
-          <div className="page">
-            <div className="translations-content-container">
-              <div className="container">
-                <div
-                  className="tab-content translations-content-item en visible"
-                  id="en"
-                >
-                  <p>Last updated: June 19, 2022</p>
-                  <p>
-                    This Privacy Policy describes Our policies and procedures on
-                    the collection, use and disclosure of Your information when
-                    You use the Service and tells You about Your privacy rights
-                    and how the law protects You.
-                  </p>
-                  <p>
-                    We use Your Personal data to provide and improve the
-                    Service. By using the Service, You agree to the collection
-                    and use of information in accordance with this Privacy
-                    Policy. This Privacy Policy has been created with the help
-                    of the{" "}
-                    <a
-                      href="https://www.privacypolicies.com/privacy-policy-generator/"
-                      target="_blank"
-                    >
-                      Privacy Policy Generator
-                    </a>
-                    .
-                  </p>
-                  <h1>Interpretation and Definitions</h1>
-                  <h2>Interpretation</h2>
-                  <p>
-                    The words of which the initial letter is capitalized have
-                    meanings defined under the following conditions. The
-                    following definitions shall have the same meaning regardless
-                    of whether they appear in singular or in plural.
-                  </p>
-                  <h2>Definitions</h2>
-                  <p>For the purposes of this Privacy Policy:</p>
-                  <ul>
-                    <li>
-                      <p>
-                        <strong>Account</strong> means a unique account created
-                        for You to access our Service or parts of our Service.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>Company</strong> (referred to as either
-                        &quot;the Company&quot;, &quot;We&quot;, &quot;Us&quot;
-                        or &quot;Our&quot; in this Agreement) refers to
-                        lebonforum.fr.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>Cookies</strong> are small files that are placed
-                        on Your computer, mobile device or any other device by a
-                        website, containing the details of Your browsing history
-                        on that website among its many uses.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>Country</strong> refers to: France
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>Device</strong> means any device that can access
-                        the Service such as a computer, a cellphone or a digital
-                        tablet.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>Personal Data</strong> is any information that
-                        relates to an identified or identifiable individual.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>Service</strong> refers to the Website.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>Service Provider</strong> means any natural or
-                        legal person who processes the data on behalf of the
-                        Company. It refers to third-party companies or
-                        individuals employed by the Company to facilitate the
-                        Service, to provide the Service on behalf of the
-                        Company, to perform services related to the Service or
-                        to assist the Company in analyzing how the Service is
-                        used.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>Third-party Social Media Service</strong> refers
-                        to any website or any social network website through
-                        which a User can log in or create an account to use the
-                        Service.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>Usage Data</strong> refers to data collected
-                        automatically, either generated by the use of the
-                        Service or from the Service infrastructure itself (for
-                        example, the duration of a page visit).
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>Website</strong> refers to lebonforum.fr,
-                        accessible from{" "}
-                        <a
-                          href="https://lebonforum.fr"
-                          rel="external nofollow noopener"
-                          target="_blank"
-                        >
-                          https://lebonforum.fr
-                        </a>
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>You</strong> means the individual accessing or
-                        using the Service, or the company, or other legal entity
-                        on behalf of which such individual is accessing or using
-                        the Service, as applicable.
-                      </p>
-                    </li>
-                  </ul>
-                  <h1>Collecting and Using Your Personal Data</h1>
-                  <h2>Types of Data Collected</h2>
-                  <h3>Personal Data</h3>
-                  <p>
-                    While using Our Service, We may ask You to provide Us with
-                    certain personally identifiable information that can be used
-                    to contact or identify You. Personally identifiable
-                    information may include, but is not limited to:
-                  </p>
-                  <ul>
-                    <li>
-                      <p>Email address</p>
-                    </li>
-                    <li>
-                      <p>Phone number</p>
-                    </li>
-                    <li>
-                      <p>Usage Data</p>
-                    </li>
-                  </ul>
-                  <h3>Usage Data</h3>
-                  <p>
-                    Usage Data is collected automatically when using the
-                    Service.
-                  </p>
-                  <p>
-                    Usage Data may include information such as Your Device's
-                    Internet Protocol address (e.g. IP address), browser type,
-                    browser version, the pages of our Service that You visit,
-                    the time and date of Your visit, the time spent on those
-                    pages, unique device identifiers and other diagnostic data.
-                  </p>
-                  <p>
-                    When You access the Service by or through a mobile device,
-                    We may collect certain information automatically, including,
-                    but not limited to, the type of mobile device You use, Your
-                    mobile device unique ID, the IP address of Your mobile
-                    device, Your mobile operating system, the type of mobile
-                    Internet browser You use, unique device identifiers and
-                    other diagnostic data.
-                  </p>
-                  <p>
-                    We may also collect information that Your browser sends
-                    whenever You visit our Service or when You access the
-                    Service by or through a mobile device.
-                  </p>
-                  <h3>Information from Third-Party Social Media Services</h3>
-                  <p>
-                    The Company allows You to create an account and log in to
-                    use the Service through the following Third-party Social
-                    Media Services:
-                  </p>
-                  <ul>
-                    <li>Google</li>
-                    <li>Facebook</li>
-                    <li>Twitter</li>
-                    <li>LinkedIn</li>
-                  </ul>
-                  <p>
-                    If You decide to register through or otherwise grant us
-                    access to a Third-Party Social Media Service, We may collect
-                    Personal data that is already associated with Your
-                    Third-Party Social Media Service's account, such as Your
-                    name, Your email address, Your activities or Your contact
-                    list associated with that account.
-                  </p>
-                  <p>
-                    You may also have the option of sharing additional
-                    information with the Company through Your Third-Party Social
-                    Media Service's account. If You choose to provide such
-                    information and Personal Data, during registration or
-                    otherwise, You are giving the Company permission to use,
-                    share, and store it in a manner consistent with this Privacy
-                    Policy.
-                  </p>
-                  <h3>Tracking Technologies and Cookies</h3>
-                  <p>
-                    We use Cookies and similar tracking technologies to track
-                    the activity on Our Service and store certain information.
-                    Tracking technologies used are beacons, tags, and scripts to
-                    collect and track information and to improve and analyze Our
-                    Service. The technologies We use may include:
-                  </p>
-                  <ul>
-                    <li>
-                      <strong>Cookies or Browser Cookies.</strong> A cookie is a
-                      small file placed on Your Device. You can instruct Your
-                      browser to refuse all Cookies or to indicate when a Cookie
-                      is being sent. However, if You do not accept Cookies, You
-                      may not be able to use some parts of our Service. Unless
-                      you have adjusted Your browser setting so that it will
-                      refuse Cookies, our Service may use Cookies.
-                    </li>
-                    <li>
-                      <strong>Flash Cookies.</strong> Certain features of our
-                      Service may use local stored objects (or Flash Cookies) to
-                      collect and store information about Your preferences or
-                      Your activity on our Service. Flash Cookies are not
-                      managed by the same browser settings as those used for
-                      Browser Cookies. For more information on how You can
-                      delete Flash Cookies, please read &quot;Where can I change
-                      the settings for disabling, or deleting local shared
-                      objects?&quot; available at{" "}
-                      <a
-                        href="https://helpx.adobe.com/flash-player/kb/disable-local-shared-objects-flash.html#main_Where_can_I_change_the_settings_for_disabling__or_deleting_local_shared_objects_"
-                        rel="external nofollow noopener"
-                        target="_blank"
-                      >
-                        https://helpx.adobe.com/flash-player/kb/disable-local-shared-objects-flash.html#main_Where_can_I_change_the_settings_for_disabling__or_deleting_local_shared_objects_
-                      </a>
-                    </li>
-                    <li>
-                      <strong>Web Beacons.</strong> Certain sections of our
-                      Service and our emails may contain small electronic files
-                      known as web beacons (also referred to as clear gifs,
-                      pixel tags, and single-pixel gifs) that permit the
-                      Company, for example, to count users who have visited
-                      those pages or opened an email and for other related
-                      website statistics (for example, recording the popularity
-                      of a certain section and verifying system and server
-                      integrity).
-                    </li>
-                  </ul>
-                  <p>
-                    Cookies can be &quot;Persistent&quot; or &quot;Session&quot;
-                    Cookies. Persistent Cookies remain on Your personal computer
-                    or mobile device when You go offline, while Session Cookies
-                    are deleted as soon as You close Your web browser. Learn
-                    more about cookies on the{" "}
-                    <a
-                      href="https://www.privacypolicies.com/blog/privacy-policy-template/#Use_Of_Cookies_Log_Files_And_Tracking"
-                      target="_blank"
-                    >
-                      Privacy Policies website
-                    </a>{" "}
-                    article.
-                  </p>
-                  <p>
-                    We use both Session and Persistent Cookies for the purposes
-                    set out below:
-                  </p>
-                  <ul>
-                    <li>
-                      <p>
-                        <strong>Necessary / Essential Cookies</strong>
-                      </p>
-                      <p>Type: Session Cookies</p>
-                      <p>Administered by: Us</p>
-                      <p>
-                        Purpose: These Cookies are essential to provide You with
-                        services available through the Website and to enable You
-                        to use some of its features. They help to authenticate
-                        users and prevent fraudulent use of user accounts.
-                        Without these Cookies, the services that You have asked
-                        for cannot be provided, and We only use these Cookies to
-                        provide You with those services.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>
-                          Cookies Policy / Notice Acceptance Cookies
-                        </strong>
-                      </p>
-                      <p>Type: Persistent Cookies</p>
-                      <p>Administered by: Us</p>
-                      <p>
-                        Purpose: These Cookies identify if users have accepted
-                        the use of cookies on the Website.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>Functionality Cookies</strong>
-                      </p>
-                      <p>Type: Persistent Cookies</p>
-                      <p>Administered by: Us</p>
-                      <p>
-                        Purpose: These Cookies allow us to remember choices You
-                        make when You use the Website, such as remembering your
-                        login details or language preference. The purpose of
-                        these Cookies is to provide You with a more personal
-                        experience and to avoid You having to re-enter your
-                        preferences every time You use the Website.
-                      </p>
-                    </li>
-                  </ul>
-                  <p>
-                    For more information about the cookies we use and your
-                    choices regarding cookies, please visit our Cookies Policy
-                    or the Cookies section of our Privacy Policy.
-                  </p>
-                  <h2>Use of Your Personal Data</h2>
-                  <p>
-                    The Company may use Personal Data for the following
-                    purposes:
-                  </p>
-                  <ul>
-                    <li>
-                      <p>
-                        <strong>To provide and maintain our Service</strong>,
-                        including to monitor the usage of our Service.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>To manage Your Account:</strong> to manage Your
-                        registration as a user of the Service. The Personal Data
-                        You provide can give You access to different
-                        functionalities of the Service that are available to You
-                        as a registered user.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>For the performance of a contract:</strong> the
-                        development, compliance and undertaking of the purchase
-                        contract for the products, items or services You have
-                        purchased or of any other contract with Us through the
-                        Service.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>To contact You:</strong> To contact You by
-                        email, telephone calls, SMS, or other equivalent forms
-                        of electronic communication, such as a mobile
-                        application's push notifications regarding updates or
-                        informative communications related to the
-                        functionalities, products or contracted services,
-                        including the security updates, when necessary or
-                        reasonable for their implementation.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>To provide You</strong> with news, special
-                        offers and general information about other goods,
-                        services and events which we offer that are similar to
-                        those that you have already purchased or enquired about
-                        unless You have opted not to receive such information.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>To manage Your requests:</strong> To attend and
-                        manage Your requests to Us.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>For business transfers:</strong> We may use Your
-                        information to evaluate or conduct a merger,
-                        divestiture, restructuring, reorganization, dissolution,
-                        or other sale or transfer of some or all of Our assets,
-                        whether as a going concern or as part of bankruptcy,
-                        liquidation, or similar proceeding, in which Personal
-                        Data held by Us about our Service users is among the
-                        assets transferred.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        <strong>For other purposes</strong>: We may use Your
-                        information for other purposes, such as data analysis,
-                        identifying usage trends, determining the effectiveness
-                        of our promotional campaigns and to evaluate and improve
-                        our Service, products, services, marketing and your
-                        experience.
-                      </p>
-                    </li>
-                  </ul>
-                  <p>
-                    We may share Your personal information in the following
-                    situations:
-                  </p>
-                  <ul>
-                    <li>
-                      <strong>With Service Providers:</strong> We may share Your
-                      personal information with Service Providers to monitor and
-                      analyze the use of our Service, to contact You.
-                    </li>
-                    <li>
-                      <strong>For business transfers:</strong> We may share or
-                      transfer Your personal information in connection with, or
-                      during negotiations of, any merger, sale of Company
-                      assets, financing, or acquisition of all or a portion of
-                      Our business to another company.
-                    </li>
-                    <li>
-                      <strong>With Affiliates:</strong> We may share Your
-                      information with Our affiliates, in which case we will
-                      require those affiliates to honor this Privacy Policy.
-                      Affiliates include Our parent company and any other
-                      subsidiaries, joint venture partners or other companies
-                      that We control or that are under common control with Us.
-                    </li>
-                    <li>
-                      <strong>With business partners:</strong> We may share Your
-                      information with Our business partners to offer You
-                      certain products, services or promotions.
-                    </li>
-                    <li>
-                      <strong>With other users:</strong> when You share personal
-                      information or otherwise interact in the public areas with
-                      other users, such information may be viewed by all users
-                      and may be publicly distributed outside. If You interact
-                      with other users or register through a Third-Party Social
-                      Media Service, Your contacts on the Third-Party Social
-                      Media Service may see Your name, profile, pictures and
-                      description of Your activity. Similarly, other users will
-                      be able to view descriptions of Your activity, communicate
-                      with You and view Your profile.
-                    </li>
-                    <li>
-                      <strong>With Your consent</strong>: We may disclose Your
-                      personal information for any other purpose with Your
-                      consent.
-                    </li>
-                  </ul>
-                  <h2>Retention of Your Personal Data</h2>
-                  <p>
-                    The Company will retain Your Personal Data only for as long
-                    as is necessary for the purposes set out in this Privacy
-                    Policy. We will retain and use Your Personal Data to the
-                    extent necessary to comply with our legal obligations (for
-                    example, if we are required to retain your data to comply
-                    with applicable laws), resolve disputes, and enforce our
-                    legal agreements and policies.
-                  </p>
-                  <p>
-                    The Company will also retain Usage Data for internal
-                    analysis purposes. Usage Data is generally retained for a
-                    shorter period of time, except when this data is used to
-                    strengthen the security or to improve the functionality of
-                    Our Service, or We are legally obligated to retain this data
-                    for longer time periods.
-                  </p>
-                  <h2>Transfer of Your Personal Data</h2>
-                  <p>
-                    Your information, including Personal Data, is processed at
-                    the Company's operating offices and in any other places
-                    where the parties involved in the processing are located. It
-                    means that this information may be transferred to — and
-                    maintained on — computers located outside of Your state,
-                    province, country or other governmental jurisdiction where
-                    the data protection laws may differ than those from Your
-                    jurisdiction.
-                  </p>
-                  <p>
-                    Your consent to this Privacy Policy followed by Your
-                    submission of such information represents Your agreement to
-                    that transfer.
-                  </p>
-                  <p>
-                    The Company will take all steps reasonably necessary to
-                    ensure that Your data is treated securely and in accordance
-                    with this Privacy Policy and no transfer of Your Personal
-                    Data will take place to an organization or a country unless
-                    there are adequate controls in place including the security
-                    of Your data and other personal information.
-                  </p>
-                  <h2>Disclosure of Your Personal Data</h2>
-                  <h3>Business Transactions</h3>
-                  <p>
-                    If the Company is involved in a merger, acquisition or asset
-                    sale, Your Personal Data may be transferred. We will provide
-                    notice before Your Personal Data is transferred and becomes
-                    subject to a different Privacy Policy.
-                  </p>
-                  <h3>Law enforcement</h3>
-                  <p>
-                    Under certain circumstances, the Company may be required to
-                    disclose Your Personal Data if required to do so by law or
-                    in response to valid requests by public authorities (e.g. a
-                    court or a government agency).
-                  </p>
-                  <h3>Other legal requirements</h3>
-                  <p>
-                    The Company may disclose Your Personal Data in the good
-                    faith belief that such action is necessary to:
-                  </p>
-                  <ul>
-                    <li>Comply with a legal obligation</li>
-                    <li>
-                      Protect and defend the rights or property of the Company
-                    </li>
-                    <li>
-                      Prevent or investigate possible wrongdoing in connection
-                      with the Service
-                    </li>
-                    <li>
-                      Protect the personal safety of Users of the Service or the
-                      public
-                    </li>
-                    <li>Protect against legal liability</li>
-                  </ul>
-                  <h2>Security of Your Personal Data</h2>
-                  <p>
-                    The security of Your Personal Data is important to Us, but
-                    remember that no method of transmission over the Internet,
-                    or method of electronic storage is 100% secure. While We
-                    strive to use commercially acceptable means to protect Your
-                    Personal Data, We cannot guarantee its absolute security.
-                  </p>
-                  <h1>Children's Privacy</h1>
-                  <p>
-                    Our Service does not address anyone under the age of 13. We
-                    do not knowingly collect personally identifiable information
-                    from anyone under the age of 13. If You are a parent or
-                    guardian and You are aware that Your child has provided Us
-                    with Personal Data, please contact Us. If We become aware
-                    that We have collected Personal Data from anyone under the
-                    age of 13 without verification of parental consent, We take
-                    steps to remove that information from Our servers.
-                  </p>
-                  <p>
-                    If We need to rely on consent as a legal basis for
-                    processing Your information and Your country requires
-                    consent from a parent, We may require Your parent's consent
-                    before We collect and use that information.
-                  </p>
-                  <h1>Links to Other Websites</h1>
-                  <p>
-                    Our Service may contain links to other websites that are not
-                    operated by Us. If You click on a third party link, You will
-                    be directed to that third party's site. We strongly advise
-                    You to review the Privacy Policy of every site You visit.
-                  </p>
-                  <p>
-                    We have no control over and assume no responsibility for the
-                    content, privacy policies or practices of any third party
-                    sites or services.
-                  </p>
-                  <h1>Changes to this Privacy Policy</h1>
-                  <p>
-                    We may update Our Privacy Policy from time to time. We will
-                    notify You of any changes by posting the new Privacy Policy
-                    on this page.
-                  </p>
-                  <p>
-                    We will let You know via email and/or a prominent notice on
-                    Our Service, prior to the change becoming effective and
-                    update the &quot;Last updated&quot; date at the top of this
-                    Privacy Policy.
-                  </p>
-                  <p>
-                    You are advised to review this Privacy Policy periodically
-                    for any changes. Changes to this Privacy Policy are
-                    effective when they are posted on this page.
-                  </p>
-                  <h1>Contact Us</h1>
-                  <p>
-                    If you have any questions about this Privacy Policy, You can
-                    contact us:
-                  </p>
-                  <ul>
-                    <li>
-                      By email:{" "}
-                      <a href="mailto:contact@lebonforum.fr">
-                        contact@lebonforum.fr
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Column {...columnProps}>
+          <h2>Préambule</h2>
+
+          <Text>
+            En utilisant ce service, vous acceptez d’être lié·e par les
+            conditions suivantes. <HostTag {...hostTagProps} /> se réserve le
+            droit de mettre à jour et modifier ces conditions de temps à autre.
+          </Text>
+        </Column>
+
+        <Box m="0 auto" maxWidth="4xl">
+          <Row {...rowStyles(isDark)}>
+            <Icon as={FaGift} color="green" boxSize={[5, 4]} mr={3} />
+            <Flex flexDir="column">
+              <Text>
+                <HostTag /> utilise un logiciel libre et open-source mis à
+                disposition gratuitement grâce à la license GNU AGPL.
+              </Text>
+              <Text
+                bg={isDark ? "black" : "white"}
+                border="1px solid black"
+                borderRadius="lg"
+                fontSize="small"
+                my={2}
+                p={2}
+              >
+                <Icon as={FaQuoteLeft} {...hostTagProps} /> La license {license}{" "}
+                ne s'intéresse pas au problème du SaaSS (service se substituant
+                au logiciel). On parle de SaaSS lorsque les utilisateurs font
+                leurs propres tâches informatiques sur l'ordinateur de quelqu'un
+                d'autre. Ceci les oblige à envoyer leurs données au serveur ; ce
+                dernier les traite et leur renvoie les résultats.
+              </Text>
+
+              <Text>
+                Si vous ne souhaitez pas confier vos données à{" "}
+                <HostTag mx={1} /> <ContactLink /> pour installer ce logiciel
+                libre sur votre propre serveur.
+              </Text>
+            </Flex>
+          </Row>
+
+          <Row {...rowStyles(isDark)}>
+            <Icon as={EmailIcon} color="green" boxSize={[5, 4]} mr={3} />
+            <Text>
+              <HostTag {...hostTagProps} mr={1} /> peut envoyer jusqu'à{" "}
+              <Badge colorScheme="purple" mx={1}>
+                100 e-mails
+              </Badge>{" "}
+              par jour
+              {typeof diskUsage.current !== "undefined" &&
+                typeof diskUsage.max !== "undefined" && (
+                  <>
+                    , et stocker{" "}
+                    <Badge colorScheme="purple" mx={1}>
+                      {bytesForHuman(diskUsage.max)}
+                    </Badge>{" "}
+                    de données
+                  </>
+                )}
+              . Si cela s'avère insuffisant, parlons financement participatif
+              sur le <EntityButton size="sm" org={{ orgUrl: "forum" }} />
+            </Text>
+          </Row>
+
+          {/* <Row {...rowStyles(isDark)}>
+            <Icon as={FaKey} color="green" boxSize={[5, 4]} />
+            <Flex flexDirection="column" ml={3}>
+            </Flex>
+          </Row> */}
+        </Box>
+
+        <Column {...columnProps}>
+          <Flex
+            ref={TOSRef}
+            alignItems="center"
+            cursor="pointer"
+            onClick={() => setIsTOSCollapsed(!isTOSCollapsed)}
+          >
+            <Heading>Conditions du service</Heading>
+            {isTOSCollapsed ? (
+              <ChevronRightIcon boxSize={6} />
+            ) : (
+              <ChevronUpIcon boxSize={6} />
+            )}
+          </Flex>
+
+          {!isTOSCollapsed && (
+            <>
+              <Table bg="lightblue" borderRadius={6} color="black" mb={3}>
+                <Tr>
+                  <Td>
+                    Votre contenu vous appartient (mais nous vous encourageons à
+                    le publier sous licence libre) ;
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td>
+                    <HostTag {...hostTagProps} /> n’exploitera pas vos données
+                    personnelles, sauf pour vous prévenir d’un changement
+                    important sur le service ;
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td>
+                    <HostTag {...hostTagProps} /> ne transmettra ni ne revendra
+                    vos données personnelles (votre vie privée nous tient -
+                    vraiment - à cœur) ;
+                  </Td>
+                </Tr>
+              </Table>
+              <Table bg="orange.100" borderRadius={6} color="black" mb={3}>
+                <Tr>
+                  <Td>
+                    Clause{" "}
+                    <em>
+                      « Si ça casse, nous ne sommes pas obligé de réparer »
+                    </em>{" "}
+                    : <HostTag {...hostTagProps} /> propose ce service
+                    gratuitement et librement. Si vous perdez des données, par
+                    votre faute ou par la nôtre, désolé, mais ça arrive. Nous
+                    ferons ce que nous pouvons pour les récupérer, mais nous ne
+                    nous assignons aucune obligation de résultat. En clair,
+                    évitez de mettre des données sensibles ou importantes sur
+                    les services <HostTag {...hostTagProps} />, car en cas de
+                    perte, nous ne garantissons pas leur récupération ;
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td>
+                    Clause{" "}
+                    <em>
+                      « Si vous n’êtes pas content·es, vous êtes invité·es à
+                      aller voir ailleurs »
+                    </em>{" "}
+                    : si le service ne vous convient pas, libre à vous d’en
+                    trouver un équivalent (ou meilleur) ailleurs, ou de monter
+                    le vôtre ;
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td>
+                    Clause <em>« Tout abus sera puni »</em> : si un·e
+                    utilisateur·ice abuse du service, par exemple en
+                    monopolisant les ressources machines partagées, ou en
+                    publiant publiquement des contenus considérés comme non
+                    pertinents, son contenu ou son compte pourra être supprimé
+                    sans avertissement ni négociation.{" "}
+                    <HostTag {...hostTagProps} /> reste seul juge de cette
+                    notion « d’abus » dans le but de fournir le meilleur service
+                    possible à l’ensemble de ses utilisateur·ices. Si cela vous
+                    parait anti-démocratique, anti-libriste,
+                    anti-liberté-d’expression, merci de vous référer à la clause
+                    précédente ;
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td>
+                    Clause « Rien n’est éternel » : les services peuvent fermer
+                    (faute de fonds pour les maintenir, par exemple), ils
+                    peuvent être victimes d’intrusion (le « 100 % sécurisé »
+                    n’existe pas). Nous vous encourageons donc à conserver une
+                    copie des données qui vous importent, car{" "}
+                    <HostTag {...hostTagProps} /> ne saurait être tenu pour
+                    responsable de leur hébergement sans limite de temps.
+                  </Td>
+                </Tr>
+              </Table>
+            </>
+          )}
+        </Column>
+
+        <Column {...columnProps}>
+          <Flex
+            ref={PolicyRef}
+            alignItems="center"
+            cursor="pointer"
+            onClick={() => setIsPolicyCollapsed(!isPolicyCollapsed)}
+          >
+            <Heading>Privacy Policy</Heading>
+            {isPolicyCollapsed ? (
+              <ChevronRightIcon boxSize={6} />
+            ) : (
+              <ChevronUpIcon boxSize={6} />
+            )}
+          </Flex>
+
+          {!isPolicyCollapsed && (
+            <>
+              <p>
+                We are <HostTag {...hostTagProps} /> ("we", "our", "us"). We’re
+                committed to protecting and respecting your privacy. If you have
+                questions about your personal information please{" "}
+                <Link href="/contact" variant="underline">
+                  contact us
+                </Link>
+                .
+              </p>
+              <h2>What information we hold about you</h2>
+              <p>The type of data that we collect and process includes:</p>
+              <ul>
+                <li>Your username.</li>
+                <li>Your email address.</li>
+              </ul>
+              <p>
+                Further data may be collected if you choose to share it, such as
+                if you fill out fields on your profile.
+              </p>
+              <p>
+                We collect some or all of this information in the following
+                cases:
+              </p>
+              <ul>
+                <li>You fill out our login or contact form.</li>
+                <li>You fill out fields on your profile.</li>
+              </ul>
+              <h2>How your personal information is used</h2>
+              <p>We may use your personal information in the following ways:</p>
+              <ul>
+                <li>
+                  For the purposes of making you a registered member of our
+                  site, in order for you to contribute content to this site.
+                </li>
+                <li>
+                  We may use your email address if you chose to be informed of
+                  activity on our site.
+                </li>
+              </ul>
+              <h2>Other ways we may use your personal information</h2>
+              <p>
+                We may collect non-personally identifiable information about you
+                in the course of your interaction with our site. This
+                information may include technical information about the browser
+                or type of device you're using. This information will be used
+                purely for the purposes of adapting to the device you are using.
+              </p>
+              <h2>Keeping your data secure</h2>
+              <p>
+                We are committed to ensuring that any information you provide to
+                us is secure. In order to prevent unauthorized access or
+                disclosure, we have put in place suitable measures and
+                procedures to safeguard and secure the information that we
+                collect.
+              </p>
+              <h2>Cookie policy</h2>
+              <p>
+                Cookies are small text files which are set by us on your
+                computer which allow us to provide certain functionality on our
+                site, such as being able to log in, or remembering certain
+                preferences.
+              </p>
+              <h2>Rights</h2>
+              <p>
+                You have a right to access the personal data we hold about you
+                or obtain a copy of it. To do so please{" "}
+                <Link href="/contact" variant="underline">
+                  contact us
+                </Link>
+                . If you believe that the information we hold for you is
+                incomplete or inaccurate, you may{" "}
+                <Link href="/contact" variant="underline">
+                  contact us
+                </Link>{" "}
+                to ask us to complete or correct that information.
+              </p>
+              <p>
+                You also have the right to request the erasure of your personal
+                data. Please{" "}
+                <Link href="/contact" variant="underline">
+                  contact us
+                </Link>{" "}
+                if you would like us to remove your personal data.
+              </p>
+              <h2>Acceptance of this policy</h2>
+              <p>
+                Continued use of our site signifies your acceptance of this
+                policy. If you do not accept the policy then please do not use
+                this site. When registering we will further request your
+                explicit acceptance of the privacy policy.
+              </p>
+              <h2>Changes to this policy</h2>
+              <p>
+                We may make changes to this policy at any time. You may be asked
+                to review and re-accept the information in this policy if it
+                changes in the future.
+              </p>
+            </>
+          )}
+        </Column>
+
+        <Column {...columnProps}>
+          <Flex
+            ref={NoticeRef}
+            alignItems="center"
+            cursor="pointer"
+            onClick={() => setIsNoticeCollapsed(!isNoticeCollapsed)}
+          >
+            <Heading>Legal Notice</Heading>
+            {isNoticeCollapsed ? (
+              <ChevronRightIcon boxSize={6} />
+            ) : (
+              <ChevronUpIcon boxSize={6} />
+            )}
+          </Flex>
+
+          {!isNoticeCollapsed && (
+            <>
+              <p>
+                The providers ("we", "us", "our") of the service provided by
+                this web site ("Service") are not responsible for any
+                user-generated content and accounts. Content submitted express
+                the views of their author only.
+              </p>
+
+              <p>
+                This Service is only available to users who are at least 18
+                years old. If you are younger than this, please do not register
+                for this Service. If you register for this Service, you
+                represent that you are this age or older.
+              </p>
+
+              <p>
+                All content you submit, upload, or otherwise make available to
+                the Service ("Content") may be reviewed by staff members. All
+                Content you submit or upload may be sent to third-party
+                verification services (including, but not limited to, spam
+                prevention services). Do not submit any Content that you
+                consider to be private or confidential.
+              </p>
+
+              <p>
+                You agree to not use the Service to submit or link to any
+                Content which is defamatory, abusive, hateful, threatening, spam
+                or spam-like, likely to offend, contains adult or objectionable
+                content, contains personal information of others, risks
+                copyright infringement, encourages unlawful activity, or
+                otherwise violates any laws. You are entirely responsible for
+                the content of, and any harm resulting from, that Content or
+                your conduct.
+              </p>
+
+              <p>
+                We may remove or modify any Content submitted at any time, with
+                or without cause, with or without notice. Requests for Content
+                to be removed or modified will be undertaken only at our
+                discretion. We may terminate your access to all or any part of
+                the Service at any time, with or without cause, with or without
+                notice.
+              </p>
+
+              <p>
+                You are granting us with a non-exclusive, permanent,
+                irrevocable, unlimited license to use, publish, or re-publish
+                your Content in connection with the Service. You retain
+                copyright over the Content.
+              </p>
+
+              <p>These terms may be changed at any time without notice.</p>
+
+              <p>
+                If you do not agree with these terms, please do not register or
+                use the Service. Use of the Service constitutes acceptance of
+                these terms. If you wish to close your account, please{" "}
+                <Link href="/contact" variant="underline">
+                  contact us
+                </Link>
+                .
+              </p>
+            </>
+          )}
+        </Column>
+
+        <Column {...columnProps} mb={0}>
+          <Flex
+            ref={LicenseRef}
+            alignItems="center"
+            cursor="pointer"
+            onClick={() => setIsLicenseCollapsed(!isLicenseCollapsed)}
+          >
+            <Heading>License</Heading>
+            {isLicenseCollapsed ? (
+              <ChevronRightIcon boxSize={6} />
+            ) : (
+              <ChevronUpIcon boxSize={6} />
+            )}
+          </Flex>
+
+          {!isLicenseCollapsed && (
+            <>
+              <h3>GNU AFFERO GENERAL PUBLIC LICENSE</h3>
+              <p>Version 3, 19 November 2007</p>
+
+              <p>
+                Copyright © 2007 Free Software Foundation, Inc. &lt;
+                <a href="https://fsf.org/">https://fsf.org/</a>&gt;
+                <br />
+                Everyone is permitted to copy and distribute verbatim copies of
+                this license document, but changing it is not allowed.
+              </p>
+
+              <h4 id="preamble">Preamble</h4>
+
+              <p>
+                The GNU Affero General Public License is a free, copyleft
+                license for software and other kinds of works, specifically
+                designed to ensure cooperation with the community in the case of
+                network server software.
+              </p>
+
+              <p>
+                The licenses for most software and other practical works are
+                designed to take away your freedom to share and change the
+                works. By contrast, our General Public Licenses are intended to
+                guarantee your freedom to share and change all versions of a
+                program--to make sure it remains free software for all its
+                users.
+              </p>
+
+              <p>
+                When we speak of free software, we are referring to freedom, not
+                price. Our General Public Licenses are designed to make sure
+                that you have the freedom to distribute copies of free software
+                (and charge for them if you wish), that you receive source code
+                or can get it if you want it, that you can change the software
+                or use pieces of it in new free programs, and that you know you
+                can do these things.
+              </p>
+
+              <p>
+                Developers that use our General Public Licenses protect your
+                rights with two steps: (1) assert copyright on the software, and
+                (2) offer you this License which gives you legal permission to
+                copy, distribute and/or modify the software.
+              </p>
+
+              <p>
+                A secondary benefit of defending all users' freedom is that
+                improvements made in alternate versions of the program, if they
+                receive widespread use, become available for other developers to
+                incorporate. Many developers of free software are heartened and
+                encouraged by the resulting cooperation. However, in the case of
+                software used on network servers, this result may fail to come
+                about. The GNU General Public License permits making a modified
+                version and letting the public access it on a server without
+                ever releasing its source code to the public.
+              </p>
+
+              <p>
+                The GNU Affero General Public License is designed specifically
+                to ensure that, in such cases, the modified source code becomes
+                available to the community. It requires the operator of a
+                network server to provide the source code of the modified
+                version running there to the users of that server. Therefore,
+                public use of a modified version, on a publicly accessible
+                server, gives the public access to the source code of the
+                modified version.
+              </p>
+
+              <p>
+                An older license, called the Affero General Public License and
+                published by Affero, was designed to accomplish similar goals.
+                This is a different license, not a version of the Affero GPL,
+                but Affero has released a new version of the Affero GPL which
+                permits relicensing under this license.
+              </p>
+
+              <p>
+                The precise terms and conditions for copying, distribution and
+                modification follow.
+              </p>
+
+              <h4 id="terms">TERMS AND CONDITIONS</h4>
+
+              <h4 id="section0">0. Definitions.</h4>
+
+              <p>
+                "This License" refers to version 3 of the GNU Affero General
+                Public License.
+              </p>
+
+              <p>
+                "Copyright" also means copyright-like laws that apply to other
+                kinds of works, such as semiconductor masks.
+              </p>
+
+              <p>
+                "The Program" refers to any copyrightable work licensed under
+                this License. Each licensee is addressed as "you". "Licensees"
+                and "recipients" may be individuals or organizations.
+              </p>
+
+              <p>
+                To "modify" a work means to copy from or adapt all or part of
+                the work in a fashion requiring copyright permission, other than
+                the making of an exact copy. The resulting work is called a
+                "modified version" of the earlier work or a work "based on" the
+                earlier work.
+              </p>
+
+              <p>
+                A "covered work" means either the unmodified Program or a work
+                based on the Program.
+              </p>
+
+              <p>
+                To "propagate" a work means to do anything with it that, without
+                permission, would make you directly or secondarily liable for
+                infringement under applicable copyright law, except executing it
+                on a computer or modifying a private copy. Propagation includes
+                copying, distribution (with or without modification), making
+                available to the public, and in some countries other activities
+                as well.
+              </p>
+
+              <p>
+                To "convey" a work means any kind of propagation that enables
+                other parties to make or receive copies. Mere interaction with a
+                user through a computer network, with no transfer of a copy, is
+                not conveying.
+              </p>
+
+              <p>
+                An interactive user interface displays "Appropriate Legal
+                Notices" to the extent that it includes a convenient and
+                prominently visible feature that (1) displays an appropriate
+                copyright notice, and (2) tells the user that there is no
+                warranty for the work (except to the extent that warranties are
+                provided), that licensees may convey the work under this
+                License, and how to view a copy of this License. If the
+                interface presents a list of user commands or options, such as a
+                menu, a prominent item in the list meets this criterion.
+              </p>
+
+              <h4 id="section1">1. Source Code.</h4>
+
+              <p>
+                The "source code" for a work means the preferred form of the
+                work for making modifications to it. "Object code" means any
+                non-source form of a work.
+              </p>
+
+              <p>
+                A "Standard Interface" means an interface that either is an
+                official standard defined by a recognized standards body, or, in
+                the case of interfaces specified for a particular programming
+                language, one that is widely used among developers working in
+                that language.
+              </p>
+
+              <p>
+                The "System Libraries" of an executable work include anything,
+                other than the work as a whole, that (a) is included in the
+                normal form of packaging a Major Component, but which is not
+                part of that Major Component, and (b) serves only to enable use
+                of the work with that Major Component, or to implement a
+                Standard Interface for which an implementation is available to
+                the public in source code form. A "Major Component", in this
+                context, means a major essential component (kernel, window
+                system, and so on) of the specific operating system (if any) on
+                which the executable work runs, or a compiler used to produce
+                the work, or an object code interpreter used to run it.
+              </p>
+
+              <p>
+                The "Corresponding Source" for a work in object code form means
+                all the source code needed to generate, install, and (for an
+                executable work) run the object code and to modify the work,
+                including scripts to control those activities. However, it does
+                not include the work's System Libraries, or general-purpose
+                tools or generally available free programs which are used
+                unmodified in performing those activities but which are not part
+                of the work. For example, Corresponding Source includes
+                interface definition files associated with source files for the
+                work, and the source code for shared libraries and dynamically
+                linked subprograms that the work is specifically designed to
+                require, such as by intimate data communication or control flow
+                between those subprograms and other parts of the work.
+              </p>
+
+              <p>
+                The Corresponding Source need not include anything that users
+                can regenerate automatically from other parts of the
+                Corresponding Source.
+              </p>
+
+              <p>
+                The Corresponding Source for a work in source code form is that
+                same work.
+              </p>
+
+              <h4 id="section2">2. Basic Permissions.</h4>
+
+              <p>
+                All rights granted under this License are granted for the term
+                of copyright on the Program, and are irrevocable provided the
+                stated conditions are met. This License explicitly affirms your
+                unlimited permission to run the unmodified Program. The output
+                from running a covered work is covered by this License only if
+                the output, given its content, constitutes a covered work. This
+                License acknowledges your rights of fair use or other
+                equivalent, as provided by copyright law.
+              </p>
+
+              <p>
+                You may make, run and propagate covered works that you do not
+                convey, without conditions so long as your license otherwise
+                remains in force. You may convey covered works to others for the
+                sole purpose of having them make modifications exclusively for
+                you, or provide you with facilities for running those works,
+                provided that you comply with the terms of this License in
+                conveying all material for which you do not control copyright.
+                Those thus making or running the covered works for you must do
+                so exclusively on your behalf, under your direction and control,
+                on terms that prohibit them from making any copies of your
+                copyrighted material outside their relationship with you.
+              </p>
+
+              <p>
+                Conveying under any other circumstances is permitted solely
+                under the conditions stated below. Sublicensing is not allowed;
+                section 10 makes it unnecessary.
+              </p>
+
+              <h4 id="section3">
+                3. Protecting Users' Legal Rights From Anti-Circumvention Law.
+              </h4>
+
+              <p>
+                No covered work shall be deemed part of an effective
+                technological measure under any applicable law fulfilling
+                obligations under article 11 of the WIPO copyright treaty
+                adopted on 20 December 1996, or similar laws prohibiting or
+                restricting circumvention of such measures.
+              </p>
+
+              <p>
+                When you convey a covered work, you waive any legal power to
+                forbid circumvention of technological measures to the extent
+                such circumvention is effected by exercising rights under this
+                License with respect to the covered work, and you disclaim any
+                intention to limit operation or modification of the work as a
+                means of enforcing, against the work's users, your or third
+                parties' legal rights to forbid circumvention of technological
+                measures.
+              </p>
+
+              <h4 id="section4">4. Conveying Verbatim Copies.</h4>
+
+              <p>
+                You may convey verbatim copies of the Program's source code as
+                you receive it, in any medium, provided that you conspicuously
+                and appropriately publish on each copy an appropriate copyright
+                notice; keep intact all notices stating that this License and
+                any non-permissive terms added in accord with section 7 apply to
+                the code; keep intact all notices of the absence of any
+                warranty; and give all recipients a copy of this License along
+                with the Program.
+              </p>
+
+              <p>
+                You may charge any price or no price for each copy that you
+                convey, and you may offer support or warranty protection for a
+                fee.
+              </p>
+
+              <h4 id="section5">5. Conveying Modified Source Versions.</h4>
+
+              <p>
+                You may convey a work based on the Program, or the modifications
+                to produce it from the Program, in the form of source code under
+                the terms of section 4, provided that you also meet all of these
+                conditions:
+              </p>
+
+              <ul>
+                <li>
+                  a) The work must carry prominent notices stating that you
+                  modified it, and giving a relevant date.
+                </li>
+
+                <li>
+                  b) The work must carry prominent notices stating that it is
+                  released under this License and any conditions added under
+                  section 7. This requirement modifies the requirement in
+                  section 4 to "keep intact all notices".
+                </li>
+
+                <li>
+                  c) You must license the entire work, as a whole, under this
+                  License to anyone who comes into possession of a copy. This
+                  License will therefore apply, along with any applicable
+                  section 7 additional terms, to the whole of the work, and all
+                  its parts, regardless of how they are packaged. This License
+                  gives no permission to license the work in any other way, but
+                  it does not invalidate such permission if you have separately
+                  received it.
+                </li>
+
+                <li>
+                  d) If the work has interactive user interfaces, each must
+                  display Appropriate Legal Notices; however, if the Program has
+                  interactive interfaces that do not display Appropriate Legal
+                  Notices, your work need not make them do so.
+                </li>
+              </ul>
+
+              <p>
+                A compilation of a covered work with other separate and
+                independent works, which are not by their nature extensions of
+                the covered work, and which are not combined with it such as to
+                form a larger program, in or on a volume of a storage or
+                distribution medium, is called an "aggregate" if the compilation
+                and its resulting copyright are not used to limit the access or
+                legal rights of the compilation's users beyond what the
+                individual works permit. Inclusion of a covered work in an
+                aggregate does not cause this License to apply to the other
+                parts of the aggregate.
+              </p>
+
+              <h4 id="section6">6. Conveying Non-Source Forms.</h4>
+
+              <p>
+                You may convey a covered work in object code form under the
+                terms of sections 4 and 5, provided that you also convey the
+                machine-readable Corresponding Source under the terms of this
+                License, in one of these ways:
+              </p>
+
+              <ul>
+                <li>
+                  a) Convey the object code in, or embodied in, a physical
+                  product (including a physical distribution medium),
+                  accompanied by the Corresponding Source fixed on a durable
+                  physical medium customarily used for software interchange.
+                </li>
+
+                <li>
+                  b) Convey the object code in, or embodied in, a physical
+                  product (including a physical distribution medium),
+                  accompanied by a written offer, valid for at least three years
+                  and valid for as long as you offer spare parts or customer
+                  support for that product model, to give anyone who possesses
+                  the object code either (1) a copy of the Corresponding Source
+                  for all the software in the product that is covered by this
+                  License, on a durable physical medium customarily used for
+                  software interchange, for a price no more than your reasonable
+                  cost of physically performing this conveying of source, or (2)
+                  access to copy the Corresponding Source from a network server
+                  at no charge.
+                </li>
+
+                <li>
+                  c) Convey individual copies of the object code with a copy of
+                  the written offer to provide the Corresponding Source. This
+                  alternative is allowed only occasionally and noncommercially,
+                  and only if you received the object code with such an offer,
+                  in accord with subsection 6b.
+                </li>
+
+                <li>
+                  d) Convey the object code by offering access from a designated
+                  place (gratis or for a charge), and offer equivalent access to
+                  the Corresponding Source in the same way through the same
+                  place at no further charge. You need not require recipients to
+                  copy the Corresponding Source along with the object code. If
+                  the place to copy the object code is a network server, the
+                  Corresponding Source may be on a different server (operated by
+                  you or a third party) that supports equivalent copying
+                  facilities, provided you maintain clear directions next to the
+                  object code saying where to find the Corresponding Source.
+                  Regardless of what server hosts the Corresponding Source, you
+                  remain obligated to ensure that it is available for as long as
+                  needed to satisfy these requirements.
+                </li>
+
+                <li>
+                  e) Convey the object code using peer-to-peer transmission,
+                  provided you inform other peers where the object code and
+                  Corresponding Source of the work are being offered to the
+                  general public at no charge under subsection 6d.
+                </li>
+              </ul>
+
+              <p>
+                A separable portion of the object code, whose source code is
+                excluded from the Corresponding Source as a System Library, need
+                not be included in conveying the object code work.
+              </p>
+
+              <p>
+                A "User Product" is either (1) a "consumer product", which means
+                any tangible personal property which is normally used for
+                personal, family, or household purposes, or (2) anything
+                designed or sold for incorporation into a dwelling. In
+                determining whether a product is a consumer product, doubtful
+                cases shall be resolved in favor of coverage. For a particular
+                product received by a particular user, "normally used" refers to
+                a typical or common use of that class of product, regardless of
+                the status of the particular user or of the way in which the
+                particular user actually uses, or expects or is expected to use,
+                the product. A product is a consumer product regardless of
+                whether the product has substantial commercial, industrial or
+                non-consumer uses, unless such uses represent the only
+                significant mode of use of the product.
+              </p>
+
+              <p>
+                "Installation Information" for a User Product means any methods,
+                procedures, authorization keys, or other information required to
+                install and execute modified versions of a covered work in that
+                User Product from a modified version of its Corresponding
+                Source. The information must suffice to ensure that the
+                continued functioning of the modified object code is in no case
+                prevented or interfered with solely because modification has
+                been made.
+              </p>
+
+              <p>
+                If you convey an object code work under this section in, or
+                with, or specifically for use in, a User Product, and the
+                conveying occurs as part of a transaction in which the right of
+                possession and use of the User Product is transferred to the
+                recipient in perpetuity or for a fixed term (regardless of how
+                the transaction is characterized), the Corresponding Source
+                conveyed under this section must be accompanied by the
+                Installation Information. But this requirement does not apply if
+                neither you nor any third party retains the ability to install
+                modified object code on the User Product (for example, the work
+                has been installed in ROM).
+              </p>
+
+              <p>
+                The requirement to provide Installation Information does not
+                include a requirement to continue to provide support service,
+                warranty, or updates for a work that has been modified or
+                installed by the recipient, or for the User Product in which it
+                has been modified or installed. Access to a network may be
+                denied when the modification itself materially and adversely
+                affects the operation of the network or violates the rules and
+                protocols for communication across the network.
+              </p>
+
+              <p>
+                Corresponding Source conveyed, and Installation Information
+                provided, in accord with this section must be in a format that
+                is publicly documented (and with an implementation available to
+                the public in source code form), and must require no special
+                password or key for unpacking, reading or copying.
+              </p>
+
+              <h4 id="section7">7. Additional Terms.</h4>
+
+              <p>
+                "Additional permissions" are terms that supplement the terms of
+                this License by making exceptions from one or more of its
+                conditions. Additional permissions that are applicable to the
+                entire Program shall be treated as though they were included in
+                this License, to the extent that they are valid under applicable
+                law. If additional permissions apply only to part of the
+                Program, that part may be used separately under those
+                permissions, but the entire Program remains governed by this
+                License without regard to the additional permissions.
+              </p>
+
+              <p>
+                When you convey a copy of a covered work, you may at your option
+                remove any additional permissions from that copy, or from any
+                part of it. (Additional permissions may be written to require
+                their own removal in certain cases when you modify the work.)
+                You may place additional permissions on material, added by you
+                to a covered work, for which you have or can give appropriate
+                copyright permission.
+              </p>
+
+              <p>
+                Notwithstanding any other provision of this License, for
+                material you add to a covered work, you may (if authorized by
+                the copyright holders of that material) supplement the terms of
+                this License with terms:
+              </p>
+
+              <ul>
+                <li>
+                  a) Disclaiming warranty or limiting liability differently from
+                  the terms of sections 15 and 16 of this License; or
+                </li>
+
+                <li>
+                  b) Requiring preservation of specified reasonable legal
+                  notices or author attributions in that material or in the
+                  Appropriate Legal Notices displayed by works containing it; or
+                </li>
+
+                <li>
+                  c) Prohibiting misrepresentation of the origin of that
+                  material, or requiring that modified versions of such material
+                  be marked in reasonable ways as different from the original
+                  version; or
+                </li>
+
+                <li>
+                  d) Limiting the use for publicity purposes of names of
+                  licensors or authors of the material; or
+                </li>
+
+                <li>
+                  e) Declining to grant rights under trademark law for use of
+                  some trade names, trademarks, or service marks; or
+                </li>
+
+                <li>
+                  f) Requiring indemnification of licensors and authors of that
+                  material by anyone who conveys the material (or modified
+                  versions of it) with contractual assumptions of liability to
+                  the recipient, for any liability that these contractual
+                  assumptions directly impose on those licensors and authors.
+                </li>
+              </ul>
+
+              <p>
+                All other non-permissive additional terms are considered
+                "further restrictions" within the meaning of section 10. If the
+                Program as you received it, or any part of it, contains a notice
+                stating that it is governed by this License along with a term
+                that is a further restriction, you may remove that term. If a
+                license document contains a further restriction but permits
+                relicensing or conveying under this License, you may add to a
+                covered work material governed by the terms of that license
+                document, provided that the further restriction does not survive
+                such relicensing or conveying.
+              </p>
+
+              <p>
+                If you add terms to a covered work in accord with this section,
+                you must place, in the relevant source files, a statement of the
+                additional terms that apply to those files, or a notice
+                indicating where to find the applicable terms.
+              </p>
+
+              <p>
+                Additional terms, permissive or non-permissive, may be stated in
+                the form of a separately written license, or stated as
+                exceptions; the above requirements apply either way.
+              </p>
+
+              <h4 id="section8">8. Termination.</h4>
+
+              <p>
+                You may not propagate or modify a covered work except as
+                expressly provided under this License. Any attempt otherwise to
+                propagate or modify it is void, and will automatically terminate
+                your rights under this License (including any patent licenses
+                granted under the third paragraph of section 11).
+              </p>
+
+              <p>
+                However, if you cease all violation of this License, then your
+                license from a particular copyright holder is reinstated (a)
+                provisionally, unless and until the copyright holder explicitly
+                and finally terminates your license, and (b) permanently, if the
+                copyright holder fails to notify you of the violation by some
+                reasonable means prior to 60 days after the cessation.
+              </p>
+
+              <p>
+                Moreover, your license from a particular copyright holder is
+                reinstated permanently if the copyright holder notifies you of
+                the violation by some reasonable means, this is the first time
+                you have received notice of violation of this License (for any
+                work) from that copyright holder, and you cure the violation
+                prior to 30 days after your receipt of the notice.
+              </p>
+
+              <p>
+                Termination of your rights under this section does not terminate
+                the licenses of parties who have received copies or rights from
+                you under this License. If your rights have been terminated and
+                not permanently reinstated, you do not qualify to receive new
+                licenses for the same material under section 10.
+              </p>
+
+              <h4 id="section9">
+                9. Acceptance Not Required for Having Copies.
+              </h4>
+
+              <p>
+                You are not required to accept this License in order to receive
+                or run a copy of the Program. Ancillary propagation of a covered
+                work occurring solely as a consequence of using peer-to-peer
+                transmission to receive a copy likewise does not require
+                acceptance. However, nothing other than this License grants you
+                permission to propagate or modify any covered work. These
+                actions infringe copyright if you do not accept this License.
+                Therefore, by modifying or propagating a covered work, you
+                indicate your acceptance of this License to do so.
+              </p>
+
+              <h4 id="section10">
+                10. Automatic Licensing of Downstream Recipients.
+              </h4>
+
+              <p>
+                Each time you convey a covered work, the recipient automatically
+                receives a license from the original licensors, to run, modify
+                and propagate that work, subject to this License. You are not
+                responsible for enforcing compliance by third parties with this
+                License.
+              </p>
+
+              <p>
+                An "entity transaction" is a transaction transferring control of
+                an organization, or substantially all assets of one, or
+                subdividing an organization, or merging organizations. If
+                propagation of a covered work results from an entity
+                transaction, each party to that transaction who receives a copy
+                of the work also receives whatever licenses to the work the
+                party's predecessor in interest had or could give under the
+                previous paragraph, plus a right to possession of the
+                Corresponding Source of the work from the predecessor in
+                interest, if the predecessor has it or can get it with
+                reasonable efforts.
+              </p>
+
+              <p>
+                You may not impose any further restrictions on the exercise of
+                the rights granted or affirmed under this License. For example,
+                you may not impose a license fee, royalty, or other charge for
+                exercise of rights granted under this License, and you may not
+                initiate litigation (including a cross-claim or counterclaim in
+                a lawsuit) alleging that any patent claim is infringed by
+                making, using, selling, offering for sale, or importing the
+                Program or any portion of it.
+              </p>
+
+              <h4 id="section11">11. Patents.</h4>
+
+              <p>
+                A "contributor" is a copyright holder who authorizes use under
+                this License of the Program or a work on which the Program is
+                based. The work thus licensed is called the contributor's
+                "contributor version".
+              </p>
+
+              <p>
+                A contributor's "essential patent claims" are all patent claims
+                owned or controlled by the contributor, whether already acquired
+                or hereafter acquired, that would be infringed by some manner,
+                permitted by this License, of making, using, or selling its
+                contributor version, but do not include claims that would be
+                infringed only as a consequence of further modification of the
+                contributor version. For purposes of this definition, "control"
+                includes the right to grant patent sublicenses in a manner
+                consistent with the requirements of this License.
+              </p>
+
+              <p>
+                Each contributor grants you a non-exclusive, worldwide,
+                royalty-free patent license under the contributor's essential
+                patent claims, to make, use, sell, offer for sale, import and
+                otherwise run, modify and propagate the contents of its
+                contributor version.
+              </p>
+
+              <p>
+                In the following three paragraphs, a "patent license" is any
+                express agreement or commitment, however denominated, not to
+                enforce a patent (such as an express permission to practice a
+                patent or covenant not to sue for patent infringement). To
+                "grant" such a patent license to a party means to make such an
+                agreement or commitment not to enforce a patent against the
+                party.
+              </p>
+
+              <p>
+                If you convey a covered work, knowingly relying on a patent
+                license, and the Corresponding Source of the work is not
+                available for anyone to copy, free of charge and under the terms
+                of this License, through a publicly available network server or
+                other readily accessible means, then you must either (1) cause
+                the Corresponding Source to be so available, or (2) arrange to
+                deprive yourself of the benefit of the patent license for this
+                particular work, or (3) arrange, in a manner consistent with the
+                requirements of this License, to extend the patent license to
+                downstream recipients. "Knowingly relying" means you have actual
+                knowledge that, but for the patent license, your conveying the
+                covered work in a country, or your recipient's use of the
+                covered work in a country, would infringe one or more
+                identifiable patents in that country that you have reason to
+                believe are valid.
+              </p>
+
+              <p>
+                If, pursuant to or in connection with a single transaction or
+                arrangement, you convey, or propagate by procuring conveyance
+                of, a covered work, and grant a patent license to some of the
+                parties receiving the covered work authorizing them to use,
+                propagate, modify or convey a specific copy of the covered work,
+                then the patent license you grant is automatically extended to
+                all recipients of the covered work and works based on it.
+              </p>
+
+              <p>
+                A patent license is "discriminatory" if it does not include
+                within the scope of its coverage, prohibits the exercise of, or
+                is conditioned on the non-exercise of one or more of the rights
+                that are specifically granted under this License. You may not
+                convey a covered work if you are a party to an arrangement with
+                a third party that is in the business of distributing software,
+                under which you make payment to the third party based on the
+                extent of your activity of conveying the work, and under which
+                the third party grants, to any of the parties who would receive
+                the covered work from you, a discriminatory patent license (a)
+                in connection with copies of the covered work conveyed by you
+                (or copies made from those copies), or (b) primarily for and in
+                connection with specific products or compilations that contain
+                the covered work, unless you entered into that arrangement, or
+                that patent license was granted, prior to 28 March 2007.
+              </p>
+
+              <p>
+                Nothing in this License shall be construed as excluding or
+                limiting any implied license or other defenses to infringement
+                that may otherwise be available to you under applicable patent
+                law.
+              </p>
+
+              <h4 id="section12">12. No Surrender of Others' Freedom.</h4>
+
+              <p>
+                If conditions are imposed on you (whether by court order,
+                agreement or otherwise) that contradict the conditions of this
+                License, they do not excuse you from the conditions of this
+                License. If you cannot convey a covered work so as to satisfy
+                simultaneously your obligations under this License and any other
+                pertinent obligations, then as a consequence you may not convey
+                it at all. For example, if you agree to terms that obligate you
+                to collect a royalty for further conveying from those to whom
+                you convey the Program, the only way you could satisfy both
+                those terms and this License would be to refrain entirely from
+                conveying the Program.
+              </p>
+
+              <h4 id="section13">
+                13. Remote Network Interaction; Use with the GNU General Public
+                License.
+              </h4>
+
+              <p>
+                Notwithstanding any other provision of this License, if you
+                modify the Program, your modified version must prominently offer
+                all users interacting with it remotely through a computer
+                network (if your version supports such interaction) an
+                opportunity to receive the Corresponding Source of your version
+                by providing access to the Corresponding Source from a network
+                server at no charge, through some standard or customary means of
+                facilitating copying of software. This Corresponding Source
+                shall include the Corresponding Source for any work covered by
+                version 3 of the GNU General Public License that is incorporated
+                pursuant to the following paragraph.
+              </p>
+
+              <p>
+                Notwithstanding any other provision of this License, you have
+                permission to link or combine any covered work with a work
+                licensed under version 3 of the GNU General Public License into
+                a single combined work, and to convey the resulting work. The
+                terms of this License will continue to apply to the part which
+                is the covered work, but the work with which it is combined will
+                remain governed by version 3 of the GNU General Public License.
+              </p>
+
+              <h4 id="section14">14. Revised Versions of this License.</h4>
+
+              <p>
+                The Free Software Foundation may publish revised and/or new
+                versions of the GNU Affero General Public License from time to
+                time. Such new versions will be similar in spirit to the present
+                version, but may differ in detail to address new problems or
+                concerns.
+              </p>
+
+              <p>
+                Each version is given a distinguishing version number. If the
+                Program specifies that a certain numbered version of the GNU
+                Affero General Public License "or any later version" applies to
+                it, you have the option of following the terms and conditions
+                either of that numbered version or of any later version
+                published by the Free Software Foundation. If the Program does
+                not specify a version number of the GNU Affero General Public
+                License, you may choose any version ever published by the Free
+                Software Foundation.
+              </p>
+
+              <p>
+                If the Program specifies that a proxy can decide which future
+                versions of the GNU Affero General Public License can be used,
+                that proxy's public statement of acceptance of a version
+                permanently authorizes you to choose that version for the
+                Program.
+              </p>
+
+              <p>
+                Later license versions may give you additional or different
+                permissions. However, no additional obligations are imposed on
+                any author or copyright holder as a result of your choosing to
+                follow a later version.
+              </p>
+
+              <h4 id="section15">15. Disclaimer of Warranty.</h4>
+
+              <p>
+                THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
+                APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE
+                COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS
+                IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
+                INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+                MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE
+                RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH
+                YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
+                ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+              </p>
+
+              <h4 id="section16">16. Limitation of Liability.</h4>
+
+              <p>
+                IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN
+                WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO
+                MODIFIES AND/OR CONVEYS THE PROGRAM AS PERMITTED ABOVE, BE
+                LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL,
+                INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR
+                INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS
+                OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY
+                YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH
+                ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN
+                ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+              </p>
+
+              <h4 id="section17">17. Interpretation of Sections 15 and 16.</h4>
+
+              <p>
+                If the disclaimer of warranty and limitation of liability
+                provided above cannot be given local legal effect according to
+                their terms, reviewing courts shall apply local law that most
+                closely approximates an absolute waiver of all civil liability
+                in connection with the Program, unless a warranty or assumption
+                of liability accompanies a copy of the Program in return for a
+                fee.
+              </p>
+
+              <p>END OF TERMS AND CONDITIONS</p>
+            </>
+          )}
+        </Column>
       </div>
     </Layout>
   );

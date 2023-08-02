@@ -92,20 +92,7 @@ const IndexPage = (props: PageProps) => {
 
         {hasItems(orgsQuery.data) ? (
           <>
-            <Button
-              alignSelf="flex-start"
-              colorScheme="teal"
-              leftIcon={<FaRegMap />}
-              rightIcon={
-                isMapModalOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
-              }
-              onClick={openMapModal}
-              mb={5}
-            >
-              Carte
-            </Button>
-
-            <Button
+            {/* <Button
               alignSelf="flex-start"
               colorScheme="teal"
               leftIcon={<HamburgerIcon />}
@@ -114,7 +101,7 @@ const IndexPage = (props: PageProps) => {
               onClick={() => setIsListOpen(!isListOpen)}
             >
               Liste
-            </Button>
+            </Button> */}
 
             {isListOpen && (
               <Column bg={isDark ? "gray.700" : "white"}>
@@ -141,6 +128,19 @@ const IndexPage = (props: PageProps) => {
                 />
               </Column>
             )}
+
+            <Button
+              alignSelf="flex-start"
+              colorScheme="teal"
+              leftIcon={<FaRegMap />}
+              rightIcon={
+                isMapModalOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
+              }
+              onClick={openMapModal}
+              mt={3}
+            >
+              Carte
+            </Button>
           </>
         ) : (
           <Flex>
@@ -191,7 +191,7 @@ const IndexPage = (props: PageProps) => {
               <EntityAddButton
                 label="Ajoutez une planète"
                 orgType={EOrgType.NETWORK}
-                size={props.isMobile ? "xs" : "md"}
+                size="md"
                 mb={3}
               />
             </Flex>
@@ -200,7 +200,6 @@ const IndexPage = (props: PageProps) => {
               <Link
                 href="a_propos"
                 variant="underline"
-                mt={3}
                 onClick={(e) => e.stopPropagation()}
               >
                 En savoir plus

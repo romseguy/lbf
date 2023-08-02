@@ -76,6 +76,35 @@ export const Nav = ({
     pt: 0.5
   };
 
+  const NavMenuButton = (
+    <>
+      <Button
+        colorScheme="cyan"
+        bg="lightcyan"
+        leftIcon={<HamburgerIcon />}
+        onClick={onDrawerOpen}
+      >
+        Ouvrir le menu
+      </Button>
+      <Drawer placement="left" isOpen={isDrawerOpen} onClose={onDrawerClose}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerHeader>{/* <Heading>{title}</Heading> */}</DrawerHeader>
+          <DrawerBody>
+            <NavButtonsList
+              direction="column"
+              isMobile
+              onClose={() => {
+                if (isMobile) onDrawerClose();
+              }}
+            />
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+
   return (
     <Box
       as="nav"
@@ -212,38 +241,16 @@ export const Nav = ({
             </Tr> */}
             <Tr role="row">
               <Td border={0} p={0}>
-                <Flex justifyContent="space-between">
-                  <Button
-                    colorScheme="cyan"
-                    bg="lightcyan"
-                    leftIcon={<HamburgerIcon />}
-                    onClick={onDrawerOpen}
-                  >
-                    Ouvrir le menu
-                  </Button>
-                  <Drawer
-                    placement="left"
-                    isOpen={isDrawerOpen}
-                    onClose={onDrawerClose}
-                  >
-                    <DrawerOverlay />
-                    <DrawerContent>
-                      <DrawerCloseButton />
-                      <DrawerHeader>
-                        {/* <Heading>{title}</Heading> */}
-                      </DrawerHeader>
-                      <DrawerBody>
-                        <NavButtonsList
-                          direction="column"
-                          isMobile
-                          onClose={() => {
-                            if (isMobile) onDrawerClose();
-                          }}
-                        />
-                      </DrawerBody>
-                    </DrawerContent>
-                  </Drawer>
-                  {!session && (
+                {session && isEntityPage && (
+                  <NavButtonsList title={title} isMobile />
+                )}
+
+                {session && !isEntityPage && NavMenuButton}
+
+                {!session && (
+                  <Flex justifyContent="space-between">
+                    {NavMenuButton}
+
                     <Tooltip label="Connexion">
                       <Button
                         colorScheme="cyan"
@@ -258,8 +265,8 @@ export const Nav = ({
                         Se connecter
                       </Button>
                     </Tooltip>
-                  )}
-                </Flex>
+                  </Flex>
+                )}
               </Td>
             </Tr>
 

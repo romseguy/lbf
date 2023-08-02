@@ -209,7 +209,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
       const entityUrl = ctx.query.name[0];
       const normalizedEntityUrl = normalize(entityUrl);
 
-      if (normalizedEntityUrl === "api")
+      if (normalizedEntityUrl === "api" || normalizedEntityUrl === "icons")
         return {
           redirect: {
             permanent: false,

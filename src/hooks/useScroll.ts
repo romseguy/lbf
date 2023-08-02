@@ -1,4 +1,4 @@
-import { LegacyRef, Ref, useRef } from "react";
+import { LegacyRef, useRef } from "react";
 
 export const useScroll = <T extends HTMLElement>(
   options?: boolean | ScrollIntoViewOptions
