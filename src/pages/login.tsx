@@ -123,7 +123,7 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
         >
           <Link href="/" m="0 auto">
             <Heading fontFamily="Lato">
-              {capitalize(process.env.NEXT_PUBLIC_SHORT_URL)}
+              {process.env.NEXT_PUBLIC_SHORT_URL}
             </Heading>
           </Link>
 
@@ -176,7 +176,7 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
                       dispatch(setIsSessionLoading(false));
                     }}
                   >
-                    Déconnexion
+                    Se déconnecter
                   </Button>
                 </Column>
               )}

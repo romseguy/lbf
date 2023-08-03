@@ -5,9 +5,9 @@ import { IOrg, orgTypeFull } from "models/Org";
 import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 
-export const backgroundColor = "#f9f9f9";
+export const mainBackgroundColor = "#dcd0ff";
 export const textColor = "#444444";
-export const mainBackgroundColor = "#ffffff";
+export const backgroundColor = "#e6e6fa";
 const descriptionBackgroundColor = "#f9f9f9";
 const buttonBackgroundColor = "#346df1";
 const buttonBorderColor = "#346df1";

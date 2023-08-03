@@ -1,16 +1,5 @@
-import {
-  ChevronRightIcon,
-  ChevronUpIcon,
-  HamburgerIcon,
-  QuestionIcon
-} from "@chakra-ui/icons";
-import {
-  Flex,
-  IconButton,
-  Tooltip,
-  useColorMode,
-  useDisclosure
-} from "@chakra-ui/react";
+import { ChevronRightIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import { Flex, useColorMode, useDisclosure } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";

@@ -1,4 +1,4 @@
-import { MenuList, MenuItem, useColorMode } from "@chakra-ui/react";
+import { MenuList, MenuItem, Text, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { Link, SubscribeSwitch } from "features/common";
@@ -63,19 +63,20 @@ export const NavMenuList = ({
         <SubscribeSwitch email={email} userName={userName} />
       </MenuItem>
 
-      <MenuItem
-        onClick={async () => {
-          dispatch(setIsSessionLoading(true));
-          dispatch(resetUserEmail());
-          await magic.user.logout();
-          await api.get("logout");
-          dispatch(setSession(null));
-          dispatch(setIsSessionLoading(false));
-          router.push("/", "/", { shallow: false });
-        }}
-        data-cy="logout"
-      >
-        Déconnexion
+      <MenuItem>
+        <Text
+          onClick={async () => {
+            dispatch(setIsSessionLoading(true));
+            dispatch(resetUserEmail());
+            await magic.user.logout();
+            await api.get("logout");
+            dispatch(setSession(null));
+            dispatch(setIsSessionLoading(false));
+            router.push("/", "/", { shallow: false });
+          }}
+        >
+          Se déconnecter
+        </Text>
       </MenuItem>
     </MenuList>
   );

@@ -2,6 +2,7 @@ import {
   Box,
   BoxProps,
   Flex,
+  Image,
   Text,
   Tooltip,
   useColorMode,
@@ -126,8 +127,7 @@ export const Layout = ({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
-          {/*process.env.NEXT_PUBLIC_SHORT_URL*/}
-          Lebonforum – {title}
+          {process.env.NEXT_PUBLIC_SHORT_URL} – {title}
         </title>
       </Head>
 
@@ -139,7 +139,7 @@ export const Layout = ({
           @media (min-width: ${breakpoints["2xl"]}) {
             background-color: ${isDark
               ? theme.colors.black
-              : theme.colors.white};
+              : theme.colors.gray["50"]};
             margin: 0 auto;
             width: 1180px;
             ${isDark
@@ -157,6 +157,7 @@ export const Layout = ({
           }
         `}
       >
+        {/*Right Floating Header*/}
         {isOffline && (
           <Box
             position="fixed"
@@ -202,12 +203,21 @@ export const Layout = ({
 
         {/*Footer*/}
         <Column
-          bg={isDark ? "gray.700" : "lightblue"}
+          bg="transparent"
           border={0}
           borderBottomRadius={0}
           fontSize="smaller"
-          mx={isMobile ? 1 : 3}
+          p={0}
+          pb={3}
+          m="0 auto"
         >
+          <Image
+            src="/images/bg.png"
+            height="100px"
+            alignSelf="flex-start"
+            mt={1}
+            ml={1}
+          />
           <Flex>
             <Link href="/a_propos" variant="underline">
               À propos
@@ -216,22 +226,10 @@ export const Layout = ({
             <Link href="/contact" variant="underline">
               Contact
             </Link>
-            {isMobile && (
-              <>
-                <Text mx={1}>|</Text>
-                <Link href="/privacy" variant="underline">
-                  CGU
-                </Link>
-              </>
-            )}
-
-            {!isMobile && (
-              <Flex ml="auto">
-                <Link href="/privacy" variant="underline">
-                  CGU
-                </Link>
-              </Flex>
-            )}
+            <Text mx={1}>|</Text>
+            <Link href="/privacy" variant="underline">
+              CGU
+            </Link>
           </Flex>
         </Column>
 

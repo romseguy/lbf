@@ -78,18 +78,25 @@ const HashPage = ({ ...props }: PageProps & { isLoading?: boolean }) => {
   const [orgQueryParams, setOrgQueryParams] = useState<GetOrgParams>(
     initialOrgQueryParams(entityUrl)
   );
-  const [userQueryParams, setUserQueryParams] = useState<UserQueryParams>(
-    initialUserQueryParams(entityUrl)
-  );
-  const eventQuery = useGetEventQuery(eventQueryParams) as AppQuery<IEvent>;
-  const orgQuery = useGetOrgQuery(orgQueryParams) as AppQuery<IOrg>;
+  // const [userQueryParams, setUserQueryParams] = useState<UserQueryParams>(
+  //   initialUserQueryParams(entityUrl)
+  // );
+  const [skip, setSkip] = useState(false);
+  const eventQuery = useGetEventQuery(eventQueryParams, {
+    skip
+  }) as AppQuery<IEvent>;
+  const orgQuery = useGetOrgQuery(orgQueryParams, { skip }) as AppQuery<IOrg>;
   const subQuery = useGetSubscriptionQuery(
     subQueryParams(userEmail)
   ) as AppQuery<ISubscription>;
-  const userQuery = useGetUserQuery({
-    slug: entityUrl,
-    populate: session?.user.userName === entityUrl ? "userProjects" : undefined
-  }) as AppQuery<IUser>;
+  const userQuery = useGetUserQuery(
+    {
+      slug: entityUrl,
+      populate:
+        session?.user.userName === entityUrl ? "userProjects" : undefined
+    },
+    { skip }
+  ) as AppQuery<IUser>;
   const eventQueryStatus = eventQuery.error?.status || 200;
   const orgQueryStatus = orgQuery.error?.status || 200;
   const userQueryStatus = userQuery.error?.status || 200;
@@ -108,11 +115,13 @@ const HashPage = ({ ...props }: PageProps & { isLoading?: boolean }) => {
   }, []);
   useEffect(
     function onNavigate() {
-      setOrgQueryParams({ ...orgQueryParams, orgUrl: entityUrl });
-      setEventQueryParams({ ...eventQueryParams, eventUrl: entityUrl });
-      setUserQueryParams({ ...userQueryParams, slug: entityUrl });
+      if (entityUrl !== orgQueryParams.orgUrl) {
+        setOrgQueryParams({ ...orgQueryParams, orgUrl: entityUrl });
+        setEventQueryParams({ ...eventQueryParams, eventUrl: entityUrl });
+        //setUserQueryParams({ ...userQueryParams, slug: entityUrl });
+      }
     },
-    [router.asPath]
+    [entityUrl]
   );
   useEffect(() => {
     if (orgQuery.data?._id && isLoading) setIsLoading(false);
@@ -145,7 +154,7 @@ const HashPage = ({ ...props }: PageProps & { isLoading?: boolean }) => {
     return <NotFound {...props} />;
   }
 
-  if (eventQuery.data) {
+  if (!eventQuery.error && eventQuery.data) {
     return (
       <EventPage
         {...props}
@@ -157,7 +166,7 @@ const HashPage = ({ ...props }: PageProps & { isLoading?: boolean }) => {
     );
   }
 
-  if (userQuery.data) {
+  if (!userQuery.error && userQuery.data) {
     return (
       <UserPage {...props} userQuery={userQuery as AppQueryWithData<IUser>} />
     );
@@ -182,7 +191,7 @@ const HashPage = ({ ...props }: PageProps & { isLoading?: boolean }) => {
     );
   }
 
-  if (orgQuery.data) {
+  if (!orgQuery.error && orgQuery.data) {
     if (orgQuery.data._id) {
       return (
         <OrgPage
@@ -209,7 +218,11 @@ export const getServerSideProps = wrapper.getServerSideProps(
       const entityUrl = ctx.query.name[0];
       const normalizedEntityUrl = normalize(entityUrl);
 
-      if (normalizedEntityUrl === "api" || normalizedEntityUrl === "icons")
+      if (
+        normalizedEntityUrl === "api" ||
+        normalizedEntityUrl === "icons" ||
+        normalizedEntityUrl.includes("worker")
+      )
         return {
           redirect: {
             permanent: false,

@@ -28,7 +28,7 @@ export const sendMail = async (mail: Mail, session?: Session | null) => {
       pool: true,
       host: "smtp-relay.brevo.com",
       port: 587,
-      secure: true, // use TLS
+      secure: false, // use TLS
       auth: {
         user: "rom.seguy@lilo.org",
         pass: "hQj2dKDg0ML5yHNZ"

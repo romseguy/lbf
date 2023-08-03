@@ -84,7 +84,7 @@ export const TopicMessagesListItem = ({
 
   return (
     <Flex key={_id} pb={3} data-cy="topic-message">
-      <Box ml={2}>
+      <Box ml={0}>
         <Box borderRadius={18} bg={isDark ? "gray.600" : "white"} px={3} py={2}>
           <Link
             variant="no-underline"
