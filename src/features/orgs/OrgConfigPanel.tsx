@@ -17,6 +17,8 @@ import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
 import { IsEditConfig } from "./OrgPage";
 import { OrgConfigButtons } from "./OrgConfigButtons";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 export type OrgConfigVisibility = {
   isVisible: Record<string, boolean>;
@@ -33,7 +35,6 @@ export const OrgConfigPanel = ({
   isCreator,
   isEdit,
   isEditConfig,
-  isMobile,
   isVisible,
   setIsConfig,
   setIsEdit,
@@ -45,12 +46,12 @@ export const OrgConfigPanel = ({
   isCreator?: boolean;
   isEdit: boolean;
   isEditConfig?: IsEditConfig;
-  isMobile: boolean;
   setIsConfig: (isConfig: boolean) => void;
   setIsEdit: (arg: boolean | IsEditConfig) => void;
 }) => {
-  const org = orgQuery.data;
+  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
+  const org = orgQuery.data;
 
   //#region local state
   //#endregion
@@ -70,14 +71,13 @@ export const OrgConfigPanel = ({
             }}
             onSubmit={async (orgUrl: string) => {
               localStorage.removeItem("storageKey");
+              setIsEdit(false);
+              setIsConfig(false);
 
               if (orgUrl !== org.orgUrl) {
                 await router.push(`/${orgUrl}`, `/${orgUrl}`, {
                   shallow: true
                 });
-              } else {
-                setIsEdit(false);
-                setIsConfig(false);
               }
             }}
           />
@@ -88,7 +88,6 @@ export const OrgConfigPanel = ({
         <>
           <OrgConfigButtons
             isEdit={isEdit}
-            isMobile={isMobile}
             isVisible={isVisible}
             orgQuery={orgQuery}
             setIsEdit={setIsEdit}

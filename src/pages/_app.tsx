@@ -3,15 +3,19 @@ import { parse } from "cookie";
 import { AppProps as NextAppProps } from "next/app";
 import NextNprogress from "nextjs-progressbar";
 import React from "react";
-import { getSelectorsByUserAgent, isMobile } from "react-device-detect";
+import {
+  getSelectorsByUserAgent,
+  isMobile as rddIsMobile
+} from "react-device-detect";
 import { Chakra } from "features/common";
 import theme from "features/layout/theme";
 import { Main, PageProps } from "main";
 import { wrapper } from "store";
-import { devSession, getAuthToken, sealOptions, Session } from "utils/auth";
-import { isServer } from "utils/isServer";
+import { setIsMobile } from "store/uiSlice";
 import { setUserEmail } from "store/userSlice";
 import { setSession } from "store/sessionSlice";
+import { devSession, getAuthToken, sealOptions, Session } from "utils/auth";
+import { isServer } from "utils/isServer";
 
 interface AppProps {
   cookies?: string;
@@ -30,12 +34,7 @@ const App = wrapper.withRedux(
           showOnShallow
         />
         <Chakra theme={theme} cookies={cookies}>
-          <Main
-            Component={Component}
-            isMobile={pageProps.isMobile || isMobile}
-            {...pageProps}
-            //isMobile
-          />
+          <Main Component={Component} {...pageProps} />
         </Chakra>
       </>
     );
@@ -50,12 +49,14 @@ App.getInitialProps = wrapper.getInitialAppProps(
       const cookies = headers?.cookie;
       let userAgent = headers?.["user-agent"];
       if (!userAgent && !isServer()) userAgent = navigator.userAgent;
-      let pageProps: AppProps["pageProps"] = {
-        isMobile:
-          typeof userAgent === "string"
-            ? getSelectorsByUserAgent(userAgent).isMobile
-            : false
-      };
+      // const isMobile = true;
+      const isMobile =
+        typeof userAgent === "string"
+          ? getSelectorsByUserAgent(userAgent).isMobile
+          : rddIsMobile;
+      store.dispatch(setIsMobile(isMobile));
+
+      let pageProps: AppProps["pageProps"] = { isMobile };
 
       if (devSession && process.env.NODE_ENV === "development") {
         store.dispatch(setSession(devSession));

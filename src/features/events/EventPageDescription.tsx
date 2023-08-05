@@ -5,18 +5,19 @@ import { FaNewspaper } from "react-icons/fa";
 import { IEvent } from "models/Event";
 import { sanitize, transformRTEditorOutput } from "utils/string";
 import { AppQueryWithData } from "utils/types";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 export const EventPageDescription = ({
   eventQuery,
   isCreator,
-  isMobile,
   setIsEdit
 }: {
   eventQuery: AppQueryWithData<IEvent>;
   isCreator: boolean;
-  isMobile: boolean;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const isMobile = useSelector(selectIsMobile);
   const event = eventQuery.data;
   const [description, setDescription] = useState<string | undefined>();
   useEffect(() => {

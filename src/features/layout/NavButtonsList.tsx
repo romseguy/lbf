@@ -9,20 +9,21 @@ import { useRouter } from "next/router";
 import React, { useMemo } from "react";
 import { FaHome } from "react-icons/fa";
 import { IoIosGitNetwork, IoMdGitNetwork } from "react-icons/io";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 import { css } from "twin.macro";
 import { AppQuery } from "utils/types";
 
 export const NavButtonsList = ({
   direction = "row",
   title,
-  isMobile,
   onClose
 }: {
   direction?: "row" | "column";
   title?: string;
-  isMobile: boolean;
   onClose?: () => void;
 }) => {
+  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const isEntityPage =
     router.pathname !== "/" &&
@@ -132,7 +133,6 @@ export const NavButtonsList = ({
         <TreeChartModal
           header={<Heading mb={3}>Les forums</Heading>}
           inputNodes={inputNodes}
-          isMobile={isMobile}
           isOpen={isNetworksModalOpen}
           onClose={closeNetworksModal}
         />

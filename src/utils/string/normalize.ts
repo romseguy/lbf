@@ -1,9 +1,10 @@
 import latinize from "latinize";
 
 export function normalize(
-  str: string,
+  str?: string,
   underscores: boolean | undefined = true
 ): string {
+  if (!str) return "";
   let out = "" + str.trim();
   out = out.replace(/\//g, "");
   out = out.replace(/\s{2,}/g, " ");

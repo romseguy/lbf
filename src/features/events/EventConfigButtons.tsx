@@ -10,20 +10,21 @@ import {
   useEditEventMutation
 } from "features/api/eventsApi";
 import { EventConfigVisibility } from "./EventConfigPanel";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 export const EventConfigButtons = ({
   isEdit,
-  isMobile,
   eventQuery,
   setIsEdit,
   toggleVisibility
 }: EventConfigVisibility & {
   isEdit: boolean;
-  isMobile: boolean;
   eventQuery: AppQueryWithData<IEvent>;
   setIsEdit: (isEdit: boolean) => void;
 }) => {
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
+  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const event = eventQuery.data;

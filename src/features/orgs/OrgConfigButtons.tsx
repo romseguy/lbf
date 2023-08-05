@@ -22,23 +22,24 @@ import {
 import { AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
 import { IsEditConfig } from "./OrgPage";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 export const OrgConfigButtons = ({
   isEdit,
-  isMobile,
   orgQuery,
   setIsEdit,
   toggleVisibility
 }: OrgConfigVisibility & {
   isEdit: boolean;
-  isMobile: boolean;
   orgQuery: AppQueryWithData<IOrg>;
   setIsEdit: (arg: boolean | IsEditConfig) => void;
 }) => {
-  const org = orgQuery.data;
-  const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
+  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const toast = useToast({ position: "top" });
+  const org = orgQuery.data;
+  const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
   const [isDisabled, setIsDisabled] = useState(true);
 
   return (

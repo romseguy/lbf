@@ -10,16 +10,18 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
+import { useSelector } from "react-redux";
 import { DeleteButton, Link, RTEditor } from "features/common";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { ITopic } from "models/Topic";
+import { isEdit, ITopic } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
 import { Session } from "utils/auth";
 import * as dateUtils from "utils/date";
 import { sanitize } from "utils/string";
 import { AppQuery } from "utils/types";
 import { IEntity } from "models/Entity";
+import { selectIsMobile } from "store/uiSlice";
 
 export const TopicMessagesListItem = ({
   index,
@@ -36,38 +38,50 @@ export const TopicMessagesListItem = ({
 }: {
   index: number;
   isDark: boolean;
-  isEdit: Record<
-    string,
-    {
-      html?: string | undefined;
-      isOpen: boolean;
-    }
-  >;
+  isEdit: isEdit;
   isLoading: Record<string, boolean>;
   mutation: any;
   query: AppQuery<IEntity>;
   session: Session | null;
-  setIsEdit: React.Dispatch<
-    React.SetStateAction<
-      Record<
-        string,
-        {
-          html?: string | undefined;
-          isOpen: boolean;
-        }
-      >
-    >
-  >;
+  setIsEdit: React.Dispatch<React.SetStateAction<isEdit>>;
   setIsLoading: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   topic: ITopic;
   topicMessage: ITopicMessage;
 }) => {
   const router = useRouter();
+  const isMobile = useSelector(selectIsMobile);
+  const collapseLength = isMobile ? 28 : 64;
   const editTopic = mutation[0];
 
-  const { message, createdBy, createdAt, ...rest } = topicMessage;
+  //#region topic message
+  const { _id, createdBy, createdAt } = topicMessage;
+  let message = "" + topicMessage.message;
+  const isEditing =
+    Object.keys(isEdit).length > 0 && _id && isEdit[_id] && isEdit[_id].isOpen;
 
-  const _id = rest._id as string;
+  if (!isEditing) {
+    if (!message) message = "<i>Message vide.</i>";
+    else {
+      const regex =
+        /([^+>]*)[^<]*(<a [^>]*(href="([^>^\"]*)")[^>]*>)([^<]+)(<\/a>)/gi;
+      let link;
+      while ((link = regex.exec(topicMessage.message)) !== null) {
+        // const url = link[4];
+        let text = link[5];
+        let canCollapse = text.length > collapseLength;
+        if (canCollapse) {
+          console.log("🚀 ~ file: TopicMessagesListItem.tsx:70 ~ text:", link);
+          const shortText = "Ouvrir le lien";
+          console.log(
+            "🚀 ~ file: TopicMessagesListItem.tsx:75 ~ shortText:",
+            shortText
+          );
+          message = message.replace(">" + text + "<", ">" + shortText + "<");
+        }
+      }
+    }
+  }
+
   let userName = "";
   let userImage;
   let userId = typeof createdBy === "object" ? createdBy._id : createdBy;
@@ -78,9 +92,70 @@ export const TopicMessagesListItem = ({
     userId = createdBy._id as string;
   }
 
-  const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt);
-
   const isCreator = userId === session?.user.userId || session?.user.isAdmin;
+  const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt);
+  //#endregion
+
+  if (_id && isEdit[_id] && isEdit[_id].isOpen)
+    return (
+      <Flex flexDirection="column" pt={1} pb={3}>
+        <RTEditor
+          //formats={formats.filter((f) => f !== "size")}
+          defaultValue={message}
+          onChange={({ html }) => {
+            setIsEdit({
+              ...isEdit,
+              [_id]: { ...isEdit[_id], html }
+            });
+          }}
+          placeholder="Contenu de votre message"
+        />
+
+        <Flex alignItems="center" justifyContent="space-between" mt={3}>
+          <Button
+            onClick={() =>
+              setIsEdit({
+                ...isEdit,
+                [_id]: { ...isEdit[_id], isOpen: false }
+              })
+            }
+          >
+            Annuler
+          </Button>
+
+          <Button
+            colorScheme="green"
+            onClick={async () => {
+              await editTopic({
+                topicId: topic._id,
+                payload: {
+                  topic,
+                  topicMessage: {
+                    _id,
+                    message: isEdit[_id].html || "",
+                    messageHtml: isEdit[_id].html || ""
+                  }
+                }
+              }).unwrap();
+              query.refetch();
+              setIsEdit({
+                ...isEdit,
+                [_id]: { ...isEdit[_id], isOpen: false }
+              });
+            }}
+            data-cy="topic-message-edit-submit"
+          >
+            Modifier
+          </Button>
+        </Flex>
+      </Flex>
+    );
+
+  console.log(
+    "🚀 ~ file: TopicMessagesListItem.tsx:154 ~ TM:",
+    topicMessage.message
+  );
+  console.log("🚀 ~ file: TopicMessagesListItem.tsx:154 ~ message:", message);
 
   return (
     <Flex key={_id} pb={3} data-cy="topic-message">
@@ -105,67 +180,13 @@ export const TopicMessagesListItem = ({
             <Text fontWeight="bold">{userName}</Text>
           </Link>
 
-          {_id && isEdit[_id] && isEdit[_id].isOpen ? (
-            <Box pt={1} pb={3}>
-              <RTEditor
-                //formats={formats.filter((f) => f !== "size")}
-                defaultValue={message}
-                onChange={({ html }) => {
-                  setIsEdit({
-                    ...isEdit,
-                    [_id]: { ...isEdit[_id], html }
-                  });
-                }}
-                placeholder="Contenu de votre message"
-              />
-
-              <Flex alignItems="center" justifyContent="space-between" mt={3}>
-                <Button
-                  onClick={() =>
-                    setIsEdit({
-                      ...isEdit,
-                      [_id]: { ...isEdit[_id], isOpen: false }
-                    })
-                  }
-                >
-                  Annuler
-                </Button>
-
-                <Button
-                  colorScheme="green"
-                  onClick={async () => {
-                    await editTopic({
-                      topicId: topic._id,
-                      payload: {
-                        topic,
-                        topicMessage: {
-                          _id,
-                          message: isEdit[_id].html || "",
-                          messageHtml: isEdit[_id].html || ""
-                        }
-                      }
-                    }).unwrap();
-                    query.refetch();
-                    setIsEdit({
-                      ...isEdit,
-                      [_id]: { ...isEdit[_id], isOpen: false }
-                    });
-                  }}
-                  data-cy="topic-message-edit-submit"
-                >
-                  Modifier
-                </Button>
-              </Flex>
-            </Box>
-          ) : (
-            <Box className="rteditor">
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: sanitize(message)
-                }}
-              />
-            </Box>
-          )}
+          <Box className="rteditor">
+            <div
+              dangerouslySetInnerHTML={{
+                __html: sanitize(message)
+              }}
+            />
+          </Box>
         </Box>
 
         <Link pl={3} fontSize="smaller" aria-hidden>
@@ -202,7 +223,7 @@ export const TopicMessagesListItem = ({
             <DeleteButton
               isIconOnly
               isLoading={
-                isLoading[_id] && !query.isLoading && !query.isFetching
+                (_id && isLoading[_id]) || query.isLoading || query.isFetching
               }
               placement="bottom"
               header={<>Êtes vous sûr de vouloir supprimer ce message ?</>}

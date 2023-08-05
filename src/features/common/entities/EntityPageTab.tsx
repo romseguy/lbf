@@ -8,6 +8,8 @@ import {
   useTab
 } from "@chakra-ui/react";
 import React from "react";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 import { AppIcon } from "utils/types";
 
 //@ts-expect-error
@@ -16,19 +18,18 @@ const Tab = chakra("button", { themeKey: "Tabs.Tab" });
 export const EntityPageTab = ({
   currentTabIndex,
   icon,
-  isMobile,
   tabIndex,
   ...props
 }: TabProps & {
   children: React.ReactNode | React.ReactNodeArray;
   currentTabIndex: number;
   icon: AppIcon;
-  isMobile: boolean;
   tabIndex: number;
   onClick?: () => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const styles = useStyles();
   const tabProps = useTab(props);
   const deviceProps = isMobile

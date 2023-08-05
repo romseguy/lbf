@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { FaHome, FaImages, FaTools } from "react-icons/fa";
 import { EntityPageTab, EntityPageTabList } from "features/common";
 import { AppIcon } from "utils/types";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 export const defaultTabs: UserPageTabsType = {
   Accueil: { icon: FaHome, url: "" },
@@ -16,19 +18,19 @@ export type UserPageTabsType = {
 
 export const UserPageTabs = ({
   children,
-  isMobile,
   height = "60px",
   tabs = defaultTabs,
   ...props
 }: {
   children: React.ReactNode | React.ReactNodeArray;
-  isMobile: boolean;
   height?: string;
   tab?: string;
   tabs?: UserPageTabsType;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
+
   let defaultTabIndex = 0;
   Object.keys(tabs).reduce((index, tab) => {
     if (tab.toLowerCase() === props.tab?.toLowerCase()) defaultTabIndex = index;
@@ -65,7 +67,6 @@ export const UserPageTabs = ({
               key={`userTab-${tabIndex}`}
               currentTabIndex={currentTabIndex}
               icon={icon}
-              isMobile={isMobile}
               tabIndex={tabIndex}
               data-cy={`userTab-${name}`}
             >

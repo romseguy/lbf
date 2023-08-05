@@ -1,5 +1,6 @@
 import { EditIcon, EmailIcon } from "@chakra-ui/icons";
 import {
+  Badge,
   Box,
   BoxProps,
   Button,
@@ -8,10 +9,13 @@ import {
   IconButton,
   Link,
   Spinner,
+  Table,
+  Tr,
+  Td,
   Text,
   Tooltip
 } from "@chakra-ui/react";
-import React, { forwardRef, useEffect } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import {
   FaBellSlash,
   FaBell,
@@ -19,12 +23,13 @@ import {
   FaFolderOpen,
   FaReply
 } from "react-icons/fa";
+import { css } from "twin.macro";
 import { DeleteButton, GridItem } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { getCategoryLabel, IEntity, isEvent, isOrg } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { ITopic } from "models/Topic";
+import { isEdit, ITopic } from "models/Topic";
 import { Session } from "utils/auth";
 import * as dateUtils from "utils/date";
 import { AppQueryWithData } from "utils/types";
@@ -81,6 +86,7 @@ export const TopicsListItem = forwardRef(
     }: TopicsListItemProps,
     ref: React.ForwardedRef<HTMLDivElement>
   ) => {
+    //#region entity
     const entity = query.data;
     const isE = isEvent(entity);
     const isO = isOrg(entity);
@@ -89,20 +95,34 @@ export const TopicsListItem = forwardRef(
       : isO
       ? entity.orgTopicCategories
       : [];
+    //#endregion
+
+    //#region topic
+    const hasCategorySelected = !!selectedCategories?.find(
+      (category) => category === topic.topicCategory
+    );
+    const { timeAgo, fullDate } = dateUtils.timeAgo(topic.createdAt, true);
     const topicCategoryLabel =
       typeof topic.topicCategory === "string"
         ? getCategoryLabel(topicCategories, topic.topicCategory)
         : "";
-
-    const hasCategorySelected = !!selectedCategories?.find(
-      (category) => category === topic.topicCategory
-    );
-
-    const { timeAgo, fullDate } = dateUtils.timeAgo(topic.createdAt, true);
     const topicCreatedByUserName =
       typeof topic.createdBy === "object"
         ? topic.createdBy.userName || topic.createdBy.email?.replace(/@.+/, "")
         : "";
+    const s =
+      !topic.topicNotifications.length || topic.topicNotifications.length > 1
+        ? "s"
+        : "";
+    //#endregion
+
+    //#region local
+    const [isEdit, setIsEdit] = useState<isEdit>({});
+    const isEditing = Object.keys(isEdit).reduce(
+      (acc, key) => (isEdit[key] && isEdit[key].isOpen ? ++acc : acc),
+      0
+    );
+    //#endregion
 
     useEffect(() => {
       if (ref && isCurrent && !isLoading) {
@@ -134,65 +154,96 @@ export const TopicsListItem = forwardRef(
             }
             _hover={{ bg: isDark ? "#314356" : "blue.100" }}
           >
-            <Flex flexDirection="column" flexGrow={1} px={3} py={1}>
-              <Flex>
-                {isCurrent ? (
-                  <Icon
-                    as={FaFolderOpen}
-                    boxSize={6}
-                    color={isDark ? "teal.200" : "teal"}
-                    mr={2}
-                  />
-                ) : (
-                  <Icon
-                    as={FaFolder}
-                    boxSize={6}
-                    color={isDark ? "teal.200" : "teal"}
-                    mr={2}
-                  />
-                )}
+            <Flex flexDirection="column" flexGrow={1} px={2} py={1}>
+              <Table
+                css={css`
+                  td {
+                    border: none;
+                    padding: 0;
+                  }
+                  td:last-of-type {
+                    width: 100%;
+                  }
+                `}
+              >
+                <Tr>
+                  <Td>
+                    <Box pos="relative">
+                      {isCurrent ? (
+                        <Icon
+                          as={FaFolderOpen}
+                          //alignSelf="center"
+                          boxSize={7}
+                          color={isDark ? "teal.200" : "teal"}
+                          mr={2}
+                        />
+                      ) : (
+                        <Icon
+                          as={FaFolder}
+                          boxSize={7}
+                          color={isDark ? "teal.200" : "teal"}
+                          mr={2}
+                        />
+                      )}
+                      {topic.topicMessages.length > 0 && (
+                        <Badge
+                          bgColor={isDark ? "teal.600" : "teal.100"}
+                          color={isDark ? "white" : "black"}
+                          pos="absolute"
+                          variant="solid"
+                          left={1}
+                        >
+                          {topic.topicMessages.length}
+                        </Badge>
+                      )}
+                    </Box>
+                  </Td>
 
-                {topic.topicCategory && (
-                  <Tooltip
-                    label={
-                      !hasCategorySelected
-                        ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
-                        : ""
-                    }
-                    hasArrow
-                  >
-                    <Button
-                      colorScheme={hasCategorySelected ? "pink" : "teal"}
-                      fontSize="small"
-                      fontWeight="normal"
-                      height="auto"
-                      mr={2}
-                      p={1}
-                      onClick={(e) => {
-                        e.stopPropagation();
+                  <Td>
+                    {topic.topicCategory && (
+                      <Tooltip
+                        label={
+                          !hasCategorySelected
+                            ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
+                            : ""
+                        }
+                        hasArrow
+                      >
+                        <Button
+                          //alignSelf="flex-start"
+                          colorScheme={hasCategorySelected ? "pink" : "teal"}
+                          fontSize="small"
+                          fontWeight="normal"
+                          height="auto"
+                          mr={1}
+                          py={1}
+                          px={0}
+                          onClick={(e) => {
+                            e.stopPropagation();
 
-                        if (hasCategorySelected)
-                          setSelectedCategories(
-                            selectedCategories!.filter(
-                              (category) => category !== topic.topicCategory
-                            )
-                          );
-                        else if (topic.topicCategory)
-                          setSelectedCategories([
-                            ...(selectedCategories || []),
-                            topic.topicCategory
-                          ]);
-                      }}
-                    >
-                      {topicCategoryLabel}
-                    </Button>
-                  </Tooltip>
-                )}
-
-                <Link variant="no-underline" fontWeight="bold">
-                  {topic.topicName}
-                </Link>
-              </Flex>
+                            if (hasCategorySelected)
+                              setSelectedCategories(
+                                selectedCategories!.filter(
+                                  (category) => category !== topic.topicCategory
+                                )
+                              );
+                            else if (topic.topicCategory)
+                              setSelectedCategories([
+                                ...(selectedCategories || []),
+                                topic.topicCategory
+                              ]);
+                          }}
+                        >
+                          {topicCategoryLabel}
+                        </Button>
+                      </Tooltip>
+                    )}
+                    <Link variant="no-underline" fontWeight="bold">
+                      {topic.topicName}
+                    </Link>
+                  </Td>
+                </Tr>
+              </Table>
 
               <Flex
                 flexWrap="wrap"
@@ -258,7 +309,7 @@ export const TopicsListItem = forwardRef(
                         onNotifClick(topic);
                       }}
                     >
-                      {topic.topicNotifications.length} personnes invitées
+                      {topic.topicNotifications.length} membre{s} invité{s}
                     </Link>
                   </>
                 )}
@@ -406,25 +457,34 @@ export const TopicsListItem = forwardRef(
             </GridItem>
 
             <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.700" }}>
-              <TopicMessagesList query={query} topic={topic} pt={3} px={3} />
-            </GridItem>
-
-            <GridItem
-              light={{ bg: "orange.50" }}
-              dark={{ bg: "gray.700" }}
-              pb={3}
-              borderBottomRadius="xl"
-            >
-              <TopicMessageForm
+              <TopicMessagesList
+                isEdit={isEdit}
                 query={query}
+                setIsEdit={setIsEdit}
                 topic={topic}
-                //formats={formats.filter((f) => f !== "size")}
-                isDisabled={topic.topicMessagesDisabled}
-                onSubmit={() => {
-                  query.refetch();
-                }}
+                pt={3}
+                px={3}
               />
             </GridItem>
+
+            {!isEditing && (
+              <GridItem
+                light={{ bg: "orange.50" }}
+                dark={{ bg: "gray.700" }}
+                pb={3}
+                borderBottomRadius="xl"
+              >
+                <TopicMessageForm
+                  query={query}
+                  topic={topic}
+                  //formats={formats.filter((f) => f !== "size")}
+                  isDisabled={topic.topicMessagesDisabled}
+                  onSubmit={() => {
+                    query.refetch();
+                  }}
+                />
+              </GridItem>
+            )}
           </>
         )}
       </Box>

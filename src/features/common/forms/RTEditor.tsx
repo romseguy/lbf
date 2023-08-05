@@ -122,8 +122,8 @@ export const RTEditor = ({
     statusbar: false,
     toolbar:
       "fullscreen undo redo \
-             emoticons | formatselect | \
-            alignleft aligncenter bold italic charmap \
+             link | formatselect | \
+            alignleft aligncenter bold italic charmap emoticons \
             | link unlink | image media \
             | removeformat | code help",
     file_picker_types: "image",
@@ -213,6 +213,7 @@ export const RTEditor = ({
   //#region componentDidMount
   const currentIndex = useSelector(selectRTEditorIndex);
   const [shortId, setShortId] = useState<string | undefined>();
+
   useEffect(() => {
     dispatch(incrementRTEditorIndex());
     setShortId(`rteditor-${currentIndex + 1}`);
@@ -247,9 +248,10 @@ export const RTEditor = ({
             onBlur && onBlur(editor.getContent());
           }}
           onEditorChange={(html, editor) => {
+            onChange && onChange({ html });
+
             if (html !== defaultValue) {
               setIsTouched(true);
-              onChange && onChange({ html });
             }
           }}
           onInit={(evt, editor) => {

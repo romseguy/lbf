@@ -347,7 +347,7 @@ export const TopicsList = ({
                 isE ? entity.eventUrl : isO ? entity.orgUrl : entity._id
               }/discussions`;
               const url = `${baseUrl}/${topicName}`;
-              router.push(url);
+              await router.push(url, url, { shallow: true });
               onClose();
             }}
             onClose={onClose}

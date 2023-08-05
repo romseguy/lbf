@@ -19,6 +19,7 @@ import { useEditEventMutation } from "features/api/eventsApi";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   AddTopicPayload,
+  EditTopicPayload,
   useAddTopicMutation,
   useEditTopicMutation
 } from "features/api/topicsApi";
@@ -45,7 +46,7 @@ export const TopicForm = ({
   isCreator?: boolean;
   isFollowed?: boolean;
   onCancel?: () => void;
-  onSubmit?: (topic: ITopic) => void;
+  onSubmit?: (topic: Partial<ITopic>) => void;
 }) => {
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
@@ -116,10 +117,7 @@ export const TopicForm = ({
 
     setIsLoading(true);
 
-    let topic: Omit<
-      Optional<ITopic, "topicMessages">,
-      "_id" | "createdBy" | "topicNotifications"
-    > = {
+    let topic: Partial<ITopic> = {
       topicCategory: form.topicCategory ? form.topicCategory.value : null,
       topicName: form.topicName,
       topicVisibility: (form.topicVisibility || []).map(
@@ -129,7 +127,7 @@ export const TopicForm = ({
 
     try {
       if (props.topic) {
-        const payload = {
+        const payload: EditTopicPayload = {
           topic
         };
 
@@ -144,7 +142,7 @@ export const TopicForm = ({
         });
 
         setIsLoading(false);
-        props.onSubmit && props.onSubmit(props.topic);
+        props.onSubmit && props.onSubmit(topic);
         localStorage.removeItem("storageKey");
       } else {
         if (typeof form.topicMessage === "string" && form.topicMessage !== "") {
@@ -206,7 +204,7 @@ export const TopicForm = ({
       </FormControl>
 
       <FormControl isInvalid={!!errors["topicCategory"]} mb={3}>
-        <FormLabel>Catégorie</FormLabel>
+        <FormLabel>Catégorie (optionnel)</FormLabel>
         <Controller
           name="topicCategory"
           control={control}

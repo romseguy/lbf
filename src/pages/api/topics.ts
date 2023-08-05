@@ -5,13 +5,15 @@ import database, { models } from "database";
 import { sendTopicMessageNotifications } from "features/api/email";
 import { AddTopicPayload } from "features/api/topicsApi";
 import { getSession } from "utils/auth";
+import { getRefId } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
+import { getCurrentId } from "store/utils";
 import { hasItems } from "utils/array";
 import { createServerError } from "utils/errors";
 import { equals, logJson, toString } from "utils/string";
-import { getRefId } from "models/Entity";
+import { randomNumber } from "utils/randomNumber";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -137,8 +139,22 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       //#endregion
       //#region new topic
       else {
+        const topicWithSameName = await models.Topic.findOne({
+          topicName: body.topic.topicName
+        });
+        let topicName = body.topic.topicName;
+        if (topicWithSameName) {
+          const uid = org
+            ? org.orgTopics.length + 1
+            : event
+            ? event.eventTopics.length + 1
+            : randomNumber(100);
+          topicName = `${topicName}-${uid}`;
+        }
+
         topic = await models.Topic.create({
           ...body.topic,
+          topicName,
           topicMessages: body.topic.topicMessages?.map((topicMessage) => ({
             ...topicMessage,
             createdBy: session.user.userId

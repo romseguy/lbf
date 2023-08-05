@@ -13,6 +13,7 @@ import React, { useState } from "react";
 import { FaShare } from "react-icons/fa";
 import { LinkShare } from "features/common";
 import { ITopic } from "models/Topic";
+import { normalize } from "utils/string";
 
 export const TopicsListItemShare = ({
   topic,
@@ -22,7 +23,7 @@ export const TopicsListItemShare = ({
   const [isOpen, setIsOpen] = useState(false);
   const url = `${process.env.NEXT_PUBLIC_URL}/${
     topic.org ? topic.org.orgUrl : topic.event ? topic.event.eventUrl : ""
-  }/discussions/${topic.topicName}`;
+  }/discussions/${normalize(topic.topicName)}`;
 
   return (
     <Popover closeOnBlur isOpen={isOpen} onClose={() => setIsOpen(false)}>

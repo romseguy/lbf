@@ -236,7 +236,6 @@ export const EventPage = ({
           <EventPageTabs
             event={event}
             isCreator={isCreator}
-            isMobile={isMobile}
             currentTabLabel={tab}
           >
             <TabPanels
@@ -250,7 +249,6 @@ export const EventPage = ({
                 <EventPageHomeTabPanel
                   eventQuery={eventQuery}
                   isCreator={isCreator}
-                  isMobile={isMobile}
                   setIsEdit={setIsEdit}
                 />
               </TabPanel>
@@ -357,7 +355,6 @@ export const EventPage = ({
           session={session}
           eventQuery={eventQuery}
           isEdit={isEdit}
-          isMobile={isMobile}
           isVisible={isVisible}
           setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}

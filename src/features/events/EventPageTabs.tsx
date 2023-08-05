@@ -7,6 +7,8 @@ import { EntityPageTab, EntityPageTabList } from "features/common";
 import { IEvent } from "models/Event";
 import { normalize } from "utils/string";
 import { AppIcon } from "utils/types";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 const defaultTabs: { [key: string]: { icon: AppIcon; url: string } } = {
   Accueil: { icon: FaHome, url: "/accueil" },
@@ -17,17 +19,16 @@ export const EventPageTabs = ({
   children,
   event,
   isCreator,
-  isMobile,
   currentTabLabel = "Accueil"
 }: {
   event: IEvent;
   currentTabLabel?: string;
   isCreator?: boolean;
-  isMobile: boolean;
   children: React.ReactNode | React.ReactNodeArray;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
 
@@ -73,7 +74,6 @@ export const EventPageTabs = ({
               key={key}
               currentTabIndex={currentTabIndex}
               icon={tab.icon}
-              isMobile={isMobile}
               tabIndex={tabIndex}
               onClick={() => {
                 router.push(

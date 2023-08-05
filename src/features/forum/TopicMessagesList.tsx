@@ -18,7 +18,7 @@ import {
 } from "features/common";
 import { useSession } from "hooks/useSession";
 import { IEvent } from "models/Event";
-import { ITopic } from "models/Topic";
+import { isEdit, ITopic } from "models/Topic";
 import { IOrg } from "models/Org";
 import * as dateUtils from "utils/date";
 import { sanitize } from "utils/string";
@@ -28,10 +28,14 @@ import { TopicMessagesListItem } from "./TopicMessagesListItem";
 import { IEntity } from "models/Entity";
 
 export const TopicMessagesList = ({
+  isEdit,
+  setIsEdit,
   topic,
   query,
   ...props
 }: FlexProps & {
+  isEdit: isEdit;
+  setIsEdit: React.Dispatch<React.SetStateAction<isEdit>>;
   topic: ITopic;
   query: AppQuery<IEntity>;
 }) => {
@@ -41,15 +45,6 @@ export const TopicMessagesList = ({
 
   const mutation = useEditTopicMutation();
 
-  const [isEdit, setIsEdit] = useState<
-    Record<
-      string,
-      {
-        html?: string;
-        isOpen: boolean;
-      }
-    >
-  >({});
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
 
   if (!topic) return null;

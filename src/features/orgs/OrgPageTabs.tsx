@@ -32,13 +32,14 @@ import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { IsEditConfig } from "./OrgPage";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 export const OrgPageTabs = ({
   currentItemName,
   currentTabLabel = "Accueil",
   isCreator,
   isFollowed,
-  isMobile,
   orgQuery,
   session,
   setIsConfig,
@@ -49,7 +50,6 @@ export const OrgPageTabs = ({
   currentTabLabel?: string;
   isCreator: boolean;
   isFollowed: boolean;
-  isMobile: boolean;
   orgQuery: AppQueryWithData<IOrg>;
   session: Session | null;
   setIsConfig: React.Dispatch<React.SetStateAction<boolean>>;
@@ -58,6 +58,7 @@ export const OrgPageTabs = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const columnProps = {
     bg: isDark ? "gray.700" : "lightblue"
   };
@@ -155,7 +156,6 @@ export const OrgPageTabs = ({
               key={key}
               currentTabIndex={currentTabIndex}
               icon={tab.icon || QuestionIcon}
-              isMobile={isMobile}
               tabIndex={tabIndex}
               onClick={() => {
                 router.push(
@@ -185,7 +185,6 @@ export const OrgPageTabs = ({
           <TabPanel aria-hidden>
             <OrgPageHomeTabPanel
               isCreator={isCreator}
-              isMobile={isMobile}
               orgQuery={orgQuery}
               session={session}
               setIsEdit={setIsEdit}
@@ -257,11 +256,7 @@ export const OrgPageTabs = ({
             </Flex>
 
             <Column {...columnProps}>
-              <DocumentsList
-                org={org}
-                isCreator={isCreator}
-                isMobile={isMobile}
-              />
+              <DocumentsList org={org} isCreator={isCreator} />
             </Column>
           </TabPanel>
         )}

@@ -13,18 +13,19 @@ import {
 } from "features/common";
 import { EditIcon } from "@chakra-ui/icons";
 import { hasItems } from "utils/array";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 export const EventPageHomeTabPanel = ({
   eventQuery,
   isCreator,
-  isMobile,
   setIsEdit
 }: {
   eventQuery: AppQueryWithData<IEvent>;
   isCreator: boolean;
-  isMobile: boolean;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const isMobile = useSelector(selectIsMobile);
   const event = eventQuery.data;
   const hasInfo =
     hasItems(event.eventAddress) ||
@@ -104,7 +105,6 @@ export const EventPageHomeTabPanel = ({
           <EventPageDescription
             eventQuery={eventQuery}
             isCreator={isCreator}
-            isMobile={isMobile}
             setIsEdit={setIsEdit}
           />
         </TabContainerContent>

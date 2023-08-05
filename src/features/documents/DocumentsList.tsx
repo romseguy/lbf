@@ -48,6 +48,8 @@ import { pxBreakpoints } from "features/layout/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { DocumentForm } from "features/forms/DocumentForm";
 import { divideArray, hasItems } from "utils/array";
+import { selectIsMobile } from "store/uiSlice";
+import { useSelector } from "react-redux";
 
 const controller = new AbortController();
 const signal = controller.signal;
@@ -61,19 +63,18 @@ interface RemoteImage {
 export const DocumentsList = ({
   org,
   user,
-  isMobile,
   ...props
 }: {
   org?: IOrg;
   user?: IUser;
   isCreator?: boolean;
   isFollowed?: boolean;
-  isMobile: boolean;
 }) => {
-  const { data: session } = useSession();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
+  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const [diskUsage, refreshDiskUsage] = useDiskUsage();
   const [isAdd, setIsAdd] = useState(false);

@@ -94,7 +94,6 @@ export const Nav = ({
           <DrawerBody>
             <NavButtonsList
               direction="column"
-              isMobile
               onClose={() => {
                 if (isMobile) onDrawerClose();
               }}
@@ -125,7 +124,7 @@ export const Nav = ({
 
           <Tr role="row">
             <Td border={0} p={isMobile ? "12px 0 0 0" : "16px 0 0 0"}>
-              {!isMobile && <NavButtonsList title={title} isMobile={false} />}
+              {!isMobile && <NavButtonsList title={title} />}
               {!session && isMobile && (
                 <LoginButton
                   colorScheme="cyan"

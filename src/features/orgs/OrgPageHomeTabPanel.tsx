@@ -46,17 +46,17 @@ import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgsList } from "./OrgsList";
 import { IsEditConfig } from "./OrgPage";
 import { useAppDispatch } from "store";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 export const OrgPageHomeTabPanel = ({
   isCreator,
-  isMobile,
   orgQuery,
   session,
   setIsEdit,
   subQuery
 }: {
   isCreator: boolean;
-  isMobile: boolean;
   orgQuery: AppQueryWithData<IOrg>;
   session: Session | null;
   setIsEdit: (arg: boolean | IsEditConfig) => void;
@@ -65,6 +65,7 @@ export const OrgPageHomeTabPanel = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
+  const isMobile = useSelector(selectIsMobile);
 
   //#region org
   const org = orgQuery.data;

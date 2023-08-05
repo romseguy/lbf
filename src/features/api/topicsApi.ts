@@ -10,10 +10,11 @@ import { Optional } from "utils/types";
 //const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
 
 export interface AddTopicPayload {
-  topic: Optional<
-    Omit<ITopic, "topicNotifications" | "createdBy">,
-    "_id" | "topicMessages"
-  >;
+  // topic: Optional<
+  //   Omit<ITopic, "topicNotifications" | "createdBy">,
+  //   "_id" | "topicMessages"
+  // >;
+  topic: Partial<ITopic>;
   org?: Partial<IOrg>;
   event?: Partial<IEvent>;
 }

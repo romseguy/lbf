@@ -119,7 +119,7 @@ export const UserPage = ({
         )}
 
         {!isEdit && (
-          <UserPageTabs isMobile={isMobile} tabs={tabs} height="auto">
+          <UserPageTabs tabs={tabs} height="auto">
             <TabPanels
               css={css`
                 & > * {
@@ -316,7 +316,7 @@ export const UserPage = ({
 
               {isSelf && (
                 <TabPanel aria-hidden>
-                  <DocumentsList user={user} isMobile={isMobile} />
+                  <DocumentsList user={user} />
                 </TabPanel>
               )}
             </TabPanels>

@@ -17,6 +17,8 @@ import { InputNode, TreeNodeWithId } from "features/treeChart/types";
 import theme from "features/layout/theme";
 import { normalize } from "utils/string";
 import { IoIosGitNetwork } from "react-icons/io";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 const controller = new AbortController();
 const signal = controller.signal;
@@ -24,13 +26,11 @@ let treeChartContainer: HTMLElement | null | undefined;
 
 export const TreeChartModal = ({
   inputNodes,
-  isMobile,
   header,
   rootName,
   ...props
 }: {
   inputNodes: InputNode[];
-  isMobile: boolean;
   isOpen: boolean;
   header?: React.ReactNode | React.ReactNodeArray;
   rootName?: string;
@@ -38,6 +38,7 @@ export const TreeChartModal = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
 
   useEffect(() => {
