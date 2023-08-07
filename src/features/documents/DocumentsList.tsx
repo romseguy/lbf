@@ -71,7 +71,7 @@ export const DocumentsList = ({
   isFollowed?: boolean;
 }) => {
   const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
+  //const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const { data: session } = useSession();
@@ -85,7 +85,6 @@ export const DocumentsList = ({
     org ? { orgId: org._id } : user ? { userId: user._id } : {}
   );
   const [images, setImages] = useState<RemoteImage[]>([]);
-
   useEffect(() => {
     const buildMasonry = async (data: string[]) => {
       let newImages: RemoteImage[] = [];
@@ -112,8 +111,9 @@ export const DocumentsList = ({
       setIsMasonryLoading(false);
     };
 
-    if (query.data) {
+    if (Array.isArray(query.data) && query.data.length > 0) {
       buildMasonry(query.data);
+
       if (
         !masonry.length &&
         query.data.find((fileName) => stringUtils.isImage(fileName))
@@ -411,14 +411,14 @@ export const DocumentsList = ({
                           newMW =
                             (screenWidth - marginAround - marginBetween) /
                             columnCount;
-                          console.log(
-                            "1",
-                            columnCount,
-                            screenWidth,
-                            newMW,
-                            marginAround,
-                            marginBetween
-                          );
+                          // console.log(
+                          //   "1",
+                          //   columnCount,
+                          //   screenWidth,
+                          //   newMW,
+                          //   marginAround,
+                          //   marginBetween
+                          // );
                         } else if (columnCount !== 1) {
                           marginAround = 2 * (4 * 12 + 20);
                           newMW =
@@ -427,7 +427,6 @@ export const DocumentsList = ({
                         }
 
                         const width = image.width > newMW ? newMW : image.width;
-
                         return (
                           <Image
                             key={`image-${imageIndex}`}

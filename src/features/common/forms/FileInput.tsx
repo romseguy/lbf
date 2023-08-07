@@ -1,20 +1,23 @@
-import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
+import { Table, Tbody, Td, Th, Thead, Tr, useToast } from "@chakra-ui/react";
 
 import { Input, InputProps } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { ComponentType, useState } from "react";
 import { bytesForHuman } from "utils/string";
 
 export const FileInput = ({
   accept = "*",
-  //maxFileSize = 10,
+  maxFileSize = 10,
+  TableContainer,
   value,
   onChange,
   ...props
 }: InputProps & {
-  //maxFileSize?: number;
+  maxFileSize?: number;
+  TableContainer?: ComponentType<{ children: React.ReactNode }>;
   value?: FileList;
   onChange?: (files: File[]) => void;
 }) => {
+  const toast = useToast({ position: "top" });
   const [list, setList] = useState<File[]>(value ? Array.from(value) : []);
 
   const triggerUpdate = () => {
@@ -41,8 +44,8 @@ export const FileInput = ({
     triggerUpdate();
   };
 
-  const renderHtmlTable = () => {
-    return (
+  const table =
+    list && list.length > 0 ? (
       <Table>
         <Thead>
           <Tr>
@@ -68,7 +71,12 @@ export const FileInput = ({
                     </button>
                   ) : null}
                 </Td> */}
-                <Td>{item.name}</Td>
+                <Td>
+                  {/* {item.name.length > collapseLength
+                      ? item.name.substr(0, collapseLength)
+                      : item.name} */}
+                  {item.name}
+                </Td>
                 <Td>{bytesForHuman(item.size, 2)}</Td>
                 <Td>{item.type}</Td>
                 <Td>
@@ -81,11 +89,16 @@ export const FileInput = ({
           })}
         </Tbody>
       </Table>
-    );
-  };
+    ) : null;
 
-  const renderFileInput = () => {
-    return (
+  return (
+    <>
+      {table && TableContainer ? (
+        <TableContainer>{table}</TableContainer>
+      ) : (
+        table
+      )}
+
       <Input
         {...props}
         type="file"
@@ -95,22 +108,15 @@ export const FileInput = ({
           if (files) {
             for (const file of Array.from(files)) {
               const fsMb = file.size / (1024 * 1024);
-              //if (fsMb < maxFileSize) {
-              list.push(file);
-              //}
+              if (fsMb > maxFileSize)
+                toast({ title: "Fichier trop volumineux", status: "error" });
+              else list.push(file);
             }
 
             triggerUpdate();
           }
         }}
       />
-    );
-  };
-
-  return (
-    <>
-      {list && list.length > 0 && renderHtmlTable()}
-      {renderFileInput()}
     </>
   );
 };

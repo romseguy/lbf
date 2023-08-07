@@ -25,7 +25,7 @@ import { wrapper } from "store";
 
 const orgsQueryParams = {
   orgType: EOrgType.NETWORK,
-  populate: "orgs createdBy"
+  populate: "orgs orgTopics createdBy"
 };
 
 const IndexPage = (props: PageProps) => {
@@ -36,6 +36,7 @@ const IndexPage = (props: PageProps) => {
 
   //#region local state
   const orgsQuery = useGetOrgsQuery(orgsQueryParams) as AppQuery<IOrg[]>;
+  console.log("🚀 ~ file: index.tsx:39 ~ IndexPage ~ orgsQuery:", orgsQuery);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isListOpen, setIsListOpen] = useState(true);
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
@@ -95,22 +96,14 @@ const IndexPage = (props: PageProps) => {
             {isListOpen && (
               <Column bg={isDark ? "gray.700" : "white"}>
                 <OrgsList
-                  keys={
-                    props.isMobile
-                      ? (orgType) => [
-                          {
-                            key: "orgName",
-                            label: `Nom de ${orgTypeFull(orgType)}`
-                          }
-                        ]
-                      : (orgType) => [
-                          {
-                            key: "orgName",
-                            label: `Nom de ${orgTypeFull(orgType)}`
-                          },
-                          { key: "createdBy", label: "Créé par" }
-                        ]
-                  }
+                  keys={(orgType) => [
+                    {
+                      key: "orgName",
+                      label: `Nom de ${orgTypeFull(orgType)}`
+                    },
+                    { key: "latestMessage", label: "Dernier message" }
+                    //{ key: "createdBy", label: "Créé par" }
+                  ]}
                   isMobile={props.isMobile}
                   query={orgsQuery}
                   //subQuery={subQuery}

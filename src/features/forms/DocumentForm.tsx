@@ -1,20 +1,22 @@
 import {
   Alert,
   AlertIcon,
+  Box,
   Button,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Progress,
   Text,
+  useColorMode,
   useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import { FileInput } from "features/common";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { ErrorMessageText } from "features/common";
+import { css } from "twin.macro";
+import { ErrorMessageText, FileInput } from "features/common";
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
 import { handleError } from "utils/form";
@@ -23,6 +25,42 @@ import { hasItems } from "utils/array";
 type FormValues = {
   files: FileList;
   formErrorMessage: { message: string };
+};
+
+const TableContainer = ({
+  children
+}: {
+  children: React.ReactNode | React.ReactNodeArray;
+}) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
+  return (
+    <Box
+      alignSelf="flex-start"
+      bgColor={isDark ? "black" : "white"}
+      overflowX="auto"
+      borderWidth={1}
+      borderBottom="none"
+      borderColor={isDark ? "gray.600" : "gray.200"}
+      borderRadius="lg"
+      mb={3}
+      css={css`
+        table {
+          width: auto;
+        }
+        table th {
+          padding: 12px;
+        }
+        table td {
+          border: none;
+          padding: 12px;
+        }
+      `}
+    >
+      {children}
+    </Box>
+  );
 };
 
 export const DocumentForm = ({
@@ -34,6 +72,8 @@ export const DocumentForm = ({
   user?: IUser;
   onSubmit: () => void;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
   const [isLoading, setIsLoading] = useState(false);
   const [loaded, setLoaded] = useState<{ [fileName: string]: number }>({});
@@ -100,22 +140,29 @@ export const DocumentForm = ({
       setIsLoading(false);
     }
   };
+
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <FormControl isInvalid={!!errors["files"]} mb={3}>
         <FormLabel>
           Sélectionnez un ou plusieurs fichiers. Taille maximum par fichier :{" "}
-          <Text as="span" color="red">
-            10Mo
-          </Text>
+          <b>10Mo</b>
         </FormLabel>
+
         <FileInput
           {...register("files")}
           id="files"
           multiple
-          //color="transparent"
+          alignSelf="flex-start"
+          color="transparent"
           height="auto"
-          py={3}
+          p={0}
+          width="auto"
+          TableContainer={TableContainer}
+          css={css`
+            background: none !important;
+            border: none !important;
+          `}
           onChange={async (files) => {
             onChange();
 
@@ -124,6 +171,7 @@ export const DocumentForm = ({
             setValue("files", hasItems(files) ? files : undefined);
           }}
         />
+
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="files" />
         </FormErrorMessage>

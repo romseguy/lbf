@@ -12,7 +12,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import useFormPersist from "react-hook-form-persist";
+import useFormPersist from "hooks/useFormPersist";
 import Creatable from "react-select/creatable";
 import { ErrorMessageText, MultiSelect, RTEditor } from "features/common";
 import { useEditEventMutation } from "features/api/eventsApi";
@@ -85,20 +85,18 @@ export const TopicForm = ({
     setValue,
     watch,
     formState
-  } = useForm({
-    mode: "onChange"
-  });
+  } = useFormPersist(
+    useForm({
+      mode: "onChange"
+    })
+  );
   useLeaveConfirm({ formState });
-  useFormPersist("storageKey", {
-    watch,
-    setValue,
-    storage: window.localStorage // default window.sessionStorage
-  });
-  let topicMessageDefaultValue: string | undefined;
-  const formData = localStorage.getItem("storageKey");
-  if (formData) {
-    topicMessageDefaultValue = JSON.parse(formData).topicMessage;
-  }
+
+  // let topicMessageDefaultValue: string | undefined;
+  // const formData = localStorage.getItem("storageKey");
+  // if (formData) {
+  //   topicMessageDefaultValue = JSON.parse(formData).topicMessage;
+  // }
 
   const topicVisibility = watch("topicVisibility");
 
@@ -143,7 +141,6 @@ export const TopicForm = ({
 
         setIsLoading(false);
         props.onSubmit && props.onSubmit(topic);
-        localStorage.removeItem("storageKey");
       } else {
         if (typeof form.topicMessage === "string" && form.topicMessage !== "") {
           topic.topicMessages = [
@@ -172,7 +169,6 @@ export const TopicForm = ({
 
         setIsLoading(false);
         props.onSubmit && props.onSubmit(newTopic);
-        localStorage.removeItem("storageKey");
       }
     } catch (error: any) {
       setIsLoading(false);

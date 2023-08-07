@@ -42,7 +42,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import useFormPersist from "react-hook-form-persist";
+import useFormPersist from "hooks/useFormPersist";
 import ReactSelect from "react-select";
 import { css } from "twin.macro";
 import { Suggestion } from "use-places-autocomplete";
@@ -206,25 +206,27 @@ export const EventForm = withGoogleApi({
       getValues,
       formState,
       watch
-    } = useForm<FormData>({
-      defaultValues: {
-        eventName: props.event?.eventName || "",
-        eventCategory: props.event?.eventCategory,
-        eventMinDate: props.event ? parseISO(props.event.eventMinDate) : null,
-        eventMaxDate: props.event ? parseISO(props.event.eventMaxDate) : null,
-        eventDescription: props.event?.eventDescription || "",
-        eventVisibility:
-          props.event?.eventVisibility || EEventVisibility.PUBLIC,
-        //eventOrgs: props.event?.eventOrgs || [],
-        eventOrg: props.event ? props.event.eventOrgs[0] : {},
-        eventAddress: props.event?.eventAddress || [],
-        eventEmail: props.event?.eventEmail || [],
-        eventPhone: props.event?.eventPhone || [],
-        eventWeb: props.event?.eventWeb || [],
-        repeat: props.event?.repeat
-      },
-      mode: "onChange"
-    });
+    } = useFormPersist(
+      useForm<FormData>({
+        defaultValues: {
+          eventName: props.event?.eventName || "",
+          eventCategory: props.event?.eventCategory,
+          eventMinDate: props.event ? parseISO(props.event.eventMinDate) : null,
+          eventMaxDate: props.event ? parseISO(props.event.eventMaxDate) : null,
+          eventDescription: props.event?.eventDescription || "",
+          eventVisibility:
+            props.event?.eventVisibility || EEventVisibility.PUBLIC,
+          //eventOrgs: props.event?.eventOrgs || [],
+          eventOrg: props.event ? props.event.eventOrgs[0] : {},
+          eventAddress: props.event?.eventAddress || [],
+          eventEmail: props.event?.eventEmail || [],
+          eventPhone: props.event?.eventPhone || [],
+          eventWeb: props.event?.eventWeb || [],
+          repeat: props.event?.repeat
+        },
+        mode: "onChange"
+      })
+    );
     useLeaveConfirm({ formState });
 
     const eventMinDate = useWatch<Date | null | undefined>({
@@ -444,32 +446,14 @@ export const EventForm = withGoogleApi({
     //#region componentDidMount
     const [eventDescriptionDefaultValue, setEventDescriptionDefaultValue] =
       useState<string>();
-    const [storage, setStorage] = useState<Storage | undefined>();
-    useEffect(() => {
-      setStorage(window.localStorage);
-      const formData = window.localStorage.getItem("storageKey");
-      if (formData) {
-        setEventDescriptionDefaultValue(JSON.parse(formData).eventDescription);
-      }
-    }, []);
-    useFormPersist("storageKey", {
-      watch,
-      setValue,
-      storage,
-      exclude: props.event
-        ? [
-            "eventName",
-            "eventMinDate",
-            "eventMaxDate",
-            "eventDescription",
-            "eventOrg",
-            "eventAddress",
-            "eventEmail",
-            "eventPhone",
-            "eventWeb"
-          ]
-        : ["eventMinDate", "eventMaxDate"]
-    });
+    // const [storage, setStorage] = useState<Storage | undefined>();
+    // useEffect(() => {
+    //   setStorage(window.localStorage);
+    //   const formData = window.localStorage.getItem("storageKey");
+    //   if (formData) {
+    //     setEventDescriptionDefaultValue(JSON.parse(formData).eventDescription);
+    //   }
+    // }, []);
     //#endregion
 
     const containerProps = {

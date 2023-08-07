@@ -1,7 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import {
   Box,
-  Flex,
   Icon,
   IconButton,
   Spinner,
@@ -14,6 +13,7 @@ import {
   Tooltip,
   useColorMode
 } from "@chakra-ui/react";
+import { compareAsc, compareDesc, parseISO } from "date-fns";
 import React, { useMemo, useState } from "react";
 import { FaGlobeEurope, FaMapMarkedAlt, FaTree } from "react-icons/fa";
 import { css } from "twin.macro";
@@ -21,15 +21,10 @@ import { EntityButton } from "features/common";
 import { scrollbarCss, tableCss } from "features/layout/theme";
 import { MapModal } from "features/modals/MapModal";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
-import {
-  EOrgType,
-  IOrg,
-  orgTypeFull,
-  orgTypeFull5,
-  OrgTypes
-} from "models/Org";
+import { EOrgType, IOrg, orgTypeFull } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
+import { timeAgo } from "utils/date";
 import { AppQuery } from "utils/types";
 
 const defaultKeys = (orgType: EOrgType) => [
@@ -48,6 +43,11 @@ const defaultKeys = (orgType: EOrgType) => [
     label: "Créé par"
   }
 ];
+
+const iconProps = {
+  boxSize: 6,
+  mt: -1
+};
 
 export const OrgsList = ({
   isMobile,
@@ -68,10 +68,6 @@ export const OrgsList = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const [orgToShow, setOrgToShow] = useState<IOrg | void>();
-
-  let { data, isLoading } = query;
-  if (!Array.isArray(data)) data = data?.orgs;
-
   const [selectedOrder, s] = useState<{ key: string; order: "asc" | "desc" }>();
   const setSelectedOrder = (key: string) => {
     const order = !selectedOrder
@@ -82,38 +78,74 @@ export const OrgsList = ({
     s({ key, order });
   };
 
-  const orgs = useMemo(
-    () =>
-      Array.isArray(data)
-        ? [...data].sort((a, b) => {
-            const key = selectedOrder?.key || "orgName";
-            const order = selectedOrder?.order || "asc";
+  let { data, isLoading } = query;
+  if (!Array.isArray(data)) data = data?.orgs;
 
-            let valueA = a[key as keyof IOrg];
-            if (typeof valueA === "string") valueA = valueA.toLowerCase();
-            else valueA = (valueA as IUser).userName.toLowerCase();
+  const orgsMetadata = useMemo(() => {
+    const record: Record<string, { latestMessage: Date }> = {};
+    if (!Array.isArray(data)) return record;
 
-            let valueB = b[key as keyof IOrg];
-            if (typeof valueB === "string") valueB = valueB.toLowerCase();
-            else valueB = (valueB as IUser).userName.toLowerCase();
+    for (const org of data) {
+      for (const orgTopic of org.orgTopics) {
+        for (const orgTopicMessage of orgTopic.topicMessages) {
+          const current = parseISO(orgTopicMessage.createdAt || "");
+          const saved = record[org._id];
 
-            if (order === "asc") {
-              if (valueA < valueB) return -1;
-              if (valueA > valueB) return 1;
-            } else if (order === "desc") {
-              if (valueA > valueB) return -1;
-              if (valueA < valueB) return 1;
+          if (!saved) {
+            record[org._id] = { latestMessage: current };
+          } else {
+            // if current date is before saved date
+            if (compareDesc(current, saved.latestMessage)) {
+              saved.latestMessage = current;
             }
+          }
+        }
+      }
+    }
 
-            return 0;
-          })
-        : [],
-    [data, selectedOrder]
-  );
+    return record;
+  }, [data]);
+  const orgs = useMemo(() => {
+    if (!Array.isArray(data)) return [];
 
-  const iconProps = {
-    boxSize: 6
-  };
+    if (selectedOrder?.key === "latestMessage") {
+      const orgsWithMetadata = data
+        .filter((org) => !!orgsMetadata[org._id])
+        .sort((a, b) => {
+          const compare =
+            selectedOrder.order === "asc" ? compareDesc : compareAsc;
+          return compare(
+            orgsMetadata[a._id].latestMessage,
+            orgsMetadata[b._id].latestMessage
+          );
+        });
+      const orgsWithoutMetadata = data.filter((org) => !orgsMetadata[org._id]);
+      return orgsWithMetadata.concat(orgsWithoutMetadata);
+    }
+
+    return [...data].sort((a, b) => {
+      const key = selectedOrder?.key || "orgName";
+      const order = selectedOrder?.order || "asc";
+
+      let valueA = a[key as keyof IOrg];
+      if (typeof valueA === "string") valueA = valueA.toLowerCase();
+      else valueA = (valueA as IUser).userName.toLowerCase();
+
+      let valueB = b[key as keyof IOrg];
+      if (typeof valueB === "string") valueB = valueB.toLowerCase();
+      else valueB = (valueB as IUser).userName.toLowerCase();
+
+      if (order === "asc") {
+        if (valueA < valueB) return -1;
+        if (valueA > valueB) return 1;
+      } else if (order === "desc") {
+        if (valueA > valueB) return -1;
+        if (valueA < valueB) return 1;
+      }
+
+      return 0;
+    });
+  }, [data, selectedOrder]);
 
   const keys = props.keys ? props.keys(orgType) : defaultKeys(orgType);
 
@@ -135,25 +167,23 @@ export const OrgsList = ({
                   cursor="pointer"
                   onClick={() => setSelectedOrder(key)}
                 >
-                  <Flex alignItems="center">
-                    {label}
+                  {label}
 
-                    {selectedOrder ? (
-                      selectedOrder.key === key ? (
-                        selectedOrder.order === "desc" ? (
-                          <ChevronUpIcon {...iconProps} />
-                        ) : (
-                          <ChevronDownIcon {...iconProps} />
-                        )
+                  {selectedOrder ? (
+                    selectedOrder.key === key ? (
+                      selectedOrder.order === "desc" ? (
+                        <ChevronUpIcon {...iconProps} />
                       ) : (
-                        ""
+                        <ChevronDownIcon {...iconProps} />
                       )
-                    ) : key === "orgName" ? (
-                      <ChevronDownIcon {...iconProps} />
                     ) : (
                       ""
-                    )}
-                  </Flex>
+                    )
+                  ) : key === "orgName" ? (
+                    <ChevronDownIcon {...iconProps} />
+                  ) : (
+                    ""
+                  )}
                 </Th>
               );
             })}
@@ -170,6 +200,9 @@ export const OrgsList = ({
           ) : (
             orgs.map((org: IOrg) => {
               if (org.orgUrl === "forum") return;
+
+              const latestMessage = orgsMetadata[org._id]?.latestMessage;
+
               return (
                 <Tr key={`org-${org._id}`}>
                   {keys.find(({ key }) => key === "icon") && (
@@ -235,6 +268,12 @@ export const OrgsList = ({
                           />
                         </Tooltip>
                       )}
+                    </Td>
+                  )}
+
+                  {keys.find(({ key }) => key === "latestMessage") && (
+                    <Td>
+                      {latestMessage ? timeAgo(latestMessage).timeAgo : ""}
                     </Td>
                   )}
 

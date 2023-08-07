@@ -584,7 +584,6 @@ export const ProjectsList = ({
               project: undefined
             });
             setCurrentProject(project ? project : null);
-            localStorage.removeItem("storageKey");
           }}
           onClose={() =>
             setProjectModalState({

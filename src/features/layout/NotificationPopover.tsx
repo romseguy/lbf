@@ -270,7 +270,7 @@ export const NotificationPopover = ({
 
   return (
     <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[-80, 25]} onClose={onClose}>
+      <Popover isLazy isOpen={isOpen} offset={[140, 15]} onClose={onClose}>
         <PopoverTrigger>
           <IconButton
             aria-label="Notifications"

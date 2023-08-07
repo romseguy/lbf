@@ -55,8 +55,6 @@ export const EventConfigPanel = ({
               setIsConfig(true);
             }}
             onSubmit={async (eventUrl: string) => {
-              localStorage.removeItem("storageKey");
-
               if (eventUrl !== event.eventUrl)
                 await router.push(`/${eventUrl}`, `/${eventUrl}`, {
                   shallow: true

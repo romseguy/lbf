@@ -18,7 +18,7 @@ const client = axios.create({
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>()
   .use(cors())
-  .get<NextApiRequest, NextApiResponse>(async function check(req, res) {
+  .get<NextApiRequest, NextApiResponse>(async function getDocuments(req, res) {
     try {
       let {
         query: { orgId }

@@ -376,7 +376,7 @@ export const TopicPopover = ({
 
   return (
     <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[-50, 25]} onClose={onClose}>
+      <Popover isLazy isOpen={isOpen} offset={[140, 15]} onClose={onClose}>
         <PopoverTrigger>
           <IconButton
             aria-label="Discussions"

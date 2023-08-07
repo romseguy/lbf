@@ -12,7 +12,7 @@ import { emailR } from "utils/email";
 import { handleError } from "utils/form";
 import { phoneR } from "utils/string";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
-import useFormPersist from "react-hook-form-persist";
+import useFormPersist from "hooks/useFormPersist";
 import { TagsControl } from "features/common/forms/TagsControl";
 import { ItemTag } from "@choc-ui/chakra-autocomplete";
 import { AtSignIcon } from "@chakra-ui/icons";
@@ -52,18 +52,15 @@ export const SubscriptionForm = ({
     setValue,
     formState
     // watch
-  } = useForm<FormValues>({
-    mode: "onChange",
-    defaultValues: {
-      emailList: ""
-    }
-  });
+  } = useFormPersist(
+    useForm<FormValues>({
+      mode: "onChange",
+      defaultValues: {
+        emailList: ""
+      }
+    })
+  );
   useLeaveConfirm({ formState });
-  // useFormPersist("storageKey", {
-  //   watch,
-  //   setValue,
-  //   storage: window.localStorage // default window.sessionStorage
-  // });
   const isDisabled =
     Object.keys(errors).length > 0 ||
     Object.keys(isSubscriptionLoading).some(
@@ -181,7 +178,6 @@ export const SubscriptionForm = ({
       //setValue("orgLists", []);
       setIsLoading(false);
       props.onSubmit && props.onSubmit();
-      localStorage.removeItem("storageKey");
     } catch (error) {
       setIsLoading(false);
       handleError(error, (message, field) => {

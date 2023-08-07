@@ -18,7 +18,7 @@ import { IOrg } from "models/Org";
 import { handleError } from "utils/form";
 import { AppQueryWithData } from "utils/types";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
-import useFormPersist from "react-hook-form-persist";
+import useFormPersist from "hooks/useFormPersist";
 import {
   IEntity,
   IEntityCategory,
@@ -64,15 +64,12 @@ export const CategoryForm = ({
     formState,
     watch,
     setValue
-  } = useForm({
-    mode: "onChange"
-  });
+  } = useFormPersist(
+    useForm({
+      mode: "onChange"
+    })
+  );
   useLeaveConfirm({ formState });
-  useFormPersist("storageKey", {
-    watch,
-    setValue,
-    storage: window.localStorage // default window.sessionStorage
-  });
 
   const onChange = () => clearErrors("formErrorMessage");
   const onSubmit = async (form: { category: string }) => {

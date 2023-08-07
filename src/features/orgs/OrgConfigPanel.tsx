@@ -70,7 +70,6 @@ export const OrgConfigPanel = ({
               //setIsConfig(false);
             }}
             onSubmit={async (orgUrl: string) => {
-              localStorage.removeItem("storageKey");
               setIsEdit(false);
               setIsConfig(false);
 

@@ -12,7 +12,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import useFormPersist from "react-hook-form-persist";
+import useFormPersist from "hooks/useFormPersist";
 import { AddTopicPayload, useAddTopicMutation } from "features/api/topicsApi";
 import { ErrorMessageText, RTEditor } from "features/common";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
@@ -69,31 +69,28 @@ export const TopicMessageForm = ({
     setValue,
     getValues,
     formState
-  } = useForm({
-    mode: "onChange"
-  });
+  } = useFormPersist(
+    useForm({
+      mode: "onChange"
+    })
+  );
   useLeaveConfirm({ formState });
-  useFormPersist("storageKey", {
-    watch,
-    setValue,
-    storage: window.localStorage // default window.sessionStorage
-  });
 
-  const formData = localStorage.getItem("storageKey");
-  useEffect(() => {
-    if (formData) {
-      const parsed = JSON.parse(formData);
+  // const formData = localStorage.getItem("storageKey");
+  // useEffect(() => {
+  //   if (formData) {
+  //     const parsed = JSON.parse(formData);
 
-      if (parsed) {
-        const value = parsed.topicMessage;
+  //     if (parsed) {
+  //       const value = parsed.topicMessage;
 
-        if (typeof value === "string") {
-          setTopicMessageDefaultValue(value);
-          //setValue("topicMessage", value);
-        }
-      }
-    }
-  }, [formData]);
+  //       if (typeof value === "string") {
+  //         setTopicMessageDefaultValue(value);
+  //         //setValue("topicMessage", value);
+  //       }
+  //     }
+  //   }
+  // }, [formData]);
 
   // useEffect(() => {
   //   if (formData) {

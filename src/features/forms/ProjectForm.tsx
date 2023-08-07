@@ -13,7 +13,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import useFormPersist from "react-hook-form-persist";
+import useFormPersist from "hooks/useFormPersist";
 import { ErrorMessageText, ListsControl, RTEditor } from "features/common";
 import {
   AddProjectPayload,
@@ -61,20 +61,18 @@ export const ProjectForm = ({
     watch,
     formState,
     setValue
-  } = useForm({
-    mode: "onChange"
-  });
+  } = useFormPersist(
+    useForm({
+      mode: "onChange"
+    })
+  );
   useLeaveConfirm({ formState });
-  useFormPersist("storageKey", {
-    watch,
-    setValue,
-    storage: window.localStorage // default window.sessionStorage
-  });
-  let projectDescriptionDefaultValue: string | undefined;
-  const formData = localStorage.getItem("storageKey");
-  if (formData) {
-    projectDescriptionDefaultValue = JSON.parse(formData).topicMessage;
-  }
+
+  // let projectDescriptionDefaultValue: string | undefined;
+  // const formData = localStorage.getItem("storageKey");
+  // if (formData) {
+  //   projectDescriptionDefaultValue = JSON.parse(formData).topicMessage;
+  // }
 
   const projectVisibility = watch("projectVisibility");
   const statusOptions: string[] = Object.keys(EProjectStatus).map(

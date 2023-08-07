@@ -236,7 +236,7 @@ export const EventPopover = ({
 
   return (
     <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[-20, 25]} onClose={onClose}>
+      <Popover isLazy isOpen={isOpen} offset={[140, 15]} onClose={onClose}>
         <PopoverTrigger>
           <IconButton
             aria-label="Événements"

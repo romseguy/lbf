@@ -23,7 +23,6 @@ export const EntityAddPage = ({
     await router.push(`/${url}`, `/${url}`, {
       shallow: true
     });
-    localStorage.removeItem("storageKey");
   };
 
   return (

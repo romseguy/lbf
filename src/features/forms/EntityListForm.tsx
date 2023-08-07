@@ -12,7 +12,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import useFormPersist from "react-hook-form-persist";
+import useFormPersist from "hooks/useFormPersist";
 import Creatable from "react-select/creatable";
 import { ErrorMessageText } from "features/common";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
@@ -64,11 +64,6 @@ export const EntityListForm = ({
     mode: "onChange"
   });
   useLeaveConfirm({ formState });
-  // useFormPersist("storageKey", {
-  //   watch,
-  //   setValue,
-  //   storage: window.localStorage // default window.sessionStorage
-  // });
 
   const defaultSubscriptions = props.list?.subscriptions || [];
   //const subscriptions: ISubscription[] = watch("subscriptions") || defaultSubscriptions;

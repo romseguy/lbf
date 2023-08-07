@@ -49,7 +49,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
       const cookies = headers?.cookie;
       let userAgent = headers?.["user-agent"];
       if (!userAgent && !isServer()) userAgent = navigator.userAgent;
-      // const isMobile = true;
+      //const isMobile = true;
       const isMobile =
         typeof userAgent === "string"
           ? getSelectorsByUserAgent(userAgent).isMobile

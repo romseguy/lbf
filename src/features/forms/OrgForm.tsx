@@ -24,7 +24,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
 import React, { useState, useEffect, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import useFormPersist from "react-hook-form-persist";
+import useFormPersist from "hooks/useFormPersist";
 import { FaTree } from "react-icons/fa";
 import Creatable from "react-select/creatable";
 import { Suggestion } from "use-places-autocomplete";
@@ -197,15 +197,18 @@ export const OrgForm = withGoogleApi({
       watch,
       getValues,
       setValue
-    } = useForm<FormValues>({
-      defaultValues: {
-        orgAddress: org?.orgAddress,
-        orgEmail: org?.orgEmail,
-        orgPhone: org?.orgPhone,
-        orgWeb: org?.orgWeb
-      },
-      mode: "onChange"
-    });
+    } = useFormPersist(
+      useForm<FormValues>({
+        defaultValues: {
+          orgDescription: org?.orgDescription || "",
+          orgAddress: org?.orgAddress,
+          orgEmail: org?.orgEmail,
+          orgPhone: org?.orgPhone,
+          orgWeb: org?.orgWeb
+        },
+        mode: "onChange"
+      })
+    );
     useLeaveConfirm({ formState });
 
     const hasSelectedChildrenTypes = useWatch<string>({
@@ -242,7 +245,6 @@ export const OrgForm = withGoogleApi({
       if (orgVisibility !== EOrgVisibility.PRIVATE) setIsPassword(false);
     }, [orgVisibility]);
     const password = useRef({});
-    //@ts-expect-error
     password.current = watch("orgPassword", "");
     const orgWeb = watch("orgWeb");
 
@@ -404,36 +406,18 @@ export const OrgForm = withGoogleApi({
     //#endregion
 
     //#region componentDidMount
-    const [orgDescriptionDefaultValue, setOrgDescriptionDefaultValue] =
-      useState<string>();
-    const [storage, setStorage] = useState<Storage | undefined>();
-    useEffect(() => {
-      setStorage(window.localStorage);
-      const formData = window.localStorage.getItem("storageKey");
-      if (formData && formData.includes("orgDescription")) {
-        const parsed = JSON.parse(formData);
-        if (parsed.orgDescription)
-          setOrgDescriptionDefaultValue(parsed.orgDescription);
-      }
-      //else setOrgDescriptionDefaultValue(getOrgDescriptionByType(orgType));
-    }, []);
-    useFormPersist("storageKey", {
-      watch,
-      setValue,
-      storage,
-      exclude: org
-        ? [
-            "orgName",
-            "orgs",
-            "orgDescription",
-            "orgVisibility",
-            "orgAddress",
-            "orgEmail",
-            "orgPhone",
-            "orgWeb"
-          ]
-        : []
-    });
+    // const [orgDescriptionDefaultValue, setOrgDescriptionDefaultValue] =
+    //   useState<string>();
+    // useEffect(() => {
+    //   setStorage(window.localStorage);
+    //   const formData = window.localStorage.getItem("storageKey");
+    //   if (formData && formData.includes("orgDescription")) {
+    //     const parsed = JSON.parse(formData);
+    //     if (parsed.orgDescription)
+    //       setOrgDescriptionDefaultValue(parsed.orgDescription);
+    //   }
+    //   //else setOrgDescriptionDefaultValue(getOrgDescriptionByType(orgType));
+    // }, []);
     //#endregion
 
     //#region form controls
@@ -600,11 +584,9 @@ export const OrgForm = withGoogleApi({
         <Controller
           name="orgDescription"
           control={control}
-          defaultValue={org?.orgDescription || ""}
           render={(renderProps) => {
             return (
               <RTEditor
-                defaultValue={org?.orgDescription || orgDescriptionDefaultValue}
                 org={org}
                 placeholder={`Saisir la description ${orgTypeLabel}`}
                 session={session}

@@ -12,7 +12,7 @@ const agent = new https.Agent({
 });
 const client = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API2,
-  responseType: "json",
+  responseType: "arraybuffer",
   withCredentials: true,
   httpsAgent: agent
 });
@@ -29,7 +29,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
       const buffer = await client.get(url, {
         responseType: "arraybuffer"
       });
-      res.status(200).write(buffer.data);
+      res.status(200).end(buffer.data);
       // const buffer = Buffer.from(arrayBuffer.data, "binary").toString("base64");
       // const image = `data:${arrayBuffer.headers["content-type"]};base64,${buffer}`;
       // res.status(200).send(image);

@@ -218,7 +218,7 @@ export const OrgPopover = ({
 
   return (
     <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[10, 25]} onClose={onClose}>
+      <Popover isLazy isOpen={isOpen} offset={[140, 15]} onClose={onClose}>
         <PopoverTrigger>
           <IconButton
             aria-label="Mes arbres"

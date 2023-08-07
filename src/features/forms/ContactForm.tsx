@@ -20,7 +20,7 @@ import {
 import api from "utils/api";
 import { handleError } from "utils/form";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
-import useFormPersist from "react-hook-form-persist";
+import useFormPersist from "hooks/useFormPersist";
 
 export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
   const router = useRouter();
@@ -43,23 +43,19 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
     setValue,
     formState,
     watch
-  } = useForm();
+  } = useFormPersist(useForm());
 
   useLeaveConfirm({ formState });
-  const [storage, setStorage] = useState<Storage | undefined>();
-  useEffect(() => {
-    setStorage(window.localStorage);
-  }, []);
-  useFormPersist("storageKey", {
-    watch,
-    setValue,
-    storage
-  });
-  let messageDefaultValue: string | undefined;
-  const formData = storage?.getItem("storageKey");
-  if (formData) {
-    messageDefaultValue = JSON.parse(formData).topicMessage;
-  }
+
+  // const [storage, setStorage] = useState<Storage | undefined>();
+  // useEffect(() => {
+  //   setStorage(window.localStorage);
+  // }, []);
+  // let messageDefaultValue: string | undefined;
+  // const formData = storage?.getItem("storageKey");
+  // if (formData) {
+  //   messageDefaultValue = JSON.parse(formData).topicMessage;
+  // }
 
   const onClose = () => {
     clearErrors("formErrorMessage");
