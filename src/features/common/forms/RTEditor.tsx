@@ -126,7 +126,7 @@ export const RTEditor = ({
             alignleft aligncenter bold italic charmap emoticons \
             | link unlink | image media \
             | removeformat | code help",
-    file_picker_types: "file image media",
+    file_picker_types: "image",
     file_picker_callback: (
       cb: Function
       /*
