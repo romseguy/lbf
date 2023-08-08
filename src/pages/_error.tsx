@@ -3,13 +3,13 @@ import { isMobile } from "react-device-detect";
 import { Layout } from "features/layout";
 import { useSession } from "hooks/useSession";
 
-function Error({ statusCode }: { statusCode: number }) {
+function Error({ statusCode, message }: { statusCode: number; message: string; }) {
   const { data: session } = useSession();
   return (
     <Layout isMobile={isMobile} pageTitle="Erreur">
       {`Une erreur ${
         statusCode ? `(${statusCode})` : ""
-      } est survenue, merci de contacter le créateur de cet outil.`}
+      } est survenue : ${message}`}
     </Layout>
   );
 }
@@ -17,7 +17,8 @@ function Error({ statusCode }: { statusCode: number }) {
 Error.getInitialProps = (ctx: NextPageContext) => {
   const { res, err } = ctx;
   const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
-  return { statusCode };
+  const message = err?.message || "aucun message d'erreur"
+  return { statusCode, message };
 };
 
 export default Error;

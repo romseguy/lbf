@@ -13,7 +13,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
@@ -36,18 +36,17 @@ import {
   isEvent,
   isOrg
 } from "models/Entity";
-import { IEvent } from "models/Event";
-import { IOrg, IOrgList } from "models/Org";
+import { IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
+import { ServerError } from "utils/errors";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicCategoryTag } from "./TopicCategoryTag";
+import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicsListItem } from "./TopicsListItem";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
-import { ServerError } from "utils/errors";
 
 export const TopicsList = ({
   query,
@@ -66,39 +65,89 @@ export const TopicsList = ({
   const router = useRouter();
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
-
-  //#region local state
   const [addSubscription] = useAddSubscriptionMutation();
   const addTopicNotifMutation = useAddTopicNotifMutation();
   const [deleteSubscription] = useDeleteSubscriptionMutation();
   const [deleteTopic] = useDeleteTopicMutation();
+
+  //#region local state
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const entity = query.data;
   const isE = isEvent(entity);
   const isO = isOrg(entity);
   const baseUrl = `/${
     isE ? entity.eventUrl : isO ? entity.orgUrl : entity._id
   }/discussions`;
-  const topicCategories = isE
-    ? entity.eventTopicCategories
-    : isO
-    ? entity.orgTopicCategories
-    : [];
+  const [selectedCategories, setSelectedCategories] = useState<string[]>();
+  const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
+  const topicCategories = useMemo(
+    () =>
+      isE ? entity.eventTopicCategories : isO ? entity.orgTopicCategories : [],
+    [entity]
+  );
+  const topics = useMemo(() => {
+    return (isE ? entity.eventTopics : isO ? entity.orgTopics : []).filter(
+      (topic: ITopic) => {
+        if (hasItems(selectedCategories) || hasItems(selectedLists)) {
+          let belongsToCategory = false;
+          let belongsToList = false;
 
-  const [currentTopic, setCurrentTopic] = useState<ITopic | null>(null);
+          if (
+            Array.isArray(selectedCategories) &&
+            selectedCategories.length > 0
+          ) {
+            if (
+              topic.topicCategory &&
+              selectedCategories.find(
+                (selectedCategory) => selectedCategory === topic.topicCategory
+              )
+            )
+              belongsToCategory = true;
+          }
+
+          if (isE || (isO && entity.orgUrl === "forum"))
+            return belongsToCategory;
+
+          if (Array.isArray(selectedLists) && selectedLists.length > 0) {
+            if (hasItems(topic.topicVisibility)) {
+              let found = false;
+
+              for (let i = 0; i < topic.topicVisibility.length; i++)
+                for (let j = 0; j < selectedLists.length; j++)
+                  if (selectedLists[j].listName === topic.topicVisibility[i])
+                    found = true;
+
+              if (found) belongsToList = true;
+            }
+          }
+
+          return belongsToCategory || belongsToList;
+        }
+
+        return true;
+      }
+    );
+  }, [entity, selectedCategories, selectedLists]);
+  const currentTopic = useMemo(() => {
+    if (!currentTopicName || !hasItems(topics)) return null;
+
+    const topic = topics.find(
+      (topic) => normalize(topic.topicName) === normalize(currentTopicName)
+    );
+
+    return topic || null;
+  }, [currentTopicName, topics]);
+  const refs = useMemo(
+    () =>
+      topics.reduce((acc: Record<string, React.RefObject<any>>, value) => {
+        acc[value._id] = React.createRef();
+        return acc;
+      }, {}),
+    [topics]
+  );
   useEffect(() => {
-    if (!currentTopicName) {
-      setCurrentTopic(null);
-      return;
-    }
-
-    const topic =
-      topics.find(
-        (topic) => normalize(topic.topicName) === normalize(currentTopicName!)
-      ) || null;
-
-    if (topic) {
-      setCurrentTopic(topic);
-      const topicRef = refs[topic._id].current;
+    if (currentTopic) {
+      const topicRef = refs[currentTopic._id].current;
 
       if (topicRef)
         topicRef.scrollIntoView({
@@ -106,210 +155,165 @@ export const TopicsList = ({
           block: "start"
         });
     }
-  }, [currentTopicName]);
-
-  const [selectedCategories, setSelectedCategories] = useState<string[]>();
-  const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
-  const canDisplay = (topic: ITopic) => {
-    if (hasItems(selectedCategories) || hasItems(selectedLists)) {
-      let belongsToCategory = false;
-      let belongsToList = false;
-
-      if (Array.isArray(selectedCategories) && selectedCategories.length > 0) {
-        if (
-          topic.topicCategory &&
-          selectedCategories.find(
-            (selectedCategory) => selectedCategory === topic.topicCategory
-          )
-        )
-          belongsToCategory = true;
-      }
-
-      if (isE || (isO && entity.orgUrl === "forum")) return belongsToCategory;
-
-      if (Array.isArray(selectedLists) && selectedLists.length > 0) {
-        if (hasItems(topic.topicVisibility)) {
-          let found = false;
-
-          for (let i = 0; i < topic.topicVisibility.length; i++)
-            for (let j = 0; j < selectedLists.length; j++)
-              if (selectedLists[j].listName === topic.topicVisibility[i])
-                found = true;
-
-          if (found) belongsToList = true;
-        }
-      }
-
-      return belongsToCategory || belongsToList;
-    }
-
-    return true;
-  };
-
-  const topics = (
-    isE ? entity.eventTopics : isO ? entity.orgTopics : []
-  ).filter(canDisplay);
-
-  const refs = topics.reduce(
-    (acc: Record<string, React.RefObject<any>>, value) => {
-      acc[value._id] = React.createRef();
-      return acc;
-    },
-    {}
-  );
+  }, [currentTopic]);
   //#endregion
 
-  //#region loading state
-  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
-  useEffect(() => {
-    if (!query.isFetching) {
-      let newIsLoading = {};
-      Object.keys(isLoading).forEach((key) => {
-        isLoading[key] = false;
-      });
-      setIsLoading(newIsLoading);
-    }
-  }, [query.isFetching]);
-  //#endregion
-
-  //#region modal state
+  //#region topic modal state
   const [topicModalState, setTopicModalState] = useState<{
     isOpen: boolean;
     topic?: ITopic;
   }>({
     isOpen: false
   });
+  const onClose = useCallback(
+    () =>
+      setTopicModalState({
+        ...topicModalState,
+        isOpen: false,
+        topic: undefined
+      }),
+    [topicModalState]
+  );
+  const onAddClick = useCallback(() => {
+    if (!session) {
+      router.push("/login", "/login", { shallow: true });
+      return;
+    }
 
-  const onClose = () =>
-    setTopicModalState({
-      ...topicModalState,
-      isOpen: false,
-      topic: undefined
-    });
+    setTopicModalState({ ...topicModalState, isOpen: true });
+  }, [session, topicModalState]);
+  const onEditClick = useCallback(
+    (topic: ITopic) => {
+      setTopicModalState({
+        ...topicModalState,
+        isOpen: true,
+        topic
+      });
+    },
+    [topicModalState]
+  );
+  //#endregion
+
+  //#region notify modal state
   const [notifyModalState, setNotifyModalState] = useState<
     NotifModalState<ITopic>
   >({});
+  const onNotifClick = useCallback(
+    (topic: ITopic) => {
+      setNotifyModalState({
+        ...notifyModalState,
+        entity: topic
+      });
+    },
+    [notifyModalState]
+  );
   //#endregion
 
-  const onClick = (topic: ITopic, isCurrent: boolean) => {
+  //#region TopicsListItem handlers
+  const onClick = useCallback((topic: ITopic, isCurrent: boolean) => {
     const url = isCurrent
       ? baseUrl
       : `${baseUrl}/${normalize(topic.topicName)}`;
     router.push(url, url, { shallow: true });
-
-    //   refs[topic._id].current.scrollIntoView({
-    //     behavior: "smooth",
-    //     block: "start"
-    //   });
-  };
-
-  const onDeleteClick = async (topic: ITopic, isCurrent: boolean) => {
-    setIsLoading({
-      [topic._id]: true
-    });
-
-    try {
-      const deletedTopic = await deleteTopic(topic._id).unwrap();
-      query.refetch();
-      subQuery.refetch();
-      toast({
-        title: `${deletedTopic.topicName} a été supprimé !`,
-        status: "success"
-      });
-
-      if (isCurrent) {
-        router.push(baseUrl, baseUrl, { shallow: true });
-      }
-    } catch (error: ServerError | any) {
-      toast({
-        title:
-          error.data.message ||
-          `La discussion ${topic.topicName} n'a pas pu être supprimée`,
-        status: "error"
-      });
-    } finally {
-      setIsLoading({
-        [topic._id]: false
-      });
-    }
-  };
-
-  const onEditClick = (topic: ITopic) => {
-    setTopicModalState({
-      ...topicModalState,
-      isOpen: true,
-      topic
-    });
-  };
-
-  const onNotifClick = (topic: ITopic) => {
-    setNotifyModalState({
-      ...notifyModalState,
-      entity: topic
-    });
-  };
-
-  const onSubscribeClick = async (topic: ITopic, isSubbedToTopic: boolean) => {
-    setIsLoading({
-      [topic._id]: true
-    });
-
-    if (!subQuery.data || !isSubbedToTopic) {
+  }, []);
+  const onDeleteClick = useCallback(
+    async (topic: ITopic, isCurrent: boolean) => {
       try {
-        await addSubscription({
-          topics: [
-            {
-              topic: topic,
-              emailNotif: true,
-              pushNotif: true
-            }
-          ],
-          user: session?.user.userId
+        setIsLoading({
+          [topic._id]: true
         });
-
+        const deletedTopic = await deleteTopic(topic._id).unwrap();
         toast({
-          title: `Vous êtes abonné à la discussion ${topic.topicName}`,
+          title: `${deletedTopic.topicName} a été supprimé !`,
           status: "success"
         });
-      } catch (error) {
-        console.error(error);
+        query.refetch();
+        subQuery.refetch();
+        router.push(baseUrl, baseUrl, { shallow: true });
+      } catch (error: ServerError | any) {
         toast({
-          title: `Vous n'avez pas pu être abonné à la discussion ${topic.topicName}`,
+          title:
+            error.data.message ||
+            `La discussion ${topic.topicName} n'a pas pu être supprimée`,
           status: "error"
         });
+      } finally {
+        setIsLoading({
+          [topic._id]: false
+        });
       }
-    } else if (isSubbedToTopic) {
-      const unsubscribe = confirm(
-        `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
-      );
-
-      if (unsubscribe) {
+    },
+    []
+  );
+  const onSubscribeClick = useCallback(
+    async (topic: ITopic, isSubbedToTopic: boolean) => {
+      if (!subQuery.data || !isSubbedToTopic) {
         try {
-          await deleteSubscription({
-            subscriptionId: subQuery.data._id,
-            topicId: topic._id
+          setIsLoading({
+            [topic._id]: true
           });
-
+          await addSubscription({
+            topics: [
+              {
+                topic: topic,
+                emailNotif: true,
+                pushNotif: true
+              }
+            ],
+            user: session?.user.userId
+          });
           toast({
-            title: `Vous êtes désabonné de ${topic.topicName}`,
+            title: `Vous êtes abonné à la discussion ${topic.topicName}`,
             status: "success"
           });
+          subQuery.refetch();
         } catch (error) {
           console.error(error);
           toast({
-            title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
+            title: `Vous n'avez pas pu être abonné à la discussion ${topic.topicName}`,
             status: "error"
           });
+        } finally {
+          setIsLoading({
+            [topic._id]: false
+          });
+        }
+      } else if (isSubbedToTopic) {
+        const unsubscribe = confirm(
+          `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
+        );
+
+        if (unsubscribe) {
+          try {
+            setIsLoading({
+              [topic._id]: true
+            });
+            await deleteSubscription({
+              subscriptionId: subQuery.data._id,
+              topicId: topic._id
+            });
+            toast({
+              title: `Vous êtes désabonné de ${topic.topicName}`,
+              status: "success"
+            });
+            subQuery.refetch();
+          } catch (error) {
+            console.error(error);
+            toast({
+              title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
+              status: "error"
+            });
+          } finally {
+            setIsLoading({
+              [topic._id]: false
+            });
+          }
         }
       }
-    }
-
-    query.refetch();
-    subQuery.refetch();
-    setIsLoading({
-      [topic._id]: false
-    });
-  };
+    },
+    [session, subQuery]
+  );
+  //#endregion
 
   return (
     <>
@@ -318,14 +322,7 @@ export const TopicsList = ({
           colorScheme="teal"
           leftIcon={<AddIcon />}
           mb={5}
-          onClick={() => {
-            if (!session) {
-              router.push("/login", "/login", { shallow: true });
-              return;
-            }
-
-            setTopicModalState({ ...topicModalState, isOpen: true });
-          }}
+          onClick={onAddClick}
           data-cy="topic-add-button"
         >
           Ajouter une discussion
@@ -342,12 +339,9 @@ export const TopicsList = ({
             onSubmit={async (topic) => {
               query.refetch();
               subQuery.refetch();
-              const topicName = normalize(topic.topicName);
-              const baseUrl = `/${
-                isE ? entity.eventUrl : isO ? entity.orgUrl : entity._id
-              }/discussions`;
-              const url = `${baseUrl}/${topicName}`;
-              await router.push(url, url, { shallow: true });
+              // const topicName = normalize(topic.topicName);
+              // const url = `${baseUrl}/${topicName}`;
+              // await router.push(url, url, { shallow: true });
               onClose();
             }}
             onClose={onClose}

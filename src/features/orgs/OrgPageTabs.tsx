@@ -1,5 +1,6 @@
 import { CalendarIcon, QuestionIcon } from "@chakra-ui/icons";
 import {
+  Badge,
   Flex,
   Icon,
   Input,
@@ -13,6 +14,7 @@ import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FaImages, FaTools } from "react-icons/fa";
 import { css } from "twin.macro";
+import { useGetDocumentsQuery } from "features/api/documentsApi";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   Column,
@@ -24,7 +26,12 @@ import {
 import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
 import { ProjectsList } from "features/projects/ProjectsList";
-import { defaultTabs, IOrg, IOrgTabWithIcon, orgTypeFull } from "models/Org";
+import {
+  defaultTabs,
+  IOrg,
+  IOrgTabWithMetadata,
+  orgTypeFull
+} from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { sortOn } from "utils/array";
 import { Session } from "utils/auth";
@@ -67,7 +74,8 @@ export const OrgPageTabs = ({
 
   //#region tabs
   const org = orgQuery.data;
-  const tabs: IOrgTabWithIcon[] = useMemo(() => {
+  const documentsQuery = useGetDocumentsQuery({ orgId: org._id });
+  const tabs: IOrgTabWithMetadata[] = useMemo(() => {
     return [...(org.orgTabs || defaultTabs)]
       .filter((tab) => (tab.label === "" && !session ? false : true))
       .sort(
@@ -82,22 +90,24 @@ export const OrgPageTabs = ({
         const defaultTab = defaultTabs.find(
           (defaultTab) => defaultTab.label === tab.label
         );
+        const metadata: {} = {};
 
         if (defaultTab) {
           return {
             ...tab,
-            ...defaultTab
+            ...defaultTab,
+            ...metadata
           };
         }
 
-        return tab;
+        return { ...tab, ...metadata };
       });
   }, [org.orgTabs]);
   //#endregion
 
   //#region current tab index
   const getCurrentTabIndex = useCallback(
-    (tabs: IOrgTabWithIcon[]) => {
+    (tabs: IOrgTabWithMetadata[]) => {
       for (let tabIndex = 0; tabIndex <= tabs.length; tabIndex++) {
         const tab = tabs[tabIndex];
 
@@ -127,7 +137,7 @@ export const OrgPageTabs = ({
 
   //#region parameters TabPanel
   const [tabsState, setTabsState] = useState<
-    (IOrgTabWithIcon & { checked: boolean })[]
+    (IOrgTabWithMetadata & { checked: boolean })[]
   >(tabs.map((t) => ({ ...t, checked: true })));
   //#endregion
 
@@ -169,6 +179,32 @@ export const OrgPageTabs = ({
               data-cy={key}
             >
               {isMobile && tab.label === "" ? "Configuration" : tab.label}
+              {tab.url === "/galerie"
+                ? Array.isArray(documentsQuery.data) &&
+                  documentsQuery.data.length > 0 && (
+                    <Badge variant="solid" ml={1}>
+                      {documentsQuery.data.length}
+                    </Badge>
+                  )
+                : tab.url === "/evenements"
+                ? org.orgEvents.length > 0 && (
+                    <Badge variant="solid" ml={1}>
+                      {org.orgEvents.length}
+                    </Badge>
+                  )
+                : tab.url === "/discussions"
+                ? org.orgTopics.length > 0 && (
+                    <Badge variant="solid" ml={1}>
+                      {org.orgTopics.length}
+                    </Badge>
+                  )
+                : tab.url === "/projets"
+                ? org.orgProjects.length > 0 && (
+                    <Badge variant="solid" ml={1}>
+                      {org.orgProjects.length}
+                    </Badge>
+                  )
+                : ""}
             </EntityPageTab>
           );
         })}
@@ -196,7 +232,7 @@ export const OrgPageTabs = ({
         {!!tabs.find(({ label }) => label === "Discussions") && (
           <TabPanel aria-hidden>
             <EntityPageTopics
-              currentItemName={currentItemName}
+              currentTopicName={currentItemName}
               isCreator={isCreator}
               isFollowed={isFollowed}
               query={orgQuery}

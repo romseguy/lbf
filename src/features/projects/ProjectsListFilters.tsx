@@ -14,19 +14,18 @@ export const ProjectsListFilters = ({
   setSelectedStatuses,
   ...props
 }: SpaceProps & {
-  selectedStatuses: string[];
-  setSelectedStatuses: (selectedStatuses: string[]) => void;
+  selectedStatuses: EProjectStatus[];
+  setSelectedStatuses: React.Dispatch<React.SetStateAction<EProjectStatus[]>>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
   return (
     <Flex flexWrap="nowrap" overflowX="auto" {...props}>
-      {Object.keys(EProjectStatus).map((k) => {
-        const status = k as EProjectStatus;
+      {Object.keys(EProjectStatus).map((status: any) => {
         // const bgColor = Status[k].bgColor;
         const bgColor = "transparent";
-        const isSelected = selectedStatuses.includes(k);
+        const isSelected = selectedStatuses.includes(status);
 
         return (
           <Link
@@ -34,9 +33,9 @@ export const ProjectsListFilters = ({
             variant="no-underline"
             onClick={() => {
               setSelectedStatuses(
-                selectedStatuses.includes(k)
+                selectedStatuses.includes(status)
                   ? selectedStatuses.filter((sC) => sC !== status)
-                  : [k]
+                  : [status]
               );
             }}
           >
@@ -55,7 +54,7 @@ export const ProjectsListFilters = ({
               mr={1}
               whiteSpace="nowrap"
             >
-              {ProjectStatuses[status]}
+              {ProjectStatuses[status as EProjectStatus]}
             </Tag>
           </Link>
         );

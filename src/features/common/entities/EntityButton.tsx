@@ -1,6 +1,7 @@
 import { CalendarIcon, ChatIcon, LockIcon } from "@chakra-ui/icons";
 import {
   Button,
+  ButtonProps,
   Icon,
   StyleProps,
   ThemingProps,
@@ -24,6 +25,7 @@ import { ITopic } from "models/Topic";
 import { useRouter } from "next/router";
 
 export const EntityButton = ({
+  children,
   event,
   org,
   topic,
@@ -31,15 +33,14 @@ export const EntityButton = ({
   onClick,
   tooltipProps,
   ...props
-}: ThemingProps<"Button"> &
-  StyleProps & {
-    event?: Partial<IEvent<any>>;
-    org?: Partial<IOrg>;
-    topic?: ITopic;
-    user?: Partial<IUser>;
-    onClick?: null | (() => void);
-    tooltipProps?: Partial<TooltipProps>;
-  }) => {
+}: Omit<ButtonProps, "onClick"> & {
+  event?: Partial<IEvent<any>>;
+  org?: Partial<IOrg>;
+  topic?: ITopic;
+  user?: Partial<IUser>;
+  onClick?: null | (() => void);
+  tooltipProps?: Partial<TooltipProps>;
+}) => {
   if (!org && !event && !user && !topic) return null;
   const router = useRouter();
   let entityUrl = org
@@ -122,21 +123,22 @@ export const EntityButton = ({
           }}
           {...props}
         >
-          {topic
-            ? topic.topicName
-            : org
-            ? org.orgUrl === "forum"
-              ? "Forum"
-              : `${
-                  org.orgType === EOrgType.TREETOOLS
-                    ? OrgTypes[org.orgType] + " : "
-                    : ""
-                }${org.orgName}`
-            : event
-            ? event.eventName
-            : user
-            ? user.userName
-            : ""}
+          {children ||
+            (topic
+              ? topic.topicName
+              : org
+              ? org.orgUrl === "forum"
+                ? "Forum"
+                : `${
+                    org.orgType === EOrgType.TREETOOLS
+                      ? OrgTypes[org.orgType] + " : "
+                      : ""
+                  }${org.orgName}`
+              : event
+              ? event.eventName
+              : user
+              ? user.userName
+              : "")}
 
           {topic && topic.topicVisibility.includes("Abonnés") ? (
             <Icon as={IoIosPeople} ml={2} />

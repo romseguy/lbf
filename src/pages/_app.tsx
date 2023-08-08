@@ -49,7 +49,6 @@ App.getInitialProps = wrapper.getInitialAppProps(
       const cookies = headers?.cookie;
       let userAgent = headers?.["user-agent"];
       if (!userAgent && !isServer()) userAgent = navigator.userAgent;
-      //const isMobile = true;
       const isMobile =
         typeof userAgent === "string"
           ? getSelectorsByUserAgent(userAgent).isMobile
@@ -60,6 +59,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
 
       if (devSession && process.env.NODE_ENV === "development") {
         store.dispatch(setSession(devSession));
+        email = devSession.user.email;
       } else if (cookies) {
         const p = parse(cookies);
         console.log("App.getInitialProps: parsed cookies", p);

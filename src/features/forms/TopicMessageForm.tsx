@@ -6,7 +6,8 @@ import {
   useToast,
   Flex,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Skeleton
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/router";
@@ -52,9 +53,9 @@ export const TopicMessageForm = ({
   const [addTopic, addTopicMutation] = useAddTopicMutation();
 
   //#region local state
-  const [isLoading, setIsLoading] = useState(false);
-  const [topicMessageDefaultValue, setTopicMessageDefaultValue] =
-    useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+  // const [topicMessageDefaultValue, setTopicMessageDefaultValue] =
+  //   useState<string>("");
   //#endregion
 
   //#region form
@@ -70,8 +71,9 @@ export const TopicMessageForm = ({
     getValues,
     formState
   } = useFormPersist(
-    useForm({
-      mode: "onChange"
+    useForm<{ formErrorMessage: string; topicMessage: string }>({
+      mode: "onChange",
+      defaultValues: { topicMessage: "" }
     })
   );
   useLeaveConfirm({ formState });
@@ -184,14 +186,15 @@ export const TopicMessageForm = ({
           <Controller
             name="topicMessage"
             control={control}
-            defaultValue={topicMessageDefaultValue}
+            //defaultValue={topicMessageDefaultValue}
             rules={{ required: "Veuillez saisir un message" }}
             render={(renderProps) => {
               return (
                 <RTEditor
-                  defaultValue={topicMessageDefaultValue}
+                  //defaultValue={topicMessageDefaultValue}
                   value={renderProps.value}
                   placeholder={"Cliquez ici pour répondre..."}
+                  setIsLoading={setIsLoading}
                   onChange={({ html }) => {
                     renderProps.onChange(html);
                   }}

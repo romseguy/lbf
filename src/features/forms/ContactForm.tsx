@@ -43,7 +43,11 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
     setValue,
     formState,
     watch
-  } = useFormPersist(useForm());
+  } = useFormPersist(
+    useForm<{ formErrorMessage: string; email: string; message: string }>({
+      defaultValues: { message: "" }
+    })
+  );
 
   useLeaveConfirm({ formState });
 
@@ -107,12 +111,12 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
         <Controller
           name="message"
           control={control}
-          defaultValue=""
+          //defaultValue=""
           rules={{ required: "Veuillez saisir un message" }}
           render={(renderProps) => {
             return (
               <RTEditor
-                defaultValue={messageDefaultValue}
+                //defaultValue={messageDefaultValue}
                 placeholder="Écrire le message"
                 onChange={({ html }) => {
                   renderProps.onChange(html);

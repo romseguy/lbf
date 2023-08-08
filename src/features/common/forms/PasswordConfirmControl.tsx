@@ -25,7 +25,7 @@ export const PasswordConfirmControl = ({
   name: string;
   register: any;
   isRequired?: boolean;
-  password: React.MutableRefObject<{}>;
+  password: React.MutableRefObject<string | undefined>;
 }) => {
   const [passwordConfirmFieldType, setPasswordConfirmFieldType] =
     useState("password");

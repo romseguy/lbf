@@ -73,7 +73,7 @@ export const HeaderTitle = ({
   const heading = <Heading pr={1}>{name || pageTitle || ""}</Heading>;
 
   let icon: AppIcon | undefined;
-  let iconColor = banner ? "white" : isDark ? "green.200" : "green";
+  let iconColor = banner ? "white" : isDark ? "green.100" : "green";
 
   if (isE) {
     icon = entity.isApproved ? FaRegCalendarCheck : FaRegCalendarTimes;

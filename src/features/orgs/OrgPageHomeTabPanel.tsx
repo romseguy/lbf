@@ -167,6 +167,10 @@ export const OrgPageHomeTabPanel = ({
                                     {
                                       key: "orgName",
                                       label: `Nom de ${orgTypeFull(orgType)}`
+                                    },
+                                    {
+                                      key: "latestActivity",
+                                      label: "Dernier message"
                                     }
                                   ]
                                 : (orgType) => [
@@ -176,7 +180,11 @@ export const OrgPageHomeTabPanel = ({
                                       key: "orgName",
                                       label: `Nom de ${orgTypeFull(orgType)}`
                                     },
-                                    { key: "createdBy", label: "Créé par" }
+                                    //{ key: "createdBy", label: "Créé par" },
+                                    {
+                                      key: "latestActivity",
+                                      label: "Dernier message"
+                                    }
                                   ]
                             }
                             isMobile={isMobile}

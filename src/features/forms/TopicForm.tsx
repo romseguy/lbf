@@ -86,17 +86,22 @@ export const TopicForm = ({
     watch,
     formState
   } = useFormPersist(
-    useForm({
-      mode: "onChange"
+    useForm<{
+      topicName: string;
+      topicCategory: { label: string; value: string } | null;
+      topicMessage?: string;
+    }>({
+      mode: "onChange",
+      defaultValues: {
+        topicName: props.topic?.topicName,
+        topicCategory: topicCategory
+          ? { label: topicCategory.label, value: topicCategory.catId }
+          : null,
+        topicMessage: ""
+      }
     })
   );
   useLeaveConfirm({ formState });
-
-  // let topicMessageDefaultValue: string | undefined;
-  // const formData = localStorage.getItem("storageKey");
-  // if (formData) {
-  //   topicMessageDefaultValue = JSON.parse(formData).topicMessage;
-  // }
 
   const topicVisibility = watch("topicVisibility");
 
@@ -139,6 +144,8 @@ export const TopicForm = ({
           status: "success"
         });
 
+        // query.refetch();
+        // subQuery.refetch();
         setIsLoading(false);
         props.onSubmit && props.onSubmit(topic);
       } else {
@@ -167,6 +174,8 @@ export const TopicForm = ({
           status: "success"
         });
 
+        // query.refetch();
+        // subQuery.refetch();
         setIsLoading(false);
         props.onSubmit && props.onSubmit(newTopic);
       }
@@ -191,7 +200,6 @@ export const TopicForm = ({
             required: "Veuillez saisir l'objet de la discussion"
           })}
           autoComplete="off"
-          defaultValue={props.topic ? props.topic.topicName : ""}
           placeholder="Objet"
         />
         <FormErrorMessage>
@@ -204,12 +212,6 @@ export const TopicForm = ({
         <Controller
           name="topicCategory"
           control={control}
-          //defaultValue={null}
-          defaultValue={
-            topicCategory
-              ? { label: topicCategory.label, value: topicCategory.catId }
-              : null
-          }
           render={(renderProps) => {
             let value = renderProps.value;
 
@@ -325,11 +327,9 @@ export const TopicForm = ({
           <Controller
             name="topicMessage"
             control={control}
-            defaultValue={topicMessageDefaultValue}
             render={(renderProps) => {
               return (
                 <RTEditor
-                  defaultValue={topicMessageDefaultValue}
                   placeholder="Contenu de votre message"
                   onChange={({ html }) => {
                     renderProps.onChange(html);

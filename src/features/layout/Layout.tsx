@@ -55,12 +55,12 @@ export const Layout = ({
   banner,
   children,
   entity,
+  isMobile,
   logo,
   pageHeader,
   pageTitle,
   ...props
 }: LayoutProps) => {
-  const { isMobile } = props;
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -172,6 +172,7 @@ export const Layout = ({
 
         <Nav
           {...props}
+          isMobile={isMobile}
           title={title}
           borderTopRadius={isMobile ? 0 : undefined}
           m={isMobile ? 1 : 3}

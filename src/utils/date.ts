@@ -125,7 +125,11 @@ export const fullDateString = (date: Date) => {
   });
 };
 
-export const timeAgo = (date?: string | Date, isShort?: boolean) => {
+export const timeAgo = (
+  date?: string | Date,
+  isShort?: boolean,
+  format?: string[]
+) => {
   const end =
     typeof date === "string"
       ? parseISO(date)
@@ -138,16 +142,16 @@ export const timeAgo = (date?: string | Date, isShort?: boolean) => {
     end
   });
 
-  let format = formatArray;
-
-  if (isShort) {
-    if (duration.days === 0 && duration.hours && duration.hours > 0) {
-      format = formatArray.filter((f) => f === "hours");
-    }
-  }
-
   const formatted = formatDuration(duration, {
-    format
+    format: isShort
+      ? (format || formatArray).filter((f) =>
+          duration.days === 0 && duration.hours && duration.hours > 0
+            ? f === "hours"
+            : typeof duration.days === "number" && duration.days > 0
+            ? f === "days"
+            : f
+        )
+      : format || formatArray
   });
 
   return { timeAgo: formatted === "" ? "1m" : formatted, fullDate };

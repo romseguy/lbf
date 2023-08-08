@@ -11,7 +11,7 @@ import {
   IOrg,
   IOrgList,
   IOrgEventCategory,
-  IOrgTabWithIcon
+  IOrgTabWithMetadata
 } from "./IOrg";
 import { AppDispatch } from "store";
 
@@ -148,7 +148,7 @@ export const getSubscriptions = (org: IOrg, type: string) => {
 //#endregion
 
 //#region tabs
-export const defaultTabs: IOrgTabWithIcon[] = [
+export const defaultTabs: IOrgTabWithMetadata[] = [
   { label: "Accueil", icon: FaHome, url: "/accueil" },
   { label: "Discussions", icon: ChatIcon, url: "/discussions" },
   { label: "Événements", icon: CalendarIcon, url: "/evenements" },

@@ -10,13 +10,13 @@ import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 
 export const EntityPageTopics = ({
-  currentItemName,
+  currentTopicName,
   isCreator,
   isFollowed,
   query,
   subQuery
 }: {
-  currentItemName?: string;
+  currentTopicName?: string;
   isCreator: boolean;
   isFollowed: boolean;
   query: AppQueryWithData<IEntity>;
@@ -47,7 +47,7 @@ export const EntityPageTopics = ({
 
       <Column bg={isDark ? "gray.700" : "lightblue"}>
         <TopicsList
-          currentTopicName={currentItemName}
+          currentTopicName={currentTopicName}
           isCreator={isCreator}
           isFollowed={isFollowed}
           query={query}

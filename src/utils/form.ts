@@ -32,10 +32,10 @@ export const onCloseWithConfirm = ({
   onClose && onClose();
 };
 
-export const handleError = (
+export function handleError<T>(
   error: any,
-  setError: (message: string, field?: string) => void
-) => {
+  setError: (message: string, field?: keyof T) => void
+) {
   console.warn(error);
 
   const setFieldsErrors = (fields: any) => {
@@ -49,6 +49,7 @@ export const handleError = (
         setError(fields[key]);
       } else {
         const message = fields[key].message ? fields[key].message : fields[key];
+        //@ts-expect-error
         setError(message, key);
       }
     }
@@ -85,7 +86,7 @@ export const handleError = (
       setFieldsErrors(error);
     }
   }
-};
+}
 
 export function pickFile(onFilePicked: (file: File) => void): void {
   const inputElement = document.createElement("input");

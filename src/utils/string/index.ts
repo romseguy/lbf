@@ -85,6 +85,12 @@ export function sanitize(str: string) {
   });
 }
 
+export function toLowerCase(str?: string) {
+  if (!str) return "";
+
+  return str.toLowerCase();
+}
+
 export function toString(a: any): string {
   if (typeof a === "object" && a.toString) return a.toString();
 

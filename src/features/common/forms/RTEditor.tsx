@@ -1,7 +1,7 @@
 import { Spinner, useToast } from "@chakra-ui/react";
 import { Editor, IAllProps } from "@tinymce/tinymce-react";
 import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import type { Editor as TinyMCEEditor } from "tinymce";
 import { styled } from "twin.macro";
@@ -58,6 +58,7 @@ export const RTEditor = ({
   placeholder?: string;
   readOnly?: boolean;
   session?: Session | null;
+  setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
   height?: string;
   width?: string;
   value?: string;
@@ -71,7 +72,7 @@ export const RTEditor = ({
 
   //#region tinymce
   const editorRef = useRef<TinyMCEEditor | null>(null);
-  const closeToolbar = () => {
+  const closeToolbar = useCallback(() => {
     if (editorRef.current) {
       if (editorRef.current.queryCommandState("ToggleToolbarDrawer")) {
         try {
@@ -81,7 +82,7 @@ export const RTEditor = ({
         }
       }
     }
-  };
+  }, [editorRef]);
   const init: IAllProps["init"] = {
     //#region styling
     branding: false,
@@ -256,6 +257,7 @@ export const RTEditor = ({
           }}
           onInit={(evt, editor) => {
             setIsLoading(false);
+            props.setIsLoading && props.setIsLoading(false);
             editorRef.current = editor;
             const target = editor.contentDocument.documentElement;
 

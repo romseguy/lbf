@@ -2,14 +2,11 @@ import { HamburgerIcon } from "@chakra-ui/icons";
 import {
   Avatar,
   Box,
-  Button,
+  BoxProps,
   Flex,
-  FlexProps,
-  Image,
   Menu,
   MenuButton,
   Icon,
-  Tooltip,
   useColorMode,
   Drawer,
   DrawerBody,
@@ -26,9 +23,9 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
-import { FaKey, FaUser } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { Heading, Link, LoginButton } from "features/common";
+import { Heading, LoginButton } from "features/common";
 import {
   EventPopover,
   OrgPopover,
@@ -47,7 +44,7 @@ export const Nav = ({
   isMobile,
   title,
   ...props
-}: FlexProps & Partial<PageProps> & { title?: string }) => {
+}: BoxProps & Partial<PageProps> & { title?: string }) => {
   const { data: session } = useSession();
   const userName = session?.user.userName || "";
   const { colorMode } = useColorMode();

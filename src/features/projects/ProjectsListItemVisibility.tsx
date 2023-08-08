@@ -67,7 +67,7 @@ export const ProjectsListItemVisibility = ({
       {icons.map(({ label, icon }, index) => (
         <Tooltip key={index} label={label}>
           <span>
-            <Icon as={icon} boxSize={4} mr={1} />
+            <Icon as={icon} boxSize={4} />
           </span>
         </Tooltip>
       ))}

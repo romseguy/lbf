@@ -40,7 +40,7 @@ export const sendMail = async (mail: Mail, session?: Session | null) => {
       await transport.sendMail(mail);
     }
 
-    console.log(`sent event email notif to ${mail.to}`, mail);
+    console.log(`sent notif to ${mail.to}`, mail);
 
     if (session)
       await models.User.updateOne(
@@ -674,8 +674,7 @@ export const sendTopicMessageNotifications = async ({
 
   const entityName = event ? event.eventName : org?.orgName;
   const entityUrl = event ? event.eventUrl : org?.orgUrl;
-  const subject = `Nouveau commentaire sur la discussion : ${topic.topicName}`;
-  const type = event ? "l'événement" : "l'organisation";
+  const subject = `Nouvelle réponse à la discussion : ${topic.topicName}`;
   const url = getTopicUrl({ event, org, topic });
 
   for (const subscription of subscriptions) {
@@ -686,14 +685,10 @@ export const sendTopicMessageNotifications = async ({
 
     if (!email) continue;
 
-    let html = `<h1>${subject}</h1><p>Rendez-vous sur la page de ${type} <a href="${url}">${entityName}</a> pour lire la discussion.</p>
-    <p><a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}&topicId=${topic._id}">Se désabonner de cette discussion</a></p>
+    const html = `<h1>${subject}</h1><p><a href="${url}">Lire la réponse</a></p>
+    <p><a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}&topicId=${topic._id}">Se désabonner de la discussion</a></p>
     <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${entityName}</a>
     `;
-
-    if (entityName === "forum") {
-      html = `<h1>${subject}</h1><p>Rendez-vous sur le <a href="${url}">forum</a> pour lire la discussion.</p>`;
-    }
 
     const mail = {
       from: process.env.EMAIL_FROM,

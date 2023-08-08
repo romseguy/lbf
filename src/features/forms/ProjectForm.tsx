@@ -28,6 +28,12 @@ import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import { handleError } from "utils/form";
 
+type FieldValues = {
+  formErrorMessage: string;
+  projectName: string;
+  projectDescription: string;
+  projectStatus: EProjectStatus;
+};
 export const ProjectForm = ({
   org,
   ...props
@@ -62,8 +68,14 @@ export const ProjectForm = ({
     formState,
     setValue
   } = useFormPersist(
-    useForm({
-      mode: "onChange"
+    useForm<FieldValues>({
+      mode: "onChange",
+      defaultValues: {
+        projectName: props.project?.projectName || "",
+        projectDescription: props.project?.projectDescription || "",
+        projectStatus:
+          props.project?.projectStatus || EProjectStatus[EProjectStatus.PENDING]
+      }
     })
   );
   useLeaveConfirm({ formState });
@@ -125,7 +137,7 @@ export const ProjectForm = ({
       props.onSubmit && props.onSubmit(props.project || null);
     } catch (error) {
       setIsLoading(false);
-      handleError(error, (message, field) => {
+      handleError<FieldValues>(error, (message, field) => {
         if (field) {
           setError(field, { type: "manual", message });
         } else {
@@ -146,7 +158,6 @@ export const ProjectForm = ({
             required: "Veuillez saisir le nom du projet"
           })}
           autoComplete="off"
-          defaultValue={props.project && props.project.projectName}
           placeholder="Nom du projet"
         />
         <FormErrorMessage>
@@ -155,18 +166,13 @@ export const ProjectForm = ({
       </FormControl>
 
       <FormControl isInvalid={!!errors["projectDescription"]} mb={3}>
-        <FormLabel>Description du projet</FormLabel>
+        <FormLabel>Description (optionnel)</FormLabel>
         <Controller
           name="projectDescription"
           control={control}
-          defaultValue=""
           render={(renderProps) => {
             return (
               <RTEditor
-                defaultValue={
-                  props.project?.projectDescription ||
-                  projectDescriptionDefaultValue
-                }
                 placeholder="Description du projet"
                 onChange={({ html }) => {
                   renderProps.onChange(html);
@@ -185,10 +191,6 @@ export const ProjectForm = ({
           <FormLabel>Statut</FormLabel>
           <Select
             name="projectStatus"
-            defaultValue={
-              props.project?.projectStatus ||
-              EProjectStatus[EProjectStatus.PENDING]
-            }
             ref={register({
               required: "Veuillez sélectionner le statut du projet"
             })}
@@ -210,22 +212,22 @@ export const ProjectForm = ({
         </FormControl>
       )}
 
-      {org && props.isCreator && (
+      {/* {org && props.isCreator && (
         <ListsControl
           control={control}
           errors={errors}
           lists={org.orgLists}
           name="projectVisibility"
         />
-      )}
+      )} */}
 
-      {hasItems(projectVisibility) && (
+      {/* {hasItems(projectVisibility) && (
         <Alert status="info" mb={3}>
           <AlertIcon />
           Le projet ne sera visible que par les membres des listes
           sélectionnées.
         </Alert>
-      )}
+      )} */}
 
       <ErrorMessage
         errors={errors}

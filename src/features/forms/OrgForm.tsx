@@ -244,7 +244,7 @@ export const OrgForm = withGoogleApi({
     useEffect(() => {
       if (orgVisibility !== EOrgVisibility.PRIVATE) setIsPassword(false);
     }, [orgVisibility]);
-    const password = useRef({});
+    const password = useRef<string | undefined>();
     password.current = watch("orgPassword", "");
     const orgWeb = watch("orgWeb");
 

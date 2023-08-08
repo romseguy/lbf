@@ -10,6 +10,7 @@ import {
   Link,
   Spinner,
   Table,
+  Tbody,
   Tr,
   Td,
   Text,
@@ -124,12 +125,12 @@ export const TopicsListItem = forwardRef(
     );
     //#endregion
 
-    useEffect(() => {
-      if (ref && isCurrent && !isLoading) {
-        //@ts-expect-error
-        ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }, [ref, isCurrent, isLoading]);
+    // useEffect(() => {
+    //   if (ref && isCurrent && !isLoading) {
+    //     //@ts-expect-error
+    //     ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    //   }
+    // }, [ref, isCurrent, isLoading]);
 
     return (
       <Box ref={ref} {...props}>
@@ -166,83 +167,86 @@ export const TopicsListItem = forwardRef(
                   }
                 `}
               >
-                <Tr>
-                  <Td>
-                    <Box pos="relative">
-                      {isCurrent ? (
-                        <Icon
-                          as={FaFolderOpen}
-                          //alignSelf="center"
-                          boxSize={7}
-                          color={isDark ? "teal.200" : "teal"}
-                          mr={2}
-                        />
-                      ) : (
-                        <Icon
-                          as={FaFolder}
-                          boxSize={7}
-                          color={isDark ? "teal.200" : "teal"}
-                          mr={2}
-                        />
-                      )}
-                      {topic.topicMessages.length > 0 && (
-                        <Badge
-                          bgColor={isDark ? "teal.600" : "teal.100"}
-                          color={isDark ? "white" : "black"}
-                          pos="absolute"
-                          variant="solid"
-                          left={1}
-                        >
-                          {topic.topicMessages.length}
-                        </Badge>
-                      )}
-                    </Box>
-                  </Td>
+                <Tbody>
+                  <Tr>
+                    <Td>
+                      <Box pos="relative">
+                        {isCurrent ? (
+                          <Icon
+                            as={FaFolderOpen}
+                            //alignSelf="center"
+                            boxSize={7}
+                            color={isDark ? "teal.200" : "teal"}
+                            mr={2}
+                          />
+                        ) : (
+                          <Icon
+                            as={FaFolder}
+                            boxSize={7}
+                            color={isDark ? "teal.200" : "teal"}
+                            mr={2}
+                          />
+                        )}
+                        {topic.topicMessages.length > 0 && (
+                          <Badge
+                            bgColor={isDark ? "teal.600" : "teal.100"}
+                            color={isDark ? "white" : "black"}
+                            pos="absolute"
+                            variant="solid"
+                            left={1}
+                          >
+                            {topic.topicMessages.length}
+                          </Badge>
+                        )}
+                      </Box>
+                    </Td>
 
-                  <Td>
-                    {topic.topicCategory && (
-                      <Tooltip
-                        label={
-                          !hasCategorySelected
-                            ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
-                            : ""
-                        }
-                        hasArrow
-                      >
-                        <Button
-                          //alignSelf="flex-start"
-                          colorScheme={hasCategorySelected ? "pink" : "teal"}
-                          fontSize="small"
-                          fontWeight="normal"
-                          height="auto"
-                          mr={1}
-                          py={1}
-                          px={0}
-                          onClick={(e) => {
-                            e.stopPropagation();
-
-                            if (hasCategorySelected)
-                              setSelectedCategories(
-                                selectedCategories!.filter(
-                                  (category) => category !== topic.topicCategory
-                                )
-                              );
-                            else if (topic.topicCategory)
-                              setSelectedCategories([
-                                ...(selectedCategories || []),
-                                topic.topicCategory
-                              ]);
-                          }}
+                    <Td>
+                      {topic.topicCategory && (
+                        <Tooltip
+                          label={
+                            !hasCategorySelected
+                              ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
+                              : ""
+                          }
+                          hasArrow
                         >
-                          {topicCategoryLabel}
-                        </Button>
-                      </Tooltip>
-                    )}
-                    <Link variant="no-underline" fontWeight="bold">
-                      {topic.topicName}
-                    </Link>
-                  </Td>
-                </Tr>
+                          <Button
+                            //alignSelf="flex-start"
+                            colorScheme={hasCategorySelected ? "pink" : "teal"}
+                            fontSize="small"
+                            fontWeight="normal"
+                            height="auto"
+                            mr={1}
+                            py={1}
+                            px={0}
+                            onClick={(e) => {
+                              e.stopPropagation();
+
+                              if (hasCategorySelected)
+                                setSelectedCategories(
+                                  selectedCategories!.filter(
+                                    (category) =>
+                                      category !== topic.topicCategory
+                                  )
+                                );
+                              else if (topic.topicCategory)
+                                setSelectedCategories([
+                                  ...(selectedCategories || []),
+                                  topic.topicCategory
+                                ]);
+                            }}
+                          >
+                            {topicCategoryLabel}
+                          </Button>
+                        </Tooltip>
+                      )}
+                      <Link variant="no-underline" fontWeight="bold">
+                        {topic.topicName}
+                      </Link>
+                    </Td>
+                  </Tr>
+                </Tbody>
               </Table>
 
               <Flex

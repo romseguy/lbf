@@ -255,7 +255,7 @@ export const EventPage = ({
 
               <TabPanel aria-hidden>
                 <EntityPageTopics
-                  currentItemName={tabItem}
+                  currentTopicName={tabItem}
                   isCreator={isCreator}
                   isFollowed={isFollowed}
                   query={eventQuery}

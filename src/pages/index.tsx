@@ -36,7 +36,6 @@ const IndexPage = (props: PageProps) => {
 
   //#region local state
   const orgsQuery = useGetOrgsQuery(orgsQueryParams) as AppQuery<IOrg[]>;
-  console.log("🚀 ~ file: index.tsx:39 ~ IndexPage ~ orgsQuery:", orgsQuery);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isListOpen, setIsListOpen] = useState(true);
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
@@ -101,7 +100,7 @@ const IndexPage = (props: PageProps) => {
                       key: "orgName",
                       label: `Nom de ${orgTypeFull(orgType)}`
                     },
-                    { key: "latestMessage", label: "Dernier message" }
+                    { key: "latestActivity", label: "Dernière activité" }
                     //{ key: "createdBy", label: "Créé par" }
                   ]}
                   isMobile={props.isMobile}

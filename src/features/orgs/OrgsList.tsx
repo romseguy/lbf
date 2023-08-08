@@ -1,5 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import {
+  Badge,
   Box,
   Icon,
   IconButton,
@@ -23,6 +24,7 @@ import { MapModal } from "features/modals/MapModal";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { EOrgType, IOrg, orgTypeFull } from "models/Org";
 import { ISubscription } from "models/Subscription";
+import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
 import { timeAgo } from "utils/date";
 import { AppQuery } from "utils/types";
@@ -67,6 +69,9 @@ export const OrgsList = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  let { data, isLoading } = query;
+  if (!Array.isArray(data)) data = data?.orgs;
+  const keys = props.keys ? props.keys(orgType) : defaultKeys(orgType);
   const [orgToShow, setOrgToShow] = useState<IOrg | void>();
   const [selectedOrder, s] = useState<{ key: string; order: "asc" | "desc" }>();
   const setSelectedOrder = (key: string) => {
@@ -78,25 +83,30 @@ export const OrgsList = ({
     s({ key, order });
   };
 
-  let { data, isLoading } = query;
-  if (!Array.isArray(data)) data = data?.orgs;
-
   const orgsMetadata = useMemo(() => {
-    const record: Record<string, { latestMessage: Date }> = {};
+    const record: Record<
+      string,
+      { latestMessageCreatedAt: Date; latestTopic: ITopic }
+    > = {};
+
     if (!Array.isArray(data)) return record;
 
     for (const org of data) {
       for (const orgTopic of org.orgTopics) {
-        for (const orgTopicMessage of orgTopic.topicMessages) {
+        for (const orgTopicMessage of orgTopic.topicMessages || []) {
           const current = parseISO(orgTopicMessage.createdAt || "");
           const saved = record[org._id];
 
           if (!saved) {
-            record[org._id] = { latestMessage: current };
+            record[org._id] = {
+              latestMessageCreatedAt: current,
+              latestTopic: orgTopic
+            };
           } else {
             // if current date is before saved date
-            if (compareDesc(current, saved.latestMessage)) {
-              saved.latestMessage = current;
+            if (compareDesc(current, saved.latestMessageCreatedAt)) {
+              saved.latestMessageCreatedAt = current;
+              saved.latestTopic = orgTopic;
             }
           }
         }
@@ -105,18 +115,19 @@ export const OrgsList = ({
 
     return record;
   }, [data]);
+
   const orgs = useMemo(() => {
     if (!Array.isArray(data)) return [];
 
-    if (selectedOrder?.key === "latestMessage") {
+    if (selectedOrder?.key === "latestActivity") {
       const orgsWithMetadata = data
         .filter((org) => !!orgsMetadata[org._id])
         .sort((a, b) => {
           const compare =
             selectedOrder.order === "asc" ? compareDesc : compareAsc;
           return compare(
-            orgsMetadata[a._id].latestMessage,
-            orgsMetadata[b._id].latestMessage
+            orgsMetadata[a._id].latestMessageCreatedAt,
+            orgsMetadata[b._id].latestMessageCreatedAt
           );
         });
       const orgsWithoutMetadata = data.filter((org) => !orgsMetadata[org._id]);
@@ -146,8 +157,6 @@ export const OrgsList = ({
       return 0;
     });
   }, [data, selectedOrder]);
-
-  const keys = props.keys ? props.keys(orgType) : defaultKeys(orgType);
 
   return (
     <Box
@@ -201,7 +210,8 @@ export const OrgsList = ({
             orgs.map((org: IOrg) => {
               if (org.orgUrl === "forum") return;
 
-              const latestMessage = orgsMetadata[org._id]?.latestMessage;
+              const { latestMessageCreatedAt, latestTopic } =
+                orgsMetadata[org._id] || {};
 
               return (
                 <Tr key={`org-${org._id}`}>
@@ -258,7 +268,7 @@ export const OrgsList = ({
                       </Tooltip> */}
                       <EntityButton org={org} my={isMobile ? 2 : 0} />
 
-                      {org.orgCity && (
+                      {/* {org.orgCity && (
                         <Tooltip label="Afficher sur la carte" placement="top">
                           <IconButton
                             aria-label="Afficher sur la carte"
@@ -267,13 +277,25 @@ export const OrgsList = ({
                             onClick={() => setOrgToShow(org)}
                           />
                         </Tooltip>
-                      )}
+                      )} */}
                     </Td>
                   )}
 
-                  {keys.find(({ key }) => key === "latestMessage") && (
+                  {keys.find(({ key }) => key === "latestActivity") && (
                     <Td>
-                      {latestMessage ? timeAgo(latestMessage).timeAgo : ""}
+                      {latestTopic && (
+                        <EntityButton org={org} topic={latestTopic}>
+                          {latestTopic.topicName}
+                          <Badge
+                            bgColor={isDark ? "teal.600" : "teal.100"}
+                            color={isDark ? "white" : "black"}
+                            variant="solid"
+                            ml={1}
+                          >
+                            {timeAgo(latestMessageCreatedAt, true).timeAgo}
+                          </Badge>
+                        </EntityButton>
+                      )}
                     </Td>
                   )}
 

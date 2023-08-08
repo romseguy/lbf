@@ -57,11 +57,14 @@ export const TopicMessagesListItem = ({
   const { _id, createdBy, createdAt } = topicMessage;
   let message = "" + topicMessage.message;
   const isEditing =
-    Object.keys(isEdit).length > 0 && _id && isEdit[_id] && isEdit[_id].isOpen;
+    Object.keys(isEdit).length > 0 &&
+    typeof _id === "string" &&
+    isEdit[_id] &&
+    isEdit[_id].isOpen;
 
   if (!isEditing) {
     if (!message) message = "<i>Message vide.</i>";
-    else {
+    else if (isMobile && message.includes("href")) {
       const regex =
         /([^+>]*)[^<]*(<a [^>]*(href="([^>^\"]*)")[^>]*>)([^<]+)(<\/a>)/gi;
       let link;
@@ -70,12 +73,7 @@ export const TopicMessagesListItem = ({
         let text = link[5];
         let canCollapse = text.length > collapseLength;
         if (canCollapse) {
-          console.log("🚀 ~ file: TopicMessagesListItem.tsx:70 ~ text:", link);
           const shortText = "Ouvrir le lien";
-          console.log(
-            "🚀 ~ file: TopicMessagesListItem.tsx:75 ~ shortText:",
-            shortText
-          );
           message = message.replace(">" + text + "<", ">" + shortText + "<");
         }
       }
@@ -96,7 +94,7 @@ export const TopicMessagesListItem = ({
   const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt);
   //#endregion
 
-  if (_id && isEdit[_id] && isEdit[_id].isOpen)
+  if (typeof _id === "string" && isEdit[_id] && isEdit[_id].isOpen)
     return (
       <Flex flexDirection="column" pt={1} pb={3}>
         <RTEditor
@@ -150,12 +148,6 @@ export const TopicMessagesListItem = ({
         </Flex>
       </Flex>
     );
-
-  console.log(
-    "🚀 ~ file: TopicMessagesListItem.tsx:154 ~ TM:",
-    topicMessage.message
-  );
-  console.log("🚀 ~ file: TopicMessagesListItem.tsx:154 ~ message:", message);
 
   return (
     <Flex key={_id} pb={3} data-cy="topic-message">
@@ -221,10 +213,9 @@ export const TopicMessagesListItem = ({
             <span aria-hidden> · </span>
 
             <DeleteButton
+              isDisabled={query.isLoading || query.isFetching}
               isIconOnly
-              isLoading={
-                (_id && isLoading[_id]) || query.isLoading || query.isFetching
-              }
+              isLoading={typeof _id === "string" && isLoading[_id]}
               placement="bottom"
               header={<>Êtes vous sûr de vouloir supprimer ce message ?</>}
               onClick={async () => {

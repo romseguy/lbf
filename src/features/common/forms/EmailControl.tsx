@@ -48,7 +48,8 @@ export const EmailControl = ({
   label?: string;
   noLabel?: boolean;
   control?: any;
-  setValue?: (name: string, value: EmailControlValue | string) => void;
+  //setValue?: (name: string, value: EmailControlValue | string) => void;
+  setValue?: any;
   containerProps?: CSSObject;
   inputProps?: InputProps;
   isMultiple?: boolean;

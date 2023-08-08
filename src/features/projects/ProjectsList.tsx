@@ -36,7 +36,7 @@ import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
 import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
-import { sanitize } from "utils/string";
+import { sanitize, toLowerCase } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { ProjectAttendingForm } from "./ProjectAttendingForm";
 import { ProjectsListItemVisibility } from "./ProjectsListItemVisibility";
@@ -96,7 +96,9 @@ export const ProjectsList = ({
     key: "createdAt",
     order: "desc"
   });
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<EProjectStatus[]>(
+    []
+  );
   //#endregion
 
   //#region project
@@ -226,7 +228,10 @@ export const ProjectsList = ({
           <Spinner />
         ) : !projects.length ? (
           <Alert status="warning">
-            <AlertIcon /> Aucun projets.
+            <AlertIcon />{" "}
+            {`Aucun projets ${toLowerCase(
+              ProjectStatuses[selectedStatuses[0]]
+            )}.`}
           </Alert>
         ) : (
           projects.map((project, projectIndex) => {
@@ -318,15 +323,17 @@ export const ProjectsList = ({
                         ml={8}
                       >
                         <Tooltip label="Aller à la page de l'utilisateur">
-                          <Link
-                            href={`/${projectCreatedByUserName}`}
-                            _hover={{
-                              color: isDark ? "white" : "white",
-                              textDecoration: "underline"
-                            }}
-                          >
-                            {projectCreatedByUserName}
-                          </Link>
+                          <span>
+                            <Link
+                              href={`/${projectCreatedByUserName}`}
+                              _hover={{
+                                color: isDark ? "white" : "white",
+                                textDecoration: "underline"
+                              }}
+                            >
+                              {projectCreatedByUserName}
+                            </Link>
+                          </span>
                         </Tooltip>
 
                         <Box as="span" aria-hidden mx={1}>
@@ -354,6 +361,10 @@ export const ProjectsList = ({
                         <ProjectsListItemVisibility
                           org={org}
                           projectVisibility={projectVisibility}
+                          cursor="default"
+                          _hover={{
+                            color: isDark ? "white" : "white"
+                          }}
                         />
 
                         {/* <ProjectsListItemShare aria-label="Partager" project={project} /> */}

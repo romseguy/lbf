@@ -69,7 +69,7 @@ export interface IOrgTab {
   url?: string;
 }
 
-export interface IOrgTabWithIcon extends IOrgTab {
+export interface IOrgTabWithMetadata extends IOrgTab {
   icon?: AppIcon;
 }
 
