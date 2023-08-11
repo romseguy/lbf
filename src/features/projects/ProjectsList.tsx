@@ -150,9 +150,6 @@ export const ProjectsList = ({
       }
 
       if (deletedProject) {
-        // subQuery.refetch();
-        query.refetch();
-
         toast({
           title: `Le projet ${deletedProject.projectName} a été supprimé !`,
           status: "success"
@@ -231,7 +228,7 @@ export const ProjectsList = ({
             <AlertIcon />{" "}
             {`Aucun projets ${toLowerCase(
               ProjectStatuses[selectedStatuses[0]]
-            )}.`}
+            )}`}
           </Alert>
         ) : (
           projects.map((project, projectIndex) => {
@@ -587,8 +584,6 @@ export const ProjectsList = ({
             })
           }
           onSubmit={async (project) => {
-            query.refetch();
-            // subQuery.refetch();
             setProjectModalState({
               ...projectModalState,
               isOpen: false,

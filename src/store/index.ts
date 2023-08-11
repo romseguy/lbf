@@ -24,7 +24,7 @@ import { topicApi } from "features/api/topicsApi";
 //import { isServer } from "utils/isServer";
 //import { userApi } from "features/api/usersApi";
 
-const makeStore = () =>
+export const makeStore = () =>
   configureStore({
     reducer: {
       event,

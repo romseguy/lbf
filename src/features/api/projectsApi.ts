@@ -1,7 +1,6 @@
 import type { IProject } from "models/Project";
-import { createApi } from "@reduxjs/toolkit/query/react";
-import baseQuery from "utils/query";
 import { IProjectNotification } from "models/INotification";
+import { api } from "./";
 
 export type AddProjectPayload = Omit<
   IProject,
@@ -13,10 +12,7 @@ export interface AddProjectNotifPayload {
   email?: string;
 }
 
-export const projectApi = createApi({
-  reducerPath: "projectsApi",
-  baseQuery,
-  tagTypes: ["Projects"],
+export const projectApi = api.injectEndpoints({
   endpoints: (build) => ({
     addProject: build.mutation<IProject, AddProjectPayload>({
       query: (payload) => {
@@ -30,7 +26,17 @@ export const projectApi = createApi({
           body: payload
         };
       },
-      invalidatesTags: [{ type: "Projects", id: "LIST" }]
+      invalidatesTags: (result, error, params) => {
+        if (Array.isArray(result?.projectOrgs))
+          return [
+            {
+              type: "Orgs",
+              id: result?.projectOrgs[0]._id
+            }
+          ];
+
+        return [{ type: "Projects", id: "LIST" }];
+      }
     }),
     addProjectNotif: build.mutation<
       { notifications: IProjectNotification[] },
@@ -53,7 +59,18 @@ export const projectApi = createApi({
       }
     }),
     deleteProject: build.mutation<IProject, string>({
-      query: (projectId) => ({ url: `project/${projectId}`, method: "DELETE" })
+      query: (projectId) => ({ url: `project/${projectId}`, method: "DELETE" }),
+      invalidatesTags: (result, error, params) => {
+        if (Array.isArray(result?.projectOrgs))
+          return [
+            {
+              type: "Orgs",
+              id: result?.projectOrgs[0]._id
+            }
+          ];
+
+        return [{ type: "Topics", id: "LIST" }];
+      }
     }),
     editProject: build.mutation<
       IProject,
@@ -74,6 +91,17 @@ export const projectApi = createApi({
           method: "PUT",
           body: payload
         };
+      },
+      invalidatesTags: (result, error, params) => {
+        if (Array.isArray(result?.projectOrgs))
+          return [
+            {
+              type: "Orgs",
+              id: result?.projectOrgs[0]._id
+            }
+          ];
+
+        return [{ type: "Topics", id: "LIST" }];
       }
     })
   })
@@ -84,9 +112,4 @@ export const {
   useAddProjectNotifMutation,
   useDeleteProjectMutation,
   useEditProjectMutation
-} = projectApi;
-export const {
-  endpoints: {
-    /* getProjectByName, getProjects, getProjectsByCreator */
-  }
 } = projectApi;

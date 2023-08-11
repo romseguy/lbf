@@ -19,15 +19,17 @@ import React, { useMemo, useState } from "react";
 import { FaGlobeEurope, FaMapMarkedAlt, FaTree } from "react-icons/fa";
 import { css } from "twin.macro";
 import { EntityButton } from "features/common";
-import { scrollbarCss, tableCss } from "features/layout/theme";
+import { scrollbarCss } from "features/layout/theme";
 import { MapModal } from "features/modals/MapModal";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { EOrgType, IOrg, orgTypeFull } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
+import { selectIsMobile } from "store/uiSlice";
 import { timeAgo } from "utils/date";
 import { AppQuery } from "utils/types";
+import { useSelector } from "react-redux";
 
 const defaultKeys = (orgType: EOrgType) => [
   {
@@ -52,7 +54,6 @@ const iconProps = {
 };
 
 export const OrgsList = ({
-  isMobile,
   query,
   subQuery,
   orgType = EOrgType.NETWORK,
@@ -62,13 +63,13 @@ export const OrgsList = ({
     key: string;
     label: string;
   }[];
-  isMobile?: boolean;
   query: AppQuery<IOrg | IOrg[]>;
   subQuery?: AppQuery<ISubscription>;
   orgType?: EOrgType;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   let { data, isLoading } = query;
   if (!Array.isArray(data)) data = data?.orgs;
   const keys = props.keys ? props.keys(orgType) : defaultKeys(orgType);
@@ -165,7 +166,22 @@ export const OrgsList = ({
         ${scrollbarCss}
       `}
     >
-      <Table css={css(tableCss(isMobile))}>
+      <Table
+        colorScheme="teal"
+        css={css`
+          th {
+            font-size: ${isMobile ? "11px" : "inherit"};
+            padding: ${isMobile ? 0 : "4px"};
+          }
+          td {
+            padding: ${isMobile ? "8px 0" : "8px"};
+            padding-right: ${isMobile ? "4px" : "8px"};
+            button {
+              font-size: ${isMobile ? "13px" : "inherit"};
+            }
+          }
+        `}
+      >
         <Thead>
           <Tr>
             {keys.map(({ key, label }) => {
@@ -266,7 +282,10 @@ export const OrgsList = ({
                           </Link>
                         </span>
                       </Tooltip> */}
-                      <EntityButton org={org} my={isMobile ? 2 : 0} />
+                      <EntityButton
+                        org={org}
+                        backgroundColor={isDark ? "whiteAlpha.500" : undefined}
+                      />
 
                       {/* {org.orgCity && (
                         <Tooltip label="Afficher sur la carte" placement="top">
@@ -284,7 +303,13 @@ export const OrgsList = ({
                   {keys.find(({ key }) => key === "latestActivity") && (
                     <Td>
                       {latestTopic && (
-                        <EntityButton org={org} topic={latestTopic}>
+                        <EntityButton
+                          org={org}
+                          topic={latestTopic}
+                          backgroundColor={
+                            isDark ? "whiteAlpha.500" : undefined
+                          }
+                        >
                           {latestTopic.topicName}
                           <Badge
                             bgColor={isDark ? "teal.600" : "teal.100"}

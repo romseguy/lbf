@@ -73,24 +73,3 @@ export const scrollbarCss = `
     border-color: transparent transparent transparent #2c7a7b;
   }
 `;
-
-export const tableCss = (isMobile?: boolean) => `
-  th {
-    padding: ${isMobile ? 0 : "4px"};
-  }
-  td {
-    padding: ${isMobile ? 0 : "8px"};
-  }
-
-  /*
-  @media (max-width: ${breakpoints.sm}) {
-    td,
-    th {
-      padding: 2px;
-    }
-    td {
-      padding-right: 12px;
-    }
-  }
-  */
-`;

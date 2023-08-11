@@ -67,7 +67,6 @@ export const EntityNotifModal = <
 
   const { entity } = modalState;
   const onClose = () => {
-    query.refetch();
     setModalState({
       ...modalState,
       entity: undefined

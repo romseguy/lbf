@@ -6,6 +6,7 @@ import { ITopic } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
 import baseQuery, { objectToQueryString } from "utils/query";
 import { Optional } from "utils/types";
+import { api } from "./";
 
 //const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
 
@@ -32,11 +33,7 @@ export interface EditTopicPayload {
   topicMessageId?: string;
 }
 
-export const topicApi = createApi({
-  reducerPath: "topicsApi", // We only specify this because there are many services. This would not be common in most applications
-  //baseQuery: baseQueryWithRetry,
-  baseQuery,
-  tagTypes: ["Topics"],
+export const topicApi = api.injectEndpoints({
   endpoints: (build) => ({
     addTopic: build.mutation<
       ITopic,
@@ -53,7 +50,17 @@ export const topicApi = createApi({
           body: payload
         };
       },
-      invalidatesTags: [{ type: "Topics", id: "LIST" }]
+      invalidatesTags: (result, error, params) => {
+        if (params.payload.org?._id)
+          return [
+            {
+              type: "Orgs",
+              id: params.payload.org?._id
+            }
+          ];
+
+        return [{ type: "Topics", id: "LIST" }];
+      }
     }),
     addTopicNotif: build.mutation<
       { notifications: ITopicNotification[] },
@@ -76,7 +83,18 @@ export const topicApi = createApi({
       }
     }),
     deleteTopic: build.mutation<ITopic, string>({
-      query: (topicId) => ({ url: `topic/${topicId}`, method: "DELETE" })
+      query: (topicId) => ({ url: `topic/${topicId}`, method: "DELETE" }),
+      invalidatesTags: (result, error, params) => {
+        if (result?.org?._id)
+          return [
+            {
+              type: "Orgs",
+              id: result?.org?._id
+            }
+          ];
+
+        return [{ type: "Topics", id: "LIST" }];
+      }
     }),
     editTopic: build.mutation<
       {},
@@ -96,6 +114,17 @@ export const topicApi = createApi({
           method: "PUT",
           body: payload
         };
+      },
+      invalidatesTags: (result, error, params) => {
+        if (params.payload.topic.org?._id)
+          return [
+            {
+              type: "Orgs",
+              id: params.payload.topic.org?._id
+            }
+          ];
+
+        return [{ type: "Topics", id: "LIST" }];
       }
     }),
     getTopics: build.query<
@@ -126,10 +155,4 @@ export const {
   useGetTopicsQuery
   // useGetTopicByNameQuery,
   // useGetTopicsByCreatorQuery
-} = topicApi;
-
-export const {
-  endpoints: {
-    /* getTopicByName, getTopics, getTopicsByCreator */
-  }
 } = topicApi;

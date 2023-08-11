@@ -3,15 +3,12 @@ import {
   Button,
   ButtonProps,
   Icon,
-  StyleProps,
-  ThemingProps,
   Tooltip,
   TooltipProps
 } from "@chakra-ui/react";
 import React from "react";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { IoIosPeople, IoIosPerson } from "react-icons/io";
-import { Link } from "features/common";
 import { IEvent } from "models/Event";
 import {
   IOrg,
@@ -81,36 +78,6 @@ export const EntityButton = ({
         <Button
           aria-hidden
           cursor={hasLink ? "pointer" : "default"}
-          leftIcon={
-            <Icon
-              as={
-                topic
-                  ? ChatIcon
-                  : org
-                  ? org.orgUrl === "forum"
-                    ? ChatIcon
-                    : org.orgType === EOrgType.NETWORK
-                    ? FaGlobeEurope
-                    : FaTree
-                  : event
-                  ? CalendarIcon
-                  : user
-                  ? IoIosPerson
-                  : ChatIcon
-              }
-              color={
-                topic
-                  ? "blue.500"
-                  : org
-                  ? org.orgType === EOrgType.NETWORK
-                    ? "blue.500"
-                    : "green.500"
-                  : event
-                  ? "green.500"
-                  : "blue.500"
-              }
-            />
-          }
           height="auto"
           m={0}
           p={1}
@@ -123,6 +90,36 @@ export const EntityButton = ({
           }}
           {...props}
         >
+          <Icon
+            as={
+              topic
+                ? ChatIcon
+                : org
+                ? org.orgUrl === "forum"
+                  ? ChatIcon
+                  : org.orgType === EOrgType.NETWORK
+                  ? FaGlobeEurope
+                  : FaTree
+                : event
+                ? CalendarIcon
+                : user
+                ? IoIosPerson
+                : ChatIcon
+            }
+            color={
+              topic
+                ? "blue.500"
+                : org
+                ? org.orgType === EOrgType.NETWORK
+                  ? "blue.500"
+                  : "green.500"
+                : event
+                ? "green.500"
+                : "blue.500"
+            }
+            mr={1}
+          />
+
           {children ||
             (topic
               ? topic.topicName

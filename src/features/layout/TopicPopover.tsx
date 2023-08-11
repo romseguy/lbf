@@ -4,9 +4,10 @@ import {
   BoxProps,
   IconButton,
   Popover,
+  PopoverProps,
   PopoverTrigger,
-  PopoverContent,
   PopoverBody,
+  PopoverContent,
   Select,
   Spinner,
   Text,
@@ -111,15 +112,11 @@ const TopicPopoverContent = ({
   >("showTopicsAdded");
   //#endregion
 
-  useEffect(() => {
-    topicsQuery.refetch();
-    myTopicsQuery.refetch();
-  }, []);
+  useEffect(() => {}, []);
   const refetchSubscription = useSelector(selectSubscriptionRefetch);
   useEffect(() => {
     if (refetchSubscription !== cachedRefetchSubscription) {
       cachedRefetchSubscription = refetchSubscription;
-      subQuery.refetch();
     }
   }, [refetchSubscription]);
 
@@ -293,8 +290,6 @@ const TopicPopoverContent = ({
                               subscriptionId: subQuery.data?._id || "",
                               topicId: topic._id
                             });
-                            subQuery.refetch();
-
                             toast({
                               title: `Vous êtes désabonné de ${topic.topicName}`,
                               status: "success"
@@ -366,33 +361,32 @@ const TopicPopoverContent = ({
 };
 
 export const TopicPopover = ({
-  boxSize,
+  isMobile,
   session,
   ...props
-}: BoxProps & {
+}: PopoverProps & {
+  isMobile: boolean;
   session: Session;
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[140, 15]} onClose={onClose}>
-        <PopoverTrigger>
-          <IconButton
-            aria-label="Discussions"
-            bg="transparent"
-            color={isOpen ? "cyan.600" : undefined}
-            _hover={{ bg: "transparent" }}
-            icon={<ChatIcon boxSize={boxSize} _hover={{ color: "cyan.600" }} />}
-            minWidth={0}
-            onClick={onOpen}
-            data-cy="topicPopover"
-          />
-        </PopoverTrigger>
-        <PopoverContent>
-          <TopicPopoverContent session={session} onClose={onClose} />
-        </PopoverContent>
-      </Popover>
-    </Box>
+    <Popover isLazy isOpen={isOpen} onClose={onClose} {...props}>
+      <PopoverTrigger>
+        <IconButton
+          aria-label="Discussions"
+          bg="transparent"
+          color={isOpen ? "cyan.600" : undefined}
+          _hover={{ bg: "transparent" }}
+          icon={<ChatIcon boxSize={6} _hover={{ color: "cyan.600" }} />}
+          p={3}
+          onClick={onOpen}
+          data-cy="topicPopover"
+        />
+      </PopoverTrigger>
+      <PopoverContent>
+        <TopicPopoverContent session={session} onClose={onClose} />
+      </PopoverContent>
+    </Popover>
   );
 };

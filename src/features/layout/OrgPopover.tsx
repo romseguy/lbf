@@ -1,7 +1,6 @@
 import {
-  Box,
-  BoxProps,
   Popover,
+  PopoverProps,
   PopoverBody,
   PopoverContent,
   PopoverFooter,
@@ -97,7 +96,6 @@ const OrgPopoverContent = ({
   useEffect(() => {
     if (refetchSubscription !== cachedRefetchSubscription) {
       cachedRefetchSubscription = refetchSubscription;
-      subQuery.refetch();
     }
   }, [refetchSubscription]);
 
@@ -206,45 +204,44 @@ const OrgPopoverContent = ({
 };
 
 export const OrgPopover = ({
-  boxSize,
+  isMobile,
   orgType = EOrgType.GENERIC,
   session,
   ...props
-}: BoxProps & {
+}: PopoverProps & {
+  isMobile: boolean;
   orgType?: EOrgType;
   session: Session;
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[140, 15]} onClose={onClose}>
-        <PopoverTrigger>
-          <IconButton
-            aria-label="Mes arbres"
-            bg="transparent"
-            color={isOpen ? "cyan.600" : undefined}
-            _hover={{ bg: "transparent" }}
-            icon={
-              <Icon
-                as={orgType === EOrgType.NETWORK ? FaGlobeEurope : FaTree}
-                boxSize={boxSize}
-                _hover={{ color: "cyan.600" }}
-              />
-            }
-            minWidth={0}
-            onClick={onOpen}
-            data-cy="org-popover-button"
-          />
-        </PopoverTrigger>
-        <PopoverContent>
-          <OrgPopoverContent
-            orgType={orgType}
-            session={session}
-            onClose={onClose}
-          />
-        </PopoverContent>
-      </Popover>
-    </Box>
+    <Popover isLazy isOpen={isOpen} onClose={onClose} {...props}>
+      <PopoverTrigger>
+        <IconButton
+          aria-label="Mes arbres"
+          bg="transparent"
+          color={isOpen ? "cyan.600" : undefined}
+          _hover={{ bg: "transparent" }}
+          icon={
+            <Icon
+              as={orgType === EOrgType.NETWORK ? FaGlobeEurope : FaTree}
+              boxSize={6}
+              _hover={{ color: "cyan.600" }}
+            />
+          }
+          p={3}
+          onClick={onOpen}
+          data-cy="org-popover-button"
+        />
+      </PopoverTrigger>
+      <PopoverContent>
+        <OrgPopoverContent
+          orgType={orgType}
+          session={session}
+          onClose={onClose}
+        />
+      </PopoverContent>
+    </Popover>
   );
 };

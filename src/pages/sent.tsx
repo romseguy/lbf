@@ -7,7 +7,7 @@ const SentPage = (props: PageProps) => {
     <Layout {...props} pageTitle="Message envoyé">
       <Alert status="success">
         <AlertIcon />
-        Votre message a été envoyé. Je vous répondrai dès que possible. Merci !
+        Votre message a été envoyé. Nous vous répondrons dès que possible.
       </Alert>
     </Layout>
   );

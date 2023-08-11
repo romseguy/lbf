@@ -49,6 +49,7 @@ interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
   isDark: boolean;
   isLoading: boolean;
   query: AppQueryWithData<IEntity>;
+  setIsLoading: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   selectedCategories?: string[];
   setSelectedCategories: React.Dispatch<
     React.SetStateAction<string[] | undefined>
@@ -68,12 +69,13 @@ export const TopicsListItem = forwardRef(
       session,
       currentTopicName,
       isCreator,
-      isSubbedToTopic,
       isCurrent,
-      isTopicCreator,
       isDark,
       isLoading,
+      isSubbedToTopic,
+      isTopicCreator,
       query,
+      setIsLoading,
       selectedCategories,
       setSelectedCategories,
       topic,
@@ -480,12 +482,11 @@ export const TopicsListItem = forwardRef(
               >
                 <TopicMessageForm
                   query={query}
+                  isLoading={isLoading}
+                  setIsLoading={(bool) => setIsLoading({ [topic._id]: bool })}
                   topic={topic}
                   //formats={formats.filter((f) => f !== "size")}
                   isDisabled={topic.topicMessagesDisabled}
-                  onSubmit={() => {
-                    query.refetch();
-                  }}
                 />
               </GridItem>
             )}

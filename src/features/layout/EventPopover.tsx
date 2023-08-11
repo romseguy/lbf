@@ -6,9 +6,10 @@ import {
   Icon,
   IconButton,
   Popover,
+  PopoverProps,
+  PopoverTrigger,
   PopoverBody,
   PopoverContent,
-  PopoverTrigger,
   PopoverFooter,
   Select,
   Spinner,
@@ -88,7 +89,6 @@ const EventPopoverContent = ({
   useEffect(() => {
     if (refetchSubscription !== cachedRefetchSubscription) {
       cachedRefetchSubscription = refetchSubscription;
-      subQuery.refetch();
     }
   }, [refetchSubscription]);
 
@@ -226,39 +226,44 @@ const EventPopoverContent = ({
 };
 
 export const EventPopover = ({
-  boxSize,
+  isMobile,
   session,
   ...props
-}: BoxProps & {
+}: PopoverProps & {
+  isMobile: boolean;
   session: Session;
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[140, 15]} onClose={onClose}>
-        <PopoverTrigger>
-          <IconButton
-            aria-label="Événements"
-            bg="transparent"
-            color={isOpen ? "cyan.600" : undefined}
-            _hover={{ bg: "transparent" }}
-            icon={
-              <Icon
-                as={CalendarIcon}
-                boxSize={boxSize}
-                _hover={{ color: "cyan.600" }}
-              />
-            }
-            minWidth={0}
-            onClick={onOpen}
-            data-cy="event-popover-button"
-          />
-        </PopoverTrigger>
-        <PopoverContent>
-          <EventPopoverContent session={session} onClose={onClose} />
-        </PopoverContent>
-      </Popover>
-    </Box>
+    <Popover
+      isLazy
+      isOpen={isOpen}
+      offset={[isMobile ? 0 : 140, 15]}
+      onClose={onClose}
+      {...props}
+    >
+      <PopoverTrigger>
+        <IconButton
+          aria-label="Événements"
+          bg="transparent"
+          color={isOpen ? "cyan.600" : undefined}
+          _hover={{ bg: "transparent" }}
+          icon={
+            <Icon
+              as={CalendarIcon}
+              boxSize={6}
+              _hover={{ color: "cyan.600" }}
+            />
+          }
+          p={3}
+          onClick={onOpen}
+          data-cy="event-popover-button"
+        />
+      </PopoverTrigger>
+      <PopoverContent>
+        <EventPopoverContent session={session} onClose={onClose} />
+      </PopoverContent>
+    </Popover>
   );
 };

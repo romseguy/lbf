@@ -19,12 +19,17 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
         const response = await api.client.get(url, {
           responseType: "arraybuffer"
         });
-        res.setHeader("Content-Type", `image/${getExtension(fileName)}`);
+
+        const img = Buffer.from(response.data, "binary").toString("base64");
+        //const img = Buffer.from(base64, 'base64');
+
         res.setHeader(
           "Content-Disposition",
           `attachment; filename=${fileName}`
         );
-        res.status(200).send(response.data);
+        res.setHeader("Content-Length", img.length);
+        res.setHeader("Content-Type", `image/${getExtension(fileName)}`);
+        res.status(200).end(img);
       } catch (error) {
         res.status(404).json(createServerError(error));
       }

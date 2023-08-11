@@ -17,7 +17,6 @@ export const TopicsListItemSubscribers = ({
 
   useEffect(() => {
     console.log("refetching topic subscribers", topic.topicName);
-    query.refetch();
   }, [isSubbedToTopic]);
 
   if (query.isLoading || query.isFetching) return <Spinner boxSize={4} />;

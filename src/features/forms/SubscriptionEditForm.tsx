@@ -311,8 +311,6 @@ export const SubscriptionEditForm = ({
         email: userEmail
       }).unwrap();
 
-      subQuery.refetch();
-
       if (!params?.silent)
         toast({
           title: `${

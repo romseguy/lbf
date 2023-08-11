@@ -22,7 +22,7 @@ export const getCategoryLabel = (
 export const getRefId = (entity: Record<string, any>, key?: string) => {
   const value = entity[key || "createdBy"];
 
-  if (typeof value === "object") return value._id;
+  if (typeof value === "object") return value?._id;
 
   return value;
 };

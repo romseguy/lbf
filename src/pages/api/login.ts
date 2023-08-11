@@ -44,7 +44,8 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
       const userToken = {
         email: data.email,
         userId: user._id,
-        userName: user.userName
+        userName: user.userName,
+        isAdmin: user.isAdmin
       };
 
       const token = await Iron.seal(userToken, process.env.SECRET, sealOptions);

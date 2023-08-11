@@ -30,6 +30,8 @@ interface TopicMessageFormProps extends ChakraProps {
   formats?: string[];
   isDisabled?: boolean;
   query: AppQueryWithData<IEntity>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   topic: ITopic;
   topicMessage?: ITopicMessage;
   onCancel?: () => void;
@@ -38,6 +40,8 @@ interface TopicMessageFormProps extends ChakraProps {
 
 export const TopicMessageForm = ({
   isDisabled,
+  isLoading,
+  setIsLoading,
   query,
   ...props
 }: TopicMessageFormProps) => {
@@ -53,7 +57,7 @@ export const TopicMessageForm = ({
   const [addTopic, addTopicMutation] = useAddTopicMutation();
 
   //#region local state
-  const [isLoading, setIsLoading] = useState(true);
+  //const [isLoading, setIsLoading] = useState(true);
   // const [topicMessageDefaultValue, setTopicMessageDefaultValue] =
   //   useState<string>("");
   //#endregion

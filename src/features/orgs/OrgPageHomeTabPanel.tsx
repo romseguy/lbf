@@ -187,7 +187,6 @@ export const OrgPageHomeTabPanel = ({
                                     }
                                   ]
                             }
-                            isMobile={isMobile}
                             query={orgQuery}
                             subQuery={subQuery}
                             orgType={EOrgType.GENERIC}

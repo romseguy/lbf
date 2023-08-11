@@ -111,8 +111,6 @@ export const SubscribePopover = ({
         email: email || userEmail
       }).unwrap();
 
-      query.refetch();
-      subQuery.refetch();
       setIsLoading(false);
       toast({
         status: "success",

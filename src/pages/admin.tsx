@@ -31,13 +31,14 @@ import {
   TabContainerHeader
 } from "features/common";
 import { Layout } from "features/layout";
+import { PageProps } from "main";
 import { handleError } from "utils/form";
 
 interface AdminFormState {
   networkLabel: string;
 }
 
-const AdminPage = () => {
+const AdminPage = ({ ...props }: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
@@ -87,7 +88,7 @@ const AdminPage = () => {
   };
 
   return (
-    <Layout pageTitle="Administration">
+    <Layout {...props} pageTitle="Administration">
       <Tabs
         background={isDark ? "black" : "lightcyan"}
         borderWidth={1}

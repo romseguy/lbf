@@ -44,12 +44,12 @@ export const OrgPage = ({
   //     isFirstLoad = false;
   //     return;
   //   }
-  //   if (!isFirstLoad) orgQuery.refetch();
   //   isFirstLoad = false;
   // }, [router.asPath]);
 
   //#region org
   const org = orgQuery.data;
+  console.log("🚀 ~ file: OrgPage.tsx:52 ~ org:", org);
   const isCreator =
     org.orgUrl === "nom_de_votre_planete" || // demo page
     session?.user.userId === getRefId(org) ||
@@ -57,7 +57,7 @@ export const OrgPage = ({
     false;
   const orgCreatedByUserName =
     typeof org.createdBy === "object"
-      ? org.createdBy.userName || org.createdBy._id
+      ? org.createdBy?.userName || org.createdBy?._id
       : org.createdBy;
   //#endregion
 

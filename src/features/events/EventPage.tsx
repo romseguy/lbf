@@ -66,7 +66,6 @@ export const EventPage = ({
       isFirstLoad = false;
       return;
     }
-    if (!isFirstLoad) eventQuery.refetch();
     isFirstLoad = false;
   }, [router.asPath]);
 

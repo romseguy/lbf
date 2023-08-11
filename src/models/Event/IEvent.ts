@@ -17,7 +17,8 @@ export enum EEventInviteStatus {
 
 export enum EEventVisibility {
   FOLLOWERS = "FOLLOWERS",
-  PUBLIC = "PUBLIC"
+  PUBLIC = "PUBLIC",
+  SUBSCRIBERS = "SUBSCRIBERS" // deprecated
 }
 
 export interface IEvent<T = string> extends IEntity {

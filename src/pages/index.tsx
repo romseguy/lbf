@@ -42,10 +42,6 @@ const IndexPage = (props: PageProps) => {
   const ref = useOnclickOutside(() => {
     if (isTooltipOpen) setIsTooltipOpen(false);
   });
-  const columnProps = {
-    maxWidth: "4xl",
-    m: "0 auto"
-  };
   //#endregion
 
   //#region modal
@@ -66,10 +62,15 @@ const IndexPage = (props: PageProps) => {
   //   if (!cachedUserEmail) cachedUserEmail = userEmail;
   //   else if (cachedUserEmail !== userEmail) {
   //     cachedUserEmail = userEmail;
-  //     subQuery.refetch();
   //   }
   // }, [userEmail]);
   //#endregion
+
+  const columnProps = {
+    maxWidth: "4xl",
+    m: "0 auto",
+    p: props.isMobile ? 2 : 3
+  };
 
   return (
     <Layout {...props} pageTitle="Tous les forums">
@@ -93,17 +94,16 @@ const IndexPage = (props: PageProps) => {
             </Button> */}
 
             {isListOpen && (
-              <Column bg={isDark ? "gray.700" : "white"}>
+              <Column bg={isDark ? "black" : "white"}>
                 <OrgsList
                   keys={(orgType) => [
                     {
                       key: "orgName",
-                      label: `Nom de ${orgTypeFull(orgType)}`
+                      label: `Nom`
                     },
                     { key: "latestActivity", label: "Dernière activité" }
                     //{ key: "createdBy", label: "Créé par" }
                   ]}
-                  isMobile={props.isMobile}
                   query={orgsQuery}
                   //subQuery={subQuery}
                 />

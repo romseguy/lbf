@@ -93,6 +93,3 @@ export const {
   useGetSettingQuery,
   useGetSettingsQuery
 } = settingApi;
-export const {
-  endpoints: {}
-} = settingApi;

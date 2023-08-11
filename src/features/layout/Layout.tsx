@@ -42,7 +42,7 @@ interface customWindow extends Window {
 
 declare const window: customWindow;
 
-export interface LayoutProps extends Partial<PageProps>, BoxProps {
+export interface LayoutProps extends PageProps, BoxProps {
   children: React.ReactNode | React.ReactNodeArray;
   banner?: Base64Image & { mode: "dark" | "light" };
   logo?: Base64Image;
@@ -192,12 +192,12 @@ export const Layout = ({
 
         <Box
           as="main"
-          bg={isDark ? "gray.700" : "lightblue"}
+          bg={isMobile ? "transparent" : isDark ? "gray.700" : "lightblue"}
           borderRadius="lg"
           flex="1 0 auto"
           m={isMobile ? 1 : 3}
           mt={0}
-          p={isMobile ? 3 : 5}
+          p={isMobile ? 0 : 5}
         >
           {children}
         </Box>

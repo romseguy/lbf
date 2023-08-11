@@ -138,8 +138,6 @@ export const OrgConfigSubscribersPanel = ({
             org={org}
             isSubscriptionLoading={isSubscriptionLoading}
             onSubmit={() => {
-              orgQuery.refetch();
-              subQuery.refetch();
               setIsAdd(false);
               toggleVisibility("subscribers", true);
               dispatch(refetchEvent());

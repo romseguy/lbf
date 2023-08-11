@@ -57,11 +57,11 @@ const subQueryParams = (email: string) => ({
   email
 });
 
-const HashPage = ({ ...props }: PageProps & { isLoading?: boolean }) => {
+const HashPage = ({ ...props }: PageProps) => {
   const router = useRouter();
   const { data: session } = useSession();
   const userEmail = useSelector(selectUserEmail);
-  const [isLoading, setIsLoading] = useState(props.isLoading && !!session);
+  //const [isLoading, setIsLoading] = useState(props.isLoading && !!session);
 
   //#region routing
   let [entityUrl, entityTab = "accueil", entityTabItem] =
@@ -103,16 +103,16 @@ const HashPage = ({ ...props }: PageProps & { isLoading?: boolean }) => {
   //#endregion
 
   //#region effects
-  useEffect(() => {
-    if (
-      props.isLoading ||
-      (orgQuery.data &&
-        !orgQuery.data._id &&
-        session?.user.userId === getRefId(orgQuery.data))
-    ) {
-      orgQuery.refetch();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (
+  //     props.isLoading ||
+  //     (orgQuery.data &&
+  //       !orgQuery.data._id &&
+  //       session?.user.userId === getRefId(orgQuery.data))
+  //   ) {
+  //     orgQuery.refetch()
+  //   }
+  // }, []);
   useEffect(
     function onNavigate() {
       if (entityUrl !== orgQueryParams.orgUrl) {
@@ -123,18 +123,18 @@ const HashPage = ({ ...props }: PageProps & { isLoading?: boolean }) => {
     },
     [entityUrl]
   );
-  useEffect(() => {
-    if (orgQuery.data?._id && isLoading) setIsLoading(false);
-  }, [orgQuery.data]);
+  // useEffect(() => {
+  //   if (orgQuery.data?._id && isLoading) setIsLoading(false);
+  // }, [orgQuery.data]);
   //#endregion
 
   //#region rendering
-  if (isLoading)
-    return (
-      <Layout>
-        <Spinner />
-      </Layout>
-    );
+  // if (isLoading)
+  //   return (
+  //     <Layout {...props}>
+  //       <Spinner />
+  //     </Layout>
+  //   );
 
   if (orgQueryStatus === 404 && orgQueryParams.orgUrl === "forum") {
     return (
@@ -206,7 +206,11 @@ const HashPage = ({ ...props }: PageProps & { isLoading?: boolean }) => {
   }
   //#endregion
 
-  return <NotFound {...props} />;
+  return (
+    <Layout {...props}>
+      <Spinner />
+    </Layout>
+  );
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(
@@ -257,7 +261,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
           await Promise.all(store.dispatch(userApiThunk()));
         }
       } else if (!org._id) {
-        return { props: { isLoading: true } };
+        //return { props: { isLoading: true } };
       }
 
       // if (typeof ctx.query.name[1] === "string") {

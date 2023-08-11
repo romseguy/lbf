@@ -153,7 +153,7 @@ export const TopicMessagesList = ({
                                   }
                                 }
                               }).unwrap();
-                              query.refetch();
+;
                               setIsEdit({
                                 ...isEdit,
                                 [_id]: { ...isEdit[_id], isOpen: false }
@@ -249,7 +249,7 @@ export const TopicMessagesList = ({
                               topicId: topic._id
                             }).unwrap();
 
-                            query.refetch();
+;
                             _id && setIsLoading({ [_id]: false });
                           } catch (error) {
                             // todo

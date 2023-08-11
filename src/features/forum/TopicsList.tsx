@@ -146,15 +146,14 @@ export const TopicsList = ({
     [topics]
   );
   useEffect(() => {
-    if (currentTopic) {
-      const topicRef = refs[currentTopic._id].current;
-
-      if (topicRef)
-        topicRef.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-    }
+    // if (currentTopic) {
+    //   const topicRef = refs[currentTopic._id].current;
+    //   if (topicRef)
+    //     topicRef.scrollIntoView({
+    //       behavior: "smooth",
+    //       block: "start"
+    //     });
+    // }
   }, [currentTopic]);
   //#endregion
 
@@ -227,8 +226,6 @@ export const TopicsList = ({
           title: `${deletedTopic.topicName} a été supprimé !`,
           status: "success"
         });
-        query.refetch();
-        subQuery.refetch();
         router.push(baseUrl, baseUrl, { shallow: true });
       } catch (error: ServerError | any) {
         toast({
@@ -266,7 +263,6 @@ export const TopicsList = ({
             title: `Vous êtes abonné à la discussion ${topic.topicName}`,
             status: "success"
           });
-          subQuery.refetch();
         } catch (error) {
           console.error(error);
           toast({
@@ -296,7 +292,6 @@ export const TopicsList = ({
               title: `Vous êtes désabonné de ${topic.topicName}`,
               status: "success"
             });
-            subQuery.refetch();
           } catch (error) {
             console.error(error);
             toast({
@@ -337,8 +332,6 @@ export const TopicsList = ({
             isFollowed={props.isFollowed}
             onCancel={onClose}
             onSubmit={async (topic) => {
-              query.refetch();
-              subQuery.refetch();
               // const topicName = normalize(topic.topicName);
               // const url = `${baseUrl}/${topicName}`;
               // await router.push(url, url, { shallow: true });
@@ -504,6 +497,7 @@ export const TopicsList = ({
                 isTopicCreator={isTopicCreator}
                 isDark={isDark}
                 isLoading={isLoading[topic._id] || query.isLoading}
+                setIsLoading={setIsLoading}
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
                 mb={topicIndex < topics.length - 1 ? 5 : 0}

@@ -44,7 +44,7 @@ export const Nav = ({
   isMobile,
   title,
   ...props
-}: BoxProps & Partial<PageProps> & { title?: string }) => {
+}: BoxProps & PageProps & { title?: string }) => {
   const { data: session } = useSession();
   const userName = session?.user.userName || "";
   const { colorMode } = useColorMode();
@@ -152,43 +152,18 @@ export const Nav = ({
           mb={isMobile ? 2 : 0}
         >
           <Tbody role="rowgroup">
-            <Tr role="rowheader">
+            {/* <Tr role="rowheader">
               <Td border={0} lineHeight="auto" p={0} pl={2}>
                 <Flex alignItems="center">
                   <Icon as={FaUser} boxSize={7} mr={2} />
                   <Heading>{session.user.userName}</Heading>
                 </Flex>
               </Td>
-            </Tr>
+            </Tr> */}
             <Tr role="row">
               <Td border={0} p={0}>
                 <Flex m={2}>
                   <>
-                    <Box {...popoverProps}>
-                      <OrgPopover
-                        boxSize={6}
-                        orgType={EOrgType.NETWORK}
-                        session={session}
-                        mx={3}
-                      />
-                    </Box>
-                    <Box {...popoverProps}>
-                      <OrgPopover boxSize={6} session={session} mx={3} />
-                    </Box>
-                    <Box {...popoverProps}>
-                      <EventPopover boxSize={6} session={session} mx={3} />
-                    </Box>
-                    <Box {...popoverProps}>
-                      <TopicPopover boxSize={6} session={session} mx={3} />
-                    </Box>
-                    <Box {...popoverProps}>
-                      <NotificationPopover
-                        boxSize={6}
-                        session={session}
-                        mx={3}
-                      />
-                    </Box>
-
                     <Menu>
                       {/* <Tooltip
                         label={`Connecté en tant que ${userEmail}`}
@@ -213,6 +188,39 @@ export const Nav = ({
                         userName={userName}
                       />
                     </Menu>
+
+                    <Box {...popoverProps} mx={isMobile ? 2 : 3}>
+                      <OrgPopover
+                        isMobile={isMobile}
+                        offset={[isMobile ? 110 : 140, 15]}
+                        orgType={EOrgType.NETWORK}
+                        session={session}
+                      />
+                    </Box>
+                    <Box {...popoverProps}>
+                      <OrgPopover
+                        isMobile={isMobile}
+                        offset={[isMobile ? 110 : 140, 15]}
+                        session={session}
+                      />
+                    </Box>
+                    <Box {...popoverProps}>
+                      <EventPopover isMobile={isMobile} session={session} />
+                    </Box>
+                    <Box {...popoverProps}>
+                      <TopicPopover
+                        isMobile={isMobile}
+                        offset={[isMobile ? -55 : 140, 15]}
+                        session={session}
+                      />
+                    </Box>
+                    <Box {...popoverProps} mr={0}>
+                      <NotificationPopover
+                        isMobile={isMobile}
+                        offset={[isMobile ? 100 : 140, 15]}
+                        session={session}
+                      />
+                    </Box>
                   </>
                 </Flex>
               </Td>

@@ -96,7 +96,6 @@ export const OrgConfigListsPanel = ({
               : addOrReplaceList(org, form)
         }
       }).unwrap();
-      //orgQuery.refetch();
       setIsAdd(false);
 
       if (listToEdit)

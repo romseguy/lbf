@@ -36,7 +36,8 @@ export const devSession =
     user: {
       email: "rom.seguy@lilo.org",
       userId: "60e340cb56ef290008d2e75d",
-      userName: "romain"
+      userName: "romain",
+      isAdmin: true
     }
   };
 // {

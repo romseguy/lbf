@@ -4,9 +4,10 @@ import {
   BoxProps,
   IconButton,
   Popover,
+  PopoverProps,
+  PopoverTrigger,
   PopoverBody,
   PopoverContent,
-  PopoverTrigger,
   Select,
   Spinner,
   Text,
@@ -262,30 +263,28 @@ const NotificationPopoverContent = ({ session }: { session: Session }) => {
 };
 
 export const NotificationPopover = ({
-  boxSize,
+  isMobile,
   session,
   ...props
-}: BoxProps & { session: Session }) => {
+}: PopoverProps & { isMobile: boolean; session: Session }) => {
   const { onOpen, onClose, isOpen } = useDisclosure();
 
   return (
-    <Box {...props}>
-      <Popover isLazy isOpen={isOpen} offset={[140, 15]} onClose={onClose}>
-        <PopoverTrigger>
-          <IconButton
-            aria-label="Notifications"
-            bg="transparent"
-            color={isOpen ? "cyan.600" : undefined}
-            _hover={{ bg: "transparent" }}
-            icon={<BellIcon boxSize={boxSize} _hover={{ color: "cyan.600" }} />}
-            minWidth={0}
-            onClick={onOpen}
-          />
-        </PopoverTrigger>
-        <PopoverContent>
-          <NotificationPopoverContent session={session} />
-        </PopoverContent>
-      </Popover>
-    </Box>
+    <Popover isLazy isOpen={isOpen} onClose={onClose} {...props}>
+      <PopoverTrigger>
+        <IconButton
+          aria-label="Notifications"
+          bg="transparent"
+          color={isOpen ? "cyan.600" : undefined}
+          _hover={{ bg: "transparent" }}
+          icon={<BellIcon boxSize={6} _hover={{ color: "cyan.600" }} />}
+          p={3}
+          onClick={onOpen}
+        />
+      </PopoverTrigger>
+      <PopoverContent>
+        <NotificationPopoverContent session={session} />
+      </PopoverContent>
+    </Popover>
   );
 };

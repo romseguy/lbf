@@ -81,7 +81,6 @@ export const ProjectAttendingForm = ({
       payload: { projectNotifications },
       projectId: project._id
     });
-    query.refetch();
   };
 
   const unattend = async () => {
@@ -110,7 +109,6 @@ export const ProjectAttendingForm = ({
       },
       projectId: project._id
     });
-    query.refetch();
   };
 
   return (

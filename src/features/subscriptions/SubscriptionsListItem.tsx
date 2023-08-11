@@ -189,9 +189,6 @@ export const SubscriptionsListItem = ({
                     orgId: org._id
                   });
                   dispatch(refetchEvent());
-                  orgQuery.refetch();
-                  subQuery.refetch();
-
                   setIsSubscriptionLoading({
                     ...isSubscriptionLoading,
                     [subscription._id]: false

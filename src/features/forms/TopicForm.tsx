@@ -144,8 +144,6 @@ export const TopicForm = ({
           status: "success"
         });
 
-        // query.refetch();
-        // subQuery.refetch();
         setIsLoading(false);
         props.onSubmit && props.onSubmit(topic);
       } else {
@@ -174,8 +172,6 @@ export const TopicForm = ({
           status: "success"
         });
 
-        // query.refetch();
-        // subQuery.refetch();
         setIsLoading(false);
         props.onSubmit && props.onSubmit(newTopic);
       }
