@@ -1,3 +1,6 @@
+// A proposal for cherry picking Icons from @react-icons/all-files automatically
+// https://github.com/react-icons/react-icons/issues/387
+
 const iconsPrefix = {
   ai: "Ai",
   bi: "Bi",

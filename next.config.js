@@ -3,6 +3,7 @@ const withPlugins = require("next-compose-plugins");
 const withCustomBabelConfigFile = require("next-plugin-custom-babel-config");
 const withPWA = require("next-pwa");
 //const withPreact = require("next-plugin-preact");
+//const withTwin = require('./withTwin.js')
 
 const {
   PHASE_DEVELOPMENT_SERVER,
@@ -11,6 +12,7 @@ const {
 
 let plugins = [
   //[withPreact],
+  //[withTwin],
   [
     withPWA,
     {
