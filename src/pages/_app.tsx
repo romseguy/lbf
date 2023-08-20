@@ -14,7 +14,7 @@ import { wrapper } from "store";
 import { setIsMobile } from "store/uiSlice";
 import { setUserEmail } from "store/userSlice";
 import { setSession } from "store/sessionSlice";
-import { devSession, getAuthToken, sealOptions, Session } from "utils/auth";
+import { devSession, getAuthToken, sealOptions, testSession } from "utils/auth";
 import { isServer } from "utils/isServer";
 
 interface AppProps {
@@ -24,6 +24,7 @@ interface AppProps {
 
 const App = wrapper.withRedux(
   ({ Component, cookies, pageProps }: NextAppProps<PageProps> & AppProps) => {
+    //if (process.env.NODE_ENV === "test") return <Component {...pageProps} />;
     return (
       <>
         <NextNprogress
@@ -60,7 +61,12 @@ App.getInitialProps = wrapper.getInitialAppProps(
       if (devSession && process.env.NODE_ENV === "development") {
         store.dispatch(setSession(devSession));
         email = devSession.user.email;
-      } else if (cookies) {
+      } /*else if (testSession && process.env.NODE_ENV === "test") {
+        console.log("🚀 ~ file: _app.tsx:64 ~ testSession:", testSession);
+
+        store.dispatch(setSession(testSession));
+        email = testSession.user.email;
+      }*/ else if (cookies) {
         const p = parse(cookies);
         console.log("App.getInitialProps: parsed cookies", p);
         const authToken = getAuthToken(p);

@@ -49,7 +49,6 @@ export const OrgPage = ({
 
   //#region org
   const org = orgQuery.data;
-  console.log("🚀 ~ file: OrgPage.tsx:52 ~ org:", org);
   const isCreator =
     org.orgUrl === "nom_de_votre_planete" || // demo page
     session?.user.userId === getRefId(org) ||
@@ -230,7 +229,7 @@ export const OrgPage = ({
               <Link variant="underline" href={`/${orgCreatedByUserName}`}>
                 {orgCreatedByUserName}
               </Link>{" "}
-              {isCreator && session && !session.user.isAdmin && "(Vous)"}
+              {isCreator && `(Vous ${session?.user.isAdmin && ": admin"})`}
             </Text>
           </Box>
 

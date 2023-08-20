@@ -1,13 +1,9 @@
 import type { ISubscription } from "models/Subscription";
-import { createApi } from "@reduxjs/toolkit/query/react";
-import baseQuery from "utils/query";
+import { api } from "./";
 
 export type AddSubscriptionPayload = Omit<ISubscription, "_id" | "createdBy">;
 
-export const subscriptionApi = createApi({
-  reducerPath: "subscriptionsApi",
-  baseQuery,
-  tagTypes: ["Subscriptions"],
+export const subscriptionApi = api.injectEndpoints({
   endpoints: (build) => ({
     addSubscription: build.mutation<ISubscription, AddSubscriptionPayload>({
       query: (payload) => {
@@ -21,7 +17,18 @@ export const subscriptionApi = createApi({
           body: payload
         };
       },
-      invalidatesTags: [{ type: "Subscriptions", id: "LIST" }]
+      invalidatesTags: (result, error) => {
+        if (!error) {
+          const id = result?._id;
+          if (id)
+            return [
+              { type: "Subscriptions", id: "LIST" },
+              { type: "Subscriptions", id }
+            ];
+        }
+
+        return [{ type: "Subscriptions", id: "LIST" }];
+      }
     }),
     deleteSubscription: build.mutation<
       ISubscription,
@@ -45,6 +52,16 @@ export const subscriptionApi = createApi({
           method: "DELETE",
           body: payload ? payload : { orgId, topicId }
         };
+      },
+      invalidatesTags: (result, error, params) => {
+        if (!error) {
+          //const email = params.email;
+          //console.log("🚀 ~ file: subscriptionsApi.ts:58 ~ email:", email);
+          //if (email) return [{ type: "Subscriptions", email }];
+          const id = params.subscriptionId || result?._id;
+          if (id) return [{ type: "Subscriptions", id }];
+        }
+        return [];
       }
     }),
     editSubscription: build.mutation<
@@ -71,12 +88,25 @@ export const subscriptionApi = createApi({
         return {
           url: `subscription/${email}${populate ? `?populate=${populate}` : ""}`
         };
-      }
+      },
+      providesTags: (result, error, params) => [
+        { type: "Subscriptions" as const, id: result?._id }
+      ]
     }),
     getSubscriptions: build.query<ISubscription[], { topicId?: string }>({
       query: ({ topicId }) => ({
         url: `subscriptions${topicId ? `?topicId=${topicId}` : ""}`
-      })
+      }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ _id }) => ({
+                type: "Subscriptions" as const,
+                id: _id
+              })),
+              { type: "Subscriptions", id: "LIST" }
+            ]
+          : [{ type: "Subscriptions", id: "LIST" }]
     })
     // getSubscription: build.query<ISubscription, string | undefined>({
     //   query: (string) => ({ url: `subscriptions/${string}` })

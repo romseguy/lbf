@@ -304,8 +304,7 @@ export const TopicsListItem = forwardRef(
                     <Box as="span" aria-hidden mx={1}>
                       ·
                     </Box>
-
-                    <Link
+                    {/* <Link
                       _hover={{
                         color: isDark ? "white" : "white",
                         textDecoration: "underline"
@@ -314,9 +313,9 @@ export const TopicsListItem = forwardRef(
                         e.stopPropagation();
                         onNotifClick(topic);
                       }}
-                    >
-                      {topic.topicNotifications.length} membre{s} invité{s}
-                    </Link>
+                    > */}
+                    {topic.topicNotifications.length} membre{s} invité{s}
+                    {/* </Link> */}
                   </>
                 )}
               </Flex>
@@ -483,7 +482,9 @@ export const TopicsListItem = forwardRef(
                 <TopicMessageForm
                   query={query}
                   isLoading={isLoading}
-                  setIsLoading={(bool) => setIsLoading({ [topic._id]: bool })}
+                  setIsLoading={(bool) => {
+                    setIsLoading({ [topic._id]: bool });
+                  }}
                   topic={topic}
                   //formats={formats.filter((f) => f !== "size")}
                   isDisabled={topic.topicMessagesDisabled}

@@ -25,6 +25,7 @@ const babelConfigEmotion = {
 const customJestConfig = {
   moduleDirectories: ["node_modules", "<rootDir>/src"],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  //setupFiles: ['<rootDir>/tests/utils.js'],
   testEnvironment: 'jest-environment-jsdom',
   globalSetup: '<rootDir>/tests/setupEnv.js',
   transform: {

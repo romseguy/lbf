@@ -35,25 +35,25 @@ export const makeStore = () =>
       subscription,
       ui,
       user,
-      [api.reducerPath]: api.reducer,
+      [api.reducerPath]: api.reducer
       //[documentApi.reducerPath]: documentApi.reducer,
       //[eventApi.reducerPath]: eventApi.reducer,
       //[orgApi.reducerPath]: orgApi.reducer,
-      [projectApi.reducerPath]: projectApi.reducer,
-      [settingApi.reducerPath]: settingApi.reducer,
-      [subscriptionApi.reducerPath]: subscriptionApi.reducer,
-      [topicApi.reducerPath]: topicApi.reducer
+      //[projectApi.reducerPath]: projectApi.reducer,
+      //[settingApi.reducerPath]: settingApi.reducer,
+      //[subscriptionApi.reducerPath]: subscriptionApi.reducer,
+      //[topicApi.reducerPath]: topicApi.reducer
       //[userApi.reducerPath]: userApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({ serializableCheck: false }).concat(
-        api.middleware,
+        api.middleware
+        //subscriptionApi.middleware
         //documentApi.middleware,
         //eventApi.middleware,
         //orgApi.middleware,
-        projectApi.middleware,
-        subscriptionApi.middleware,
-        topicApi.middleware
+        //projectApi.middleware,
+        //topicApi.middleware
         //userApi.middleware
       ),
     devTools: process.env.NODE_ENV !== "production"

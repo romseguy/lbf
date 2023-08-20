@@ -170,7 +170,7 @@ export const Nav = ({
                         placement="left"
                       >
                       </Tooltip> */}
-                      <MenuButton data-cy="avatar-button">
+                      <MenuButton aria-label="Menu" data-cy="avatar-button">
                         <Avatar
                           boxSize={12}
                           name={userName}
@@ -191,8 +191,9 @@ export const Nav = ({
 
                     <Box {...popoverProps} mx={isMobile ? 2 : 3}>
                       <OrgPopover
+                        label="Mes planètes"
                         isMobile={isMobile}
-                        offset={[isMobile ? 110 : 140, 15]}
+                        offset={[isMobile ? 80 : 140, 15]}
                         orgType={EOrgType.NETWORK}
                         session={session}
                       />
@@ -200,24 +201,28 @@ export const Nav = ({
                     <Box {...popoverProps}>
                       <OrgPopover
                         isMobile={isMobile}
-                        offset={[isMobile ? 110 : 140, 15]}
+                        offset={[isMobile ? 22 : 140, 15]}
                         session={session}
                       />
                     </Box>
                     <Box {...popoverProps}>
-                      <EventPopover isMobile={isMobile} session={session} />
+                      <EventPopover
+                        isMobile={isMobile}
+                        offset={[isMobile ? -32 : 140, 15]}
+                        session={session}
+                      />
                     </Box>
                     <Box {...popoverProps}>
                       <TopicPopover
                         isMobile={isMobile}
-                        offset={[isMobile ? -55 : 140, 15]}
+                        offset={[isMobile ? -86 : 140, 15]}
                         session={session}
                       />
                     </Box>
                     <Box {...popoverProps} mr={0}>
                       <NotificationPopover
                         isMobile={isMobile}
-                        offset={[isMobile ? 100 : 140, 15]}
+                        offset={[isMobile ? -141 : 140, 15]}
                         session={session}
                       />
                     </Box>

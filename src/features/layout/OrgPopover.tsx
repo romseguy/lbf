@@ -204,11 +204,13 @@ const OrgPopoverContent = ({
 };
 
 export const OrgPopover = ({
+  label = "Mes arbres",
   isMobile,
   orgType = EOrgType.GENERIC,
   session,
   ...props
 }: PopoverProps & {
+  label?: string;
   isMobile: boolean;
   orgType?: EOrgType;
   session: Session;
@@ -219,7 +221,7 @@ export const OrgPopover = ({
     <Popover isLazy isOpen={isOpen} onClose={onClose} {...props}>
       <PopoverTrigger>
         <IconButton
-          aria-label="Mes arbres"
+          aria-label={label}
           bg="transparent"
           color={isOpen ? "cyan.600" : undefined}
           _hover={{ bg: "transparent" }}

@@ -1,5 +1,6 @@
 import { ChatIcon, SunIcon } from "@chakra-ui/icons";
 import { Flex, Icon, useColorMode } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import {
   FaGlobeEurope,
@@ -33,6 +34,7 @@ export const HeaderTitle = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { data: session } = useSession();
 
   const isE = isEvent(entity);
@@ -159,6 +161,12 @@ export const HeaderTitle = ({
                     label: `Cet arbre a été planté sur la planète ${orgNetwork.orgName}`
                   }}
                   mb={index !== orgNetworks.length - 1 ? 3 : 0}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(orgNetwork.orgUrl, orgNetwork.orgUrl, {
+                      shallow: true
+                    });
+                  }}
                 />
               </Flex>
             ))}

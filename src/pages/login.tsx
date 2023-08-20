@@ -211,6 +211,7 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
 
                       <Button
                         colorScheme="green"
+                        isLoading={isLoggingIn}
                         isDisabled={
                           isLoggingIn || Object.keys(errors).length > 0
                         }

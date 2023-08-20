@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
@@ -47,6 +48,7 @@ import { TopicCategoryTag } from "./TopicCategoryTag";
 import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicsListItem } from "./TopicsListItem";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
+import { selectUserEmail } from "store/userSlice";
 
 export const TopicsList = ({
   query,
@@ -64,6 +66,7 @@ export const TopicsList = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session } = useSession();
+  const userEmail = useSelector(selectUserEmail);
   const toast = useToast({ position: "top" });
   const [addSubscription] = useAddSubscriptionMutation();
   const addTopicNotifMutation = useAddTopicNotifMutation();
@@ -210,6 +213,7 @@ export const TopicsList = ({
 
   //#region TopicsListItem handlers
   const onClick = useCallback((topic: ITopic, isCurrent: boolean) => {
+    if (!isCurrent) setIsLoading({ [topic._id]: true });
     const url = isCurrent
       ? baseUrl
       : `${baseUrl}/${normalize(topic.topicName)}`;

@@ -191,7 +191,7 @@ handler.delete<
         );
     }
 
-    if (body.orgs) {
+    if (Array.isArray(body.orgs) && body.orgs.length > 0) {
       const { orgId, type } = body.orgs[0];
       logJson(`DELETE /subscription/${subscriptionId}: orgId`, orgId);
 
@@ -288,7 +288,7 @@ handler.delete<
     }
     //#endregion
 
-    if (body.events) {
+    if (Array.isArray(body.events) && body.events.length > 0) {
       const { eventId } = body.events[0];
       logJson(`DELETE /subscription/${subscriptionId}: eventId`, eventId);
 

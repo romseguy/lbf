@@ -236,16 +236,10 @@ export const EventPopover = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Popover
-      isLazy
-      isOpen={isOpen}
-      offset={[isMobile ? 0 : 140, 15]}
-      onClose={onClose}
-      {...props}
-    >
+    <Popover isLazy isOpen={isOpen} onClose={onClose} {...props}>
       <PopoverTrigger>
         <IconButton
-          aria-label="Événements"
+          aria-label="Mes événements"
           bg="transparent"
           color={isOpen ? "cyan.600" : undefined}
           _hover={{ bg: "transparent" }}
