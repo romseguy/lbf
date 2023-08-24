@@ -429,7 +429,7 @@ export const OrgForm = withGoogleApi({
       >
         {Array.isArray(orgTrees) && orgTrees.length > 0 && (
           <>
-            <FormLabel>Forêt de la planète :</FormLabel>
+            <FormLabel>Forêt de la planète : </FormLabel>
             <List>
               {orgTrees.map((orgTree) => (
                 <ListItem key={orgTree._id}>
@@ -461,7 +461,7 @@ export const OrgForm = withGoogleApi({
         <FormLabel>
           {isEditConfig?.isAddingChild
             ? orgsPlaceholder + " :"
-            : "Forêt de la planète"}
+            : "Forêt de la planète (optionnel)"}
         </FormLabel>
 
         {myOrgsQuery.isLoading ? (
@@ -580,7 +580,7 @@ export const OrgForm = withGoogleApi({
 
     const DescriptionFormControl = (
       <FormControl isInvalid={!!errors["orgDescription"]} mb={3}>
-        <FormLabel>Description {orgTypeLabel}</FormLabel>
+        <FormLabel>Description {orgTypeLabel} (optionnel)</FormLabel>
         <Controller
           name="orgDescription"
           control={control}
@@ -638,7 +638,7 @@ export const OrgForm = withGoogleApi({
 
     const InfoFormControl = (
       <>
-        <FormLabel>Coordonnées {orgTypeFull(orgType)}</FormLabel>
+        <FormLabel>Coordonnées {orgTypeFull(orgType)} (optionnel)</FormLabel>
 
         <AddressControl
           name="orgAddress"
@@ -851,7 +851,7 @@ export const OrgForm = withGoogleApi({
 
         {orgType === EOrgType.NETWORK && (
           <Box {...formBoxProps(isDark)}>
-            <FormLabel>Politique {orgTypeFull(orgType)}</FormLabel>
+            <FormLabel>Politique {orgTypeFull(orgType)} (optionnel)</FormLabel>
 
             <Stack flexDirection="column" spacing={3}>
               <Switch

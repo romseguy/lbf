@@ -13,16 +13,16 @@ const {
 let plugins = [
   //[withPreact],
   //[withTwin],
-  [
-    withPWA,
-    {
-      pwa: {
-        dest: "public"
-        //runtimeCaching: require("next-pwa/cache")
-      }
-    },
-    [PHASE_PRODUCTION_BUILD]
-  ],
+  // [
+  //   withPWA,
+  //   {
+  //     pwa: {
+  //       dest: "public"
+  //       //runtimeCaching: require("next-pwa/cache")
+  //     }
+  //   },
+  //   [PHASE_PRODUCTION_BUILD]
+  // ],
   [
     withCustomBabelConfigFile,
     {

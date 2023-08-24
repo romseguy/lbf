@@ -4,6 +4,7 @@ import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
+const { getEnv } = require("utils/env");
 
 export const mainBackgroundColor = "#dcd0ff";
 export const textColor = "#444444";
@@ -110,7 +111,7 @@ export const createEventEmailNotif = ({
             </h2>
             <h3>
             ${
-              process.env.NODE_ENV === "production"
+              getEnv() === "production"
                 ? toDateRange(
                     addHours(eventMinDate, 2),
                     addHours(eventMaxDate, 2)

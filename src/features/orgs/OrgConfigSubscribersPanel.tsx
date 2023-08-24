@@ -14,7 +14,6 @@ import { SubscriptionsList } from "features/subscriptions/SubscriptionsList";
 import { IOrg, orgTypeFull2 } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { useAppDispatch } from "store";
-import { refetchEvent } from "store/eventSlice";
 import { hasItems } from "utils/array";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
@@ -140,7 +139,7 @@ export const OrgConfigSubscribersPanel = ({
             onSubmit={() => {
               setIsAdd(false);
               toggleVisibility("subscribers", true);
-              dispatch(refetchEvent());
+              //dispatch(refetchEvent());
             }}
           />
         </GridItem>

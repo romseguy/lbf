@@ -16,6 +16,7 @@ import { ITopic } from "models/Topic";
 import { TopicSchema } from "models/Topic/TopicSchema";
 import { IUser } from "models/User";
 import { UserSchema } from "models/User/UserSchema";
+const { getEnv } = require("utils/env");
 
 let cached = global.mongo;
 if (!cached) {
@@ -78,10 +79,11 @@ export default async function database(
     });
     cached.conn = await cached.promise;
 
-    if (process.env.NODE_ENV === "production") models = await modelsPromise;
+    if (getEnv() === "production") models = await modelsPromise;
   }
 
-  if (process.env.NODE_ENV === "development") models = await modelsPromise;
+  if (getEnv() === "development" || getEnv() === "test")
+    models = await modelsPromise;
 
   if (cached.conn?.db) db = cached.conn.db;
   // req.dbClient = cached.conn.client;

@@ -1,14 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { db } from "database";
+const { getEnv } = require("utils/env");
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
 handler.get<NextApiRequest, NextApiResponse>(async function resetDb(req, res) {
-  if (process.env.NODE_ENV === "production")
-    return res.status(404).send("Not Found");
+  if (getEnv() === "production") return res.status(404).send("Not Found");
 
   let collectionsToDrop: string[] | undefined;
 

@@ -1,6 +1,8 @@
 import 'cross-fetch/polyfill';
+import fetchMock from 'jest-fetch-mock';
 
-jest.setTimeout(60000)
+fetchMock.enableMocks();
+
 jest.mock('next/router', () => {
   const router = {
     asPath: "",

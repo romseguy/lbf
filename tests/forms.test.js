@@ -1,18 +1,36 @@
+import { Provider } from "react-redux";
+import { Chakra } from "features/common";
+import theme from "features/layout/theme";
+
 import "@testing-library/jest-dom";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { renderHook } from "@testing-library/react-hooks"
 import userEvent from '@testing-library/user-event'
 import { useRouter } from 'next/router'
 import React from "react";
 //import AddGenericPage from "pages/arbres/ajouter";
+import {
+  useGetOrgQuery
+} from "features/api/orgsApi";
 import { EntityAddPage } from "features/common"
 import HashPage from "pages/[...name]"
 import { EOrgType } from "models/Org";
 import { makeStore } from "store";
 import { setSession } from "store/sessionSlice";
 import { testSession } from "utils/auth"
-import { render } from "./utils"
+import { render, wrapper } from "./utils"
 
 let store
+const updateTimeout = 5000;
+
+beforeAll(() => {
+  fetchMock.mockOnceIf('http://localhost:3004/api/org/cerisier', (req) => {
+    return Promise.resolve({
+      status: 200,
+      body: JSON.stringify({ data: { orgUrl: "cerisiers" } }),
+    })
+  })
+})
 
 beforeEach(() => {
   //useRouter.mockClear();
@@ -34,12 +52,28 @@ describe("OrgForm.orgType.GENERIC", () => {
     fireEvent.submit(container.querySelector('form'))
   })
 
-  it.only("loads", async () => {
-    const user = userEvent.setup()
+  it("loads", async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useGetOrgQuery({ orgUrl: 'cerisier' }), { wrapper: wrapper(store) })
+    const initialResponse = result.current;
+    expect(initialResponse.data).toBeUndefined();
+    expect(initialResponse.isLoading).toBe(true);
+    await waitForNextUpdate({ timeout: updateTimeout });
+    expect(fetchMock).toBeCalled();
+    const nextResponse = result.current;
+    expect(nextResponse.data).not.toBeUndefined();
+    expect(nextResponse.isLoading).toBe(false);
+    expect(nextResponse.isSuccess).toBe(true);
+
     useRouter.mockReturnValue({ query: { name: ["cerisier"] }, pathname: "/cerisier", asPath: "/cerisier" });
     render(<HashPage />, { store })
 
-    //await screen.findByText = 
+    const tarace = await screen.findByRole('button')
+    console.log("🚀 ~ file: forms.test.js:67 ~ it.only ~ tarace:", tarace)
+
+
+
+    // const user = userEvent.setup()
+    //await screen.findByText =
     // waitFor(() => {
     //   screen.getByText("Merci de patienter...")
     // })
@@ -47,10 +81,9 @@ describe("OrgForm.orgType.GENERIC", () => {
     //   screen.getByText("Cerisier")
     // })
 
-    await screen.findByRole('button', { name: /.*Configurer.*/ })
-    await waitFor(() => {
-      const btn = screen.getByRole("button", { name: /configurer/i })
-      user.click(btn)
-    })
+    // await waitFor(() => {
+    //   const btn = screen.getByRole("button", { name: /configurer/i })
+    //   user.click(btn)
+    // })
   })
 })

@@ -23,6 +23,7 @@ import { subscriptionApi } from "features/api/subscriptionsApi";
 import { topicApi } from "features/api/topicsApi";
 //import { isServer } from "utils/isServer";
 //import { userApi } from "features/api/usersApi";
+const { getEnv } = require("utils/env");
 
 export const makeStore = () =>
   configureStore({
@@ -56,7 +57,7 @@ export const makeStore = () =>
         //topicApi.middleware
         //userApi.middleware
       ),
-    devTools: process.env.NODE_ENV !== "production"
+    devTools: getEnv() !== "production"
   });
 
 export const store = makeStore();
@@ -65,7 +66,7 @@ export const store = makeStore();
 //   getState?: typeof getState;
 // }
 // declare const window: customWindow;
-// if (!isServer() && process.env.NODE_ENV === "development") {
+// if (!isServer() && getEnv() === "development") {
 //   window.getState = getState;
 // }
 

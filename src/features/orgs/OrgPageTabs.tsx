@@ -392,7 +392,8 @@ export const OrgPageTabs = ({
 
 {
   /*
-    {process.env.NODE_ENV === "development" &&
+const { getEnv } = require("utils/env");
+    {getEnv() === "development" &&
       session?.user.isAdmin && (
           <Box mb={5}>
             <Button

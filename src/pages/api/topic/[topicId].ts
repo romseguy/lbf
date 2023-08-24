@@ -87,7 +87,8 @@ handler.post<
       try {
         await sendMail(mail);
       } catch (error: any) {
-        if (process.env.NODE_ENV === "development") {
+        const { getEnv } = require("utils/env");
+        if (getEnv() === "development") {
           if (error.command !== "CONN") {
             throw error;
           }

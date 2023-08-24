@@ -1,8 +1,10 @@
+// TODO: yarn add next@12
 // const nextJest = require("next/jest");
 // const createJestConfig = nextJest({
 //   // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
 //   dir: "./",
 // });
+// module.exports = createJestConfig(customJestConfig);
 
 const babelConfigEmotion = {
   presets: [
@@ -23,15 +25,14 @@ const babelConfigEmotion = {
 }
 
 const customJestConfig = {
+  globalSetup: './tests/setupEnv.js',
   moduleDirectories: ["node_modules", "<rootDir>/src"],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['./jest.setup.js'],
   //setupFiles: ['<rootDir>/tests/utils.js'],
   testEnvironment: 'jest-environment-jsdom',
-  globalSetup: '<rootDir>/tests/setupEnv.js',
   transform: {
     '^.+\\.(js|jsx|ts|tsx|mjs)$': ['babel-jest', babelConfigEmotion],
   },
 };
 
-//module.exports = createJestConfig(customJestConfig);
 module.exports = customJestConfig

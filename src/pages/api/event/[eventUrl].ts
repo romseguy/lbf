@@ -17,6 +17,7 @@ import { createServerError } from "utils/errors";
 import { createEventEmailNotif } from "utils/email";
 import { equals, logJson, normalize } from "utils/string";
 import { getRefId } from "models/Entity";
+const { getEnv } = require("utils/env");
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -193,7 +194,7 @@ handler.post<
       try {
         await sendMail(mail);
       } catch (error: any) {
-        if (process.env.NODE_ENV === "development") {
+        if (getEnv() === "development") {
           if (error.command !== "CONN") {
             throw error;
           }

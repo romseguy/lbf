@@ -1,6 +1,7 @@
 import Iron from "@hapi/iron";
 import { serialize } from "cookie";
 import { NextApiResponse } from "next";
+const { getEnv } = require("utils/env");
 
 export const TOKEN_NAME = "api_token";
 const MAX_AGE = 60 * 60 * 24 * 7;
@@ -9,7 +10,7 @@ function createCookie(name: string, data: string, options = {}) {
   return serialize(name, data, {
     maxAge: MAX_AGE,
     expires: new Date(Date.now() + MAX_AGE * 1000),
-    secure: process.env.NODE_ENV === "production",
+    secure: getEnv() === "production",
     path: "/",
     httpOnly: true,
     sameSite: "lax",

@@ -20,6 +20,7 @@ import { AutoCompletePlacesControl, Link } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 
 import { zIndex } from "utils/string";
+const { getEnv } = require("utils/env");
 
 type AddressControlValue = [{ address: string }] | null;
 
@@ -77,7 +78,7 @@ export const AddressControl = withGoogleApi({
 
     let isGoogleApiLoaded = loaded && !!props.google;
 
-    if (process.env.NODE_ENV === "development") {
+    if (getEnv() === "development") {
       if (loaded && !props.google) isGoogleApiLoaded = true;
     }
 

@@ -5,6 +5,11 @@ import { Chakra } from "features/common";
 import theme from "features/layout/theme";
 import { makeStore } from "store";
 
+export function wrapper(store) {
+  return ({ children }) => <Provider store={store}><Chakra theme={theme}>{children}</Chakra></Provider>;
+  //return <App Component={children} />;
+}
+
 export function render(
   ui,
   {
@@ -13,9 +18,5 @@ export function render(
     ...renderOptions
   } = {}
 ) {
-  function Wrapper({ children }) {
-    return <Provider store={store}><Chakra theme={theme}>{children}</Chakra></Provider>;
-    //return <App Component={children} />;
-  }
-  return { store, ...tlRender(ui, { wrapper: Wrapper, ...renderOptions }) };
+  return { store, ...tlRender(ui, { wrapper: wrapper(store), ...renderOptions }) };
 }

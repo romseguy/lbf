@@ -2,6 +2,7 @@ import { Switch, useToast } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useEditUserMutation, useGetUserQuery } from "features/api/usersApi";
 import { base64ToUint8Array } from "utils/string";
+const { getEnv } = require("utils/env");
 
 interface customWindow extends Window {
   workbox?: any;
@@ -81,13 +82,13 @@ export const SubscribeSwitch = ({
   useEffect(() => {
     (async function checkSubscription() {
       if (!userQuery.data) {
-        if (process.env.NODE_ENV === "production")
+        if (getEnv() === "production")
           console.warn("SubscribeSwitch.checkSubscription : no user");
         return;
       }
 
       if (!("serviceWorker" in navigator)) {
-        if (process.env.NODE_ENV === "production")
+        if (getEnv() === "production")
           console.warn(
             "SubscribeSwitch.checkSubscription : navigator.serviceWorker is missing"
           );
@@ -95,7 +96,7 @@ export const SubscribeSwitch = ({
       }
 
       if (!window.workbox) {
-        if (process.env.NODE_ENV === "production")
+        if (getEnv() === "production")
           console.warn(
             "SubscribeSwitch.checkSubscription : window.workbox is missing"
           );

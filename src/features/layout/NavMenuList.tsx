@@ -7,6 +7,7 @@ import { useAppDispatch } from "store";
 import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
 import { magic } from "utils/auth";
+const { getEnv } = require("utils/env");
 
 export const NavMenuList = ({
   email,
@@ -31,8 +32,7 @@ export const NavMenuList = ({
         cursor="default"
         _hover={{ bg: isDark ? "gray.700" : "white" }}
       />
-
-      {process.env.NODE_ENV === "development" && (
+      {getEnv() === "development" && (
         <>
           <MenuItem
             aria-hidden
@@ -48,7 +48,6 @@ export const NavMenuList = ({
           />
         </>
       )}
-
       <Link
         aria-hidden
         data-cy="my-page"
@@ -58,11 +57,9 @@ export const NavMenuList = ({
       >
         <MenuItem>Ma page</MenuItem>
       </Link>
-
       <MenuItem>
         <SubscribeSwitch email={email} userName={userName} />
       </MenuItem>
-
       <MenuItem>
         <Text
           onClick={async () => {

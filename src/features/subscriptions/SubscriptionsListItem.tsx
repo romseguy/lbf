@@ -10,7 +10,6 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { DeleteButton, Link } from "features/common";
-import { refetchEvent } from "store/eventSlice";
 import { getUser } from "features/api/usersApi";
 import { orgTypeFull } from "models/Org";
 import {
@@ -188,7 +187,7 @@ export const SubscriptionsListItem = ({
                     subscriptionId: subscription._id,
                     orgId: org._id
                   });
-                  dispatch(refetchEvent());
+                  //dispatch(refetchEvent());
                   setIsSubscriptionLoading({
                     ...isSubscriptionLoading,
                     [subscription._id]: false

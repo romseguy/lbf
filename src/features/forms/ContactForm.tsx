@@ -21,14 +21,13 @@ import api from "utils/api";
 import { handleError } from "utils/form";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import useFormPersist from "hooks/useFormPersist";
+const { getEnv } = require("utils/env");
 
 export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
   const router = useRouter();
 
   //#region local state
-  const [isDisabled, setIsDisabled] = useState(
-    process.env.NODE_ENV === "production"
-  );
+  const [isDisabled, setIsDisabled] = useState(getEnv() === "production");
   const [isLoading, setIsLoading] = useState(false);
   //#endregion
 

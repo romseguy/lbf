@@ -83,7 +83,11 @@ export const orgApi = api.injectEndpoints({
         console.groupEnd();
 
         return {
-          url: `org/${orgUrl}?${objectToQueryString(query)}`
+          url: `org/${orgUrl}${
+            Object.keys(query).length > 0
+              ? `?${objectToQueryString(query)}`
+              : ""
+          }`
         };
       },
       providesTags: (result, error, params) => [
@@ -100,7 +104,11 @@ export const orgApi = api.injectEndpoints({
         console.groupEnd();
 
         return {
-          url: `orgs${query ? `?${objectToQueryString(query)}` : ""}`
+          url: `orgs${
+            query && Object.keys(query).length > 0
+              ? `?${objectToQueryString(query)}`
+              : ""
+          }`
         };
       },
       providesTags: (result) =>

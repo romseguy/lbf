@@ -1,5 +1,12 @@
 import { ChevronRightIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import { Flex, useColorMode, useDisclosure } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  Flex,
+  Text,
+  useColorMode,
+  useDisclosure
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";
@@ -22,15 +29,20 @@ import { EOrgType, IOrg, orgTypeFull } from "models/Org";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
 import { wrapper } from "store";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 const orgsQueryParams = {
   orgType: EOrgType.NETWORK,
   populate: "orgs orgTopics createdBy"
 };
 
+const isCollapsable = false;
+
 const IndexPage = (props: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -143,41 +155,55 @@ const IndexPage = (props: PageProps) => {
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <Flex alignItems="center" mb={2}>
-          <Heading>Créez vos forums</Heading>
-          {isCollapsed ? (
-            <ChevronRightIcon boxSize={9} mt={2} />
-          ) : (
-            <ChevronUpIcon boxSize={9} mt={2} />
+          {isCollapsable && (
+            <>
+              {isCollapsed ? (
+                <ChevronRightIcon boxSize={9} mt={2} />
+              ) : (
+                <ChevronUpIcon boxSize={9} mt={2} />
+              )}
+            </>
           )}
+          <Heading>Une idée de forum ?</Heading>
         </Flex>
 
-        {!isCollapsed && (
+        {(!isCollapsed || !isCollapsable) && (
           <>
-            {!session && (
-              <Flex ref={ref}>
-                <LoginButton
-                  mb={3}
-                  mr={3}
-                  size={props.isMobile ? "xs" : undefined}
-                  onClick={() => {
-                    router.push("/login", "/login", { shallow: true });
-                  }}
-                >
-                  Connectez-vous à votre compte
-                </LoginButton>
-              </Flex>
-            )}
+            <Alert maxWidth={isMobile ? undefined : "50%"} status="info">
+              <AlertIcon />
 
-            <Flex>
-              <EntityAddButton
-                label="Ajoutez une planète"
-                orgType={EOrgType.NETWORK}
-                size="md"
-                mb={3}
-              />
-            </Flex>
+              {session ? (
+                <Flex flexDirection="column">
+                  Pour ajouter un forum au site, vous devez d'abord créer une
+                  planète :
+                  <EntityAddButton
+                    label="Ajoutez une planète"
+                    orgType={EOrgType.NETWORK}
+                    size="md"
+                    mt={3}
+                  />
+                </Flex>
+              ) : (
+                <Flex flexDirection="column">
+                  <Text>
+                    Pour ajouter un forum sur le site, vous devez d'abord vous
+                    connecter :
+                  </Text>
+                  <LoginButton
+                    mt={3}
+                    mr={3}
+                    size={props.isMobile ? "xs" : undefined}
+                    onClick={() => {
+                      router.push("/login", "/login", { shallow: true });
+                    }}
+                  >
+                    Se connecter
+                  </LoginButton>
+                </Flex>
+              )}
+            </Alert>
 
-            <Flex>
+            <Flex alignItems="center" mt={3}>
               <Link
                 href="a_propos"
                 variant="underline"
@@ -185,6 +211,7 @@ const IndexPage = (props: PageProps) => {
               >
                 En savoir plus
               </Link>
+              <ChevronRightIcon />
             </Flex>
           </>
         )}

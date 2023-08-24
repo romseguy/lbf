@@ -14,8 +14,9 @@ import { wrapper } from "store";
 import { setIsMobile } from "store/uiSlice";
 import { setUserEmail } from "store/userSlice";
 import { setSession } from "store/sessionSlice";
-import { devSession, getAuthToken, sealOptions, testSession } from "utils/auth";
+import { devSession, testSession, getAuthToken, sealOptions } from "utils/auth";
 import { isServer } from "utils/isServer";
+const { getEnv } = require("utils/env");
 
 interface AppProps {
   cookies?: string;
@@ -24,7 +25,7 @@ interface AppProps {
 
 const App = wrapper.withRedux(
   ({ Component, cookies, pageProps }: NextAppProps<PageProps> & AppProps) => {
-    //if (process.env.NODE_ENV === "test") return <Component {...pageProps} />;
+    //if (getEnv() === "test") return <Component {...pageProps} />;
     return (
       <>
         <NextNprogress
@@ -58,15 +59,15 @@ App.getInitialProps = wrapper.getInitialAppProps(
 
       let pageProps: AppProps["pageProps"] = { isMobile };
 
-      if (devSession && process.env.NODE_ENV === "development") {
+      if (devSession && getEnv() === "development") {
+        console.log("🚀 ~ file: _app.tsx:63 ~ devSession:", devSession);
         store.dispatch(setSession(devSession));
         email = devSession.user.email;
-      } /*else if (testSession && process.env.NODE_ENV === "test") {
-        console.log("🚀 ~ file: _app.tsx:64 ~ testSession:", testSession);
-
+      } else if (testSession && getEnv() === "test") {
+        console.log("🚀 ~ file: _app.tsx:67 ~ testSession:", testSession);
         store.dispatch(setSession(testSession));
         email = testSession.user.email;
-      }*/ else if (cookies) {
+      } else if (cookies) {
         const p = parse(cookies);
         console.log("App.getInitialProps: parsed cookies", p);
         const authToken = getAuthToken(p);

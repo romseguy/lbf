@@ -21,6 +21,7 @@ import {
   getTopicUrl
 } from "utils/email";
 import { equals, logJson } from "utils/string";
+const { getEnv } = require("utils/env");
 
 export const sendMail = async (mail: Mail, session?: Session | null) => {
   try {
@@ -35,7 +36,7 @@ export const sendMail = async (mail: Mail, session?: Session | null) => {
       }
     };
 
-    if (process.env.NODE_ENV === "production") {
+    if (getEnv() === "production") {
       const transport = nodemailer.createTransport(server);
       await transport.sendMail(mail);
     }
@@ -51,7 +52,7 @@ export const sendMail = async (mail: Mail, session?: Session | null) => {
     console.log("api/email/sendMail error");
     console.error(error);
 
-    if (process.env.NODE_ENV === "development") {
+    if (getEnv() === "development") {
       if (error.command === "CONN") {
         console.log(`sent email to ${mail.to}`, mail);
 
@@ -221,7 +222,7 @@ export const sendEventNotifications = async ({
             };
           } catch (error) {
             console.error(error);
-            if (process.env.NODE_ENV !== "production")
+            if (getEnv() !== "production")
               eventNotification = {
                 ...eventNotification,
                 user: subscription.user._id
@@ -353,7 +354,7 @@ export const sendProjectNotifications = async ({
           });
         } catch (error) {
           console.error(error);
-          if (process.env.NODE_ENV !== "production")
+          if (getEnv() !== "production")
             projectNotifications.push({
               ...projectNotification,
               user: subscription.user._id
@@ -434,7 +435,7 @@ export const sendProjectNotifications = async ({
           });
         } catch (error) {
           console.error(error);
-          if (process.env.NODE_ENV !== "production")
+          if (getEnv() !== "production")
             projectNotifications.push({
               ...projectNotification,
               user: subscription.user._id
@@ -560,7 +561,7 @@ export const sendTopicNotifications = async ({
           };
         } catch (error) {
           console.error(error);
-          if (process.env.NODE_ENV !== "production")
+          if (getEnv() !== "production")
             topicNotification = {
               ...topicNotification,
               user: subscription.user._id
@@ -639,7 +640,7 @@ export const sendTopicNotifications = async ({
           };
         } catch (error) {
           console.error(error);
-          if (process.env.NODE_ENV !== "production")
+          if (getEnv() !== "production")
             topicNotification = {
               ...topicNotification,
               user: subscription.user._id
@@ -739,9 +740,9 @@ export const sendToAdmin = async ({
     };
   }
 
-  if (process.env.NODE_ENV === "production") {
+  if (getEnv() === "production") {
     await sendMail(mail);
-  } else if (process.env.NODE_ENV === "development") {
+  } else if (getEnv() === "development") {
     console.log(`sent project email notif to ${mail.to}`, mail);
   }
 };

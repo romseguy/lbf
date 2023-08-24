@@ -9,7 +9,6 @@ import { setSession } from "store/sessionSlice";
 import { testSession } from "utils/auth"
 import { render } from "./utils"
 
-
 beforeEach(() => {
   const store = makeStore()
   store.dispatch(setSession(testSession))

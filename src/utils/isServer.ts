@@ -1,6 +1,8 @@
+const { getEnv } = require("utils/env");
+
 export const isServer = () => typeof window === "undefined";
 
-if (!isServer() && process.env.NODE_ENV === "production") {
+if (!isServer() && getEnv() === "production") {
   const CleanConsole = require("@eaboy/clean-console");
   CleanConsole.init({
     initialMessages: [

@@ -3,6 +3,7 @@ import { IncomingMessage } from "http";
 import { NextApiRequest } from "next";
 import { Base64Image } from "utils/image";
 import { getAuthToken, sealOptions } from "./";
+const { getEnv } = require("utils/env");
 
 type UserMetadata = {
   email: string;
@@ -21,7 +22,8 @@ export async function getSession(params: {
     | NextApiRequest
     | (IncomingMessage & { cookies: /*NextApiRequestCookies*/ any });
 }): Promise<Session | null> {
-  if (devSession && process.env.NODE_ENV === "development") return devSession;
+  if (devSession && getEnv() === "development") return devSession;
+  if (testSession && getEnv() === "test") return testSession;
   const cookies = params.req.cookies;
   const authToken = getAuthToken(cookies);
   if (!authToken) return null;
