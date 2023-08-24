@@ -1,6 +1,6 @@
-import Iron from "@hapi/iron";
 import { serialize } from "cookie";
 import { NextApiResponse } from "next";
+import * as Iron from "@hapi/iron";
 const { getEnv } = require("utils/env");
 
 export const TOKEN_NAME = "api_token";
@@ -17,7 +17,6 @@ function createCookie(name: string, data: string, options = {}) {
     ...options
   });
 }
-
 export function getAuthToken(cookies?: Record<string, string>) {
   if (!cookies) return "";
   return cookies[TOKEN_NAME];

@@ -47,7 +47,6 @@ module.exports = {
   presets: ["next/babel", "@emotion/babel-preset-css-prop"],
   plugins: [
     "babel-plugin-macros",
-    "@babel/plugin-transform-nullish-coalescing-operator",
     ...Object.keys(iconsPrefix).map((iconPrefix) => [
       "import",
       {

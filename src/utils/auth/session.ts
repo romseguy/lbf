@@ -1,9 +1,9 @@
-import Iron from "@hapi/iron";
+import { unseal } from "@hapi/iron";
 import { IncomingMessage } from "http";
 import { NextApiRequest } from "next";
+const { getEnv } = require("utils/env");
 import { Base64Image } from "utils/image";
 import { getAuthToken, sealOptions } from "./";
-const { getEnv } = require("utils/env");
 
 type UserMetadata = {
   email: string;
@@ -27,29 +27,29 @@ export async function getSession(params: {
   const cookies = params.req.cookies;
   const authToken = getAuthToken(cookies);
   if (!authToken) return null;
-  const user = await Iron.unseal(authToken, process.env.SECRET, sealOptions);
+  const user = await unseal(authToken, process.env.SECRET, sealOptions);
   if (!user) return null;
   return { user };
 }
 
 export const devSession =
   // admin
-  {
-    user: {
-      email: "rom.seguy@lilo.org",
-      userId: "60e340cb56ef290008d2e75d",
-      userName: "romain",
-      isAdmin: true
-    }
-  };
-// {
-//   user: {
-//     email: "rom.seguy@gmail.com",
-//     userId: "61138a879544b000088318ae",
-//     userName: "romseguy66"
-//   }
-// };
-null;
+  // {
+  //   user: {
+  //     email: "rom.seguy@lilo.org",
+  //     userId: "60e340cb56ef290008d2e75d",
+  //     userName: "romain",
+  //     isAdmin: true
+  //   }
+  // };
+  // {
+  //   user: {
+  //     email: "rom.seguy@gmail.com",
+  //     userId: "61138a879544b000088318ae",
+  //     userName: "romseguy66"
+  //   }
+  // };
+  null;
 
 export const testSession =
   // admin

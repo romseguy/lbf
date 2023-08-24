@@ -17,7 +17,6 @@
     "vapid": "web-push generate-vapid-keys"
   },
   "dependencies": {
-    "@babel/plugin-transform-nullish-coalescing-operator": "^7.22.11",
     "@chakra-ui/icons": "^1.0.13",
     "@chakra-ui/react": "1.7.1",
     "@chakra-ui/theme-tools": "^1.1.7",
@@ -28,7 +27,7 @@
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
     "@googlemaps/markerclustererplus": "^1.2.0",
-    "@hapi/iron": "^7.0.0",
+    "@hapi/iron": "5.1.4",
     "@hookform/error-message": "^2.0.0",
     "@magic-ext/oauth": "^2.1.1",
     "@magic-sdk/admin": "^1.4.1",

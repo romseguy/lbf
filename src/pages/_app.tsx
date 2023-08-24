@@ -1,4 +1,4 @@
-import Iron from "@hapi/iron";
+import { unseal } from "@hapi/iron";
 import { parse } from "cookie";
 import { AppProps as NextAppProps } from "next/app";
 import NextNprogress from "nextjs-progressbar";
@@ -74,11 +74,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
 
         if (authToken) {
           //console.log("App.getInitialProps: authToken", authToken);
-          const user = await Iron.unseal(
-            authToken,
-            process.env.SECRET,
-            sealOptions
-          );
+          const user = await unseal(authToken, process.env.SECRET, sealOptions);
 
           if (user) {
             store.dispatch(setSession({ user }));

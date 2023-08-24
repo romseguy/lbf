@@ -1,10 +1,10 @@
-import Iron from "@hapi/iron";
+import { seal } from "@hapi/iron";
 import { Magic } from "@magic-sdk/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "database";
 import { getCurrentId } from "store/utils";
-import { sealOptions, setTokenCookie } from "utils/auth";
+import { setTokenCookie, sealOptions } from "utils/auth";
 import { createServerError } from "utils/errors";
 import { normalize } from "utils/string";
 import { NextApiRequestWithAuthorizationHeader } from "utils/types";
@@ -48,7 +48,7 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
         isAdmin: user.isAdmin
       };
 
-      const token = await Iron.seal(userToken, process.env.SECRET, sealOptions);
+      const token = await seal(userToken, process.env.SECRET, sealOptions);
       setTokenCookie(res, token);
 
       res.status(200).json({ authenticated: true });
