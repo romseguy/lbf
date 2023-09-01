@@ -62,6 +62,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
       if (devSession && getEnv() === "development") {
         console.log("🚀 ~ file: _app.tsx:63 ~ devSession:", devSession);
         store.dispatch(setSession(devSession));
+        //@ts-expect-error
         email = devSession.user.email;
       } else if (testSession && getEnv() === "test") {
         console.log("🚀 ~ file: _app.tsx:67 ~ testSession:", testSession);

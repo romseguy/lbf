@@ -138,11 +138,11 @@ export const EventTimeline = ({
               left: -14px;
               top: 0;
               content: " ";
-              border: 8px solid rgba(255, 255, 255, 0.74);
+              border: 6px solid rgba(255, 255, 255, 0.74);
               border-radius: 500%;
               background: #3f4e58;
-              height: 25px;
-              width: 25px;
+              height: 15px;
+              width: 15px;
               transition: all 500ms ease-in-out;
             }
           }

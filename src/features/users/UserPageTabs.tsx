@@ -59,18 +59,17 @@ export const UserPageTabs = ({
       onChange={(index) => setCurrentTabIndex(index)}
     >
       <EntityPageTabList aria-hidden>
-        {Object.keys(tabs).map((name, tabIndex) => {
-          const { icon, url } = tabs[name];
-
+        {Object.keys(tabs).map((tabLabel, tabIndex) => {
+          const tab = tabs[tabLabel];
           return (
             <EntityPageTab
               key={`userTab-${tabIndex}`}
               currentTabIndex={currentTabIndex}
-              icon={icon}
+              tab={tab}
               tabIndex={tabIndex}
-              data-cy={`userTab-${name}`}
+              data-cy={`userTab-${tabLabel}`}
             >
-              {name}
+              {tabLabel}
             </EntityPageTab>
           );
         })}

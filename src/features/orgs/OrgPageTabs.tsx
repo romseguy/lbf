@@ -165,7 +165,7 @@ export const OrgPageTabs = ({
             <EntityPageTab
               key={key}
               currentTabIndex={currentTabIndex}
-              icon={tab.icon || QuestionIcon}
+              tab={tab}
               tabIndex={tabIndex}
               onClick={() => {
                 router.push(

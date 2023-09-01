@@ -9,32 +9,25 @@ import {
   Input,
   InputProps
 } from "@chakra-ui/react";
-import React, { ComponentType, useState } from "react";
+import React, { ComponentType, useEffect, useState } from "react";
 import { bytesForHuman } from "utils/string";
 
 export const FileInput = ({
   accept = "*",
   maxFileSize = 10,
   TableContainer,
-  value,
-  register,
-  name,
+  list,
+  setList,
   onChange,
   ...props
 }: InputProps & {
   maxFileSize?: number;
   TableContainer?: ComponentType<{ children: React.ReactNode }>;
-  register: any;
-  value?: FileList;
-  onChange?: (files: File[]) => void;
+  list: File[];
+  setList: React.Dispatch<React.SetStateAction<File[]>>;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) => {
   const toast = useToast({ position: "top" });
-  const [list, setList] = useState<File[]>(value ? Array.from(value) : []);
-
-  const triggerUpdate = () => {
-    setList(list.slice());
-    onChange && onChange(list);
-  };
 
   // const handleUp = (i: number) => {
   //   const temp = list[i];
@@ -51,8 +44,8 @@ export const FileInput = ({
   // };
 
   const handleDelete = (i: number) => {
-    list.splice(i, 1);
-    triggerUpdate();
+    const newList = list.filter((f, index) => index !== i);
+    setList(newList);
   };
 
   const table =
@@ -91,7 +84,13 @@ export const FileInput = ({
                 <Td>{bytesForHuman(item.size, 2)}</Td>
                 <Td>{item.type}</Td>
                 <Td>
-                  <button key={i + ":del"} onClick={(e) => handleDelete(i)}>
+                  <button
+                    key={i + ":del"}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDelete(i);
+                    }}
+                  >
                     {String.fromCharCode(10006)}
                   </button>
                 </Td>
@@ -112,21 +111,25 @@ export const FileInput = ({
 
       <Input
         {...props}
-        ref={register()}
-        name={name}
         type="file"
-        onChange={(e) => {
-          const files = e.target.files;
+        accept={accept}
+        onChange={(event) => {
+          onChange && onChange(event);
+          const files = event.target.files;
 
           if (files) {
+            //@ts-expect-error
+            let newList: File[] = [].concat(list);
+
             for (const file of Array.from(files)) {
               const fsMb = file.size / (1024 * 1024);
               if (fsMb > maxFileSize)
                 toast({ title: "Fichier trop volumineux", status: "error" });
-              else list.push(file);
+              else {
+                newList = newList.concat([file]);
+              }
             }
-
-            triggerUpdate();
+            setList(newList);
           }
         }}
       />

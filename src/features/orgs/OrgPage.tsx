@@ -49,6 +49,7 @@ export const OrgPage = ({
 
   //#region org
   const org = orgQuery.data;
+  console.log("🚀 ~ file: OrgPage.tsx:52 ~ org:", org);
   const isCreator =
     org.orgUrl === "nom_de_votre_planete" || // demo page
     session?.user.userId === getRefId(org) ||

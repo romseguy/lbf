@@ -1,36 +1,36 @@
+import { QuestionIcon } from "@chakra-ui/icons";
 import {
   chakra,
   Icon,
   //Tab,
   TabProps,
   useColorMode,
-  useStyles,
-  useTab
+  useTab,
+  useTabsStyles
 } from "@chakra-ui/react";
 import React from "react";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
-import { AppIcon } from "utils/types";
 
-//@ts-expect-error
 const Tab = chakra("button", { themeKey: "Tabs.Tab" });
 
 export const EntityPageTab = ({
   currentTabIndex,
-  icon,
+  tab,
   tabIndex,
   ...props
 }: TabProps & {
   children: React.ReactNode | React.ReactNodeArray;
   currentTabIndex: number;
-  icon: AppIcon;
+  tab: Record<string, any>;
   tabIndex: number;
   onClick?: () => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
-  const styles = useStyles();
+  const isCurrent = tabIndex === currentTabIndex;
+  const styles = useTabsStyles();
   const tabProps = useTab(props);
   const deviceProps = isMobile
     ? {
@@ -45,12 +45,12 @@ export const EntityPageTab = ({
     <Tab
       {...tabProps}
       {...deviceProps}
-      aria-selected={tabIndex === currentTabIndex}
+      aria-selected={isCurrent}
       __css={{
         ...styles.tab,
         display: "flex",
         alignItems: "center",
-        bg: isDark ? "gray.800" : "lightcyan",
+        bgColor: isCurrent ? undefined : isDark ? "gray.800" : "lightcyan",
         mt: 3,
         _focus: {
           boxShadow: "none"
@@ -58,7 +58,11 @@ export const EntityPageTab = ({
         _hover: { bg: "cyan.500" }
       }}
     >
-      <Icon as={icon} boxSize={5} mr={tabProps.children ? 2 : undefined} />
+      <Icon
+        as={tab.icon || QuestionIcon}
+        boxSize={5}
+        mr={!isMobile && tab.label === "" ? 0 : 2}
+      />
       {tabProps.children}
     </Tab>
   );

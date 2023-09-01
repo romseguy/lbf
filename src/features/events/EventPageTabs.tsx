@@ -73,7 +73,7 @@ export const EventPageTabs = ({
             <EntityPageTab
               key={key}
               currentTabIndex={currentTabIndex}
-              icon={tab.icon}
+              tab={tab}
               tabIndex={tabIndex}
               onClick={() => {
                 router.push(

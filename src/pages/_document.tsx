@@ -89,7 +89,7 @@ export default class Document extends NextDocument {
         </Head>
         <body>
           {/* Make Color mode to persists when you refresh the page. */}
-          <ColorModeScript /* nonce="Y9AUREZ" */ />
+          <ColorModeScript storageKey="lbf-cui" /* nonce="Y9AUREZ" */ />
           <Main />
           <NextScript />
         </body>

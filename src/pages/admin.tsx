@@ -123,7 +123,6 @@ const AdminPage = ({ ...props }: PageProps) => {
                           ref={register({
                             required: "Veuillez saisir la dénomination"
                           })}
-                          control={control}
                           defaultValue={networkLabelSetting.settingValue}
                           placeholder="Exemple : planète"
                         />

@@ -14,7 +14,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { css } from "twin.macro";
 import { ErrorMessageText, FileInput } from "features/common";
 import { IOrg } from "models/Org";
@@ -23,7 +23,7 @@ import { handleError } from "utils/form";
 import { hasItems } from "utils/array";
 
 type FormValues = {
-  files: FileList;
+  fichiers: File[];
   formErrorMessage: { message: string };
 };
 
@@ -77,26 +77,34 @@ export const DocumentForm = ({
   const toast = useToast({ position: "top" });
   const [isLoading, setIsLoading] = useState(false);
   const [loaded, setLoaded] = useState<{ [fileName: string]: number }>({});
+  const [list, setList] = useState<File[]>([]);
 
   //#region form state
-  const { register, handleSubmit, errors, clearErrors, setError, setValue } =
-    useForm<FormValues>({
-      mode: "onChange"
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    errors,
+    clearErrors,
+    setError,
+    setValue
+  } = useForm<FormValues>({
+    mode: "onChange"
+  });
 
   const onChange = () => {
     clearErrors();
     setLoaded({});
   };
-  const onSubmit = async (form: { files?: File[] }) => {
-    console.log("submitted", form);
+  const onSubmit = async () => {
+    console.log("submitted", list);
     setIsLoading(true);
 
     try {
-      if (!form.files || !hasItems(form.files))
+      if (!hasItems(list))
         throw `Veuillez sélectionner un ou plusieurs fichiers`;
 
-      for (const file of Array.from(form.files)) {
+      for (const file of list) {
         setLoaded({ ...loaded, [file.name]: 0 });
         const fsMb = file.size / (1024 * 1024);
 
@@ -143,38 +151,57 @@ export const DocumentForm = ({
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-      <FormControl isInvalid={!!errors["files"]} mb={3}>
+      <FormControl isInvalid={!!errors["fichiers"]} mb={3}>
         <FormLabel>
           Sélectionnez un ou plusieurs fichiers. Taille maximum par fichier :{" "}
           <b>10Mo</b>
         </FormLabel>
 
-        <FileInput
-          register={register}
-          name="files"
-          id="files"
-          multiple
-          alignSelf="flex-start"
-          color="transparent"
-          height="auto"
-          p={0}
-          width="auto"
-          TableContainer={TableContainer}
-          css={css`
-            background: none !important;
-            border: none !important;
-          `}
-          onChange={async (files) => {
-            onChange();
-
-            //@ts-expect-error
-            document.getElementById("files").value = "";
-            setValue("files", hasItems(files) ? files : undefined);
+        <Controller
+          control={control}
+          name="fichiers"
+          defaultValue={[]}
+          render={(renderProps) => {
+            return (
+              <FileInput
+                id="fichiers"
+                multiple
+                alignSelf="flex-start"
+                color="transparent"
+                height="auto"
+                p={0}
+                width="auto"
+                TableContainer={TableContainer}
+                css={css`
+                  background: none !important;
+                  border: none !important;
+                `}
+                //@ts-expect-error
+                list={list}
+                setList={setList}
+                onChange={(event) => {
+                  const files = event.target.files;
+                  onChange();
+                  renderProps.onChange(files);
+                }}
+                // onChange={async (fichiers) => {
+                //   console.log(
+                //     "🚀 ~ file: DocumentForm.tsx:173 ~ onChange={ ~ fichiers:",
+                //     fichiers
+                //   );
+                //   onChange();
+                //   renderProps.onChange(fichiers);
+                //   //@ts-expect-error
+                //   //document.getElementById("fichiers").value = "";
+                //   //setValue("fichiers", fichiers);
+                // }}
+              />
+            );
           }}
         />
 
         <FormErrorMessage>
-          <ErrorMessage errors={errors} name="files" />
+          <ErrorMessage errors={errors} name="fichiers" />
         </FormErrorMessage>
       </FormControl>
 

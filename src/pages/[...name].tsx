@@ -66,7 +66,6 @@ const HashPage = ({ ...props }: PageProps) => {
   };
   const router = useRouter();
   const { data: session } = useSession();
-  console.log("🚀 ~ file: [...name].tsx:69 ~ HashPage ~ session:", session);
   const userEmail = useSelector(selectUserEmail);
   //const [isLoading, setIsLoading] = useState(props.isLoading && !!session);
 
@@ -85,10 +84,6 @@ const HashPage = ({ ...props }: PageProps) => {
   const [orgQueryParams, setOrgQueryParams] = useState<GetOrgParams>(
     initialOrgQueryParams(entityUrl)
   );
-  console.log(
-    "🚀 ~ file: [...name].tsx:81 ~ HashPage ~ orgQueryParams:",
-    orgQueryParams
-  );
   // const [userQueryParams, setUserQueryParams] = useState<UserQueryParams>(
   //   initialUserQueryParams(entityUrl)
   // );
@@ -97,11 +92,6 @@ const HashPage = ({ ...props }: PageProps) => {
     skip
   }) as AppQuery<IEvent>;
   const orgQuery = useGetOrgQuery(orgQueryParams, { skip }) as AppQuery<IOrg>;
-  console.log("🚀 ~ file: [...name].tsx:99 ~ HashPage ~ orgQuery:", orgQuery);
-  // console.log(
-  //   "🚀 ~ file: [...name].tsx:90 ~ HashPage ~ orgQuery.data?.orgDescription:",
-  //   orgQuery.data?.orgDescription
-  // );
   const subQuery = useGetSubscriptionQuery(
     subQueryParams(userEmail)
   ) as AppQuery<ISubscription>;
@@ -114,20 +104,8 @@ const HashPage = ({ ...props }: PageProps) => {
     { skip }
   ) as AppQuery<IUser>;
   const eventQueryStatus = eventQuery.error?.status || 200;
-  console.log(
-    "🚀 ~ file: [...name].tsx:112 ~ HashPage ~ eventQueryStatus:",
-    eventQueryStatus
-  );
   const orgQueryStatus = orgQuery.error?.status || 200;
-  console.log(
-    "🚀 ~ file: [...name].tsx:103 ~ HashPage ~ orgQueryStatus:",
-    orgQueryStatus
-  );
   const userQueryStatus = userQuery.error?.status || 200;
-  console.log(
-    "🚀 ~ file: [...name].tsx:118 ~ HashPage ~ userQueryStatus:",
-    userQueryStatus
-  );
   //#endregion
 
   //#region effects
@@ -144,10 +122,6 @@ const HashPage = ({ ...props }: PageProps) => {
   useEffect(
     function onNavigate() {
       if (entityUrl !== orgQueryParams.orgUrl) {
-        console.log(
-          "🚀 ~ file: [...name].tsx:129 ~ onNavigate ~ entityUrl:",
-          entityUrl
-        );
         setOrgQueryParams({ ...orgQueryParams, orgUrl: entityUrl });
         setEventQueryParams({ ...eventQueryParams, eventUrl: entityUrl });
         //setUserQueryParams({ ...userQueryParams, slug: entityUrl });
@@ -195,7 +169,7 @@ const HashPage = ({ ...props }: PageProps) => {
     return <NotFound {...props} />;
   }
 
-  if (eventQuery.data) {
+  if (eventQuery.data && eventQueryStatus === 200) {
     return (
       <EventPage
         {...props}
@@ -224,7 +198,7 @@ const HashPage = ({ ...props }: PageProps) => {
     );
   }
 
-  if (userQuery.data) {
+  if (userQuery.data && userQueryStatus === 200) {
     return (
       <UserPage {...props} userQuery={userQuery as AppQueryWithData<IUser>} />
     );

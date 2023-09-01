@@ -103,6 +103,7 @@ export const HeaderTitle = ({
           color={iconColor}
           //mt={3}
           mr={2}
+          //@ts-expect-error
           title={
             isE && !entity.isApproved
               ? "Événement en attente de modération"
