@@ -15,6 +15,7 @@ import {
   isOrg
 } from "models/Entity";
 import { IOrg, orgTypeFull } from "models/Org";
+import { IUser } from "models/User";
 import { HeaderTitle } from "./HeaderTitle";
 
 export const Header = ({
@@ -25,7 +26,7 @@ export const Header = ({
   ...props
 }: FlexProps & {
   defaultTitle: string;
-  entity?: IEntity;
+  entity?: IEntity | IUser;
   pageHeader?: React.ReactNode;
   pageTitle?: string;
 }) => {

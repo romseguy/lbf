@@ -21,13 +21,14 @@ import {
 import { EOrgType, getNetworks, IOrg, orgTypeFull } from "models/Org";
 import { AppIcon } from "utils/types";
 import { useAppDispatch } from "store";
+import { IUser } from "models/User";
 
 export const HeaderTitle = ({
   entity,
   pageHeader,
   pageTitle
 }: {
-  entity?: IEntity;
+  entity?: IEntity | IUser;
   pageHeader?: React.ReactNode;
   pageTitle?: string;
 }) => {

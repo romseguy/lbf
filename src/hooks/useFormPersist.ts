@@ -1,5 +1,10 @@
 import { useCallback, useEffect } from "react";
-import { FieldName, SetFieldValue, UseFormMethods } from "react-hook-form";
+import {
+  FieldName,
+  FieldValues,
+  SetFieldValue,
+  UseFormMethods
+} from "react-hook-form";
 import { isServer } from "utils/isServer";
 
 function isRecord(arg: unknown): arg is Record<string, unknown> {
@@ -21,7 +26,7 @@ function parseFromJson(data: string): unknown {
  * @param option.storage Where to store persistent data. default is "localStorage".
  * @return UseFormReturn.
  */
-export default function useFormPersist<T>(
+export default function useFormPersist<T extends FieldValues>(
   useFormReturn: UseFormMethods<T>,
   optionalStorage?: Storage
 ): UseFormMethods<T> {

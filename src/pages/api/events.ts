@@ -80,7 +80,7 @@ handler.post<
         );
     }
 
-    let newEvent = {
+    let newEvent: Partial<IEvent> = {
       ...body,
       createdBy: session.user.userId,
       eventName,

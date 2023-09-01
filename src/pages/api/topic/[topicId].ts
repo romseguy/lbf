@@ -321,7 +321,7 @@ handler.delete<
 
     topic = await topic.populate("org event").execPopulate();
     const isCreator = equals(
-      getRefId(topic.org || topic.event || {}),
+      getRefId(topic.org || topic.event),
       session.user.userId
     );
     const isTopicCreator = equals(getRefId(topic), session.user.userId);

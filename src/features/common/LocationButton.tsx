@@ -51,7 +51,7 @@ export const LocationButton = withGoogleApi({
       /**
        * The Geolocation API's timestamp value representing the time at which the location was retrieved.
        */
-      timestamp?: DOMTimeStamp;
+      timestamp?: EpochTimeStamp;
       /**
        * Flag indicating that the browser supports the Geolocation API.
        */

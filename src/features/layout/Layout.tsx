@@ -32,6 +32,7 @@ import { Base64Image } from "utils/image";
 import { isServer } from "utils/isServer";
 import { capitalize } from "utils/string";
 import { ChevronUpIcon } from "@chakra-ui/icons";
+import { IUser } from "models/User";
 
 const PAYPAL_BUTTON_WIDTH = 108;
 let isNotified = false;
@@ -46,7 +47,7 @@ export interface LayoutProps extends PageProps, BoxProps {
   children: React.ReactNode | React.ReactNodeArray;
   banner?: Base64Image & { mode: "dark" | "light" };
   logo?: Base64Image;
-  entity?: IEntity;
+  entity?: IEntity | IUser;
   pageHeader?: React.ReactNode;
   pageTitle?: string;
 }

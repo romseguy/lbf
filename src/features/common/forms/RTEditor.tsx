@@ -58,7 +58,7 @@ export const RTEditor = ({
   placeholder?: string;
   readOnly?: boolean;
   session?: Session | null;
-  setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoading?: (bool: boolean) => void;
   height?: string;
   width?: string;
   value?: string;

@@ -31,7 +31,7 @@ interface TopicMessageFormProps extends ChakraProps {
   isDisabled?: boolean;
   query: AppQueryWithData<IEntity>;
   isLoading: boolean;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoading: (bool: boolean) => void;
   topic: ITopic;
   topicMessage?: ITopicMessage;
   onCancel?: () => void;

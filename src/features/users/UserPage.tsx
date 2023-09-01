@@ -44,7 +44,7 @@ export const UserPage = ({
 
   const isSelf =
     userQuery.data._id === session?.user.userId || session?.user.isAdmin;
-  const user = { ...(userQuery.data as IUser), email: email || "" };
+  const user = { ...userQuery.data, email: email || "" } as IUser;
 
   console.groupCollapsed("UserPage");
   console.log("session", session);

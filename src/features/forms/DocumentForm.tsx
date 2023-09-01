@@ -150,7 +150,8 @@ export const DocumentForm = ({
         </FormLabel>
 
         <FileInput
-          {...register("files")}
+          register={register}
+          name="files"
           id="files"
           multiple
           alignSelf="flex-start"

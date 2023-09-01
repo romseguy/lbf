@@ -40,9 +40,12 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
     handleSubmit,
     setError,
     setValue,
-    formState,
-    watch
-  } = useFormPersist(
+    formState
+  } = useFormPersist<{
+    formErrorMessage: string;
+    email: string;
+    message: string;
+  }>(
     useForm<{ formErrorMessage: string; email: string; message: string }>({
       defaultValues: { message: "" }
     })

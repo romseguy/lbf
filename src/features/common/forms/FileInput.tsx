@@ -1,6 +1,14 @@
-import { Table, Tbody, Td, Th, Thead, Tr, useToast } from "@chakra-ui/react";
-
-import { Input, InputProps } from "@chakra-ui/react";
+import {
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  useToast,
+  Input,
+  InputProps
+} from "@chakra-ui/react";
 import React, { ComponentType, useState } from "react";
 import { bytesForHuman } from "utils/string";
 
@@ -9,11 +17,14 @@ export const FileInput = ({
   maxFileSize = 10,
   TableContainer,
   value,
+  register,
+  name,
   onChange,
   ...props
 }: InputProps & {
   maxFileSize?: number;
   TableContainer?: ComponentType<{ children: React.ReactNode }>;
+  register: any;
   value?: FileList;
   onChange?: (files: File[]) => void;
 }) => {
@@ -101,6 +112,8 @@ export const FileInput = ({
 
       <Input
         {...props}
+        ref={register()}
+        name={name}
         type="file"
         onChange={(e) => {
           const files = e.target.files;
