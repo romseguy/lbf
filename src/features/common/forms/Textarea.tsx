@@ -1,5 +1,5 @@
 import { Textarea as ChakraTextarea, useColorMode } from "@chakra-ui/react";
-import styled from "@emotion/styled";
+import { styled } from "twin.macro";
 
 export const Textarea = styled(ChakraTextarea)((/* props */) => {
   const { colorMode } = useColorMode();

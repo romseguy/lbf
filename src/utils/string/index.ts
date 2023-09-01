@@ -7,7 +7,7 @@ export * from "./getStyleObjectFromString";
 export * from "./normalize";
 
 export const defaultErrorMessage =
-  "Une erreur est survenue, merci de contacter le créateur de cet outil.";
+  "Une erreur est survenue, merci de laisser un message sur le forum.";
 export const phoneR = /^[0-9]{10,}$/i;
 
 export function bytesForHuman(bytes: number, decimals = 0) {

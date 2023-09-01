@@ -47,6 +47,7 @@ export const unauthorizedEntityUrls = [
   "contact",
   "donate",
   "evenements",
+  "index",
   "login",
   "organisations",
   "privacy",

@@ -11,7 +11,8 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";
 import { FaRegMap } from "react-icons/fa";
-import { orgApi, useGetOrgsQuery } from "features/api/orgsApi";
+import { getRunningQueriesThunk } from "features/api";
+import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
 import {
   Button,
   Column,
@@ -149,10 +150,10 @@ const IndexPage = (props: PageProps) => {
 
       <Column
         {...columnProps}
-        cursor="pointer"
-        _hover={{ backgroundColor: isDark ? "gray.500" : "blue.50" }}
+        //cursor="pointer"
+        //_hover={{ backgroundColor: isDark ? "gray.500" : "blue.50" }}
         mt={3}
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        //onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <Flex alignItems="center" mb={2}>
           {isCollapsable && (
@@ -205,7 +206,7 @@ const IndexPage = (props: PageProps) => {
 
             <Flex alignItems="center" mt={3}>
               <Link
-                href="a_propos"
+                href="/a_propos"
                 variant="underline"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -244,8 +245,8 @@ const IndexPage = (props: PageProps) => {
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
-    store.dispatch(orgApi.endpoints.getOrgs.initiate(orgsQueryParams));
-    await Promise.all(store.dispatch(orgApi.util.getRunningQueriesThunk()));
+    store.dispatch(getOrgs.initiate(orgsQueryParams));
+    await Promise.all(store.dispatch(getRunningQueriesThunk()));
 
     return {
       props: {}

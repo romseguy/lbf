@@ -1,7 +1,7 @@
 import { IUser } from "models/User";
 import { Base64Image } from "utils/image";
 
-export interface IEntity {
+export interface IEntity extends Record<string, any> {
   _id: string;
   createdAt?: string;
   createdBy?: IUser | string;

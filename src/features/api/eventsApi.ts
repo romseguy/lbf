@@ -167,7 +167,6 @@ export const {
   useDeleteEventMutation,
   useEditEventMutation,
   useGetEventQuery,
-  useGetEventsQuery,
-  util: { getRunningQueriesThunk }
+  useGetEventsQuery
 } = eventApi;
 export const { getEvent, getEvents, deleteEvent } = eventApi.endpoints;

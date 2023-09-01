@@ -21,9 +21,8 @@ export const NotFound = ({
 
   return (
     <Layout {...props} pageTitle="Page introuvable" {...props}>
-      <Row p={3}>
+      <Row border={!message && !isRedirect ? 0 : undefined} p={3}>
         {message}
-        {!isRedirect && !message && "Veuillez réessayer."}
         {isRedirect &&
           "Vous allez être redirigé vers la page d'accueil dans quelques secondes..."}
       </Row>

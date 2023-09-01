@@ -1,9 +1,16 @@
-import { SmallAddIcon, EditIcon } from "@chakra-ui/icons";
+import {
+  SmallAddIcon,
+  EditIcon,
+  ChevronRightIcon,
+  ChevronUpIcon
+} from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
   Button,
   Flex,
+  Heading,
+  Icon,
   IconButton,
   List,
   ListItem,
@@ -95,6 +102,9 @@ export const OrgPageHomeTabPanel = ({
     setDescription(doc.body.innerHTML);
   }, [org]);
   const [isListOpen, setIsListOpen] = useState(true);
+  const [isChildrenOpen, setIsChildrenOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
   const {
     isOpen: isMapModalOpen,
     onOpen: openMapModal,
@@ -110,127 +120,143 @@ export const OrgPageHomeTabPanel = ({
   return (
     <>
       {org.orgType === EOrgType.NETWORK && (
-        <TabContainer>
+        <TabContainer borderBottomRadius={isChildrenOpen ? undefined : "lg"}>
           <TabContainerHeader
-            heading={`
-              Forêt de la planète`}
-          ></TabContainerHeader>
+            alignItems="center"
+            borderBottomRadius={isChildrenOpen ? undefined : "lg"}
+            cursor="pointer"
+            _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
+            onClick={() => setIsChildrenOpen(!isChildrenOpen)}
+          >
+            <Icon
+              as={isChildrenOpen ? ChevronUpIcon : ChevronRightIcon}
+              boxSize={6}
+              ml={3}
+              mr={1}
+            />
 
-          <TabContainerContent p={3}>
-            {orgQuery.isLoading ? (
-              <Spinner />
-            ) : (
-              <>
-                {hasItems(org.orgs) ? (
-                  <>
-                    <Flex>
-                      <Button
+            <Heading size="sm" py={3}>
+              Forêt de la planète
+            </Heading>
+          </TabContainerHeader>
+
+          {isChildrenOpen && (
+            <TabContainerContent p={3}>
+              {orgQuery.isLoading ? (
+                <Spinner />
+              ) : (
+                <>
+                  {hasItems(org.orgs) ? (
+                    <>
+                      <Flex>
+                        <Button
+                          alignSelf="flex-start"
+                          colorScheme="teal"
+                          leftIcon={<FaRegMap />}
+                          onClick={openMapModal}
+                        >
+                          Carte
+                        </Button>
+
+                        {isMapModalOpen && (
+                          <MapModal
+                            isOpen={isMapModalOpen}
+                            header="Carte de la planète"
+                            orgs={
+                              org.orgs.filter(
+                                (org) =>
+                                  typeof org.orgLat === "number" &&
+                                  typeof org.orgLng === "number" &&
+                                  org.orgUrl !== "forum"
+                              ) || []
+                            }
+                            onClose={closeMapModal}
+                          />
+                        )}
+                      </Flex>
+
+                      {isListOpen && (
+                        <>
+                          <Column
+                            borderBottomRadius={0}
+                            maxWidth={undefined}
+                            mt={3}
+                            bg={isDark ? "gray.700" : "lightcyan"}
+                          >
+                            <OrgsList
+                              keys={
+                                isMobile
+                                  ? (orgType) => [
+                                      //{ key: "subscription", label: "" },
+                                      //{ key: "icon", label: "" },
+                                      {
+                                        key: "orgName",
+                                        label: `Nom de ${orgTypeFull(orgType)}`
+                                      },
+                                      {
+                                        key: "latestActivity",
+                                        label: "Dernier message"
+                                      }
+                                    ]
+                                  : (orgType) => [
+                                      //{ key: "subscription", label: "" },
+                                      //{ key: "icon", label: "" },
+                                      {
+                                        key: "orgName",
+                                        label: `Nom de ${orgTypeFull(orgType)}`
+                                      },
+                                      //{ key: "createdBy", label: "Créé par" },
+                                      {
+                                        key: "latestActivity",
+                                        label: "Dernier message"
+                                      }
+                                    ]
+                              }
+                              query={orgQuery}
+                              subQuery={subQuery}
+                              orgType={EOrgType.GENERIC}
+                            />
+                          </Column>
+
+                          {session && (
+                            <Button
+                              borderTopRadius={0}
+                              colorScheme="teal"
+                              leftIcon={<FaRecycle />}
+                              onClick={() => setIsEdit({ isAddingChild: true })}
+                            >
+                              Gérer la forêt
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </>
+                  ) : isCreator || org.orgPermissions?.anyoneCanAddChildren ? (
+                    <Tooltip
+                      placement="right"
+                      label="Ajouter un arbre à la forêt de la planète"
+                    >
+                      <IconButton
+                        aria-label="Ajouter un arbre à la forêt de la planète"
                         alignSelf="flex-start"
                         colorScheme="teal"
-                        leftIcon={<FaRegMap />}
-                        onClick={openMapModal}
-                      >
-                        Carte
-                      </Button>
-
-                      {isMapModalOpen && (
-                        <MapModal
-                          isOpen={isMapModalOpen}
-                          header="Carte de la planète"
-                          orgs={
-                            org.orgs.filter(
-                              (org) =>
-                                typeof org.orgLat === "number" &&
-                                typeof org.orgLng === "number" &&
-                                org.orgUrl !== "forum"
-                            ) || []
-                          }
-                          onClose={closeMapModal}
-                        />
-                      )}
-                    </Flex>
-
-                    {isListOpen && (
-                      <>
-                        <Column
-                          borderBottomRadius={0}
-                          maxWidth={undefined}
-                          mt={3}
-                          bg={isDark ? "gray.700" : "lightcyan"}
-                        >
-                          <OrgsList
-                            keys={
-                              isMobile
-                                ? (orgType) => [
-                                    //{ key: "subscription", label: "" },
-                                    //{ key: "icon", label: "" },
-                                    {
-                                      key: "orgName",
-                                      label: `Nom de ${orgTypeFull(orgType)}`
-                                    },
-                                    {
-                                      key: "latestActivity",
-                                      label: "Dernier message"
-                                    }
-                                  ]
-                                : (orgType) => [
-                                    //{ key: "subscription", label: "" },
-                                    //{ key: "icon", label: "" },
-                                    {
-                                      key: "orgName",
-                                      label: `Nom de ${orgTypeFull(orgType)}`
-                                    },
-                                    //{ key: "createdBy", label: "Créé par" },
-                                    {
-                                      key: "latestActivity",
-                                      label: "Dernier message"
-                                    }
-                                  ]
-                            }
-                            query={orgQuery}
-                            subQuery={subQuery}
-                            orgType={EOrgType.GENERIC}
-                          />
-                        </Column>
-
-                        {session && (
-                          <Button
-                            borderTopRadius={0}
-                            colorScheme="teal"
-                            leftIcon={<FaRecycle />}
-                            onClick={() => setIsEdit({ isAddingChild: true })}
-                          >
-                            Gérer la forêt
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </>
-                ) : isCreator || org.orgPermissions?.anyoneCanAddChildren ? (
-                  <Tooltip
-                    placement="right"
-                    label="Ajouter un arbre à la forêt de la planète"
-                  >
-                    <IconButton
-                      aria-label="Ajouter un arbre à la forêt de la planète"
-                      alignSelf="flex-start"
-                      colorScheme="teal"
-                      icon={
-                        <>
-                          <SmallAddIcon />
-                          <FaTree />
-                        </>
-                      }
-                      pr={1}
-                      onClick={() => setIsEdit({ isAddingChild: true })}
-                    />
-                  </Tooltip>
-                ) : (
-                  <i>Aucune forêt.</i>
-                )}
-              </>
-            )}
-          </TabContainerContent>
+                        icon={
+                          <>
+                            <SmallAddIcon />
+                            <FaTree />
+                          </>
+                        }
+                        pr={1}
+                        onClick={() => setIsEdit({ isAddingChild: true })}
+                      />
+                    </Tooltip>
+                  ) : (
+                    <i>Aucune forêt.</i>
+                  )}
+                </>
+              )}
+            </TabContainerContent>
+          )}
         </TabContainer>
       )}
 
@@ -252,8 +278,25 @@ export const OrgPageHomeTabPanel = ({
         </Alert>
       )}
 
-      <TabContainer>
-        <TabContainerHeader heading={`Coordonnées ${orgTypeFull(org.orgType)}`}>
+      <TabContainer borderBottomRadius={isInfoOpen ? undefined : "lg"}>
+        <TabContainerHeader
+          alignItems="center"
+          borderBottomRadius={isInfoOpen ? undefined : "lg"}
+          cursor="pointer"
+          _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
+          onClick={() => setIsInfoOpen(!isInfoOpen)}
+        >
+          <Icon
+            as={isInfoOpen ? ChevronUpIcon : ChevronRightIcon}
+            boxSize={6}
+            ml={3}
+            mr={1}
+          />
+
+          <Heading size="sm" py={3}>
+            Coordonnées {orgTypeFull(org.orgType)}
+          </Heading>
+
           {hasInfo && isCreator && (
             <Tooltip
               hasArrow
@@ -271,34 +314,36 @@ export const OrgPageHomeTabPanel = ({
           )}
         </TabContainerHeader>
 
-        <TabContainerContent p={3}>
-          {hasInfo ? (
-            <EntityInfo org={org} />
-          ) : isCreator ? (
-            <Tooltip
-              placement="right"
-              label={`Ajouter des coordonnées ${orgTypeFull2(org.orgType)}`}
-            >
-              <IconButton
-                aria-label={`Ajouter des coordonnées ${orgTypeFull2(
-                  org.orgType
-                )}`}
-                alignSelf="flex-start"
-                colorScheme="teal"
-                icon={
-                  <>
-                    <SmallAddIcon />
-                    <FaMapMarkedAlt />
-                  </>
-                }
-                pr={1}
-                onClick={() => setIsEdit({ isAddingInfo: true })}
-              />
-            </Tooltip>
-          ) : (
-            <Text fontStyle="italic">Aucunes coordonnées.</Text>
-          )}
-        </TabContainerContent>
+        {isInfoOpen && (
+          <TabContainerContent p={3}>
+            {hasInfo ? (
+              <EntityInfo org={org} />
+            ) : isCreator ? (
+              <Tooltip
+                placement="right"
+                label={`Ajouter des coordonnées ${orgTypeFull2(org.orgType)}`}
+              >
+                <IconButton
+                  aria-label={`Ajouter des coordonnées ${orgTypeFull2(
+                    org.orgType
+                  )}`}
+                  alignSelf="flex-start"
+                  colorScheme="teal"
+                  icon={
+                    <>
+                      <SmallAddIcon />
+                      <FaMapMarkedAlt />
+                    </>
+                  }
+                  pr={1}
+                  onClick={() => setIsEdit({ isAddingInfo: true })}
+                />
+              </Tooltip>
+            ) : (
+              <Text fontStyle="italic">Aucunes coordonnées.</Text>
+            )}
+          </TabContainerContent>
+        )}
       </TabContainer>
 
       {orgNetworks.length > 0 && (
@@ -316,12 +361,30 @@ export const OrgPageHomeTabPanel = ({
         </TabContainer>
       )}
 
-      <TabContainer mb={0}>
+      <TabContainer
+        borderBottomRadius={isDescriptionOpen ? undefined : "lg"}
+        mb={0}
+      >
         <TabContainerHeader
-          heading={`${
-            org.orgType === EOrgType.TREETOOLS ? "Matériel" : "Description"
-          } ${orgTypeFull(org.orgType)}`}
+          alignItems="center"
+          borderBottomRadius={isDescriptionOpen ? undefined : "lg"}
+          cursor="pointer"
+          _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
+          onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
         >
+          <Icon
+            as={isDescriptionOpen ? ChevronUpIcon : ChevronRightIcon}
+            boxSize={6}
+            ml={3}
+            mr={1}
+          />
+
+          <Heading size="sm" py={3}>
+            {`${
+              org.orgType === EOrgType.TREETOOLS ? "Matériel" : "Description"
+            } ${orgTypeFull(org.orgType)}`}
+          </Heading>
+
           {org.orgDescription && isCreator && (
             <Tooltip hasArrow label="Modifier" placement="bottom">
               <IconButton
@@ -334,40 +397,43 @@ export const OrgPageHomeTabPanel = ({
             </Tooltip>
           )}
         </TabContainerHeader>
-        <TabContainerContent p={3}>
-          {description && description.length > 0 ? (
-            <div className="rteditor">
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: sanitize(description)
-                }}
-              />
-            </div>
-          ) : isCreator ? (
-            <Tooltip
-              placement="right"
-              label={`Ajouter une description ${orgTypeFull2(org.orgType)}`}
-            >
-              <IconButton
-                aria-label={`Ajouter une description ${orgTypeFull2(
-                  org.orgType
-                )}`}
-                alignSelf="flex-start"
-                colorScheme="teal"
-                icon={
-                  <>
-                    <SmallAddIcon />
-                    <FaNewspaper />
-                  </>
-                }
-                pr={1}
-                onClick={() => setIsEdit({ isAddingDescription: true })}
-              />
-            </Tooltip>
-          ) : (
-            <Text fontStyle="italic">Aucune description.</Text>
-          )}
-        </TabContainerContent>
+
+        {isDescriptionOpen && (
+          <TabContainerContent p={3}>
+            {description && description.length > 0 ? (
+              <div className="rteditor">
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: sanitize(description)
+                  }}
+                />
+              </div>
+            ) : isCreator ? (
+              <Tooltip
+                placement="right"
+                label={`Ajouter une description ${orgTypeFull2(org.orgType)}`}
+              >
+                <IconButton
+                  aria-label={`Ajouter une description ${orgTypeFull2(
+                    org.orgType
+                  )}`}
+                  alignSelf="flex-start"
+                  colorScheme="teal"
+                  icon={
+                    <>
+                      <SmallAddIcon />
+                      <FaNewspaper />
+                    </>
+                  }
+                  pr={1}
+                  onClick={() => setIsEdit({ isAddingDescription: true })}
+                />
+              </Tooltip>
+            ) : (
+              <Text fontStyle="italic">Aucune description.</Text>
+            )}
+          </TabContainerContent>
+        )}
       </TabContainer>
     </>
   );

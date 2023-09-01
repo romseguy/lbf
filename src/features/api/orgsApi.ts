@@ -130,8 +130,7 @@ export const {
   useDeleteOrgMutation,
   useEditOrgMutation,
   useGetOrgQuery,
-  useGetOrgsQuery,
-  util: { getRunningQueriesThunk }
+  useGetOrgsQuery
 } = orgApi;
 
 export const { getOrg, getOrgs } = orgApi.endpoints;

@@ -12,3 +12,7 @@ export const api = createApi({
   tagTypes: ["Orgs", "Events", "Projects", "Subscriptions", "Topics", "Users"],
   endpoints: () => ({})
 });
+
+export const {
+  util: { getRunningQueriesThunk }
+} = api;

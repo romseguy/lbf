@@ -50,10 +50,6 @@ export const userApi = api.injectEndpoints({
   })
 });
 
-export const {
-  useAddUserMutation,
-  useEditUserMutation,
-  useGetUserQuery,
-  util: { getRunningQueriesThunk }
-} = userApi;
+export const { useAddUserMutation, useEditUserMutation, useGetUserQuery } =
+  userApi;
 export const { getUser } = userApi.endpoints;

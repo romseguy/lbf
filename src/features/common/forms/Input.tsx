@@ -1,5 +1,5 @@
 import { Input as ChakraInput, useColorMode } from "@chakra-ui/react";
-import styled from "@emotion/styled";
+import { styled } from "twin.macro";
 
 export const Input = styled(ChakraInput)((/* props */) => {
   const { colorMode } = useColorMode();

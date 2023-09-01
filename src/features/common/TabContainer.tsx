@@ -26,21 +26,28 @@ export const TabContainer = ({
 
 export const TabContainerHeader = ({
   children,
-  heading
-}: {
+  heading,
+  ...props
+}: FlexProps & {
   children?: React.ReactNode | React.ReactNodeArray;
-  heading: string | React.ReactNode;
+  heading?: string | React.ReactNode;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
   return (
-    <Flex bg={isDark ? "gray.700" : "lightblue"} borderTopRadius="lg">
-      <Heading size="sm" pl={3} py={3}>
-        {heading}
-      </Heading>
-
-      {children}
+    <Flex
+      bg={isDark ? "gray.700" : "lightblue"}
+      borderTopRadius="lg"
+      {...props}
+    >
+      {heading ? (
+        <Heading size="sm" pl={3} py={3}>
+          {heading}
+        </Heading>
+      ) : (
+        children
+      )}
     </Flex>
   );
 };

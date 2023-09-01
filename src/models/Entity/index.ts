@@ -1,11 +1,8 @@
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { IProject } from "models/Project";
-import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
-import { Model } from "mongoose";
-import { hasItems } from "utils/array";
 import { IEntity, IEntityCategory } from "./IEntity";
 
 export * from "./IEntity";
@@ -19,7 +16,8 @@ export const getCategoryLabel = (
   return category.label;
 };
 
-export const getRefId = (entity: Record<string, any>, key?: string) => {
+export const getRefId = (entity?: IEntity | null, key?: string) => {
+  if (!entity) return "";
   const value = entity[key || "createdBy"];
 
   if (typeof value === "object") return value?._id;

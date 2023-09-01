@@ -1,3 +1,4 @@
+/** @type {import('tailwindcss').Config} */
 var paths = ["./src/pages/**/*.tsx", "./src/features/**/*.tsx"];
 
 module.exports = {

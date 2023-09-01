@@ -43,20 +43,8 @@ handler.get<
     } ${populate.includes("orgBanner") ? "+orgBanner" : ""}`;
 
     let org = await models.Org.findOne({ orgUrl }, select);
-
-    if (!org) {
-      org = await models.Org.findOne({ _id: orgUrl }, select);
-
-      if (!org) {
-        return res
-          .status(404)
-          .json(
-            createServerError(
-              new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
-            )
-          );
-      }
-    }
+    if (!org) org = await models.Org.findOne({ _id: orgUrl }, select);
+    if (!org) throw new Error(); // for TS not understanding that line above throws if org not found
 
     const session = await getSession({ req });
     const isCreator =
@@ -344,7 +332,17 @@ handler.get<
     console.log(`GET /${orgUrl} unhandled keys: ${populate}`);
     org = await org.populate("createdBy", "_id userName").execPopulate();
     res.status(200).json(org);
-  } catch (error) {
+  } catch (error: any) {
+    if (error.kind === "ObjectId")
+      return res
+        .status(404)
+        .json(
+          createServerError(
+            new Error(
+              `L'organisation ${req.query.orgUrl} n'a pas pu être trouvé`
+            )
+          )
+        );
     res.status(500).json(createServerError(error));
   }
 });

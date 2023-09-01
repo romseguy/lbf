@@ -1,29 +1,29 @@
-import { Spinner } from "@chakra-ui/react";
+import { Alert, AlertIcon, Spinner } from "@chakra-ui/react";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { wrapper } from "store";
+import { getRunningQueriesThunk } from "features/api";
 import {
   getEvent,
   GetEventParams,
-  getRunningQueriesThunk as eventApiThunk,
+  //getRunningQueriesThunk as eventApiThunk,
   useGetEventQuery
 } from "features/api/eventsApi";
 import {
   getOrg,
   GetOrgParams,
-  getRunningQueriesThunk as orgApiThunk,
+  //getRunningQueriesThunk as orgApiThunk,
   useGetOrgQuery
 } from "features/api/orgsApi";
 import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import {
-  getRunningQueriesThunk as userApiThunk,
+  //getRunningQueriesThunk as userApiThunk,
   getUser,
   useGetUserQuery,
   UserQueryParams
 } from "features/api/usersApi";
-import { NotFound } from "features/common";
+import { Column, NotFound } from "features/common";
 import { Layout } from "features/layout";
 import { EventPage } from "features/events/EventPage";
 import { OrgPage } from "features/orgs/OrgPage";
@@ -35,9 +35,10 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
+import { wrapper } from "store";
 import { selectUserEmail } from "store/userSlice";
 import { isServer } from "utils/isServer";
-import { normalize } from "utils/string";
+import { defaultErrorMessage, normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { getRefId } from "models/Entity";
 
@@ -58,8 +59,14 @@ const subQueryParams = (email: string) => ({
 });
 
 const HashPage = ({ ...props }: PageProps) => {
+  const columnProps = {
+    maxWidth: "4xl",
+    m: "0 auto",
+    p: props.isMobile ? 2 : 3
+  };
   const router = useRouter();
   const { data: session } = useSession();
+  console.log("🚀 ~ file: [...name].tsx:69 ~ HashPage ~ session:", session);
   const userEmail = useSelector(selectUserEmail);
   //const [isLoading, setIsLoading] = useState(props.isLoading && !!session);
 
@@ -78,6 +85,10 @@ const HashPage = ({ ...props }: PageProps) => {
   const [orgQueryParams, setOrgQueryParams] = useState<GetOrgParams>(
     initialOrgQueryParams(entityUrl)
   );
+  console.log(
+    "🚀 ~ file: [...name].tsx:81 ~ HashPage ~ orgQueryParams:",
+    orgQueryParams
+  );
   // const [userQueryParams, setUserQueryParams] = useState<UserQueryParams>(
   //   initialUserQueryParams(entityUrl)
   // );
@@ -86,6 +97,11 @@ const HashPage = ({ ...props }: PageProps) => {
     skip
   }) as AppQuery<IEvent>;
   const orgQuery = useGetOrgQuery(orgQueryParams, { skip }) as AppQuery<IOrg>;
+  console.log("🚀 ~ file: [...name].tsx:99 ~ HashPage ~ orgQuery:", orgQuery);
+  // console.log(
+  //   "🚀 ~ file: [...name].tsx:90 ~ HashPage ~ orgQuery.data?.orgDescription:",
+  //   orgQuery.data?.orgDescription
+  // );
   const subQuery = useGetSubscriptionQuery(
     subQueryParams(userEmail)
   ) as AppQuery<ISubscription>;
@@ -98,8 +114,20 @@ const HashPage = ({ ...props }: PageProps) => {
     { skip }
   ) as AppQuery<IUser>;
   const eventQueryStatus = eventQuery.error?.status || 200;
+  console.log(
+    "🚀 ~ file: [...name].tsx:112 ~ HashPage ~ eventQueryStatus:",
+    eventQueryStatus
+  );
   const orgQueryStatus = orgQuery.error?.status || 200;
+  console.log(
+    "🚀 ~ file: [...name].tsx:103 ~ HashPage ~ orgQueryStatus:",
+    orgQueryStatus
+  );
   const userQueryStatus = userQuery.error?.status || 200;
+  console.log(
+    "🚀 ~ file: [...name].tsx:118 ~ HashPage ~ userQueryStatus:",
+    userQueryStatus
+  );
   //#endregion
 
   //#region effects
@@ -116,6 +144,10 @@ const HashPage = ({ ...props }: PageProps) => {
   useEffect(
     function onNavigate() {
       if (entityUrl !== orgQueryParams.orgUrl) {
+        console.log(
+          "🚀 ~ file: [...name].tsx:129 ~ onNavigate ~ entityUrl:",
+          entityUrl
+        );
         setOrgQueryParams({ ...orgQueryParams, orgUrl: entityUrl });
         setEventQueryParams({ ...eventQueryParams, eventUrl: entityUrl });
         //setUserQueryParams({ ...userQueryParams, slug: entityUrl });
@@ -123,6 +155,15 @@ const HashPage = ({ ...props }: PageProps) => {
     },
     [entityUrl]
   );
+  useEffect(() => {
+    if (!orgQuery.data?._id) {
+      const isCreator = session?.user.userId === getRefId(orgQuery.data);
+
+      if (isCreator) {
+        orgQuery.refetch();
+      }
+    }
+  }, []);
   // useEffect(() => {
   //   if (orgQuery.data?._id && isLoading) setIsLoading(false);
   // }, [orgQuery.data]);
@@ -154,7 +195,7 @@ const HashPage = ({ ...props }: PageProps) => {
     return <NotFound {...props} />;
   }
 
-  if (!eventQuery.error && eventQuery.data) {
+  if (eventQuery.data) {
     return (
       <EventPage
         {...props}
@@ -164,34 +205,44 @@ const HashPage = ({ ...props }: PageProps) => {
         tabItem={entityTabItem}
       />
     );
+  } else if (
+    eventQuery.error &&
+    eventQueryStatus !== 404 &&
+    userQuery.error &&
+    orgQuery.error
+  ) {
+    return (
+      <Layout {...props}>
+        <Column {...columnProps}>
+          {defaultErrorMessage}
+          <Alert status="error">
+            <AlertIcon />
+            {eventQuery.error.data.message}
+          </Alert>
+        </Column>
+      </Layout>
+    );
   }
 
-  if (!userQuery.error && userQuery.data) {
+  if (userQuery.data) {
     return (
       <UserPage {...props} userQuery={userQuery as AppQueryWithData<IUser>} />
     );
-  }
-
-  if (
-    orgQueryStatus === 403 ||
-    (orgQuery.data &&
-      !orgQuery.data._id &&
-      (!session || session?.user.userId !== getRefId(orgQuery.data)))
-  ) {
+  } else if (userQuery.error && userQueryStatus !== 404 && orgQuery.error) {
     return (
-      <OrgPageLogin
-        {...props}
-        orgQuery={orgQuery as AppQueryWithData<IOrg>}
-        status={orgQueryStatus}
-        onSubmit={async (orgPassword) => {
-          const hash = bcrypt.hashSync(orgPassword, orgQuery.data!.orgSalt);
-          setOrgQueryParams({ ...orgQueryParams, hash });
-        }}
-      />
+      <Layout {...props}>
+        <Column {...columnProps}>
+          {defaultErrorMessage}
+          <Alert status="error">
+            <AlertIcon />
+            {userQuery.error.data.message}
+          </Alert>
+        </Column>
+      </Layout>
     );
   }
 
-  if (!orgQuery.error && orgQuery.data) {
+  if (orgQuery.data) {
     if (orgQuery.data._id) {
       return (
         <OrgPage
@@ -203,12 +254,38 @@ const HashPage = ({ ...props }: PageProps) => {
         />
       );
     }
+
+    return (
+      <OrgPageLogin
+        {...props}
+        orgQuery={orgQuery as AppQueryWithData<IOrg>}
+        status={orgQueryStatus}
+        onSubmit={async (orgPassword) => {
+          const hash = bcrypt.hashSync(orgPassword, orgQuery.data!.orgSalt);
+          setOrgQueryParams({ ...orgQueryParams, hash });
+        }}
+      />
+    );
+  } else if (orgQuery.error) {
+    return (
+      <Layout {...props}>
+        <Column {...columnProps}>
+          {defaultErrorMessage}
+          <Alert status="error">
+            <AlertIcon />
+            {orgQuery.error.data.message}
+          </Alert>
+        </Column>
+      </Layout>
+    );
   }
   //#endregion
 
   return (
     <Layout {...props}>
-      <Spinner />
+      <Column {...columnProps}>
+        <Spinner />
+      </Column>
     </Layout>
   );
 };
@@ -243,26 +320,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
         };
 
       // todo: pass ctx.req.headers.cookie
-      const orgQueryPromise = store.dispatch(
-        getOrg.initiate(initialOrgQueryParams(entityUrl))
-      );
-      await Promise.all(store.dispatch(orgApiThunk()));
-      const { data: org } = await orgQueryPromise;
-
-      if (!org) {
-        const eventQueryPromise = store.dispatch(
-          getEvent.initiate(initialEventQueryParams(entityUrl))
-        );
-        await Promise.all(store.dispatch(eventApiThunk()));
-        const { data: event } = await eventQueryPromise;
-
-        if (!event) {
-          store.dispatch(getUser.initiate(initialUserQueryParams(entityUrl)));
-          await Promise.all(store.dispatch(userApiThunk()));
-        }
-      } else if (!org._id) {
-        //return { props: { isLoading: true } };
-      }
+      store.dispatch(getOrg.initiate(initialOrgQueryParams(entityUrl)));
+      store.dispatch(getEvent.initiate(initialEventQueryParams(entityUrl)));
+      store.dispatch(getUser.initiate(initialUserQueryParams(entityUrl)));
+      await Promise.all(store.dispatch(getRunningQueriesThunk()));
 
       // if (typeof ctx.query.name[1] === "string") {
       //   return {
