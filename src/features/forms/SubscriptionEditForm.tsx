@@ -24,6 +24,8 @@ import { ITopic } from "models/Topic";
 import { useAddSubscriptionMutation } from "features/api/subscriptionsApi";
 import { AppQuery } from "utils/types";
 import { ArrowForwardIcon, ArrowRightIcon } from "@chakra-ui/icons";
+import { getRefId } from "models/Entity";
+import { equals } from "utils/string";
 
 export type EventCategoriesCheckboxes = {
   [key: string]: {
@@ -174,18 +176,18 @@ export const SubscriptionEditForm = ({
             pushNotif = false
           } = topicSubscription;
 
+          if (!topic) return obj;
+
           if (org) {
-            const orgId =
-              typeof topic.org === "object" ? topic.org._id : topic.org;
-            if (orgId !== org._id) {
+            const orgId = getRefId(topic.org);
+            if (!equals(orgId, org._id)) {
               return obj;
             }
           }
 
           if (event) {
-            const eventId =
-              typeof topic.event === "object" ? topic.event._id : topic.event;
-            if (eventId !== event._id) {
+            const eventId = getRefId(topic.event);
+            if (!equals(eventId, event._id)) {
               return obj;
             }
           }

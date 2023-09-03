@@ -6,7 +6,6 @@ import {
   Flex,
   Menu,
   MenuButton,
-  Icon,
   useColorMode,
   Drawer,
   DrawerBody,
@@ -23,9 +22,8 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
-import { FaUser } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { Heading, LoginButton } from "features/common";
+import { Heading, Link, LoginButton } from "features/common";
 import {
   EventPopover,
   OrgPopover,
@@ -36,7 +34,6 @@ import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { EOrgType } from "models/Org";
 import { selectUserEmail } from "store/userSlice";
-import { removeProps } from "utils/object";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
 
@@ -45,17 +42,12 @@ export const Nav = ({
   title,
   ...props
 }: BoxProps & PageProps & { title?: string }) => {
-  const { data: session } = useSession();
-  const userName = session?.user.userName || "";
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const isEntityPage =
-    Array.isArray(router.query.name) &&
-    router.pathname !== "/" &&
-    !title?.includes("Forum") &&
-    !router.pathname.includes("evenements");
-  const userEmail = useSelector(selectUserEmail) || session?.user.email;
+  const { data: session } = useSession();
+  const userEmail = useSelector(selectUserEmail);
+  const userName = session?.user.userName || "";
 
   const {
     isOpen: isDrawerOpen,
@@ -69,43 +61,41 @@ export const Nav = ({
     borderRadius: 9999,
     borderStyle: "solid",
     borderWidth: 1,
-    mr: isMobile ? 1 : 3,
+    mr: 3,
     pt: 0.5
   };
 
-  const NavMenuButton = (
-    <>
-      <IconButton
-        aria-label="Ouvrir le menu"
-        colorScheme="cyan"
-        bg="lightcyan"
-        icon={<HamburgerIcon />}
-        border="1px solid black"
-        onClick={onDrawerOpen}
-      />
-      <Drawer placement="left" isOpen={isDrawerOpen} onClose={onDrawerClose}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader>{/* <Heading>{title}</Heading> */}</DrawerHeader>
-          <DrawerBody>
-            <NavButtonsList
-              direction="column"
-              onClose={() => {
-                if (isMobile) onDrawerClose();
-              }}
-            />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-    </>
-  );
-
   return (
-    <Box as="nav" {...removeProps(props, ["isSessionLoading"])}>
+    <Box as="nav" {...props}>
       {isMobile && (
         <Box position="fixed" right={3} top={3}>
-          {NavMenuButton}
+          <IconButton
+            aria-label="Ouvrir le menu"
+            colorScheme="cyan"
+            bg="lightcyan"
+            icon={<HamburgerIcon />}
+            border="1px solid black"
+            onClick={onDrawerOpen}
+          />
+          <Drawer
+            placement="left"
+            isOpen={isDrawerOpen}
+            onClose={onDrawerClose}
+          >
+            <DrawerOverlay />
+            <DrawerContent>
+              <DrawerCloseButton />
+              <DrawerHeader>{/* <Heading>{title}</Heading> */}</DrawerHeader>
+              <DrawerBody>
+                <NavButtonsList
+                  direction="column"
+                  onClose={() => {
+                    if (isMobile) onDrawerClose();
+                  }}
+                />
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
         </Box>
       )}
 
@@ -114,7 +104,11 @@ export const Nav = ({
           {!isMobile && (
             <Tr role="rowheader">
               <Td border={0} p={0}>
-                <Heading mb={2}>{process.env.NEXT_PUBLIC_SHORT_URL}</Heading>
+                <Heading mb={2}>
+                  <Link href="/" shallow>
+                    {process.env.NEXT_PUBLIC_SHORT_URL}
+                  </Link>
+                </Heading>
               </Td>
             </Tr>
           )}
@@ -189,7 +183,7 @@ export const Nav = ({
                       />
                     </Menu>
 
-                    <Box {...popoverProps} mx={isMobile ? 2 : 3}>
+                    <Box {...popoverProps} ml={3}>
                       <OrgPopover
                         label="Mes planètes"
                         isMobile={isMobile}
@@ -219,13 +213,15 @@ export const Nav = ({
                         session={session}
                       />
                     </Box>
-                    <Box {...popoverProps} mr={0}>
-                      <NotificationPopover
-                        isMobile={isMobile}
-                        offset={[isMobile ? -141 : 140, 15]}
-                        session={session}
-                      />
-                    </Box>
+                    {!isMobile && (
+                      <Box {...popoverProps} mr={0}>
+                        <NotificationPopover
+                          isMobile={isMobile}
+                          offset={[isMobile ? -141 : 140, 15]}
+                          session={session}
+                        />
+                      </Box>
+                    )}
                   </>
                 </Flex>
               </Td>
@@ -236,308 +232,3 @@ export const Nav = ({
     </Box>
   );
 };
-
-{
-  /*
-    <EmailLoginPopover
-      iconProps={{ boxSize: [8, 10, 10] }}
-      popoverProps={
-        isMobile ? {} : { offset: [-140, -25] }
-      }
-      ml={2}
-      mr={3}
-    />
-  */
-}
-
-{
-  /*
-    <EmailLoginPopover
-      iconProps={{ boxSize: 8 }}
-      popoverProps={{ offset: [100, -20] }}
-    />
-  */
-}
-
-{
-  /*
-    {!session && (
-      <Tooltip label="Connexion">
-        <IconButton
-          aria-label="Connexion"
-          icon={
-            <Icon
-              as={FaKey}
-              boxSize={[8, 8, 8]}
-              _hover={{ color: "#00B5D8" }}
-            />
-          }
-          bg="transparent"
-          _hover={{
-            bg: "transparent",
-            color: "#00B5D8"
-          }}
-          onClick={() => {
-            router.push("/login", "/login", {
-              shallow: true
-            });
-          }}
-        />
-      </Tooltip>
-    )} 
-  */
-}
-
-{
-  /*
-    <Tr role="row">
-      <Td
-        alignItems="center"
-        border={0}
-        display="flex"
-        fontSize="sm"
-        p={0}
-      >
-        {typeof window !== "undefined" &&
-        window.history?.state?.idx > 0 ? (
-          <Link onClick={() => router.back()}>
-            <ChevronLeftIcon /> Retour
-          </Link>
-        ) : (
-          <>
-            <ChevronLeftIcon /> Retour
-          </>
-        )}
-      </Td>
-    </Tr>
-  */
-}
-
-{
-  /*
-    <Text fontSize="sm">
-      {typeof window !== "undefined" && window.location.origin
-        ? window.location.origin
-        : ""}
-      {router.query && Array.isArray(router.query.name)
-        ? router.query.name.reduce((acc, value, index) => {
-            if (index > 0) return acc + "/" + value;
-            return value;
-          }, "")
-        : router.asPath}
-    </Text>
- */
-}
-
-{
-  /* {!isEntityPage && (
-                <>
-                  <Tr role="rowheader">
-                    <Td border={0} p={0}>
-                      <Flex>
-                        <Link href="/" variant="no-underline">
-                          <Heading fontFamily="Lato">Bienvenue</Heading>
-                        </Link>
-                      </Flex>
-                    </Td>
-                    <Td border={0} display="flex" p={0}>
-                      <Heading fontFamily="Lato" noContainer ml="auto">
-                        {session ? session.user.userName : ""}
-                      </Heading>
-                    </Td>
-                  </Tr>
-                  <Tr>
-                    <Td border={0} p={0}>
-                      <Flex>
-                        <Link
-                          href="/"
-                          variant="no-underline"
-                          _focus={{ border: 0 }}
-                        >
-                          <Image height="100px" src="/images/bg.png" />
-                        </Link>
-                      </Flex>
-                    </Td>
-                    <Td border={0} p={0}>
-                      <Flex alignItems="center">
-                        {session && (
-                          <Flex
-                            as="nav"
-                            bg={isDark ? "gray.800" : "lightcyan"}
-                            borderColor={isDark ? "gray.600" : "gray.200"}
-                            borderRadius={9999}
-                            borderStyle="solid"
-                            borderWidth={1}
-                            ml="auto"
-                            p="4px 8px 4px 8px"
-                          >
-                            <OrgPopover
-                              orgType={EOrgType.NETWORK}
-                              session={session}
-                              boxSize={[6, 6, 6]}
-                              mr={2}
-                            />
-                            <OrgPopover
-                              session={session}
-                              boxSize={[6, 6, 6]}
-                              mr={2}
-                            />
-                            <EventPopover
-                              boxSize={[5, 5, 5]}
-                              session={session}
-                              mr={3}
-                            />
-                            <TopicPopover
-                              boxSize={[5, 5, 5]}
-                              session={session}
-                              mr={2}
-                            />
-                            <NotificationPopover
-                              boxSize={[6, 6, 6]}
-                              session={session}
-                            />
-                          </Flex>
-                        )}
-
-                        {session && userEmail && (
-                          <Menu>
-                            <Tooltip
-                              label={`Connecté en tant que ${userEmail}`}
-                              placement="left"
-                            >
-                              <MenuButton ml={1} data-cy="avatar-button">
-                                <Avatar
-                                  boxSize={10}
-                                  name={userName}
-                                  src={
-                                    session.user.userImage
-                                      ? session.user.userImage.base64
-                                      : undefined
-                                  }
-                                />
-                              </MenuButton>
-                            </Tooltip>
-
-                            <NavMenuList
-                              email={userEmail}
-                              userName={userName}
-                            />
-                          </Menu>
-                        )}
-                      </Flex>
-                    </Td>
-                  </Tr>
-                </>
-              )} */
-}
-
-{
-  /* {isMobile && (
-        <>
-           <Tr role="rowheader">
-              <Td border={0} lineHeight="auto" p={0}>
-                <Heading mb={1}>Bienvenue</Heading>
-              </Td>
-            </Tr>
-          <Tr role="row">
-            <Td border={0} p={0}>
-              {session && isEntityPage && (
-                <NavButtonsList title={title} isMobile />
-              )}
-
-              {session && !isEntityPage && NavMenuButton}
-
-              {!session && (
-                <Flex justifyContent="space-between">
-                  {NavMenuButton}
-
-                  <Tooltip label="Connexion">
-                    <Button
-                      colorScheme="cyan"
-                      bg="lightcyan"
-                      leftIcon={<Icon as={FaKey} />}
-                      onClick={() => {
-                        router.push("/login", "/login", {
-                          shallow: true
-                        });
-                      }}
-                    >
-                      Se connecter
-                    </Button>
-                  </Tooltip>
-                </Flex>
-              )}
-            </Td>
-          </Tr>
-
-          {session && userEmail && (
-            <>
-              <Tr role="rowheader">
-                <Td border={0} lineHeight="auto" p={0}>
-                  <Flex mt={1}>
-                    <Heading>{session.user.userName}</Heading>
-                  </Flex>
-                </Td>
-              </Tr>
-              <Tr role="row">
-                <Td border={0} p={0}>
-                  <Flex mt={2}>
-                    <>
-                      <Box {...popoverProps}>
-                        <OrgPopover
-                          boxSize={6}
-                          orgType={EOrgType.NETWORK}
-                          session={session}
-                          mx={3}
-                        />
-                      </Box>
-                      <Box {...popoverProps}>
-                        <OrgPopover boxSize={6} session={session} mx={3} />
-                      </Box>
-                      <Box {...popoverProps}>
-                        <EventPopover boxSize={6} session={session} mx={3} />
-                      </Box>
-                      <Box {...popoverProps}>
-                        <TopicPopover boxSize={6} session={session} mx={3} />
-                      </Box>
-                      <Box {...popoverProps}>
-                        <NotificationPopover
-                          boxSize={6}
-                          session={session}
-                          mx={3}
-                        />
-                      </Box>
-
-                      <Menu>
-                        <Tooltip
-                          label={`Connecté en tant que ${userEmail}`}
-                          placement="left"
-                        >
-                          <MenuButton data-cy="avatar-button">
-                            <Avatar
-                              boxSize={12}
-                              name={userName}
-                              src={
-                                session.user.userImage
-                                  ? session.user.userImage.base64
-                                  : undefined
-                              }
-                            />
-                          </MenuButton>
-                        </Tooltip>
-
-                        <NavMenuList
-                          email={userEmail}
-                          //session={session}
-                          userName={userName}
-                        />
-                      </Menu>
-                    </>
-                  </Flex>
-                </Td>
-              </Tr>
-            </>
-          )}
-        </>
-      )} */
-}

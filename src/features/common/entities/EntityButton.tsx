@@ -78,7 +78,7 @@ export const EntityButton = ({
     >
       <span>
         <Button
-          aria-hidden
+          //aria-hidden
           cursor={hasLink ? "pointer" : "default"}
           height="auto"
           m={0}

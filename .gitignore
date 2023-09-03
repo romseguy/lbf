@@ -18,7 +18,8 @@ tsconfig.tsbuildinfo
 **/public/workbox-*.js.map
 
 # misc
-playground.mongodb
+*.mongodb.js
+*.mongodb
 TODO
 stuff.json
 stuff.js

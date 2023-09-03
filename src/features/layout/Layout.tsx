@@ -187,6 +187,7 @@ export const Layout = ({
             pageHeader={pageHeader}
             pageTitle={pageTitle}
             m={isMobile ? 1 : 3}
+            mb={isMobile ? 3 : undefined}
             mt={0}
           />
         )}

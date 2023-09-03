@@ -14,6 +14,7 @@ import {
 import { IUser } from "models/User";
 import { createServerError } from "utils/errors";
 import { equals, logJson } from "utils/string";
+import { getRefId } from "models/Entity";
 
 function updateOrgSubscription(
   org: IOrg,
@@ -303,7 +304,9 @@ handler.post<
       }
 
       for (let i = 0; i < body.topics.length; i++) {
-        const topicId = body.topics[i].topic._id;
+        const newTopicSubscription = body.topics[i];
+        if (newTopicSubscription.topic === null) continue;
+        const topicId = getRefId(newTopicSubscription.topic);
         const topic = await models.Topic.findOne({ _id: topicId });
 
         if (!topic) {
@@ -318,11 +321,10 @@ handler.post<
             );
         }
 
-        const { emailNotif, pushNotif } = body.topics[i];
-        const topicSubscription = subscription.topics?.find((topicS) =>
-          typeof topicS.topic === "object"
-            ? equals(topicS.topic._id, topicId)
-            : equals(topicS.topic, topicId)
+        const { emailNotif, pushNotif } = newTopicSubscription;
+        const topicSubscription = subscription.topics?.find(
+          (topicS) =>
+            topicS.topic !== null && equals(getRefId(topicS.topic), topicId)
         );
 
         if (!topicSubscription) {

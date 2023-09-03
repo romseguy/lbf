@@ -312,12 +312,13 @@ handler.delete<
     const topicId = req.query.topicId;
     let topic = await models.Topic.findOne({ _id: topicId });
 
-    if (!topic)
+    if (!topic) {
       return res
         .status(404)
         .json(
           createServerError(new Error(`La discussion n'a pas pu être trouvée`))
         );
+    }
 
     topic = await topic.populate("org event").execPopulate();
     const isCreator = equals(
@@ -365,6 +366,7 @@ handler.delete<
     for (const subscription of subscriptions) {
       if (!subscription.topics) continue;
       subscription.topics = subscription.topics.filter((topicSubscription) => {
+        if (topicSubscription.topic === null) return false;
         if (equals(topicSubscription.topic._id, topic!._id)) {
           count++;
           return false;

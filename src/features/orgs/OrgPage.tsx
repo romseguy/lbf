@@ -4,7 +4,12 @@ import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Button, Link } from "features/common";
+import {
+  Button,
+  EntityPageConfigButton,
+  EntityPageSubscribeButton,
+  Link
+} from "features/common";
 import { Forum } from "features/forum/Forum";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
@@ -49,7 +54,6 @@ export const OrgPage = ({
 
   //#region org
   const org = orgQuery.data;
-  console.log("🚀 ~ file: OrgPage.tsx:52 ~ org:", org);
   const isCreator =
     org.orgUrl === "nom_de_votre_planete" || // demo page
     session?.user.userId === getRefId(org) ||
@@ -111,83 +115,17 @@ export const OrgPage = ({
   };
   //#endregion
 
-  const configButtons = () => {
-    if (!isCreator) return null;
-
-    return (
-      <>
-        {!isConfig && !isEdit && (
-          <Flex flexDirection={isMobile ? "column" : "row"}>
-            <Flex mb={isMobile ? 3 : 3}>
-              <Button
-                colorScheme="red"
-                leftIcon={
-                  <SettingsIcon boxSize={6} data-cy="org-settings-button" />
-                }
-                onClick={() => setIsConfig(true)}
-              >
-                Configurer
-              </Button>
-            </Flex>
-          </Flex>
-        )}
-
-        {(isConfig || isEdit) && (
-          <Button
-            canWrap
-            colorScheme="teal"
-            leftIcon={<ArrowBackIcon boxSize={6} />}
-            onClick={() => {
-              if (isEdit) setIsEdit(false);
-              else setIsConfig(false);
-            }}
-            mb={3}
-          >
-            Retour
-          </Button>
-        )}
-      </>
-    );
-  };
-
-  const subscribeButtons = () => {
-    if (isConfig || isEdit) return null;
-
-    const isDisabled =
-      orgQuery.isFetching ||
-      subQuery.isFetching ||
-      (org.orgUrl === "nom_de_votre_planete" && !session);
-
-    return (
-      <Flex flexWrap="wrap" mt={-3}>
-        {isFollowed && (
-          <Box mr={3} mt={3}>
-            <SubscribePopover
-              isDisabled={isDisabled}
-              org={org}
-              query={orgQuery}
-              subQuery={subQuery}
-            />
-          </Box>
-        )}
-
-        <Box mt={3}>
-          <SubscribePopover
-            isDisabled={isDisabled}
-            org={org}
-            query={orgQuery}
-            subQuery={subQuery}
-            notifType="push"
-          />
-        </Box>
-      </Flex>
-    );
-  };
-
   if (org.orgUrl === "forum") {
     return (
       <Layout entity={org} isMobile={isMobile}>
-        {configButtons()}
+        {isCreator && (
+          <EntityPageConfigButton
+            isConfig={isConfig}
+            isEdit={isEdit}
+            setIsConfig={setIsConfig}
+            setIsEdit={setIsEdit}
+          />
+        )}
 
         {!isConfig && !isEdit && (
           <Forum orgQuery={orgQuery} subQuery={subQuery} tabItem={tabItem} />
@@ -211,12 +149,19 @@ export const OrgPage = ({
 
   return (
     <Layout entity={org} isMobile={isMobile}>
-      {configButtons()}
-
-      {subscribeButtons()}
+      {isCreator && (
+        <EntityPageConfigButton
+          isConfig={isConfig}
+          isEdit={isEdit}
+          setIsConfig={setIsConfig}
+          setIsEdit={setIsEdit}
+        />
+      )}
 
       {!isConfig && !isEdit && (
         <>
+          <EntityPageSubscribeButton orgQuery={orgQuery} subQuery={subQuery} />
+
           <Box my={3}>
             <Text fontSize="smaller">
               {org.orgType === EOrgType.GENERIC

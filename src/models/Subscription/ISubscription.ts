@@ -49,5 +49,5 @@ export interface IOrgSubscriptionEventCategory {
 export interface ITopicSubscription {
   emailNotif?: boolean;
   pushNotif?: boolean;
-  topic: ITopic;
+  topic: ITopic | null;
 }

@@ -102,21 +102,23 @@ export const NavButtonsList = ({
         }
       `}
     >
-      <Link
-        {...linkProps}
-        onClick={() => {
-          router.push("/", "/", { shallow: true });
-          onClose && onClose();
-        }}
-      >
-        <Button
-          leftIcon={<FaHome />}
-          isActive={router.asPath === "/"}
-          {...buttonProps}
+      {isMobile && (
+        <Link
+          {...linkProps}
+          onClick={() => {
+            router.push("/", "/", { shallow: true });
+            onClose && onClose();
+          }}
         >
-          Accueil
-        </Button>
-      </Link>
+          <Button
+            leftIcon={<FaHome />}
+            isActive={router.asPath === "/"}
+            {...buttonProps}
+          >
+            Accueil
+          </Button>
+        </Link>
+      )}
 
       <Link
         {...linkProps}
@@ -131,14 +133,14 @@ export const NavButtonsList = ({
 
       {isNetworksModalOpen && (
         <TreeChartModal
-          header={<Heading mb={3}>Les forums</Heading>}
+          header={<Heading mb={3}>Tous les forums</Heading>}
           inputNodes={inputNodes}
           isOpen={isNetworksModalOpen}
           onClose={closeNetworksModal}
         />
       )}
 
-      {!isEntityPage && (
+      {(isMobile || !isEntityPage) && (
         <Link
           {...linkProps}
           onClick={() => {
@@ -156,7 +158,7 @@ export const NavButtonsList = ({
         </Link>
       )}
 
-      {!isEntityPage && (
+      {(isMobile || !isEntityPage) && (
         <Link
           {...linkProps}
           onClick={() => {

@@ -248,65 +248,70 @@ const TopicPopoverContent = ({
               spacing={2}
               pr={1}
             >
-              {followedTopics.map((topic, index) => (
-                <Box
-                  key={`followed-${topic._id}`}
-                  //alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
-                  borderColor={isDark ? "gray.600" : "gray.300"}
-                  borderRadius="lg"
-                  borderStyle="solid"
-                  borderWidth="1px"
-                  p={1}
-                >
-                  {(topic.event || topic.org) && (
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <Text fontSize="smaller" mx={1}>
-                        {topic.org ? OrgTypes[topic.org.orgType] : "Événement"}
-                      </Text>
-                      <EntityButton event={topic.event} org={topic.org} />
-                    </Box>
-                  )}
-
+              {followedTopics.map((topic, index) => {
+                if (!topic) return null;
+                return (
                   <Box
-                    display="flex"
-                    alignItems="center"
-                    //justifyContent={index % 2 === 0 ? "flex-start" : "flex-end"}
+                    key={`followed-${topic._id}`}
+                    //alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
+                    borderColor={isDark ? "gray.600" : "gray.300"}
+                    borderRadius="lg"
+                    borderStyle="solid"
+                    borderWidth="1px"
+                    p={1}
                   >
-                    <EntityButton topic={topic} mr={1} />
-                    <IconButton
-                      aria-label="Se désabonner de la discussion"
-                      icon={<FaBellSlash />}
-                      variant="outline"
-                      colorScheme="red"
-                      ml="auto"
-                      onClick={async () => {
-                        const unsubscribe = confirm(
-                          `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
-                        );
+                    {(topic.event || topic.org) && (
+                      <Box display="flex" alignItems="center" mb={1}>
+                        <Text fontSize="smaller" mx={1}>
+                          {topic.org
+                            ? OrgTypes[topic.org.orgType]
+                            : "Événement"}
+                        </Text>
+                        <EntityButton event={topic.event} org={topic.org} />
+                      </Box>
+                    )}
 
-                        if (unsubscribe) {
-                          try {
-                            await deleteSubscription({
-                              subscriptionId: subQuery.data?._id || "",
-                              topicId: topic._id
-                            });
-                            toast({
-                              title: `Vous êtes désabonné de ${topic.topicName}`,
-                              status: "success"
-                            });
-                          } catch (error) {
-                            console.error(error);
-                            toast({
-                              title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
-                              status: "error"
-                            });
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      //justifyContent={index % 2 === 0 ? "flex-start" : "flex-end"}
+                    >
+                      <EntityButton topic={topic} mr={1} />
+                      <IconButton
+                        aria-label="Se désabonner de la discussion"
+                        icon={<FaBellSlash />}
+                        variant="outline"
+                        colorScheme="red"
+                        ml="auto"
+                        onClick={async () => {
+                          const unsubscribe = confirm(
+                            `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
+                          );
+
+                          if (unsubscribe) {
+                            try {
+                              await deleteSubscription({
+                                subscriptionId: subQuery.data?._id || "",
+                                topicId: topic._id
+                              });
+                              toast({
+                                title: `Vous êtes désabonné de ${topic.topicName}`,
+                                status: "success"
+                              });
+                            } catch (error) {
+                              console.error(error);
+                              toast({
+                                title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
+                                status: "error"
+                              });
+                            }
                           }
-                        }
-                      }}
-                    />
+                        }}
+                      />
+                    </Box>
                   </Box>
-                </Box>
-              ))}
+                );
+              })}
             </VStack>
           ) : (
             <Text fontSize="smaller">

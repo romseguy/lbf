@@ -74,7 +74,6 @@ export const TopicsList = ({
   const [deleteTopic] = useDeleteTopicMutation();
 
   //#region local state
-  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const entity = query.data;
   const isE = isEvent(entity);
   const isO = isOrg(entity);
@@ -148,16 +147,18 @@ export const TopicsList = ({
       }, {}),
     [topics]
   );
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   useEffect(() => {
-    // if (currentTopic) {
-    //   const topicRef = refs[currentTopic._id].current;
-    //   if (topicRef)
-    //     topicRef.scrollIntoView({
-    //       behavior: "smooth",
-    //       block: "start"
-    //     });
-    // }
-  }, [currentTopic]);
+    if (currentTopic && !isLoading[currentTopic._id]) {
+      const topicRef = refs[currentTopic._id].current;
+      if (topicRef) {
+        topicRef.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+    }
+  }, [currentTopic, isLoading]);
   //#endregion
 
   //#region topic modal state

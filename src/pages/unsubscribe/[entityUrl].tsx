@@ -8,6 +8,7 @@ import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { PageProps } from "main";
 import api, { ResponseType } from "utils/api";
+import { getRefId } from "models/Entity";
 
 interface UnsubscribePageProps {
   unsubscribed: boolean;
@@ -64,7 +65,7 @@ export async function getServerSideProps(
       if (subscription) {
         if (topicId) {
           const topicSubscription = subscription.topics?.find(
-            ({ topic }) => topic._id === topicId
+            ({ topic }) => topic !== null && getRefId(topic) === topicId
           );
 
           if (topicSubscription) {
@@ -79,7 +80,7 @@ export async function getServerSideProps(
               return {
                 props: {
                   unsubscribed: true,
-                  topic: topicSubscription.topic
+                  topic: topicSubscription.topic!
                 }
               };
           }
