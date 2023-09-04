@@ -1,12 +1,10 @@
-import { Flex, Image, useColorMode, FlexProps } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import { Box, BoxProps, Image, useColorMode } from "@chakra-ui/react";
+import React, { useState } from "react";
 import { css } from "twin.macro";
 import { Link } from "features/common";
 import { EventCategoryTag } from "features/events/EventCategoryTag";
-import { logoHeight } from "features/layout/theme";
+import theme, { logoHeight } from "features/layout/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
-import { useScroll } from "hooks/useScroll";
 import {
   IEntity,
   IEntityBanner,
@@ -24,7 +22,7 @@ export const Header = ({
   pageHeader,
   pageTitle,
   ...props
-}: FlexProps & {
+}: BoxProps & {
   defaultTitle: string;
   entity?: IEntity | IUser;
   pageHeader?: React.ReactNode;
@@ -61,35 +59,33 @@ export const Header = ({
   if (!banner && !logo && !showTitle) return null;
 
   return (
-    <Flex
+    <Box
       //ref={elementToScrollRef as React.ForwardedRef<HTMLDivElement>}
       as="header"
-      alignItems="center"
-      bg={isDark ? "gray.700" : "lightblue"}
+      //alignItems="center"
       borderRadius="lg"
       color={isDark ? "white" : "black"}
-      cursor={banner ? "pointer" : "default"}
-      height={banner ? banner.headerHeight : undefined}
-      p={
-        banner && !logo
-          ? "0 12px 0 12px"
-          : banner && logo
-          ? "0 12px 0 0"
-          : !banner && !logo
-          ? 3
-          : !banner && logo
-          ? "0 12px 0 0"
-          : undefined
-      }
-      css={
-        banner
-          ? css`
-              background-image: url("${banner.base64 || banner.url}");
-              background-size: 100% 100%;
-              background-repeat: no-repeat;
-            `
-          : undefined
-      }
+      css={css`
+        display: flex;
+        flex-shrink: 0;
+        padding: 12px;
+
+        ${banner &&
+        `
+          background-image: url("${banner.base64 || banner.url}");
+          background-size: 100% 100%;
+          background-repeat: no-repeat;
+          cursor: pointer;
+          height: ${banner.headerHeight}px;
+          ${logo ? `` : ``}
+        `}
+
+        ${!banner &&
+        `
+          background-color: ${isDark ? theme.colors.gray[700] : "lightblue"};
+          ${logo ? `` : ``}
+        `}
+      `}
       onClick={(e) => {
         e.stopPropagation();
         setIsBannerModalOpen(true);
@@ -116,6 +112,7 @@ export const Header = ({
 
       {(!entity || showTitle) && (
         <HeaderTitle
+          alignSelf="flex-end"
           entity={entity}
           pageHeader={pageHeader}
           pageTitle={pageTitle || defaultTitle}
@@ -174,6 +171,6 @@ export const Header = ({
           />
         </FullscreenModal>
       )}
-    </Flex>
+    </Box>
   );
 };

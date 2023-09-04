@@ -1,9 +1,10 @@
 import { useColorMode } from "@chakra-ui/react";
 import { Global, css } from "@emotion/react";
 import theme, { breakpoints } from "features/layout/theme";
+import { PageProps } from "main";
 import { zIndex } from "utils/string";
 
-export const GlobalStyles = () => {
+export const GlobalStyles = ({ isMobile }: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
@@ -27,21 +28,22 @@ export const GlobalStyles = () => {
       } */
         //#endregion
 
-        //#region global
-        html,
-        body,
-        #__next {
-          height: 100%;
-        }
-
-        body,
-        #__next {
-          display: flex;
-          flex-direction: column;
-        }
-        //#endregion
-
         //#region large screens
+        /* ${!isMobile &&
+        `
+          html,
+          body,
+          #__next {
+            height: 100%;
+          }
+
+          body,
+          #__next {
+            display: flex;
+            flex-direction: column;
+          }
+        `} */
+
         @media (min-width: ${breakpoints["2xl"]}) {
           body {
             background: url(/images/bg.png);

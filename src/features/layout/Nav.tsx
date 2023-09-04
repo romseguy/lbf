@@ -1,4 +1,3 @@
-import { HamburgerIcon } from "@chakra-ui/icons";
 import {
   Avatar,
   Box,
@@ -7,18 +6,10 @@ import {
   Menu,
   MenuButton,
   useColorMode,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  useDisclosure,
   Table,
   Tbody,
   Tr,
-  Td,
-  IconButton
+  Td
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
@@ -49,12 +40,6 @@ export const Nav = ({
   const userEmail = useSelector(selectUserEmail);
   const userName = session?.user.userName || "";
 
-  const {
-    isOpen: isDrawerOpen,
-    onOpen: onDrawerOpen,
-    onClose: onDrawerClose
-  } = useDisclosure();
-
   const popoverProps = {
     bg: isDark ? "gray.800" : "lightcyan",
     borderColor: isDark ? "gray.600" : "gray.200",
@@ -67,41 +52,9 @@ export const Nav = ({
 
   return (
     <Box as="nav" {...props}>
-      {isMobile && (
-        <Box position="fixed" right={3} top={3}>
-          <IconButton
-            aria-label="Ouvrir le menu"
-            colorScheme="cyan"
-            bg="lightcyan"
-            icon={<HamburgerIcon />}
-            border="1px solid black"
-            onClick={onDrawerOpen}
-          />
-          <Drawer
-            placement="left"
-            isOpen={isDrawerOpen}
-            onClose={onDrawerClose}
-          >
-            <DrawerOverlay />
-            <DrawerContent>
-              <DrawerCloseButton />
-              <DrawerHeader>{/* <Heading>{title}</Heading> */}</DrawerHeader>
-              <DrawerBody>
-                <NavButtonsList
-                  direction="column"
-                  onClose={() => {
-                    if (isMobile) onDrawerClose();
-                  }}
-                />
-              </DrawerBody>
-            </DrawerContent>
-          </Drawer>
-        </Box>
-      )}
-
-      <Table role="navigation" mb={isMobile ? 0 : 2}>
-        <Tbody role="rowgroup">
-          {!isMobile && (
+      {!isMobile && (
+        <Table role="navigation">
+          <Tbody role="rowgroup">
             <Tr role="rowheader">
               <Td border={0} p={0}>
                 <Heading mb={2}>
@@ -111,31 +64,28 @@ export const Nav = ({
                 </Heading>
               </Td>
             </Tr>
-          )}
 
-          <Tr role="row">
-            <Td border={0} p={isMobile ? "12px 0 0 0" : "16px 0 0 0"}>
-              {!isMobile && <NavButtonsList title={title} />}
-              {!session && isMobile && (
-                <LoginButton
-                  colorScheme="cyan"
-                  bg="lightcyan"
-                  mt={!isMobile ? 3 : undefined}
-                >
-                  Se connecter
-                </LoginButton>
-              )}
-            </Td>
-            {!session && !isMobile && (
-              <Td border={0} p={0} textAlign="right">
-                <LoginButton colorScheme="cyan" bg="lightcyan">
-                  Se connecter
-                </LoginButton>
+            <Tr role="row">
+              <Td border={0} p={isMobile ? 0 : "16px 0 0 0"}>
+                <NavButtonsList title={title} />
               </Td>
-            )}
-          </Tr>
-        </Tbody>
-      </Table>
+              {!session && (
+                <Td border={0} p={0} textAlign="right">
+                  <LoginButton colorScheme="cyan" bg="lightcyan">
+                    Se connecter
+                  </LoginButton>
+                </Td>
+              )}
+            </Tr>
+          </Tbody>
+        </Table>
+      )}
+
+      {isMobile && !session && (
+        <LoginButton colorScheme="cyan" bg="lightcyan" mb={1}>
+          Se connecter
+        </LoginButton>
+      )}
 
       {session && userEmail && (
         <Table
@@ -143,7 +93,8 @@ export const Nav = ({
           bg={isDark ? "gray.700" : "gray.200"}
           borderRadius="lg"
           width={isMobile ? undefined : "auto"}
-          mb={isMobile ? 2 : 0}
+          mb={isMobile ? 1 : 0}
+          mt={isMobile ? undefined : 3}
         >
           <Tbody role="rowgroup">
             {/* <Tr role="rowheader">

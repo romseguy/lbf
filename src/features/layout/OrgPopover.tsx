@@ -229,10 +229,10 @@ export const OrgPopover = ({
             <Icon
               as={orgType === EOrgType.NETWORK ? FaGlobeEurope : FaTree}
               boxSize={6}
+              mx={3}
               _hover={{ color: "cyan.600" }}
             />
           }
-          p={3}
           onClick={onOpen}
           data-cy="org-popover-button"
         />

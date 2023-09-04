@@ -29,11 +29,11 @@ export const TopicsListItemShare = ({
     <Popover closeOnBlur isOpen={isOpen} onClose={() => setIsOpen(false)}>
       <PopoverTrigger>
         <div>
-          <Tooltip label="Partager">
+          <Tooltip label="Partager la discussion">
             <IconButton
               icon={<FaShare />}
               boxSize={4}
-              bg="transparent"
+              bgColor="transparent"
               _hover={{ bg: "transparent", color: "white" }}
               height="auto"
               minWidth={0}

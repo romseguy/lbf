@@ -1,16 +1,11 @@
 import { Flex, FlexProps, useColorMode } from "@chakra-ui/react";
 
-export const Column = ({
-  id,
-  children,
-  ...props
-}: FlexProps & { id?: string }) => {
+export const Column = ({ children, ...props }: FlexProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
   return (
     <Flex
-      id={id}
       flexDirection="column"
       bg={isDark ? "gray.600" : "lightcyan"}
       borderWidth={1}

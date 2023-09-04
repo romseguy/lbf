@@ -383,8 +383,7 @@ export const TopicPopover = ({
           bg="transparent"
           color={isOpen ? "cyan.600" : undefined}
           _hover={{ bg: "transparent" }}
-          icon={<ChatIcon boxSize={6} _hover={{ color: "cyan.600" }} />}
-          p={3}
+          icon={<ChatIcon boxSize={6} mx={3} _hover={{ color: "cyan.600" }} />}
           onClick={onOpen}
           data-cy="topicPopover"
         />

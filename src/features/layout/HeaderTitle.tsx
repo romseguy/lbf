@@ -1,5 +1,5 @@
 import { ChatIcon, SunIcon } from "@chakra-ui/icons";
-import { Flex, Icon, useColorMode } from "@chakra-ui/react";
+import { Box, BoxProps, Flex, Icon, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import {
@@ -26,8 +26,9 @@ import { IUser } from "models/User";
 export const HeaderTitle = ({
   entity,
   pageHeader,
-  pageTitle
-}: {
+  pageTitle,
+  ...props
+}: BoxProps & {
   entity?: IEntity | IUser;
   pageHeader?: React.ReactNode;
   pageTitle?: string;
@@ -38,9 +39,43 @@ export const HeaderTitle = ({
   const router = useRouter();
   const { data: session } = useSession();
 
+  //#region entity
   const isE = isEvent(entity);
   const isO = isOrg(entity);
   const isU = isUser(entity);
+  let banner: IEntityBanner | undefined;
+  let logo: IEntityLogo | undefined;
+  let name: string | undefined;
+  let entityUrl: string | undefined;
+  let icon: AppIcon | undefined;
+  let iconColor = banner ? "white" : isDark ? "green.100" : "green";
+  if (isE) {
+    banner = entity.eventBanner;
+    logo = entity.eventLogo;
+    name = entity.eventName;
+    entityUrl = entity.eventUrl;
+    icon = entity.isApproved ? FaRegCalendarCheck : FaRegCalendarTimes;
+    iconColor = entity.isApproved ? "green" : "red";
+  } else if (isO) {
+    banner = entity.orgBanner;
+    logo = entity.orgLogo;
+    name = entity.orgName;
+    entityUrl = entity.orgUrl;
+    icon =
+      entity.orgUrl === "forum"
+        ? ChatIcon
+        : entity.orgType === EOrgType.NETWORK
+        ? FaGlobeEurope
+        : FaTree;
+    iconColor = entity.orgType === EOrgType.NETWORK ? "blue" : "green";
+  } else if (isU) {
+    name = entity.userName;
+    entityUrl = entity.userName;
+    icon = SunIcon;
+  }
+  //#endregion
+
+  //#region local state
   const [orgNetworks, setOrgNetworks] = useState<IOrg[]>([]);
   useEffect(() => {
     setOrgNetworks([]);
@@ -52,50 +87,9 @@ export const HeaderTitle = ({
       }
     })();
   }, [entity]);
-
-  let banner: IEntityBanner | undefined;
-  let logo: IEntityLogo | undefined;
-  let name: string | undefined;
-  let url: string | undefined;
-
-  if (isE) {
-    banner = entity.eventBanner;
-    logo = entity.eventLogo;
-    name = entity.eventName;
-    url = entity.eventUrl;
-  } else if (isO) {
-    const org = entity as IOrg;
-    banner = org.orgBanner;
-    logo = org.orgLogo;
-    name = org.orgName;
-    url = org.orgUrl;
-  } else if (isU) {
-    name = entity.userName;
-    url = entity.userName;
-  }
   const heading = <Heading pr={1}>{name || pageTitle || ""}</Heading>;
-
-  let icon: AppIcon | undefined;
-  let iconColor = banner ? "white" : isDark ? "green.100" : "green";
-
-  if (isE) {
-    icon = entity.isApproved ? FaRegCalendarCheck : FaRegCalendarTimes;
-    iconColor = entity.isApproved ? "green" : "red";
-  } else if (isO) {
-    const org = entity as IOrg;
-    icon =
-      org.orgUrl === "forum"
-        ? ChatIcon
-        : org.orgType === EOrgType.NETWORK
-        ? FaGlobeEurope
-        : FaTree;
-    iconColor = org.orgType === EOrgType.NETWORK ? "blue" : "green";
-  } else if (isU) {
-    icon = SunIcon;
-  }
-
   const title = (
-    <Flex alignItems="center" pt={3}>
+    <Flex alignItems="center" pt={3} {...props}>
       {icon && (
         <Icon
           as={icon}
@@ -103,7 +97,6 @@ export const HeaderTitle = ({
           color={iconColor}
           //mt={3}
           mr={2}
-          //@ts-expect-error
           title={
             isE && !entity.isApproved
               ? "Événement en attente de modération"
@@ -112,8 +105,8 @@ export const HeaderTitle = ({
         />
       )}
 
-      {url ? (
-        <Link href={`/${url}`} variant="no-underline">
+      {entityUrl ? (
+        <Link href={`/${entityUrl}`} variant="no-underline">
           {pageHeader ? pageHeader : heading}
         </Link>
       ) : pageHeader ? (
@@ -122,9 +115,9 @@ export const HeaderTitle = ({
         heading
       )}
 
-      {entity && url !== "forum" && (
+      {entity && entityUrl !== "forum" && (
         <LinkShare
-          url={`${process.env.NEXT_PUBLIC_URL}/${url}`}
+          url={`${process.env.NEXT_PUBLIC_URL}/${entityUrl}`}
           colorScheme="blue"
           label={`Copier le lien ${
             isE
@@ -140,16 +133,26 @@ export const HeaderTitle = ({
       )}
     </Flex>
   );
+  //#endregion
 
   return (
-    <Flex
-      alignItems="center"
-      bg={banner ? "black" : isDark ? "whiteAlpha.400" : "blackAlpha.200"}
+    <Box
+      //alignItems="center"
+      bg={
+        banner
+          ? isDark
+            ? "black"
+            : "white"
+          : isDark
+          ? "whiteAlpha.400"
+          : "blackAlpha.200"
+      }
       borderRadius="lg"
       pb={4}
       pl={4}
       pr={4}
       ml={logo ? 5 : undefined}
+      {...props}
     >
       <Flex flexDirection={orgNetworks.length > 0 ? "column" : "row"}>
         {title}
@@ -175,6 +178,6 @@ export const HeaderTitle = ({
           </Flex>
         )}
       </Flex>
-    </Flex>
+    </Box>
   );
 };

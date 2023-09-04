@@ -73,10 +73,17 @@ export const RTEditor = ({
   //#region tinymce
   const editorRef = useRef<TinyMCEEditor | null>(null);
   const closeToolbar = useCallback(() => {
-    if (editorRef.current) {
-      if (editorRef.current.queryCommandState("ToggleToolbarDrawer")) {
+    const editor = editorRef.current;
+    if (editor) {
+      editor.on("keydown", (e) => {
+        if (e.keyCode === 27) {
+          //escape
+        }
+      });
+
+      if (editor.queryCommandState("ToggleToolbarDrawer")) {
         try {
-          editorRef.current.execCommand("ToggleToolbarDrawer");
+          editor.execCommand("ToggleToolbarDrawer");
         } catch (error) {
           console.error(error);
         }

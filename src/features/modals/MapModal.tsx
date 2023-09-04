@@ -13,7 +13,7 @@ import {
 import React, { useRef, useState } from "react";
 import { LatLon } from "use-places-autocomplete";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
-import { Map, MapProps } from "features/map/Map";
+import { Map, MapProps, defaultZoomLevel } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -30,7 +30,6 @@ export const MapModal = withGoogleApi({
     events,
     orgs,
     mapProps,
-    zoomLevel,
     ...props
   }: {
     google: typeof google;
@@ -56,6 +55,10 @@ export const MapModal = withGoogleApi({
       defaultSize: { enabled: true },
       fullSize: { enabled: false }
     });
+    const [zoomLevel, setZoomLevel] = useState<number>(
+      props.zoomLevel || defaultZoomLevel
+    );
+    console.log("🚀 ~ file: MapModal.tsx:61 ~ zoomLevel:", zoomLevel);
 
     let title = "Carte";
 
@@ -112,6 +115,7 @@ export const MapModal = withGoogleApi({
                       }
                       isVisible={size.defaultSize.enabled}
                       setCenter={setCenter}
+                      setZoomLevel={setZoomLevel}
                     />
                   )}
                   <Map
@@ -120,6 +124,7 @@ export const MapModal = withGoogleApi({
                     orgs={orgs}
                     size={size}
                     zoomLevel={zoomLevel}
+                    setZoomLevel={setZoomLevel}
                     onFullscreenControlClick={(isFull: boolean) => {
                       setSize({
                         defaultSize: { enabled: !isFull },

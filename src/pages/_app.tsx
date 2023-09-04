@@ -1,3 +1,4 @@
+import "polyfill-object.fromentries";
 import { unseal } from "@hapi/iron";
 import { parse } from "cookie";
 import { AppProps as NextAppProps } from "next/app";
@@ -62,7 +63,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
       if (devSession && getEnv() === "development") {
         console.log("🚀 ~ file: _app.tsx:63 ~ devSession:", devSession);
         store.dispatch(setSession(devSession));
-        //@ts-expect-error
+        //@ts-ignore
         email = devSession.user.email;
       } else if (testSession && getEnv() === "test") {
         console.log("🚀 ~ file: _app.tsx:67 ~ testSession:", testSession);

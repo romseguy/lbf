@@ -2,7 +2,7 @@ import MarkerClusterer, {
   ClusterIconStyle
 } from "@googlemaps/markerclustererplus";
 import GoogleMap from "google-map-react";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { render } from "react-dom";
 import { LatLon } from "use-places-autocomplete";
 import { IEvent } from "models/Event";
@@ -18,7 +18,7 @@ const defaultCenter = {
   lat: 46.227638,
   lng: 2.213749
 };
-const defaultZoomLevel = 5;
+export const defaultZoomLevel = 5;
 
 function getMarkers(items: IEntity[]) {
   let hash: { [key: string]: boolean } = {};
@@ -56,6 +56,7 @@ export interface MapProps {
   size?: SizeMap;
   style: { [key: string]: string | number };
   zoomLevel?: number;
+  setZoomLevel?: React.Dispatch<React.SetStateAction<number>>;
   onFullscreenControlClick?: (isFull: boolean) => void;
 }
 
@@ -76,13 +77,9 @@ export const Map = withGoogleApi({
     loaded: boolean;
   }) => {
     const mapRef = useRef(null);
-
     const [itemToShow, setItemToShow] = useState<IEntity | null>(null);
-    const [zoomLevel, setZoomLevel] = useState<number>(
-      props.zoomLevel || defaultZoomLevel
-    );
+    const [zoomLevel, setZoomLevel] = useState<number>(defaultZoomLevel);
     const [markers, setMarkers] = useState(getMarkers(events || orgs || []));
-
     const onGoogleApiLoaded = ({
       map,
       maps: api
@@ -184,7 +181,7 @@ export const Map = withGoogleApi({
           defaultCenter={defaultCenter}
           defaultZoom={defaultZoomLevel}
           center={center}
-          zoom={zoomLevel}
+          zoom={props.zoomLevel || zoomLevel}
           options={(maps) => ({
             fullscreenControl: false,
             gestureHandling: "greedy"
@@ -197,7 +194,9 @@ export const Map = withGoogleApi({
           yesIWantToUseGoogleMapApiInternals
           onGoogleApiLoaded={onGoogleApiLoaded}
           onChange={(e) => {
-            setZoomLevel(e.zoom);
+            props.setZoomLevel
+              ? props.setZoomLevel(e.zoom)
+              : setZoomLevel(e.zoom);
           }}
           style={
             size?.fullSize.enabled
@@ -214,7 +213,7 @@ export const Map = withGoogleApi({
               lat={marker.lat}
               lng={marker.lng}
               item={marker.item}
-              zoomLevel={zoomLevel}
+              zoomLevel={props.zoomLevel || zoomLevel}
               setItemToShow={setItemToShow}
             />
           ))}

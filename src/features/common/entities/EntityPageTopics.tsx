@@ -27,18 +27,18 @@ export const EntityPageTopics = ({
   const router = useRouter();
   const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
 
-  useEffect(() => {
-    if (Array.isArray(router.query.name) && !!router.query.name[2]) return;
+  // useEffect(() => {
+  //   if (Array.isArray(router.query.name) && !!router.query.name[2]) return;
 
-    executeScroll();
-    console.log(
-      "🚀 ~ file: OrgPageTabs.tsx:TopicsTabPanel:62 ~ useEffect ~ executeScroll:"
-    );
-  }, []);
+  //   executeScroll();
+  //   console.log(
+  //     "🚀 ~ file: OrgPageTabs.tsx:TopicsTabPanel:62 ~ useEffect ~ executeScroll:"
+  //   );
+  // }, []);
 
   return (
     <>
-      <Flex ref={elementToScrollRef as React.ForwardedRef<HTMLDivElement>}>
+      <Flex ref={elementToScrollRef} alignItems="center">
         <ChatIcon boxSize={6} mr={3} mt={3} />
         <Heading noContainer mb={3}>
           Discussions

@@ -43,6 +43,7 @@ export const TopicMessagesList = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
+  // https://redux-toolkit.js.org/rtk-query/api/created-api/hooks#signature-1
   const mutation = useEditTopicMutation();
 
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});

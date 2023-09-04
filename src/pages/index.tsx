@@ -18,6 +18,7 @@ import {
   Column,
   EntityAddButton,
   Heading,
+  HostTag,
   Link,
   LoginButton
 } from "features/common";
@@ -80,14 +81,16 @@ const IndexPage = (props: PageProps) => {
   //#endregion
 
   const columnProps = {
-    maxWidth: "4xl",
-    m: "0 auto",
-    p: props.isMobile ? 2 : 3
+    maxWidth: "4xl"
   };
 
   return (
     <Layout {...props} pageTitle="Tous les forums">
-      <Column {...columnProps}>
+      <Column
+        m={props.isMobile ? undefined : "0 auto"}
+        maxWidth="4xl"
+        p={props.isMobile ? 2 : 3}
+      >
         <Flex alignItems="center">
           <Heading mb={3}>Tous les forums</Heading>
           {/* <HostTag ml={1} /> */}
@@ -148,75 +151,80 @@ const IndexPage = (props: PageProps) => {
         )}
       </Column>
 
-      <Column
-        {...columnProps}
-        //cursor="pointer"
-        //_hover={{ backgroundColor: isDark ? "gray.500" : "blue.50" }}
-        mt={3}
-        //onClick={() => setIsCollapsed(!isCollapsed)}
-      >
-        <Flex alignItems="center" mb={2}>
-          {isCollapsable && (
+      <Flex mt={3}>
+        <Column
+          m={props.isMobile ? undefined : "0 auto"}
+          //cursor="pointer"
+          //_hover={{ backgroundColor: isDark ? "gray.500" : "blue.50" }}
+          //onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          <Flex alignItems="center" mb={2}>
+            {isCollapsable && (
+              <>
+                {isCollapsed ? (
+                  <ChevronRightIcon boxSize={9} mt={2} />
+                ) : (
+                  <ChevronUpIcon boxSize={9} mt={2} />
+                )}
+              </>
+            )}
+            <Heading>Une idée de forum ?</Heading>
+          </Flex>
+
+          {(!isCollapsed || !isCollapsable) && (
             <>
-              {isCollapsed ? (
-                <ChevronRightIcon boxSize={9} mt={2} />
-              ) : (
-                <ChevronUpIcon boxSize={9} mt={2} />
-              )}
+              <Alert status="info">
+                <AlertIcon />
+
+                <Flex flexDirection="column">
+                  {session ? (
+                    <>
+                      <Text>
+                        Pour ajouter un forum à <HostTag /> vous devez d'abord
+                        créer une planète :
+                      </Text>
+                      <EntityAddButton
+                        label="Ajoutez une planète"
+                        orgType={EOrgType.NETWORK}
+                        size="md"
+                        mt={3}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Text>
+                        Pour ajouter un forum à <HostTag />, vous devez d'abord
+                        vous connecter :
+                      </Text>
+                      <LoginButton
+                        mt={3}
+                        mr={3}
+                        size={props.isMobile ? "xs" : undefined}
+                        onClick={() => {
+                          router.push("/login", "/login", { shallow: true });
+                        }}
+                      >
+                        Se connecter
+                      </LoginButton>
+                    </>
+                  )}
+                </Flex>
+              </Alert>
+
+              <Flex alignItems="center" mt={3}>
+                <Link
+                  href="/a_propos"
+                  variant="underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  En savoir plus
+                </Link>
+                <ChevronRightIcon />
+              </Flex>
             </>
           )}
-          <Heading>Une idée de forum ?</Heading>
-        </Flex>
-
-        {(!isCollapsed || !isCollapsable) && (
-          <>
-            <Alert maxWidth={isMobile ? undefined : "50%"} status="info">
-              <AlertIcon />
-
-              {session ? (
-                <Flex flexDirection="column">
-                  Pour ajouter un forum au site, vous devez d'abord créer une
-                  planète :
-                  <EntityAddButton
-                    label="Ajoutez une planète"
-                    orgType={EOrgType.NETWORK}
-                    size="md"
-                    mt={3}
-                  />
-                </Flex>
-              ) : (
-                <Flex flexDirection="column">
-                  <Text>
-                    Pour ajouter un forum sur le site, vous devez d'abord vous
-                    connecter :
-                  </Text>
-                  <LoginButton
-                    mt={3}
-                    mr={3}
-                    size={props.isMobile ? "xs" : undefined}
-                    onClick={() => {
-                      router.push("/login", "/login", { shallow: true });
-                    }}
-                  >
-                    Se connecter
-                  </LoginButton>
-                </Flex>
-              )}
-            </Alert>
-
-            <Flex alignItems="center" mt={3}>
-              <Link
-                href="/a_propos"
-                variant="underline"
-                onClick={(e) => e.stopPropagation()}
-              >
-                En savoir plus
-              </Link>
-              <ChevronRightIcon />
-            </Flex>
-          </>
-        )}
-      </Column>
+        </Column>
+      </Flex>
 
       {isMapModalOpen && (
         <MapModal

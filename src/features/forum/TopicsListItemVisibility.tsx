@@ -1,10 +1,5 @@
-import { EmailIcon, HamburgerIcon, IconProps } from "@chakra-ui/icons";
-import {
-  ComponentWithAs,
-  IconButton,
-  IconButtonProps,
-  Tooltip
-} from "@chakra-ui/react";
+import { EmailIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { ComponentWithAs, Icon, IconProps, Tooltip } from "@chakra-ui/react";
 import React from "react";
 import { IconType } from "react-icons";
 import { FaGlobeEurope } from "react-icons/fa";
@@ -18,7 +13,7 @@ export const TopicsListItemVisibility = ({
   query,
   topic,
   ...props
-}: Partial<IconButtonProps> & {
+}: Omit<IconProps, "aria-label"> & {
   query: AppQueryWithData<IEntity>;
   topic: ITopic;
 }) => {
@@ -75,15 +70,14 @@ export const TopicsListItemVisibility = ({
     <>
       {icons.map(({ label, icon }, index) => (
         <Tooltip key={index} label={label}>
-          <IconButton
-            aria-label={label}
-            icon={React.createElement(icon)}
-            //boxSize={4}
-            bg="transparent"
-            _hover={{ bg: "transparent", color: "white" }}
-            height="auto"
-            minWidth={0}
-            cursor="default"
+          <Icon
+            as={icon}
+            boxSize={4}
+            //bgColor="transparent"
+            //_hover={{ bgColor: "transparent" }}
+            //height="auto"
+            //minWidth={0}
+            //cursor="default"
             {...props}
           />
         </Tooltip>

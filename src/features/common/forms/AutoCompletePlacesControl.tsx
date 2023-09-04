@@ -34,7 +34,7 @@ export const AutoCompletePlacesControl = ({
   rightAddon?: React.ReactNode;
   inputProps?: InputProps;
   suggestionsListProps?: ListProps;
-  onChange: (description: string) => void;
+  onChange?: (description: string) => void;
   onSuggestionSelect?: (suggestion: Suggestion) => void;
   onClick?: () => void;
 }) => {
@@ -79,7 +79,7 @@ export const AutoCompletePlacesControl = ({
   const handleSelect = (suggestion: Suggestion) => () => {
     const description = suggestion.description.replace(", France", "");
     setAutoCompleteValue(description, false);
-    onChange(description);
+    onChange && onChange(description);
     onSuggestionSelect && onSuggestionSelect(suggestion);
     dismissSuggestions();
   };
@@ -132,7 +132,7 @@ export const AutoCompletePlacesControl = ({
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setAutoCompleteValue(e.target.value);
             cachedVal = e.target.value;
-            onChange(e.target.value);
+            onChange && onChange(e.target.value);
           }}
           autoComplete="off"
           placeholder={placeholder}
@@ -159,7 +159,7 @@ export const AutoCompletePlacesControl = ({
               }
 
               setAutoCompleteValue(description, false);
-              onChange(description);
+              onChange && onChange(description);
               dismissSuggestions();
               return;
             }

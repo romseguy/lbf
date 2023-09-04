@@ -1,30 +1,24 @@
-import type { LatLon, Suggestion } from "use-places-autocomplete";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { LatLon, Suggestion } from "use-places-autocomplete";
 import { AddressControl } from "features/common";
 import { unwrapSuggestion } from "utils/maps";
 
 export const MapSearch = ({
   entityAddress = "",
+  isVisible,
   setCenter,
-  isVisible
+  setZoomLevel
 }: {
   entityAddress?: string;
   setCenter: (center: LatLon) => void;
   isVisible: boolean;
+  setZoomLevel?: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   const [value, setValue] = useState(entityAddress);
+  console.log("🚀 ~ file: MapSearch.tsx:19 ~ value:", value);
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    errors,
-    setError,
-    clearErrors,
-    watch,
-    getValues
-  } = useForm({
+  const { control, handleSubmit, errors } = useForm({
     defaultValues: {
       entityAddress
     },
@@ -40,12 +34,12 @@ export const MapSearch = ({
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <AddressControl
         name="entityAddress"
+        isMultiple={false}
         control={control}
         errors={errors}
         value={value}
         noLabel
         mb={3}
-        isMultiple={false}
         onChange={(description: string) => {
           setValue(description);
         }}
@@ -54,7 +48,10 @@ export const MapSearch = ({
         }}
         onSuggestionSelect={async (suggestion: Suggestion) => {
           if (suggestion) {
-            setCenter(await unwrapSuggestion(suggestion));
+            const { city, lat, lng } = await unwrapSuggestion(suggestion);
+            setValue(city);
+            setCenter({ lat, lng });
+            setZoomLevel && setZoomLevel(12);
           }
         }}
       />

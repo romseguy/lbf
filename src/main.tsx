@@ -16,7 +16,7 @@ export const Main = ({
 
   return (
     <>
-      <GlobalStyles />
+      <GlobalStyles {...props} />
 
       {!router.pathname.includes("/callback") && <GlobalConfig {...props} />}
 

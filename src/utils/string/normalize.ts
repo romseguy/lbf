@@ -7,6 +7,7 @@ export function normalize(
   if (!str) return "";
   let out = "" + str.trim();
   out = out.replace(/\//g, "");
+  out = out.replace(/#/g, "");
   out = out.replace(/\s{2,}/g, " ");
 
   if (underscores) out = out.replace(/\ /g, "_");

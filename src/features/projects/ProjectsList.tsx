@@ -1,4 +1,10 @@
-import { AddIcon, EditIcon, EmailIcon } from "@chakra-ui/icons";
+import {
+  AddIcon,
+  ChevronRightIcon,
+  ChevronUpIcon,
+  EditIcon,
+  EmailIcon
+} from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
@@ -266,15 +272,8 @@ export const ProjectsList = ({
                     flexWrap="wrap"
                     borderTopRadius="xl"
                     borderBottomRadius={!isCurrent ? "xl" : undefined}
-                    bg={
-                      projectIndex % 2 === 0
-                        ? isDark
-                          ? "gray.600"
-                          : "orange.200"
-                        : isDark
-                        ? "gray.500"
-                        : "orange.100"
-                    }
+                    bgColor={isDark ? "gray.600" : "orange.200"}
+                    _hover={{ bgColor: isDark ? "#314356" : "orange.300" }}
                   >
                     <Flex flexDirection="column" flexGrow={1} px={3} py={1}>
                       <Flex>
@@ -308,16 +307,15 @@ export const ProjectsList = ({
                           {ProjectStatuses[projectStatus]}
                         </Tag>
 
-                        <Link variant="no-underline" fontWeight="bold">
-                          {project.projectName}
-                        </Link>
+                        <Text fontWeight="bold">{project.projectName}</Text>
                       </Flex>
 
                       <Flex
                         flexWrap="wrap"
                         fontSize="smaller"
                         color={isDark ? "white" : "purple"}
-                        ml={8}
+                        mt={1}
+                        ml={10}
                       >
                         <Tooltip label="Aller à la page de l'utilisateur">
                           <span>
@@ -390,10 +388,8 @@ export const ProjectsList = ({
                       </Flex>
                     </Flex>
 
-                    <Flex alignItems="center" mb={-1} ml={2}>
-                      {isLoading[project._id] && (
-                        <Spinner mr={3} mt={1} mb={2} />
-                      )}
+                    <Flex alignItems="center" ml={2}>
+                      {isLoading[project._id] && <Spinner mr={3} />}
 
                       {!isLoading[project._id] && (
                         <>
@@ -408,8 +404,6 @@ export const ProjectsList = ({
                                 variant="outline"
                                 colorScheme="blue"
                                 mr={3}
-                                mt={1}
-                                mb={2}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onNotifClick(project);
@@ -430,8 +424,6 @@ export const ProjectsList = ({
                                   colorScheme="green"
                                   variant="outline"
                                   mr={3}
-                                  mt={1}
-                                  mb={2}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     onEditClick(project);
@@ -455,9 +447,7 @@ export const ProjectsList = ({
                                 }
                                 isIconOnly
                                 isSmall={false}
-                                mb={2}
                                 mr={3}
-                                mt={1}
                                 placement="bottom"
                                 variant="outline"
                                 onClick={() => {
@@ -467,6 +457,20 @@ export const ProjectsList = ({
                               />
                             </>
                           )}
+
+                          <Tooltip
+                            placement="left"
+                            label={`${
+                              isCurrent ? "Fermer" : "Ouvrir"
+                            } le projet`}
+                          >
+                            <Icon
+                              as={isCurrent ? ChevronUpIcon : ChevronRightIcon}
+                              boxSize={10}
+                              color={isDark /*|| isHover*/ ? "white" : "purple"}
+                              _hover={{ color: "white" }}
+                            />
+                          </Tooltip>
                         </>
                       )}
                     </Flex>

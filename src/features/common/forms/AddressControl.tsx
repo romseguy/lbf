@@ -67,6 +67,7 @@ export const AddressControl = withGoogleApi({
     onClick?: () => void;
     onChange?: (description: string) => void;
   }) => {
+    console.log("🚀 ~ file: AddressControl.tsx:70 ~ value:", value);
     const { colorMode } = useColorMode();
     const isDark = colorMode === "dark";
 
@@ -84,6 +85,7 @@ export const AddressControl = withGoogleApi({
 
     if (!isMultiple) {
       if (errors && name) {
+        // Control is part of a form
         return (
           <FormControl
             isRequired={!!controlRules.required}
@@ -106,9 +108,7 @@ export const AddressControl = withGoogleApi({
                       placeholder={placeholder}
                       rightAddon={rightAddon}
                       onClick={onClick}
-                      onChange={(description: string) => {
-                        renderProps.onChange(description);
-                      }}
+                      onChange={renderProps.onChange}
                       onSuggestionSelect={onSuggestionSelect}
                     />
                   );
@@ -124,7 +124,7 @@ export const AddressControl = withGoogleApi({
           </FormControl>
         );
       } else {
-        // standalone LocationButton
+        // Control is standalone
         return (
           <AutoCompletePlacesControl
             value={value}
@@ -138,7 +138,7 @@ export const AddressControl = withGoogleApi({
               py: 5
             }}
             onClick={onClick}
-            onChange={onChange || (() => {})}
+            onChange={onChange}
             onSuggestionSelect={onSuggestionSelect}
             {...props}
           />

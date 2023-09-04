@@ -86,7 +86,7 @@ export const NavButtonsList = ({
   const buttonProps = {
     borderRadius: "9999px",
     colorScheme: isDark ? "gray" : "cyan",
-    background: isDark ? "#1A202C" : "lightcyan",
+    background: isDark ? undefined : "lightcyan",
     marginRight: "12px",
     my: isMobile ? 2 : undefined
   };

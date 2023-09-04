@@ -185,16 +185,6 @@ export const TopicsList = ({
 
     setTopicModalState({ ...topicModalState, isOpen: true });
   }, [session, topicModalState]);
-  const onEditClick = useCallback(
-    (topic: ITopic) => {
-      setTopicModalState({
-        ...topicModalState,
-        isOpen: true,
-        topic
-      });
-    },
-    [topicModalState]
-  );
   //#endregion
 
   //#region notify modal state
@@ -213,12 +203,11 @@ export const TopicsList = ({
   //#endregion
 
   //#region TopicsListItem handlers
-  const onClick = useCallback((topic: ITopic, isCurrent: boolean) => {
-    if (!isCurrent) setIsLoading({ [topic._id]: true });
+  const onClick = useCallback(async (topic: ITopic, isCurrent: boolean) => {
     const url = isCurrent
       ? baseUrl
       : `${baseUrl}/${normalize(topic.topicName)}`;
-    router.push(url, url, { shallow: true });
+    await router.push(url, url, { shallow: true });
   }, []);
   const onDeleteClick = useCallback(
     async (topic: ITopic, isCurrent: boolean) => {
@@ -246,6 +235,16 @@ export const TopicsList = ({
       }
     },
     []
+  );
+  const onEditClick = useCallback(
+    (topic: ITopic) => {
+      setTopicModalState({
+        ...topicModalState,
+        isOpen: true,
+        topic
+      });
+    },
+    [topicModalState]
   );
   const onSubscribeClick = useCallback(
     async (topic: ITopic, isSubbedToTopic: boolean) => {
@@ -327,24 +326,6 @@ export const TopicsList = ({
         >
           Ajouter une discussion
         </Button>
-
-        {topicModalState.isOpen && (
-          <TopicFormModal
-            {...topicModalState}
-            query={query}
-            subQuery={subQuery}
-            isCreator={props.isCreator}
-            isFollowed={props.isFollowed}
-            onCancel={onClose}
-            onSubmit={async (topic) => {
-              // const topicName = normalize(topic.topicName);
-              // const url = `${baseUrl}/${topicName}`;
-              // await router.push(url, url, { shallow: true });
-              onClose();
-            }}
-            onClose={onClose}
-          />
-        )}
       </Box>
 
       {(props.isCreator || topicCategories.length > 0) && (
@@ -524,6 +505,25 @@ export const TopicsList = ({
           setModalState={setNotifyModalState}
           modalState={notifyModalState}
           session={session}
+        />
+      )}
+
+      {topicModalState.isOpen && (
+        <TopicFormModal
+          {...topicModalState}
+          query={query}
+          subQuery={subQuery}
+          isCreator={props.isCreator}
+          isFollowed={props.isFollowed}
+          onCancel={onClose}
+          onSubmit={async (topic) => {
+            // const topicName = normalize(topic.topicName);
+            // const url = `${baseUrl}/${topicName}`;
+            // await router.push(url, url, { shallow: true });
+            query.refetch();
+            onClose();
+          }}
+          onClose={onClose}
         />
       )}
     </>

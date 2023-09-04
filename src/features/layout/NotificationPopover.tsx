@@ -277,8 +277,7 @@ export const NotificationPopover = ({
           bg="transparent"
           color={isOpen ? "cyan.600" : undefined}
           _hover={{ bg: "transparent" }}
-          icon={<BellIcon boxSize={6} _hover={{ color: "cyan.600" }} />}
-          p={3}
+          icon={<BellIcon boxSize={6} mx={3} _hover={{ color: "cyan.600" }} />}
           onClick={onOpen}
         />
       </PopoverTrigger>

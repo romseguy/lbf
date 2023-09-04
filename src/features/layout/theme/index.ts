@@ -1,11 +1,10 @@
 import { extendTheme } from "@chakra-ui/react";
-import { createBreakpoints } from "@chakra-ui/theme-tools";
 import { getStyleObjectFromString } from "utils/string";
 import { breakpoints } from "./breakpoints";
 import { rainbowTextCss } from "./css";
 
 const theme = extendTheme({
-  breakpoints: createBreakpoints(breakpoints),
+  breakpoints,
   colors: {
     black: "#16161D",
     brown: {

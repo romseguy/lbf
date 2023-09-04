@@ -9,7 +9,7 @@ import {
   Text
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { DeleteButton, Link, RTEditor } from "features/common";
 import { IEvent } from "models/Event";
@@ -22,6 +22,16 @@ import { sanitize } from "utils/string";
 import { AppQuery } from "utils/types";
 import { IEntity } from "models/Entity";
 import { selectIsMobile } from "store/uiSlice";
+import { MutationTrigger } from "@reduxjs/toolkit/dist/query/react/buildHooks";
+import {
+  BaseQueryFn,
+  FetchArgs,
+  FetchBaseQueryError,
+  FetchBaseQueryMeta,
+  MutationDefinition
+} from "@reduxjs/toolkit/dist/query";
+import { EditTopicPayload } from "features/api/topicsApi";
+import { useScroll } from "hooks/useScroll";
 
 export const TopicMessagesListItem = ({
   index,
@@ -51,14 +61,14 @@ export const TopicMessagesListItem = ({
   const router = useRouter();
   const isMobile = useSelector(selectIsMobile);
   const collapseLength = isMobile ? 28 : 64;
-  const editTopic = mutation[0];
+  const [editTopic, editTopicMutation] = mutation;
 
   //#region topic message
   const { _id, createdBy, createdAt } = topicMessage;
   let message = "" + topicMessage.message;
   const isEditing =
-    Object.keys(isEdit).length > 0 &&
     typeof _id === "string" &&
+    Object.keys(isEdit).length > 0 &&
     isEdit[_id] &&
     isEdit[_id].isOpen;
 
@@ -94,9 +104,16 @@ export const TopicMessagesListItem = ({
   const { timeAgo, fullDate } = dateUtils.timeAgo(createdAt);
   //#endregion
 
-  if (typeof _id === "string" && isEdit[_id] && isEdit[_id].isOpen)
+  const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
+  useEffect(() => {
+    if (isEditing) {
+      executeScroll();
+    }
+  }, [isEditing]);
+
+  if (isEditing)
     return (
-      <Flex flexDirection="column" pt={1} pb={3}>
+      <Flex ref={elementToScrollRef} flexDirection="column" pt={1} pb={3}>
         <RTEditor
           //formats={formats.filter((f) => f !== "size")}
           defaultValue={message}
@@ -123,6 +140,8 @@ export const TopicMessagesListItem = ({
 
           <Button
             colorScheme="green"
+            isDisabled={editTopicMutation.isLoading}
+            isLoading={editTopicMutation.isLoading}
             onClick={async () => {
               await editTopic({
                 topicId: topic._id,
