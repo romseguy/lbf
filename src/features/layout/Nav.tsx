@@ -14,7 +14,7 @@ import {
 import { useRouter } from "next/router";
 import React from "react";
 import { useSelector } from "react-redux";
-import { Heading, Link, LoginButton } from "features/common";
+import { AppHeading, Link, LoginButton } from "features/common";
 import {
   EventPopover,
   OrgPopover,
@@ -57,11 +57,11 @@ export const Nav = ({
           <Tbody role="rowgroup">
             <Tr role="rowheader">
               <Td border={0} p={0}>
-                <Heading mb={2}>
+                <AppHeading mb={2}>
                   <Link href="/" shallow>
                     {process.env.NEXT_PUBLIC_SHORT_URL}
                   </Link>
-                </Heading>
+                </AppHeading>
               </Td>
             </Tr>
 

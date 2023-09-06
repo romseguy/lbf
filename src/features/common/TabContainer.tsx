@@ -39,6 +39,7 @@ export const TabContainerHeader = ({
     <Flex
       bg={isDark ? "gray.700" : "lightblue"}
       borderTopRadius="lg"
+      tabIndex={0}
       {...props}
     >
       {heading ? (

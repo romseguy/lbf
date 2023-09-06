@@ -276,6 +276,8 @@ export const getServerSideProps = wrapper.getServerSideProps(
       if (
         normalizedEntityUrl === "api" ||
         normalizedEntityUrl === "icons" ||
+        normalizedEntityUrl === "sitemap.xml" ||
+        normalizedEntityUrl === "robots.txt" ||
         normalizedEntityUrl.includes("worker")
       )
         return {

@@ -9,7 +9,7 @@ import {
   AlertIcon
 } from "@chakra-ui/react";
 import React from "react";
-import { Column, Heading } from "features/common";
+import { Column, AppHeading } from "features/common";
 import { IEntity, isEvent, isProject, isTopic } from "models/Entity";
 import { EEventInviteStatus, EventInviteStatuses } from "models/Event";
 import {

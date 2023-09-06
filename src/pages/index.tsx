@@ -17,7 +17,7 @@ import {
   Button,
   Column,
   EntityAddButton,
-  Heading,
+  AppHeading,
   HostTag,
   Link,
   LoginButton
@@ -92,7 +92,7 @@ const IndexPage = (props: PageProps) => {
         p={props.isMobile ? 2 : 3}
       >
         <Flex alignItems="center">
-          <Heading mb={3}>Tous les forums</Heading>
+          <AppHeading mb={3}>Tous les forums</AppHeading>
           {/* <HostTag ml={1} /> */}
         </Flex>
 
@@ -168,7 +168,7 @@ const IndexPage = (props: PageProps) => {
                 )}
               </>
             )}
-            <Heading>Une idée de forum ?</Heading>
+            <AppHeading>Une idée de forum ?</AppHeading>
           </Flex>
 
           {(!isCollapsed || !isCollapsable) && (
@@ -229,7 +229,7 @@ const IndexPage = (props: PageProps) => {
       {isMapModalOpen && (
         <MapModal
           isOpen={isMapModalOpen}
-          header={<Heading>Carte</Heading>}
+          header={<AppHeading>Carte</AppHeading>}
           orgs={
             orgsQuery.data?.filter(
               (org) =>

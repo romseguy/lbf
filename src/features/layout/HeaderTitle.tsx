@@ -8,7 +8,7 @@ import {
   FaRegCalendarTimes,
   FaTree
 } from "react-icons/fa";
-import { EntityButton, Link, Heading, LinkShare } from "features/common";
+import { EntityButton, Link, AppHeading, LinkShare } from "features/common";
 import { useSession } from "hooks/useSession";
 import {
   IEntity,
@@ -87,7 +87,7 @@ export const HeaderTitle = ({
       }
     })();
   }, [entity]);
-  const heading = <Heading pr={1}>{name || pageTitle || ""}</Heading>;
+  const heading = <AppHeading pr={1}>{name || pageTitle || ""}</AppHeading>;
   const title = (
     <Flex alignItems="center" pt={3} {...props}>
       {icon && (

@@ -2,7 +2,7 @@ import { ChatIcon } from "@chakra-ui/icons";
 import { Flex, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
-import { Column, Heading } from "features/common";
+import { Column, AppHeading } from "features/common";
 import { TopicsList } from "features/forum/TopicsList";
 import { useScroll } from "hooks/useScroll";
 import { IEntity } from "models/Entity";
@@ -40,9 +40,9 @@ export const EntityPageTopics = ({
     <>
       <Flex ref={elementToScrollRef} alignItems="center">
         <ChatIcon boxSize={6} mr={3} mt={3} />
-        <Heading noContainer mb={3}>
+        <AppHeading noContainer mb={3}>
           Discussions
-        </Heading>
+        </AppHeading>
       </Flex>
 
       <Column bg={isDark ? "gray.700" : "lightblue"}>

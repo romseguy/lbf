@@ -23,7 +23,7 @@ import {
   useDeleteTopicMutation,
   useAddTopicNotifMutation
 } from "features/api/topicsApi";
-import { Button, Grid, Heading } from "features/common";
+import { Button, Grid, AppHeading } from "features/common";
 import {
   NotifModalState,
   EntityNotifModal
@@ -330,7 +330,7 @@ export const TopicsList = ({
 
       {(props.isCreator || topicCategories.length > 0) && (
         <Flex flexDirection="column" mb={3}>
-          <Heading smaller>Catégories</Heading>
+          <AppHeading smaller>Catégories</AppHeading>
           <TopicsListCategories
             query={query}
             isCreator={props.isCreator}
@@ -345,7 +345,7 @@ export const TopicsList = ({
         session &&
         hasItems(entity.orgLists) && (
           <Flex flexDirection="column" mb={3}>
-            <Heading smaller>Listes</Heading>
+            <AppHeading smaller>Listes</AppHeading>
             <TopicsListOrgLists
               org={entity}
               isCreator={props.isCreator}

@@ -5,7 +5,7 @@ import { css } from "twin.macro";
 import {
   GridHeader,
   GridItem,
-  Heading as AppHeading,
+  AppHeading as AppHeading,
   Link
 } from "features/common";
 import { SubscriptionForm } from "features/forms/SubscriptionForm";

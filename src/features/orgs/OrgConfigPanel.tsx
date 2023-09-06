@@ -6,7 +6,7 @@ import {
   EntityConfigLogoPanel,
   EntityConfigCategoriesPanel,
   EntityConfigStyles,
-  Heading
+  AppHeading
 } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
 import { getEventCategories, IOrg } from "models/Org";
@@ -94,7 +94,7 @@ export const OrgConfigPanel = ({
           />
 
           <Column mb={3} pt={1}>
-            <Heading>Apparence</Heading>
+            <AppHeading>Apparence</AppHeading>
 
             <EntityConfigStyles query={orgQuery} mt={3} mb={2} />
 
@@ -113,7 +113,7 @@ export const OrgConfigPanel = ({
           </Column>
 
           <Column mb={3} pt={1}>
-            <Heading mb={1}>Membres & Listes</Heading>
+            <AppHeading mb={1}>Membres & Listes</AppHeading>
             <OrgConfigSubscribersPanel
               orgQuery={orgQuery}
               subQuery={subQuery}
@@ -130,7 +130,7 @@ export const OrgConfigPanel = ({
           </Column>
 
           <Column mb={3} pt={1}>
-            <Heading>Discussions</Heading>
+            <AppHeading>Discussions</AppHeading>
 
             <EntityConfigCategoriesPanel
               fieldName="orgTopicCategories"
@@ -142,7 +142,7 @@ export const OrgConfigPanel = ({
           </Column>
 
           <Column pt={1}>
-            <Heading>Événements</Heading>
+            <AppHeading>Événements</AppHeading>
 
             <EntityConfigCategoriesPanel
               fieldName="orgEventCategories"

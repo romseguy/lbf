@@ -1,14 +1,14 @@
 import {
   Flex,
   FlexProps,
-  Heading as ChakraHeading,
+  Heading,
   HeadingProps,
   useColorMode
 } from "@chakra-ui/react";
 import { css } from "twin.macro";
 import { rainbowTextCss } from "features/layout/theme";
 
-export const Heading = ({
+export const AppHeading = ({
   children,
   containerProps,
   fontFamily = "Roboto",
@@ -25,15 +25,14 @@ export const Heading = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const element = (
-    <ChakraHeading
+    <Heading
       fontFamily={fontFamily}
       fontSize={smaller ? "2xl" : ["3xl", "4xl"]}
-      //pl={1}
       css={css(rainbowTextCss(isDark))}
       {...props}
     >
       {children}
-    </ChakraHeading>
+    </Heading>
   );
 
   if (noContainer) return element;

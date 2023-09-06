@@ -30,7 +30,7 @@ import {
   DeleteButton,
   GridHeader,
   GridItem,
-  Heading as AppHeading,
+  AppHeading as AppHeading,
   Link
 } from "features/common";
 import { EntityListForm } from "features/forms/EntityListForm";

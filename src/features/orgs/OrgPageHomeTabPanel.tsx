@@ -7,6 +7,8 @@ import {
 import {
   Alert,
   AlertIcon,
+  Badge,
+  BadgeProps,
   Button,
   Flex,
   Heading,
@@ -73,6 +75,11 @@ export const OrgPageHomeTabPanel = ({
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
   const isMobile = useSelector(selectIsMobile);
+  const badgeProps: BadgeProps = {
+    colorScheme: "teal",
+    variant: "solid",
+    mr: 2
+  };
 
   //#region org
   const org = orgQuery.data;
@@ -125,6 +132,7 @@ export const OrgPageHomeTabPanel = ({
             alignItems="center"
             borderBottomRadius={isChildrenOpen ? undefined : "lg"}
             cursor="pointer"
+            py={3}
             _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
             onClick={() => setIsChildrenOpen(!isChildrenOpen)}
           >
@@ -135,9 +143,9 @@ export const OrgPageHomeTabPanel = ({
               mr={1}
             />
 
-            <Heading size="sm" py={3}>
-              Forêt de la planète
-            </Heading>
+            <Badge {...badgeProps}>{org.orgs.length}</Badge>
+
+            <Heading size="sm">Forêt de la planète</Heading>
           </TabContainerHeader>
 
           {isChildrenOpen && (
@@ -283,6 +291,7 @@ export const OrgPageHomeTabPanel = ({
           alignItems="center"
           borderBottomRadius={isInfoOpen ? undefined : "lg"}
           cursor="pointer"
+          py={3}
           _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
           onClick={() => setIsInfoOpen(!isInfoOpen)}
         >
@@ -293,9 +302,14 @@ export const OrgPageHomeTabPanel = ({
             mr={1}
           />
 
-          <Heading size="sm" py={3}>
-            Coordonnées {orgTypeFull(org.orgType)}
-          </Heading>
+          <Badge {...badgeProps}>
+            {org.orgAddress.length +
+              org.orgEmail.length +
+              org.orgPhone.length +
+              org.orgWeb.length}
+          </Badge>
+
+          <Heading size="sm">Coordonnées {orgTypeFull(org.orgType)}</Heading>
 
           {hasInfo && isCreator && (
             <Tooltip

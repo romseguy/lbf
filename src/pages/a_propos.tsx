@@ -26,7 +26,7 @@ import { css } from "twin.macro";
 import {
   Row,
   EntityButton,
-  Heading,
+  AppHeading,
   HostTag,
   Link,
   Column,
@@ -130,7 +130,7 @@ export const AboutPage = ({
         }
       `}
     >
-      <Heading>Créez l'arborescence de votre forum</Heading>
+      <AppHeading>Créez l'arborescence de votre forum</AppHeading>
 
       <Column {...columnStyles(isDark)}>
         <List listStyleType="bullet" ml={5}>

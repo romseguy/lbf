@@ -30,6 +30,7 @@ export * from "./forms/Select";
 export * from "./forms/Textarea";
 export * from "./forms/UrlControl";
 
+export * from "./AppHeading";
 export * from "./Button";
 export * from "./Chakra";
 export * from "./CategoriesList";
@@ -43,7 +44,6 @@ export * from "./ErrorMessageText";
 export * from "./Grid";
 export * from "./GridHeader";
 export * from "./GridItem";
-export * from "./Heading";
 export * from "./HostTag";
 export * from "./IconFooter";
 export * from "./Link";

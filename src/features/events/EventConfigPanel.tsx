@@ -6,7 +6,7 @@ import {
   EntityConfigCategoriesPanel,
   EntityConfigLogoPanel,
   EntityConfigStyles,
-  Heading
+  AppHeading
 } from "features/common";
 import { EventForm } from "features/forms/EventForm";
 import { IEvent } from "models/Event";
@@ -79,7 +79,7 @@ export const EventConfigPanel = ({
           />
 
           <Column mb={3} pt={1}>
-            <Heading mb={1}>Apparence</Heading>
+            <AppHeading mb={1}>Apparence</AppHeading>
 
             <EntityConfigStyles query={eventQuery} mb={3} />
 
@@ -98,7 +98,7 @@ export const EventConfigPanel = ({
           </Column>
 
           <Column pt={1}>
-            <Heading>Discussions</Heading>
+            <AppHeading>Discussions</AppHeading>
 
             <EntityConfigCategoriesPanel
               fieldName="eventTopicCategories"

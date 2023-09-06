@@ -1,6 +1,8 @@
 import { Flex, FlexProps, useColorMode } from "@chakra-ui/react";
 
-export const Column = ({ children, ...props }: FlexProps) => {
+export interface ColumnProps extends FlexProps {}
+
+export const Column = ({ children, ...props }: ColumnProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 

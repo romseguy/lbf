@@ -2,7 +2,7 @@ import { Flex, Icon, Spinner } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
-import { Column, Heading } from "features/common";
+import { Column, AppHeading } from "features/common";
 import { EventForm } from "features/forms/EventForm";
 import { OrgForm } from "features/forms/OrgForm";
 import { Layout } from "features/layout";
@@ -52,9 +52,9 @@ export const EntityAddPage = ({
             mr={3}
             boxSize={8}
           />
-          <Heading>
+          <AppHeading>
             Ajouter {!orgType ? "un événement" : orgTypeFull3(orgType)}
-          </Heading>
+          </AppHeading>
         </Flex>
       }
       pageTitle={`Ajouter ${!orgType ? "un événement" : orgTypeFull3(orgType)}`}

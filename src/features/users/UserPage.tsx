@@ -17,7 +17,10 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { css } from "twin.macro";
 import { Link, GridHeader, GridItem, Column } from "features/common";
-import { DocumentsList } from "features/documents/DocumentsList";
+import {
+  DocumentsList,
+  DocumentsListMasonry
+} from "features/documents/DocumentsList";
 import { UserDescriptionForm } from "features/forms/UserDescriptionForm";
 import { UserForm } from "features/forms/UserForm";
 import { Layout } from "features/layout";
@@ -317,6 +320,7 @@ export const UserPage = ({
               {isSelf && (
                 <TabPanel aria-hidden>
                   <DocumentsList user={user} />
+                  <DocumentsListMasonry user={user} />
                 </TabPanel>
               )}
             </TabPanels>

@@ -26,7 +26,7 @@ import {
   EntityButton,
   EntityNotified,
   EntityPageTopics,
-  Heading,
+  AppHeading,
   Link
 } from "features/common";
 import { EventNotifForm } from "features/forms/EventNotifForm";
@@ -264,7 +264,7 @@ export const EventPage = ({
 
               {session && isCreator && (
                 <TabPanel aria-hidden>
-                  <Heading mb={3}>Invitations</Heading>
+                  <AppHeading mb={3}>Invitations</AppHeading>
 
                   <Column {...columnProps}>
                     {!showNotifForm && (
@@ -313,7 +313,7 @@ export const EventPage = ({
 
                     {showNotifForm && (
                       <>
-                        <Heading>Aperçu de l'e-mail d'invitation</Heading>
+                        <AppHeading>Aperçu de l'e-mail d'invitation</AppHeading>
                         <EmailPreview
                           entity={event}
                           event={event}
@@ -334,9 +334,9 @@ export const EventPage = ({
 
                   {!showNotifForm && (
                     <>
-                      <Heading my={3}>
+                      <AppHeading my={3}>
                         Historique des invitations envoyées
-                      </Heading>
+                      </AppHeading>
                       <Column {...columnProps}>
                         <EntityNotified entity={event} />
                       </Column>

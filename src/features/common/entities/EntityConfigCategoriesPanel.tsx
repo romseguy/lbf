@@ -8,7 +8,7 @@ import {
   Grid,
   GridHeader,
   GridItem,
-  Heading as AppHeading,
+  AppHeading as AppHeading,
   Link
 } from "features/common";
 import { EventConfigVisibility } from "features/events/EventConfigPanel";

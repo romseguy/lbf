@@ -1,7 +1,7 @@
 import { Flex } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
-import { EntityAddButton, Heading, Row } from "features/common";
+import { EntityAddButton, AppHeading, Row } from "features/common";
 import { Layout } from "features/layout";
 import { PageProps } from "main";
 import { EOrgType } from "models/Org";

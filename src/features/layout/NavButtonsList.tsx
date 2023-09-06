@@ -1,7 +1,7 @@
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { Button, Flex, useColorMode, useDisclosure } from "@chakra-ui/react";
 import { useGetOrgsQuery } from "features/api/orgsApi";
-import { Heading, Link, LinkProps } from "features/common";
+import { AppHeading, Link, LinkProps } from "features/common";
 import { TreeChartModal } from "features/modals/TreeChartModal";
 import { InputNode } from "features/treeChart/types";
 import { EOrgType, EOrgVisibility, IOrg, OrgTypes } from "models/Org";
@@ -133,7 +133,7 @@ export const NavButtonsList = ({
 
       {isNetworksModalOpen && (
         <TreeChartModal
-          header={<Heading mb={3}>Tous les forums</Heading>}
+          header={<AppHeading mb={3}>Tous les forums</AppHeading>}
           inputNodes={inputNodes}
           isOpen={isNetworksModalOpen}
           onClose={closeNetworksModal}

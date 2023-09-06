@@ -1,6 +1,7 @@
 import { CalendarIcon, QuestionIcon } from "@chakra-ui/icons";
 import {
   Badge,
+  BadgeProps,
   Flex,
   Icon,
   Input,
@@ -18,10 +19,11 @@ import { useGetDocumentsQuery } from "features/api/documentsApi";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   Column,
+  ColumnProps,
   EntityPageTab,
   EntityPageTabList,
   EntityPageTopics,
-  Heading
+  AppHeading
 } from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
@@ -41,6 +43,7 @@ import { IsEditConfig } from "./OrgPage";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
+import { OrgPageDocumentsTabPanel } from "./OrgPageDocumentsTabPanel";
 
 export const OrgPageTabs = ({
   currentItemName,
@@ -66,7 +69,12 @@ export const OrgPageTabs = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
-  const columnProps = {
+  const badgeProps: BadgeProps = {
+    colorScheme: "teal",
+    variant: "solid",
+    ml: 1
+  };
+  const columnProps: ColumnProps = {
     bg: isDark ? "gray.700" : "lightblue"
   };
   const router = useRouter();
@@ -182,27 +190,19 @@ export const OrgPageTabs = ({
               {tab.url === "/galerie"
                 ? Array.isArray(documentsQuery.data) &&
                   documentsQuery.data.length > 0 && (
-                    <Badge variant="solid" ml={1}>
-                      {documentsQuery.data.length}
-                    </Badge>
+                    <Badge {...badgeProps}>{documentsQuery.data.length}</Badge>
                   )
                 : tab.url === "/evenements"
                 ? org.orgEvents.length > 0 && (
-                    <Badge variant="solid" ml={1}>
-                      {org.orgEvents.length}
-                    </Badge>
+                    <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
                   )
                 : tab.url === "/discussions"
                 ? org.orgTopics.length > 0 && (
-                    <Badge variant="solid" ml={1}>
-                      {org.orgTopics.length}
-                    </Badge>
+                    <Badge {...badgeProps}>{org.orgTopics.length}</Badge>
                   )
                 : tab.url === "/projets"
                 ? org.orgProjects.length > 0 && (
-                    <Badge variant="solid" ml={1}>
-                      {org.orgProjects.length}
-                    </Badge>
+                    <Badge {...badgeProps}>{org.orgProjects.length}</Badge>
                   )
                 : ""}
             </EntityPageTab>
@@ -245,9 +245,9 @@ export const OrgPageTabs = ({
           <TabPanel aria-hidden>
             <Flex>
               <CalendarIcon boxSize={6} mr={3} mt={3} />
-              <Heading noContainer mb={3}>
+              <AppHeading noContainer mb={3}>
                 {title}
-              </Heading>
+              </AppHeading>
             </Flex>
 
             <Column {...columnProps}>
@@ -265,9 +265,9 @@ export const OrgPageTabs = ({
           <TabPanel aria-hidden>
             <Flex>
               <Icon as={FaTools} boxSize={6} mr={3} mt={3} />
-              <Heading noContainer mb={3}>
+              <AppHeading noContainer mb={3}>
                 Projets
-              </Heading>
+              </AppHeading>
             </Flex>
 
             <Column {...columnProps}>
@@ -284,22 +284,18 @@ export const OrgPageTabs = ({
 
         {!!tabs.find(({ label }) => label === "Galerie") && (
           <TabPanel aria-hidden>
-            <Flex>
-              <Icon as={FaImages} boxSize={6} mr={3} mt={3} />
-              <Heading noContainer mb={3}>
-                Galerie
-              </Heading>
-            </Flex>
-
-            <Column {...columnProps}>
-              <DocumentsList org={org} isCreator={isCreator} />
-            </Column>
+            <OrgPageDocumentsTabPanel
+              isCreator={isCreator}
+              orgQuery={orgQuery}
+            />
           </TabPanel>
         )}
 
         {session && isCreator && (
           <TabPanel aria-hidden>
-            <Heading mb={3}>Fonctionnalités {orgTypeFull(org.orgType)}</Heading>
+            <AppHeading mb={3}>
+              Fonctionnalités {orgTypeFull(org.orgType)}
+            </AppHeading>
 
             {defaultTabs
               .filter((defaultTab) => defaultTab.label !== "")

@@ -16,7 +16,7 @@ import {
   EmailPreview,
   EntityButton,
   EntityNotified,
-  Heading
+  AppHeading
 } from "features/common";
 import {
   AddEventNotifPayload,
@@ -129,7 +129,9 @@ export const EntityNotifModal = <
               <>
                 {org ? (
                   <>
-                    <Heading mb={3}>Aperçu de l'e-mail d'invitation</Heading>
+                    <AppHeading mb={3}>
+                      Aperçu de l'e-mail d'invitation
+                    </AppHeading>
                     <EmailPreview entity={entity} org={org} session={session} />
 
                     <OrgNotifForm
@@ -153,7 +155,9 @@ export const EntityNotifModal = <
                 ) : event ? (
                   hasItems(event.eventSubscriptions) ? (
                     <>
-                      <Heading mb={3}>Aperçu de l'e-mail d'invitation</Heading>
+                      <AppHeading mb={3}>
+                        Aperçu de l'e-mail d'invitation
+                      </AppHeading>
                       <EmailPreview
                         entity={entity}
                         event={event}

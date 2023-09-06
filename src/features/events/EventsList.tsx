@@ -23,7 +23,7 @@ import {
   useEditEventMutation,
   useAddEventNotifMutation
 } from "features/api/eventsApi";
-import { Heading, LocationButton } from "features/common";
+import { AppHeading, LocationButton } from "features/common";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   NotifModalState,
@@ -236,7 +236,7 @@ export const EventsList = ({
           orgQuery &&
           hasItems(orgQuery.data.orgEventCategories) && (
             <Flex flexDirection="column" mb={5}>
-              <Heading smaller>Catégories</Heading>
+              <AppHeading smaller>Catégories</AppHeading>
               <EventsListCategories
                 events={events}
                 orgQuery={orgQuery}
