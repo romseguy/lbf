@@ -103,6 +103,7 @@ export const OrgForm = withGoogleApi({
     isEditConfig?: IsEditConfig;
     session: Session;
     orgQuery?: AppQueryWithData<IOrg>;
+    orgName?: string;
     orgType?: string;
     onCancel?: () => void;
     onSubmit?: (orgUrl: string) => void;
@@ -200,6 +201,7 @@ export const OrgForm = withGoogleApi({
     } = useFormPersist(
       useForm<FormValues>({
         defaultValues: {
+          orgName: props.orgName || org?.orgName || "",
           orgDescription: org?.orgDescription || "",
           orgAddress: org?.orgAddress,
           orgEmail: org?.orgEmail,
@@ -218,7 +220,6 @@ export const OrgForm = withGoogleApi({
     const orgAddress = watch("orgAddress");
     const orgEmail = watch("orgEmail");
     const orgPhone = watch("orgPhone");
-    const orgName = watch("orgName");
     const orgType = (getValues("orgType") ||
       props.orgType ||
       org?.orgType ||
@@ -791,7 +792,6 @@ export const OrgForm = withGoogleApi({
               // }
             })}
             autoComplete="off"
-            defaultValue={org?.orgName}
             placeholder={`Saisir le nom ${orgTypeLabel}`}
           />
           {getValues("orgName") && (

@@ -15,7 +15,13 @@ import { wrapper } from "store";
 import { setIsMobile } from "store/uiSlice";
 import { setUserEmail } from "store/userSlice";
 import { setSession } from "store/sessionSlice";
-import { devSession, testSession, getAuthToken, sealOptions } from "utils/auth";
+import {
+  devSession,
+  testSession,
+  getAuthToken,
+  sealOptions,
+  TOKEN_NAME
+} from "utils/auth";
 import { isServer } from "utils/isServer";
 const { getEnv } = require("utils/env");
 
@@ -48,8 +54,9 @@ App.getInitialProps = wrapper.getInitialAppProps(
   (store) =>
     async ({ Component, ctx }) => {
       const headers = ctx.req?.headers;
-      let email = ctx.query.email || "";
-      const cookies = headers?.cookie;
+      // console.log("🚀 ~ App.getInitialProps ~ headers:", headers);
+
+      //#region device
       let userAgent = headers?.["user-agent"];
       if (!userAgent && !isServer()) userAgent = navigator.userAgent;
       const isMobile =
@@ -57,37 +64,49 @@ App.getInitialProps = wrapper.getInitialAppProps(
           ? getSelectorsByUserAgent(userAgent).isMobile
           : rddIsMobile;
       store.dispatch(setIsMobile(isMobile));
+      //#endregion
 
-      let pageProps: AppProps["pageProps"] = { isMobile };
+      //#region email and session handling
+      let email = ctx.query.email;
+      let session;
 
       if (devSession && getEnv() === "development") {
-        console.log("🚀 ~ file: _app.tsx:63 ~ devSession:", devSession);
-        store.dispatch(setSession(devSession));
+        // console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
+        session = devSession;
         //@ts-ignore
         email = devSession.user.email;
-      } else if (testSession && getEnv() === "test") {
-        console.log("🚀 ~ file: _app.tsx:67 ~ testSession:", testSession);
-        store.dispatch(setSession(testSession));
+      }
+
+      if (testSession && getEnv() === "test") {
+        // console.log("🚀 ~ App.getInitialProps ~ testSession:", testSession);
+        session = testSession;
+        //@ts-ignore
         email = testSession.user.email;
-      } else if (cookies) {
-        const p = parse(cookies);
-        console.log("App.getInitialProps: parsed cookies", p);
-        const authToken = getAuthToken(p);
+      }
+
+      const cookies = headers?.cookie;
+
+      if (typeof cookies === "string" && cookies.includes(TOKEN_NAME)) {
+        const cookie = parse(cookies);
+        // console.log("🚀 ~ App.getInitialProps ~ cookie map:", cookie);
+        const authToken = getAuthToken(cookie);
 
         if (authToken) {
-          //console.log("App.getInitialProps: authToken", authToken);
+          // console.log("🚀 ~ App.getInitialProps ~ authToken:", authToken);
           const user = await unseal(authToken, process.env.SECRET, sealOptions);
 
           if (user) {
-            store.dispatch(setSession({ user }));
+            session = { user };
             email = user.email;
           }
         }
       }
 
-      if (typeof email === "string") {
-        store.dispatch(setUserEmail(email));
-      }
+      if (typeof email === "string") store.dispatch(setUserEmail(email));
+      if (session) store.dispatch(setSession(session));
+      //#endregion
+
+      let pageProps: AppProps["pageProps"] = { isMobile };
 
       if (Component.getInitialProps)
         pageProps = {

@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Flex, Icon, Spinner } from "@chakra-ui/react";
+import { Flex, Icon, Spinner } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
@@ -16,7 +16,11 @@ export const EntityAddPage = ({
   ...props
 }: PageProps & { orgType?: EOrgType }) => {
   const router = useRouter();
-  const { orgId }: { orgId?: string } = router.query;
+  const {
+    eventName,
+    orgId,
+    orgName
+  }: { eventName?: string; orgId?: string; orgName?: string } = router.query;
   const { data: session } = useSession();
 
   const onSubmit = async (url: string) => {
@@ -61,15 +65,17 @@ export const EntityAddPage = ({
             {orgType ? (
               <OrgForm
                 {...props}
-                session={session}
+                orgName={orgName}
                 orgType={orgType}
+                session={session}
                 onSubmit={onSubmit}
               />
             ) : (
               <EventForm
                 {...props}
-                session={session}
+                eventName={eventName}
                 orgId={orgId}
+                session={session}
                 onSubmit={onSubmit}
               />
             )}

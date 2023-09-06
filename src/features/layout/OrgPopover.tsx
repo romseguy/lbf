@@ -193,11 +193,7 @@ const OrgPopoverContent = ({
         )}
       </PopoverBody>
       <PopoverFooter>
-        {orgType === EOrgType.NETWORK ? (
-          <EntityAddButton orgType={EOrgType.NETWORK} mt={1} />
-        ) : (
-          <EntityAddButton mt={1} />
-        )}
+        <EntityAddButton orgType={orgType} mt={1} />
       </PopoverFooter>
     </>
   );

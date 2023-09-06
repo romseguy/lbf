@@ -1,23 +1,21 @@
 import {
+  BaseThemeWithExtensions,
   ChakraProvider,
-  createCookieStorageManager,
-  createLocalStorageManager,
-  BaseThemeWithExtensions
+  cookieStorageManagerSSR
 } from "@chakra-ui/react";
+import { PropsWithChildren } from "react";
 
 export function Chakra({
   cookies,
   children,
   theme
-}: {
-  cookies: any;
-  children: React.ReactNode | React.ReactNodeArray;
+}: PropsWithChildren<{
+  cookies?: string;
   theme: BaseThemeWithExtensions<any, any>;
-}) {
-  const colorModeManager =
-    typeof cookies === "string"
-      ? createCookieStorageManager("lbf-cui", cookies)
-      : createLocalStorageManager("lbf-cui");
+}>) {
+  const colorModeManager = cookieStorageManagerSSR(
+    cookies || "chakra-ui-color-mode=light"
+  );
 
   return (
     <ChakraProvider resetCSS theme={theme} colorModeManager={colorModeManager}>

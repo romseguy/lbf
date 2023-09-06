@@ -119,17 +119,17 @@ export const Layout = ({
   const isE = isEvent(entity);
   const isO = isOrg(entity);
   const isU = isUser(entity);
-  const title = `${process.env.NEXT_PUBLIC_SHORT_URL} – ${
+  const title = `${
     isO
-      ? `${OrgTypes[entity.orgType]} – ${entity.orgName}`
+      ? `${entity.orgName} – ${OrgTypes[entity.orgType]}  `
       : isE
-      ? `Événement – ${entity.eventName}`
+      ? `${entity.eventName} – Événement`
       : isU
-      ? entity.userName
+      ? `${entity.userName} – Utilisateur`
       : pageTitle
       ? capitalize(pageTitle)
       : "Merci de patienter..."
-  }`;
+  }– ${process.env.NEXT_PUBLIC_SHORT_URL}`;
 
   return (
     <>

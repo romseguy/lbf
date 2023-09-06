@@ -106,12 +106,12 @@ export const EventForm = withGoogleApi({
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 })(
   ({
-    orgId,
     ...props
   }: {
+    eventName?: string;
+    orgId?: string;
     session: Session;
     event?: IEvent;
-    orgId?: string;
     onCancel?: () => void;
     onSubmit?: (eventUrl: string) => void;
   }) => {
@@ -209,7 +209,7 @@ export const EventForm = withGoogleApi({
     } = useFormPersist(
       useForm<FormData>({
         defaultValues: {
-          eventName: props.event?.eventName || "",
+          eventName: props.eventName || props.event?.eventName || "",
           eventCategory: props.event?.eventCategory,
           eventMinDate: props.event ? parseISO(props.event.eventMinDate) : null,
           eventMaxDate: props.event ? parseISO(props.event.eventMaxDate) : null,
@@ -306,10 +306,10 @@ export const EventForm = withGoogleApi({
     const eventWeb = useWatch<IEntityWeb[]>({ control, name: "eventWeb" });
 
     const { data: org } = useGetOrgQuery(
-      { orgUrl: orgId || "" },
+      { orgUrl: props.orgId || "" },
       {
         selectFromResult: (query) => {
-          if (!myOrgs?.find(({ _id }) => _id === orgId))
+          if (!myOrgs?.find(({ _id }) => _id === props.orgId))
             return { ...query, data: undefined };
           return query;
         }
@@ -564,7 +564,6 @@ export const EventForm = withGoogleApi({
               // }
             })}
             autoComplete="off"
-            defaultValue={props.event ? props.event.eventName : ""}
             placeholder="Nom de l'événement"
           />
           {!errors.eventName && !props.event && getValues("eventName") && (

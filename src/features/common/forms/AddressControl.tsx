@@ -67,7 +67,6 @@ export const AddressControl = withGoogleApi({
     onClick?: () => void;
     onChange?: (description: string) => void;
   }) => {
-    console.log("🚀 ~ file: AddressControl.tsx:70 ~ value:", value);
     const { colorMode } = useColorMode();
     const isDark = colorMode === "dark";
 

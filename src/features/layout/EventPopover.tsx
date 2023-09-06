@@ -1,8 +1,5 @@
-import { AddIcon, CalendarIcon } from "@chakra-ui/icons";
+import { CalendarIcon } from "@chakra-ui/icons";
 import {
-  Box,
-  BoxProps,
-  Button,
   Icon,
   IconButton,
   Popover,
@@ -20,9 +17,9 @@ import {
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { EntityButton } from "features/common";
 import { useGetEventsQuery } from "features/api/eventsApi";
 import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
+import { EntityAddButton, EntityButton } from "features/common";
 import { EEventInviteStatus } from "models/Event";
 import { selectSubscriptionRefetch } from "store/subscriptionSlice";
 import { selectUserEmail } from "store/userSlice";
@@ -200,26 +197,11 @@ const EventPopoverContent = ({
         )}
       </PopoverBody>
       <PopoverFooter>
-        <Button
-          colorScheme="teal"
-          leftIcon={
-            <>
-              <AddIcon mr={2} />
-              <CalendarIcon />
-            </>
-          }
-          mt={1}
-          size="sm"
+        <EntityAddButton
           onClick={() => {
             onClose();
-            router.push("/evenements/ajouter", "/evenements/ajouter", {
-              shallow: true
-            });
           }}
-          data-cy="event-add-button"
-        >
-          Ajouter un événement
-        </Button>
+        />
       </PopoverFooter>
     </>
   );

@@ -11,9 +11,11 @@ export const DarkModeSwitch = ({
 }) => {
   const { colorMode, toggleColorMode } = useColorMode();
   const isDark = colorMode === "dark";
+
+  //const toggleButton = useMemo
   return (
     <Toggle
-      defaultChecked={isDark}
+      checked={isDark}
       icons={{
         checked: <FaMoon color="white" />,
         unchecked: <FaSun color="white" />

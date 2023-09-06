@@ -1,4 +1,4 @@
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, CalendarIcon } from "@chakra-ui/icons";
 import { Button, ButtonProps, Icon, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
@@ -7,13 +7,17 @@ import { EOrgType } from "models/Org";
 
 export const EntityAddButton = ({
   label,
-  orgType = EOrgType.GENERIC,
-  onClose,
+  eventName,
+  orgName,
+  orgType,
+  onClick,
   ...props
 }: ButtonProps & {
   label?: string;
+  eventName?: string;
+  orgName?: string;
   orgType?: EOrgType;
-  onClose?: () => void;
+  onClick?: () => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -26,15 +30,17 @@ export const EntityAddButton = ({
         leftIcon={
           <>
             <AddIcon mr={1} />
-            <Icon as={FaGlobeEurope} color={isDark ? "black" : "white"} />
+            <Icon as={FaGlobeEurope} color={isDark ? "blue" : "blue.100"} />
           </>
         }
-        mt={1}
         size="sm"
         onClick={(e) => {
           e.stopPropagation();
-          onClose && onClose();
-          router.push("/planetes/ajouter", "/planetes/ajouter", {
+          onClick && onClick();
+          const url = orgName
+            ? `/planetes/ajouter?orgName=${orgName}`
+            : "/planetes/ajouter";
+          router.push(url, url, {
             shallow: true
           });
         }}
@@ -45,27 +51,57 @@ export const EntityAddButton = ({
       </Button>
     );
 
+  if (orgType === EOrgType.GENERIC) {
+    return (
+      <Button
+        colorScheme="teal"
+        leftIcon={
+          <>
+            <AddIcon mr={0.5} />
+            <Icon as={FaTree} color={isDark ? "green" : "lightgreen"} />
+          </>
+        }
+        size="sm"
+        onClick={(e) => {
+          onClick && onClick();
+          e.stopPropagation();
+          const url = orgName
+            ? `/arbres/ajouter?orgName=${orgName}`
+            : "/arbres/ajouter";
+          router.push(url, url, {
+            shallow: true
+          });
+        }}
+        data-cy="org-add-button"
+        {...props}
+      >
+        {label || "Ajouter un arbre"}
+      </Button>
+    );
+  }
+
   return (
     <Button
       colorScheme="teal"
       leftIcon={
         <>
-          <AddIcon color="brown.50" mr={1} />
-          <Icon as={FaTree} color="lightgreen" />
+          <AddIcon mr={1} />
+          <CalendarIcon />
         </>
       }
-      mt={1}
       size="sm"
+      mt={1}
       onClick={() => {
-        onClose && onClose();
-        router.push("/arbres/ajouter", "/arbres/ajouter", {
+        const url = eventName
+          ? `/evenements/ajouter?eventName=${eventName}`
+          : "/evenements/ajouter";
+        router.push(url, url, {
           shallow: true
         });
       }}
-      data-cy="org-add-button"
-      {...props}
+      data-cy="event-add-button"
     >
-      {label || "Ajouter un arbre"}
+      {label || "Ajouter un événement"}
     </Button>
   );
 };
