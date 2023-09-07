@@ -78,7 +78,7 @@ export const OrgPageHomeTabPanel = ({
   const badgeProps: BadgeProps = {
     colorScheme: "teal",
     variant: "solid",
-    mr: 2
+    ml: 2
   };
 
   //#region org
@@ -102,7 +102,9 @@ export const OrgPageHomeTabPanel = ({
   //#endregion
 
   //#region local state
-  const [description, setDescription] = useState<string | undefined>();
+  const [description, setDescription] = useState<string | undefined>(
+    org.orgDescription
+  );
   useEffect(() => {
     if (!org.orgDescription) return setDescription(undefined);
     const doc = transformRTEditorOutput(org.orgDescription, isMobile);
@@ -142,10 +144,8 @@ export const OrgPageHomeTabPanel = ({
               ml={3}
               mr={1}
             />
-
-            <Badge {...badgeProps}>{org.orgs.length}</Badge>
-
             <Heading size="sm">Forêt de la planète</Heading>
+            <Badge {...badgeProps}>{org.orgs.length}</Badge>
           </TabContainerHeader>
 
           {isChildrenOpen && (
@@ -301,16 +301,13 @@ export const OrgPageHomeTabPanel = ({
             ml={3}
             mr={1}
           />
-
+          <Heading size="sm">Coordonnées {orgTypeFull(org.orgType)}</Heading>
           <Badge {...badgeProps}>
             {org.orgAddress.length +
               org.orgEmail.length +
               org.orgPhone.length +
               org.orgWeb.length}
           </Badge>
-
-          <Heading size="sm">Coordonnées {orgTypeFull(org.orgType)}</Heading>
-
           {hasInfo && isCreator && (
             <Tooltip
               hasArrow

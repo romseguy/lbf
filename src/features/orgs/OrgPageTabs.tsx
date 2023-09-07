@@ -1,4 +1,4 @@
-import { CalendarIcon, QuestionIcon } from "@chakra-ui/icons";
+import { CalendarIcon } from "@chakra-ui/icons";
 import {
   Badge,
   BadgeProps,
@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { FaImages, FaTools } from "react-icons/fa";
+import { FaTools } from "react-icons/fa";
 import { css } from "twin.macro";
 import { useGetDocumentsQuery } from "features/api/documentsApi";
 import { useEditOrgMutation } from "features/api/orgsApi";
@@ -25,7 +25,6 @@ import {
   EntityPageTopics,
   AppHeading
 } from "features/common";
-import { DocumentsList } from "features/documents/DocumentsList";
 import { EventsList } from "features/events/EventsList";
 import { ProjectsList } from "features/projects/ProjectsList";
 import {

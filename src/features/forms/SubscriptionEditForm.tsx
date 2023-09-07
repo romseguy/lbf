@@ -365,7 +365,7 @@ export const SubscriptionEditForm = ({
           )}
         </FormLabel>
 
-        {org && org.orgUrl !== "forum" && (
+        {org && !!org.orgTabs?.find(({ url }) => url === "/evenements") && (
           <>
             <Switch
               {...switchProps}
@@ -461,7 +461,36 @@ export const SubscriptionEditForm = ({
           de la catégorie...
         </Switch>
 
-        {/* {Object.keys(topics).length > 0 && (
+        {org && !!org.orgTabs?.find(({ url }) => url === "/projets") && (
+          <Switch
+            {...switchProps}
+            isChecked={isAllProjects}
+            isDisabled={isLoading}
+            onChange={(e) => {
+              setIsAllProjects(e.target.checked);
+            }}
+          >
+            {isSelf
+              ? "vous êtes invité à un projet"
+              : "vous l'invitez à un projet"}
+          </Switch>
+        )}
+      </FormControl>
+
+      <Button
+        colorScheme="green"
+        isDisabled={isLoading}
+        mt={3}
+        onClick={() => onSubmit()}
+      >
+        Sauvegarder
+      </Button>
+    </form>
+  );
+};
+
+{
+  /* {Object.keys(topics).length > 0 && (
           <>
             <ArrowForwardIcon /> quelqu'un répond à la discussion...
             <CheckboxGroup>
@@ -497,32 +526,5 @@ export const SubscriptionEditForm = ({
               </VStack>
             </CheckboxGroup>
           </>
-        )} */}
-
-        {org && (
-          <Switch
-            {...switchProps}
-            isChecked={isAllProjects}
-            isDisabled={isLoading}
-            onChange={(e) => {
-              setIsAllProjects(e.target.checked);
-            }}
-          >
-            {isSelf
-              ? "vous êtes invité à un projet"
-              : "vous l'invitez à un projet"}
-          </Switch>
-        )}
-      </FormControl>
-
-      <Button
-        colorScheme="green"
-        isDisabled={isLoading}
-        mt={3}
-        onClick={() => onSubmit()}
-      >
-        Sauvegarder
-      </Button>
-    </form>
-  );
-};
+        )} */
+}

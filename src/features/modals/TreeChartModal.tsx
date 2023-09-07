@@ -75,7 +75,7 @@ export const TreeChartModal = ({
           initialZoom: 0.8,
           isFullscreen: true,
           isSorted: true,
-          heightBetweenNodesCoeff: 1,
+          heightBetweenNodesCoeff: 1.4,
           widthBetweenNodesCoeff: 1,
           aspectRatio: 1,
           margin: {

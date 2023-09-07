@@ -104,7 +104,9 @@ export const treeChart = (
   const layoutHeight = isFullscreen ? window.innerHeight - my : size - my;
   const layoutWidth = isFullscreen ? window.innerWidth - mx : size - mx;
 
-  let layout = d3.layout.tree().size([layoutHeight, layoutWidth]);
+  let layout = d3.layout
+    .tree()
+    .size([layoutHeight * heightBetweenNodesCoeff, layoutWidth]);
   if (isSorted)
     layout.sort((a, b) =>
       (b as TreeNode).name.toLowerCase() < (a as TreeNode).name.toLowerCase()

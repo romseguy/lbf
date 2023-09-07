@@ -13,7 +13,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   useAddSubscriptionMutation,
@@ -40,6 +40,7 @@ import {
 import { IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
+import { selectUserEmail } from "store/userSlice";
 import { hasItems } from "utils/array";
 import { ServerError } from "utils/errors";
 import { normalize } from "utils/string";
@@ -48,7 +49,7 @@ import { TopicCategoryTag } from "./TopicCategoryTag";
 import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicsListItem } from "./TopicsListItem";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
-import { selectUserEmail } from "store/userSlice";
+import { selectIsMobile } from "store/uiSlice";
 
 export const TopicsList = ({
   query,
@@ -64,10 +65,12 @@ export const TopicsList = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const { data: session } = useSession();
   const userEmail = useSelector(selectUserEmail);
   const toast = useToast({ position: "top" });
+
   const [addSubscription] = useAddSubscriptionMutation();
   const addTopicNotifMutation = useAddTopicNotifMutation();
   const [deleteSubscription] = useDeleteSubscriptionMutation();
@@ -168,64 +171,96 @@ export const TopicsList = ({
   }>({
     isOpen: false
   });
-  const onClose = useCallback(
-    () =>
-      setTopicModalState({
-        ...topicModalState,
-        isOpen: false,
-        topic: undefined
-      }),
-    [topicModalState]
-  );
-  const onAddClick = useCallback(() => {
+  const onClose = () =>
+    setTopicModalState({
+      ...topicModalState,
+      isOpen: false,
+      topic: undefined
+    });
+  const onAddClick = () => {
     if (!session) {
       router.push("/login", "/login", { shallow: true });
       return;
     }
 
     setTopicModalState({ ...topicModalState, isOpen: true });
-  }, [session, topicModalState]);
+  };
   //#endregion
 
   //#region notify modal state
   const [notifyModalState, setNotifyModalState] = useState<
     NotifModalState<ITopic>
   >({});
-  const onNotifClick = useCallback(
-    (topic: ITopic) => {
-      setNotifyModalState({
-        ...notifyModalState,
-        entity: topic
-      });
-    },
-    [notifyModalState]
-  );
+  const onNotifClick = (topic: ITopic) => {
+    setNotifyModalState({
+      ...notifyModalState,
+      entity: topic
+    });
+  };
   //#endregion
 
   //#region TopicsListItem handlers
-  const onClick = useCallback(async (topic: ITopic, isCurrent: boolean) => {
+  const onClick = async (topic: ITopic, isCurrent: boolean) => {
     const url = isCurrent
       ? baseUrl
       : `${baseUrl}/${normalize(topic.topicName)}`;
     await router.push(url, url, { shallow: true });
-  }, []);
-  const onDeleteClick = useCallback(
-    async (topic: ITopic, isCurrent: boolean) => {
+  };
+  const onDeleteClick = async (topic: ITopic, isCurrent: boolean) => {
+    try {
+      setIsLoading({
+        [topic._id]: true
+      });
+      const deletedTopic = await deleteTopic(topic._id).unwrap();
+      toast({
+        title: `${deletedTopic.topicName} a été supprimé !`,
+        status: "success"
+      });
+      router.push(baseUrl, baseUrl, { shallow: true });
+    } catch (error: ServerError | any) {
+      toast({
+        title:
+          error.data.message ||
+          `La discussion ${topic.topicName} n'a pas pu être supprimée`,
+        status: "error"
+      });
+    } finally {
+      setIsLoading({
+        [topic._id]: false
+      });
+    }
+  };
+  const onEditClick = (topic: ITopic) => {
+    setTopicModalState({
+      ...topicModalState,
+      isOpen: true,
+      topic
+    });
+  };
+  const onSubscribeClick = async (topic: ITopic, isSubbedToTopic: boolean) => {
+    if (!subQuery.data || !isSubbedToTopic) {
       try {
         setIsLoading({
           [topic._id]: true
         });
-        const deletedTopic = await deleteTopic(topic._id).unwrap();
+        await addSubscription({
+          topics: [
+            {
+              topic: topic,
+              emailNotif: true,
+              pushNotif: true
+            }
+          ],
+          user: session?.user.userId
+        });
         toast({
-          title: `${deletedTopic.topicName} a été supprimé !`,
+          title: `Vous êtes abonné à la discussion ${topic.topicName}`,
           status: "success"
         });
-        router.push(baseUrl, baseUrl, { shallow: true });
-      } catch (error: ServerError | any) {
+      } catch (error) {
+        console.error(error);
         toast({
-          title:
-            error.data.message ||
-            `La discussion ${topic.topicName} n'a pas pu être supprimée`,
+          title: `Vous n'avez pas pu être abonné à la discussion ${topic.topicName}`,
           status: "error"
         });
       } finally {
@@ -233,44 +268,28 @@ export const TopicsList = ({
           [topic._id]: false
         });
       }
-    },
-    []
-  );
-  const onEditClick = useCallback(
-    (topic: ITopic) => {
-      setTopicModalState({
-        ...topicModalState,
-        isOpen: true,
-        topic
-      });
-    },
-    [topicModalState]
-  );
-  const onSubscribeClick = useCallback(
-    async (topic: ITopic, isSubbedToTopic: boolean) => {
-      if (!subQuery.data || !isSubbedToTopic) {
+    } else if (isSubbedToTopic) {
+      const unsubscribe = confirm(
+        `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
+      );
+
+      if (unsubscribe) {
         try {
           setIsLoading({
             [topic._id]: true
           });
-          await addSubscription({
-            topics: [
-              {
-                topic: topic,
-                emailNotif: true,
-                pushNotif: true
-              }
-            ],
-            user: session?.user.userId
+          await deleteSubscription({
+            subscriptionId: subQuery.data._id,
+            topicId: topic._id
           });
           toast({
-            title: `Vous êtes abonné à la discussion ${topic.topicName}`,
+            title: `Vous êtes désabonné de ${topic.topicName}`,
             status: "success"
           });
         } catch (error) {
           console.error(error);
           toast({
-            title: `Vous n'avez pas pu être abonné à la discussion ${topic.topicName}`,
+            title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
             status: "error"
           });
         } finally {
@@ -278,40 +297,9 @@ export const TopicsList = ({
             [topic._id]: false
           });
         }
-      } else if (isSubbedToTopic) {
-        const unsubscribe = confirm(
-          `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
-        );
-
-        if (unsubscribe) {
-          try {
-            setIsLoading({
-              [topic._id]: true
-            });
-            await deleteSubscription({
-              subscriptionId: subQuery.data._id,
-              topicId: topic._id
-            });
-            toast({
-              title: `Vous êtes désabonné de ${topic.topicName}`,
-              status: "success"
-            });
-          } catch (error) {
-            console.error(error);
-            toast({
-              title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
-              status: "error"
-            });
-          } finally {
-            setIsLoading({
-              [topic._id]: false
-            });
-          }
-        }
       }
-    },
-    [session, subQuery]
-  );
+    }
+  };
   //#endregion
 
   return (
@@ -357,7 +345,7 @@ export const TopicsList = ({
           </Flex>
         )}
 
-      <Grid data-cy="topic-list">
+      <Box data-cy="topic-list">
         {query.isLoading ? (
           <Spinner />
         ) : !topics.length ? (
@@ -472,6 +460,7 @@ export const TopicsList = ({
               <TopicsListItem
                 key={topic._id}
                 ref={refs[topic._id]}
+                isMobile={isMobile}
                 session={session}
                 isCreator={props.isCreator}
                 query={query}
@@ -496,7 +485,7 @@ export const TopicsList = ({
             );
           })
         )}
-      </Grid>
+      </Box>
 
       {session && (
         <EntityNotifModal

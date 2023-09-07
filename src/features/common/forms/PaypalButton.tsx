@@ -3,6 +3,8 @@ import { useEffect } from "react";
 
 declare const PayPal: any;
 
+export const PAYPAL_BUTTON_WIDTH = 108;
+
 export const PaypalButton = () => {
   const [loaded, status] = useScript(
     "https://www.paypalobjects.com/donate/sdk/donate-sdk.js"

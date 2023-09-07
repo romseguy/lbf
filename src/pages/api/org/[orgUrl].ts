@@ -592,8 +592,6 @@ handler.delete<
 
     res.status(200).json(org);
   } catch (error) {
-    console.log("??", error);
-
     res.status(500).json(createServerError(error));
   }
 });

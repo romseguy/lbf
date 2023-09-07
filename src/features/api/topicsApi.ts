@@ -4,6 +4,7 @@ import { ITopicNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
+import { globalEmail } from "pages/_app";
 import baseQuery, { objectToQueryString } from "utils/query";
 import { Optional } from "utils/types";
 import { api } from "./";
@@ -56,10 +57,14 @@ export const topicApi = api.injectEndpoints({
             {
               type: "Orgs",
               id: params.payload.org?._id
-            }
+            },
+            { type: "Subscriptions", id: globalEmail }
           ];
 
-        return [{ type: "Topics", id: "LIST" }];
+        return [
+          { type: "Topics", id: "LIST" }
+          //{ type: "Subscriptions", id: params.payload.email || "LIST" }
+        ];
       }
     }),
     addTopicNotif: build.mutation<

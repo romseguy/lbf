@@ -57,10 +57,10 @@ export const SubscribePopover = ({
   isIconOnly?: boolean;
   notifType?: "email" | "push";
 }) => {
-  const toast = useToast({ position: "top" });
   const dispatch = useAppDispatch();
-  const userEmail = useSelector(selectUserEmail);
   const router = useRouter();
+  const toast = useToast({ position: "top" });
+  const userEmail = useSelector(selectUserEmail);
 
   //#region local state
   const followerSubscription = getFollowerSubscription({
@@ -271,12 +271,7 @@ export const SubscribePopover = ({
 
   if (isFollowed) {
     return (
-      <SubscriptionEditPopover
-        event={event}
-        org={org}
-        notifType={notifType}
-        userEmail={userEmail}
-      />
+      <SubscriptionEditPopover event={event} org={org} notifType={notifType} />
     );
   }
 

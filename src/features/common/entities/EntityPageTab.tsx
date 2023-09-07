@@ -5,13 +5,14 @@ import {
   //Tab,
   TabProps,
   useColorMode,
-  useTab,
-  useTabsStyles
+  useStyles,
+  useTab
 } from "@chakra-ui/react";
 import React from "react";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 
+//@ts-ignore
 const Tab = chakra("button", { themeKey: "Tabs.Tab" });
 
 export const EntityPageTab = ({
@@ -30,8 +31,10 @@ export const EntityPageTab = ({
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
   const isCurrent = tabIndex === currentTabIndex;
-  const styles = useTabsStyles();
+  //const styles = useTabsStyles();
   const tabProps = useTab(props);
+  const styles = useStyles();
+  //const styles = useMultiStyleConfig("Tabs", tabProps);
   const deviceProps = isMobile
     ? {
         flexBasis: "100%"

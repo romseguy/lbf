@@ -3,30 +3,25 @@ import {
   AlertIcon,
   Box,
   Flex,
+  FormControl,
+  FormErrorMessage,
   Heading,
   Image,
   Spinner,
   Stack,
   Text,
-  Tooltip,
   useColorMode
 } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
+import { ErrorMessage } from "@hookform/error-message";
 import { OAuthProvider } from "@magic-ext/oauth";
 import { FaPowerOff } from "react-icons/fa";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import NextNprogress from "nextjs-progressbar";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { css } from "twin.macro";
-import {
-  Button,
-  Column,
-  DarkModeSwitch,
-  EmailControl,
-  Link
-} from "features/common";
+import { Button, Column, EmailControl, Link } from "features/common";
 import { breakpoints } from "features/layout/theme";
 import { SocialLogins } from "features/session/SocialLogins";
 import { useSession } from "hooks/useSession";
@@ -35,7 +30,6 @@ import { useAppDispatch } from "store";
 import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
 import { magic } from "utils/auth";
-import { capitalize } from "utils/string";
 
 const LoginPage = ({ isMobile, ...props }: PageProps) => {
   const { colorMode } = useColorMode();
@@ -48,7 +42,9 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
     setSession,
     setIsSessionLoading
   } = useSession();
-  const { register, control, errors, handleSubmit, setValue } = useForm();
+
+  const title = `Connexion – ${process.env.NEXT_PUBLIC_SHORT_URL}`;
+  const { clearErrors, register, control, errors, handleSubmit } = useForm();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const onSubmit = async (form: { email: string }) => {
@@ -77,7 +73,7 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
       <Head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{process.env.NEXT_PUBLIC_SHORT_URL} – Connexion</title>
+        <title>{title}</title>
       </Head>
 
       <Flex
@@ -96,26 +92,6 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
           }
         `}
       >
-        <NextNprogress
-          color="#29D"
-          startPosition={0.3}
-          stopDelayMs={200}
-          height={3}
-          showOnShallow={true}
-        />
-
-        <Box position="fixed" right={4} bottom={1}>
-          <Tooltip
-            placement="top-start"
-            label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
-            hasArrow
-          >
-            <Box>
-              <DarkModeSwitch />
-            </Box>
-          </Tooltip>
-        </Box>
-
         <Flex
           flexDirection="column"
           width={isMobile ? "auto" : "md"}
@@ -195,28 +171,36 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
 
                   <Column borderRadius={isMobile ? 0 : undefined} my={3}>
                     <form onSubmit={handleSubmit(onSubmit)}>
-                      <EmailControl
-                        name="email"
-                        register={register}
-                        control={control}
-                        errors={errors}
-                        isDisabled={
-                          isLoggingIn || Object.keys(errors).length > 0
-                        }
-                        isMultiple={false}
+                      <FormControl
                         isRequired
-                        setValue={setValue}
-                        mb={3}
-                      />
+                        isInvalid={!!errors["email"]}
+                        onChange={() => clearErrors("email")}
+                      >
+                        <EmailControl
+                          name="email"
+                          control={control}
+                          errors={errors}
+                          register={register}
+                          isDisabled={
+                            isLoggingIn || Object.keys(errors).length > 0
+                          }
+                          isMultiple={false}
+                          isRequired
+                          mb={3}
+                        />
+                        <FormErrorMessage>
+                          <ErrorMessage errors={errors} name="email" />
+                        </FormErrorMessage>
+                      </FormControl>
 
                       <Button
+                        type="submit"
                         colorScheme="green"
                         isLoading={isLoggingIn}
                         isDisabled={
                           isLoggingIn || Object.keys(errors).length > 0
                         }
                         fontSize="sm"
-                        type="submit"
                         mb={3}
                       >
                         Envoyer un e-mail de connexion

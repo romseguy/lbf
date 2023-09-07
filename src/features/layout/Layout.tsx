@@ -9,41 +9,26 @@ import {
   IconButton,
   Box,
   BoxProps,
-  Flex,
   Image,
-  Tooltip,
   useColorMode,
   useDisclosure,
   useToast
 } from "@chakra-ui/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
 import { css } from "twin.macro";
-import { DarkModeSwitch, IconFooter, Link, OfflineIcon } from "features/common";
+import { Link } from "features/common";
 import { Header, Nav } from "features/layout";
 import theme, { breakpoints } from "features/layout/theme";
-import { ContactFormModal } from "features/modals/ContactFormModal";
 import { PageProps } from "main";
 import { IEntity, isEvent, isOrg, isUser } from "models/Entity";
 import { OrgTypes } from "models/Org";
-import { selectIsOffline } from "store/sessionSlice";
 import { Base64Image } from "utils/image";
 import { capitalize } from "utils/string";
-import { ChevronUpIcon } from "@chakra-ui/icons";
 import { IUser } from "models/User";
 import { Delimiter } from "features/common/Delimiter";
 import { NavButtonsList } from "./NavButtonsList";
-
-const PAYPAL_BUTTON_WIDTH = 108;
-let isNotified = false;
-
-interface customWindow extends Window {
-  console: { [key: string]: (...args: any[]) => void };
-}
-
-declare const window: customWindow;
 
 export interface LayoutProps extends PageProps, BoxProps {
   children: React.ReactNode | React.ReactNodeArray;
@@ -67,54 +52,11 @@ export const Layout = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const toast = useToast({ position: "top" });
   const {
     isOpen: isDrawerOpen,
     onOpen: onDrawerOpen,
     onClose: onDrawerClose
   } = useDisclosure();
-  const isOffline = useSelector(selectIsOffline);
-  const [showButton, setShowButton] = useState(false);
-
-  const notify = (title: string) => {
-    if (!isNotified) {
-      isNotified = true;
-      toast({
-        status: "error",
-        title
-      });
-    }
-  };
-
-  useEffect(() => {
-    ["error"].forEach(intercept);
-
-    function intercept(method: string) {
-      const original = window.console[method];
-      window.console[method] = function (...args: any[]) {
-        if (
-          typeof args[0] === "string" &&
-          args[0].includes("quota") &&
-          args[0].includes("maps")
-        )
-          notify(
-            "Vous avez dépassé le quota de chargement de cartes, veuillez réessayer plus tard."
-          );
-        original.apply
-          ? original.apply(window.console, args)
-          : original(Array.prototype.slice.apply(args).join(" "));
-      };
-    }
-
-    function handleScrollButtonVisibility() {
-      setShowButton(window.scrollY > 200);
-    }
-
-    window.addEventListener("scroll", handleScrollButtonVisibility);
-    return () => {
-      window.removeEventListener("scroll", handleScrollButtonVisibility);
-    };
-  }, []);
 
   const isE = isEvent(entity);
   const isO = isOrg(entity);
@@ -129,7 +71,7 @@ export const Layout = ({
       : pageTitle
       ? capitalize(pageTitle)
       : "Merci de patienter..."
-  }– ${process.env.NEXT_PUBLIC_SHORT_URL}`;
+  } – ${process.env.NEXT_PUBLIC_SHORT_URL}`;
 
   return (
     <>
@@ -223,20 +165,6 @@ export const Layout = ({
             </Link>
           </Box>
         </Box>
-
-        {/* {isMobile && (
-          <Footer display="flex" alignItems="center" pl={3} pb={1}>
-            <IconFooter
-              minWidth={
-                isServer()
-                  ? "34%"
-                  : `${
-                      (window.innerWidth - 28) / 2 - PAYPAL_BUTTON_WIDTH / 2
-                    }px`
-              }
-            />
-          </Footer>
-        )} */}
       </Box>
 
       {isMobile && (
@@ -270,118 +198,6 @@ export const Layout = ({
           </Drawer>
         </Box>
       )}
-
-      {/*Right Floating Header*/}
-      {!isMobile && isOffline && (
-        <Box
-          position="fixed"
-          right={3}
-          top={3}
-          bg={isDark ? "whiteAlpha.400" : "blackAlpha.300"}
-          borderRadius="lg"
-        >
-          <OfflineIcon />
-        </Box>
-      )}
-
-      {/*Right Floating Footer*/}
-      <Box position="fixed" right={4} bottom={1}>
-        <Flex flexDirection="column" alignItems="center">
-          {showButton && (
-            <ChevronUpIcon
-              background={isDark ? "whiteAlpha.300" : "blackAlpha.400"}
-              borderRadius={20}
-              boxSize={10}
-              cursor="pointer"
-              mb={3}
-              _hover={{
-                background: isDark ? "whiteAlpha.400" : "blackAlpha.500"
-              }}
-              onClick={() => {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-            />
-          )}
-
-          <Tooltip
-            placement="top-start"
-            label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
-            hasArrow
-          >
-            <Box>
-              <DarkModeSwitch />
-            </Box>
-          </Tooltip>
-        </Flex>
-      </Box>
-
-      {/*Left Floating Footer*/}
-      <Box position="fixed" left={4} bottom={2}>
-        {isMobile ? (
-          isOffline ? (
-            <Box
-              bg={isDark ? "whiteAlpha.400" : "blackAlpha.300"}
-              borderRadius="lg"
-            >
-              <OfflineIcon />
-            </Box>
-          ) : null
-        ) : (
-          <Flex alignItems="center">
-            <IconFooter mr={2} />
-
-            {/* <Tooltip
-                hasArrow
-                label="Pour nous remercier d'avoir créé ce logiciel libre ♥"
-                placement="top-end"
-              >
-                <Box mt={1}>
-                  <PaypalButton />
-                </Box>
-              </Tooltip> */}
-          </Flex>
-        )}
-      </Box>
-
-      <ContactFormModal />
     </>
   );
 };
-
-{
-  /*
-    {isLoginModalOpen && (
-      <LoginFormModal
-        onClose={() => {
-          setIsLoginModalOpen(false);
-          const path = localStorage.getItem("path") || "/";
-          const protectedRoutes = [
-            "/arbres/ajouter",
-            "/evenements/ajouter",
-            "/planetes/ajouter"
-          ];
-          if (protectedRoutes.includes(path))
-            router.push("/", "/", { shallow: true });
-          else router.push(path, path, { shallow: true });
-        }}
-        onSubmit={async () => {
-          dispatch(resetUserEmail());
-        }}
-      />
-    )}
-  */
-}
-
-{
-  /* 
-    <Tooltip
-      hasArrow
-      label="Pour nous remercier d'avoir créé ce logiciel libre ♥"
-      placement="top-end"
-    >
-      <Box>
-        <PaypalButton />
-      </Box>
-    </Tooltip>
-  */
-}

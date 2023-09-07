@@ -17,17 +17,11 @@ export const subscriptionApi = api.injectEndpoints({
           body: payload
         };
       },
-      invalidatesTags: (result, error) => {
-        if (!error) {
-          const id = result?._id;
-          if (id)
-            return [
-              { type: "Subscriptions", id: "LIST" },
-              { type: "Subscriptions", id }
-            ];
-        }
-
-        return [{ type: "Subscriptions", id: "LIST" }];
+      invalidatesTags: (result, error, params) => {
+        return [
+          { type: "Subscriptions", id: "LIST" },
+          { type: "Subscriptions", id: params.email }
+        ];
       }
     }),
     deleteSubscription: build.mutation<
@@ -90,7 +84,7 @@ export const subscriptionApi = api.injectEndpoints({
         };
       },
       providesTags: (result, error, params) => [
-        { type: "Subscriptions" as const, id: result?._id }
+        { type: "Subscriptions" as const, id: params.email }
       ]
     }),
     getSubscriptions: build.query<ISubscription[], { topicId?: string }>({

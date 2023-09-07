@@ -45,6 +45,7 @@ import { TopicsListItemSubscribers } from "./TopicsListItemSubscribers";
 import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
 
 interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
+  isMobile: boolean;
   session: Session | null;
   currentTopicName?: string;
   isCreator: boolean;
@@ -71,6 +72,7 @@ interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
 export const TopicsListItem = forwardRef(
   (
     {
+      isMobile,
       session,
       currentTopicName,
       isCreator,
@@ -144,7 +146,7 @@ export const TopicsListItem = forwardRef(
       <Box ref={ref} {...props}>
         <Flex
           alignItems="center"
-          flexWrap="wrap"
+          flexDir={isMobile ? "column" : "row"}
           borderTopRadius="xl"
           borderBottomRadius={!isCurrent ? "lg" : undefined}
           bg={
@@ -157,6 +159,7 @@ export const TopicsListItem = forwardRef(
               : "orange.100"
           }
           cursor="pointer"
+          py={1}
           _hover={{ bg: isDark ? "#314356" : "orange.300" }}
           onClick={() => onClick(topic, isCurrent)}
           onMouseEnter={() => setIsHover(true)}
@@ -165,9 +168,8 @@ export const TopicsListItem = forwardRef(
           <Flex
             flexDirection="column"
             flexGrow={1}
-            //mb={-1}
-            px={2}
-            py={1}
+            //px={2}
+            ml={2}
           >
             {/* Header */}
             <Table
@@ -345,8 +347,8 @@ export const TopicsListItem = forwardRef(
 
           <Flex
             alignItems="center"
-            flexWrap="wrap"
-            //mb={-1}
+            // pt={3}
+            // pb={2}
             ml={2}
           >
             {isLoading && <Spinner mr={3} mt={1} mb={2} />}

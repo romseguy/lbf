@@ -1,4 +1,4 @@
-import { EditIcon, AddIcon, SmallAddIcon, ChatIcon } from "@chakra-ui/icons";
+import { EditIcon, SmallAddIcon, ChatIcon } from "@chakra-ui/icons";
 import {
   ModalOverlay,
   ModalContent,
@@ -6,12 +6,10 @@ import {
   ModalBody,
   ModalCloseButton
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React from "react";
 import { Modal } from "features/common";
 import { TopicForm } from "features/forms/TopicForm";
 import { IEntity } from "models/Entity";
-import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { AppQuery, AppQueryWithData } from "utils/types";
@@ -30,11 +28,11 @@ export const TopicFormModal = (props: {
   return (
     <Modal {...props} closeOnOverlayClick={false}>
       <ModalOverlay>
-        <ModalContent maxWidth="xl">
+        <ModalContent maxWidth="xl" mt={9}>
           <ModalHeader display="flex" alignItems="center">
             {props.topic ? (
               <>
-                <EditIcon />
+                <EditIcon mr={1} />
                 <ChatIcon mr={3} /> Modifier la discussion
               </>
             ) : (

@@ -13,7 +13,8 @@ export interface AppQuery<T> {
   refetch: () => void;
   error?: {
     status: number;
-    data: { message: string };
+    data?: { message: string };
+    error?: { error: string };
   };
 }
 

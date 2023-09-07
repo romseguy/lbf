@@ -8,8 +8,7 @@ import {
   getSelectorsByUserAgent,
   isMobile as rddIsMobile
 } from "react-device-detect";
-import { Chakra } from "features/common";
-import theme from "features/layout/theme";
+import { ThemeProvider } from "features/ThemeProvider";
 import { Main, PageProps } from "main";
 import { wrapper } from "store";
 import { setIsMobile } from "store/uiSlice";
@@ -20,7 +19,8 @@ import {
   testSession,
   getAuthToken,
   sealOptions,
-  TOKEN_NAME
+  TOKEN_NAME,
+  Session
 } from "utils/auth";
 import { isServer } from "utils/isServer";
 const { getEnv } = require("utils/env");
@@ -29,6 +29,10 @@ interface AppProps {
   cookies?: string;
   pageProps: Partial<PageProps>;
 }
+
+// workaround to invalidate user subscription query
+// so there's no need to pass the email in mutation payloads
+export let globalEmail: string | undefined;
 
 const App = wrapper.withRedux(
   ({ Component, cookies, pageProps }: NextAppProps<PageProps> & AppProps) => {
@@ -42,9 +46,9 @@ const App = wrapper.withRedux(
           height={3}
           showOnShallow
         />
-        <Chakra theme={theme} cookies={cookies}>
+        <ThemeProvider cookies={cookies}>
           <Main Component={Component} {...pageProps} />
-        </Chakra>
+        </ThemeProvider>
       </>
     );
   }
@@ -68,7 +72,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
 
       //#region email and session handling
       let email = ctx.query.email;
-      let session;
+      let session: Session | undefined;
 
       if (devSession && getEnv() === "development") {
         // console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
@@ -85,11 +89,12 @@ App.getInitialProps = wrapper.getInitialAppProps(
       }
 
       const cookies = headers?.cookie;
+      let authToken: string | null = null;
 
       if (typeof cookies === "string" && cookies.includes(TOKEN_NAME)) {
         const cookie = parse(cookies);
         // console.log("🚀 ~ App.getInitialProps ~ cookie map:", cookie);
-        const authToken = getAuthToken(cookie);
+        authToken = getAuthToken(cookie);
 
         if (authToken) {
           // console.log("🚀 ~ App.getInitialProps ~ authToken:", authToken);
@@ -102,8 +107,12 @@ App.getInitialProps = wrapper.getInitialAppProps(
         }
       }
 
-      if (typeof email === "string") store.dispatch(setUserEmail(email));
-      if (session) store.dispatch(setSession(session));
+      if (typeof email === "string") {
+        globalEmail = email;
+        store.dispatch(setUserEmail(email));
+      }
+      if (session)
+        store.dispatch(setSession({ ...session, [TOKEN_NAME]: authToken }));
       //#endregion
 
       let pageProps: AppProps["pageProps"] = { isMobile };

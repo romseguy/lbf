@@ -51,24 +51,23 @@ export const RTEditor = ({
   onBlur,
   onChange,
   ...props
-}: {
+}: IAllProps["init"] & {
   defaultValue?: string;
   event?: IEvent;
   org?: IOrg;
-  placeholder?: string;
-  readOnly?: boolean;
   session?: Session | null;
   setIsLoading?: (bool: boolean) => void;
-  height?: string;
-  width?: string;
   value?: string;
   onBlur?: (html: string) => void;
   onChange?: ({ html }: { html: string }) => void;
 }) => {
   const dispatch = useAppDispatch();
   const toast = useToast({ position: "top" });
+
+  const currentIndex = useSelector(selectRTEditorIndex);
   const [isLoading, setIsLoading] = useState(true);
   const [isTouched, setIsTouched] = useState(false);
+  const [shortId, setShortId] = useState<string | undefined>();
 
   //#region tinymce
   const editorRef = useRef<TinyMCEEditor | null>(null);
@@ -102,17 +101,36 @@ export const RTEditor = ({
     }
     p { margin: 0; padding: 0; }
     `,
-    height: props.height || undefined,
+    height: props.height,
+    max_height: 500,
     placeholder,
     //endregion
+
     language: "fr_FR",
     language_url: "/tinymce/langs/fr_FR.js",
-    max_height: 500,
+    //contextmenu: "copy paste link",
+    contextmenu: false,
     menubar: false,
+    statusbar: false,
+    toolbar:
+      "fullscreen undo redo \
+             link anchor | formatselect | \
+            alignleft aligncenter bold italic charmap emoticons \
+            | link unlink | image media \
+            | removeformat | code help",
+    //extended_valid_elements: "a[id|name|href|target=_blank]",
+    file_picker_types: "image",
+    file_picker_callback: onImageClick,
+    image_upload_handler: uploadImage,
+    relative_urls: true,
+    //remove_script_host: false,
+    document_base_url: process.env.NEXT_PUBLIC_URL + "/",
+
     mobile: {
       toolbar_location: "bottom",
       toolbar_mode: "floating"
     },
+
     // plugins: [
     //   "advlist autolink lists link image charmap print preview anchor",
     //   "searchreplace visualblocks code fullscreen",
@@ -120,107 +138,92 @@ export const RTEditor = ({
     //   "image media"
     // ],
     plugins: [
-      "autolink code",
+      "anchor autolink code",
       "emoticons charmap fullscreen",
       "image link media paste searchreplace",
       "help"
-    ],
-    //contextmenu: "copy paste link",
-    contextmenu: false,
-    statusbar: false,
-    toolbar:
-      "fullscreen undo redo \
-             link | formatselect | \
-            alignleft aligncenter bold italic charmap emoticons \
-            | link unlink | image media \
-            | removeformat | code help",
-    file_picker_types: "image",
-    file_picker_callback: (
-      cb: Function
-      /*
+    ]
+  };
+
+  function onImageClick(
+    cb: Function
+    /*
       value: any,
       meta: Record<string, any>
       */
-    ) => {
-      const input = document.createElement("input");
-      input.setAttribute("type", "file");
-      input.setAttribute("accept", "image/*");
-      input.onchange = onFileInputChange;
-      input.click();
+  ) {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.onchange = onFileInputChange;
+    input.click();
 
-      function onFileInputChange() {
-        //@ts-expect-error
-        const file = this.files[0];
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result !== "string") return;
-          const id = "blobid" + new Date().getTime();
-          const blobCache = editorRef.current!.editorUpload.blobCache;
-          const base64 = reader.result.split(",")[1];
-          const blobInfo = blobCache.create(id, file, base64);
-          blobCache.add(blobInfo);
-          cb(blobInfo.blobUri(), { title: file.name });
-        };
-        reader.readAsDataURL(file);
-      }
-    },
-    image_upload_handler: async (
-      blobInfo: BlobInfo,
-      success: (url: string) => void,
-      failure: (err: string, options?: UploadFailureOptions) => void,
-      progress?: (percent: number) => void
-    ) => {
-      let formData = new FormData();
-      const file = blobInfo.blob();
+    function onFileInputChange() {
+      //@ts-expect-error
+      const file = this.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result !== "string") return;
+        const id = "blobid" + new Date().getTime();
+        const blobCache = editorRef.current!.editorUpload.blobCache;
+        const base64 = reader.result.split(",")[1];
+        const blobInfo = blobCache.create(id, file, base64);
+        blobCache.add(blobInfo);
+        cb(blobInfo.blobUri(), { title: file.name });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
 
-      if (file.size >= 10000000) {
-        toast({
-          status: "error",
-          title: "L'image ne doit pas dépasser 10Mo."
-        });
-        return;
-      }
+  async function uploadImage(
+    blobInfo: BlobInfo,
+    success: (url: string) => void,
+    failure: (err: string, options?: UploadFailureOptions) => void,
+    progress?: (percent: number) => void
+  ) {
+    let formData = new FormData();
+    const file = blobInfo.blob();
 
-      formData.append("files[]", file, blobInfo.filename());
-      if (event) formData.append("eventId", event._id);
-      else if (org) formData.append("orgId", org._id);
-      else if (session) formData.append("userId", session.user.userId);
+    if (file.size >= 10000000) {
+      toast({
+        status: "error",
+        title: "L'image ne doit pas dépasser 10Mo."
+      });
+      return;
+    }
 
-      try {
-        const mutation = await axios.post(
-          process.env.NEXT_PUBLIC_API2,
-          formData
-        );
-        if (mutation.status !== 200) {
-          failure("Erreur dans la sauvegarde des images", {
-            remove: true
-          });
-          return;
-        }
-        if (typeof mutation.data.file !== "string") {
-          failure("Réponse invalide", { remove: true });
-          return;
-        }
+    formData.append("files[]", file, blobInfo.filename());
+    if (event) formData.append("eventId", event._id);
+    else if (org) formData.append("orgId", org._id);
+    else if (session) formData.append("userId", session.user.userId);
 
-        let url = `${process.env.NEXT_PUBLIC_API2}/view?fileName=${mutation.data.file}`;
-        if (event) url += `&eventId=${event._id}`;
-        else if (org) url += `&orgId=${org._id}`;
-        else if (session) url += `&userId=${session.user.userId}`;
-
-        success(url);
-      } catch (error) {
-        console.error(error);
+    try {
+      const mutation = await axios.post(process.env.NEXT_PUBLIC_API2, formData);
+      if (mutation.status !== 200) {
         failure("Erreur dans la sauvegarde des images", {
           remove: true
         });
+        return;
       }
-    }
-  };
-  //#endregion
+      if (typeof mutation.data.file !== "string") {
+        failure("Réponse invalide", { remove: true });
+        return;
+      }
 
-  //#region componentDidMount
-  const currentIndex = useSelector(selectRTEditorIndex);
-  const [shortId, setShortId] = useState<string | undefined>();
+      let url = `${process.env.NEXT_PUBLIC_API2}/view?fileName=${mutation.data.file}`;
+      if (event) url += `&eventId=${event._id}`;
+      else if (org) url += `&orgId=${org._id}`;
+      else if (session) url += `&userId=${session.user.userId}`;
+
+      success(url);
+    } catch (error) {
+      console.error(error);
+      failure("Erreur dans la sauvegarde des images", {
+        remove: true
+      });
+    }
+  }
+  //#endregion
 
   useEffect(() => {
     dispatch(incrementRTEditorIndex());
@@ -229,7 +232,6 @@ export const RTEditor = ({
     //     console.log(editorRef.current.getContent());
     //   }
   }, []);
-  //#endregion
 
   return (
     <RTEditorStyles>

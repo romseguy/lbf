@@ -7,7 +7,7 @@ import { IEntity, isEvent, isOrg } from "models/Entity";
 import { orgTypeFull } from "models/Org";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
-import { AppQueryWithData } from "utils/types";
+import { AppIcon, AppQueryWithData } from "utils/types";
 
 export const TopicsListItemVisibility = ({
   query,
@@ -23,7 +23,7 @@ export const TopicsListItemVisibility = ({
 
   let icons: {
     label: string;
-    icon: IconType | ComponentWithAs<"svg", IconProps>;
+    icon: AppIcon;
   }[] = [];
 
   const customLists = topic.topicVisibility.filter(

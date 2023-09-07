@@ -148,7 +148,7 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
       />
 
       <Flex justifyContent="space-between">
-        <Button onClick={onClose}>Annuler</Button>
+        {props.onClose && <Button onClick={onClose}>Annuler</Button>}
 
         <Button
           colorScheme="green"

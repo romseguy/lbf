@@ -15,6 +15,8 @@ import {
 import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
 import { HeaderTitle } from "./HeaderTitle";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 export const Header = ({
   defaultTitle,
@@ -30,6 +32,7 @@ export const Header = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
   // const router = useRouter();
@@ -70,6 +73,16 @@ export const Header = ({
         flex-shrink: 0;
         padding: 12px;
 
+        ${isMobile
+          ? `
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-end;
+        `
+          : `
+        flex-direction: row;
+        `}
+
         ${banner &&
         `
           background-image: url("${banner.base64 || banner.url}");
@@ -94,7 +107,8 @@ export const Header = ({
     >
       {logo && (
         <Link
-          alignSelf="flex-end"
+          alignSelf={isMobile ? undefined : "flex-end"}
+          mb={isMobile ? 3 : undefined}
           onClick={(e) => {
             e.stopPropagation();
             setIsLogoModalOpen(true);
@@ -112,7 +126,7 @@ export const Header = ({
 
       {(!entity || showTitle) && (
         <HeaderTitle
-          alignSelf="flex-end"
+          alignSelf={isMobile ? undefined : "flex-end"}
           entity={entity}
           pageHeader={pageHeader}
           pageTitle={pageTitle || defaultTitle}

@@ -20,8 +20,7 @@ import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import {
   //getRunningQueriesThunk as userApiThunk,
   getUser,
-  useGetUserQuery,
-  UserQueryParams
+  useGetUserQuery
 } from "features/api/usersApi";
 import { Column, NotFound } from "features/common";
 import { Layout } from "features/layout";
@@ -37,10 +36,9 @@ import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
 import { wrapper } from "store";
 import { selectUserEmail } from "store/userSlice";
-import { isServer } from "utils/isServer";
 import { defaultErrorMessage, normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { getRefId } from "models/Entity";
+import { getRefId, IEntity } from "models/Entity";
 
 const initialEventQueryParams = (entityUrl: string) => ({
   eventUrl: entityUrl,
@@ -58,6 +56,40 @@ const subQueryParams = (email: string) => ({
   email
 });
 
+function getError(query: AppQuery<IEntity>) {
+  if (query.error) {
+    if (query.error.data) {
+      return query.error.data.message;
+    }
+
+    if (query.error.error) return query.error.error;
+  }
+}
+
+const ErrorPage = ({
+  query,
+  ...props
+}: PageProps & {
+  query: AppQuery<IEntity>;
+}) => {
+  const columnProps = {
+    maxWidth: "4xl",
+    m: "0 auto",
+    p: props.isMobile ? 2 : 3
+  };
+  return (
+    <Layout {...props}>
+      <Column {...columnProps}>
+        {defaultErrorMessage}
+        <Alert status="error">
+          <AlertIcon />
+          {getError(query)}
+        </Alert>
+      </Column>
+    </Layout>
+  );
+};
+
 const HashPage = ({ ...props }: PageProps) => {
   const columnProps = {
     maxWidth: "4xl",
@@ -74,7 +106,7 @@ const HashPage = ({ ...props }: PageProps) => {
     "name" in router.query && Array.isArray(router.query.name)
       ? router.query.name
       : [];
-  entityTabItem = entityUrl === "forum" ? entityTab : entityTabItem;
+  //entityTabItem = entityUrl === "forum" ? entityTab : entityTabItem;
   //#endregion
 
   //#region queries
@@ -129,28 +161,21 @@ const HashPage = ({ ...props }: PageProps) => {
     },
     [entityUrl]
   );
-  useEffect(() => {
-    if (!orgQuery.data?._id) {
-      const isCreator = session?.user.userId === getRefId(orgQuery.data);
+  // useEffect(() => {
+  //   if (!orgQuery.data?._id) {
+  //     const isCreator = session?.user.userId === getRefId(orgQuery.data);
 
-      if (isCreator) {
-        orgQuery.refetch();
-      }
-    }
-  }, []);
+  //     if (isCreator) {
+  //       orgQuery.refetch();
+  //     }
+  //   }
+  // }, []);
   // useEffect(() => {
   //   if (orgQuery.data?._id && isLoading) setIsLoading(false);
   // }, [orgQuery.data]);
   //#endregion
 
   //#region rendering
-  // if (isLoading)
-  //   return (
-  //     <Layout {...props}>
-  //       <Spinner />
-  //     </Layout>
-  //   );
-
   if (orgQueryStatus === 404 && orgQueryParams.orgUrl === "forum") {
     return (
       <NotFound
@@ -179,41 +204,25 @@ const HashPage = ({ ...props }: PageProps) => {
         tabItem={entityTabItem}
       />
     );
-  } else if (
+  }
+
+  if (
     eventQuery.error &&
     eventQueryStatus !== 404 &&
     userQuery.error &&
     orgQuery.error
   ) {
-    return (
-      <Layout {...props}>
-        <Column {...columnProps}>
-          {defaultErrorMessage}
-          <Alert status="error">
-            <AlertIcon />
-            {eventQuery.error.data.message}
-          </Alert>
-        </Column>
-      </Layout>
-    );
+    return <ErrorPage {...props} query={eventQuery} />;
   }
 
   if (userQuery.data && userQueryStatus === 200) {
     return (
       <UserPage {...props} userQuery={userQuery as AppQueryWithData<IUser>} />
     );
-  } else if (userQuery.error && userQueryStatus !== 404 && orgQuery.error) {
-    return (
-      <Layout {...props}>
-        <Column {...columnProps}>
-          {defaultErrorMessage}
-          <Alert status="error">
-            <AlertIcon />
-            {userQuery.error.data.message}
-          </Alert>
-        </Column>
-      </Layout>
-    );
+  }
+
+  if (userQuery.error && userQueryStatus !== 404 && orgQuery.error) {
+    return <ErrorPage {...props} query={userQuery} />;
   }
 
   if (orgQuery.data) {
@@ -240,18 +249,10 @@ const HashPage = ({ ...props }: PageProps) => {
         }}
       />
     );
-  } else if (orgQuery.error) {
-    return (
-      <Layout {...props}>
-        <Column {...columnProps}>
-          {defaultErrorMessage}
-          <Alert status="error">
-            <AlertIcon />
-            {orgQuery.error.data.message}
-          </Alert>
-        </Column>
-      </Layout>
-    );
+  }
+
+  if (orgQuery.error && userQuery.error && eventQuery.error) {
+    return <ErrorPage {...props} query={orgQuery} />;
   }
   //#endregion
 

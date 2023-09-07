@@ -21,12 +21,13 @@ import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { AppQuery } from "utils/types";
+import { useSelector } from "react-redux";
+import { selectUserEmail } from "store/userSlice";
 
 export const SubscriptionEditPopover = ({
   event,
   notifType = "email",
   org,
-  userEmail,
   buttonProps,
   isIconOnly,
   isSelf = true
@@ -34,11 +35,11 @@ export const SubscriptionEditPopover = ({
   event?: IEvent;
   org?: IOrg;
   notifType?: "email" | "push";
-  userEmail: string;
   buttonProps?: ButtonProps & { "data-cy"?: string };
   isIconOnly?: boolean;
   isSelf?: boolean;
 }) => {
+  const userEmail = useSelector(selectUserEmail);
   const [isLoading, setIsLoading] = useState(false);
   const { onOpen, onClose, isOpen } = useDisclosure();
   const subQuery = useGetSubscriptionQuery({

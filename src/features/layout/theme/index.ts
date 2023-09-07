@@ -12,6 +12,7 @@ const theme = extendTheme({
       100: "#442727"
     }
   },
+  config: { initialColorMode: "light" },
   components: {
     // https://stackoverflow.com/questions/68531930/style-chakra-ui-formcontrol-and-label-at-application-theme-level
     Form: {
