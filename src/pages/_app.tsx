@@ -75,7 +75,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
       let session: Session | undefined;
 
       if (devSession && getEnv() === "development") {
-        // console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
+        console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
         session = devSession;
         //@ts-ignore
         email = devSession.user.email;
@@ -101,7 +101,9 @@ App.getInitialProps = wrapper.getInitialAppProps(
           const user = await unseal(authToken, process.env.SECRET, sealOptions);
 
           if (user) {
-            session = { user };
+            session = {
+              user: { ...user, isAdmin: user.email === "rom.seguy@lilo.org" }
+            };
             email = user.email;
           }
         }
@@ -111,8 +113,10 @@ App.getInitialProps = wrapper.getInitialAppProps(
         globalEmail = email;
         store.dispatch(setUserEmail(email));
       }
-      if (session)
+      if (session) {
         store.dispatch(setSession({ ...session, [TOKEN_NAME]: authToken }));
+        // console.log("🚀 ~ file: _app.tsx:116 ~ session:", session);
+      }
       //#endregion
 
       let pageProps: AppProps["pageProps"] = { isMobile };

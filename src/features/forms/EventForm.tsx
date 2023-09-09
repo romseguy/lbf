@@ -39,7 +39,7 @@ import {
   parseISO,
   setDay
 } from "date-fns";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import useFormPersist from "hooks/useFormPersist";
@@ -195,6 +195,21 @@ export const EventForm = withGoogleApi({
     //#endregion
 
     //#region form
+    const defaultValues = {
+      eventName: props.eventName || props.event?.eventName || "",
+      eventMinDate: props.event ? parseISO(props.event.eventMinDate) : null,
+      eventMaxDate: props.event ? parseISO(props.event.eventMaxDate) : null,
+      eventDescription: props.event?.eventDescription || "",
+      eventVisibility: props.event?.eventVisibility || EEventVisibility.PUBLIC,
+      //eventOrgs: props.event?.eventOrgs || [],
+      eventOrg: props.event ? props.event.eventOrgs[0] : {},
+      eventCategory: props.event?.eventCategory,
+      eventAddress: props.event?.eventAddress || [],
+      eventEmail: props.event?.eventEmail || [],
+      eventPhone: props.event?.eventPhone || [],
+      eventWeb: props.event?.eventWeb || [],
+      repeat: props.event?.repeat
+    };
     const {
       control,
       register,
@@ -204,30 +219,36 @@ export const EventForm = withGoogleApi({
       clearErrors,
       setValue,
       getValues,
-      formState,
-      watch
+      formState
     } = useFormPersist(
       useForm<FormData>({
-        defaultValues: {
-          eventName: props.eventName || props.event?.eventName || "",
-          eventCategory: props.event?.eventCategory,
-          eventMinDate: props.event ? parseISO(props.event.eventMinDate) : null,
-          eventMaxDate: props.event ? parseISO(props.event.eventMaxDate) : null,
-          eventDescription: props.event?.eventDescription || "",
-          eventVisibility:
-            props.event?.eventVisibility || EEventVisibility.PUBLIC,
-          //eventOrgs: props.event?.eventOrgs || [],
-          eventOrg: props.event ? props.event.eventOrgs[0] : {},
-          eventAddress: props.event?.eventAddress || [],
-          eventEmail: props.event?.eventEmail || [],
-          eventPhone: props.event?.eventPhone || [],
-          eventWeb: props.event?.eventWeb || [],
-          repeat: props.event?.repeat
-        },
+        defaultValues,
         mode: "onChange"
       })
     );
     useLeaveConfirm({ formState });
+    const refs = useMemo(
+      () =>
+        Object.keys(defaultValues).reduce(
+          (acc: Record<string, React.RefObject<any>>, fieldName) => {
+            acc[fieldName] = React.createRef();
+            return acc;
+          },
+          {}
+        ),
+      [defaultValues]
+    );
+    useEffect(() => {
+      if (Object.keys(errors).length > 0) {
+        const fieldName = Object.keys(errors)[0];
+        const fieldRef = refs[fieldName].current;
+        if (fieldRef)
+          fieldRef.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+      }
+    }, [errors]);
 
     const eventMinDate = useWatch<Date | null | undefined>({
       control,
@@ -548,11 +569,12 @@ export const EventForm = withGoogleApi({
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
         {/* eventName */}
         <FormControl
-          isRequired
+          ref={refs.eventName}
+          //isRequired
           isInvalid={!!errors["eventName"]}
           mb={!props.event && getValues("eventName") ? 0 : 3}
         >
-          <FormLabel>Nom de l'événement</FormLabel>
+          <FormLabel>Nom de l'événement *</FormLabel>
           <Input
             name="eventName"
             ref={register({
@@ -580,7 +602,12 @@ export const EventForm = withGoogleApi({
         </FormControl>
 
         {/* eventMinDate */}
-        <FormControl isRequired isInvalid={!!errors["eventMinDate"]} mb={3}>
+        <FormControl
+          ref={refs.eventMinDate}
+          isRequired
+          isInvalid={!!errors["eventMinDate"]}
+          mb={3}
+        >
           <FormLabel>Date de début</FormLabel>
           <Controller
             name="eventMinDate"
@@ -609,7 +636,12 @@ export const EventForm = withGoogleApi({
         </FormControl>
 
         {/* eventMaxDate */}
-        <FormControl isRequired isInvalid={!!errors["eventMaxDate"]} mb={3}>
+        <FormControl
+          ref={refs.eventMaxDate}
+          isRequired
+          isInvalid={!!errors["eventMaxDate"]}
+          mb={3}
+        >
           <FormLabel>Date de fin</FormLabel>
 
           <InputGroup>
@@ -972,7 +1004,11 @@ export const EventForm = withGoogleApi({
         )}
 
         {/* eventDescription */}
-        <FormControl isInvalid={!!errors["eventDescription"]} mb={3}>
+        <FormControl
+          ref={refs.eventDescription}
+          isInvalid={!!errors["eventDescription"]}
+          mb={3}
+        >
           <FormLabel>Description</FormLabel>
           <Controller
             name="eventDescription"
@@ -1001,6 +1037,7 @@ export const EventForm = withGoogleApi({
 
         {/* eventOrg */}
         <FormControl
+          ref={refs.eventOrg}
           mb={3}
           isInvalid={!!errors["eventOrg"]}
           // isRequired={
@@ -1050,6 +1087,7 @@ export const EventForm = withGoogleApi({
         {/* eventCategory */}
         {eventOrg && hasItems(eventOrg.orgEventCategories) && (
           <FormControl
+            ref={refs.eventCategory}
             isInvalid={!!errors["eventCategory"]}
             onChange={async (e) => {
               clearErrors("eventOrgs");

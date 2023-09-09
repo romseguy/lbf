@@ -81,33 +81,47 @@ handler.post<NextApiRequest, NextApiResponse>(async function importData(
 
   try {
     const body = JSON.parse(req.body);
-    const collectionKeys = (await db.listCollections().toArray()).map(
-      (collection) => collection.name
-    );
 
-    for (const key of collectionKeys) {
-      if (key === "users") continue;
-      console.log(`POST /admin/backup collection: ${key}`);
+    if (body.data) {
+      const collections = Object.keys(body.data).map((collectionName) => ({
+        collectionName
+      }));
+      console.log(
+        "🚀 ~ file: backup.ts:89 ~ collections ~ collections:",
+        collections
+      );
+      for (const collection of collections) {
+        const key = collection.collectionName;
+        console.log("🚀 ~ file: backup.ts:97 ~ key:", key);
+        if (key !== "users") {
+          if (!body.data[key]) {
+            console.log(`POST /admin/backup: could not find body.data[${key}]`);
+          } else {
+            const model = models[collectionToModelKeys[key]];
+            if (!model) {
+              console.log(
+                `POST /admin/backup: could not find model for collection ${key}`
+              );
+            } else {
+              // console.log(
+              //   "🚀 ~ file: backup.ts:90 ~ dropping collection:",
+              //   key
+              // );
+              // const dropped = await model.collection.drop();
+              // console.log("🚀 ~ file: backup.ts:110 ~ dropped:", dropped);
 
-      if (!body.data[key]) {
-        console.log(`POST /admin/backup: could not find body.data[${key}]`);
-        continue;
-      }
-
-      const model = models[collectionToModelKeys[key]];
-
-      if (!model) {
-        console.log(`POST /admin/backup: could not find model ${key}`);
-        continue;
-      }
-
-      //@ts-expect-error
-      model.collection.remove({});
-
-      for (const o of body.data[key]) {
-        model.create(o);
+              let i = 0;
+              for (const o of body.data[key]) {
+                i += 1;
+                await model.create(o);
+              }
+              console.log("🚀 ~ file: backup.ts:90 ~ created models count:", i);
+            }
+          }
+        }
       }
     }
+
     res.status(200).json({});
   } catch (error) {
     res.status(500).json(createServerError(error));

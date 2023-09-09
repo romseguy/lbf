@@ -56,7 +56,7 @@ export default async function database(
 ) {
   if (!cached.promise) {
     cached.promise = (await clientPromise).connect().then((client) => {
-      const db = client.db("assolidaires");
+      const db = client.db(getEnv() === "test" ? "testing" : "assolidaires");
 
       return {
         client,

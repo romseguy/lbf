@@ -10,25 +10,34 @@ handler.use(database);
 handler.get<NextApiRequest, NextApiResponse>(async function resetDb(req, res) {
   if (getEnv() === "production") return res.status(404).send("Not Found");
 
-  let collectionsToDrop: string[] | undefined;
-
   try {
-    collectionsToDrop =
-      typeof req.query.list === "string"
-        ? req.query.list.split(" ")
-        : (await db.listCollections().toArray()).map(
-            (collection) => collection.name
-          );
+    const collections = await db.collections();
+    // console.log(
+    // "🚀 ~ file: reset-db.ts:15 ~ resetDb ~ collections:",
+    // collections
+    // );
 
-    for (let i = 0; i < collectionsToDrop.length; i++) {
-      if (collectionsToDrop[i] === "users" && !req.query.list) continue;
-      await db.dropCollection(collectionsToDrop[i]);
+    for (const collection of collections) {
+      // console.log(
+      // "🚀 ~ file: reset-db.ts:21 ~ resetDb ~ collection:",
+      // collection
+      // );
+
+      if (typeof req.query.list === "string") {
+        if (req.query.list.split(" ").includes(collection.collectionName)) {
+          console.log("🚀 ~ dropping collection:", collection.collectionName);
+          collection.drop();
+        }
+      } else if (collection.collectionName !== "users") {
+        console.log("🚀 ~ dropping collection:", collection.collectionName);
+        collection.drop();
+      }
     }
 
     return res.status(200).send("Database reset");
   } catch (error) {
     console.error("GET /reset-db: error", error);
-    res.status(200).send("Database already reset");
+    res.status(200).send("Database reset error");
   }
 });
 

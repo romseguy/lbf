@@ -11,6 +11,6 @@ export const orgSlice = createSlice({
   reducers: {}
 });
 
-export const {} = orgSlice.actions;
+//export const {} = orgSlice.actions;
 
 export default orgSlice.reducer;

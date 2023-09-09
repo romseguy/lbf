@@ -145,7 +145,7 @@ export const TopicsListItem = forwardRef(
     return (
       <Box ref={ref} {...props}>
         <Flex
-          alignItems="center"
+          alignItems={isMobile ? "flex-start" : "center"}
           flexDir={isMobile ? "column" : "row"}
           borderTopRadius="xl"
           borderBottomRadius={!isCurrent ? "lg" : undefined}

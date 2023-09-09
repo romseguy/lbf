@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import useFormPersist from "hooks/useFormPersist";
 import { FaTree } from "react-icons/fa";
@@ -188,6 +188,14 @@ export const OrgForm = withGoogleApi({
     //#endregion
 
     //#region form
+    const defaultValues = {
+      orgName: props.orgName || org?.orgName || "",
+      orgDescription: org?.orgDescription || "",
+      orgAddress: org?.orgAddress,
+      orgEmail: org?.orgEmail,
+      orgPhone: org?.orgPhone,
+      orgWeb: org?.orgWeb
+    };
     const {
       control,
       register,
@@ -200,18 +208,33 @@ export const OrgForm = withGoogleApi({
       setValue
     } = useFormPersist(
       useForm<FormValues>({
-        defaultValues: {
-          orgName: props.orgName || org?.orgName || "",
-          orgDescription: org?.orgDescription || "",
-          orgAddress: org?.orgAddress,
-          orgEmail: org?.orgEmail,
-          orgPhone: org?.orgPhone,
-          orgWeb: org?.orgWeb
-        },
+        defaultValues,
         mode: "onChange"
       })
     );
     useLeaveConfirm({ formState });
+    const refs = useMemo(
+      () =>
+        Object.keys(defaultValues).reduce(
+          (acc: Record<string, React.RefObject<any>>, fieldName) => {
+            acc[fieldName] = React.createRef();
+            return acc;
+          },
+          {}
+        ),
+      [defaultValues]
+    );
+    useEffect(() => {
+      if (Object.keys(errors).length > 0) {
+        const fieldName = Object.keys(errors)[0];
+        const fieldRef = refs[fieldName].current;
+        if (fieldRef)
+          fieldRef.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+      }
+    }, [errors]);
 
     const hasSelectedChildrenTypes = useWatch<string>({
       control,
@@ -782,7 +805,7 @@ export const OrgForm = withGoogleApi({
       return (
         <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
           <FormControl
-            isRequired
+            ref={refs.orgName}
             isInvalid={!!errors["orgName"]}
             mb={getValues("orgName") ? 0 : 3}
           >

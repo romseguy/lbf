@@ -1,41 +1,29 @@
 const path = require("path");
-const withPlugins = require("next-compose-plugins");
-const withCustomBabelConfigFile = require("next-plugin-custom-babel-config");
-const withPWA = require("next-pwa");
+//const withCustomBabelConfigFile = require("next-plugin-custom-babel-config");
+const withPWA = require("next-pwa")({ dest: "public" });
 //const withPreact = require("next-plugin-preact");
-//const withTwin = require('./withTwin.js')
+const withTwin = require('./withTwin.js')
 
 const {
   PHASE_DEVELOPMENT_SERVER,
-  PHASE_PRODUCTION_BUILD
+  PHASE_PRODUCTION_BUILD,
+  PHASE_PRODUCTION_SERVER
 } = require("next/constants");
 
 let plugins = [
-  //[withPreact],
-  //[withTwin],
-  [
-    withPWA,
-    {
-      pwa: {
-        dest: "public"
-        //runtimeCaching: require("next-pwa/cache")
-      }
-    },
-    [PHASE_PRODUCTION_BUILD]
-  ],
-  [
-    withCustomBabelConfigFile,
-    {
-      babelConfigFile: path.resolve("./babel.config.js")
-    }
-  ]
+  //withPreact,
+  withTwin,
+  //withPWA,
+  // withCustomBabelConfigFile({
+  //   babelConfigFile: path.resolve("./babel.config.js")
+  // })
 ]
 
 if (process.env.ANALYZE) {
   const withBundleAnalyzer = require("@next/bundle-analyzer")({
     enabled: true
   });
-  plugins.unshift([withBundleAnalyzer])
+  plugins.unshift(withBundleAnalyzer)
 }
 
 const nextConfig = {
@@ -57,12 +45,21 @@ const nextConfig = {
     locales: ["fr-FR"],
     defaultLocale: "fr-FR"
   },
+  swcMinify: true,
   typescript: {
     ignoreBuildErrors: true
   }
 };
 
-module.exports = withPlugins(
-  plugins,
-  nextConfig
-);
+module.exports = (phase, defaultConfig) => {
+  if (phase === PHASE_PRODUCTION_SERVER || phase === PHASE_PRODUCTION_BUILD) {
+    plugins.unshift(withPWA)
+  }
+  const config = plugins.reduce((acc, plugin) => {
+    const update = plugin(acc);
+    return typeof update === "function" ? update(phase, defaultConfig) : update;
+  }, { ...nextConfig });
+
+  return config;
+}
+

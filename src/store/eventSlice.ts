@@ -11,6 +11,6 @@ export const eventSlice = createSlice({
   reducers: {}
 });
 
-export const {} = eventSlice.actions;
+//export const {} = eventSlice.actions;
 
 export default eventSlice.reducer;
