@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "database";
+import database, { models } from "server/database";
 import { createServerError } from "utils/errors";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();

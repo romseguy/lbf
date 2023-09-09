@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 import nodemailer, { SendMailOptions as Mail } from "nodemailer";
-import { models } from "database";
+import { models } from "server/database";
 import { IEvent, EEventInviteStatus } from "models/Event";
 import {
   IEventNotification,

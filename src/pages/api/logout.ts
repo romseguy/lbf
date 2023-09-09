@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database from "database";
+import database from "server/database";
 import { setTokenCookie } from "utils/auth";
 import { createServerError } from "utils/errors";
 import { NextApiRequestWithAuthorizationHeader } from "utils/types";

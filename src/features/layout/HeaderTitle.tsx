@@ -62,12 +62,19 @@ export const HeaderTitle = ({
     name = entity.orgName;
     entityUrl = entity.orgUrl;
     icon =
-      entity.orgUrl === "forum"
+      entityUrl === "forum"
         ? ChatIcon
         : entity.orgType === EOrgType.NETWORK
         ? FaGlobeEurope
         : FaTree;
-    iconColor = entity.orgType === EOrgType.NETWORK ? "blue" : "green";
+    iconColor =
+      entity.orgType === EOrgType.NETWORK
+        ? entityUrl === "forum"
+          ? isDark
+            ? "white"
+            : "blue"
+          : "blue"
+        : "green";
   } else if (isU) {
     name = entity.userName;
     entityUrl = entity.userName;

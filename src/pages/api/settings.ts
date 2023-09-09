@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "database";
+import database, { models } from "server/database";
 import { GetSettingsParams } from "features/api/settingsApi";
 //import { getSession } from "utils/auth";
 import { createServerError } from "utils/errors";

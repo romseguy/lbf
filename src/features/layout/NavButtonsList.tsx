@@ -1,15 +1,16 @@
 import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { Button, Flex, useColorMode, useDisclosure } from "@chakra-ui/react";
-import { useGetOrgsQuery } from "features/api/orgsApi";
-import { AppHeading, Link, LinkProps } from "features/common";
-import { TreeChartModal } from "features/modals/TreeChartModal";
-import { InputNode } from "features/treeChart/types";
-import { EOrgType, EOrgVisibility, IOrg, OrgTypes } from "models/Org";
 import { useRouter } from "next/router";
 import React, { useMemo } from "react";
 import { FaHome } from "react-icons/fa";
 import { IoIosGitNetwork, IoMdGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
+import { useGetOrgsQuery } from "features/api/orgsApi";
+import { AppHeading, Link, LinkProps } from "features/common";
+import { TreeChartModal } from "features/modals/TreeChartModal";
+import { InputNode } from "features/treeChart/types";
+import { EOrgType, EOrgVisibility, IOrg, OrgTypes } from "models/Org";
+import { unauthorizedEntityUrls } from "utils/url";
 import { selectIsMobile } from "store/uiSlice";
 import { css } from "twin.macro";
 import { AppQuery } from "utils/types";
@@ -25,15 +26,26 @@ export const NavButtonsList = ({
 }) => {
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
-  const isEntityPage =
-    router.pathname !== "/" &&
-    !title?.includes("Forum") &&
-    !router.pathname.includes("evenements");
-
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
-  //#region l'univers
+  const buttonProps = {
+    borderRadius: "9999px",
+    colorScheme: isDark ? "gray" : "cyan",
+    background: isDark ? undefined : "lightcyan",
+    marginRight: "12px",
+    my: isMobile ? 2 : undefined
+  };
+  const isEntityPage =
+    Array.isArray(router.query.name) &&
+    !unauthorizedEntityUrls.includes(router.query.name[0]);
+  const linkProps: Partial<LinkProps> = {
+    "aria-hidden": true,
+    alignSelf: "flex-start",
+    variant: "no-underline"
+  };
+
+  //#region parcourir
   const orgsQuery = useGetOrgsQuery({
     orgType: EOrgType.NETWORK,
     populate: "orgs createdBy"
@@ -77,19 +89,6 @@ export const NavButtonsList = ({
       : [];
   }, [planets]);
   //#endregion
-
-  const linkProps: Partial<LinkProps> = {
-    "aria-hidden": true,
-    alignSelf: "flex-start",
-    variant: "no-underline"
-  };
-  const buttonProps = {
-    borderRadius: "9999px",
-    colorScheme: isDark ? "gray" : "cyan",
-    background: isDark ? undefined : "lightcyan",
-    marginRight: "12px",
-    my: isMobile ? 2 : undefined
-  };
 
   return (
     <Flex

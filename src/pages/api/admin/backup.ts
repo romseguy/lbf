@@ -1,6 +1,6 @@
 import { Document } from "mongodb";
 import nextConnect from "next-connect";
-import database, { db, models } from "database";
+import database, { db, models } from "server/database";
 import { getSession } from "utils/auth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createServerError } from "utils/errors";

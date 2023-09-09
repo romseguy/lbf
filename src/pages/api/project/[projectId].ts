@@ -2,7 +2,7 @@ import type { Document } from "mongoose";
 import { IProject } from "models/Project";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "database";
+import database, { models } from "server/database";
 import { createServerError } from "utils/errors";
 import { getSession } from "utils/auth";
 // import { sendProjectToOrgFollowers } from "api/email";

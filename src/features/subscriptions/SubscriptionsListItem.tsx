@@ -69,7 +69,6 @@ export const SubscriptionsListItem = ({
               <>
                 <SubscriptionEditPopover
                   org={org}
-                  userEmail={email}
                   isIconOnly
                   isSelf={false}
                   buttonProps={{ mr: 3, "data-cy": "orgSubscriberFollow" }}
@@ -77,7 +76,6 @@ export const SubscriptionsListItem = ({
                 <SubscriptionEditPopover
                   org={org}
                   notifType="push"
-                  userEmail={email}
                   isIconOnly
                   isSelf={false}
                   buttonProps={{ mr: 3, "data-cy": "orgSubscriberFollow" }}

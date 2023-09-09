@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { db } from "database";
+import database, { db } from "server/database";
 const { getEnv } = require("utils/env");
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();

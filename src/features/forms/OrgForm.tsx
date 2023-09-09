@@ -1,3 +1,4 @@
+import type { UrlControlValue } from "features/common/forms/UrlControl";
 import {
   Alert,
   AlertIcon,
@@ -48,6 +49,8 @@ import {
   useEditOrgMutation,
   useGetOrgsQuery
 } from "features/api/orgsApi";
+import { formBoxProps } from "features/layout/theme";
+import { IsEditConfig } from "features/orgs/OrgPage";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import {
   IEntityEmail,
@@ -71,10 +74,8 @@ import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
-import { normalize } from "utils/string";
+import { capitalize, normalize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
-import { IsEditConfig } from "features/orgs/OrgPage";
-import { formBoxProps } from "features/layout/theme";
 
 type FormValues = {
   orgName: string;
@@ -195,7 +196,6 @@ export const OrgForm = withGoogleApi({
       setError,
       clearErrors,
       formState,
-      watch,
       getValues,
       setValue
     } = useFormPersist(
@@ -217,9 +217,10 @@ export const OrgForm = withGoogleApi({
       control,
       name: "hasSelectedChildrenTypes"
     });
-    const orgAddress = watch("orgAddress");
-    const orgEmail = watch("orgEmail");
-    const orgPhone = watch("orgPhone");
+    const orgName = useWatch<string>({ control, name: "orgName" });
+    const orgAddress = useWatch<string>({ control, name: "orgAddress" });
+    const orgEmail = useWatch<string>({ control, name: "orgEmail" });
+    const orgPhone = useWatch<string>({ control, name: "orgPhone" });
     const orgType = (getValues("orgType") ||
       props.orgType ||
       org?.orgType ||
@@ -241,13 +242,16 @@ export const OrgForm = withGoogleApi({
         }
       }
     }, [orgType]);
-    const orgVisibility = watch("orgVisibility");
+    const orgVisibility = useWatch<EOrgVisibility>({
+      control,
+      name: "orgVisibility"
+    });
     useEffect(() => {
       if (orgVisibility !== EOrgVisibility.PRIVATE) setIsPassword(false);
     }, [orgVisibility]);
     const password = useRef<string | undefined>();
-    password.current = watch("orgPassword", "");
-    const orgWeb = watch("orgWeb");
+    password.current = useWatch({ control, name: "orgPassword" }) || "";
+    const orgWeb = useWatch<UrlControlValue>({ control, name: "orgWeb" });
 
     const onChange = () => {
       clearErrors("formErrorMessage");
@@ -770,6 +774,45 @@ export const OrgForm = withGoogleApi({
       return (
         <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
           {InfoFormControl}
+          {FooterFormControl}
+        </form>
+      );
+
+    if (capitalize(orgName) === "Forum")
+      return (
+        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+          <FormControl
+            isRequired
+            isInvalid={!!errors["orgName"]}
+            mb={getValues("orgName") ? 0 : 3}
+          >
+            <FormLabel>Nom {orgTypeLabel}</FormLabel>
+            <Input
+              name="orgName"
+              ref={register({
+                required: `Veuillez saisir le nom ${orgTypeLabel}`
+                // pattern: {
+                //   value: /^[A-zÀ-ú0-9 ]+$/i,
+                //   message:
+                //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
+                // }
+              })}
+              autoComplete="off"
+              placeholder={`Saisir le nom ${orgTypeLabel}`}
+            />
+            {getValues("orgName") && (
+              <Tooltip label={`Adresse de la page de ${orgTypeLabel}`}>
+                <Tag mt={3} alignSelf="flex-end" cursor="help">
+                  {process.env.NEXT_PUBLIC_URL}/
+                  {normalize(getValues("orgName"))}
+                </Tag>
+              </Tooltip>
+            )}
+            <FormErrorMessage>
+              <ErrorMessage errors={errors} name="orgName" />
+            </FormErrorMessage>
+          </FormControl>
+
           {FooterFormControl}
         </form>
       );

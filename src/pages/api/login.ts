@@ -2,7 +2,7 @@ import { seal } from "@hapi/iron";
 import { Magic } from "@magic-sdk/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "database";
+import database, { models } from "server/database";
 import { getCurrentId } from "store/utils";
 import { setTokenCookie, sealOptions } from "utils/auth";
 import { createServerError } from "utils/errors";

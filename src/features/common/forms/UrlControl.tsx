@@ -24,7 +24,7 @@ import { css } from "twin.macro";
 import { optionalProtocolUrlR, urlR } from "utils/url";
 import { Link } from "../Link";
 
-type UrlControlValue = [{ url: string; prefix: string }] | null;
+export type UrlControlValue = { url: string; prefix: string }[] | null;
 
 export const UrlControl = ({
   label = "Site internet",

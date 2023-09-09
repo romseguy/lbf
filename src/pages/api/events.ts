@@ -1,7 +1,7 @@
 import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models, unauthorizedEntityUrls } from "database";
+import database, { models } from "server/database";
 import { sendToAdmin } from "features/api/email";
 import { AddEventPayload } from "features/api/eventsApi";
 import { IEvent, EEventVisibility } from "models/Event";
@@ -12,6 +12,7 @@ import { hasItems } from "utils/array";
 import { getSession } from "utils/auth";
 import { createServerError } from "utils/errors";
 import { equals, normalize } from "utils/string";
+import { unauthorizedEntityUrls } from "utils/url";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 

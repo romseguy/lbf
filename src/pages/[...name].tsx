@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Spinner } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Spinner } from "@chakra-ui/react";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -22,7 +22,7 @@ import {
   getUser,
   useGetUserQuery
 } from "features/api/usersApi";
-import { Column, NotFound } from "features/common";
+import { Column, EntityAddButton, NotFound } from "features/common";
 import { Layout } from "features/layout";
 import { EventPage } from "features/events/EventPage";
 import { OrgPage } from "features/orgs/OrgPage";
@@ -31,14 +31,14 @@ import { UserPage } from "features/users/UserPage";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { EOrgType, IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
 import { wrapper } from "store";
 import { selectUserEmail } from "store/userSlice";
 import { defaultErrorMessage, normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { getRefId, IEntity } from "models/Entity";
+import { IEntity } from "models/Entity";
 
 const initialEventQueryParams = (entityUrl: string) => ({
   eventUrl: entityUrl,
@@ -181,8 +181,14 @@ const HashPage = ({ ...props }: PageProps) => {
       <NotFound
         {...props}
         isRedirect={false}
-        message="Veuillez ajouter la planète forum."
-      />
+        message="Veuillez créer la planète forum."
+      >
+        <EntityAddButton
+          label={`Créer la planète « Forum »`}
+          orgName="Forum"
+          orgType={EOrgType.NETWORK}
+        />
+      </NotFound>
     );
   }
 

@@ -1,4 +1,4 @@
-import { models } from "database";
+import { models } from "server/database";
 import { hasItems } from "utils/array";
 
 export const getCurrentId = async () => {
