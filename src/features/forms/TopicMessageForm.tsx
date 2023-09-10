@@ -6,12 +6,11 @@ import {
   useToast,
   Flex,
   Alert,
-  AlertIcon,
-  Skeleton
+  AlertIcon
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import useFormPersist from "hooks/useFormPersist";
 import { AddTopicPayload, useAddTopicMutation } from "features/api/topicsApi";
@@ -65,14 +64,11 @@ export const TopicMessageForm = ({
   //#region form
   const {
     control,
-    register,
     handleSubmit,
     errors,
     setError,
     clearErrors,
-    watch,
     setValue,
-    getValues,
     formState
   } = useFormPersist(
     useForm<{ formErrorMessage: string; topicMessage: string }>({
@@ -81,39 +77,6 @@ export const TopicMessageForm = ({
     })
   );
   useLeaveConfirm({ formState });
-
-  // const formData = localStorage.getItem("storageKey");
-  // useEffect(() => {
-  //   if (formData) {
-  //     const parsed = JSON.parse(formData);
-
-  //     if (parsed) {
-  //       const value = parsed.topicMessage;
-
-  //       if (typeof value === "string") {
-  //         setTopicMessageDefaultValue(value);
-  //         //setValue("topicMessage", value);
-  //       }
-  //     }
-  //   }
-  // }, [formData]);
-
-  // useEffect(() => {
-  //   if (formData) {
-  //     const parsed = JSON.parse(formData);
-
-  //     if (parsed) {
-  //       const value = parsed.topicMessage;
-  //       setValue("topicMessage", value);
-  //       setTopicMessageDefaultValue(value);
-  //       console.log("storage changed!", value);
-  //     }
-  //   } else {
-  //     console.log("nothing stored");
-  //     setValue("topicMessage", "");
-  //     setTopicMessageDefaultValue("");
-  //   }
-  // }, [formData]);
 
   const onChange = () => {
     clearErrors("formErrorMessage");
@@ -168,24 +131,11 @@ export const TopicMessageForm = ({
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-      <ErrorMessage
-        errors={errors}
-        name="formErrorMessage"
-        render={({ message }) => (
-          <Alert status="error" mb={3}>
-            <AlertIcon />
-            <ErrorMessageText>{message}</ErrorMessageText>
-          </Alert>
-        )}
-      />
-
       {!isDisabled && session && (
         <FormControl
           isDisabled={isDisabled}
           isRequired
           isInvalid={!!errors["topicMessage"]}
-          p={3}
-          pt={0}
         >
           <Controller
             name="topicMessage"
@@ -207,13 +157,27 @@ export const TopicMessageForm = ({
             }}
           />
 
-          <FormErrorMessage>
+          <FormErrorMessage ml={1}>
             <ErrorMessage errors={errors} name="topicMessage" />
           </FormErrorMessage>
         </FormControl>
       )}
 
-      <Flex justifyContent={props.onCancel ? "space-between" : "flex-end"}>
+      <ErrorMessage
+        errors={errors}
+        name="formErrorMessage"
+        render={({ message }) => (
+          <Alert status="error" mb={3}>
+            <AlertIcon />
+            <ErrorMessageText>{message}</ErrorMessageText>
+          </Alert>
+        )}
+      />
+
+      <Flex
+        justifyContent={props.onCancel ? "space-between" : "flex-end"}
+        mt={3}
+      >
         {props.onCancel && (
           <Button onClick={() => props.onCancel && props.onCancel()}>
             Annuler
@@ -238,7 +202,6 @@ export const TopicMessageForm = ({
             type="submit"
             isLoading={isLoading}
             isDisabled={isDisabled || Object.keys(errors).length > 0}
-            mr={props.onCancel ? 0 : 3}
           >
             {isDisabled
               ? "Réponses désactivées"
@@ -251,3 +214,40 @@ export const TopicMessageForm = ({
     </form>
   );
 };
+
+{
+  /*
+    const formData = localStorage.getItem("storageKey");
+    useEffect(() => {
+      if (formData) {
+        const parsed = JSON.parse(formData);
+
+        if (parsed) {
+          const value = parsed.topicMessage;
+
+          if (typeof value === "string") {
+            setTopicMessageDefaultValue(value);
+            //setValue("topicMessage", value);
+          }
+        }
+      }
+    }, [formData]);
+
+    useEffect(() => {
+      if (formData) {
+        const parsed = JSON.parse(formData);
+
+        if (parsed) {
+          const value = parsed.topicMessage;
+          setValue("topicMessage", value);
+          setTopicMessageDefaultValue(value);
+          console.log("storage changed!", value);
+        }
+      } else {
+        console.log("nothing stored");
+        setValue("topicMessage", "");
+        setTopicMessageDefaultValue("");
+      }
+    }, [formData]);
+  */
+}

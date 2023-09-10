@@ -42,5 +42,9 @@ export const isTopic = (entity?: any): entity is ITopic => {
 };
 
 export const isUser = (entity?: any): entity is IUser => {
-  return !!entity && (entity as IUser).email !== undefined;
+  return (
+    !!entity &&
+    ((entity as IUser).email !== undefined ||
+      (entity as IUser).userName !== undefined)
+  );
 };

@@ -24,7 +24,7 @@ export const DeleteButton = ({
   isSmall = true,
   header = "Confirmez la suppression",
   body,
-  onClick,
+  //onClick,
   hasArrow,
   label = "Supprimer",
   placement = "left",
@@ -122,7 +122,9 @@ export const DeleteButton = ({
                   isLoading={isLoading}
                   colorScheme="red"
                   onClick={() => {
-                    onClick && onClick();
+                    if (props.onClick) {
+                      props.onClick();
+                    }
                     onClose();
                   }}
                   ml={3}

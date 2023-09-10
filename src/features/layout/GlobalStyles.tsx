@@ -28,6 +28,13 @@ export const GlobalStyles = ({ isMobile }: PageProps) => {
       } */
         //#endregion
 
+        //#region elements
+        hr {
+          border-top-width: 3px;
+          margin: 0 24px;
+        }
+        //#endregion
+
         //#region large screens
         /* ${!isMobile &&
         `
@@ -325,6 +332,9 @@ export const GlobalStyles = ({ isMobile }: PageProps) => {
         //#endregion
 
         //#region tinymce
+        .tox-tinymce {
+          ${isMobile ? "border: 0 !important;" : ""}
+        }
         .tox-tinymce-aux {
           z-index: ${zIndex()} !important;
         }

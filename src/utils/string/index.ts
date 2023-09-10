@@ -31,19 +31,47 @@ export function transformRTEditorOutput(
 
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
-    link.setAttribute("title", link.innerText);
 
-    if (
-      isMobile &&
-      (link.href.includes("http") || link.href.includes("mailto:"))
-    ) {
-      link.classList.add("clip");
+    if (!link.innerText.includes("http")) {
+      link.setAttribute("title", link.innerText);
 
-      if (link.href.includes("mailto:")) link.innerText = "@" + link.innerText;
+      if (
+        isMobile &&
+        (link.href.includes("http") || link.href.includes("mailto:"))
+      ) {
+        link.classList.add("clip");
+
+        if (link.href.includes("mailto:"))
+          link.innerText = "@" + link.innerText;
+      }
     }
   }
 
   return doc;
+}
+
+export function transformTopicMessage(str: string, isMobile: boolean) {
+  if (!str) return "<i>Message vide.</i>";
+
+  let newStr = "" + str;
+
+  if (isMobile && str.includes("href")) {
+    const collapseLength = 28;
+    const regex =
+      /([^+>]*)[^<]*(<a [^>]*(href="([^>^\"]*)")[^>]*>)([^<]+)(<\/a>)/gi;
+    let link;
+    while ((link = regex.exec(str)) !== null) {
+      // const url = link[4];
+      let text = link[5];
+      let canCollapse = text.length > collapseLength;
+      if (canCollapse) {
+        const shortText = "Ouvrir le lien";
+        newStr = newStr.replace(">" + text + "<", ">" + shortText + "<");
+      }
+    }
+  }
+
+  return newStr;
 }
 
 export function getExtension(path: string) {
@@ -78,7 +106,8 @@ export function logJson(message: string, object?: any) {
   else console.log(message);
 }
 
-export function sanitize(str: string) {
+export function sanitize(str?: string) {
+  if (!str) return "";
   return DOMPurify.sanitize(str, {
     ADD_ATTR: ["target"],
     ADD_TAGS: ["iframe"]

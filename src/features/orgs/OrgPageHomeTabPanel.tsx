@@ -410,7 +410,7 @@ export const OrgPageHomeTabPanel = ({
         </TabContainerHeader>
 
         {isDescriptionOpen && (
-          <TabContainerContent p={3}>
+          <TabContainerContent p={3} bg={isDark ? "gray.600" : "white"}>
             {description && description.length > 0 ? (
               <div className="rteditor">
                 <div

@@ -21,20 +21,12 @@ import {
   Text,
   Tooltip
 } from "@chakra-ui/react";
-import React, { forwardRef, useEffect, useState } from "react";
-import {
-  FaBellSlash,
-  FaBell,
-  FaFolder,
-  FaFolderOpen,
-  FaReply
-} from "react-icons/fa";
+import React, { forwardRef, useState } from "react";
+import { FaBellSlash, FaBell, FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
 import { DeleteButton, GridItem } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { getCategoryLabel, IEntity, isEvent, isOrg } from "models/Entity";
-import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
 import { isEdit, ITopic } from "models/Topic";
 import { Session } from "utils/auth";
 import * as dateUtils from "utils/date";
@@ -296,6 +288,7 @@ export const TopicsListItem = forwardRef(
                   // _hover={{
                   //   color: isDark ? "white" : "white"
                   // }}
+                  suppressHydrationWarning
                 >
                   {timeAgo}
                 </Text>
@@ -479,34 +472,34 @@ export const TopicsListItem = forwardRef(
               />
             </GridItem>
 
-            <GridItem light={{ bg: "orange.50" }} dark={{ bg: "gray.700" }}>
-              <TopicMessagesList
-                isEdit={isEdit}
-                query={query}
-                setIsEdit={setIsEdit}
-                topic={topic}
-                pt={3}
-                px={3}
-              />
-            </GridItem>
+            <TopicMessagesList
+              bg={isDark ? "gray.700" : "orange.50"}
+              isEdit={isEdit}
+              query={query}
+              setIsEdit={setIsEdit}
+              topic={topic}
+              p={3}
+              pb={1}
+            />
 
             {!isEditing && (
               <GridItem
                 light={{ bg: "orange.50" }}
                 dark={{ bg: "gray.700" }}
-                pb={3}
                 borderBottomRadius="xl"
               >
-                <TopicMessageForm
-                  query={query}
-                  isLoading={isLoading}
-                  setIsLoading={(bool) => {
-                    setIsLoading({ [topic._id]: bool });
-                  }}
-                  topic={topic}
-                  //formats={formats.filter((f) => f !== "size")}
-                  isDisabled={topic.topicMessagesDisabled}
-                />
+                <Box p={3}>
+                  <TopicMessageForm
+                    query={query}
+                    isLoading={isLoading}
+                    setIsLoading={(bool) => {
+                      setIsLoading({ [topic._id]: bool });
+                    }}
+                    topic={topic}
+                    //formats={formats.filter((f) => f !== "size")}
+                    isDisabled={topic.topicMessagesDisabled}
+                  />
+                </Box>
               </GridItem>
             )}
           </>

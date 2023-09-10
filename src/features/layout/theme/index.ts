@@ -10,7 +10,8 @@ const theme = extendTheme({
     brown: {
       50: "#c6b7a2",
       100: "#442727"
-    }
+    },
+    white: "#F7FAFC"
   },
   config: { initialColorMode: "light" },
   components: {
