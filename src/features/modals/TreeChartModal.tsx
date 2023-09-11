@@ -42,67 +42,69 @@ export const TreeChartModal = ({
   const router = useRouter();
 
   useEffect(() => {
-    const onClick = (node: TreeNodeWithId) => {
-      const url =
-        node.name === process.env.NEXT_PUBLIC_SHORT_URL
-          ? "/"
-          : "/" + normalize(node.name);
-      router.push(url, url, { shallow: true });
-      props.onClose();
-    };
-    const renderChart = () => {
-      treeChartContainer = document.getElementById("treeC");
+    if (inputNodes.length > 0) {
+      const onClick = (node: TreeNodeWithId) => {
+        const url =
+          node.name === process.env.NEXT_PUBLIC_SHORT_URL
+            ? "/"
+            : "/" + normalize(node.name);
+        router.push(url, url, { shallow: true });
+        props.onClose();
+      };
+      const renderChart = () => {
+        treeChartContainer = document.getElementById("treeC");
 
-      if (!treeChartContainer) return;
-      //disableBodyScroll(treeChartContainer);
+        if (!treeChartContainer) return;
+        //disableBodyScroll(treeChartContainer);
 
-      let treeChartRoot = document.getElementById("tree") as HTMLDivElement;
-      treeChartContainer.removeChild(treeChartRoot);
+        let treeChartRoot = document.getElementById("tree") as HTMLDivElement;
+        treeChartContainer.removeChild(treeChartRoot);
 
-      treeChartRoot = document.createElement("div");
-      treeChartRoot.setAttribute("id", "tree");
+        treeChartRoot = document.createElement("div");
+        treeChartRoot.setAttribute("id", "tree");
 
-      treeChartContainer.appendChild(treeChartRoot);
+        treeChartContainer.appendChild(treeChartRoot);
 
-      treeChart(
-        treeChartRoot,
-        {
-          name: rootName || process.env.NEXT_PUBLIC_SHORT_URL,
-          children: inputNodes
-        },
-        {
-          id: "treeSvg",
-          initialZoom: 0.8,
-          isFullscreen: true,
-          isSorted: true,
-          heightBetweenNodesCoeff: 1.4,
-          widthBetweenNodesCoeff: 1,
-          aspectRatio: 1,
-          margin: {
-            top: 62
+        treeChart(
+          treeChartRoot,
+          {
+            name: rootName || process.env.NEXT_PUBLIC_SHORT_URL,
+            children: inputNodes
           },
-          padding: {},
-          style: {
-            background: isDark
-              ? theme.colors.gray["800"]
-              : theme.colors.gray["50"],
-            link: { stroke: isDark ? "#fff" : "#000" },
-            node: { radius: 14 },
-            text: { colors: { default: isDark ? "white" : "black" } }
-          },
-          onClickCircle: onClick,
-          onClickText: onClick
-        }
-      )();
-    };
+          {
+            id: "treeSvg",
+            initialZoom: 0.8,
+            isFullscreen: true,
+            isSorted: true,
+            heightBetweenNodesCoeff: 2.5,
+            widthBetweenNodesCoeff: 1,
+            aspectRatio: 1.5,
+            margin: {
+              top: 88
+            },
+            padding: {},
+            style: {
+              background: isDark
+                ? theme.colors.gray["800"]
+                : theme.colors.gray["50"],
+              link: { stroke: isDark ? "#fff" : "#000" },
+              node: { radius: 14 },
+              text: { colors: { default: isDark ? "white" : "black" } }
+            },
+            //onClickCircle: onClick,
+            onClickText: onClick
+          }
+        )();
+      };
 
-    setTimeout(() => renderChart(), 1000);
+      setTimeout(() => renderChart(), 1000);
 
-    if (!isMobile) {
-      window.addEventListener("resize", renderChart);
-      signal.addEventListener("abort", () => {
-        window.removeEventListener("resize", renderChart);
-      });
+      if (!isMobile) {
+        window.addEventListener("resize", renderChart);
+        signal.addEventListener("abort", () => {
+          window.removeEventListener("resize", renderChart);
+        });
+      }
     }
 
     return () => {

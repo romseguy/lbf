@@ -30,6 +30,7 @@ export const TopicMessagesListItemEdit = ({
   setIsEdit,
   setIsLoading,
   topic,
+  topicMessage,
   ...props
 }: {
   mutation: any;
@@ -43,7 +44,7 @@ export const TopicMessagesListItemEdit = ({
   const [editTopic, editTopicMutation] = mutation;
 
   //#region topic message
-  const { _id, createdBy } = props.topicMessage;
+  const { _id, createdBy, message } = topicMessage;
   const isU = isUser(createdBy);
   //#endregion
 
@@ -55,7 +56,7 @@ export const TopicMessagesListItemEdit = ({
     executeScroll();
     const storedValue = getStoredValue(_id);
     if (storedValue) setDefaultValue(storedValue);
-    else setDefaultValue(props.topicMessage.message);
+    else setDefaultValue(message);
   }, []);
 
   // for ts
@@ -70,7 +71,8 @@ export const TopicMessagesListItemEdit = ({
         height={500}
         onChange={({ html }) => {
           const value = getStoredValue(_id);
-          if (value !== html) localStorage.setItem(_id, `{"value": "${html}"}`);
+          if (value !== html)
+            localStorage.setItem(_id, `{"value": ${JSON.stringify(html)}}`);
         }}
         placeholder="Contenu de votre message"
       />
@@ -92,7 +94,7 @@ export const TopicMessagesListItemEdit = ({
           isDisabled={editTopicMutation.isLoading}
           isLoading={editTopicMutation.isLoading}
           onClick={async () => {
-            const message = getStoredValue(_id) || defaultValue;
+            const newMessage = getStoredValue(_id) || defaultValue;
             localStorage.removeItem(_id);
             await editTopic({
               topicId: topic._id,
@@ -100,8 +102,8 @@ export const TopicMessagesListItemEdit = ({
                 topic,
                 topicMessage: {
                   _id,
-                  message,
-                  messageHtml: message
+                  message: newMessage
+                  //messageHtml: newMessage
                 }
               }
             }).unwrap();
@@ -130,6 +132,7 @@ export const TopicMessagesListItem = ({
   setIsEdit,
   setIsLoading,
   topic,
+  topicMessage,
   ...props
 }: {
   index: number;
@@ -149,7 +152,7 @@ export const TopicMessagesListItem = ({
   const [editTopic, editTopicMutation] = mutation;
 
   //#region topic message
-  const { _id, createdBy, createdAt } = props.topicMessage;
+  const { _id, createdBy, createdAt, message } = topicMessage;
   const isU = isUser(createdBy);
   const userName = isU ? createdBy.userName || createdBy._id : createdBy || "";
   const userImage = isU ? createdBy.userImage?.base64 : undefined;
@@ -274,9 +277,10 @@ export const TopicMessagesListItem = ({
       <Box className="rteditor" mt={2}>
         <div
           dangerouslySetInnerHTML={{
-            __html: sanitize(
-              transformTopicMessage(props.topicMessage.message, isMobile)
-            )
+            // __html: isMobile
+            //   ? transformTopicMessage(sanitize(message))
+            //   : sanitize(message)
+            __html: sanitize(message)
           }}
         />
       </Box>

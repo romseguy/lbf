@@ -319,7 +319,7 @@ export const RTEditor = ({
 
   return (
     <RTEditorStyles>
-      {isLoading && (
+      {/* {isLoading && (
         <div
           style={{
             position: "relative"
@@ -327,7 +327,7 @@ export const RTEditor = ({
         >
           <Spinner />
         </div>
-      )}
+      )} */}
 
       {shortId && (
         <Editor

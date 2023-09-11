@@ -1,14 +1,32 @@
-import { Box, Flex, Tooltip, useColorMode, useToast } from "@chakra-ui/react";
-import { ChevronUpIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
+  Flex,
+  IconButton,
+  Tooltip,
+  useColorMode,
+  useDisclosure,
+  useToast
+} from "@chakra-ui/react";
+import { ChevronUpIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+//import { css } from "twin.macro";
 import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
 import { GlobalConfig } from "features/GlobalConfig";
 import { GlobalStyles } from "features/layout";
 import { ContactFormModal } from "features/modals/ContactFormModal";
 import { selectIsOffline } from "store/sessionSlice";
+import { NavButtonsList } from "features/layout/NavButtonsList";
+import { isMobile } from "react-device-detect";
+import { zIndex } from "utils/string";
 
 interface customWindow extends Window {
   console: { [key: string]: (...args: any[]) => void };
@@ -30,6 +48,11 @@ export const Main = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
   const toast = useToast({ position: "top" });
+  const {
+    isOpen: isDrawerOpen,
+    onOpen: onDrawerOpen,
+    onClose: onDrawerClose
+  } = useDisclosure();
 
   const isOffline = useSelector(selectIsOffline);
   const [showButton, setShowButton] = useState(false);
@@ -89,6 +112,48 @@ export const Main = ({
           borderRadius="lg"
         >
           <OfflineIcon />
+        </Box>
+      )}
+
+      {/* Right Top */}
+      {props.isMobile && (
+        <Box
+          position="fixed"
+          right={3}
+          top={3}
+          // css={css`
+          //   transform: translate(0, 0);
+          //   transform: translate3d(0, 0, 0);
+          //   z-index: 9999;
+          // `}
+        >
+          <IconButton
+            aria-label="Ouvrir le menu"
+            colorScheme="cyan"
+            bg="lightcyan"
+            icon={<HamburgerIcon />}
+            border="1px solid black"
+            onClick={onDrawerOpen}
+          />
+          <Drawer
+            placement="left"
+            isOpen={isDrawerOpen}
+            onClose={onDrawerClose}
+          >
+            <DrawerOverlay />
+            <DrawerContent>
+              <DrawerCloseButton />
+              <DrawerHeader>{/* <Heading>{title}</Heading> */}</DrawerHeader>
+              <DrawerBody>
+                <NavButtonsList
+                  direction="column"
+                  onClose={() => {
+                    if (isMobile) onDrawerClose();
+                  }}
+                />
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
         </Box>
       )}
 

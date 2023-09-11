@@ -1,22 +1,7 @@
-import { HamburgerIcon } from "@chakra-ui/icons";
-import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  IconButton,
-  Box,
-  BoxProps,
-  Image,
-  useColorMode,
-  useDisclosure,
-  useToast
-} from "@chakra-ui/react";
+import { Box, BoxProps, Image, useColorMode } from "@chakra-ui/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React from "react";
 import { css } from "twin.macro";
 import { Link } from "features/common";
 import { Header, Nav } from "features/layout";
@@ -28,7 +13,6 @@ import { Base64Image } from "utils/image";
 import { capitalize } from "utils/string";
 import { IUser } from "models/User";
 import { Delimiter } from "features/common/Delimiter";
-import { NavButtonsList } from "./NavButtonsList";
 
 export interface LayoutProps extends PageProps, BoxProps {
   children: React.ReactNode | React.ReactNodeArray;
@@ -52,11 +36,6 @@ export const Layout = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const {
-    isOpen: isDrawerOpen,
-    onOpen: onDrawerOpen,
-    onClose: onDrawerClose
-  } = useDisclosure();
 
   const isE = isEvent(entity);
   const isO = isOrg(entity);
@@ -77,7 +56,10 @@ export const Layout = ({
     <>
       <Head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, minimum-scale=1"
+        />
         <title>{title}</title>
       </Head>
 
@@ -166,38 +148,6 @@ export const Layout = ({
           </Box>
         </Box>
       </Box>
-
-      {isMobile && (
-        <Box position="fixed" right={3} top={3}>
-          <IconButton
-            aria-label="Ouvrir le menu"
-            colorScheme="cyan"
-            bg="lightcyan"
-            icon={<HamburgerIcon />}
-            border="1px solid black"
-            onClick={onDrawerOpen}
-          />
-          <Drawer
-            placement="left"
-            isOpen={isDrawerOpen}
-            onClose={onDrawerClose}
-          >
-            <DrawerOverlay />
-            <DrawerContent>
-              <DrawerCloseButton />
-              <DrawerHeader>{/* <Heading>{title}</Heading> */}</DrawerHeader>
-              <DrawerBody>
-                <NavButtonsList
-                  direction="column"
-                  onClose={() => {
-                    if (isMobile) onDrawerClose();
-                  }}
-                />
-              </DrawerBody>
-            </DrawerContent>
-          </Drawer>
-        </Box>
-      )}
     </>
   );
 };

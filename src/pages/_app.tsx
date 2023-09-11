@@ -1,3 +1,4 @@
+import "allsettled-polyfill";
 import "polyfill-object.fromentries";
 import { unseal } from "@hapi/iron";
 import { parse } from "cookie";
@@ -75,7 +76,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
       let session: Session | undefined;
 
       if (devSession && getEnv() === "development") {
-        console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
+        // console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
         session = devSession;
         //@ts-ignore
         email = devSession.user.email;
@@ -115,7 +116,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
       }
       if (session) {
         store.dispatch(setSession({ ...session, [TOKEN_NAME]: authToken }));
-        // console.log("🚀 ~ file: _app.tsx:116 ~ session:", session);
+        console.log("🚀 ~ App.getInitialProps ~ session:", session);
       }
       //#endregion
 

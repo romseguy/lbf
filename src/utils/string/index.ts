@@ -50,19 +50,19 @@ export function transformRTEditorOutput(
   return doc;
 }
 
-export function transformTopicMessage(str: string, isMobile: boolean) {
+export function transformTopicMessage(str: string) {
   if (!str) return "<i>Message vide.</i>";
 
   let newStr = "" + str;
 
-  if (isMobile && str.includes("href")) {
+  if (str.includes("href")) {
     const collapseLength = 28;
     const regex =
       /([^+>]*)[^<]*(<a [^>]*(href="([^>^\"]*)")[^>]*>)([^<]+)(<\/a>)/gi;
     let link;
     while ((link = regex.exec(str)) !== null) {
       // const url = link[4];
-      let text = link[5];
+      const text = link[5];
       let canCollapse = text.length > collapseLength;
       if (canCollapse) {
         const shortText = "Ouvrir le lien";

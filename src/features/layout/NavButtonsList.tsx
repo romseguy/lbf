@@ -130,11 +130,12 @@ export const NavButtonsList = ({
         </Button>
       </Link>
 
-      {isNetworksModalOpen && (
+      {isNetworksModalOpen && inputNodes.length > 0 && (
         <TreeChartModal
           header={<AppHeading mb={3}>Tous les forums</AppHeading>}
           inputNodes={inputNodes}
           isOpen={isNetworksModalOpen}
+          rootName="Tous les forums"
           onClose={closeNetworksModal}
         />
       )}

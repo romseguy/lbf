@@ -273,7 +273,7 @@ export const createTopicEmailNotif = ({
                   ? `
                     <table width="100%" style="background: ${descriptionBackgroundColor}; border-radius: 10px;">
                       <tr>
-                        <td style="padding: 12px">${topic.topicMessages[0].messageHtml}</td>
+                        <td style="padding: 12px">${topic.topicMessages[0].message}</td>
                       </tr>
                     </table>
                   `

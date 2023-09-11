@@ -53,7 +53,7 @@ export const UserSchema = new Schema<IUser>(
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );
 
-UserSchema.index({ email: 1, userName: 1 }, { unique: true });
+//UserSchema.index({ email: 1, userName: 1 }, { unique: true });
 
 // UserSchema.pre("init", function (next) {
 //   if (!this.userName) this.userName = normalize(this.email.replace(/@.+/, ""));

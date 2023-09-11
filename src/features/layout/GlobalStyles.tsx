@@ -29,6 +29,9 @@ export const GlobalStyles = ({ isMobile }: PageProps) => {
         //#endregion
 
         //#region elements
+        body {
+          overflow-x: ${isMobile ? "hidden" : "auto"};
+        }
         hr {
           border-top-width: 3px;
           margin: 0 24px;

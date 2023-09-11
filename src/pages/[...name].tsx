@@ -47,7 +47,7 @@ const initialEventQueryParams = (entityUrl: string) => ({
 const initialOrgQueryParams = (entityUrl: string) => ({
   orgUrl: entityUrl,
   populate:
-    "orgBanner orgEvents orgLogo orgLists orgProjects orgSubscriptions orgTopics orgs"
+    "orgBanner orgDescription orgEvents orgLists orgLogo orgProjects orgSubscriptions orgTopics orgs"
 });
 const initialUserQueryParams = (entityUrl: string) => ({
   slug: entityUrl

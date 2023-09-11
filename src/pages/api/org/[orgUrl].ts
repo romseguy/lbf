@@ -40,7 +40,9 @@ handler.get<
 
     const select = `+orgPassword ${
       populate.includes("orgLogo") ? "+orgLogo" : ""
-    } ${populate.includes("orgBanner") ? "+orgBanner" : ""}`;
+    } ${populate.includes("orgBanner") ? "+orgBanner" : ""} ${
+      populate.includes("orgDescription") ? "+orgDescription" : ""
+    }`;
 
     let org = await models.Org.findOne({ orgUrl }, select);
     if (!org) org = await models.Org.findOne({ _id: orgUrl }, select);
@@ -121,13 +123,16 @@ handler.get<
         ].includes(modelKey)
       ) {
         console.log(
-          `GET /${orgUrl} populating ${modelKey} with custom behavior`
+          `GET /org/{orgUrl} populating ${modelKey} with custom behavior`
         );
         populate = populate.replace(modelKey, "");
       }
 
       if (modelKey === "orgs") {
-        org = org.populate({ path: "orgs", populate: { path: "createdBy" } });
+        org = org.populate({
+          path: "orgs",
+          populate: { path: "createdBy" }
+        });
       }
 
       if (modelKey === "orgEvents") {
@@ -329,8 +334,9 @@ handler.get<
       }
     }
 
-    console.log(`GET /${orgUrl} unhandled keys: ${populate}`);
+    console.log(`GET /org/{orgUrl} unhandled keys: ${populate}`);
     org = await org.populate("createdBy", "_id userName").execPopulate();
+    // console.log("🚀 ~ GET /org/{orgUrl} ~ org:", org);
     res.status(200).json(org);
   } catch (error: any) {
     if (error.kind === "ObjectId")

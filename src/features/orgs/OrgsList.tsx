@@ -284,7 +284,7 @@ export const OrgsList = ({
                       </Tooltip> */}
                       <EntityButton
                         org={org}
-                        backgroundColor={isDark ? "whiteAlpha.500" : undefined}
+                        backgroundColor={isDark ? "whiteAlpha.300" : undefined}
                       />
 
                       {/* {org.orgCity && (
@@ -307,7 +307,7 @@ export const OrgsList = ({
                           org={org}
                           topic={latestTopic}
                           backgroundColor={
-                            isDark ? "whiteAlpha.500" : undefined
+                            isDark ? "whiteAlpha.300" : undefined
                           }
                         >
                           {latestTopic.topicName}
@@ -327,6 +327,7 @@ export const OrgsList = ({
                   {keys.find(({ key }) => key === "createdBy") && (
                     <Td>
                       <EntityButton
+                        backgroundColor={isDark ? "whiteAlpha.500" : undefined}
                         user={{ userName: (org.createdBy as IUser).userName }}
                         tooltipProps={{ placement: "top" }}
                       />

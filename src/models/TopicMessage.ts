@@ -12,7 +12,7 @@ export interface ITopicMessage {
 export const TopicMessageSchema = new Schema<ITopicMessage>(
   {
     message: { type: String, default: "" },
-    messageHtml: { type: String, default: "" },
+    //messageHtml: { type: String, default: "" },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User"

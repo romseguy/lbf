@@ -104,7 +104,7 @@ handler.get<
         })
         .populate({
           path: "topics",
-          populate: { path: "topic" }
+          populate: { path: "topic", select: "-topicMessages" }
         });
 
     subscription = await subscription.execPopulate();
