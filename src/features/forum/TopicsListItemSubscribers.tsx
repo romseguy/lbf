@@ -15,11 +15,7 @@ export const TopicsListItemSubscribers = ({
   const { data: session } = useSession();
   const query = useGetSubscriptionsQuery({ topicId: topic._id });
 
-  useEffect(() => {
-    console.log("refetching topic subscribers", topic.topicName);
-  }, [isSubbedToTopic]);
-
-  if (query.isLoading || query.isFetching) return <Spinner boxSize={4} />;
+  if (query.isLoading) return <Spinner boxSize={4} />;
 
   return (
     <Flex alignItems="center" flexWrap="wrap">

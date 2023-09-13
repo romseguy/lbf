@@ -25,7 +25,6 @@ import { GlobalStyles } from "features/layout";
 import { ContactFormModal } from "features/modals/ContactFormModal";
 import { selectIsOffline } from "store/sessionSlice";
 import { NavButtonsList } from "features/layout/NavButtonsList";
-import { isMobile } from "react-device-detect";
 import { zIndex } from "utils/string";
 
 interface customWindow extends Window {
@@ -148,7 +147,7 @@ export const Main = ({
                 <NavButtonsList
                   direction="column"
                   onClose={() => {
-                    if (isMobile) onDrawerClose();
+                    onDrawerClose();
                   }}
                 />
               </DrawerBody>

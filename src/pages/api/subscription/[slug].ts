@@ -62,7 +62,8 @@ handler.get<
         subscription = subscription.populate({
           path: "topics",
           populate: {
-            path: "topic"
+            path: "topic",
+            select: "-topicMessage"
           }
         });
 
@@ -78,7 +79,8 @@ handler.get<
           path: "topics",
           populate: {
             path: "topic",
-            populate: subPopulate
+            populate: subPopulate,
+            select: "-topicMessage"
           }
         });
 

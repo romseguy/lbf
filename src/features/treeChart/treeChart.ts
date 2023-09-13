@@ -10,27 +10,20 @@ import {
   Primitive,
   RenderChart
 } from "./types";
-import {
-  //getTooltipString,
-  toggleChildren,
-  getNodeGroupByDepthCount,
-  findParentNodePosition,
-  panLimit
-} from "./utils";
-//import d3tooltip from 'd3tooltip';
+import { getNodeGroupByDepthCount, panLimit } from "./utils";
 
 export const defaultOptions: InputOptions = {
   aspectRatio: 1.0,
   heightBetweenNodesCoeff: 2,
   id: "d3svg",
   initialZoom: 1,
+  isDark: false,
   isFullscreen: false,
   isSorted: false,
   margin: {},
   padding: {},
   onClickText: () => {},
   onZoom: () => {},
-  size: 500,
   style: {
     node: {
       colors: {
@@ -51,16 +44,6 @@ export const defaultOptions: InputOptions = {
       fill: "none"
     }
   },
-  // tooltipOptions: {
-  //   disabled: false,
-  //   left: undefined,
-  //   top: undefined,
-  //   offset: {
-  //     left: 0,
-  //     top: 0
-  //   },
-  //   style: undefined
-  // },
   transitionDuration: 750,
   widthBetweenNodesCoeff: 1
 };
@@ -78,6 +61,7 @@ export const treeChart = (
     heightBetweenNodesCoeff,
     id,
     initialZoom,
+    isDark,
     isFullscreen,
     isSorted,
     margin,
@@ -85,9 +69,7 @@ export const treeChart = (
     onClickCircle,
     onClickText,
     onZoom,
-    size,
     style,
-    //tooltipOptions,
     transitionDuration,
     widthBetweenNodesCoeff
   } = options;
@@ -283,7 +265,14 @@ export const treeChart = (
         .append("g")
         .attr({
           class: "node",
-          fill: (d) => (d.parent?.name === inputNode.name ? "blue" : "green")
+          fill: (d) =>
+            d.parent?.name === inputNode.name
+              ? isDark
+                ? "white"
+                : "blue"
+              : isDark
+              ? "lightgreen"
+              : "green"
           // transform: (d) => {
           //   const position = findParentNodePosition(
           //     nodePositionsById,
@@ -374,7 +363,10 @@ export const treeChart = (
           //"fill-opacity": 0
           "fill-opacity": 1
         })
-        .on("click", onClickText);
+        .on("click", (clickedNode: TreeNodeWithId) => {
+          if ((d3.event as Event).defaultPrevented) return;
+          if (onClickText) onClickText(clickedNode);
+        });
       // horizontally align text relative to icon and children count
       nodeUpdate
         .select("text")

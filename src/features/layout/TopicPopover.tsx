@@ -72,7 +72,7 @@ const TopicPopoverContent = ({
   );
 
   const topicsQuery = useGetTopicsQuery(
-    { populate: "org event" },
+    { populate: "org event topicMessages.createdBy" },
     {
       selectFromResult: (query) => ({
         ...query,
@@ -142,7 +142,7 @@ const TopicPopoverContent = ({
             Les discussions où je suis abonné
           </option>
           <option value="showTopicsAnswered">
-            Les discussions où je participe
+            Les discussions où j'ai participé
           </option>
         </Select>
 

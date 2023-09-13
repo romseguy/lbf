@@ -26,8 +26,10 @@ export function transformRTEditorOutput(
   isMobile: boolean
 ): Document {
   const parser = new DOMParser();
-  const doc = parser.parseFromString(str.replace(/\n/g, ""), "text/html");
+  //const doc = parser.parseFromString(str.replace(/&nbsp;/g, " "), "text/html");
+  const doc = parser.parseFromString(str, "text/html");
   const links = (doc.firstChild as HTMLElement).getElementsByTagName("a");
+  //const paragraphs = (doc.firstChild as HTMLElement).getElementsByTagName("p");
 
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
@@ -46,6 +48,10 @@ export function transformRTEditorOutput(
       }
     }
   }
+
+  // for (let i = 0; i < paragraphs.length; i++) {
+  //   const paragraph = paragraphs[i];
+  // }
 
   return doc;
 }

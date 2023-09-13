@@ -7,7 +7,6 @@ export type Primitive = number | string | boolean;
 export interface InputOptions {
   id: string;
   style: { [key: string]: any };
-  size: number;
   aspectRatio: number;
   initialZoom: number;
   margin: {
@@ -22,6 +21,7 @@ export interface InputOptions {
     bottom?: number;
     left?: number;
   };
+  isDark?: boolean;
   isFullscreen: boolean;
   isSorted: boolean;
   heightBetweenNodesCoeff: number;

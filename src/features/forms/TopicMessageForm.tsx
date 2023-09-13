@@ -140,15 +140,20 @@ export const TopicMessageForm = ({
           <Controller
             name="topicMessage"
             control={control}
-            //defaultValue={topicMessageDefaultValue}
             rules={{ required: "Veuillez saisir un message" }}
             render={(renderProps) => {
+              const lineBreaks = renderProps.value.match(/<br>/g);
+              const newHeight = Array.isArray(lineBreaks)
+                ? lineBreaks.length * 22
+                : 200;
               return (
                 <RTEditor
-                  //defaultValue={topicMessageDefaultValue}
                   value={renderProps.value}
                   placeholder={"Cliquez ici pour répondre..."}
                   setIsLoading={setIsLoading}
+                  height={
+                    newHeight < 200 ? 200 : newHeight > 500 ? 500 : newHeight
+                  }
                   onChange={({ html }) => {
                     renderProps.onChange(html);
                   }}

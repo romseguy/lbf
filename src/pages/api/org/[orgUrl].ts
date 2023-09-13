@@ -248,7 +248,6 @@ handler.get<
 
       if (modelKey === "orgTopics") {
         org = await org
-
           .populate({
             path: "orgTopics",
             populate: [
@@ -505,7 +504,7 @@ handler.put<
       }
     }
 
-    logJson(`PUT /org/${_id}:`, update || body);
+    //logJson(`PUT /org/${_id}:`, update || body);
     org = await models.Org.findOneAndUpdate({ _id }, update || body);
 
     if (!org) {

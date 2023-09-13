@@ -13,7 +13,7 @@ export const TopicSchema = new Schema<ITopic>(
       ref: "Org"
     },
     topicCategory: { type: String, trim: true },
-    topicMessages: { type: [TopicMessageSchema], default: [] },
+    topicMessages: { type: [TopicMessageSchema], default: [], select: false },
     topicMessagesDisabled: Boolean,
     topicName: {
       type: String,

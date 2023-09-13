@@ -57,20 +57,23 @@ const NotificationPopoverContent = ({ session }: { session: Session }) => {
     topicsWithPushNotifications,
     isLoading: isTopicsLoading,
     refetch: refetchTopics
-  } = useGetTopicsQuery(void 0, {
-    selectFromResult: (query) => ({
-      ...query,
-      topicsWithEmailNotifications: (query.data || []).filter((topic) =>
-        topic.topicNotifications.find(({ email }) => email === userEmail)
-      ),
+  } = useGetTopicsQuery(
+    { populate: "topicNotifications" },
+    {
+      selectFromResult: (query) => ({
+        ...query,
+        topicsWithEmailNotifications: (query.data || []).filter((topic) =>
+          topic.topicNotifications.find(({ email }) => email === userEmail)
+        ),
 
-      topicsWithPushNotifications: (query.data || []).filter((topic) =>
-        topic.topicNotifications.find(
-          ({ user }) => user === session.user.userId
+        topicsWithPushNotifications: (query.data || []).filter((topic) =>
+          topic.topicNotifications.find(
+            ({ user }) => user === session.user.userId
+          )
         )
-      )
-    })
-  });
+      })
+    }
+  );
 
   //#region local state
   let emailNotifications: IEmailNotification[] = [];

@@ -483,24 +483,22 @@ export const TopicsListItem = forwardRef(
             />
 
             {!isEditing && (
-              <GridItem
-                light={{ bg: "orange.50" }}
-                dark={{ bg: "gray.700" }}
+              <Box
+                bg={isDark ? "gray.700" : "orange.50"}
                 borderBottomRadius="xl"
+                p={3}
               >
-                <Box p={3}>
-                  <TopicMessageForm
-                    query={query}
-                    isLoading={isLoading}
-                    setIsLoading={(bool) => {
-                      setIsLoading({ [topic._id]: bool });
-                    }}
-                    topic={topic}
-                    //formats={formats.filter((f) => f !== "size")}
-                    isDisabled={topic.topicMessagesDisabled}
-                  />
-                </Box>
-              </GridItem>
+                <TopicMessageForm
+                  isDisabled={topic.topicMessagesDisabled}
+                  isLoading={isLoading}
+                  query={query}
+                  setIsLoading={(bool) => {
+                    setIsLoading({ [topic._id]: bool });
+                  }}
+                  topic={topic}
+                  //formats={formats.filter((f) => f !== "size")}
+                />
+              </Box>
             )}
           </>
         )}

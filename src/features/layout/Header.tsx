@@ -101,7 +101,7 @@ export const Header = ({
       `}
       onClick={(e) => {
         e.stopPropagation();
-        setIsBannerModalOpen(true);
+        if (!isMobile) setIsBannerModalOpen(true);
       }}
       {...props}
     >

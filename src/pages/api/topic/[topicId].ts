@@ -214,7 +214,7 @@ handler.put<
     } = req;
 
     const topicId = req.query.topicId;
-    let topic = await models.Topic.findOne({ _id: topicId });
+    let topic = await models.Topic.findOne({ _id: topicId }, "topicMessages");
 
     if (!topic)
       return res

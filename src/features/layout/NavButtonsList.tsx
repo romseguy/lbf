@@ -136,7 +136,10 @@ export const NavButtonsList = ({
           inputNodes={inputNodes}
           isOpen={isNetworksModalOpen}
           rootName="Tous les forums"
-          onClose={closeNetworksModal}
+          onClose={() => {
+            closeNetworksModal();
+            onClose && onClose();
+          }}
         />
       )}
 

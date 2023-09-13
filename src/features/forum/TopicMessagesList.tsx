@@ -5,10 +5,8 @@ import { useSession } from "hooks/useSession";
 import { IEntity } from "models/Entity";
 import { isEdit, ITopic } from "models/Topic";
 import { AppQuery } from "utils/types";
-import {
-  TopicMessagesListItem,
-  TopicMessagesListItemEdit
-} from "./TopicMessagesListItem";
+import { TopicMessagesListItem } from "./TopicMessagesListItem";
+import { TopicMessagesListItemEdit } from "./TopicMessagesListItemEdit";
 
 export const TopicMessagesList = ({
   isEdit,

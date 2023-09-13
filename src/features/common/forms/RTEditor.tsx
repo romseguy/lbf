@@ -4,7 +4,6 @@ import axios from "axios";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import type { Editor as TinyMCEEditor } from "tinymce";
-import { styled } from "twin.macro";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { useAppDispatch } from "store";
@@ -36,10 +35,6 @@ const bindEvent = (
   }
 };
 
-const RTEditorStyles = styled("div")((props) => {
-  return ``;
-});
-
 export const RTEditor = ({
   defaultValue,
   event,
@@ -68,6 +63,8 @@ export const RTEditor = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isTouched, setIsTouched] = useState(false);
   const [shortId, setShortId] = useState<string | undefined>();
+  const [maxHeight, setMaxHeight] = useState(0);
+  useEffect(() => setMaxHeight(window.innerHeight - 80), []);
 
   //#region tinymce
   const editorRef = useRef<TinyMCEEditor | null>(null);
@@ -91,12 +88,29 @@ export const RTEditor = ({
   }, [editorRef]);
   const init: IAllProps["init"] = {
     branding: false,
+    content_style: `
+      @font-face {
+        font-family: "Roboto";
+        src: url("/fonts/RobotoCondensed-Regular.ttf");
+        //src: url("/fonts/RobotoCondensed-Bold.ttf");
+      }
+      body {
+        /*font-family: Helvetica,Arial,sans-serif;*/
+        font-size:16px;
+        font-family: Roboto;
+      }
+    `,
+    convert_urls: false,
     document_base_url: process.env.NEXT_PUBLIC_URL + "/",
     file_picker_types: "image", // file image media
     file_picker_callback: onImageClick,
+    height: props.height,
+    min_height: props.minHeight,
+    max_height: props.maxHeight || maxHeight,
     image_upload_handler: uploadImage,
     language: "fr_FR",
     language_url: "/tinymce/langs/fr_FR.js",
+    //newline_behavior: "invert",
     contextmenu: false,
     menubar: false,
     statusbar: false,
@@ -104,6 +118,7 @@ export const RTEditor = ({
     plugins: [
       "anchor",
       "autolink",
+      "autoresize",
       "charmap",
       "code",
       "emoticons",
@@ -118,21 +133,22 @@ export const RTEditor = ({
     ],
     toolbar: [
       {
-        name: "",
+        name: "outils",
         items: [
           "fullscreen",
-          "removeformat",
           "undo",
           "redo",
           "link",
           "anchor",
-          "hr"
+          "hr",
+          "removeformat",
+          "searchreplace"
         ]
       },
       {
         name: "texte",
         items: [
-          "fontsize",
+          //"fontsize",
           "forecolor",
           "alignleft",
           "aligncenter",
@@ -318,8 +334,8 @@ export const RTEditor = ({
   }, []);
 
   return (
-    <RTEditorStyles>
-      {/* {isLoading && (
+    <>
+      {isLoading && (
         <div
           style={{
             position: "relative"
@@ -327,7 +343,7 @@ export const RTEditor = ({
         >
           <Spinner />
         </div>
-      )} */}
+      )}
 
       {shortId && (
         <Editor
@@ -362,6 +378,6 @@ export const RTEditor = ({
           }}
         />
       )}
-    </RTEditorStyles>
+    </>
   );
 };

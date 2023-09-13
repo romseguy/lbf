@@ -30,14 +30,43 @@ handler.get<
       query: { populate, createdBy }
     } = req;
 
-    let topics: (ITopic & Document<any, ITopic>)[] = [];
     const selector = createdBy ? { createdBy } : {};
-
     //logJson(`GET /topics: selector`, selector);
 
-    if (populate) topics = await models.Topic.find(selector).populate(populate);
-    else topics = await models.Topic.find(selector);
+    let topics: (ITopic & Document<any, ITopic>)[] = [];
 
+    if (populate?.includes("topicMessages.createdBy")) {
+      topics = await models.Topic.find(
+        selector,
+        "-topicMessages.message"
+      ).populate([
+        {
+          path: "topicMessages",
+          populate: [{ path: "createdBy", select: "_id" }]
+        }
+      ]);
+    } else {
+      topics = await models.Topic.find(selector);
+    }
+
+    if (hasItems(topics)) {
+      if (populate?.includes("org")) {
+        // topics = await Promise.all(
+        //   topics.map((topic) => topic.populate(populate).execPopulate())
+        for (const topic of topics) {
+          await topic.populate({ path: "org" }).execPopulate();
+        }
+      }
+      if (populate?.includes("event")) {
+        // topics = await Promise.all(
+        //   topics.map((topic) => topic.populate(populate).execPopulate())
+        for (const topic of topics) {
+          await topic.populate({ path: "event" }).execPopulate();
+        }
+      }
+    }
+
+    logJson(`GET /topics: topics`, topics);
     res.status(200).json(topics);
   } catch (error) {
     res.status(500).json(createServerError(error));
@@ -99,7 +128,10 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
             );
         }
 
-        topic = await models.Topic.findOne({ _id: body.topic._id });
+        topic = await models.Topic.findOne(
+          { _id: body.topic._id },
+          "topicMessages"
+        );
 
         if (!topic) {
           return res
@@ -123,8 +155,8 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
         await topic.save();
 
         const subscriptions = await models.Subscription.find({
-          "topics.topic": Types.ObjectId(body.topic._id),
-          user: { $ne: newMessage.createdBy }
+          "topics.topic": body.topic._id,
+          user: { $ne: session.user.userId }
         }).populate({ path: "user", select: "email phone userSubscription" });
 
         logJson(`POST /topics: topic subscriptions`, subscriptions);
@@ -176,43 +208,44 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
             }
           );
         }
-      }
-      //#endregion
 
-      //#region creator subscription
-      const user = await models.User.findOne({
-        _id: toString(topic.createdBy)
-      });
+        //#region creator subscription
+        const user = await models.User.findOne({
+          _id: session.user.userId
+        });
 
-      if (user) {
-        let subscription = await models.Subscription.findOne({ user });
+        if (user) {
+          let subscription = await models.Subscription.findOne({ user });
 
-        if (!subscription)
-          subscription = await models.Subscription.create({
-            user,
-            topics: [{ topic: topic._id, emailNotif: true, pushNotif: true }]
-          });
+          if (!subscription)
+            subscription = await models.Subscription.create({
+              user,
+              topics: [{ topic: topic._id, emailNotif: true, pushNotif: true }]
+            });
 
-        const topicSubscription = subscription.topics?.find(({ topic: t }) =>
-          equals(getRefId(t), topic!._id)
-        );
+          const topicSubscription = subscription.topics?.find(({ topic: t }) =>
+            equals(getRefId(t), topic!._id)
+          );
 
-        if (!topicSubscription) {
-          await models.Subscription.updateOne(
-            { _id: subscription._id },
-            {
-              $push: {
-                topics: {
-                  topic: topic._id,
-                  emailNotif: true,
-                  pushNotif: true
+          if (!topicSubscription) {
+            await models.Subscription.updateOne(
+              { _id: subscription._id },
+              {
+                $push: {
+                  topics: {
+                    topic: topic._id,
+                    emailNotif: true,
+                    pushNotif: true
+                  }
                 }
               }
-            }
-          );
+            );
+          }
         }
+        //#endregion
       }
       //#endregion
+
       res.status(200).json(topic);
     } catch (error: any) {
       res.status(500).json(createServerError(error));

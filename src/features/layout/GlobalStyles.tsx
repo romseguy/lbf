@@ -15,12 +15,12 @@ export const GlobalStyles = ({ isMobile }: PageProps) => {
         @font-face {
           font-family: "Lato";
           src: url("/fonts/Lato-Regular.ttf");
-          src: url("/fonts/Lato-Bold.ttf");
+          //src: url("/fonts/Lato-Bold.ttf");
         }
         @font-face {
           font-family: "Roboto";
           src: url("/fonts/RobotoCondensed-Regular.ttf");
-          src: url("/fonts/RobotoCondensed-Bold.ttf");
+          //src: url("/fonts/RobotoCondensed-Bold.ttf");
         }
         /* @font-face {
         font-family: "Aladin";
@@ -72,23 +72,6 @@ export const GlobalStyles = ({ isMobile }: PageProps) => {
           background: green;
           border-radius: 50%;
           color: white;
-        }
-        //#endregion
-
-        //#region rteditor
-        .rteditor {
-          a {
-            text-decoration: underline;
-          }
-
-          a.clip {
-            text-overflow: ellipsis;
-            display: inline-block;
-            white-space: nowrap;
-            overflow: hidden;
-            max-width: 150px;
-            vertical-align: top;
-          }
         }
         //#endregion
 
@@ -334,6 +317,32 @@ export const GlobalStyles = ({ isMobile }: PageProps) => {
         }
         //#endregion
 
+        //#region rteditor
+        .rteditor {
+          font-family: Roboto;
+          a {
+            text-decoration: underline;
+          }
+
+          a.clip {
+            text-overflow: ellipsis;
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            max-width: 150px;
+            vertical-align: top;
+          }
+
+          hr {
+            margin-bottom: 1rem;
+          }
+
+          p {
+            margin-bottom: 1rem;
+          }
+        }
+        //#endregion
+
         //#region tinymce
         .tox-tinymce {
           ${isMobile ? "border: 0 !important;" : ""}
@@ -341,7 +350,10 @@ export const GlobalStyles = ({ isMobile }: PageProps) => {
         .tox-tinymce-aux {
           z-index: ${zIndex()} !important;
         }
-        //#endregion
+
+        ${isMobile
+          ? "body:not(.tox-force-desktop) .tox .tox-dialog { max-height: calc(100vh - 32px * 2) !important; }"
+          : ""}//#endregion
 
         //#region toast
         /* .chakra-ui-light {

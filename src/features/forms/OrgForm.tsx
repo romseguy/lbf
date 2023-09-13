@@ -615,7 +615,6 @@ export const OrgForm = withGoogleApi({
           render={(renderProps) => {
             return (
               <RTEditor
-                height={isEditConfig?.isAddingDescription ? 500 : undefined}
                 org={org}
                 placeholder={`Saisir la description ${orgTypeLabel}`}
                 session={session}

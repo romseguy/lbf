@@ -74,6 +74,7 @@ export const TreeChartModal = ({
           {
             id: "treeSvg",
             initialZoom: 0.8,
+            isDark,
             isFullscreen: true,
             isSorted: true,
             heightBetweenNodesCoeff: 2.5,
@@ -91,7 +92,7 @@ export const TreeChartModal = ({
               node: { radius: 14 },
               text: { colors: { default: isDark ? "white" : "black" } }
             },
-            //onClickCircle: onClick,
+            onClickCircle: onClick,
             onClickText: onClick
           }
         )();
