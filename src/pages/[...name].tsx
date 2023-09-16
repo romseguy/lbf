@@ -78,7 +78,7 @@ const ErrorPage = ({
     p: props.isMobile ? 2 : 3
   };
   return (
-    <Layout {...props}>
+    <Layout pageTitle="Erreur" {...props}>
       <Column {...columnProps}>
         {defaultErrorMessage}
         <Alert status="error">

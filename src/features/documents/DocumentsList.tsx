@@ -111,7 +111,7 @@ export const DocumentsList = ({
   //#region local state
   const columnProps: ColumnProps = {
     bg: isDark ? "gray.700" : "lightblue",
-    m: 3,
+    mb: 3,
     mt: 0,
     pt: 0
   };
@@ -154,7 +154,7 @@ export const DocumentsList = ({
 
   return (
     <>
-      <Flex flexWrap="wrap" p={3} mt={-3}>
+      <Flex flexWrap="wrap" mb={3} mt={-3}>
         <Box flexGrow={1} mt={3}>
           <Button
             colorScheme="teal"
@@ -212,136 +212,142 @@ export const DocumentsList = ({
         </Column>
       )}
 
-      <Column {...columnProps}>
-        <Table>
-          <Tbody>
-            {query.data?.map((fileName) => {
-              const isImage = stringUtils.isImage(fileName);
-              // const isPdf = fileName.includes(".pdf");
-              // const url = `${process.env.NEXT_PUBLIC_API2}/${
-              //   isImage || isPdf ? "view" : "download"
-              // }?${
-              //   org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
-              // }&fileName=${fileName}`;
+      {Array.isArray(query.data) && query.data.length > 0 && (
+        <Column {...columnProps}>
+          <Table>
+            <Tbody>
+              {query.data.map((fileName) => {
+                const isImage = stringUtils.isImage(fileName);
+                // const isPdf = fileName.includes(".pdf");
+                // const url = `${process.env.NEXT_PUBLIC_API2}/${
+                //   isImage || isPdf ? "view" : "download"
+                // }?${
+                //   org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
+                // }&fileName=${fileName}`;
 
-              const url = `${process.env.NEXT_PUBLIC_API}/documents/view?${
-                org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
-              }&fileName=${fileName}`;
-              const downloadUrl = `${
-                process.env.NEXT_PUBLIC_API
-              }/documents/download?${
-                org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
-              }&fileName=${fileName}`;
+                const url = `${process.env.NEXT_PUBLIC_API}/documents/view?${
+                  org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
+                }&fileName=${fileName}`;
+                const downloadUrl = `${
+                  process.env.NEXT_PUBLIC_API
+                }/documents/download?${
+                  org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
+                }&fileName=${fileName}`;
 
-              return (
-                <Tr key={fileName}>
-                  <Td p="16px 12px 16px 12px">
-                    <Box display="flex" alignItems="center">
-                      <Icon as={isImage ? FaImage : FaFile} mr={3} />
-                      <Tooltip
-                        hasArrow
-                        label={`Ouvrir ${isImage ? "l'image" : "le fichier"}`}
-                        placement="top"
-                      >
-                        <span>
-                          <Link
-                            // href={url}
-                            // target="_blank"
-                            variant="underline"
-                            onClick={() => {
-                              if (isImage) {
-                                const image = images.find(
-                                  (image) => image.url === url
-                                );
-                                if (image) onOpen(image);
-                              } else {
-                                window.location.href = downloadUrl;
-                              }
-                            }}
-                          >
-                            {fileName}
-                          </Link>
-                        </span>
+                return (
+                  <Tr key={fileName}>
+                    <Td p="16px 12px 16px 12px">
+                      <Box display="flex" alignItems="center">
+                        <Icon as={isImage ? FaImage : FaFile} mr={3} />
+                        <Tooltip
+                          hasArrow
+                          label={`Ouvrir ${isImage ? "l'image" : "le fichier"}`}
+                          placement="top"
+                        >
+                          <span>
+                            <Link
+                              // href={url}
+                              // target="_blank"
+                              variant="underline"
+                              onClick={() => {
+                                if (isImage) {
+                                  const image = images.find(
+                                    (image) => image.url === url
+                                  );
+                                  if (image) onOpen(image);
+                                } else {
+                                  window.location.href = downloadUrl;
+                                }
+                              }}
+                            >
+                              {fileName}
+                            </Link>
+                          </span>
+                        </Tooltip>
+                      </Box>
+                    </Td>
+
+                    <Td p="0 8px 0 0" textAlign="right" whiteSpace="nowrap">
+                      <Tooltip label="Télécharger le fichier">
+                        <IconButton
+                          aria-label="Télécharger le fichier"
+                          colorScheme="green"
+                          icon={<DownloadIcon />}
+                          mr={2}
+                          variant="outline"
+                          onClick={() => {
+                            router.push(downloadUrl);
+                          }}
+                        />
                       </Tooltip>
-                    </Box>
-                  </Td>
 
-                  <Td p="0 8px 0 0" textAlign="right" whiteSpace="nowrap">
-                    <Tooltip label="Télécharger le fichier">
-                      <IconButton
-                        aria-label="Télécharger le fichier"
-                        colorScheme="green"
-                        icon={<DownloadIcon />}
+                      <LinkShare
+                        colorScheme="blue"
+                        label="Copier le lien du fichier"
                         mr={2}
+                        url={url}
                         variant="outline"
-                        onClick={() => {
-                          router.push(downloadUrl);
+                        tooltipProps={{ placement: "bottom" }}
+                      />
+
+                      <DeleteButton
+                        header={
+                          <>
+                            Êtes vous sûr de vouloir supprimer le fichier{" "}
+                            <Text
+                              display="inline"
+                              color="red"
+                              fontWeight="bold"
+                            >
+                              {fileName}
+                            </Text>{" "}
+                            ?
+                          </>
+                        }
+                        isIconOnly
+                        isSmall={false}
+                        placement="bottom"
+                        variant="outline"
+                        onClick={async () => {
+                          let payload: {
+                            fileName: string;
+                            orgId?: string;
+                            userId?: string;
+                          } = {
+                            fileName
+                          };
+
+                          if (org) payload.orgId = org._id;
+                          else if (user) payload.userId = user._id;
+
+                          try {
+                            await api.remove(
+                              process.env.NEXT_PUBLIC_API2,
+                              payload
+                            );
+                            toast({
+                              title: `Le document ${fileName} a été supprimé !`,
+                              status: "success"
+                            });
+                            refreshDiskUsage();
+                            query.refetch();
+                          } catch (error) {
+                            console.error(error);
+                            toast({
+                              title: `Le document ${fileName} n'a pas pu être supprimé.`,
+                              status: "error"
+                            });
+                          }
                         }}
                       />
-                    </Tooltip>
-
-                    <LinkShare
-                      colorScheme="blue"
-                      label="Copier le lien du fichier"
-                      mr={2}
-                      url={url}
-                      variant="outline"
-                      tooltipProps={{ placement: "bottom" }}
-                    />
-
-                    <DeleteButton
-                      header={
-                        <>
-                          Êtes vous sûr de vouloir supprimer le fichier{" "}
-                          <Text display="inline" color="red" fontWeight="bold">
-                            {fileName}
-                          </Text>{" "}
-                          ?
-                        </>
-                      }
-                      isIconOnly
-                      isSmall={false}
-                      placement="bottom"
-                      variant="outline"
-                      onClick={async () => {
-                        let payload: {
-                          fileName: string;
-                          orgId?: string;
-                          userId?: string;
-                        } = {
-                          fileName
-                        };
-
-                        if (org) payload.orgId = org._id;
-                        else if (user) payload.userId = user._id;
-
-                        try {
-                          await api.remove(
-                            process.env.NEXT_PUBLIC_API2,
-                            payload
-                          );
-                          toast({
-                            title: `Le document ${fileName} a été supprimé !`,
-                            status: "success"
-                          });
-                          refreshDiskUsage();
-                          query.refetch();
-                        } catch (error) {
-                          console.error(error);
-                          toast({
-                            title: `Le document ${fileName} n'a pas pu être supprimé.`,
-                            status: "error"
-                          });
-                        }
-                      }}
-                    />
-                  </Td>
-                </Tr>
-              );
-            })}
-          </Tbody>
-        </Table>
-      </Column>
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
+        </Column>
+      )}
 
       {modalState.isOpen && modalState.image && (
         <FullscreenModal
@@ -379,9 +385,9 @@ export const DocumentsListMasonry = ({
   const query = useGetDocumentsQuery(
     org ? { orgId: org._id } : user ? { userId: user._id } : {}
   );
-  console.log("🚀 ~ file: DocumentsList.tsx:335 ~ query:", query);
+  // console.log("🚀 ~ file: DocumentsList.tsx:335 ~ query:", query);
   const [images, setImages] = useState<RemoteImage[]>([]);
-  console.log("🚀 ~ file: DocumentsList.tsx:384 ~ images:", images);
+  // console.log("🚀 ~ file: DocumentsList.tsx:384 ~ images:", images);
   useEffect(() => {
     (async () => {
       if (Array.isArray(query.data) && query.data.length > 0) {

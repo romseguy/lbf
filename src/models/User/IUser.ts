@@ -19,7 +19,6 @@ export interface IUser {
   //     auth: string;
   //   };
   // };
-  isAdmin: boolean;
   isOnline: boolean;
   suggestedCategoryAt?: string;
   userDescription?: string;

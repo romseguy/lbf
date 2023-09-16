@@ -18,10 +18,11 @@ tsconfig.tsbuildinfo
 **/public/workbox-*.js.map
 
 # test
-tests/pptr/*.jpg
-tests/pptr/*.mp4
+/tests/pptr/*.jpg
+/tests/pptr/*.mp4
 
 # misc
+/logs
 *.mongodb.js
 *.mongodb
 TODO

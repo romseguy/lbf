@@ -38,7 +38,7 @@ export const EntityPageTopics = ({
 
   return (
     <>
-      <Flex ref={elementToScrollRef} alignItems="center">
+      <Flex ref={elementToScrollRef}>
         <ChatIcon boxSize={6} mr={3} mt={3} />
         <AppHeading noContainer mb={3}>
           Discussions

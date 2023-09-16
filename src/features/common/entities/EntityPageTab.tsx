@@ -31,34 +31,32 @@ export const EntityPageTab = ({
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
   const isCurrent = tabIndex === currentTabIndex;
-  //const styles = useTabsStyles();
   const tabProps = useTab(props);
-  const styles = useStyles();
   //const styles = useMultiStyleConfig("Tabs", tabProps);
-  const deviceProps = isMobile
-    ? {
-        flexBasis: "100%"
-      }
-    : {
-        flex: 0,
-        mr: 2
-      };
+  //const styles = useTabsStyles();
+  const styles = useStyles();
 
   return (
     <Tab
       {...tabProps}
-      {...deviceProps}
       aria-selected={isCurrent}
       __css={{
         ...styles.tab,
         display: "flex",
-        alignItems: "center",
+        //alignItems: "center",
         bgColor: isCurrent ? undefined : isDark ? "gray.800" : "lightcyan",
-        mt: 3,
         _focus: {
           boxShadow: "none"
         },
-        _hover: { bg: "cyan.500" }
+        _hover: { bgColor: "cyan.500" },
+        ...(isMobile
+          ? {
+              alignSelf: "flex-start",
+              mb: 3,
+              ml: 3,
+              mt: tabIndex === 0 ? 3 : 0
+            }
+          : { flex: 0, mr: 3 })
       }}
     >
       <Icon

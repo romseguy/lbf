@@ -8,6 +8,7 @@ export * from "./entities/EntityConfigStyles";
 export * from "./entities/EntityInfo";
 export * from "./entities/EntityNotified";
 export * from "./entities/EntityPageConfigButton";
+export * from "./entities/EntityPageDocuments";
 export * from "./entities/EntityPageSubscribeButton";
 export * from "./entities/EntityPageTab";
 export * from "./entities/EntityPageTabList";

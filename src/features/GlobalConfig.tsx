@@ -1,35 +1,15 @@
 import { useEffect } from "react";
-import { PageProps } from "main";
 import { useAppDispatch } from "store";
 import { setIsOffline } from "store/sessionSlice";
-import { setSetting } from "store/settingSlice";
 import api from "utils/api";
 
-export const GlobalConfig = ({ ...props }: PageProps) => {
+export const GlobalConfig = ({}: {}) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     (async function checkOnlineStatus() {
-      try {
-        const res = await api.get("check");
-        if (res.status === 404) throw new Error();
-      } catch (error) {
-        dispatch(setIsOffline(true));
-      }
-    })();
-
-    (async function initializeSettings() {
-      try {
-        const res = await fetch(`/api/settings`);
-
-        if (res.status === 200) {
-          const settings = await res.json();
-          if (Array.isArray(settings) && settings.length > 0)
-            settings.forEach(({ settingName, settingValue }) => {
-              dispatch(setSetting({ settingName, settingValue }));
-            });
-        }
-      } catch (error) {}
+      const res = await api.get("check");
+      if (res.error) dispatch(setIsOffline(true));
     })();
 
     window.addEventListener("offline", () => {
@@ -46,45 +26,57 @@ export const GlobalConfig = ({ ...props }: PageProps) => {
 
 {
   /*
-(async function checkLoginStatus() {
-  if (session) return;
+    const settingsQuery = useGetSettingsQuery();
+    useEffect(() => {
+      if (Array.isArray(settingsQuery.data) && settingsQuery.data.length > 0)
+        settingsQuery.data.forEach(({ settingName, settingValue }) => {
+          dispatch(setSetting({ settingName, settingValue }));
+        });
+    }, [settingsQuery.data]);
+  */
+}
 
-  try {
-    const magicIsLoggedIn = await magic.user.isLoggedIn();
-    console.log("checkLoginStatus: magicIsLoggedIn", magicIsLoggedIn);
+{
+  /*
+    (async function checkLoginStatus() {
+      if (session) return;
 
-    if (magicIsLoggedIn) {
-      const metadata = await magic.user.getMetadata();
-      //console.log("checkLoginStatus: metadata", metadata);
+      try {
+        const magicIsLoggedIn = await magic.user.isLoggedIn();
+        console.log("checkLoginStatus: magicIsLoggedIn", magicIsLoggedIn);
 
-      if (metadata.email) {
-        dispatch(setUserEmail(metadata.email));
+        if (magicIsLoggedIn) {
+          const metadata = await magic.user.getMetadata();
+          //console.log("checkLoginStatus: metadata", metadata);
 
-        const res = await fetch(`/api/user/${metadata.email}`);
-        //console.log(`res GET /api/user/${metadata.email}`, res);
+          if (metadata.email) {
+            dispatch(setUserEmail(metadata.email));
 
-        if (res.status === 200) {
-          const user = await res.json();
-          //console.log("checkLoginStatus: matched user profile", user);
-          dispatch(
-            setSession({
-              user: { ...user, email: metadata.email, userId: user.id }
-            })
-          );
+            const res = await fetch(`/api/user/${metadata.email}`);
+            //console.log(`res GET /api/user/${metadata.email}`, res);
+
+            if (res.status === 200) {
+              const user = await res.json();
+              //console.log("checkLoginStatus: matched user profile", user);
+              dispatch(
+                setSession({
+                  user: { ...user, email: metadata.email, userId: user.id }
+                })
+              );
+            }
+          } else {
+            const metadataa = await magic.user.getMetadata();
+            console.log("checkLoginStatus: metadataa", metadataa);
+          }
+        } else {
+          //console.log("checkLoginStatus: magicIsLoggedOut");
         }
-      } else {
-        const metadataa = await magic.user.getMetadata();
-        console.log("checkLoginStatus: metadataa", metadataa);
-      }
-    } else {
-      //console.log("checkLoginStatus: magicIsLoggedOut");
-    }
 
-    dispatch(setIsSessionLoading(false));
-  } catch (error) {
-    //console.log("checkLoginStatus: isSessionLoading", false);
-    dispatch(setIsSessionLoading(false));
-  }
-})();
- */
+        dispatch(setIsSessionLoading(false));
+      } catch (error) {
+        //console.log("checkLoginStatus: isSessionLoading", false);
+        dispatch(setIsSessionLoading(false));
+      }
+    })();
+  */
 }

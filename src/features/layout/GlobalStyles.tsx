@@ -4,7 +4,7 @@ import theme, { breakpoints } from "features/layout/theme";
 import { PageProps } from "main";
 import { zIndex } from "utils/string";
 
-export const GlobalStyles = ({ isMobile }: PageProps) => {
+export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
@@ -29,6 +29,11 @@ export const GlobalStyles = ({ isMobile }: PageProps) => {
         //#endregion
 
         //#region elements
+        html,
+        body,
+        #__next {
+          height: 100%;
+        }
         body {
           overflow-x: ${isMobile ? "hidden" : "auto"};
         }
@@ -39,21 +44,6 @@ export const GlobalStyles = ({ isMobile }: PageProps) => {
         //#endregion
 
         //#region large screens
-        /* ${!isMobile &&
-        `
-          html,
-          body,
-          #__next {
-            height: 100%;
-          }
-
-          body,
-          #__next {
-            display: flex;
-            flex-direction: column;
-          }
-        `} */
-
         @media (min-width: ${breakpoints["2xl"]}) {
           body {
             background: url(/images/bg.png);

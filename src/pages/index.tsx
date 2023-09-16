@@ -9,7 +9,6 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import useOnclickOutside from "react-cool-onclickoutside";
 import { FaRegMap } from "react-icons/fa";
 import { getRunningQueriesThunk } from "features/api";
 import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
@@ -31,31 +30,22 @@ import { EOrgType, IOrg, orgTypeFull } from "models/Org";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
 import { wrapper } from "store";
-import { useSelector } from "react-redux";
-import { selectIsMobile } from "store/uiSlice";
 
+const isCollapsable = true;
 const orgsQueryParams = {
   orgType: EOrgType.NETWORK,
   populate: "orgs orgTopics createdBy"
 };
 
-const isCollapsable = false;
-
 const IndexPage = (props: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const { data: session } = useSession();
 
   //#region local state
   const orgsQuery = useGetOrgsQuery(orgsQueryParams) as AppQuery<IOrg[]>;
-  const [isCollapsed, setIsCollapsed] = useState(true);
   const [isListOpen, setIsListOpen] = useState(true);
-  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
-  const ref = useOnclickOutside(() => {
-    if (isTooltipOpen) setIsTooltipOpen(false);
-  });
   //#endregion
 
   //#region modal
@@ -65,24 +55,6 @@ const IndexPage = (props: PageProps) => {
     onClose: closeMapModal
   } = useDisclosure({ defaultIsOpen: false });
   //#endregion
-
-  //#region subscription
-  // let cachedUserEmail: string | undefined;
-  // const userEmail = useSelector(selectUserEmail) || session?.user.email;
-  // const subQuery = useGetSubscriptionQuery({
-  //   email: userEmail
-  // }) as AppQuery<ISubscription>;
-  // useEffect(() => {
-  //   if (!cachedUserEmail) cachedUserEmail = userEmail;
-  //   else if (cachedUserEmail !== userEmail) {
-  //     cachedUserEmail = userEmail;
-  //   }
-  // }, [userEmail]);
-  //#endregion
-
-  const columnProps = {
-    maxWidth: "4xl"
-  };
 
   return (
     <Layout {...props} pageTitle="Tous les forums">
@@ -152,77 +124,80 @@ const IndexPage = (props: PageProps) => {
       </Column>
 
       <Flex mt={3}>
-        <Column
-          m={props.isMobile ? undefined : "0 auto"}
-          //cursor="pointer"
-          //_hover={{ backgroundColor: isDark ? "gray.500" : "blue.50" }}
-          //onClick={() => setIsCollapsed(!isCollapsed)}
-        >
-          <Flex alignItems="center" mb={2}>
-            {isCollapsable && (
+        <Column m="0 auto" isCollapsable={isCollapsable}>
+          {(isCollapsed) => {
+            return (
               <>
-                {isCollapsed ? (
-                  <ChevronRightIcon boxSize={9} mt={2} />
-                ) : (
-                  <ChevronUpIcon boxSize={9} mt={2} />
-                )}
-              </>
-            )}
-            <AppHeading>Une idée de forum ?</AppHeading>
-          </Flex>
-
-          {(!isCollapsed || !isCollapsable) && (
-            <>
-              <Alert status="info">
-                <AlertIcon />
-
-                <Flex flexDirection="column">
-                  {session ? (
+                <Flex alignItems="center">
+                  {isCollapsable && (
                     <>
-                      <Text>
-                        Pour ajouter un forum à <HostTag /> vous devez d'abord
-                        créer une planète :
-                      </Text>
-                      <EntityAddButton
-                        label="Ajoutez une planète"
-                        orgType={EOrgType.NETWORK}
-                        size="md"
-                        mt={3}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Text>
-                        Pour ajouter un forum à <HostTag />, vous devez d'abord
-                        vous connecter :
-                      </Text>
-                      <LoginButton
-                        mt={3}
-                        mr={3}
-                        size={props.isMobile ? "xs" : undefined}
-                        onClick={() => {
-                          router.push("/login", "/login", { shallow: true });
-                        }}
-                      >
-                        Se connecter
-                      </LoginButton>
+                      {isCollapsed ? (
+                        <ChevronRightIcon boxSize={9} />
+                      ) : (
+                        <ChevronUpIcon boxSize={9} />
+                      )}
                     </>
                   )}
+                  <AppHeading noContainer>Une idée de forum ?</AppHeading>
                 </Flex>
-              </Alert>
 
-              <Flex alignItems="center" mt={3}>
-                <Link
-                  href="/a_propos"
-                  variant="underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  En savoir plus
-                </Link>
-                <ChevronRightIcon />
-              </Flex>
-            </>
-          )}
+                {(!isCollapsed || !isCollapsable) && (
+                  <>
+                    <Alert status="info" mt={2}>
+                      <AlertIcon />
+
+                      <Flex flexDirection="column">
+                        {session ? (
+                          <>
+                            <Text>
+                              Pour ajouter un forum à <HostTag /> vous devez
+                              d'abord créer une planète :
+                            </Text>
+                            <EntityAddButton
+                              label="Ajoutez une planète"
+                              orgType={EOrgType.NETWORK}
+                              size="md"
+                              mt={3}
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <Text>
+                              Pour ajouter un forum à <HostTag />, vous devez
+                              d'abord vous connecter :
+                            </Text>
+                            <LoginButton
+                              mt={3}
+                              mr={3}
+                              size={props.isMobile ? "xs" : undefined}
+                              onClick={() => {
+                                router.push("/login", "/login", {
+                                  shallow: true
+                                });
+                              }}
+                            >
+                              Se connecter
+                            </LoginButton>
+                          </>
+                        )}
+                      </Flex>
+                    </Alert>
+
+                    <Flex alignItems="center" mt={3}>
+                      <Link
+                        href="/a_propos"
+                        variant="underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        En savoir plus
+                      </Link>
+                      <ChevronRightIcon />
+                    </Flex>
+                  </>
+                )}
+              </>
+            );
+          }}
         </Column>
       </Flex>
 

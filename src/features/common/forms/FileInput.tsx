@@ -23,33 +23,21 @@ export const FileInput = ({
 }: InputProps & {
   maxFileSize?: number;
   TableContainer?: ComponentType<{ children: React.ReactNode }>;
-  list: File[];
-  setList: React.Dispatch<React.SetStateAction<File[]>>;
+  list?: File[];
+  setList?: React.Dispatch<React.SetStateAction<File[]>>;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) => {
   const toast = useToast({ position: "top" });
 
-  // const handleUp = (i: number) => {
-  //   const temp = list[i];
-  //   list[i] = list[i - 1];
-  //   list[i - 1] = temp;
-  //   triggerUpdate();
-  // };
-
-  // const handleDown = (i: number) => {
-  //   const temp = list[i];
-  //   list[i] = list[i + 1];
-  //   list[i + 1] = temp;
-  //   triggerUpdate();
-  // };
-
   const handleDelete = (i: number) => {
-    const newList = list.filter((f, index) => index !== i);
-    setList(newList);
+    if (list && setList) {
+      const newList = list.filter((f, index) => index !== i);
+      setList(newList);
+    }
   };
 
   const table =
-    list && list.length > 0 ? (
+    list && setList && list.length > 0 ? (
       <Table>
         <Thead>
           <Tr>
@@ -117,17 +105,13 @@ export const FileInput = ({
           onChange && onChange(event);
           const files = event.target.files;
 
-          if (files) {
+          if (setList && files) {
             //@ts-expect-error
             let newList: File[] = [].concat(list);
 
             for (const file of Array.from(files)) {
               const fsMb = file.size / (1024 * 1024);
-              if (fsMb > maxFileSize)
-                toast({ title: "Fichier trop volumineux", status: "error" });
-              else {
-                newList = newList.concat([file]);
-              }
+              if (fsMb < maxFileSize) newList = newList.concat([file]);
             }
             setList(newList);
           }
@@ -136,3 +120,21 @@ export const FileInput = ({
     </>
   );
 };
+
+{
+  /*
+    const handleUp = (i: number) => {
+      const temp = list[i];
+      list[i] = list[i - 1];
+      list[i - 1] = temp;
+      triggerUpdate();
+    };
+
+    const handleDown = (i: number) => {
+      const temp = list[i];
+      list[i] = list[i + 1];
+      list[i + 1] = temp;
+      triggerUpdate();
+    };
+  */
+}

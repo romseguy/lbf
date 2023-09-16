@@ -1,12 +1,17 @@
 import { NextPageContext } from "next";
-import { isMobile } from "react-device-detect";
 import { Layout } from "features/layout";
-import { useSession } from "hooks/useSession";
+import { PageProps } from "main";
 
-function Error({ statusCode, message }: { statusCode: number; message: string; }) {
-  const { data: session } = useSession();
+function Error({
+  statusCode,
+  message,
+  ...props
+}: PageProps & {
+  statusCode: number;
+  message: string;
+}) {
   return (
-    <Layout isMobile={isMobile} pageTitle="Erreur">
+    <Layout pageTitle="Erreur" {...props}>
       {`Une erreur ${
         statusCode ? `(${statusCode})` : ""
       } est survenue : ${message}`}
@@ -17,7 +22,7 @@ function Error({ statusCode, message }: { statusCode: number; message: string; }
 Error.getInitialProps = (ctx: NextPageContext) => {
   const { res, err } = ctx;
   const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
-  const message = err?.message || "aucun message d'erreur"
+  const message = err?.message || "aucun message d'erreur";
   return { statusCode, message };
 };
 

@@ -15,17 +15,13 @@ import {
 } from "@chakra-ui/react";
 import { ChevronUpIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { NextPage } from "next";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 //import { css } from "twin.macro";
 import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
-import { GlobalConfig } from "features/GlobalConfig";
-import { GlobalStyles } from "features/layout";
 import { ContactFormModal } from "features/modals/ContactFormModal";
 import { selectIsOffline } from "store/sessionSlice";
 import { NavButtonsList } from "features/layout/NavButtonsList";
-import { zIndex } from "utils/string";
 
 interface customWindow extends Window {
   console: { [key: string]: (...args: any[]) => void };
@@ -45,14 +41,13 @@ export const Main = ({
 }: PageProps & { Component: NextPage<PageProps> }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const router = useRouter();
   const toast = useToast({ position: "top" });
+
   const {
     isOpen: isDrawerOpen,
     onOpen: onDrawerOpen,
     onClose: onDrawerClose
   } = useDisclosure();
-
   const isOffline = useSelector(selectIsOffline);
   const [showButton, setShowButton] = useState(false);
 
@@ -97,10 +92,6 @@ export const Main = ({
 
   return (
     <>
-      <GlobalStyles {...props} />
-
-      {!router.pathname.includes("/callback") && <GlobalConfig {...props} />}
-
       {/* Right Top */}
       {!props.isMobile && isOffline && (
         <Box

@@ -1,6 +1,6 @@
 import nextConnect from "next-connect";
 import { NextApiRequest, NextApiResponse } from "next";
-import { sendMail } from "features/api/email";
+import { sendMail } from "server/email";
 import { getSession } from "utils/auth";
 import { backgroundColor, textColor, mainBackgroundColor } from "utils/email";
 import { createServerError } from "utils/errors";

@@ -41,7 +41,6 @@ export const UserSchema = new Schema<IUser>(
       type: Schema.Types.Mixed,
       select: false
     },
-    isAdmin: Boolean,
     isOnline: Boolean,
     suggestedCategoryAt: String,
     userDescription: String,

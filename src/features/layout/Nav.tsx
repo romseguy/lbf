@@ -146,21 +146,21 @@ export const Nav = ({
                     <Box {...popoverProps}>
                       <OrgPopover
                         isMobile={isMobile}
-                        offset={[isMobile ? 22 : 140, 15]}
+                        offset={[isMobile ? 20 : 140, 15]}
                         session={session}
                       />
                     </Box>
                     <Box {...popoverProps}>
                       <EventPopover
                         isMobile={isMobile}
-                        offset={[isMobile ? -32 : 140, 15]}
+                        offset={[isMobile ? -45 : 140, 15]}
                         session={session}
                       />
                     </Box>
                     <Box {...popoverProps}>
                       <TopicPopover
                         isMobile={isMobile}
-                        offset={[isMobile ? -86 : 140, 15]}
+                        offset={[isMobile ? -106 : 140, 15]}
                         session={session}
                       />
                     </Box>

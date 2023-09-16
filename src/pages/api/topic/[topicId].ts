@@ -2,7 +2,7 @@ import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { sendMail, sendTopicNotifications } from "features/api/email";
+import { sendMail, sendTopicNotifications } from "server/email";
 import { EditTopicPayload, AddTopicNotifPayload } from "features/api/topicsApi";
 import { getRefId } from "models/Entity";
 import { ITopicNotification } from "models/INotification";

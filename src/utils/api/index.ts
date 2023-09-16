@@ -11,7 +11,8 @@ const agent = new https.Agent({
   rejectUnauthorized: false,
   requestCert: false
 });
-const client = axios.create({
+
+export const client = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API2,
   responseType: "json",
   withCredentials: true,
@@ -22,10 +23,10 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
   const prefix = `${method} ${
     endpoint.includes("http") ? endpoint : "/" + endpoint
   }`;
-  console.log(prefix);
-  if (params) console.log(params);
 
   try {
+    console.log(`${prefix}${params ? ` params : ${String(params)}` : ""}`);
+
     const options: {
       method: string;
       headers: { [key: string]: string };
@@ -48,62 +49,39 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
       options
     );
 
-    console.log(prefix + ": " + response.status);
-
-    if (response.status === 200) {
-      const data = await response.json();
-      if (!isServer())
-        console.log(
-          `${method} ${
-            endpoint.includes("http") ? endpoint : "/" + endpoint
-          }: data`,
-          data
-        );
-
-      return { data };
+    if (response.status !== 200) {
+      const error = await response.json();
+      console.log(`${prefix}: ${response.status} error`, error);
+      return { status: response.status, error };
     }
 
-    const error = await response.json();
-
-    if (!isServer())
-      console.log(
-        `${method} ${
-          endpoint.includes("http") ? endpoint : "/" + endpoint
-        }: error`,
-        error
-      );
-
-    return { status: response.status, error };
+    const data = await response.json();
+    console.log(`${prefix}: data`, data);
+    return { status: 200, data };
   } catch (error: any) {
-    if (!isServer())
-      console.log(
-        `${method} ${
-          endpoint.includes("http") ? endpoint : "/" + endpoint
-        }: error`,
-        error
-      );
-
-    throw error;
+    console.log(`${prefix}: caught error`, error);
+    return { status: 500, error };
   }
 }
 
-function get(endpoint: string, params?: ParamsType) {
+export function get(endpoint: string, params?: ParamsType) {
   return request(endpoint, params);
 }
 
-function post(endpoint: string, params: ParamsType) {
+export function post(endpoint: string, params: ParamsType) {
   return request(endpoint, params, "POST");
 }
 
-function update(endpoint: string, params: ParamsType) {
+export function update(endpoint: string, params: ParamsType) {
   return request(endpoint, params, "PUT");
 }
 
-function remove(endpoint: string, params: ParamsType) {
+export function remove(endpoint: string, params: ParamsType) {
   return request(endpoint, params, "DELETE");
 }
 
-async function sendPushNotification({
+// TODO: src/features/api/notificationsApi.ts
+export async function sendPushNotification({
   message = "",
   title = "Vous avez reçu une notification",
   url = "",

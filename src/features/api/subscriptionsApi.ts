@@ -75,6 +75,7 @@ export const subscriptionApi = api.injectEndpoints({
       query: ({ email, populate }) => {
         console.groupCollapsed("getSubscription");
         console.log("email", typeof email, email);
+        console.log("populate", populate);
         console.groupEnd();
 
         if (!email) return "";

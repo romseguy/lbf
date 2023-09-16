@@ -1,6 +1,5 @@
 import { Spinner, useToast } from "@chakra-ui/react";
 import { Editor, IAllProps } from "@tinymce/tinymce-react";
-import axios from "axios";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import type { Editor as TinyMCEEditor } from "tinymce";
@@ -8,6 +7,7 @@ import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { useAppDispatch } from "store";
 import { incrementRTEditorIndex, selectRTEditorIndex } from "store/uiSlice";
+import { client } from "utils/api";
 import { Session } from "utils/auth";
 
 interface BlobInfo {
@@ -298,7 +298,7 @@ export const RTEditor = ({
     else if (session) formData.append("userId", session.user.userId);
 
     try {
-      const mutation = await axios.post(process.env.NEXT_PUBLIC_API2, formData);
+      const mutation = await client.post("/", formData);
       if (mutation.status !== 200) {
         failure("Erreur dans la sauvegarde des images", {
           remove: true

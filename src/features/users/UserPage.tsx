@@ -10,13 +10,15 @@ import {
   TabPanel,
   TabPanels,
   Tooltip,
-  useToast
+  useToast,
+  FormControl,
+  FormLabel
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { css } from "twin.macro";
-import { Link, GridHeader, GridItem, Column } from "features/common";
+import { Link, GridHeader, GridItem, Column, FileInput } from "features/common";
 import {
   DocumentsList,
   DocumentsListMasonry
@@ -67,248 +69,239 @@ export const UserPage = ({
 
   return (
     <Layout entity={user} isMobile={isMobile}>
-      <>
-        {session && (isSelf || session.user.isAdmin) && (
-          <>
-            {!isEdit ? (
-              <Button
-                colorScheme="teal"
-                leftIcon={
-                  <SettingsIcon boxSize={6} data-cy="user-settings-button" />
-                }
-                mb={5}
-                onClick={() => setIsEdit(!isEdit)}
-                data-cy="user-edit"
-              >
-                Configuration de votre compte
-              </Button>
-            ) : (
-              <Button
-                colorScheme="pink"
-                leftIcon={
-                  <ArrowBackIcon
-                    boxSize={6}
-                    data-cy="user-settings-back-button"
-                  />
-                }
-                mb={5}
-                onClick={() => setIsEdit(!isEdit)}
-                data-cy="user-settings-back-button"
-              >
-                Revenir à votre page
-              </Button>
-            )}
-          </>
-        )}
-
-        {session && isSelf && isEdit && (
-          <Column>
-            <UserForm
-              session={session}
-              user={user}
-              onSubmit={async ({ userName }) => {
-                setIsEdit(false);
-                toast({
-                  title: "Votre profil a été modifié !",
-                  status: "success"
-                });
-
-                if (userName && userName !== user.userName) {
-                  await router.push(`/${userName}`);
-                }
-              }}
-            />
-          </Column>
-        )}
-
-        {!isEdit && (
-          <UserPageTabs tabs={tabs} height="auto">
-            <TabPanels
-              css={css`
-                & > * {
-                  padding: 12px 0 !important;
-                }
-              `}
+      {session && (isSelf || session.user.isAdmin) && (
+        <>
+          {!isEdit ? (
+            <Button
+              colorScheme="teal"
+              leftIcon={
+                <SettingsIcon boxSize={6} data-cy="user-settings-button" />
+              }
+              mb={5}
+              onClick={() => setIsEdit(!isEdit)}
+              data-cy="user-edit"
             >
-              <TabPanel aria-hidden>
-                <Grid
-                  gridGap={5}
-                  css={css`
-                    @media (max-width: 650px) {
-                      & {
-                        grid-template-columns: 1fr !important;
-                      }
-                    }
-                  `}
+              Configuration de votre compte
+            </Button>
+          ) : (
+            <Button
+              colorScheme="pink"
+              leftIcon={
+                <ArrowBackIcon
+                  boxSize={6}
+                  data-cy="user-settings-back-button"
+                />
+              }
+              mb={5}
+              onClick={() => setIsEdit(!isEdit)}
+              data-cy="user-settings-back-button"
+            >
+              Revenir à votre page
+            </Button>
+          )}
+        </>
+      )}
+
+      {session && isSelf && isEdit && (
+        <Column>
+          <UserForm
+            session={session}
+            user={user}
+            onSubmit={async ({ userName }) => {
+              setIsEdit(false);
+              toast({
+                title: "Votre profil a été modifié !",
+                status: "success"
+              });
+
+              if (userName && userName !== user.userName) {
+                await router.push(`/${userName}`);
+              }
+            }}
+          />
+        </Column>
+      )}
+
+      {!isEdit && (
+        <UserPageTabs tabs={tabs} height="auto">
+          <TabPanels
+            css={css`
+              & > * {
+                padding: 12px 0 !important;
+              }
+            `}
+          >
+            <TabPanel aria-hidden>
+              <Grid templateRows="auto 1fr" mb={3}>
+                <GridHeader
+                  display="flex"
+                  alignItems="center"
+                  borderTopRadius="lg"
+                  py={isSelf ? 0 : 3}
                 >
+                  <Heading size="sm">Présentation</Heading>
+
+                  {isSelf && (
+                    <Tooltip
+                      placement="bottom"
+                      label={
+                        user.userDescription
+                          ? "Modifier la présentation"
+                          : "Ajouter une présentation"
+                      }
+                    >
+                      <IconButton
+                        aria-label={
+                          user.userDescription
+                            ? "Modifier la présentation"
+                            : "Ajouter une présentation"
+                        }
+                        icon={<EditIcon />}
+                        bg="transparent"
+                        _hover={{ color: "green" }}
+                        onClick={() => {
+                          setIsDescriptionEdit(true);
+                        }}
+                      />
+                    </Tooltip>
+                  )}
+                </GridHeader>
+
+                <GridItem
+                  light={{ bg: "orange.100" }}
+                  dark={{ bg: "gray.500" }}
+                  p={3}
+                  pb={0}
+                >
+                  <>
+                    {session && isSelf && isDescriptionEdit ? (
+                      <UserDescriptionForm
+                        session={session}
+                        userQuery={userQuery}
+                        onCancel={() => setIsDescriptionEdit(false)}
+                        onSubmit={() => setIsDescriptionEdit(false)}
+                      />
+                    ) : (
+                      <>
+                        {user.userDescription ? (
+                          <div className="rteditor">
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: sanitize(user.userDescription)
+                              }}
+                            />
+                          </div>
+                        ) : isSelf ? (
+                          <Link
+                            variant="underline"
+                            onClick={() => setIsDescriptionEdit(true)}
+                          >
+                            Cliquez ici pour ajouter une présentation
+                          </Link>
+                        ) : (
+                          "Aucune présentation."
+                        )}
+                      </>
+                    )}
+                  </>
+                </GridItem>
+              </Grid>
+
+              {isSelf && session?.user.isAdmin && !isEdit && (
+                <Grid templateRows="auto 1fr">
+                  <GridHeader borderTopRadius="lg" py={3}>
+                    <Heading size="sm">Administration</Heading>
+                  </GridHeader>
                   <GridItem
                     light={{ bg: "orange.100" }}
                     dark={{ bg: "gray.500" }}
-                    borderTopRadius="lg"
+                    p={3}
                   >
-                    <Grid templateRows="auto 1fr">
-                      <GridHeader
-                        display="flex"
-                        alignItems="center"
-                        borderTopRadius="lg"
-                      >
-                        <Heading size="sm" py={3}>
-                          Présentation
-                        </Heading>
-                        {isSelf && (
-                          <Tooltip
-                            placement="bottom"
-                            label={
-                              user.userDescription
-                                ? "Modifier la présentation"
-                                : "Ajouter une présentation"
+                    <form>
+                      <FormControl mb={3}>
+                        <FormLabel>Sandbox</FormLabel>
+                        <Link href="/sandbox" target="_blank">
+                          <Button alignSelf="flex-start" colorScheme="teal">
+                            Ouvrir
+                          </Button>
+                        </Link>
+                      </FormControl>
+
+                      <FormControl mb={3}>
+                        <FormLabel>Exporter les données</FormLabel>
+                        <Button
+                          alignSelf="flex-start"
+                          colorScheme="teal"
+                          onClick={async () => {
+                            try {
+                              const { data } = await api.get("admin/backup");
+                              const a = document.createElement("a");
+                              const href = window.URL.createObjectURL(
+                                new Blob([JSON.stringify(data)], {
+                                  type: "application/json"
+                                })
+                              );
+                              a.href = href;
+                              a.download =
+                                "data-" + format(new Date(), "dd-MM-yyyy");
+                              a.click();
+                              window.URL.revokeObjectURL(href);
+                            } catch (error: any) {
+                              console.error(error);
+                              toast({
+                                status: "error",
+                                title: error
+                              });
                             }
-                          >
-                            <IconButton
-                              aria-label={
-                                user.userDescription
-                                  ? "Modifier la présentation"
-                                  : "Ajouter une présentation"
-                              }
-                              icon={<EditIcon />}
-                              bg="transparent"
-                              _hover={{ color: "green" }}
-                              onClick={() => {
-                                setIsDescriptionEdit(true);
-                              }}
-                            />
-                          </Tooltip>
-                        )}
-                      </GridHeader>
+                          }}
+                        >
+                          Exporter
+                        </Button>
+                      </FormControl>
 
-                      <GridItem
-                        light={{ bg: "orange.100" }}
-                        dark={{ bg: "gray.500" }}
-                      >
-                        <Box p={5}>
-                          {session && isSelf && isDescriptionEdit ? (
-                            <UserDescriptionForm
-                              session={session}
-                              userQuery={userQuery}
-                              onCancel={() => setIsDescriptionEdit(false)}
-                              onSubmit={() => setIsDescriptionEdit(false)}
-                            />
-                          ) : (
-                            <>
-                              {user.userDescription ? (
-                                <div className="rteditor">
-                                  <div
-                                    dangerouslySetInnerHTML={{
-                                      __html: sanitize(user.userDescription)
-                                    }}
-                                  />
-                                </div>
-                              ) : isSelf ? (
-                                <Link
-                                  variant="underline"
-                                  onClick={() => setIsDescriptionEdit(true)}
-                                >
-                                  Cliquez ici pour ajouter une présentation
-                                </Link>
-                              ) : (
-                                "Aucune présentation."
-                              )}
-                            </>
-                          )}
-                        </Box>
-                      </GridItem>
-                    </Grid>
-                  </GridItem>
+                      <FormControl mb={3}>
+                        <FormLabel>Importer les données</FormLabel>
+                        <FileInput
+                          height="auto"
+                          width="auto"
+                          pl={0}
+                          css={css`
+                            background: none !important;
+                            border: none !important;
+                          `}
+                          onChange={async (e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              const file = e.target.files[0];
+                              const reader = new FileReader();
+                              reader.readAsText(file, "UTF-8");
+                              reader.onload = async () => {
+                                if (typeof reader.result !== "string") return;
 
-                  {isSelf && session?.user.isAdmin && !isEdit && (
-                    <GridItem
-                      light={{ bg: "orange.100" }}
-                      dark={{ bg: "gray.500" }}
-                      borderTopRadius="lg"
-                    >
-                      <Grid templateRows="auto 1fr">
-                        <GridHeader borderTopRadius="lg" alignItems="center">
-                          <Heading size="sm" py={3}>
-                            Administration
-                          </Heading>
-                        </GridHeader>
-                        <GridItem>
-                          <VStack spacing={5} p={5}>
-                            <Button onClick={() => router.push("/sandbox")}>
-                              Sandbox
-                            </Button>
-
-                            <Button
-                              onClick={async () => {
                                 try {
-                                  const { data } = await api.get(
-                                    "admin/backup"
-                                  );
-                                  const a = document.createElement("a");
-                                  const href = window.URL.createObjectURL(
-                                    new Blob([JSON.stringify(data)], {
-                                      type: "application/json"
-                                    })
-                                  );
-                                  a.href = href;
-                                  a.download =
-                                    "data-" + format(new Date(), "dd-MM-yyyy");
-                                  a.click();
-                                  window.URL.revokeObjectURL(href);
+                                  await api.post("admin/backup", reader.result);
+                                  toast({
+                                    status: "success",
+                                    title: "Les données ont été importées"
+                                  });
                                 } catch (error: any) {
                                   console.error(error);
                                   toast({
                                     status: "error",
-                                    title: error
+                                    title: error.message
                                   });
                                 }
-                              }}
-                            >
-                              Exporter les données
-                            </Button>
-
-                            <Input
-                              accept="*"
-                              type="file"
-                              height="auto"
-                              onChange={async (e) => {
-                                if (e.target.files && e.target.files[0]) {
-                                  const file = e.target.files[0];
-                                  const reader = new FileReader();
-                                  reader.readAsText(file, "UTF-8");
-                                  reader.onload = async () => {
-                                    if (typeof reader.result !== "string")
-                                      return;
-
-                                    try {
-                                      await api.post(
-                                        "admin/backup",
-                                        reader.result
-                                      );
-                                      toast({
-                                        status: "success",
-                                        title: "Les données ont été importées"
-                                      });
-                                    } catch (error: any) {
-                                      console.error(error);
-                                      toast({
-                                        status: "error",
-                                        title: error.message
-                                      });
-                                    }
-                                  };
-                                }
-                              }}
-                            />
-                          </VStack>
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                  )}
+                              };
+                            }
+                          }}
+                        />
+                      </FormControl>
+                    </form>
+                  </GridItem>
                 </Grid>
-              </TabPanel>
+              )}
+            </TabPanel>
 
-              {/* {isSelf && (
+            {/* {isSelf && (
                 <TabPanel aria-hidden>
                   <ProjectsList
                     user={user}
@@ -317,16 +310,15 @@ export const UserPage = ({
                 </TabPanel>
               )} */}
 
-              {isSelf && (
-                <TabPanel aria-hidden>
-                  <DocumentsList user={user} />
-                  <DocumentsListMasonry user={user} />
-                </TabPanel>
-              )}
-            </TabPanels>
-          </UserPageTabs>
-        )}
-      </>
+            {isSelf && (
+              <TabPanel aria-hidden>
+                <DocumentsList user={user} />
+                <DocumentsListMasonry user={user} />
+              </TabPanel>
+            )}
+          </TabPanels>
+        </UserPageTabs>
+      )}
     </Layout>
   );
 };

@@ -14,15 +14,7 @@ import ui from "./uiSlice";
 import user from "./userSlice";
 
 import { api } from "features/api";
-//import { documentApi } from "features/api/documentsApi";
-//import { eventApi } from "features/api/eventsApi";
-//import { orgApi } from "features/api/orgsApi";
-import { projectApi } from "features/api/projectsApi";
 import { settingApi } from "features/api/settingsApi";
-import { subscriptionApi } from "features/api/subscriptionsApi";
-import { topicApi } from "features/api/topicsApi";
-//import { isServer } from "utils/isServer";
-//import { userApi } from "features/api/usersApi";
 const { getEnv } = require("utils/env");
 
 export const makeStore = () =>
@@ -36,27 +28,14 @@ export const makeStore = () =>
       subscription,
       ui,
       user,
-      [api.reducerPath]: api.reducer
-      //[documentApi.reducerPath]: documentApi.reducer,
-      //[eventApi.reducerPath]: eventApi.reducer,
-      //[orgApi.reducerPath]: orgApi.reducer,
-      //[projectApi.reducerPath]: projectApi.reducer,
-      //[settingApi.reducerPath]: settingApi.reducer,
-      //[subscriptionApi.reducerPath]: subscriptionApi.reducer,
-      //[topicApi.reducerPath]: topicApi.reducer
-      //[userApi.reducerPath]: userApi.reducer
+      [api.reducerPath]: api.reducer,
+      [settingApi.reducerPath]: settingApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({ serializableCheck: false }).concat(
-        api.middleware
-        //subscriptionApi.middleware
-        //documentApi.middleware,
-        //eventApi.middleware,
-        //orgApi.middleware,
-        //projectApi.middleware,
-        //topicApi.middleware
-        //userApi.middleware
-      ),
+      getDefaultMiddleware({ serializableCheck: false }).concat([
+        api.middleware,
+        settingApi.middleware
+      ]),
     devTools: getEnv() !== "production"
   });
 

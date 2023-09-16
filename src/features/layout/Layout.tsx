@@ -65,12 +65,7 @@ export const Layout = ({
 
       <Box
         css={css`
-          /* ${!isMobile &&
-          `
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-          `} */
+          min-height: 100%;
 
           ${isMobile && `margin: 3px 3px 0 3px;`}
 
@@ -120,12 +115,13 @@ export const Layout = ({
         {/* Main */}
         <Box
           as="main"
-          bg={isMobile ? "transparent" : isDark ? "gray.700" : "lightblue"}
+          bg={isDark ? "gray.700" : "lightblue"}
           borderRadius="lg"
-          flex="1 0 auto"
+          //flex="1 0 auto"
           m={isMobile ? 0 : 3}
           mt={0}
-          p={isMobile ? 0 : 5}
+          p={isMobile ? 3 : 5}
+          pt={isMobile ? 4 : 5}
         >
           {children}
         </Box>

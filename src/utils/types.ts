@@ -1,6 +1,7 @@
 import { IconProps } from "@chakra-ui/icons";
 import { ComponentWithAs } from "@chakra-ui/react";
 import { NextApiRequest } from "next";
+import { ReactChild, ReactFragment, ReactPortal } from "react";
 import { IconType } from "react-icons";
 
 export type AppIcon = ComponentWithAs<"svg", IconProps> | IconType;
@@ -33,6 +34,13 @@ export type PartialRequired<T, K extends keyof T> = Pick<Required<T>, K>;
 // };
 
 export type Primitive = string | number | boolean | symbol;
+export type ReturnTypeRender =
+  | ReactChild
+  | ReactFragment
+  | ReactPortal
+  | boolean
+  | null
+  | undefined;
 
 export interface NextApiRequestWithAuthorizationHeader extends NextApiRequest {
   headers: {

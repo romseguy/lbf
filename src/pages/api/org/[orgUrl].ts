@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "server/database";
 import { EditOrgPayload, GetOrgParams } from "features/api/orgsApi";
 import { getRefId } from "models/Entity";
 import { EEventVisibility } from "models/Event";
@@ -13,6 +12,8 @@ import {
   orgTypeFull4
 } from "models/Org";
 import { ISubscription, getFollowerSubscription } from "models/Subscription";
+import database, { models } from "server/database";
+import { logEvent, ServerEventTypes } from "server/logging";
 import api from "utils/api";
 import { hasItems } from "utils/array";
 import { getSession } from "utils/auth";
@@ -47,6 +48,14 @@ handler.get<
     let org = await models.Org.findOne({ orgUrl }, select);
     if (!org) org = await models.Org.findOne({ _id: orgUrl }, select);
     if (!org) throw new Error(); // for TS not understanding that line above throws if org not found
+
+    logEvent({
+      type: ServerEventTypes.API_CALL,
+      metadata: {
+        method: "GET",
+        url: `/api/${orgUrl}`
+      }
+    });
 
     const session = await getSession({ req });
     const isCreator =
@@ -123,7 +132,7 @@ handler.get<
         ].includes(modelKey)
       ) {
         console.log(
-          `GET /org/{orgUrl} populating ${modelKey} with custom behavior`
+          `GET /org/${orgUrl} populating ${modelKey} with custom behavior`
         );
         populate = populate.replace(modelKey, "");
       }
@@ -333,9 +342,9 @@ handler.get<
       }
     }
 
-    console.log(`GET /org/{orgUrl} unhandled keys: ${populate}`);
+    console.log(`GET /org/${orgUrl} unhandled keys: ${populate}`);
     org = await org.populate("createdBy", "_id userName").execPopulate();
-    // console.log("🚀 ~ GET /org/{orgUrl} ~ org:", org);
+    // logJson("🚀 ~ GET /org/${orgUrl} ~ org:", org);
     res.status(200).json(org);
   } catch (error: any) {
     if (error.kind === "ObjectId")

@@ -5,6 +5,7 @@ import { EntityPageTab, EntityPageTabList } from "features/common";
 import { AppIcon } from "utils/types";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
+import { normalize } from "utils/string";
 
 export const defaultTabs: UserPageTabsType = {
   Accueil: { icon: FaHome, url: "" },
@@ -58,16 +59,18 @@ export const UserPageTabs = ({
       pb={0}
       onChange={(index) => setCurrentTabIndex(index)}
     >
-      <EntityPageTabList aria-hidden>
+      <EntityPageTabList flexDirection={isMobile ? "column" : "row"}>
         {Object.keys(tabs).map((tabLabel, tabIndex) => {
+          const key = `user-${normalize(tabLabel)}-tab`;
           const tab = tabs[tabLabel];
+
           return (
             <EntityPageTab
-              key={`userTab-${tabIndex}`}
+              key={key}
               currentTabIndex={currentTabIndex}
               tab={tab}
               tabIndex={tabIndex}
-              data-cy={`userTab-${tabLabel}`}
+              data-cy={key}
             >
               {tabLabel}
             </EntityPageTab>

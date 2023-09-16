@@ -70,7 +70,6 @@ export const Header = ({
       color={isDark ? "white" : "black"}
       css={css`
         display: flex;
-        flex-shrink: 0;
         padding: 12px;
 
         ${isMobile

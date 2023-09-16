@@ -20,6 +20,7 @@ import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   Column,
   ColumnProps,
+  EntityPageDocuments,
   EntityPageTab,
   EntityPageTabList,
   EntityPageTopics,
@@ -42,7 +43,6 @@ import { IsEditConfig } from "./OrgPage";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
-import { OrgPageDocumentsTabPanel } from "./OrgPageDocumentsTabPanel";
 
 export const OrgPageTabs = ({
   currentItemName,
@@ -164,7 +164,7 @@ export const OrgPageTabs = ({
       p={3}
       pb={0}
     >
-      <EntityPageTabList>
+      <EntityPageTabList flexDirection={isMobile ? "column" : "row"}>
         {tabs.map((tab, tabIndex) => {
           const key = `org-${normalize(tab.label)}-tab`;
 
@@ -283,10 +283,7 @@ export const OrgPageTabs = ({
 
         {!!tabs.find(({ label }) => label === "Galerie") && (
           <TabPanel aria-hidden>
-            <OrgPageDocumentsTabPanel
-              isCreator={isCreator}
-              orgQuery={orgQuery}
-            />
+            <EntityPageDocuments isCreator={isCreator} orgQuery={orgQuery} />
           </TabPanel>
         )}
 

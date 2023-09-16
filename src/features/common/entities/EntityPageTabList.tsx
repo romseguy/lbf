@@ -1,37 +1,23 @@
-import { Flex, TabList, TabListProps, useColorMode } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import React, { useEffect } from "react";
-import { useScroll } from "hooks/useScroll";
+import { TabList, TabListProps, useColorMode } from "@chakra-ui/react";
+import React from "react";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 export const EntityPageTabList = ({ children, ...props }: TabListProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  // const router = useRouter();
-  // const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
-  // useEffect(() => {
-  //   if (
-  //     Array.isArray(router.query.name) &&
-  //     !!router.query.name[1] &&
-  //     !router.query.name[2]
-  //   ) {
-  //     executeScroll();
-  //     console.log(
-  //       "🚀 ~ file: EntityPageTabList.tsx:14 ~ useEffect ~ executeScroll"
-  //     );
-  //   }
-  // }, [router.asPath]);
+  const isMobile = useSelector(selectIsMobile);
 
   return (
     <TabList
-      //ref={elementToScrollRef as React.ForwardedRef<HTMLDivElement>}
       as="nav"
-      bg={isDark ? "gray.700" : "lightblue"}
+      aria-hidden
+      bgColor={isDark ? "gray.700" : "lightblue"}
       borderRadius="xl"
+      {...(isMobile ? {} : { p: 3 })}
       {...props}
     >
-      <Flex flexWrap="wrap" mt={-3} p={2}>
-        {children}
-      </Flex>
+      {children}
     </TabList>
   );
 };

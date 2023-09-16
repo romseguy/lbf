@@ -24,7 +24,7 @@ import {
 import { IOrg } from "models/Org";
 import { AppQueryWithData } from "utils/types";
 
-export const OrgPageDocumentsTabPanel = ({
+export const EntityPageDocuments = ({
   isCreator,
   orgQuery
 }: {
@@ -76,15 +76,15 @@ export const OrgPageDocumentsTabPanel = ({
           <Heading size="sm">Liste des fichiers</Heading>
         </TabContainerHeader>
         {isFilesOpen && (
-          <TabContainerContent>
+          <TabContainerContent p={3} pb={0}>
             <DocumentsList org={org} isCreator={isCreator} />
           </TabContainerContent>
         )}
       </TabContainer>
 
-      <Column {...columnProps}>
-        <DocumentsListMasonry isCreator={isCreator} org={org} />
-      </Column>
+      {/* <Column {...columnProps}> */}
+      <DocumentsListMasonry isCreator={isCreator} org={org} />
+      {/* </Column> */}
     </>
   );
 };

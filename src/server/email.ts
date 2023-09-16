@@ -32,7 +32,7 @@ export const sendMail = async (mail: Mail, session?: Session | null) => {
       secure: false, // use TLS
       auth: {
         user: "rom.seguy@lilo.org",
-        pass: "hQj2dKDg0ML5yHNZ"
+        pass: process.env.NEXT_PUBLIC_EMAIL_API_KEY // TODO
       }
     };
 

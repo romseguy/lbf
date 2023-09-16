@@ -3,12 +3,14 @@ import "polyfill-object.fromentries";
 import { unseal } from "@hapi/iron";
 import { parse } from "cookie";
 import { AppProps as NextAppProps } from "next/app";
+import { useRouter } from "next/router";
 import NextNprogress from "nextjs-progressbar";
 import React from "react";
 import {
   getSelectorsByUserAgent,
   isMobile as rddIsMobile
 } from "react-device-detect";
+import { GlobalConfig } from "features/GlobalConfig";
 import { ThemeProvider } from "features/ThemeProvider";
 import { Main, PageProps } from "main";
 import { wrapper } from "store";
@@ -28,7 +30,7 @@ const { getEnv } = require("utils/env");
 
 interface AppProps {
   cookies?: string;
-  pageProps: Partial<PageProps>;
+  pageProps: PageProps;
 }
 
 // workaround to invalidate user subscription query
@@ -37,9 +39,11 @@ export let globalEmail: string | undefined;
 
 const App = wrapper.withRedux(
   ({ Component, cookies, pageProps }: NextAppProps<PageProps> & AppProps) => {
-    //if (getEnv() === "test") return <Component {...pageProps} />;
+    const router = useRouter();
+
     return (
       <>
+        {!router.pathname.includes("/callback") && <GlobalConfig />}
         <NextNprogress
           color="#29D"
           startPosition={0.3}
@@ -47,7 +51,7 @@ const App = wrapper.withRedux(
           height={3}
           showOnShallow
         />
-        <ThemeProvider cookies={cookies}>
+        <ThemeProvider cookies={cookies} isMobile={pageProps.isMobile}>
           <Main Component={Component} {...pageProps} />
         </ThemeProvider>
       </>
@@ -57,13 +61,17 @@ const App = wrapper.withRedux(
 
 App.getInitialProps = wrapper.getInitialAppProps(
   (store) =>
-    async ({ Component, ctx }) => {
+    async ({ Component, ctx }): Promise<AppProps> => {
       const headers = ctx.req?.headers;
-      // console.log("🚀 ~ App.getInitialProps ~ headers:", headers);
+
+      //#region browser
+      let userAgent = headers?.["user-agent"];
+      if (!isServer) {
+        if (!userAgent) userAgent = navigator.userAgent;
+      }
+      //#endregion
 
       //#region device
-      let userAgent = headers?.["user-agent"];
-      if (!userAgent && !isServer()) userAgent = navigator.userAgent;
       const isMobile =
         typeof userAgent === "string"
           ? getSelectorsByUserAgent(userAgent).isMobile
@@ -120,6 +128,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
       }
       //#endregion
 
+      //#region page
       let pageProps: AppProps["pageProps"] = { isMobile };
 
       if (Component.getInitialProps)
@@ -127,6 +136,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
           ...pageProps,
           ...(await Component.getInitialProps(ctx))
         };
+      //#endregion
 
       return {
         cookies,

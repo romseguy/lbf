@@ -44,8 +44,7 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
       const userToken = {
         email: data.email,
         userId: user._id,
-        userName: user.userName,
-        isAdmin: user.isAdmin
+        userName: user.userName
       };
 
       const token = await seal(userToken, process.env.SECRET, sealOptions);

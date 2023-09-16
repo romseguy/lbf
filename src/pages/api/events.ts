@@ -2,7 +2,7 @@ import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { sendToAdmin } from "features/api/email";
+import { sendToAdmin } from "server/email";
 import { AddEventPayload } from "features/api/eventsApi";
 import { IEvent, EEventVisibility } from "models/Event";
 import { EOrgVisibility, IOrg } from "models/Org";
