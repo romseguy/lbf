@@ -6,7 +6,8 @@ import {
   TabProps,
   useColorMode,
   useStyles,
-  useTab
+  useTab,
+  useTabsStyles
 } from "@chakra-ui/react";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -33,8 +34,8 @@ export const EntityPageTab = ({
   const isCurrent = tabIndex === currentTabIndex;
   const tabProps = useTab(props);
   //const styles = useMultiStyleConfig("Tabs", tabProps);
-  //const styles = useTabsStyles();
-  const styles = useStyles();
+  const styles = useTabsStyles();
+  //const styles = useStyles();
 
   return (
     <Tab

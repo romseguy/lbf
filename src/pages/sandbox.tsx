@@ -7,6 +7,8 @@ const Sandbox = ({ ...props }: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
+  let t: React.FC<React.PropsWithChildren<{}>>;
+
   return (
     <Layout pageTitle="Sandbox" {...props}>
       {isDark ? "dark" : "light"}

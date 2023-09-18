@@ -104,11 +104,6 @@ export const HeaderTitle = ({
           color={iconColor}
           //mt={3}
           mr={2}
-          title={
-            isE && !entity.isApproved
-              ? "Événement en attente de modération"
-              : undefined
-          }
         />
       )}
 

@@ -22,7 +22,7 @@ export const FileInput = ({
   ...props
 }: InputProps & {
   maxFileSize?: number;
-  TableContainer?: ComponentType<{ children: React.ReactNode }>;
+  TableContainer?: React.FC<React.PropsWithChildren<{}>>;
   list?: File[];
   setList?: React.Dispatch<React.SetStateAction<File[]>>;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;

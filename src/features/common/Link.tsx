@@ -27,6 +27,38 @@ export type LinkProps = Partial<NextLinkProps> &
   ChakraLinkProps & { variant?: "underline" | "no-underline" };
 
 export const Link = ({
+  children,
+  // NextLink
+  href,
+  as,
+  replace,
+  scroll,
+  shallow,
+  prefetch,
+  // Chakra
+  onClick,
+  ...props
+}: LinkProps) =>
+  href ? (
+    <NextLink
+      passHref
+      href={href}
+      as={as}
+      replace={replace}
+      scroll={scroll}
+      shallow={shallow}
+      prefetch={prefetch}
+    >
+      {children}
+    </NextLink>
+  ) : onClick ? (
+    <ChakraLink {...props} onClick={onClick}>
+      {children}
+    </ChakraLink>
+  ) : null;
+
+/*
+export const Link = ({
   // NextLink
   href,
   as,
@@ -72,3 +104,4 @@ export const Link = ({
     </NextLink>
   );
 };
+*/

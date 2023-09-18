@@ -278,6 +278,8 @@ export const getServerSideProps = wrapper.getServerSideProps(
       typeof ctx.query.name[0] === "string"
     ) {
       const entityUrl = ctx.query.name[0];
+      if (["_next", "manifest.js", "static"].includes(entityUrl))
+        return { redirect: { permanent: false, destination: entityUrl } };
       const normalizedEntityUrl = normalize(entityUrl);
 
       if (

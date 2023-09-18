@@ -12,7 +12,6 @@ export const DarkModeSwitch = ({
   const { colorMode, toggleColorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
-  //const toggleButton = useMemo
   return (
     <Toggle
       checked={isDark}

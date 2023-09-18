@@ -53,7 +53,8 @@ export const Main = ({
 
   useEffect(() => {
     function handleScrollButtonVisibility() {
-      setShowButton(window.scrollY > 200);
+      const newShowButton = window.scrollY > 200;
+      if (showButton !== newShowButton) setShowButton(newShowButton);
     }
 
     function intercept(method: string) {
@@ -211,6 +212,7 @@ export const Main = ({
       {/* GlobalModals */}
       <ContactFormModal />
 
+      {/* @ts-ignore */}
       <Component {...props} />
     </>
   );

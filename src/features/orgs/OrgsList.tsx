@@ -116,6 +116,10 @@ export const OrgsList = ({
 
     return record;
   }, [data]);
+  console.log(
+    "🚀 ~ file: OrgsList.tsx:119 ~ orgsMetadata ~ orgsMetadata:",
+    orgsMetadata
+  );
 
   const orgs = useMemo(() => {
     if (!Array.isArray(data)) return [];

@@ -27,11 +27,7 @@ type FormValues = {
   formErrorMessage: { message: string };
 };
 
-const TableContainer = ({
-  children
-}: {
-  children: React.ReactNode | React.ReactNodeArray;
-}) => {
+const TableContainer = ({ children }: React.PropsWithChildren<{}>) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 

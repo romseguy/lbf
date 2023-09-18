@@ -43,7 +43,7 @@ const App = wrapper.withRedux(
 
     return (
       <>
-        {!router.pathname.includes("/callback") && <GlobalConfig />}
+        {/* @ts-ignore */}
         <NextNprogress
           color="#29D"
           startPosition={0.3}
@@ -51,6 +51,7 @@ const App = wrapper.withRedux(
           height={3}
           showOnShallow
         />
+        {!router.pathname.includes("/callback") && <GlobalConfig />}
         <ThemeProvider cookies={cookies} isMobile={pageProps.isMobile}>
           <Main Component={Component} {...pageProps} />
         </ThemeProvider>

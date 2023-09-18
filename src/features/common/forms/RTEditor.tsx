@@ -346,6 +346,7 @@ export const RTEditor = ({
       )}
 
       {shortId && (
+        //@ts-ignore
         <Editor
           disabled={readOnly}
           id={shortId}

@@ -23,7 +23,7 @@ export function objectToQueryString(obj: { [key: string]: string } | {}) {
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API,
   // credentials: "include",
-  // mode: "cors",
+  //mode: "cors",
   prepareHeaders: (headers, { getState, extra, endpoint, forced, type }) => {
     //@ts-ignore
     if (isServer() && !headers.cookie) {

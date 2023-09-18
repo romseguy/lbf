@@ -1,3 +1,4 @@
+import { ColorModeScript } from "@chakra-ui/react";
 import NextDocument, { Html, Head, Main, NextScript } from "next/document";
 
 export default class Document extends NextDocument {
@@ -5,6 +6,8 @@ export default class Document extends NextDocument {
     return (
       <Html>
         <Head>
+          <meta charSet="utf-8" />
+
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
           <link rel="manifest" href="/manifest.json" />
           <meta name="theme-color" content="#ffffff" />
@@ -87,6 +90,7 @@ export default class Document extends NextDocument {
           />
         </Head>
         <body>
+          {/* <ColorModeScript storageKey="chakra-ui-color-mode" /> */}
           <Main />
           <NextScript />
         </body>
