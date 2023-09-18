@@ -130,37 +130,37 @@ export const panLimit = (
     x: number[];
     y: number[];
   },
-  height: number,
-  width: number,
+  // height: number,
+  // width: number,
   translate: number[],
-  zoom: d3.behavior.Zoom<unknown>,
+  //zoom: d3.behavior.Zoom<unknown>,
   x: d3.scale.Linear<number, number>,
   y: d3.scale.Linear<number, number>
 ): [number, number] => {
-  const divisor = {
-      h: height / ((y.domain()[1] - y.domain()[0]) * zoom.scale()),
-      w: width / ((x.domain()[1] - x.domain()[0]) * zoom.scale())
-    },
-    minX = -(
-      (x.domain()[0] - x.domain()[1]) * zoom.scale() +
-      (panExtent.x[1] - (panExtent.x[1] - width / divisor.w))
-    ),
-    minY =
-      -(
-        (y.domain()[0] - y.domain()[1]) * zoom.scale() +
-        (panExtent.y[1] -
-          (panExtent.y[1] - (height * zoom.scale()) / divisor.h))
-      ) * divisor.h,
-    maxX =
-      -(x.domain()[0] - x.domain()[1] + (panExtent.x[1] - panExtent.x[0])) *
-      divisor.w *
-      zoom.scale(),
-    maxY =
-      ((y.domain()[0] - y.domain()[1]) * zoom.scale() +
-        (panExtent.y[1] - panExtent.y[0])) *
-      divisor.h *
-      zoom.scale(),
-    tx =
+  // const divisor = {
+  //     h: height / ((y.domain()[1] - y.domain()[0]) * zoom.scale()),
+  //     w: width / ((x.domain()[1] - x.domain()[0]) * zoom.scale())
+  //   },
+  // minX = -(
+  //   (x.domain()[0] - x.domain()[1]) * zoom.scale() +
+  //   (panExtent.x[1] - (panExtent.x[1] - width / divisor.w))
+  // ),
+  // minY =
+  //   -(
+  //     (y.domain()[0] - y.domain()[1]) * zoom.scale() +
+  //     (panExtent.y[1] -
+  //       (panExtent.y[1] - (height * zoom.scale()) / divisor.h))
+  //   ) * divisor.h,
+  // maxX =
+  //   -(x.domain()[0] - x.domain()[1] + (panExtent.x[1] - panExtent.x[0])) *
+  //   divisor.w *
+  //   zoom.scale(),
+  // maxY =
+  //   ((y.domain()[0] - y.domain()[1]) * zoom.scale() +
+  //     (panExtent.y[1] - panExtent.y[0])) *
+  //   divisor.h *
+  //   zoom.scale(),
+  const tx =
       x.domain()[0] < panExtent.x[0]
         ? /*minX*/ Infinity
         : x.domain()[1] > panExtent.x[1]

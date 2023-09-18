@@ -28,8 +28,7 @@ export const ProjectAttendingForm = ({
   //#endregion
 
   //#region local state
-  const storedUserEmail = useSelector(selectUserEmail);
-  const userEmail = storedUserEmail || session?.user.email || "";
+  const userEmail = useSelector(selectUserEmail);
   //#endregion
 
   const attend = async () => {

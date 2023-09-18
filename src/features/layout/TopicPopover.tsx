@@ -47,7 +47,7 @@ const TopicPopoverContent = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
   const toast = useToast({ position: "top" });
-  const userEmail = useSelector(selectUserEmail) || session.user.email;
+  const userEmail = useSelector(selectUserEmail);
   const [deleteSubscription] = useDeleteSubscriptionMutation();
 
   //#region topics

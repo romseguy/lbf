@@ -4,6 +4,7 @@ import { isServer } from "utils/isServer";
 import { objectToQueryString } from "../query";
 import { Primitive } from "../types";
 
+type ConfigType = { isLoggingDisabled?: boolean };
 type ParamsType = Record<string, any> | Primitive;
 export type ResponseType<T> = { data?: T; error?: any; status?: number };
 
@@ -19,13 +20,19 @@ export const client = axios.create({
   httpsAgent: agent
 });
 
-async function request(endpoint: string, params?: ParamsType, method = "GET") {
+async function request(
+  endpoint: string,
+  params?: ParamsType,
+  method = "GET",
+  config?: ConfigType
+) {
   const prefix = `${method} ${
     endpoint.includes("http") ? endpoint : "/" + endpoint
   }`;
 
   try {
-    console.log(`${prefix}${params ? ` params : ${String(params)}` : ""}`);
+    if (!config?.isLoggingDisabled)
+      console.log(`${prefix}${params ? ` params : ${String(params)}` : ""}`);
 
     const options: {
       method: string;
@@ -56,7 +63,9 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
     }
 
     const data = await response.json();
-    console.log(`${prefix}: data`, data);
+
+    if (!config?.isLoggingDisabled) console.log(`${prefix}: data`, data);
+
     return { status: 200, data };
   } catch (error: any) {
     console.log(`${prefix}: caught error`, error);
@@ -64,20 +73,36 @@ async function request(endpoint: string, params?: ParamsType, method = "GET") {
   }
 }
 
-export function get(endpoint: string, params?: ParamsType) {
-  return request(endpoint, params);
+export function get(
+  endpoint: string,
+  params?: ParamsType,
+  config?: ConfigType
+) {
+  return request(endpoint, params, "GET", config);
 }
 
-export function post(endpoint: string, params: ParamsType) {
-  return request(endpoint, params, "POST");
+export function post(
+  endpoint: string,
+  params: ParamsType,
+  config?: ConfigType
+) {
+  return request(endpoint, params, "POST", config);
 }
 
-export function update(endpoint: string, params: ParamsType) {
-  return request(endpoint, params, "PUT");
+export function update(
+  endpoint: string,
+  params: ParamsType,
+  config?: ConfigType
+) {
+  return request(endpoint, params, "PUT", config);
 }
 
-export function remove(endpoint: string, params: ParamsType) {
-  return request(endpoint, params, "DELETE");
+export function remove(
+  endpoint: string,
+  params: ParamsType,
+  config?: ConfigType
+) {
+  return request(endpoint, params, "DELETE", config);
 }
 
 // TODO: src/features/api/notificationsApi.ts

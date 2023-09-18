@@ -131,8 +131,8 @@ export const treeChart = (
       panExtent.y[1] < layoutHeight / 2 ? panExtent.y[1] : layoutHeight / 2
     ])
     .range([layoutHeight, 0]);
-  let latestPanX: number;
-  let latestPanY: number;
+  let latestPanX = 0;
+  let latestPanY = 0;
   const zoom = d3.behavior
     .zoom()
     .x(x)
@@ -147,14 +147,14 @@ export const treeChart = (
         zoomEvent.sourceEvent.preventDefault();
       }
       const { translate, scale } = zoomEvent;
-      const [tX, tY] = translate;
+      //const [tX, tY] = translate;
 
       const [panX, panY] = panLimit(
         panExtent,
-        layoutHeight,
-        layoutWidth,
+        // layoutHeight,
+        // layoutWidth,
         translate,
-        zoom,
+        //zoom,
         x,
         y
       );
@@ -166,10 +166,6 @@ export const treeChart = (
 
       const transform = `translate(${latestPanX}, ${latestPanY}) scale(${scale})`;
       svg.attr("transform", transform);
-
-      //zoom.translate([zoomx, zoomy]);
-      // console.log(zoomx);
-      // console.log(transform);
 
       onZoom && onZoom();
     });

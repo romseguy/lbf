@@ -31,7 +31,7 @@ import { timeAgo } from "utils/date";
 const NotificationPopoverContent = ({ session }: { session: Session }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const userEmail = useSelector(selectUserEmail) || session.user.email;
+  const userEmail = useSelector(selectUserEmail);
 
   const {
     eventsWithEmailNotifications,

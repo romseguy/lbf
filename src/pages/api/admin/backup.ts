@@ -5,6 +5,7 @@ import { getSession } from "utils/auth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createServerError } from "utils/errors";
 import { IEntity } from "models/Entity";
+import { logEvent, ServerEventTypes } from "server/logging";
 
 const handler = nextConnect();
 
@@ -80,7 +81,9 @@ handler.post<NextApiRequest, NextApiResponse>(async function importData(
   }
 
   try {
+    console.log(`POST /admin/backup: parsing`);
     const body = JSON.parse(req.body);
+    console.log(`POST /admin/backup: parsed`);
 
     if (body.data) {
       const collections = Object.keys(body.data).map((collectionName) => ({
@@ -124,6 +127,14 @@ handler.post<NextApiRequest, NextApiResponse>(async function importData(
 
     res.status(200).json({});
   } catch (error) {
+    logEvent({
+      type: ServerEventTypes.API_ERROR,
+      metadata: {
+        error: JSON.stringify(error),
+        method: "POST",
+        url: `/api/admin/backup`
+      }
+    });
     res.status(500).json(createServerError(error));
   }
 });
