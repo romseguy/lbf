@@ -1,7 +1,8 @@
 import fs from "fs/promises";
 
 export enum ServerEventTypes {
-  API_CALL = "API_CALL"
+  API_CALL = "API_CALL",
+  API_ERROR = "API_ERROR"
 }
 
 interface ServerEvent {
@@ -11,14 +12,24 @@ interface ServerEvent {
 }
 
 export async function logEvent(event: ServerEvent) {
-  const newEvent = !event.date ? { date: new Date(), ...event } : event;
+  const date = event.date ? event.date : new Date().toLocaleString();
+  const newEvent = !event.date ? { date, ...event } : event;
   try {
     await fs.mkdir("logs", { recursive: true });
     const data = await fs.readFile("logs/events.json");
     const json = JSON.parse(data.toString());
     json.push(newEvent);
     await fs.writeFile("logs/events.json", JSON.stringify(json));
-  } catch (error) {
-    await fs.writeFile("logs/events.json", JSON.stringify(newEvent));
+  } catch (error: any) {
+    error = error as {
+      errno: number;
+      code: string;
+      syscall: string;
+      path: string;
+    };
+
+    if (error.code === "ENOENT") {
+      await fs.writeFile("logs/events.json", JSON.stringify([newEvent]));
+    }
   }
 }

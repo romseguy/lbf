@@ -14,6 +14,7 @@ import { hasItems } from "utils/array";
 import { createServerError } from "utils/errors";
 import { equals, logJson, toString } from "utils/string";
 import { randomNumber } from "utils/randomNumber";
+import { logEvent, ServerEventTypes } from "server/logging";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -171,10 +172,10 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       //#endregion
       //#region new topic
       else {
-        const topicWithSameName = await models.Topic.findOne({
-          topicName: body.topic.topicName
-        });
         let topicName = body.topic.topicName;
+        const topicWithSameName = await models.Topic.findOne({
+          topicName
+        });
         if (topicWithSameName) {
           const uid = org
             ? org.orgTopics.length + 1
@@ -222,24 +223,25 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
               user,
               topics: [{ topic: topic._id, emailNotif: true, pushNotif: true }]
             });
+          else {
+            const topicSubscription = subscription.topics?.find(
+              ({ topic: t }) => equals(getRefId(t), topic!._id)
+            );
 
-          const topicSubscription = subscription.topics?.find(({ topic: t }) =>
-            equals(getRefId(t), topic!._id)
-          );
-
-          if (!topicSubscription) {
-            await models.Subscription.updateOne(
-              { _id: subscription._id },
-              {
-                $push: {
-                  topics: {
-                    topic: topic._id,
-                    emailNotif: true,
-                    pushNotif: true
+            if (!topicSubscription) {
+              await models.Subscription.updateOne(
+                { _id: subscription._id },
+                {
+                  $push: {
+                    topics: {
+                      topic: topic._id,
+                      emailNotif: true,
+                      pushNotif: true
+                    }
                   }
                 }
-              }
-            );
+              );
+            }
           }
         }
         //#endregion
@@ -248,6 +250,14 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
 
       res.status(200).json(topic);
     } catch (error: any) {
+      logEvent({
+        type: ServerEventTypes.API_ERROR,
+        metadata: {
+          error,
+          method: "POST",
+          url: `/api/topics`
+        }
+      });
       res.status(500).json(createServerError(error));
     }
   }

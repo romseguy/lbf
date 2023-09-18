@@ -40,7 +40,7 @@ const OrgPopoverContent = ({
   onClose: () => void;
 }) => {
   const router = useRouter();
-  const userEmail = useSelector(selectUserEmail) || session.user.email;
+  const userEmail = useSelector(selectUserEmail);
 
   //#region my sub
   const subQuery = useGetSubscriptionQuery({

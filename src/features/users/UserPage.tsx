@@ -1,12 +1,9 @@
 import { ArrowBackIcon, EditIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
-  Box,
   Button,
   Grid,
   Heading,
   IconButton,
-  Input,
-  VStack,
   TabPanel,
   TabPanels,
   Tooltip,
@@ -17,6 +14,7 @@ import {
 import { format } from "date-fns";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import { Link, GridHeader, GridItem, Column, FileInput } from "features/common";
 import {
@@ -26,15 +24,14 @@ import {
 import { UserDescriptionForm } from "features/forms/UserDescriptionForm";
 import { UserForm } from "features/forms/UserForm";
 import { Layout } from "features/layout";
-import { IUser } from "models/User";
+import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
+import { IUser } from "models/User";
+import { selectUserEmail } from "store/userSlice";
 import api from "utils/api";
 import { sanitize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
 import { defaultTabs, UserPageTabs } from "./UserPageTabs";
-import { useSession } from "hooks/useSession";
-import { useSelector } from "react-redux";
-import { selectUserEmail } from "store/userSlice";
 
 export const UserPage = ({
   isMobile,
@@ -45,20 +42,13 @@ export const UserPage = ({
   const router = useRouter();
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
-  const email = useSelector(selectUserEmail) || session?.user.email;
+  const email = useSelector(selectUserEmail);
 
+  const [isDescriptionEdit, setIsDescriptionEdit] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const isSelf =
     userQuery.data._id === session?.user.userId || session?.user.isAdmin;
-  const user = { ...userQuery.data, email: email || "" } as IUser;
-
-  console.groupCollapsed("UserPage");
-  console.log("session", session);
-  console.log("isSelf", isSelf);
-  console.log("user", user);
-  console.groupEnd();
-
-  const [isEdit, setIsEdit] = useState(false);
-  const [isDescriptionEdit, setIsDescriptionEdit] = useState(false);
   const tabs = isSelf
     ? defaultTabs
     : Object.keys(defaultTabs).reduce((tabs, tabLabel) => {
@@ -66,6 +56,13 @@ export const UserPage = ({
           return { ...tabs, [tabLabel]: defaultTabs[tabLabel] };
         return tabs;
       }, {});
+  const user = { ...userQuery.data, email: email || "" } as IUser;
+
+  console.groupCollapsed("UserPage");
+  console.log("session", session);
+  console.log("isSelf", isSelf);
+  console.log("user", user);
+  console.groupEnd();
 
   return (
     <Layout entity={user} isMobile={isMobile}>
@@ -232,9 +229,15 @@ export const UserPage = ({
                         <Button
                           alignSelf="flex-start"
                           colorScheme="teal"
+                          isLoading={isLoading}
                           onClick={async () => {
                             try {
-                              const { data } = await api.get("admin/backup");
+                              setIsLoading(true);
+                              const { data } = await api.get(
+                                "admin/backup",
+                                undefined,
+                                { isLoggingDisabled: true }
+                              );
                               const a = document.createElement("a");
                               const href = window.URL.createObjectURL(
                                 new Blob([JSON.stringify(data)], {
@@ -246,7 +249,9 @@ export const UserPage = ({
                                 "data-" + format(new Date(), "dd-MM-yyyy");
                               a.click();
                               window.URL.revokeObjectURL(href);
+                              setIsLoading(false);
                             } catch (error: any) {
+                              setIsLoading(false);
                               console.error(error);
                               toast({
                                 status: "error",
@@ -278,7 +283,14 @@ export const UserPage = ({
                                 if (typeof reader.result !== "string") return;
 
                                 try {
-                                  await api.post("admin/backup", reader.result);
+                                  const { error } = await api.post(
+                                    "admin/backup",
+                                    reader.result,
+                                    { isLoggingDisabled: true }
+                                  );
+
+                                  if (error) throw error;
+
                                   toast({
                                     status: "success",
                                     title: "Les données ont été importées"
