@@ -30,6 +30,7 @@ import { selectIsMobile } from "store/uiSlice";
 import { timeAgo } from "utils/date";
 import { AppQuery } from "utils/types";
 import { useSelector } from "react-redux";
+import { hasItems } from "utils/array";
 
 const defaultKeys = (orgType: EOrgType) => [
   {
@@ -93,21 +94,23 @@ export const OrgsList = ({
     if (!Array.isArray(data)) return record;
 
     for (const org of data) {
-      for (const orgTopic of org.orgTopics) {
-        for (const orgTopicMessage of orgTopic.topicMessages || []) {
-          const current = parseISO(orgTopicMessage.createdAt || "");
-          const saved = record[org._id];
+      if (hasItems(org.orgTopics)) {
+        for (const orgTopic of org.orgTopics) {
+          for (const orgTopicMessage of orgTopic.topicMessages || []) {
+            const current = parseISO(orgTopicMessage.createdAt || "");
+            const saved = record[org._id];
 
-          if (!saved) {
-            record[org._id] = {
-              latestMessageCreatedAt: current,
-              latestTopic: orgTopic
-            };
-          } else {
-            // if current date is before saved date
-            if (compareDesc(current, saved.latestMessageCreatedAt)) {
-              saved.latestMessageCreatedAt = current;
-              saved.latestTopic = orgTopic;
+            if (!saved) {
+              record[org._id] = {
+                latestMessageCreatedAt: current,
+                latestTopic: orgTopic
+              };
+            } else {
+              // if current date is before saved date
+              if (compareDesc(current, saved.latestMessageCreatedAt)) {
+                saved.latestMessageCreatedAt = current;
+                saved.latestTopic = orgTopic;
+              }
             }
           }
         }
@@ -136,23 +139,25 @@ export const OrgsList = ({
     }
 
     return [...data].sort((a, b) => {
-      const key = selectedOrder?.key || "orgName";
+      const key: keyof IOrg = selectedOrder?.key || "orgName";
       const order = selectedOrder?.order || "asc";
 
-      let valueA = a[key as keyof IOrg];
+      let valueA: IUser | string | undefined = a[key];
       if (typeof valueA === "string") valueA = valueA.toLowerCase();
-      else valueA = (valueA as IUser).userName.toLowerCase();
+      else valueA = valueA?.userName.toLowerCase();
 
-      let valueB = b[key as keyof IOrg];
+      let valueB: IUser | string | undefined = b[key];
       if (typeof valueB === "string") valueB = valueB.toLowerCase();
-      else valueB = (valueB as IUser).userName.toLowerCase();
+      else valueB = valueB?.userName.toLowerCase();
 
-      if (order === "asc") {
-        if (valueA < valueB) return -1;
-        if (valueA > valueB) return 1;
-      } else if (order === "desc") {
-        if (valueA > valueB) return -1;
-        if (valueA < valueB) return 1;
+      if (valueA && valueB) {
+        if (order === "asc") {
+          if (valueA < valueB) return -1;
+          if (valueA > valueB) return 1;
+        } else if (order === "desc") {
+          if (valueA > valueB) return -1;
+          if (valueA < valueB) return 1;
+        }
       }
 
       return 0;

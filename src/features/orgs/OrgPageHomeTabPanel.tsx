@@ -160,6 +160,11 @@ export const OrgPageHomeTabPanel = ({
                         <Button
                           alignSelf="flex-start"
                           colorScheme="teal"
+                          isDisabled={
+                            !org.orgs.find(
+                              ({ orgLat, orgLng }) => !!orgLat && !!orgLng
+                            )
+                          }
                           leftIcon={<FaRegMap />}
                           onClick={openMapModal}
                         >

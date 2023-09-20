@@ -34,7 +34,7 @@ import { wrapper } from "store";
 const isCollapsable = true;
 const orgsQueryParams = {
   orgType: EOrgType.NETWORK,
-  populate: "orgs orgTopics createdBy"
+  populate: "orgs orgTopics.topicMessages createdBy"
 };
 
 const IndexPage = (props: PageProps) => {
