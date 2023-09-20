@@ -131,10 +131,7 @@ export const OrgPageHomeTabPanel = ({
       {org.orgType === EOrgType.NETWORK && (
         <TabContainer borderBottomRadius={isChildrenOpen ? undefined : "lg"}>
           <TabContainerHeader
-            alignItems="center"
             borderBottomRadius={isChildrenOpen ? undefined : "lg"}
-            cursor="pointer"
-            py={3}
             _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
             onClick={() => setIsChildrenOpen(!isChildrenOpen)}
           >
@@ -293,10 +290,7 @@ export const OrgPageHomeTabPanel = ({
 
       <TabContainer borderBottomRadius={isInfoOpen ? undefined : "lg"}>
         <TabContainerHeader
-          alignItems="center"
           borderBottomRadius={isInfoOpen ? undefined : "lg"}
-          cursor="pointer"
-          py={3}
           _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
           onClick={() => setIsInfoOpen(!isInfoOpen)}
         >
@@ -323,6 +317,7 @@ export const OrgPageHomeTabPanel = ({
                 aria-label="Modifier les coordonnées"
                 icon={<EditIcon />}
                 bg="transparent"
+                height="auto"
                 _hover={{ color: "green" }}
                 onClick={() => setIsEdit({ isAddingInfo: true })}
               />
@@ -382,9 +377,7 @@ export const OrgPageHomeTabPanel = ({
         mb={0}
       >
         <TabContainerHeader
-          alignItems="center"
           borderBottomRadius={isDescriptionOpen ? undefined : "lg"}
-          cursor="pointer"
           _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
           onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
         >
@@ -395,7 +388,7 @@ export const OrgPageHomeTabPanel = ({
             mr={1}
           />
 
-          <Heading size="sm" py={3}>
+          <Heading size="sm">
             {`${
               org.orgType === EOrgType.TREETOOLS ? "Matériel" : "Description"
             } ${orgTypeFull(org.orgType)}`}
@@ -407,6 +400,7 @@ export const OrgPageHomeTabPanel = ({
                 aria-label="Modifier"
                 icon={<EditIcon />}
                 bg="transparent"
+                height="auto"
                 _hover={{ color: "green" }}
                 onClick={() => setIsEdit({ isAddingDescription: true })}
               />

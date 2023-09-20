@@ -14,7 +14,12 @@ import {
   Tooltip,
   useColorMode
 } from "@chakra-ui/react";
-import { compareAsc, compareDesc, parseISO } from "date-fns";
+import {
+  compareAsc,
+  compareDesc,
+  intervalToDuration,
+  parseISO
+} from "date-fns";
 import React, { useMemo, useState } from "react";
 import { FaGlobeEurope, FaMapMarkedAlt, FaTree } from "react-icons/fa";
 import { css } from "twin.macro";
@@ -32,19 +37,27 @@ import { AppQuery } from "utils/types";
 import { useSelector } from "react-redux";
 import { hasItems } from "utils/array";
 
+enum EOrderKey {
+  "createdBy" = "createdBy",
+  "icon" = "icon",
+  "latestActivity" = "latestActivity",
+  "orgName" = "orgName",
+  "subscription" = "subscription"
+}
+
 const defaultKeys = (orgType: EOrgType) => [
+  // {
+  //   key: "subscription",
+  //   label: ""
+  // },
   {
-    key: "subscription",
-    label: ""
-  },
-  {
-    key: "orgName",
+    key: EOrderKey.orgName,
     label: `Nom de ${orgTypeFull(orgType)}`
   },
   // { key: "orgType", label: "Type" },
   // { key: "orgCity", label: "Position" },
   {
-    key: "createdBy",
+    key: EOrderKey.createdBy,
     label: "Créé par"
   }
 ];
@@ -61,7 +74,7 @@ export const OrgsList = ({
   ...props
 }: {
   keys?: (orgType: EOrgType) => {
-    key: string;
+    key: EOrderKey;
     label: string;
   }[];
   query: AppQuery<IOrg | IOrg[]>;
@@ -75,8 +88,14 @@ export const OrgsList = ({
   if (!Array.isArray(data)) data = data?.orgs;
   const keys = props.keys ? props.keys(orgType) : defaultKeys(orgType);
   const [orgToShow, setOrgToShow] = useState<IOrg | void>();
-  const [selectedOrder, s] = useState<{ key: string; order: "asc" | "desc" }>();
-  const setSelectedOrder = (key: string) => {
+  const [selectedOrder, s] = useState<{
+    key: EOrderKey;
+    order: "asc" | "desc";
+  }>({
+    key: EOrderKey.latestActivity,
+    order: "asc"
+  });
+  const setSelectedOrder = (key: EOrderKey) => {
     const order = !selectedOrder
       ? "asc"
       : selectedOrder?.key === key && selectedOrder?.order === "asc"
@@ -124,16 +143,24 @@ export const OrgsList = ({
     if (!Array.isArray(data)) return [];
 
     if (selectedOrder?.key === "latestActivity") {
-      const orgsWithMetadata = data
-        .filter((org) => !!orgsMetadata[org._id])
-        .sort((a, b) => {
-          const compare =
-            selectedOrder.order === "asc" ? compareDesc : compareAsc;
-          return compare(
-            orgsMetadata[a._id].latestMessageCreatedAt,
-            orgsMetadata[b._id].latestMessageCreatedAt
-          );
-        });
+      let orgsWithMetadata = data.filter((org) => !!orgsMetadata[org._id]);
+      console.log(
+        "🚀 ~ file: OrgsList.tsx:133 ~ orgs ~ orgsWithMetadata:",
+        orgsWithMetadata
+      );
+
+      orgsWithMetadata = orgsWithMetadata.sort((a, b) => {
+        const compare =
+          selectedOrder.order === "asc" ? compareDesc : compareAsc;
+        return compare(
+          orgsMetadata[a._id].latestMessageCreatedAt,
+          orgsMetadata[b._id].latestMessageCreatedAt
+        );
+      });
+      console.log(
+        "🚀 ~ file: OrgsList.tsx:141 ~ orgs ~ orgsMetadata:",
+        orgsMetadata
+      );
       const orgsWithoutMetadata = data.filter((org) => !orgsMetadata[org._id]);
       return orgsWithMetadata.concat(orgsWithoutMetadata);
     }
@@ -253,7 +280,7 @@ export const OrgsList = ({
                     </Td>
                   )}
 
-                  {keys.find(({ key }) => key === "subscription") &&
+                  {keys.find(({ key }) => key === EOrderKey.subscription) &&
                     subQuery && (
                       <Td p={isMobile ? 0 : undefined}>
                         <SubscribePopover
@@ -267,7 +294,7 @@ export const OrgsList = ({
                       </Td>
                     )}
 
-                  {keys.find(({ key }) => key === "orgName") && (
+                  {keys.find(({ key }) => key === EOrderKey.orgName) && (
                     <Td>
                       {/* {org.orgType === EOrgType.TREETOOLS
                         ? OrgTypes[org.orgType] + " : "
@@ -305,7 +332,7 @@ export const OrgsList = ({
                     </Td>
                   )}
 
-                  {keys.find(({ key }) => key === "latestActivity") && (
+                  {keys.find(({ key }) => key === EOrderKey.latestActivity) && (
                     <Td>
                       {latestTopic && (
                         <EntityButton
@@ -323,13 +350,19 @@ export const OrgsList = ({
                             ml={1}
                           >
                             {timeAgo(latestMessageCreatedAt, true).timeAgo}
+                            {/* {"" + latestMessageCreatedAt} */}
+                            {/* {"" +
+                              intervalToDuration({
+                                start: new Date(),
+                                end: latestMessageCreatedAt
+                              })} */}
                           </Badge>
                         </EntityButton>
                       )}
                     </Td>
                   )}
 
-                  {keys.find(({ key }) => key === "createdBy") && (
+                  {keys.find(({ key }) => key === EOrderKey.createdBy) && (
                     <Td>
                       <EntityButton
                         backgroundColor={isDark ? "whiteAlpha.500" : undefined}

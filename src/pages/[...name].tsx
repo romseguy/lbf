@@ -31,7 +31,7 @@ import { UserPage } from "features/users/UserPage";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEvent } from "models/Event";
-import { EOrgType, IOrg } from "models/Org";
+import { defaultTabs, EOrgType, IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
 import { wrapper } from "store";
@@ -278,27 +278,31 @@ export const getServerSideProps = wrapper.getServerSideProps(
       typeof ctx.query.name[0] === "string"
     ) {
       const entityUrl = ctx.query.name[0];
-      const normalizedEntityUrl = normalize(entityUrl);
+      const tabItem = ctx.query.name[1];
+      let destination = [
+        "api",
+        "icons",
+        "sitemap",
+        "robots",
+        "worker"
+      ].includes(entityUrl)
+        ? "/"
+        : "/" + entityUrl;
 
       if (
-        normalizedEntityUrl === "api" ||
-        normalizedEntityUrl === "icons" ||
-        normalizedEntityUrl === "sitemap.xml" ||
-        normalizedEntityUrl === "robots.txt" ||
-        normalizedEntityUrl.includes("worker")
+        ["_next", "manifest.js", "static"].includes(entityUrl) ||
+        (tabItem && !defaultTabs.map(({ url }) => url).includes(tabItem))
       )
-        return {
-          redirect: {
-            permanent: false,
-            destination: "/"
-          }
-        };
+        return { redirect: { permanent: false, destination } };
+
+      const normalizedEntityUrl = normalize(entityUrl);
+      destination = "/" + normalizedEntityUrl;
 
       if (entityUrl !== normalizedEntityUrl)
         return {
           redirect: {
             permanent: false,
-            destination: normalizedEntityUrl
+            destination
           }
         };
 
