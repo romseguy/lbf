@@ -23,7 +23,7 @@ import {
 } from "features/common";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
-import { OrgsList } from "features/orgs/OrgsList";
+import { EOrderKey, OrgsList } from "features/orgs/OrgsList";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { EOrgType, IOrg, orgTypeFull } from "models/Org";
@@ -86,11 +86,14 @@ const IndexPage = (props: PageProps) => {
                 <OrgsList
                   keys={(orgType) => [
                     {
-                      key: "orgName",
+                      key: EOrderKey.orgName,
                       label: `Nom`
                     },
-                    { key: "latestActivity", label: "Dernière activité" }
-                    //{ key: "createdBy", label: "Créé par" }
+                    {
+                      key: EOrderKey.latestActivity,
+                      label: "Dernière activité"
+                    }
+                    //{ key: EOrderKey.createdBy, label: "Créé par" }
                   ]}
                   query={orgsQuery}
                   //subQuery={subQuery}

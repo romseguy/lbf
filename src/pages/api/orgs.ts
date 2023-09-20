@@ -72,9 +72,6 @@ handler.get<
                 //populate: [{ path: "topicMessages", select: "-message" }]
               })
               .execPopulate();
-            if (org.orgUrl === "esoterisme") {
-              logJson("🚀 ~ file: orgs.ts:68 ~ .filter ~ org:", org);
-            }
           }
         }
       }

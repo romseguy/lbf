@@ -154,7 +154,6 @@ export const timeAgo = (
         return f === "minutes";
       })
     : format || formatArray;
-  console.log("🚀 ~ file: date.ts:145 ~ format2:", format2);
 
   const formatted = formatDuration(duration, {
     format: format2

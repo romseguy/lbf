@@ -37,7 +37,7 @@ import { AppQuery } from "utils/types";
 import { useSelector } from "react-redux";
 import { hasItems } from "utils/array";
 
-enum EOrderKey {
+export enum EOrderKey {
   "createdBy" = "createdBy",
   "icon" = "icon",
   "latestActivity" = "latestActivity",
@@ -93,7 +93,7 @@ export const OrgsList = ({
     order: "asc" | "desc";
   }>({
     key: EOrderKey.latestActivity,
-    order: "desc"
+    order: "asc"
   });
   const setSelectedOrder = (key: EOrderKey) => {
     const order = !selectedOrder
@@ -138,33 +138,21 @@ export const OrgsList = ({
 
     return record;
   }, [data]);
-  console.log(
-    "🚀 ~ file: OrgsList.tsx:119 ~ orgsMetadata ~ orgsMetadata:",
-    orgsMetadata
-  );
 
   const orgs = useMemo(() => {
     if (!Array.isArray(data)) return [];
 
     if (selectedOrder?.key === "latestActivity") {
-      let orgsWithMetadata = data.filter((org) => !!orgsMetadata[org._id]);
-      console.log(
-        "🚀 ~ file: OrgsList.tsx:133 ~ orgs ~ orgsWithMetadata:",
-        orgsWithMetadata
-      );
-
-      orgsWithMetadata = orgsWithMetadata.sort((a, b) => {
-        const compare =
-          selectedOrder.order === "asc" ? compareDesc : compareAsc;
-        return compare(
-          orgsMetadata[a._id].latestMessageCreatedAt,
-          orgsMetadata[b._id].latestMessageCreatedAt
-        );
-      });
-      console.log(
-        "🚀 ~ file: OrgsList.tsx:141 ~ orgs ~ orgsMetadata:",
-        orgsMetadata
-      );
+      const orgsWithMetadata = data
+        .filter((org) => !!orgsMetadata[org._id])
+        .sort((a, b) => {
+          const compare =
+            selectedOrder.order === "asc" ? compareDesc : compareAsc;
+          return compare(
+            orgsMetadata[a._id].latestMessageCreatedAt,
+            orgsMetadata[b._id].latestMessageCreatedAt
+          );
+        });
       const orgsWithoutMetadata = data.filter((org) => !orgsMetadata[org._id]);
       return orgsWithMetadata.concat(orgsWithoutMetadata);
     }

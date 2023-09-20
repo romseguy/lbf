@@ -30,6 +30,7 @@ import {
   FaRegMap,
   FaTree
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
 import {
   Column,
   EntityButton,
@@ -48,15 +49,14 @@ import {
   orgTypeFull2
 } from "models/Org";
 import { ISubscription } from "models/Subscription";
+import { useAppDispatch } from "store";
+import { selectIsMobile } from "store/uiSlice";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import { sanitize, transformRTEditorOutput } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { OrgsList } from "./OrgsList";
+import { EOrderKey, OrgsList } from "./OrgsList";
 import { IsEditConfig } from "./OrgPage";
-import { useAppDispatch } from "store";
-import { useSelector } from "react-redux";
-import { selectIsMobile } from "store/uiSlice";
 
 export const OrgPageHomeTabPanel = ({
   isCreator,
@@ -197,27 +197,22 @@ export const OrgPageHomeTabPanel = ({
                               keys={
                                 isMobile
                                   ? (orgType) => [
-                                      //{ key: "subscription", label: "" },
-                                      //{ key: "icon", label: "" },
                                       {
-                                        key: "orgName",
+                                        key: EOrderKey.orgName,
                                         label: `Nom de ${orgTypeFull(orgType)}`
                                       },
                                       {
-                                        key: "latestActivity",
+                                        key: EOrderKey.latestActivity,
                                         label: "Dernier message"
                                       }
                                     ]
                                   : (orgType) => [
-                                      //{ key: "subscription", label: "" },
-                                      //{ key: "icon", label: "" },
                                       {
-                                        key: "orgName",
+                                        key: EOrderKey.orgName,
                                         label: `Nom de ${orgTypeFull(orgType)}`
                                       },
-                                      //{ key: "createdBy", label: "Créé par" },
                                       {
-                                        key: "latestActivity",
+                                        key: EOrderKey.latestActivity,
                                         label: "Dernier message"
                                       }
                                     ]
