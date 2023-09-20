@@ -139,7 +139,8 @@ export const EntityButton = ({
               ? user.userName
               : "")}
 
-          {topic && topic.topicVisibility.includes("Abonnés") ? (
+          {Array.isArray(topic?.topicVisibility) &&
+          topic?.topicVisibility.includes("Abonnés") ? (
             <Icon as={IoIosPeople} ml={2} />
           ) : org && org.orgVisibility === EOrgVisibility.PRIVATE ? (
             <Icon as={LockIcon} ml={2} />

@@ -22,8 +22,8 @@ handler.get<
   const session = await getSession({ req });
 
   try {
-    const {
-      query: { orgType, populate, createdBy }
+    let {
+      query: { orgType, populate = "", createdBy }
     } = req;
 
     let selector: GetOrgsParams & {
@@ -42,10 +42,48 @@ handler.get<
 
     let orgs = await models.Org.find(selector);
 
-    if (populate)
+    if (populate) {
+      for (const modelKey of populate
+        .split(/(\s+)/)
+        .filter((e) => e.trim().length > 0)) {
+        if (["orgTopics.org", "orgTopics.topicMessages"].includes(modelKey)) {
+          console.log(`GET /orgs populating ${modelKey} with custom behavior`);
+          populate = populate.replace(modelKey, "");
+        }
+
+        if (modelKey === "orgTopics.org") {
+          for (let org of orgs) {
+            org = await org
+              .populate({
+                path: "orgTopics",
+                populate: { path: "org" }
+              })
+              .execPopulate();
+          }
+        }
+
+        if (modelKey === "orgTopics.topicMessages") {
+          populate = populate.replace("orgTopics", "");
+          for (let org of orgs) {
+            await org
+              .populate({
+                path: "orgTopics",
+                select: "topicName topicMessages.createdAt"
+                //populate: [{ path: "topicMessages", select: "-message" }]
+              })
+              .execPopulate();
+            if (org.orgUrl === "esoterisme") {
+              logJson("🚀 ~ file: orgs.ts:68 ~ .filter ~ org:", org);
+            }
+          }
+        }
+      }
+
+      console.log(`GET /orgs unhandled keys: ${populate}`);
       orgs = await Promise.all(
         orgs.map((org) => org.populate(populate).execPopulate())
       );
+    }
 
     res.status(200).json(orgs);
   } catch (error) {
