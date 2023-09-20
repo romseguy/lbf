@@ -31,7 +31,7 @@ import { UserPage } from "features/users/UserPage";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEvent } from "models/Event";
-import { EOrgType, IOrg } from "models/Org";
+import { defaultTabs, EOrgType, IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
 import { wrapper } from "store";
@@ -273,32 +273,38 @@ const HashPage = ({ ...props }: PageProps) => {
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
+    // console.log("🚀 ~ file: [...name].tsx:282 ~ tabItem:", ctx.query);
     if (
       Array.isArray(ctx.query.name) &&
       typeof ctx.query.name[0] === "string"
     ) {
       const entityUrl = ctx.query.name[0];
-      const normalizedEntityUrl = normalize(entityUrl);
+      const tabItem = ctx.query.name[1];
+      // console.log("🚀 ~ file: [...name].tsx:283 ~ tabItem:", tabItem);
+      let destination = [
+        "api",
+        "icons",
+        "sitemap",
+        "robots",
+        "worker"
+      ].includes(entityUrl)
+        ? "/"
+        : "/" + entityUrl;
 
       if (
-        normalizedEntityUrl === "api" ||
-        normalizedEntityUrl === "icons" ||
-        normalizedEntityUrl === "sitemap.xml" ||
-        normalizedEntityUrl === "robots.txt" ||
-        normalizedEntityUrl.includes("worker")
+        ["_next", "manifest.js", "static"].includes(entityUrl) ||
+        (tabItem && !defaultTabs.find(({ url }) => url === "/" + tabItem))
       )
-        return {
-          redirect: {
-            permanent: false,
-            destination: "/"
-          }
-        };
+        return { redirect: { permanent: false, destination } };
+
+      const normalizedEntityUrl = normalize(entityUrl);
+      destination = "/" + normalizedEntityUrl;
 
       if (entityUrl !== normalizedEntityUrl)
         return {
           redirect: {
             permanent: false,
-            destination: normalizedEntityUrl
+            destination
           }
         };
 

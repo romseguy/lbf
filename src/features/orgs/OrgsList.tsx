@@ -14,7 +14,12 @@ import {
   Tooltip,
   useColorMode
 } from "@chakra-ui/react";
-import { compareAsc, compareDesc, parseISO } from "date-fns";
+import {
+  compareAsc,
+  compareDesc,
+  intervalToDuration,
+  parseISO
+} from "date-fns";
 import React, { useMemo, useState } from "react";
 import { FaGlobeEurope, FaMapMarkedAlt, FaTree } from "react-icons/fa";
 import { css } from "twin.macro";
@@ -30,20 +35,29 @@ import { selectIsMobile } from "store/uiSlice";
 import { timeAgo } from "utils/date";
 import { AppQuery } from "utils/types";
 import { useSelector } from "react-redux";
+import { hasItems } from "utils/array";
+
+export enum EOrderKey {
+  "createdBy" = "createdBy",
+  "icon" = "icon",
+  "latestActivity" = "latestActivity",
+  "orgName" = "orgName",
+  "subscription" = "subscription"
+}
 
 const defaultKeys = (orgType: EOrgType) => [
+  // {
+  //   key: "subscription",
+  //   label: ""
+  // },
   {
-    key: "subscription",
-    label: ""
-  },
-  {
-    key: "orgName",
+    key: EOrderKey.orgName,
     label: `Nom de ${orgTypeFull(orgType)}`
   },
   // { key: "orgType", label: "Type" },
   // { key: "orgCity", label: "Position" },
   {
-    key: "createdBy",
+    key: EOrderKey.createdBy,
     label: "Créé par"
   }
 ];
@@ -60,7 +74,7 @@ export const OrgsList = ({
   ...props
 }: {
   keys?: (orgType: EOrgType) => {
-    key: string;
+    key: EOrderKey;
     label: string;
   }[];
   query: AppQuery<IOrg | IOrg[]>;
@@ -74,8 +88,14 @@ export const OrgsList = ({
   if (!Array.isArray(data)) data = data?.orgs;
   const keys = props.keys ? props.keys(orgType) : defaultKeys(orgType);
   const [orgToShow, setOrgToShow] = useState<IOrg | void>();
-  const [selectedOrder, s] = useState<{ key: string; order: "asc" | "desc" }>();
-  const setSelectedOrder = (key: string) => {
+  const [selectedOrder, s] = useState<{
+    key: EOrderKey;
+    order: "asc" | "desc";
+  }>({
+    key: EOrderKey.latestActivity,
+    order: "asc"
+  });
+  const setSelectedOrder = (key: EOrderKey) => {
     const order = !selectedOrder
       ? "asc"
       : selectedOrder?.key === key && selectedOrder?.order === "asc"
@@ -93,21 +113,23 @@ export const OrgsList = ({
     if (!Array.isArray(data)) return record;
 
     for (const org of data) {
-      for (const orgTopic of org.orgTopics) {
-        for (const orgTopicMessage of orgTopic.topicMessages || []) {
-          const current = parseISO(orgTopicMessage.createdAt || "");
-          const saved = record[org._id];
+      if (hasItems(org.orgTopics)) {
+        for (const orgTopic of org.orgTopics) {
+          for (const orgTopicMessage of orgTopic.topicMessages || []) {
+            const current = parseISO(orgTopicMessage.createdAt || "");
+            const saved = record[org._id];
 
-          if (!saved) {
-            record[org._id] = {
-              latestMessageCreatedAt: current,
-              latestTopic: orgTopic
-            };
-          } else {
-            // if current date is before saved date
-            if (compareDesc(current, saved.latestMessageCreatedAt)) {
-              saved.latestMessageCreatedAt = current;
-              saved.latestTopic = orgTopic;
+            if (!saved) {
+              record[org._id] = {
+                latestMessageCreatedAt: current,
+                latestTopic: orgTopic
+              };
+            } else {
+              // if current date is before saved date
+              if (compareDesc(current, saved.latestMessageCreatedAt)) {
+                saved.latestMessageCreatedAt = current;
+                saved.latestTopic = orgTopic;
+              }
             }
           }
         }
@@ -136,23 +158,25 @@ export const OrgsList = ({
     }
 
     return [...data].sort((a, b) => {
-      const key = selectedOrder?.key || "orgName";
+      const key: keyof IOrg = selectedOrder?.key || "orgName";
       const order = selectedOrder?.order || "asc";
 
-      let valueA = a[key as keyof IOrg];
+      let valueA: IUser | string | undefined = a[key];
       if (typeof valueA === "string") valueA = valueA.toLowerCase();
-      else valueA = (valueA as IUser).userName.toLowerCase();
+      else valueA = valueA?.userName.toLowerCase();
 
-      let valueB = b[key as keyof IOrg];
+      let valueB: IUser | string | undefined = b[key];
       if (typeof valueB === "string") valueB = valueB.toLowerCase();
-      else valueB = (valueB as IUser).userName.toLowerCase();
+      else valueB = valueB?.userName.toLowerCase();
 
-      if (order === "asc") {
-        if (valueA < valueB) return -1;
-        if (valueA > valueB) return 1;
-      } else if (order === "desc") {
-        if (valueA > valueB) return -1;
-        if (valueA < valueB) return 1;
+      if (valueA && valueB) {
+        if (order === "asc") {
+          if (valueA < valueB) return -1;
+          if (valueA > valueB) return 1;
+        } else if (order === "desc") {
+          if (valueA > valueB) return -1;
+          if (valueA < valueB) return 1;
+        }
       }
 
       return 0;
@@ -248,7 +272,7 @@ export const OrgsList = ({
                     </Td>
                   )}
 
-                  {keys.find(({ key }) => key === "subscription") &&
+                  {keys.find(({ key }) => key === EOrderKey.subscription) &&
                     subQuery && (
                       <Td p={isMobile ? 0 : undefined}>
                         <SubscribePopover
@@ -262,7 +286,7 @@ export const OrgsList = ({
                       </Td>
                     )}
 
-                  {keys.find(({ key }) => key === "orgName") && (
+                  {keys.find(({ key }) => key === EOrderKey.orgName) && (
                     <Td>
                       {/* {org.orgType === EOrgType.TREETOOLS
                         ? OrgTypes[org.orgType] + " : "
@@ -300,7 +324,7 @@ export const OrgsList = ({
                     </Td>
                   )}
 
-                  {keys.find(({ key }) => key === "latestActivity") && (
+                  {keys.find(({ key }) => key === EOrderKey.latestActivity) && (
                     <Td>
                       {latestTopic && (
                         <EntityButton
@@ -318,13 +342,19 @@ export const OrgsList = ({
                             ml={1}
                           >
                             {timeAgo(latestMessageCreatedAt, true).timeAgo}
+                            {/* {"" + latestMessageCreatedAt} */}
+                            {/* {"" +
+                              intervalToDuration({
+                                start: new Date(),
+                                end: latestMessageCreatedAt
+                              })} */}
                           </Badge>
                         </EntityButton>
                       )}
                     </Td>
                   )}
 
-                  {keys.find(({ key }) => key === "createdBy") && (
+                  {keys.find(({ key }) => key === EOrderKey.createdBy) && (
                     <Td>
                       <EntityButton
                         backgroundColor={isDark ? "whiteAlpha.500" : undefined}

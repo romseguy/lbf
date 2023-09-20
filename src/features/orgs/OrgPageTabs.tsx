@@ -119,8 +119,9 @@ export const OrgPageTabs = ({
         const tab = tabs[tabIndex];
 
         if (
+          tab &&
           normalize(tab.label) ===
-          normalize(currentTabLabel === "parametres" ? "" : currentTabLabel)
+            normalize(currentTabLabel === "parametres" ? "" : currentTabLabel)
         )
           return tabIndex;
       }

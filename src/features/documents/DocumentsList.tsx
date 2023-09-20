@@ -121,6 +121,7 @@ export const DocumentsList = ({
   const query = useGetDocumentsQuery(
     org ? { orgId: org._id } : user ? { userId: user._id } : {}
   );
+  console.log("🚀 ~ file: DocumentsList.tsx:124 ~ query:", query);
   useEffect(() => {
     (async () => {
       if (Array.isArray(query.data) && query.data.length > 0) {

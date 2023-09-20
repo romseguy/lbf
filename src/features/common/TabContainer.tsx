@@ -37,13 +37,16 @@ export const TabContainerHeader = ({
 
   return (
     <Flex
+      alignItems="center"
       bg={isDark ? "gray.700" : "lightblue"}
       borderTopRadius="lg"
+      cursor={heading ? "default" : "pointer"}
+      py={3}
       tabIndex={0}
       {...props}
     >
       {heading ? (
-        <Heading size="sm" pl={3} py={3}>
+        <Heading size="sm" pl={3}>
           {heading}
         </Heading>
       ) : (

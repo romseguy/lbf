@@ -18,13 +18,23 @@ const client = axios.create({
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>()
   .use(cors())
-  .get<NextApiRequest, NextApiResponse>(async function getDocuments(req, res) {
+  .get<
+    NextApiRequest & { query: { orgId?: string; userId?: string } },
+    NextApiResponse
+  >(async function getDocuments(req, res) {
     try {
       let {
-        query: { orgId }
+        query: { orgId, userId }
       } = req;
 
-      const { data } = await client.get(`?orgId=${orgId}`);
+      if (!orgId && !userId)
+        return res
+          .status(400)
+          .json(createServerError(new Error("Veuillez indiquer un id")));
+
+      const { data } = await client.get(
+        orgId ? `?orgId=${orgId}` : `?userId=${userId}`
+      );
       res.status(200).json(data);
     } catch (error) {
       res.status(404).json(createServerError(error));

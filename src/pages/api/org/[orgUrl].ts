@@ -120,7 +120,7 @@ handler.get<
 
     for (const modelKey of populate
       .split(/(\s+)/)
-      .filter((e: string) => e.trim().length > 0)) {
+      .filter((e) => e.trim().length > 0)) {
       if (
         [
           "orgs",
@@ -140,7 +140,10 @@ handler.get<
       if (modelKey === "orgs") {
         org = org.populate({
           path: "orgs",
-          populate: { path: "createdBy" }
+          populate: {
+            path: "orgTopics",
+            select: "topicName topicMessages.createdAt"
+          }
         });
       }
 

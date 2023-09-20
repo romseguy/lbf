@@ -35,6 +35,7 @@ import { TopicMessagesList } from "./TopicMessagesList";
 import { TopicsListItemShare } from "./TopicsListItemShare";
 import { TopicsListItemSubscribers } from "./TopicsListItemSubscribers";
 import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
+import { useRouter } from "next/router";
 
 interface TopicsListItemProps extends Omit<BoxProps, "onClick"> {
   isMobile: boolean;
@@ -88,6 +89,8 @@ export const TopicsListItem = forwardRef(
     }: TopicsListItemProps,
     ref: React.ForwardedRef<HTMLDivElement>
   ) => {
+    const router = useRouter();
+
     //#region entity
     const entity = query.data;
     const isE = isEvent(entity);
@@ -119,6 +122,7 @@ export const TopicsListItem = forwardRef(
     //#endregion
 
     //#region local
+    const [isAnswering, setIsAnswering] = useState(false);
     const [isEdit, setIsEdit] = useState<isEdit>({});
     const isEditing = Object.keys(isEdit).reduce(
       (acc, key) => (isEdit[key] && isEdit[key].isOpen ? ++acc : acc),
@@ -483,22 +487,60 @@ export const TopicsListItem = forwardRef(
             />
 
             {!isEditing && (
-              <Box
-                bg={isDark ? "gray.700" : "orange.50"}
-                borderBottomRadius="xl"
-                p={3}
-              >
-                <TopicMessageForm
-                  isDisabled={topic.topicMessagesDisabled}
-                  isLoading={isLoading}
-                  query={query}
-                  setIsLoading={(bool) => {
-                    setIsLoading({ [topic._id]: bool });
-                  }}
-                  topic={topic}
-                  //formats={formats.filter((f) => f !== "size")}
-                />
-              </Box>
+              <>
+                <Box
+                  bg={isDark ? "gray.700" : "orange.50"}
+                  borderBottomRadius="xl"
+                  p={3}
+                  pt={0}
+                  {...(isAnswering
+                    ? {}
+                    : {
+                        display: "flex",
+                        justifyContent: "flex-end"
+                      })}
+                >
+                  {!isAnswering && (
+                    <>
+                      {session ? (
+                        <Button
+                          colorScheme="teal"
+                          onClick={() => {
+                            setIsAnswering(true);
+                          }}
+                        >
+                          Répondre
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            router.push("/login", "/login", { shallow: true });
+                          }}
+                        >
+                          Se connecter pour répondre
+                        </Button>
+                      )}
+                    </>
+                  )}
+
+                  {isAnswering && (
+                    <TopicMessageForm
+                      //formats={formats.filter((f) => f !== "size")}
+                      isDisabled={topic.topicMessagesDisabled}
+                      isLoading={isLoading}
+                      query={query}
+                      setIsLoading={(bool) => {
+                        setIsLoading({ [topic._id]: bool });
+                      }}
+                      topic={topic}
+                      onSubmit={() => {
+                        setIsAnswering(false);
+                      }}
+                    />
+                  )}
+                </Box>
+              </>
             )}
           </>
         )}
