@@ -37,7 +37,6 @@ export const DeleteButton = ({
   isIconOnly?: boolean;
   isLoading?: boolean;
   isSmall?: boolean;
-  onClick?: () => void;
   // tooltip props
   hasArrow?: boolean;
   label?: string;
@@ -121,9 +120,9 @@ export const DeleteButton = ({
                   isDisabled={isDisabled}
                   isLoading={isLoading}
                   colorScheme="red"
-                  onClick={() => {
+                  onClick={(e) => {
                     if (props.onClick) {
-                      props.onClick();
+                      props.onClick(e);
                     }
                     onClose();
                   }}

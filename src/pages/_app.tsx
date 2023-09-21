@@ -27,6 +27,9 @@ import {
 } from "utils/auth";
 import { isServer } from "utils/isServer";
 const { getEnv } = require("utils/env");
+if (getEnv === "development") {
+  require("../../wdyr");
+}
 
 interface AppProps {
   cookies?: string;
