@@ -141,17 +141,22 @@ export const timeAgo = (
     start: new Date(),
     end
   });
+  const format2 = isShort
+    ? (format || formatArray).filter((f) => {
+        if (typeof duration.years === "number" && duration.years > 0)
+          return f === "years";
+        if (typeof duration.months === "number" && duration.months > 0)
+          return f === "months";
+        if (typeof duration.days === "number" && duration.days > 0)
+          return f === "days";
+        if (typeof duration.hours === "number" && duration.hours > 0)
+          return f === "hours";
+        return f === "minutes";
+      })
+    : format || formatArray;
 
   const formatted = formatDuration(duration, {
-    format: isShort
-      ? (format || formatArray).filter((f) =>
-          duration.days === 0 && duration.hours && duration.hours > 0
-            ? f === "hours"
-            : typeof duration.days === "number" && duration.days > 0
-            ? f === "days"
-            : f
-        )
-      : format || formatArray
+    format: format2
   });
 
   return { timeAgo: formatted === "" ? "1m" : formatted, fullDate };
