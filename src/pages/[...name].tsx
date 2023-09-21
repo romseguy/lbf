@@ -273,14 +273,14 @@ const HashPage = ({ ...props }: PageProps) => {
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
-    console.log("🚀 ~ file: [...name].tsx:282 ~ tabItem:", ctx.query);
+    // console.log("🚀 ~ file: [...name].tsx:282 ~ tabItem:", ctx.query);
     if (
       Array.isArray(ctx.query.name) &&
       typeof ctx.query.name[0] === "string"
     ) {
       const entityUrl = ctx.query.name[0];
       const tabItem = ctx.query.name[1];
-      console.log("🚀 ~ file: [...name].tsx:283 ~ tabItem:", tabItem);
+      // console.log("🚀 ~ file: [...name].tsx:283 ~ tabItem:", tabItem);
       let destination = [
         "api",
         "icons",

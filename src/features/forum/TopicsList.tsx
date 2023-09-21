@@ -9,21 +9,13 @@ import {
   ListItem,
   Spinner,
   Text,
-  useColorMode,
-  useToast
+  useColorMode
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import {
-  useAddSubscriptionMutation,
-  useDeleteSubscriptionMutation
-} from "features/api/subscriptionsApi";
-import {
-  useDeleteTopicMutation,
-  useAddTopicNotifMutation
-} from "features/api/topicsApi";
-import { Button, Grid, AppHeading } from "features/common";
+import { useAddTopicNotifMutation } from "features/api/topicsApi";
+import { Button, AppHeading } from "features/common";
 import {
   NotifModalState,
   EntityNotifModal
@@ -40,9 +32,7 @@ import {
 import { IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { selectUserEmail } from "store/userSlice";
 import { hasItems } from "utils/array";
-import { ServerError } from "utils/errors";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { TopicCategoryTag } from "./TopicCategoryTag";
@@ -50,6 +40,11 @@ import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicsListItem } from "./TopicsListItem";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { selectIsMobile } from "store/uiSlice";
+
+export type TopicModalState = {
+  isOpen: boolean;
+  topic?: ITopic;
+};
 
 export const TopicsList = ({
   query,
@@ -68,21 +63,13 @@ export const TopicsList = ({
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const { data: session } = useSession();
-  const userEmail = useSelector(selectUserEmail);
-  const toast = useToast({ position: "top" });
 
-  const [addSubscription] = useAddSubscriptionMutation();
   const addTopicNotifMutation = useAddTopicNotifMutation();
-  const [deleteSubscription] = useDeleteSubscriptionMutation();
-  const [deleteTopic] = useDeleteTopicMutation();
 
   //#region local state
   const entity = query.data;
   const isE = isEvent(entity);
   const isO = isOrg(entity);
-  const baseUrl = `/${
-    isE ? entity.eventUrl : isO ? entity.orgUrl : entity._id
-  }/discussions`;
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
   const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
   const topicCategories = useMemo(
@@ -142,33 +129,30 @@ export const TopicsList = ({
 
     return topic || null;
   }, [currentTopicName, topics]);
-  const refs = useMemo(
-    () =>
-      topics.reduce((acc: Record<string, React.RefObject<any>>, value) => {
-        acc[value._id] = React.createRef();
-        return acc;
-      }, {}),
-    [topics]
-  );
-  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
-  useEffect(() => {
-    if (currentTopic && !isLoading[currentTopic._id]) {
-      const topicRef = refs[currentTopic._id].current;
-      if (topicRef) {
-        topicRef.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-      }
-    }
-  }, [currentTopic, isLoading]);
+  // const refs = useMemo(
+  //   () =>
+  //     topics.reduce((acc: Record<string, React.RefObject<any>>, value) => {
+  //       acc[value._id] = React.createRef();
+  //       return acc;
+  //     }, {}),
+  //   [topics]
+  // );
+  //const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
+  // useEffect(() => {
+  //   if (currentTopic && !isLoading[currentTopic._id]) {
+  //     const topicRef = refs[currentTopic._id].current;
+  //     if (topicRef) {
+  //       topicRef.scrollIntoView({
+  //         behavior: "smooth",
+  //         block: "start"
+  //       });
+  //     }
+  //   }
+  // }, [currentTopic, isLoading]);
   //#endregion
 
   //#region topic modal state
-  const [topicModalState, setTopicModalState] = useState<{
-    isOpen: boolean;
-    topic?: ITopic;
-  }>({
+  const [topicModalState, setTopicModalState] = useState<TopicModalState>({
     isOpen: false
   });
   const onClose = () =>
@@ -191,115 +175,6 @@ export const TopicsList = ({
   const [notifyModalState, setNotifyModalState] = useState<
     NotifModalState<ITopic>
   >({});
-  const onNotifClick = (topic: ITopic) => {
-    setNotifyModalState({
-      ...notifyModalState,
-      entity: topic
-    });
-  };
-  //#endregion
-
-  //#region TopicsListItem handlers
-  const onClick = async (topic: ITopic, isCurrent: boolean) => {
-    const url = isCurrent
-      ? baseUrl
-      : `${baseUrl}/${normalize(topic.topicName)}`;
-    await router.push(url, url, { shallow: true });
-  };
-  const onDeleteClick = async (topic: ITopic, isCurrent: boolean) => {
-    try {
-      setIsLoading({
-        [topic._id]: true
-      });
-      const deletedTopic = await deleteTopic(topic._id).unwrap();
-      toast({
-        title: `${deletedTopic.topicName} a été supprimé !`,
-        status: "success"
-      });
-      router.push(baseUrl, baseUrl, { shallow: true });
-    } catch (error: ServerError | any) {
-      toast({
-        title:
-          error.data.message ||
-          `La discussion ${topic.topicName} n'a pas pu être supprimée`,
-        status: "error"
-      });
-    } finally {
-      setIsLoading({
-        [topic._id]: false
-      });
-    }
-  };
-  const onEditClick = (topic: ITopic) => {
-    setTopicModalState({
-      ...topicModalState,
-      isOpen: true,
-      topic
-    });
-  };
-  const onSubscribeClick = async (topic: ITopic, isSubbedToTopic: boolean) => {
-    if (!subQuery.data || !isSubbedToTopic) {
-      try {
-        setIsLoading({
-          [topic._id]: true
-        });
-        await addSubscription({
-          topics: [
-            {
-              topic: topic,
-              emailNotif: true,
-              pushNotif: true
-            }
-          ],
-          user: session?.user.userId
-        });
-        toast({
-          title: `Vous êtes abonné à la discussion ${topic.topicName}`,
-          status: "success"
-        });
-      } catch (error) {
-        console.error(error);
-        toast({
-          title: `Vous n'avez pas pu être abonné à la discussion ${topic.topicName}`,
-          status: "error"
-        });
-      } finally {
-        setIsLoading({
-          [topic._id]: false
-        });
-      }
-    } else if (isSubbedToTopic) {
-      const unsubscribe = confirm(
-        `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
-      );
-
-      if (unsubscribe) {
-        try {
-          setIsLoading({
-            [topic._id]: true
-          });
-          await deleteSubscription({
-            subscriptionId: subQuery.data._id,
-            topicId: topic._id
-          });
-          toast({
-            title: `Vous êtes désabonné de ${topic.topicName}`,
-            status: "success"
-          });
-        } catch (error) {
-          console.error(error);
-          toast({
-            title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
-            status: "error"
-          });
-        } finally {
-          setIsLoading({
-            [topic._id]: false
-          });
-        }
-      }
-    }
-  };
   //#endregion
 
   return (
@@ -459,11 +334,11 @@ export const TopicsList = ({
             return (
               <TopicsListItem
                 key={topic._id}
-                ref={refs[topic._id]}
                 isMobile={isMobile}
                 session={session}
                 isCreator={props.isCreator}
                 query={query}
+                subQuery={subQuery}
                 currentTopicName={currentTopicName}
                 topic={topic}
                 topicIndex={topicIndex}
@@ -471,16 +346,20 @@ export const TopicsList = ({
                 isCurrent={isCurrent}
                 isTopicCreator={isTopicCreator}
                 isDark={isDark}
-                isLoading={isLoading[topic._id] || query.isLoading}
-                setIsLoading={setIsLoading}
+                //isLoading={isLoading[topic._id] || query.isLoading}
+                //setIsLoading={setIsLoading}
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
+                notifyModalState={notifyModalState}
+                setNotifyModalState={setNotifyModalState}
+                topicModalState={topicModalState}
+                setTopicModalState={setTopicModalState}
                 mb={topicIndex < topics.length - 1 ? 5 : 0}
-                onClick={onClick}
-                onDeleteClick={onDeleteClick}
-                onEditClick={onEditClick}
-                onNotifClick={onNotifClick}
-                onSubscribeClick={onSubscribeClick}
+                // onClick={onClick}
+                // onDeleteClick={onDeleteClick}
+                // onEditClick={onEditClick}
+                // onNotifClick={onNotifClick}
+                // onSubscribeClick={onSubscribeClick}
               />
             );
           })
@@ -518,3 +397,5 @@ export const TopicsList = ({
     </>
   );
 };
+
+TopicsList.whyDidYouRender = true;

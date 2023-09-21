@@ -49,13 +49,15 @@ export const scrollbarCss = `
 
   /* Buttons */
   &::-webkit-scrollbar-button {
-    border-style: solid;
-    width: 16px;
+    display: none;
+    /*border-style: solid;
+    width: 16px;*/
   }
 
   /* Left */
   &::-webkit-scrollbar-button:horizontal:decrement {
-    border-width: 5px 10px 5px 0;
+    /*border-width: 5px 10px 5px 0;*/
+    /*border-width: 5px 0px 0px 0px;*/
     border-color: transparent #319795 transparent transparent;
   }
 
@@ -65,7 +67,7 @@ export const scrollbarCss = `
 
   /* Right */
   &::-webkit-scrollbar-button:horizontal:increment {
-    border-width: 5px 0 5px 10px;
+    /*border-width: 5px 0 5px 10px;*/
     border-color: transparent transparent transparent #319795;
   }
 

@@ -27,6 +27,9 @@ import {
 } from "utils/auth";
 import { isServer } from "utils/isServer";
 const { getEnv } = require("utils/env");
+if (getEnv === "development") {
+  require("../../wdyr");
+}
 
 interface AppProps {
   cookies?: string;
@@ -85,7 +88,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
       let session: Session | undefined;
 
       if (devSession && getEnv() === "development") {
-        // console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
+        console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
         session = devSession;
         //@ts-ignore
         email = devSession.user.email;
@@ -114,6 +117,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
             session = {
               user: { ...user, isAdmin: user.email === "rom.seguy@lilo.org" }
             };
+            console.log("🚀 ~ App.getInitialProps ~ cookieSession:", session);
             email = user.email;
           }
         }
@@ -125,7 +129,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
       }
       if (session) {
         store.dispatch(setSession({ ...session, [TOKEN_NAME]: authToken }));
-        console.log("🚀 ~ App.getInitialProps ~ session:", session);
+        // console.log("🚀 ~ App.getInitialProps ~ session:", session);
       }
       //#endregion
 

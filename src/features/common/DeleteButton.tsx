@@ -37,7 +37,6 @@ export const DeleteButton = ({
   isIconOnly?: boolean;
   isLoading?: boolean;
   isSmall?: boolean;
-  onClick?: () => void;
   // tooltip props
   hasArrow?: boolean;
   label?: string;
