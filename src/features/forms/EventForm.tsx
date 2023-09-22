@@ -42,7 +42,6 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import useFormPersist from "hooks/useFormPersist";
 import ReactSelect from "react-select";
 import { css } from "twin.macro";
 import { Suggestion } from "use-places-autocomplete";
@@ -62,8 +61,10 @@ import {
   useAddEventMutation,
   useEditEventMutation
 } from "features/api/eventsApi";
+import { formBoxProps } from "features/layout/theme";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { useGetOrgQuery, useGetOrgsQuery } from "features/api/orgsApi";
+import useFormPersist from "hooks/useFormPersist";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import {
   IEntityAddress,
@@ -71,12 +72,7 @@ import {
   IEntityPhone,
   IEntityWeb
 } from "models/Entity";
-import {
-  IEvent,
-  monthRepeatOptions,
-  EventVisibilities,
-  EEventVisibility
-} from "models/Event";
+import { IEvent, monthRepeatOptions, EEventVisibility } from "models/Event";
 import { getEventCategories, IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
@@ -1009,7 +1005,7 @@ export const EventForm = withGoogleApi({
           isInvalid={!!errors["eventDescription"]}
           mb={3}
         >
-          <FormLabel>Description</FormLabel>
+          <FormLabel>Description de l'événement (optionnel)</FormLabel>
           <Controller
             name="eventDescription"
             control={control}
@@ -1046,7 +1042,7 @@ export const EventForm = withGoogleApi({
           //     : !!eventOrgsRules.required
           // }
         >
-          <FormLabel>Organisé par...</FormLabel>
+          <FormLabel>Organisateur de l'événement (optionnel)</FormLabel>
           <Controller
             name="eventOrg"
             //rules={eventOrgsRules}
@@ -1094,11 +1090,11 @@ export const EventForm = withGoogleApi({
             }}
             mb={3}
           >
-            <FormLabel>Catégorie</FormLabel>
+            <FormLabel>Catégorie de l'événement</FormLabel>
             <Select
               name="eventCategory"
               ref={register()}
-              placeholder="Catégorie de l'événement"
+              placeholder="Sélectionner une catégorie..."
               color="gray.400"
             >
               {categories.map(({ catId, label }) => (
@@ -1113,55 +1109,57 @@ export const EventForm = withGoogleApi({
           </FormControl>
         )}
 
-        <FormLabel>Coordonnées de l'événement</FormLabel>
+        <Box {...formBoxProps(isDark)}>
+          <FormLabel>Coordonnées de l'événement (optionnel)</FormLabel>
 
-        <AddressControl
-          name="eventAddress"
-          control={control}
-          errors={errors}
-          setValue={setValue}
-          mb={3}
-          containerProps={
-            hasItems(eventAddress) ? { ...containerProps, mt: 0 } : { mb: 3 }
-          }
-          onSuggestionSelect={(suggestion: Suggestion) => {
-            setSuggestion(suggestion);
-          }}
-        />
+          <AddressControl
+            name="eventAddress"
+            control={control}
+            errors={errors}
+            setValue={setValue}
+            mb={3}
+            containerProps={
+              hasItems(eventAddress) ? { ...containerProps, mt: 0 } : { mb: 3 }
+            }
+            onSuggestionSelect={(suggestion: Suggestion) => {
+              setSuggestion(suggestion);
+            }}
+          />
 
-        <EmailControl
-          name="eventEmail"
-          register={register}
-          control={control}
-          errors={errors}
-          setValue={setValue}
-          mb={3}
-          containerProps={
-            hasItems(eventEmail) ? { ...containerProps, mt: 0 } : { mb: 3 }
-          }
-        />
+          <EmailControl
+            name="eventEmail"
+            register={register}
+            control={control}
+            errors={errors}
+            setValue={setValue}
+            mb={3}
+            containerProps={
+              hasItems(eventEmail) ? { ...containerProps, mt: 0 } : { mb: 3 }
+            }
+          />
 
-        <PhoneControl
-          name="eventPhone"
-          register={register}
-          control={control}
-          errors={errors}
-          setValue={setValue}
-          mb={3}
-          containerProps={hasItems(eventPhone) ? containerProps : { mb: 3 }}
-        />
+          <PhoneControl
+            name="eventPhone"
+            register={register}
+            control={control}
+            errors={errors}
+            setValue={setValue}
+            mb={3}
+            containerProps={hasItems(eventPhone) ? containerProps : { mb: 3 }}
+          />
 
-        <UrlControl
-          name="eventWeb"
-          register={register}
-          control={control}
-          errors={errors}
-          setValue={setValue}
-          mb={3}
-          containerProps={
-            hasItems(eventWeb) ? { ...containerProps, mb: 3 } : { mb: 3 }
-          }
-        />
+          <UrlControl
+            name="eventWeb"
+            register={register}
+            control={control}
+            errors={errors}
+            setValue={setValue}
+            mb={3}
+            containerProps={
+              hasItems(eventWeb) ? { ...containerProps, mb: 3 } : { mb: 3 }
+            }
+          />
+        </Box>
 
         <ErrorMessage
           errors={errors}

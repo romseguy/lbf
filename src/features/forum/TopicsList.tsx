@@ -398,4 +398,4 @@ export const TopicsList = ({
   );
 };
 
-TopicsList.whyDidYouRender = true;
+TopicsList.whyDidYouRender = false;

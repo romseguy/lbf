@@ -271,15 +271,11 @@ export const TopicsListItem = ({
   };
   //#endregion
 
-  // useEffect(() => {
-  //   if (ref && isCurrent && !isLoading) {
-  //     //@ts-expect-error
-  //     ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
-  //   }
-  // }, [ref, isCurrent, isLoading]);
-  // useEffect(() => {
-  //   executeScroll();
-  // }, []);
+  useEffect(() => {
+    if (isCurrent) {
+      executeScroll();
+    }
+  }, []);
 
   return (
     <Box ref={elementToScrollRef} {...props}>

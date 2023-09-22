@@ -164,7 +164,7 @@ export const OrgForm = withGoogleApi({
           (tree) => !orgTrees?.find((orgTree) => orgTree._id === tree._id)
         )
       : [];
-    const orgsPlaceholder = `Sélectionnez ou créez ${
+    const orgsPlaceholder = `Sélectionner ou créer ${
       allowedChildrenTypes.length > 0
         ? "le " + OrgTypes[allowedChildrenTypes[0] as EOrgType].toLowerCase()
         : "l'arbre"
@@ -450,11 +450,7 @@ export const OrgForm = withGoogleApi({
 
     //#region form controls
     const ChildrenFormControl = (
-      <FormControl
-        mb={3}
-        isInvalid={!!errors["orgs"]}
-        display={orgType !== EOrgType.NETWORK ? "none" : undefined}
-      >
+      <FormControl mb={3} isInvalid={!!errors["orgs"]}>
         {Array.isArray(orgTrees) && orgTrees.length > 0 && (
           <>
             <FormLabel>Forêt de la planète : </FormLabel>
@@ -872,7 +868,7 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {props.orgType === EOrgType.GENERIC && (
+        {/* {props.orgType === EOrgType.GENERIC && (
           <FormControl mb={3}>
             <FormLabel>Type de l'arbre</FormLabel>
             <Select name="orgType" ref={register()}>
@@ -882,12 +878,69 @@ export const OrgForm = withGoogleApi({
               </option>
             </Select>
           </FormControl>
-        )}
+        )} */}
 
-        {ChildrenFormControl}
+        {/* Réseau auquel l'organisation est rattachée */}
+        {/* {orgType === EOrgType.GENERIC && (
+          <FormControl>
+            <FormLabel>Planter cet arbre sur une planète ?</FormLabel>
+            <Select ref={register()}>
+              {[].map(() => {
+                return <option></option>;
+              })}
+            </Select>
+          </FormControl>
+        )} */}
+
+        {/* Forêt du réseau */}
+        {orgType === EOrgType.NETWORK && ChildrenFormControl}
 
         {DescriptionFormControl}
 
+        <Box {...formBoxProps(isDark)}>{InfoFormControl}</Box>
+
+        {/* Politique du réseau */}
+        {orgType === EOrgType.NETWORK && (
+          <Box {...formBoxProps(isDark)}>
+            <FormLabel>Politique {orgTypeFull(orgType)} (optionnel)</FormLabel>
+
+            <Stack flexDirection="column" spacing={3}>
+              <Switch
+                name="anyoneCanAddChildren"
+                ref={register()}
+                defaultChecked={!!org?.orgPermissions?.anyoneCanAddChildren}
+                cursor="pointer"
+                display="flex"
+                alignItems="center"
+              >
+                Tout le monde peut ajouter un arbre {orgTypeFull2(orgType)}
+              </Switch>
+
+              {/*
+              <Switch
+                name="hasSelectedChildrenTypes"
+                ref={register()}
+                defaultChecked={!!org?.orgPermissions?.allowedChildrenTypes}
+                cursor="pointer"
+                display="flex"
+                alignItems="center"
+              >
+                Restreindre la forêt à un ou plusieurs type d'arbre
+              </Switch>
+
+              {hasSelectedChildrenTypes && (
+                <Select name="allowedChildrenTypes" ref={register()}>
+                  <option value={EOrgType.TREETOOLS}>
+                    {OrgTypes[EOrgType.TREETOOLS]}
+                  </option>
+                </Select>
+              )}
+              */}
+            </Stack>
+          </Box>
+        )}
+
+        {/* Visibilité du réseau */}
         {orgType === EOrgType.NETWORK && (
           <Box {...formBoxProps(isDark)}>
             {VisibilityFormControl}
@@ -914,46 +967,6 @@ export const OrgForm = withGoogleApi({
             )}
           </Box>
         )}
-
-        {orgType === EOrgType.NETWORK && (
-          <Box {...formBoxProps(isDark)}>
-            <FormLabel>Politique {orgTypeFull(orgType)} (optionnel)</FormLabel>
-
-            <Stack flexDirection="column" spacing={3}>
-              <Switch
-                name="anyoneCanAddChildren"
-                ref={register()}
-                defaultChecked={!!org?.orgPermissions?.anyoneCanAddChildren}
-                cursor="pointer"
-                display="flex"
-                alignItems="center"
-              >
-                Tout le monde peut ajouter un arbre {orgTypeFull2(orgType)}
-              </Switch>
-
-              <Switch
-                name="hasSelectedChildrenTypes"
-                ref={register()}
-                defaultChecked={!!org?.orgPermissions?.allowedChildrenTypes}
-                cursor="pointer"
-                display="flex"
-                alignItems="center"
-              >
-                Restreindre la forêt à un {/*ou plusieurs*/} type d'arbre
-              </Switch>
-
-              {hasSelectedChildrenTypes && (
-                <Select name="allowedChildrenTypes" ref={register()}>
-                  <option value={EOrgType.TREETOOLS}>
-                    {OrgTypes[EOrgType.TREETOOLS]}
-                  </option>
-                </Select>
-              )}
-            </Stack>
-          </Box>
-        )}
-
-        <Box {...formBoxProps(isDark)}>{InfoFormControl}</Box>
 
         {FooterFormControl}
       </form>

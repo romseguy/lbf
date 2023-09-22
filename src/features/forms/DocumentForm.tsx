@@ -153,7 +153,7 @@ export const DocumentForm = ({
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <FormControl isInvalid={!!errors["fichiers"]} mb={3}>
         <FormLabel>
-          Sélectionnez un ou plusieurs fichiers. Taille maximum par fichier :{" "}
+          Sélectionner un ou plusieurs fichiers. Taille maximum par fichier :{" "}
           <b>10Mo</b>
         </FormLabel>
 

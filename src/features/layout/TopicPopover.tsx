@@ -1,7 +1,6 @@
 import { ChatIcon } from "@chakra-ui/icons";
 import {
   Box,
-  BoxProps,
   IconButton,
   Popover,
   PopoverProps,
@@ -14,13 +13,14 @@ import {
   VStack,
   useColorMode,
   useDisclosure,
-  useToast
+  useToast,
+  PopoverFooter
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaBellSlash } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { EntityButton } from "features/common";
+import { EntityAddButton, EntityButton } from "features/common";
 import { useGetTopicsQuery } from "features/api/topicsApi";
 import {
   useDeleteSubscriptionMutation,
@@ -361,6 +361,14 @@ const TopicPopoverContent = ({
             </Text>
           ))}
       </PopoverBody>
+      {/* <PopoverFooter>
+        <EntityAddButton
+          label="Ajouter une discussion"
+          onClick={() => {
+            onClose();
+          }}
+        />
+      </PopoverFooter> */}
     </>
   );
 };

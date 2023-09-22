@@ -47,7 +47,7 @@ export const EntityAddPage = ({
                 ? orgType === EOrgType.NETWORK
                   ? "blue"
                   : "green"
-                : "black"
+                : undefined
             }
             mr={3}
             boxSize={8}

@@ -1,4 +1,4 @@
-import { AddIcon, CalendarIcon } from "@chakra-ui/icons";
+import { AddIcon, CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { Button, ButtonProps, Icon, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
@@ -76,6 +76,33 @@ export const EntityAddButton = ({
         {...props}
       >
         {label || "Ajouter un arbre"}
+      </Button>
+    );
+  }
+
+  if (label === "Ajouter une discussion") {
+    return (
+      <Button
+        colorScheme="teal"
+        leftIcon={
+          <>
+            <AddIcon mr={1} />
+            <ChatIcon />
+          </>
+        }
+        size="sm"
+        onClick={(e) => {
+          onClick && onClick();
+          e.stopPropagation();
+          const url = `/discussions/ajouter`;
+          router.push(url, url, {
+            shallow: true
+          });
+        }}
+        data-cy="org-add-button"
+        {...props}
+      >
+        {label}
       </Button>
     );
   }
