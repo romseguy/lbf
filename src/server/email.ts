@@ -9,7 +9,11 @@ import {
 } from "models/INotification";
 import { IOrg } from "models/Org";
 import { EProjectInviteStatus, IProject } from "models/Project";
-import { EOrgSubscriptionType, ISubscription } from "models/Subscription";
+import {
+  EOrgSubscriptionType,
+  ISubscription,
+  getFollowerSubscription
+} from "models/Subscription";
 import { ITopic } from "models/Topic";
 import api from "utils/api";
 import { Session } from "utils/auth";
@@ -41,7 +45,7 @@ export const sendMail = async (mail: Mail, session?: Session | null) => {
       await transport.sendMail(mail);
     }
 
-    console.log(`sent notif to ${mail.to}`, mail);
+    console.log(`sent notif to ${mail.to}`, mail.subject);
 
     if (session)
       await models.User.updateOne(
@@ -465,187 +469,119 @@ export const sendTopicNotifications = async ({
   subscriptions: ISubscription[];
   topic: ITopic & Document<any, ITopic>;
 }): Promise<ITopicNotification[]> => {
+  let logPrefix = `sendTopicNotifications`;
   const topicNotifications: ITopicNotification[] = [];
 
   if (!event && !org) {
-    console.log("sendTopicNotifications: neither org or event");
+    console.log(logPrefix, "neither org or event");
     return [];
   }
 
-  for (let subscription of subscriptions) {
-    logJson(`sendTopicNotifications: subscription`, subscription);
+  if (event && org) {
+    console.log(logPrefix, "both org and event");
+  }
 
+  for (let subscription of subscriptions) {
+    logPrefix = `sendTopicNotifications.subscription`;
     let topicNotification: ITopicNotification = {
       createdAt: new Date().toISOString()
     };
+
+    const followerSubscription = getFollowerSubscription({
+      event,
+      org,
+      subscription
+    });
+
+    if (!followerSubscription) {
+      console.log(logPrefix, "skipping -- no follower subscription");
+      continue;
+    }
+
+    const tagType = followerSubscription.tagTypes?.find(
+      ({ type }) => type === "Topics"
+    );
+
+    if (!tagType) {
+      console.log(
+        logPrefix,
+        "skipping -- no tag type 'Topics' in follower subscription"
+      );
+      continue;
+    }
 
     const email =
       typeof subscription.user === "object"
         ? subscription.user.email
         : subscription.email;
 
-    if (org) {
-      const orgSubscription = subscription.orgs?.find(
-        ({ orgId, type }) =>
-          equals(orgId, org._id) && type === EOrgSubscriptionType.FOLLOWER
-      );
-
-      if (!orgSubscription) {
+    if (tagType.emailNotif && email) {
+      if (topic.topicNotifications.find(({ email: e }) => e === email)) {
         console.log(
-          "sendTopicNotifications: skipping -- no follower subscription"
+          logPrefix + ".tagType.emailNotif",
+          "skipping -- email already notified"
         );
-        continue;
-      }
-
-      const tagType = orgSubscription.tagTypes?.find(
-        ({ type }) => type === "Topics"
-      );
-
-      if (!tagType) {
-        console.log("sendTopicNotifications: skipping -- no tag type");
-        continue;
-      }
-
-      if (tagType.emailNotif) {
-        if (email) {
-          console.log(`email: notifying ${email}`);
-
-          if (topic.topicNotifications.find(({ email: e }) => e === email)) {
-            console.log(
-              "sendTopicNotifications: skipping -- email already notified"
-            );
-            continue;
-          }
-
+      } else {
+        try {
+          console.log(logPrefix + ".tagType.emailNotif", `notifying ${email}`);
           const mail = createTopicEmailNotif({
             email,
             org,
+            event,
             subscriptionId: subscription._id,
             topic
           });
-
           await sendMail(mail);
           topicNotification = { ...topicNotification, email };
-        }
-      }
-
-      if (
-        tagType.pushNotif &&
-        typeof subscription.user === "object" &&
-        subscription.user.userSubscription
-      ) {
-        console.log(`push: user ${subscription.user._id}`);
-
-        if (
-          topic.topicNotifications.find(({ user }) =>
-            typeof subscription.user === "object"
-              ? equals(user, subscription.user._id)
-              : equals(user, subscription.user)
-          )
-        ) {
-          console.log("push: skipping -- user already notified");
-          continue;
-        }
-
-        try {
-          await api.sendPushNotification({
-            message: `Appuyez pour lire la discussion`,
-            subscription: subscription.user.userSubscription,
-            title: "Vous êtes invité à une discussion",
-            url: getTopicUrl({ org, topic })
-          });
-
-          topicNotification = {
-            ...topicNotification,
-            user: subscription.user._id
-          };
         } catch (error) {
-          console.error(error);
+          console.error(logPrefix + ".tagType.emailNotif.error", error);
           if (getEnv() !== "production")
-            topicNotification = {
-              ...topicNotification,
-              user: subscription.user._id
-            };
+            topicNotification = { ...topicNotification, email };
         }
       }
-    } else if (event) {
-      const eventSubscription = subscription.events?.find(({ eventId }) =>
-        equals(eventId, event._id)
-      );
+    }
 
-      if (!eventSubscription) {
+    if (
+      tagType.pushNotif &&
+      typeof subscription.user === "object" &&
+      subscription.user.userSubscription
+    ) {
+      if (
+        topic.topicNotifications.find(({ user }) =>
+          typeof subscription.user === "object"
+            ? equals(user, subscription.user._id)
+            : equals(user, subscription.user)
+        )
+      ) {
         console.log(
-          "sendTopicNotifications: skipping -- no event subscription"
+          logPrefix + ".tagType.pushNotif",
+          "skipping -- user already notified"
         );
         continue;
       }
 
-      const tagType = eventSubscription.tagTypes?.find(
-        ({ type }) => type === "Topics"
-      );
-
-      if (!tagType) {
-        console.log("sendTopicNotifications: skipping -- no tag type");
-        continue;
-      }
-
-      if (tagType.emailNotif) {
-        if (email) {
-          console.log(`email: notifying ${email}`);
-
-          if (topic.topicNotifications.find(({ email: e }) => e === email)) {
-            console.log("email: skipping -- already notified");
-          } else {
-            const mail = createTopicEmailNotif({
-              email,
-              event,
-              subscriptionId: subscription._id,
-              topic
-            });
-
-            await sendMail(mail);
-            topicNotification = { ...topicNotification, email };
-          }
-        }
-      }
-
-      if (
-        tagType.pushNotif &&
-        typeof subscription.user === "object" &&
-        subscription.user.userSubscription
-      ) {
-        console.log(`push: user ${subscription.user._id}`);
-
-        if (
-          topic.topicNotifications.find(({ user }) =>
-            typeof subscription.user === "object"
-              ? equals(user, subscription.user._id)
-              : equals(user, subscription.user)
-          )
-        ) {
-          console.log("push: skipping -- user already notified");
-          continue;
-        }
-
-        try {
-          await api.sendPushNotification({
-            message: `Appuyez pour lire la discussion`,
-            subscription: subscription.user.userSubscription,
-            title: "Vous êtes invité à une discussion",
-            url: getTopicUrl({ event, topic })
-          });
+      try {
+        console.log(
+          logPrefix + ".tagType.pushNotif",
+          `notifying user ${subscription.user._id}`
+        );
+        await api.sendPushNotification({
+          message: `Appuyez pour lire la discussion`,
+          subscription: subscription.user.userSubscription,
+          title: "Vous êtes invité à une discussion",
+          url: getTopicUrl({ event, org, topic })
+        });
+        topicNotification = {
+          ...topicNotification,
+          user: subscription.user._id
+        };
+      } catch (error) {
+        console.error(logPrefix + ".tagType.pushNotif.error", error);
+        if (getEnv() !== "production")
           topicNotification = {
             ...topicNotification,
             user: subscription.user._id
           };
-        } catch (error) {
-          console.error(error);
-          if (getEnv() !== "production")
-            topicNotification = {
-              ...topicNotification,
-              user: subscription.user._id
-            };
-        }
       }
     }
 

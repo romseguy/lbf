@@ -285,7 +285,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
         "api",
         "icons",
         "sitemap",
-        "robots",
+        "robots.txt",
         "worker"
       ].includes(entityUrl)
         ? "/"

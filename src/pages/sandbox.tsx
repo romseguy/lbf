@@ -1,15 +1,39 @@
 import { Spinner, useColorMode } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Layout } from "features/layout";
 import { PageProps } from "main";
+import api from "utils/api";
+import { logJson } from "utils/string";
 
 const Sandbox = ({ ...props }: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  //const [error, setError] = useState();
+  const [data, setData] = useState();
+  console.log("🚀 ~ file: sandbox.tsx:13 ~ Sandbox ~ data:", data);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get("sandbox");
+        setIsLoading(false);
+
+        if (res.error) console.log("1", res.error);
+        else if (res.data) setData(res.data);
+      } catch (error) {
+        console.log("🚀 ~ file: sandbox.tsx:23 ~ error:", error);
+      }
+    })();
+  }, [isLoading]);
 
   return (
     <Layout pageTitle="Sandbox" {...props}>
-      {isDark ? "dark" : "light"}
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <button onClick={() => setIsLoading(true)}>call</button>
+      )}
     </Layout>
   );
   //return <>{isDark ? "dark" : "light"}</>;

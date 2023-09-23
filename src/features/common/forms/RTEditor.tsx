@@ -105,16 +105,25 @@ export const RTEditor = ({
     file_picker_types: "image", // file image media
     file_picker_callback: onImageClick,
     height: props.height,
-    min_height: props.minHeight,
-    max_height: props.maxHeight || maxHeight,
     image_upload_handler: uploadImage,
     language: "fr_FR",
     language_url: "/tinymce/langs/fr_FR.js",
-    //newline_behavior: "invert",
-    contextmenu: false,
-    menubar: false,
-    statusbar: false,
-
+    min_height: props.minHeight,
+    max_height: props.maxHeight || maxHeight,
+    text_patterns: [
+      { start: "*", end: "*", format: "italic" },
+      { start: "**", end: "**", format: "bold" },
+      { start: "#", format: "h1" },
+      { start: "##", format: "h2" },
+      { start: "###", format: "h3" },
+      { start: "####", format: "h4" },
+      { start: "#####", format: "h5" },
+      { start: "######", format: "h6" },
+      // The following text patterns require the `lists` plugin
+      { start: "1. ", cmd: "InsertOrderedList" },
+      { start: "* ", cmd: "InsertUnorderedList" },
+      { start: "- ", cmd: "InsertUnorderedList" }
+    ],
     plugins: [
       "anchor",
       "autolink",
@@ -127,10 +136,14 @@ export const RTEditor = ({
       //"hr",
       "image",
       "link",
+      "lists",
       "media",
       //"paste",
       "searchreplace"
     ],
+    contextmenu: false,
+    menubar: false,
+    statusbar: false,
     toolbar: [
       {
         name: "outils",

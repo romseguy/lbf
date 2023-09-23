@@ -22,8 +22,11 @@ export const EventPageDescription = ({
   const [description, setDescription] = useState<string | undefined>();
   useEffect(() => {
     if (!event.eventDescription) return setDescription(undefined);
-    const doc = transformRTEditorOutput(event.eventDescription, isMobile);
-    setDescription(doc.body.innerHTML);
+
+    if (isMobile)
+      setDescription(
+        transformRTEditorOutput(event.eventDescription).body.innerHTML
+      );
   }, [event]);
 
   return (

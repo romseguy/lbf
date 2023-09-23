@@ -17,7 +17,7 @@ import {
   FaLink,
   FaTelegram
 } from "react-icons/fa";
-import { Link } from "features/common";
+import { CollapsibleLink, Link } from "features/common";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { MapModal } from "features/modals/MapModal";
@@ -136,9 +136,6 @@ export const EntityInfo = ({
       {entityWeb && (
         <Flex flexDirection="column">
           {entityWeb?.map(({ prefix, url }, index) => {
-            const isCollapsed =
-              webCollapsed[index] === undefined ? true : !!webCollapsed[index];
-
             const icon = url.includes("facebook")
               ? FaFacebook
               : url.includes("instagram")
@@ -151,61 +148,13 @@ export const EntityInfo = ({
               ? FaTelegram
               : FaLink;
 
-            let uri = url.includes("http")
-              ? url
-                  .replace("https://", "")
-                  .replace("http://", "")
-                  .replace("www.", "")
-              : url;
-            uri = uri.replace(/\/$/, "");
-            let shortUrl = uri;
-            const collapseLength = isMobile ? 16 : 64;
-            let canCollapse = uri.length > collapseLength;
-            if (canCollapse && isCollapsed)
-              shortUrl = uri.substr(0, collapseLength) + "...";
-
             return (
-              <Flex key={`web-${index}`} alignItems="center">
-                {!isCollapsed ? (
-                  <Tooltip
-                    label="Réduire l'adresse du site internet"
-                    placement="top"
-                  >
-                    <ViewOffIcon
-                      cursor="pointer"
-                      mr={3}
-                      onClick={() =>
-                        setWebCollapsed({ ...webCollapsed, [index]: true })
-                      }
-                    />
-                  </Tooltip>
-                ) : (
-                  <Icon as={icon} mr={3} />
-                )}
-
-                <Link
-                  target="_blank"
-                  variant="underline"
-                  href={url.includes("http") ? url : `${prefix}${url}`}
-                >
-                  {shortUrl}
-                </Link>
-
-                {canCollapse && isCollapsed ? (
-                  <Tooltip
-                    label="Voir en entier l'adresse du site internet"
-                    placement="top"
-                  >
-                    <ViewIcon
-                      cursor="pointer"
-                      ml={2}
-                      onClick={() =>
-                        setWebCollapsed({ ...webCollapsed, [index]: false })
-                      }
-                    />
-                  </Tooltip>
-                ) : null}
-              </Flex>
+              <CollapsibleLink
+                key={`web-${index}`}
+                collapseLength={isMobile ? 32 : url.length + 2}
+                icon={icon}
+                url={url.includes("http") ? url : `${prefix}${url}`}
+              />
             );
           })}
         </Flex>

@@ -104,7 +104,12 @@ export const SubscriptionEditPopover = ({
               variant="underline"
               onClick={onClose}
             >
-              Se désabonner {org ? orgTypeFull(org.orgType) : "de l'événement"}
+              Se désabonner{" "}
+              {org
+                ? org.orgUrl === "forum"
+                  ? "du forum"
+                  : orgTypeFull(org.orgType)
+                : "de l'événement"}
             </Link>
           </PopoverHeader>
         ) : (

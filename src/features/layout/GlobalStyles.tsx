@@ -37,10 +37,6 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
         body {
           overflow-x: ${isMobile ? "hidden" : "auto"};
         }
-        hr {
-          border-top-width: 3px;
-          margin: 0 24px;
-        }
         //#endregion
 
         //#region large screens
@@ -313,7 +309,6 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
           a {
             text-decoration: underline;
           }
-
           a.clip {
             text-overflow: ellipsis;
             display: inline-block;
@@ -322,13 +317,26 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
             max-width: 150px;
             vertical-align: top;
           }
-
-          hr {
-            margin-bottom: 1rem;
+          h1 {
+            font-size: 2em;
           }
-
+          h2 {
+            font-size: 1.5em;
+          }
+          h3 {
+            font-size: 1.25em;
+          }
+          hr {
+            border-top-width: 3px;
+            margin: 0 24px 1rem 24px;
+          }
           p {
             margin-bottom: 1rem;
+          }
+          ol,
+          ul {
+            margin-bottom: 1rem;
+            padding-left: 40px;
           }
         }
         //#endregion

@@ -21,10 +21,7 @@ export function bytesForHuman(bytes: number, decimals = 0) {
   return parseFloat(bytes.toFixed(decimals)) + units[i];
 }
 
-export function transformRTEditorOutput(
-  str: string,
-  isMobile: boolean
-): Document {
+export function transformRTEditorOutput(str: string): Document {
   const parser = new DOMParser();
   //const doc = parser.parseFromString(str.replace(/&nbsp;/g, " "), "text/html");
   const doc = parser.parseFromString(str, "text/html");
@@ -37,10 +34,7 @@ export function transformRTEditorOutput(
     if (!link.innerText.includes("http")) {
       link.setAttribute("title", link.innerText);
 
-      if (
-        isMobile &&
-        (link.href.includes("http") || link.href.includes("mailto:"))
-      ) {
+      if (link.href.includes("http") || link.href.includes("mailto:")) {
         link.classList.add("clip");
 
         if (link.href.includes("mailto:"))

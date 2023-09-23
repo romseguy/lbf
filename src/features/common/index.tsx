@@ -34,6 +34,7 @@ export * from "./forms/UrlControl";
 export * from "./AppHeading";
 export * from "./Button";
 export * from "./CategoriesList";
+export * from "./CollapsibleLink";
 export * from "./Column";
 export * from "./DarkModeSwitch";
 export * from "./DateRange";

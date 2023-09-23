@@ -2,7 +2,10 @@ import { Document, Types } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { sendTopicMessageNotifications } from "server/email";
+import {
+  sendTopicMessageNotifications,
+  sendTopicNotifications
+} from "server/email";
 import { AddTopicPayload } from "features/api/topicsApi";
 import { getSession } from "utils/auth";
 import { getRefId } from "models/Entity";
@@ -201,16 +204,25 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           event.eventTopics.push(topic);
           await event.save();
           //log(`POST /topics: event`, event);
-        } else if (org) {
+        }
+        //#region add topic to org and notify org subscribers
+        else if (org) {
           await models.Org.updateOne(
             { _id: org._id },
             {
               $push: { orgTopics: topic._id }
             }
           );
+          const subscriptions = await models.Subscription.find(
+            {
+              orgs: { $elemMatch: { orgId: org._id } }
+            },
+            "user email events orgs"
+          ).populate([{ path: "user", select: "email userSubscription" }]);
+          await sendTopicNotifications({ org, subscriptions, topic });
         }
 
-        //#region creator subscription
+        //#region subscribe self to topic
         const user = await models.User.findOne({
           _id: session.user.userId
         });
