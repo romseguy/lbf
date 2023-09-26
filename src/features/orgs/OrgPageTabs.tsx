@@ -109,7 +109,7 @@ export const OrgPageTabs = ({
 
         return { ...tab, ...metadata };
       });
-  }, [org.orgTabs]);
+  }, [org]);
   //#endregion
 
   //#region current tab index
@@ -243,11 +243,9 @@ export const OrgPageTabs = ({
 
         {!!tabs.find(({ label }) => label === "Événements") && (
           <TabPanel aria-hidden>
-            <Flex>
-              <CalendarIcon boxSize={6} mr={3} mt={3} />
-              <AppHeading noContainer mb={3}>
-                {title}
-              </AppHeading>
+            <Flex alignItems="center" mb={3}>
+              <CalendarIcon boxSize={6} mr={3} />
+              <AppHeading>{title}</AppHeading>
             </Flex>
 
             <Column {...columnProps}>
@@ -263,11 +261,9 @@ export const OrgPageTabs = ({
 
         {!!tabs.find(({ label }) => label === "Projets") && (
           <TabPanel aria-hidden>
-            <Flex>
-              <Icon as={FaTools} boxSize={6} mr={3} mt={3} />
-              <AppHeading noContainer mb={3}>
-                Projets
-              </AppHeading>
+            <Flex alignItems="center" mb={3}>
+              <Icon as={FaTools} boxSize={6} mr={3} />
+              <AppHeading>Projets</AppHeading>
             </Flex>
 
             <Column {...columnProps}>
@@ -357,21 +353,21 @@ export const OrgPageTabs = ({
                       isDisabled={defaultTabs
                         .map(({ label }) => label)
                         .includes(defaultTab.label)}
-                      onChange={(e) => {
-                        let changed = false;
-                        const newTabs = tabsState.map((t) => {
-                          if (t.label === defaultTab.label) {
-                            if (e.target.value !== t.label) changed = true;
-                            return {
-                              ...t,
-                              label: e.target.value
-                            };
-                          }
-                          return t;
-                        });
+                      // onChange={(e) => {
+                      //   let changed = false;
+                      //   const newTabs = tabsState.map((t) => {
+                      //     if (t.label === defaultTab.label) {
+                      //       if (e.target.value !== t.label) changed = true;
+                      //       return {
+                      //         ...t,
+                      //         label: e.target.value
+                      //       };
+                      //     }
+                      //     return t;
+                      //   });
 
-                        if (changed) setTabsState(newTabs);
-                      }}
+                      //   if (changed) setTabsState(newTabs);
+                      // }}
                     />
                   </Flex>
                 );

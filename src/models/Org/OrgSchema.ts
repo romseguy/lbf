@@ -14,6 +14,9 @@ export const OrgSchema = new Schema<IOrg>(
       trim: true,
       unique: true
     },
+    redirectUrl: {
+      type: String
+    },
     orgType: {
       type: String,
       enum: EOrgType,

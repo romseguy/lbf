@@ -134,7 +134,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
 
         topic = await models.Topic.findOne(
           { _id: body.topic._id },
-          "topicMessages"
+          "topicName topicMessages"
         );
 
         if (!topic) {
@@ -163,7 +163,10 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           user: { $ne: session.user.userId }
         }).populate({ path: "user", select: "email phone userSubscription" });
 
-        logJson(`POST /topics: topic subscriptions`, subscriptions);
+        logJson(
+          `POST /topics: topic subscriptions`,
+          subscriptions.map(({ _id, user, email }) => ({ _id, user, email }))
+        );
 
         sendTopicMessageNotifications({
           event: event ? event : undefined,
@@ -200,13 +203,12 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           createdBy: session.user.userId
         });
 
+        //#region add topic to entity and notify entity subscribers
         if (event) {
           event.eventTopics.push(topic);
           await event.save();
           //log(`POST /topics: event`, event);
-        }
-        //#region add topic to org and notify org subscribers
-        else if (org) {
+        } else if (org) {
           await models.Org.updateOne(
             { _id: org._id },
             {
@@ -215,12 +217,14 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           );
           const subscriptions = await models.Subscription.find(
             {
-              orgs: { $elemMatch: { orgId: org._id } }
+              orgs: { $elemMatch: { orgId: org._id } },
+              user: { $ne: session.user.userId }
             },
             "user email events orgs"
           ).populate([{ path: "user", select: "email userSubscription" }]);
           await sendTopicNotifications({ org, subscriptions, topic });
         }
+        //#endregion
 
         //#region subscribe self to topic
         const user = await models.User.findOne({

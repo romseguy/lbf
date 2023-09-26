@@ -107,7 +107,11 @@ export const OrgsList = ({
   const orgsMetadata = useMemo(() => {
     const record: Record<
       string,
-      { latestMessageCreatedAt: Date; latestTopic: ITopic }
+      {
+        latestMessageCreatedAt: Date;
+        latestMessageUpdatedAt: Date;
+        latestTopic: ITopic;
+      }
     > = {};
 
     if (!Array.isArray(data)) return record;
@@ -116,18 +120,25 @@ export const OrgsList = ({
       if (hasItems(org.orgTopics)) {
         for (const orgTopic of org.orgTopics) {
           for (const orgTopicMessage of orgTopic.topicMessages || []) {
-            const current = parseISO(orgTopicMessage.createdAt || "");
+            const createdAt = parseISO(orgTopicMessage.createdAt || "");
+            const updatedAt = parseISO(orgTopicMessage.updatedAt || "");
             const saved = record[org._id];
 
             if (!saved) {
               record[org._id] = {
-                latestMessageCreatedAt: current,
+                latestMessageCreatedAt: createdAt,
+                latestMessageUpdatedAt: updatedAt,
                 latestTopic: orgTopic
               };
             } else {
-              // if current date is before saved date
-              if (compareDesc(current, saved.latestMessageCreatedAt)) {
-                saved.latestMessageCreatedAt = current;
+              // if createdAt is before saved createdAt
+              if (compareDesc(createdAt, saved.latestMessageCreatedAt)) {
+                saved.latestMessageCreatedAt = createdAt;
+                saved.latestTopic = orgTopic;
+              }
+              // if updatedAt is before saved updatedAt
+              if (compareDesc(updatedAt, saved.latestMessageUpdatedAt)) {
+                saved.latestMessageUpdatedAt = updatedAt;
                 saved.latestTopic = orgTopic;
               }
             }
@@ -142,7 +153,7 @@ export const OrgsList = ({
   const orgs = useMemo(() => {
     if (!Array.isArray(data)) return [];
 
-    if (selectedOrder?.key === "latestActivity") {
+    if (selectedOrder?.key === EOrderKey.latestActivity) {
       const orgsWithMetadata = data
         .filter((org) => !!orgsMetadata[org._id])
         .sort((a, b) => {

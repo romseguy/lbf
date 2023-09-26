@@ -48,11 +48,9 @@ export const EntityPageDocuments = ({
 
   return (
     <>
-      <Flex>
-        <Icon as={FaImages} boxSize={6} mr={3} mt={3} />
-        <AppHeading noContainer mb={3}>
-          Galerie
-        </AppHeading>
+      <Flex alignItems="center" mb={3}>
+        <Icon as={FaImages} boxSize={6} mr={3} />
+        <AppHeading>Galerie</AppHeading>
       </Flex>
 
       <TabContainer borderBottomRadius={isFilesOpen ? undefined : "lg"}>

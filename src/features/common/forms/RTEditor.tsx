@@ -3,6 +3,7 @@ import { Editor, IAllProps } from "@tinymce/tinymce-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import type { Editor as TinyMCEEditor } from "tinymce";
+import theme from "features/layout/theme";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { useAppDispatch } from "store";
@@ -90,14 +91,14 @@ export const RTEditor = ({
     branding: false,
     content_style: `
       @font-face {
-        font-family: "Roboto";
-        src: url("/fonts/RobotoCondensed-Regular.ttf");
-        //src: url("/fonts/RobotoCondensed-Bold.ttf");
+        font-family: "Spectral";
+        src: url("/fonts/Spectral-Regular.ttf");
       }
       body {
-        /*font-family: Helvetica,Arial,sans-serif;*/
-        font-size:16px;
-        font-family: Roboto;
+        /*font-family: -apple-system-ui-serif, ui-serif, Spectral, Georgia, serif;*/
+        font-family: ${theme.fonts.spectral};
+        font-size: 19px;
+        text-align: justify;
       }
     `,
     convert_urls: false,

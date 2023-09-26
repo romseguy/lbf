@@ -5,6 +5,7 @@ export interface IEntity extends Record<string, any> {
   _id: string;
   createdAt?: string;
   createdBy?: IUser | string;
+  updatedAt?: string;
 }
 
 export interface IEntityAddress {

@@ -19,7 +19,10 @@ export async function logEvent(event: ServerEvent) {
     const data = await fs.readFile("logs/events.json");
     const json = JSON.parse(data.toString());
     json.push(newEvent);
-    await fs.writeFile("logs/events.json", JSON.stringify(json));
+    await fs.writeFile(
+      "logs/events.json",
+      "\n" + JSON.stringify(json, null, 2)
+    );
   } catch (error: any) {
     error = error as {
       errno: number;

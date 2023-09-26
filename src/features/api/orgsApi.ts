@@ -70,9 +70,9 @@ export const orgApi = api.injectEndpoints({
           body: payload
         };
       },
-      invalidatesTags: (result, error, params) => [
-        { type: "Orgs", id: params.orgId }
-      ]
+      invalidatesTags: (result, error, params) => {
+        return [{ type: "Orgs", id: params.orgId }];
+      }
     }),
     getOrg: build.query<IOrg, GetOrgParams>({
       query: ({ orgUrl, ...query }) => {

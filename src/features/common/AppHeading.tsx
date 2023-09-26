@@ -7,25 +7,25 @@ import {
 } from "@chakra-ui/react";
 import { css } from "twin.macro";
 import { rainbowTextCss } from "features/layout/theme";
+import theme from "features/layout/theme";
 
 export const AppHeading = ({
   children,
-  containerProps,
-  fontFamily = "Roboto",
+  fontFamily = theme.fonts.roboto,
+  noContainer,
   smaller,
-  noContainer = false,
   ...props
 }: HeadingProps & {
   children: React.ReactNode;
-  containerProps?: FlexProps;
   fontFamily?: string;
-  smaller?: boolean;
   noContainer?: boolean;
+  smaller?: boolean;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const element = (
     <Heading
+      as={props.as ? props.as : smaller ? "h2" : "h1"}
       fontFamily={fontFamily}
       fontSize={smaller ? "2xl" : ["3xl", "4xl"]}
       css={css(rainbowTextCss(isDark))}
@@ -36,6 +36,5 @@ export const AppHeading = ({
   );
 
   if (noContainer) return element;
-
-  return <Flex {...containerProps}>{element}</Flex>;
+  return <Flex>{element}</Flex>;
 };

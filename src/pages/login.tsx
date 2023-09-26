@@ -98,7 +98,7 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
           m="0 auto"
         >
           <Link href="/" m="0 auto">
-            <Heading fontFamily="Lato">
+            <Heading fontFamily="Spectral">
               {process.env.NEXT_PUBLIC_SHORT_URL}
             </Heading>
           </Link>

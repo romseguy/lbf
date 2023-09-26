@@ -107,11 +107,11 @@ export const OrgPageHomeTabPanel = ({
   );
   useEffect(() => {
     if (!org.orgDescription) return setDescription(undefined);
-
-    if (isMobile)
-      setDescription(
-        transformRTEditorOutput(org.orgDescription).body.innerHTML
-      );
+    const newDoc = isMobile
+      ? transformRTEditorOutput(org.orgDescription)
+      : new DOMParser().parseFromString(org.orgDescription, "text/html");
+    const newDescription = newDoc.body.innerHTML;
+    if (description !== newDescription) setDescription(newDescription);
   }, [org]);
   const [isListOpen, setIsListOpen] = useState(true);
   const [isChildrenOpen, setIsChildrenOpen] = useState(false);

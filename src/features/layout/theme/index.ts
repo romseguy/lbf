@@ -166,7 +166,11 @@ const theme = extendTheme({
       }
     }
   },
-  fonts: { mono: `'Menlo', monospace` }
+  fonts: {
+    mono: `monospace`,
+    roboto: `'Roboto', sans-serif`,
+    spectral: `-apple-system-ui-serif, ui-serif, Spectral, Georgia, serif`
+  }
 });
 
 export * from "./breakpoints";

@@ -21,7 +21,7 @@ export const Column = ({
       flexDirection="column"
       bg={isDark ? "gray.600" : "lightcyan"}
       borderWidth={1}
-      borderColor={isDark ? "gray.600" : "gray.200"}
+      borderColor={isDark ? "gray.500" : "gray.200"}
       borderRadius="lg"
       p={3}
       {...(isCollapsable

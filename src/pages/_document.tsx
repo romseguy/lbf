@@ -8,6 +8,18 @@ export default class Document extends NextDocument {
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
           <link rel="manifest" href="/manifest.json" />
           <meta name="theme-color" content="#ffffff" />
+
+          <link
+            href="http://fonts.googleapis.com/css?family=Roboto"
+            rel="stylesheet"
+            type="text/css"
+          />
+          <link
+            href="http://fonts.googleapis.com/css?family=Spectral"
+            rel="stylesheet"
+            type="text/css"
+          />
+
           <link
             href="/favicon-16x16.png"
             rel="icon"
@@ -20,6 +32,7 @@ export default class Document extends NextDocument {
             type="image/png"
             sizes="32x32"
           />
+
           <link
             href="/icons/android-chrome-192x192.png"
             rel="icon"

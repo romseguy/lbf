@@ -45,7 +45,7 @@ export const sendMail = async (mail: Mail, session?: Session | null) => {
       await transport.sendMail(mail);
     }
 
-    console.log(`sent notif to ${mail.to}`, mail.subject);
+    console.log(`sent notif to ${mail.to}`, mail);
 
     if (session)
       await models.User.updateOne(

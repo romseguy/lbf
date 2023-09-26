@@ -128,18 +128,18 @@ export const renderCustomInput = ({
 };
 
 export const DatePicker = ({ ...datePickerProps }: ReactDatePickerProps) => {
-  let selected = datePickerProps.selected;
+  // let selected = datePickerProps.selected;
 
-  if (selected === null) {
-    selected = new Date();
-  }
+  // if (selected === null) {
+  //   selected = new Date();
+  // }
 
   return (
     <ReactDatePickerStyles isBrowser={isBrowser}>
       <ReactDatePicker
         dateFormat="dd/MM"
         locale={fr}
-        selected={selected}
+        //selected={selected}
         timeCaption="h"
         onChangeRaw={(e) => e.preventDefault()}
         {...datePickerProps}

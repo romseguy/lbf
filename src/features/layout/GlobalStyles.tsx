@@ -1,7 +1,6 @@
 import { useColorMode } from "@chakra-ui/react";
 import { Global, css } from "@emotion/react";
 import theme, { breakpoints } from "features/layout/theme";
-import { PageProps } from "main";
 import { zIndex } from "utils/string";
 
 export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
@@ -12,20 +11,24 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
     <Global
       styles={css`
         //#region fonts
-        @font-face {
-          font-family: "Lato";
-          src: url("/fonts/Lato-Regular.ttf");
-          //src: url("/fonts/Lato-Bold.ttf");
-        }
-        @font-face {
+        /* @font-face {
+          font-family: "Spectral";
+          src: url("/fonts/Spectral-Regular.ttf");
+        } */
+        /* @font-face {
+            font-family: "Lato";
+            src: url("/fonts/Lato-Regular.ttf");
+            src: url("/fonts/Lato-Bold.ttf");
+        } */
+        /* @font-face {
           font-family: "Roboto";
           src: url("/fonts/RobotoCondensed-Regular.ttf");
           //src: url("/fonts/RobotoCondensed-Bold.ttf");
-        }
+        } */
         /* @font-face {
-        font-family: "Aladin";
-        src: url("/fonts/Aladin-Regular.ttf");
-      } */
+          font-family: "Aladin";
+          src: url("/fonts/Aladin-Regular.ttf");
+        } */
         //#endregion
 
         //#region elements
@@ -36,6 +39,10 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
         }
         body {
           overflow-x: ${isMobile ? "hidden" : "auto"};
+        }
+        ol:not([role="list"]),
+        ul:not([role="list"]) {
+          padding-left: 40px;
         }
         //#endregion
 
@@ -305,7 +312,12 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
 
         //#region rteditor
         .rteditor {
-          font-family: Roboto;
+          /*font-family: Helvetica,Arial,sans-serif;*/
+          /* font-family: -apple-system-ui-serif, ui-serif, Spectral, Georgia,
+            serif; */
+          font-family: ${theme.fonts.spectral};
+          font-size: 19px;
+          text-align: justify;
           a {
             text-decoration: underline;
           }
@@ -336,7 +348,6 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
           ol,
           ul {
             margin-bottom: 1rem;
-            padding-left: 40px;
           }
         }
         //#endregion

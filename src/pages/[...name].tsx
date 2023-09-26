@@ -273,14 +273,14 @@ const HashPage = ({ ...props }: PageProps) => {
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
-    // console.log("🚀 ~ file: [...name].tsx:282 ~ tabItem:", ctx.query);
+    // console.log("🚀 ~ file: [...name].tsx:getServerSideProps ~ ctx.query:", ctx.query);
     if (
       Array.isArray(ctx.query.name) &&
       typeof ctx.query.name[0] === "string"
     ) {
       const entityUrl = ctx.query.name[0];
       const tabItem = ctx.query.name[1];
-      // console.log("🚀 ~ file: [...name].tsx:283 ~ tabItem:", tabItem);
+      // console.log("🚀 ~ file: [...name].tsx:getServerSideProps ~ tabItem:", tabItem);
       let destination = [
         "api",
         "icons",
@@ -301,18 +301,22 @@ export const getServerSideProps = wrapper.getServerSideProps(
       destination = "/" + normalizedEntityUrl;
 
       if (entityUrl !== normalizedEntityUrl)
-        return {
-          redirect: {
-            permanent: false,
-            destination
-          }
-        };
+        return { redirect: { permanent: false, destination } };
 
       // todo: pass ctx.req.headers.cookie
       store.dispatch(getOrg.initiate(initialOrgQueryParams(entityUrl)));
       store.dispatch(getEvent.initiate(initialEventQueryParams(entityUrl)));
       store.dispatch(getUser.initiate(initialUserQueryParams(entityUrl)));
-      await Promise.all(store.dispatch(getRunningQueriesThunk()));
+      const [orgQuery, eventQuery, userQuery] = await Promise.all(
+        store.dispatch(getRunningQueriesThunk())
+      );
+
+      //@ts-ignore
+      if (orgQuery.data?.redirectUrl) {
+        //@ts-ignore
+        destination = "/" + orgQuery.data.redirectUrl;
+        return { redirect: { permanent: false, destination } };
+      }
 
       // if (typeof ctx.query.name[1] === "string") {
       //   return {

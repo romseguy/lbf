@@ -128,7 +128,7 @@ export const Layout = ({
 
         {/* Footer */}
         <Box as="footer" pb={3} mt={3}>
-          <Image src="/images/bg.png" height="100px" m="0 auto" />
+          {/* <Image src="/images/bg.png" height="100px" m="0 auto" /> */}
           <Box fontSize="smaller" textAlign="center">
             <Link href="/a_propos" variant="underline">
               À propos
@@ -140,6 +140,10 @@ export const Layout = ({
             <Delimiter />
             <Link href="/privacy" variant="underline">
               CGU
+            </Link>
+            <Delimiter />
+            <Link href="https://github.com/romseguy/lbf" variant="underline">
+              Code
             </Link>
           </Box>
         </Box>

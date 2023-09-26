@@ -1,12 +1,10 @@
-import type { IUser } from "models/User";
 import { Schema } from "mongoose";
+import { IEntity } from "models/Entity";
 
-export interface ITopicMessage {
+export interface ITopicMessage extends Omit<IEntity, "_id"> {
   _id?: string;
   message: string;
   messageHtml?: string;
-  createdBy?: IUser | string;
-  createdAt?: string;
 }
 
 export const TopicMessageSchema = new Schema<ITopicMessage>(

@@ -12,9 +12,12 @@ export const formBoxProps = (isDark?: boolean): BoxProps => ({
 export const rainbowTextCss = (isDark?: boolean) => `
 background-clip: text;
 background-image: linear-gradient(to left, ${
+  /*isDark
+    ? "violet, violet, lightgreen, lightgreen, yellow, orange, red"
+    : "red, green, green, brown, green, green, brown"*/
   isDark
     ? "violet, violet, lightgreen, lightgreen, yellow, orange, red"
-    : "red, green, green, brown, green, green, brown"
+    : "violet, purple, teal, teal, orange, orange, red"
 });
 color: transparent;
 -webkit-background-clip: text;

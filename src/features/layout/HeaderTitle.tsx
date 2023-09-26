@@ -159,6 +159,7 @@ export const HeaderTitle = ({
       pl={4}
       pr={4}
       ml={logo ? 5 : undefined}
+      onClick={(e) => e.stopPropagation()}
       {...props}
     >
       <Flex flexDirection={orgNetworks.length > 0 ? "column" : "row"}>

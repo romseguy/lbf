@@ -141,7 +141,7 @@ const IndexPage = (props: PageProps) => {
                       )}
                     </>
                   )}
-                  <AppHeading noContainer>Une idée de forum ?</AppHeading>
+                  <AppHeading>Une idée de forum ?</AppHeading>
                 </Flex>
 
                 {(!isCollapsed || !isCollapsable) && (

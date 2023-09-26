@@ -488,7 +488,7 @@ export const EventForm = withGoogleApi({
     //#region datepicker props
     const eventMinDuration = 1;
     const eventMinDatePickerProps = {
-      minDate: now,
+      //minDate: now,
       maxDate: end && compareDesc(end, now) === 1 ? undefined : end,
       dateFormat: "Pp",
       showTimeSelect: true,
@@ -531,8 +531,8 @@ export const EventForm = withGoogleApi({
       }
     }
     const eventMaxDatePickerProps = {
-      minDate:
-        compareDesc(eventMaxDateMinDate, now) === 1 ? now : eventMaxDateMinDate,
+      //minDate: compareDesc(eventMaxDateMinDate, now) === 1 ? now : eventMaxDateMinDate,
+      minDate: eventMaxDateMinDate,
       dateFormat: "Pp",
       showTimeSelect: true,
       timeFormat: "p",
@@ -1042,7 +1042,9 @@ export const EventForm = withGoogleApi({
           //     : !!eventOrgsRules.required
           // }
         >
-          <FormLabel>Organisateur de l'événement (optionnel)</FormLabel>
+          <FormLabel>
+            La planète ou l'arbre auquel est rattaché cet événement (optionnel)
+          </FormLabel>
           <Controller
             name="eventOrg"
             //rules={eventOrgsRules}
