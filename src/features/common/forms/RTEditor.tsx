@@ -89,14 +89,10 @@ export const RTEditor = ({
   }, [editorRef]);
   const init: IAllProps["init"] = {
     branding: false,
+    font_css: "/fonts/spectral.css",
     content_style: `
-      @font-face {
-        font-family: "Spectral";
-        src: url("/fonts/Spectral-Regular.ttf");
-      }
       body {
-        /*font-family: -apple-system-ui-serif, ui-serif, Spectral, Georgia, serif;*/
-        font-family: ${theme.fonts.spectral};
+        font-family: 'Spectral', Georgia, ui-serif, serif;
         font-size: 19px;
         text-align: justify;
       }
@@ -105,6 +101,9 @@ export const RTEditor = ({
     document_base_url: process.env.NEXT_PUBLIC_URL + "/",
     file_picker_types: "image", // file image media
     file_picker_callback: onImageClick,
+    //font_family_formats: "Spectral",
+    font_family_formats:
+      "Spectral;Andale Mono=andale mono,times;Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Comic Sans MS=comic sans ms,sans-serif;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Symbol=symbol;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva;",
     height: props.height,
     image_upload_handler: uploadImage,
     language: "fr_FR",
@@ -162,9 +161,10 @@ export const RTEditor = ({
       {
         name: "texte",
         items: [
-          //"fontsize",
+          "fontfamily",
+          "fontsizeinput",
           "forecolor",
-          "alignleft",
+          "alignjustify",
           "aligncenter",
           "bold",
           "italic",
@@ -177,87 +177,6 @@ export const RTEditor = ({
       }
     ]
   };
-  // const init: IAllProps["init"] = {
-  //   //#region styling
-  //   branding: false,
-  //   content_css: "default",
-  //   content_style: `
-  //   body {
-  //     font-family:Helvetica,Arial,sans-serif;
-  //     font-size:14px;
-  //     overflow-y: scroll;
-  //   }
-  //   p { margin: 0; padding: 0; }
-  //   `,
-  //   height: props.height,
-  //   max_height: 500,
-  //   placeholder,
-  //   //endregion
-
-  //   language: "fr_FR",
-  //   language_url: "/tinymce/langs/fr_FR.js",
-  //   //contextmenu: "copy paste link",
-  //   contextmenu: false,
-  //   menubar: false,
-  //   statusbar: false,
-  //   plugins: [
-  //     "anchor",
-  //     "autolink",
-  //     "charmap",
-  //     "code",
-  //     "emoticons",
-  //     "fullscreen",
-  //     "help",
-  //     //"hr",
-  //     "image",
-  //     "link",
-  //     "media",
-  //     //"paste",
-  //     "searchreplace"
-  //   ],
-  //   toolbar: [
-  //     {
-  //       name: "",
-  //       items: [
-  //         "fullscreen",
-  //         "removeformat",
-  //         "undo",
-  //         "redo",
-  //         "link",
-  //         "anchor",
-  //         "hr"
-  //       ]
-  //     },
-  //     {
-  //       name: "texte",
-  //       items: [
-  //         "fontsize",
-  //         "forecolor",
-  //         "alignleft",
-  //         "aligncenter",
-  //         "bold",
-  //         "italic",
-  //         "charmap"
-  //       ]
-  //     },
-  //     {
-  //       name: "media",
-  //       items: ["emoticons", "link", "unlink", "image", "media", "code", "help"]
-  //     }
-  //   ],
-  //   //extended_valid_elements: "a[id|name|href|target=_blank]",
-  //   file_picker_types: "image",
-  //   file_picker_callback: onImageClick,
-  //   image_upload_handler: uploadImage,
-  //   relative_urls: true,
-  //   //remove_script_host: false,
-  //   document_base_url: process.env.NEXT_PUBLIC_URL + "/",
-
-  //   mobile: {
-  //     //   toolbar_location: "bottom",
-  //     toolbar_mode: "floating"
-  //   }
-  // };
 
   function onImageClick(
     cb: Function
@@ -395,3 +314,89 @@ export const RTEditor = ({
     </>
   );
 };
+
+{
+  /*
+    const init: IAllProps["init"] = {
+      //#region styling
+      branding: false,
+      content_css: "default",
+      content_style: `
+      body {
+        font-family:Helvetica,Arial,sans-serif;
+        font-size:14px;
+        overflow-y: scroll;
+      }
+      p { margin: 0; padding: 0; }
+      `,
+      height: props.height,
+      max_height: 500,
+      placeholder,
+      //endregion
+
+      language: "fr_FR",
+      language_url: "/tinymce/langs/fr_FR.js",
+      //contextmenu: "copy paste link",
+      contextmenu: false,
+      menubar: false,
+      statusbar: false,
+      plugins: [
+        "anchor",
+        "autolink",
+        "charmap",
+        "code",
+        "emoticons",
+        "fullscreen",
+        "help",
+        //"hr",
+        "image",
+        "link",
+        "media",
+        //"paste",
+        "searchreplace"
+      ],
+      toolbar: [
+        {
+          name: "",
+          items: [
+            "fullscreen",
+            "removeformat",
+            "undo",
+            "redo",
+            "link",
+            "anchor",
+            "hr"
+          ]
+        },
+        {
+          name: "texte",
+          items: [
+            "fontsize",
+            "forecolor",
+            "alignleft",
+            "aligncenter",
+            "bold",
+            "italic",
+            "charmap"
+          ]
+        },
+        {
+          name: "media",
+          items: ["emoticons", "link", "unlink", "image", "media", "code", "help"]
+        }
+      ],
+      //extended_valid_elements: "a[id|name|href|target=_blank]",
+      file_picker_types: "image",
+      file_picker_callback: onImageClick,
+      image_upload_handler: uploadImage,
+      relative_urls: true,
+      //remove_script_host: false,
+      document_base_url: process.env.NEXT_PUBLIC_URL + "/",
+
+      mobile: {
+        //   toolbar_location: "bottom",
+        toolbar_mode: "floating"
+      }
+    };
+  */
+}

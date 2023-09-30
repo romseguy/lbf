@@ -14,11 +14,6 @@ export default class Document extends NextDocument {
             rel="stylesheet"
             type="text/css"
           />
-          <link
-            href="http://fonts.googleapis.com/css?family=Spectral"
-            rel="stylesheet"
-            type="text/css"
-          />
 
           <link
             href="/favicon-16x16.png"

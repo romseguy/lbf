@@ -70,16 +70,7 @@ export const TopicsListItemVisibility = ({
     <>
       {icons.map(({ label, icon }, index) => (
         <Tooltip key={index} label={label}>
-          <Icon
-            as={icon}
-            boxSize={4}
-            //bgColor="transparent"
-            //_hover={{ bgColor: "transparent" }}
-            //height="auto"
-            //minWidth={0}
-            //cursor="default"
-            {...props}
-          />
+          <Icon as={icon} boxSize={4} {...props} />
         </Tooltip>
       ))}
     </>

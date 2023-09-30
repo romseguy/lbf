@@ -252,12 +252,14 @@ handler.put<
         topic.topicMessages = topic.topicMessages.map((topicMessage) => {
           if (!body.topicMessage) return topicMessage; // dumb ts
           if (equals(topicMessage._id, body.topicMessage._id)) {
-            return {
+            const newTM = {
               ...body.topicMessage,
               _id: topicMessage._id,
               createdAt: topicMessage.createdAt,
-              createdBy: topicMessage.createdBy
+              createdBy: topicMessage.createdBy,
+              updatedAt: new Date() // FIXME https://stackoverflow.com/questions/39495671/mongodb-mongoose-timestamps-not-updating
             };
+            return newTM;
           }
 
           return topicMessage;

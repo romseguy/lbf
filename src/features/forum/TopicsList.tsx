@@ -194,6 +194,7 @@ export const TopicsList = ({
       {(props.isCreator || topicCategories.length > 0) && (
         <Flex flexDirection="column" mb={3}>
           <AppHeading smaller>Catégories</AppHeading>
+
           <TopicsListCategories
             query={query}
             isCreator={props.isCreator}

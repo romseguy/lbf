@@ -1,6 +1,7 @@
 export * from "./entities/EntityAddButton";
 export * from "./entities/EntityAddPage";
 export * from "./entities/EntityButton";
+export * from "./entities/EntityCategoriesList";
 export * from "./entities/EntityConfigBannerPanel";
 export * from "./entities/EntityConfigCategoriesPanel";
 export * from "./entities/EntityConfigLogoPanel";
@@ -33,7 +34,6 @@ export * from "./forms/UrlControl";
 
 export * from "./AppHeading";
 export * from "./Button";
-export * from "./CategoriesList";
 export * from "./CollapsibleLink";
 export * from "./Column";
 export * from "./DarkModeSwitch";

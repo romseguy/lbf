@@ -10,6 +10,8 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
   return (
     <Global
       styles={css`
+        @import url("/fonts/spectral.css");
+
         //#region fonts
         /* @font-face {
           font-family: "Spectral";
@@ -319,7 +321,11 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
           font-size: 19px;
           text-align: justify;
           a {
+            color: blue;
             text-decoration: underline;
+          }
+          a:visited {
+            color: purple;
           }
           a.clip {
             text-overflow: ellipsis;
@@ -354,7 +360,11 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
 
         //#region tinymce
         .tox-tinymce {
-          ${isMobile ? "border: 0 !important;" : ""}
+          ${isMobile
+            ? "border: 0 !important;"
+            : ""}/* button[aria-label="Tailles de police"] {
+            width: 80px !important;
+          } */
         }
         .tox-tinymce-aux {
           z-index: ${zIndex()} !important;

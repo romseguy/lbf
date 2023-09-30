@@ -16,7 +16,9 @@ export const PaypalButton = () => {
         env: "production",
         hosted_button_id: "Z59K3UWBJDUS8",
         image: {
-          src: "https://www.paypalobjects.com/fr_FR/FR/i/btn/btn_donate_SM.gif",
+          //src: "https://www.paypalobjects.com/fr_FR/FR/i/btn/btn_donate_SM.gif",
+          //src: "https://www.paypalobjects.com/fr_FR/FR/i/btn/x-click-but21.gif",
+          src: "https://www.paypalobjects.com/fr_FR/i/btn/x-click-but21.gif",
           alt: "Faire un don"
         }
       }).render("#donate-button");

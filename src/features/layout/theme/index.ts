@@ -127,6 +127,21 @@ const theme = extendTheme({
       }
     },
     Link: {
+      baseStyle: {
+        transitionProperty: "common",
+        transitionDuration: "fast",
+        transitionTimingFunction: "ease-out",
+        cursor: "pointer",
+        textDecoration: "none",
+        outline: "none",
+        color: "inherit",
+        _hover: {
+          textDecoration: "none"
+        },
+        _focus: {
+          boxShadow: "outline"
+        }
+      },
       sizes: {
         smaller: {
           fontSize: "smaller"
@@ -137,11 +152,6 @@ const theme = extendTheme({
         }
       },
       variants: {
-        "no-underline": {
-          _hover: {
-            textDecoration: "none"
-          }
-        },
         underline: {
           textDecoration: "underline"
         }

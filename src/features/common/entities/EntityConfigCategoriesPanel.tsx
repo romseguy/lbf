@@ -4,7 +4,7 @@ import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
 import {
   Button,
-  CategoriesList,
+  EntityCategoriesList,
   Grid,
   GridHeader,
   GridItem,
@@ -15,19 +15,19 @@ import { EventConfigVisibility } from "features/events/EventConfigPanel";
 import { CategoryForm } from "features/forms/CategoryForm";
 import { breakpoints } from "features/layout/theme";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
-import { IEntity, IEntityCategory, IEntityCategoryKey } from "models/Entity";
+import { IEntity, IEntityCategory, EEntityCategoryKey } from "models/Entity";
 import { hasItems } from "utils/array";
 import { AppQueryWithData } from "utils/types";
 
 type EntityConfigCategoriesPanelProps = {
   categories: IEntityCategory[];
-  fieldName: IEntityCategoryKey;
+  categoryKey: EEntityCategoryKey;
   query: AppQueryWithData<IEntity>;
 };
 
 export const EntityConfigCategoriesPanel = ({
   categories,
-  fieldName,
+  categoryKey,
   query,
   isVisible,
   toggleVisibility,
@@ -37,7 +37,7 @@ export const EntityConfigCategoriesPanel = ({
   EntityConfigCategoriesPanelProps) => {
   const [isAdd, setIsAdd] = useState(false);
   const visibilityKey = ["eventTopicCategories", "orgTopicCategories"].includes(
-    fieldName
+    categoryKey
   )
     ? "topicCategories"
     : "eventCategories";
@@ -135,7 +135,7 @@ export const EntityConfigCategoriesPanel = ({
 
           <CategoryForm
             categories={categories}
-            fieldName={fieldName}
+            categoryKey={categoryKey}
             query={query}
             onSubmit={() => {
               setIsAdd(false);
@@ -152,9 +152,9 @@ export const EntityConfigCategoriesPanel = ({
           overflowX="auto"
           aria-hidden
         >
-          <CategoriesList
+          <EntityCategoriesList
             categories={categories}
-            fieldName={fieldName}
+            categoryKey={categoryKey}
             query={query}
           />
         </GridItem>

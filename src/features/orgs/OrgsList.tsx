@@ -157,12 +157,27 @@ export const OrgsList = ({
       const orgsWithMetadata = data
         .filter((org) => !!orgsMetadata[org._id])
         .sort((a, b) => {
+          const dateA =
+            orgsMetadata[a._id][
+              compareAsc(
+                orgsMetadata[a._id].latestMessageCreatedAt,
+                orgsMetadata[a._id].latestMessageUpdatedAt
+              ) === 0
+                ? "latestMessageCreatedAt"
+                : "latestMessageUpdatedAt"
+            ];
+          const dateB =
+            orgsMetadata[b._id][
+              compareAsc(
+                orgsMetadata[b._id].latestMessageCreatedAt,
+                orgsMetadata[b._id].latestMessageUpdatedAt
+              ) === 0
+                ? "latestMessageCreatedAt"
+                : "latestMessageUpdatedAt"
+            ];
           const compare =
             selectedOrder.order === "asc" ? compareDesc : compareAsc;
-          return compare(
-            orgsMetadata[a._id].latestMessageCreatedAt,
-            orgsMetadata[b._id].latestMessageCreatedAt
-          );
+          return compare(dateA, dateB);
         });
       const orgsWithoutMetadata = data.filter((org) => !orgsMetadata[org._id]);
       return orgsWithMetadata.concat(orgsWithoutMetadata);

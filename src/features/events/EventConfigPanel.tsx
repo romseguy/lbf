@@ -15,6 +15,7 @@ import { AppQueryWithData } from "utils/types";
 import { EventConfigButtons } from "./EventConfigButtons";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
+import { EEntityCategoryKey } from "models/Entity";
 
 export type EventConfigVisibility = {
   isVisible: Record<string, boolean>;
@@ -101,8 +102,8 @@ export const EventConfigPanel = ({
             <AppHeading>Discussions</AppHeading>
 
             <EntityConfigCategoriesPanel
-              fieldName="eventTopicCategories"
               categories={event.eventTopicCategories}
+              categoryKey={EEntityCategoryKey.eventTopicCategories}
               query={eventQuery}
               isVisible={isVisible}
               toggleVisibility={toggleVisibility}

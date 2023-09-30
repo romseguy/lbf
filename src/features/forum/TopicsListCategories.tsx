@@ -17,10 +17,62 @@ import { DeleteButton } from "features/common";
 import { useEditEventMutation } from "features/api/eventsApi";
 import { CategoriesModal } from "features/modals/CategoriesModal";
 import { useEditOrgMutation } from "features/api/orgsApi";
-import { IEntity, isEvent, isOrg } from "models/Entity";
-import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import {
+  EEntityCategoryKey,
+  IEntity,
+  IEntityCategory,
+  isEvent,
+  isOrg
+} from "models/Entity";
+import { IEvent, IEventTopicCategory } from "models/Event";
+import { IOrg, IOrgTopicCategory } from "models/Org";
 import { AppQueryWithData } from "utils/types";
+
+const TopicsListCategoriesSettings = ({
+  categories,
+  query
+}: {
+  categories: IEventTopicCategory[] | IOrgTopicCategory[];
+  query: AppQueryWithData<IEntity>;
+}) => {
+  const entity = query.data;
+  const isE = isEvent(entity);
+  const isO = isOrg(entity);
+  const {
+    isOpen: isCategoriesModalOpen,
+    onOpen: openCategoriesModal,
+    onClose: closeCategoriesModal
+  } = useDisclosure();
+  const label = "Gérer les catégories de discussions";
+
+  return (
+    <>
+      <Tooltip label={label}>
+        <IconButton
+          aria-label={label}
+          colorScheme="teal"
+          height="32px"
+          icon={<SettingsIcon />}
+          //_hover={{ bg: "teal", color: "white" }}
+          mr={1}
+          onClick={openCategoriesModal}
+        ></IconButton>
+      </Tooltip>
+
+      <CategoriesModal
+        categories={categories}
+        categoryKey={
+          isE
+            ? EEntityCategoryKey.eventTopicCategories
+            : EEntityCategoryKey.orgTopicCategories
+        }
+        isOpen={isCategoriesModalOpen}
+        query={query}
+        onClose={closeCategoriesModal}
+      />
+    </>
+  );
+};
 
 export const TopicsListCategories = ({
   query,
@@ -44,24 +96,15 @@ export const TopicsListCategories = ({
   const isE = isEvent(entity);
   const isO = isOrg(entity);
   const edit = isE ? editEvent : editOrg;
-
-  //#region modal state
-  const {
-    isOpen: isCategoriesModalOpen,
-    onOpen: openCategoriesModal,
-    onClose: closeCategoriesModal
-  } = useDisclosure();
-  //#endregion
-
-  //#region local state
-  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
-  const topicCategories = isE
-    ? entity.eventTopicCategories
-    : isO
-    ? entity.orgTopicCategories
-    : [];
+  const topicCategories: IEntityCategory[] =
+    entity[
+      isE
+        ? EEntityCategoryKey.eventTopicCategories
+        : EEntityCategoryKey.orgTopicCategories
+    ];
   const topics = isE ? entity.eventTopics : isO ? entity.orgTopics : [];
 
+  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   useEffect(() => {
     if (!query.isFetching) {
       setIsLoading(
@@ -72,32 +115,14 @@ export const TopicsListCategories = ({
       );
     }
   }, [query.isFetching]);
-  //#endregion
 
   return (
     <Flex {...props}>
       {isCreator && (
-        <>
-          <Tooltip label="Gérer les catégories de discussions">
-            <IconButton
-              aria-label="Gérer les catégories de discussions"
-              colorScheme="teal"
-              height="32px"
-              icon={<SettingsIcon />}
-              //_hover={{ bg: "teal", color: "white" }}
-              mr={1}
-              onClick={openCategoriesModal}
-            ></IconButton>
-          </Tooltip>
-
-          <CategoriesModal
-            categories={topicCategories}
-            fieldName={isE ? "eventTopicCategories" : "orgTopicCategories"}
-            isOpen={isCategoriesModalOpen}
-            query={query}
-            onClose={closeCategoriesModal}
-          />
-        </>
+        <TopicsListCategoriesSettings
+          categories={topicCategories}
+          query={query}
+        />
       )}
 
       {topicCategories.map(({ catId, label }, index) => {

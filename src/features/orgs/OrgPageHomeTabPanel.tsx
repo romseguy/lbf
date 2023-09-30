@@ -393,13 +393,25 @@ export const OrgPageHomeTabPanel = ({
           </Heading>
 
           {org.orgDescription && isCreator && (
-            <Tooltip hasArrow label="Modifier" placement="bottom">
+            <Tooltip
+              hasArrow
+              label="Modifier la description"
+              placement="bottom"
+            >
               <IconButton
-                aria-label="Modifier"
+                aria-label="Modifier la description"
                 icon={<EditIcon />}
-                bg="transparent"
-                height="auto"
-                _hover={{ color: "green" }}
+                {...(isMobile
+                  ? {
+                      colorScheme: "green",
+                      variant: "outline",
+                      ml: 3
+                    }
+                  : {
+                      bgColor: "transparent",
+                      height: "auto",
+                      _hover: { color: "green" }
+                    })}
                 onClick={() => setIsEdit({ isAddingDescription: true })}
               />
             </Tooltip>
@@ -407,7 +419,7 @@ export const OrgPageHomeTabPanel = ({
         </TabContainerHeader>
 
         {isDescriptionOpen && (
-          <TabContainerContent p={3} bg={isDark ? "gray.600" : "white"}>
+          <TabContainerContent bg={isDark ? "gray.600" : "white"} p={3}>
             {description && description.length > 0 ? (
               <div className="rteditor">
                 <div

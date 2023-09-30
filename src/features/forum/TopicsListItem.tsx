@@ -321,35 +321,37 @@ export const TopicsListItem = ({
             <Tbody>
               <Tr>
                 <Td>
-                  <Box pos="relative">
-                    {isCurrent ? (
-                      <Icon
-                        as={FaFolderOpen}
-                        //alignSelf="center"
-                        boxSize={7}
-                        color={isDark ? "teal.200" : "teal"}
-                        mr={2}
-                      />
-                    ) : (
-                      <Icon
-                        as={FaFolder}
-                        boxSize={7}
-                        color={isDark ? "teal.200" : "teal"}
-                        mr={2}
-                      />
-                    )}
-                    {topic.topicMessages.length > 0 && (
-                      <Badge
-                        bgColor={isDark ? "teal.600" : "teal.100"}
-                        color={isDark ? "white" : "black"}
-                        pos="absolute"
-                        variant="solid"
-                        left={1}
-                      >
-                        {topic.topicMessages.length}
-                      </Badge>
-                    )}
-                  </Box>
+                  <Tooltip label={`${topic.topicMessages.length} message(s)`}>
+                    <Box pos="relative">
+                      {isCurrent ? (
+                        <Icon
+                          as={FaFolderOpen}
+                          //alignSelf="center"
+                          boxSize={7}
+                          color={isDark ? "teal.200" : "teal"}
+                          mr={2}
+                        />
+                      ) : (
+                        <Icon
+                          as={FaFolder}
+                          boxSize={7}
+                          color={isDark ? "teal.200" : "teal"}
+                          mr={2}
+                        />
+                      )}
+                      {topic.topicMessages.length > 0 && (
+                        <Badge
+                          bgColor={isDark ? "teal.600" : "teal.100"}
+                          color={isDark ? "white" : "black"}
+                          pos="absolute"
+                          variant="solid"
+                          left={1}
+                        >
+                          {topic.topicMessages.length}
+                        </Badge>
+                      )}
+                    </Box>
+                  </Tooltip>
                 </Td>
 
                 <Td>
@@ -431,6 +433,7 @@ export const TopicsListItem = ({
                 // _hover={{
                 //   color: isDark ? "white" : "white"
                 // }}
+                onClick={(e) => e.stopPropagation()}
                 suppressHydrationWarning
               >
                 {timeAgo}
@@ -444,7 +447,10 @@ export const TopicsListItem = ({
             <TopicsListItemVisibility
               query={query}
               topic={topic}
+              //icon props
               color={isDark ? "white" : "purple"}
+              cursor="default"
+              onClick={(e) => e.stopPropagation()}
             />
 
             <Box as="span" aria-hidden mx={1}>
@@ -472,9 +478,9 @@ export const TopicsListItem = ({
                         onNotifClick(topic);
                       }}
                     > */}
-                <Box cursor="default">
+                <Text cursor="default" onClick={(e) => e.stopPropagation()}>
                   {topic.topicNotifications.length} membre{s} invité{s}
-                </Box>
+                </Text>
                 {/* </Link> */}
               </>
             )}
@@ -486,6 +492,7 @@ export const TopicsListItem = ({
           // pt={3}
           // pb={2}
           ml={2}
+          {...(isMobile ? { pb: 1, pt: 3 } : {})}
         >
           {isLoading && <Spinner mr={3} mt={1} mb={2} />}
 

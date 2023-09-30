@@ -1,4 +1,4 @@
-import { Box, BoxProps, Image, useColorMode } from "@chakra-ui/react";
+import { Box, BoxProps, useColorMode } from "@chakra-ui/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React from "react";

@@ -15,12 +15,12 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { IoIosPeople } from "react-icons/io";
-import { CategoriesList, Column } from "features/common";
+import { EntityCategoriesList, Column } from "features/common";
 import { CategoryForm } from "features/forms/CategoryForm";
 import {
   IEntity,
   IEntityCategory,
-  IEntityCategoryKey,
+  EEntityCategoryKey,
   isEvent,
   isOrg
 } from "models/Entity";
@@ -31,25 +31,28 @@ import { AppQueryWithData } from "utils/types";
 export const CategoriesModal = ({
   isOpen = false,
   categories,
-  fieldName,
+  categoryKey,
   query,
   ...props
 }: UseDisclosureProps & {
   categories: IEntityCategory[];
-  fieldName: IEntityCategoryKey;
+  categoryKey: EEntityCategoryKey;
   query: AppQueryWithData<IEntity>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+
   const entity = query.data;
   const isE = isEvent(entity);
   const isO = isOrg(entity);
+  const label =
+    categoryKey === EEntityCategoryKey.orgEventCategories
+      ? "d'événements"
+      : "de discussions";
 
   const [isAdd, setIsAdd] = useState(false);
-  const string =
-    fieldName === "orgEventCategories" ? "d'événements" : "de discussions";
-  const _title = `Catégories ${string}`;
-  const [title, setTitle] = useState(_title);
+  const defaultTitle = `Catégories ${label}`;
+  const [title, setTitle] = useState(defaultTitle);
 
   const onClose = () => {
     setIsAdd(false);
@@ -78,21 +81,21 @@ export const CategoriesModal = ({
               mb={5}
               onClick={() => {
                 setIsAdd(!isAdd);
-                setTitle(`Ajouter une catégorie ${string}`);
+                setTitle(`Ajouter une catégorie ${label}`);
               }}
             >
-              Ajouter une catégorie {string}
+              Ajouter une catégorie {label}
             </Button>
           )}
 
           {isAdd && query ? (
             <CategoryForm
               categories={categories}
-              fieldName={fieldName}
+              categoryKey={categoryKey}
               query={query}
               onCancel={() => {
                 setIsAdd(false);
-                setTitle(_title);
+                setTitle(defaultTitle);
               }}
               onSubmit={() => setIsAdd(false)}
             />
@@ -102,16 +105,16 @@ export const CategoriesModal = ({
               overflowX="auto"
               p={0}
             >
-              <CategoriesList
+              <EntityCategoriesList
                 categories={categories}
-                fieldName={fieldName}
+                categoryKey={categoryKey}
                 query={query}
               />
             </Column>
           ) : (
             <Alert status="warning">
               <AlertIcon />
-              Aucune catégories {string}.
+              Aucune catégories {label}.
             </Alert>
           )}
         </ModalBody>

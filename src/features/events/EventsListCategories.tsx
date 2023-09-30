@@ -19,6 +19,7 @@ import { useEditOrgMutation } from "features/api/orgsApi";
 import { IEvent } from "models/Event";
 import { getEventCategories, IOrg, IOrgEventCategory } from "models/Org";
 import { AppQueryWithData } from "utils/types";
+import { EEntityCategoryKey } from "models/Entity";
 
 export const EventsListCategories = ({
   events,
@@ -44,23 +45,29 @@ export const EventsListCategories = ({
     onClose: closeCategoriesModal
   } = useDisclosure();
 
-  //#region local state
-  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const eventCategoriesByOrg = useMemo(() => {
     let categoriesByOrg: Record<string, IOrgEventCategory[]> = {};
-
     for (const event of events) {
       for (const eventOrg of event.eventOrgs) {
         categoriesByOrg[eventOrg._id] = eventOrg.orgEventCategories;
       }
     }
-
     return categoriesByOrg;
   }, [events]);
 
-  let renderedCategoryLabels: string[] = [];
-  //#endregion
+  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
+  useEffect(() => {
+    if (!orgQuery.isFetching) {
+      setIsLoading(
+        Object.keys(isLoading).reduce(
+          (obj, key) => ({ ...obj, [key]: false }),
+          {}
+        )
+      );
+    }
+  }, [orgQuery.isFetching]);
 
+  let renderedCategoryLabels: string[] = [];
   const renderCategory = (category: IOrgEventCategory) => {
     if (renderedCategoryLabels.includes(category.label)) return null;
     renderedCategoryLabels.push(category.label);
@@ -160,17 +167,6 @@ export const EventsListCategories = ({
     );
   };
 
-  useEffect(() => {
-    if (!orgQuery.isFetching) {
-      setIsLoading(
-        Object.keys(isLoading).reduce(
-          (obj, key) => ({ ...obj, [key]: false }),
-          {}
-        )
-      );
-    }
-  }, [orgQuery.isFetching]);
-
   return (
     <Flex flexWrap="nowrap" overflowX="auto" {...props}>
       {isCreator && orgQuery && (
@@ -190,7 +186,7 @@ export const EventsListCategories = ({
 
           <CategoriesModal
             categories={getEventCategories(orgQuery.data)}
-            fieldName="orgEventCategories"
+            categoryKey={EEntityCategoryKey.orgEventCategories}
             isOpen={isCategoriesModalOpen}
             query={orgQuery}
             onClose={closeCategoriesModal}

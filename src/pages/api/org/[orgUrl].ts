@@ -142,7 +142,7 @@ handler.get<
           path: "orgs",
           populate: {
             path: "orgTopics",
-            select: "topicName topicMessages.createdAt"
+            select: "topicName topicMessages.createdAt topicMessages.updatedAt"
           }
         });
       }

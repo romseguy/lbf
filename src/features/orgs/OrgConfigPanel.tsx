@@ -19,6 +19,7 @@ import { IsEditConfig } from "./OrgPage";
 import { OrgConfigButtons } from "./OrgConfigButtons";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
+import { EEntityCategoryKey } from "models/Entity";
 
 export type OrgConfigVisibility = {
   isVisible: Record<string, boolean>;
@@ -133,8 +134,8 @@ export const OrgConfigPanel = ({
             <AppHeading>Discussions</AppHeading>
 
             <EntityConfigCategoriesPanel
-              fieldName="orgTopicCategories"
               categories={org.orgTopicCategories}
+              categoryKey={EEntityCategoryKey.orgTopicCategories}
               query={orgQuery}
               isVisible={isVisible}
               toggleVisibility={toggleVisibility}
@@ -145,8 +146,8 @@ export const OrgConfigPanel = ({
             <AppHeading>Événements</AppHeading>
 
             <EntityConfigCategoriesPanel
-              fieldName="orgEventCategories"
               categories={getEventCategories(org)}
+              categoryKey={EEntityCategoryKey.orgEventCategories}
               query={orgQuery}
               isVisible={isVisible}
               toggleVisibility={toggleVisibility}

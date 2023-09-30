@@ -23,10 +23,11 @@ export interface IEntityCategory {
   label: string;
 }
 
-export type IEntityCategoryKey =
-  | "eventTopicCategories"
-  | "orgEventCategories"
-  | "orgTopicCategories";
+export enum EEntityCategoryKey {
+  "eventTopicCategories" = "eventTopicCategories",
+  "orgEventCategories" = "orgEventCategories",
+  "orgTopicCategories" = "orgTopicCategories"
+}
 
 export interface IEntityEmail {
   email: string;

@@ -22,6 +22,7 @@ import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
 import { ContactFormModal } from "features/modals/ContactFormModal";
 import { selectIsOffline } from "store/sessionSlice";
 import { NavButtonsList } from "features/layout/NavButtonsList";
+import { PaypalButton } from "features/common/forms/PaypalButton";
 
 interface customWindow extends Window {
   console: { [key: string]: (...args: any[]) => void };
@@ -162,17 +163,15 @@ export const Main = ({
           <Flex alignItems="center">
             <IconFooter mr={2} />
 
-            {/*
-              <Tooltip
-                  hasArrow
-                  label="Pour nous remercier d'avoir créé ce logiciel libre ♥"
-                  placement="top-end"
-                >
-                <Box mt={1}>
-                  <PaypalButton />
-                </Box>
-              </Tooltip>
-            */}
+            <Tooltip
+              hasArrow
+              label="Faire un don au développeur"
+              placement="top-end"
+            >
+              <Box mt={1}>
+                <PaypalButton />
+              </Box>
+            </Tooltip>
           </Flex>
         )}
       </Box>

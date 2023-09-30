@@ -16,6 +16,7 @@ import { selectIsMobile } from "store/uiSlice";
 const Tab = chakra("button", { themeKey: "Tabs.Tab" });
 
 export const EntityPageTab = ({
+  children,
   currentTabIndex,
   tab,
   tabIndex,
@@ -31,14 +32,14 @@ export const EntityPageTab = ({
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
   const isCurrent = tabIndex === currentTabIndex;
-  const tabProps = useTab(props);
+  //const tabProps = useTab(props);
   //const styles = useMultiStyleConfig("Tabs", tabProps);
   //const styles = useTabsStyles();
   const styles = useStyles();
 
   return (
     <Tab
-      {...tabProps}
+      // {...tabProps}
       aria-selected={isCurrent}
       __css={{
         ...styles.tab,
@@ -64,7 +65,7 @@ export const EntityPageTab = ({
         boxSize={5}
         mr={!isMobile && tab.label === "" ? 0 : 2}
       />
-      {tabProps.children}
+      {children}
     </Tab>
   );
 };

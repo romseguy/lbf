@@ -1,5 +1,4 @@
 import { BoxProps } from "@chakra-ui/react";
-import { breakpoints } from "./breakpoints";
 
 export const formBoxProps = (isDark?: boolean): BoxProps => ({
   borderColor: isDark ? "whiteAlpha.300" : "gray.200",

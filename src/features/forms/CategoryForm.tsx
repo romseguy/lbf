@@ -22,7 +22,7 @@ import useFormPersist from "hooks/useFormPersist";
 import {
   IEntity,
   IEntityCategory,
-  IEntityCategoryKey,
+  EEntityCategoryKey,
   isEvent,
   isOrg
 } from "models/Entity";
@@ -31,13 +31,13 @@ import { useEditEventMutation } from "features/api/eventsApi";
 
 export const CategoryForm = ({
   categories,
-  fieldName,
+  categoryKey,
   query,
   onCancel,
   ...props
 }: {
   categories: IEntityCategory[];
-  fieldName: IEntityCategoryKey;
+  categoryKey: EEntityCategoryKey;
   query: AppQueryWithData<IEntity>;
   onCancel?: () => void;
   onSubmit: () => void;
@@ -45,14 +45,13 @@ export const CategoryForm = ({
   const toast = useToast({ position: "top" });
   const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
-  const entity = query.data as IOrg;
+
+  const entity = query.data;
   const isE = isEvent(entity);
   const isO = isOrg(entity);
   const edit = isE ? editEvent : editOrg;
 
-  //#region local state
   const [isLoading, setIsLoading] = useState(false);
-  //#endregion
 
   //#region form
   const {
@@ -78,7 +77,7 @@ export const CategoryForm = ({
       await edit({
         [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id,
         payload: {
-          [fieldName]: categories.concat({
+          [categoryKey]: categories.concat({
             catId: `${categories.length}`,
             label: form.category
           })
