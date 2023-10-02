@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "dev": "next",
+    "dev": "NODE_OPTIONS='max_old_space_size=4096' next",
     "start": "NODE_OPTIONS='http-server-default-timeout=0' next start -p 8000",
     "test": "jest --watch",
     "test:s": "NODE_ENV=test next build && NODE_ENV=test next start --port 3004",

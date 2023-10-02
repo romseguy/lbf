@@ -117,7 +117,6 @@ export const OrgConfigListsPanel = ({
   return (
     <Grid {...props}>
       <Link
-        variant="no-underline"
         onClick={() => {
           toggleVisibility("lists");
           if (!hasItems(lists)) setIsAdd(!isAdd);

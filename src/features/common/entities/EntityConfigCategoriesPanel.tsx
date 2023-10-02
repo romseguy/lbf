@@ -53,7 +53,6 @@ export const EntityConfigCategoriesPanel = ({
   return (
     <Grid {...props}>
       <Link
-        variant="no-underline"
         onClick={() => {
           if (!isAdd) toggleVisibility(visibilityKey);
           if (!hasItems(categories)) setIsAdd(!isAdd);

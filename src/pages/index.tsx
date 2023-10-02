@@ -83,21 +83,25 @@ const IndexPage = (props: PageProps) => {
 
             {isListOpen && (
               <Column bg={isDark ? "gray.700" : "white"}>
-                <OrgsList
-                  keys={(orgType) => [
-                    {
-                      key: EOrderKey.orgName,
-                      label: `Nom`
-                    },
-                    {
-                      key: EOrderKey.latestActivity,
-                      label: "Dernière activité"
-                    }
-                    //{ key: EOrderKey.createdBy, label: "Créé par" }
-                  ]}
-                  query={orgsQuery}
-                  //subQuery={subQuery}
-                />
+                {orgsQuery.data && (
+                  <OrgsList
+                    data={orgsQuery.data.filter(
+                      ({ orgUrl }) => orgUrl !== "nom_de_votre_planete"
+                    )}
+                    keys={(orgType) => [
+                      {
+                        key: EOrderKey.orgName,
+                        label: `Nom`
+                      },
+                      {
+                        key: EOrderKey.latestActivity,
+                        label: "Dernière activité"
+                      }
+                      //{ key: EOrderKey.createdBy, label: "Créé par" }
+                    ]}
+                    //subQuery={subQuery}
+                  />
+                )}
               </Column>
             )}
 

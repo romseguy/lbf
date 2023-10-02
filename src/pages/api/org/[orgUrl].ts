@@ -38,6 +38,8 @@ handler.get<
     let {
       query: { orgUrl, hash, populate = "" }
     } = req;
+    const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ GET /org/${orgUrl} `;
+    console.log(prefix);
 
     const select = `+orgPassword ${
       populate.includes("orgLogo") ? "+orgLogo" : ""
@@ -131,9 +133,7 @@ handler.get<
           "orgSubscriptions"
         ].includes(modelKey)
       ) {
-        console.log(
-          `GET /org/${orgUrl} populating ${modelKey} with custom behavior`
-        );
+        //console.log(prefix + `populating ${modelKey} with custom behavior`);
         populate = populate.replace(modelKey, "");
       }
 
@@ -345,7 +345,7 @@ handler.get<
       }
     }
 
-    console.log(`GET /org/${orgUrl} unhandled keys: ${populate}`);
+    //console.log(prefix + `unhandled keys: ${populate}`);
     org = await org.populate("createdBy", "_id userName").execPopulate();
     // logJson("🚀 ~ GET /org/${orgUrl} ~ org:", org);
     res.status(200).json(org);

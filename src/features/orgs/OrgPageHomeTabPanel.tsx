@@ -197,6 +197,7 @@ export const OrgPageHomeTabPanel = ({
                             bg={isDark ? "gray.700" : "lightcyan"}
                           >
                             <OrgsList
+                              data={org.orgs}
                               keys={
                                 isMobile
                                   ? (orgType) => [
@@ -220,8 +221,7 @@ export const OrgPageHomeTabPanel = ({
                                       }
                                     ]
                               }
-                              query={orgQuery}
-                              subQuery={subQuery}
+                              //subQuery={subQuery}
                               orgType={EOrgType.GENERIC}
                             />
                           </Column>

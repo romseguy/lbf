@@ -41,8 +41,7 @@ export const NavButtonsList = ({
     !unauthorizedEntityUrls.includes(router.query.name[0]);
   const linkProps: Partial<LinkProps> = {
     "aria-hidden": true,
-    alignSelf: "flex-start",
-    variant: "no-underline"
+    alignSelf: "flex-start"
   };
 
   //#region parcourir

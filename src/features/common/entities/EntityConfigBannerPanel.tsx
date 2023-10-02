@@ -19,7 +19,7 @@ export const EntityConfigBannerPanel = ({
   }) => {
   return (
     <Grid {...props}>
-      <Link variant="no-underline" onClick={() => toggleVisibility("banner")}>
+      <Link onClick={() => toggleVisibility("banner")}>
         <GridHeader
           alignItems="center"
           borderTopRadius="lg"

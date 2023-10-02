@@ -174,7 +174,7 @@ export const EventPage = ({
             <SubscribePopover
               isDisabled={isDisabled}
               event={event}
-              query={eventQuery}
+              //query={eventQuery}
               subQuery={subQuery}
             />
           </Box>
@@ -184,7 +184,7 @@ export const EventPage = ({
           <SubscribePopover
             isDisabled={isDisabled}
             event={event}
-            query={eventQuery}
+            //query={eventQuery}
             subQuery={subQuery}
             notifType="push"
           />

@@ -264,7 +264,6 @@ export const ProjectsList = ({
               >
                 <Link
                   as="div"
-                  variant="no-underline"
                   onClick={() => setCurrentProject(isCurrent ? null : project)}
                   data-cy="project-list-item"
                 >

@@ -30,7 +30,6 @@ export const ProjectsListFilters = ({
         return (
           <Link
             key={"status-" + status}
-            variant="no-underline"
             onClick={() => {
               setSelectedStatuses(
                 selectedStatuses.includes(status)

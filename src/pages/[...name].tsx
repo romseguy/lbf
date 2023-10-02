@@ -280,28 +280,25 @@ export const getServerSideProps = wrapper.getServerSideProps(
     ) {
       const entityUrl = ctx.query.name[0];
       const tabItem = ctx.query.name[1];
-      // console.log("🚀 ~ file: [...name].tsx:getServerSideProps ~ tabItem:", tabItem);
-      let destination = [
-        "api",
-        "icons",
-        "sitemap",
-        "robots.txt",
-        "worker"
-      ].includes(entityUrl)
-        ? "/"
-        : "/" + entityUrl;
 
       if (
-        ["_next", "manifest.js", "static"].includes(entityUrl) ||
-        (tabItem && !defaultTabs.find(({ url }) => url === "/" + tabItem))
+        ["api", "icons", "_next", "static"].includes(entityUrl) ||
+        entityUrl.includes(".xml") ||
+        entityUrl.includes(".txt") ||
+        entityUrl.includes(".js")
       )
-        return { redirect: { permanent: false, destination } };
+        return { redirect: { permanent: false, destination: "/" } };
 
       const normalizedEntityUrl = normalize(entityUrl);
-      destination = "/" + normalizedEntityUrl;
 
-      if (entityUrl !== normalizedEntityUrl)
-        return { redirect: { permanent: false, destination } };
+      if (
+        entityUrl !== normalizedEntityUrl ||
+        (tabItem &&
+          !defaultTabs.find(({ url }) => url === "/" + normalize(tabItem)))
+      )
+        return {
+          redirect: { permanent: false, destination: "/" + normalizedEntityUrl }
+        };
 
       // todo: pass ctx.req.headers.cookie
       store.dispatch(getOrg.initiate(initialOrgQueryParams(entityUrl)));
@@ -313,9 +310,13 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
       //@ts-ignore
       if (orgQuery.data?.redirectUrl) {
-        //@ts-ignore
-        destination = "/" + orgQuery.data.redirectUrl;
-        return { redirect: { permanent: false, destination } };
+        return {
+          redirect: {
+            permanent: false,
+            //@ts-ignore
+            destination: "/" + orgQuery.data.redirectUrl
+          }
+        };
       }
 
       // if (typeof ctx.query.name[1] === "string") {

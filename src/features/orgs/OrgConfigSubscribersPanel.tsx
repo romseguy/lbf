@@ -53,7 +53,6 @@ export const OrgConfigSubscribersPanel = ({
   return (
     <Grid {...props}>
       <Link
-        variant="no-underline"
         onClick={() => {
           if (hasItems(org.orgSubscriptions)) {
             toggleVisibility("subscribers");

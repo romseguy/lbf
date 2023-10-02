@@ -28,7 +28,7 @@ export const EntityPageSubscribeButton = ({
           <SubscribePopover
             isDisabled={isDisabled}
             org={org}
-            query={orgQuery}
+            //query={orgQuery}
             subQuery={subQuery}
           />
         </Box>
@@ -38,7 +38,7 @@ export const EntityPageSubscribeButton = ({
         <SubscribePopover
           isDisabled={isDisabled}
           org={org}
-          query={orgQuery}
+          //query={orgQuery}
           subQuery={subQuery}
           notifType="push"
         />

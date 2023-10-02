@@ -44,7 +44,7 @@ import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
 export const SubscribePopover = ({
   event,
   org,
-  query,
+  //query,
   subQuery,
   isIconOnly = false,
   notifType = "email",
@@ -52,7 +52,7 @@ export const SubscribePopover = ({
 }: ButtonProps & {
   event?: IEvent;
   org?: IOrg;
-  query: AppQuery<IEvent | IOrg | IOrg[]>;
+  //query: AppQuery<IEvent | IOrg | IOrg[]>;
   subQuery: AppQuery<ISubscription>;
   isIconOnly?: boolean;
   notifType?: "email" | "push";

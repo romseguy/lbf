@@ -113,9 +113,7 @@ export const HeaderTitle = ({
       )}
 
       {entityUrl ? (
-        <Link href={`/${entityUrl}`} variant="no-underline">
-          {pageHeader ? pageHeader : heading}
-        </Link>
+        <Link href={`/${entityUrl}`}>{pageHeader ? pageHeader : heading}</Link>
       ) : pageHeader ? (
         pageHeader
       ) : (

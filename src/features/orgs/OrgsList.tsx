@@ -68,27 +68,26 @@ const iconProps = {
 };
 
 export const OrgsList = ({
-  query,
+  //query,
+  data,
   subQuery,
   orgType = EOrgType.NETWORK,
   ...props
 }: {
-  keys?: (orgType: EOrgType) => {
+  data: IOrg[];
+  keys?: (queryorgType: EOrgType) => {
     key: EOrderKey;
     label: string;
   }[];
-  query: AppQuery<IOrg | IOrg[]>;
+  //query: AppQuery<IOrg | IOrg[]>;
   subQuery?: AppQuery<ISubscription>;
   orgType?: EOrgType;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
-  let { data, isLoading } = query;
-  if (!Array.isArray(data)) data = data?.orgs;
-  const keys = props.keys ? props.keys(orgType) : defaultKeys(orgType);
-  const [orgToShow, setOrgToShow] = useState<IOrg | void>();
-  const [selectedOrder, s] = useState<{
+
+  const [selectedOrder, _setSelectedOrder] = useState<{
     key: EOrderKey;
     order: "asc" | "desc";
   }>({
@@ -101,7 +100,7 @@ export const OrgsList = ({
       : selectedOrder?.key === key && selectedOrder?.order === "asc"
       ? "desc"
       : "asc";
-    s({ key, order });
+    _setSelectedOrder({ key, order });
   };
 
   const orgsMetadata = useMemo(() => {
@@ -159,21 +158,23 @@ export const OrgsList = ({
         .sort((a, b) => {
           const dateA =
             orgsMetadata[a._id][
-              compareAsc(
-                orgsMetadata[a._id].latestMessageCreatedAt,
-                orgsMetadata[a._id].latestMessageUpdatedAt
-              ) === 0
-                ? "latestMessageCreatedAt"
-                : "latestMessageUpdatedAt"
+              "latestMessageCreatedAt"
+              // compareAsc(
+              //   orgsMetadata[a._id].latestMessageCreatedAt,
+              //   orgsMetadata[a._id].latestMessageUpdatedAt
+              // ) === 0
+              //   ? "latestMessageCreatedAt"
+              //   : "latestMessageUpdatedAt"
             ];
           const dateB =
             orgsMetadata[b._id][
-              compareAsc(
-                orgsMetadata[b._id].latestMessageCreatedAt,
-                orgsMetadata[b._id].latestMessageUpdatedAt
-              ) === 0
-                ? "latestMessageCreatedAt"
-                : "latestMessageUpdatedAt"
+              "latestMessageCreatedAt"
+              // compareAsc(
+              //   orgsMetadata[b._id].latestMessageCreatedAt,
+              //   orgsMetadata[b._id].latestMessageUpdatedAt
+              // ) === 0
+              //   ? "latestMessageCreatedAt"
+              //   : "latestMessageUpdatedAt"
             ];
           const compare =
             selectedOrder.order === "asc" ? compareDesc : compareAsc;
@@ -208,6 +209,9 @@ export const OrgsList = ({
       return 0;
     });
   }, [data, selectedOrder]);
+
+  const keys = props.keys ? props.keys(orgType) : defaultKeys(orgType);
+  const [orgToShow, setOrgToShow] = useState<IOrg | void>();
 
   return (
     <Box
@@ -266,55 +270,48 @@ export const OrgsList = ({
         </Thead>
 
         <Tbody>
-          {isLoading ? (
-            <Tr>
-              <Td colSpan={4}>
-                <Spinner />
-              </Td>
-            </Tr>
-          ) : (
-            orgs.map((org: IOrg) => {
-              if (org.orgUrl === "forum") return;
+          {orgs.map((org: IOrg) => {
+            if (org.orgUrl === "forum") return;
 
-              const { latestMessageCreatedAt, latestTopic } =
-                orgsMetadata[org._id] || {};
+            const { latestMessageCreatedAt, latestTopic } =
+              orgsMetadata[org._id] || {};
 
-              return (
-                <Tr key={`org-${org._id}`}>
-                  {keys.find(({ key }) => key === "icon") && (
+            return (
+              <Tr key={`org-${org._id}`}>
+                {keys.find(({ key }) => key === "icon") && (
+                  <Td p={isMobile ? 0 : undefined}>
+                    <Icon
+                      as={
+                        org.orgType === EOrgType.NETWORK
+                          ? FaGlobeEurope
+                          : FaTree
+                      }
+                      color={
+                        org.orgType === EOrgType.NETWORK
+                          ? "blue.500"
+                          : "green.500"
+                      }
+                    />
+                  </Td>
+                )}
+
+                {keys.find(({ key }) => key === EOrderKey.subscription) &&
+                  subQuery && (
                     <Td p={isMobile ? 0 : undefined}>
-                      <Icon
-                        as={
-                          org.orgType === EOrgType.NETWORK
-                            ? FaGlobeEurope
-                            : FaTree
-                        }
-                        color={
-                          org.orgType === EOrgType.NETWORK
-                            ? "blue.500"
-                            : "green.500"
-                        }
+                      <SubscribePopover
+                        org={org}
+                        //query={query}
+                        subQuery={subQuery}
+                        isIconOnly
+                        my={isMobile ? 2 : 0}
+                        mr={isMobile ? 2 : 0}
                       />
                     </Td>
                   )}
 
-                  {keys.find(({ key }) => key === EOrderKey.subscription) &&
-                    subQuery && (
-                      <Td p={isMobile ? 0 : undefined}>
-                        <SubscribePopover
-                          org={org}
-                          query={query}
-                          subQuery={subQuery}
-                          isIconOnly
-                          my={isMobile ? 2 : 0}
-                          mr={isMobile ? 2 : 0}
-                        />
-                      </Td>
-                    )}
-
-                  {keys.find(({ key }) => key === EOrderKey.orgName) && (
-                    <Td>
-                      {/* {org.orgType === EOrgType.TREETOOLS
+                {keys.find(({ key }) => key === EOrderKey.orgName) && (
+                  <Td>
+                    {/* {org.orgType === EOrgType.TREETOOLS
                         ? OrgTypes[org.orgType] + " : "
                         : ""}
                       <Tooltip
@@ -332,12 +329,12 @@ export const OrgsList = ({
                           </Link>
                         </span>
                       </Tooltip> */}
-                      <EntityButton
-                        org={org}
-                        backgroundColor={isDark ? "whiteAlpha.300" : undefined}
-                      />
+                    <EntityButton
+                      org={org}
+                      backgroundColor={isDark ? "whiteAlpha.300" : undefined}
+                    />
 
-                      {/* {org.orgCity && (
+                    {/* {org.orgCity && (
                         <Tooltip label="Afficher sur la carte" placement="top">
                           <IconButton
                             aria-label="Afficher sur la carte"
@@ -347,52 +344,49 @@ export const OrgsList = ({
                           />
                         </Tooltip>
                       )} */}
-                    </Td>
-                  )}
+                  </Td>
+                )}
 
-                  {keys.find(({ key }) => key === EOrderKey.latestActivity) && (
-                    <Td>
-                      {latestTopic && (
-                        <EntityButton
-                          org={org}
-                          topic={latestTopic}
-                          backgroundColor={
-                            isDark ? "whiteAlpha.300" : undefined
-                          }
+                {keys.find(({ key }) => key === EOrderKey.latestActivity) && (
+                  <Td>
+                    {latestTopic && (
+                      <EntityButton
+                        org={org}
+                        topic={latestTopic}
+                        backgroundColor={isDark ? "whiteAlpha.300" : undefined}
+                      >
+                        {latestTopic.topicName}
+                        <Badge
+                          bgColor={isDark ? "teal.600" : "teal.100"}
+                          color={isDark ? "white" : "black"}
+                          variant="solid"
+                          ml={1}
                         >
-                          {latestTopic.topicName}
-                          <Badge
-                            bgColor={isDark ? "teal.600" : "teal.100"}
-                            color={isDark ? "white" : "black"}
-                            variant="solid"
-                            ml={1}
-                          >
-                            {timeAgo(latestMessageCreatedAt, true).timeAgo}
-                            {/* {"" + latestMessageCreatedAt} */}
-                            {/* {"" +
+                          {timeAgo(latestMessageCreatedAt, true).timeAgo}
+                          {/* {"" + latestMessageCreatedAt} */}
+                          {/* {"" +
                               intervalToDuration({
                                 start: new Date(),
                                 end: latestMessageCreatedAt
                               })} */}
-                          </Badge>
-                        </EntityButton>
-                      )}
-                    </Td>
-                  )}
+                        </Badge>
+                      </EntityButton>
+                    )}
+                  </Td>
+                )}
 
-                  {keys.find(({ key }) => key === EOrderKey.createdBy) && (
-                    <Td>
-                      <EntityButton
-                        backgroundColor={isDark ? "whiteAlpha.500" : undefined}
-                        user={{ userName: (org.createdBy as IUser).userName }}
-                        tooltipProps={{ placement: "top" }}
-                      />
-                    </Td>
-                  )}
-                </Tr>
-              );
-            })
-          )}
+                {keys.find(({ key }) => key === EOrderKey.createdBy) && (
+                  <Td>
+                    <EntityButton
+                      backgroundColor={isDark ? "whiteAlpha.500" : undefined}
+                      user={{ userName: (org.createdBy as IUser).userName }}
+                      tooltipProps={{ placement: "top" }}
+                    />
+                  </Td>
+                )}
+              </Tr>
+            );
+          })}
         </Tbody>
       </Table>
 

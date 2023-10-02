@@ -24,7 +24,7 @@ import {
 // };
 
 export type LinkProps = Partial<NextLinkProps> &
-  ChakraLinkProps & { variant?: "underline" | "no-underline" };
+  ChakraLinkProps & { variant?: "underline" };
 
 export const Link = ({
   // NextLink
