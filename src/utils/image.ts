@@ -58,3 +58,19 @@ export const getMeta = async (
     };
   });
 };
+
+export function isCached(src: string) {
+  const img = new Image();
+  img.src = src;
+  const complete = img.complete;
+  console.log("🚀 ~ file: image.ts:65 ~ isCached ~ src:", complete);
+  img.src = "";
+  return complete;
+}
+
+// export function isCached(src: string) {
+//   const imgEl = document.createElement("img");
+//   console.log("🚀 ~ file: image.ts:73 ~ isCached ~ imgEl:", imgEl.complete);
+//   imgEl.src = src;
+//   return imgEl.complete || imgEl.width + imgEl.height > 0;
+// }

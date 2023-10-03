@@ -11,6 +11,7 @@ tsconfig.tsbuildinfo
 *.zip
 *.tar.gz
 .next
+**/public/files/**
 **/public/workbox-*.js
 **/public/sw.js
 **/public/sw.js.map

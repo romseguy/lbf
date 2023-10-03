@@ -321,11 +321,11 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
           font-size: 19px;
           text-align: justify;
           a {
-            color: blue;
+            color: ${isDark ? "lightblue" : "blue"};
             text-decoration: underline;
           }
           a:visited {
-            color: purple;
+            color: ${isDark ? "lightpurple" : "purple"};
           }
           a.clip {
             text-overflow: ellipsis;

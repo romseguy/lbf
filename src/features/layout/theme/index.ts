@@ -15,6 +15,9 @@ const theme = extendTheme({
   },
   config: { initialColorMode: "light" },
   components: {
+    Badge: {
+      baseStyle: { textTransform: "none" }
+    },
     // https://stackoverflow.com/questions/68531930/style-chakra-ui-formcontrol-and-label-at-application-theme-level
     Form: {
       // The styles all button have in common

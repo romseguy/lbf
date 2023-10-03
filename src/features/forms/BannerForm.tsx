@@ -32,6 +32,7 @@ import { bannerWidth } from "features/layout/theme";
 import { handleError } from "utils/form";
 import { Base64Image, getBase64, getMeta } from "utils/image";
 import { AppQueryWithData } from "utils/types";
+import { MB } from "utils/string";
 
 export const BannerForm = ({
   query,
@@ -275,7 +276,7 @@ export const BannerForm = ({
                 accept="image/*"
                 onChange={async (e) => {
                   if (e.target.files && e.target.files[0]) {
-                    if (e.target.files[0].size < 1000000) {
+                    if (e.target.files[0].size < MB) {
                       setImage(await getBase64(e.target.files[0]));
                       clearErrors("file");
                     }
@@ -283,7 +284,7 @@ export const BannerForm = ({
                 }}
                 ref={register({
                   validate: (file) => {
-                    if (file && file[0] && file[0].size >= 1000000) {
+                    if (file && file[0] && file[0].size >= MB) {
                       return "L'image ne doit pas dépasser 1Mo.";
                     }
                     return true;

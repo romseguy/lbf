@@ -6,6 +6,8 @@ export * from "./formatStringToCamelCase";
 export * from "./getStyleObjectFromString";
 export * from "./normalize";
 
+export const MB = 1000000;
+
 export const defaultErrorMessage =
   "Une erreur est survenue, merci de laisser un message sur le forum.";
 export const phoneR = /^[0-9]{10,}$/i;
@@ -19,6 +21,58 @@ export function bytesForHuman(bytes: number, decimals = 0) {
   }
 
   return parseFloat(bytes.toFixed(decimals)) + units[i];
+}
+
+export function getExtension(path: string) {
+  // extract file name from full path ...
+  // (supports `\\` and `/` separators)
+  const basename = path.split(/[\\/]/).pop();
+
+  if (!basename) return "";
+
+  // get last position of `.`
+  const pos = basename.lastIndexOf(".");
+
+  if (pos < 1) return "";
+
+  // extract extension ignoring `.`
+  return basename.slice(pos + 1).toLowerCase();
+}
+
+export function isImage(fileName: string) {
+  const str = fileName.toLowerCase();
+  return (
+    str.includes(".png") ||
+    str.includes(".jpg") ||
+    str.includes(".jpeg") ||
+    str.includes(".bmp") ||
+    str.includes(".webp")
+  );
+}
+
+export function logJson(message: string, object?: any) {
+  if (object) console.log(message, JSON.stringify(object, null, 2));
+  else console.log(message);
+}
+
+export function sanitize(str?: string) {
+  if (!str) return "";
+  return DOMPurify.sanitize(str, {
+    ADD_ATTR: ["target"],
+    ADD_TAGS: ["iframe"]
+  });
+}
+
+export function toLowerCase(str?: string) {
+  if (!str) return "";
+
+  return str.toLowerCase();
+}
+
+export function toString(a: any): string {
+  if (typeof a === "object" && a.toString) return a.toString();
+
+  return "" + a;
 }
 
 export function transformRTEditorOutput(str: string): Document {
@@ -74,56 +128,12 @@ export function transformTopicMessage(str: string) {
   return newStr;
 }
 
-export function getExtension(path: string) {
-  // extract file name from full path ...
-  // (supports `\\` and `/` separators)
-  const basename = path.split(/[\\/]/).pop();
-
-  if (!basename) return "";
-
-  // get last position of `.`
-  const pos = basename.lastIndexOf(".");
-
-  if (pos < 1) return "";
-
-  // extract extension ignoring `.`
-  return basename.slice(pos + 1).toLowerCase();
-}
-
-export function isImage(fileName: string) {
-  const str = fileName.toLowerCase();
-  return (
-    str.includes(".png") ||
-    str.includes(".jpg") ||
-    str.includes(".jpeg") ||
-    str.includes(".bmp") ||
-    str.includes(".webp")
-  );
-}
-
-export function logJson(message: string, object?: any) {
-  if (object) console.log(message, JSON.stringify(object, null, 2));
-  else console.log(message);
-}
-
-export function sanitize(str?: string) {
-  if (!str) return "";
-  return DOMPurify.sanitize(str, {
-    ADD_ATTR: ["target"],
-    ADD_TAGS: ["iframe"]
-  });
-}
-
-export function toLowerCase(str?: string) {
+export function truncate(str?: string, threshold?: number, addDots?: boolean) {
   if (!str) return "";
 
-  return str.toLowerCase();
-}
-
-export function toString(a: any): string {
-  if (typeof a === "object" && a.toString) return a.toString();
-
-  return "" + a;
+  return threshold && str.length > threshold
+    ? `${str.substring(0, threshold)}${addDots && "..."}`
+    : str;
 }
 
 export function zIndex(level: number = 0) {

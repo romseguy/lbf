@@ -17,6 +17,7 @@ import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { css } from "twin.macro";
 import { ErrorMessageText, FileInput } from "features/common";
+import { isOrg } from "models/Entity";
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
 import { handleError } from "utils/form";
@@ -64,22 +65,21 @@ const TableContainer = ({
 };
 
 export const DocumentForm = ({
-  org,
-  user,
+  entity,
   ...props
 }: {
-  org?: IOrg;
-  user?: IUser;
+  entity: IOrg | IUser;
   onSubmit: () => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
+
+  const isO = isOrg(entity);
   const [isLoading, setIsLoading] = useState(false);
   const [loaded, setLoaded] = useState<{ [fileName: string]: number }>({});
   const [list, setList] = useState<File[]>([]);
 
-  //#region form state
   const {
     control,
     register,
@@ -112,8 +112,7 @@ export const DocumentForm = ({
 
         const data = new FormData();
         data.append("file", file, file.name);
-        if (org) data.append("orgId", org._id);
-        else if (user) data.append("userId", user._id);
+        data.append(isO ? "orgId" : "userId", entity._id);
 
         await axios.post(process.env.NEXT_PUBLIC_API2, data, {
           onUploadProgress: (ProgressEvent) => {

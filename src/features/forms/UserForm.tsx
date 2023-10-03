@@ -29,7 +29,7 @@ import {
   getBase64,
   getPicaInstance
 } from "utils/image";
-import { normalize } from "utils/string";
+import { MB, normalize } from "utils/string";
 
 export const UserForm = (props: {
   user: IUser;
@@ -238,7 +238,7 @@ export const UserForm = (props: {
             if (files) {
               const file = files[0];
 
-              if (file.size < 1000000) {
+              if (file.size < MB) {
                 setUpImg(await getBase64(file));
                 clearErrors("userImage");
               }
@@ -246,7 +246,7 @@ export const UserForm = (props: {
           }}
           ref={register({
             validate: (file) => {
-              if (file && file[0] && file[0].size >= 1000000) {
+              if (file && file[0] && file[0].size >= MB) {
                 return "L'image ne doit pas dépasser 1Mo.";
               }
               return true;

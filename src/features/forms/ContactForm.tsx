@@ -53,16 +53,6 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
 
   useLeaveConfirm({ formState });
 
-  // const [storage, setStorage] = useState<Storage | undefined>();
-  // useEffect(() => {
-  //   setStorage(window.localStorage);
-  // }, []);
-  // let messageDefaultValue: string | undefined;
-  // const formData = storage?.getItem("storageKey");
-  // if (formData) {
-  //   messageDefaultValue = JSON.parse(formData).topicMessage;
-  // }
-
   const onClose = () => {
     clearErrors("formErrorMessage");
     props.onClose && props.onClose();
@@ -113,12 +103,10 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
         <Controller
           name="message"
           control={control}
-          //defaultValue=""
           rules={{ required: "Veuillez saisir un message" }}
           render={(renderProps) => {
             return (
               <RTEditor
-                //defaultValue={messageDefaultValue}
                 placeholder="Écrire le message"
                 onChange={({ html }) => {
                   renderProps.onChange(html);

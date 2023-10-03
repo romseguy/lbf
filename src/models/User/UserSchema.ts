@@ -1,5 +1,4 @@
 import { Schema } from "mongoose";
-import { normalize } from "utils/string";
 import { IUser } from "./IUser";
 
 export const UserSchema = new Schema<IUser>(
@@ -12,6 +11,7 @@ export const UserSchema = new Schema<IUser>(
       trim: true,
       lowercase: true
     },
+    emailCount: Number,
     phone: {
       type: String,
       select: false

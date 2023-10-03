@@ -284,7 +284,7 @@ export const OrgPageTabs = ({
 
         {!!tabs.find(({ label }) => label === "Galerie") && (
           <TabPanel aria-hidden>
-            <EntityPageDocuments isCreator={isCreator} orgQuery={orgQuery} />
+            <EntityPageDocuments isCreator={isCreator} query={orgQuery} />
           </TabPanel>
         )}
 

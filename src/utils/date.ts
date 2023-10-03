@@ -102,7 +102,7 @@ const formatDistanceLocale = {
   xMinutes: "{{count}}m",
   xHours: "{{count}}h",
   xDays: "{{count}}j",
-  xMonths: "{{count}}m",
+  xMonths: "{{count}}M",
   xYears: "{{count}}y"
 } as { [key: string]: string };
 

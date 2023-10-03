@@ -24,7 +24,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
     async function view(req, res) {
       try {
         let {
-          query: { orgId, userId, fileName }
+          query: { fileName }
         } = req;
 
         const url = `view?${objectToQueryString(req.query)}`;

@@ -1,10 +1,22 @@
 import { api } from "./";
 import { objectToQueryString } from "utils/query";
 
+interface RemoteFile {
+  url: string;
+  bytes: number;
+}
+
+export interface RemoteImage extends RemoteFile {
+  height: number;
+  width: number;
+  type?: string;
+  cached?: boolean;
+}
+
 export const documentApi = api.injectEndpoints({
   endpoints: (build) => ({
     getDocuments: build.query<
-      string[],
+      (RemoteFile | RemoteImage)[],
       { orgId: string } | { userId: string } | {}
     >({
       query: (query) => {
