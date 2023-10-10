@@ -152,24 +152,27 @@ export const EntityPageDocuments = ({
                   )}
               </Flex>
             </Flex>
+
             {isAdd && (
-              <Column m={3} mt={0}>
+              <Column>
                 <DocumentForm
                   entity={entity}
                   onSubmit={() => {
                     refreshDiskUsage();
-                    documentsQuery.refetch();
+                    query.refetch();
                     setIsAdd(false);
                   }}
                 />
               </Column>
             )}
 
-            <DocumentsList
-              entity={entity}
-              isCreator={isCreator}
-              onDelete={refreshDiskUsage}
-            />
+            {!isAdd && (
+              <DocumentsList
+                entity={entity}
+                isCreator={isCreator}
+                onDelete={refreshDiskUsage}
+              />
+            )}
           </TabContainerContent>
         )}
       </TabContainer>

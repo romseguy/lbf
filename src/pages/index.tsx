@@ -95,7 +95,8 @@ const IndexPage = (props: PageProps) => {
                       },
                       {
                         key: EOrderKey.latestActivity,
-                        label: "Dernière activité"
+                        //label: "Dernière activité"
+                        label: "Dernier message"
                       }
                       //{ key: EOrderKey.createdBy, label: "Créé par" }
                     ]}

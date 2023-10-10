@@ -57,7 +57,7 @@ export const TopicMessagesListItem = ({
     <Box
       key={_id}
       borderRadius={18}
-      bg={isDark ? "gray.600" : "white"}
+      bg={isDark ? "gray.600" : "#F7FAFC"}
       px={3}
       py={2}
       mb={3}

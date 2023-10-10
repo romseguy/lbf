@@ -23,10 +23,10 @@ export const EventPageDescription = ({
   useEffect(() => {
     if (!event.eventDescription) return setDescription(undefined);
 
-    if (isMobile)
-      setDescription(
-        transformRTEditorOutput(event.eventDescription).body.innerHTML
-      );
+    const newDoc = isMobile
+      ? transformRTEditorOutput(event.eventDescription)
+      : new DOMParser().parseFromString(event.eventDescription, "text/html");
+    setDescription(newDoc.body.innerHTML);
   }, [event]);
 
   return (

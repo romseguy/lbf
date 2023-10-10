@@ -2,7 +2,7 @@
   "name": "lbf",
   "version": "0.1.0",
   "engines": {
-    "node": "16.x"
+    "node": ">=16.x"
   },
   "babelMacros": {
     "twin": {
@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "NODE_OPTIONS='max_old_space_size=4096' next",
-    "start": "NODE_OPTIONS='http-server-default-timeout=0' next start -p 8000",
+    "start": "NODE_OPTIONS='http-server-default-timeout=0' forever ./node_modules/.bin/next start -p 8000",
     "test": "jest --watch",
     "test:s": "NODE_ENV=test next build && NODE_ENV=test next start --port 3004",
     "test:p": "jest -c ./tests/pptr/jest.config.js --watch",
@@ -21,7 +21,8 @@
     "build:size": "ANALYZE=true yarn build",
     "compile": "tsc --build",
     "compile:w": "tsc --build --watch",
-    "vapid": "web-push generate-vapid-keys"
+    "vapid": "web-push generate-vapid-keys",
+    "browserslist": "npx update-browserslist-db@latest"
   },
   "dependencies": {
     "@babel/plugin-syntax-typescript": "^7.22.5",

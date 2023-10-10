@@ -16,6 +16,12 @@ export function divideArray<T>(array: T[], length: number): T[][] {
   return results;
 }
 
+export function getItem(array: any, pos: number) {
+  if (hasItems(array)) {
+    return array[pos];
+  }
+}
+
 export const hasItems = (any: any) => Array.isArray(any) && any.length > 0;
 
 export const indexOfbyKey = (

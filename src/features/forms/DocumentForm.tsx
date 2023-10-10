@@ -15,54 +15,28 @@ import { ErrorMessage } from "@hookform/error-message";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
 import { css } from "twin.macro";
-import { ErrorMessageText, FileInput } from "features/common";
+import {
+  Column,
+  ErrorMessageText,
+  FileInput,
+  FileInputTable
+} from "features/common";
+import theme, { scrollbarCss } from "features/layout/theme";
 import { isOrg } from "models/Entity";
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
-import { handleError } from "utils/form";
+import { selectIsMobile } from "store/uiSlice";
 import { hasItems } from "utils/array";
+import { handleError } from "utils/form";
 
 type FormValues = {
   fichiers: File[];
   formErrorMessage: { message: string };
 };
 
-const TableContainer = ({
-  children
-}: {
-  children: React.ReactNode | React.ReactNodeArray;
-}) => {
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
-
-  return (
-    <Box
-      alignSelf="flex-start"
-      bgColor={isDark ? "black" : "white"}
-      overflowX="auto"
-      borderWidth={1}
-      borderBottom="none"
-      borderColor={isDark ? "gray.600" : "gray.200"}
-      borderRadius="lg"
-      mb={3}
-      css={css`
-        table {
-          width: auto;
-        }
-        table th {
-          padding: 12px;
-        }
-        table td {
-          border: none;
-          padding: 12px;
-        }
-      `}
-    >
-      {children}
-    </Box>
-  );
-};
+const maxFileSize = 10;
 
 export const DocumentForm = ({
   entity,
@@ -73,6 +47,7 @@ export const DocumentForm = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const toast = useToast({ position: "top" });
 
   const isO = isOrg(entity);
@@ -156,6 +131,53 @@ export const DocumentForm = ({
           <b>10Mo</b>
         </FormLabel>
 
+        {list.length > 0 && (
+          // <Box
+          //   alignSelf="flex-start"
+          //   bgColor={isDark ? "black" : "white"}
+          //   overflowX="scroll"
+          //   borderWidth={1}
+          //   borderBottom="none"
+          //   borderColor={isDark ? "gray.600" : "gray.200"}
+          //   borderRadius="lg"
+          //   mb={3}
+          //   css={css`
+          //     table {
+          //       width: auto;
+          //     }
+          //     table th {
+          //       padding: 12px;
+          //     }
+          //     table td {
+          //       border: none;
+          //       padding: 12px;
+          //     }
+          //   `}
+          // >
+          <Column
+            bg={isDark ? "gray.700" : "white"}
+            borderColor={isDark ? "gray.500" : "gray.200"}
+            overflowX="auto"
+            mb={3}
+            css={css(scrollbarCss)}
+            {...(isMobile ? { p: 0 } : {})}
+          >
+            <FileInputTable
+              list={list}
+              setList={setList}
+              css={css`
+                th,
+                td {
+                  border-color: ${isDark
+                    ? theme.colors.gray[500]
+                    : theme.colors.gray[200]};
+                }
+              `}
+            />
+          </Column>
+          // </Box>
+        )}
+
         <Controller
           control={control}
           name="fichiers"
@@ -170,16 +192,22 @@ export const DocumentForm = ({
                 height="auto"
                 p={0}
                 width="auto"
-                TableContainer={TableContainer}
                 css={css`
                   background: none !important;
                   border: none !important;
                 `}
-                //@ts-expect-error
-                list={list}
-                setList={setList}
                 onChange={(event) => {
                   const files = event.target.files;
+                  if (files) {
+                    //@ts-expect-error
+                    let newList: File[] = [].concat(list);
+
+                    for (const file of Array.from(files)) {
+                      const fsMb = file.size / (1024 * 1024);
+                      if (fsMb < maxFileSize) newList = newList.concat([file]);
+                    }
+                    setList(newList);
+                  }
                   onChange();
                   renderProps.onChange(files);
                 }}
@@ -222,14 +250,16 @@ export const DocumentForm = ({
         )}
       />
 
-      <Button
-        colorScheme="green"
-        type="submit"
-        isLoading={isLoading}
-        isDisabled={Object.keys(errors).length > 0}
-      >
-        Ajouter
-      </Button>
+      <FormControl alignItems="flex-end">
+        <Button
+          colorScheme="green"
+          type="submit"
+          isLoading={isLoading}
+          isDisabled={Object.keys(errors).length > 0}
+        >
+          Ajouter
+        </Button>
+      </FormControl>
     </form>
   );
 };

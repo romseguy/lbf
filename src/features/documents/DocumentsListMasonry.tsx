@@ -21,7 +21,7 @@ import { IOrg } from "models/Org";
 import { IUser } from "models/User";
 import { selectIsMobile } from "store/uiSlice";
 import { divideArray, hasItems } from "utils/array";
-import { bytesForHuman, MB } from "utils/string";
+import * as stringUtils from "utils/string";
 
 const controller = new AbortController();
 const signal = controller.signal;
@@ -53,7 +53,9 @@ export const DocumentsListMasonry = ({
             count += file.bytes;
             array.push({
               ...file,
-              url: `/files/${entity._id}/${encodeURIComponent(file.url)}`
+              url: `${process.env.NEXT_PUBLIC_FILES}/${
+                entity._id
+              }/${encodeURIComponent(file.url)}`
             });
           }
         }
@@ -92,7 +94,9 @@ export const DocumentsListMasonry = ({
   //#endregion
 
   //#region masonry state
-  const [canLoad, setCanLoad] = useState(imagesSize !== 0 && imagesSize < MB);
+  const [canLoad, setCanLoad] = useState(
+    imagesSize !== 0 && imagesSize < stringUtils.MB
+  );
   const [columnCount, setColumnCount] = useState(1);
   const masonry = useMemo(() => {
     if (!canLoad) return [];
@@ -151,7 +155,7 @@ export const DocumentsListMasonry = ({
           </AppHeading>
           {canLoad && (
             <Badge variant="subtle" colorScheme="green" ml={1}>
-              {bytesForHuman(imagesSize)}
+              {stringUtils.bytesForHuman(imagesSize)}
             </Badge>
           )}
         </Flex>
@@ -171,7 +175,7 @@ export const DocumentsListMasonry = ({
               }}
             >
               Charger {images.length} images pour un total de{" "}
-              {bytesForHuman(imagesSize)}
+              {stringUtils.bytesForHuman(imagesSize)}
             </Button>
           </>
         ) : (

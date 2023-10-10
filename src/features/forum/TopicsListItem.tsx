@@ -610,13 +610,8 @@ export const TopicsListItem = ({
       </Flex>
 
       {isCurrent && (
-        <>
-          <GridItem
-            bg={isDark ? "#314356" : "blue.100"}
-            px={3}
-            py={2}
-            data-cy="topic-subscribers"
-          >
+        <Box bg={isDark ? "#314356" : "orange.50"}>
+          <GridItem px={3} py={2} data-cy="topic-subscribers">
             <TopicsListItemSubscribers
               topic={topic}
               isSubbedToTopic={isSubbedToTopic}
@@ -624,19 +619,17 @@ export const TopicsListItem = ({
           </GridItem>
 
           <TopicMessagesList
-            bg={isDark ? "gray.700" : "orange.50"}
             isEdit={isEdit}
             query={query}
             setIsEdit={setIsEdit}
             topic={topic}
-            p={3}
-            pb={1}
+            px={3}
+            pb={3}
           />
 
           {!isEditing && (
             <>
               <Box
-                bg={isDark ? "gray.700" : "orange.50"}
                 borderBottomRadius="xl"
                 p={3}
                 pt={0}
@@ -689,7 +682,7 @@ export const TopicsListItem = ({
               </Box>
             </>
           )}
-        </>
+        </Box>
       )}
     </Box>
   );

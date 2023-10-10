@@ -1,21 +1,18 @@
-import { ArrowBackIcon, SettingsIcon } from "@chakra-ui/icons";
-import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+//import { useRouter } from "next/router";
+import React, { useState } from "react";
 import {
-  Button,
   EntityPageConfigButton,
   EntityPageSubscribeButton,
   Link
 } from "features/common";
 import { Forum } from "features/forum/Forum";
 import { Layout } from "features/layout";
-import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { PageProps } from "main";
 import { getRefId } from "models/Entity";
-import { EOrgType, IOrg } from "models/Org";
+import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
@@ -166,7 +163,9 @@ export const OrgPage = ({
             <Text fontSize="smaller">
               {org.orgType === EOrgType.GENERIC
                 ? "Arbre créé"
-                : "Planète créée"}{" "}
+                : `Planète ${
+                    org.orgVisibility === EOrgVisibility.PRIVATE ? "privée" : ""
+                  } créée`}{" "}
               le{" "}
               {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
                 locale: fr

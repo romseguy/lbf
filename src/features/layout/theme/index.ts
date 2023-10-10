@@ -10,9 +10,12 @@ const theme = extendTheme({
     brown: {
       50: "#c6b7a2",
       100: "#442727"
-    },
-    white: "#F7FAFC"
+    }
+    //white: "#F7FAFC"
+    //white: "#FFFAF0" // orange.50
+    //white: "#F4F4D8"
   },
+
   config: { initialColorMode: "light" },
   components: {
     Badge: {

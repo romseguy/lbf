@@ -291,11 +291,12 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
       const normalizedEntityUrl = normalize(entityUrl);
 
-      if (
-        entityUrl !== normalizedEntityUrl ||
-        (tabItem &&
-          !defaultTabs.find(({ url }) => url === "/" + normalize(tabItem)))
-      )
+      // if (
+      //   entityUrl !== normalizedEntityUrl ||
+      //   (tabItem &&
+      //     !defaultTabs.find(({ url }) => url === "/" + normalize(tabItem)))
+      // )
+      if (entityUrl !== normalizedEntityUrl)
         return {
           redirect: { permanent: false, destination: "/" + normalizedEntityUrl }
         };

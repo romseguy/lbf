@@ -44,7 +44,6 @@ export const EntityPageTab = ({
       __css={{
         ...styles.tab,
         display: "flex",
-        //alignItems: "center",
         bgColor: isCurrent ? undefined : isDark ? "gray.800" : "lightcyan",
         _focus: {
           boxShadow: "none"
@@ -53,12 +52,14 @@ export const EntityPageTab = ({
         ...(isMobile
           ? {
               alignSelf: "flex-start",
+              alignItems: "center",
               mb: 3,
               ml: 3,
               mt: tabIndex === 0 ? 3 : 0
             }
           : { flex: 0, mr: 3 })
       }}
+      {...props}
     >
       <Icon
         as={tab.icon || QuestionIcon}

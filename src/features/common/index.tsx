@@ -21,6 +21,7 @@ export * from "./forms/AutoCompletePlacesControl";
 export * from "./forms/DatePicker";
 export * from "./forms/EmailControl";
 export * from "./forms/FileInput";
+export * from "./forms/FileInputTable";
 export * from "./forms/Input";
 export * from "./forms/ListsControl";
 export * from "./forms/MultiSelect";

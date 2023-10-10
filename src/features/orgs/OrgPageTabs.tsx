@@ -171,45 +171,43 @@ export const OrgPageTabs = ({
           const key = `org-${normalize(tab.label)}-tab`;
 
           return (
-            <Link key={key} href={`/${org.orgUrl}${tab.url}`} shallow>
-              <EntityPageTab
-                currentTabIndex={currentTabIndex}
-                tab={tab}
-                tabIndex={tabIndex}
-                // onClick={() => {
-                //   router.push(
-                //     `/${org.orgUrl}${tab.url}`,
-                //     `/${org.orgUrl}${tab.url}`,
-                //     {
-                //       shallow: true
-                //     }
-                //   );
-                // }}
-                data-cy={key}
-              >
-                {isMobile && tab.label === "" ? "Configuration" : tab.label}
-                {tab.url === "/galerie"
-                  ? Array.isArray(documentsQuery.data) &&
-                    documentsQuery.data.length > 0 && (
-                      <Badge {...badgeProps}>
-                        {documentsQuery.data.length}
-                      </Badge>
-                    )
-                  : tab.url === "/evenements"
-                  ? org.orgEvents.length > 0 && (
-                      <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
-                    )
-                  : tab.url === "/discussions"
-                  ? org.orgTopics.length > 0 && (
-                      <Badge {...badgeProps}>{org.orgTopics.length}</Badge>
-                    )
-                  : tab.url === "/projets"
-                  ? org.orgProjects.length > 0 && (
-                      <Badge {...badgeProps}>{org.orgProjects.length}</Badge>
-                    )
-                  : ""}
-              </EntityPageTab>
-            </Link>
+            // <Link key={key} href={`/${org.orgUrl}${tab.url}`} shallow>
+            <EntityPageTab
+              currentTabIndex={currentTabIndex}
+              tab={tab}
+              tabIndex={tabIndex}
+              onClick={() => {
+                router.push(
+                  `/${org.orgUrl}${tab.url}`,
+                  `/${org.orgUrl}${tab.url}`,
+                  {
+                    shallow: true
+                  }
+                );
+              }}
+              data-cy={key}
+            >
+              {isMobile && tab.label === "" ? "Configuration" : tab.label}
+              {tab.url === "/galerie"
+                ? Array.isArray(documentsQuery.data) &&
+                  documentsQuery.data.length > 0 && (
+                    <Badge {...badgeProps}>{documentsQuery.data.length}</Badge>
+                  )
+                : tab.url === "/evenements"
+                ? org.orgEvents.length > 0 && (
+                    <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
+                  )
+                : tab.url === "/discussions"
+                ? org.orgTopics.length > 0 && (
+                    <Badge {...badgeProps}>{org.orgTopics.length}</Badge>
+                  )
+                : tab.url === "/projets"
+                ? org.orgProjects.length > 0 && (
+                    <Badge {...badgeProps}>{org.orgProjects.length}</Badge>
+                  )
+                : ""}
+            </EntityPageTab>
+            // </Link>
           );
         })}
       </EntityPageTabList>

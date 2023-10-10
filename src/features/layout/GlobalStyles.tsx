@@ -335,6 +335,13 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
             max-width: 150px;
             vertical-align: top;
           }
+          blockquote {
+            border-left: 2px solid #ccc;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            margin-left: 1.5rem;
+            padding-left: 1rem;
+          }
           h1 {
             font-size: 2em;
           }
@@ -359,20 +366,23 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
         //#endregion
 
         //#region tinymce
-        .tox-tinymce {
-          ${isMobile
-            ? "border: 0 !important;"
-            : ""}/* button[aria-label="Tailles de police"] {
+        ${isMobile
+          ? `
+            body:not(.tox-force-desktop) .tox-dialog { max-height: calc(100vh - 32px * 2) !important; }
+            .tox-tinymce { border: 0 !important; }
+          `
+          : ""}
+
+        /*
+          button[aria-label="Tailles de police"] {
             width: 80px !important;
-          } */
-        }
+          }
+        */
+
         .tox-tinymce-aux {
           z-index: ${zIndex()} !important;
         }
-
-        ${isMobile
-          ? "body:not(.tox-force-desktop) .tox .tox-dialog { max-height: calc(100vh - 32px * 2) !important; }"
-          : ""}//#endregion
+        //#endregion
 
         //#region toast
         /* .chakra-ui-light {

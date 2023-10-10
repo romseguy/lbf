@@ -43,7 +43,6 @@ export const DocumentsList = ({
   const toast = useToast({ position: "top" });
 
   const isO = isOrg(entity);
-  const prefix = `/files/${entity._id}`;
   const query = useGetDocumentsQuery({
     [isO ? "orgId" : "userId"]: entity._id
   });
@@ -82,7 +81,7 @@ export const DocumentsList = ({
             gridRowGap={3}
           >
             {query.data.map((file) => {
-              const url = `${process.env.NEXT_PUBLIC_URL}${prefix}/${file.url}`;
+              const url = `${process.env.NEXT_PUBLIC_FILES}/${entity._id}/${file.url}`;
               const isImage = stringUtils.isImage(file.url);
               // const isPdf = fileName.includes(".pdf");
               // const url = `${process.env.NEXT_PUBLIC_API2}/${
@@ -230,7 +229,7 @@ export const DocumentsList = ({
         >
           <Image
             alignSelf="center"
-            src={prefix + "/" + modalState.image.url}
+            src={`${process.env.NEXT_PUBLIC_FILES}/${entity._id}/${modalState.image.url}`}
             width={`${modalState.image.width}px`}
           />
         </FullscreenModal>

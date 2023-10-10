@@ -22,6 +22,7 @@ import {
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import {
   FaMapMarkedAlt,
@@ -51,9 +52,9 @@ import {
 import { ISubscription } from "models/Subscription";
 import { useAppDispatch } from "store";
 import { selectIsMobile } from "store/uiSlice";
-import { hasItems } from "utils/array";
+import { getItem, hasItems } from "utils/array";
 import { Session } from "utils/auth";
-import { sanitize, transformRTEditorOutput } from "utils/string";
+import { normalize, sanitize, transformRTEditorOutput } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { EOrderKey, OrgsList } from "./OrgsList";
 import { IsEditConfig } from "./OrgPage";
@@ -75,6 +76,7 @@ export const OrgPageHomeTabPanel = ({
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
   const isMobile = useSelector(selectIsMobile);
+  const router = useRouter();
   const badgeProps: BadgeProps = {
     colorScheme: "teal",
     variant: "solid",
@@ -129,6 +131,12 @@ export const OrgPageHomeTabPanel = ({
   } = useDisclosure({ defaultIsOpen: false });
   //#endregion
 
+  useEffect(() => {
+    const section = normalize(getItem(router.query.name, 1));
+    setIsChildrenOpen(section === "foret");
+    setIsInfoOpen(section === "info");
+  }, [router.asPath]);
+
   return (
     <>
       {org.orgType === EOrgType.NETWORK && (
@@ -136,7 +144,13 @@ export const OrgPageHomeTabPanel = ({
           <TabContainerHeader
             borderBottomRadius={isChildrenOpen ? undefined : "lg"}
             _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
-            onClick={() => setIsChildrenOpen(!isChildrenOpen)}
+            onClick={() =>
+              router.push(
+                `${org.orgUrl}${isChildrenOpen ? "" : "/foret"}`,
+                `${org.orgUrl}${isChildrenOpen ? "" : "/foret"}`,
+                { shallow: true }
+              )
+            }
           >
             <Icon
               as={isChildrenOpen ? ChevronUpIcon : ChevronRightIcon}
@@ -290,7 +304,13 @@ export const OrgPageHomeTabPanel = ({
         <TabContainerHeader
           borderBottomRadius={isInfoOpen ? undefined : "lg"}
           _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
-          onClick={() => setIsInfoOpen(!isInfoOpen)}
+          onClick={() =>
+            router.push(
+              `${org.orgUrl}${isInfoOpen ? "" : "/info"}`,
+              `${org.orgUrl}${isInfoOpen ? "" : "/info"}`,
+              { shallow: true }
+            )
+          }
         >
           <Icon
             as={isInfoOpen ? ChevronUpIcon : ChevronRightIcon}
@@ -419,7 +439,7 @@ export const OrgPageHomeTabPanel = ({
         </TabContainerHeader>
 
         {isDescriptionOpen && (
-          <TabContainerContent bg={isDark ? "gray.600" : "white"} p={3}>
+          <TabContainerContent bg={isDark ? "gray.600" : "#F7FAFC"} p={3}>
             {description && description.length > 0 ? (
               <div className="rteditor">
                 <div
