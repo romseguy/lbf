@@ -137,7 +137,8 @@ export const OrgSchema = new Schema<IOrg>(
     orgVisibility: {
       type: String,
       enum: EOrgVisibility,
-      required: true
+      required: true,
+      default: EOrgVisibility.PUBLIC
     },
     orgs: { type: [{ type: Schema.Types.ObjectId, ref: "Org" }], default: [] },
     orgPermissions: {

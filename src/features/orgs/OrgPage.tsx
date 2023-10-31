@@ -23,6 +23,7 @@ export interface IsEditConfig {
   isAddingChild?: boolean;
   isAddingDescription?: boolean;
   isAddingInfo?: boolean;
+  isAddingToNetwork?: boolean;
 }
 
 //let isFirstLoad = true;

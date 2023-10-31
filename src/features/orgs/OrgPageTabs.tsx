@@ -173,6 +173,7 @@ export const OrgPageTabs = ({
           return (
             // <Link key={key} href={`/${org.orgUrl}${tab.url}`} shallow>
             <EntityPageTab
+              key={key}
               currentTabIndex={currentTabIndex}
               tab={tab}
               tabIndex={tabIndex}

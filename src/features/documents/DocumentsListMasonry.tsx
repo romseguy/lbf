@@ -39,34 +39,38 @@ export const DocumentsListMasonry = ({
   const isMobile = useSelector(selectIsMobile);
 
   const isO = isOrg(entity);
-  const { isLoading, isFetching, images, imagesSize } = useGetDocumentsQuery(
-    {
-      [isO ? "orgId" : "userId"]: entity._id
-    },
-    {
-      selectFromResult: ({ data = [], ...rest }) => {
-        // const images = data.filter<RemoteImage>((file): file is RemoteImage => "height" in file)
-        let array = [];
-        let count = 0;
-        for (const file of data) {
-          if ("height" in file) {
-            count += file.bytes;
-            array.push({
-              ...file,
-              url: `${process.env.NEXT_PUBLIC_FILES}/${
-                entity._id
-              }/${encodeURIComponent(file.url)}`
-            });
+  const { isLoading, isFetching, images, imagesSize, refetch } =
+    useGetDocumentsQuery(
+      {
+        [isO ? "orgId" : "userId"]: entity._id
+      },
+      {
+        selectFromResult: ({ data = [], ...rest }) => {
+          // const images = data.filter<RemoteImage>((file): file is RemoteImage => "height" in file)
+          let array = [];
+          let count = 0;
+          for (const file of data) {
+            if ("height" in file) {
+              count += file.bytes;
+              array.push({
+                ...file,
+                url: `${process.env.NEXT_PUBLIC_FILES}/${
+                  entity._id
+                }/${encodeURIComponent(file.url)}`
+              });
+            }
           }
+          return {
+            ...rest,
+            images: array,
+            imagesSize: count
+          };
         }
-        return {
-          ...rest,
-          images: array,
-          imagesSize: count
-        };
       }
-    }
-  );
+    );
+  useEffect(() => {
+    refetch();
+  }, [entity]);
 
   //#region images loading state
   // const imageRefs = useMemo(() => {

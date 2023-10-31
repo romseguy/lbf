@@ -3,23 +3,21 @@ import { objectToQueryString } from "utils/query";
 import { api } from "./";
 
 export type AddOrgPayload = Pick<
-  IOrg,
-  | "orgName"
-  | "orgType"
-  | "orgs"
-  | "orgDescription"
-  | "orgVisibility"
-  | "orgPassword"
-  | "orgSalt"
-  | "orgAddress"
-  | "orgCity"
-  | "orgLat"
-  | "orgLng"
-  | "orgEmail"
-  | "orgPhone"
-  | "orgWeb"
-  | "orgPermissions"
->;
+  Partial<IOrg>,
+  "orgAddress" | "orgEmail" | "orgPhone" | "orgWeb" | "orgVisibility" | "orgs"
+> &
+  Pick<
+    IOrg,
+    | "orgName"
+    | "orgType"
+    | "orgDescription"
+    | "orgPassword"
+    | "orgSalt"
+    | "orgCity"
+    | "orgLat"
+    | "orgLng"
+    | "orgPermissions"
+  >;
 
 export type EditOrgPayload = Partial<IOrg> | string[];
 

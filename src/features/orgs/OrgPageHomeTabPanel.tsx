@@ -25,6 +25,7 @@ import {
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import {
+  FaGlobeEurope,
   FaMapMarkedAlt,
   FaNewspaper,
   FaRecycle,
@@ -256,10 +257,10 @@ export const OrgPageHomeTabPanel = ({
                   ) : isCreator || org.orgPermissions?.anyoneCanAddChildren ? (
                     <Tooltip
                       placement="right"
-                      label="Ajouter un arbre à la forêt de la planète"
+                      label="Planter un arbre dans la forêt de la planète"
                     >
                       <IconButton
-                        aria-label="Ajouter un arbre à la forêt de la planète"
+                        aria-label="Planter un arbre dans la forêt de la planète"
                         alignSelf="flex-start"
                         colorScheme="teal"
                         icon={
@@ -375,17 +376,45 @@ export const OrgPageHomeTabPanel = ({
         )}
       </TabContainer>
 
-      {orgNetworks.length > 0 && (
+      {(orgNetworks.length > 0 ||
+        (session && org.orgType === EOrgType.GENERIC)) && (
         <TabContainer>
-          <TabContainerHeader heading="Planètes sur lesquelles cet arbre a été planté"></TabContainerHeader>
+          <TabContainerHeader
+            heading={
+              orgNetworks.length > 0
+                ? "Planètes sur lesquelles cet arbre a été planté"
+                : "Cet arbre n'a pas encore été planté"
+            }
+          ></TabContainerHeader>
           <TabContainerContent p={3}>
-            <List>
-              {orgNetworks.map((orgNetwork, i) => (
-                <ListItem key={`org-network-${i}`} mt={i !== 0 ? 3 : 0}>
-                  <EntityButton org={orgNetwork} />
-                </ListItem>
-              ))}
-            </List>
+            {orgNetworks.length > 0 ? (
+              <List>
+                {orgNetworks.map((orgNetwork, i) => (
+                  <ListItem key={`org-network-${i}`} mt={i !== 0 ? 3 : 0}>
+                    <EntityButton org={orgNetwork} />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Tooltip
+                placement="right"
+                label="Planter l'arbre sur la planète de votre choix"
+              >
+                <IconButton
+                  aria-label="Planter l'arbre sur la planète de votre choix"
+                  alignSelf="flex-start"
+                  colorScheme="teal"
+                  icon={
+                    <>
+                      <SmallAddIcon />
+                      <FaGlobeEurope />
+                    </>
+                  }
+                  pr={1}
+                  onClick={() => setIsEdit({ isAddingToNetwork: true })}
+                />
+              </Tooltip>
+            )}
           </TabContainerContent>
         </TabContainer>
       )}

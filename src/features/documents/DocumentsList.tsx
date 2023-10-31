@@ -13,7 +13,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaImage, FaFile } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
@@ -46,6 +46,9 @@ export const DocumentsList = ({
   const query = useGetDocumentsQuery({
     [isO ? "orgId" : "userId"]: entity._id
   });
+  useEffect(() => {
+    query.refetch();
+  }, [entity]);
 
   //#region modal state
   const [modalState, setModalState] = useState<

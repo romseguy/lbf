@@ -76,6 +76,7 @@ import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { capitalize, normalize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
+import { isArray } from "util";
 
 type FormValues = {
   orgName: string;
@@ -283,7 +284,9 @@ export const OrgForm = withGoogleApi({
     const onSubmit = async (form: {
       orgName?: string;
       orgType?: EOrgType;
-      orgs: { label: string; value: string }[];
+      orgs:
+        | { label: string; value: string }
+        | { label: string; value: string }[];
       orgDescription?: string;
       orgVisibility?: EOrgVisibility;
       orgPassword?: string;
@@ -297,7 +300,7 @@ export const OrgForm = withGoogleApi({
       anyoneCanAddChildren: boolean;
       hasSelectedChildrenTypes: boolean;
     }) => {
-      console.log("submitted", form, suggestion);
+      console.log("submitted", form);
       setIsLoading(true);
 
       try {
@@ -372,6 +375,21 @@ export const OrgForm = withGoogleApi({
         if (org) {
           if (isEditConfig?.isAddingChild && hasItems(orgs)) {
             await editOrg({ orgId: org._id, payload: { orgs } }).unwrap();
+          } else if (
+            isEditConfig?.isAddingToNetwork &&
+            !Array.isArray(form.orgs)
+          ) {
+            const { label, value } = form.orgs;
+            const myNetwork = myOrgs?.find((myNetwork) => {
+              return myNetwork._id === value;
+            });
+
+            if (myNetwork) {
+              await editOrg({
+                orgId: myNetwork._id,
+                payload: { ...myNetwork, orgs: myNetwork.orgs.concat([org]) }
+              });
+            }
           } else if (isEditConfig?.isAddingDescription) {
             await editOrg({
               orgId: org._id,
@@ -509,7 +527,7 @@ export const OrgForm = withGoogleApi({
                         ({ _id }) => _id === option.value
                       );
                       if (tree) setOrgTrees([...orgTrees, tree]);
-                    } else renderProps.onChange;
+                    } else renderProps.onChange(option);
                   }}
                   onCreateOption={async (inputValue: string) => {
                     try {
@@ -572,6 +590,99 @@ export const OrgForm = withGoogleApi({
                   placeholder={
                     isEditConfig?.isAddingChild ? "" : orgsPlaceholder
                   }
+                  //#endregion
+                  //#region styling
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (defaultStyles: any) => {
+                      return {
+                        ...defaultStyles,
+                        borderColor: "#e2e8f0"
+                      };
+                    },
+                    placeholder: () => {
+                      return {
+                        color: "#A0AEC0"
+                      };
+                    }
+                  }}
+                  //#endregion
+                />
+              );
+            }}
+          />
+        )}
+
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="orgs" />
+        </FormErrorMessage>
+      </FormControl>
+    );
+
+    const NetworkFormControl = (
+      <FormControl mb={3} isInvalid={!!errors["orgs"]}>
+        <FormLabel>
+          Sélectionner ou créer la planète où vous voulez planter cet arbre :
+        </FormLabel>
+
+        {myOrgsQuery.isLoading ? (
+          <Spinner />
+        ) : (
+          <Controller
+            name="orgs"
+            control={control}
+            defaultValue={[]}
+            render={(renderProps) => {
+              return (
+                <Creatable
+                  options={myOrgs
+                    ?.filter(({ orgType }) => orgType === EOrgType.NETWORK)
+                    .map(({ _id, orgName }) => ({
+                      label: orgName,
+                      value: _id
+                    }))}
+                  value={renderProps.value}
+                  onChange={(options, { action, option }) => {
+                    if (action === "select-option") {
+                      if (
+                        Array.isArray(renderProps.value) &&
+                        renderProps.value.length > 0
+                      ) {
+                      } else {
+                        renderProps.onChange(option);
+                      }
+                    }
+                  }}
+                  onCreateOption={async (inputValue: string) => {
+                    try {
+                      const payload: AddOrgPayload = {
+                        orgName: inputValue,
+                        orgType: EOrgType.NETWORK
+                      };
+
+                      const addedOrg = await addOrg(payload).unwrap();
+                      renderProps.onChange({
+                        label: addedOrg.orgName,
+                        value: addedOrg._id
+                      });
+                    } catch (error: any) {
+                      console.error(error);
+                      toast({
+                        status: "error",
+                        title: error.message
+                      });
+                    }
+                  }}
+                  //#region ui
+                  allowCreateWhileLoading
+                  formatCreateLabel={(inputValue: string) =>
+                    `Créer la planète "${inputValue}"`
+                  }
+                  isClearable
+                  isMulti
+                  noOptionsMessage={() => "Aucun résultat"}
+                  placeholder="Sélectionner ou créer la planète où vous voulez planter cet arbre"
                   //#endregion
                   //#region styling
                   className="react-select-container"
@@ -776,6 +887,14 @@ export const OrgForm = withGoogleApi({
       return (
         <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
           {ChildrenFormControl}
+          {FooterFormControl}
+        </form>
+      );
+
+    if (isEditConfig?.isAddingToNetwork)
+      return (
+        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+          {NetworkFormControl}
           {FooterFormControl}
         </form>
       );
