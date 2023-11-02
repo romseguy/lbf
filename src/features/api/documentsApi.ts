@@ -1,7 +1,7 @@
 import { api } from "./";
 import { objectToQueryString } from "utils/query";
 
-interface RemoteFile {
+export interface RemoteFile {
   url: string;
   bytes: number;
 }

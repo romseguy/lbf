@@ -2,6 +2,7 @@ import {
   Alert,
   AlertIcon,
   Badge,
+  Box,
   Button,
   Flex,
   Image,
@@ -13,7 +14,7 @@ import AbortController from "abort-controller";
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { RemoteImage, useGetDocumentsQuery } from "features/api/documentsApi";
-import { Column, AppHeading } from "features/common";
+import { Column, ColumnProps, AppHeading } from "features/common";
 import { pxBreakpoints } from "features/layout/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { isOrg } from "models/Entity";
@@ -29,7 +30,7 @@ const signal = controller.signal;
 export const DocumentsListMasonry = ({
   entity,
   ...props
-}: {
+}: ColumnProps & {
   entity: IOrg | IUser;
   isCreator?: boolean;
   isFollowed?: boolean;
@@ -71,31 +72,6 @@ export const DocumentsListMasonry = ({
   useEffect(() => {
     refetch();
   }, [entity]);
-
-  //#region images loading state
-  // const imageRefs = useMemo(() => {
-  //   return images.reduce((acc: Record<string, React.RefObject<any>>, value) => {
-  //     acc[value.url] = React.createRef();
-  //     return acc;
-  //   }, {});
-  // }, [images]);
-  // const [isLoaded, setIsLoaded] = useState<{ [url: string]: boolean }>({});
-  // useEffect(() => {
-  //   const newIsLoaded = { ...isLoaded };
-  //   let touched = false;
-  //   Object.keys(imageRefs).map((url) => {
-  //     const imageRef = imageRefs[url];
-  //     const imageEl = imageRef.current;
-  //     if (imageEl && imageEl.complete && !isLoaded[url]) {
-  //       touched = true;
-  //       newIsLoaded[url] = true;
-  //     }
-  //   });
-  //   if (touched) {
-  //     setIsLoaded(newIsLoaded);
-  //   }
-  // }, [imageRefs]);
-  //#endregion
 
   //#region masonry state
   const [canLoad, setCanLoad] = useState(
@@ -151,95 +127,93 @@ export const DocumentsListMasonry = ({
   //#endregion
 
   return (
-    <>
-      <Column p={0}>
-        <Flex alignItems="center" p={3}>
-          <AppHeading noContainer smaller>
-            Visionneuse d'images
-          </AppHeading>
-          {canLoad && (
-            <Badge variant="subtle" colorScheme="green" ml={1}>
-              {stringUtils.bytesForHuman(imagesSize)}
-            </Badge>
-          )}
-        </Flex>
-
-        {isLoading || isFetching ? (
-          <Spinner />
-        ) : !hasItems(images) ? (
-          <Alert status="info">
-            <AlertIcon />
-            Aucune images à afficher dans la galerie.
-          </Alert>
-        ) : !canLoad ? (
-          <>
-            <Button
-              onClick={() => {
-                setCanLoad(true);
-              }}
-            >
-              Charger {images.length} images pour un total de{" "}
-              {stringUtils.bytesForHuman(imagesSize)}
-            </Button>
-          </>
-        ) : (
-          <Flex justifyContent="center">
-            {masonry.map((column, index) => {
-              return (
-                <Flex key={index} flexDirection="column" width="100%">
-                  {column.map((image, imageIndex) => {
-                    let marginAround = 2 * (4 * 12 + 24);
-                    const marginBetween = (columnCount - 1) * 24;
-                    let newMW = screenWidth - marginAround;
-
-                    if (screenWidth > pxBreakpoints["2xl"]) {
-                      marginAround = 2 * (5 * 12 + 20 + 84);
-                      newMW =
-                        (screenWidth - marginAround - marginBetween) /
-                        columnCount;
-                      // console.log(
-                      //   "1",
-                      //   columnCount,
-                      //   screenWidth,
-                      //   newMW,
-                      //   marginAround,
-                      //   marginBetween
-                      // );
-                    } else if (columnCount !== 1) {
-                      marginAround = 2 * (4 * 12 + 20);
-                      newMW =
-                        (screenWidth - marginAround - marginBetween) /
-                        columnCount;
-                    }
-
-                    const width = image.width > newMW ? newMW : image.width;
-
-                    return (
-                      <Image
-                        key={`image-${imageIndex}`}
-                        //ref={imageRefs[image.url]}
-                        src={image.url}
-                        width={`${width}px`}
-                        borderRadius="12px"
-                        cursor="pointer"
-                        mb={3}
-                        mx={3}
-                        onClick={() => {
-                          onOpen(image);
-                        }}
-                        // onLoad={() => {
-                        //   if (!isLoaded[image.url])
-                        //     setIsLoaded({ [image.url]: true });
-                        // }}
-                      />
-                    );
-                  })}
-                </Flex>
-              );
-            })}
-          </Flex>
+    <Column {...props}>
+      <Flex alignItems="center" p={3}>
+        <AppHeading noContainer smaller>
+          Visionneuse d'images
+        </AppHeading>
+        {canLoad && (
+          <Badge variant="subtle" colorScheme="green" ml={1}>
+            {stringUtils.bytesForHuman(imagesSize)}
+          </Badge>
         )}
-      </Column>
+      </Flex>
+
+      {isLoading || isFetching ? (
+        <Spinner m={3} />
+      ) : !hasItems(images) ? (
+        <Alert status="info">
+          <AlertIcon />
+          Aucune images.
+        </Alert>
+      ) : !canLoad ? (
+        <>
+          <Button
+            onClick={() => {
+              setCanLoad(true);
+            }}
+          >
+            Charger {images.length} images pour un total de{" "}
+            {stringUtils.bytesForHuman(imagesSize)}
+          </Button>
+        </>
+      ) : (
+        <Flex justifyContent="center">
+          {masonry.map((column, index) => {
+            return (
+              <Flex key={index} flexDirection="column" width="100%">
+                {column.map((image, imageIndex) => {
+                  let marginAround = 2 * (4 * 12 + 24);
+                  const marginBetween = (columnCount - 1) * 24;
+                  let newMW = screenWidth - marginAround;
+
+                  if (screenWidth > pxBreakpoints["2xl"]) {
+                    marginAround = 2 * (5 * 12 + 20 + 84);
+                    newMW =
+                      (screenWidth - marginAround - marginBetween) /
+                      columnCount;
+                    // console.log(
+                    //   "1",
+                    //   columnCount,
+                    //   screenWidth,
+                    //   newMW,
+                    //   marginAround,
+                    //   marginBetween
+                    // );
+                  } else if (columnCount !== 1) {
+                    marginAround = 2 * (4 * 12 + 20);
+                    newMW =
+                      (screenWidth - marginAround - marginBetween) /
+                      columnCount;
+                  }
+
+                  const width = image.width > newMW ? newMW : image.width;
+
+                  return (
+                    <Image
+                      key={`image-${imageIndex}`}
+                      //ref={imageRefs[image.url]}
+                      src={image.url}
+                      width={`${width}px`}
+                      borderRadius="12px"
+                      cursor="pointer"
+                      mb={3}
+                      mx={3}
+                      onClick={() => {
+                        onOpen(image);
+                      }}
+                      // onLoad={() => {
+                      //   if (!isLoaded[image.url])
+                      //     setIsLoaded({ [image.url]: true });
+                      // }}
+                    />
+                  );
+                })}
+              </Flex>
+            );
+          })}
+        </Flex>
+      )}
 
       {modalState.isOpen && modalState.image && (
         <FullscreenModal
@@ -254,6 +228,39 @@ export const DocumentsListMasonry = ({
           />
         </FullscreenModal>
       )}
-    </>
+    </Column>
   );
 };
+
+{
+  /*
+  #region images loading state
+  const imageRefs = useMemo(() => {
+    return images.reduce((acc: Record<string, React.RefObject<any>>, value) => {
+      acc[value.url] = React.createRef();
+      return acc;
+    }, {});
+  }, [images]);
+
+  const [isLoaded, setIsLoaded] = useState<{ [url: string]: boolean }>({});
+
+  useEffect(() => {
+    const newIsLoaded = { ...isLoaded };
+    let touched = false;
+
+    Object.keys(imageRefs).map((url) => {
+      const imageRef = imageRefs[url];
+      const imageEl = imageRef.current;
+      if (imageEl && imageEl.complete && !isLoaded[url]) {
+        touched = true;
+        newIsLoaded[url] = true;
+      }
+    });
+
+    if (touched) {
+      setIsLoaded(newIsLoaded);
+    }
+  }, [imageRefs]);
+  #endregion
+*/
+}

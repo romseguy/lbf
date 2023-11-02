@@ -16,7 +16,7 @@ import {
   useColorMode
 } from "@chakra-ui/react";
 import router from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaImages } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useGetDocumentsQuery } from "features/api/documentsApi";
@@ -30,6 +30,7 @@ import {
 } from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
 import { DocumentsListMasonry } from "features/documents/DocumentsListMasonry";
+import { DocumentsListPlayer } from "features/documents/DocumentsListPlayer";
 import { DocumentForm } from "features/forms/DocumentForm";
 import { useDiskUsage } from "hooks/useDiskUsage";
 import { useSession } from "hooks/useSession";
@@ -70,6 +71,9 @@ export const EntityPageDocuments = ({
     orgId: entity._id,
     userId: entity._id
   });
+  useEffect(() => {
+    documentsQuery.refetch();
+  }, [entity]);
 
   return (
     <>
@@ -96,7 +100,9 @@ export const EntityPageDocuments = ({
 
           <Badge {...badgeProps}>{documentsQuery.data?.length || ""}</Badge>
 
-          <Heading size="sm">Liste des fichiers</Heading>
+          <Heading size="sm">
+            fichier{documentsQuery.data?.length !== 1 ? "s" : ""}
+          </Heading>
         </TabContainerHeader>
         {isFilesOpen && (
           <TabContainerContent
@@ -170,16 +176,24 @@ export const EntityPageDocuments = ({
               <DocumentsList
                 entity={entity}
                 isCreator={isCreator}
-                onDelete={refreshDiskUsage}
+                onDelete={() => {
+                  documentsQuery.refetch();
+                  refreshDiskUsage();
+                }}
               />
             )}
           </TabContainerContent>
         )}
       </TabContainer>
 
-      {/* <Column {...columnProps}> */}
-      <DocumentsListMasonry isCreator={isCreator} entity={entity} />
-      {/* </Column> */}
+      <DocumentsListMasonry
+        isCreator={isCreator}
+        entity={entity}
+        mb={5}
+        p={0}
+      />
+
+      <DocumentsListPlayer entity={entity} p={0} />
     </>
   );
 };

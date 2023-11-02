@@ -50,6 +50,11 @@ export function isImage(fileName: string) {
   );
 }
 
+export function isVideo(fileName: string) {
+  const str = fileName.toLowerCase();
+  return str.includes(".mp4") || str.includes(".webm");
+}
+
 export function logJson(message: string, object?: any) {
   if (object) console.log(message, JSON.stringify(object, null, 2));
   else console.log(message);
