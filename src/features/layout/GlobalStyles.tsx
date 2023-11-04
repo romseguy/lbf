@@ -353,10 +353,11 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
           }
           hr {
             border-top-width: 3px;
-            margin: 0 24px 1rem 24px;
+            margin: 0 24px;
           }
           p {
-            margin-bottom: 1rem;
+            margin: 0;
+            padding: 0;
           }
           ol,
           ul {
@@ -368,7 +369,7 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
         //#region tinymce
         ${isMobile
           ? `
-            body:not(.tox-force-desktop) .tox-dialog { max-height: calc(100vh - 32px * 2) !important; }
+            body:not(.tox-force-desktop) .tox-dialog { max-height: calc(100vh - 64px * 1.25) !important; }
             .tox-tinymce { border: 0 !important; }
           `
           : ""}

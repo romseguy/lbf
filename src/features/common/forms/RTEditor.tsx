@@ -89,12 +89,21 @@ export const RTEditor = ({
   }, [editorRef]);
   const init: IAllProps["init"] = {
     branding: false,
+    browser_spellcheck: true,
     font_css: "/fonts/spectral.css",
     content_style: `
       body {
         font-family: 'Spectral', Georgia, ui-serif, serif;
         font-size: 19px;
         text-align: justify;
+      }
+      hr {
+        border-top-width: 3px;
+        margin: 0 24px;
+      }
+      p {
+        margin: 0;
+        padding: 0;
       }
     `,
     convert_urls: false,

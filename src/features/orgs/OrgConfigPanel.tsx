@@ -78,6 +78,8 @@ export const OrgConfigPanel = ({
                 await router.push(`/${orgUrl}`, `/${orgUrl}`, {
                   shallow: true
                 });
+              } else {
+                orgQuery.refetch();
               }
             }}
           />

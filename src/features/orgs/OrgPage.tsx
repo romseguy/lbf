@@ -1,8 +1,8 @@
 import { Box, Text } from "@chakra-ui/react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
-//import { useRouter } from "next/router";
-import React, { useState } from "react";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 import {
   EntityPageConfigButton,
   EntityPageSubscribeButton,
@@ -40,7 +40,7 @@ export const OrgPage = ({
   tab?: string;
   tabItem?: string;
 }) => {
-  //const router = useRouter();
+  const router = useRouter();
   const { data: session } = useSession();
   // useEffect(() => {
   //   if ((router.asPath.match(/\//g) || []).length > 1) {
@@ -80,6 +80,10 @@ export const OrgPage = ({
       setIsEditConfig(arg);
     }
   };
+  useEffect(() => {
+    if (isEdit) setIsEdit(false);
+    if (isConfig) setIsConfig(false);
+  }, [router.asPath]);
   //#endregion
 
   //#region visibility

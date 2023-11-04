@@ -13,6 +13,7 @@ import {
 } from "models/Org";
 import { ISubscription, getFollowerSubscription } from "models/Subscription";
 import database, { models } from "server/database";
+import { getClientIp } from "server/ip";
 import { logEvent, ServerEventTypes } from "server/logging";
 import api from "utils/api";
 import { hasItems } from "utils/array";
@@ -55,6 +56,7 @@ handler.get<
       type: ServerEventTypes.API_CALL,
       metadata: {
         method: "GET",
+        ip: getClientIp(req),
         url: `/api/${orgUrl}`
       }
     });

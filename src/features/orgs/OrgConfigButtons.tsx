@@ -63,15 +63,11 @@ export const OrgConfigButtons = ({
         <DeleteButton
           isDisabled={isDisabled}
           isLoading={deleteQuery.isLoading}
-          label={`${
-            org.orgType === EOrgType.NETWORK ? "Supprimer" : "Déraciner"
-          } ${orgTypeFull5(org.orgType)}`}
+          label={`Supprimer ${orgTypeFull5(org.orgType)}`}
           header={
             <>
               Vous êtes sur le point de{" "}
-              {org.orgType === EOrgType.NETWORK
-                ? "supprimer la planète"
-                : "déraciner l'arbre"}{" "}
+              {`supprimer ${orgTypeFull5(org.orgType)}`}{" "}
               <Text display="inline" color="red" fontWeight="bold">
                 {` ${org.orgName}`}
               </Text>
