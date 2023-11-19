@@ -1,5 +1,7 @@
 import { Flex, FlexProps, useColorMode } from "@chakra-ui/react";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 import { ReturnTypeRender } from "utils/types";
 
 export interface ColumnProps extends FlexProps {
@@ -14,6 +16,7 @@ export const Column = ({
 }: ColumnProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
@@ -24,7 +27,7 @@ export const Column = ({
       borderColor={isDark ? "gray.500" : "gray.200"}
       borderRadius="lg"
       p={3}
-      {...(isCollapsable
+      {...(isCollapsable && !isMobile
         ? {
             cursor: "pointer",
             _hover: {

@@ -171,7 +171,6 @@ export const UserPage = ({
                   light={{ bg: "orange.100" }}
                   dark={{ bg: "gray.500" }}
                   p={3}
-                  pb={0}
                 >
                   <>
                     {session && isSelf && isDescriptionEdit ? (

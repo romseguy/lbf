@@ -7,6 +7,7 @@ import {
   GridProps,
   List,
   ListItem,
+  Select,
   Spinner,
   Text,
   useColorMode
@@ -41,6 +42,12 @@ import { TopicsListItem } from "./TopicsListItem";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { selectIsMobile } from "store/uiSlice";
 
+enum ETopicsListOrder {
+  ALPHA = "ALPHA",
+  NEWEST = "NEWEST",
+  OLDEST = "OLDEST"
+}
+
 export type TopicModalState = {
   isOpen: boolean;
   topic?: ITopic;
@@ -72,14 +79,17 @@ export const TopicsList = ({
   const isO = isOrg(entity);
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
   const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
+  const defaultOrder = ETopicsListOrder.NEWEST;
+  const [selectedOrder, setSelectedOrder] =
+    useState<ETopicsListOrder>(defaultOrder);
   const topicCategories = useMemo(
     () =>
       isE ? entity.eventTopicCategories : isO ? entity.orgTopicCategories : [],
     [entity]
   );
   const topics = useMemo(() => {
-    return (isE ? entity.eventTopics : isO ? entity.orgTopics : []).filter(
-      (topic: ITopic) => {
+    return (isE ? entity.eventTopics : isO ? entity.orgTopics : [])
+      .filter((topic: ITopic) => {
         if (hasItems(selectedCategories) || hasItems(selectedLists)) {
           let belongsToCategory = false;
           let belongsToList = false;
@@ -117,9 +127,17 @@ export const TopicsList = ({
         }
 
         return true;
-      }
-    );
-  }, [entity, selectedCategories, selectedLists]);
+      })
+      .sort((topicA, topicB) => {
+        if (selectedOrder === ETopicsListOrder.ALPHA)
+          return topicA.topicName > topicB.topicName ? 1 : -1;
+
+        if (selectedOrder === ETopicsListOrder.OLDEST)
+          return topicA.createdAt! < topicB.createdAt! ? -1 : 1;
+
+        return topicA.createdAt! > topicB.createdAt! ? -1 : 1;
+      });
+  }, [entity, selectedCategories, selectedLists, selectedOrder]);
   const currentTopic = useMemo(() => {
     if (!currentTopicName || !hasItems(topics)) return null;
 
@@ -183,7 +201,7 @@ export const TopicsList = ({
         <Button
           colorScheme="teal"
           leftIcon={<AddIcon />}
-          mb={5}
+          mb={3}
           onClick={onAddClick}
           data-cy="topic-add-button"
         >
@@ -191,35 +209,55 @@ export const TopicsList = ({
         </Button>
       </Box>
 
-      {(props.isCreator || topicCategories.length > 0) && (
-        <Flex flexDirection="column" mb={3}>
-          <AppHeading smaller>Catégories</AppHeading>
+      <Box w="150px" mb={5}>
+        <Select
+          defaultValue={defaultOrder}
+          onChange={(e) => {
+            //@ts-ignore
+            setSelectedOrder(e.target.value);
+          }}
+        >
+          <option value={ETopicsListOrder.ALPHA}>A-Z</option>
+          <option value={ETopicsListOrder.NEWEST}>Plus récent</option>
+          <option value={ETopicsListOrder.OLDEST}>Plus ancien</option>
+        </Select>
+      </Box>
 
-          <TopicsListCategories
-            query={query}
-            isCreator={props.isCreator}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-          />
-        </Flex>
-      )}
-
-      {isO &&
-        entity.orgUrl !== "forum" &&
-        session &&
-        hasItems(entity.orgLists) && (
+      <Box
+        {...(isMobile
+          ? {}
+          : { display: "flex", justifyContent: "space-between" })}
+      >
+        {(props.isCreator || topicCategories.length > 0) && (
           <Flex flexDirection="column" mb={3}>
-            <AppHeading smaller>Listes</AppHeading>
-            <TopicsListOrgLists
-              org={entity}
+            <AppHeading smaller>Catégories</AppHeading>
+
+            <TopicsListCategories
+              query={query}
               isCreator={props.isCreator}
-              selectedLists={selectedLists}
-              session={session}
-              setSelectedLists={setSelectedLists}
-              subQuery={subQuery}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
             />
           </Flex>
         )}
+
+        {isO &&
+          entity.orgUrl !== "forum" &&
+          session &&
+          hasItems(entity.orgLists) && (
+            <Flex flexDirection="column" mb={3}>
+              <AppHeading smaller>Listes</AppHeading>
+              <TopicsListOrgLists
+                org={entity}
+                isCreator={props.isCreator}
+                selectedLists={selectedLists}
+                session={session}
+                setSelectedLists={setSelectedLists}
+                subQuery={subQuery}
+              />
+            </Flex>
+          )}
+      </Box>
 
       <Box data-cy="topic-list">
         {query.isLoading ? (

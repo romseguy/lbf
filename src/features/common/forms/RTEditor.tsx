@@ -1,4 +1,4 @@
-import { Spinner, useToast } from "@chakra-ui/react";
+import { Spinner, useColorMode, useToast } from "@chakra-ui/react";
 import { Editor, IAllProps } from "@tinymce/tinymce-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -57,6 +57,8 @@ export const RTEditor = ({
   onBlur?: (html: string) => void;
   onChange?: ({ html }: { html: string }) => void;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
   const toast = useToast({ position: "top" });
 
@@ -90,6 +92,8 @@ export const RTEditor = ({
   const init: IAllProps["init"] = {
     branding: false,
     browser_spellcheck: true,
+    content_css: isDark ? "dark" : undefined,
+    skin: isDark ? "oxide-dark" : undefined,
     font_css: "/fonts/spectral.css",
     content_style: `
       body {

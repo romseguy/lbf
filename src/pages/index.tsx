@@ -45,6 +45,8 @@ const IndexPage = (props: PageProps) => {
 
   //#region local state
   const orgsQuery = useGetOrgsQuery(orgsQueryParams) as AppQuery<IOrg[]>;
+  const hasOnlyForum =
+    orgsQuery.data?.length === 1 && orgsQuery.data[0].orgUrl === "forum";
   const [isListOpen, setIsListOpen] = useState(true);
   //#endregion
 
@@ -68,7 +70,7 @@ const IndexPage = (props: PageProps) => {
           {/* <HostTag ml={1} /> */}
         </Flex>
 
-        {hasItems(orgsQuery.data) ? (
+        {hasItems(orgsQuery.data) && !hasOnlyForum ? (
           <>
             {/* <Button
               alignSelf="flex-start"
