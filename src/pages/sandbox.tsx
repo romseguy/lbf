@@ -22,7 +22,6 @@ const Sandbox = ({ ...props }: PageProps) => {
 
   //const [error, setError] = useState();
   const [data, setData] = useState();
-  console.log("🚀 ~ file: sandbox.tsx:13 ~ Sandbox ~ data:", data);
   const [isLoading, setIsLoading] = useState(false);
 
   return (
@@ -36,10 +35,14 @@ const Sandbox = ({ ...props }: PageProps) => {
               const res = await api.get("sandbox");
               setIsLoading(true);
 
-              if (res.error) console.log("1", res.error);
+              if (res.error)
+                console.log(
+                  "🚀 ~ file: sandbox.tsx:41 ~ res.error:",
+                  res.error
+                );
               else if (res.data) setData(res.data);
             } catch (error) {
-              console.log("🚀 ~ file: sandbox.tsx:23 ~ error:", error);
+              console.log("🚀 ~ file: sandbox.tsx:46 ~ error:", error);
             } finally {
               setIsLoading(false);
             }

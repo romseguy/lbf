@@ -2,7 +2,8 @@ import { AddIcon, CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { Button, ButtonProps, Icon, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
-import { FaGlobeEurope, FaTree } from "react-icons/fa";
+import { FaLeaf } from "react-icons/fa";
+import { IoIosGitBranch } from "react-icons/io";
 import { EOrgType } from "models/Org";
 
 export const EntityAddButton = ({
@@ -30,7 +31,7 @@ export const EntityAddButton = ({
         leftIcon={
           <>
             <AddIcon mr={1} />
-            <Icon as={FaGlobeEurope} color={isDark ? "blue" : "blue.100"} />
+            <Icon as={IoIosGitBranch} color={isDark ? "blue" : "blue.100"} />
           </>
         }
         size="sm"
@@ -38,8 +39,8 @@ export const EntityAddButton = ({
           e.stopPropagation();
           onClick && onClick();
           const url = orgName
-            ? `/planetes/ajouter?orgName=${orgName}`
-            : "/planetes/ajouter";
+            ? `/branches/ajouter?orgName=${orgName}`
+            : "/branches/ajouter";
           router.push(url, url, {
             shallow: true
           });
@@ -47,7 +48,7 @@ export const EntityAddButton = ({
         data-cy="org-add-button"
         {...props}
       >
-        {label || "Ajouter une planète"}
+        {label || "Ajouter une branche"}
       </Button>
     );
 
@@ -58,7 +59,7 @@ export const EntityAddButton = ({
         leftIcon={
           <>
             <AddIcon mr={0.5} />
-            <Icon as={FaTree} color={isDark ? "green" : "lightgreen"} />
+            <Icon as={FaLeaf} color={isDark ? "green" : "lightgreen"} />
           </>
         }
         size="sm"
@@ -66,8 +67,8 @@ export const EntityAddButton = ({
           onClick && onClick();
           e.stopPropagation();
           const url = orgName
-            ? `/arbres/ajouter?orgName=${orgName}`
-            : "/arbres/ajouter";
+            ? `/feuilles/ajouter?orgName=${orgName}`
+            : "/feuilles/ajouter";
           router.push(url, url, {
             shallow: true
           });
@@ -75,7 +76,7 @@ export const EntityAddButton = ({
         data-cy="org-add-button"
         {...props}
       >
-        {label || "Ajouter un arbre"}
+        {label || "Ajouter une feuille"}
       </Button>
     );
   }

@@ -19,9 +19,9 @@ import {
   FaKey,
   FaQuoteLeft,
   FaLightbulb,
-  FaShare,
-  FaGlobeEurope
+  FaShare
 } from "react-icons/fa";
+import { IoIosGitBranch } from "react-icons/io";
 import { css } from "twin.macro";
 import {
   Row,
@@ -101,7 +101,7 @@ export const AboutPage = ({
 
     return (
       <Tag bg={isDark ? "gray.500" : "orange.100"} px={1} py={1} {...tagProps}>
-        <Icon as={FaGlobeEurope} boxSize={6} color="green" mr={2} />
+        <Icon as={IoIosGitBranch} boxSize={6} color="green" mr={2} />
         {urlElement}
         <IconButton
           aria-label="Page d'accueil d'un forum"
@@ -136,8 +136,8 @@ export const AboutPage = ({
         <List listStyleType="bullet" ml={5}>
           <ListItem mb={3}>
             <Text mb={1}>
-              <Link href="/planetes/ajouter" shallow variant="underline">
-                Créez une planète
+              <Link href="/branches/ajouter" shallow variant="underline">
+                Créez une branche
               </Link>
               , et accédez à votre <b>forum</b> par cette adresse :
             </Text>
@@ -147,14 +147,14 @@ export const AboutPage = ({
 
           <ListItem>
             <Text mb={1}>
-              <Link href="/arbres/ajouter" shallow variant="underline">
-                Créez un arbre
+              <Link href="/feuilles/ajouter" shallow variant="underline">
+                Créez une feuille
               </Link>
-              , ajoutez le à la forêt de votre planète, et accéder à votre{" "}
+              , ajoutez le à la forêt de votre branche, et accéder à votre{" "}
               <b>sous-forum</b> par cette adresse :{" "}
             </Text>
 
-            <OrgTag orgUrl="nom_de_votre_arbre" />
+            <OrgTag orgUrl="nom_de_votre_feuille" />
           </ListItem>
 
           {/* <ListItem mt={2}>
@@ -330,7 +330,7 @@ export default About;
 
 {
   /*
-    <Heading>Communiquez depuis votre planète</Heading>
+    <Heading>Communiquez depuis votre branche</Heading>
 
     <Column {...columnStyles(isDark)}>
       <Row

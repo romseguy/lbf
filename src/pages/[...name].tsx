@@ -181,10 +181,10 @@ const HashPage = ({ ...props }: PageProps) => {
       <NotFound
         {...props}
         isRedirect={false}
-        message="Veuillez créer la planète forum."
+        message="Veuillez créer la branche forum."
       >
         <EntityAddButton
-          label={`Créer la planète « Forum »`}
+          label={`Créer la branche « Forum »`}
           orgName="Forum"
           orgType={EOrgType.NETWORK}
         />

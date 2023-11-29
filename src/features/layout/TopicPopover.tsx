@@ -10,6 +10,7 @@ import {
   Select,
   Spinner,
   Text,
+  Tooltip,
   VStack,
   useColorMode,
   useDisclosure,
@@ -381,20 +382,25 @@ export const TopicPopover = ({
   isMobile: boolean;
   session: Session;
 }) => {
+  const label = "Mes discussions";
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Popover isLazy isOpen={isOpen} onClose={onClose} {...props}>
       <PopoverTrigger>
-        <IconButton
-          aria-label="Discussions"
-          bg="transparent"
-          color={isOpen ? "cyan.600" : undefined}
-          _hover={{ bg: "transparent" }}
-          icon={<ChatIcon boxSize={6} mx={3} _hover={{ color: "cyan.600" }} />}
-          onClick={onOpen}
-          data-cy="topicPopover"
-        />
+        <Tooltip label={label}>
+          <IconButton
+            aria-label="Discussions"
+            bg="transparent"
+            color={isOpen ? "cyan.600" : undefined}
+            _hover={{ bg: "transparent" }}
+            icon={
+              <ChatIcon boxSize={6} mx={3} _hover={{ color: "cyan.600" }} />
+            }
+            onClick={onOpen}
+            data-cy="topicPopover"
+          />
+        </Tooltip>
       </PopoverTrigger>
       <PopoverContent>
         <TopicPopoverContent session={session} onClose={onClose} />

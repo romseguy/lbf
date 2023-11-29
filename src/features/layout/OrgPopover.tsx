@@ -10,12 +10,14 @@ import {
   Select,
   Spinner,
   Text,
+  Tooltip,
   VStack,
   useDisclosure
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaGlobeEurope, FaTree } from "react-icons/fa";
+import { FaLeaf } from "react-icons/fa";
+import { IoIosGitBranch } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { EntityAddButton, EntityButton } from "features/common";
 import { useGetOrgsQuery } from "features/api/orgsApi";
@@ -118,12 +120,12 @@ const OrgPopoverContent = ({
           }
         >
           <option value="showOrgsAdded">
-            Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} que j'ai{" "}
-            {orgType === EOrgType.NETWORK ? "ajouté" : "ajouté"}
+            Les {orgType === EOrgType.NETWORK ? "branches" : "feuilles"} que
+            j'ai {orgType === EOrgType.NETWORK ? "ajouté" : "ajouté"}
           </option>
           <option value="showOrgsFollowed">
-            Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} où je me
-            suis abonné
+            Les {orgType === EOrgType.NETWORK ? "branches" : "feuilles"} où je
+            me suis abonné
           </option>
         </Select>
 
@@ -159,8 +161,8 @@ const OrgPopoverContent = ({
               <Text fontSize="smaller">
                 Vous n'avez{" "}
                 {orgType === EOrgType.NETWORK
-                  ? "ajouté aucune planètes"
-                  : "ajouté aucun arbres"}
+                  ? "ajouté aucune branches"
+                  : "ajouté aucune feuilles"}
                 .
               </Text>
             )}
@@ -184,8 +186,8 @@ const OrgPopoverContent = ({
               <Text fontSize="smaller">
                 Vous n'êtes abonné{" "}
                 {orgType === EOrgType.NETWORK
-                  ? "aucune planètes"
-                  : "aucun arbres"}
+                  ? "aucune branches"
+                  : "aucune feuilles"}
                 .
               </Text>
             )}
@@ -200,7 +202,7 @@ const OrgPopoverContent = ({
 };
 
 export const OrgPopover = ({
-  label = "Mes arbres",
+  label = "Mes feuilles",
   isMobile,
   orgType = EOrgType.GENERIC,
   session,
@@ -216,22 +218,24 @@ export const OrgPopover = ({
   return (
     <Popover isLazy isOpen={isOpen} onClose={onClose} {...props}>
       <PopoverTrigger>
-        <IconButton
-          aria-label={label}
-          bg="transparent"
-          color={isOpen ? "cyan.600" : undefined}
-          _hover={{ bg: "transparent" }}
-          icon={
-            <Icon
-              as={orgType === EOrgType.NETWORK ? FaGlobeEurope : FaTree}
-              boxSize={6}
-              mx={3}
-              _hover={{ color: "cyan.600" }}
-            />
-          }
-          onClick={onOpen}
-          data-cy="org-popover-button"
-        />
+        <Tooltip label={label}>
+          <IconButton
+            aria-label={label}
+            bg="transparent"
+            color={isOpen ? "cyan.600" : undefined}
+            _hover={{ bg: "transparent" }}
+            icon={
+              <Icon
+                as={orgType === EOrgType.NETWORK ? IoIosGitBranch : FaLeaf}
+                boxSize={6}
+                mx={3}
+                _hover={{ color: "cyan.600" }}
+              />
+            }
+            onClick={onOpen}
+            data-cy="org-popover-button"
+          />
+        </Tooltip>
       </PopoverTrigger>
       <PopoverContent>
         <OrgPopoverContent

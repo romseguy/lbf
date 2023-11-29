@@ -9,7 +9,6 @@ import {
 import React from "react";
 import { IconType } from "react-icons";
 import { FaGlobeEurope } from "react-icons/fa";
-import { IoMdPerson } from "react-icons/io";
 import { IOrg, orgTypeFull } from "models/Org";
 import { hasItems } from "utils/array";
 

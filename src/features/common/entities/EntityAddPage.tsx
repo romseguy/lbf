@@ -1,7 +1,8 @@
 import { Flex, Icon, Spinner } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
-import { FaGlobeEurope, FaTree } from "react-icons/fa";
+import { FaLeaf } from "react-icons/fa";
+import { IoIosGitBranch } from "react-icons/io";
 import { Column, AppHeading } from "features/common";
 import { EventForm } from "features/forms/EventForm";
 import { OrgForm } from "features/forms/OrgForm";
@@ -38,8 +39,8 @@ export const EntityAddPage = ({
             as={
               orgType
                 ? orgType === EOrgType.NETWORK
-                  ? FaGlobeEurope
-                  : FaTree
+                  ? IoIosGitBranch
+                  : FaLeaf
                 : CalendarIcon
             }
             color={

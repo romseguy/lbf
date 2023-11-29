@@ -43,7 +43,7 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
     setIsSessionLoading
   } = useSession();
 
-  const title = `Connexion – ${process.env.NEXT_PUBLIC_SHORT_URL}`;
+  const title = `Se connecter – L'arbre du Réseau LEO`;
   const { clearErrors, register, control, errors, handleSubmit } = useForm();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -98,14 +98,12 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
           m="0 auto"
         >
           <Link href="/" m="0 auto">
-            <Heading fontFamily="Spectral">
-              {process.env.NEXT_PUBLIC_SHORT_URL}
-            </Heading>
+            <Heading fontFamily="Spectral">L'arbre du Réseau LEO</Heading>
           </Link>
 
-          <Link href="/" m="0 auto" mb="3">
+          {/* <Link href="/" m="0 auto" mb="3">
             <Image height="100px" src="/images/bg.png" m="0 auto" />
-          </Link>
+          </Link> */}
 
           {isSessionLoading && (
             <Box m="0 auto" mb="3">

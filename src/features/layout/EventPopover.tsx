@@ -11,6 +11,7 @@ import {
   Select,
   Spinner,
   Text,
+  Tooltip,
   VStack,
   useDisclosure
 } from "@chakra-ui/react";
@@ -215,27 +216,30 @@ export const EventPopover = ({
   isMobile: boolean;
   session: Session;
 }) => {
+  const label = "Mes événements";
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Popover isLazy isOpen={isOpen} onClose={onClose} {...props}>
       <PopoverTrigger>
-        <IconButton
-          aria-label="Mes événements"
-          bg="transparent"
-          color={isOpen ? "cyan.600" : undefined}
-          _hover={{ bg: "transparent" }}
-          icon={
-            <Icon
-              as={CalendarIcon}
-              boxSize={6}
-              mx={3}
-              _hover={{ color: "cyan.600" }}
-            />
-          }
-          onClick={onOpen}
-          data-cy="event-popover-button"
-        />
+        <Tooltip label={label}>
+          <IconButton
+            aria-label={label}
+            bg="transparent"
+            color={isOpen ? "cyan.600" : undefined}
+            _hover={{ bg: "transparent" }}
+            icon={
+              <Icon
+                as={CalendarIcon}
+                boxSize={6}
+                mx={3}
+                _hover={{ color: "cyan.600" }}
+              />
+            }
+            onClick={onOpen}
+            data-cy="event-popover-button"
+          />
+        </Tooltip>
       </PopoverTrigger>
       <PopoverContent>
         <EventPopoverContent session={session} onClose={onClose} />

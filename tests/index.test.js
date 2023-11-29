@@ -17,20 +17,20 @@ beforeEach(() => {
 
 describe("IndexPage", () => {
   it("displays session info", async () => {
-    expect(screen.getByRole('button', { name: "Nom de l'arbre" })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: "Nom de la feuille" })).toBeInTheDocument()
     screen.getByLabelText(testSession.user.userName)
     screen.getByText(testSession.user.email)
   });
 
   it("can navigate to OrgForm and EventForm", async () => {
     const user = userEvent.setup()
-    await user.click(screen.getByRole('button', { name: /Mes planètes/i }))
-    await user.click(screen.getByRole('button', { name: /Ajouter une planète/i }))
-    expect(useRouter().push).toBeCalledWith("/planetes/ajouter", "/planetes/ajouter", { shallow: true })
+    await user.click(screen.getByRole('button', { name: /Mes branches/i }))
+    await user.click(screen.getByRole('button', { name: /Ajouter une branche/i }))
+    expect(useRouter().push).toBeCalledWith("/branches/ajouter", "/branches/ajouter", { shallow: true })
 
-    await user.click(screen.getByRole('button', { name: /Mes arbres/i }))
-    await user.click(screen.getByRole('button', { name: /Ajouter un arbre/i }))
-    expect(useRouter().push).toBeCalledWith("/arbres/ajouter", "/arbres/ajouter", { shallow: true })
+    await user.click(screen.getByRole('button', { name: /Mes feuilles/i }))
+    await user.click(screen.getByRole('button', { name: /Ajouter une feuille/i }))
+    expect(useRouter().push).toBeCalledWith("/feuilles/ajouter", "/feuilles/ajouter", { shallow: true })
 
     await user.click(screen.getByRole('button', { name: /Mes événements/i }))
     await user.click(screen.getByRole('button', { name: /Ajouter un événement/i }))

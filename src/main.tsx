@@ -223,9 +223,9 @@ export const Main = ({
           setIsLoginModalOpen(false);
           const path = localStorage.getItem("path") || "/";
           const protectedRoutes = [
-            "/arbres/ajouter",
+            "/feuilles/ajouter",
             "/evenements/ajouter",
-            "/planetes/ajouter"
+            "/branches/ajouter"
           ];
           if (protectedRoutes.includes(path))
             router.push("/", "/", { shallow: true });

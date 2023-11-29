@@ -167,8 +167,8 @@ export const OrgPage = ({
           <Box my={3}>
             <Text fontSize="smaller">
               {org.orgType === EOrgType.GENERIC
-                ? "Arbre créé"
-                : `Planète ${
+                ? "Feuille greffée"
+                : `Branche ${
                     org.orgVisibility === EOrgVisibility.PRIVATE ? "privée" : ""
                   } créée`}{" "}
               le{" "}

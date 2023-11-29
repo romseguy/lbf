@@ -10,12 +10,12 @@ describe("1.", () => {
     await recorder.start('./tests/pptr/index.1.1.mp4');
     await page.goto('http://localhost:3004');
 
-    await page.waitForSelector('button[aria-label="Mes arbres"]')
-    await page.click('button[aria-label="Mes arbres"]')
-    await expect(page).toClick("button", { text: "Ajouter un arbre" })
+    await page.waitForSelector('button[aria-label="Mes feuilles"]')
+    await page.click('button[aria-label="Mes feuilles"]')
+    await expect(page).toClick("button", { text: "Ajouter une feuille" })
     await page.waitForNavigation()
 
-    // /arbres/ajouter
+    // /feuilles/ajouter
     await page.waitForSelector('input[name="orgName"]')
     await page.type('input[name="orgName"]', "cerisier")
     await page.click('button[type=submit]');

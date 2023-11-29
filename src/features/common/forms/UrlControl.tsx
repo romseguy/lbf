@@ -18,7 +18,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { useFieldArray } from "react-hook-form";
-import { FaGlobeEurope } from "react-icons/fa";
+import { IoIosGitBranch } from "react-icons/io";
 import { css } from "twin.macro";
 
 import { optionalProtocolUrlR, urlR } from "utils/url";
@@ -184,7 +184,7 @@ export const UrlControl = ({
           append({ url: "", prefix: "https://" });
         }}
       >
-        <Icon as={FaGlobeEurope} mr={1} /> Ajouter un site internet{" "}
+        <Icon as={IoIosGitBranch} mr={1} /> Ajouter un site internet{" "}
         {fields.length > 0 && "supplémentaire"}
       </Link>
     </Box>

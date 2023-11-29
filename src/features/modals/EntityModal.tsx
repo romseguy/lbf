@@ -13,7 +13,8 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import React from "react";
-import { FaGlobeEurope, FaTree } from "react-icons/fa";
+import { FaLeaf } from "react-icons/fa";
+import { IoIosGitBranch } from "react-icons/io";
 import { isMobile } from "react-device-detect";
 import { EntityInfo, Link, Modal } from "features/common";
 import { EventTimeline } from "features/events/EventTimeline";
@@ -60,8 +61,8 @@ export const EntityModal = ({
                   event
                     ? CalendarIcon
                     : org?.orgType === EOrgType.NETWORK
-                    ? FaGlobeEurope
-                    : FaTree
+                    ? IoIosGitBranch
+                    : FaLeaf
                 }
                 mr={1}
               />

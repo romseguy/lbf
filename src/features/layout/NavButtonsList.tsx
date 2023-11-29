@@ -43,6 +43,7 @@ export const NavButtonsList = ({
     "aria-hidden": true,
     alignSelf: "flex-start"
   };
+  const rootName = "L'arbre du Réseau LEO";
 
   //#region parcourir
   const orgsQuery = useGetOrgsQuery({
@@ -133,19 +134,19 @@ export const NavButtonsList = ({
         <TreeChartModal
           header={
             <AppHeading smaller={isMobile} mb={3}>
-              Tous les forums
+              {rootName}
             </AppHeading>
           }
           inputNodes={inputNodes}
           isOpen={isNetworksModalOpen}
-          rootName="Tous les forums"
+          rootName={rootName}
           onClose={() => {
             closeNetworksModal();
             onClose && onClose();
           }}
         />
       )}
-
+      {/* 
       {(isMobile || !isEntityPage) && (
         <Link
           {...linkProps}
@@ -180,7 +181,7 @@ export const NavButtonsList = ({
             Forum
           </Button>
         </Link>
-      )}
+      )} */}
     </Flex>
   );
 };

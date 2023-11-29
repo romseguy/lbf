@@ -7,8 +7,8 @@ import {
   TooltipProps
 } from "@chakra-ui/react";
 import React from "react";
-import { FaGlobeEurope, FaTree } from "react-icons/fa";
-import { IoIosPeople, IoIosPerson } from "react-icons/io";
+import { FaLeaf } from "react-icons/fa";
+import { IoIosPeople, IoIosPerson, IoIosGitBranch } from "react-icons/io";
 import { IEvent } from "models/Event";
 import {
   IOrg,
@@ -100,8 +100,8 @@ export const EntityButton = ({
                 ? org.orgUrl === "forum"
                   ? ChatIcon
                   : org.orgType === EOrgType.NETWORK
-                  ? FaGlobeEurope
-                  : FaTree
+                  ? IoIosGitBranch
+                  : FaLeaf
                 : event
                 ? CalendarIcon
                 : user

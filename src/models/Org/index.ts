@@ -162,7 +162,7 @@ export const defaultTabs: IOrgTabWithMetadata[] = [
 export const orgTypeFull = (orgType: EOrgType = EOrgType.GENERIC): string => {
   return `${
     [EOrgType.GENERIC].includes(orgType)
-      ? "de l'"
+      ? "de la "
       : [EOrgType.TREETOOLS].includes(orgType)
       ? "du "
       : "de la "
@@ -172,7 +172,7 @@ export const orgTypeFull = (orgType: EOrgType = EOrgType.GENERIC): string => {
 export const orgTypeFull2 = (orgType: EOrgType = EOrgType.GENERIC): string =>
   `${
     [EOrgType.GENERIC].includes(orgType)
-      ? "à l'"
+      ? "à la "
       : [EOrgType.TREETOOLS].includes(orgType)
       ? "au "
       : "à la "
@@ -180,14 +180,14 @@ export const orgTypeFull2 = (orgType: EOrgType = EOrgType.GENERIC): string =>
 
 export const orgTypeFull3 = (orgType: EOrgType = EOrgType.GENERIC): string => {
   return `${
-    [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(orgType) ? "un " : "une "
+    [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(orgType) ? "une " : "une "
   }${OrgTypes[orgType].toLowerCase()}`;
 };
 
 export const orgTypeFull4 = (orgType: EOrgType = EOrgType.GENERIC): string =>
   `${
     [EOrgType.GENERIC].includes(orgType)
-      ? "cet "
+      ? "cette "
       : [EOrgType.TREETOOLS].includes(orgType)
       ? "ce "
       : "cette "
@@ -202,7 +202,7 @@ export const orgTypeFull5 = (
       ? "la "
       : [EOrgType.TREETOOLS].includes(orgType)
       ? "le "
-      : "l'"
+      : "la "
   }${OrgTypes[orgType].toLowerCase()}`;
 
   if (isCapitalized) return capitalize(str);
@@ -211,8 +211,8 @@ export const orgTypeFull5 = (
 };
 
 export const OrgTypes: Record<EOrgType, string> = {
-  [EOrgType.GENERIC]: "Arbre",
-  [EOrgType.NETWORK]: "Planète",
+  [EOrgType.GENERIC]: "Feuille",
+  [EOrgType.NETWORK]: "Branche",
   [EOrgType.TREETOOLS]: "Noisettier"
 };
 

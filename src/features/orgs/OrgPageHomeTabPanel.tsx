@@ -1,4 +1,5 @@
 import {
+  AddIcon,
   SmallAddIcon,
   EditIcon,
   ChevronRightIcon,
@@ -24,14 +25,8 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import {
-  FaGlobeEurope,
-  FaMapMarkedAlt,
-  FaNewspaper,
-  FaRecycle,
-  FaRegMap,
-  FaTree
-} from "react-icons/fa";
+import { IoIosGitBranch } from "react-icons/io";
+import { FaMapMarkedAlt, FaNewspaper, FaRegMap, FaLeaf } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import {
   Column,
@@ -159,7 +154,7 @@ export const OrgPageHomeTabPanel = ({
               ml={3}
               mr={1}
             />
-            <Heading size="sm">Forêt de la planète</Heading>
+            <Heading size="sm">Feuilles de la branche</Heading>
             <Badge {...badgeProps}>{org.orgs.length}</Badge>
           </TabContainerHeader>
 
@@ -171,7 +166,7 @@ export const OrgPageHomeTabPanel = ({
                 <>
                   {hasItems(org.orgs) ? (
                     <>
-                      <Flex>
+                      {/* <Flex>
                         <Button
                           alignSelf="flex-start"
                           colorScheme="teal"
@@ -189,7 +184,7 @@ export const OrgPageHomeTabPanel = ({
                         {isMapModalOpen && (
                           <MapModal
                             isOpen={isMapModalOpen}
-                            header="Carte de la planète"
+                            header="Carte de la branche"
                             orgs={
                               org.orgs.filter(
                                 (org) =>
@@ -201,7 +196,7 @@ export const OrgPageHomeTabPanel = ({
                             onClose={closeMapModal}
                           />
                         )}
-                      </Flex>
+                      </Flex> */}
 
                       {isListOpen && (
                         <>
@@ -245,10 +240,18 @@ export const OrgPageHomeTabPanel = ({
                             <Button
                               borderTopRadius={0}
                               colorScheme="teal"
-                              leftIcon={<FaRecycle />}
+                              leftIcon={
+                                <>
+                                  <AddIcon mr={0.5} />
+                                  <Icon
+                                    as={FaLeaf}
+                                    color={isDark ? "green" : "lightgreen"}
+                                  />
+                                </>
+                              }
                               onClick={() => setIsEdit({ isAddingChild: true })}
                             >
-                              Gérer la forêt
+                              Ajouter une feuille
                             </Button>
                           )}
                         </>
@@ -257,16 +260,16 @@ export const OrgPageHomeTabPanel = ({
                   ) : isCreator || org.orgPermissions?.anyoneCanAddChildren ? (
                     <Tooltip
                       placement="right"
-                      label="Planter un arbre dans la forêt de la planète"
+                      label="greffer une feuille dans la Feuilles de la branche"
                     >
                       <IconButton
-                        aria-label="Planter un arbre dans la forêt de la planète"
+                        aria-label="greffer une feuille dans la Feuilles de la branche"
                         alignSelf="flex-start"
                         colorScheme="teal"
                         icon={
                           <>
                             <SmallAddIcon />
-                            <FaTree />
+                            <FaLeaf />
                           </>
                         }
                         pr={1}
@@ -287,7 +290,7 @@ export const OrgPageHomeTabPanel = ({
         <Alert status="info" mb={3}>
           <AlertIcon />
           <Text>
-            Cet arbre est un <b>noisettier</b>, sa vocation première est de
+            Cette feuille est un <b>noisettier</b>, sa vocation première est de
             rendre disponible du matériel (prêt, location, don) à son voisinage,
             veuillez donc{" "}
             <Link
@@ -382,8 +385,8 @@ export const OrgPageHomeTabPanel = ({
           <TabContainerHeader
             heading={
               orgNetworks.length > 0
-                ? "Planètes sur lesquelles cet arbre a été planté"
-                : "Cet arbre n'a pas encore été planté"
+                ? "Branches sur lesquelles cette feuille a été greffée"
+                : "Cette feuille n'a pas encore été greffée"
             }
           ></TabContainerHeader>
           <TabContainerContent p={3}>
@@ -398,16 +401,16 @@ export const OrgPageHomeTabPanel = ({
             ) : (
               <Tooltip
                 placement="right"
-                label="Planter l'arbre sur la planète de votre choix"
+                label="greffer la feuille sur la branche de votre choix"
               >
                 <IconButton
-                  aria-label="Planter l'arbre sur la planète de votre choix"
+                  aria-label="greffer la feuille sur la branche de votre choix"
                   alignSelf="flex-start"
                   colorScheme="teal"
                   icon={
                     <>
                       <SmallAddIcon />
-                      <FaGlobeEurope />
+                      <IoIosGitBranch />
                     </>
                   }
                   pr={1}
@@ -597,30 +600,30 @@ const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!o
                 ? "Chargement..."
                 : `${
                     org.orgs.length > 0
-                      ? `Les arbres plantés`
-                      : `Aucun arbres plantés`
-                  } sur la planète ${org.orgName}`
+                      ? `Les feuilles greffées`
+                      : `Aucune feuilles greffées`
+                  } sur la branche ${org.orgName}`
             }
           >
             {isCreator && (
               <Tooltip
                 hasArrow
-                label={`Planter ${
+                label={`greffer ${
                   org.orgs.length > 0 ? "ou déraciner" : ""
-                } des arbres de la planète ${org.orgName}`}
+                } des feuilles de la branche ${org.orgName}`}
                 placement="bottom"
               >
                 <IconButton
-                  aria-label={`Planter ${
+                  aria-label={`greffer ${
                     org.orgs.length > 0 ? "ou déraciner" : ""
-                  } des arbres de la planète ${org.orgName}`}
+                  } des feuilles de la branche ${org.orgName}`}
                   icon={
                     org.orgs.length > 0 ? (
                       <EditIcon />
                     ) : (
                       <>
                         <SmallAddIcon />
-                        <FaTree />
+                        <FaLeaf />
                       </>
                     )
                   }
@@ -730,8 +733,8 @@ const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!o
           <TabContainerHeader
             heading={
               <>
-                <EntityButton org={org} onClick={null} /> est planté sur la
-                planète :
+                <EntityButton org={org} onClick={null} /> est greffée sur la
+                branche :
               </>
             }
           />

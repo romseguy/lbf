@@ -1043,7 +1043,8 @@ export const EventForm = withGoogleApi({
           // }
         >
           <FormLabel>
-            La planète ou l'arbre auquel est rattaché cet événement (optionnel)
+            La branche ou la feuille auquel est rattaché cet événement
+            (optionnel)
           </FormLabel>
           <Controller
             name="eventOrg"
@@ -1061,8 +1062,8 @@ export const EventForm = withGoogleApi({
             getOptionValue={(option: any) => option._id}
             placeholder={
               hasItems(myOrgs)
-                ? "Rechercher une planète ou un arbre..."
-                : "Vous n'avez ajouté aucune planètes ou arbres"
+                ? "Rechercher une branche ou une feuille..."
+                : "Vous n'avez ajouté aucune branches ou feuilles"
             }
             styles={{
               control: (defaultStyles: any) => {

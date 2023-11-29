@@ -1,37 +1,19 @@
-import { ChevronRightIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import {
-  Alert,
-  AlertIcon,
-  Flex,
-  Text,
-  useColorMode,
-  useDisclosure
-} from "@chakra-ui/react";
+import { Flex, useColorMode, useDisclosure } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
-import { FaRegMap } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
 import { getRunningQueriesThunk } from "features/api";
 import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
-import {
-  Button,
-  Column,
-  EntityAddButton,
-  AppHeading,
-  HostTag,
-  Link,
-  LoginButton
-} from "features/common";
+import { Column, EntityAddButton, AppHeading } from "features/common";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
 import { EOrderKey, OrgsList } from "features/orgs/OrgsList";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
-import { EOrgType, IOrg, orgTypeFull } from "models/Org";
+import { EOrgType, IOrg } from "models/Org";
+import { wrapper } from "store";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
-import { wrapper } from "store";
 
-const isCollapsable = true;
 const orgsQueryParams = {
   orgType: EOrgType.NETWORK,
   populate: "orgs orgTopics.topicMessages createdBy"
@@ -42,11 +24,15 @@ const IndexPage = (props: PageProps) => {
   const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session } = useSession();
+  const pageTitle = "Accueil";
 
   //#region local state
   const orgsQuery = useGetOrgsQuery(orgsQueryParams) as AppQuery<IOrg[]>;
-  const hasOnlyForum =
-    orgsQuery.data?.length === 1 && orgsQuery.data[0].orgUrl === "forum";
+  // useEffect(() => {
+  //   console.log("refetching");
+
+  //   orgsQuery.refetch();
+  // }, [router.asPath]);
   const [isListOpen, setIsListOpen] = useState(true);
   //#endregion
 
@@ -59,18 +45,20 @@ const IndexPage = (props: PageProps) => {
   //#endregion
 
   return (
-    <Layout {...props} pageTitle="Tous les forums">
+    <Layout {...props} pageTitle={pageTitle}>
+      {/* <AppHeading mb={3}>{pageTitle}</AppHeading> */}
+
       <Column
         m={props.isMobile ? undefined : "0 auto"}
         maxWidth="4xl"
         p={props.isMobile ? 2 : 3}
       >
         <Flex alignItems="center">
-          <AppHeading mb={3}>Tous les forums</AppHeading>
+          <AppHeading mb={3}>Les branches</AppHeading>
           {/* <HostTag ml={1} /> */}
         </Flex>
 
-        {hasItems(orgsQuery.data) && !hasOnlyForum ? (
+        {hasItems(orgsQuery.data) ? (
           <>
             {/* <Button
               alignSelf="flex-start"
@@ -87,9 +75,7 @@ const IndexPage = (props: PageProps) => {
               <Column bg={isDark ? "gray.700" : "white"}>
                 {orgsQuery.data && (
                   <OrgsList
-                    data={orgsQuery.data.filter(
-                      ({ orgUrl }) => orgUrl !== "nom_de_votre_planete"
-                    )}
+                    data={orgsQuery.data}
                     keys={(orgType) => [
                       {
                         key: EOrderKey.orgName,
@@ -108,7 +94,7 @@ const IndexPage = (props: PageProps) => {
               </Column>
             )}
 
-            <Button
+            {/* <Button
               alignSelf="flex-start"
               colorScheme="teal"
               leftIcon={<FaRegMap />}
@@ -119,12 +105,12 @@ const IndexPage = (props: PageProps) => {
               mt={3}
             >
               Carte
-            </Button>
+            </Button> */}
           </>
         ) : (
           <Flex>
             <EntityAddButton
-              label="Ajoutez une planète"
+              label="Ajoutez une branche"
               orgType={EOrgType.NETWORK}
               size={props.isMobile ? "xs" : "md"}
               mb={3}
@@ -132,84 +118,6 @@ const IndexPage = (props: PageProps) => {
           </Flex>
         )}
       </Column>
-
-      <Flex mt={3}>
-        <Column m="0 auto" isCollapsable={isCollapsable}>
-          {(isCollapsed) => {
-            return (
-              <>
-                <Flex alignItems="center">
-                  {isCollapsable && (
-                    <>
-                      {isCollapsed ? (
-                        <ChevronRightIcon boxSize={9} />
-                      ) : (
-                        <ChevronUpIcon boxSize={9} />
-                      )}
-                    </>
-                  )}
-                  <AppHeading>Une idée de forum ?</AppHeading>
-                </Flex>
-
-                {(!isCollapsed || !isCollapsable) && (
-                  <>
-                    <Alert status="info" mt={2}>
-                      <AlertIcon />
-
-                      <Flex flexDirection="column">
-                        {session ? (
-                          <>
-                            <Text>
-                              Pour ajouter un forum à <HostTag /> vous devez
-                              d'abord créer une planète :
-                            </Text>
-                            <EntityAddButton
-                              label="Ajoutez une planète"
-                              orgType={EOrgType.NETWORK}
-                              size="md"
-                              mt={3}
-                            />
-                          </>
-                        ) : (
-                          <>
-                            <Text>
-                              Pour ajouter un forum à <HostTag />, vous devez
-                              d'abord vous connecter :
-                            </Text>
-                            <LoginButton
-                              mt={3}
-                              mr={3}
-                              size={props.isMobile ? "xs" : undefined}
-                              onClick={() => {
-                                router.push("/login", "/login", {
-                                  shallow: true
-                                });
-                              }}
-                            >
-                              Se connecter
-                            </LoginButton>
-                          </>
-                        )}
-                      </Flex>
-                    </Alert>
-
-                    <Flex alignItems="center" mt={3}>
-                      <Link
-                        href="/a_propos"
-                        variant="underline"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        En savoir plus
-                      </Link>
-                      <ChevronRightIcon />
-                    </Flex>
-                  </>
-                )}
-              </>
-            );
-          }}
-        </Column>
-      </Flex>
 
       {isMapModalOpen && (
         <MapModal
@@ -332,14 +240,14 @@ export default IndexPage;
             </Flex>
             <Flex alignItems="center">
               <SmallAddIcon />
-              <Icon as={FaTree} color="green" mr={1} /> des arbres.
+              <Icon as={FaLeaf} color="green" mr={1} /> des feuilles.
             </Flex> */
 }
 
 {
   /*
                 <Tooltip
-                  label="Un compte vous permet de créer des planètes, et d'inviter d'autres personnes à collaborer."
+                  label="Un compte vous permet de créer des branches, et d'inviter d'autres personnes à collaborer."
                   isOpen={isTooltipOpen}
                 >
                   <IconButton
@@ -361,5 +269,89 @@ export default IndexPage;
                     }}
                   />
                 </Tooltip>
+*/
+}
+
+{
+  /*
+    const isCollapsable = true;
+
+    <Flex mt={3}>
+      <Column m="0 auto" isCollapsable={isCollapsable}>
+        {(isCollapsed) => {
+          return (
+            <>
+              <Flex alignItems="center">
+                {isCollapsable && (
+                  <>
+                    {isCollapsed ? (
+                      <ChevronRightIcon boxSize={9} />
+                    ) : (
+                      <ChevronUpIcon boxSize={9} />
+                    )}
+                  </>
+                )}
+                <AppHeading>Une idée de forum ?</AppHeading>
+              </Flex>
+
+              {(!isCollapsed || !isCollapsable) && (
+                <>
+                  <Alert status="info" mt={2}>
+                    <AlertIcon />
+
+                    <Flex flexDirection="column">
+                      {session ? (
+                        <>
+                          <Text>
+                            Pour ajouter un forum à <HostTag /> vous devez
+                            d'abord créer une branche :
+                          </Text>
+                          <EntityAddButton
+                            label="Ajoutez une branche"
+                            orgType={EOrgType.NETWORK}
+                            size="md"
+                            mt={3}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <Text>
+                            Pour ajouter un forum à <HostTag />, vous devez
+                            d'abord vous connecter :
+                          </Text>
+                          <LoginButton
+                            mt={3}
+                            mr={3}
+                            size={props.isMobile ? "xs" : undefined}
+                            onClick={() => {
+                              router.push("/login", "/login", {
+                                shallow: true
+                              });
+                            }}
+                          >
+                            Se connecter
+                          </LoginButton>
+                        </>
+                      )}
+                    </Flex>
+                  </Alert>
+
+                  <Flex alignItems="center" mt={3}>
+                    <Link
+                      href="/a_propos"
+                      variant="underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      En savoir plus
+                    </Link>
+                    <ChevronRightIcon />
+                  </Flex>
+                </>
+              )}
+            </>
+          );
+        }}
+      </Column>
+    </Flex>
 */
 }

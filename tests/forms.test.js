@@ -8,7 +8,7 @@ import { renderHook } from "@testing-library/react-hooks"
 import userEvent from '@testing-library/user-event'
 import { useRouter } from 'next/router'
 import React from "react";
-//import AddGenericPage from "pages/arbres/ajouter";
+//import AddGenericPage from "pages/feuilles/ajouter";
 import {
   useGetOrgQuery
 } from "features/api/orgsApi";
@@ -45,7 +45,7 @@ describe("OrgForm.orgType.GENERIC", () => {
     const { container } = render(<EntityAddPage orgType={EOrgType.GENERIC} />, { store });
 
     //const orgNameInput = container.querySelector('input[name="orgName"]')
-    const orgNameInput = screen.getByRole("textbox", { name: "Nom de l'arbre" })
+    const orgNameInput = screen.getByRole("textbox", { name: "Nom de la feuille" })
     await user.type(orgNameInput, "cerisier")
     expect(orgNameInput).toHaveValue("cerisier")
 

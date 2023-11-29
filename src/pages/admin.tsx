@@ -124,7 +124,7 @@ const AdminPage = ({ ...props }: PageProps) => {
                             required: "Veuillez saisir la dénomination"
                           })}
                           defaultValue={networkLabelSetting.settingValue}
-                          placeholder="Exemple : planète"
+                          placeholder="Exemple : branche"
                         />
 
                         <FormErrorMessage>

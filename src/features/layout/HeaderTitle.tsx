@@ -2,12 +2,8 @@ import { ChatIcon, SunIcon } from "@chakra-ui/icons";
 import { Box, BoxProps, Flex, Icon, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import {
-  FaGlobeEurope,
-  FaRegCalendarCheck,
-  FaRegCalendarTimes,
-  FaTree
-} from "react-icons/fa";
+import { FaRegCalendarCheck, FaRegCalendarTimes, FaLeaf } from "react-icons/fa";
+import { IoIosGitBranch } from "react-icons/io";
 import { EntityButton, Link, AppHeading, LinkShare } from "features/common";
 import { useSession } from "hooks/useSession";
 import {
@@ -65,8 +61,8 @@ export const HeaderTitle = ({
       entityUrl === "forum"
         ? ChatIcon
         : entity.orgType === EOrgType.NETWORK
-        ? FaGlobeEurope
-        : FaTree;
+        ? IoIosGitBranch
+        : FaLeaf;
     iconColor =
       entity.orgType === EOrgType.NETWORK
         ? entityUrl === "forum"
@@ -169,7 +165,7 @@ export const HeaderTitle = ({
                 <EntityButton
                   org={orgNetwork}
                   tooltipProps={{
-                    label: `Cet arbre a été planté sur la planète ${orgNetwork.orgName}`
+                    label: `Cette feuille a été greffée sur la branche ${orgNetwork.orgName}`
                   }}
                   mb={index !== orgNetworks.length - 1 ? 3 : 0}
                   onClick={(e) => {

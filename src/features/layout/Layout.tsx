@@ -50,7 +50,7 @@ export const Layout = ({
       : pageTitle
       ? capitalize(pageTitle)
       : "Merci de patienter..."
-  } – ${process.env.NEXT_PUBLIC_SHORT_URL}`;
+  } – L'arbre du Réseau LEO`;
 
   return (
     <>
@@ -130,20 +130,20 @@ export const Layout = ({
         <Box as="footer" pb={3} mt={3}>
           {/* <Image src="/images/bg.png" height="100px" m="0 auto" /> */}
           <Box fontSize="smaller" textAlign="center">
-            <Link href="/a_propos" variant="underline">
+            {/* <Link href="/a_propos" variant="underline">
               À propos
             </Link>
-            <Delimiter />
+            <Delimiter /> */}
             <Link href="/contact" variant="underline">
               Contact
             </Link>
             <Delimiter />
-            <Link href="/privacy" variant="underline">
+            {/* <Link href="/privacy" variant="underline">
               CGU
             </Link>
-            <Delimiter />
-            <Link href="https://github.com/romseguy/lbf" variant="underline">
-              Code
+            <Delimiter /> */}
+            <Link href="https://github.com/romseguy" variant="underline">
+              Github
             </Link>
           </Box>
         </Box>

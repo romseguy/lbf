@@ -59,7 +59,8 @@ export const Nav = ({
               <Td border={0} p={0}>
                 <AppHeading mb={2}>
                   <Link href="/" shallow>
-                    {process.env.NEXT_PUBLIC_SHORT_URL}
+                    {/* {process.env.NEXT_PUBLIC_SHORT_URL} */}
+                    L'arbre du Réseau LEO
                   </Link>
                 </AppHeading>
               </Td>
@@ -136,9 +137,9 @@ export const Nav = ({
 
                     <Box {...popoverProps} ml={3}>
                       <OrgPopover
-                        label="Mes planètes"
+                        label="Mes branches"
                         isMobile={isMobile}
-                        offset={[isMobile ? 80 : 140, 15]}
+                        offset={[isMobile ? 80 : 140, 0]}
                         orgType={EOrgType.NETWORK}
                         session={session}
                       />
@@ -146,21 +147,21 @@ export const Nav = ({
                     <Box {...popoverProps}>
                       <OrgPopover
                         isMobile={isMobile}
-                        offset={[isMobile ? 20 : 140, 15]}
+                        offset={[isMobile ? 20 : 140, 0]}
                         session={session}
                       />
                     </Box>
                     <Box {...popoverProps}>
                       <EventPopover
                         isMobile={isMobile}
-                        offset={[isMobile ? -45 : 140, 15]}
+                        offset={[isMobile ? -45 : 140, 0]}
                         session={session}
                       />
                     </Box>
                     <Box {...popoverProps}>
                       <TopicPopover
                         isMobile={isMobile}
-                        offset={[isMobile ? -106 : 140, 15]}
+                        offset={[isMobile ? -106 : 140, 0]}
                         session={session}
                       />
                     </Box>
@@ -168,7 +169,7 @@ export const Nav = ({
                       <Box {...popoverProps} mr={0}>
                         <NotificationPopover
                           isMobile={isMobile}
-                          offset={[isMobile ? -141 : 140, 15]}
+                          offset={[isMobile ? -141 : 140, 0]}
                           session={session}
                         />
                       </Box>

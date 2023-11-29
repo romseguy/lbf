@@ -21,7 +21,8 @@ import {
   parseISO
 } from "date-fns";
 import React, { useMemo, useState } from "react";
-import { FaGlobeEurope, FaMapMarkedAlt, FaTree } from "react-icons/fa";
+import { FaMapMarkedAlt, FaLeaf } from "react-icons/fa";
+import { IoIosGitBranch } from "react-icons/io";
 import { css } from "twin.macro";
 import { EntityButton } from "features/common";
 import { scrollbarCss } from "features/layout/theme";
@@ -145,7 +146,6 @@ export const OrgsList = ({
         }
       }
     }
-
     return record;
   }, [data]);
 
@@ -271,8 +271,6 @@ export const OrgsList = ({
 
         <Tbody>
           {orgs.map((org: IOrg) => {
-            if (org.orgUrl === "forum") return;
-
             const { latestMessageCreatedAt, latestTopic } =
               orgsMetadata[org._id] || {};
 
@@ -283,8 +281,8 @@ export const OrgsList = ({
                     <Icon
                       as={
                         org.orgType === EOrgType.NETWORK
-                          ? FaGlobeEurope
-                          : FaTree
+                          ? IoIosGitBranch
+                          : FaLeaf
                       }
                       color={
                         org.orgType === EOrgType.NETWORK
@@ -394,7 +392,7 @@ export const OrgsList = ({
         <MapModal
           header={
             <>
-              <Icon as={FaGlobeEurope} color="blue" mr={2} />{" "}
+              <Icon as={IoIosGitBranch} color="blue" mr={2} />{" "}
               {orgToShow.orgName}
             </>
           }

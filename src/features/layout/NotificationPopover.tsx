@@ -11,6 +11,7 @@ import {
   Select,
   Spinner,
   Text,
+  Tooltip,
   VStack,
   useColorMode,
   useDisclosure
@@ -270,19 +271,24 @@ export const NotificationPopover = ({
   session,
   ...props
 }: PopoverProps & { isMobile: boolean; session: Session }) => {
+  const label = "Mes invitations";
   const { onOpen, onClose, isOpen } = useDisclosure();
 
   return (
     <Popover isLazy isOpen={isOpen} onClose={onClose} {...props}>
       <PopoverTrigger>
-        <IconButton
-          aria-label="Notifications"
-          bg="transparent"
-          color={isOpen ? "cyan.600" : undefined}
-          _hover={{ bg: "transparent" }}
-          icon={<BellIcon boxSize={6} mx={3} _hover={{ color: "cyan.600" }} />}
-          onClick={onOpen}
-        />
+        <Tooltip label={label}>
+          <IconButton
+            aria-label="Notifications"
+            bg="transparent"
+            color={isOpen ? "cyan.600" : undefined}
+            _hover={{ bg: "transparent" }}
+            icon={
+              <BellIcon boxSize={6} mx={3} _hover={{ color: "cyan.600" }} />
+            }
+            onClick={onOpen}
+          />
+        </Tooltip>
       </PopoverTrigger>
       <PopoverContent>
         <NotificationPopoverContent session={session} />

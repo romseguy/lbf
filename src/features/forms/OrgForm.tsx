@@ -26,7 +26,7 @@ import bcrypt from "bcryptjs";
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import useFormPersist from "hooks/useFormPersist";
-import { FaTree } from "react-icons/fa";
+import { FaLeaf } from "react-icons/fa";
 import Creatable from "react-select/creatable";
 import { Suggestion } from "use-places-autocomplete";
 import {
@@ -168,8 +168,8 @@ export const OrgForm = withGoogleApi({
     const orgsPlaceholder = `Sélectionner ou créer ${
       allowedChildrenTypes.length > 0
         ? "le " + OrgTypes[allowedChildrenTypes[0] as EOrgType].toLowerCase()
-        : "l'arbre"
-    } que vous voulez planter`;
+        : "la feuille"
+    } que vous voulez greffer`;
 
     //#region local state
     const containerProps = {
@@ -249,7 +249,7 @@ export const OrgForm = withGoogleApi({
       props.orgType ||
       org?.orgType ||
       EOrgType.GENERIC) as EOrgType;
-    const orgTypeLabel = orgTypeFull(orgType) || "de l'arbre";
+    const orgTypeLabel = orgTypeFull(orgType) || "de la feuille";
     useEffect(() => {
       const currentDescription = getValues("orgDescription");
 
@@ -471,7 +471,7 @@ export const OrgForm = withGoogleApi({
       <FormControl mb={3} isInvalid={!!errors["orgs"]}>
         {Array.isArray(orgTrees) && orgTrees.length > 0 && (
           <>
-            <FormLabel>Forêt de la planète : </FormLabel>
+            <FormLabel>Feuilles de la branche : </FormLabel>
             <List>
               {orgTrees.map((orgTree) => (
                 <ListItem key={orgTree._id}>
@@ -479,7 +479,7 @@ export const OrgForm = withGoogleApi({
                     entity={orgTree}
                     body={
                       <>
-                        <Icon as={FaTree} mx={1} />
+                        <Icon as={FaLeaf} mx={1} />
                         <Text mr={3}>{orgTree.orgName}</Text>
                       </>
                     }
@@ -500,11 +500,11 @@ export const OrgForm = withGoogleApi({
           </>
         )}
 
-        <FormLabel>
-          {isEditConfig?.isAddingChild
-            ? orgsPlaceholder + " :"
-            : "Forêt de la planète (optionnel)"}
-        </FormLabel>
+        {isEditConfig?.isAddingChild && (
+          <FormLabel>{orgsPlaceholder + " :"}</FormLabel>
+        )}
+
+        {!org && <FormLabel>Feuilles de la branche</FormLabel>}
 
         {myOrgsQuery.isLoading ? (
           <Spinner />
@@ -562,7 +562,7 @@ export const OrgForm = withGoogleApi({
 
                       // toast({
                       //   status: "success",
-                      //   title: "L'arbre a bien été créé !"
+                      //   title: "la feuille a bien été créé !"
                       // });
                     } catch (error: any) {
                       console.error(error);
@@ -575,13 +575,13 @@ export const OrgForm = withGoogleApi({
                   //#region ui
                   allowCreateWhileLoading
                   formatCreateLabel={(inputValue: string) =>
-                    `Planter ${
+                    `greffer ${
                       allowedChildrenTypes.length > 0
                         ? "le " +
                           OrgTypes[
                             allowedChildrenTypes[0] as EOrgType
                           ].toLowerCase()
-                        : "l'arbre"
+                        : "la feuille"
                     } "${inputValue}"`
                   }
                   isClearable
@@ -623,7 +623,8 @@ export const OrgForm = withGoogleApi({
     const NetworkFormControl = (
       <FormControl mb={3} isInvalid={!!errors["orgs"]}>
         <FormLabel>
-          Sélectionner ou créer la planète où vous voulez planter cet arbre :
+          Sélectionner ou créer la branche où vous voulez greffer cette feuille
+          :
         </FormLabel>
 
         {myOrgsQuery.isLoading ? (
@@ -677,12 +678,12 @@ export const OrgForm = withGoogleApi({
                   //#region ui
                   allowCreateWhileLoading
                   formatCreateLabel={(inputValue: string) =>
-                    `Créer la planète "${inputValue}"`
+                    `Créer la branche "${inputValue}"`
                   }
                   isClearable
                   isMulti
                   noOptionsMessage={() => "Aucun résultat"}
-                  placeholder="Sélectionner ou créer la planète où vous voulez planter cet arbre"
+                  placeholder="Sélectionner ou créer la branche où vous voulez greffer cette feuille"
                   //#endregion
                   //#region styling
                   className="react-select-container"
@@ -959,7 +960,8 @@ export const OrgForm = withGoogleApi({
         <FormControl
           isRequired
           isInvalid={!!errors["orgName"]}
-          mb={getValues("orgName") ? 0 : 3}
+          //mb={getValues("orgName") ? 0 : 3}
+          mb={3}
         >
           <FormLabel>Nom {orgTypeLabel}</FormLabel>
           <Input
@@ -987,9 +989,14 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
+        {/* Organisations du réseau */}
+        {orgType === EOrgType.NETWORK && (
+          <Box {...formBoxProps(isDark)}>{ChildrenFormControl}</Box>
+        )}
+
         {/* {props.orgType === EOrgType.GENERIC && (
           <FormControl mb={3}>
-            <FormLabel>Type de l'arbre</FormLabel>
+            <FormLabel>Type de la feuille</FormLabel>
             <Select name="orgType" ref={register()}>
               <option value={EOrgType.GENERIC}>-</option>
               <option value={EOrgType.TREETOOLS}>
@@ -1002,7 +1009,7 @@ export const OrgForm = withGoogleApi({
         {/* Réseau auquel l'organisation est rattachée */}
         {/* {orgType === EOrgType.GENERIC && (
           <FormControl>
-            <FormLabel>Planter cet arbre sur une planète ?</FormLabel>
+            <FormLabel>greffer cette feuille sur une branche ?</FormLabel>
             <Select ref={register()}>
               {[].map(() => {
                 return <option></option>;
@@ -1011,17 +1018,14 @@ export const OrgForm = withGoogleApi({
           </FormControl>
         )} */}
 
-        {/* Forêt du réseau */}
-        {orgType === EOrgType.NETWORK && ChildrenFormControl}
+        {/* {DescriptionFormControl}
 
-        {DescriptionFormControl}
-
-        <Box {...formBoxProps(isDark)}>{InfoFormControl}</Box>
+        <Box {...formBoxProps(isDark)}>{InfoFormControl}</Box> */}
 
         {/* Politique du réseau */}
         {orgType === EOrgType.NETWORK && (
           <Box {...formBoxProps(isDark)}>
-            <FormLabel>Politique {orgTypeFull(orgType)} (optionnel)</FormLabel>
+            <FormLabel>Politique {orgTypeFull(orgType)}</FormLabel>
 
             <Stack flexDirection="column" spacing={3}>
               <Switch
@@ -1032,7 +1036,7 @@ export const OrgForm = withGoogleApi({
                 display="flex"
                 alignItems="center"
               >
-                Tout le monde peut ajouter un arbre {orgTypeFull2(orgType)}
+                Tout le monde peut ajouter une feuille {orgTypeFull2(orgType)}
               </Switch>
 
               {/*
@@ -1044,7 +1048,7 @@ export const OrgForm = withGoogleApi({
                 display="flex"
                 alignItems="center"
               >
-                Restreindre la forêt à un ou plusieurs type d'arbre
+                Restreindre la forêt à un ou plusieurs type d'feuille
               </Switch>
 
               {hasSelectedChildrenTypes && (
@@ -1132,11 +1136,11 @@ export const OrgForm = withGoogleApi({
       isMulti
       isSearchable
       menuPlacement="top"
-      noOptionsMessage={() => "Aucun arbre trouvé"}
+      noOptionsMessage={() => "Aucune feuille trouvé"}
       options={orgTrees}
       getOptionLabel={(option: any) => option.orgName}
       getOptionValue={(option: any) => option._id}
-      placeholder="Rechercher un arbre..."
+      placeholder="Rechercher une feuille..."
       styles={{
         control: (defaultStyles: any) => {
           return {
