@@ -10,6 +10,7 @@ import {
   Flex,
   FormControl,
   FormErrorMessage,
+  FormLabel,
   Heading,
   Radio,
   RadioGroup,
@@ -23,9 +24,16 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
+import { getHours } from "date-fns";
 import React, { Fragment, useState } from "react";
-import { useForm } from "react-hook-form";
-import { EmailControl, EntityButton, ErrorMessageText } from "features/common";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import {
+  DatePicker,
+  EmailControl,
+  EntityButton,
+  ErrorMessageText,
+  renderCustomInput
+} from "features/common";
 import { useAddEventNotifMutation } from "features/api/eventsApi";
 import { IEvent } from "models/Event";
 import { orgTypeFull } from "models/Org";
@@ -38,11 +46,14 @@ import {
   getFollowerSubscription,
   isOrgSubscription
 } from "models/Subscription";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
-export interface EventNotifFormState {
+type FormData = {
   email?: string;
+  triggerDate: Date | null;
   orgListsNames: string[];
-}
+};
 
 export const EventNotifForm = ({
   event,
@@ -60,6 +71,25 @@ export const EventNotifForm = ({
   const toast = useToast({ position: "top" });
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
+  const now = new Date();
+  const triggerDatePickerProps = {
+    minDate: now,
+    // maxDate: end && compareDesc(end, now) === 1 ? undefined : end,
+    dateFormat: "Pp",
+    showTimeSelect: true,
+    timeFormat: "p",
+    timeIntervals: 15,
+    filterTime: (date: Date) => {
+      if (getHours(date) <= getHours(now)) {
+        //console.log("filtering out", date);
+        return false;
+      }
+
+      //console.log("allowing", date);
+      return true;
+    }
+  };
 
   //#region event
   const [addEventNotif] = useAddEventNotifMutation();
@@ -71,17 +101,42 @@ export const EventNotifForm = ({
   //#endregion
 
   //#region form
-  const { control, register, errors, setError, setValue, watch } = useForm({
-    mode: "onChange"
+  const defaultValues = {
+    triggerDate: null
+  };
+  const { control, register, handleSubmit, errors, setError, setValue } =
+    useForm<FormData>({
+      defaultValues,
+      mode: "onChange"
+    });
+  const email = useWatch<Pick<FormData, "email">>({ control, name: "email" });
+  const orgListsNames = useWatch<Pick<FormData, "orgListsNames">>({
+    control,
+    name: "orgListsNames"
   });
-  const email = watch("email");
-  const orgListsNames = watch("orgListsNames");
+  // const triggerDate = useWatch<Pick<FormData, "triggerDate">>({
+  //   control,
+  //   name: "triggerDate"
+  // });
+  // console.log(
+  //   "🚀 ~ file: EventNotifForm.tsx:117 ~ triggerDate:",
+  //   triggerDate
+  // );
 
   //#region form handlers
   const onChange = () => {};
 
-  const onSubmit = async (form: EventNotifFormState) => {
+  const onSubmit = async (form: FormData) => {
     console.log("submitted", form);
+
+    if (form.triggerDate) {
+      toast({
+        title: "L'envoi différé n'est pas encore disponible",
+        status: "error"
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     let payload = {
@@ -136,7 +191,7 @@ export const EventNotifForm = ({
       mt={3}
       {...props}
     >
-      <form onChange={onChange}>
+      <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
         <RadioGroup name="type" my={3}>
           <Stack spacing={2}>
             <Radio
@@ -145,7 +200,7 @@ export const EventNotifForm = ({
                 setType("multi");
               }}
             >
-              Inviter des utilisateurs
+              Inviter des utilisateurs à{" "}
               <EntityButton event={event} p={1} onClick={null} />
             </Radio>
             <Radio
@@ -160,17 +215,51 @@ export const EventNotifForm = ({
         </RadioGroup>
 
         {type === "single" && (
-          <EmailControl
-            name="email"
-            noLabel
-            control={control}
-            register={register}
-            setValue={setValue}
-            errors={errors}
-            placeholder="Envoyer à cette adresse e-mail uniquement"
-            mt={3}
-            isMultiple={false}
-          />
+          <>
+            <EmailControl
+              name="email"
+              //noLabel
+              control={control}
+              register={register}
+              setValue={setValue}
+              errors={errors}
+              //placeholder="Envoyer à cette adresse e-mail uniquement"
+              my={3}
+              isMultiple={false}
+              isRequired
+            />
+
+            <FormControl
+              //ref={refs.triggerDate}
+              isInvalid={!!errors["triggerDate"]}
+              //mb={3}
+            >
+              <FormLabel>Date d'envoi (optionnel)</FormLabel>
+              <Controller
+                name="triggerDate"
+                control={control}
+                render={(props) => {
+                  return (
+                    <DatePicker
+                      withPortal={isMobile}
+                      customInput={renderCustomInput({
+                        label: "minDate"
+                      })}
+                      selected={props.value}
+                      onChange={(e) => {
+                        //clearErrors("triggerDate");
+                        props.onChange(e);
+                      }}
+                      {...triggerDatePickerProps}
+                    />
+                  );
+                }}
+              />
+              <FormErrorMessage>
+                <ErrorMessage errors={errors} name="triggerDate" />
+              </FormErrorMessage>
+            </FormControl>
+          </>
         )}
 
         {type === "multi" && (
@@ -321,18 +410,13 @@ export const EventNotifForm = ({
 
           <Button
             colorScheme="green"
+            type="submit"
             isDisabled={
               Object.keys(errors).length > 0 ||
               (type === "single" && !email) ||
               (type === "multi" && !hasItems(orgListsNames))
             }
             isLoading={isLoading}
-            onClick={() =>
-              onSubmit({
-                email,
-                orgListsNames
-              })
-            }
           >
             Envoyer {type === "single" ? "l'invitation" : "les invitations"}
           </Button>

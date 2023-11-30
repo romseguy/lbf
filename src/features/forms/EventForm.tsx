@@ -40,7 +40,6 @@ import {
   setDay
 } from "date-fns";
 import React, { useEffect, useMemo, useState } from "react";
-import { isMobile } from "react-device-detect";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import ReactSelect from "react-select";
 import { css } from "twin.macro";
@@ -80,6 +79,8 @@ import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 type DaysMap = { [key: number]: DayState };
 type DayState = {
@@ -113,6 +114,7 @@ export const EventForm = withGoogleApi({
   }) => {
     const { colorMode } = useColorMode();
     const isDark = colorMode === "dark";
+    const isMobile = useSelector(selectIsMobile);
     const toast = useToast({ position: "top" });
     const now = new Date();
     const [addEvent, addEventMutation] = useAddEventMutation();
@@ -1185,12 +1187,12 @@ export const EventForm = withGoogleApi({
           <Button
             colorScheme="green"
             type="submit"
+            isDisabled={Object.keys(errors).length > 0}
             isLoading={
               isLoading ||
               addEventMutation.isLoading ||
               editEventMutation.isLoading
             }
-            isDisabled={Object.keys(errors).length > 0}
           >
             {props.event ? "Modifier" : "Ajouter"}
           </Button>
