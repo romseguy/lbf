@@ -43,7 +43,7 @@ import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
 import { EventPageTabs } from "./EventPageTabs";
 import { useSession } from "hooks/useSession";
 
-let isFirstLoad = true;
+//let isFirstLoad = true;
 
 export const EventPage = ({
   eventQuery,
@@ -61,13 +61,13 @@ export const EventPage = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session } = useSession();
-  useEffect(() => {
-    if ((router.asPath.match(/\//g) || []).length > 1) {
-      isFirstLoad = false;
-      return;
-    }
-    isFirstLoad = false;
-  }, [router.asPath]);
+  // useEffect(() => {
+  //   if ((router.asPath.match(/\//g) || []).length > 1) {
+  //     isFirstLoad = false;
+  //     return;
+  //   }
+  //   isFirstLoad = false;
+  // }, [router.asPath]);
 
   //#region event
   const event = eventQuery.data;

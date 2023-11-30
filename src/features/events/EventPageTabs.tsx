@@ -38,15 +38,13 @@ export const EventPageTabs = ({
       url: "/invitations"
     };
 
-  //#region componentDidMount
   useEffect(() => {
     Object.keys(defaultTabs).reduce((index, tab) => {
       if (normalize(tab) === normalize(currentTabLabel))
         setCurrentTabIndex(index);
       return index + 1;
     }, 0);
-  }, []);
-  //#endregion
+  }, [currentTabLabel]);
 
   return (
     <Tabs
