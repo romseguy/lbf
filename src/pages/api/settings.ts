@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
 import { GetSettingsParams } from "features/api/settingsApi";
-//import { getSession } from "utils/auth";
+//import { getSession } from "server/auth";
 import { createServerError } from "utils/errors";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();

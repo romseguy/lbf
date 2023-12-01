@@ -105,7 +105,6 @@ export const UserPage = ({
       {session && isSelf && isEdit && (
         <Column>
           <UserForm
-            session={session}
             user={user}
             onSubmit={async ({ userName }) => {
               setIsEdit(false);

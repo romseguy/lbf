@@ -8,7 +8,7 @@ import { getRefId } from "models/Entity";
 import { ITopicNotification } from "models/INotification";
 import { getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
-import { getSession } from "utils/auth";
+import { getSession } from "server/auth";
 import { createTopicEmailNotif } from "utils/email";
 import { createServerError } from "utils/errors";
 import { equals } from "utils/string";

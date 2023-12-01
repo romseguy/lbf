@@ -2,20 +2,37 @@ import { api } from "./";
 import { IUser } from "models/User";
 import { objectToQueryString } from "utils/query";
 
-export type UserQueryParams = {
+export type AddUserPayload = Pick<IUser, "email" | "phone" | "userName">;
+export type EditUserPayload = Partial<
+  Pick<IUser, "phone" | "userImage" | "userName">
+>;
+
+export type GetUserParams = {
   slug: string;
   populate?: string;
   select?: string;
 };
 
+export type GetUsersParams = {
+  populate?: string;
+};
+
 export const userApi = api.injectEndpoints({
   endpoints: (build) => ({
-    addUser: build.mutation<IUser, Partial<IUser>>({
+    addUser: build.mutation<IUser, AddUserPayload>({
       query: (payload) => ({
         url: `users`,
         method: "POST",
         body: payload
-      })
+      }),
+      invalidatesTags: (result, error, params) => {
+        return result
+          ? [
+              { type: "Users", id: result._id },
+              { type: "Users", id: "LIST" }
+            ]
+          : [];
+      }
     }),
     editUser: build.mutation<IUser, { payload: Partial<IUser>; slug: string }>({
       query: ({ payload, slug }) => ({
@@ -26,7 +43,7 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: (result, error, params) =>
         result ? [{ type: "Users", id: result._id }] : []
     }),
-    getUser: build.query<IUser, UserQueryParams>({
+    getUser: build.query<IUser, GetUserParams>({
       query: ({ slug, ...query }) => {
         const hasQueryParams = Object.keys(query).length > 0;
         console.groupCollapsed("getUser");
@@ -46,10 +63,36 @@ export const userApi = api.injectEndpoints({
       providesTags: (result, error, params) => [
         { type: "Users" as const, id: result?._id }
       ]
+    }),
+    getUsers: build.query<IUser[], GetUsersParams | void>({
+      query: ({ ...query }) => {
+        return {
+          url: `users${
+            query && Object.keys(query).length > 0
+              ? `?${objectToQueryString(query)}`
+              : ""
+          }`
+        };
+      },
+      providesTags: (result) => {
+        return result
+          ? [
+              ...result.map(({ _id }) => ({
+                type: "Users" as const,
+                id: _id
+              })),
+              { type: "Users", id: "LIST" }
+            ]
+          : [{ type: "Users", id: "LIST" }];
+      }
     })
   })
 });
 
-export const { useAddUserMutation, useEditUserMutation, useGetUserQuery } =
-  userApi;
-export const { getUser } = userApi.endpoints;
+export const {
+  useAddUserMutation,
+  useEditUserMutation,
+  useGetUserQuery,
+  useGetUsersQuery
+} = userApi;
+export const { getUser, getUsers } = userApi.endpoints;

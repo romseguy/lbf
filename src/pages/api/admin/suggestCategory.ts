@@ -4,7 +4,7 @@ import { fr } from "date-fns/locale";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import { sendMail } from "server/email";
-import { getSession } from "utils/auth";
+import { getSession } from "server/auth";
 import { backgroundColor, textColor, mainBackgroundColor } from "utils/email";
 import { createServerError } from "utils/errors";
 

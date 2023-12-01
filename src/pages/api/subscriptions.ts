@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
 import { AddSubscriptionPayload } from "features/api/subscriptionsApi";
-import { getSession } from "utils/auth";
+import { getSession } from "server/auth";
 import { IOrg } from "models/Org";
 import {
   getFollowerSubscription,

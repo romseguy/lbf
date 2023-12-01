@@ -2,7 +2,7 @@ import axios from "axios";
 import cors from "cors";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { getSession } from "utils/auth";
+import { getSession } from "server/auth";
 import { createServerError } from "utils/errors";
 
 import https from "https";

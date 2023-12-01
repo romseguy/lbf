@@ -56,7 +56,9 @@ export const settingApi = createApi({
           method: "PUT",
           body: payload
         };
-      }
+      },
+      invalidatesTags: (result, error, params) =>
+        result ? [{ type: "Settings", id: result._id }] : []
     }),
     getSetting: build.query<ISetting, GetSettingParams>({
       query: ({ settingName, ...query }) => {
@@ -81,7 +83,17 @@ export const settingApi = createApi({
         return {
           url: `settings${query ? `?${objectToQueryString(query)}` : ""}`
         };
-      }
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ _id }) => ({
+                type: "Settings" as const,
+                id: _id
+              })),
+              { type: "Settings", id: "LIST" }
+            ]
+          : [{ type: "Settings", id: "LIST" }]
     })
   })
 });

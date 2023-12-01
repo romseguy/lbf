@@ -7,7 +7,7 @@ import {
   sendTopicNotifications
 } from "server/email";
 import { AddTopicPayload } from "features/api/topicsApi";
-import { getSession } from "utils/auth";
+import { getSession } from "server/auth";
 import { getRefId } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";

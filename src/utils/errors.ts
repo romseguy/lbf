@@ -28,8 +28,10 @@ export const duplicateError = ({
 
 export const databaseErrorMessages: { [key: number]: any } = {
   [databaseErrorCodes.DUPLICATE_KEY]: {
+    email: "Cette adresse e-mail n'est pas disponible",
     orgUrl: "Ce nom d'organisation n'est pas disponible",
-    eventUrl: "Ce nom d'événement n'est pas disponible"
+    eventUrl: "Ce nom d'événement n'est pas disponible",
+    userName: "Ce nom d'utilisateur n'est pas disponible"
   }
 };
 
@@ -60,12 +62,15 @@ export const createValidationError = (error: any) => {
 export const createServerError = (error: any) => {
   if (error.name === "ValidationError") return createValidationError(error);
 
-  if (error.code && databaseErrorMessages[error.code]) {
-    return {
-      message:
-        databaseErrorMessages[error.code][Object.keys(error.keyPattern)[0]] +
-        "."
-    };
+  if (error.code) {
+    const fieldName = Object.keys(error.keyPattern)[0];
+    const message = databaseErrorMessages[error.code][fieldName];
+
+    if (message) {
+      return {
+        message: message + "."
+      };
+    }
   }
 
   return { message: error.message + "." };

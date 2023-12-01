@@ -1,4 +1,4 @@
-import { getSession } from "utils/auth";
+import { getSession } from "server/auth";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import { createServerError } from "utils/errors";

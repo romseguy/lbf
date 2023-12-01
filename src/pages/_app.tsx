@@ -114,7 +114,12 @@ App.getInitialProps = wrapper.getInitialAppProps(
 
           if (user) {
             session = {
-              user: { ...user, isAdmin: user.email === "rom.seguy@lilo.org" }
+              user: {
+                ...user,
+                isAdmin: process.env.ADMIN_EMAILS.split(",").includes(
+                  user.email
+                )
+              }
             };
             console.log("🚀 ~ App.getInitialProps ~ cookieSession:", session);
             email = user.email;

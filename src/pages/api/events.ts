@@ -9,7 +9,7 @@ import { EOrgVisibility, IOrg } from "models/Org";
 import { getCurrentId } from "store/utils";
 import api from "utils/api";
 import { hasItems } from "utils/array";
-import { getSession } from "utils/auth";
+import { getSession } from "server/auth";
 import { createServerError } from "utils/errors";
 import { equals, normalize } from "utils/string";
 import { unauthorizedEntityUrls } from "utils/url";
