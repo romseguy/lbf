@@ -113,12 +113,15 @@ App.getInitialProps = wrapper.getInitialAppProps(
           const user = await unseal(authToken, process.env.SECRET, sealOptions);
 
           if (user) {
+            const isAdmin =
+              typeof process.env.ADMIN_EMAILS === "string"
+                ? process.env.ADMIN_EMAILS.split(",").includes(user.email)
+                : false;
+
             session = {
               user: {
                 ...user,
-                isAdmin: process.env.ADMIN_EMAILS.split(",").includes(
-                  user.email
-                )
+                isAdmin
               }
             };
             console.log("🚀 ~ App.getInitialProps ~ cookieSession:", session);

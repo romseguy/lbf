@@ -23,10 +23,14 @@ export async function getSession(params: {
   if (!authToken) return null;
   const user = await unseal(authToken, process.env.SECRET, sealOptions);
   if (!user) return null;
+  const isAdmin =
+    typeof process.env.ADMIN_EMAILS === "string"
+      ? process.env.ADMIN_EMAILS.split(",").includes(user.email)
+      : false;
   return {
     user: {
       ...user,
-      isAdmin: process.env.ADMIN_EMAILS.split(",").includes(user.email)
+      isAdmin
     }
   };
 }

@@ -200,7 +200,10 @@ const AdminPage = ({ ...props }: PageProps) => {
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
     const userEmail = selectUserEmail(store.getState());
-    const isAdmin = process.env.ADMIN_EMAILS.split(",").includes(userEmail);
+    const isAdmin =
+      typeof process.env.ADMIN_EMAILS === "string"
+        ? process.env.ADMIN_EMAILS.split(",").includes(user.email)
+        : false;
 
     if (!isAdmin)
       return {
