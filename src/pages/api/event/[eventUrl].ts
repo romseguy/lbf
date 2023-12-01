@@ -8,7 +8,7 @@ import {
   EditEventPayload,
   GetEventParams
 } from "features/api/eventsApi";
-import { getSession } from "utils/auth";
+import { getSession } from "server/auth";
 import { EEventInviteStatus, IEvent } from "models/Event";
 import { IEventNotification } from "models/INotification";
 import { getLists, getSubscriptions, IOrg } from "models/Org";

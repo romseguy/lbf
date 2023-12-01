@@ -17,11 +17,15 @@ import AvatarEditor from "react-avatar-editor";
 import { useForm } from "react-hook-form";
 import { EmailControl, ErrorMessageText, HostTag } from "features/common";
 import { PhoneControl } from "features/common/forms/PhoneControl";
-import { useEditUserMutation } from "features/api/usersApi";
+import {
+  AddUserPayload,
+  EditUserPayload,
+  useAddUserMutation,
+  useEditUserMutation
+} from "features/api/usersApi";
 import type { IUser } from "models/User";
 // import { useAppDispatch } from "store";
 // import { refetchOrg } from "store/orgSlice";
-import { Session } from "utils/auth";
 import { handleError } from "utils/form";
 import {
   Base64Image,
@@ -31,12 +35,13 @@ import {
 } from "utils/image";
 import { MB, normalize } from "utils/string";
 
-export const UserForm = (props: {
-  user: IUser;
-  session: Session;
+export interface UserFormProps {
+  user?: IUser;
   onSubmit: (user: Partial<IUser>) => void;
-}) => {
+}
+export const UserForm = (props: UserFormProps) => {
   //const dispatch = useAppDispatch();
+  const [addUser] = useAddUserMutation();
   const [editUser] = useEditUserMutation();
 
   //#region local state
@@ -80,19 +85,21 @@ export const UserForm = (props: {
     console.log("submitted", form);
     setIsLoading(true);
 
-    const payload: {
-      userName?: string;
-      email?: string;
-      phone?: string;
-      userImage?: Base64Image;
-    } = {
-      userName:
-        props.user.userName !== form.userName
-          ? normalize(form.userName)
-          : undefined,
-      email: props.user.email !== form.email ? form.email : undefined,
-      phone: props.user.phone !== form.phone ? form.phone : undefined
-    };
+    // const payload: {
+    //   userName?: string;
+    //   email?: string;
+    //   phone?: string;
+    //   userImage?: Base64Image;
+    // } = {
+    //   userName:
+    //     props.user?.userName !== form.userName
+    //       ? normalize(form.userName)
+    //       : undefined,
+    //   email: props.user?.email !== form.email ? form.email : undefined,
+    //   phone: props.user?.phone !== form.phone ? form.phone : undefined
+    // };
+
+    let userImage;
 
     if (setEditorRef.current) {
       const canvas = setEditorRef.current.getImage();
@@ -109,7 +116,7 @@ export const UserForm = (props: {
         }
       );
 
-      payload.userImage = {
+      userImage = {
         width: 40,
         height: 40,
         base64: picaCanvas.toDataURL("image/png", 1.0)
@@ -117,12 +124,34 @@ export const UserForm = (props: {
     }
 
     try {
-      await editUser({
-        slug: props.user.email,
-        payload
-      }).unwrap();
-      setIsLoading(false);
-      props.onSubmit && props.onSubmit(payload);
+      if (props.user) {
+        let payload: EditUserPayload = {};
+        payload = {
+          ...payload,
+          userImage,
+          userName:
+            props.user?.userName !== form.userName
+              ? normalize(form.userName)
+              : undefined,
+          //email: props.user?.email !== form.email ? form.email : undefined,
+          phone: props.user?.phone !== form.phone ? form.phone : undefined
+        };
+        await editUser({
+          slug: props.user?.email,
+          payload
+        }).unwrap();
+        setIsLoading(false);
+        props.onSubmit && props.onSubmit(payload);
+      } else {
+        const payload: AddUserPayload = {
+          userName: form.userName || form.email.split("@")[0],
+          email: form.email,
+          phone: form.phone
+        };
+        await addUser(payload).unwrap();
+        setIsLoading(false);
+        props.onSubmit && props.onSubmit(payload);
+      }
     } catch (error) {
       setIsLoading(false);
       handleError(error, (message, field) => {
@@ -155,20 +184,26 @@ export const UserForm = (props: {
         )}
       />
 
-      <FormControl isRequired isInvalid={!!errors["userName"]} mb={3}>
+      <FormControl
+        isRequired={!!props.user}
+        isInvalid={!!errors["userName"]}
+        mb={3}
+      >
         <FormLabel>Nom d'utilisateur</FormLabel>
         <Input
           name="userName"
           placeholder="Nom d'utilisateur"
           ref={register({
-            required: "Veuillez saisir le nom de l'utilisateur"
+            required: props.user
+              ? "Veuillez saisir le nom de l'utilisateur"
+              : false
             // pattern: {
             //   value: /^[a-z0-9 ]+$/i,
             //   message:
             //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
             // }
           })}
-          defaultValue={props.user.userName}
+          defaultValue={props.user?.userName}
           data-cy="username-input"
         />
         <FormErrorMessage>
@@ -176,22 +211,25 @@ export const UserForm = (props: {
         </FormErrorMessage>
       </FormControl>
 
-      <Alert status="info" mb={3}>
-        <AlertIcon />
-        <Box>
-          Votre adresse e-mail et votre numéro de téléphone seront visibles aux
-          administrateurs de <HostTag /> et des branches/feuilles où vous êtes
-          abonné.
-        </Box>
-      </Alert>
+      {props.user && (
+        <Alert status="info" mb={3}>
+          <AlertIcon />
+          <Box>
+            Votre adresse e-mail et votre numéro de téléphone seront visibles
+            aux administrateurs de <HostTag /> et des planètes/arbres où vous
+            êtes abonné.
+          </Box>
+        </Alert>
+      )}
 
       <EmailControl
         name="email"
         control={control}
         register={register}
         setValue={setValue}
-        isDisabled
-        defaultValue={props.user.email}
+        isDisabled={!!props.user}
+        isRequired={!props.user}
+        defaultValue={props.user?.email}
         errors={errors}
         isMultiple={false}
         mb={3}
@@ -204,59 +242,61 @@ export const UserForm = (props: {
         control={control}
         errors={errors}
         isMultiple={false}
-        defaultValue={props.user.phone}
+        defaultValue={props.user?.phone}
         mb={3}
       />
 
-      <FormControl isInvalid={!!errors["userImage"]} mb={3}>
-        <FormLabel>Avatar</FormLabel>
-        <Tooltip
-          hasArrow
-          label={
-            props.user.userImage ? "Changer l'avatar" : "Définir un avatar"
-          }
-          placement="right"
-        >
-          <Avatar
-            boxSize={10}
-            name={props.user.userImage ? undefined : props.user.userName}
-            src={props.user.userImage?.base64}
-            mb={3}
-            cursor="pointer"
-            onClick={() => {
-              document?.getElementById("fileInput")?.click();
+      {props.user && (
+        <FormControl isInvalid={!!errors["userImage"]} mb={3}>
+          <FormLabel>Avatar</FormLabel>
+          <Tooltip
+            hasArrow
+            label={
+              props.user?.userImage ? "Changer l'avatar" : "Définir un avatar"
+            }
+            placement="right"
+          >
+            <Avatar
+              boxSize={10}
+              name={props.user?.userImage ? undefined : props.user?.userName}
+              src={props.user?.userImage?.base64}
+              mb={3}
+              cursor="pointer"
+              onClick={() => {
+                document?.getElementById("fileInput")?.click();
+              }}
+            />
+          </Tooltip>
+
+          <Input
+            name="userImage"
+            display="none"
+            type="file"
+            accept="image/*"
+            onChange={async ({ target: { files } }) => {
+              if (files) {
+                const file = files[0];
+
+                if (file.size < MB) {
+                  setUpImg(await getBase64(file));
+                  clearErrors("userImage");
+                }
+              }
             }}
+            ref={register({
+              validate: (file) => {
+                if (file && file[0] && file[0].size >= MB) {
+                  return "L'image ne doit pas dépasser 1Mo.";
+                }
+                return true;
+              }
+            })}
           />
-        </Tooltip>
-
-        <Input
-          name="userImage"
-          display="none"
-          type="file"
-          accept="image/*"
-          onChange={async ({ target: { files } }) => {
-            if (files) {
-              const file = files[0];
-
-              if (file.size < MB) {
-                setUpImg(await getBase64(file));
-                clearErrors("userImage");
-              }
-            }
-          }}
-          ref={register({
-            validate: (file) => {
-              if (file && file[0] && file[0].size >= MB) {
-                return "L'image ne doit pas dépasser 1Mo.";
-              }
-              return true;
-            }
-          })}
-        />
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="userImage" />
-        </FormErrorMessage>
-      </FormControl>
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="userImage" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
 
       {upImg && upImg.base64 && (
         <Box
@@ -327,7 +367,7 @@ export const UserForm = (props: {
         isDisabled={Object.keys(errors).length > 0}
         mb={2}
       >
-        Modifier
+        {props.user ? "Modifier" : "Ajouter"}
       </Button>
     </form>
   );

@@ -4,7 +4,7 @@ import database, { models } from "server/database";
 import { AddOrgPayload, GetOrgsParams } from "features/api/orgsApi";
 import { EOrgVisibility } from "models/Org";
 import { getCurrentId } from "store/utils";
-import { getSession } from "utils/auth";
+import { getSession } from "server/auth";
 import { createServerError } from "utils/errors";
 import { logJson, normalize } from "utils/string";
 import { unauthorizedEntityUrls } from "utils/url";

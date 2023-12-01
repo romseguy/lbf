@@ -241,8 +241,8 @@ export const OrgsList = ({
             {keys.map(({ key, label }) => {
               return (
                 <Th
-                  color={isDark ? "white" : "black"}
                   key={key}
+                  color={isDark ? "white" : "black"}
                   cursor="pointer"
                   onClick={() => setSelectedOrder(key)}
                 >

@@ -81,7 +81,7 @@ export const EmailControl = ({
             ref={register({
               pattern: {
                 value: emailR,
-                message: "Adresse email invalide"
+                message: "Adresse e-mail invalide"
               },
               ...formRules
             })}
@@ -142,7 +142,7 @@ export const EmailControl = ({
                 ref={register({
                   pattern: {
                     value: emailR,
-                    message: "Adresse email invalide"
+                    message: "Adresse e-mail invalide"
                   },
                   ...formRules
                 })}

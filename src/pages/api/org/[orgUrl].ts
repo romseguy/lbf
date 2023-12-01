@@ -17,7 +17,7 @@ import { getClientIp } from "server/ip";
 import { logEvent, ServerEventTypes } from "server/logging";
 import api from "utils/api";
 import { hasItems } from "utils/array";
-import { getSession } from "utils/auth";
+import { getSession } from "server/auth";
 import {
   createServerError,
   databaseErrorCodes,
