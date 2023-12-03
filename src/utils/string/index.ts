@@ -5,11 +5,10 @@ export * from "./equals";
 export * from "./formatStringToCamelCase";
 export * from "./getStyleObjectFromString";
 export * from "./normalize";
+export * from "./toast";
 
 export const MB = 1000000;
 
-export const defaultErrorMessage =
-  "Une erreur est survenue, merci de laisser un message sur le forum.";
 export const phoneR = /^[0-9]{10,}$/i;
 
 export function bytesForHuman(bytes: number, decimals = 0) {

@@ -60,6 +60,10 @@ export const createValidationError = (error: any) => {
  * }
  */
 export const createServerError = (error: any) => {
+  console.log(
+    "🚀 ~ file: errors.ts:63 ~ createServerError ~ error:",
+    JSON.stringify(error)
+  );
   if (error.name === "ValidationError") return createValidationError(error);
 
   if (error.code) {
@@ -73,5 +77,7 @@ export const createServerError = (error: any) => {
     }
   }
 
-  return { message: error.message + "." };
+  if (error.message) return { message: error.message + "." };
+
+  return error;
 };

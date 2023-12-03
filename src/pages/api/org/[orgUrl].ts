@@ -50,7 +50,17 @@ handler.get<
 
     let org = await models.Org.findOne({ orgUrl }, select);
     if (!org) org = await models.Org.findOne({ _id: orgUrl }, select);
-    if (!org) throw new Error(); // for TS not understanding that line above throws if org not found
+
+    if (!org)
+      return res
+        .status(404)
+        .json(
+          createServerError(
+            new Error(
+              `L'organisation ${req.query.orgUrl} n'a pas pu être trouvé`
+            )
+          )
+        );
 
     logEvent({
       type: ServerEventTypes.API_CALL,
@@ -352,6 +362,7 @@ handler.get<
     // logJson("🚀 ~ GET /org/${orgUrl} ~ org:", org);
     res.status(200).json(org);
   } catch (error: any) {
+    console.log("🚀 ~ file: [orgUrl].ts:355 ~ getOrg ~ error:", error);
     if (error.kind === "ObjectId")
       return res
         .status(404)

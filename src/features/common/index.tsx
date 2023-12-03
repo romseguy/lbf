@@ -37,6 +37,7 @@ export * from "./AppHeading";
 export * from "./Button";
 export * from "./CollapsibleLink";
 export * from "./Column";
+export * from "./ContactLink";
 export * from "./DarkModeSwitch";
 export * from "./DateRange";
 export * from "./DeleteButton";
