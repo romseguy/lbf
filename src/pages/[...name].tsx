@@ -22,7 +22,12 @@ import {
   getUser,
   useGetUserQuery
 } from "features/api/usersApi";
-import { Column, EntityAddButton, NotFound } from "features/common";
+import {
+  Column,
+  ContactLink,
+  EntityAddButton,
+  NotFound
+} from "features/common";
 import { Layout } from "features/layout";
 import { EventPage } from "features/events/EventPage";
 import { OrgPage } from "features/orgs/OrgPage";
@@ -36,7 +41,7 @@ import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
 import { wrapper } from "store";
 import { selectUserEmail } from "store/userSlice";
-import { defaultErrorMessage, normalize } from "utils/string";
+import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { IEntity } from "models/Entity";
 
@@ -77,14 +82,21 @@ const ErrorPage = ({
     m: "0 auto",
     p: props.isMobile ? 2 : 3
   };
+  const error = getError(query);
   return (
     <Layout pageTitle="Erreur" {...props}>
       <Column {...columnProps}>
-        {defaultErrorMessage}
-        <Alert status="error">
-          <AlertIcon />
-          {getError(query)}
-        </Alert>
+        <Box flexDir="row">
+          Une erreur est survenue,{" "}
+          <ContactLink label="merci de nous contacter" />
+        </Box>
+
+        {error && (
+          <Alert status="error">
+            <AlertIcon />
+            {error}
+          </Alert>
+        )}
       </Column>
     </Layout>
   );

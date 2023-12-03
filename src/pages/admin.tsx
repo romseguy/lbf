@@ -202,7 +202,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     const userEmail = selectUserEmail(store.getState());
     const isAdmin =
       typeof process.env.ADMIN_EMAILS === "string"
-        ? process.env.ADMIN_EMAILS.split(",").includes(user.email)
+        ? process.env.ADMIN_EMAILS.split(",").includes(userEmail)
         : false;
 
     if (!isAdmin)

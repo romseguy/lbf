@@ -73,5 +73,7 @@ export const createServerError = (error: any) => {
     }
   }
 
-  return { message: error.message + "." };
+  if (error.message) return { message: error.message + "." };
+
+  return error;
 };

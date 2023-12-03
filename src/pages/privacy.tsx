@@ -1,31 +1,16 @@
 import { ChevronRightIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import { Box, Flex, Heading, Text, Table, Tr, Td } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { AppHeading, Column, Link } from "features/common";
+import { AppHeading, Column, ContactLink, Link } from "features/common";
 import { Layout } from "features/layout";
 import { PageProps } from "main";
 import { useScroll } from "hooks/useScroll";
-import { Badge, FlexProps, Icon, useColorMode } from "@chakra-ui/react";
+import { Badge, Icon, useColorMode } from "@chakra-ui/react";
 import { FaGift, FaQuoteLeft } from "react-icons/fa";
-import { Row, HostTag, LinkProps } from "features/common";
+import { Row, HostTag } from "features/common";
 import { useDiskUsage } from "hooks/useDiskUsage";
-import { useAppDispatch } from "store";
-import { setIsContactModalOpen } from "store/modalSlice";
 import { bytesForHuman } from "utils/string";
 import theme from "features/layout/theme";
-
-const ContactLink = (props: LinkProps) => {
-  const dispatch = useAppDispatch();
-  return (
-    <Link
-      variant="underline"
-      onClick={() => dispatch(setIsContactModalOpen(true))}
-      {...props}
-    >
-      contactez-nous
-    </Link>
-  );
-};
 
 const PrivacyPage = ({ isMobile }: PageProps) => {
   const { colorMode } = useColorMode();
