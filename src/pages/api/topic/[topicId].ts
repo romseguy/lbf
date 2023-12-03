@@ -199,7 +199,6 @@ handler.put<
   NextApiResponse
 >(async function editTopic(req, res) {
   const session = await getSession({ req });
-
   if (!session) {
     return res
       .status(401)
@@ -214,7 +213,7 @@ handler.put<
     } = req;
 
     const topicId = req.query.topicId;
-    let topic = await models.Topic.findOne({ _id: topicId }, "topicMessages");
+    let topic = await models.Topic.findOne({ _id: topicId }, "+topicMessages");
 
     if (!topic)
       return res
@@ -269,10 +268,8 @@ handler.put<
         topic.topicMessages = body.topic.topicMessages;
         await topic.save();
       } else {
-        if (
-          !equals(topic.createdBy, session.user.userId) &&
-          !session.user.isAdmin
-        )
+        const isCreator = equals(topic.createdBy, session.user.userId);
+        if (!isCreator && !session.user.isAdmin)
           return res
             .status(403)
             .json(
