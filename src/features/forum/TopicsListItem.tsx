@@ -163,11 +163,14 @@ export const TopicsListItem = ({
 
   //#region handlers
   const onClick = async () => {
-    const url = isCurrent
-      ? baseUrl
-      : `${baseUrl}/${normalize(topic.topicName)}`;
-    await router.push(url, url, { shallow: true });
-    executeScroll();
+    if (!isCurrent) {
+      const url = `${baseUrl}/${normalize(topic.topicName)}`;
+      await router.push(url, url, { shallow: true });
+      executeScroll();
+    } else {
+      const url = baseUrl;
+      await router.push(url, url, { shallow: true });
+    }
   };
   const onDeleteClick = async () => {
     try {
@@ -597,11 +600,25 @@ export const TopicsListItem = ({
                 placement="left"
                 label={`${isCurrent ? "Fermer" : "Ouvrir"} la discussion`}
               >
-                <Icon
-                  as={isCurrent ? ChevronUpIcon : ChevronRightIcon}
-                  boxSize={10}
-                  color={isDark || isHover ? "white" : "purple"}
-                  _hover={{ color: "white" }}
+                <IconButton
+                  aria-label={`${
+                    isCurrent ? "Fermer" : "Ouvrir"
+                  } la discussion`}
+                  icon={
+                    isCurrent ? (
+                      <ChevronUpIcon boxSize={9} />
+                    ) : (
+                      <ChevronRightIcon boxSize={9} />
+                    )
+                  }
+                  bg="transparent"
+                  height="auto"
+                  minWidth={0}
+                  _hover={{
+                    background: "transparent",
+                    color: isDark ? "teal.100" : "white"
+                  }}
+                  onClick={onClick}
                 />
               </Tooltip>
             </Flex>
