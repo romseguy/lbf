@@ -150,7 +150,7 @@ export const OrgPage = ({
   }
 
   return (
-    <Layout entity={org} isMobile={isMobile}>
+    <Layout entity={org} tabItem={tabItem} isMobile={isMobile}>
       {isCreator && (
         <EntityPageConfigButton
           isConfig={isConfig}

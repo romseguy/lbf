@@ -36,6 +36,7 @@ export * from "./forms/UrlControl";
 export * from "./AppHeading";
 export * from "./Button";
 export * from "./CollapsibleLink";
+export * from "./ColorPicker";
 export * from "./Column";
 export * from "./ContactLink";
 export * from "./DarkModeSwitch";

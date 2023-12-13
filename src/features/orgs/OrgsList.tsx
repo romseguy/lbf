@@ -3,26 +3,17 @@ import {
   Badge,
   Box,
   Icon,
-  IconButton,
-  Spinner,
   Table,
   Tbody,
   Td,
   Th,
   Thead,
   Tr,
-  Tooltip,
   useColorMode
 } from "@chakra-ui/react";
-import {
-  compareAsc,
-  compareDesc,
-  intervalToDuration,
-  parseISO
-} from "date-fns";
+import { compareAsc, compareDesc, parseISO } from "date-fns";
 import React, { useMemo, useState } from "react";
-import { FaMapMarkedAlt, FaLeaf } from "react-icons/fa";
-import { IoIosGitBranch } from "react-icons/io";
+import { FaGlobeEurope, FaMapMarkedAlt, FaTree } from "react-icons/fa";
 import { css } from "twin.macro";
 import { EntityButton } from "features/common";
 import { scrollbarCss } from "features/layout/theme";
