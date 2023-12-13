@@ -165,6 +165,7 @@ export const RTEditor = ({
           "fullscreen",
           "undo",
           "redo",
+          "emoticons",
           "link",
           "anchor",
           "hr",
@@ -187,7 +188,7 @@ export const RTEditor = ({
       },
       {
         name: "media",
-        items: ["emoticons", "link", "unlink", "image", "media", "code", "help"]
+        items: ["link", "unlink", "image", "media", "code", "help"]
       }
     ]
   };

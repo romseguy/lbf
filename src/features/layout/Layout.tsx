@@ -9,6 +9,7 @@ import theme, { breakpoints } from "features/layout/theme";
 import { PageProps } from "main";
 import { IEntity, isEvent, isOrg, isUser } from "models/Entity";
 import { OrgTypes } from "models/Org";
+import { ITopic } from "models/Topic";
 import { Base64Image } from "utils/image";
 import { capitalize } from "utils/string";
 import { IUser } from "models/User";
@@ -19,6 +20,7 @@ export interface LayoutProps extends PageProps, BoxProps {
   banner?: Base64Image & { mode: "dark" | "light" };
   logo?: Base64Image;
   entity?: IEntity | IUser;
+  tabItem?: string;
   pageHeader?: React.ReactNode;
   pageTitle?: string;
 }
@@ -27,6 +29,7 @@ export const Layout = ({
   banner,
   children,
   entity,
+  tabItem,
   isMobile,
   logo,
   pageHeader,
@@ -42,7 +45,9 @@ export const Layout = ({
   const isU = isUser(entity);
   const title = `${
     isO
-      ? `${entity.orgName} – ${OrgTypes[entity.orgType]}  `
+      ? `${OrgTypes[entity.orgType]} – ${entity.orgName}${
+          tabItem ? " – " + tabItem : ""
+        }`
       : isE
       ? `${entity.eventName} – Événement`
       : isU

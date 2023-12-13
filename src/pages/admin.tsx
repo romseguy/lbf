@@ -1,23 +1,30 @@
-import { AddIcon, EditIcon } from "@chakra-ui/icons";
+import { AddIcon, AtSignIcon, EditIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Button,
+  Flex,
   Tab,
   TabList,
   TabPanels,
   TabPanel,
   Tabs,
   IconButton,
+  Input,
   Spinner,
   Text,
   Tooltip,
   useColorMode,
   useDisclosure,
-  useToast
+  useToast,
+  HStack,
+  InputGroup,
+  InputLeftElement
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useGetSettingsQuery } from "features/api/settingsApi";
 import { useGetUsersQuery } from "features/api/usersApi";
 import {
+  ColorPicker,
   TabContainer,
   TabContainerContent,
   TabContainerHeader
@@ -25,7 +32,7 @@ import {
 import { Layout } from "features/layout";
 import { PageProps } from "main";
 
-import { Box, Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
 import { css } from "twin.macro";
 import { scrollbarCss } from "features/layout/theme";
 import { selectIsMobile } from "store/uiSlice";
@@ -45,6 +52,8 @@ const AdminPage = ({ ...props }: PageProps) => {
   const settingsQuery = useGetSettingsQuery();
   const usersQuery = useGetUsersQuery();
 
+  const [color, setColor] = useState("#ffffff");
+
   return (
     <Layout {...props} pageTitle="Administration">
       <Tabs
@@ -55,6 +64,7 @@ const AdminPage = ({ ...props }: PageProps) => {
         <TabList>
           <Tab>Général</Tab>
           <Tab>Utilisateurs</Tab>
+          <Tab>Thème</Tab>
           <Tab>Autres</Tab>
         </TabList>
 
@@ -181,6 +191,58 @@ const AdminPage = ({ ...props }: PageProps) => {
                 ) : (
                   <Text fontStyle="italic">Aucun paramètres.</Text>
                 )}
+              </TabContainerContent>
+            </TabContainer>
+          </TabPanel>
+
+          <TabPanel>
+            <TabContainer>
+              <TabContainerHeader heading="Couleurs"></TabContainerHeader>
+              <TabContainerContent>
+                <Box
+                  overflowX="auto"
+                  css={css`
+                    ${scrollbarCss}
+                  `}
+                >
+                  <Table>
+                    <Thead>
+                      <Tr>
+                        <Th>Désignation</Th>
+                        <Th width="100%">Palette</Th>
+                        <Th minWidth="160px">Code</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      <Tr>
+                        <Td>Couleur de fond</Td>
+                        <Td>
+                          <ColorPicker
+                            color={{ hex: color }}
+                            height={50}
+                            onChange={(color) => setColor(color.hex)}
+                          />
+                        </Td>
+                        <Td>
+                          <InputGroup>
+                            <InputLeftElement children="#" p={0} />
+                            <Input
+                              type="text"
+                              value={color?.substring(1, color.length)}
+                              maxLength={6}
+                              textTransform="uppercase"
+                              p={0}
+                              pl={8}
+                              onChange={(e) => {
+                                setColor("#" + e.target.value);
+                              }}
+                            />
+                          </InputGroup>
+                        </Td>
+                      </Tr>
+                    </Tbody>
+                  </Table>
+                </Box>
               </TabContainerContent>
             </TabContainer>
           </TabPanel>

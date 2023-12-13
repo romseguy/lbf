@@ -81,6 +81,7 @@
     "postcss": "^8.4.29",
     "react": "^18.2.0",
     "react-avatar-editor": "14.0.0-beta.2",
+    "react-color-palette": "^7.1.0",
     "react-cool-onclickoutside": "^1.6.2",
     "react-datepicker": "^4.1.1",
     "react-device-detect": "2.1.2",
