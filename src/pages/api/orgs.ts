@@ -2,11 +2,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
 import { AddOrgPayload, GetOrgsParams } from "features/api/orgsApi";
-import { EOrgVisibility } from "models/Org";
+import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
 import { getCurrentId } from "store/utils";
 import { getSession } from "server/auth";
 import { createServerError } from "utils/errors";
-import { logJson, normalize } from "utils/string";
+import { equals, logJson, normalize } from "utils/string";
 import { unauthorizedEntityUrls } from "utils/url";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -23,24 +23,33 @@ handler.get<
 
   try {
     let {
-      query: { orgType, populate = "", createdBy }
+      query: { createdBy, orgType, populate = "" }
     } = req;
 
-    let selector: GetOrgsParams & {
-      orgVisibility?: EOrgVisibility;
-    } = {
-      orgVisibility: EOrgVisibility.PUBLIC
-    };
+    let selector: Partial<IOrg> = {};
 
-    if (typeof createdBy === "string") {
-      if (session?.user.isAdmin || session?.user.userId === createdBy)
-        selector = { createdBy };
-      else selector.createdBy = createdBy;
+    if (!session?.user.isAdmin) {
+      selector = { orgVisibility: EOrgVisibility.PUBLIC };
     }
 
-    if (orgType) selector.orgType = orgType;
+    if (createdBy && typeof createdBy === "string") {
+      selector = { ...selector, createdBy };
+    }
+
+    if (orgType && EOrgType[orgType]) {
+      selector = { ...selector, orgType };
+    }
+
+    if (
+      session &&
+      selector.createdBy &&
+      equals(session.user.userId, selector.createdBy)
+    ) {
+      delete selector.orgVisibility;
+    }
 
     let orgs = await models.Org.find(selector);
+    console.log("🚀 ~ AAAAAAAAAAAAAAAAA", selector);
 
     if (populate) {
       for (const modelKey of populate

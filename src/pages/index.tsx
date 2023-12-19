@@ -3,6 +3,7 @@ import {
   Alert,
   AlertIcon,
   Flex,
+  Select,
   Text,
   useColorMode,
   useDisclosure
@@ -26,10 +27,12 @@ import { MapModal } from "features/modals/MapModal";
 import { EOrderKey, OrgsList } from "features/orgs/OrgsList";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
-import { EOrgType, IOrg, orgTypeFull } from "models/Org";
+import { EOrgType, EOrgVisibility, IOrg, orgTypeFull } from "models/Org";
 import { hasItems } from "utils/array";
 import { AppQuery } from "utils/types";
 import { wrapper } from "store";
+import { useGetUsersQuery } from "features/api/usersApi";
+import { getRefId } from "models/Entity";
 
 const isCollapsable = true;
 const orgsQueryParams = {
@@ -44,10 +47,17 @@ const IndexPage = (props: PageProps) => {
   const { data: session } = useSession();
 
   //#region local state
-  const orgsQuery = useGetOrgsQuery(orgsQueryParams) as AppQuery<IOrg[]>;
-  const hasOnlyForum =
-    orgsQuery.data?.length === 1 && orgsQuery.data[0].orgUrl === "forum";
   const [isListOpen, setIsListOpen] = useState(true);
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const orgsQuery = useGetOrgsQuery({ orgType: EOrgType.NETWORK });
+  const selectedUserOrgsQuery = useGetOrgsQuery({
+    ...orgsQueryParams,
+    createdBy: selectedUserId
+  }) as AppQuery<IOrg[]>;
+  const hasOnlyForum =
+    selectedUserOrgsQuery.data?.length === 1 &&
+    selectedUserOrgsQuery.data[0].orgUrl === "forum";
+  const usersQuery = useGetUsersQuery({ select: "userName" });
   //#endregion
 
   //#region modal
@@ -59,18 +69,48 @@ const IndexPage = (props: PageProps) => {
   //#endregion
 
   return (
-    <Layout {...props} pageTitle="Tous les forums">
+    <Layout {...props} pageTitle={`Forum`}>
       <Column
         m={props.isMobile ? undefined : "0 auto"}
         maxWidth="4xl"
         p={props.isMobile ? 2 : 3}
       >
-        <Flex alignItems="center">
-          <AppHeading mb={3}>Tous les forums</AppHeading>
-          {/* <HostTag ml={1} /> */}
-        </Flex>
+        {/* <Flex alignItems="center">
+          <AppHeading mb={3}>
+            Forum {process.env.NEXT_PUBLIC_SHORT_URL}
+          </AppHeading>
+        </Flex> */}
 
-        {hasItems(orgsQuery.data) && !hasOnlyForum ? (
+        <Select
+          defaultValue={selectedUserId}
+          mb={3}
+          onChange={(e) => {
+            setSelectedUserId(e.target.value);
+          }}
+        >
+          <option value="">Forum public</option>
+          {usersQuery.data?.map(({ _id, userName }) => {
+            const userHasForum = !!orgsQuery.data?.find(
+              (org) =>
+                getRefId(org) === _id &&
+                org.orgVisibility === EOrgVisibility.PUBLIC
+            );
+
+            if (userHasForum) {
+              return (
+                <option key={_id} value={_id}>
+                  {_id === session?.user.userId
+                    ? "Votre forum"
+                    : `Forum de ${userName}`}
+                </option>
+              );
+            }
+
+            return null;
+          })}
+        </Select>
+
+        {hasItems(selectedUserOrgsQuery.data) && !hasOnlyForum ? (
           <>
             {/* <Button
               alignSelf="flex-start"
@@ -85,9 +125,9 @@ const IndexPage = (props: PageProps) => {
 
             {isListOpen && (
               <Column bg={isDark ? "gray.700" : "white"}>
-                {orgsQuery.data && (
+                {selectedUserOrgsQuery.data && (
                   <OrgsList
-                    data={orgsQuery.data.filter(
+                    data={selectedUserOrgsQuery.data.filter(
                       ({ orgUrl }) => orgUrl !== "nom_de_votre_planete"
                     )}
                     keys={(orgType) => [
@@ -153,25 +193,25 @@ const IndexPage = (props: PageProps) => {
 
                 {(!isCollapsed || !isCollapsable) && (
                   <>
-                    <Alert status="info" mt={2}>
-                      <AlertIcon />
-
-                      <Flex flexDirection="column">
-                        {session ? (
-                          <>
-                            <Text>
+                    {session ? (
+                      <>
+                        {/* <Text>
                               Pour ajouter un forum à <HostTag /> vous devez
                               d'abord créer une planète :
-                            </Text>
-                            <EntityAddButton
-                              label="Ajoutez une planète"
-                              orgType={EOrgType.NETWORK}
-                              size="md"
-                              mt={3}
-                            />
-                          </>
-                        ) : (
-                          <>
+                            </Text> */}
+                        <EntityAddButton
+                          label="Ajoutez une planète"
+                          orgType={EOrgType.NETWORK}
+                          size="md"
+                          mt={3}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <Alert status="info" mt={2}>
+                          <AlertIcon />
+
+                          <Flex flexDirection="column">
                             <Text>
                               Pour ajouter un forum à <HostTag />, vous devez
                               d'abord vous connecter :
@@ -188,10 +228,10 @@ const IndexPage = (props: PageProps) => {
                             >
                               Se connecter
                             </LoginButton>
-                          </>
-                        )}
-                      </Flex>
-                    </Alert>
+                          </Flex>
+                        </Alert>
+                      </>
+                    )}
 
                     <Flex alignItems="center" mt={3}>
                       <Link
@@ -216,7 +256,7 @@ const IndexPage = (props: PageProps) => {
           isOpen={isMapModalOpen}
           header={<AppHeading>Carte</AppHeading>}
           orgs={
-            orgsQuery.data?.filter(
+            selectedUserOrgsQuery.data?.filter(
               (org) =>
                 typeof org.orgLat === "number" &&
                 typeof org.orgLng === "number" &&
@@ -238,7 +278,7 @@ const IndexPage = (props: PageProps) => {
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
-    store.dispatch(getOrgs.initiate(orgsQueryParams));
+    store.dispatch(getOrgs.initiate({ ...orgsQueryParams, createdBy: "" }));
     await Promise.all(store.dispatch(getRunningQueriesThunk()));
 
     return {

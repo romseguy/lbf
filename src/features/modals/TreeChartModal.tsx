@@ -68,7 +68,7 @@ export const TreeChartModal = ({
         treeChart(
           treeChartRoot,
           {
-            name: rootName || process.env.NEXT_PUBLIC_SHORT_URL,
+            name: rootName,
             children: inputNodes
           },
           {

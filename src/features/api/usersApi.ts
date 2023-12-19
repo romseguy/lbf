@@ -15,6 +15,7 @@ export type GetUserParams = {
 
 export type GetUsersParams = {
   populate?: string;
+  select?: string;
 };
 
 export const userApi = api.injectEndpoints({
@@ -66,12 +67,14 @@ export const userApi = api.injectEndpoints({
     }),
     getUsers: build.query<IUser[], GetUsersParams | void>({
       query: ({ ...query }) => {
+        const hasQueryParams = Object.keys(query).length > 0;
+        if (hasQueryParams) {
+          console.groupCollapsed("getUsers");
+          console.log("query", query);
+          console.groupEnd();
+        }
         return {
-          url: `users${
-            query && Object.keys(query).length > 0
-              ? `?${objectToQueryString(query)}`
-              : ""
-          }`
+          url: `users${hasQueryParams ? `?${objectToQueryString(query)}` : ""}`
         };
       },
       providesTags: (result) => {

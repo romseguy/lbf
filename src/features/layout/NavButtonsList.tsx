@@ -1,4 +1,4 @@
-import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
+import { CalendarIcon, ChatIcon, SearchIcon } from "@chakra-ui/icons";
 import { Button, Flex, useColorMode, useDisclosure } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useMemo } from "react";
@@ -43,6 +43,7 @@ export const NavButtonsList = ({
     "aria-hidden": true,
     alignSelf: "flex-start"
   };
+  const rootName = "Forum public";
 
   //#region parcourir
   const orgsQuery = useGetOrgsQuery({
@@ -124,7 +125,7 @@ export const NavButtonsList = ({
           openNetworksModal();
         }}
       >
-        <Button leftIcon={<IoIosGitNetwork />} {...buttonProps}>
+        <Button leftIcon={<SearchIcon />} {...buttonProps}>
           Parcourir
         </Button>
       </Link>
@@ -133,12 +134,12 @@ export const NavButtonsList = ({
         <TreeChartModal
           header={
             <AppHeading smaller={isMobile} mb={3}>
-              Tous les forums
+              {rootName}
             </AppHeading>
           }
           inputNodes={inputNodes}
           isOpen={isNetworksModalOpen}
-          rootName="Tous les forums"
+          rootName=" "
           onClose={() => {
             closeNetworksModal();
             onClose && onClose();
@@ -164,7 +165,7 @@ export const NavButtonsList = ({
         </Link>
       )}
 
-      {(isMobile || !isEntityPage) && (
+      {/* {(isMobile || !isEntityPage) && (
         <Link
           {...linkProps}
           onClick={() => {
@@ -180,7 +181,7 @@ export const NavButtonsList = ({
             Forum
           </Button>
         </Link>
-      )}
+      )} */}
     </Flex>
   );
 };
