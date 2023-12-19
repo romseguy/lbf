@@ -50,7 +50,7 @@ const AdminPage = ({ ...props }: PageProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
   const settingsQuery = useGetSettingsQuery();
-  const usersQuery = useGetUsersQuery();
+  const usersQuery = useGetUsersQuery({ select: "email" });
 
   const [color, setColor] = useState("#ffffff");
 

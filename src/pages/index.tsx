@@ -34,6 +34,16 @@ const IndexPage = (props: PageProps) => {
   //   orgsQuery.refetch();
   // }, [router.asPath]);
   const [isListOpen, setIsListOpen] = useState(true);
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const orgsQuery = useGetOrgsQuery({ orgType: EOrgType.NETWORK });
+  const selectedUserOrgsQuery = useGetOrgsQuery({
+    ...orgsQueryParams,
+    createdBy: selectedUserId
+  }) as AppQuery<IOrg[]>;
+  const hasOnlyForum =
+    selectedUserOrgsQuery.data?.length === 1 &&
+    selectedUserOrgsQuery.data[0].orgUrl === "forum";
+  const usersQuery = useGetUsersQuery({ select: "userName" });
   //#endregion
 
   //#region modal
@@ -73,7 +83,7 @@ const IndexPage = (props: PageProps) => {
 
             {isListOpen && (
               <Column bg={isDark ? "gray.700" : "white"}>
-                {orgsQuery.data && (
+                {selectedUserOrgsQuery.data && (
                   <OrgsList
                     data={orgsQuery.data}
                     keys={(orgType) => [
@@ -124,7 +134,7 @@ const IndexPage = (props: PageProps) => {
           isOpen={isMapModalOpen}
           header={<AppHeading>Carte</AppHeading>}
           orgs={
-            orgsQuery.data?.filter(
+            selectedUserOrgsQuery.data?.filter(
               (org) =>
                 typeof org.orgLat === "number" &&
                 typeof org.orgLng === "number" &&
@@ -146,7 +156,7 @@ const IndexPage = (props: PageProps) => {
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
-    store.dispatch(getOrgs.initiate(orgsQueryParams));
+    store.dispatch(getOrgs.initiate({ ...orgsQueryParams, createdBy: "" }));
     await Promise.all(store.dispatch(getRunningQueriesThunk()));
 
     return {

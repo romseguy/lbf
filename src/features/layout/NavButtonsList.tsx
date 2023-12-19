@@ -1,4 +1,4 @@
-import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
+import { CalendarIcon, ChatIcon, SearchIcon } from "@chakra-ui/icons";
 import { Button, Flex, useColorMode, useDisclosure } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useMemo } from "react";
@@ -125,7 +125,7 @@ export const NavButtonsList = ({
           openNetworksModal();
         }}
       >
-        <Button leftIcon={<IoIosGitNetwork />} {...buttonProps}>
+        <Button leftIcon={<SearchIcon />} {...buttonProps}>
           Parcourir
         </Button>
       </Link>
@@ -139,7 +139,7 @@ export const NavButtonsList = ({
           }
           inputNodes={inputNodes}
           isOpen={isNetworksModalOpen}
-          rootName={rootName}
+          rootName=" "
           onClose={() => {
             closeNetworksModal();
             onClose && onClose();
@@ -165,7 +165,7 @@ export const NavButtonsList = ({
         </Link>
       )}
 
-      {(isMobile || !isEntityPage) && (
+      {/* {(isMobile || !isEntityPage) && (
         <Link
           {...linkProps}
           onClick={() => {

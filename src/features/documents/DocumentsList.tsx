@@ -85,7 +85,9 @@ export const DocumentsList = ({
           >
             {query.data.map((file) => {
               const url = `${process.env.NEXT_PUBLIC_FILES}/${entity._id}/${file.url}`;
+              const downloadUrl = url;
               const isImage = stringUtils.isImage(file.url);
+
               // const isPdf = fileName.includes(".pdf");
               // const url = `${process.env.NEXT_PUBLIC_API2}/${
               //   isImage || isPdf ? "view" : "download"
@@ -93,11 +95,11 @@ export const DocumentsList = ({
               //   org ? `orgId=${org._id}` : user ? `userId=${user._id}` : ""
               // }&fileName=${fileName}`;
 
-              const downloadUrl = `${
-                process.env.NEXT_PUBLIC_API
-              }/documents/download?${`${isO ? "orgId" : "userId"}=${
-                entity._id
-              }`}&fileName=${file.url}`;
+              // const downloadUrl = `${
+              //   process.env.NEXT_PUBLIC_API
+              // }/documents/download?${`${isO ? "orgId" : "userId"}=${
+              //   entity._id
+              // }`}&fileName=${file.url}`;
 
               return (
                 <React.Fragment key={file.url}>
@@ -157,7 +159,8 @@ export const DocumentsList = ({
                         mr={2}
                         variant="outline"
                         onClick={() => {
-                          router.push(downloadUrl);
+                          //router.push(downloadUrl);
+                          window.location.href = downloadUrl;
                         }}
                       />
                     </Tooltip>

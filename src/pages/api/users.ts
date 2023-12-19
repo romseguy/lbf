@@ -18,22 +18,22 @@ handler.get<
   },
   NextApiResponse
 >(async function getUsers(req, res) {
-  const session = await getSession({ req });
+  // const session = await getSession({ req });
 
-  if (!session?.user.isAdmin) {
-    return res
-      .status(401)
-      .json(createServerError(new Error("Vous devez être administrateur")));
-  }
+  // if (!session?.user.isAdmin) {
+  //   return res
+  //     .status(401)
+  //     .json(createServerError(new Error("Vous devez être administrateur")));
+  // }
 
   try {
     let {
-      query: { populate = "" }
+      query: { populate = "", select = "" }
     } = req;
 
     let selector: GetUsersParams = {};
 
-    let users = await models.User.find(selector, "email");
+    let users = await models.User.find(selector, select);
 
     if (populate) {
       for (const modelKey of populate
