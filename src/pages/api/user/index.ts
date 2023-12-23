@@ -1,7 +1,7 @@
 import { getSession } from "server/auth";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -13,7 +13,7 @@ handler.get<NextApiRequest, NextApiResponse>(async function getUserSession(
     const session = await getSession({ req });
     res.status(200).json(session ? session : {});
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 

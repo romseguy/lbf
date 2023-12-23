@@ -92,7 +92,7 @@ type DayState = {
   endTime: Date | null;
   monthRepeat?: number[];
 };
-type FormData = IEvent<Date | null> & { eventOrg: IOrg | null };
+type FormValues = IEvent<Date | null> & { eventOrg: IOrg | null };
 
 const repeatOptions: number[] = [];
 for (let i = 1; i <= 10; i++) {
@@ -219,7 +219,7 @@ export const EventForm = withGoogleApi({
       getValues,
       formState
     } = useFormPersist(
-      useForm<FormData>({
+      useForm<FormValues>({
         defaultValues,
         mode: "onChange"
       })

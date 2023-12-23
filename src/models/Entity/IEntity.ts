@@ -29,6 +29,10 @@ export enum EEntityCategoryKey {
   "orgTopicCategories" = "orgTopicCategories"
 }
 
+export enum EEntityTab {
+  TOPICS = "discussions"
+}
+
 export interface IEntityEmail {
   email: string;
 }
@@ -39,6 +43,14 @@ export interface IEntityLogo extends Base64Image {
 
 export interface IEntityPhone {
   phone: string;
+}
+
+export interface IEntityReminder {
+  _id?: string;
+  reminderEmail: string;
+  reminderDate: string;
+  reminderMessage: string;
+  createdBy: string;
 }
 
 export interface IEntityStyles {

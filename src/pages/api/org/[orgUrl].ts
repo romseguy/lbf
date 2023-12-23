@@ -19,7 +19,7 @@ import api from "utils/api";
 import { hasItems } from "utils/array";
 import { getSession } from "server/auth";
 import {
-  createServerError,
+  createEndpointError,
   databaseErrorCodes,
   duplicateError
 } from "utils/errors";
@@ -55,7 +55,7 @@ handler.get<
       return res
         .status(404)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(
               `L'organisation ${req.query.orgUrl} n'a pas pu être trouvé`
             )
@@ -95,7 +95,7 @@ handler.get<
         if (org.orgPassword !== hash)
           return res
             .status(403)
-            .json(createServerError(new Error("Mot de passe incorrect")));
+            .json(createEndpointError(new Error("Mot de passe incorrect")));
 
         org.orgPassword = undefined;
       } else if (
@@ -127,7 +127,7 @@ handler.get<
           if (orgNetwork.orgPassword !== hash)
             return res
               .status(403)
-              .json(createServerError(new Error("Mot de passe incorrect")));
+              .json(createEndpointError(new Error("Mot de passe incorrect")));
         }
       }
     }
@@ -366,13 +366,13 @@ handler.get<
       return res
         .status(404)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(
               `L'organisation ${req.query.orgUrl} n'a pas pu être trouvé`
             )
           )
         );
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -388,7 +388,7 @@ handler.put<
   if (!session) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -399,7 +399,7 @@ handler.put<
       return res
         .status(404)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'organisation ${_id} n'a pas pu être trouvé`)
           )
         );
@@ -422,7 +422,7 @@ handler.put<
       return res
         .status(403)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(
               `Vous n'avez pas la permission de modifier ${orgTypeFull4(
                 org.orgType
@@ -490,7 +490,7 @@ handler.put<
           return res
             .status(401)
             .json(
-              createServerError(
+              createEndpointError(
                 new Error(
                   `Vous n'avez pas la permission ${orgTypeFull(
                     org.orgType
@@ -503,7 +503,7 @@ handler.put<
         if (!body.orgLists[0].listName)
           return res
             .status(400)
-            .json(createServerError(new Error("Liste invalide")));
+            .json(createEndpointError(new Error("Liste invalide")));
 
         // TODO: if listName === "Abonnés"
         // remove subscriptions.orgs.orgSubscription
@@ -516,7 +516,7 @@ handler.put<
           return res
             .status(401)
             .json(
-              createServerError(
+              createEndpointError(
                 new Error(
                   `Vous n'avez pas la permission ${orgTypeFull(
                     org.orgType
@@ -535,7 +535,7 @@ handler.put<
       return res
         .status(400)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'organisation ${_id} n'a pas pu être modifiée`)
           )
         );
@@ -548,7 +548,7 @@ handler.put<
         [error.field || "orgName"]: "Ce nom n'est pas disponible"
       });
 
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -563,7 +563,7 @@ handler.delete<
   if (!session) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -575,7 +575,7 @@ handler.delete<
       return res
         .status(404)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'organisation ${_id} n'a pas pu être trouvé`)
           )
         );
@@ -585,7 +585,7 @@ handler.delete<
       return res
         .status(403)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(
               "Vous ne pouvez pas supprimer une organisation que vous n'avez pas créé"
             )
@@ -599,7 +599,7 @@ handler.delete<
       return res
         .status(400)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'organisation ${_id} n'a pas pu être supprimé`)
           )
         );
@@ -621,7 +621,7 @@ handler.delete<
 
     res.status(200).json(org);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 

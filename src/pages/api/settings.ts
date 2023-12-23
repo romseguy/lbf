@@ -3,7 +3,7 @@ import nextConnect from "next-connect";
 import database, { models } from "server/database";
 import { GetSettingsParams } from "features/api/settingsApi";
 //import { getSession } from "server/auth";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -38,7 +38,7 @@ handler.get<
     // console.log("GET /settings: settings", settings);
     res.status(200).json(settings);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -51,7 +51,7 @@ handler.post<NextApiRequest & { body: AddSettingPayload }, NextApiResponse>(
     if (!session) {
       return res
         .status(401)
-        .json(createServerError(new Error("Vous devez être identifié")));
+        .json(createEndpointError(new Error("Vous devez être identifié")));
     }
 
     try {
@@ -83,7 +83,7 @@ handler.post<NextApiRequest & { body: AddSettingPayload }, NextApiResponse>(
 
       res.status(200).json(doc);
     } catch (error: any) {
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 );

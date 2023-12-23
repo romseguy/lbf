@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 
 const authKey = "fb3a73a6-028f-74d4-dee4-9e93734833cf:fx";
 const translator = new deepl.Translator(authKey);
@@ -151,7 +151,7 @@ extraordinaire civilisation extraterrestre, vous ferez simplement face à vous-m
       // // ]);
       // res.status(200).json(s);
     } catch (error) {
-      res.status(404).json(createServerError(error));
+      res.status(404).json(createEndpointError(error));
     }
   });
 

@@ -2,7 +2,7 @@ import axios from "axios";
 import cors from "cors";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { objectToQueryString } from "utils/query";
 import { getExtension } from "utils/string";
 
@@ -40,7 +40,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
         // const image = `data:${arrayBuffer.headers["content-type"]};base64,${buffer}`;
         // res.status(200).send(image);
       } catch (error) {
-        res.status(404).json(createServerError(error));
+        res.status(404).json(createEndpointError(error));
       }
     }
   );

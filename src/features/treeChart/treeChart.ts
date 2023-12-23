@@ -385,10 +385,16 @@ export const treeChart = (
             // const x =
             //   (d.children || d._children ? -1 : 1) *
             //   (this.getBBox().width / 2 + style.node.radius + 5);
-            let x = this.getBBox().width / 2;
-            if (d.children) x = -1 * x - 20;
-            else x += 50;
-            return `translate(${x},0)`;
+
+            // let x = this.getBBox().width / 2;
+            // if (d.children) x = -1 * x - 20;
+            // else x += 50;
+            // return `translate(${x},0)`;
+
+            const w = this.getBBox().width;
+            return `translate(${
+              d.parent?.name === inputNode.name ? (-1 * w) / 2 - 20 : w / 2 + 50
+            },0)`;
           }
         });
       //#endregion

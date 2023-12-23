@@ -2,7 +2,7 @@ import type { IEventSubscription, IOrgSubscription } from "models/Subscription";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { getSession } from "server/auth";
 import { equals, logJson } from "utils/string";
 import { emailR } from "utils/email";
@@ -39,7 +39,7 @@ handler.get<
       return res
         .status(404)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'abonnement ${slug} n'a pas pu être trouvé`)
           )
         );
@@ -113,7 +113,7 @@ handler.get<
     res.status(200).json(subscription);
   } catch (error) {
     console.log("error", error);
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -124,7 +124,7 @@ handler.put<NextApiRequest & { query: { slug: string } }, NextApiResponse>(
     if (!session) {
       return res
         .status(401)
-        .json(createServerError(new Error("Vous devez être identifié")));
+        .json(createEndpointError(new Error("Vous devez être identifié")));
     }
 
     try {
@@ -142,13 +142,13 @@ handler.put<NextApiRequest & { query: { slug: string } }, NextApiResponse>(
       //   res
       //     .status(400)
       //     .json(
-      //       createServerError(
+      //       createEndpointError(
       //         new Error(`L'abonnement n'a pas pu être modifié`)
       //       )
       //     );
       // }
     } catch (error) {
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 );
@@ -187,7 +187,7 @@ handler.delete<
       return res
         .status(404)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'abonnement ${subscriptionId} n'a pas pu être trouvé`)
           )
         );
@@ -205,7 +205,7 @@ handler.delete<
         return res
           .status(400)
           .json(
-            createServerError(
+            createEndpointError(
               new Error(`L'organisation ${orgId} n'a pas pu être trouvé`)
             )
           );
@@ -243,7 +243,7 @@ handler.delete<
         return res
           .status(400)
           .json(
-            createServerError(
+            createEndpointError(
               new Error(`L'organisation ${body.orgId} n'a pas pu être trouvé`)
             )
           );
@@ -302,7 +302,7 @@ handler.delete<
         return res
           .status(400)
           .json(
-            createServerError(
+            createEndpointError(
               new Error(`L'événement ${eventId} n'a pas pu être trouvé`)
             )
           );
@@ -438,7 +438,7 @@ handler.delete<
       return res
         .status(400)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'abonnement de ${email} n'a pas pu être supprimé`)
           )
         );
@@ -446,7 +446,7 @@ handler.delete<
 
     res.status(200).json(subscription);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 

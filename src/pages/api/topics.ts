@@ -14,7 +14,7 @@ import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { getCurrentId } from "store/utils";
 import { hasItems } from "utils/array";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { equals, logJson, toString } from "utils/string";
 import { randomNumber } from "utils/randomNumber";
 import { logEvent, ServerEventTypes } from "server/logging";
@@ -73,7 +73,7 @@ handler.get<
     logJson(`GET /topics: topics`, topics);
     res.status(200).json(topics);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -84,7 +84,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
     if (!session) {
       return res
         .status(401)
-        .json(createServerError(new Error("Vous devez être identifié")));
+        .json(createEndpointError(new Error("Vous devez être identifié")));
     }
 
     try {
@@ -105,7 +105,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
         return res
           .status(400)
           .json(
-            createServerError(
+            createEndpointError(
               new Error(
                 "La discussion doit être associée à une organisation ou à un événément"
               )
@@ -124,7 +124,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           return res
             .status(400)
             .json(
-              createServerError(
+              createEndpointError(
                 new Error(
                   "Vous devez indiquer la réponse à ajouter à cette discussion"
                 )
@@ -141,7 +141,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           return res
             .status(404)
             .json(
-              createServerError(
+              createEndpointError(
                 new Error(
                   "Impossible d'ajouter une réponse à une discussion inexistante"
                 )
@@ -274,7 +274,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           url: `/api/topics`
         }
       });
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 );

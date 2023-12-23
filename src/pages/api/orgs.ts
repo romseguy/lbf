@@ -5,7 +5,7 @@ import { AddOrgPayload, GetOrgsParams } from "features/api/orgsApi";
 import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
 import { getCurrentId } from "store/utils";
 import { getSession } from "server/auth";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { equals, logJson, normalize } from "utils/string";
 import { unauthorizedEntityUrls } from "utils/url";
 
@@ -26,11 +26,7 @@ handler.get<
       query: { createdBy, orgType, populate = "" }
     } = req;
 
-    let selector: Partial<IOrg> = {};
-
-    if (!session?.user.isAdmin) {
-      selector = { orgVisibility: EOrgVisibility.PUBLIC };
-    }
+    let selector: Partial<IOrg> = { orgVisibility: EOrgVisibility.PUBLIC };
 
     if (createdBy && typeof createdBy === "string") {
       selector = { ...selector, createdBy };
@@ -49,7 +45,6 @@ handler.get<
     }
 
     let orgs = await models.Org.find(selector);
-    console.log("🚀 ~ AAAAAAAAAAAAAAAAA", selector);
 
     if (populate) {
       for (const modelKey of populate
@@ -93,7 +88,7 @@ handler.get<
 
     res.status(200).json(orgs);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -104,7 +99,7 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
     if (!session) {
       return res
         .status(401)
-        .json(createServerError(new Error("Vous devez être identifié")));
+        .json(createEndpointError(new Error("Vous devez être identifié")));
     }
 
     try {
@@ -116,7 +111,7 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
         return res
           .status(400)
           .json(
-            createServerError(
+            createEndpointError(
               new Error(`Ce nom d'organisation n'est pas autorisé`)
             )
           );
@@ -147,7 +142,7 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
 
       res.status(200).json(doc);
     } catch (error: any) {
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 );

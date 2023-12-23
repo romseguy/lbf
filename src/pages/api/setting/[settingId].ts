@@ -3,7 +3,7 @@ import nextConnect from "next-connect";
 import database, { models } from "server/database";
 import { EditSettingPayload } from "features/api/settingsApi";
 import { getSession } from "server/auth";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { logJson } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -22,13 +22,13 @@ handler.put<
   // if (!session) {
   //   return res
   //     .status(401)
-  //     .json(createServerError(new Error("Vous devez être identifié")));
+  //     .json(createEndpointError(new Error("Vous devez être identifié")));
   // }
 
   // if (!session.user.isAdmin) {
   //   return res
   //     .status(401)
-  //     .json(createServerError(new Error("Vous devez être administrateur")));
+  //     .json(createEndpointError(new Error("Vous devez être administrateur")));
   // }
 
   try {
@@ -39,7 +39,7 @@ handler.put<
       return res
         .status(404)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`Le paramètre ${_id} n'a pas pu être trouvé`)
           )
         );
@@ -53,7 +53,7 @@ handler.put<
       return res
         .status(400)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`Vous ne pouvez pas modifier le nom du paramètre`)
           )
         );
@@ -65,7 +65,7 @@ handler.put<
       return res
         .status(400)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`Le paramètre ${_id} n'a pas pu être modifié`)
           )
         );
@@ -73,7 +73,7 @@ handler.put<
 
     res.status(200).json(setting);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 

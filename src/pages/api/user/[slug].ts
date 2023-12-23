@@ -6,7 +6,7 @@ import { getSession } from "server/auth";
 import { IUser } from "models/User";
 import { emailR } from "utils/email";
 import {
-  createServerError,
+  createEndpointError,
   databaseErrorCodes,
   duplicateError
 } from "utils/errors";
@@ -34,7 +34,7 @@ handler.get<
     res
       .status(404)
       .json(
-        createServerError(
+        createEndpointError(
           new Error(`L'utilisateur ${slug} n'a pas pu être trouvé`)
         )
       );
@@ -86,7 +86,7 @@ handler.get<
     if (error.name === "CastError" && error.value === slug)
       return notFoundResponse();
 
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -102,7 +102,7 @@ handler.put<
   if (!session) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -140,7 +140,7 @@ handler.put<
         return res
           .status(404)
           .json(
-            createServerError(new Error(`L'utilisateur ${slug} n'existe pas`))
+            createEndpointError(new Error(`L'utilisateur ${slug} n'existe pas`))
           );
       }
     }
@@ -158,7 +158,7 @@ handler.put<
       return res
         .status(400)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'utilisateur ${slug} n'a pas pu être modifié`)
           )
         );
@@ -171,7 +171,7 @@ handler.put<
         userName: "Ce nom d'utilisateur n'est pas disponible"
       });
     } else {
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 });
