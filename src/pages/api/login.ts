@@ -5,7 +5,7 @@ import nextConnect from "next-connect";
 import database, { models } from "server/database";
 import { getCurrentId } from "store/utils";
 import { setTokenCookie, sealOptions } from "utils/auth";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { normalize } from "utils/string";
 import { NextApiRequestWithAuthorizationHeader } from "utils/types";
 
@@ -52,7 +52,7 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
 
       res.status(200).json({ authenticated: true });
     } catch (error: any) {
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 );

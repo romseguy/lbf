@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -18,7 +18,7 @@ handler.get<NextApiRequest & { query: { userId: string } }, NextApiResponse>(
 
       res.status(200).json(orgs);
     } catch (error) {
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 );

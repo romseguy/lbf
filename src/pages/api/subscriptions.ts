@@ -12,7 +12,7 @@ import {
   EOrgSubscriptionType
 } from "models/Subscription";
 import { IUser } from "models/User";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { equals, logJson } from "utils/string";
 import { getRefId } from "models/Entity";
 
@@ -128,7 +128,7 @@ handler.post<
       return res
         .status(400)
         .json(
-          createServerError(
+          createEndpointError(
             new Error("Vous devez fournir une adresse e-mail pour vous abonner")
           )
         );
@@ -153,7 +153,7 @@ handler.post<
           return res
             .status(400)
             .json(
-              createServerError(
+              createEndpointError(
                 new Error(
                   "Vous ne pouvez pas vous abonner à une organisation inexistante"
                 )
@@ -209,7 +209,7 @@ handler.post<
             return res
               .status(400)
               .json(
-                createServerError(
+                createEndpointError(
                   new Error(
                     "Vous ne pouvez pas vous abonner à un événement inexistant"
                   )
@@ -272,7 +272,7 @@ handler.post<
           return res
             .status(400)
             .json(
-              createServerError(
+              createEndpointError(
                 new Error(
                   "Vous ne pouvez pas vous abonner à un événement inexistant"
                 )
@@ -313,7 +313,7 @@ handler.post<
           return res
             .status(404)
             .json(
-              createServerError(
+              createEndpointError(
                 new Error(
                   `Vous ne pouvez pas vous abonner à un topic inexistant`
                 )
@@ -351,7 +351,7 @@ handler.post<
 
     res.status(200).json(subscription);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 

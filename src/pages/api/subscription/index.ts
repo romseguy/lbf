@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 

@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database from "server/database";
 import { setTokenCookie } from "utils/auth";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { NextApiRequestWithAuthorizationHeader } from "utils/types";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -13,7 +13,7 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
       setTokenCookie(res, "");
       res.status(200).json({});
     } catch (error: any) {
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 );

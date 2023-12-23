@@ -3,7 +3,7 @@ import nextConnect from "next-connect";
 import database, { db, models } from "server/database";
 import { getSession } from "server/auth";
 import { NextApiRequest, NextApiResponse } from "next";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { IEntity } from "models/Entity";
 import { logEvent, ServerEventTypes } from "server/logging";
 
@@ -20,13 +20,13 @@ handler.get<NextApiRequest, NextApiResponse>(async function exportData(
   if (!session) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié.")));
+      .json(createEndpointError(new Error("Vous devez être identifié.")));
   }
 
   if (!session.user.isAdmin) {
     return res
       .status(403)
-      .json(createServerError(new Error("Vous devez être administrateur.")));
+      .json(createEndpointError(new Error("Vous devez être administrateur.")));
   }
 
   try {
@@ -41,7 +41,7 @@ handler.get<NextApiRequest, NextApiResponse>(async function exportData(
 
     return res.status(200).json({ data });
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -71,13 +71,13 @@ handler.post<NextApiRequest, NextApiResponse>(async function importData(
   if (!session) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié.")));
+      .json(createEndpointError(new Error("Vous devez être identifié.")));
   }
 
   if (!session.user.isAdmin) {
     return res
       .status(403)
-      .json(createServerError(new Error("Vous devez être administrateur.")));
+      .json(createEndpointError(new Error("Vous devez être administrateur.")));
   }
 
   try {
@@ -135,7 +135,7 @@ handler.post<NextApiRequest, NextApiResponse>(async function importData(
         url: `/api/admin/backup`
       }
     });
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 

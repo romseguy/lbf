@@ -3,7 +3,7 @@ import { IProject } from "models/Project";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { getSession } from "server/auth";
 // import { sendProjectToOrgFollowers } from "api/email";
 import { equals, logJson, normalize } from "utils/string";
@@ -26,7 +26,7 @@ handler.put<
   if (!session && !body.projectNotifications) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -40,7 +40,7 @@ handler.put<
       return res
         .status(404)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`Le projet ${projectId} n'a pas pu être trouvé`)
           )
         );
@@ -54,7 +54,7 @@ handler.put<
         return res
           .status(403)
           .json(
-            createServerError(
+            createEndpointError(
               new Error(
                 "Vous ne pouvez pas modifier un projet que vous n'avez pas créé"
               )
@@ -99,7 +99,7 @@ handler.put<
 
     res.status(200).json(project);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -114,7 +114,7 @@ handler.delete<
   if (!session) {
     res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   } else {
     try {
       const projectId = req.query.projectId;
@@ -124,7 +124,7 @@ handler.delete<
         return res
           .status(404)
           .json(
-            createServerError(
+            createEndpointError(
               new Error(`Le projet ${projectId} n'a pas pu être trouvé`)
             )
           );
@@ -137,7 +137,7 @@ handler.delete<
         return res
           .status(403)
           .json(
-            createServerError(
+            createEndpointError(
               new Error(
                 "Vous ne pouvez pas supprimer un projet que vous n'avez pas créé"
               )
@@ -170,13 +170,13 @@ handler.delete<
         res
           .status(400)
           .json(
-            createServerError(
+            createEndpointError(
               new Error(`Le projet ${projectId} n'a pas pu être supprimé`)
             )
           );
       }
     } catch (error) {
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 });

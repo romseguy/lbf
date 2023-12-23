@@ -3,7 +3,7 @@ import cors from "cors";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import { getSession } from "server/auth";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 
 import https from "https";
 const agent = new https.Agent({
@@ -24,7 +24,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
       await client.get(`check`);
       res.status(200).json({});
     } catch (error) {
-      res.status(404).json(createServerError(error));
+      res.status(404).json(createEndpointError(error));
     }
   })
   .post<NextApiRequest, NextApiResponse>(async function checkLoggedIn(
@@ -36,7 +36,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
       res.status(200).json(session);
     } catch (error) {
       console.error("POST /check error: ", error);
-      res.status(401).json(createServerError(error));
+      res.status(401).json(createEndpointError(error));
     }
   });
 

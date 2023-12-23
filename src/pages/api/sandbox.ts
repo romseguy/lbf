@@ -1,8 +1,8 @@
 import * as deepl from "deepl-node";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database from "server/database";
-import { createServerError } from "utils/errors";
+import database, { models } from "server/database";
+import { createEndpointError } from "utils/errors";
 
 const authKey = "fb3a73a6-028f-74d4-dee4-9e93734833cf:fx";
 const translator = new deepl.Translator(authKey);
@@ -15,7 +15,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
       const result = await translator.translateText(``, null, targetLang);
       res.status(200).json({ text: result.text });
     } catch (error) {
-      res.status(404).json(createServerError(error));
+      res.status(404).json(createEndpointError(error));
     }
   });
 

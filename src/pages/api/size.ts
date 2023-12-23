@@ -2,7 +2,7 @@ import axios from "axios";
 import cors from "cors";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 
 import https from "https";
 const agent = new https.Agent({
@@ -23,7 +23,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
       const { data } = await client.get(`size`);
       res.status(200).json(data);
     } catch (error) {
-      res.status(404).json(createServerError(error));
+      res.status(404).json(createEndpointError(error));
     }
   });
 

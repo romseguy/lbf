@@ -35,6 +35,27 @@ export const databaseErrorMessages: { [key: number]: any } = {
   }
 };
 
+const createDatabaseError = (error: any) => {
+  const fieldName = Object.keys(error.keyPattern)[0];
+  const message = databaseErrorMessages[error.code][fieldName];
+
+  return {
+    message: message + "."
+  };
+};
+
+const serverErrorMessages: { [key: string]: any } = {
+  ECONNREFUSED: "Veuillez vérifier votre connexion internet"
+};
+
+const createServerError = (error: any) => {
+  const message = serverErrorMessages[error.code];
+
+  return {
+    message: message + "."
+  };
+};
+
 /**
  * @param {Error} error
  * @returns {
@@ -59,21 +80,18 @@ export const createValidationError = (error: any) => {
  *   "message": error.message
  * }
  */
-export const createServerError = (error: any) => {
-  console.log(
-    "🚀 ~ file: errors.ts:63 ~ createServerError ~ error:",
-    JSON.stringify(error)
-  );
+export const createEndpointError = (error: any) => {
   if (error.name === "ValidationError") return createValidationError(error);
 
   if (error.code) {
-    const fieldName = Object.keys(error.keyPattern)[0];
-    const message = databaseErrorMessages[error.code][fieldName];
-
-    if (message) {
-      return {
-        message: message + "."
-      };
+    if (typeof error.code === "number") {
+      if (databaseErrorMessages[error.code]) {
+        return createDatabaseError(error);
+      }
+    } else if (typeof error.code === "string") {
+      if (serverErrorMessages[error.code]) {
+        return createServerError(error);
+      }
     }
   }
 

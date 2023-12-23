@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { sendMail } from "server/email";
 import { getSession } from "server/auth";
 import { backgroundColor, textColor, mainBackgroundColor } from "utils/email";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 
 const handler = nextConnect();
 
@@ -47,7 +47,7 @@ handler.post<
     await sendMail(mail, session);
     res.status(200).json({});
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 

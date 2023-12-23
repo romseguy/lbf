@@ -13,7 +13,7 @@ import { EEventInviteStatus, IEvent } from "models/Event";
 import { IEventNotification } from "models/INotification";
 import { getLists, getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { createEventEmailNotif } from "utils/email";
 import { equals, logJson, normalize } from "utils/string";
 import { getRefId } from "models/Entity";
@@ -37,7 +37,7 @@ handler.get<
     res
       .status(404)
       .json(
-        createServerError(
+        createEndpointError(
           new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
         )
       );
@@ -112,7 +112,7 @@ handler.get<
     if (error.name === "CastError" && error.value === eventUrl)
       return notFoundResponse();
 
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -128,7 +128,7 @@ handler.post<
   if (!session) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -145,7 +145,9 @@ handler.post<
     if (!event) {
       return res
         .status(404)
-        .json(createServerError(new Error(`L'événement ${_id} n'existe pas`)));
+        .json(
+          createEndpointError(new Error(`L'événement ${_id} n'existe pas`))
+        );
     }
 
     if (
@@ -155,7 +157,7 @@ handler.post<
       return res
         .status(403)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(
               "Vous ne pouvez pas envoyer des notifications pour un événement que vous n'avez pas créé"
             )
@@ -167,7 +169,7 @@ handler.post<
       return res
         .status(403)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(
               "Vous ne pouvez pas envoyer des notifications pour un événement qui n'est pas approuvé"
             )
@@ -274,7 +276,7 @@ handler.post<
 
     res.status(200).json({ notifications });
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -292,7 +294,7 @@ handler.put<
   if (!session && !eventNotifications) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -303,7 +305,7 @@ handler.put<
       return res
         .status(404)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'événement ${_id} n'a pas pu être trouvé`)
           )
         );
@@ -318,7 +320,7 @@ handler.put<
       return res
         .status(403)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(
               "Vous ne pouvez pas modifier un événement que vous n'avez pas créé"
             )
@@ -409,7 +411,7 @@ handler.put<
           return res
             .status(400)
             .json(
-              createServerError(
+              createEndpointError(
                 new Error(
                   `Vous devez être le créateur de l'événement "${event.eventName}" pour créer une catégorie de discussions`
                 )
@@ -426,7 +428,7 @@ handler.put<
       return res
         .status(400)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'événement ${_id} n'a pas pu être modifié`)
           )
         );
@@ -434,7 +436,7 @@ handler.put<
 
     res.status(200).json(event);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -449,7 +451,7 @@ handler.delete<
   if (!session) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -460,7 +462,7 @@ handler.delete<
       return res
         .status(404)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'événement ${_id} n'a pas pu être trouvé`)
           )
         );
@@ -473,7 +475,7 @@ handler.delete<
       return res
         .status(403)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(
               "Vous ne pouvez pas supprimer un événement que vous n'avez pas créé"
             )
@@ -487,7 +489,7 @@ handler.delete<
       return res
         .status(400)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(`L'événement ${_id} n'a pas pu être supprimé`)
           )
         );
@@ -508,7 +510,7 @@ handler.delete<
 
     res.status(200).json(event);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 

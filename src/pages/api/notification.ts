@@ -1,6 +1,6 @@
 import { models } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { logJson } from "utils/string";
 import webPush from "web-push";
 
@@ -68,7 +68,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 //   } catch (err) {
 //     console.log("error", err);
 
-//     res.status(500).json(createServerError(err));
+//     res.status(500).json(createEndpointError(err));
 //     // if ("statusCode" in err) {
 //     //   res.writeHead(err.statusCode, err.headers).end(err.body);
 //     // } else {

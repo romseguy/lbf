@@ -4,7 +4,7 @@ import database, { models } from "server/database";
 import { AddUserPayload, GetUsersParams } from "features/api/usersApi";
 import { getCurrentId } from "store/utils";
 import { getSession } from "server/auth";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { logJson, normalize } from "utils/string";
 import { unauthorizedEntityUrls } from "utils/url";
 
@@ -23,7 +23,7 @@ handler.get<
   // if (!session?.user.isAdmin) {
   //   return res
   //     .status(401)
-  //     .json(createServerError(new Error("Vous devez être administrateur")));
+  //     .json(createEndpointError(new Error("Vous devez être administrateur")));
   // }
 
   try {
@@ -53,7 +53,7 @@ handler.get<
 
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -64,7 +64,7 @@ handler.post<NextApiRequest & { body: AddUserPayload }, NextApiResponse>(
     if (!session?.user.isAdmin) {
       return res
         .status(401)
-        .json(createServerError(new Error("Vous devez être administrateur")));
+        .json(createEndpointError(new Error("Vous devez être administrateur")));
     }
 
     try {
@@ -75,7 +75,7 @@ handler.post<NextApiRequest & { body: AddUserPayload }, NextApiResponse>(
         return res
           .status(400)
           .json(
-            createServerError(
+            createEndpointError(
               new Error(`Ce nom d'utilisateur n'est pas autorisé`)
             )
           );
@@ -102,7 +102,7 @@ handler.post<NextApiRequest & { body: AddUserPayload }, NextApiResponse>(
 
       res.status(200).json(doc);
     } catch (error: any) {
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 );

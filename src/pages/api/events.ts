@@ -10,7 +10,7 @@ import { getCurrentId } from "store/utils";
 import api from "utils/api";
 import { hasItems } from "utils/array";
 import { getSession } from "server/auth";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { equals, normalize } from "utils/string";
 import { unauthorizedEntityUrls } from "utils/url";
 
@@ -52,7 +52,7 @@ handler.get<
 
     res.status(200).json(events);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -65,7 +65,7 @@ handler.post<
   if (!session) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -77,7 +77,9 @@ handler.post<
       return res
         .status(400)
         .json(
-          createServerError(new Error(`Ce nom d'événement n'est pas autorisé`))
+          createEndpointError(
+            new Error(`Ce nom d'événement n'est pas autorisé`)
+          )
         );
     }
 
@@ -151,7 +153,7 @@ handler.post<
           return res
             .status(401)
             .json(
-              createServerError(
+              createEndpointError(
                 new Error(
                   "Vous n'avez pas la permission d'ajouter un événement à cette branche"
                 )
@@ -210,7 +212,7 @@ handler.post<
 
     res.status(200).json(event);
   } catch (error: any) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 

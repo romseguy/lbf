@@ -7,7 +7,7 @@ import { getSession } from "server/auth";
 import { IProject } from "models/Project";
 import api from "utils/api";
 import { hasItems } from "utils/array";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { logJson } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -46,7 +46,7 @@ handler.get<
 
     res.status(200).json(projects);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -57,7 +57,7 @@ handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
     if (!session) {
       return res
         .status(401)
-        .json(createServerError(new Error("Vous devez être identifié")));
+        .json(createEndpointError(new Error("Vous devez être identifié")));
     }
 
     try {
@@ -119,7 +119,7 @@ handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
     } catch (error: any) {
       if (error.errors) return res.status(400).json(error.errors);
 
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 );

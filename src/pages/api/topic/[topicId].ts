@@ -10,7 +10,7 @@ import { getSubscriptions, IOrg } from "models/Org";
 import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
 import { getSession } from "server/auth";
 import { createTopicEmailNotif } from "utils/email";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 import { equals } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -29,7 +29,7 @@ handler.post<
   if (!session) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -47,7 +47,9 @@ handler.post<
       return res
         .status(404)
         .json(
-          createServerError(new Error(`La discussion ${topicId} n'existe pas`))
+          createEndpointError(
+            new Error(`La discussion ${topicId} n'existe pas`)
+          )
         );
     }
 
@@ -55,7 +57,7 @@ handler.post<
       return res
         .status(403)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(
               "Vous ne pouvez pas envoyer des notifications pour une discussion que vous n'avez pas créé"
             )
@@ -187,7 +189,7 @@ handler.post<
 
     res.status(200).json({ notifications });
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -202,7 +204,7 @@ handler.put<
   if (!session) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -219,7 +221,9 @@ handler.put<
       return res
         .status(404)
         .json(
-          createServerError(new Error(`La discussion ${topicId} n'existe pas`))
+          createEndpointError(
+            new Error(`La discussion ${topicId} n'existe pas`)
+          )
         );
 
     if (body.topic) {
@@ -232,7 +236,7 @@ handler.put<
           return res
             .status(404)
             .json(
-              createServerError(new Error("Le message n'a pas été trouvé."))
+              createEndpointError(new Error("Le message n'a pas été trouvé."))
             );
 
         const isCreator = equals(getRefId(topicMessage), session.user.userId);
@@ -241,7 +245,7 @@ handler.put<
           return res
             .status(403)
             .json(
-              createServerError(
+              createEndpointError(
                 new Error(
                   "Vous ne pouvez pas modifier le message d'une autre personne."
                 )
@@ -273,7 +277,7 @@ handler.put<
           return res
             .status(403)
             .json(
-              createServerError(
+              createEndpointError(
                 new Error(
                   "Vous ne pouvez pas modifier une discussion que vous n'avez pas créé"
                 )
@@ -289,7 +293,7 @@ handler.put<
 
     res.status(200).json({});
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 
@@ -304,7 +308,7 @@ handler.delete<
   if (!session) {
     return res
       .status(401)
-      .json(createServerError(new Error("Vous devez être identifié")));
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
@@ -315,7 +319,9 @@ handler.delete<
       return res
         .status(404)
         .json(
-          createServerError(new Error(`La discussion n'a pas pu être trouvée`))
+          createEndpointError(
+            new Error(`La discussion n'a pas pu être trouvée`)
+          )
         );
     }
 
@@ -330,7 +336,7 @@ handler.delete<
       return res
         .status(403)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(
               "Vous ne pouvez pas supprimer une discussion que vous n'avez pas créé"
             )
@@ -383,7 +389,7 @@ handler.delete<
       throw new Error(`La discussion n'a pas pu être supprimée`);
     res.status(200).json(topic);
   } catch (error) {
-    res.status(500).json(createServerError(error));
+    res.status(500).json(createEndpointError(error));
   }
 });
 

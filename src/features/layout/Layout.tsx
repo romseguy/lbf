@@ -7,11 +7,11 @@ import { Link } from "features/common";
 import { Header, Nav } from "features/layout";
 import theme, { breakpoints } from "features/layout/theme";
 import { PageProps } from "main";
-import { IEntity, isEvent, isOrg, isUser } from "models/Entity";
+import { EEntityTab, IEntity, isEvent, isOrg, isUser } from "models/Entity";
 import { OrgTypes } from "models/Org";
 import { ITopic } from "models/Topic";
 import { Base64Image } from "utils/image";
-import { capitalize } from "utils/string";
+import { capitalize, normalize } from "utils/string";
 import { IUser } from "models/User";
 import { Delimiter } from "features/common/Delimiter";
 
@@ -20,6 +20,7 @@ export interface LayoutProps extends PageProps, BoxProps {
   banner?: Base64Image & { mode: "dark" | "light" };
   logo?: Base64Image;
   entity?: IEntity | IUser;
+  tab?: string;
   tabItem?: string;
   pageHeader?: React.ReactNode;
   pageTitle?: string;
@@ -29,6 +30,7 @@ export const Layout = ({
   banner,
   children,
   entity,
+  tab,
   tabItem,
   isMobile,
   logo,
@@ -43,10 +45,18 @@ export const Layout = ({
   const isE = isEvent(entity);
   const isO = isOrg(entity);
   const isU = isUser(entity);
+  console.log("🚀 ~ file: Layout.tsx:48 ~ entity:", entity);
   const title = `${
     isO
       ? `${OrgTypes[entity.orgType]} – ${entity.orgName}${
-          tabItem ? " – " + tabItem : ""
+          tabItem
+            ? tab === EEntityTab.TOPICS
+              ? " – " +
+                entity.orgTopics.find(
+                  ({ topicName }) => tabItem === normalize(topicName)
+                )?.topicName
+              : " – " + tabItem
+            : ""
         }`
       : isE
       ? `${entity.eventName} – Événement`

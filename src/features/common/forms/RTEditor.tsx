@@ -42,7 +42,6 @@ export const RTEditor = ({
   org,
   placeholder,
   readOnly,
-  session,
   value,
   onBlur,
   onChange,
@@ -51,7 +50,6 @@ export const RTEditor = ({
   defaultValue?: string;
   event?: IEvent;
   org?: IOrg;
-  session?: Session | null;
   setIsLoading?: (bool: boolean) => void;
   value?: string;
   onBlur?: (html: string) => void;

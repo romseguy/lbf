@@ -6,7 +6,7 @@ import nextConnect from "next-connect";
 import { sendMail } from "server/email";
 import { getSession } from "server/auth";
 import { backgroundColor, textColor, mainBackgroundColor } from "utils/email";
-import { createServerError } from "utils/errors";
+import { createEndpointError } from "utils/errors";
 
 const handler = nextConnect();
 
@@ -17,7 +17,7 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
     if (!session) {
       return res
         .status(401)
-        .json(createServerError(new Error("Vous devez être identifié.")));
+        .json(createEndpointError(new Error("Vous devez être identifié.")));
     }
 
     if (
@@ -30,7 +30,7 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
       return res
         .status(403)
         .json(
-          createServerError(
+          createEndpointError(
             new Error(
               `Vous devez attendre le ${format(
                 parseISO(session.user.suggestedCategoryAt),
@@ -49,7 +49,7 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
       return res
         .status(400)
         .json(
-          createServerError(
+          createEndpointError(
             new Error("La catégorie doit être une chaine de caractères")
           )
         );
@@ -85,7 +85,7 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
       await sendMail(mail);
       res.status(200).json({});
     } catch (error) {
-      res.status(500).json(createServerError(error));
+      res.status(500).json(createEndpointError(error));
     }
   }
 );
