@@ -34,16 +34,6 @@ const IndexPage = (props: PageProps) => {
   //   orgsQuery.refetch();
   // }, [router.asPath]);
   const [isListOpen, setIsListOpen] = useState(true);
-  const [selectedUserId, setSelectedUserId] = useState("");
-  const orgsQuery = useGetOrgsQuery({ orgType: EOrgType.NETWORK });
-  const selectedUserOrgsQuery = useGetOrgsQuery({
-    ...orgsQueryParams,
-    createdBy: selectedUserId
-  }) as AppQuery<IOrg[]>;
-  const hasOnlyForum =
-    selectedUserOrgsQuery.data?.length === 1 &&
-    selectedUserOrgsQuery.data[0].orgUrl === "forum";
-  const usersQuery = useGetUsersQuery({ select: "userName" });
   //#endregion
 
   //#region modal
@@ -83,7 +73,7 @@ const IndexPage = (props: PageProps) => {
 
             {isListOpen && (
               <Column bg={isDark ? "gray.700" : "white"}>
-                {selectedUserOrgsQuery.data && (
+                {orgsQuery.data && (
                   <OrgsList
                     data={orgsQuery.data}
                     keys={(orgType) => [
@@ -134,7 +124,7 @@ const IndexPage = (props: PageProps) => {
           isOpen={isMapModalOpen}
           header={<AppHeading>Carte</AppHeading>}
           orgs={
-            selectedUserOrgsQuery.data?.filter(
+            orgsQuery.data?.filter(
               (org) =>
                 typeof org.orgLat === "number" &&
                 typeof org.orgLng === "number" &&

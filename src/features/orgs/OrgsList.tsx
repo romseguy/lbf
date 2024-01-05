@@ -13,7 +13,8 @@ import {
 } from "@chakra-ui/react";
 import { compareAsc, compareDesc, parseISO } from "date-fns";
 import React, { useMemo, useState } from "react";
-import { FaGlobeEurope, FaMapMarkedAlt, FaTree } from "react-icons/fa";
+import { FaLeaf } from "react-icons/fa";
+import { IoIosGitBranch } from "react-icons/io";
 import { css } from "twin.macro";
 import { EntityButton } from "features/common";
 import { scrollbarCss } from "features/layout/theme";
