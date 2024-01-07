@@ -7,13 +7,23 @@ import { createEndpointError } from "utils/errors";
 const authKey = "fb3a73a6-028f-74d4-dee4-9e93734833cf:fx";
 const translator = new deepl.Translator(authKey);
 
+// const handler = nextConnect<NextApiRequest, NextApiResponse>()
+//   .use(database)
+//   .get<NextApiRequest, NextApiResponse>(async function check(req, res) {
+//     try {
+//       const targetLang: deepl.TargetLanguageCode = "en-US";
+//       const result = await translator.translateText(``, null, targetLang);
+//       res.status(200).json({ text: result.text });
+//     } catch (error) {
+//       res.status(404).json(createEndpointError(error));
+//     }
+//   });
+
 const handler = nextConnect<NextApiRequest, NextApiResponse>()
   .use(database)
   .get<NextApiRequest, NextApiResponse>(async function check(req, res) {
     try {
-      const targetLang: deepl.TargetLanguageCode = "en-US";
-      const result = await translator.translateText(``, null, targetLang);
-      res.status(200).json({ text: result.text });
+      res.status(200).json({});
     } catch (error) {
       res.status(404).json(createEndpointError(error));
     }

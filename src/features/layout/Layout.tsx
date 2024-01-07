@@ -45,7 +45,6 @@ export const Layout = ({
   const isE = isEvent(entity);
   const isO = isOrg(entity);
   const isU = isUser(entity);
-  console.log("🚀 ~ file: Layout.tsx:48 ~ entity:", entity);
   const title = `${
     isO
       ? `${OrgTypes[entity.orgType]} – ${entity.orgName}${
