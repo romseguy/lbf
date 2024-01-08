@@ -12,6 +12,7 @@ export const TopicSchema = new Schema<ITopic>(
       type: Schema.Types.ObjectId,
       ref: "Org"
     },
+    isPinned: { type: Boolean, default: undefined },
     topicCategory: { type: String, trim: true },
     topicMessages: { type: [TopicMessageSchema], default: [], select: false },
     topicMessagesDisabled: Boolean,

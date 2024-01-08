@@ -24,9 +24,23 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaBellSlash, FaBell, FaFolder, FaFolderOpen } from "react-icons/fa";
+import {
+  FaBellSlash,
+  FaBell,
+  FaChevronDown,
+  FaCircle,
+  FaSlash,
+  FaFolder,
+  FaFolderOpen,
+  FaThumbtack
+} from "react-icons/fa";
 import { css } from "twin.macro";
-import { DeleteButton, GridItem } from "features/common";
+import {
+  DeleteButton,
+  GridItem,
+  PushPinIcon,
+  PushPinSlashIcon
+} from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { NotifModalState } from "features/modals/EntityNotifModal";
 import { useScroll } from "hooks/useScroll";
@@ -45,7 +59,10 @@ import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
 } from "features/api/subscriptionsApi";
-import { useDeleteTopicMutation } from "features/api/topicsApi";
+import {
+  useEditTopicMutation,
+  useDeleteTopicMutation
+} from "features/api/topicsApi";
 import { ISubscription } from "models/Subscription";
 import { TopicModalState } from "./TopicsList";
 
@@ -114,6 +131,7 @@ export const TopicsListItem = ({
   const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
   const [addSubscription] = useAddSubscriptionMutation();
   const [deleteSubscription] = useDeleteSubscriptionMutation();
+  const [editTopic, editTopicMutation] = useEditTopicMutation();
   const [deleteTopic] = useDeleteTopicMutation();
 
   //#region entity
@@ -502,22 +520,58 @@ export const TopicsListItem = ({
           {!isLoading && session && (
             <>
               {isCreator && (
-                <Tooltip
-                  placement="bottom"
-                  label="Envoyer des invitations à la discussion"
-                >
+                <>
+                  <Tooltip
+                    placement="bottom"
+                    label="Envoyer des invitations à la discussion"
+                  >
+                    <IconButton
+                      aria-label="Envoyer des invitations à la discussion"
+                      icon={<EmailIcon />}
+                      variant="outline"
+                      colorScheme="blue"
+                      mr={3}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onNotifClick();
+                      }}
+                    />
+                  </Tooltip>
+
                   <IconButton
-                    aria-label="Envoyer des invitations à la discussion"
-                    icon={<EmailIcon />}
+                    aria-label="Épingler la discussion"
+                    icon={
+                      topic.isPinned ? <PushPinSlashIcon /> : <PushPinIcon />
+                    }
                     variant="outline"
-                    colorScheme="blue"
+                    colorScheme="teal"
                     mr={3}
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation();
-                      onNotifClick();
+                      setIsLoading({
+                        [topic._id]: true
+                      });
+                      try {
+                        await editTopic({
+                          payload: { topic: { isPinned: !topic.isPinned } },
+                          topicId: topic._id
+                        }).unwrap();
+                        query.refetch();
+                      } catch (error: ServerError | any) {
+                        toast({
+                          title:
+                            error.data.message ||
+                            `La discussion ${topic.topicName} n'a pas pu être épinglée`,
+                          status: "error"
+                        });
+                      } finally {
+                        setIsLoading({
+                          [topic._id]: false
+                        });
+                      }
                     }}
                   />
-                </Tooltip>
+                </>
               )}
 
               {isTopicCreator && (
