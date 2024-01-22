@@ -3,6 +3,7 @@ import {
   Alert,
   AlertIcon,
   Box,
+  BoxProps,
   Flex,
   Icon,
   Spinner,
@@ -26,8 +27,9 @@ import { AppQuery, AppQueryWithData } from "utils/types";
 import { useSelector } from "react-redux";
 
 export const EventAttendingForm = ({
-  eventQuery
-}: {
+  eventQuery,
+  ...props
+}: BoxProps & {
   eventQuery: AppQueryWithData<IEvent>;
 }) => {
   const event = eventQuery.data;
@@ -146,82 +148,84 @@ export const EventAttendingForm = ({
   };
 
   return (
-    <Alert mb={3} status={status}>
-      {status === "info" ? (
-        <Icon as={QuestionIcon} boxSize={5} color="blue.500" mr={3} />
-      ) : (
-        <AlertIcon />
-      )}
+    <Box {...props}>
+      <Alert status={status}>
+        {status === "info" ? (
+          <Icon as={QuestionIcon} boxSize={5} color="blue.500" mr={3} />
+        ) : (
+          <AlertIcon />
+        )}
 
-      {isAttending({ email, event }) ? (
-        <Flex flexDirection="column">
-          <Text as="h3">Vous participez à cet événement.</Text>
-          <Box>
-            <Button
-              colorScheme="red"
-              isLoading={
-                editEventMutation.isLoading ||
-                eventQuery.isFetching ||
-                eventQuery.isLoading
-              }
-              onClick={async () => {
-                const ok = confirm(
-                  "Êtes-vous sûr de ne plus vouloir participer à cet événement ?"
-                );
-
-                if (ok) {
-                  unattend();
+        {isAttending({ email, event }) ? (
+          <Flex flexDirection="column">
+            <Text as="h3">Vous participez à cet événement.</Text>
+            <Box>
+              <Button
+                colorScheme="red"
+                isLoading={
+                  editEventMutation.isLoading ||
+                  eventQuery.isFetching ||
+                  eventQuery.isLoading
                 }
-              }}
-            >
-              Ne plus participer
-            </Button>
-          </Box>
-        </Flex>
-      ) : isNotAttending({ email, event }) ? (
-        <Flex flexDirection="column">
-          <Text as="h3">Vous avez refusé de participer à cet événement.</Text>
-          <Box>
-            <Button
-              colorScheme="green"
-              mr={3}
-              isLoading={
-                editEventMutation.isLoading ||
-                eventQuery.isFetching ||
-                eventQuery.isLoading
-              }
-              onClick={attend}
-            >
-              Participer
-            </Button>
-          </Box>
-        </Flex>
-      ) : (
-        <Flex flexDirection="column">
-          <Text as="h3">Participer à cet événement ?</Text>
-          <Box mt={2}>
-            {editEventMutation.isLoading ||
-            eventQuery.isFetching ||
-            eventQuery.isLoading ? (
-              <Spinner />
-            ) : (
-              <>
-                <Button colorScheme="green" mr={3} onClick={attend}>
-                  Oui
-                </Button>
-                <Button
-                  colorScheme="red"
-                  onClick={() => {
+                onClick={async () => {
+                  const ok = confirm(
+                    "Êtes-vous sûr de ne plus vouloir participer à cet événement ?"
+                  );
+
+                  if (ok) {
                     unattend();
-                  }}
-                >
-                  Non
-                </Button>
-              </>
-            )}
-          </Box>
-        </Flex>
-      )}
-    </Alert>
+                  }
+                }}
+              >
+                Ne plus participer
+              </Button>
+            </Box>
+          </Flex>
+        ) : isNotAttending({ email, event }) ? (
+          <Flex flexDirection="column">
+            <Text as="h3">Vous avez refusé de participer à cet événement.</Text>
+            <Box>
+              <Button
+                colorScheme="green"
+                mr={3}
+                isLoading={
+                  editEventMutation.isLoading ||
+                  eventQuery.isFetching ||
+                  eventQuery.isLoading
+                }
+                onClick={attend}
+              >
+                Participer
+              </Button>
+            </Box>
+          </Flex>
+        ) : (
+          <Flex flexDirection="column">
+            <Text as="h3">Participer à cet événement ?</Text>
+            <Box mt={2}>
+              {editEventMutation.isLoading ||
+              eventQuery.isFetching ||
+              eventQuery.isLoading ? (
+                <Spinner />
+              ) : (
+                <>
+                  <Button colorScheme="green" mr={3} onClick={attend}>
+                    Oui
+                  </Button>
+                  <Button
+                    colorScheme="red"
+                    onClick={() => {
+                      unattend();
+                    }}
+                  >
+                    Non
+                  </Button>
+                </>
+              )}
+            </Box>
+          </Flex>
+        )}
+      </Alert>
+    </Box>
   );
 };

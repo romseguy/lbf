@@ -29,6 +29,7 @@ import {
 } from "features/common";
 import { EventsList } from "features/events/EventsList";
 import { ProjectsList } from "features/projects/ProjectsList";
+import { useSession } from "hooks/useSession";
 import {
   defaultTabs,
   IOrg,
@@ -37,7 +38,6 @@ import {
 } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { sortOn } from "utils/array";
-import { Session } from "utils/auth";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { IsEditConfig } from "./OrgPage";
@@ -51,7 +51,6 @@ export const OrgPageTabs = ({
   isCreator,
   isFollowed,
   orgQuery,
-  session,
   setIsConfig,
   setIsEdit,
   subQuery
@@ -61,7 +60,6 @@ export const OrgPageTabs = ({
   isCreator: boolean;
   isFollowed: boolean;
   orgQuery: AppQueryWithData<IOrg>;
-  session: Session | null;
   setIsConfig: React.Dispatch<React.SetStateAction<boolean>>;
   setIsEdit: (arg: boolean | IsEditConfig) => void;
   subQuery: AppQuery<ISubscription>;
@@ -69,6 +67,7 @@ export const OrgPageTabs = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
+  const { data: session } = useSession();
   const badgeProps: BadgeProps = {
     colorScheme: "teal",
     variant: "solid",
@@ -79,9 +78,9 @@ export const OrgPageTabs = ({
   };
   const router = useRouter();
   const [editOrg] = useEditOrgMutation();
+  const org = orgQuery.data;
 
   //#region tabs
-  const org = orgQuery.data;
   const documentsQuery = useGetDocumentsQuery({ orgId: org._id });
   const tabs: IOrgTabWithMetadata[] = useMemo(() => {
     return [...(org.orgTabs || defaultTabs)]
@@ -166,7 +165,10 @@ export const OrgPageTabs = ({
       p={3}
       pb={0}
     >
-      <EntityPageTabList flexDirection={isMobile ? "column" : "row"}>
+      <EntityPageTabList
+        aria-hidden
+        flexDirection={isMobile ? "column" : "row"}
+      >
         {tabs.map((tab, tabIndex) => {
           const key = `org-${normalize(tab.label)}-tab`;
 

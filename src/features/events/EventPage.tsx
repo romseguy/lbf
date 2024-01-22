@@ -1,35 +1,16 @@
 import {
-  ArrowBackIcon,
-  ArrowForwardIcon,
-  SettingsIcon
-} from "@chakra-ui/icons";
-import {
   Alert,
   AlertIcon,
   Box,
   Flex,
-  Spinner,
   Text,
-  TabPanel,
-  TabPanels,
   useColorMode
 } from "@chakra-ui/react";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { css } from "twin.macro";
-import {
-  Button,
-  Column,
-  EmailPreview,
-  EntityButton,
-  EntityNotified,
-  EntityPageTopics,
-  AppHeading,
-  Link
-} from "features/common";
-import { EventNotifForm } from "features/forms/EventNotifForm";
+import React, { useState } from "react";
+import { EntityPageConfigButton, Link } from "features/common";
 import { Layout } from "features/layout";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { getRefId } from "models/Entity";
@@ -39,7 +20,6 @@ import { PageProps } from "main";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventAttendingForm } from "./EventAttendingForm";
 import { EventConfigPanel, EventConfigVisibility } from "./EventConfigPanel";
-import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
 import { EventPageTabs } from "./EventPageTabs";
 import { useSession } from "hooks/useSession";
 
@@ -61,6 +41,7 @@ export const EventPage = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session } = useSession();
+
   // useEffect(() => {
   //   if ((router.asPath.match(/\//g) || []).length > 1) {
   //     isFirstLoad = false;
@@ -116,94 +97,58 @@ export const EventPage = ({
   //#endregion
 
   //#region local state
-  const columnProps = {
-    bg: isDark ? "gray.700" : "lightblue"
-  };
-  let showAttendingForm = !isCreator;
-  const [showNotifForm, setShowNotifForm] = useState(false);
   //#endregion
 
-  const configButtons = () => {
-    if (!isCreator) return null;
+  // const subscribeButtons = () => {
+  //   if (isConfig || isEdit) return null;
 
-    return (
-      <>
-        {!isConfig && !isEdit && (
-          <Flex flexDirection={isMobile ? "column" : "row"}>
-            <Flex mb={isMobile ? 3 : 3}>
-              <Button
-                colorScheme="red"
-                leftIcon={
-                  <SettingsIcon boxSize={6} data-cy="event-settings-button" />
-                }
-                onClick={() => setIsConfig(true)}
-              >
-                Configurer
-              </Button>
-            </Flex>
-          </Flex>
-        )}
+  //   const isDisabled = eventQuery.isFetching || subQuery.isFetching;
 
-        {(isConfig || isEdit) && (
-          <Button
-            canWrap
-            colorScheme="teal"
-            leftIcon={<ArrowBackIcon boxSize={6} />}
-            onClick={() => {
-              if (isEdit) setIsEdit(false);
-              else setIsConfig(false);
-            }}
-            mb={3}
-          >
-            Retour
-          </Button>
-        )}
-      </>
-    );
-  };
+  //   return (
+  //     <Flex flexWrap="wrap" mt={-3}>
+  //       {isFollowed && (
+  //         <Box mr={3} mt={3}>
+  //           <SubscribePopover
+  //             isDisabled={isDisabled}
+  //             event={event}
+  //             //query={eventQuery}
+  //             subQuery={subQuery}
+  //           />
+  //         </Box>
+  //       )}
 
-  const subscribeButtons = () => {
-    if (isConfig || isEdit) return null;
-
-    const isDisabled = eventQuery.isFetching || subQuery.isFetching;
-
-    return (
-      <Flex flexWrap="wrap" mt={-3}>
-        {isFollowed && (
-          <Box mr={3} mt={3}>
-            <SubscribePopover
-              isDisabled={isDisabled}
-              event={event}
-              //query={eventQuery}
-              subQuery={subQuery}
-            />
-          </Box>
-        )}
-
-        <Box mt={3}>
-          <SubscribePopover
-            isDisabled={isDisabled}
-            event={event}
-            //query={eventQuery}
-            subQuery={subQuery}
-            notifType="push"
-          />
-        </Box>
-      </Flex>
-    );
-  };
+  //       <Box mt={3}>
+  //         <SubscribePopover
+  //           isDisabled={isDisabled}
+  //           event={event}
+  //           //query={eventQuery}
+  //           subQuery={subQuery}
+  //           notifType="push"
+  //         />
+  //       </Box>
+  //     </Flex>
+  //   );
+  // };
 
   return (
     <Layout entity={event} isMobile={isMobile}>
-      {configButtons()}
-
-      {subscribeButtons()}
+      {isCreator && (
+        <EntityPageConfigButton
+          isConfig={isConfig}
+          isEdit={isEdit}
+          setIsConfig={setIsConfig}
+          setIsEdit={setIsEdit}
+          mb={3}
+        />
+      )}
 
       {!isConfig && !isEdit && (
         <>
-          <Box my={3}>
-            {tab === "accueil" && showAttendingForm && (
-              <EventAttendingForm eventQuery={eventQuery} />
+          {/* <EntityPageSubscribeButton eventQuery={eventQuery} subQuery={subQuery} /> */}
+
+          <Box mb={3}>
+            {tab === "accueil" && !isCreator && (
+              <EventAttendingForm eventQuery={eventQuery} mb={3} />
             )}
 
             {tab === "invitations" && isCreator && !event.isApproved && (
@@ -219,7 +164,7 @@ export const EventPage = ({
               </Alert>
             )}
 
-            <Text fontSize="smaller" pt={1}>
+            <Text fontSize="smaller">
               Événement ajouté le{" "}
               {format(parseISO(event.createdAt!), "eeee d MMMM yyyy", {
                 locale: fr
@@ -233,119 +178,15 @@ export const EventPage = ({
           </Box>
 
           <EventPageTabs
-            event={event}
-            isCreator={isCreator}
+            currentItemName={tabItem}
             currentTabLabel={tab}
-          >
-            <TabPanels
-              css={css`
-                & > * {
-                  padding: 12px 0 !important;
-                }
-              `}
-            >
-              <TabPanel aria-hidden>
-                <EventPageHomeTabPanel
-                  eventQuery={eventQuery}
-                  isCreator={isCreator}
-                  setIsEdit={setIsEdit}
-                />
-              </TabPanel>
-
-              <TabPanel aria-hidden>
-                <EntityPageTopics
-                  currentTopicName={tabItem}
-                  isCreator={isCreator}
-                  isFollowed={isFollowed}
-                  query={eventQuery}
-                  subQuery={subQuery}
-                />
-              </TabPanel>
-
-              {session && isCreator && (
-                <TabPanel aria-hidden>
-                  <AppHeading mb={3}>Invitations</AppHeading>
-
-                  <Column {...columnProps}>
-                    {!showNotifForm && (
-                      <Flex>
-                        <Button
-                          as="div"
-                          colorScheme="teal"
-                          cursor="pointer"
-                          leftIcon={<ArrowForwardIcon />}
-                          size={isMobile ? "xs" : undefined}
-                          onClick={() => {
-                            if (!event.isApproved)
-                              alert(
-                                "L'événement doit être vérifié par un modérateur avant de pouvoir envoyer des invitations."
-                              );
-                            else setShowNotifForm(!showNotifForm);
-                          }}
-                        >
-                          Envoyer des invitations à{" "}
-                          {isMobile ? (
-                            "l'événement"
-                          ) : (
-                            <EntityButton
-                              event={event}
-                              bg={"whiteAlpha.500"}
-                              ml={2}
-                              py={isMobile ? 3 : undefined}
-                              onClick={null}
-                            />
-                          )}
-                        </Button>
-                      </Flex>
-                    )}
-
-                    {/* {showNotifForm && (
-                    <Flex>
-                      <Button
-                        colorScheme="teal"
-                        leftIcon={<ArrowBackIcon />}
-                        onClick={() => setShowNotifForm(false)}
-                      >
-                        Revenir à la liste des invitations envoyées
-                      </Button>
-                    </Flex>
-                  )} */}
-
-                    {showNotifForm && (
-                      <>
-                        <AppHeading>Aperçu de l'e-mail d'invitation</AppHeading>
-                        <EmailPreview
-                          entity={event}
-                          event={event}
-                          session={session}
-                          mt={5}
-                        />
-
-                        <EventNotifForm
-                          event={event}
-                          eventQuery={eventQuery}
-                          session={session}
-                          onCancel={() => setShowNotifForm(false)}
-                          onSubmit={() => setShowNotifForm(false)}
-                        />
-                      </>
-                    )}
-                  </Column>
-
-                  {!showNotifForm && (
-                    <>
-                      <AppHeading my={3}>
-                        Historique des invitations envoyées
-                      </AppHeading>
-                      <Column {...columnProps}>
-                        <EntityNotified entity={event} />
-                      </Column>
-                    </>
-                  )}
-                </TabPanel>
-              )}
-            </TabPanels>
-          </EventPageTabs>
+            eventQuery={eventQuery}
+            isCreator={isCreator}
+            isFollowed={isFollowed}
+            setIsConfig={setIsConfig}
+            setIsEdit={setIsEdit}
+            subQuery={subQuery}
+          />
         </>
       )}
 
@@ -366,6 +207,7 @@ export const EventPage = ({
 
 {
   /*
+    let showAttendingForm = !isCreator;
     if (!isConfig && !isEdit) {
       if (session) {
         if (isSubscribedToAtLeastOneOrg) showAttendingForm = true;

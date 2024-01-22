@@ -8,14 +8,17 @@ import { useGetEventsQuery } from "features/api/eventsApi";
 import { EventsList } from "features/events/EventsList";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
-import { selectIsOffline } from "store/sessionSlice";
-import { EEventVisibility } from "models/Event";
+import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
+import { EEventVisibility } from "models/Event";
+import { EOrgVisibility } from "models/Org";
+import { selectIsOffline } from "store/sessionSlice";
 
 const EventsPage = ({ ...props }: PageProps) => {
+  const router = useRouter();
+  const { data: session } = useSession();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const router = useRouter();
 
   const isOffline = useSelector(selectIsOffline);
 
@@ -24,6 +27,15 @@ const EventsPage = ({ ...props }: PageProps) => {
   const events = eventsQuery.data?.filter((event) => {
     if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
     if (event.eventVisibility !== EEventVisibility.PUBLIC) return false;
+    if (
+      event.eventOrgs.find(({ orgVisibility, createdBy }) => {
+        return (
+          orgVisibility === EOrgVisibility.PRIVATE &&
+          createdBy !== session?.user.userId
+        );
+      })
+    )
+      return false;
     return event.isApproved;
   });
 

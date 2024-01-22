@@ -86,7 +86,7 @@ export const createEventEmailNotif = ({
   const eventMaxDate =
     typeof event.eventMaxDate === "string"
       ? parseISO(event.eventMaxDate)
-      : event.eventMaxDate;
+      : event.eventMaxDate || new Date();
 
   return {
     from: process.env.EMAIL_FROM,

@@ -196,7 +196,9 @@ export const EventForm = withGoogleApi({
     const defaultValues = {
       eventName: props.eventName || props.event?.eventName || "",
       eventMinDate: props.event ? parseISO(props.event.eventMinDate) : null,
-      eventMaxDate: props.event ? parseISO(props.event.eventMaxDate) : null,
+      eventMaxDate: props.event?.eventMaxDate
+        ? parseISO(props.event.eventMaxDate)
+        : null,
       eventDescription: props.event?.eventDescription || "",
       eventVisibility: props.event?.eventVisibility || EEventVisibility.PUBLIC,
       //eventOrgs: props.event?.eventOrgs || [],
@@ -495,30 +497,30 @@ export const EventForm = withGoogleApi({
       dateFormat: "Pp",
       showTimeSelect: true,
       timeFormat: "p",
-      timeIntervals: 15,
-      filterTime: (date: Date) => {
-        if (getHours(date) < 5) return false;
+      timeIntervals: 15
+      // filterTime: (date: Date) => {
+      //   if (getHours(date) < 5) return false;
 
-        if (end) {
-          if (getDayOfYear(date) === getDayOfYear(end)) {
-            if (getHours(date) >= getHours(end)) {
-              //console.log("filtering out", date);
-              return false;
-            }
-          }
-        }
+      //   if (end) {
+      //     if (getDayOfYear(date) === getDayOfYear(end)) {
+      //       if (getHours(date) >= getHours(end)) {
+      //         //console.log("filtering out", date);
+      //         return false;
+      //       }
+      //     }
+      //   }
 
-        if (
-          getDayOfYear(date) === getDayOfYear(now) &&
-          getHours(date) < getHours(now) + eventMinDuration
-        ) {
-          //console.log("filtering out", date);
-          return false;
-        }
+      //   if (
+      //     getDayOfYear(date) === getDayOfYear(now) &&
+      //     getHours(date) < getHours(now) + eventMinDuration
+      //   ) {
+      //     //console.log("filtering out", date);
+      //     return false;
+      //   }
 
-        //console.log("allowing", date);
-        return true;
-      }
+      //   //console.log("allowing", date);
+      //   return true;
+      // }
     };
 
     const eventMaxDateMinDate = eventMinDate
@@ -636,7 +638,7 @@ export const EventForm = withGoogleApi({
         {/* eventMaxDate */}
         <FormControl
           ref={refs.eventMaxDate}
-          isRequired
+          //isRequired
           isInvalid={!!errors["eventMaxDate"]}
           mb={3}
         >
@@ -646,7 +648,7 @@ export const EventForm = withGoogleApi({
             <Controller
               name="eventMaxDate"
               control={control}
-              rules={{ required: "Veuillez saisir une date" }}
+              //rules={{ required: "Veuillez saisir une date" }}
               render={({ onChange, value }) => {
                 return (
                   <DatePicker
