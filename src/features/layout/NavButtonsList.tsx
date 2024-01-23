@@ -64,7 +64,7 @@ export const NavButtonsList = ({
           .filter(
             (org) =>
               org.orgType === EOrgType.NETWORK &&
-              org.orgVisibility !== EOrgVisibility.PRIVATE &&
+              org.orgVisibility === EOrgVisibility.PUBLIC &&
               org.orgUrl !== "forum"
           )
           .map((org) => {
@@ -72,8 +72,7 @@ export const NavButtonsList = ({
               name: org.orgName,
               children: org.orgs
                 .filter(
-                  ({ orgVisibility }) =>
-                    orgVisibility !== EOrgVisibility.PRIVATE
+                  ({ orgVisibility }) => orgVisibility === EOrgVisibility.PUBLIC
                 )
                 .map(({ orgName, orgType }) => {
                   return {

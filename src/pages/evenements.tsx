@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaRegMap } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { Button, Column } from "features/common";
+import { Button, Column, ColumnProps } from "features/common";
 import { useGetEventsQuery } from "features/api/eventsApi";
 import { EventsList } from "features/events/EventsList";
 import { Layout } from "features/layout";
@@ -20,6 +20,9 @@ const EventsPage = ({ ...props }: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
+  const columnProps: ColumnProps = {
+    bg: isDark ? "gray.700" : "lightblue"
+  };
   const isOffline = useSelector(selectIsOffline);
 
   const eventsQuery = useGetEventsQuery();
@@ -75,7 +78,7 @@ const EventsPage = ({ ...props }: PageProps) => {
         </span>
       </Tooltip>
 
-      <Column bg={isDark ? "black" : "lightcyan"}>
+      <Column {...columnProps}>
         {eventsQuery.isLoading ? (
           <Text>Chargement des événements publics...</Text>
         ) : (

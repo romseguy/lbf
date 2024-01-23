@@ -1,19 +1,24 @@
-import { Box, Spinner } from "@chakra-ui/react";
+import { Spinner } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
-import { magic } from "utils/auth";
+import { useSelector } from "react-redux";
+import { SimpleLayout } from "features/layout";
 import { PageProps } from "main";
+import { selectIsOffline } from "store/sessionSlice";
+import { magic } from "utils/auth";
 
 const CallbackPage = (props: PageProps) => {
+  const isOffline = useSelector(selectIsOffline);
   const router = useRouter();
+
+  useEffect(() => {
+    console.log("🚀 ~ CallbackPage ~ isOffline:", isOffline);
+    if (isOffline) window.location.href = "/";
+  }, [isOffline]);
 
   useEffect(() => {
     (async function onRouterQueryChange() {
       try {
-        console.log(
-          "CallbackPage.onRouterQueryChange : router.query",
-          router.query
-        );
         if (router.query.provider) {
           const result = await magic.oauth.getRedirectResult();
           const didToken = result.magic.idToken;
@@ -35,18 +40,23 @@ const CallbackPage = (props: PageProps) => {
             }
           });
           const json = await response.json();
+          console.log("🚀 ~ CallbackPage ~ json:", json);
+          window.location.href = "/";
+        } else {
+          console.log("🚀 ~ CallbackPage ~ no query params");
           window.location.href = "/";
         }
       } catch (error) {
+        console.log("🚀 ~ CallbackPage ~ error:", error);
         window.location.href = "/";
       }
     })();
   }, [router.query]);
 
   return (
-    <Box position="absolute" top="50%" left="50%">
+    <SimpleLayout {...props} title="Veuillez patienter...">
       <Spinner />
-    </Box>
+    </SimpleLayout>
   );
 };
 

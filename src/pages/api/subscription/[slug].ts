@@ -427,7 +427,7 @@ handler.delete<
 
     if (deletedCount !== 1) {
       subscription = await subscription
-        .populate("user", "-securityCode -password")
+        .populate("user", "-password")
         .execPopulate();
 
       const email =

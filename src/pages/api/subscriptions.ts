@@ -66,7 +66,7 @@ handler.get<NextApiRequest & { query: { topicId?: string } }, NextApiResponse>(
       for (const topicSubscription of subscription.topics) {
         if (equals(topicSubscription.topic, topicId)) {
           const s = await subscription
-            .populate("user", "-userImage -email -password -securityCode")
+            .populate("user", "-userImage -email -password")
             .execPopulate();
           array.push(s);
           break;

@@ -88,8 +88,7 @@ export const TopicMessageForm = ({
     setIsLoading(true);
 
     const payload: AddTopicPayload = {
-      org,
-      event,
+      [isO ? "org" : "event"]: { _id: entity._id },
       topic: {
         ...props.topic,
         topicMessages: [

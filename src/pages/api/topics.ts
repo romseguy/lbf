@@ -187,7 +187,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
             ? org.orgTopics.length + 1
             : event
             ? event.eventTopics.length + 1
-            : randomNumber(100);
+            : randomNumber(3);
           topicName = `${topicName}-${uid}`;
         }
 

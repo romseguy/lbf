@@ -26,24 +26,26 @@ handler.get<
       query: { createdBy, orgType, populate = "" }
     } = req;
 
-    let selector: Partial<IOrg> = { orgVisibility: EOrgVisibility.PUBLIC };
+    let selector: Partial<IOrg> = {
+      $or: [
+        { orgVisibility: EOrgVisibility.PUBLIC },
+        { orgVisibility: EOrgVisibility.FRONT }
+      ]
+    };
 
     if (createdBy && typeof createdBy === "string") {
-      selector = { ...selector, createdBy };
+      selector = {
+        ...selector,
+        createdBy
+      };
+
+      if (session && equals(session.user.userId, selector.createdBy))
+        delete selector.$or;
     }
 
-    if (orgType && EOrgType[orgType]) {
-      selector = { ...selector, orgType };
-    }
+    if (orgType && EOrgType[orgType]) selector = { ...selector, orgType };
 
-    if (
-      session &&
-      selector.createdBy &&
-      equals(session.user.userId, selector.createdBy)
-    ) {
-      delete selector.orgVisibility;
-    }
-
+    console.log("🚀 ~ getOrgs ~ selector:", selector);
     let orgs = await models.Org.find(selector);
 
     if (populate) {

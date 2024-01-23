@@ -1,7 +1,7 @@
 //@ts-expect-error
 import { rando as r } from "@nastyox/rando.js";
 
-export const randomNumber = (maxNumber: number | undefined) => {
+export const randomNumber = (maxNumber?: number) => {
   let randomNumberString;
   switch (maxNumber) {
     case 1:

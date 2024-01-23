@@ -338,7 +338,10 @@ export const OrgPageHomeTabPanel = ({
                 bg="transparent"
                 height="auto"
                 _hover={{ color: "green" }}
-                onClick={() => setIsEdit({ isAddingInfo: true })}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEdit({ isAddingInfo: true });
+                }}
               />
             </Tooltip>
           )}
@@ -461,7 +464,10 @@ export const OrgPageHomeTabPanel = ({
                       height: "auto",
                       _hover: { color: "green" }
                     })}
-                onClick={() => setIsEdit({ isAddingDescription: true })}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEdit({ isAddingDescription: true });
+                }}
               />
             </Tooltip>
           )}

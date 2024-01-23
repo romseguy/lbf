@@ -21,7 +21,7 @@ export const devSession =
       email: "rom.seguy@lilo.org",
       userId: "60e340cb56ef290008d2e75d",
       userName: "romain",
-      isAdmin: false
+      isAdmin: true
     }
   };
 // gmail

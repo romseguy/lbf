@@ -15,7 +15,7 @@ import { useEditOrgMutation } from "features/api/orgsApi";
 import { formBoxProps } from "features/layout/theme";
 import { IEntity, isEvent, isOrg } from "models/Entity";
 import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
+import { IOrg, orgTypeFull5 } from "models/Org";
 import { handleError } from "utils/form";
 import { AppQueryWithData } from "utils/types";
 import { ErrorMessageText } from "..";
@@ -57,7 +57,28 @@ export const EntityConfigStyles = ({
       };
       await edit({
         payload,
-        eventId: entity._id
+        [isE ? "eventId" : "orgId"]: entity._id
+      }).unwrap();
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      handleError(error, (message) =>
+        setError("formErrorMessage", {
+          type: "manual",
+          message
+        })
+      );
+    }
+  };
+  const onArchivedChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setIsLoading(true);
+      const payload = {
+        isArchived: e.target.checked
+      };
+      await edit({
+        payload,
+        orgId: entity._id
       }).unwrap();
       setIsLoading(false);
     } catch (error) {
@@ -94,6 +115,20 @@ export const EntityConfigStyles = ({
               Afficher l'entête
             </Switch>
           </FormControl>
+
+          {isO && (
+            <FormControl mt={3}>
+              <Switch
+                isChecked={entity.isArchived}
+                isDisabled={isLoading}
+                onChange={onArchivedChange}
+                display="flex"
+                alignItems="center"
+              >
+                Archiver {orgTypeFull5(entity.orgType)}
+              </Switch>
+            </FormControl>
+          )}
         </Box>
 
         <ErrorMessage

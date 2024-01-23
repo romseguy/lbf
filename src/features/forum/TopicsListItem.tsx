@@ -538,6 +538,10 @@ export const TopicsListItem = ({
                     />
                   </Tooltip>
 
+                  <Tooltip
+                    placement="bottom"
+                    label="Épingler la discussion"
+                  >
                   <IconButton
                     aria-label="Épingler la discussion"
                     icon={
@@ -571,6 +575,7 @@ export const TopicsListItem = ({
                       }
                     }}
                   />
+                  </Tooltip>
                 </>
               )}
 

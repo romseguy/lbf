@@ -153,7 +153,7 @@ export const EventsListCategories = ({
                     await editOrg({
                       ["orgId"]: org._id,
                       payload: [`orgEventCategories.catId=${catId}`]
-                    });
+                    }).unwrap();
                   } catch (error) {
                     setIsLoading({ [`category-${catId}`]: false });
                     console.error(error);

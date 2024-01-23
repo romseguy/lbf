@@ -37,6 +37,13 @@ export enum EOrderKey {
   "subscription" = "subscription"
 }
 
+export enum EOrgsListOrder {
+  ALPHA = "ALPHA",
+  NEWEST = "NEWEST",
+  OLDEST = "OLDEST",
+  PINNED = "PINNED"
+}
+
 const defaultKeys = (orgType: EOrgType) => [
   // {
   //   key: "subscription",

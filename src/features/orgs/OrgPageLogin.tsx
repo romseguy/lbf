@@ -18,12 +18,13 @@ export const OrgPageLogin = ({
   status: number;
   onSubmit: (orgPassword: string) => Promise<void>;
 }) => {
+  const org = orgQuery.data;
   const { clearErrors, errors, handleSubmit, register, setError, setValue } =
     useForm({
       mode: "onChange"
     });
   const [isLoading, setIsLoading] = useState(false);
-
+  //const [isSent, setIsSent] = useState(false);
   useEffect(() => {
     if (status === 403) {
       setError("formErrorMessage", {
@@ -34,23 +35,34 @@ export const OrgPageLogin = ({
     }
   }, [status]);
 
+  // if (isSent)
+  //   return (
+  //     <Layout {...props} entity={org}>
+  //       <Alert status="success">
+  //         <AlertIcon />
+  //         Un e-mail de réinitialisation de mot de passe a été envoyé au créateur{" "}
+  //         {orgTypeFull(org.orgType)} {org.orgName}.
+  //       </Alert>
+  //     </Layout>
+  //   );
+
   return (
-    <Layout {...props} entity={orgQuery.data}>
-      <Column maxWidth="350px">
-        <form
-          onChange={() => clearErrors()}
-          onSubmit={handleSubmit(async (form: { orgPassword: string }) => {
-            console.log("submitted", form);
-            setIsLoading(true);
+    <Layout {...props} entity={org}>
+      <form
+        onChange={() => clearErrors()}
+        onSubmit={handleSubmit(async (form: { orgPassword: string }) => {
+          console.log("submitted", form);
+          setIsLoading(true);
 
-            await onSubmit(form.orgPassword);
+          await onSubmit(form.orgPassword);
 
-            setIsLoading(false);
-          })}
-        >
+          setIsLoading(false);
+        })}
+      >
+        <Column maxWidth="350px">
           <PasswordControl
             name="orgPassword"
-            label={`Mot de passe ${orgTypeFull(orgQuery.data.orgType)}`}
+            label={`Mot de passe ${orgTypeFull(org.orgType)}`}
             errors={errors}
             register={register}
             mb={3}
@@ -68,6 +80,18 @@ export const OrgPageLogin = ({
             )}
           />
 
+          {/* <Link
+            mb={3}
+            _hover={{ textDecoration: "underline" }}
+            onClick={async () => {
+              const { orgUrl } = org;
+              await postResetPasswordMail({ orgUrl }).unwrap();
+              setIsSent(true);
+            }}
+          >
+            Mot de passe oublié ?
+          </Link> */}
+
           <Button
             colorScheme="green"
             type="submit"
@@ -76,8 +100,8 @@ export const OrgPageLogin = ({
           >
             Valider
           </Button>
-        </form>
-      </Column>
+        </Column>
+      </form>
     </Layout>
   );
 };

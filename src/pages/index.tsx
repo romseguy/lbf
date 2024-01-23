@@ -35,7 +35,7 @@ import { useGetUsersQuery } from "features/api/usersApi";
 import { getRefId } from "models/Entity";
 
 const isCollapsable = true;
-const orgsQueryParams = {
+const initialOrgsQueryParams = {
   orgType: EOrgType.NETWORK,
   populate: "orgs orgTopics.topicMessages createdBy"
 };
@@ -48,16 +48,37 @@ const IndexPage = (props: PageProps) => {
 
   //#region local state
   const [isListOpen, setIsListOpen] = useState(true);
+  const [selectedOrgVisibility, setSelectedOrgVisibility] = useState(
+    EOrgVisibility.FRONT
+  );
   const [selectedUserId, setSelectedUserId] = useState("");
-  const orgsQuery = useGetOrgsQuery({ orgType: EOrgType.NETWORK });
-  const selectedUserOrgsQuery = useGetOrgsQuery({
-    ...orgsQueryParams,
-    createdBy: selectedUserId
-  }) as AppQuery<IOrg[]>;
-  const hasOnlyForum =
-    selectedUserOrgsQuery.data?.length === 1 &&
-    selectedUserOrgsQuery.data[0].orgUrl === "forum";
-  const usersQuery = useGetUsersQuery({ select: "userName" });
+  const [orgsQueryParams, setOrgsQueryParams] = useState(
+    initialOrgsQueryParams
+  );
+  const orgsQuery = useGetOrgsQuery(orgsQueryParams, {
+    selectFromResult: ({ data }) => ({
+      orgs: data?.filter(({ orgUrl }) => orgUrl !== "forum"),
+      selectedUserOrgs: data?.filter((org) => {
+        if (selectedUserId) return getRefId(org) === selectedUserId;
+
+        if (selectedOrgVisibility === EOrgVisibility.PUBLIC) return true;
+
+        return org.orgVisibility === selectedOrgVisibility;
+      })
+    })
+  });
+  const { orgs, selectedUserOrgs } = orgsQuery;
+  const usersQuery = useGetUsersQuery(
+    { select: "userName" },
+    {
+      selectFromResult: ({ data }) => ({
+        data: data?.filter(({ _id }) => {
+          const userOrg = orgs?.find((org) => getRefId(org) === _id);
+          return !!userOrg;
+        })
+      })
+    }
+  );
   //#endregion
 
   //#region modal
@@ -85,32 +106,36 @@ const IndexPage = (props: PageProps) => {
           defaultValue={selectedUserId}
           mb={3}
           onChange={(e) => {
+            if (!e.target.value) {
+              setSelectedUserId("");
+              setSelectedOrgVisibility(EOrgVisibility.FRONT);
+              return;
+            }
+
+            if (e.target.value in EOrgVisibility) {
+              const value = e.target.value as EOrgVisibility;
+              setSelectedUserId("");
+              setSelectedOrgVisibility(value);
+              return;
+            }
+
             setSelectedUserId(e.target.value);
           }}
         >
-          <option value="">Forum public</option>
+          <option value={EOrgVisibility.FRONT}>Forum commun</option>
+          <option value={EOrgVisibility.PUBLIC}>Forum public</option>
           {usersQuery.data?.map(({ _id, userName }) => {
-            const userHasForum = !!orgsQuery.data?.find(
-              (org) =>
-                getRefId(org) === _id &&
-                org.orgVisibility === EOrgVisibility.PUBLIC
+            return (
+              <option key={_id} value={_id}>
+                {`Forum public de ${userName}${
+                  _id === session?.user.userId ? " (Vous)" : ""
+                }`}
+              </option>
             );
-
-            if (userHasForum) {
-              return (
-                <option key={_id} value={_id}>
-                  {_id === session?.user.userId
-                    ? "Votre forum"
-                    : `Forum de ${userName}`}
-                </option>
-              );
-            }
-
-            return null;
           })}
         </Select>
 
-        {hasItems(selectedUserOrgsQuery.data) && !hasOnlyForum ? (
+        {hasItems(selectedUserOrgs) ? (
           <>
             {/* <Button
               alignSelf="flex-start"
@@ -125,11 +150,9 @@ const IndexPage = (props: PageProps) => {
 
             {isListOpen && (
               <Column bg={isDark ? "gray.700" : "white"}>
-                {selectedUserOrgsQuery.data && (
+                {selectedUserOrgs && (
                   <OrgsList
-                    data={selectedUserOrgsQuery.data.filter(
-                      ({ orgUrl }) => orgUrl !== "nom_de_votre_planete"
-                    )}
+                    data={selectedUserOrgs}
                     keys={(orgType) => [
                       {
                         key: EOrderKey.orgName,
@@ -256,7 +279,7 @@ const IndexPage = (props: PageProps) => {
           isOpen={isMapModalOpen}
           header={<AppHeading>Carte</AppHeading>}
           orgs={
-            selectedUserOrgsQuery.data?.filter(
+            selectedUserOrgs?.filter(
               (org) =>
                 typeof org.orgLat === "number" &&
                 typeof org.orgLng === "number" &&
@@ -278,7 +301,7 @@ const IndexPage = (props: PageProps) => {
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
-    store.dispatch(getOrgs.initiate({ ...orgsQueryParams, createdBy: "" }));
+    store.dispatch(getOrgs.initiate(initialOrgsQueryParams));
     await Promise.all(store.dispatch(getRunningQueriesThunk()));
 
     return {

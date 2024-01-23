@@ -1,22 +1,20 @@
-import { Box, BoxProps, useColorMode } from "@chakra-ui/react";
+import { Box, BoxProps, Flex, FlexProps, useColorMode } from "@chakra-ui/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React from "react";
 import { css } from "twin.macro";
-import { Link } from "features/common";
+import { AppHeading, Link } from "features/common";
 import { Header, Nav } from "features/layout";
 import theme, { breakpoints } from "features/layout/theme";
 import { PageProps } from "main";
 import { EEntityTab, IEntity, isEvent, isOrg, isUser } from "models/Entity";
 import { OrgTypes } from "models/Org";
-import { ITopic } from "models/Topic";
 import { Base64Image } from "utils/image";
 import { capitalize, normalize } from "utils/string";
 import { IUser } from "models/User";
 import { Delimiter } from "features/common/Delimiter";
 
 export interface LayoutProps extends PageProps, BoxProps {
-  children: React.ReactNode | React.ReactNodeArray;
   banner?: Base64Image & { mode: "dark" | "light" };
   logo?: Base64Image;
   entity?: IEntity | IUser;
@@ -37,7 +35,7 @@ export const Layout = ({
   pageHeader,
   pageTitle,
   ...props
-}: LayoutProps) => {
+}: React.PropsWithChildren<LayoutProps>) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -162,6 +160,42 @@ export const Layout = ({
           </Box>
         </Box>
       </Box>
+    </>
+  );
+};
+
+export const SimpleLayout = ({
+  title,
+  children,
+  isMobile,
+  ...props
+}: React.PropsWithChildren<PageProps & FlexProps & { title: string }>) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
+  return (
+    <>
+      <Head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{title}</title>
+      </Head>
+
+      <Flex
+        css={css`
+          background-color: ${isDark ? "#2D3748" : "lightblue"};
+          flex-direction: column;
+        `}
+        {...props}
+      >
+        <AppHeading m="0 auto" mt={5}>
+          {title}
+        </AppHeading>
+
+        <Box m="0 auto" my="5">
+          {children}
+        </Box>
+      </Flex>
     </>
   );
 };
