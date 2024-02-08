@@ -20,7 +20,15 @@ export const UserSchema = new Schema<IUser>(
       type: String,
       select: false
     },
+    passwordSalt: {
+      type: String,
+      select: false
+    },
     securityCode: {
+      type: String,
+      select: false
+    },
+    securityCodeSalt: {
       type: String,
       select: false
     },
