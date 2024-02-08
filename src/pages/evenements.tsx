@@ -3,20 +3,26 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaRegMap } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { Button, Column } from "features/common";
+import { Button, Column, ColumnProps } from "features/common";
 import { useGetEventsQuery } from "features/api/eventsApi";
 import { EventsList } from "features/events/EventsList";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
-import { selectIsOffline } from "store/sessionSlice";
-import { EEventVisibility } from "models/Event";
+import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
+import { EEventVisibility } from "models/Event";
+import { EOrgVisibility } from "models/Org";
+import { selectIsOffline } from "store/sessionSlice";
 
 const EventsPage = ({ ...props }: PageProps) => {
+  const router = useRouter();
+  const { data: session } = useSession();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const router = useRouter();
 
+  const columnProps: ColumnProps = {
+    bg: isDark ? "gray.700" : "lightblue"
+  };
   const isOffline = useSelector(selectIsOffline);
 
   const eventsQuery = useGetEventsQuery();
@@ -24,6 +30,15 @@ const EventsPage = ({ ...props }: PageProps) => {
   const events = eventsQuery.data?.filter((event) => {
     if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
     if (event.eventVisibility !== EEventVisibility.PUBLIC) return false;
+    if (
+      event.eventOrgs.find(({ orgVisibility, createdBy }) => {
+        return (
+          orgVisibility === EOrgVisibility.PRIVATE &&
+          createdBy !== session?.user.userId
+        );
+      })
+    )
+      return false;
     return event.isApproved;
   });
 
@@ -63,7 +78,7 @@ const EventsPage = ({ ...props }: PageProps) => {
         </span>
       </Tooltip>
 
-      <Column bg={isDark ? "black" : "lightcyan"}>
+      <Column {...columnProps}>
         {eventsQuery.isLoading ? (
           <Text>Chargement des événements publics...</Text>
         ) : (

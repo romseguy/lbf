@@ -49,7 +49,8 @@ export const defaultOptions: InputOptions = {
     text: {
       colors: {
         default: "black",
-        hover: "skyblue"
+        hover: "skyblue",
+        parent: "white"
       }
     },
     link: {
@@ -276,12 +277,9 @@ export const treeChart = (
           class: "node",
           fill: (d) =>
             d.parent?.name === inputNode.name
-              ? isDark
-                ? "white"
-                : "blue"
-              : isDark
-              ? "lightgreen"
-              : "green"
+              ? style.text.colors.parent
+              : style.text.colors.default
+
           // transform: (d) => {
           //   const position = findParentNodePosition(
           //     nodePositionsById,
@@ -301,11 +299,18 @@ export const treeChart = (
         })
         .on("mouseout", function mouseout(this: EventTarget, d) {
           d3.select(this).attr({
-            fill: d.parent?.name === inputNode.name ? "blue" : "green"
+            fill:
+              d.parent?.name === inputNode.name
+                ? isDark
+                  ? "white"
+                  : "blue"
+                : isDark
+                ? "lightgreen"
+                : "green"
           });
         });
       // .style({
-      //   fill: style.text.colors.default
+      //   fill: style.text.colors.default,
       //   cursor: "pointer"
       // });
 

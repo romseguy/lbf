@@ -196,16 +196,24 @@ export const EventsListItem = ({
             })}
           </Text>
 
-          <Icon as={UpDownIcon} />
+          {maxDate && (
+            <>
+              <Icon as={UpDownIcon} />
 
-          {/* eventMaxDate */}
-          <Text fontWeight="bold" mt={1}>
-            {getDay(minDate) !== getDay(maxDate) &&
-              format(maxDate, `EEEE`, { locale: fr })}{" "}
-            {format(maxDate, `H'h'${getMinutes(maxDate) !== 0 ? "mm" : ""}`, {
-              locale: fr
-            })}
-          </Text>
+              {/* eventMaxDate */}
+              <Text fontWeight="bold" mt={1}>
+                {getDay(minDate) !== getDay(maxDate) &&
+                  format(maxDate, `EEEE`, { locale: fr })}{" "}
+                {format(
+                  maxDate,
+                  `H'h'${getMinutes(maxDate) !== 0 ? "mm" : ""}`,
+                  {
+                    locale: fr
+                  }
+                )}
+              </Text>
+            </>
+          )}
         </Flex>
       </Td>
 
@@ -287,7 +295,7 @@ export const EventsListItem = ({
                       setEventToShow({
                         ...event,
                         eventMinDate: formatISO(minDate),
-                        eventMaxDate: formatISO(maxDate)
+                        eventMaxDate: maxDate ? formatISO(maxDate) : undefined
                       })
                     }
                   >
@@ -302,7 +310,7 @@ export const EventsListItem = ({
             {!org && (
               <GridItem mb={2}>
                 {hasItems(event.eventOrgs)
-                  ? event.eventOrgs.map((eventOrg: any) => {
+                  ? event.eventOrgs.map((eventOrg) => {
                       return (
                         <EntityButton
                           key={eventOrg._id}

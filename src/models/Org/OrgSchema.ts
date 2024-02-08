@@ -146,6 +146,7 @@ export const OrgSchema = new Schema<IOrg>(
       default: undefined
     },
     isApproved: Boolean,
+    isArchived: Boolean,
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User"

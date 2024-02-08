@@ -157,6 +157,7 @@ export const OrgPage = ({
           isEdit={isEdit}
           setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}
+          mb={3}
         />
       )}
 
@@ -189,7 +190,6 @@ export const OrgPage = ({
             isCreator={isCreator}
             isFollowed={isFollowed}
             orgQuery={orgQuery}
-            session={session}
             setIsConfig={setIsConfig}
             setIsEdit={setIsEdit}
             subQuery={subQuery}

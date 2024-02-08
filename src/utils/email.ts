@@ -1,7 +1,8 @@
 import { addHours, parseISO } from "date-fns";
 import { toDateRange } from "features/common";
+import { isUser } from "models/Entity";
 import { IEvent } from "models/Event";
-import { IOrg, orgTypeFull } from "models/Org";
+import { IOrg, orgTypeFull, orgTypeFull5, OrgTypes } from "models/Org";
 import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 const { getEnv } = require("utils/env");
@@ -86,7 +87,7 @@ export const createEventEmailNotif = ({
   const eventMaxDate =
     typeof event.eventMaxDate === "string"
       ? parseISO(event.eventMaxDate)
-      : event.eventMaxDate;
+      : event.eventMaxDate || new Date();
 
   return {
     from: process.env.EMAIL_FROM,
@@ -95,11 +96,13 @@ export const createEventEmailNotif = ({
     html: `
       <body style="background: ${backgroundColor};">
       <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <strong>${process.env.NEXT_PUBLIC_SHORT_URL}</strong>
-          </td>
-        </tr>
+        <tbody>
+          <tr>
+            <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
+              <strong>${process.env.NEXT_PUBLIC_SHORT_URL}</strong>
+            </td>
+          </tr>
+        </tbody>
       </table>
       <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
         <tr>
@@ -177,11 +180,13 @@ export const createProjectEmailNotif = ({
     html: `
       <body style="background: ${backgroundColor};">
       <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            ${title}
-          </td>
-        </tr>
+        <tbody>
+          <tr>
+            <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
+              ${title}
+            </td>
+          </tr>
+        </tbody>
       </table>
       <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
         <tr>
@@ -305,5 +310,43 @@ export const createTopicEmailNotif = ({
       </table>
     </body>
     `
+  };
+};
+
+export const createUserPasswordResetMail = ({
+  email,
+  securityCode
+}: {
+  email: string;
+  securityCode: string;
+}) => {
+  const resetLink = `${process.env.NEXT_PUBLIC_URL}/reset/${email}?code=${securityCode}`;
+
+  return {
+    from: process.env.EMAIL_FROM,
+    to: email,
+    subject: `Réinitialiser votre mot de passe`,
+    html: `
+      <body style="background: ${backgroundColor};">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tbody>
+            <tr>
+              <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
+                <strong>${process.env.NEXT_PUBLIC_SHORT_URL}</strong>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
+          <tr>
+            <td align="center" style="padding: 0px 0px 0px 0px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
+              <p><a href="${resetLink}">Cliquez sur ce lien pour définir un nouveau mot de passe</a></p>
+              <p>Ou copiez-collez le dans votre navigateur : ${resetLink}</p>
+              <p>Ce lien est valide 2h.</p>
+            </td>
+          </tr>
+        </table>
+      </body>
+      `
   };
 };

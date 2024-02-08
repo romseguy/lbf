@@ -1,4 +1,4 @@
-import { EOrgType, IOrg } from "models/Org";
+import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
 import { objectToQueryString } from "utils/query";
 import { api } from "./";
 
@@ -28,9 +28,9 @@ export type GetOrgParams = {
 };
 
 export type GetOrgsParams = {
+  createdBy?: string;
   orgType?: EOrgType;
   populate?: string;
-  createdBy?: string;
 };
 
 export const orgApi = api.injectEndpoints({

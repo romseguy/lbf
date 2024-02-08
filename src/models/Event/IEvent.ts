@@ -26,7 +26,7 @@ export interface IEvent<T = string> extends IEntity {
   eventUrl: string;
   eventCategory?: string;
   eventMinDate: T;
-  eventMaxDate: T;
+  eventMaxDate?: T;
   otherDays?: {
     dayNumber: number;
     startDate?: string;

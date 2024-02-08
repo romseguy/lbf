@@ -22,6 +22,8 @@ export enum EOrgType {
 }
 
 export enum EOrgVisibility {
+  FRONT = "FRONT",
+  LINK = "LINK",
   PUBLIC = "PUBLIC",
   PRIVATE = "PRIVATE"
 }
@@ -56,6 +58,7 @@ export interface IOrg extends IEntity {
   orgs: IOrg[];
   orgPermissions?: IOrgPermissions;
   isApproved?: boolean;
+  isArchived?: boolean;
 }
 
 export interface IOrgEventCategory extends IEntityCategory {}

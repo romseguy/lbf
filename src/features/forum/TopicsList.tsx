@@ -45,7 +45,8 @@ import { selectIsMobile } from "store/uiSlice";
 enum ETopicsListOrder {
   ALPHA = "ALPHA",
   NEWEST = "NEWEST",
-  OLDEST = "OLDEST"
+  OLDEST = "OLDEST",
+  PINNED = "PINNED"
 }
 
 export type TopicModalState = {
@@ -129,6 +130,9 @@ export const TopicsList = ({
         return true;
       })
       .sort((topicA, topicB) => {
+        if (selectedOrder === ETopicsListOrder.PINNED)
+          return topicA.isPinned && !topicB.isPinned ? -1 : 1;
+
         if (selectedOrder === ETopicsListOrder.ALPHA)
           return topicA.topicName > topicB.topicName ? 1 : -1;
 
@@ -218,6 +222,7 @@ export const TopicsList = ({
           }}
         >
           <option value={ETopicsListOrder.ALPHA}>A-Z</option>
+          <option value={ETopicsListOrder.PINNED}>Épinglé</option>
           <option value={ETopicsListOrder.NEWEST}>Plus récent</option>
           <option value={ETopicsListOrder.OLDEST}>Plus ancien</option>
         </Select>

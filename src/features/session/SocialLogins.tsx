@@ -20,7 +20,7 @@ export const SocialLogins = ({
           <Button
             key={p}
             colorScheme={
-              p === "google" ? "red" : p === "facebook" ? "blue" : undefined
+              p === "google" ? "gray" : p === "facebook" ? "blue" : undefined
             }
             isDisabled={!!provider}
             leftIcon={p === "google" ? <FaGoogle /> : <FaFacebook />}

@@ -1,3 +1,4 @@
+//@ts-nocheck
 import https from "https";
 import { Spinner, useColorMode } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";

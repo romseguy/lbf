@@ -362,6 +362,7 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
           ol,
           ul {
             margin-bottom: 1rem;
+            margin-top: 1rem;
           }
         }
         //#endregion

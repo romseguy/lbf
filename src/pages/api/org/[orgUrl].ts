@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import { EditOrgPayload, GetOrgParams } from "features/api/orgsApi";
-import { getRefId } from "models/Entity";
+import { getRefId, isUser } from "models/Entity";
 import { EEventVisibility } from "models/Event";
 import {
   EOrgType,
@@ -9,15 +9,18 @@ import {
   getLists,
   IOrg,
   orgTypeFull,
-  orgTypeFull4
+  orgTypeFull4,
+  orgTypeFull5,
+  OrgTypes
 } from "models/Org";
 import { ISubscription, getFollowerSubscription } from "models/Subscription";
+import { getSession } from "server/auth";
 import database, { models } from "server/database";
-import { getClientIp } from "server/ip";
+import { sendMail } from "server/email";
 import { logEvent, ServerEventTypes } from "server/logging";
+import { getClientIp } from "server/ip";
 import api from "utils/api";
 import { hasItems } from "utils/array";
-import { getSession } from "server/auth";
 import {
   createEndpointError,
   databaseErrorCodes,
@@ -50,6 +53,17 @@ handler.get<
 
     let org = await models.Org.findOne({ orgUrl }, select);
     if (!org) org = await models.Org.findOne({ _id: orgUrl }, select);
+
+    if (!org)
+      return res
+        .status(404)
+        .json(
+          createEndpointError(
+            new Error(
+              `L'organisation ${req.query.orgUrl} n'a pas pu être trouvé`
+            )
+          )
+        );
 
     if (!org)
       return res

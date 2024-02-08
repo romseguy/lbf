@@ -7,6 +7,7 @@ import { ITopicMessage } from "models/TopicMessage";
 export interface ITopic extends IEntity {
   event?: IEvent;
   org?: IOrg;
+  isPinned?: boolean;
   topicCategory?: string | null;
   topicMessages: ITopicMessage[];
   topicMessagesDisabled?: boolean;

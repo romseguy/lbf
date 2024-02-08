@@ -6,8 +6,10 @@ export interface IUser {
   createdAt?: string;
   email: string;
   phone?: string;
-  password: string;
-  securityCode: string;
+  password?: string;
+  passwordSalt?: string;
+  securityCode?: string | null;
+  securityCodeSalt?: string | null;
   userName: string;
   userImage?: Base64Image;
   userSubscription?: PushSubscription | null;

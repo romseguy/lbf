@@ -42,11 +42,9 @@ export let globalEmail: string | undefined;
 
 const App = wrapper.withRedux(
   ({ Component, cookies, pageProps }: NextAppProps<PageProps> & AppProps) => {
-    const router = useRouter();
-
     return (
       <>
-        {!router.pathname.includes("/callback") && <GlobalConfig />}
+        <GlobalConfig />
         <NextNprogress
           color="#29D"
           startPosition={0.3}

@@ -58,8 +58,6 @@ export const MapModal = withGoogleApi({
     const [zoomLevel, setZoomLevel] = useState<number>(
       props.zoomLevel || defaultZoomLevel
     );
-    console.log("🚀 ~ file: MapModal.tsx:61 ~ zoomLevel:", zoomLevel);
-
     let title = "Carte";
 
     return (

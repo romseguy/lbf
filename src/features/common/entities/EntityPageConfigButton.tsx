@@ -1,5 +1,5 @@
 import { SettingsIcon, ArrowBackIcon } from "@chakra-ui/icons";
-import { Flex, Button } from "@chakra-ui/react";
+import { Flex, Button, ButtonProps } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { IsEditConfig } from "features/orgs/OrgPage";
 import { selectIsMobile } from "store/uiSlice";
@@ -8,12 +8,15 @@ export const EntityPageConfigButton = ({
   isConfig,
   isEdit,
   setIsConfig,
-  setIsEdit
-}: {
+  setIsEdit,
+  ...props
+}: ButtonProps & {
   isConfig: boolean;
   isEdit: boolean;
   setIsConfig: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsEdit: (arg: boolean | IsEditConfig) => void;
+  setIsEdit:
+    | React.Dispatch<React.SetStateAction<boolean>>
+    | ((arg: boolean | IsEditConfig) => void);
 }) => {
   const isMobile = useSelector(selectIsMobile);
 
@@ -21,17 +24,16 @@ export const EntityPageConfigButton = ({
     <>
       {!isConfig && !isEdit && (
         <Flex flexDirection={isMobile ? "column" : "row"}>
-          <Flex mb={isMobile ? 3 : 3}>
-            <Button
-              colorScheme="red"
-              leftIcon={
-                <SettingsIcon boxSize={6} data-cy="org-settings-button" />
-              }
-              onClick={() => setIsConfig(true)}
-            >
-              Configurer
-            </Button>
-          </Flex>
+          <Button
+            colorScheme="red"
+            leftIcon={
+              <SettingsIcon boxSize={6} data-cy="org-settings-button" />
+            }
+            onClick={() => setIsConfig(true)}
+            {...props}
+          >
+            Configurer
+          </Button>
         </Flex>
       )}
 
@@ -44,7 +46,7 @@ export const EntityPageConfigButton = ({
             if (isEdit) setIsEdit(false);
             else setIsConfig(false);
           }}
-          mb={3}
+          {...props}
         >
           Retour
         </Button>

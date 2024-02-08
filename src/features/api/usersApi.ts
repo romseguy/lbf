@@ -18,6 +18,9 @@ export type GetUsersParams = {
   select?: string;
 };
 
+export type PostResetPasswordMailPayload = {};
+export type CheckSecurityCodePayload = { code: string; email: string };
+
 export const userApi = api.injectEndpoints({
   endpoints: (build) => ({
     addUser: build.mutation<IUser, AddUserPayload>({
@@ -88,6 +91,45 @@ export const userApi = api.injectEndpoints({
             ]
           : [{ type: "Users", id: "LIST" }];
       }
+    }),
+    postResetPasswordMail: build.mutation<
+      void,
+      { payload?: PostResetPasswordMailPayload; email: string }
+    >({
+      query: ({ payload = {}, email }) => {
+        console.groupCollapsed("postResetPasswordMail");
+        console.log("email", email);
+        console.groupEnd();
+
+        return {
+          url: `user/${email}`,
+          method: "POST",
+          body: payload
+        };
+      }
+    }),
+    // checkPassword: build.mutation<
+    //   boolean,
+    //   { query;  }
+    // >({
+    //   query: ({ query = {} }) => {
+    //     return {
+    //       url: `user/check${hasQueryParams ? `?${objectToQueryString(query)}` : ""}`
+    //       method: "GET"
+    //     };
+    //   }
+    // }),
+    checkSecurityCode: build.mutation<
+      boolean,
+      { payload?: CheckSecurityCodePayload }
+    >({
+      query: ({ payload = {} }) => {
+        return {
+          url: `user/check`,
+          method: "POST",
+          body: payload
+        };
+      }
     })
   })
 });
@@ -96,6 +138,8 @@ export const {
   useAddUserMutation,
   useEditUserMutation,
   useGetUserQuery,
-  useGetUsersQuery
+  useGetUsersQuery,
+  usePostResetPasswordMailMutation,
+  useCheckSecurityCodeMutation
 } = userApi;
 export const { getUser, getUsers } = userApi.endpoints;

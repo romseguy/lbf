@@ -21,7 +21,7 @@ export const EventSchema = new Schema<IEvent>(
     },
     eventMaxDate: {
       type: String,
-      required: true
+      required: false
     },
     otherDays: [
       {

@@ -22,15 +22,13 @@ import { useSelector } from "react-redux";
 import { EntityAddButton, EntityButton } from "features/common";
 import { useGetOrgsQuery } from "features/api/orgsApi";
 import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
-import { selectSubscriptionRefetch } from "store/subscriptionSlice";
 import { selectUserEmail } from "store/userSlice";
-import { EOrgType } from "models/Org";
+import { EOrgType, IOrg } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import { AppQuery } from "utils/types";
-
-let cachedRefetchSubscription = false;
+import { EOrgsListOrder } from "features/orgs/OrgsList";
 
 const OrgPopoverContent = ({
   orgType,
@@ -51,55 +49,63 @@ const OrgPopoverContent = ({
   }) as AppQuery<ISubscription>;
   //#endregion
 
-  //#region orgs
+  //#region local state
+  const [showOrgs, setShowOrgs] = useState<
+    | "showOrgsAdded"
+    | "showOrgsFollowed"
+    | "showOrgsSubscribed"
+    | "showOrgsArchived"
+  >("showOrgsAdded");
+
+  const defaultOrder = EOrgsListOrder.NEWEST;
+  const [selectedOrder, setSelectedOrder] =
+    useState<EOrgsListOrder>(defaultOrder);
+  const bySelectedOrder = (orgA: IOrg, orgB: IOrg) => {
+    if (selectedOrder === EOrgsListOrder.ALPHA)
+      return orgA.orgName > orgB.orgName ? 1 : -1;
+
+    if (selectedOrder === EOrgsListOrder.OLDEST)
+      return orgA.createdAt! < orgB.createdAt! ? -1 : 1;
+
+    return orgA.createdAt! > orgB.createdAt! ? -1 : 1;
+  };
+  //#endregion
+
+  //#region my orgs
   const myOrgsQuery = useGetOrgsQuery(
     { createdBy: session.user.userId },
     {
-      selectFromResult: (query) => ({
-        ...query,
-        data:
-          [...(query.data || [])]
-            .sort((a, b) => {
-              if (a.createdAt && b.createdAt) {
-                if (a.createdAt < b.createdAt) return 1;
-                else if (a.createdAt > b.createdAt) return -1;
-              }
-              return 0;
-            })
-            .filter((org) => {
-              if (org.orgUrl === "forum") return false;
-              if (
-                orgType === EOrgType.GENERIC &&
-                org.orgType !== EOrgType.NETWORK
-              )
-                return true;
-              return org.orgType === orgType;
-            }) || []
+      selectFromResult: ({ data = [], ...rest }) => ({
+        ...rest,
+        myOrgs: [...data]
+          .sort(bySelectedOrder)
+          .filter((org) => org.orgUrl !== "forum" && org.orgType === orgType)
       })
     }
   );
-  const orgsQuery = useGetOrgsQuery();
-  const followedOrgs =
-    (Array.isArray(orgsQuery.data) &&
-      orgsQuery.data.length > 0 &&
-      orgsQuery.data.filter(
-        (org) => !!getFollowerSubscription({ org, subQuery })
-      )) ||
-    [];
+  const myOrgs = myOrgsQuery.myOrgs.filter(({ isArchived }) => !isArchived);
+  const myArchivedOrgs = myOrgsQuery.myOrgs.filter(
+    ({ isArchived }) => isArchived
+  );
   //#endregion
 
-  //#region local state
-  const [showOrgs, setShowOrgs] = useState<
-    "showOrgsAdded" | "showOrgsFollowed" | "showOrgsSubscribed"
-  >("showOrgsAdded");
-  //#endregion
-
-  const refetchSubscription = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    if (refetchSubscription !== cachedRefetchSubscription) {
-      cachedRefetchSubscription = refetchSubscription;
+  //#region orgs
+  const orgsQuery = useGetOrgsQuery(
+    { orgType },
+    {
+      selectFromResult: ({ data = [], ...rest }) => ({
+        ...rest,
+        followedOrgs: [...data]
+          .sort(bySelectedOrder)
+          .filter(
+            (org) =>
+              org.orgUrl !== "forum" &&
+              !!getFollowerSubscription({ org, subQuery })
+          )
+      })
     }
-  }, [refetchSubscription]);
+  );
+  //#endregion
 
   return (
     <>
@@ -127,13 +133,34 @@ const OrgPopoverContent = ({
             Les {orgType === EOrgType.NETWORK ? "branches" : "feuilles"} où je
             me suis abonné
           </option>
+          <option value="showOrgsArchived">
+            Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} que j'ai
+            archivé
+          </option>
+        </Select>
+
+        <Select
+          fontSize="sm"
+          height="auto"
+          lineHeight={2}
+          mb={2}
+          defaultValue={defaultOrder}
+          onChange={(e) => {
+            //@ts-ignore
+            setSelectedOrder(e.target.value);
+          }}
+        >
+          <option value={EOrgsListOrder.ALPHA}>A-Z</option>
+          {/*<option value={EOrgsListOrder.PINNED}>Épinglé</option>*/}
+          <option value={EOrgsListOrder.NEWEST}>Plus récent</option>
+          <option value={EOrgsListOrder.OLDEST}>Plus ancien</option>
         </Select>
 
         {showOrgs === "showOrgsAdded" && (
           <>
             {myOrgsQuery.isLoading || myOrgsQuery.isFetching ? (
               <Spinner />
-            ) : hasItems(myOrgsQuery.data) ? (
+            ) : Array.isArray(myOrgs) && myOrgs.length > 0 ? (
               <VStack
                 aria-hidden
                 alignItems="flex-start"
@@ -143,7 +170,7 @@ const OrgPopoverContent = ({
                 py={1}
                 pl={1}
               >
-                {myOrgsQuery.data.map((org) => (
+                {myOrgs.map((org) => (
                   <EntityButton
                     key={org._id}
                     org={org}
@@ -171,14 +198,14 @@ const OrgPopoverContent = ({
 
         {showOrgs === "showOrgsFollowed" && (
           <>
-            {hasItems(followedOrgs) ? (
+            {hasItems(orgsQuery.followedOrgs) ? (
               <VStack
                 alignItems="flex-start"
                 overflowX="auto"
                 height="200px"
                 spacing={2}
               >
-                {followedOrgs.map((org, index) => (
+                {orgsQuery.followedOrgs.map((org, index) => (
                   <EntityButton key={org._id} org={org} p={1} />
                 ))}
               </VStack>
@@ -188,6 +215,33 @@ const OrgPopoverContent = ({
                 {orgType === EOrgType.NETWORK
                   ? "aucune branches"
                   : "aucune feuilles"}
+                .
+              </Text>
+            )}
+          </>
+        )}
+
+        {showOrgs === "showOrgsArchived" && (
+          <>
+            {Array.isArray(myArchivedOrgs) && myArchivedOrgs.length > 0 ? (
+              <VStack
+                alignItems="flex-start"
+                overflowX="auto"
+                height="200px"
+                spacing={2}
+              >
+                {myArchivedOrgs
+                  .filter(({ isArchived }) => isArchived)
+                  .map((org) => (
+                    <EntityButton key={org._id} org={org} p={1} />
+                  ))}
+              </VStack>
+            ) : (
+              <Text fontSize="smaller">
+                Vous n'avez archivé{" "}
+                {orgType === EOrgType.NETWORK
+                  ? "aucune planètes"
+                  : "aucun arbres"}
                 .
               </Text>
             )}
@@ -247,3 +301,17 @@ export const OrgPopover = ({
     </Popover>
   );
 };
+
+{
+  /*
+    import { selectSubscriptionRefetch } from "store/subscriptionSlice";
+    let cachedRefetchSubscription = false;
+
+    const refetchSubscription = useSelector(selectSubscriptionRefetch);
+    useEffect(() => {
+      if (refetchSubscription !== cachedRefetchSubscription) {
+        cachedRefetchSubscription = refetchSubscription;
+      }
+    }, [refetchSubscription]);
+  */
+}

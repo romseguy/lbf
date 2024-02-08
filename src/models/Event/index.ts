@@ -65,7 +65,10 @@ export const getEvents = ({
       }
 
       const start = parseISO(event.eventMinDate);
-      const end = parseISO(event.eventMaxDate);
+      const end =
+        typeof event.eventMaxDate === "string"
+          ? parseISO(event.eventMaxDate)
+          : event.eventMaxDate;
 
       if (!event.repeat) {
         let pushedMonthRepeat = false;
@@ -77,7 +80,9 @@ export const getEvents = ({
               : setDay(start, otherDay.dayNumber + 1);
             const eventMaxDate = otherDay.endTime
               ? parseISO(otherDay.endTime)
-              : setDay(end, otherDay.dayNumber + 1);
+              : end
+              ? setDay(end, otherDay.dayNumber + 1)
+              : undefined;
 
             if (
               Array.isArray(otherDay.monthRepeat) &&
@@ -188,11 +193,11 @@ export const getEvents = ({
       } else {
         if (event.repeat === 99) {
           let eventMinDate = moveDateToCurrentWeek(start);
-          let eventMaxDate = moveDateToCurrentWeek(end);
+          let eventMaxDate = end ? moveDateToCurrentWeek(end) : undefined;
 
           if (isBefore(eventMinDate, today)) {
             eventMinDate = addWeeks(eventMinDate, 1);
-            eventMaxDate = addWeeks(eventMaxDate, 1);
+            eventMaxDate = eventMaxDate ? addWeeks(eventMaxDate, 1) : undefined;
           }
 
           // console.log(
@@ -214,14 +219,18 @@ export const getEvents = ({
                   ? parseISO(otherDay.startDate)
                   : setDay(start, otherDay.dayNumber + 1)
               );
-              let eventMaxDate = moveDateToCurrentWeek(
-                otherDay.endTime
-                  ? parseISO(otherDay.endTime)
-                  : setDay(end, otherDay.dayNumber + 1)
-              );
+              let eventMaxDate = end
+                ? moveDateToCurrentWeek(
+                    otherDay.endTime
+                      ? parseISO(otherDay.endTime)
+                      : setDay(end, otherDay.dayNumber + 1)
+                  )
+                : undefined;
               if (isBefore(eventMinDate, today)) {
                 eventMinDate = addWeeks(eventMinDate, 1);
-                eventMaxDate = addWeeks(eventMaxDate, 1);
+                eventMaxDate = eventMaxDate
+                  ? addWeeks(eventMaxDate, 1)
+                  : undefined;
               }
               // console.log(
               //   "currentEvents.repeat99.otherDay.push",
@@ -240,7 +249,7 @@ export const getEvents = ({
           for (let i = 1; i <= event.repeat; i++) {
             if (i % event.repeat !== 0) continue;
             const eventMinDate = addWeeks(start, i);
-            const eventMaxDate = addWeeks(end, i);
+            const eventMaxDate = end ? addWeeks(end, i) : undefined;
 
             if (isBefore(today, eventMinDate)) {
               // console.log(`previousEvents.repeat${i}.push`, event.eventName);
@@ -273,7 +282,9 @@ export const getEvents = ({
                   : setDay(eventMinDate, otherDay.dayNumber + 1);
                 const end = otherDay.endTime
                   ? addWeeks(parseISO(otherDay.endTime), i)
-                  : setDay(eventMaxDate, otherDay.dayNumber + 1);
+                  : eventMaxDate
+                  ? setDay(eventMaxDate, otherDay.dayNumber + 1)
+                  : undefined;
 
                 if (isBefore(today, eventMinDate)) {
                   // console.log(

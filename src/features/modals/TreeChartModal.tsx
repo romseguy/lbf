@@ -90,7 +90,12 @@ export const TreeChartModal = ({
                 : theme.colors.gray["50"],
               link: { stroke: isDark ? "#fff" : "#000" },
               node: { radius: 14 },
-              text: { colors: { default: isDark ? "white" : "black" } }
+              text: {
+                colors: {
+                  default: isDark ? "lightgreen" : "green",
+                  parent: isDark ? "white" : "blue"
+                }
+              }
             },
             onClickCircle: onClick,
             onClickText: onClick

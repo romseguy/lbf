@@ -1,16 +1,19 @@
+import { addHours, getUnixTime } from "date-fns";
 import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import database, { models } from "server/database";
-import { getSession } from "server/auth";
 import { IUser } from "models/User";
-import { emailR } from "utils/email";
+import { getSession } from "server/auth";
+import database, { models } from "server/database";
+import { sendMail } from "server/email";
+import { createUserPasswordResetMail, emailR } from "utils/email";
 import {
   createEndpointError,
   databaseErrorCodes,
   duplicateError
 } from "utils/errors";
 import { logJson, normalize, phoneR } from "utils/string";
+import { randomNumber } from "utils/randomNumber";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -29,7 +32,6 @@ handler.get<
   const {
     query: { slug, populate, ...query }
   } = req;
-
   const notFoundResponse = () =>
     res
       .status(404)
@@ -40,7 +42,7 @@ handler.get<
       );
 
   try {
-    let select: string | undefined;
+    let select = req.query.select;
     const session = await getSession({ req });
     const isSelf =
       session?.user.isAdmin ||
@@ -50,9 +52,7 @@ handler.get<
 
     if (isSelf) {
       select = "+email +phone +userSubscription";
-    } else if (query.select === "password") {
-      select = "+password";
-    }
+    } else if (select) select = "+" + select.replaceAll(" ", " +");
 
     let selector;
     if (emailR.test(slug)) {
@@ -90,6 +90,63 @@ handler.get<
   }
 });
 
+handler.post<
+  NextApiRequest & {
+    query: {
+      slug: string;
+      select?: string;
+      populate?: string;
+    };
+  },
+  NextApiResponse
+>(async function postResetPasswordMail(req, res) {
+  const {
+    query: { slug, ...query }
+  } = req;
+  const notFoundResponse = () =>
+    res
+      .status(404)
+      .json(
+        createEndpointError(
+          new Error(`L'utilisateur ${slug} n'a pas pu être trouvé`)
+        )
+      );
+
+  try {
+    let select: string | undefined;
+    let selector;
+
+    if (emailR.test(slug)) {
+      selector = { email: slug };
+    }
+
+    let user: (IUser & Document<any, IUser>) | null = null;
+
+    if (selector) {
+      user = await models.User.findOne(selector, select);
+    }
+
+    if (!user) return notFoundResponse();
+
+    const securityCode = "" + getUnixTime(addHours(Date.now(), 2));
+    const securityCodeSalt = "" + randomNumber(3);
+    user = await models.User.findOneAndUpdate(selector, {
+      securityCode,
+      securityCodeSalt
+    });
+
+    const mail = createUserPasswordResetMail({
+      email: slug,
+      securityCode: "" + Number(securityCode) * Number(securityCodeSalt)
+    });
+    sendMail(mail);
+
+    res.status(200).json({});
+  } catch (error) {
+    res.status(500).json(createEndpointError(error));
+  }
+});
+
 handler.put<
   NextApiRequest & {
     query: { slug: string };
@@ -98,21 +155,32 @@ handler.put<
   NextApiResponse
 >(async function editUser(req, res) {
   const session = await getSession({ req });
+  const {
+    query: { slug },
+    body
+  }: {
+    query: { slug: string };
+    body: Partial<IUser>;
+  } = req;
 
-  if (!session) {
+  if (!session && !body.password) {
     return res
       .status(401)
       .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
   try {
-    const {
-      query: { slug },
-      body
-    }: {
-      query: { slug: string };
-      body: Partial<IUser>;
-    } = req;
+    if (body.password) {
+      if (!body.passwordSalt)
+        return res.status(400).json(createEndpointError(new Error("No salt")));
+
+      const user = await models.User.findOneAndUpdate(
+        { email: slug },
+        { ...body, securityCode: null, securityCodeSalt: null }
+      );
+
+      return res.status(200).json(user);
+    }
 
     if (body.userName) {
       body.userName = normalize(body.userName);
