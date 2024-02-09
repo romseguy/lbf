@@ -17,6 +17,7 @@ export enum EEventInviteStatus {
 
 export enum EEventVisibility {
   FOLLOWERS = "FOLLOWERS",
+  PRIVATE = "PRIVATE",
   PUBLIC = "PUBLIC",
   SUBSCRIBERS = "SUBSCRIBERS" // deprecated
 }

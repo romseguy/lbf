@@ -26,8 +26,8 @@ import {
 import { useSession } from "hooks/useSession";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import { IEntity, isEvent, isOrg } from "models/Entity";
-import type { IEvent } from "models/Event";
-import { IOrg, orgTypeFull } from "models/Org";
+import { EEventVisibility, IEvent } from "models/Event";
+import { EOrgVisibility, IOrg, orgTypeFull } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
@@ -61,6 +61,9 @@ export const TopicForm = ({
   const isO = isOrg(entity);
   const event = isE ? (query.data as IEvent) : undefined;
   const org = isO ? (query.data as IOrg) : undefined;
+  const isEntityPrivate =
+    org?.orgVisibility === EOrgVisibility.PRIVATE ||
+    event?.eventVisibility === EEventVisibility.PRIVATE;
   const edit = isE ? editEvent : editOrg;
   const topicCategories = isE
     ? entity.eventTopicCategories
@@ -340,9 +343,9 @@ export const TopicForm = ({
         </FormControl>
       )}
 
-      {/* {org && org.orgUrl !== "forum" && (
+      {org && !isEntityPrivate && (
         <FormControl mb={3}>
-          <FormLabel>Visibilité</FormLabel>
+          <FormLabel>Visibilité (optionnel)</FormLabel>
           <Controller
             name="topicVisibility"
             control={control}
@@ -389,15 +392,15 @@ export const TopicForm = ({
             }}
           />
         </FormControl>
-      )} */}
+      )}
 
-      {hasItems(topicVisibility) && (
+      {/*hasItems(topicVisibility) && (
         <Alert status="warning" mb={3}>
           <AlertIcon />
           La discussion ne sera visible que par les membres des listes
           sélectionnées.
         </Alert>
-      )}
+      )*/}
 
       <ErrorMessage
         errors={errors}
@@ -434,3 +437,8 @@ export const TopicForm = ({
     </form>
   );
 };
+
+{
+  /* {org && org.orgUrl !== "forum" && (
+      )} */
+}

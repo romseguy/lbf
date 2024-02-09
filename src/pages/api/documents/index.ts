@@ -35,6 +35,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
       const { data } = await client.get(
         orgId ? `?orgId=${orgId}` : `?userId=${userId}`
       );
+
       res.status(200).json(data);
     } catch (error) {
       res.status(404).json(createEndpointError(error));

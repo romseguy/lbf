@@ -144,7 +144,7 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
 
           @media (min-width: ${breakpoints["2xl"]}) {
             margin: 0 auto;
-            height: ${window.innerHeight}px;
+            /*height: ${window.innerHeight}px;*/
             width: 1180px;
             ${isDark
               ? `

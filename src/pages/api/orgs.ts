@@ -44,8 +44,6 @@ handler.get<
     }
 
     if (orgType && EOrgType[orgType]) selector = { ...selector, orgType };
-
-    console.log("🚀 ~ getOrgs ~ selector:", selector);
     let orgs = await models.Org.find(selector);
 
     if (populate) {
@@ -53,7 +51,7 @@ handler.get<
         .split(/(\s+)/)
         .filter((e) => e.trim().length > 0)) {
         if (["orgTopics.org", "orgTopics.topicMessages"].includes(modelKey)) {
-          console.log(`GET /orgs populating ${modelKey} with custom behavior`);
+          //console.log(`GET /orgs populating ${modelKey} with custom behavior`);
           populate = populate.replace(modelKey, "");
         }
 
@@ -82,7 +80,7 @@ handler.get<
         }
       }
 
-      console.log(`GET /orgs unhandled keys: ${populate}`);
+      //console.log(`GET /orgs unhandled keys: ${populate}`);
       orgs = await Promise.all(
         orgs.map((org) => org.populate(populate).execPopulate())
       );

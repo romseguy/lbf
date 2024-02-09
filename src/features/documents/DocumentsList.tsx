@@ -1,7 +1,9 @@
 import { DownloadIcon } from "@chakra-ui/icons";
 import {
+  Flex,
   Grid,
   GridItem,
+  HStack,
   Icon,
   IconButton,
   Image,
@@ -81,6 +83,7 @@ export const DocumentsList = ({
           <Grid
             gridTemplateColumns="auto 1fr auto"
             alignItems="center"
+            gridColumnGap={3}
             gridRowGap={3}
           >
             {query.data.map((file) => {
@@ -103,9 +106,10 @@ export const DocumentsList = ({
 
               return (
                 <React.Fragment key={file.url}>
-                  <GridItem pr={1} pt={1}>
+                  <GridItem>
                     <Icon as={isImage ? FaImage : FaFile} />
                   </GridItem>
+
                   <GridItem
                     // display="flex"
                     // alignItems="center"
@@ -145,6 +149,10 @@ export const DocumentsList = ({
                         </Link>
                       </span>
                     </Tooltip>
+
+                    <Text fontSize="smaller">
+                      {stringUtils.bytesForHuman(file.bytes)}
+                    </Text>
                   </GridItem>
 
                   <GridItem
@@ -229,7 +237,16 @@ export const DocumentsList = ({
       {modalState.isOpen && modalState.image && (
         <FullscreenModal
           //header={modalState.image.url.match(/[^=]+$/)![0]}
-          header={modalState.image.url}
+          header={
+            <HStack>
+              <FaImage />
+              <Text>
+                {modalState.image.url.substring(
+                  modalState.image.url.lastIndexOf("/") + 1
+                )}
+              </Text>
+            </HStack>
+          }
           bodyProps={{ bg: "black" }}
           onClose={onClose}
         >

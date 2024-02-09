@@ -5,13 +5,16 @@ import {
   Box,
   Button,
   Flex,
+  HStack,
   Image,
   Spinner,
+  Text,
   useColorMode,
   UseDisclosureProps
 } from "@chakra-ui/react";
 import AbortController from "abort-controller";
 import React, { useEffect, useMemo, useState } from "react";
+import { FaImage, FaFile } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { RemoteImage, useGetDocumentsQuery } from "features/api/documentsApi";
 import { Column, ColumnProps, AppHeading } from "features/common";
@@ -217,7 +220,17 @@ export const DocumentsListMasonry = ({
 
       {modalState.isOpen && modalState.image && (
         <FullscreenModal
-          header={modalState.image.url.match(/[^=]+$/)![0]}
+          //header={modalState.image.url.match(/[^=]+$/)![0]}
+          header={
+            <HStack>
+              <FaImage />
+              <Text>
+                {modalState.image.url.substring(
+                  modalState.image.url.lastIndexOf("/") + 1
+                )}
+              </Text>
+            </HStack>
+          }
           bodyProps={{ bg: "black" }}
           onClose={onClose}
         >

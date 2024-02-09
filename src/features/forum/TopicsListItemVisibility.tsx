@@ -1,5 +1,11 @@
 import { EmailIcon, HamburgerIcon } from "@chakra-ui/icons";
-import { ComponentWithAs, Icon, IconProps, Tooltip } from "@chakra-ui/react";
+import {
+  Box,
+  ComponentWithAs,
+  Icon,
+  IconProps,
+  Tooltip
+} from "@chakra-ui/react";
 import React from "react";
 import { IconType } from "react-icons";
 import { FaGlobeEurope } from "react-icons/fa";
@@ -70,7 +76,9 @@ export const TopicsListItemVisibility = ({
     <>
       {icons.map(({ label, icon }, index) => (
         <Tooltip key={index} label={label}>
-          <Icon as={icon} boxSize={4} {...props} />
+          <span>
+            <Icon as={icon} boxSize={4} {...props} />
+          </span>
         </Tooltip>
       ))}
     </>

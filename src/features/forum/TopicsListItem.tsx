@@ -471,6 +471,9 @@ export const TopicsListItem = ({
               //icon props
               color={isDark ? "white" : "purple"}
               cursor="default"
+              css={css`
+                vertical-align: middle;
+              `}
               onClick={(e) => e.stopPropagation()}
             />
 
@@ -538,43 +541,40 @@ export const TopicsListItem = ({
                     />
                   </Tooltip>
 
-                  <Tooltip
-                    placement="bottom"
-                    label="Épingler la discussion"
-                  >
-                  <IconButton
-                    aria-label="Épingler la discussion"
-                    icon={
-                      topic.isPinned ? <PushPinSlashIcon /> : <PushPinIcon />
-                    }
-                    variant="outline"
-                    colorScheme="teal"
-                    mr={3}
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      setIsLoading({
-                        [topic._id]: true
-                      });
-                      try {
-                        await editTopic({
-                          payload: { topic: { isPinned: !topic.isPinned } },
-                          topicId: topic._id
-                        }).unwrap();
-                        query.refetch();
-                      } catch (error: ServerError | any) {
-                        toast({
-                          title:
-                            error.data.message ||
-                            `La discussion ${topic.topicName} n'a pas pu être épinglée`,
-                          status: "error"
-                        });
-                      } finally {
-                        setIsLoading({
-                          [topic._id]: false
-                        });
+                  <Tooltip placement="bottom" label="Épingler la discussion">
+                    <IconButton
+                      aria-label="Épingler la discussion"
+                      icon={
+                        topic.isPinned ? <PushPinSlashIcon /> : <PushPinIcon />
                       }
-                    }}
-                  />
+                      variant="outline"
+                      colorScheme="teal"
+                      mr={3}
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        setIsLoading({
+                          [topic._id]: true
+                        });
+                        try {
+                          await editTopic({
+                            payload: { topic: { isPinned: !topic.isPinned } },
+                            topicId: topic._id
+                          }).unwrap();
+                          query.refetch();
+                        } catch (error: ServerError | any) {
+                          toast({
+                            title:
+                              error.data.message ||
+                              `La discussion ${topic.topicName} n'a pas pu être épinglée`,
+                            status: "error"
+                          });
+                        } finally {
+                          setIsLoading({
+                            [topic._id]: false
+                          });
+                        }
+                      }}
+                    />
                   </Tooltip>
                 </>
               )}
