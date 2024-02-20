@@ -18,7 +18,7 @@
     "prebuild": "kill-port --port 8000 && node ./maintenance.js &",
     "build": "next build",
     "postbuild": "kill-port --port 8000",
-    "build:size": "ANALYZE=true yarn build",
+    "build:size": "ANALYZE=true next build",
     "compile": "tsc --build",
     "compile:w": "tsc --build --watch",
     "vapid": "web-push generate-vapid-keys",

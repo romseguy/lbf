@@ -1,5 +1,5 @@
 import { Button, ButtonProps } from "@chakra-ui/react";
-import router from "next/router";
+import { useRouter } from "next/router";
 import React from "react";
 import { FaKey } from "react-icons/fa";
 
@@ -10,6 +10,7 @@ export const LoginButton = ({
 }: ButtonProps & {
   children: React.ReactNode;
 }) => {
+  const router = useRouter();
   return (
     <Button
       colorScheme="teal"

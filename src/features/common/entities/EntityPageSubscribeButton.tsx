@@ -19,7 +19,7 @@ export const EntityPageSubscribeButton = ({
   const isDisabled =
     orgQuery.isFetching ||
     subQuery.isFetching ||
-    (org.orgUrl === "nom_de_votre_planete" && !session);
+    (org.orgUrl === "nom_de_votre_forum" && !session);
 
   return (
     <Flex flexWrap="wrap" mt={-3}>

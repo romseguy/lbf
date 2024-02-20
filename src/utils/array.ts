@@ -1,5 +1,8 @@
 export function divideArray<T>(array: T[], length: number): T[][] {
   const newArray = [...array];
+
+  if (!length) return [newArray];
+
   const divideRes = Math.floor(newArray.length / length);
   let results = [];
 
@@ -8,7 +11,7 @@ export function divideArray<T>(array: T[], length: number): T[][] {
   }
 
   for (let i = 0; i < newArray.length; i++) {
-    results[i].push(newArray[i]);
+    if (Array.isArray(results[i])) results[i].push(newArray[i]);
   }
 
   results = results.filter((item) => item.length);

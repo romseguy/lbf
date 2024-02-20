@@ -1,0 +1,1995 @@
+[33mcommit fe9e8eae344c0e6c7c5c0004006e27817e69c3bb[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Feb 9 09:33:04 2024 +0100
+
+    misc
+
+[33mcommit f0cf06bdc8368fbbe0e7c3287ddf30908b2cbc9d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Feb 8 03:59:24 2024 +0100
+
+    pwd
+
+[33mcommit bbad4db89584ec3f7f63b2a8f42ab0d512be63c3[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Jan 23 01:19:37 2024 +0100
+
+    misc
+
+[33mcommit bae68cfb1a09b82acae6dcb8dfa11ad364682e66[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jan 22 10:15:28 2024 +0100
+
+    Refactor EventsList
+
+[33mcommit 8aa86c0f5e0d7ce245705a8d9cb55a349fe5be17[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Jan 9 00:20:46 2024 +0100
+
+    pushpin
+
+[33mcommit 03987c4430f3f4899e665141f151cc3e202f55b0[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Dec 23 02:47:23 2023 +0100
+
+    misc
+
+[33mcommit a0c35e3666fbe351370979b274e6e7d8d51aeb1c[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Dec 19 10:35:18 2023 +0100
+
+    Forum selector
+
+[33mcommit cd7c5a8f7c546ff565dea84b204e897a276164a6[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Dec 13 12:32:23 2023 +0100
+
+    admin colors
+
+[33mcommit 9837aecf74545211873d143a778558c6deb3e253[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Dec 5 04:42:09 2023 +0100
+
+    misc
+
+[33mcommit 2003e2585393183363e5127e6760302e3d7bf982[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Dec 3 10:17:46 2023 +0100
+
+    fix
+
+[33mcommit 95f749440b48a2910b9c50fe260cfc132a81e213[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Dec 1 20:23:46 2023 +0100
+
+    fix
+
+[33mcommit 17e6e5bba0343f3467805c8547299690513cc39a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Dec 1 16:32:21 2023 +0100
+
+    treeChart
+
+[33mcommit e1178e91cea192cb1c9b3c43ca4537c75c7e61a9[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Dec 1 12:09:35 2023 +0100
+
+    misc
+
+[33mcommit 4af424ecc154167106b15f4434313a3b5447e556[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Nov 30 11:08:10 2023 +0100
+
+    misc
+
+[33mcommit aab73d8cc864fc83b02ab377c03b174022e1aa0b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Nov 19 10:23:15 2023 +0100
+
+    ETopicsListOrder
+
+[33mcommit 8c89488eacbd90d0d3a97e035da984bb6d7d9cf0[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Nov 4 10:13:05 2023 +0100
+
+    misc
+
+[33mcommit 0dadbb0fd648fafd114ee646881cdca4f7180c90[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Nov 2 10:20:53 2023 +0100
+
+    Video player
+
+[33mcommit ed4e83e95e33bfcfefa30735fe2da7c822ee8e0b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Oct 31 15:20:56 2023 +0100
+
+    Plant lone tree to planet
+
+[33mcommit 50ed8bb8b20db0618faf427e107dc9153ec8bf7a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Oct 10 13:20:34 2023 +0200
+
+    misc
+
+[33mcommit e2a8b08b6ad83cbd8d8057b340dfea3e2034bd76[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Oct 3 13:57:53 2023 +0200
+
+    misc
+
+[33mcommit 0eda4ed2fecc2e17dd60e7e96975b471050c08f0[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Oct 2 11:18:22 2023 +0200
+
+    misc
+
+[33mcommit 5ba1bbe47795cb4ab94a27884c1f77061d88ef9a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Sep 30 20:59:59 2023 +0200
+
+    misc
+
+[33mcommit 80c53c99d217b2c368aa7f0d04c54a90f9f2723c[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Sep 26 16:49:10 2023 +0200
+
+    misc
+
+[33mcommit 6b4f1f4ae78aef5b369037ecd63549ec57cb7369[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Sep 23 11:24:15 2023 +0200
+
+    misc
+
+[33mcommit d80b766c231a924e160b7815dcdf4d27dc72e2c7[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 22 20:51:56 2023 +0200
+
+    misc
+
+[33mcommit d35deaacc1501d49183aa4cb2665b21e0b326f8a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Sep 21 13:32:59 2023 +0200
+
+    cherry next13
+
+[33mcommit dfed9cb49c734ab9f0485432738e7ea86e95e1d6[m
+Merge: 4d806cc da0671f
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Sep 21 13:30:56 2023 +0200
+
+    Merge branch 'main' into next12
+
+[33mcommit da0671f4b1421be5e5b5e51f28d5fade065b570a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Sep 20 06:36:16 2023 +0200
+
+    cherry
+
+[33mcommit 6e567daefac56e293368b736376966c43b3735b4[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 18 12:39:08 2023 +0200
+
+    logging
+
+[33mcommit 4d806cc33a3e8b1f9d63eb27e538e3d3dd1119e7[m[33m ([m[1;31morigin/next12[m[33m)[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 18 12:39:08 2023 +0200
+
+    logging
+
+[33mcommit 4cd00d85f16f357e1c8af338d442236e0a947be1[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Sep 16 17:43:41 2023 +0200
+
+    misc
+
+[33mcommit 5c46e1f491781de38f8f83a394435792d1dbdc1f[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Sep 14 00:52:27 2023 +0200
+
+    misc
+
+[33mcommit 73521d46bdaf955a6d41c3ed6f71fb2b2a8f067d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 11 18:17:48 2023 +0200
+
+    misc
+
+[33mcommit ba019abbb4bc97e0b170d0d2ec6d7c3c0a67333e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 11 12:35:02 2023 +0200
+
+    tinymce6
+
+[33mcommit febbefa9fc3a777766946783377f176281606d6b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Sep 10 11:36:12 2023 +0200
+
+    misc
+
+[33mcommit 746988ac8a4d8b79ae00dd2c620d1d7f78c067ae[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Sep 9 19:59:22 2023 +0200
+
+    next@12
+
+[33mcommit 59e5e6640dc687ae96f4659122cbed3faaea479a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Sep 9 13:02:40 2023 +0200
+
+    misc
+
+[33mcommit ca410203beac69337050e948becd935bfab191c2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Sep 7 10:59:06 2023 +0200
+
+    misc
+
+[33mcommit 98f77b7bc11dfda071c45e3f059e3d0d3077a76e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Sep 6 20:59:19 2023 +0200
+
+    misc
+
+[33mcommit 51bb6a03a618993b967c7b5ab20f230b71f3f680[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Sep 6 18:28:12 2023 +0200
+
+    misc
+
+[33mcommit 274681ce0b485581829fdccf29ac91f3b34533d5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 4 12:23:34 2023 +0200
+
+    misc
+
+[33mcommit 721447f144a80f4570e89a3dde455d87be6ac4f3[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Sep 3 12:43:01 2023 +0200
+
+    fix
+
+[33mcommit 55bc2ab0163354070a336ddea0e67ac8a4485696[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 1 20:39:31 2023 +0200
+
+    update
+
+[33mcommit af018ed163ca11f2b7923c358ffaedaa940b0427[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 1 18:14:52 2023 +0200
+
+    ts misc
+
+[33mcommit a2c54983867ca141a5a3f27982a5e09642fd0416[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 1 11:30:48 2023 +0200
+
+    misc
+
+[33mcommit 650b5829248ac83193887e7b2cc443e54d58989e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Aug 25 00:26:36 2023 +0200
+
+    misc
+
+[33mcommit 0dc294f4400e77901586fb0e4a26c61f8fdaac68[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Aug 24 23:16:54 2023 +0200
+
+    misc
+
+[33mcommit 09b4a09ebc4786dda883b0231befce7e99958201[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Aug 20 20:58:20 2023 +0200
+
+    misc
+
+[33mcommit 7fed82fb679da3f0e0bd61998b3b9b3abf665e06[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Aug 17 10:18:16 2023 +0200
+
+    jest
+
+[33mcommit ada5139211d9f1e097ecf1ae6ac22a18c2989835[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Aug 11 12:47:32 2023 +0200
+
+    misc
+
+[33mcommit cccd1f2b71477687ba7d5c5ee470347a8a10aec4[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Aug 8 15:37:38 2023 +0200
+
+    misc
+
+[33mcommit 2da92eaf473dfa4425c5346c7f8eb5dd2439b074[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Aug 7 22:39:22 2023 +0200
+
+    misc
+
+[33mcommit c32dffde0460d8c4d1417f41a2c34292e81812fa[m
+Author: Romain Séguy <romseguy@users.noreply.github.com>
+Date:   Mon Aug 7 11:00:41 2023 +0200
+
+    Update RTEditor.tsx
+
+[33mcommit 510f80730d4fbcf9c7bde86b34c6da45327121ec[m
+Author: Romain Séguy <romseguy@users.noreply.github.com>
+Date:   Mon Aug 7 10:46:37 2023 +0200
+
+    Update RTEditor.tsx
+
+[33mcommit 198ef113a78e4348d149462e92cc5eb90d77a56d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Aug 5 09:23:23 2023 +0200
+
+    misc
+
+[33mcommit 3a024a0e7cede798b30ace32832ed4535361cac2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Aug 3 08:24:17 2023 +0200
+
+    misc
+
+[33mcommit 383c27a96d369cb5e6a868cfe1c9da464fc404bd[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Aug 2 12:36:53 2023 +0200
+
+    cgu
+
+[33mcommit c9f4341ad05aeb57443adde1a4261ed90ddb9dd0[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Jul 19 09:12:59 2023 +0200
+
+    misc
+
+[33mcommit 9f2bd98fbf6513cb20f39be4106b1d5b034fd78b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Jul 19 07:14:47 2023 +0200
+
+    refactoring
+
+[33mcommit 80ee72cd33c3eb1ec6fcde03e1adeaface83cdb1[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Jul 18 22:59:57 2023 +0200
+
+    scroll to top button
+
+[33mcommit e30ba8089e0be908ff3bc21ab863c3c0faed2cfe[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Jul 16 09:07:59 2023 +0200
+
+    misc
+
+[33mcommit 4a9e6527933b1b68d131acc935879da8f6d1891a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Jul 14 18:30:35 2023 +0200
+
+    design
+
+[33mcommit 74f4cae77524040926c70eb63748b55da83749f0[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Jun 8 09:36:06 2023 +0200
+
+    misc
+
+[33mcommit a2ed9393bca2102789346e21dff9dbde07598c98[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Jun 6 12:45:59 2023 +0200
+
+    api proxy
+
+[33mcommit 4d580bed0cda95897bdfb9d7f01e029c8c57043c[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Jun 2 13:18:08 2023 +0200
+
+    misc
+
+[33mcommit 80b41f4323b12f5e664f259faba96023ccb15a33[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed May 31 07:35:56 2023 +0200
+
+    misc
+
+[33mcommit 01f068e454647bda11b5cff688cc751ab45a084e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat May 27 11:45:55 2023 +0200
+
+    misc
+
+[33mcommit 96057853145646fe5c474d4609ae83169cce0c55[m
+Merge: 85fc40f 0cdd7fe
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat May 27 11:45:20 2023 +0200
+
+    Merge branch 'main' of github.com:romseguy/lekoala.org into main
+
+[33mcommit 0cdd7fea4de17c9ae1e91cb1ce122e397ceba516[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu May 25 20:44:14 2023 +0200
+
+    misc
+
+[33mcommit 85fc40fc4d2b10404ff777432bb330a5baf0f7a2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu May 25 20:44:14 2023 +0200
+
+    misc
+
+[33mcommit af4b783024ac3a842ddfa598ac8c0c843476406b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed May 24 00:01:08 2023 +0200
+
+    misc
+
+[33mcommit 5b18b6b5ffabcf12f4d4e76fc451c0c3fbc1f5aa[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun May 21 19:17:57 2023 +0200
+
+    misc
+
+[33mcommit 8ec57a967e1434b98699170790e2f63fbc657871[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun May 21 11:38:39 2023 +0200
+
+    auth fix
+
+[33mcommit 694be07fb2d0c8963de77cfef9cbaf2e326ce4d7[m[33m ([m[1;32mgh-pages[m[33m)[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu May 11 16:32:44 2023 +0200
+
+    misc
+
+[33mcommit d01d5eb083cafe9312c2d7cb797a000c21041b67[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu May 11 11:44:11 2023 +0200
+
+    auth fix
+
+[33mcommit dcc975bd9303428952b645e12705a011094dd710[m[33m ([m[1;32msessioncontext[m[33m)[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue May 9 19:12:48 2023 +0200
+
+    misc
+
+[33mcommit f605bfd023ea01ba83ac9c12a3e7cef373ad8efb[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue May 9 10:57:53 2023 +0200
+
+    settings
+
+[33mcommit 5deaa07fa414ab4de9b2d6ce5ca4efb385ae6578[m[33m ([m[1;32mwithsettings[m[33m)[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Apr 24 11:52:02 2023 +0200
+
+    auth fix
+
+[33mcommit 363b8cfae74165123df846724a83d89493410ca9[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Apr 23 04:23:42 2023 +0200
+
+    misc
+
+[33mcommit b00452b3afa52eb47e12a211c97ab3c7c4ce56aa[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Apr 12 04:15:28 2023 +0200
+
+    misc
+
+[33mcommit 703eee12ea38401eec358b4349d4f862b5cf2524[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Apr 1 15:38:12 2023 +0200
+
+    misc
+
+[33mcommit 90ddceb06af16789a7e4550464a131a5479bc1cf[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Sep 13 15:15:07 2022 +0200
+
+    misc
+
+[33mcommit 3f026f11b3f875c1e9716f7b9a9008bc51ecb2e5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Sep 11 18:34:48 2022 +0200
+
+    features/forms OrgForm fix partial info update
+
+[33mcommit 03ebb462c2b8acc1d6aadc132d79e1dae02d324e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 9 15:09:50 2022 +0200
+
+    misc
+
+[33mcommit fb53ab4c5ff1ef9ea243e33791f3363b86abcbbe[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 9 12:27:26 2022 +0200
+
+    features/form add tree type select
+
+[33mcommit dfff2a6c2781713b1175ddbcb45de23f50de62b7[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Sep 8 19:05:56 2022 +0200
+
+    features/layout Naviguer
+
+[33mcommit 14e8f6e3b012c7011226340465be725b0d9c88f5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Sep 8 16:46:27 2022 +0200
+
+    pages/login styling
+
+[33mcommit ca04fb08cea7e18cc8370723b41063e02d8bef59[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Sep 8 15:27:35 2022 +0200
+
+    features/map Marker clustering style
+
+[33mcommit 2805d323d9dc506e93ef7daa5a687e61bd457c36[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Sep 8 15:27:05 2022 +0200
+
+    features/common AddressControl set suggestion on outside click
+
+[33mcommit 60735b80175bb386650bedd076607d0709ee22c8[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Sep 8 12:30:28 2022 +0200
+
+    features/treeChart icons and hovering style
+
+[33mcommit 02e0bd757d564828d162becf359f28af248771e7[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Sep 7 19:16:28 2022 +0200
+
+    org config subscribers & lists
+
+[33mcommit 5d1c83ed687bf68fbf11a5bf823ee2cdec4b7773[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Sep 7 14:21:54 2022 +0200
+
+    org children types
+
+[33mcommit 682d60e42c544ff3b14e3130551268392e73329d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 5 18:52:49 2022 +0200
+
+    orgPermissions
+
+[33mcommit e92ebf00f3b6b3673c45994b32066bcd31dd5f94[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Jun 25 01:02:34 2022 +0200
+
+    bg
+
+[33mcommit 056d64510810885f29c81c7b6b6710870bf06f31[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Jun 24 18:47:52 2022 +0200
+
+    misc
+
+[33mcommit 52e44c5627a7d84c13b9365e378e748bbb214709[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Jun 24 13:44:55 2022 +0200
+
+    global css strings
+
+[33mcommit a300011de10bf51bcf3dc49b700090b4527c4b4a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Jun 23 15:50:17 2022 +0200
+
+    misc
+
+[33mcommit cd2286c05a7c91996836bf603216025953f06617[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Jun 22 19:11:45 2022 +0200
+
+    header subtitle
+
+[33mcommit 4f21660cf71408bd7e684e5e177f13b70cbc216d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Jun 22 17:13:53 2022 +0200
+
+    misc
+
+[33mcommit ac727135f4e1988bf78bc7344e3c054c8981f3e4[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Jun 22 10:37:46 2022 +0200
+
+    orgPassword
+
+[33mcommit 622ad083c683e007f6f91f71223f6f3953c3ff54[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Jun 21 18:29:47 2022 +0200
+
+    refactoring
+
+[33mcommit e15aee2db8067aedb4d6ad5755e63770b323bae9[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jun 20 12:16:30 2022 +0200
+
+    misc
+
+[33mcommit 5032d575b052cd47c21b9c03e2f466da23c8607c[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jun 20 11:58:04 2022 +0200
+
+    remove EOrgSubscriptionType.SUBSCRIBER
+
+[33mcommit 98b55a2a7b10de7950ce67d6630ba5d228e0e75a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Jun 19 15:28:11 2022 +0200
+
+    DocumentForm multiple
+
+[33mcommit c60b6cf33e83c5c343810d68a15b9d0099cea10d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Jun 18 15:27:01 2022 +0200
+
+    misc
+
+[33mcommit da2c8fa938662f7cb5250c93cdbad96282388adf[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Jun 16 16:24:05 2022 +0200
+
+    banner/logo
+
+[33mcommit 3bf5761a3c474d25742b155288eabca228a024cc[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Jun 15 19:17:03 2022 +0200
+
+    portfolio
+
+[33mcommit af4bd2579efe75b2316f9cb75d8596070dffc2dd[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Jun 15 12:15:10 2022 +0200
+
+    more renaming
+
+[33mcommit 88c490205e4750e71cbde7c2a6fcc8c7ea0a9b62[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Jun 15 10:57:42 2022 +0200
+
+    lib -> utils/auth
+
+[33mcommit fa763ba77cd90cc078055296e32a7e8f55e2d475[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Jun 14 20:20:36 2022 +0200
+
+    misc
+
+[33mcommit cf88b486771c26b12d895fbad459f198bfeb45be[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Jun 14 13:56:55 2022 +0200
+
+    email login
+
+[33mcommit 1285172d0daa38c11cbc29c780b8f3179031f7dd[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jun 13 19:33:13 2022 +0200
+
+    org.orgs
+
+[33mcommit 88bb3d6d4332f901eff9b02dd3aaa8211d11ecfd[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jun 13 12:38:38 2022 +0200
+
+    misc
+
+[33mcommit c4cb38555ea927afc342e4ac266dddfae971d083[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jun 13 12:01:56 2022 +0200
+
+    persist
+
+[33mcommit 0c99e1ff75060ff93dee725de85b4c0694783be9[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Jun 11 15:10:34 2022 +0200
+
+    facebook provider
+
+[33mcommit 1d7dbd27308127da9dee2e21df8827fc3b761643[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jun 6 20:42:36 2022 +0200
+
+    misc
+
+[33mcommit 15561671a7a41f8869c6741c2af6f7c1bb0acde5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jun 6 16:36:08 2022 +0200
+
+    icons
+
+[33mcommit 7bd4d322d6e8034b52493bfe0034a9228a2a513c[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jun 6 15:06:21 2022 +0200
+
+    implement magic link
+
+[33mcommit 0fe47bb5f8d85bfd045febf1b10bb00c845d907d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jun 6 10:42:57 2022 +0200
+
+    unplug next-auth
+
+[33mcommit dcf5eaed96cd45a9fc04672edf0017e8f59e75b8[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jun 6 00:09:03 2022 +0200
+
+    magic sandbox
+
+[33mcommit e2e86d175b88f8b49168717ea68515dd3c0db81a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Jun 5 17:45:39 2022 +0200
+
+    koala
+
+[33mcommit d773616332c384032cce076fe46e49401e0ad12d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Mar 21 18:27:12 2022 +0100
+
+    categories
+
+[33mcommit ab8f1db5999e805795dc0d1f1e4491ac9ff5d804[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Mar 21 15:03:35 2022 +0100
+
+    SubForm
+
+[33mcommit c397ed2102dab4fdefa241f6949524669deef177[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Mar 17 18:24:20 2022 +0100
+
+    remove some refetch
+
+[33mcommit d46ad002959153b79cbca3471e974914b87e886d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Mar 17 14:15:56 2022 +0100
+
+    topicpopover sub button
+
+[33mcommit a1a30d36783c74081a9dea993ee49644d7e5570e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Mar 17 12:43:11 2022 +0100
+
+    api
+
+[33mcommit 3a129490019d3d4f34988a486baa44c6f6b3873e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Mar 10 15:29:58 2022 +0100
+
+    misc
+
+[33mcommit 4e4e9b6ca27569cfb239f77bf9d447fafbe26c54[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Mar 9 17:38:45 2022 +0100
+
+    projectNotifications
+
+[33mcommit 66e88eba41b6c9c47af2feeeca7cda630f2a2fff[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Mar 9 15:33:03 2022 +0100
+
+    session
+
+[33mcommit fdd47b810cdf27e697d8dcbcb69bcecdb28f04d2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Mar 8 12:16:31 2022 +0100
+
+    misc
+
+[33mcommit e9d58b01f4a778b6463d6f8debc7b459561188ee[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Mar 7 12:43:54 2022 +0100
+
+    topicCategories
+
+[33mcommit 792c151d3a031caaeaeec6ffbe7f1d657b8a5c25[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Mar 6 13:16:10 2022 +0100
+
+    misc
+
+[33mcommit 8ee8d84db7c2c4a824a1a305ef7719fc30bf9528[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Mar 5 12:25:13 2022 +0100
+
+    database connections
+
+[33mcommit 0151e0a03fa75861c206c317ae2472df6a1897d2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Mar 4 20:31:23 2022 +0100
+
+    misc
+
+[33mcommit 287d94ec2f18016f156ae5711ac59faa053e6599[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Mar 4 15:53:47 2022 +0100
+
+    next-pwa
+
+[33mcommit a533420899c2476f5405887d5428a564d6044a34[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Mar 4 11:44:29 2022 +0100
+
+    misc
+
+[33mcommit d615fbfebb7f8b17cec454fe793180e8b58eb0c1[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Mar 1 12:41:21 2022 +0100
+
+    misc
+
+[33mcommit 94d4c6a243dbb811ee9c78f7909c21d07e534fa3[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Mar 1 11:55:50 2022 +0100
+
+    sendmail
+
+[33mcommit bb3a9e65ee03dce410580ac890fdd464543166f5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Feb 28 21:29:09 2022 +0100
+
+    tour
+
+[33mcommit ab9cb91f771b52427d1b013289dc4c42b874f173[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Feb 27 15:38:39 2022 +0100
+
+    userEmail
+
+[33mcommit 97f7f47a54bea755940705b4daff7b3e968fa9e5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Feb 26 09:15:27 2022 +0100
+
+    next-auth v4
+
+[33mcommit 9faa43cc077fcbd77f49051d3d0aabfbc7928a31[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Feb 25 10:26:51 2022 +0100
+
+    misc
+
+[33mcommit d42d9a63660d9e31a02e03bad519c1797688756d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Feb 24 22:44:01 2022 +0100
+
+    tinymce toolbar
+
+[33mcommit 1a5166eb4a4a92ee693c8b27dc78bce1a3eaf4d5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Feb 24 16:42:01 2022 +0100
+
+    misc
+
+[33mcommit 0388056879042ad15b94730c785d2788d327df4b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Feb 19 19:04:20 2022 +0100
+
+    misc
+
+[33mcommit 607a0ea08ffb4dd3b02da13689ad203e8ff23c39[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Feb 19 10:35:36 2022 +0100
+
+    misc
+
+[33mcommit eafb3cc3f981999d7466452e57f2631ba7d8f12b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Feb 18 22:47:09 2022 +0100
+
+    OrgConfigSub
+
+[33mcommit 10a52a060788a2eb5502cfddf95da5455d714c73[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Feb 15 13:36:29 2022 +0100
+
+    misc email
+
+[33mcommit efb147695b9b643f7f45010523a8fb0f8fa129b5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Feb 9 13:04:28 2022 +0100
+
+    misc
+
+[33mcommit 058c584c3098babc9f2f36d9506ea9a276ba3e32[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Feb 9 12:32:03 2022 +0100
+
+    types
+
+[33mcommit e001c5a054d5e9158751108ff73b88b5efb8041e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Feb 8 15:14:44 2022 +0100
+
+    misc
+
+[33mcommit eb0b2eabed825cac631ac032b92a2c096ca7c176[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Feb 8 11:39:44 2022 +0100
+
+    SubscriptionPopover
+
+[33mcommit 2c9b1bef5541a1dd9e66627151c51fa45d9a7eb0[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Feb 5 14:09:26 2022 +0100
+
+    misc
+
+[33mcommit 7141a5042b8ef5c300c384a9aa3a6a1428fea786[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Feb 4 23:04:04 2022 +0100
+
+    misc
+
+[33mcommit 21867012626828f46e1536f645039c370b374797[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Feb 4 14:46:31 2022 +0100
+
+    eventNotifications
+
+[33mcommit 3731b37dd804d5e1e489d58dee2926cf6b9a7845[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Feb 4 14:18:03 2022 +0100
+
+    topicNotifications
+
+[33mcommit 845d5abb29539efdaa324a96c2fb7fae07915a16[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Feb 2 14:59:15 2022 +0100
+
+    add subeditpopover to org sub list
+
+[33mcommit c66807e4413bb72f9bd259b374d3f5fd6ae04495[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Jan 28 09:48:56 2022 +0100
+
+    OrgPage topo
+
+[33mcommit 6c9f7204a09c423c6f6e1aef59feac69705f5c92[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Jan 21 09:05:19 2022 +0100
+
+    misc
+
+[33mcommit 6790b6c9c13a25dfa051bfbd4e448a076f27bb78[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Jan 21 08:33:51 2022 +0100
+
+    misc
+
+[33mcommit 3227460df136c122c8ad863adc5ba19771f1ccc5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Jan 20 17:40:24 2022 +0100
+
+    tabs
+
+[33mcommit 6ea2677dec9338b721d10be5ea9f8ad9e4ad1c67[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Jan 20 11:44:21 2022 +0100
+
+    misc
+
+[33mcommit e3dc2f922c960c2b5eb1069127cb88a2a5bb67bd[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Jan 19 19:56:01 2022 +0100
+
+    misc
+
+[33mcommit 188a49606a609f5b76b3eacb5e5e9d5362843264[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Jan 18 11:10:53 2022 +0100
+
+    misc
+
+[33mcommit 61c1918a3852c504e5964cf85802a9b29057117c[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jan 17 22:41:22 2022 +0100
+
+    orgPassword
+
+[33mcommit 61ffadd5d2d351c344189cede524b64ecbb35619[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Jan 15 21:30:08 2022 +0100
+
+    misc
+
+[33mcommit 76506463efaef6572c82608f7ed89fa21225eafd[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Jan 14 23:23:07 2022 +0100
+
+    gnsa
+
+[33mcommit bc430e514f5a07f511402830dbe0cc58ce4147a9[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Jan 14 12:49:51 2022 +0100
+
+    testing
+
+[33mcommit 56bd29a2947d50bb657da60a47bcbf1e966c6842[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Jan 14 11:15:41 2022 +0100
+
+    misc
+
+[33mcommit d60772262717dfa63fd6d379d411d30fbafd7c1c[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Jan 13 21:32:19 2022 +0100
+
+    remove react-detect-offline
+
+[33mcommit 8bef211c013d2cc24218f9cd37af0e554c43648e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Jan 13 21:23:17 2022 +0100
+
+    refactor entity fetching logic
+
+[33mcommit c969ffed59b319361c49235152452987260988b8[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Jan 13 01:45:47 2022 +0100
+
+    misc
+
+[33mcommit 3a104923875798abaa2beb5d39cf6cea4be43f3f[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Jan 12 13:01:56 2022 +0100
+
+    quill -> tinymce
+
+[33mcommit 56892ddfd543cfe60e09d492b4c329740e1b7aee[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jan 10 23:38:14 2022 +0100
+
+    misc
+
+[33mcommit 12d8fddd309af11b075ad4229f173b30ba7dd360[m
+Merge: 32e9f14 e2f5f05
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jan 10 23:08:19 2022 +0100
+
+    Merge branch 'main' of bitbucket.org:romseguy/assolidaires into main
+
+[33mcommit e2f5f0594aae94718cb2189cc375ba0512c1b780[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jan 10 21:54:11 2022 +0100
+
+    POST /subscriptions body.orgs tagTypes
+
+[33mcommit 32e9f1488e54681c587617e9e2ea8754c70e5f9e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jan 10 21:54:11 2022 +0100
+
+    POST /subscriptions body.orgs tagTypes
+
+[33mcommit 37a062198a5514450b192aad713c61854b9b2d1b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jan 10 20:54:57 2022 +0100
+
+    aucourant -> forum
+
+[33mcommit 5eabdf37c67094cb08feb701beea5a3bdca70230[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jan 10 20:23:14 2022 +0100
+
+    reset misc
+
+[33mcommit 93dfb9bd13197e9fa0afd356b937218a4dc5d7e6[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Jan 10 03:20:51 2022 +0100
+
+    misc
+
+[33mcommit 3691d3957c919b08d21e2a3f12f7647a843e99a8[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Jan 7 21:02:19 2022 +0100
+
+    misc
+
+[33mcommit 5794bc8e27afe4fbca208b81c7f27248141153fd[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Jan 6 21:29:25 2022 +0100
+
+    tree
+
+[33mcommit 71f9b71e0370b1fcb52eae582125121918849775[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Jan 6 17:49:12 2022 +0100
+
+    misc
+
+[33mcommit 4a195f9137f0b6ca201cf9c10eaeed21c5c47792[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Jan 6 15:32:51 2022 +0100
+
+    license
+
+[33mcommit 49df791e5cfd62da430d67737c8371e19bbb3381[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Jan 4 19:39:29 2022 +0100
+
+    misc
+
+[33mcommit 31334433de2bad7ac869d28adb74e4ea055f18e9[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Dec 20 11:04:14 2021 +0100
+
+    misc
+
+[33mcommit a9a76387304d82a29713ed536f33f5f95eb17839[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Dec 19 21:17:39 2021 +0100
+
+    contact form
+
+[33mcommit f0e39324b720cd34ed4a42f0e0a083faa2f312ac[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Dec 19 12:00:07 2021 +0100
+
+    orgTabs
+
+[33mcommit 7ab7c5c45a88778c94485d1692155710903120b2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Dec 18 11:13:38 2021 +0100
+
+    misc
+
+[33mcommit 5e3462e5018255bd3de408d379a986fd5dcf734b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Dec 9 11:34:46 2021 +0100
+
+    layout
+
+[33mcommit 33792ae4b7cb2652eb264a65c000f8dfa914247a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Dec 7 10:41:50 2021 +0100
+
+    EntityPageTabList
+
+[33mcommit 88a670836c338a3eb6673ac0a2438a4521df8ba8[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Dec 4 20:11:10 2021 +0000
+
+    misc
+
+[33mcommit a7ae9c85f7b3d882e6da1d2242495b40479fec96[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Nov 29 14:02:25 2021 +0100
+
+    misc
+
+[33mcommit 54b9a652199954d93d8f8d71b375bcb1cc1febd5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Nov 29 11:48:20 2021 +0100
+
+    map modals
+
+[33mcommit adabd724215de4e7345a5afb1ffc212184f7b278[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Nov 28 11:20:45 2021 +0100
+
+    misc
+
+[33mcommit a9ebe2a18369bfd72ae8acd40fb10967c13115d8[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Nov 27 12:50:53 2021 +0100
+
+    TopicsListItem flex instead of grid
+
+[33mcommit 2eb7ad49cc6a9c8b3a06af1c4fe7f6d78aa964df[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Nov 23 13:29:47 2021 +0100
+
+    misc
+
+[33mcommit f25c15b027153d7e09929e28dbeeabaf6a186b5a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Nov 22 22:16:08 2021 +0100
+
+    TopicPopover
+
+[33mcommit 709629098f42f5f44c2d11a001a639cb8ff43252[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Nov 22 18:40:32 2021 +0100
+
+    misc
+
+[33mcommit 1a5b6b2d1053b89179d2055fc559d8d93c5b26a6[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Nov 22 17:51:48 2021 +0100
+
+    change login flow
+
+[33mcommit d98d58f0aded2009f7253af417406e6c4589ac4a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Nov 21 18:22:38 2021 +0100
+
+    misc
+
+[33mcommit 90e9db34b73da741dc93c83df8608b8d1d785e92[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Nov 21 17:05:10 2021 +0100
+
+    permissions
+
+[33mcommit bb8e15734cb4051ac621a069e61a10e310046b93[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Nov 21 15:45:46 2021 +0100
+
+    refactoring
+
+[33mcommit b10268db11ebb5ac08e20c04fe5b65c8c567d54a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Nov 20 21:11:17 2021 +0100
+
+    reduce bundle size
+
+[33mcommit 281fea5d033b4d9e2e700235683700318668352c[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Nov 20 18:29:18 2021 +0100
+
+    improve clustering
+
+[33mcommit 1aa06e12d99e66b70dee7e29c630d1ee305f1c96[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Nov 18 18:33:49 2021 +0100
+
+    topics/events push notifications
+
+[33mcommit 410075dff0d2cf0a7bb8646d34b1868929ecd01d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Nov 18 14:41:19 2021 +0100
+
+    misc
+
+[33mcommit 28559da52f633ed4cadfb78f19a068299502d142[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Nov 18 11:05:51 2021 +0100
+
+    misc
+
+[33mcommit 3d1b7ec31087bc575d40c0bbd7f060a166d53b7b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Nov 17 11:37:45 2021 +0100
+
+    delete topic category & suggest event category
+
+[33mcommit 92dbf33183dc9846e63289ffa8d35f3f68bf1e6b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Nov 15 17:53:51 2021 +0100
+
+    misc
+
+[33mcommit 43f1b14042423c750c8e1f2aff41ec3496573cae[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Nov 15 14:13:27 2021 +0100
+
+    topic categories
+
+[33mcommit e615d9c8c1de1b92ed9686d767a2794f364f0faa[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Nov 14 17:48:57 2021 +0100
+
+    misc
+
+[33mcommit e615491b0c32543b80521dab25fca0140ecc30e7[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Nov 14 01:56:27 2021 +0100
+
+    send topic notifs to org lists
+
+[33mcommit d6e56d83defedd517ba2d5162b80af845d0d3a0e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Nov 13 13:46:08 2021 +0100
+
+    send event invites to org lists
+
+[33mcommit 033c221c7a654192d549754c292c51b50443a015[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Nov 12 23:45:18 2021 +0100
+
+    refactoring
+
+[33mcommit 25a6f11f2b4cce2974ef4be7cefc4b82089ae6dc[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Nov 11 20:25:52 2021 +0100
+
+    orgLists
+
+[33mcommit 1766b6032970758bda553894a3494bd82b0381a8[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Nov 11 11:46:45 2021 +0100
+
+    misc
+
+[33mcommit c8acb1fcca35a7a339064295a8e3f60964f9b3a3[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Nov 10 22:22:44 2021 +0100
+
+    LocationButton
+
+[33mcommit 6e95568753b972852cb56be0de32239398666267[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Nov 9 20:52:07 2021 +0100
+
+    misc
+
+[33mcommit 201e9797ad0ba7aac609f9215ffa9eda2590ec05[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Nov 9 17:31:42 2021 +0100
+
+    logo/banner
+
+[33mcommit 30e77c6bf50313eeb2522a5cab7fcadc7bc68ce2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Nov 8 21:54:15 2021 +0100
+
+    grid -> table
+
+[33mcommit 34305936af17f2e02c8f9a8019a301d258a79a12[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Nov 8 19:36:53 2021 +0100
+
+    monthrepeat
+
+[33mcommit 3e4ee8d0c5360953c122b84c7f5217bcca47107e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Nov 3 12:43:18 2021 +0100
+
+    misc
+
+[33mcommit 28c7d924399cd4e67506305d5f8d30dcebd6d65d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Nov 3 12:41:14 2021 +0100
+
+    gitignore
+
+[33mcommit ce6ea0ebc90b6cccd8dc7b1eb9c6c01f9faa0ec4[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Nov 2 15:04:02 2021 +0100
+
+    misc
+
+[33mcommit efa2924d5e0340433fa4b8cc34b008b47d569409[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Nov 2 13:51:59 2021 +0100
+
+    popover heights
+
+[33mcommit 4ee2d56a8cc78b486793b0e63be77c58d48922f4[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Oct 31 11:15:16 2021 +0100
+
+    misc
+
+[33mcommit 905a26e8a29653e792a8b6b089e3299b25ce4544[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Oct 30 22:33:35 2021 +0200
+
+    userpage documents
+
+[33mcommit 394cb87b39e57d44d6ea921cbc083a82fd6d669b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Oct 30 19:11:43 2021 +0200
+
+    delete document
+
+[33mcommit d4ec81ac9e7c1ba1aff183007d250ea8970217d2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Oct 30 16:08:07 2021 +0200
+
+    NetworksPage
+
+[33mcommit 71b0ed5b2b4702957bbc2c3a4f1b7019f391c3a6[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Oct 28 11:48:37 2021 +0200
+
+    misc
+
+[33mcommit 855f05e91ac8ebc476adc0ecf6fb912946308419[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Oct 27 14:45:00 2021 +0200
+
+    otherDays
+
+[33mcommit ea3c8ce1fd120f12bac0c8e71e0df46125e77ad5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Oct 26 16:38:27 2021 +0200
+
+    network org type
+
+[33mcommit 3e4dab86b7aa2195d8d526959438112ff40c7300[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Oct 24 14:04:53 2021 +0200
+
+    delete build
+
+[33mcommit 91a73f2216c715a89149aeb3eda4e87ed2dac62f[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Oct 24 14:04:41 2021 +0200
+
+    RTEditor: save html along with quill html
+
+[33mcommit 1b56b9b2b980153dce0500cffeb235563bcc1701[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Oct 22 17:09:51 2021 +0200
+
+    add sw
+
+[33mcommit f537a8bb41f524ea8723b2579a47c4e5adf69f5a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Oct 22 15:52:30 2021 +0200
+
+    add build
+
+[33mcommit 9f5b9cc9e5a912d8c2851943e2f8aadd227761a7[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Oct 22 13:21:02 2021 +0200
+
+    TopicList refactoring
+
+[33mcommit d0d38260974de87e6dd7a34727d4361aeff047ef[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Oct 22 01:43:24 2021 +0200
+
+    fix quill
+
+[33mcommit 3309435759bcc963024de532294c0bb4b8d2b92b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Oct 21 12:04:07 2021 +0200
+
+    misc
+
+[33mcommit d8977c24c8c68853ce71572643f05d8848dbc43a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Oct 18 12:44:06 2021 +0200
+
+    SubscriptionPopover
+
+[33mcommit 412ac7a3e58fb67d8f25533c0cb1a7cb4c27f1ee[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Oct 17 19:42:12 2021 +0200
+
+    unsubscribe
+
+[33mcommit 3cd7bb0de12c0934c4b92d452de3b672093d0205[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Oct 14 14:47:31 2021 +0200
+
+    add timeline to marker modal
+    add EventPopover
+
+[33mcommit 66adeda40a823df15d109b3ccf192cc67c20301f[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Oct 14 13:26:13 2021 +0200
+
+    misc
+
+[33mcommit 3b94a5b39c5bce17af0b6f57620e1b5082884eb0[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Oct 13 14:30:52 2021 +0200
+
+    eventslist topicslist misc
+
+[33mcommit 632ea62106c258dc22457ed02730e0efa4e924c6[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Oct 12 21:18:25 2021 +0200
+
+    multiple
+
+[33mcommit cccfc41022425c4adf1c9a6bcfcb4f2e697141e3[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Oct 12 11:57:45 2021 +0200
+
+    url optional prefix
+
+[33mcommit 58991374efc4148327bfd71094af1a9ed298905c[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Oct 11 13:10:51 2021 +0200
+
+    remote email sending
+
+[33mcommit 1f3edae045b189079eb8330a27e93878ed890c98[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Oct 9 11:51:41 2021 +0200
+
+    email preview
+
+[33mcommit e9d0ef242182533a8df079d88c699758bcde77dc[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Oct 9 10:37:26 2021 +0200
+
+    misc
+
+[33mcommit fc5c1cf3c3d0c72fb62e922754b2bd47818cd0f1[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Oct 8 19:51:52 2021 +0200
+
+    rteditor upload images to server
+
+[33mcommit f2042d3a56a184946501452086c5418dd6a27c59[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Oct 6 20:33:38 2021 +0200
+
+    refactoring
+
+[33mcommit 68f9e3fd69e8eabd5be2e3439e8612d518a63047[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Oct 4 17:58:17 2021 +0200
+
+    fix forwarding and eventslist cat filter
+
+[33mcommit 6f5591cd53a54eea6ff605782d762e7beccdfad2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Oct 3 19:22:53 2021 +0200
+
+    EventsListItem
+
+[33mcommit b07fb80c966292078a9dfdbee62aa7663d01a7e5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Oct 3 14:59:18 2021 +0200
+
+    update ts
+
+[33mcommit 022797f5ba466e5a38baa3e2bc784467a9bc7ee8[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Oct 3 13:06:25 2021 +0200
+
+    misc
+
+[33mcommit 02eb400988a449cb73bf1c07258db59d6d10cb43[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Oct 2 19:36:27 2021 +0200
+
+    topics notif
+
+[33mcommit a9d4a2c325ac9cf7fea779e43432f1bb0e27a466[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Oct 2 17:30:30 2021 +0200
+
+    events notif
+
+[33mcommit aab39f3da5f539319e259a11829e94d61c3b06ec[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Oct 2 14:29:56 2021 +0200
+
+    org/topic unsub
+
+[33mcommit ee1174d3dac647ee1ca0e268af60d1bbe3f67de2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Sep 30 13:20:59 2021 +0200
+
+    banner
+
+[33mcommit e7eaa775a820c4bee4eab27ac56d129fa83e121a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Sep 29 20:35:02 2021 +0200
+
+    event.otherDays
+
+[33mcommit 0d2d2e09edf558506d45ad8ca0e7e8a1ee9fa6fb[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Sep 28 23:48:47 2021 +0200
+
+    header
+
+[33mcommit 104846a9a6bb7e2a1f29ffd85b83a56e2d535a7d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Sep 28 19:21:10 2021 +0200
+
+    event categories
+
+[33mcommit 85d2beaf215f6133d5e21f8f25049dc31075827a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 27 18:30:17 2021 +0200
+
+    misc
+
+[33mcommit f49c2e20ca63a9621400bab8f0bea5d93c4b9b44[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 27 17:20:19 2021 +0200
+
+    display topic subscribers
+
+[33mcommit cb48ec4da473d8f190ea4afcfc6d2635b11f68b2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Sep 26 18:31:15 2021 +0200
+
+    files
+
+[33mcommit 984d9874318cf4a3df08d2852d2c0872e205f279[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 24 21:29:59 2021 +0200
+
+    logo
+
+[33mcommit af8abb6e7cb40edd226002af1bb27811353992c0[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 24 12:53:11 2021 +0200
+
+    misc
+
+[33mcommit bf89b0d18b96325084648df37b6b9cd7f65e03a2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 24 09:19:17 2021 +0200
+
+    offline badge
+
+[33mcommit 583565b5413aa24a7b7cb592ffc9f50b4d012efc[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 17 16:52:33 2021 +0200
+
+    misc
+
+[33mcommit c2c47abb011a48f02e3f3433a0b3953a147b0c2a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Sep 15 20:11:55 2021 +0200
+
+    push notif
+
+[33mcommit 0af352f8239b067cef75a3eb5d33b4abbb9cd8ae[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Sep 15 13:24:46 2021 +0200
+
+    misc
+
+[33mcommit 1cddb55c49a7ef684fa6bc5934e9342abf09d387[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Sep 14 21:46:07 2021 +0200
+
+    email login
+
+[33mcommit 7a3363d5ca9d14c4e1d5efa8591ad198446c734b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Sep 14 13:47:46 2021 +0200
+
+    push notif
+
+[33mcommit 7d12e955ca13acaf4374ee1614fd833e6198b4f0[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Sep 12 17:10:20 2021 +0200
+
+    projects blueprint
+
+[33mcommit 299b7c346138cbbe902a3d9fb8aa419349fa171d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Sep 11 17:45:50 2021 +0200
+
+    EventPage refactoring
+
+[33mcommit b5e70492ae4ef05db85133a0ea42aa4d245ce450[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 10 19:27:29 2021 +0200
+
+    push notif sandbox
+
+[33mcommit ae7b01584d5e2edbcd7c26fddf67490fda98a7b9[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 10 16:59:32 2021 +0200
+
+    accessibility
+
+[33mcommit b68556c3622c58aa0a67d1ffe5a99b839136625a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 10 14:54:49 2021 +0200
+
+    prompt email when logged out
+
+[33mcommit 813ce3e8262591cbebc0dc580c66c0b9c361db21[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 10 13:54:58 2021 +0200
+
+    orgconfigsub
+
+[33mcommit 1b5bed519b7997974bf21866a0cbd5a5dbd48ae2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Sep 10 12:24:27 2021 +0200
+
+    misc
+
+[33mcommit 8ca6ff639e78bc64af1b1869787f8cd6c0fd792a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Sep 7 10:12:18 2021 +0200
+
+    export/import
+
+[33mcommit 48970e72d1532d3cd05004453501398fea40a1fc[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 6 21:19:52 2021 +0200
+
+    edit topic message
+
+[33mcommit 7beddbb2c31d3bc34140c5a20c6d7b9dcd0365fd[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 6 16:13:36 2021 +0200
+
+    tweaks
+
+[33mcommit 91c9817b483779fcb21a42e9eda65c6f44ee1c14[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 6 15:42:11 2021 +0200
+
+    Attend/unattend event
+
+[33mcommit dadda01970adc2bbbeced08a49f2818cdabe17c7[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Sep 6 12:35:06 2021 +0200
+
+    Privacy adjustments
+
+[33mcommit 64e89a239d0e8d4ab5fbfcfeb59a5b94f4abea21[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Sep 4 13:36:21 2021 +0200
+
+    misc
+
+[33mcommit b876f36992e4897dc2b4fb9b07b29aa96670c8f2[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Sep 2 15:31:42 2021 +0200
+
+    event retweet
+
+[33mcommit d435d7785dcdedfb9e672d9628a2d1bddb614edb[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Sep 1 19:08:42 2021 +0200
+
+    event dates as subtitle
+
+[33mcommit 86b87d91ece8209e00df23b6da5071e028d389a1[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Sep 1 18:40:50 2021 +0200
+
+    Event attendees
+
+[33mcommit 40c6826533e0a3589ad7a12ac3ebe3af9755afaa[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Aug 31 20:52:24 2021 +0200
+
+    edit topic
+
+[33mcommit 6fe820de04f14cf1a035fe0a5dbb7edfbd6a8d36[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Aug 25 10:03:21 2021 +0200
+
+    misc
+
+[33mcommit 302847feacbac19f215e8a394cbbd4a10fdfdf97[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Aug 19 16:39:47 2021 +0200
+
+    revert gSSP
+
+[33mcommit 5c9a03e5675cd3f7eb97554670768a699eb055aa[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Aug 18 21:35:19 2021 +0200
+
+    misc
+
+[33mcommit 9cdd9f82670d00a9baad96ea6566fc77f6533d72[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Aug 14 17:58:57 2021 +0200
+
+    sub only events
+
+[33mcommit 2d1430f974552a3ca4e8db8eb7b0f091acba3da9[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Aug 13 15:48:06 2021 +0200
+
+    event subscriptions
+
+[33mcommit 61eb35f15f8274add605649e9ff196c80d10f597[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Aug 13 00:55:26 2021 +0200
+
+    misc
+
+[33mcommit efb412c14a2513f67b02417be8a7374be0f841dc[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Aug 12 23:54:35 2021 +0200
+
+    Fix zoomLevel
+
+[33mcommit 09c05c8b001174ded1b344d5222132c5eb61ff03[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Aug 12 22:59:34 2021 +0200
+
+    Refactoring
+
+[33mcommit 12f313547b5fc6c8d05fedd867a211e5b8b30970[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Aug 12 17:11:37 2021 +0200
+
+    Marker
+
+[33mcommit 585550ab4a6dfa6c4034cb03e8bdaf7d444ab984[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Aug 12 15:48:39 2021 +0200
+
+    Fullscreen map
+
+[33mcommit db20411296c8865b545580ff2bbc8ef059ff18b8[m
+Author: Romain Séguy <rom.seguy@lilo.org>
+Date:   Wed Aug 11 15:32:40 2021 +0000
+
+    misc
+
+[33mcommit f472d9b9a11ba90d30349f7fc7dc02028057dd15[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Aug 11 13:19:44 2021 +0200
+
+    Refactoring
+
+[33mcommit 40f2fef6c1b9dc485362646b3d71eeae111755c3[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Aug 11 09:53:18 2021 +0200
+
+    Forgotten
+
+[33mcommit 05f8fc58217781854bfe61b92dd593b8af4a089c[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Aug 9 12:12:41 2021 +0200
+
+    OrgConfigSubscribersPanel OrgTopics tests
+
+[33mcommit cdad861e22dc9af16e84f435918684fb1a46660e[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Aug 9 01:45:46 2021 +0200
+
+    fix url
+
+[33mcommit eeb258d5ccfbfac93747dcfb69754d2953399b8f[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Aug 9 00:04:03 2021 +0200
+
+    add cypress back
+
+[33mcommit c8aee90d071a1f37bb26caaed09a774257209a0f[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Aug 8 17:57:20 2021 +0200
+
+    more TS support
+
+[33mcommit 870d9878bacc19cdb2f53925f4c5ac7e42739059[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Aug 8 01:29:25 2021 +0200
+
+    MapClusters
+
+[33mcommit 5576e7138985c77d5026be5fe0d12553149774f4[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Aug 7 21:02:05 2021 +0200
+
+    OrgMap
+
+[33mcommit 57a94f1455b3741f9330f68734f0baac05237366[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Aug 7 18:12:30 2021 +0200
+
+    Topic notif
+
+[33mcommit 4073866459f172ade0f551e86e4fb9c6c82549f5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Aug 7 15:58:20 2021 +0200
+
+    TopicSubscriptions
+
+[33mcommit 29bd336a818ed6ae02fdfc46e8dc83ec37d89de5[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Aug 6 22:09:18 2021 +0200
+
+    Fixed redirects
+
+[33mcommit 4a457d2ed469c80729380ea3ce07135fed9ac82b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Aug 6 22:00:23 2021 +0200
+
+    lockfile
+
+[33mcommit 98490791eb42772771affdf9e5be05d012464feb[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Aug 6 20:56:27 2021 +0200
+
+    Marker DescriptionModal
+
+[33mcommit 96f0a4e0dba41aea63e4f67aba005fbca269ac7a[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Aug 6 18:05:05 2021 +0200
+
+    Marker
+
+[33mcommit 851cdd4c0ccc1fa39a274cecb511b21462b30892[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Aug 6 15:56:15 2021 +0200
+
+    Map
+
+[33mcommit 049692b44d1e0936abc6390bcd2206c2137b68a4[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Fri Aug 6 12:15:43 2021 +0200
+
+    UserForm
+
+[33mcommit 6958367c1ace9b876632c50c5abc5807790c806d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Thu Aug 5 17:32:27 2021 +0200
+
+    welcome
+
+[33mcommit 19d6ac7cb91dd7926f576af7f806cc59f44ff8f3[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Aug 3 18:05:10 2021 +0200
+
+    misc
+
+[33mcommit 33fc53b0191f8181833135fc18f545b028fd58de[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Aug 3 18:04:33 2021 +0200
+
+    email
+
+[33mcommit 09b58c0795adba24000a336738b4acb10682bdbe[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Aug 3 16:37:14 2021 +0200
+
+    OrgPageTabs
+
+[33mcommit 05b728d22b8de3531dd0249fe4517f5754dc07ba[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Aug 3 15:02:06 2021 +0200
+
+    eventNotif
+
+[33mcommit 206326018be794d68ff27a64d3d232fb2d411c1d[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Tue Aug 3 10:53:51 2021 +0200
+
+    org subscribers
+
+[33mcommit 0406b00d458e153d59d82477427c4474681ed4b7[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Mon Aug 2 15:58:00 2021 +0200
+
+    misc
+
+[33mcommit 2ee5e3dafbbfc2462db6e283581682d50a820948[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Aug 1 23:29:39 2021 +0200
+
+    org unsub
+
+[33mcommit 05f9fc8ae38492b40c23ec0505567188f0ce83bc[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Aug 1 19:24:28 2021 +0200
+
+    orgTopics.visibility
+
+[33mcommit 321318069555436696dc531dec20e3e387e6d71b[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Aug 1 14:51:35 2021 +0200
+
+    EmailSubscriptionsPopover
+
+[33mcommit 3667804706b7c648a1a4dc4e82d6b7949ed15d08[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sun Aug 1 08:51:11 2021 +0200
+
+    Subscription
+
+[33mcommit b9bbb1373213aeb8cc504fcb1399a2bf02e67513[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Jul 31 16:33:04 2021 +0200
+
+    TopicMessagesList
+
+[33mcommit 469295e755fca47580bd333226dcad45cba08b70[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Sat Jul 31 12:41:25 2021 +0200
+
+    event.isApproved
+
+[33mcommit 9e0586ff9d78bf5cd1dd5668a228f2bb3fd03216[m
+Author: Romain Séguy <rom.seguy@gmail.com>
+Date:   Wed Jul 28 11:38:50 2021 +0200
+
+    0

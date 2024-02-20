@@ -15,7 +15,7 @@ import {
   Text,
   useColorMode
 } from "@chakra-ui/react";
-import router from "next/router";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { FaImages } from "react-icons/fa";
 import { useSelector } from "react-redux";
@@ -51,6 +51,7 @@ export const EntityPageDocuments = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
+  const router = useRouter();
   const { data: session } = useSession();
 
   const badgeProps: BadgeProps = {

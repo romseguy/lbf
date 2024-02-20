@@ -206,6 +206,29 @@ export const TopicForm = ({
         </FormErrorMessage>
       </FormControl>
 
+      {!props.topic && (
+        <FormControl isInvalid={!!errors["topicMessage"]} mb={3}>
+          <FormLabel>Message (optionnel)</FormLabel>
+          <Controller
+            name="topicMessage"
+            control={control}
+            render={(renderProps) => {
+              return (
+                <RTEditor
+                  placeholder="Contenu de votre message"
+                  onChange={({ html }) => {
+                    renderProps.onChange(html);
+                  }}
+                />
+              );
+            }}
+          />
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="topicMessage" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
+
       <FormControl isInvalid={!!errors["topicCategory"]} mb={3}>
         <FormLabel>Catégorie (optionnel)</FormLabel>
         <Controller
@@ -319,29 +342,6 @@ export const TopicForm = ({
           <ErrorMessage errors={errors} name="topicCategory" />
         </FormErrorMessage>
       </FormControl>
-
-      {!props.topic && (
-        <FormControl isInvalid={!!errors["topicMessage"]} mb={3}>
-          <FormLabel>Message (optionnel)</FormLabel>
-          <Controller
-            name="topicMessage"
-            control={control}
-            render={(renderProps) => {
-              return (
-                <RTEditor
-                  placeholder="Contenu de votre message"
-                  onChange={({ html }) => {
-                    renderProps.onChange(html);
-                  }}
-                />
-              );
-            }}
-          />
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="topicMessage" />
-          </FormErrorMessage>
-        </FormControl>
-      )}
 
       {org && !isEntityPrivate && (
         <FormControl mb={3}>

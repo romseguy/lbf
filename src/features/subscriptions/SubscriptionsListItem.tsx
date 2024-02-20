@@ -18,7 +18,7 @@ import {
   ISubscription,
   EOrgSubscriptionType
 } from "models/Subscription";
-import router from "next/router";
+import { useRouter } from "next/router";
 import React from "react";
 import { IoIosPerson } from "react-icons/io";
 import { useAppDispatch } from "store";
@@ -38,6 +38,7 @@ export const SubscriptionsListItem = ({
   subscription: ISubscription;
 }) => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const toast = useToast({ position: "top" });
   const [deleteSubscription, deleteSubscriptionMutation] =
     useDeleteSubscriptionMutation();

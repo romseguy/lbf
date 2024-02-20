@@ -53,7 +53,7 @@ export const OrgPage = ({
   //#region org
   const org = orgQuery.data;
   const isCreator =
-    org.orgUrl === "nom_de_votre_planete" || // demo page
+    org.orgUrl === "nom_de_votre_forum" || // demo page
     session?.user.userId === getRefId(org) ||
     session?.user.isAdmin ||
     false;

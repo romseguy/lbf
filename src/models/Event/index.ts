@@ -378,6 +378,7 @@ export const EventInviteStatuses: Record<EEventInviteStatus, string> = {
 export const EventVisibilities: Record<EEventVisibility, string> = {
   [EEventVisibility.FOLLOWERS]: "Abonnés",
   [EEventVisibility.SUBSCRIBERS]: "Adhérents",
+  [EEventVisibility.PRIVATE]: "Privé",
   [EEventVisibility.PUBLIC]: "Publique"
 };
 //#endregion

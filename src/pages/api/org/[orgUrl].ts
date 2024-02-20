@@ -76,7 +76,7 @@ handler.get<
 
     const session = await getSession({ req });
     const isCreator =
-      orgUrl === "nom_de_votre_planete" ||
+      orgUrl === "nom_de_votre_forum" ||
       equals(getRefId(org), session?.user.userId) ||
       session?.user.isAdmin;
 

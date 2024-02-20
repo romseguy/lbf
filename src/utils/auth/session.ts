@@ -16,23 +16,23 @@ export type Session = {
 
 export const devSession =
   // lilo
-  // {
-  //   user: {
-  //     email: "rom.seguy@lilo.org",
-  //     userId: "60e340cb56ef290008d2e75d",
-  //     userName: "romain",
-  //     isAdmin: true
-  //   }
-  // };
-  // gmail
-  // {
-  //   user: {
-  //     email: "rom.seguy@gmail.com",
-  //     userId: "61138a879544b000088318ae",
-  //     userName: "romseguy66"
-  //   }
-  // };
-  null;
+  {
+    user: {
+      email: "rom.seguy@lilo.org",
+      userId: "60e340cb56ef290008d2e75d",
+      userName: "romain",
+      isAdmin: true
+    }
+  };
+// gmail
+// {
+//   user: {
+//     email: "rom.seguy@gmail.com",
+//     userId: "61138a879544b000088318ae",
+//     userName: "romseguy66"
+//   }
+// };
+null;
 
 export const testSession =
   // admin

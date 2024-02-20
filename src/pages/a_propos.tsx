@@ -82,7 +82,7 @@ export const AboutPage = ({
       GNU AGPL
     </a>
   );
-  const OrgTag = ({ orgUrl = "nom_de_votre_planete" }: { orgUrl?: string }) => {
+  const OrgTag = ({ orgUrl = "nom_de_votre_forum" }: { orgUrl?: string }) => {
     const url = `${process.env.NEXT_PUBLIC_URL}/${orgUrl}/discussions`;
     const urlElement = (
       <Flex flexWrap="wrap" my={2}>

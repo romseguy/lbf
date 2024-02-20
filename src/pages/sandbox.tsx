@@ -36,7 +36,7 @@ const Sandbox = ({ ...props }: PageProps) => {
               const res = await api.get("sandbox");
               setIsLoading(true);
 
-              if (res.error) console.log("1", res.error);
+              if (res.error) console.log("error", res.error);
               else if (res.data) setData(res.data);
             } catch (error) {
               console.log("🚀 ~ file: sandbox.tsx:23 ~ error:", error);
