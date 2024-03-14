@@ -158,7 +158,7 @@ export const OrgPageTabs = ({
       isManual
       lazyBehavior="keepMounted"
       variant="solid-rounded"
-      background={isDark ? "black" : "lightcyan"}
+      background={isDark ? "black" : "blackAlpha.200"}
       borderColor={isDark ? "gray.600" : "gray.200"}
       borderRadius="lg"
       borderWidth={1}

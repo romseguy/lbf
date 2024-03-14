@@ -22,7 +22,8 @@ export const Column = ({
   return (
     <Flex
       flexDirection="column"
-      bg={isDark ? "gray.600" : "lightcyan"}
+      //bg={isDark ? "gray.600" : "lightcyan"}
+      bg={isDark ? "gray.600" : "blackAlpha.200"}
       borderWidth={1}
       borderColor={isDark ? "gray.500" : "gray.200"}
       borderRadius="lg"

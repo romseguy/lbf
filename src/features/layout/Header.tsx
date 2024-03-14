@@ -94,7 +94,12 @@ export const Header = ({
 
         ${!banner &&
         `
-          background-color: ${isDark ? theme.colors.gray[700] : "lightblue"};
+          /*background-color: ${
+            isDark ? theme.colors.gray[700] : "lightblue"
+          };*/
+          background-color: ${
+            isDark ? theme.colors.gray[700] : theme.colors.blackAlpha[50]
+          };
           ${logo ? `` : ``}
         `}
       `}

@@ -14,7 +14,8 @@ import {
   useColorMode,
   useDisclosure,
   useToast,
-  PopoverFooter
+  PopoverFooter,
+  IconButtonProps
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -376,10 +377,12 @@ const TopicPopoverContent = ({
 export const TopicPopover = ({
   isMobile,
   session,
+  iconProps,
   ...props
 }: PopoverProps & {
   isMobile: boolean;
   session: Session;
+  iconProps: Omit<IconButtonProps, "aria-label">;
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -391,9 +394,15 @@ export const TopicPopover = ({
           bg="transparent"
           color={isOpen ? "cyan.600" : undefined}
           _hover={{ bg: "transparent" }}
-          icon={<ChatIcon boxSize={6} mx={3} _hover={{ color: "cyan.600" }} />}
+          icon={
+            <ChatIcon
+              boxSize={6}
+              mx={3}
+              //_hover={{ color: "cyan.600" }}
+            />
+          }
           onClick={onOpen}
-          data-cy="topicPopover"
+          {...iconProps}
         />
       </PopoverTrigger>
       <PopoverContent>

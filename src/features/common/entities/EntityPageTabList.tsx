@@ -13,7 +13,7 @@ export const EntityPageTabList = ({ children, ...props }: TabListProps) => {
     <TabList
       as="nav"
       aria-hidden
-      bgColor={isDark ? "gray.700" : "lightblue"}
+      bgColor={isDark ? "gray.700" : "blackAlpha.50"}
       borderRadius="xl"
       {...(isMobile
         ? {}

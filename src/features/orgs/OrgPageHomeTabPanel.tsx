@@ -144,7 +144,6 @@ export const OrgPageHomeTabPanel = ({
         <TabContainer borderBottomRadius={isChildrenOpen ? undefined : "lg"}>
           <TabContainerHeader
             borderBottomRadius={isChildrenOpen ? undefined : "lg"}
-            _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
             onClick={() =>
               router.push(
                 `${org.orgUrl}${isChildrenOpen ? "" : "/foret"}`,
@@ -209,7 +208,7 @@ export const OrgPageHomeTabPanel = ({
                             borderBottomRadius={0}
                             maxWidth={undefined}
                             mt={3}
-                            bg={isDark ? "gray.700" : "lightcyan"}
+                            //bg={isDark ? "gray.700" : "lightcyan"}
                           >
                             <OrgsList
                               data={org.orgs}
@@ -304,7 +303,6 @@ export const OrgPageHomeTabPanel = ({
       <TabContainer borderBottomRadius={isInfoOpen ? undefined : "lg"}>
         <TabContainerHeader
           borderBottomRadius={isInfoOpen ? undefined : "lg"}
-          _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
           onClick={() =>
             router.push(
               `${org.orgUrl}${isInfoOpen ? "" : "/info"}`,
@@ -428,7 +426,6 @@ export const OrgPageHomeTabPanel = ({
       >
         <TabContainerHeader
           borderBottomRadius={isDescriptionOpen ? undefined : "lg"}
-          _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
           onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
         >
           <Icon
@@ -474,7 +471,10 @@ export const OrgPageHomeTabPanel = ({
         </TabContainerHeader>
 
         {isDescriptionOpen && (
-          <TabContainerContent bg={isDark ? "gray.600" : "#F7FAFC"} p={3}>
+          <TabContainerContent
+            //bg={isDark ? "gray.600" : "#F7FAFC"}
+            p={3}
+          >
             {description && description.length > 0 ? (
               <div className="rteditor">
                 <div

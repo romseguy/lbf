@@ -44,11 +44,11 @@ export const EntityPageTab = ({
       __css={{
         ...styles.tab,
         display: "flex",
-        bgColor: isCurrent ? undefined : isDark ? "gray.800" : "lightcyan",
+        bgColor: isCurrent ? undefined : isDark ? "gray.800" : "white",
         _focus: {
           boxShadow: "none"
         },
-        _hover: { bgColor: "cyan.500" },
+        _hover: { bgColor: "blue.400", color: "white" },
         ...(isMobile
           ? {
               alignSelf: "flex-start",

@@ -30,11 +30,16 @@ export const NavButtonsList = ({
   const isDark = colorMode === "dark";
 
   const buttonProps = {
+    // bg: isDark ? "red.300" : "teal.500",
+    // color: isDark ? "black" : "white",
+    colorScheme: "red",
     borderRadius: "9999px",
-    colorScheme: isDark ? "gray" : "cyan",
-    background: isDark ? undefined : "lightcyan",
     marginRight: "12px",
     my: isMobile ? 2 : undefined
+    // _hover: {
+    //   bg: isDark ? "blue.400" : "blue.400",
+    //   color: isDark ? "white" : undefined
+    // }
   };
   const isEntityPage =
     Array.isArray(router.query.name) &&

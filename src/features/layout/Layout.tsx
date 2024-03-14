@@ -16,24 +16,26 @@ import { Delimiter } from "features/common/Delimiter";
 
 export interface LayoutProps extends PageProps, BoxProps {
   banner?: Base64Image & { mode: "dark" | "light" };
-  logo?: Base64Image;
   entity?: IEntity | IUser;
-  tab?: string;
-  tabItem?: string;
+  logo?: Base64Image;
+  mainContainer?: boolean;
   pageHeader?: React.ReactNode;
   pageTitle?: string;
+  tab?: string;
+  tabItem?: string;
 }
 
 export const Layout = ({
   banner,
   children,
   entity,
-  tab,
-  tabItem,
   isMobile,
   logo,
+  mainContainer = true,
   pageHeader,
   pageTitle,
+  tab,
+  tabItem,
   ...props
 }: React.PropsWithChildren<LayoutProps>) => {
   const { colorMode } = useColorMode();
@@ -64,6 +66,24 @@ export const Layout = ({
       : "Merci de patienter..."
   } – ${process.env.NEXT_PUBLIC_SHORT_URL}`;
 
+  const main = mainContainer ? (
+    <Box
+      as="main"
+      //bg={isDark ? "gray.700" : "lightblue"}
+      bg={isDark ? "gray.700" : "blackAlpha.50"}
+      borderRadius="lg"
+      //flex="1 0 auto"
+      m={isMobile ? 0 : 3}
+      mt={0}
+      p={isMobile ? 3 : 5}
+      pt={isMobile ? 4 : 5}
+    >
+      {children}
+    </Box>
+  ) : (
+    children
+  );
+
   return (
     <>
       <Head>
@@ -83,8 +103,8 @@ export const Layout = ({
 
           @media (min-width: ${breakpoints["2xl"]}) {
             background-color: ${isDark
-              ? theme.colors.black
-              : theme.colors.gray["50"]};
+              ? theme.colors.blackAlpha["900"]
+              : theme.colors.whiteAlpha["900"]};
             margin: 0 auto;
             width: 1180px;
             ${isDark
@@ -125,18 +145,7 @@ export const Layout = ({
         )}
 
         {/* Main */}
-        <Box
-          as="main"
-          bg={isDark ? "gray.700" : "lightblue"}
-          borderRadius="lg"
-          //flex="1 0 auto"
-          m={isMobile ? 0 : 3}
-          mt={0}
-          p={isMobile ? 3 : 5}
-          pt={isMobile ? 4 : 5}
-        >
-          {children}
-        </Box>
+        {main}
 
         {/* Footer */}
         <Box as="footer" pb={3} mt={3}>

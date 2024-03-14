@@ -12,9 +12,11 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
   .use(database)
   .get<NextApiRequest, NextApiResponse>(async function check(req, res) {
     try {
-      const targetLang: deepl.TargetLanguageCode = "en-US";
+      //const targetLang: deepl.TargetLanguageCode = "en-US";
+      const targetLang: deepl.TargetLanguageCode = "fr";
       const result = await translator.translateText(
         `
+
 `,
         null,
         targetLang

@@ -67,11 +67,6 @@ describe("OrgForm.orgType.GENERIC", () => {
     useRouter.mockReturnValue({ query: { name: ["cerisier"] }, pathname: "/cerisier", asPath: "/cerisier" });
     render(<HashPage />, { store })
 
-    const tarace = await screen.findByRole('button')
-    console.log("🚀 ~ file: forms.test.js:67 ~ it.only ~ tarace:", tarace)
-
-
-
     // const user = userEvent.setup()
     //await screen.findByText =
     // waitFor(() => {

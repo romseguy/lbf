@@ -181,6 +181,7 @@ export const RTEditor = ({
           "aligncenter",
           "bold",
           "italic",
+          "strikethrough",
           "charmap"
         ]
       },

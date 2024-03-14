@@ -12,7 +12,8 @@ import {
   Spinner,
   Text,
   VStack,
-  useDisclosure
+  useDisclosure,
+  IconButtonProps
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -210,8 +211,10 @@ const EventPopoverContent = ({
 export const EventPopover = ({
   isMobile,
   session,
+  iconProps,
   ...props
 }: PopoverProps & {
+  iconProps: Omit<IconButtonProps, "aria-label">;
   isMobile: boolean;
   session: Session;
 }) => {
@@ -230,11 +233,11 @@ export const EventPopover = ({
               as={CalendarIcon}
               boxSize={6}
               mx={3}
-              _hover={{ color: "cyan.600" }}
+              //_hover={{ color: "cyan.600" }}
             />
           }
           onClick={onOpen}
-          data-cy="event-popover-button"
+          {...iconProps}
         />
       </PopoverTrigger>
       <PopoverContent>

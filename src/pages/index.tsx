@@ -90,10 +90,11 @@ const IndexPage = (props: PageProps) => {
   //#endregion
 
   return (
-    <Layout {...props} pageTitle={`Forum`}>
+    <Layout {...props} mainContainer={false} pageTitle={`Forum`}>
       <Column
-        m={props.isMobile ? undefined : "0 auto"}
-        maxWidth="4xl"
+        //m={props.isMobile ? undefined : "0 auto"}
+        m={props.isMobile ? undefined : 3}
+        //maxWidth="4xl"
         p={props.isMobile ? 2 : 3}
       >
         {/* <Flex alignItems="center">
@@ -172,8 +173,8 @@ const IndexPage = (props: PageProps) => {
             )}
 
             <Button
-              alignSelf="flex-start"
               colorScheme="teal"
+              alignSelf="flex-start"
               leftIcon={<FaRegMap />}
               rightIcon={
                 isMapModalOpen ? <ChevronUpIcon /> : <ChevronRightIcon />
@@ -196,7 +197,8 @@ const IndexPage = (props: PageProps) => {
         )}
       </Column>
 
-      <Flex mt={3}>
+      {/* Une idée de forum ? */}
+      <Flex mt={6} mb={5}>
         <Column m="0 auto" isCollapsable={isCollapsable}>
           {(isCollapsed) => {
             return (
