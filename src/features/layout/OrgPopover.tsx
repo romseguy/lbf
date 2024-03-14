@@ -11,7 +11,8 @@ import {
   Spinner,
   Text,
   VStack,
-  useDisclosure
+  useDisclosure,
+  IconButtonProps
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -258,9 +259,11 @@ export const OrgPopover = ({
   isMobile,
   orgType = EOrgType.GENERIC,
   session,
+  iconProps,
   ...props
 }: PopoverProps & {
   label?: string;
+  iconProps: Omit<IconButtonProps, "aria-label">;
   isMobile: boolean;
   orgType?: EOrgType;
   session: Session;
@@ -280,11 +283,11 @@ export const OrgPopover = ({
               as={orgType === EOrgType.NETWORK ? FaGlobeEurope : FaTree}
               boxSize={6}
               mx={3}
-              _hover={{ color: "cyan.600" }}
+              //_hover={{ color: "cyan.600" }}
             />
           }
           onClick={onOpen}
-          data-cy="org-popover-button"
+          {...iconProps}
         />
       </PopoverTrigger>
       <PopoverContent>

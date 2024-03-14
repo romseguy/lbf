@@ -43,7 +43,7 @@ export const EventsListToggle = ({
                   setShowPreviousEvents(true);
                 }}
               >
-                Voir les événéments précédents
+                Voir les événéments passés
               </Button>
             )}
 

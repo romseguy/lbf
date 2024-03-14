@@ -14,7 +14,7 @@ export const TabContainer = ({
   return (
     <Flex
       flexDirection="column"
-      bg={isDark ? "gray.700" : "cyan.100"}
+      //bg={isDark ? "gray.700" : "cyan.100"}
       borderTopRadius="lg"
       mb={mb}
       {...props}
@@ -38,11 +38,16 @@ export const TabContainerHeader = ({
   return (
     <Flex
       alignItems="center"
-      bg={isDark ? "gray.700" : "lightblue"}
+      bg={isDark ? "#63B3ED" : "#2B6CB0"}
+      color={isDark ? "black" : "white"}
       borderTopRadius="lg"
       cursor={heading ? "default" : "pointer"}
       py={3}
       tabIndex={0}
+      _hover={{
+        backgroundColor: isDark ? "blue.400" : "blue.400",
+        color: isDark ? "white" : undefined
+      }}
       {...props}
     >
       {heading ? (
@@ -68,7 +73,7 @@ export const TabContainerContent = ({
   return (
     <Flex
       flexDirection="column"
-      bgColor={isDark ? "gray.600" : "cyan.100"}
+      bgColor={isDark ? "gray.700" : "whiteAlpha.700"}
       {...props}
     >
       {children}

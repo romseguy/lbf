@@ -94,7 +94,12 @@ export const HeaderTitle = ({
       }
     })();
   }, [entity]);
-  const heading = <AppHeading pr={1}>{name || pageTitle || ""}</AppHeading>;
+  //const heading = <AppHeading pr={1}>{name || pageTitle || ""}</AppHeading>;
+  const heading = (
+    <AppHeading fontSize="3xl" pr={1}>
+      {name || pageTitle || ""}
+    </AppHeading>
+  );
   const title = (
     <Flex alignItems="center" pt={3} {...props}>
       {icon && (
@@ -150,7 +155,7 @@ export const HeaderTitle = ({
             : "white"
           : isDark
           ? "whiteAlpha.400"
-          : "blackAlpha.200"
+          : "blackAlpha.100"
       }
       borderRadius="lg"
       pb={4}

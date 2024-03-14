@@ -281,7 +281,6 @@ export const SubscribePopover = ({
       leftIcon={<BellIcon boxSize={6} />}
       colorScheme="teal"
       onClick={() => addFollowerSubscription()}
-      data-cy="subscribe-button"
     >
       {isIconOnly ? "" : "S'abonner"}
     </Button>

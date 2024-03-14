@@ -51,13 +51,16 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
         //#region large screens
         @media (min-width: ${breakpoints["2xl"]}) {
           body {
-            background: url(/images/bg.png);
-            background-color: ${isDark
+            background: url(/images/bg.jpg);
+            background-repeat: repeat-y;
+            background-size: cover;
+            //background: url(/images/bg.png);
+            /* background-color: ${isDark
               ? theme.colors.black
               : theme.colors.green["100"]};
             background-position: center center;
             background-repeat: no-repeat;
-            background-attachment: fixed;
+            background-attachment: fixed; */
           }
         }
         //#endregion

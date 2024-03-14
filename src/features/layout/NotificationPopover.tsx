@@ -13,7 +13,8 @@ import {
   Text,
   VStack,
   useColorMode,
-  useDisclosure
+  useDisclosure,
+  IconButtonProps
 } from "@chakra-ui/react";
 import { compareAsc, compareDesc, parseISO } from "date-fns";
 import React, { useEffect, useState } from "react";
@@ -268,8 +269,13 @@ const NotificationPopoverContent = ({ session }: { session: Session }) => {
 export const NotificationPopover = ({
   isMobile,
   session,
+  iconProps,
   ...props
-}: PopoverProps & { isMobile: boolean; session: Session }) => {
+}: PopoverProps & {
+  isMobile: boolean;
+  session: Session;
+  iconProps: Omit<IconButtonProps, "aria-label">;
+}) => {
   const { onOpen, onClose, isOpen } = useDisclosure();
 
   return (
@@ -280,7 +286,14 @@ export const NotificationPopover = ({
           bg="transparent"
           color={isOpen ? "cyan.600" : undefined}
           _hover={{ bg: "transparent" }}
-          icon={<BellIcon boxSize={6} mx={3} _hover={{ color: "cyan.600" }} />}
+          icon={
+            <BellIcon
+              boxSize={6}
+              mx={3}
+              //_hover={{ color: "cyan.600" }}
+            />
+          }
+          {...iconProps}
           onClick={onOpen}
         />
       </PopoverTrigger>

@@ -40,14 +40,17 @@ export const Nav = ({
   const userEmail = useSelector(selectUserEmail);
   const userName = session?.user.userName || "";
 
-  const popoverProps = {
-    bg: isDark ? "gray.800" : "lightcyan",
+  const iconProps = {
+    bg: isDark ? "teal.300" : "teal.500",
     borderColor: isDark ? "gray.600" : "gray.200",
     borderRadius: 9999,
     borderStyle: "solid",
     borderWidth: 1,
+    color: isDark ? "black" : "white",
     mr: 3,
-    pt: 0.5
+    px: 5,
+    py: 6,
+    _hover: { bg: "blue.400", color: "white" }
   };
 
   return (
@@ -71,9 +74,7 @@ export const Nav = ({
               </Td>
               {!session && (
                 <Td border={0} p={0} textAlign="right">
-                  <LoginButton colorScheme="cyan" bg="lightcyan">
-                    Se connecter
-                  </LoginButton>
+                  <LoginButton colorScheme="purple">Se connecter</LoginButton>
                 </Td>
               )}
             </Tr>
@@ -90,7 +91,7 @@ export const Nav = ({
       {session && userEmail && (
         <Table
           role="navigation"
-          bg={isDark ? "gray.700" : "gray.200"}
+          bg={isDark ? "gray.700" : "blackAlpha.50"}
           borderRadius="lg"
           width={isMobile ? undefined : "auto"}
           mb={isMobile ? 1 : 0}
@@ -108,72 +109,67 @@ export const Nav = ({
             <Tr role="row">
               <Td border={0} p={0}>
                 <Flex m={2}>
-                  <>
-                    <Menu>
-                      {/* <Tooltip
+                  <Menu>
+                    {/* <Tooltip
                         label={`Connecté en tant que ${userEmail}`}
                         placement="left"
                       >
                       </Tooltip> */}
-                      <MenuButton aria-label="Menu" data-cy="avatar-button">
-                        <Avatar
-                          boxSize={12}
-                          name={userName}
-                          src={
-                            session.user.userImage
-                              ? session.user.userImage.base64
-                              : undefined
-                          }
-                        />
-                      </MenuButton>
+                    <MenuButton aria-label="Menu">
+                      <Avatar
+                        boxSize={12}
+                        bgColor={isDark ? undefined : "#2B6CB0"}
+                        color={isDark ? undefined : "white"}
+                        name={userName}
+                        src={
+                          session.user.userImage
+                            ? session.user.userImage.base64
+                            : undefined
+                        }
+                      />
+                    </MenuButton>
 
-                      <NavMenuList
-                        email={userEmail}
-                        //session={session}
-                        userName={userName}
-                      />
-                    </Menu>
+                    <NavMenuList
+                      email={userEmail}
+                      //session={session}
+                      userName={userName}
+                    />
+                  </Menu>
 
-                    <Box {...popoverProps} ml={3}>
-                      <OrgPopover
-                        label="Mes planètes"
-                        isMobile={isMobile}
-                        offset={[isMobile ? 80 : 140, 15]}
-                        orgType={EOrgType.NETWORK}
-                        session={session}
-                      />
-                    </Box>
-                    <Box {...popoverProps}>
-                      <OrgPopover
-                        isMobile={isMobile}
-                        offset={[isMobile ? 20 : 140, 15]}
-                        session={session}
-                      />
-                    </Box>
-                    <Box {...popoverProps}>
-                      <EventPopover
-                        isMobile={isMobile}
-                        offset={[isMobile ? -45 : 140, 15]}
-                        session={session}
-                      />
-                    </Box>
-                    <Box {...popoverProps}>
-                      <TopicPopover
-                        isMobile={isMobile}
-                        offset={[isMobile ? -106 : 140, 15]}
-                        session={session}
-                      />
-                    </Box>
-                    {!isMobile && (
-                      <Box {...popoverProps} mr={0}>
-                        <NotificationPopover
-                          isMobile={isMobile}
-                          offset={[isMobile ? -141 : 140, 15]}
-                          session={session}
-                        />
-                      </Box>
-                    )}
-                  </>
+                  <OrgPopover
+                    label="Mes planètes"
+                    isMobile={isMobile}
+                    orgType={EOrgType.NETWORK}
+                    session={session}
+                    offset={[isMobile ? 80 : 140, 15]}
+                    iconProps={{ ...iconProps, ...{ ml: 3 } }}
+                  />
+                  <OrgPopover
+                    isMobile={isMobile}
+                    session={session}
+                    offset={[isMobile ? 20 : 140, 15]}
+                    iconProps={iconProps}
+                  />
+                  <EventPopover
+                    isMobile={isMobile}
+                    session={session}
+                    offset={[isMobile ? -45 : 140, 15]}
+                    iconProps={iconProps}
+                  />
+                  <TopicPopover
+                    isMobile={isMobile}
+                    session={session}
+                    offset={[isMobile ? -106 : 140, 15]}
+                    iconProps={iconProps}
+                  />
+                  {!isMobile && (
+                    <NotificationPopover
+                      isMobile={isMobile}
+                      session={session}
+                      offset={[isMobile ? -141 : 140, 15]}
+                      iconProps={iconProps}
+                    />
+                  )}
                 </Flex>
               </Td>
             </Tr>

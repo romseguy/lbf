@@ -220,7 +220,7 @@ export const OrgsList = ({
       `}
     >
       <Table
-        colorScheme="teal"
+        colorScheme="white"
         css={css`
           th {
             font-size: ${isMobile ? "11px" : "inherit"};
