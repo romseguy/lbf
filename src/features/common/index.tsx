@@ -62,3 +62,4 @@ export * from "./Row";
 export * from "./Spacer";
 export * from "./SubscribeSwitch";
 export * from "./TabContainer";
+export * from "./TextSeparator";

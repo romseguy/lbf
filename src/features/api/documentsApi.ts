@@ -3,6 +3,7 @@ import { objectToQueryString } from "utils/query";
 
 export interface RemoteFile {
   url: string;
+  time: number;
   bytes: number;
 }
 

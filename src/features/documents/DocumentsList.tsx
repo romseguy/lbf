@@ -1,5 +1,6 @@
 import { DownloadIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Flex,
   Grid,
   GridItem,
@@ -8,6 +9,7 @@ import {
   IconButton,
   Image,
   Link,
+  Select,
   Text,
   Tooltip,
   useColorMode,
@@ -15,19 +17,33 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FaImage, FaFile } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import { RemoteImage, useGetDocumentsQuery } from "features/api/documentsApi";
-import { Column, DeleteButton, LinkShare } from "features/common";
+import {
+  Column,
+  DeleteButton,
+  LinkShare,
+  TextSeparator
+} from "features/common";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { isOrg } from "models/Entity";
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
 import { selectIsMobile } from "store/uiSlice";
 import api from "utils/api";
+import { fullDateString } from "utils/date";
 import * as stringUtils from "utils/string";
+
+enum EDocumentsListOrder {
+  ALPHA = "ALPHA",
+  NEWEST = "NEWEST",
+  OLDEST = "OLDEST",
+  PINNED = "PINNED"
+}
+const defaultOrder = EDocumentsListOrder.NEWEST;
 
 export const DocumentsList = ({
   entity,
@@ -52,6 +68,15 @@ export const DocumentsList = ({
     query.refetch();
   }, [entity]);
 
+  const [selectedOrder, setSelectedOrder] =
+    useState<EDocumentsListOrder>(defaultOrder);
+  const documents = useMemo(() => {
+    return [...(query.data || [])].sort((a, b) => {
+      const diff = a.time - b.time;
+      return diff > 0 ? -1 : 1;
+    });
+  }, [query.data]);
+
   //#region modal state
   const [modalState, setModalState] = useState<
     UseDisclosureProps & { image?: RemoteImage }
@@ -71,7 +96,7 @@ export const DocumentsList = ({
 
   return (
     <>
-      {Array.isArray(query.data) && query.data.length > 0 && (
+      {Array.isArray(documents) && documents.length > 0 && (
         <Column
           bg={isDark ? "gray.700" : "lightblue"}
           // css={css`
@@ -80,13 +105,29 @@ export const DocumentsList = ({
           // `}
           {...(isMobile ? { px: 1, borderRadius: 0 } : {})}
         >
+          <Box w="150px" mb={5}>
+            <Select
+              defaultValue={defaultOrder}
+              onChange={(e) => {
+                //@ts-ignore
+                setSelectedOrder(e.target.value);
+              }}
+            >
+              <option value={EDocumentsListOrder.ALPHA}>A-Z</option>
+              <option value={EDocumentsListOrder.PINNED}>Épinglé</option>
+              <option value={EDocumentsListOrder.NEWEST}>Plus récent</option>
+              <option value={EDocumentsListOrder.OLDEST}>Plus ancien</option>
+            </Select>
+          </Box>
+
           <Grid
             gridTemplateColumns="auto 1fr auto"
             alignItems="center"
             gridColumnGap={3}
             gridRowGap={3}
           >
-            {query.data.map((file) => {
+            {documents.map((file) => {
+              const datetime = fullDateString(new Date(file.time));
               const url = `${process.env.NEXT_PUBLIC_FILES}/${entity._id}/${file.url}`;
               const downloadUrl = url;
               const isImage = stringUtils.isImage(file.url);
@@ -151,7 +192,11 @@ export const DocumentsList = ({
                     </Tooltip>
 
                     <Text fontSize="smaller">
-                      {stringUtils.bytesForHuman(file.bytes)}
+                      <>
+                        {stringUtils.bytesForHuman(file.bytes)}
+                        <TextSeparator />
+                        {datetime}
+                      </>
                     </Text>
                   </GridItem>
 
