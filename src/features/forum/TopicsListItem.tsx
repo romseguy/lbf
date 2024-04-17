@@ -37,6 +37,7 @@ import {
 import { css } from "twin.macro";
 import {
   DeleteButton,
+  EditIconButton,
   GridItem,
   PushPinIcon,
   PushPinSlashIcon

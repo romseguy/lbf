@@ -1,9 +1,9 @@
 import { EditIcon } from "@chakra-ui/icons";
-import { Avatar, Box, Flex, IconButton, Tooltip, Text } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Tooltip, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { useSelector } from "react-redux";
-import { DeleteButton } from "features/common";
+import { DeleteIconButton, EditIconButton } from "features/common";
 import { isEdit, ITopic } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
 import { Session } from "utils/auth";
@@ -94,13 +94,8 @@ export const TopicMessagesListItem = ({
             </Box>
 
             <Tooltip placement="bottom" label="Modifier le message">
-              <IconButton
+              <EditIconButton
                 aria-label="Modifier le message"
-                icon={<EditIcon />}
-                bg="transparent"
-                height="auto"
-                minWidth={0}
-                _hover={{ color: "green" }}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (_id)
@@ -109,7 +104,6 @@ export const TopicMessagesListItem = ({
                       [_id]: { ...isEdit[_id], isOpen: true }
                     });
                 }}
-                data-cy="topic-message-edit"
               />
             </Tooltip>
 
@@ -117,9 +111,8 @@ export const TopicMessagesListItem = ({
               ·
             </Box>
 
-            <DeleteButton
+            <DeleteIconButton
               isDisabled={query.isLoading || query.isFetching}
-              isIconOnly
               isLoading={typeof _id === "string" && isLoading[_id]}
               placement="bottom"
               header={<>Êtes vous sûr de vouloir supprimer ce message ?</>}

@@ -35,6 +35,7 @@ import {
 import { useSelector } from "react-redux";
 import {
   Column,
+  EditIconButton,
   EntityButton,
   EntityInfo,
   Link,
@@ -447,20 +448,13 @@ export const OrgPageHomeTabPanel = ({
               label="Modifier la description"
               placement="bottom"
             >
-              <IconButton
+              <EditIconButton
                 aria-label="Modifier la description"
-                icon={<EditIcon />}
                 {...(isMobile
                   ? {
-                      colorScheme: "green",
-                      variant: "outline",
                       ml: 3
                     }
-                  : {
-                      bgColor: "transparent",
-                      height: "auto",
-                      _hover: { color: "green" }
-                    })}
+                  : {})}
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsEdit({ isAddingDescription: true });
