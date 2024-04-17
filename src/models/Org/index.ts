@@ -217,8 +217,8 @@ export const OrgTypes: Record<EOrgType, string> = {
 };
 
 export const OrgVisibilities: Record<EOrgVisibility, string> = {
-  [EOrgVisibility.FRONT]: "Affichée sur la page d'accueil du site",
-  [EOrgVisibility.LINK]: "Visible par ceux qui ont le lien",
+  [EOrgVisibility.FRONT]: "En 1ère page du site",
+  [EOrgVisibility.LINK]: "Uniquement par ceux qui ont le lien",
   [EOrgVisibility.PUBLIC]: "Publique",
   [EOrgVisibility.PRIVATE]: "Protégée par un mot de passe"
 };

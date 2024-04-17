@@ -11,10 +11,7 @@ import {
 import React from "react";
 import { Modal } from "features/common";
 import { UserForm, UserFormProps } from "features/forms/UserForm";
-import { IEntity } from "models/Entity";
-import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
-import { AppQuery, AppQueryWithData } from "utils/types";
 import { IoIosPerson } from "react-icons/io";
 
 export const UserFormModal = (
@@ -32,13 +29,14 @@ export const UserFormModal = (
           <ModalHeader display="flex" alignItems="center">
             {props.user ? (
               <>
-                <EditIcon mr={1} />
-                <Icon as={IoIosPerson} mr={3} /> Modifier l'utilisateur
+                <Icon as={IoIosPerson} mr={3} />
+                <EditIcon mr={2} />
+                Modifier l'utilisateur
               </>
             ) : (
               <>
-                <SmallAddIcon />
                 <Icon as={IoIosPerson} mr={3} />
+                <SmallAddIcon mr={2} />
                 Ajouter un utilisateur
               </>
             )}

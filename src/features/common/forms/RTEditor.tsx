@@ -3,13 +3,8 @@ import { Editor, IAllProps } from "@tinymce/tinymce-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import type { Editor as TinyMCEEditor } from "tinymce";
-import { IEvent } from "models/Event";
-import { IOrg } from "models/Org";
 import { useAppDispatch } from "store";
 import { incrementRTEditorIndex, selectRTEditorIndex } from "store/uiSlice";
-import { client } from "utils/api";
-import { Session } from "utils/auth";
-import { MB } from "utils/string";
 
 // interface BlobInfo {
 //   id: () => string;
@@ -38,8 +33,6 @@ const bindEvent = (
 
 export const RTEditor = ({
   defaultValue,
-  event,
-  org,
   placeholder,
   readOnly,
   value,
@@ -48,8 +41,6 @@ export const RTEditor = ({
   ...props
 }: IAllProps["init"] & {
   defaultValue?: string;
-  event?: IEvent;
-  org?: IOrg;
   setIsLoading?: (bool: boolean) => void;
   value?: string;
   onBlur?: (html: string) => void;

@@ -722,7 +722,6 @@ export const OrgForm = withGoogleApi({
           render={(renderProps) => {
             return (
               <RTEditor
-                org={org}
                 placeholder={`Saisir la description ${orgTypeLabel}`}
                 value={renderProps.value}
                 onChange={({ html }) => {

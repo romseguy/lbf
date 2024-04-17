@@ -450,11 +450,8 @@ export const OrgPageHomeTabPanel = ({
             >
               <EditIconButton
                 aria-label="Modifier la description"
-                {...(isMobile
-                  ? {
-                      ml: 3
-                    }
-                  : {})}
+                {...(isMobile ? {} : {})}
+                ml={3}
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsEdit({ isAddingDescription: true });

@@ -32,14 +32,15 @@ export const ProjectFormModal = (props: {
           <ModalHeader display="flex" alignItems="center">
             {props.project ? (
               <>
-                <EditIcon />
-                <Icon as={FaTools} mr={3} /> Modifier la discussion
+                <Icon as={FaTools} mr={3} />
+                <EditIcon mr={2} />
+                Modifier le projet
               </>
             ) : (
               <>
-                <SmallAddIcon />
                 <Icon as={FaTools} mr={3} />
-                Ajouter une discussion
+                <SmallAddIcon mr={2} />
+                Ajouter un projet
               </>
             )}
           </ModalHeader>

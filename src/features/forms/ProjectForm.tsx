@@ -174,6 +174,7 @@ export const ProjectForm = ({
             return (
               <RTEditor
                 placeholder="Description du projet"
+                value={renderProps.value}
                 onChange={({ html }) => {
                   renderProps.onChange(html);
                 }}

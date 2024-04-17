@@ -32,13 +32,14 @@ export const TopicFormModal = (props: {
           <ModalHeader display="flex" alignItems="center">
             {props.topic ? (
               <>
-                <EditIcon mr={1} />
-                <ChatIcon mr={3} /> Modifier la discussion
+                <ChatIcon mr={3} />
+                <EditIcon mr={2} />
+                Modifier la discussion
               </>
             ) : (
               <>
-                <SmallAddIcon />
                 <ChatIcon mr={3} />
+                <SmallAddIcon mr={2} />
                 Ajouter une discussion
               </>
             )}
