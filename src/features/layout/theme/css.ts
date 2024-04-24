@@ -1,7 +1,8 @@
 import { BoxProps } from "@chakra-ui/react";
 
 export const formBoxProps = (isDark?: boolean): BoxProps => ({
-  borderColor: isDark ? "whiteAlpha.300" : "gray.200",
+  backgroundColor: isDark ? "whiteAlpha.300" : "white",
+  borderColor: isDark ? "whiteAlpha.300" : "transparent",
   borderRadius: "lg",
   borderWidth: 1,
   p: 3,

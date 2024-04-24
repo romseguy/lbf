@@ -1,12 +1,9 @@
 //@ts-nocheck
 import React from "react";
-import ReactDOM from "react-dom";
 
 import { ScriptCache } from "./ScriptCache";
 import GoogleApi from "./GoogleApi";
 import { isServer } from "utils/isServer";
-
-const defaultMapConfig = {};
 
 const serialize = (obj) => JSON.stringify(obj);
 const isSame = (obj1, obj2) =>

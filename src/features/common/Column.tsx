@@ -23,7 +23,7 @@ export const Column = ({
     <Flex
       flexDirection="column"
       //bg={isDark ? "gray.600" : "lightcyan"}
-      bg={isDark ? "gray.600" : "blackAlpha.200"}
+      bg={isDark ? "gray.600" : "blackAlpha.100"}
       borderWidth={1}
       borderColor={isDark ? "gray.500" : "gray.200"}
       borderRadius="lg"
@@ -32,7 +32,8 @@ export const Column = ({
         ? {
             cursor: "pointer",
             _hover: {
-              backgroundColor: isDark ? "gray.500" : "blue.50"
+              //backgroundColor: isDark ? "gray.500" : "blue.50"
+              backgroundColor: isDark ? "whiteAlpha.400" : "blackAlpha.100"
             },
             onClick: () => setIsCollapsed(!isCollapsed)
           }

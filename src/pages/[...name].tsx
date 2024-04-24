@@ -114,7 +114,7 @@ const HashPage = ({ ...props }: PageProps) => {
   //const [isLoading, setIsLoading] = useState(props.isLoading && !!session);
 
   //#region routing
-  let [entityUrl, entityTab = "accueil", entityTabItem] =
+  let [entityUrl, currentTabLabel = "accueil", entityTabItem] =
     "name" in router.query && Array.isArray(router.query.name)
       ? router.query.name
       : [];
@@ -218,7 +218,7 @@ const HashPage = ({ ...props }: PageProps) => {
         {...props}
         eventQuery={eventQuery as AppQueryWithData<IEvent>}
         subQuery={subQuery}
-        tab={entityTab}
+        tab={currentTabLabel}
         tabItem={entityTabItem}
       />
     );
@@ -250,7 +250,7 @@ const HashPage = ({ ...props }: PageProps) => {
           {...props}
           orgQuery={orgQuery as AppQueryWithData<IOrg>}
           subQuery={subQuery}
-          tab={entityTab}
+          currentTabLabel={currentTabLabel}
           tabItem={entityTabItem}
         />
       );

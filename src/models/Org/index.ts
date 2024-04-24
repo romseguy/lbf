@@ -2,9 +2,11 @@ import { ChatIcon, CalendarIcon, SettingsIcon } from "@chakra-ui/icons";
 import { FaHome, FaTools, FaImages } from "react-icons/fa";
 import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
 import { EOrgSubscriptionType } from "models/Subscription";
+import { AppDispatch } from "store";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
-import { capitalize, equals } from "utils/string";
+import { belongs } from "utils/belongs";
+import { capitalize, equals, normalize } from "utils/string";
 import {
   EOrgType,
   EOrgVisibility,
@@ -13,7 +15,6 @@ import {
   IOrgEventCategory,
   IOrgTabWithMetadata
 } from "./IOrg";
-import { AppDispatch } from "store";
 
 export * from "./IOrg";
 
@@ -150,12 +151,35 @@ export const getSubscriptions = (org: IOrg, type: string) => {
 //#region tabs
 export const defaultTabs: IOrgTabWithMetadata[] = [
   { label: "Accueil", icon: FaHome, url: "/" },
-  { label: "Discussions", icon: ChatIcon, url: "/discussions" },
+  { label: ["Discussions", "d"], icon: ChatIcon, url: ["/discussions", "/d"] },
   { label: "Événements", icon: CalendarIcon, url: "/evenements" },
   { label: "Projets", icon: FaTools, url: "/projets" },
   { label: "Galerie", icon: FaImages, url: "/galerie" },
   { label: "", icon: SettingsIcon, url: "/parametres" }
 ];
+export const getDefaultTab = ({ url }: { url?: string | string[] }) => {
+  if (!url) return undefined;
+  return defaultTabs.find((defaultTab) => belongs(defaultTab.url, url));
+};
+export const getCurrentTab = ({
+  org,
+  currentTabLabel
+}: {
+  org: IOrg;
+  currentTabLabel: string;
+}) => {
+  if (normalize(currentTabLabel) === "parametres") {
+    return defaultTabs.find(({ url }) => url === "/parametres");
+  }
+
+  const dt = defaultTabs.find(({ label }) => belongs(label, currentTabLabel));
+
+  if (!dt && org.orgTabs) {
+    return org.orgTabs.find((orgTab) => belongs(orgTab.label, currentTabLabel));
+  }
+
+  return dt;
+};
 //#endregion
 
 //#region toString

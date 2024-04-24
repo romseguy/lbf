@@ -28,11 +28,7 @@ import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
 
-export const Nav = ({
-  isMobile,
-  title,
-  ...props
-}: BoxProps & PageProps & { title?: string }) => {
+export const Nav = ({ isMobile, ...props }: BoxProps & PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -69,8 +65,9 @@ export const Nav = ({
             </Tr>
 
             <Tr role="row">
+              {/* Parcourir | Événements */}
               <Td border={0} p={isMobile ? 0 : "16px 0 0 0"}>
-                <NavButtonsList title={title} />
+                <NavButtonsList />
               </Td>
               {!session && (
                 <Td border={0} p={0} textAlign="right">

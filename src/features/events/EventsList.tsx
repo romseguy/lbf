@@ -374,10 +374,10 @@ const EventsListTable = ({
             <Alert status="warning">
               <AlertIcon />
               <Box>
-                Aucun événements{" "}
-                {Array.isArray(selectedCategories) &&
-                selectedCategoriesCount === 1 ? (
+                Aucun événements
+                {selectedCategoriesCount === 1 ? (
                   <>
+                    {" "}
                     de la catégorie
                     <EventCategoryTag
                       org={org}
@@ -387,6 +387,7 @@ const EventsListTable = ({
                   </>
                 ) : selectedCategoriesCount > 1 ? (
                   <>
+                    {" "}
                     dans les catégories
                     {selectedCategories.map((catNumber, index) => (
                       <EventCategoryTag
@@ -398,12 +399,8 @@ const EventsListTable = ({
                     ))}
                   </>
                 ) : (
-                  ""
+                  "."
                 )}
-                prévus
-                {previousEvents.length > 0 || nextEvents.length > 0
-                  ? " cette semaine."
-                  : "."}
               </Box>
             </Alert>
           )}

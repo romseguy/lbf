@@ -15,7 +15,7 @@ export const GoogleApi = function (opts) {
 
   let script = null;
   let google = (typeof window !== "undefined" && window.google) || null;
-  let loading = false;
+  let loading = true;
   let channel = null;
   let language = opts.language;
   let region = opts.region || null;
@@ -30,9 +30,10 @@ export const GoogleApi = function (opts) {
       libraries: libraries.join(","),
       client: client,
       v: googleVersion,
-      channel: channel,
-      language: language,
-      region: region,
+      channel,
+      language,
+      loading,
+      region,
       onerror: "ERROR_FUNCTION"
     };
 

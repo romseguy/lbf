@@ -52,6 +52,21 @@ const IndexPage = (props: PageProps) => {
     EOrgVisibility.FRONT
   );
   const [selectedUserId, setSelectedUserId] = useState("");
+
+  let keys = [
+    {
+      key: EOrderKey.orgName,
+      label: `Nom`
+    },
+    {
+      key: EOrderKey.latestActivity,
+      label: "Dernier message"
+    }
+  ];
+  if (!selectedUserId && selectedOrgVisibility === EOrgVisibility.PUBLIC)
+    keys.push({ key: EOrderKey.createdBy, label: "Créé par" });
+  else keys.splice(2, 1);
+
   const [orgsQueryParams, setOrgsQueryParams] = useState(
     initialOrgsQueryParams
   );
@@ -92,6 +107,7 @@ const IndexPage = (props: PageProps) => {
   return (
     <Layout {...props} mainContainer={false} pageTitle={`Forum`}>
       <Column
+        bg={isDark ? "whiteAlpha.100" : "blackAlpha.100"}
         //m={props.isMobile ? undefined : "0 auto"}
         m={props.isMobile ? undefined : 3}
         //maxWidth="4xl"
@@ -123,12 +139,12 @@ const IndexPage = (props: PageProps) => {
             setSelectedUserId(e.target.value);
           }}
         >
-          <option value={EOrgVisibility.FRONT}>Forum commun</option>
-          <option value={EOrgVisibility.PUBLIC}>Forum public</option>
+          <option value={EOrgVisibility.FRONT}>Forum mis en avant</option>
+          <option value={EOrgVisibility.PUBLIC}>Tous les forums</option>
           {usersQuery.data?.map(({ _id, userName }) => {
             return (
               <option key={_id} value={_id}>
-                {`Forum public de ${userName}${
+                {`Forum de ${userName}${
                   _id === session?.user.userId ? " (Vous)" : ""
                 }`}
               </option>
@@ -150,29 +166,18 @@ const IndexPage = (props: PageProps) => {
             </Button> */}
 
             {isListOpen && (
-              <Column bg={isDark ? "gray.700" : "white"}>
+              <Column bg={isDark ? "whiteAlpha.100" : "blackAlpha.100"}>
                 {selectedUserOrgs && (
                   <OrgsList
                     data={selectedUserOrgs}
-                    keys={(orgType) => [
-                      {
-                        key: EOrderKey.orgName,
-                        label: `Nom`
-                      },
-                      {
-                        key: EOrderKey.latestActivity,
-                        //label: "Dernière activité"
-                        label: "Dernier message"
-                      }
-                      //{ key: EOrderKey.createdBy, label: "Créé par" }
-                    ]}
+                    keys={(orgType) => keys}
                     //subQuery={subQuery}
                   />
                 )}
               </Column>
             )}
 
-            <Button
+            {/*<Button
               colorScheme="teal"
               alignSelf="flex-start"
               leftIcon={<FaRegMap />}
@@ -183,7 +188,7 @@ const IndexPage = (props: PageProps) => {
               mt={3}
             >
               Carte
-            </Button>
+            </Button>*/}
           </>
         ) : (
           <Flex>
@@ -199,7 +204,11 @@ const IndexPage = (props: PageProps) => {
 
       {/* Une idée de forum ? */}
       <Flex mt={6} mb={5}>
-        <Column m="0 auto" isCollapsable={isCollapsable}>
+        <Column
+          bg={isDark ? "whiteAlpha.100" : "blackAlpha.100"}
+          m="0 auto"
+          isCollapsable={isCollapsable}
+        >
           {(isCollapsed) => {
             return (
               <>

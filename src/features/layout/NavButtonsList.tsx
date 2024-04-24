@@ -1,9 +1,14 @@
-import { CalendarIcon, ChatIcon, SearchIcon } from "@chakra-ui/icons";
-import { Button, Flex, useColorMode, useDisclosure } from "@chakra-ui/react";
+import { CalendarIcon, SearchIcon } from "@chakra-ui/icons";
+import {
+  Button,
+  Flex,
+  useColorMode,
+  useDisclosure,
+  useToast
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useMemo } from "react";
 import { FaHome } from "react-icons/fa";
-import { IoIosGitNetwork, IoMdGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { useGetOrgsQuery } from "features/api/orgsApi";
 import { AppHeading, Link, LinkProps } from "features/common";
@@ -17,17 +22,16 @@ import { AppQuery } from "utils/types";
 
 export const NavButtonsList = ({
   direction = "row",
-  title,
   onClose
 }: {
   direction?: "row" | "column";
-  title?: string;
   onClose?: () => void;
 }) => {
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const toast = useToast({ position: "top" });
 
   const buttonProps = {
     // bg: isDark ? "red.300" : "teal.500",
@@ -48,7 +52,7 @@ export const NavButtonsList = ({
     "aria-hidden": true,
     alignSelf: "flex-start"
   };
-  const rootName = "Forum public";
+  const rootName = "Tous les forums";
 
   //#region parcourir
   const orgsQuery = useGetOrgsQuery({
@@ -123,10 +127,12 @@ export const NavButtonsList = ({
         </Link>
       )}
 
+      {/* Parcourir */}
       <Link
         {...linkProps}
         onClick={() => {
-          openNetworksModal();
+          if (inputNodes.length > 0) openNetworksModal();
+          else toast({ title: "Aucune planètes.", status: "warning" });
         }}
       >
         <Button leftIcon={<SearchIcon />} {...buttonProps}>
@@ -151,6 +157,7 @@ export const NavButtonsList = ({
         />
       )}
 
+      {/* Événements */}
       {(isMobile || !isEntityPage) && (
         <Link
           {...linkProps}
@@ -168,24 +175,28 @@ export const NavButtonsList = ({
           </Button>
         </Link>
       )}
-
-      {/* {(isMobile || !isEntityPage) && (
-        <Link
-          {...linkProps}
-          onClick={() => {
-            router.push("/forum", "/forum", { shallow: true });
-            onClose && onClose();
-          }}
-        >
-          <Button
-            leftIcon={<ChatIcon />}
-            isActive={router.asPath === "/forum"}
-            {...buttonProps}
-          >
-            Forum
-          </Button>
-        </Link>
-      )} */}
     </Flex>
   );
 };
+
+{
+  /*
+    {(isMobile || !isEntityPage) && (
+      <Link
+        {...linkProps}
+        onClick={() => {
+          router.push("/forum", "/forum", { shallow: true });
+          onClose && onClose();
+        }}
+      >
+        <Button
+          leftIcon={<ChatIcon />}
+          isActive={router.asPath === "/forum"}
+          {...buttonProps}
+        >
+          Forum
+        </Button>
+      </Link>
+    )}
+  */
+}

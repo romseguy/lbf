@@ -30,9 +30,13 @@ import {
 import { EventsList } from "features/events/EventsList";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { useSession } from "hooks/useSession";
+import { EEntityTab } from "models/Entity";
 import {
   defaultTabs,
+  getCurrentTab,
+  getDefaultTab,
   IOrg,
+  IOrgTab,
   IOrgTabWithMetadata,
   orgTypeFull
 } from "models/Org";
@@ -44,6 +48,7 @@ import { IsEditConfig } from "./OrgPage";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
+import { belongs } from "utils/belongs";
 
 export const OrgPageTabs = ({
   currentItemName,
@@ -67,7 +72,9 @@ export const OrgPageTabs = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
+  const router = useRouter();
   const { data: session } = useSession();
+
   const badgeProps: BadgeProps = {
     colorScheme: "teal",
     variant: "solid",
@@ -76,65 +83,67 @@ export const OrgPageTabs = ({
   const columnProps: ColumnProps = {
     bg: isDark ? "gray.700" : "lightblue"
   };
-  const router = useRouter();
   const [editOrg] = useEditOrgMutation();
   const org = orgQuery.data;
 
   //#region tabs
   const documentsQuery = useGetDocumentsQuery({ orgId: org._id });
-  const tabs: IOrgTabWithMetadata[] = useMemo(() => {
-    return [...(org.orgTabs || defaultTabs)]
-      .filter((tab) => (tab.label === "" && !session ? false : true))
-      .sort(
-        sortOn(
-          "label",
-          defaultTabs
-            .filter(({ label }) => label !== "")
-            .map(({ label }) => label)
-        )
-      )
-      .map((tab) => {
-        const defaultTab = defaultTabs.find(
-          (defaultTab) => defaultTab.label === tab.label
-        );
-        const metadata: {} = {};
+  const tabs: IOrgTabWithMetadata[] = [...(org.orgTabs || defaultTabs)]
+    .filter((tab) => (tab.label === "" && !session ? false : true))
+    // .sort(
+    //   sortOn(
+    //     "label",
+    //     defaultTabs
+    //       .filter(({ label }) => {
+    //         if (Array.isArray(label)) {
+    //           return label[0] !== "";
+    //         }
 
-        if (defaultTab) {
-          return {
-            ...tab,
-            ...defaultTab,
-            ...metadata
-          };
-        }
+    //         return label !== "";
+    //       })
+    //       .map(({ label }) => label)
+    //   )
+    // )
+    .map((tab) => {
+      const dt = getDefaultTab({ url: tab.url });
+      const metadata: {} = {};
 
-        return { ...tab, ...metadata };
-      });
-  }, [org]);
+      return {
+        ...tab,
+        ...dt,
+        ...metadata
+      };
+
+      //return { ...tab, ...metadata };
+    });
   //#endregion
 
-  //#region current tab index
-  const getCurrentTabIndex = useCallback(
-    (tabs: IOrgTabWithMetadata[]) => {
-      for (let tabIndex = 0; tabIndex <= tabs.length; tabIndex++) {
-        const tab = tabs[tabIndex];
+  //#region currentTab
+  const currentTab = getCurrentTab({ org, currentTabLabel });
+  // const currentTabUrl = currentTab
+  //   ? Array.isArray(currentTab.url)
+  //     ? currentTab.url[0]
+  //     : currentTab.url
+  //   : "";
+  //#endregion
 
-        if (
-          tab &&
-          normalize(tab.label) ===
-            normalize(currentTabLabel === "parametres" ? "" : currentTabLabel)
-        )
-          return tabIndex;
+  //#region currentTabIndex
+  const getCurrentTabIndex = () => {
+    if (currentTab) {
+      for (let tabIndex = 0; tabIndex < tabs.length; tabIndex++) {
+        const tab = tabs[tabIndex];
+        if (belongs(tab.url, currentTab.url)) return tabIndex;
       }
-      return 0;
-    },
-    [currentTabLabel]
-  );
-  const [currentTabIndex, setCurrentTabIndex] = useState(
-    getCurrentTabIndex(tabs)
-  );
+    }
+
+    return 0;
+  };
+  const [currentTabIndex, setCurrentTabIndex] = useState(getCurrentTabIndex());
+
   useEffect(() => {
-    setCurrentTabIndex(getCurrentTabIndex(tabs));
+    setCurrentTabIndex(getCurrentTabIndex());
   }, [router.asPath]);
+
   //#endregion
 
   //#region events TabPanel
@@ -170,41 +179,41 @@ export const OrgPageTabs = ({
         flexDirection={isMobile ? "column" : "row"}
       >
         {tabs.map((tab, tabIndex) => {
-          const key = `org-${normalize(tab.label)}-tab`;
+          const key = `org-${normalize(
+            Array.isArray(tab.label) ? tab.label[0] : tab.label
+          )}-tab`;
+          const url = Array.isArray(tab.url) ? tab.url[0] : tab.url;
 
           return (
-            // <Link key={key} href={`/${org.orgUrl}${tab.url}`} shallow>
+            // <Link key={key} href={`/${org.orgUrl}${url}`} shallow>
             <EntityPageTab
               key={key}
               currentTabIndex={currentTabIndex}
               tab={tab}
               tabIndex={tabIndex}
               onClick={() => {
-                router.push(
-                  `/${org.orgUrl}${tab.url}`,
-                  `/${org.orgUrl}${tab.url}`,
-                  {
-                    shallow: true
-                  }
-                );
+                router.push(`/${org.orgUrl}${url}`, `/${org.orgUrl}${url}`, {
+                  shallow: true
+                });
               }}
               data-cy={key}
             >
-              {isMobile && tab.label === "" ? "Configuration" : tab.label}
-              {tab.url === "/galerie"
+              {/* {isMobile && tab.label === "" ? "Configuration" : tab.label} */}
+
+              {url === "/galerie"
                 ? Array.isArray(documentsQuery.data) &&
                   documentsQuery.data.length > 0 && (
                     <Badge {...badgeProps}>{documentsQuery.data.length}</Badge>
                   )
-                : tab.url === "/evenements"
+                : url === "/evenements"
                 ? org.orgEvents.length > 0 && (
                     <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
                   )
-                : tab.url === "/discussions"
+                : url === "/discussions" || url === "/d"
                 ? org.orgTopics.length > 0 && (
                     <Badge {...badgeProps}>{org.orgTopics.length}</Badge>
                   )
-                : tab.url === "/projets"
+                : url === "/projets"
                 ? org.orgProjects.length > 0 && (
                     <Badge {...badgeProps}>{org.orgProjects.length}</Badge>
                   )
@@ -222,7 +231,7 @@ export const OrgPageTabs = ({
           }
         `}
       >
-        {!!tabs.find(({ label }) => label === "Accueil") && (
+        {!!tabs.find(({ label }) => belongs(label, "Accueil")) && (
           <TabPanel aria-hidden>
             <OrgPageHomeTabPanel
               isCreator={isCreator}
@@ -234,7 +243,7 @@ export const OrgPageTabs = ({
           </TabPanel>
         )}
 
-        {!!tabs.find(({ label }) => label === "Discussions") && (
+        {!!tabs.find(({ label }) => belongs(label, "Discussions")) && (
           <TabPanel aria-hidden>
             <EntityPageTopics
               currentTopicName={currentItemName}
@@ -246,7 +255,7 @@ export const OrgPageTabs = ({
           </TabPanel>
         )}
 
-        {!!tabs.find(({ label }) => label === "Événements") && (
+        {!!tabs.find(({ label }) => belongs(label, "Événements")) && (
           <TabPanel aria-hidden>
             <Flex alignItems="center" mb={3}>
               <CalendarIcon boxSize={6} mr={3} />
@@ -264,7 +273,7 @@ export const OrgPageTabs = ({
           </TabPanel>
         )}
 
-        {!!tabs.find(({ label }) => label === "Projets") && (
+        {!!tabs.find(({ label }) => belongs(label, "Projets")) && (
           <TabPanel aria-hidden>
             <Flex alignItems="center" mb={3}>
               <Icon as={FaTools} boxSize={6} mr={3} />
@@ -283,7 +292,7 @@ export const OrgPageTabs = ({
           </TabPanel>
         )}
 
-        {!!tabs.find(({ label }) => label === "Galerie") && (
+        {!!tabs.find(({ label }) => belongs(label, "Galerie")) && (
           <TabPanel aria-hidden>
             <EntityPageDocuments isCreator={isCreator} query={orgQuery} />
           </TabPanel>
@@ -298,9 +307,13 @@ export const OrgPageTabs = ({
             {defaultTabs
               .filter((defaultTab) => defaultTab.label !== "")
               .map((defaultTab) => {
+                const label = Array.isArray(defaultTab.label)
+                  ? defaultTab.label[0]
+                  : defaultTab.label;
+
                 return (
                   <Flex
-                    key={"tab-" + defaultTab.label}
+                    key={"tab-" + label}
                     alignItems="center"
                     mb={1}
                     maxWidth="fit-content"
@@ -308,10 +321,10 @@ export const OrgPageTabs = ({
                     <Switch
                       isChecked={
                         !!tabsState.find(
-                          (t) => t.label === defaultTab.label && t.checked
+                          (t) => belongs(t.label, defaultTab.label) && t.checked
                         )
                       }
-                      isDisabled={defaultTab.label === "Accueil"}
+                      isDisabled={label === "Accueil"}
                       mr={1}
                       onChange={async (e) => {
                         const newTabs = tabsState.map((t) =>
@@ -354,10 +367,8 @@ export const OrgPageTabs = ({
                       }}
                     />
                     <Input
-                      defaultValue={defaultTab.label}
-                      isDisabled={defaultTabs
-                        .map(({ label }) => label)
-                        .includes(defaultTab.label)}
+                      defaultValue={label}
+                      isDisabled
                       // onChange={(e) => {
                       //   let changed = false;
                       //   const newTabs = tabsState.map((t) => {
@@ -383,73 +394,3 @@ export const OrgPageTabs = ({
     </Tabs>
   );
 };
-
-{
-  /*
-const { getEnv } = require("utils/env");
-    {getEnv() === "development" &&
-      session?.user.isAdmin && (
-          <Box mb={5}>
-            <Button
-              onClick={async () => {
-                await editOrg({
-                  orgId: org._id,
-                  payload: { orgTopics: [] }
-                }).unwrap();
-              }}
-            >
-              RAZ
-            </Button>
-          </Box>
-        )}
-  */
-}
-
-{
-  /*
-    <Alert status="info" mb={5}>
-      <AlertIcon />
-      <Box>
-        Cette section a pour vocation principale de proposer une
-        alternative plus pratique et respectueuse aux{" "}
-        <Tooltip label="synonymes : mailing lists, newsletters">
-          <Text
-            display="inline"
-            borderBottom={`1px dotted ${isDark ? "white" : "black"}`}
-            cursor="pointer"
-          >
-            listes de diffusion
-          </Text>
-        </Tooltip>{" "}
-        traditionnelles. Également libre à vous de l'utiliser comme bon
-        vous semble, et de faire des suggestions sur le{" "}
-        <Link variant="underline" href="/forum">
-          forum
-        </Link>{" "}
-        ou en{" "}
-        <Link
-          variant="underline"
-          onClick={() => {
-            dispatch(setIsContactModalOpen(true));
-          }}
-        >
-          nous écrivant un message
-        </Link>
-        .
-      </Box>
-    </Alert>
-  */
-}
-
-{
-  /*
-  useEffect(() => {
-    setTabsState(
-      tabs.map((t) => ({
-        ...t,
-        checked: true
-      }))
-    );
-  }, [org]);
- */
-}

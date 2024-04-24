@@ -23,6 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
+import { useRouter } from "next/router";
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import useFormPersist from "hooks/useFormPersist";
@@ -76,7 +77,6 @@ import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { capitalize, normalize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
-import { isArray } from "util";
 
 type FormValues = {
   orgName: string;
@@ -112,6 +112,7 @@ export const OrgForm = withGoogleApi({
   }) => {
     const { colorMode } = useColorMode();
     const isDark = colorMode === "dark";
+    const router = useRouter();
     const toast = useToast({ position: "top" });
     const [addOrg] = useAddOrgMutation();
     const [editOrg] = useEditOrgMutation();
@@ -388,7 +389,11 @@ export const OrgForm = withGoogleApi({
               await editOrg({
                 orgId: myNetwork._id,
                 payload: { ...myNetwork, orgs: myNetwork.orgs.concat([org]) }
-              });
+              }).unwrap();
+
+              const url = myNetwork.orgUrl;
+              router.push(url, url, { shallow: true });
+              return;
             }
           } else if (isEditConfig?.isAddingDescription) {
             await editOrg({
@@ -516,6 +521,7 @@ export const OrgForm = withGoogleApi({
             render={(renderProps) => {
               return (
                 <Creatable
+                  instanceId="nana"
                   options={orgsOptions.map(({ _id, orgName }) => ({
                     label: orgName,
                     value: _id
@@ -985,30 +991,6 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {/* {props.orgType === EOrgType.GENERIC && (
-          <FormControl mb={3}>
-            <FormLabel>Type de l'arbre</FormLabel>
-            <Select name="orgType" ref={register()}>
-              <option value={EOrgType.GENERIC}>-</option>
-              <option value={EOrgType.TREETOOLS}>
-                {OrgTypes[EOrgType.TREETOOLS]}
-              </option>
-            </Select>
-          </FormControl>
-        )} */}
-
-        {/* Réseau auquel l'organisation est rattachée */}
-        {/* {orgType === EOrgType.GENERIC && (
-          <FormControl>
-            <FormLabel>Planter cet arbre sur une planète ?</FormLabel>
-            <Select ref={register()}>
-              {[].map(() => {
-                return <option></option>;
-              })}
-            </Select>
-          </FormControl>
-        )} */}
-
         {/* Forêt du réseau */}
         {orgType === EOrgType.NETWORK && ChildrenFormControl}
 
@@ -1149,4 +1131,35 @@ export const OrgForm = withGoogleApi({
       onChange={(newValue: any) => newValue._id}
     />
 */
+}
+
+{
+  /* {props.orgType === EOrgType.GENERIC && (
+          <FormControl mb={3}>
+            <FormLabel>Type de l'arbre</FormLabel>
+            <Select name="orgType" ref={register()}>
+              <option value={EOrgType.GENERIC}>-</option>
+              <option value={EOrgType.TREETOOLS}>
+                {OrgTypes[EOrgType.TREETOOLS]}
+              </option>
+            </Select>
+          </FormControl>
+        )} */
+}
+
+{
+  /* Réseau auquel l'organisation est rattachée */
+}
+
+{
+  /* {orgType === EOrgType.GENERIC && (
+          <FormControl>
+            <FormLabel>Planter cet arbre sur une planète ?</FormLabel>
+            <Select ref={register()}>
+              {[].map(() => {
+                return <option></option>;
+              })}
+            </Select>
+          </FormControl>
+        )} */
 }

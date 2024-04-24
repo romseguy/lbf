@@ -57,7 +57,7 @@ export const EntityPageDocuments = ({
   const badgeProps: BadgeProps = {
     colorScheme: "teal",
     variant: "solid",
-    mr: 2
+    ml: 2
   };
   // const columnProps: ColumnProps = {
   //   bg: isDark ? "gray.700" : "lightblue"
@@ -89,7 +89,7 @@ export const EntityPageDocuments = ({
           borderBottomRadius={isFilesOpen ? undefined : "lg"}
           cursor="pointer"
           py={3}
-          _hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
+          //_hover={{ backgroundColor: isDark ? "gray.500" : "cyan.100" }}
           onClick={() => setIsFilesOpen(!isFilesOpen)}
         >
           <Icon
@@ -99,11 +99,11 @@ export const EntityPageDocuments = ({
             mr={1}
           />
 
-          <Badge {...badgeProps}>{documentsQuery.data?.length || ""}</Badge>
-
           <Heading size="sm">
-            fichier{documentsQuery.data?.length !== 1 ? "s" : ""}
+            {isFilesOpen ? "Fermer" : "Ouvrir"} le dossier
           </Heading>
+
+          <Badge {...badgeProps}>{documentsQuery.data?.length || ""}</Badge>
         </TabContainerHeader>
         {isFilesOpen && (
           <TabContainerContent

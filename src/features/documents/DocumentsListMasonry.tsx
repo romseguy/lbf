@@ -32,11 +32,11 @@ const signal = controller.signal;
 
 export const DocumentsListMasonry = ({
   entity,
+  isCreator,
   ...props
 }: ColumnProps & {
   entity: IOrg | IUser;
   isCreator?: boolean;
-  isFollowed?: boolean;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";

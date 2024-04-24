@@ -4,7 +4,11 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import type { Editor as TinyMCEEditor } from "tinymce";
 import { useAppDispatch } from "store";
-import { incrementRTEditorIndex, selectRTEditorIndex } from "store/uiSlice";
+import {
+  incrementRTEditorIndex,
+  selectIsMobile,
+  selectRTEditorIndex
+} from "store/uiSlice";
 
 // interface BlobInfo {
 //   id: () => string;
@@ -49,6 +53,7 @@ export const RTEditor = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
+  const isMobile = useSelector(selectIsMobile);
   const toast = useToast({ position: "top" });
 
   const currentIndex = useSelector(selectRTEditorIndex);
@@ -87,7 +92,7 @@ export const RTEditor = ({
     content_style: `
       body {
         font-family: 'Spectral', Georgia, ui-serif, serif;
-        font-size: 19px;
+        font-size: ${isMobile ? "16px" : "19px"};
         text-align: justify;
       }
       hr {

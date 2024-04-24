@@ -69,7 +69,10 @@ export const orgApi = api.injectEndpoints({
         };
       },
       invalidatesTags: (result, error, params) => {
-        return [{ type: "Orgs", id: params.orgId }];
+        return [
+          { type: "Orgs", id: params.orgId },
+          { type: "Orgs", id: "LIST" }
+        ];
       }
     }),
     getOrg: build.query<IOrg, GetOrgParams>({
@@ -93,7 +96,7 @@ export const orgApi = api.injectEndpoints({
       ]
     }),
     getOrgs: build.query<IOrg[], GetOrgsParams | void>({
-      query: ({ ...query }) => {
+      query: ({ ...query } = {}) => {
         const hasQueryParams = Object.keys(query).length > 0;
         if (hasQueryParams) {
           console.groupCollapsed("getOrgs");

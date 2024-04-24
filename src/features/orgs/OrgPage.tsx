@@ -32,23 +32,16 @@ export const OrgPage = ({
   isMobile,
   orgQuery,
   subQuery,
-  tab,
+  currentTabLabel,
   tabItem
 }: PageProps & {
   orgQuery: AppQueryWithData<IOrg>;
   subQuery: AppQuery<ISubscription>;
-  tab?: string;
+  currentTabLabel?: string;
   tabItem?: string;
 }) => {
   const router = useRouter();
   const { data: session } = useSession();
-  // useEffect(() => {
-  //   if ((router.asPath.match(/\//g) || []).length > 1) {
-  //     isFirstLoad = false;
-  //     return;
-  //   }
-  //   isFirstLoad = false;
-  // }, [router.asPath]);
 
   //#region org
   const org = orgQuery.data;
@@ -117,6 +110,91 @@ export const OrgPage = ({
   };
   //#endregion
 
+  return (
+    <Layout
+      entity={org}
+      tab={currentTabLabel}
+      tabItem={tabItem}
+      isMobile={isMobile}
+    >
+      {isCreator && (
+        <EntityPageConfigButton
+          isConfig={isConfig}
+          isEdit={isEdit}
+          setIsConfig={setIsConfig}
+          setIsEdit={setIsEdit}
+          mb={3}
+        />
+      )}
+
+      {!isConfig && !isEdit ? (
+        <>
+          <EntityPageSubscribeButton orgQuery={orgQuery} subQuery={subQuery} />
+
+          <Box my={3}>
+            <Text fontSize="smaller">
+              {org.orgType === EOrgType.GENERIC
+                ? "Arbre créé"
+                : `Planète ${
+                    org.orgVisibility === EOrgVisibility.PRIVATE ? "privée" : ""
+                  } créée`}{" "}
+              le{" "}
+              {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
+                locale: fr
+              })}{" "}
+              par :{" "}
+              <Link variant="underline" href={`/${orgCreatedByUserName}`}>
+                {orgCreatedByUserName}
+              </Link>{" "}
+              {isCreator && `(Vous ${session?.user.isAdmin && ": admin"})`}
+            </Text>
+          </Box>
+
+          <OrgPageTabs
+            currentItemName={tabItem}
+            currentTabLabel={currentTabLabel}
+            isCreator={isCreator}
+            isFollowed={isFollowed}
+            orgQuery={orgQuery}
+            setIsConfig={setIsConfig}
+            setIsEdit={setIsEdit}
+            subQuery={subQuery}
+          />
+        </>
+      ) : (
+        session && (
+          <OrgConfigPanel
+            session={session}
+            orgQuery={orgQuery}
+            subQuery={subQuery}
+            isCreator={isCreator}
+            isEdit={isEdit}
+            isEditConfig={isEditConfig}
+            isVisible={isVisible}
+            setIsConfig={setIsConfig}
+            setIsEdit={setIsEdit}
+            toggleVisibility={toggleVisibility}
+          />
+        )
+      )}
+    </Layout>
+  );
+};
+
+{
+  /*
+   useEffect(() => {
+     if ((router.asPath.match(/\//g) || []).length > 1) {
+       isFirstLoad = false;
+       return;
+     }
+     isFirstLoad = false;
+   }, [router.asPath]);
+*/
+}
+
+{
+  /*
   if (org.orgUrl === "forum") {
     return (
       <Layout entity={org} isMobile={isMobile}>
@@ -148,71 +226,5 @@ export const OrgPage = ({
       </Layout>
     );
   }
-
-  return (
-    <Layout entity={org} tab={tab} tabItem={tabItem} isMobile={isMobile}>
-      {isCreator && (
-        <EntityPageConfigButton
-          isConfig={isConfig}
-          isEdit={isEdit}
-          setIsConfig={setIsConfig}
-          setIsEdit={setIsEdit}
-          mb={3}
-        />
-      )}
-
-      {!isConfig && !isEdit && (
-        <>
-          <EntityPageSubscribeButton orgQuery={orgQuery} subQuery={subQuery} />
-
-          <Box my={3}>
-            <Text fontSize="smaller">
-              {org.orgType === EOrgType.GENERIC
-                ? "Arbre créé"
-                : `Planète ${
-                    org.orgVisibility === EOrgVisibility.PRIVATE ? "privée" : ""
-                  } créée`}{" "}
-              le{" "}
-              {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
-                locale: fr
-              })}{" "}
-              par :{" "}
-              <Link variant="underline" href={`/${orgCreatedByUserName}`}>
-                {orgCreatedByUserName}
-              </Link>{" "}
-              {isCreator && `(Vous ${session?.user.isAdmin && ": admin"})`}
-            </Text>
-          </Box>
-
-          <OrgPageTabs
-            currentItemName={tabItem}
-            currentTabLabel={tab}
-            isCreator={isCreator}
-            isFollowed={isFollowed}
-            orgQuery={orgQuery}
-            setIsConfig={setIsConfig}
-            setIsEdit={setIsEdit}
-            subQuery={subQuery}
-          />
-        </>
-      )}
-
-      {session &&
-        (isCreator || !!org.orgPermissions) &&
-        (isConfig || isEdit) && (
-          <OrgConfigPanel
-            session={session}
-            orgQuery={orgQuery}
-            subQuery={subQuery}
-            isCreator={isCreator}
-            isEdit={isEdit}
-            isEditConfig={isEditConfig}
-            isVisible={isVisible}
-            setIsConfig={setIsConfig}
-            setIsEdit={setIsEdit}
-            toggleVisibility={toggleVisibility}
-          />
-        )}
-    </Layout>
-  );
-};
+*/
+}

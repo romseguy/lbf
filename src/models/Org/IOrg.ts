@@ -69,8 +69,8 @@ export interface IOrgList {
 }
 
 export interface IOrgTab {
-  label: string;
-  url?: string;
+  label: string | string[];
+  url?: string | string[];
 }
 
 export interface IOrgTabWithMetadata extends IOrgTab {

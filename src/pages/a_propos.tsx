@@ -83,12 +83,11 @@ export const AboutPage = ({
     </a>
   );
   const OrgTag = ({ orgUrl = "nom_de_votre_forum" }: { orgUrl?: string }) => {
-    const url = `${process.env.NEXT_PUBLIC_URL}/${orgUrl}/discussions`;
+    const url = `${process.env.NEXT_PUBLIC_URL}/${orgUrl}`;
     const urlElement = (
       <Flex flexWrap="wrap" my={2}>
         {process.env.NEXT_PUBLIC_URL}
         <b>/{orgUrl}</b>
-        /discussions
       </Flex>
     );
     const iconButtonProps = isMobile ? {} : { ml: 2 };
@@ -136,10 +135,11 @@ export const AboutPage = ({
         <List listStyleType="bullet" ml={5}>
           <ListItem mb={3}>
             <Text mb={1}>
+              Pour créer votre forum,{" "}
               <Link href="/planetes/ajouter" shallow variant="underline">
-                Créez une planète
-              </Link>
-              , et accédez à votre <b>forum</b> par cette adresse :
+                ajoutez votre planète
+              </Link>{" "}
+              et devenez propriétaire de cette adresse :
             </Text>
 
             <OrgTag />
@@ -147,14 +147,14 @@ export const AboutPage = ({
 
           <ListItem>
             <Text mb={1}>
+              Pour créer un sous-forum,{" "}
               <Link href="/arbres/ajouter" shallow variant="underline">
-                Créez un arbre
-              </Link>
-              , ajoutez le à la forêt de votre planète, et accéder à votre{" "}
-              <b>sous-forum</b> par cette adresse :{" "}
+                ajoutez un arbre
+              </Link>{" "}
+              et plantez-le dans la forêt de votre planète.
             </Text>
 
-            <OrgTag orgUrl="nom_de_votre_arbre" />
+            {/* <OrgTag orgUrl="nom_de_votre_arbre" /> */}
           </ListItem>
 
           {/* <ListItem mt={2}>

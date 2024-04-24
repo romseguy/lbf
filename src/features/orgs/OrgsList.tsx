@@ -30,6 +30,7 @@ import { useSelector } from "react-redux";
 import { hasItems } from "utils/array";
 
 export enum EOrderKey {
+  "createdAt" = "createdAt",
   "createdBy" = "createdBy",
   "icon" = "icon",
   "latestActivity" = "latestActivity",
@@ -372,6 +373,10 @@ export const OrgsList = ({
                       </EntityButton>
                     )}
                   </Td>
+                )}
+
+                {keys.find(({ key }) => key === EOrderKey.createdAt) && (
+                  <Td>{timeAgo(org.createdAt).timeAgo}</Td>
                 )}
 
                 {keys.find(({ key }) => key === EOrderKey.createdBy) && (

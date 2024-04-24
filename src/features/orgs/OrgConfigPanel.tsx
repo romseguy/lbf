@@ -54,9 +54,6 @@ export const OrgConfigPanel = ({
   const router = useRouter();
   const org = orgQuery.data;
 
-  //#region local state
-  //#endregion
-
   return (
     <>
       {isEdit && (
@@ -78,8 +75,6 @@ export const OrgConfigPanel = ({
                 await router.push(`/${orgUrl}`, `/${orgUrl}`, {
                   shallow: true
                 });
-              } else {
-                orgQuery.refetch();
               }
             }}
           />

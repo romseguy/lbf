@@ -155,10 +155,14 @@ handler.get<
       if (modelKey === "orgs") {
         org = org.populate({
           path: "orgs",
-          populate: {
-            path: "orgTopics",
-            select: "topicName topicMessages.createdAt topicMessages.updatedAt"
-          }
+          populate: [
+            //{ path: "createdBy" },
+            {
+              path: "orgTopics",
+              select:
+                "topicName topicMessages.createdAt topicMessages.updatedAt"
+            }
+          ]
         });
       }
 

@@ -94,13 +94,11 @@ export const OrgPageHomeTabPanel = ({
     hasItems(org.orgWeb);
   const [orgNetworks, setOrgNetworks] = useState<IOrg[]>([]);
   useEffect(() => {
-    setOrgNetworks([]);
-
     (async () => {
       if (org.orgType === EOrgType.GENERIC) {
         const networks = await getNetworks(org, session, dispatch);
-        networks && setOrgNetworks(networks);
-      }
+        setOrgNetworks(networks || []);
+      } else setOrgNetworks([]);
     })();
   }, [org]);
   //#endregion
@@ -233,6 +231,10 @@ export const OrgPageHomeTabPanel = ({
                                       {
                                         key: EOrderKey.latestActivity,
                                         label: "Dernier message"
+                                      },
+                                      {
+                                        key: EOrderKey.createdAt,
+                                        label: "Créé il y a"
                                       }
                                     ]
                               }
@@ -389,34 +391,32 @@ export const OrgPageHomeTabPanel = ({
             }
           ></TabContainerHeader>
           <TabContainerContent p={3}>
-            {orgNetworks.length > 0 ? (
-              <List>
-                {orgNetworks.map((orgNetwork, i) => (
-                  <ListItem key={`org-network-${i}`} mt={i !== 0 ? 3 : 0}>
-                    <EntityButton org={orgNetwork} />
-                  </ListItem>
-                ))}
-              </List>
-            ) : (
-              <Tooltip
-                placement="right"
-                label="Planter l'arbre sur la planète de votre choix"
-              >
-                <IconButton
-                  aria-label="Planter l'arbre sur la planète de votre choix"
-                  alignSelf="flex-start"
-                  colorScheme="teal"
-                  icon={
-                    <>
-                      <SmallAddIcon />
-                      <FaGlobeEurope />
-                    </>
-                  }
-                  pr={1}
-                  onClick={() => setIsEdit({ isAddingToNetwork: true })}
-                />
-              </Tooltip>
-            )}
+            <List>
+              {orgNetworks.map((orgNetwork, i) => (
+                <ListItem key={`org-network-${i}`} mt={i !== 0 ? 3 : 0}>
+                  <EntityButton org={orgNetwork} />
+                </ListItem>
+              ))}
+            </List>
+            <Tooltip
+              placement="right"
+              label="Planter l'arbre sur la planète de votre choix"
+            >
+              <IconButton
+                aria-label="Planter l'arbre sur la planète de votre choix"
+                alignSelf="flex-start"
+                colorScheme="teal"
+                icon={
+                  <>
+                    <SmallAddIcon />
+                    <FaGlobeEurope />
+                  </>
+                }
+                mt={orgNetworks.length > 0 ? 3 : 0}
+                pr={1}
+                onClick={() => setIsEdit({ isAddingToNetwork: true })}
+              />
+            </Tooltip>
           </TabContainerContent>
         </TabContainer>
       )}
@@ -448,15 +448,17 @@ export const OrgPageHomeTabPanel = ({
               label="Modifier la description"
               placement="bottom"
             >
-              <EditIconButton
-                aria-label="Modifier la description"
-                {...(isMobile ? {} : {})}
-                ml={3}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEdit({ isAddingDescription: true });
-                }}
-              />
+              <span>
+                <EditIconButton
+                  aria-label="Modifier la description"
+                  {...(isMobile ? {} : {})}
+                  ml={3}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEdit({ isAddingDescription: true });
+                  }}
+                />
+              </span>
             </Tooltip>
           )}
         </TabContainerHeader>

@@ -3,13 +3,14 @@ import "polyfill-object.fromentries";
 import { unseal } from "@hapi/iron";
 import { parse } from "cookie";
 import { AppProps as NextAppProps } from "next/app";
-import { useRouter } from "next/router";
+//import { useRouter } from "next/router";
 import NextNprogress from "nextjs-progressbar";
 import React from "react";
 import {
   getSelectorsByUserAgent,
   isMobile as rddIsMobile
 } from "react-device-detect";
+//import { ProgressBar, ProgressBarProvider } from "react-transition-progress";
 import { GlobalConfig } from "features/GlobalConfig";
 import { ThemeProvider } from "features/ThemeProvider";
 import { Main, PageProps } from "main";
@@ -53,7 +54,10 @@ const App = wrapper.withRedux(
           showOnShallow
         />
         <ThemeProvider cookies={cookies} isMobile={pageProps.isMobile}>
+          {/* <ProgressBarProvider>
+            <ProgressBar className="fixed h-1 shadow-lg shadow-sky-500/20 bg-sky-500 top-0" /> */}
           <Main Component={Component} {...pageProps} />
+          {/* </ProgressBarProvider> */}
         </ThemeProvider>
       </>
     );
@@ -85,7 +89,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
       let session: Session | undefined;
 
       if (devSession && getEnv() === "development") {
-        console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
+        // console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
         session = devSession;
         //@ts-ignore
         email = devSession.user.email;
@@ -122,7 +126,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
                 isAdmin
               }
             };
-            console.log("🚀 ~ App.getInitialProps ~ cookieSession:", session);
+            // console.log("🚀 ~ App.getInitialProps ~ cookieSession:", session);
             email = user.email;
           }
         }

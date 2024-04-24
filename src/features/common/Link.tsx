@@ -67,8 +67,11 @@ export const Link = ({
       scroll={scroll}
       shallow={shallow}
       prefetch={prefetch}
+      {...(variant === "underline"
+        ? { style: { textDecoration: "underline" } }
+        : {})}
     >
-      {chakraLink}
+      {children}
     </NextLink>
   );
 };

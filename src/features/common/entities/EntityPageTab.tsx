@@ -45,6 +45,7 @@ export const EntityPageTab = ({
         ...styles.tab,
         display: "flex",
         bgColor: isCurrent ? undefined : isDark ? "gray.800" : "white",
+        p: 4,
         _focus: {
           boxShadow: "none"
         },
@@ -63,8 +64,8 @@ export const EntityPageTab = ({
     >
       <Icon
         as={tab.icon || QuestionIcon}
-        boxSize={5}
-        mr={!isMobile && tab.label === "" ? 0 : 2}
+        boxSize={8}
+        mr={!isMobile && (tab.label === "" || tab.label === "Accueil") ? 0 : 2}
       />
       {children}
     </Tab>

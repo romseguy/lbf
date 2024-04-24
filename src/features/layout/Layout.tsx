@@ -42,21 +42,30 @@ export const Layout = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
 
+  let subtitle = "";
   const isE = isEvent(entity);
   const isO = isOrg(entity);
+  if (isO) {
+    if (tab === EEntityTab.TOPICS) {
+      if (tabItem && ["ajouter", "a"].includes(tabItem)) {
+        subtitle = `– Ajouter une discussion`;
+      } else {
+        const { topicName } =
+          entity.orgTopics.find(
+            ({ topicName }) => tabItem === normalize(topicName)
+          ) || {};
+        if (topicName) {
+          console.log("🚀 ~ topicName:", topicName);
+
+          subtitle = `– ${topicName}`;
+        }
+      }
+    }
+  }
   const isU = isUser(entity);
   const title = `${
     isO
-      ? `${OrgTypes[entity.orgType]} – ${entity.orgName}${
-          tabItem
-            ? tab === EEntityTab.TOPICS
-              ? " – " +
-                entity.orgTopics.find(
-                  ({ topicName }) => tabItem === normalize(topicName)
-                )?.topicName
-              : " – " + tabItem
-            : ""
-        }`
+      ? `${OrgTypes[entity.orgType]} – ${entity.orgName}${subtitle}`
       : isE
       ? `Événement – ${entity.eventName}`
       : isU
@@ -125,7 +134,6 @@ export const Layout = ({
         <Nav
           {...props}
           isMobile={isMobile}
-          title={title}
           borderTopRadius={isMobile ? 0 : undefined}
           mt={0}
           p={isMobile ? undefined : 3}

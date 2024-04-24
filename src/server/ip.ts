@@ -1,7 +1,7 @@
 // Custom https://www.npmjs.com/package/request-ip
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextHandler } from "next-connect";
-import { is } from "utils/is";
+import { is } from "./is";
 
 export function getClientIpFromXForwardedFor(value: string): string | null {
   if (!is.existy(value)) {

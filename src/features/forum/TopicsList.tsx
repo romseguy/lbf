@@ -143,7 +143,12 @@ export const TopicsList = ({
       });
   }, [entity, selectedCategories, selectedLists, selectedOrder]);
   const currentTopic = useMemo(() => {
-    if (!currentTopicName || !hasItems(topics)) return null;
+    if (
+      !currentTopicName ||
+      ["ajouter", "a"].includes(currentTopicName) ||
+      !hasItems(topics)
+    )
+      return null;
 
     const topic = topics.find(
       (topic) => normalize(topic.topicName) === normalize(currentTopicName)
@@ -175,7 +180,7 @@ export const TopicsList = ({
 
   //#region topic modal state
   const [topicModalState, setTopicModalState] = useState<TopicModalState>({
-    isOpen: false
+    isOpen: !!currentTopicName && ["ajouter", "a"].includes(currentTopicName)
   });
   const onClose = () =>
     setTopicModalState({
