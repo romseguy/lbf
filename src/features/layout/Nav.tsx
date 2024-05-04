@@ -9,12 +9,13 @@ import {
   Table,
   Tbody,
   Tr,
-  Td
+  Td,
+  Tooltip
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { useSelector } from "react-redux";
-import { AppHeading, Link, LoginButton } from "features/common";
+import { AppHeading, DarkModeSwitch, Link, LoginButton } from "features/common";
 import {
   EventPopover,
   OrgPopover,
@@ -61,6 +62,19 @@ export const Nav = ({ isMobile, ...props }: BoxProps & PageProps) => {
                     {process.env.NEXT_PUBLIC_SHORT_URL}
                   </Link>
                 </AppHeading>
+              </Td>
+              <Td border={0} textAlign="right">
+                <Tooltip
+                  placement="top-start"
+                  label={`Basculer vers le thème ${
+                    isDark ? "clair" : "sombre"
+                  }`}
+                  hasArrow
+                >
+                  <Box>
+                    <DarkModeSwitch />
+                  </Box>
+                </Tooltip>
               </Td>
             </Tr>
 

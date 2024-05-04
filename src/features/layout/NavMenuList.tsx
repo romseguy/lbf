@@ -1,7 +1,14 @@
-import { MenuList, MenuItem, Text, useColorMode } from "@chakra-ui/react";
+import {
+  MenuList,
+  MenuItem,
+  Text,
+  useColorMode,
+  Box,
+  Tooltip
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
-import { Link, SubscribeSwitch } from "features/common";
+import { DarkModeSwitch, Link, SubscribeSwitch } from "features/common";
 import { useSession } from "hooks/useSession";
 import { useAppDispatch } from "store";
 import { resetUserEmail } from "store/userSlice";
@@ -74,6 +81,17 @@ export const NavMenuList = ({
         >
           Se déconnecter
         </Text>
+      </MenuItem>
+      <MenuItem>
+        <Tooltip
+          placement="top-start"
+          label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
+          hasArrow
+        >
+          <Box>
+            <DarkModeSwitch />
+          </Box>
+        </Tooltip>
       </MenuItem>
     </MenuList>
   );

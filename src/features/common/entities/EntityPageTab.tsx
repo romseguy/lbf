@@ -39,35 +39,73 @@ export const EntityPageTab = ({
 
   return (
     <Tab
-      // {...tabProps}
       aria-selected={isCurrent}
       __css={{
         ...styles.tab,
-        display: "flex",
-        bgColor: isCurrent ? undefined : isDark ? "gray.800" : "white",
-        p: 4,
-        _focus: {
-          boxShadow: "none"
-        },
-        _hover: { bgColor: "blue.400", color: "white" },
         ...(isMobile
           ? {
-              alignSelf: "flex-start",
+              display: "flex",
               alignItems: "center",
-              mb: 3,
-              ml: 3,
-              mt: tabIndex === 0 ? 3 : 0
+              padding: "12px",
+              justifyContent: "center"
             }
-          : { flex: 0, mr: 3 })
+          : {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            })
       }}
       {...props}
     >
       <Icon
         as={tab.icon || QuestionIcon}
         boxSize={8}
-        mr={!isMobile && (tab.label === "" || tab.label === "Accueil") ? 0 : 2}
+        __css={{
+          ...(isMobile
+            ? {
+                //alignSelf: "flex-start",
+                //alignItems: "center"
+              }
+            : {})
+        }}
+        //mr={!isMobile && (tab.label === "" || tab.label === "Accueil") ? 0 : 2}
       />
+
       {children}
     </Tab>
   );
+
+  // return (
+  //   <Tab
+  //     // {...tabProps}
+  //     aria-selected={isCurrent}
+  //     __css={{
+  //       ...styles.tab,
+  //       display: "flex",
+  //       bgColor: isCurrent ? undefined : isDark ? "gray.800" : "white",
+  //       p: 4,
+  //       _focus: {
+  //         boxShadow: "none"
+  //       },
+  //       _hover: { bgColor: "blue.400", color: "white" },
+  //       ...(isMobile
+  //         ? {
+  //             alignSelf: "flex-start",
+  //             alignItems: "center",
+  //             mb: 3,
+  //             ml: 3,
+  //             mt: tabIndex === 0 ? 3 : 0
+  //           }
+  //         : { flex: 0, mr: 3 })
+  //     }}
+  //     {...props}
+  //   >
+  //     <Icon
+  //       as={tab.icon || QuestionIcon}
+  //       boxSize={8}
+  //       mr={!isMobile && (tab.label === "" || tab.label === "Accueil") ? 0 : 2}
+  //     />
+  //     {children}
+  //   </Tab>
+  // );
 };

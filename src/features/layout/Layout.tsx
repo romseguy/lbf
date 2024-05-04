@@ -1,4 +1,5 @@
 import { Box, BoxProps, Flex, FlexProps, useColorMode } from "@chakra-ui/react";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React from "react";
@@ -104,11 +105,19 @@ export const Layout = ({
         <title>{title}</title>
       </Head>
 
+      <GoogleAnalytics gaId="G-ZHN2GV5YB9" />
+
       <Box
         css={css`
+          ${isMobile
+            ? `
+          margin: 3px 3px 0 3px;
+          max-height: calc(100% - 80px);
+          overflow-y: scroll;
+          `
+            : `
           min-height: 100%;
-
-          ${isMobile && `margin: 3px 3px 0 3px;`}
+          `}
 
           @media (min-width: ${breakpoints["2xl"]}) {
             background-color: ${isDark

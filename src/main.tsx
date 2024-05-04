@@ -94,11 +94,11 @@ export const Main = ({
   return (
     <>
       {/* Right Top */}
-      {!props.isMobile && isOffline && (
+      {isOffline && (
         <Box
           position="fixed"
           right={3}
-          top={3}
+          top={props.isMobile ? 14 : 3}
           bg={isDark ? "whiteAlpha.400" : "blackAlpha.300"}
           borderRadius="lg"
         >
@@ -134,7 +134,9 @@ export const Main = ({
             <DrawerOverlay />
             <DrawerContent>
               <DrawerCloseButton />
-              <DrawerHeader>{/* <Heading>{title}</Heading> */}</DrawerHeader>
+              <DrawerHeader>
+                <DarkModeSwitch />
+              </DrawerHeader>
               <DrawerBody>
                 <NavButtonsList
                   direction="column"
@@ -148,36 +150,8 @@ export const Main = ({
         </Box>
       )}
 
-      {/* Left Bottom */}
-      <Box position="fixed" left={4} bottom={2}>
-        {props.isMobile ? (
-          isOffline ? (
-            <Box
-              bg={isDark ? "whiteAlpha.400" : "blackAlpha.300"}
-              borderRadius="lg"
-            >
-              <OfflineIcon />
-            </Box>
-          ) : null
-        ) : (
-          <Flex alignItems="center">
-            <IconFooter mr={2} />
-
-            <Tooltip
-              hasArrow
-              label="Faire un don au développeur"
-              placement="top-end"
-            >
-              <Box mt={1}>
-                <PaypalButton />
-              </Box>
-            </Tooltip>
-          </Flex>
-        )}
-      </Box>
-
       {/* Right Bottom */}
-      <Box position="fixed" right={4} bottom={1}>
+      <Box position="fixed" right={4} bottom={props.isMobile ? 3 : 1}>
         <Flex flexDirection="column" alignItems="center">
           {showButton && (
             <ChevronUpIcon
@@ -194,16 +168,6 @@ export const Main = ({
               }}
             />
           )}
-
-          <Tooltip
-            placement="top-start"
-            label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
-            hasArrow
-          >
-            <Box>
-              <DarkModeSwitch />
-            </Box>
-          </Tooltip>
         </Flex>
       </Box>
 

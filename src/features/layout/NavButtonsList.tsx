@@ -1,7 +1,9 @@
 import { CalendarIcon, SearchIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Button,
   Flex,
+  Tooltip,
   useColorMode,
   useDisclosure,
   useToast
@@ -11,7 +13,7 @@ import React, { useMemo } from "react";
 import { FaHome } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useGetOrgsQuery } from "features/api/orgsApi";
-import { AppHeading, Link, LinkProps } from "features/common";
+import { AppHeading, DarkModeSwitch, Link, LinkProps } from "features/common";
 import { TreeChartModal } from "features/modals/TreeChartModal";
 import { InputNode } from "features/treeChart/types";
 import { EOrgType, EOrgVisibility, IOrg, OrgTypes } from "models/Org";
@@ -110,21 +112,23 @@ export const NavButtonsList = ({
       `}
     >
       {isMobile && (
-        <Link
-          {...linkProps}
-          onClick={() => {
-            router.push("/", "/", { shallow: true });
-            onClose && onClose();
-          }}
-        >
-          <Button
-            leftIcon={<FaHome />}
-            isActive={router.asPath === "/"}
-            {...buttonProps}
+        <>
+          <Link
+            {...linkProps}
+            onClick={() => {
+              router.push("/", "/", { shallow: true });
+              onClose && onClose();
+            }}
           >
-            Accueil
-          </Button>
-        </Link>
+            <Button
+              leftIcon={<FaHome />}
+              isActive={router.asPath === "/"}
+              {...buttonProps}
+            >
+              Accueil
+            </Button>
+          </Link>
+        </>
       )}
 
       {/* Parcourir */}

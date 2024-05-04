@@ -28,6 +28,7 @@ import {
   Link
 } from "features/common";
 import { EventsList } from "features/events/EventsList";
+import { scrollbarCss } from "features/layout/theme";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { useSession } from "hooks/useSession";
 import { EEntityTab } from "models/Entity";
@@ -171,12 +172,29 @@ export const OrgPageTabs = ({
       borderColor={isDark ? "gray.600" : "gray.200"}
       borderRadius="lg"
       borderWidth={1}
-      p={3}
-      pb={0}
     >
       <EntityPageTabList
         aria-hidden
-        flexDirection={isMobile ? "column" : "row"}
+        bgColor={isDark ? "gray.700" : "blackAlpha.50"}
+        borderRadius="xl"
+        css={scrollbarCss}
+        {...(isMobile
+          ? {
+              position: "fixed",
+              bottom: 0,
+              //width: "calc(100% - 28px)",
+              width: "100%",
+              overflowX: "scroll",
+              left: 0,
+              pb: 1,
+              pl: 1,
+              pt: 2,
+              pr: 1
+            }
+          : {
+              overflowX: "auto",
+              p: 3
+            })}
       >
         {tabs.map((tab, tabIndex) => {
           const key = `org-${normalize(
@@ -191,6 +209,12 @@ export const OrgPageTabs = ({
               currentTabIndex={currentTabIndex}
               tab={tab}
               tabIndex={tabIndex}
+              {...(url === "/galerie" &&
+              Array.isArray(documentsQuery.data) &&
+              documentsQuery.data.length > 0
+                ? {}
+                : {})}
+              {...(isMobile ? {} : {})}
               onClick={() => {
                 router.push(`/${org.orgUrl}${url}`, `/${org.orgUrl}${url}`, {
                   shallow: true
@@ -227,7 +251,7 @@ export const OrgPageTabs = ({
       <TabPanels
         css={css`
           & > * {
-            padding: 12px 0 !important;
+            padding: 12px !important;
           }
         `}
       >
