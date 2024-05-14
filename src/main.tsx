@@ -13,7 +13,7 @@ import {
   useDisclosure,
   useToast
 } from "@chakra-ui/react";
-import { ChevronUpIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { ChevronUpIcon, HamburgerIcon, SearchIcon } from "@chakra-ui/icons";
 import { NextPage } from "next";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -49,7 +49,9 @@ export const Main = ({
     onOpen: onDrawerOpen,
     onClose: onDrawerClose
   } = useDisclosure();
+
   const isOffline = useSelector(selectIsOffline);
+  const [isNetworksModalOpen, setIsNetworksModalOpen] = useState(false);
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
@@ -134,13 +136,21 @@ export const Main = ({
             <DrawerOverlay />
             <DrawerContent>
               <DrawerCloseButton />
-              <DrawerHeader>
-                <DarkModeSwitch />
+              <DrawerHeader d="flex" justifyContent="space-evenly">
+                <IconButton
+                  aria-label="Rechercher"
+                  icon={<SearchIcon />}
+                  onClick={() => setIsNetworksModalOpen(true)}
+                  //{...buttonProps}
+                />
+                <DarkModeSwitch mr={3} />
               </DrawerHeader>
               <DrawerBody>
                 <NavButtonsList
                   direction="column"
+                  isNetworksModalOpen={isNetworksModalOpen}
                   onClose={() => {
+                    setIsNetworksModalOpen(false);
                     onDrawerClose();
                   }}
                 />
@@ -151,17 +161,18 @@ export const Main = ({
       )}
 
       {/* Right Bottom */}
-      <Box position="fixed" right={4} bottom={props.isMobile ? 3 : 1}>
+      <Box position="fixed" right="93px" bottom={props.isMobile ? 3 : 1}>
         <Flex flexDirection="column" alignItems="center">
           {showButton && (
             <ChevronUpIcon
-              background={isDark ? "whiteAlpha.300" : "blackAlpha.400"}
+              background={isDark ? "white" : "black"}
               borderRadius={20}
               boxSize={10}
+              color={isDark ? "black" : "white"}
               cursor="pointer"
               mb={3}
               _hover={{
-                background: isDark ? "whiteAlpha.400" : "blackAlpha.500"
+                background: isDark ? "whiteAlpha.800" : "blackAlpha.500"
               }}
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: "smooth" });

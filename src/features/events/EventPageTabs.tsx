@@ -23,6 +23,7 @@ import {
   EntityNotified
 } from "features/common";
 import { EventNotifForm } from "features/forms/EventNotifForm";
+import { scrollbarCss } from "features/layout/theme";
 import { useSession } from "hooks/useSession";
 import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
@@ -97,7 +98,27 @@ export const EventPageTabs = ({
     >
       <EntityPageTabList
         aria-hidden
-        flexDirection={isMobile ? "column" : "row"}
+        //flexDirection={isMobile ? "column" : "row"}
+        bgColor={isDark ? "gray.700" : "blackAlpha.50"}
+        borderRadius="xl"
+        css={scrollbarCss}
+        {...(isMobile
+          ? {
+              position: "fixed",
+              bottom: 0,
+              //width: "calc(100% - 28px)",
+              width: "100%",
+              overflowX: "scroll",
+              left: 0,
+              pb: 1,
+              pl: 1,
+              pt: 2,
+              pr: 1
+            }
+          : {
+              overflowX: "auto",
+              p: 3
+            })}
       >
         {Object.keys(defaultTabs).map((tabLabel, tabIndex) => {
           const tab = defaultTabs[tabLabel];

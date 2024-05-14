@@ -10,10 +10,11 @@ import {
   Tbody,
   Tr,
   Td,
-  Tooltip
+  Tooltip,
+  IconButton
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { AppHeading, DarkModeSwitch, Link, LoginButton } from "features/common";
 import {
@@ -28,6 +29,7 @@ import { EOrgType } from "models/Org";
 import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
+import { SearchIcon } from "@chakra-ui/icons";
 
 export const Nav = ({ isMobile, ...props }: BoxProps & PageProps) => {
   const { colorMode } = useColorMode();
@@ -36,6 +38,7 @@ export const Nav = ({ isMobile, ...props }: BoxProps & PageProps) => {
   const { data: session } = useSession();
   const userEmail = useSelector(selectUserEmail);
   const userName = session?.user.userName || "";
+  const [isNetworksModalOpen, setIsNetworksModalOpen] = useState(false);
 
   const iconProps = {
     bg: isDark ? "teal.300" : "teal.500",
@@ -63,9 +66,20 @@ export const Nav = ({ isMobile, ...props }: BoxProps & PageProps) => {
                   </Link>
                 </AppHeading>
               </Td>
-              <Td border={0} textAlign="right">
+              <Td border={0} display="flex" justifyContent="flex-end" gap={3}>
+                <Tooltip label={`Rechercher`} hasArrow>
+                  <IconButton
+                    aria-label="Rechercher"
+                    icon={<SearchIcon />}
+                    colorScheme={"red"}
+                    borderRadius={"9999px"}
+                    onClick={() => {
+                      setIsNetworksModalOpen(true);
+                    }}
+                  />
+                </Tooltip>
+
                 <Tooltip
-                  placement="top-start"
                   label={`Basculer vers le thème ${
                     isDark ? "clair" : "sombre"
                   }`}
@@ -81,7 +95,12 @@ export const Nav = ({ isMobile, ...props }: BoxProps & PageProps) => {
             <Tr role="row">
               {/* Parcourir | Événements */}
               <Td border={0} p={isMobile ? 0 : "16px 0 0 0"}>
-                <NavButtonsList />
+                <NavButtonsList
+                  isNetworksModalOpen={isNetworksModalOpen}
+                  onClose={() => {
+                    setIsNetworksModalOpen(false);
+                  }}
+                />
               </Td>
               {!session && (
                 <Td border={0} p={0} textAlign="right">

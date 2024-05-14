@@ -5,8 +5,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalCloseButton,
-  useColorMode,
-  Icon
+  Spinner,
+  useColorMode
 } from "@chakra-ui/react";
 import AbortController from "abort-controller";
 //import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
@@ -16,18 +16,80 @@ import { treeChart } from "features/treeChart/treeChart";
 import { InputNode, TreeNodeWithId } from "features/treeChart/types";
 import theme from "features/layout/theme";
 import { normalize } from "utils/string";
-import { IoIosGitNetwork } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
+import { useGetElementAsync } from "hooks/useGetElementAsync";
 
 const controller = new AbortController();
 const signal = controller.signal;
-let treeChartContainer: HTMLElement | null | undefined;
+// let container: Element | null | undefined;
+// let root: Element | null | undefined;
+
+function renderChart({
+  // container,
+  // root,
+  rootName,
+  inputNodes,
+  isDark,
+  onClick
+}: {
+  // container: Element;
+  // root: Element;
+  rootName: string;
+  inputNodes: InputNode[];
+  isDark: boolean;
+  onClick: (node: TreeNodeWithId) => void;
+}) {
+  let container = document.querySelector("#treeC");
+  let root = container ? container.querySelector("#tree") : null;
+
+  if (container && root) container.removeChild(root);
+
+  root = document.createElement("div");
+  root.setAttribute("id", "tree");
+
+  if (container) container.appendChild(root);
+
+  treeChart(
+    root as HTMLElement,
+    {
+      name: rootName,
+      children: inputNodes
+    },
+    {
+      id: "treeSvg",
+      initialZoom: 0.8,
+      isDark,
+      isFullscreen: true,
+      isSorted: true,
+      heightBetweenNodesCoeff: 2.5,
+      widthBetweenNodesCoeff: 1,
+      aspectRatio: 1.5,
+      margin: {
+        top: 88
+      },
+      padding: {},
+      style: {
+        background: isDark ? theme.colors.gray["800"] : theme.colors.gray["50"],
+        link: { stroke: isDark ? "#fff" : "#000" },
+        node: { radius: 14 },
+        text: {
+          colors: {
+            default: isDark ? "lightgreen" : "green",
+            parent: isDark ? "white" : "blue"
+          }
+        }
+      },
+      onClickCircle: onClick,
+      onClickText: onClick
+    }
+  )();
+}
 
 export const TreeChartModal = ({
   inputNodes,
   header,
-  rootName,
+  rootName = "",
   ...props
 }: {
   inputNodes: InputNode[];
@@ -40,85 +102,60 @@ export const TreeChartModal = ({
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
+  const onClick = (node: TreeNodeWithId) => {
+    const url =
+      node.name === process.env.NEXT_PUBLIC_SHORT_URL
+        ? "/"
+        : "/" + normalize(node.name);
+    router.push(url, url, { shallow: true });
+    props.onClose();
+  };
+
+  const container = useGetElementAsync("#treeC");
+  const root = useGetElementAsync("#tree");
 
   useEffect(() => {
-    if (inputNodes.length > 0) {
-      const onClick = (node: TreeNodeWithId) => {
-        const url =
-          node.name === process.env.NEXT_PUBLIC_SHORT_URL
-            ? "/"
-            : "/" + normalize(node.name);
-        router.push(url, url, { shallow: true });
-        props.onClose();
-      };
-      const renderChart = () => {
-        treeChartContainer = document.getElementById("treeC");
+    if (!inputNodes.length) {
+      console.log("🚀 NO NODES");
+      return () => {};
+    }
 
-        if (!treeChartContainer) return;
-        //disableBodyScroll(treeChartContainer);
+    if (!container) {
+      console.log("🚀 NO CONTAINER");
+      return () => {};
+    }
 
-        let treeChartRoot = document.getElementById("tree") as HTMLDivElement;
-        treeChartContainer.removeChild(treeChartRoot);
+    if (!root) {
+      console.log("🚀 NO ROOT");
+      return () => {};
+    }
 
-        treeChartRoot = document.createElement("div");
-        treeChartRoot.setAttribute("id", "tree");
-
-        treeChartContainer.appendChild(treeChartRoot);
-
-        treeChart(
-          treeChartRoot,
-          {
-            name: rootName,
-            children: inputNodes
-          },
-          {
-            id: "treeSvg",
-            initialZoom: 0.8,
-            isDark,
-            isFullscreen: true,
-            isSorted: true,
-            heightBetweenNodesCoeff: 2.5,
-            widthBetweenNodesCoeff: 1,
-            aspectRatio: 1.5,
-            margin: {
-              top: 88
-            },
-            padding: {},
-            style: {
-              background: isDark
-                ? theme.colors.gray["800"]
-                : theme.colors.gray["50"],
-              link: { stroke: isDark ? "#fff" : "#000" },
-              node: { radius: 14 },
-              text: {
-                colors: {
-                  default: isDark ? "lightgreen" : "green",
-                  parent: isDark ? "white" : "blue"
-                }
-              }
-            },
-            onClickCircle: onClick,
-            onClickText: onClick
-          }
-        )();
-      };
-
-      setTimeout(() => renderChart(), 1000);
-
-      if (!isMobile) {
-        window.addEventListener("resize", renderChart);
-        signal.addEventListener("abort", () => {
-          window.removeEventListener("resize", renderChart);
+    function redraw() {
+      if (root && container) {
+        console.log("🚀 REDRAW");
+        renderChart({
+          rootName,
+          inputNodes,
+          isDark,
+          onClick
         });
       }
     }
 
+    redraw();
+
+    if (!isMobile) {
+      window.addEventListener("resize", redraw);
+      signal.addEventListener("abort", () => {
+        window.removeEventListener("resize", redraw);
+      });
+    }
+
     return () => {
       // Anything in here is fired on component unmount
-      //clearAllBodyScrollLocks();
       if (!isMobile) controller.abort();
     };
-  }, []);
+  }, [container, root, inputNodes]);
 
   return (
     <Modal

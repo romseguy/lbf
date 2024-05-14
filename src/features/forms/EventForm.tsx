@@ -885,16 +885,23 @@ export const EventForm = withGoogleApi({
                                   showTimeSelectOnly
                                   timeFormat="p"
                                   timeIntervals={30}
-                                  filterTime={(time) => {
-                                    if (
-                                      defaultStart &&
-                                      getHours(time) <= getHours(defaultStart)
-                                    ) {
-                                      return false;
-                                    }
-                                    // console.log("allowing", time);
-                                    return true;
-                                  }}
+                                  // filterTime={(time) => {
+                                  // FIXME -.-
+                                  //   console.log(
+                                  //     "getHours(time)",
+                                  //     getHours(time)
+                                  //   );
+                                  //   console.log("defaultStart", defaultStart);
+                                  //   return false;
+                                  //   if (
+                                  //     defaultStart &&
+                                  //     getHours(time) <= getHours(defaultStart)
+                                  //   ) {
+                                  //     return false;
+                                  //   }
+                                  //   // console.log("allowing", time);
+                                  //   return true;
+                                  // }}
                                   onChange={(endDate: Date) => {
                                     const newDays = setDayState(index, {
                                       endTime: endDate

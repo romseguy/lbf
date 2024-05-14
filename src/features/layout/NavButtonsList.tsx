@@ -1,19 +1,20 @@
-import { CalendarIcon, SearchIcon } from "@chakra-ui/icons";
+import { CalendarIcon } from "@chakra-ui/icons";
 import {
-  Box,
   Button,
   Flex,
-  Tooltip,
   useColorMode,
   useDisclosure,
-  useToast
+  useToast,
+  InputGroup,
+  InputLeftAddon,
+  Icon
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useMemo } from "react";
-import { FaHome } from "react-icons/fa";
+import React, { useEffect, useMemo, useState } from "react";
+import { FaGlobeEurope, FaHome } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useGetOrgsQuery } from "features/api/orgsApi";
-import { AppHeading, DarkModeSwitch, Link, LinkProps } from "features/common";
+import { Link, LinkProps, SearchInput } from "features/common";
 import { TreeChartModal } from "features/modals/TreeChartModal";
 import { InputNode } from "features/treeChart/types";
 import { EOrgType, EOrgVisibility, IOrg, OrgTypes } from "models/Org";
@@ -24,9 +25,11 @@ import { AppQuery } from "utils/types";
 
 export const NavButtonsList = ({
   direction = "row",
-  onClose
+  onClose,
+  ...props
 }: {
   direction?: "row" | "column";
+  isNetworksModalOpen?: boolean;
   onClose?: () => void;
 }) => {
   const isMobile = useSelector(selectIsMobile);
@@ -57,6 +60,7 @@ export const NavButtonsList = ({
   const rootName = "Tous les forums";
 
   //#region parcourir
+  const [keyword, setKeyword] = useState("");
   const orgsQuery = useGetOrgsQuery({
     orgType: EOrgType.NETWORK,
     populate: "orgs createdBy"
@@ -72,12 +76,27 @@ export const NavButtonsList = ({
   const inputNodes: InputNode[] = useMemo(() => {
     return planets
       ? planets
-          .filter(
-            (org) =>
+          .filter((org) => {
+            if (
               org.orgType === EOrgType.NETWORK &&
-              org.orgVisibility === EOrgVisibility.PUBLIC &&
+              [EOrgVisibility.PUBLIC, EOrgVisibility.FRONT].includes(
+                org.orgVisibility
+              ) &&
               org.orgUrl !== "forum"
-          )
+            ) {
+              if (!keyword) return true;
+
+              console.log(
+                "🚀 ~ .filter ~ keyword:",
+                keyword.toLowerCase(),
+                org.orgName.toLowerCase(),
+                org.orgName.toLowerCase().includes(keyword.toLowerCase())
+              );
+              return org.orgName.toLowerCase().includes(keyword.toLowerCase());
+            }
+
+            return false;
+          })
           .map((org) => {
             return {
               name: org.orgName,
@@ -97,8 +116,15 @@ export const NavButtonsList = ({
             };
           })
       : [];
-  }, [planets]);
+  }, [keyword, planets]);
   //#endregion
+
+  useEffect(() => {
+    if (props.isNetworksModalOpen !== undefined) {
+      if (props.isNetworksModalOpen) openNetworksModal();
+      else closeNetworksModal();
+    }
+  }, [props.isNetworksModalOpen]);
 
   return (
     <Flex
@@ -131,25 +157,23 @@ export const NavButtonsList = ({
         </>
       )}
 
-      {/* Parcourir */}
-      <Link
-        {...linkProps}
-        onClick={() => {
-          if (inputNodes.length > 0) openNetworksModal();
-          else toast({ title: "Aucune planètes.", status: "warning" });
-        }}
-      >
-        <Button leftIcon={<SearchIcon />} {...buttonProps}>
-          Parcourir
-        </Button>
-      </Link>
-
-      {isNetworksModalOpen && inputNodes.length > 0 && (
+      {isNetworksModalOpen && (
         <TreeChartModal
+          // header={
+          //   <AppHeading smaller={isMobile} mb={3}>
+          //     {rootName}
+          //   </AppHeading>
+          // }
           header={
-            <AppHeading smaller={isMobile} mb={3}>
-              {rootName}
-            </AppHeading>
+            <InputGroup>
+              <InputLeftAddon children={<Icon as={FaGlobeEurope} />} />
+              <SearchInput
+                placeholder="Rechercher un nom de planète"
+                width="calc(100% - 70px)"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+              />
+            </InputGroup>
           }
           inputNodes={inputNodes}
           isOpen={isNetworksModalOpen}

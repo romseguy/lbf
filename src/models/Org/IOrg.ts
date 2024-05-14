@@ -54,7 +54,7 @@ export interface IOrg extends IEntity {
   orgPassword?: string;
   orgSalt?: string;
   orgTabs?: IOrgTab[];
-  orgVisibility: string;
+  orgVisibility: EOrgVisibility;
   orgs: IOrg[];
   orgPermissions?: IOrgPermissions;
   isApproved?: boolean;

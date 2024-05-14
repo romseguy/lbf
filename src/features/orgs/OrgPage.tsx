@@ -110,6 +110,21 @@ export const OrgPage = ({
   };
   //#endregion
 
+  const tabs = (
+    <OrgPageTabs
+      currentItemName={tabItem}
+      currentTabLabel={currentTabLabel}
+      isCreator={isCreator}
+      isFollowed={isFollowed}
+      orgQuery={orgQuery}
+      isConfig={isConfig}
+      setIsConfig={setIsConfig}
+      isEdit={isEdit}
+      setIsEdit={setIsEdit}
+      subQuery={subQuery}
+    />
+  );
+
   return (
     <Layout
       entity={org}
@@ -127,7 +142,7 @@ export const OrgPage = ({
         />
       )}
 
-      {!isConfig && !isEdit ? (
+      {!isConfig && !isEdit && (
         <>
           <EntityPageSubscribeButton orgQuery={orgQuery} subQuery={subQuery} />
 
@@ -136,7 +151,9 @@ export const OrgPage = ({
               {org.orgType === EOrgType.GENERIC
                 ? "Arbre créé"
                 : `Planète ${
-                    org.orgVisibility === EOrgVisibility.PRIVATE ? "privée" : ""
+                    org.orgVisibility === EOrgVisibility.PRIVATE
+                      ? "protégée par un mot de passe"
+                      : ""
                   } créée`}{" "}
               le{" "}
               {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
@@ -150,19 +167,12 @@ export const OrgPage = ({
             </Text>
           </Box>
 
-          <OrgPageTabs
-            currentItemName={tabItem}
-            currentTabLabel={currentTabLabel}
-            isCreator={isCreator}
-            isFollowed={isFollowed}
-            orgQuery={orgQuery}
-            setIsConfig={setIsConfig}
-            setIsEdit={setIsEdit}
-            subQuery={subQuery}
-          />
+          {tabs}
         </>
-      ) : (
-        session && (
+      )}
+
+      {session && (isConfig || isEdit) && (
+        <>
           <OrgConfigPanel
             session={session}
             orgQuery={orgQuery}
@@ -175,7 +185,9 @@ export const OrgPage = ({
             setIsEdit={setIsEdit}
             toggleVisibility={toggleVisibility}
           />
-        )
+
+          {isMobile && tabs}
+        </>
       )}
     </Layout>
   );

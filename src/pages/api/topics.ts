@@ -179,17 +179,17 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       //#region new topic
       else {
         let topicName = body.topic.topicName;
-        const topicWithSameName = await models.Topic.findOne({
-          topicName
-        });
-        if (topicWithSameName) {
-          const uid = org
-            ? org.orgTopics.length + 1
-            : event
-            ? event.eventTopics.length + 1
-            : randomNumber(3);
-          topicName = `${topicName}-${uid}`;
-        }
+        // const topicWithSameName = await models.Topic.findOne({
+        //   topicName
+        // });
+        // if (topicWithSameName) {
+        //   const uid = org
+        //     ? org.orgTopics.length + 1
+        //     : event
+        //     ? event.eventTopics.length + 1
+        //     : randomNumber(3);
+        //   topicName = `${topicName}-${uid}`;
+        // }
 
         topic = await models.Topic.create({
           ...body.topic,

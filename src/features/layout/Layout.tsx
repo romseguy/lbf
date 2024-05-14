@@ -109,7 +109,7 @@ export const Layout = ({
 
       <Box
         css={css`
-          ${isMobile
+          ${isMobile && !!entity
             ? `
           margin: 3px 3px 0 3px;
           max-height: calc(100% - 80px);

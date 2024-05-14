@@ -63,12 +63,10 @@ export const EntityPageTab = ({
         __css={{
           ...(isMobile
             ? {
-                //alignSelf: "flex-start",
-                //alignItems: "center"
               }
             : {})
         }}
-        //mr={!isMobile && (tab.label === "" || tab.label === "Accueil") ? 0 : 2}
+        mr={!isMobile && (tab.label === "" || tab.label === "Accueil") ? 0 : 2}
       />
 
       {children}

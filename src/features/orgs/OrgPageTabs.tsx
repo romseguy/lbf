@@ -57,7 +57,9 @@ export const OrgPageTabs = ({
   isCreator,
   isFollowed,
   orgQuery,
+  isConfig,
   setIsConfig,
+  isEdit,
   setIsEdit,
   subQuery
 }: {
@@ -66,7 +68,9 @@ export const OrgPageTabs = ({
   isCreator: boolean;
   isFollowed: boolean;
   orgQuery: AppQueryWithData<IOrg>;
+  isConfig: boolean;
   setIsConfig: React.Dispatch<React.SetStateAction<boolean>>;
+  isEdit: boolean;
   setIsEdit: (arg: boolean | IsEditConfig) => void;
   subQuery: AppQuery<ISubscription>;
 }) => {
@@ -248,173 +252,176 @@ export const OrgPageTabs = ({
         })}
       </EntityPageTabList>
 
-      <TabPanels
-        css={css`
-          & > * {
-            padding: 12px !important;
-          }
-        `}
-      >
-        {!!tabs.find(({ label }) => belongs(label, "Accueil")) && (
-          <TabPanel aria-hidden>
-            <OrgPageHomeTabPanel
-              isCreator={isCreator}
-              orgQuery={orgQuery}
-              session={session}
-              setIsEdit={setIsEdit}
-              subQuery={subQuery}
-            />
-          </TabPanel>
-        )}
-
-        {!!tabs.find(({ label }) => belongs(label, "Discussions")) && (
-          <TabPanel aria-hidden>
-            <EntityPageTopics
-              currentTopicName={currentItemName}
-              isCreator={isCreator}
-              isFollowed={isFollowed}
-              query={orgQuery}
-              subQuery={subQuery}
-            />
-          </TabPanel>
-        )}
-
-        {!!tabs.find(({ label }) => belongs(label, "Événements")) && (
-          <TabPanel aria-hidden>
-            <Flex alignItems="center" mb={3}>
-              <CalendarIcon boxSize={6} mr={3} />
-              <AppHeading>{title}</AppHeading>
-            </Flex>
-
-            <Column {...columnProps}>
-              <EventsList
-                events={org.orgEvents}
-                orgQuery={orgQuery}
+      {!isConfig && !isEdit && (
+        <TabPanels
+          css={css`
+            & > * {
+              padding: 12px !important;
+            }
+          `}
+        >
+          {!!tabs.find(({ label }) => belongs(label, "Accueil")) && (
+            <TabPanel aria-hidden>
+              <OrgPageHomeTabPanel
                 isCreator={isCreator}
-                setTitle={setTitle}
-              />
-            </Column>
-          </TabPanel>
-        )}
-
-        {!!tabs.find(({ label }) => belongs(label, "Projets")) && (
-          <TabPanel aria-hidden>
-            <Flex alignItems="center" mb={3}>
-              <Icon as={FaTools} boxSize={6} mr={3} />
-              <AppHeading>Projets</AppHeading>
-            </Flex>
-
-            <Column {...columnProps}>
-              <ProjectsList
-                org={org}
                 orgQuery={orgQuery}
+                session={session}
+                setIsEdit={setIsEdit}
                 subQuery={subQuery}
+              />
+            </TabPanel>
+          )}
+
+          {!!tabs.find(({ label }) => belongs(label, "Discussions")) && (
+            <TabPanel aria-hidden>
+              <EntityPageTopics
+                currentTopicName={currentItemName}
                 isCreator={isCreator}
                 isFollowed={isFollowed}
+                query={orgQuery}
+                subQuery={subQuery}
               />
-            </Column>
-          </TabPanel>
-        )}
+            </TabPanel>
+          )}
 
-        {!!tabs.find(({ label }) => belongs(label, "Galerie")) && (
-          <TabPanel aria-hidden>
-            <EntityPageDocuments isCreator={isCreator} query={orgQuery} />
-          </TabPanel>
-        )}
+          {!!tabs.find(({ label }) => belongs(label, "Événements")) && (
+            <TabPanel aria-hidden>
+              <Flex alignItems="center" mb={3}>
+                <CalendarIcon boxSize={6} mr={3} />
+                <AppHeading>{title}</AppHeading>
+              </Flex>
 
-        {session && isCreator && (
-          <TabPanel aria-hidden>
-            <AppHeading mb={3}>
-              Fonctionnalités {orgTypeFull(org.orgType)}
-            </AppHeading>
+              <Column {...columnProps}>
+                <EventsList
+                  events={org.orgEvents}
+                  orgQuery={orgQuery}
+                  isCreator={isCreator}
+                  setTitle={setTitle}
+                />
+              </Column>
+            </TabPanel>
+          )}
 
-            {defaultTabs
-              .filter((defaultTab) => defaultTab.label !== "")
-              .map((defaultTab) => {
-                const label = Array.isArray(defaultTab.label)
-                  ? defaultTab.label[0]
-                  : defaultTab.label;
+          {!!tabs.find(({ label }) => belongs(label, "Projets")) && (
+            <TabPanel aria-hidden>
+              <Flex alignItems="center" mb={3}>
+                <Icon as={FaTools} boxSize={6} mr={3} />
+                <AppHeading>Projets</AppHeading>
+              </Flex>
 
-                return (
-                  <Flex
-                    key={"tab-" + label}
-                    alignItems="center"
-                    mb={1}
-                    maxWidth="fit-content"
-                  >
-                    <Switch
-                      isChecked={
-                        !!tabsState.find(
-                          (t) => belongs(t.label, defaultTab.label) && t.checked
-                        )
-                      }
-                      isDisabled={label === "Accueil"}
-                      mr={1}
-                      onChange={async (e) => {
-                        const newTabs = tabsState.map((t) =>
-                          t.label === defaultTab.label
-                            ? { ...t, checked: e.target.checked }
-                            : t
-                        );
-                        setTabsState(newTabs);
+              <Column {...columnProps}>
+                <ProjectsList
+                  org={org}
+                  orgQuery={orgQuery}
+                  subQuery={subQuery}
+                  isCreator={isCreator}
+                  isFollowed={isFollowed}
+                />
+              </Column>
+            </TabPanel>
+          )}
 
-                        let orgTabs;
+          {!!tabs.find(({ label }) => belongs(label, "Galerie")) && (
+            <TabPanel aria-hidden>
+              <EntityPageDocuments isCreator={isCreator} query={orgQuery} />
+            </TabPanel>
+          )}
 
-                        if (
-                          e.target.checked &&
-                          !org.orgTabs?.find(
-                            ({ label }) => label === defaultTab.label
+          {session && isCreator && (
+            <TabPanel aria-hidden>
+              <AppHeading mb={3}>
+                Fonctionnalités {orgTypeFull(org.orgType)}
+              </AppHeading>
+
+              {defaultTabs
+                .filter((defaultTab) => defaultTab.label !== "")
+                .map((defaultTab) => {
+                  const label = Array.isArray(defaultTab.label)
+                    ? defaultTab.label[0]
+                    : defaultTab.label;
+
+                  return (
+                    <Flex
+                      key={"tab-" + label}
+                      alignItems="center"
+                      mb={1}
+                      maxWidth="fit-content"
+                    >
+                      <Switch
+                        isChecked={
+                          !!tabsState.find(
+                            (t) =>
+                              belongs(t.label, defaultTab.label) && t.checked
                           )
-                        ) {
-                          orgTabs = [
-                            ...tabs.map(({ label, url }) => ({
-                              label,
-                              url
-                            })),
-                            {
-                              label: defaultTab.label,
-                              url: defaultTab.url
-                            }
-                          ];
-                        } else {
-                          orgTabs = newTabs
-                            .filter(({ checked }) => !!checked)
-                            .map(({ label, url }) => ({ label, url }));
                         }
+                        isDisabled={label === "Accueil"}
+                        mr={1}
+                        onChange={async (e) => {
+                          const newTabs = tabsState.map((t) =>
+                            t.label === defaultTab.label
+                              ? { ...t, checked: e.target.checked }
+                              : t
+                          );
+                          setTabsState(newTabs);
 
-                        setCurrentTabIndex(orgTabs.length - 1);
+                          let orgTabs;
 
-                        await editOrg({
-                          orgId: org._id,
-                          payload: { orgTabs }
-                        });
-                      }}
-                    />
-                    <Input
-                      defaultValue={label}
-                      isDisabled
-                      // onChange={(e) => {
-                      //   let changed = false;
-                      //   const newTabs = tabsState.map((t) => {
-                      //     if (t.label === defaultTab.label) {
-                      //       if (e.target.value !== t.label) changed = true;
-                      //       return {
-                      //         ...t,
-                      //         label: e.target.value
-                      //       };
-                      //     }
-                      //     return t;
-                      //   });
+                          if (
+                            e.target.checked &&
+                            !org.orgTabs?.find(
+                              ({ label }) => label === defaultTab.label
+                            )
+                          ) {
+                            orgTabs = [
+                              ...tabs.map(({ label, url }) => ({
+                                label,
+                                url
+                              })),
+                              {
+                                label: defaultTab.label,
+                                url: defaultTab.url
+                              }
+                            ];
+                          } else {
+                            orgTabs = newTabs
+                              .filter(({ checked }) => !!checked)
+                              .map(({ label, url }) => ({ label, url }));
+                          }
 
-                      //   if (changed) setTabsState(newTabs);
-                      // }}
-                    />
-                  </Flex>
-                );
-              })}
-          </TabPanel>
-        )}
-      </TabPanels>
+                          setCurrentTabIndex(orgTabs.length - 1);
+
+                          await editOrg({
+                            orgId: org._id,
+                            payload: { orgTabs }
+                          });
+                        }}
+                      />
+                      <Input
+                        defaultValue={label}
+                        isDisabled
+                        // onChange={(e) => {
+                        //   let changed = false;
+                        //   const newTabs = tabsState.map((t) => {
+                        //     if (t.label === defaultTab.label) {
+                        //       if (e.target.value !== t.label) changed = true;
+                        //       return {
+                        //         ...t,
+                        //         label: e.target.value
+                        //       };
+                        //     }
+                        //     return t;
+                        //   });
+
+                        //   if (changed) setTabsState(newTabs);
+                        // }}
+                      />
+                    </Flex>
+                  );
+                })}
+            </TabPanel>
+          )}
+        </TabPanels>
+      )}
     </Tabs>
   );
 };

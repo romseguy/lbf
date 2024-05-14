@@ -82,7 +82,7 @@ export const NavMenuList = ({
           Se déconnecter
         </Text>
       </MenuItem>
-      <MenuItem>
+      {/* <MenuItem>
         <Tooltip
           placement="top-start"
           label={`Basculer vers le thème ${isDark ? "clair" : "sombre"}`}
@@ -92,7 +92,7 @@ export const NavMenuList = ({
             <DarkModeSwitch />
           </Box>
         </Tooltip>
-      </MenuItem>
+      </MenuItem> */}
     </MenuList>
   );
 };

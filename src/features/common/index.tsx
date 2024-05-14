@@ -61,6 +61,7 @@ export * from "./OfflineIcon";
 export * from "./PushPinIcon";
 export * from "./NotFound";
 export * from "./Row";
+export * from "./SearchInput";
 export * from "./Spacer";
 export * from "./SubscribeSwitch";
 export * from "./TabContainer";
