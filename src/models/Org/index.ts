@@ -150,7 +150,7 @@ export const getSubscriptions = (org: IOrg, type: string) => {
 
 //#region tabs
 export const defaultTabs: IOrgTabWithMetadata[] = [
-  { label: "Accueil", icon: FaHome, url: "/" },
+  { label: "Accueil", icon: FaHome, url: ["/", "/accueil"] },
   { label: ["Discussions", "d"], icon: ChatIcon, url: ["/discussions", "/d"] },
   { label: "Événements", icon: CalendarIcon, url: "/evenements" },
   { label: "Projets", icon: FaTools, url: "/projets" },

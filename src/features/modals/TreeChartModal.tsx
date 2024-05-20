@@ -49,7 +49,24 @@ function renderChart({
   root.setAttribute("id", "tree");
 
   if (container) container.appendChild(root);
-
+  const inputNodesCount = inputNodes.reduce((count, inputNode) => {
+    let newCount = count + 1;
+    if (inputNode.children) newCount += inputNode.children.length;
+    return newCount;
+  }, 0);
+  const heightBetweenNodesCoeff =
+    inputNodesCount > 115
+      ? 9.5
+      : inputNodesCount > 40
+      ? 7.5
+      : inputNodesCount > 15
+      ? 2.5
+      : 1.5;
+  // console.log(
+  //   "🚀 ~ heightBetweenNodesCoeff ~ heightBetweenNodesCoeff:",
+  //   heightBetweenNodesCoeff,
+  //   inputNodesCount
+  // );
   treeChart(
     root as HTMLElement,
     {
@@ -62,7 +79,7 @@ function renderChart({
       isDark,
       isFullscreen: true,
       isSorted: true,
-      heightBetweenNodesCoeff: 2.5,
+      heightBetweenNodesCoeff,
       widthBetweenNodesCoeff: 1,
       aspectRatio: 1.5,
       margin: {

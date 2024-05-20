@@ -3,7 +3,10 @@ import {
   AlertIcon,
   Box,
   ButtonProps,
+  Checkbox,
   Flex,
+  FormControl,
+  FormLabel,
   Image,
   Spinner,
   Stack,
@@ -39,7 +42,8 @@ import { PageProps } from "main";
 import { useAppDispatch } from "store";
 import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
-import { magic } from "utils/auth";
+import { magic, sealOptions, TOKEN_NAME } from "utils/auth";
+import { seal } from "@hapi/iron";
 
 const onLoginWithSocial = async (provider: OAuthProvider) => {
   await magic.oauth.loginWithRedirect({
@@ -66,7 +70,7 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
-  const router = useRouter();
+  //const router = useRouter();
   const {
     data: session,
     loading: isSessionLoading,
@@ -75,16 +79,17 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
   } = useSession();
   const title = `Connexion – ${process.env.NEXT_PUBLIC_SHORT_URL}`;
   const toast = useToast({ position: "top" });
-  const [postResetPasswordMail] = usePostResetPasswordMailMutation();
+  //const [postResetPasswordMail] = usePostResetPasswordMailMutation();
 
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isSent, setIsSent] = useState(false);
+  const [isPassword, setIsPassword] = useState(false);
+  //const [isSent, setIsSent] = useState(false);
 
   //#region form
   const { clearErrors, register, control, errors, setError, handleSubmit } =
     useForm({ mode: "onChange" });
-  const email = useWatch<string>({ control, name: "email" });
-  const password = useWatch<string>({ control, name: "password" });
+  //const email = useWatch<string>({ control, name: "email" });
+  //const password = useWatch<string>({ control, name: "password" });
 
   const onSubmit = async (form: { email: string; password?: string }) => {
     console.log("submitted", form);
@@ -93,27 +98,41 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
     try {
       if (form.password) {
         const { data: user } = await dispatch(
-          getUser.initiate({
-            slug: form.email,
-            select: "password passwordSalt"
-          })
+          getUser.initiate({ slug: form.email })
         );
 
-        if (user?.password && user?.passwordSalt) {
-          const password = await bcrypt.hash(form.password, user.passwordSalt);
-          if (user.password === password) {
-            toast({ title: "OK" });
-            // dispatch(
-            //   setSession({
-            //     user: {
-            //       ...user,
-            //       email: form.email,
-            //       userId: user._id
-            //     },
-            //     [TOKEN_NAME]: cookie
-            //   })
-            // );
-          } else toast({ title: "NOK" });
+        if (user?.passwordSalt) {
+          const hash = await bcrypt.hash(form.password, user.passwordSalt);
+          const {
+            data: { authenticated }
+          } = await api.post("login", { email: form.email, hash });
+
+          if (authenticated) window.location.href = "/";
+          else
+            toast({
+              status: "error",
+              title: "L'adresse e-mail et le mot de passe ne correspondent pas"
+            });
+
+          // todo: POST hash to /api/login
+
+          // if (user.password === hash) {
+          //   toast({ title: "OK" });
+          //   const userToken = {
+          //     email: form.email,
+          //     userId: user._id,
+          //     userName: user.userName
+          //   };
+
+          //   const authToken = await seal(userToken, "i9udjxke5S", sealOptions);
+
+          //   dispatch(
+          //     setSession({
+          //       user: userToken,
+          //       [TOKEN_NAME]: authToken
+          //     })
+          //   );
+          // } else toast({ title: "NOK" });
         }
 
         setIsLoggingIn(false);
@@ -124,7 +143,6 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
         });
       }
     } catch (error) {
-      console.log("🚀 ~ LoginForm ~ onSubmit ~ error:", error);
       setIsLoggingIn(false);
     }
   };
@@ -166,10 +184,6 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
           width={isMobile ? "auto" : "md"}
           m="0 auto"
         >
-          {/* <Link href="/" m="0 auto" mt={3} mb={1}>
-            <Image height="100px" src="/images/bg.png" m="0 auto" />
-          </Link> */}
-
           <AppHeading>Connexion</AppHeading>
 
           {isSessionLoading && <Spinner mb={3} />}
@@ -213,16 +227,6 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
 
               {!session && (
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  {/* <Alert
-                    bg={isDark ? "gray.600" : "lightcyan"}
-                    status="info"
-                    py={5}
-                  >
-                    <AlertIcon /> Pour vous connecter à votre compte, pas besoin
-                    de mot de passe, saisissez votre adresse e-mail ci-dessous
-                    pour recevoir un e-mail de connexion :
-                  </Alert> */}
-
                   <Column borderRadius={isMobile ? 0 : undefined} mt={3} mb={5}>
                     <EmailControl
                       name="email"
@@ -232,25 +236,76 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
                       isDisabled={isLoggingIn}
                       isMultiple={false}
                       isRequired
-                      mb={3}
+                      mb={0}
                     />
 
-                    {!password && (
-                      <Button
-                        type="submit"
-                        colorScheme="green"
-                        isLoading={isLoggingIn}
-                        isDisabled={
-                          isLoggingIn || Object.keys(errors).length > 0
-                        }
-                        fontSize="sm"
-                      >
-                        Envoyer un e-mail de connexion
-                      </Button>
+                    <FormControl display="flex" flexDir="row" mb={0}>
+                      <FormLabel mt={3}>Mot de passe</FormLabel>
+                      <Checkbox onChange={() => setIsPassword(!isPassword)} />
+                    </FormControl>
+
+                    {isPassword && (
+                      <PasswordControl
+                        errors={errors}
+                        register={register}
+                        noLabel
+                        mb={3}
+                      />
                     )}
+
+                    <Button
+                      type="submit"
+                      colorScheme="green"
+                      isLoading={isLoggingIn}
+                      isDisabled={isLoggingIn || Object.keys(errors).length > 0}
+                      fontSize="sm"
+                    >
+                      {isPassword
+                        ? "Se connecter"
+                        : "Envoyer un e-mail de connexion"}
+                    </Button>
                   </Column>
 
-                  {/* <Column borderRadius={isMobile ? 0 : undefined} mt={3} mb={5}>
+                  <Column borderRadius={isMobile ? 0 : undefined} mb={5} pb={0}>
+                    <SocialLogins
+                      flexDirection="column"
+                      onSubmit={onLoginWithSocial}
+                    />
+                  </Column>
+
+                  <BackButton colorScheme="red" mb={5} />
+                </form>
+              )}
+            </>
+          )}
+        </Flex>
+      </Flex>
+    </>
+  );
+};
+
+export default LoginPage;
+
+{
+  /* <Link href="/" m="0 auto" mt={3} mb={1}>
+            <Image height="100px" src="/images/bg.png" m="0 auto" />
+          </Link> */
+}
+
+{
+  /* <Alert
+                    bg={isDark ? "gray.600" : "lightcyan"}
+                    status="info"
+                    py={5}
+                  >
+                    <AlertIcon /> Pour vous connecter à votre compte, pas besoin
+                    de mot de passe, saisissez votre adresse e-mail ci-dessous
+                    pour recevoir un e-mail de connexion :
+                  </Alert> */
+}
+
+{
+  /* <Column borderRadius={isMobile ? 0 : undefined} mt={3} mb={5}>
                     <PasswordControl
                       label="Mot de passe (optionnel)"
                       register={register}
@@ -291,9 +346,11 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
                           : "Envoyer un e-mail de récupération de mot de passe"}
                       </Button>
                     )}
-                  </Column> */}
+                  </Column> */
+}
 
-                  {/* <Alert
+{
+  /* <Alert
                     bg={isDark ? "gray.600" : "lightcyan"}
                     status="info"
                     mb={3}
@@ -301,24 +358,5 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
                   >
                     <AlertIcon />
                     Ou connectez-vous grâce aux réseaux sociaux :
-                  </Alert> */}
-
-                  <Column borderRadius={isMobile ? 0 : undefined} mb={5} pb={0}>
-                    <SocialLogins
-                      flexDirection="column"
-                      onSubmit={onLoginWithSocial}
-                    />
-                  </Column>
-
-                  <BackButton colorScheme="red" mb={5} />
-                </form>
-              )}
-            </>
-          )}
-        </Flex>
-      </Flex>
-    </>
-  );
-};
-
-export default LoginPage;
+                  </Alert> */
+}

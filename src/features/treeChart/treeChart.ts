@@ -124,7 +124,7 @@ export const treeChart = (
     (e) => (touchCount = e.touches.length)
   );
   const xMax = layoutWidth * 2;
-  const yMax = layoutHeight * 2;
+  const yMax = Infinity;
   const panExtent = {
     x: [-xMax, xMax],
     y: [-yMax, yMax]

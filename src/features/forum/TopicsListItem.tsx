@@ -688,12 +688,14 @@ export const TopicsListItem = ({
 
       {isCurrent && (
         <Box bg={isDark ? "#314356" : "orange.50"}>
+          {/*
           <GridItem px={3} py={2} data-cy="topic-subscribers">
             <TopicsListItemSubscribers
               topic={topic}
               isSubbedToTopic={isSubbedToTopic}
             />
           </GridItem>
+          */}
 
           <TopicMessagesList
             isEdit={isEdit}

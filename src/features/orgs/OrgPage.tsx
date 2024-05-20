@@ -153,6 +153,8 @@ export const OrgPage = ({
                 : `Planète ${
                     org.orgVisibility === EOrgVisibility.PRIVATE
                       ? "protégée par un mot de passe"
+                      : org.orgVisibility === EOrgVisibility.LINK
+                      ? "accessible uniquement à ceux qui ont le lien"
                       : ""
                   } créée`}{" "}
               le{" "}

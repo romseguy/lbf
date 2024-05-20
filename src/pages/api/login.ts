@@ -9,6 +9,11 @@ import { createEndpointError } from "utils/errors";
 import { normalize } from "utils/string";
 import { NextApiRequestWithAuthorizationHeader } from "utils/types";
 
+type LoginPayload = {
+  email: string;
+  hash: string;
+};
+
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 handler.use(database);
 
@@ -47,6 +52,41 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
         userName: user.userName
       };
 
+      const token = await seal(userToken, process.env.SECRET, sealOptions);
+      setTokenCookie(res, token);
+
+      res.status(200).json({ authenticated: true });
+    } catch (error: any) {
+      res.status(500).json(createEndpointError(error));
+    }
+  }
+);
+
+handler.post<NextApiRequest & { body: LoginPayload }, NextApiResponse>(
+  async function login(req, res) {
+    try {
+      const {
+        body: { email, hash }
+      }: { body: LoginPayload } = req;
+      let user = await models.User.findOne({ email }, "+password");
+
+      if (!user)
+        return res
+          .status(404)
+          .json(
+            createEndpointError(
+              new Error(`L'utilisateur n'a pas pu être trouvé`)
+            )
+          );
+
+      if (user.password !== hash)
+        return res.status(200).json({ authenticated: false });
+
+      const userToken = {
+        email,
+        userId: user._id,
+        userName: user.userName
+      };
       const token = await seal(userToken, process.env.SECRET, sealOptions);
       setTokenCookie(res, token);
 

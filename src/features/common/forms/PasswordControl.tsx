@@ -18,19 +18,21 @@ export const PasswordControl = ({
   errors,
   register,
   isRequired = true,
+  noLabel,
   ...props
 }: FormControlProps & {
   errors: any;
   name?: string;
   register: any;
   isRequired?: boolean;
+  noLabel?: boolean;
 }) => {
   const name = props.name || "password";
   const [passwordFieldType, setPasswordFieldType] = useState("password");
 
   return (
     <FormControl isRequired={isRequired} isInvalid={!!errors[name]} {...props}>
-      <FormLabel>{label}</FormLabel>
+      {!noLabel && <FormLabel>{label}</FormLabel>}
       <InputGroup>
         <InputLeftElement pointerEvents="none" children={<FaKey />} />
         <Input

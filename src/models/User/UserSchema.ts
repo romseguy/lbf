@@ -20,10 +20,7 @@ export const UserSchema = new Schema<IUser>(
       type: String,
       select: false
     },
-    passwordSalt: {
-      type: String,
-      select: false
-    },
+    passwordSalt: String,
     securityCode: {
       type: String,
       select: false

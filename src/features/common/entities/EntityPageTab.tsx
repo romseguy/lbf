@@ -8,6 +8,7 @@ import {
   useStyles,
   useTab
 } from "@chakra-ui/react";
+import { defaultTabs } from "models/Org";
 import React from "react";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
@@ -36,6 +37,10 @@ export const EntityPageTab = ({
   //const styles = useMultiStyleConfig("Tabs", tabProps);
   //const styles = useTabsStyles();
   const styles = useStyles();
+  const icon = tab.icon
+    ? tab.icon
+    : defaultTabs.find(({ url }) => url?.includes(tab.url))?.icon ||
+      QuestionIcon;
 
   return (
     <Tab
@@ -58,13 +63,10 @@ export const EntityPageTab = ({
       {...props}
     >
       <Icon
-        as={tab.icon || QuestionIcon}
+        as={icon}
         boxSize={8}
         __css={{
-          ...(isMobile
-            ? {
-              }
-            : {})
+          ...(isMobile ? {} : {})
         }}
         mr={!isMobile && (tab.label === "" || tab.label === "Accueil") ? 0 : 2}
       />

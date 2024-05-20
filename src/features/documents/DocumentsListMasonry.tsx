@@ -43,61 +43,47 @@ export const DocumentsListMasonry = ({
   const isMobile = useSelector(selectIsMobile);
 
   const isO = isOrg(entity);
-  const { isLoading, isFetching, images, imagesSize, refetch } =
-    useGetDocumentsQuery(
-      {
-        [isO ? "orgId" : "userId"]: entity._id
-      },
-      {
-        selectFromResult: ({ data = [], ...rest }) => {
-          // const images = data.filter<RemoteImage>((file): file is RemoteImage => "height" in file)
-          let images = [];
-          let count = 0;
-          for (const file of data) {
-            if ("height" in file) {
-              count += file.bytes;
-              images.push({
-                ...file,
-                url: `${process.env.NEXT_PUBLIC_FILES}/${
-                  entity._id
-                }/${encodeURIComponent(file.url)}`
-              });
-            }
-          }
-          return {
-            ...rest,
-            images,
-            imagesSize: count
-          };
+  const [images, setImages] = useState<RemoteImage[]>([]);
+  const [imagesSize, setImagesSize] = useState(0);
+  const { isLoading, isFetching, data, refetch } = useGetDocumentsQuery({
+    [isO ? "orgId" : "userId"]: entity._id
+  });
+  useEffect(() => {
+    if (data && hasItems(data)) {
+      let count = 0;
+      let arr: RemoteImage[] = []; // = data.filter<RemoteImage>((file): file is RemoteImage => "height" in file)
+
+      for (const file of data) {
+        if ("height" in file) {
+          count += file.bytes;
+          arr.push({
+            ...file,
+            url: `${process.env.NEXT_PUBLIC_FILES}/${
+              entity._id
+            }/${encodeURIComponent(file.url)}`
+          });
         }
       }
-    );
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const length = (images.length - 1) % 10;
-  const pages = divideArray(images, length);
+
+      setImages(arr.sort((a, b) => (a.time < b.time ? 1 : -1)));
+      setImagesSize(count);
+    }
+  }, [data]);
   useEffect(() => {
     refetch();
   }, [entity]);
 
-  //#region masonry state
-  const [columnCount, setColumnCount] = useState(1);
-  const masonry = useMemo(() => {
-    //if (!canLoad) return [];
-    if (!pages.length) return [];
-
-    const arry = pages.reduce((acc, cur, index) => {
-      if (index < currentIndex) return acc.concat(cur);
-
-      return acc;
-    }, []);
-
-    return divideArray<RemoteImage>(arry, columnCount);
-  }, [images, columnCount]);
+  //#region column count relative to screen width
   const [screenWidth, setScreenWidth] = useState<number>(0);
+  console.log("🚀 ~ screenWidth:", screenWidth);
   useEffect(() => {
-    if (!isMobile && hasItems(images)) {
-      const updateScreenWidth = () => setScreenWidth(window.innerWidth - 15);
-      updateScreenWidth();
+    const updateScreenWidth = () => {
+      const newScreenWidth = window.innerWidth - 15;
+      if (newScreenWidth !== screenWidth) setScreenWidth(newScreenWidth);
+    };
+    updateScreenWidth();
+
+    if (!isMobile) {
       window.addEventListener("resize", updateScreenWidth);
       signal.addEventListener("abort", () => {
         window.removeEventListener("resize", updateScreenWidth);
@@ -107,17 +93,41 @@ export const DocumentsListMasonry = ({
     return () => {
       if (!isMobile) controller.abort();
     };
-  }, [images]);
+  }, []);
+
+  const [columnCount, setColumnCount] = useState<number>(0);
+  console.log("🚀 ~ columnCount:", columnCount);
   useEffect(() => {
-    if (images && screenWidth) {
-      let col = 1;
-      if (screenWidth >= pxBreakpoints.xl)
-        col = images.length >= 4 ? 4 : images.length;
-      else if (screenWidth >= pxBreakpoints.lg) col = 3;
-      else if (screenWidth >= pxBreakpoints.md) col = 2;
-      if (col != columnCount) setColumnCount(col);
-    }
-  }, [screenWidth]);
+    const getColumnCount = () => {
+      let col = 0;
+      if (hasItems(images) && screenWidth) {
+        if (screenWidth >= pxBreakpoints.xl)
+          col = images.length >= 4 ? 4 : images.length;
+        else if (screenWidth >= pxBreakpoints.lg) col = 3;
+        else if (screenWidth >= pxBreakpoints.md) col = 2;
+        else col = 1;
+      }
+      return col;
+    };
+    const col = getColumnCount();
+    if (col !== columnCount) setColumnCount(col);
+  }, [images, screenWidth]);
+  //#endregion
+
+  //#region masonry state
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const pageImageCount = 10;
+  const pagesCount =
+    images.length > pageImageCount ? images.length % pageImageCount : 1;
+  //const pageLength = images.length / pagesCount;
+  const pages = divideArray(images, pagesCount);
+  const masonry = divideArray<RemoteImage>(
+    pages.reduce(
+      (arr, page, index) => (index <= currentIndex ? arr.concat(page) : arr),
+      []
+    ),
+    columnCount
+  );
   //#endregion
 
   //#region modal state
@@ -141,7 +151,7 @@ export const DocumentsListMasonry = ({
     <Column {...props}>
       <Flex alignItems="center" p={3}>
         <AppHeading noContainer smaller>
-          Visionneuse d'images
+          {images.length} images
         </AppHeading>
         <Badge variant="subtle" colorScheme="green" ml={1}>
           {stringUtils.bytesForHuman(imagesSize)}
@@ -156,80 +166,82 @@ export const DocumentsListMasonry = ({
           Aucune images.
         </Alert>
       ) : (
-        <>
-          <Flex justifyContent="center">
-            {masonry.map((column, index) => {
-              return (
-                <Flex key={index} flexDirection="column" width="100%">
-                  {column.map((image, imageIndex) => {
-                    let marginAround = 2 * (4 * 12 + 24);
-                    const marginBetween = (columnCount - 1) * 24;
-                    let newMW = screenWidth - marginAround;
+        !!columnCount && (
+          <>
+            <Flex justifyContent="center">
+              {masonry.map((column, index) => {
+                return (
+                  <Flex key={index} flexDirection="column" width="100%">
+                    {column.map((image, imageIndex) => {
+                      let marginAround = 2 * (4 * 12 + 24);
+                      const marginBetween = (columnCount - 1) * 24;
+                      let newMW = screenWidth - marginAround;
 
-                    if (screenWidth > pxBreakpoints["2xl"]) {
-                      marginAround = 2 * (5 * 12 + 20 + 84);
-                      newMW =
-                        (screenWidth - marginAround - marginBetween) /
-                        columnCount;
-                      // console.log(
-                      //   "1",
-                      //   columnCount,
-                      //   screenWidth,
-                      //   newMW,
-                      //   marginAround,
-                      //   marginBetween
-                      // );
-                    } else if (columnCount !== 1) {
-                      marginAround = 2 * (4 * 12 + 20);
-                      newMW =
-                        (screenWidth - marginAround - marginBetween) /
-                        columnCount;
-                    }
+                      if (screenWidth > pxBreakpoints["2xl"]) {
+                        marginAround = 2 * (5 * 12 + 20 + 84);
+                        newMW =
+                          (screenWidth - marginAround - marginBetween) /
+                          columnCount;
+                        // console.log(
+                        //   "1",
+                        //   columnCount,
+                        //   screenWidth,
+                        //   newMW,
+                        //   marginAround,
+                        //   marginBetween
+                        // );
+                      } else if (columnCount !== 1) {
+                        marginAround = 2 * (4 * 12 + 20);
+                        newMW =
+                          (screenWidth - marginAround - marginBetween) /
+                          columnCount;
+                      }
 
-                    const width = image.width > newMW ? newMW : image.width;
+                      const width = image.width > newMW ? newMW : image.width;
 
-                    return (
-                      <Image
-                        key={`image-${imageIndex}`}
-                        //ref={imageRefs[image.url]}
-                        src={image.url}
-                        width={`${width}px`}
-                        borderRadius="12px"
-                        cursor="pointer"
-                        mb={3}
-                        mx={3}
-                        onClick={() => {
-                          onOpen(image);
-                        }}
-                        // onLoad={() => {
-                        //   if (!isLoaded[image.url])
-                        //     setIsLoaded({ [image.url]: true });
-                        // }}
-                      />
-                    );
-                  })}
-                </Flex>
-              );
-            })}
-          </Flex>
+                      return (
+                        <Image
+                          key={`image-${imageIndex}`}
+                          //ref={imageRefs[image.url]}
+                          src={image.url}
+                          width={`${width}px`}
+                          borderRadius="12px"
+                          cursor="pointer"
+                          mb={3}
+                          mx={3}
+                          onClick={() => {
+                            onOpen(image);
+                          }}
+                          // onLoad={() => {
+                          //   if (!isLoaded[image.url])
+                          //     setIsLoaded({ [image.url]: true });
+                          // }}
+                        />
+                      );
+                    })}
+                  </Flex>
+                );
+              })}
+            </Flex>
 
-          {currentIndex < pages.length && (
-            <Button
-              onClick={() => {
-                setCurrentIndex(currentIndex + 1);
-              }}
-            >
-              Charger les 12 images suivantes{" "}
-              <Badge colorScheme="teal">
-                {stringUtils.bytesForHuman(
-                  pages[currentIndex].reduce((sum, cur) => {
-                    return sum + cur.bytes;
-                  }, 0)
-                )}
-              </Badge>
-            </Button>
-          )}
-        </>
+            {currentIndex < pages.length && (
+              <Button
+                onClick={() => {
+                  setCurrentIndex(currentIndex + 1);
+                }}
+              >
+                Charger les images suivantes{" "}
+                <Badge colorScheme="teal">
+                  {stringUtils.bytesForHuman(
+                    pages[currentIndex].reduce((sum, cur) => {
+                      return sum + cur.bytes;
+                    }, 0)
+                  )}
+                </Badge>
+              </Button>
+            )}
+          </>
+        )
       )}
 
       {modalState.isOpen && modalState.image && (

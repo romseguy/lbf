@@ -22,6 +22,7 @@ import { unauthorizedEntityUrls } from "utils/url";
 import { selectIsMobile } from "store/uiSlice";
 import { css } from "twin.macro";
 import { AppQuery } from "utils/types";
+import { useSession } from "hooks/useSession";
 
 export const NavButtonsList = ({
   direction = "row",
@@ -32,10 +33,11 @@ export const NavButtonsList = ({
   isNetworksModalOpen?: boolean;
   onClose?: () => void;
 }) => {
-  const isMobile = useSelector(selectIsMobile);
-  const router = useRouter();
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
+  const router = useRouter();
+  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
 
   const buttonProps = {
@@ -61,62 +63,68 @@ export const NavButtonsList = ({
 
   //#region parcourir
   const [keyword, setKeyword] = useState("");
+  const createdBy = session ? session.user.userId : undefined;
   const orgsQuery = useGetOrgsQuery({
+    createdBy,
     orgType: EOrgType.NETWORK,
     populate: "orgs createdBy"
   }) as AppQuery<IOrg[]>;
-  const planets = orgsQuery.data?.filter((org) =>
-    org ? org.orgType === EOrgType.NETWORK : true
-  );
+
   const {
     isOpen: isNetworksModalOpen,
     onOpen: openNetworksModal,
     onClose: closeNetworksModal
   } = useDisclosure({ defaultIsOpen: false });
-  const inputNodes: InputNode[] = useMemo(() => {
-    return planets
-      ? planets
-          .filter((org) => {
-            if (
-              org.orgType === EOrgType.NETWORK &&
-              [EOrgVisibility.PUBLIC, EOrgVisibility.FRONT].includes(
-                org.orgVisibility
-              ) &&
-              org.orgUrl !== "forum"
-            ) {
+
+  const inputNodes: InputNode[] = (orgsQuery.data || [])
+    .filter((org) => {
+      let canDisplay =
+        org.orgType === EOrgType.NETWORK && org.orgUrl !== "forum";
+
+      if (!session) {
+        canDisplay =
+          canDisplay &&
+          [EOrgVisibility.PUBLIC, EOrgVisibility.FRONT].includes(
+            org.orgVisibility
+          );
+      }
+
+      if (canDisplay) {
+        if (!keyword) return true;
+
+        // console.log(
+        //   "🚀 ~ .filter ~ keyword:",
+        //   keyword.toLowerCase(),
+        //   org.orgName.toLowerCase(),
+        //   org.orgName.toLowerCase().includes(keyword.toLowerCase())
+        // );
+        return org.orgName.toLowerCase().includes(keyword.toLowerCase());
+      }
+
+      return false;
+    })
+    .map((org) => {
+      return {
+        name: org.orgName,
+        children: org.orgs
+          .filter(({ orgName, orgVisibility }) => {
+            let canDisplay = orgVisibility === EOrgVisibility.PUBLIC;
+            if (canDisplay) {
               if (!keyword) return true;
 
-              console.log(
-                "🚀 ~ .filter ~ keyword:",
-                keyword.toLowerCase(),
-                org.orgName.toLowerCase(),
-                org.orgName.toLowerCase().includes(keyword.toLowerCase())
-              );
               return org.orgName.toLowerCase().includes(keyword.toLowerCase());
             }
-
             return false;
           })
-          .map((org) => {
+          .map(({ orgName, orgType }) => {
             return {
-              name: org.orgName,
-              children: org.orgs
-                .filter(
-                  ({ orgVisibility }) => orgVisibility === EOrgVisibility.PUBLIC
-                )
-                .map(({ orgName, orgType }) => {
-                  return {
-                    name: orgName,
-                    prefix:
-                      orgType === EOrgType.TREETOOLS
-                        ? OrgTypes[orgType] + " : "
-                        : ""
-                  };
-                })
+              name: orgName,
+              prefix:
+                orgType === EOrgType.TREETOOLS ? OrgTypes[orgType] + " : " : ""
             };
           })
-      : [];
-  }, [keyword, planets]);
+      };
+    });
   //#endregion
 
   useEffect(() => {
@@ -169,7 +177,7 @@ export const NavButtonsList = ({
               <InputLeftAddon children={<Icon as={FaGlobeEurope} />} />
               <SearchInput
                 placeholder="Rechercher un nom de planète"
-                width="calc(100% - 70px)"
+                width="calc(100% - 80px)"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
               />
