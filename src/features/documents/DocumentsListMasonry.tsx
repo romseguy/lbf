@@ -2,7 +2,6 @@ import {
   Alert,
   AlertIcon,
   Badge,
-  Box,
   Button,
   Flex,
   HStack,
@@ -13,8 +12,8 @@ import {
   UseDisclosureProps
 } from "@chakra-ui/react";
 import AbortController from "abort-controller";
-import React, { useEffect, useMemo, useState } from "react";
-import { FaImage, FaFile } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaImage } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { RemoteImage, useGetDocumentsQuery } from "features/api/documentsApi";
 import { Column, ColumnProps, AppHeading } from "features/common";
@@ -23,12 +22,10 @@ import { FullscreenModal } from "features/modals/FullscreenModal";
 import { isOrg } from "models/Entity";
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
-import { selectIsMobile } from "store/uiSlice";
+import { selectIsMobile, selectScreenWidth } from "store/uiSlice";
 import { divideArray, hasItems } from "utils/array";
 import * as stringUtils from "utils/string";
-
-const controller = new AbortController();
-const signal = controller.signal;
+import { useRouter } from "next/router";
 
 export const DocumentsListMasonry = ({
   entity,
@@ -39,9 +36,8 @@ export const DocumentsListMasonry = ({
   isCreator?: boolean;
 }) => {
   const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
-  const isMobile = useSelector(selectIsMobile);
-
+  const router = useRouter();
+  const screenWidth = useSelector(selectScreenWidth);
   const isO = isOrg(entity);
   const [images, setImages] = useState<RemoteImage[]>([]);
   const [imagesSize, setImagesSize] = useState(0);
@@ -74,32 +70,10 @@ export const DocumentsListMasonry = ({
   }, [entity]);
 
   //#region column count relative to screen width
-  const [screenWidth, setScreenWidth] = useState<number>(0);
-  console.log("🚀 ~ screenWidth:", screenWidth);
-  useEffect(() => {
-    const updateScreenWidth = () => {
-      const newScreenWidth = window.innerWidth - 15;
-      if (newScreenWidth !== screenWidth) setScreenWidth(newScreenWidth);
-    };
-    updateScreenWidth();
-
-    if (!isMobile) {
-      window.addEventListener("resize", updateScreenWidth);
-      signal.addEventListener("abort", () => {
-        window.removeEventListener("resize", updateScreenWidth);
-      });
-    }
-
-    return () => {
-      if (!isMobile) controller.abort();
-    };
-  }, []);
-
-  const [columnCount, setColumnCount] = useState<number>(0);
-  console.log("🚀 ~ columnCount:", columnCount);
+  const [columnCount, setColumnCount] = useState<number>(1);
   useEffect(() => {
     const getColumnCount = () => {
-      let col = 0;
+      let col = 1;
       if (hasItems(images) && screenWidth) {
         if (screenWidth >= pxBreakpoints.xl)
           col = images.length >= 4 ? 4 : images.length;
@@ -111,7 +85,7 @@ export const DocumentsListMasonry = ({
     };
     const col = getColumnCount();
     if (col !== columnCount) setColumnCount(col);
-  }, [images, screenWidth]);
+  }, [router.asPath, images, screenWidth]);
   //#endregion
 
   //#region masonry state
@@ -224,7 +198,7 @@ export const DocumentsListMasonry = ({
               })}
             </Flex>
 
-            {currentIndex < pages.length && (
+            {Array.isArray(pages[currentIndex + 1]) && (
               <Button
                 onClick={() => {
                   setCurrentIndex(currentIndex + 1);
@@ -233,7 +207,7 @@ export const DocumentsListMasonry = ({
                 Charger les images suivantes{" "}
                 <Badge colorScheme="teal">
                   {stringUtils.bytesForHuman(
-                    pages[currentIndex].reduce((sum, cur) => {
+                    pages[currentIndex + 1].reduce((sum, cur) => {
                       return sum + cur.bytes;
                     }, 0)
                   )}

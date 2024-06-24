@@ -127,7 +127,9 @@ export const DocumentsList = ({
             gridRowGap={3}
           >
             {documents.map((file) => {
-              const datetime = fullDateString(new Date(file.time));
+              const datetime = file.time
+                ? fullDateString(new Date(file.time))
+                : "";
               const url = `${process.env.NEXT_PUBLIC_FILES}/${entity._id}/${file.url}`;
               const downloadUrl = url;
               const isImage = stringUtils.isImage(file.url);

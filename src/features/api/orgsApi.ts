@@ -33,6 +33,8 @@ export type GetOrgsParams = {
   populate?: string;
 };
 
+export type DeleteOrgParams = { orgId: string; isDeleteOrgEvents: boolean };
+
 export const orgApi = api.injectEndpoints({
   endpoints: (build) => ({
     addOrg: build.mutation<IOrg, AddOrgPayload>({
@@ -49,8 +51,22 @@ export const orgApi = api.injectEndpoints({
       },
       invalidatesTags: [{ type: "Orgs", id: "LIST" }]
     }),
-    deleteOrg: build.mutation<IOrg, string>({
-      query: (orgId) => ({ url: `org/${orgId}`, method: "DELETE" }),
+    deleteOrg: build.mutation<IOrg, DeleteOrgParams>({
+      query: ({ orgId, ...query }) => {
+        console.groupCollapsed("deleteOrg");
+        console.log("orgId", orgId);
+        console.log("isDeleteOrgEvents", query.isDeleteOrgEvents);
+        console.groupEnd();
+
+        return {
+          method: "DELETE",
+          url: `org/${orgId}${
+            Object.keys(query).length > 0
+              ? `?${objectToQueryString(query)}`
+              : ""
+          }`
+        };
+      },
       invalidatesTags: [{ type: "Orgs", id: "LIST" }]
     }),
     editOrg: build.mutation<IOrg, { payload: EditOrgPayload; orgId?: string }>({

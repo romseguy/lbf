@@ -31,7 +31,11 @@ import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
 import { SearchIcon } from "@chakra-ui/icons";
 
-export const Nav = ({ isMobile, ...props }: BoxProps & PageProps) => {
+export const Nav = ({
+  isMobile,
+  pageTitle,
+  ...props
+}: BoxProps & PageProps & { pageTitle?: string }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -62,7 +66,9 @@ export const Nav = ({ isMobile, ...props }: BoxProps & PageProps) => {
               <Td border={0} p={0}>
                 <AppHeading mb={2}>
                   <Link href="/" shallow>
-                    {process.env.NEXT_PUBLIC_SHORT_URL}
+                    {router.pathname === "/"
+                      ? pageTitle
+                      : process.env.NEXT_PUBLIC_SHORT_URL}
                   </Link>
                 </AppHeading>
               </Td>
