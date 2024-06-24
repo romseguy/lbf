@@ -150,12 +150,17 @@ export const getSubscriptions = (org: IOrg, type: string) => {
 
 //#region tabs
 export const defaultTabs: IOrgTabWithMetadata[] = [
-  { label: "Accueil", icon: FaHome, url: ["/", "/accueil"] },
-  { label: ["Discussions", "d"], icon: ChatIcon, url: ["/discussions", "/d"] },
-  { label: "Événements", icon: CalendarIcon, url: "/evenements" },
-  { label: "Projets", icon: FaTools, url: "/projets" },
-  { label: "Galerie", icon: FaImages, url: "/galerie" },
-  { label: "", icon: SettingsIcon, url: "/parametres" }
+  { order: 0, label: "Accueil", icon: FaHome, url: ["/", "/accueil"] },
+  {
+    order: 1,
+    label: ["Discussions", "d"],
+    icon: ChatIcon,
+    url: ["/discussions", "/d"]
+  },
+  { order: 2, label: "Événements", icon: CalendarIcon, url: "/evenements" },
+  { order: 3, label: "Projets", icon: FaTools, url: "/projets" },
+  { order: 4, label: "Galerie", icon: FaImages, url: "/galerie" },
+  { order: 5, label: "", icon: SettingsIcon, url: "/parametres" }
 ];
 export const getDefaultTab = ({ url }: { url?: string | string[] }) => {
   if (!url) return undefined;

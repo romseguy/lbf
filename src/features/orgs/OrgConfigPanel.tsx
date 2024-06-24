@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import React from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import {
   Column,
   EntityConfigBannerPanel,
@@ -20,6 +21,7 @@ import { OrgConfigButtons } from "./OrgConfigButtons";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 import { EEntityCategoryKey } from "models/Entity";
+import { useToast } from "@chakra-ui/react";
 
 export type OrgConfigVisibility = {
   isVisible: Record<string, boolean>;
@@ -53,6 +55,15 @@ export const OrgConfigPanel = ({
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const org = orgQuery.data;
+  const buttons = (
+    <OrgConfigButtons
+      isEdit={isEdit}
+      isVisible={isVisible}
+      orgQuery={orgQuery}
+      setIsEdit={setIsEdit}
+      toggleVisibility={toggleVisibility}
+    />
+  );
 
   return (
     <>
@@ -83,13 +94,7 @@ export const OrgConfigPanel = ({
 
       {!isEdit && (
         <>
-          <OrgConfigButtons
-            isEdit={isEdit}
-            isVisible={isVisible}
-            orgQuery={orgQuery}
-            setIsEdit={setIsEdit}
-            toggleVisibility={toggleVisibility}
-          />
+          {buttons}
 
           <Column mb={3} pt={1}>
             <AppHeading>Apparence</AppHeading>

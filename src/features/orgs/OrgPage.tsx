@@ -161,11 +161,15 @@ export const OrgPage = ({
               {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
                 locale: fr
               })}{" "}
-              par :{" "}
-              <Link variant="underline" href={`/${orgCreatedByUserName}`}>
-                {orgCreatedByUserName}
-              </Link>{" "}
-              {isCreator && `(Vous ${session?.user.isAdmin && ": admin"})`}
+              {orgCreatedByUserName && (
+                <>
+                  par :{" "}
+                  <Link variant="underline" href={`/${orgCreatedByUserName}`}>
+                    {orgCreatedByUserName}
+                  </Link>{" "}
+                  {isCreator && `(Vous ${session?.user.isAdmin && ": admin"})`}
+                </>
+              )}
             </Text>
           </Box>
 

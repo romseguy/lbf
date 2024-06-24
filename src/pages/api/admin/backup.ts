@@ -96,32 +96,29 @@ handler.post<NextApiRequest, NextApiResponse>(async function importData(
       for (const collection of collections) {
         const key = collection.collectionName;
         console.log("🚀 ~ file: backup.ts:97 ~ key:", key);
-        if (key !== "users") {
-          if (!body.data[key]) {
-            console.log(`POST /admin/backup: could not find body.data[${key}]`);
+        //if (key !== "users") {
+        if (!body.data[key]) {
+          console.log(`POST /admin/backup: could not find body.data[${key}]`);
+        } else {
+          const model = models[collectionToModelKeys[key]];
+          if (!model) {
+            console.log(
+              `POST /admin/backup: could not find model for collection ${key}`
+            );
           } else {
-            const model = models[collectionToModelKeys[key]];
-            if (!model) {
-              console.log(
-                `POST /admin/backup: could not find model for collection ${key}`
-              );
-            } else {
-              // console.log(
-              //   "🚀 ~ file: backup.ts:90 ~ dropping collection:",
-              //   key
-              // );
-              // const dropped = await model.collection.drop();
-              // console.log("🚀 ~ file: backup.ts:110 ~ dropped:", dropped);
+            console.log("🚀 ~ file: backup.ts:90 ~ dropping collection:", key);
+            const dropped = await model.collection.drop();
+            console.log("🚀 ~ file: backup.ts:110 ~ dropped:", dropped);
 
-              let i = 0;
-              for (const o of body.data[key]) {
-                i += 1;
-                await model.create(o);
-              }
-              console.log("🚀 ~ file: backup.ts:90 ~ created models count:", i);
+            let i = 0;
+            for (const o of body.data[key]) {
+              i += 1;
+              await model.create(o);
             }
+            console.log("🚀 ~ file: backup.ts:90 ~ created models count:", i);
           }
         }
+        //}
       }
     }
 

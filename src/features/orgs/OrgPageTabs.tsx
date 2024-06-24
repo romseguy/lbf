@@ -12,7 +12,7 @@ import {
   useColorMode
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaTools } from "react-icons/fa";
 import { css } from "twin.macro";
 import { useGetDocumentsQuery } from "features/api/documentsApi";
@@ -24,25 +24,21 @@ import {
   EntityPageDocuments,
   EntityPageTab,
   EntityPageTabList,
-  EntityPageTopics,
-  Link
+  EntityPageTopics
 } from "features/common";
 import { EventsList } from "features/events/EventsList";
 import { scrollbarCss } from "features/layout/theme";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { useSession } from "hooks/useSession";
-import { EEntityTab } from "models/Entity";
 import {
   defaultTabs,
   getCurrentTab,
   getDefaultTab,
   IOrg,
-  IOrgTab,
   IOrgTabWithMetadata,
   orgTypeFull
 } from "models/Org";
 import { ISubscription } from "models/Subscription";
-import { sortOn } from "utils/array";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { IsEditConfig } from "./OrgPage";
@@ -50,6 +46,7 @@ import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 import { belongs } from "utils/belongs";
+import { sortOn } from "utils/array";
 
 export const OrgPageTabs = ({
   currentItemName,
@@ -90,27 +87,26 @@ export const OrgPageTabs = ({
   };
   const [editOrg] = useEditOrgMutation();
   const org = orgQuery.data;
+  const orgTabs = [...(org.orgTabs || defaultTabs)];
+  //.filter((tab) => tab.label === "" && !session ? false : true);
+  // // console.log("🚀 ~ orgTaxbs:", orgTabs);
 
   //#region tabs
   const documentsQuery = useGetDocumentsQuery({ orgId: org._id });
-  const tabs: IOrgTabWithMetadata[] = [...(org.orgTabs || defaultTabs)]
-    .filter((tab) => (tab.label === "" && !session ? false : true))
-    // .sort(
-    //   sortOn(
-    //     "label",
-    //     defaultTabs
-    //       .filter(({ label }) => {
-    //         if (Array.isArray(label)) {
-    //           return label[0] !== "";
-    //         }
-
-    //         return label !== "";
-    //       })
-    //       .map(({ label }) => label)
-    //   )
-    // )
+  const tabs: IOrgTabWithMetadata[] = orgTabs
+    //.sort(sortOn("order", ["0", "1", "2", "3", "4", "5"]))
     .map((tab) => {
-      const dt = getDefaultTab({ url: tab.url });
+      // // console.log("🚀 ~ .map ~ tab:", tab);
+      let url = tab.url;
+
+      if (tab.url === "") {
+        if (tab.label === "") url = "/parametres";
+        if (tab.label === "Accueil") url = "/";
+      }
+
+      // // console.log("🚀 ~ .map ~ url:", url);
+      const dt = getDefaultTab({ url });
+      // // console.log("🚀 ~ .map ~ dt:", dt);
       const metadata: {} = {};
 
       return {
@@ -118,9 +114,8 @@ export const OrgPageTabs = ({
         ...dt,
         ...metadata
       };
-
-      //return { ...tab, ...metadata };
     });
+  const sortedTabs = tabs.sort(sortOn("order", ["0", "1", "2", "3", "4", "5"]));
   //#endregion
 
   //#region currentTab
@@ -170,17 +165,17 @@ export const OrgPageTabs = ({
       isFitted
       isLazy
       isManual
-      lazyBehavior="keepMounted"
+      lazyBehavior="unmount"
       variant="solid-rounded"
       background={isDark ? "black" : "blackAlpha.200"}
       borderColor={isDark ? "gray.600" : "gray.200"}
-      borderRadius="lg"
+      //borderRadius="lg"
       borderWidth={1}
     >
       <EntityPageTabList
         aria-hidden
-        bgColor={isDark ? "gray.700" : "blackAlpha.50"}
-        borderRadius="xl"
+        bgColor={isDark ? "gray.800" : "blackAlpha.50"}
+        //borderRadius="xl"
         css={scrollbarCss}
         {...(isMobile
           ? {
@@ -200,7 +195,9 @@ export const OrgPageTabs = ({
               p: 3
             })}
       >
-        {tabs.map((tab, tabIndex) => {
+        {sortedTabs.map((tab, tabIndex) => {
+          if (tab.label === "") return null;
+
           const key = `org-${normalize(
             Array.isArray(tab.label) ? tab.label[0] : tab.label
           )}-tab`;
@@ -226,8 +223,6 @@ export const OrgPageTabs = ({
               }}
               data-cy={key}
             >
-              {/* {isMobile && tab.label === "" ? "Configuration" : tab.label} */}
-
               {url === "/galerie"
                 ? Array.isArray(documentsQuery.data) &&
                   documentsQuery.data.length > 0 && (

@@ -2,13 +2,10 @@ import { QuestionIcon } from "@chakra-ui/icons";
 import {
   chakra,
   Icon,
-  //Tab,
   TabProps,
   useColorMode,
-  useStyles,
-  useTab
+  useStyles
 } from "@chakra-ui/react";
-import { defaultTabs } from "models/Org";
 import React from "react";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
@@ -37,10 +34,6 @@ export const EntityPageTab = ({
   //const styles = useMultiStyleConfig("Tabs", tabProps);
   //const styles = useTabsStyles();
   const styles = useStyles();
-  const icon = tab.icon
-    ? tab.icon
-    : defaultTabs.find(({ url }) => url?.includes(tab.url))?.icon ||
-      QuestionIcon;
 
   return (
     <Tab
@@ -63,7 +56,7 @@ export const EntityPageTab = ({
       {...props}
     >
       <Icon
-        as={icon}
+        as={tab.icon || QuestionIcon}
         boxSize={8}
         __css={{
           ...(isMobile ? {} : {})
@@ -74,38 +67,44 @@ export const EntityPageTab = ({
       {children}
     </Tab>
   );
-
-  // return (
-  //   <Tab
-  //     // {...tabProps}
-  //     aria-selected={isCurrent}
-  //     __css={{
-  //       ...styles.tab,
-  //       display: "flex",
-  //       bgColor: isCurrent ? undefined : isDark ? "gray.800" : "white",
-  //       p: 4,
-  //       _focus: {
-  //         boxShadow: "none"
-  //       },
-  //       _hover: { bgColor: "blue.400", color: "white" },
-  //       ...(isMobile
-  //         ? {
-  //             alignSelf: "flex-start",
-  //             alignItems: "center",
-  //             mb: 3,
-  //             ml: 3,
-  //             mt: tabIndex === 0 ? 3 : 0
-  //           }
-  //         : { flex: 0, mr: 3 })
-  //     }}
-  //     {...props}
-  //   >
-  //     <Icon
-  //       as={tab.icon || QuestionIcon}
-  //       boxSize={8}
-  //       mr={!isMobile && (tab.label === "" || tab.label === "Accueil") ? 0 : 2}
-  //     />
-  //     {children}
-  //   </Tab>
-  // );
 };
+
+//EntityPageTab.whyDidYouRender = true;
+
+{
+  /*
+  return (
+    <Tab
+      // {...tabProps}
+      aria-selected={isCurrent}
+      __css={{
+        ...styles.tab,
+        display: "flex",
+        bgColor: isCurrent ? undefined : isDark ? "gray.800" : "white",
+        p: 4,
+        _focus: {
+          boxShadow: "none"
+        },
+        _hover: { bgColor: "blue.400", color: "white" },
+        ...(isMobile
+          ? {
+              alignSelf: "flex-start",
+              alignItems: "center",
+              mb: 3,
+              ml: 3,
+              mt: tabIndex === 0 ? 3 : 0
+            }
+          : { flex: 0, mr: 3 })
+      }}
+      {...props}
+    >
+      <Icon
+        as={tab.icon || QuestionIcon}
+        boxSize={8}
+        mr={!isMobile && (tab.label === "" || tab.label === "Accueil") ? 0 : 2}
+      />
+      {children}
+    </Tab>
+  );
+*/
+}

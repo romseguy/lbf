@@ -9,12 +9,10 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
-import { FaRegMap } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
 import { getRunningQueriesThunk } from "features/api";
 import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
 import {
-  Button,
   Column,
   EntityAddButton,
   AppHeading,
@@ -27,9 +25,8 @@ import { MapModal } from "features/modals/MapModal";
 import { EOrderKey, OrgsList } from "features/orgs/OrgsList";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
-import { EOrgType, EOrgVisibility, IOrg, orgTypeFull } from "models/Org";
+import { EOrgType, EOrgVisibility } from "models/Org";
 import { hasItems } from "utils/array";
-import { AppQuery } from "utils/types";
 import { wrapper } from "store";
 import { useGetUsersQuery } from "features/api/usersApi";
 import { getRefId } from "models/Entity";
@@ -45,13 +42,39 @@ const IndexPage = (props: PageProps) => {
   const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session } = useSession();
+  const usersQuery = useGetUsersQuery(
+    { select: "userName" },
+    {
+      selectFromResult: ({ data }) => ({
+        data: data?.filter(({ _id }) => {
+          const userOrg = orgs?.find((org) => getRefId(org) === _id);
+          return !!userOrg;
+        })
+      })
+    }
+  );
 
   //#region local state
   const [isListOpen, setIsListOpen] = useState(true);
+  const sMap: Partial<Record<EOrgVisibility, string>> = {
+    [EOrgVisibility.FRONT]: "Accueil",
+    [EOrgVisibility.PUBLIC]: "Tous les forums"
+  };
+  const [pageTitle, setPageTitle] = useState(
+    session ? "Votre forum" : sMap[EOrgVisibility.FRONT]
+  );
   const [selectedOrgVisibility, setSelectedOrgVisibility] = useState(
     EOrgVisibility.FRONT
   );
-  const [selectedUserId, setSelectedUserId] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState(
+    session ? session.user.userId : ""
+  );
+  useEffect(() => {
+    if (selectedUserId) {
+      if (session && selectedUserId === session.user.userId)
+        setPageTitle("Votre forum");
+    } else setPageTitle(sMap[selectedOrgVisibility]);
+  }, [selectedOrgVisibility, selectedUserId]);
 
   let keys = [
     {
@@ -83,17 +106,6 @@ const IndexPage = (props: PageProps) => {
     })
   });
   const { orgs, selectedUserOrgs } = orgsQuery;
-  const usersQuery = useGetUsersQuery(
-    { select: "userName" },
-    {
-      selectFromResult: ({ data }) => ({
-        data: data?.filter(({ _id }) => {
-          const userOrg = orgs?.find((org) => getRefId(org) === _id);
-          return !!userOrg;
-        })
-      })
-    }
-  );
   //#endregion
 
   //#region modal
@@ -105,7 +117,7 @@ const IndexPage = (props: PageProps) => {
   //#endregion
 
   return (
-    <Layout {...props} mainContainer={false} pageTitle={`Forum`}>
+    <Layout {...props} mainContainer={false} pageTitle={pageTitle}>
       <Column
         bg={isDark ? "whiteAlpha.100" : "blackAlpha.100"}
         //m={props.isMobile ? undefined : "0 auto"}
@@ -123,30 +135,38 @@ const IndexPage = (props: PageProps) => {
           defaultValue={selectedUserId}
           mb={3}
           onChange={(e) => {
-            if (!e.target.value) {
+            const selectedOption = e.target.value;
+            console.log("🚀 ~ IndexPage ~ selectedOption:", selectedOption);
+            if (!selectedOption) {
               setSelectedUserId("");
               setSelectedOrgVisibility(EOrgVisibility.FRONT);
               return;
             }
 
-            if (e.target.value in EOrgVisibility) {
-              const value = e.target.value as EOrgVisibility;
+            if (selectedOption in EOrgVisibility) {
+              const value = selectedOption as EOrgVisibility;
               setSelectedUserId("");
               setSelectedOrgVisibility(value);
               return;
             }
 
-            setSelectedUserId(e.target.value);
+            setSelectedUserId(selectedOption);
           }}
         >
-          <option value={EOrgVisibility.FRONT}>Forum mis en avant</option>
-          <option value={EOrgVisibility.PUBLIC}>Tous les forums</option>
+          <option value={EOrgVisibility.FRONT}>
+            {sMap[EOrgVisibility.FRONT]}
+          </option>
+          <option value={EOrgVisibility.PUBLIC}>
+            {sMap[EOrgVisibility.PUBLIC]}
+          </option>
+          {session && <option value={session.user.userId}>Votre forum</option>}
+
           {usersQuery.data?.map(({ _id, userName }) => {
+            if (_id === session?.user.userId) return null;
+
             return (
               <option key={_id} value={_id}>
-                {`Forum de ${userName}${
-                  _id === session?.user.userId ? " (Vous)" : ""
-                }`}
+                {`Forum de ${userName}`}
               </option>
             );
           })}

@@ -1,6 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { EditOrgPayload, GetOrgParams } from "features/api/orgsApi";
+import {
+  DeleteOrgParams,
+  EditOrgPayload,
+  GetOrgParams
+} from "features/api/orgsApi";
 import { getRefId, isUser } from "models/Entity";
 import { EEventVisibility } from "models/Event";
 import {
@@ -38,10 +42,11 @@ handler.get<
   },
   NextApiResponse
 >(async function getOrg(req, res) {
+  let {
+    query: { orgUrl, hash, populate = "" }
+  } = req;
+
   try {
-    let {
-      query: { orgUrl, hash, populate = "" }
-    } = req;
     const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ GET /org/${orgUrl} `;
     console.log(prefix);
 
@@ -53,15 +58,12 @@ handler.get<
 
     let org = await models.Org.findOne({ orgUrl }, select);
     if (!org) org = await models.Org.findOne({ _id: orgUrl }, select);
-
     if (!org)
       return res
         .status(404)
         .json(
           createEndpointError(
-            new Error(
-              `L'organisation ${req.query.orgUrl} n'a pas pu être trouvé`
-            )
+            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
           )
         );
 
@@ -296,21 +298,21 @@ handler.get<
           })
           .execPopulate();
 
-        for (const orgTopic of org.orgTopics) {
-          for (const topicMessage of orgTopic.topicMessages) {
-            if (typeof topicMessage.createdBy === "object") {
-              if (
-                !topicMessage.createdBy.userName &&
-                topicMessage.createdBy.email
-              ) {
-                topicMessage.createdBy.userName =
-                  topicMessage.createdBy.email.replace(/@.+/, "");
-              }
-              // todo: check this
-              // topicMessage.createdBy.email = undefined;
-            }
-          }
-        }
+        // for (const orgTopic of org.orgTopics) {
+        //   for (const topicMessage of orgTopic.topicMessages) {
+        //     if (typeof topicMessage.createdBy === "object") {
+        //       if (
+        //         !topicMessage.createdBy.userName &&
+        //         topicMessage.createdBy.email
+        //       ) {
+        //         topicMessage.createdBy.userName =
+        //           topicMessage.createdBy.email.replace(/@.+/, "");
+        //       }
+        //       // todo: check this
+        //       // topicMessage.createdBy.email = undefined;
+        //     }
+        //   }
+        // }
 
         if (!isCreator) {
           org = await org.execPopulate();
@@ -364,9 +366,10 @@ handler.get<
       }
     }
 
-    //console.log(prefix + `unhandled keys: ${populate}`);
     org = await org.populate("createdBy", "_id userName").execPopulate();
-    // logJson("🚀 ~ GET /org/${orgUrl} ~ org:", org);
+
+    // console.log(prefix + `unhandled keys: ${populate}`);
+    // logJson(prefix, org);
     res.status(200).json(org);
   } catch (error: any) {
     if (error.kind === "ObjectId")
@@ -374,9 +377,7 @@ handler.get<
         .status(404)
         .json(
           createEndpointError(
-            new Error(
-              `L'organisation ${req.query.orgUrl} n'a pas pu être trouvé`
-            )
+            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
           )
         );
     res.status(500).json(createEndpointError(error));
@@ -561,7 +562,7 @@ handler.put<
 
 handler.delete<
   NextApiRequest & {
-    query: { orgUrl: string };
+    query: DeleteOrgParams;
   },
   NextApiResponse
 >(async function removeOrg(req, res) {
@@ -575,7 +576,6 @@ handler.delete<
 
   try {
     const _id = req.query.orgUrl;
-
     const org = await models.Org.findOne({ _id });
 
     if (!org) {
@@ -612,6 +612,11 @@ handler.delete<
         );
     }
 
+    if (req.query.isDeleteOrgEvents) {
+      /*const { deletedCount, n, ok } = */ await models.Event.deleteMany({
+        _id: { $in: org.orgEvents }
+      });
+    }
     /*const { deletedCount, n, ok } = */ await models.Project.deleteMany({
       _id: { $in: org.orgProjects }
     });
@@ -623,7 +628,7 @@ handler.delete<
     });
 
     await api.client.delete(`folder`, {
-      data: { orgId: org._id }
+      data: { orgId: _id }
     });
 
     res.status(200).json(org);

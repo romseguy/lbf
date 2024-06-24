@@ -126,7 +126,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
                 isAdmin
               }
             };
-            // console.log("🚀 ~ App.getInitialProps ~ cookieSession:", session);
+
             email = user.email;
           }
         }
@@ -136,9 +136,9 @@ App.getInitialProps = wrapper.getInitialAppProps(
         globalEmail = email;
         store.dispatch(setUserEmail(email));
       }
+
       if (session) {
         store.dispatch(setSession({ ...session, [TOKEN_NAME]: authToken }));
-        // console.log("🚀 ~ App.getInitialProps ~ session:", session);
       }
       //#endregion
 

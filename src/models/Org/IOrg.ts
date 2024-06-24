@@ -70,10 +70,11 @@ export interface IOrgList {
 
 export interface IOrgTab {
   label: string | string[];
-  url?: string | string[];
+  url: string | string[];
 }
 
 export interface IOrgTabWithMetadata extends IOrgTab {
+  order?: number;
   icon?: AppIcon;
 }
 

@@ -56,6 +56,13 @@ const nextConfig = {
   // webpack(config, { dev, isServer }) {
   //   if (dev && !isServer) {
   //     const originalEntry = config.entry
+
+  //     // config.entry = async () => {
+  //     //   const entries = await originalEntry()
+  //     //   console.log("🚀 ~ config.entry= ~ entries:", entries)
+  //     //   return entries
+  //     // }
+
   //     config.entry = async () => {
   //       const wdrPath = path.resolve(__dirname, './wdyr.ts')
   //       const entries = await originalEntry()
