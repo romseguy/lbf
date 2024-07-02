@@ -2,8 +2,12 @@ import { ChatIcon, EmailIcon } from "@chakra-ui/icons";
 import { Tabs, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaHome } from "react-icons/fa";
-import { EntityPageTab, EntityPageTabList } from "features/common";
+import { FaHome, FaImages } from "react-icons/fa";
+import {
+  EntityPageDocuments,
+  EntityPageTab,
+  EntityPageTabList
+} from "features/common";
 import { IEvent } from "models/Event";
 import { normalize } from "utils/string";
 import { AppIcon } from "utils/types";
@@ -31,7 +35,8 @@ import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
 
 const defaultTabs: { [key: string]: { icon: AppIcon; url: string } } = {
   Accueil: { icon: FaHome, url: "/accueil" },
-  Discussions: { icon: ChatIcon, url: "/discussions" }
+  Discussions: { icon: ChatIcon, url: "/discussions" },
+  Galerie: { icon: FaImages, url: "/galerie" }
 };
 
 export const EventPageTabs = ({
@@ -141,7 +146,7 @@ export const EventPageTabs = ({
               }}
               data-cy={key}
             >
-              {tabLabel}
+              {/* {tabLabel} */}
             </EntityPageTab>
           );
         })}
@@ -170,6 +175,10 @@ export const EventPageTabs = ({
             query={eventQuery}
             subQuery={subQuery}
           />
+        </TabPanel>
+
+        <TabPanel aria-hidden>
+          <EntityPageDocuments isCreator={isCreator} query={eventQuery} />
         </TabPanel>
 
         {session && isCreator && (

@@ -46,7 +46,7 @@ export const EntityPageDocuments = ({
   query
 }: {
   isCreator?: boolean;
-  query: AppQueryWithData<IOrg | IUser>;
+  query: AppQueryWithData<IEvent | IOrg | IUser>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -69,6 +69,7 @@ export const EntityPageDocuments = ({
   const [isAdd, setIsAdd] = useState(false);
   const [isFilesOpen, setIsFilesOpen] = useState(false);
   const documentsQuery = useGetDocumentsQuery({
+    eventId: entity._id,
     orgId: entity._id,
     userId: entity._id
   });
