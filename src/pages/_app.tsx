@@ -24,7 +24,8 @@ import {
   getAuthToken,
   sealOptions,
   TOKEN_NAME,
-  Session
+  Session,
+  singleSession
 } from "utils/auth";
 import { isServer } from "utils/isServer";
 const { getEnv } = require("utils/env");
@@ -130,6 +131,10 @@ App.getInitialProps = wrapper.getInitialAppProps(
             email = user.email;
           }
         }
+      } else if (singleSession && getEnv() === "production") {
+        session = singleSession;
+        //@ts-ignore
+        email = singleSession.user.email;
       }
 
       if (typeof email === "string") {

@@ -14,6 +14,15 @@ export type Session = {
   user: UserMetadata;
 };
 
+export const singleSession = {
+  user: {
+    email: "contact@lebonforum.fr",
+    userId: "668354c66b0b7a9351b72baf",
+    userName: "leo",
+    isAdmin: false
+  }
+};
+
 export const devSession =
   // lilo
   // {
