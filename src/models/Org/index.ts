@@ -1,5 +1,5 @@
 import { ChatIcon, CalendarIcon, SettingsIcon } from "@chakra-ui/icons";
-import { FaHome, FaTools, FaImages } from "react-icons/fa";
+import { FaHome, FaTools, FaImages, FaGlobeEurope } from "react-icons/fa";
 import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
 import { EOrgSubscriptionType } from "models/Subscription";
 import { AppDispatch } from "store";
@@ -150,7 +150,7 @@ export const getSubscriptions = (org: IOrg, type: string) => {
 
 //#region tabs
 export const defaultTabs: IOrgTabWithMetadata[] = [
-  { order: 0, label: "Accueil", icon: FaHome, url: ["/", "/accueil"] },
+  { order: 0, label: "Accueil", icon: FaGlobeEurope, url: ["/", "/accueil"] },
   {
     order: 1,
     label: ["Discussions", "d"],

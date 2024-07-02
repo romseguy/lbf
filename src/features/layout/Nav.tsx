@@ -25,7 +25,9 @@ import {
 } from "features/layout";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
+import { IEntity } from "models/Entity";
 import { EOrgType } from "models/Org";
+import { IUser } from "models/User";
 import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
@@ -34,8 +36,13 @@ import { SearchIcon } from "@chakra-ui/icons";
 export const Nav = ({
   isMobile,
   pageTitle,
+  entity,
   ...props
-}: BoxProps & PageProps & { pageTitle?: string }) => {
+}: BoxProps &
+  PageProps & {
+    entity?: IEntity | IUser;
+    pageTitle?: string;
+  }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -66,14 +73,16 @@ export const Nav = ({
               <Td border={0} p={0}>
                 <AppHeading mb={2}>
                   <Link href="/" shallow>
-                    {router.pathname === "/"
+                    {pageTitle
                       ? pageTitle
+                      : entity
+                      ? process.env.NEXT_PUBLIC_SHORT_URL + router.asPath
                       : process.env.NEXT_PUBLIC_SHORT_URL}
                   </Link>
                 </AppHeading>
               </Td>
               <Td border={0} display="flex" justifyContent="flex-end" gap={3}>
-                <Tooltip label={`Rechercher`} hasArrow>
+                {/* <Tooltip label={`Rechercher`} hasArrow>
                   <IconButton
                     aria-label="Rechercher"
                     icon={<SearchIcon />}
@@ -83,7 +92,7 @@ export const Nav = ({
                       setIsNetworksModalOpen(true);
                     }}
                   />
-                </Tooltip>
+                </Tooltip> */}
 
                 <Tooltip
                   label={`Basculer vers le thème ${
@@ -101,18 +110,22 @@ export const Nav = ({
             <Tr role="row">
               {/* Parcourir | Événements */}
               <Td border={0} p={isMobile ? 0 : "16px 0 0 0"}>
-                <NavButtonsList
-                  isNetworksModalOpen={isNetworksModalOpen}
-                  onClose={() => {
-                    setIsNetworksModalOpen(false);
-                  }}
-                />
+                {session ? (
+                  <NavButtonsList
+                    isNetworksModalOpen={isNetworksModalOpen}
+                    onClose={() => {
+                      setIsNetworksModalOpen(false);
+                    }}
+                  />
+                ) : (
+                  <>
+                    {/*<LoginButton colorScheme="purple">Se connecter</LoginButton>*/}
+                  </>
+                )}
               </Td>
-              {!session && (
-                <Td border={0} p={0} textAlign="right">
-                  <LoginButton colorScheme="purple">Se connecter</LoginButton>
-                </Td>
-              )}
+              <Td border={0} p={0} textAlign="right">
+                {/* NYI */}
+              </Td>
             </Tr>
           </Tbody>
         </Table>
@@ -151,7 +164,7 @@ export const Nav = ({
                         placement="left"
                       >
                       </Tooltip> */}
-                    <MenuButton aria-label="Menu">
+                    <MenuButton aria-label="Menu" mr={2}>
                       <Avatar
                         boxSize={12}
                         bgColor={isDark ? undefined : "#2B6CB0"}
@@ -172,38 +185,43 @@ export const Nav = ({
                     />
                   </Menu>
 
-                  <OrgPopover
-                    label="Mes planètes"
-                    isMobile={isMobile}
-                    orgType={EOrgType.NETWORK}
-                    session={session}
-                    offset={[isMobile ? 80 : 140, 15]}
-                    iconProps={{ ...iconProps, ...{ ml: 3 } }}
-                  />
-                  <OrgPopover
-                    isMobile={isMobile}
-                    session={session}
-                    offset={[isMobile ? 20 : 140, 15]}
-                    iconProps={iconProps}
-                  />
-                  <EventPopover
-                    isMobile={isMobile}
-                    session={session}
-                    offset={[isMobile ? -45 : 140, 15]}
-                    iconProps={iconProps}
-                  />
-                  <TopicPopover
-                    isMobile={isMobile}
-                    session={session}
-                    offset={[isMobile ? -106 : 140, 15]}
-                    iconProps={iconProps}
-                  />
+                  {session.user.isAdmin && (
+                    <>
+                      <OrgPopover
+                        label="Mes planètes"
+                        isMobile={isMobile}
+                        orgType={EOrgType.NETWORK}
+                        session={session}
+                        offset={[isMobile ? 80 : 140, 15]}
+                        iconProps={{ ...iconProps, ...{} }}
+                      />
+                      <OrgPopover
+                        isMobile={isMobile}
+                        session={session}
+                        offset={[isMobile ? 20 : 140, 15]}
+                        iconProps={iconProps}
+                      />
+                      <EventPopover
+                        isMobile={isMobile}
+                        session={session}
+                        offset={[isMobile ? -45 : 140, 15]}
+                        iconProps={iconProps}
+                      />
+                      <TopicPopover
+                        isMobile={isMobile}
+                        session={session}
+                        offset={[isMobile ? -106 : 140, 15]}
+                        iconProps={iconProps}
+                      />
+                    </>
+                  )}
+
                   {!isMobile && (
                     <NotificationPopover
                       isMobile={isMobile}
                       session={session}
                       offset={[isMobile ? -141 : 140, 15]}
-                      iconProps={iconProps}
+                      iconProps={{ ...iconProps, ...{ mr: 0 } }}
                     />
                   )}
                 </Flex>

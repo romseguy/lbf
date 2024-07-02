@@ -40,6 +40,7 @@ import { IUser } from "models/User";
 import { selectIsMobile } from "store/uiSlice";
 import * as stringUtils from "utils/string";
 import { AppQueryWithData } from "utils/types";
+import { IEvent } from "models/Event";
 
 export const EntityPageDocuments = ({
   isCreator,

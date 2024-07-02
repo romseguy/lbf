@@ -44,6 +44,7 @@ import { selectUserEmail } from "store/userSlice";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { IEntity } from "models/Entity";
+import { getEnv } from "utils/env";
 
 const initialEventQueryParams = (entityUrl: string) => ({
   eventUrl: entityUrl,
@@ -83,20 +84,26 @@ const ErrorPage = ({
     p: props.isMobile ? 2 : 3
   };
   const error = getError(query);
-  return (
+
+  if (getEnv() === "production")
+    return (
     <Layout pageTitle="Erreur" {...props}>
       <Column {...columnProps}>
         <Box flexDir="row">
-          Une erreur est survenue,{" "}
-          <ContactLink label="merci de nous contacter" />
-        </Box>
+        Une erreur est survenue, <ContactLink label="merci de nous contacter" />{" "}
+        avec une description du scénario.
+      </Box>
+      </Column>
+    </Layout>
+  )
 
-        {error && (
+  return (
+    <Layout pageTitle="Erreur" {...props}>
+      <Column {...columnProps}>
           <Alert status="error">
             <AlertIcon />
-            {error}
+            {error ? error : "Une erreur inconnue est survenue."}
           </Alert>
-        )}
       </Column>
     </Layout>
   );

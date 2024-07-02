@@ -5,6 +5,7 @@ import { AppState } from "store";
 export const uiSlice = createSlice({
   name: "ui",
   initialState: { isMobile: false, rteditorIndex: 0, screenWidth: 0 },
+
   reducers: {
     incrementRTEditorIndex: (state, action: PayloadAction<undefined>) => {
       state.rteditorIndex++;
@@ -16,13 +17,14 @@ export const uiSlice = createSlice({
       state.screenWidth = action.payload;
     }
   },
-  extraReducers: {
-    [HYDRATE]: (state, action) => {
+
+  extraReducers: (builder) => {
+    builder.addCase(HYDRATE, (state, action) => {
       return {
         ...state,
         ...action.payload.ui
       };
-    }
+    });
   }
 });
 

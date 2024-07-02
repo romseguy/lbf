@@ -16,6 +16,7 @@ const initialState: {
 export const sessionSlice = createSlice({
   name: "session",
   initialState,
+
   reducers: {
     setIsOffline: (state, action: PayloadAction<boolean>) => {
       state.isOffline = action.payload;
@@ -27,13 +28,14 @@ export const sessionSlice = createSlice({
       state.session = action.payload;
     }
   },
-  extraReducers: {
-    [HYDRATE]: (state, action) => {
+
+  extraReducers: (builder) => {
+    builder.addCase(HYDRATE, (state, action) => {
       return {
         ...state,
         ...action.payload.session
       };
-    }
+    });
   }
 });
 

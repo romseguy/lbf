@@ -23,7 +23,9 @@ if (!cached) {
   cached = global.mongo = { conn: null, promise: null };
 }
 const connection = mongoose.createConnection(process.env.DATABASE_URL, {
-  autoIndex: false
+  autoIndex: false,
+  useUnifiedTopology: true,
+  useNewUrlParser: true
 });
 const clientPromise = connection.then((connection) => connection.getClient());
 const modelsPromise = connection.then((connection) => {

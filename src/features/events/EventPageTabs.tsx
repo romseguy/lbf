@@ -1,4 +1,4 @@
-import { ChatIcon, EmailIcon } from "@chakra-ui/icons";
+import { ChatIcon, EmailIcon,CalendarIcon } from "@chakra-ui/icons";
 import { Tabs, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -34,7 +34,7 @@ import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
 
 const defaultTabs: { [key: string]: { icon: AppIcon; url: string } } = {
-  Accueil: { icon: FaHome, url: "/accueil" },
+  Accueil: { icon: CalendarIcon, url: "/" },
   Discussions: { icon: ChatIcon, url: "/discussions" },
   Galerie: { icon: FaImages, url: "/galerie" }
 };
@@ -94,7 +94,7 @@ export const EventPageTabs = ({
       isManual
       lazyBehavior="keepMounted"
       variant="solid-rounded"
-      background={isDark ? "black" : "lightcyan"}
+      background={isDark ? "black" : "blackAlpha.200"}
       borderColor={isDark ? "gray.600" : "gray.200"}
       borderRadius="lg"
       borderWidth={1}

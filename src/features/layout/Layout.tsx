@@ -23,6 +23,7 @@ import { capitalize, normalize } from "utils/string";
 import { IUser } from "models/User";
 import { Delimiter } from "features/common/Delimiter";
 import { ServerError } from "utils/errors";
+import { getEnv } from "utils/env";
 
 export interface LayoutProps extends PageProps, BoxProps {
   banner?: Base64Image & { mode: "dark" | "light" };
@@ -90,7 +91,7 @@ export const Layout = ({
       <Box
         as="main"
         //bg={isDark ? "gray.700" : "lightblue"}
-        bg={isDark ? "gray.700" : "blackAlpha.50"}
+        bg={isDark ? "gray.700" : "blackAlpha.100"}
         borderRadius="lg"
         //flex="1 0 auto"
         m={isMobile ? 0 : 3}
@@ -120,7 +121,7 @@ export const Layout = ({
         @media (min-width: ${breakpoints["2xl"]}) {
           background-color: ${isDark
             ? theme.colors.blackAlpha["900"]
-            : theme.colors.whiteAlpha["900"]};
+            : "rgba(255,255,255,0.97)"};
           margin: 0 auto;
           width: 1180px;
           ${isDark
@@ -140,6 +141,7 @@ export const Layout = ({
     >
       <Nav
         {...props}
+        entity={entity}
         isMobile={isMobile}
         borderTopRadius={isMobile ? 0 : undefined}
         mt={0}
@@ -167,21 +169,21 @@ export const Layout = ({
       <Box as="footer" pb={3} mt={3}>
         {/* <Image src="/images/bg.png" height="100px" m="0 auto" /> */}
         <Box fontSize="smaller" textAlign="center">
-          <Link href="/a_propos" variant="underline">
+          {/* <Link href="/a_propos" variant="underline">
             À propos
           </Link>
-          <Delimiter />
+          <Delimiter /> */}
           <Link href="/contact" variant="underline">
-            Contact
+            Contacter le développeur
           </Link>
-          <Delimiter />
+          {/* <Delimiter />
           <Link href="/privacy" variant="underline">
             CGU
           </Link>
           <Delimiter />
           <Link href="https://github.com/romseguy/lbf" variant="underline">
             Code
-          </Link>
+          </Link> */}
         </Box>
       </Box>
     </Box>
@@ -211,7 +213,7 @@ export const Layout = ({
         <title>{title}</title>
       </Head>
 
-      <GoogleAnalytics gaId="G-ZHN2GV5YB9" />
+      {getEnv() === "production" && <GoogleAnalytics gaId="G-ZHN2GV5YB9" />}
 
       <ErrorBoundary fallbackRender={Fallback}>{page(children)}</ErrorBoundary>
     </>

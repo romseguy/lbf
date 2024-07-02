@@ -17,6 +17,7 @@ export const subscriptionApi = api.injectEndpoints({
           body: payload
         };
       },
+      //@ts-ignore
       invalidatesTags: (result, error, params) => {
         if (error) return [];
 
@@ -56,6 +57,7 @@ export const subscriptionApi = api.injectEndpoints({
           body: payload ? payload : { orgId, topicId }
         };
       },
+      //@ts-ignore
       invalidatesTags: (result, error, params) => {
         if (error) return [];
 

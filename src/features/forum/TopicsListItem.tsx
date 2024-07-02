@@ -525,7 +525,7 @@ export const TopicsListItem = ({
             <>
               {isCreator && (
                 <>
-                  <Tooltip
+                  {/* <Tooltip
                     placement="bottom"
                     label="Envoyer des invitations à la discussion"
                   >
@@ -540,7 +540,7 @@ export const TopicsListItem = ({
                         onNotifClick();
                       }}
                     />
-                  </Tooltip>
+                  </Tooltip> */}
 
                   <Tooltip placement="bottom" label="Épingler la discussion">
                     <IconButton

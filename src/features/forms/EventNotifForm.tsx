@@ -35,6 +35,7 @@ import {
   renderCustomInput
 } from "features/common";
 import { useAddEventNotifMutation } from "features/api/eventsApi";
+import { formBoxProps } from "features/layout/theme";
 import { IEvent } from "models/Event";
 import { orgTypeFull } from "models/Org";
 import { hasItems } from "utils/array";
@@ -185,37 +186,44 @@ export const EventNotifForm = ({
     <Box
       bg={isDark ? "gray.500" : "lightcyan"}
       borderRadius="lg"
-      pt={1}
-      pb={3}
-      px={3}
+      p={3}
       mt={3}
       {...props}
     >
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-        <RadioGroup name="type" my={3}>
-          <Stack spacing={2}>
-            <Radio
-              isChecked={type === "multi"}
-              onChange={() => {
-                setType("multi");
-              }}
-            >
-              Inviter des utilisateurs à{" "}
-              <EntityButton event={event} p={1} onClick={null} />
-            </Radio>
-            <Radio
-              isChecked={type === "single"}
-              onChange={() => {
-                setType("single");
-              }}
-            >
-              Inviter une adresse e-mail
-            </Radio>
-          </Stack>
-        </RadioGroup>
+        <Box {...formBoxProps(isDark)}>
+          <FormControl>
+            <FormLabel>
+              À souhaitez-vous envoyer l'invitation à cet événement ?
+              {/* <EntityButton event={event} p={1} onClick={null} /> */}
+            </FormLabel>
+            <RadioGroup name="type" my={3}>
+              <Stack spacing={3}>
+                <Radio
+                  isChecked={type === "multi"}
+                  onChange={() => {
+                    setType("multi");
+                  }}
+                >
+                  À une ou plusieurs listes de{" "}
+                  {orgTypeFull(event.eventOrgs[0].orgType)}
+                  <EntityButton org={event.eventOrgs[0]} ml={2} />
+                </Radio>
+                <Radio
+                  isChecked={type === "single"}
+                  onChange={() => {
+                    setType("single");
+                  }}
+                >
+                  À une adresse e-mail
+                </Radio>
+              </Stack>
+            </RadioGroup>
+          </FormControl>
+        </Box>
 
         {type === "single" && (
-          <>
+          <Box {...formBoxProps(isDark)}>
             <EmailControl
               name="email"
               //noLabel
@@ -224,7 +232,7 @@ export const EventNotifForm = ({
               setValue={setValue}
               errors={errors}
               //placeholder="Envoyer à cette adresse e-mail uniquement"
-              my={3}
+              mb={5}
               isMultiple={false}
               isRequired
             />
@@ -259,7 +267,7 @@ export const EventNotifForm = ({
                 <ErrorMessage errors={errors} name="triggerDate" />
               </FormErrorMessage>
             </FormControl>
-          </>
+          </Box>
         )}
 
         {type === "multi" && (
@@ -359,15 +367,22 @@ export const EventNotifForm = ({
                                       required:
                                         "Veuillez sélectionner une liste au minimum"
                                     })}
-                                    value={list.listName + "." + org._id}
                                     icon={<EmailIcon />}
+                                    isDisabled={list.subscriptions.length === 0}
+                                    value={list.listName + "." + org._id}
                                   >
                                     {list.listName}
                                   </Checkbox>
                                 </Td>
                                 <Td>
-                                  {i} membre{s} n'{s ? "ont" : "a"} pas été
-                                  invité
+                                  {!list.subscriptions.length ? (
+                                    `Vous n'avez ajouté aucun membres à cette liste`
+                                  ) : (
+                                    <>
+                                      {i} membre{s} n'{s ? "ont" : "a"} pas
+                                      encore été invité
+                                    </>
+                                  )}
                                 </Td>
                               </Tr>
                             );

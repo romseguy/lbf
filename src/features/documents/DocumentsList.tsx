@@ -36,6 +36,7 @@ import { selectIsMobile } from "store/uiSlice";
 import api from "utils/api";
 import { fullDateString } from "utils/date";
 import * as stringUtils from "utils/string";
+import { IEvent } from "models/Event";
 
 enum EDocumentsListOrder {
   ALPHA = "ALPHA",
@@ -49,7 +50,7 @@ export const DocumentsList = ({
   entity,
   ...props
 }: {
-  entity: IOrg | IUser;
+  entity: IEvent  | IOrg | IUser;
   isCreator?: boolean;
   isFollowed?: boolean;
   onDelete?: () => void;
@@ -72,7 +73,7 @@ export const DocumentsList = ({
     useState<EDocumentsListOrder>(defaultOrder);
   const documents = useMemo(() => {
     return [...(query.data || [])].sort((a, b) => {
-      const diff = a.time - b.time;
+      const diff = !!a.time && !!b.time ? a.time - b.time : 0;
       return diff > 0 ? -1 : 1;
     });
   }, [query.data]);

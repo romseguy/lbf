@@ -11,6 +11,7 @@ const initialState: UserState = { userEmail: "" };
 export const userSlice = createSlice({
   name: "user",
   initialState,
+
   reducers: {
     resetUserEmail: (state) => {
       state.userEmail = initialState.userEmail;
@@ -19,13 +20,14 @@ export const userSlice = createSlice({
       state.userEmail = action.payload;
     }
   },
-  extraReducers: {
-    [HYDRATE]: (state, action) => {
+
+  extraReducers: (builder) => {
+    builder.addCase(HYDRATE, (state, action) => {
       return {
         ...state,
         ...action.payload.user
       };
-    }
+    });
   }
 });
 

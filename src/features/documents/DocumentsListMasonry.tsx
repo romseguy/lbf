@@ -26,13 +26,14 @@ import { selectIsMobile, selectScreenWidth } from "store/uiSlice";
 import { divideArray, hasItems } from "utils/array";
 import * as stringUtils from "utils/string";
 import { useRouter } from "next/router";
+import { IEvent } from "models/Event";
 
 export const DocumentsListMasonry = ({
   entity,
   isCreator,
   ...props
 }: ColumnProps & {
-  entity: IOrg | IUser;
+  entity: IEvent | IOrg | IUser;
   isCreator?: boolean;
 }) => {
   const { colorMode } = useColorMode();
@@ -61,7 +62,7 @@ export const DocumentsListMasonry = ({
         }
       }
 
-      setImages(arr.sort((a, b) => (a.time < b.time ? 1 : -1)));
+      setImages(arr.sort((a, b) => !!a.time && !!b.time ? (a.time < b.time ? 1 : -1) : 0 ));
       setImagesSize(count);
     }
   }, [data]);

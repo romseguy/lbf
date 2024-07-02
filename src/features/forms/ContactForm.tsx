@@ -117,12 +117,12 @@ export const ContactForm = ({ ...props }: { onClose?: () => void }) => {
         />
       </FormControl>
 
-      <Box mb={3}>
+      {/* <Box mb={3}>
         <ReCAPTCHA
           sitekey={process.env.NEXT_PUBLIC_GOOGLE_RECAPTCHA_SITE_KEY}
           onChange={useCallback(() => setIsDisabled(false), [])}
         />
-      </Box>
+      </Box> */}
 
       <ErrorMessage
         errors={errors}

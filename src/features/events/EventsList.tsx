@@ -141,7 +141,7 @@ const EventsListTable = ({
   let currentDate: Date | null = null;
   let currentDateN: Date | null = null;
 
-  const showGeoFilter = true;
+  const showGeoFilter = false;
   // city ||
   // (showPreviousEvents &&
   //   previousEvents.length > 1 &&
@@ -483,7 +483,8 @@ export const EventsList = ({
   events,
   orgQuery,
   isCreator = false,
-  setTitle
+  setTitle,
+  ...props
 }: BoxProps & EventsListProps) => {
   const router = useRouter();
   const { data: session } = useSession();
@@ -630,6 +631,7 @@ export const EventsList = ({
         setEventToShowOnMap={setEventToShowOnMap}
         notifyModalState={notifyModalState}
         setNotifyModalState={setNotifyModalState}
+        {...props}
       />
 
       {session && eventToForward && (

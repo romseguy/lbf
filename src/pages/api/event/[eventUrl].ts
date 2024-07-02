@@ -43,9 +43,12 @@ handler.get<
       );
 
   try {
-    let event = await models.Event.findOne({
-      eventUrl
-    });
+    let event = await models.Event.findOne(
+      {
+        eventUrl
+      },
+      "+eventLogo +eventBanner"
+    );
 
     if (!event) event = await models.Event.findOne({ _id: eventUrl });
 
