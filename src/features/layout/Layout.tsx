@@ -23,6 +23,7 @@ import { capitalize, normalize } from "utils/string";
 import { IUser } from "models/User";
 import { Delimiter } from "features/common/Delimiter";
 import { ServerError } from "utils/errors";
+import { getEnv } from "utils/env";
 
 export interface LayoutProps extends PageProps, BoxProps {
   banner?: Base64Image & { mode: "dark" | "light" };
@@ -211,7 +212,7 @@ export const Layout = ({
         <title>{title}</title>
       </Head>
 
-      <GoogleAnalytics gaId="G-ZHN2GV5YB9" />
+      {getEnv() === "production" && <GoogleAnalytics gaId="G-ZHN2GV5YB9" />}
 
       <ErrorBoundary fallbackRender={Fallback}>{page(children)}</ErrorBoundary>
     </>

@@ -24,7 +24,7 @@ import {
   FileInputTable
 } from "features/common";
 import theme, { scrollbarCss } from "features/layout/theme";
-import { isOrg } from "models/Entity";
+import { isEvent, isOrg } from "models/Entity";
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
 import { selectIsMobile } from "store/uiSlice";
@@ -50,6 +50,7 @@ export const DocumentForm = ({
   const isMobile = useSelector(selectIsMobile);
   const toast = useToast({ position: "top" });
 
+  const isE = isEvent(entity);
   const isO = isOrg(entity);
   const [isLoading, setIsLoading] = useState(false);
   const [loaded, setLoaded] = useState<{ [fileName: string]: number }>({});
@@ -87,7 +88,7 @@ export const DocumentForm = ({
 
         const data = new FormData();
         data.append("file", file, file.name);
-        data.append(isO ? "orgId" : "userId", entity._id);
+        data.append(isO ? "orgId" : isE ? "eventId" : "userId", entity._id);
 
         await axios.post(process.env.NEXT_PUBLIC_API2, data, {
           onUploadProgress: (ProgressEvent) => {

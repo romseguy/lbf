@@ -136,10 +136,10 @@ handler.post<
         };
       }
 
-      let isApproved =
-        session.user.isAdmin ||
-        (hasItems(body.eventOrgs) &&
-          body.eventOrgs[0].orgVisibility === EOrgVisibility.PRIVATE);
+      let isApproved = true;
+      // session.user.isAdmin ||
+      // (hasItems(body.eventOrgs) &&
+      //   body.eventOrgs[0].orgVisibility === EOrgVisibility.PRIVATE);
 
       for (const eventOrg of body.eventOrgs) {
         const o = await models.Org.findOne({ _id: eventOrg._id });
