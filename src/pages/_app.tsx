@@ -131,7 +131,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
             email = user.email;
           }
         }
-      } else if (singleSession && getEnv() === "production") {
+      } else if (singleSession) {
         session = singleSession;
         //@ts-ignore
         email = singleSession.user.email;

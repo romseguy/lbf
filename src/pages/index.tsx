@@ -1,43 +1,132 @@
-import { ChevronRightIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import {
-  Alert,
-  AlertIcon,
-  Flex,
-  Select,
-  Text,
-  useColorMode,
-  useDisclosure
-} from "@chakra-ui/react";
+import { Text, Tooltip, useColorMode, useDisclosure } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { getRunningQueriesThunk } from "features/api";
-import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
-import {
-  Column,
-  EntityAddButton,
-  AppHeading,
-  HostTag,
-  Link,
-  LoginButton
-} from "features/common";
+import { FaRegMap } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { Button, Column, ColumnProps } from "features/common";
+import { useGetEventsQuery } from "features/api/eventsApi";
+import { EventsList } from "features/events/EventsList";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
-import { EOrderKey, OrgsList } from "features/orgs/OrgsList";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
-import { EOrgType, EOrgVisibility } from "models/Org";
-import { hasItems } from "utils/array";
-import { wrapper } from "store";
-import { useGetUsersQuery } from "features/api/usersApi";
-import { getRefId } from "models/Entity";
-
-const isCollapsable = true;
-const initialOrgsQueryParams = {
-  orgType: EOrgType.NETWORK,
-  populate: "orgs orgTopics.topicMessages createdBy"
-};
+import { EEventVisibility } from "models/Event";
+import { EOrgVisibility } from "models/Org";
+import { selectIsOffline } from "store/sessionSlice";
 
 const IndexPage = (props: PageProps) => {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
+  const columnProps: ColumnProps = {
+    bg: isDark ? "gray.700" : "lightblue"
+  };
+  const isOffline = useSelector(selectIsOffline);
+
+  const eventsQuery = useGetEventsQuery();
+
+  const events = eventsQuery.data?.filter((event) => {
+    if (event.forwardedFrom && event.forwardedFrom.eventId) return false;
+    if (event.eventVisibility !== EEventVisibility.PUBLIC) return false;
+    if (
+      event.eventOrgs.find(({ orgVisibility, createdBy }) => {
+        return (
+          orgVisibility === EOrgVisibility.PRIVATE &&
+          createdBy !== session?.user.userId
+        );
+      })
+    )
+      return false;
+    return event.isApproved;
+  });
+
+  const {
+    isOpen: isMapModalOpen,
+    onOpen: openMapModal,
+    onClose: closeMapModal
+  } = useDisclosure({ defaultIsOpen: false });
+
+  const [title = "Événements des 7 prochains jours", setTitle] = useState<
+    string | undefined
+  >();
+
+  return (
+    <Layout {...props} pageTitle={title}>
+      <Tooltip
+        label={
+          !eventsQuery.data || !eventsQuery.data.length
+            ? "Aucun événements"
+            : isOffline
+            ? "Vous devez être connecté à internet pour afficher la carte des événements"
+            : ""
+        }
+        hasArrow
+        placement="left"
+      >
+        <span>
+          <Button
+            colorScheme="teal"
+            isDisabled={isOffline || !events || !events.length}
+            leftIcon={<FaRegMap />}
+            onClick={openMapModal}
+            mb={3}
+          >
+            Carte des événements
+          </Button>
+        </span>
+      </Tooltip>
+
+      <Column {...columnProps}>
+        {eventsQuery.isLoading ? (
+          <Text>Chargement des événements publics...</Text>
+        ) : (
+          events && <EventsList events={events} setTitle={setTitle} />
+        )}
+      </Column>
+
+      {isMapModalOpen && (
+        <MapModal
+          isOpen={isMapModalOpen}
+          events={
+            events?.filter((event) => {
+              return (
+                typeof event.eventLat === "number" &&
+                typeof event.eventLng === "number" &&
+                event.eventVisibility === EEventVisibility.PUBLIC
+              );
+            }) || []
+          }
+          onClose={closeMapModal}
+        />
+      )}
+    </Layout>
+  );
+};
+
+/*export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async (ctx) => {
+    store.dispatch(getOrgs.initiate(initialOrgsQueryParams));
+    await Promise.all(store.dispatch(getRunningQueriesThunk()));
+
+    return {
+      props: {}
+    };
+  }
+);*/
+
+export default IndexPage;
+
+{
+  /*
+
+  const isCollapsable = true;
+  const initialOrgsQueryParams = {
+    orgType: EOrgType.NETWORK,
+    populate: "orgs orgTopics.topicMessages createdBy"
+  };
+
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -125,11 +214,11 @@ const IndexPage = (props: PageProps) => {
         //maxWidth="4xl"
         p={props.isMobile ? 2 : 3}
       >
-        {/* <Flex alignItems="center">
+         <Flex alignItems="center">
           <AppHeading mb={3}>
             Forum {process.env.NEXT_PUBLIC_SHORT_URL}
           </AppHeading>
-        </Flex> */}
+        </Flex> 
 
         <Select
           defaultValue={selectedUserId}
@@ -174,7 +263,7 @@ const IndexPage = (props: PageProps) => {
 
         {hasItems(selectedUserOrgs) ? (
           <>
-            {/* <Button
+            <Button
               alignSelf="flex-start"
               colorScheme="teal"
               leftIcon={<HamburgerIcon />}
@@ -183,7 +272,7 @@ const IndexPage = (props: PageProps) => {
               onClick={() => setIsListOpen(!isListOpen)}
             >
               Liste
-            </Button> */}
+            </Button> 
 
             {isListOpen && (
               <Column bg={isDark ? "whiteAlpha.100" : "blackAlpha.100"}>
@@ -197,7 +286,7 @@ const IndexPage = (props: PageProps) => {
               </Column>
             )}
 
-            {/*<Button
+            <Button
               colorScheme="teal"
               alignSelf="flex-start"
               leftIcon={<FaRegMap />}
@@ -208,7 +297,7 @@ const IndexPage = (props: PageProps) => {
               mt={3}
             >
               Carte
-            </Button>*/}
+            </Button>
           </>
         ) : (
           <Flex>
@@ -222,7 +311,6 @@ const IndexPage = (props: PageProps) => {
         )}
       </Column>
 
-      {/* Une idée de forum ? */}
       <Flex mt={6} mb={5}>
         <Column
           bg={isDark ? "whiteAlpha.100" : "blackAlpha.100"}
@@ -249,10 +337,10 @@ const IndexPage = (props: PageProps) => {
                   <>
                     {session ? (
                       <>
-                        {/* <Text>
+                         <Text>
                               Pour ajouter un forum à <HostTag /> vous devez
                               d'abord créer une planète :
-                            </Text> */}
+                            </Text> 
                         <EntityAddButton
                           label="Ajoutez une planète"
                           orgType={EOrgType.NETWORK}
@@ -328,20 +416,9 @@ const IndexPage = (props: PageProps) => {
       )}
     </Layout>
   );
-};
-
-export const getServerSideProps = wrapper.getServerSideProps(
-  (store) => async (ctx) => {
-    store.dispatch(getOrgs.initiate(initialOrgsQueryParams));
-    await Promise.all(store.dispatch(getRunningQueriesThunk()));
-
-    return {
-      props: {}
-    };
-  }
-);
-
-export default IndexPage;
+}
+  */
+}
 
 {
   /* <Column {...columnProps}>

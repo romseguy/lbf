@@ -167,7 +167,8 @@ export const OrgPage = ({
                   <Link variant="underline" href={`/${orgCreatedByUserName}`}>
                     {orgCreatedByUserName}
                   </Link>{" "}
-                  {isCreator && `(Vous ${session?.user.isAdmin && ": admin"})`}
+                  {isCreator &&
+                    `(Vous${session?.user.isAdmin ? " : admin" : ""})`}
                 </>
               )}
             </Text>

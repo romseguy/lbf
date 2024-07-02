@@ -17,7 +17,7 @@ background-image: linear-gradient(to left, ${
     : "red, green, green, brown, green, green, brown"*/
   isDark
     ? "violet, violet, lightgreen, lightgreen, yellow, orange, red"
-    : "violet, purple, teal, teal, orange, orange, red"
+    : "violet, purple, teal, teal, olive, olive, red"
 });
 color: transparent;
 -webkit-background-clip: text;

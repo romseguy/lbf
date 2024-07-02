@@ -194,7 +194,7 @@ export const NavButtonsList = ({
       )}
 
       {/* Événements */}
-      {(isMobile || !isEntityPage) && (
+      {/* {(isMobile || !isEntityPage) && (
         <Link
           {...linkProps}
           onClick={() => {
@@ -210,7 +210,7 @@ export const NavButtonsList = ({
             Événements
           </Button>
         </Link>
-      )}
+      )} */}
     </Flex>
   );
 };

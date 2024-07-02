@@ -33,10 +33,15 @@ const theme = extendTheme({
         }
       }
     },
+    // FormLabel: {
+    //   baseStyle: {
+    //     ...getStyleObjectFromString(rainbowTextCss(false)),
+    //     ".chakra-ui-dark &": getStyleObjectFromString(rainbowTextCss(true))
+    //   }
+    // },
     FormLabel: {
       baseStyle: {
-        ...getStyleObjectFromString(rainbowTextCss(false)),
-        ".chakra-ui-dark &": getStyleObjectFromString(rainbowTextCss(true))
+        ...getStyleObjectFromString("font-weight: 900;")
       }
     },
     Input: {

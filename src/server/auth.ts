@@ -6,7 +6,8 @@ import {
   Session,
   testSession,
   getAuthToken,
-  sealOptions
+  sealOptions,
+  singleSession
 } from "utils/auth";
 const { getEnv } = require("utils/env");
 
@@ -15,6 +16,7 @@ export async function getSession(params: {
     | NextApiRequest
     | (IncomingMessage & { cookies: /*NextApiRequestCookies*/ any });
 }): Promise<Session | null> {
+  if (singleSession) return singleSession;
   if (devSession && getEnv() === "development") return devSession;
   if (testSession && getEnv() === "test") return testSession;
   const cookies = params.req.cookies;
