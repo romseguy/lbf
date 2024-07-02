@@ -18,10 +18,11 @@ export const documentApi = api.injectEndpoints({
   endpoints: (build) => ({
     getDocuments: build.query<
       (RemoteFile | RemoteImage)[],
-      { orgId: string } | { userId: string } | {}
+      { eventId: string } | { orgId: string } | { userId: string } | {}
     >({
       query: (query) => {
         console.groupCollapsed("getDocuments");
+        if ("eventId" in query) console.log("eventId", query.eventId);
         if ("orgId" in query) console.log("orgId", query.orgId);
         if ("userId" in query) console.log("userId", query.userId);
         console.groupEnd();
@@ -31,7 +32,8 @@ export const documentApi = api.injectEndpoints({
         };
       }
     })
-  })
+  }),
+  overrideExisting: true
 });
 
 export const { useGetDocumentsQuery } = documentApi;

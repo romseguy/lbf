@@ -1,4 +1,11 @@
-import { Alert, AlertIcon, Flex, InputLeftElement } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Flex,
+  InputLeftElement,
+  useColorMode
+} from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -16,6 +23,7 @@ import useFormPersist from "hooks/useFormPersist";
 import { TagsControl } from "features/common/forms/TagsControl";
 import { ItemTag } from "@choc-ui/chakra-autocomplete";
 import { AtSignIcon } from "@chakra-ui/icons";
+import { formBoxProps } from "features/layout/theme";
 
 type FormValues = {
   emailList: string;
@@ -36,6 +44,8 @@ export const SubscriptionForm = ({
   onCancel?: () => void;
   onSubmit: () => void;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const [addSubscription] = useAddSubscriptionMutation();
   const [editOrg] = useEditOrgMutation();
   const [isLoading, setIsLoading] = useState(false);
@@ -194,33 +204,37 @@ export const SubscriptionForm = ({
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-      <TagsControl
-        name="emailList"
-        control={control}
-        errors={errors}
-        setError={setError}
-        setValue={setValue}
-        isRequired
-        label="Adresses e-mail séparées par un espace : "
-        leftElement={
-          <InputLeftElement cursor="pointer" children={<AtSignIcon />} />
-        }
-        tags={tags}
-        setTags={setTags}
-        mb={3}
-      />
+      <Box {...formBoxProps(isDark)}>
+        <TagsControl
+          name="emailList"
+          control={control}
+          errors={errors}
+          setError={setError}
+          setValue={setValue}
+          isRequired
+          label="Adresses e-mail séparées par un espace : "
+          leftElement={
+            <InputLeftElement cursor="pointer" children={<AtSignIcon />} />
+          }
+          tags={tags}
+          setTags={setTags}
+          mb={3}
+        />
+      </Box>
 
-      <ListsControl
-        name="orgLists"
-        control={control}
-        errors={errors}
-        setError={setError}
-        isRequired
-        label="Liste(s) :"
-        lists={lists}
-        mb={3}
-        onChange={onChange}
-      />
+      <Box {...formBoxProps(isDark)}>
+        <ListsControl
+          name="orgLists"
+          control={control}
+          errors={errors}
+          setError={setError}
+          isRequired
+          label="Liste(s) :"
+          lists={lists}
+          mb={3}
+          onChange={onChange}
+        />
+      </Box>
 
       <ErrorMessage
         errors={errors}

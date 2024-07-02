@@ -18,10 +18,19 @@ export const subscriptionApi = api.injectEndpoints({
         };
       },
       invalidatesTags: (result, error, params) => {
-        return [
+        if (error) return [];
+
+        const arr = [
           { type: "Subscriptions", id: "LIST" },
           { type: "Subscriptions", id: params.email }
         ];
+
+        if (Array.isArray(params.orgs)) {
+          for (const orgSubscription of params.orgs)
+            arr.push({ type: "Orgs", id: orgSubscription.org._id });
+        }
+
+        return arr;
       }
     }),
     deleteSubscription: build.mutation<
@@ -48,14 +57,19 @@ export const subscriptionApi = api.injectEndpoints({
         };
       },
       invalidatesTags: (result, error, params) => {
-        if (!error) {
-          //const email = params.email;
-          //console.log("🚀 ~ file: subscriptionsApi.ts:58 ~ email:", email);
-          //if (email) return [{ type: "Subscriptions", email }];
-          const id = params.subscriptionId || result?._id;
-          if (id) return [{ type: "Subscriptions", id }];
-        }
-        return [];
+        if (error) return [];
+
+        let arr = [];
+
+        if (params.orgId) arr.push({ type: "Orgs", id: params.orgId });
+
+        //const email = params.email;
+        //console.log("🚀 ~ file: subscriptionsApi.ts:58 ~ email:", email);
+        //if (email) return [{ type: "Subscriptions", email }];
+        const id = params.subscriptionId || result?._id;
+        if (id) arr.push({ type: "Subscriptions", id });
+
+        return arr;
       }
     }),
     editSubscription: build.mutation<
