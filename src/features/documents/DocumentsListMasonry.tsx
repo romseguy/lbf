@@ -38,7 +38,6 @@ export const DocumentsListMasonry = ({
   const { colorMode } = useColorMode();
   const router = useRouter();
   const screenWidth = useSelector(selectScreenWidth);
-
   const isO = isOrg(entity);
   const [images, setImages] = useState<RemoteImage[]>([]);
   const [imagesSize, setImagesSize] = useState(0);
@@ -71,10 +70,10 @@ export const DocumentsListMasonry = ({
   }, [entity]);
 
   //#region column count relative to screen width
-  const [columnCount, setColumnCount] = useState<number>(0);
+  const [columnCount, setColumnCount] = useState<number>(1);
   useEffect(() => {
     const getColumnCount = () => {
-      let col = 0;
+      let col = 1;
       if (hasItems(images) && screenWidth) {
         if (screenWidth >= pxBreakpoints.xl)
           col = images.length >= 4 ? 4 : images.length;

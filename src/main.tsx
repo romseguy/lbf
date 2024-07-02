@@ -161,7 +161,11 @@ export const Main = ({
       )}
 
       {/* Right Bottom */}
-      <Box position="fixed" right={["93px", 0]} bottom={props.isMobile ? 3 : 1}>
+      <Box
+        position="fixed"
+        right={props.isMobile ? "12px" : "93px"}
+        bottom={props.isMobile ? "62px" : 1}
+      >
         <Flex flexDirection="column" alignItems="center">
           {showButton && (
             <ChevronUpIcon
