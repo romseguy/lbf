@@ -18,6 +18,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { useFieldArray } from "react-hook-form";
+import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope } from "react-icons/fa";
 import { css } from "twin.macro";
 
@@ -184,7 +185,7 @@ export const UrlControl = ({
           append({ url: "", prefix: "https://" });
         }}
       >
-        <Icon as={FaGlobeEurope} mr={1} /> Ajouter un site internet{" "}
+        <Icon as={GrWorkshop} mr={1} /> Ajouter un site internet{" "}
         {fields.length > 0 && "supplémentaire"}
       </Link>
     </Box>

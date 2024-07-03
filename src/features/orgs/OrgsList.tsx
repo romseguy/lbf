@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { compareAsc, compareDesc, parseISO } from "date-fns";
 import React, { useMemo, useState } from "react";
+import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { css } from "twin.macro";
 import { EntityButton } from "features/common";
@@ -52,14 +53,14 @@ const defaultKeys = (orgType: EOrgType) => [
   // },
   {
     key: EOrderKey.orgName,
-    label: `Nom de ${orgTypeFull(orgType)}`
-  },
+    label: `Nom ${orgTypeFull(orgType)}`
+  }
   // { key: "orgType", label: "Type" },
   // { key: "orgCity", label: "Position" },
-  {
-    key: EOrderKey.createdBy,
-    label: "Créé par"
-  }
+  // {
+  //   key: EOrderKey.createdBy,
+  //   label: "Créé par"
+  // }
 ];
 
 const iconProps = {
@@ -217,6 +218,7 @@ export const OrgsList = ({
     <Box
       overflowX="auto"
       css={css`
+        font-size: 20px;
         ${scrollbarCss}
       `}
     >
@@ -246,7 +248,7 @@ export const OrgsList = ({
                   cursor="pointer"
                   onClick={() => setSelectedOrder(key)}
                 >
-                  {label}
+                  {/*label*/}
 
                   {selectedOrder ? (
                     selectedOrder.key === key ? (
@@ -282,9 +284,7 @@ export const OrgsList = ({
                   <Td p={isMobile ? 0 : undefined}>
                     <Icon
                       as={
-                        org.orgType === EOrgType.NETWORK
-                          ? FaGlobeEurope
-                          : FaTree
+                        org.orgType === EOrgType.NETWORK ? GrWorkshop : FaTree
                       }
                       color={
                         org.orgType === EOrgType.NETWORK
@@ -398,8 +398,7 @@ export const OrgsList = ({
         <MapModal
           header={
             <>
-              <Icon as={FaGlobeEurope} color="blue" mr={2} />{" "}
-              {orgToShow.orgName}
+              <Icon as={GrWorkshop} color="blue" mr={2} /> {orgToShow.orgName}
             </>
           }
           isOpen

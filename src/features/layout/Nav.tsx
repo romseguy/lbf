@@ -25,13 +25,13 @@ import {
 } from "features/layout";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
-import { IEntity } from "models/Entity";
-import { EOrgType } from "models/Org";
+import { IEntity, isOrg } from "models/Entity";
+import { EOrgType, OrgTypes } from "models/Org";
 import { IUser } from "models/User";
 import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
-import { SearchIcon } from "@chakra-ui/icons";
+import { ChevronLeftIcon, SearchIcon } from "@chakra-ui/icons";
 
 export const Nav = ({
   isMobile,
@@ -50,6 +50,7 @@ export const Nav = ({
   const userEmail = useSelector(selectUserEmail);
   const userName = session?.user.userName || "";
   const [isNetworksModalOpen, setIsNetworksModalOpen] = useState(false);
+  const isO = isOrg(entity);
 
   const iconProps = {
     bg: isDark ? "teal.300" : "teal.500",
@@ -71,15 +72,28 @@ export const Nav = ({
           <Tbody role="rowgroup">
             <Tr role="rowheader">
               <Td border={0} p={0}>
-                <AppHeading mb={2}>
-                  <Link href="/" shallow>
-                    {pageTitle
-                      ? pageTitle
-                      : entity
-                      ? process.env.NEXT_PUBLIC_SHORT_URL + router.asPath
-                      : process.env.NEXT_PUBLIC_SHORT_URL}
-                  </Link>
-                </AppHeading>
+                <Flex>
+                  {router.pathname !== "/" && (
+                    <IconButton
+                      aria-label="Revenir à la page précédente"
+                      colorScheme="purple"
+                      icon={<ChevronLeftIcon boxSize={10} />}
+                      mr={2}
+                      onClick={() => window.history.back()}
+                    />
+                  )}
+                  <AppHeading mb={0}>
+                    <Link href="/" shallow>
+                      {pageTitle
+                        ? pageTitle
+                        : entity
+                        ? isO
+                          ? `${OrgTypes[entity.orgType]} ${entity.orgName}`
+                          : process.env.NEXT_PUBLIC_SHORT_URL + router.asPath
+                        : process.env.NEXT_PUBLIC_SHORT_URL}
+                    </Link>
+                  </AppHeading>
+                </Flex>
               </Td>
               <Td border={0} display="flex" justifyContent="flex-end" gap={3}>
                 {/* <Tooltip label={`Rechercher`} hasArrow>
@@ -109,7 +123,7 @@ export const Nav = ({
 
             <Tr role="row">
               {/* Parcourir | Événements */}
-              <Td border={0} p={isMobile ? 0 : "16px 0 0 0"}>
+              <Td border={0} p={isMobile ? 0 : "0px 0 0 0"}>
                 {session ? (
                   <NavButtonsList
                     isNetworksModalOpen={isNetworksModalOpen}
@@ -144,7 +158,7 @@ export const Nav = ({
           borderRadius="lg"
           width={isMobile ? undefined : "auto"}
           mb={isMobile ? 1 : 0}
-          mt={isMobile ? undefined : 3}
+          mt={isMobile ? undefined : 0}
         >
           <Tbody role="rowgroup">
             {/* <Tr role="rowheader">
@@ -188,7 +202,7 @@ export const Nav = ({
                   {session.user.isAdmin && (
                     <>
                       <OrgPopover
-                        label="Mes planètes"
+                        label="Mes ateliers"
                         isMobile={isMobile}
                         orgType={EOrgType.NETWORK}
                         session={session}

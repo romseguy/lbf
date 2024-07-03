@@ -30,6 +30,7 @@ export interface LayoutProps extends PageProps, BoxProps {
   entity?: IEntity | IUser;
   logo?: Base64Image;
   mainContainer?: boolean;
+  noHeader?: boolean;
   pageHeader?: React.ReactNode;
   pageTitle?: string;
   tab?: string;
@@ -43,6 +44,7 @@ export const Layout = ({
   isMobile,
   logo,
   mainContainer = true,
+  noHeader,
   pageHeader,
   pageTitle,
   tab,
@@ -150,7 +152,7 @@ export const Layout = ({
       />
 
       {/* Header */}
-      {router.pathname !== "/" && (
+      {!noHeader && router.pathname !== "/" && (
         <Header
           entity={entity}
           defaultTitle="Merci de patienter..."

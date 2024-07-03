@@ -216,7 +216,7 @@ export const UserForm = (props: UserFormProps) => {
           <AlertIcon />
           <Box>
             Votre adresse e-mail et votre numéro de téléphone seront visibles
-            aux administrateurs de <HostTag /> et des planètes/arbres où vous
+            aux administrateurs de <HostTag /> et des ateliers/arbres où vous
             êtes abonné.
           </Box>
         </Alert>

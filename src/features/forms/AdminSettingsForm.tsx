@@ -87,7 +87,7 @@ export const AdminSettingsForm = ({
               required: "Veuillez saisir la dénomination"
             })}
             defaultValue={networkLabelSetting.settingValue}
-            placeholder="Exemple : planète"
+            placeholder="Exemple : atelier"
           />
 
           <FormErrorMessage>

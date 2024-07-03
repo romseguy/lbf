@@ -1,6 +1,7 @@
 import { Flex, Icon, Spinner } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
+import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { Column, AppHeading } from "features/common";
 import { EventForm } from "features/forms/EventForm";
@@ -38,7 +39,7 @@ export const EntityAddPage = ({
             as={
               orgType
                 ? orgType === EOrgType.NETWORK
-                  ? FaGlobeEurope
+                  ? GrWorkshop
                   : FaTree
                 : CalendarIcon
             }

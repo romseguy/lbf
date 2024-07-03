@@ -25,7 +25,7 @@ import {
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import {
-  FaGlobeEurope,
+  GrWorkshop,
   FaMapMarkedAlt,
   FaNewspaper,
   FaRecycle,
@@ -139,152 +139,6 @@ export const OrgPageHomeTabPanel = ({
 
   return (
     <>
-      {org.orgType === EOrgType.NETWORK && (
-        <TabContainer borderBottomRadius={isChildrenOpen ? undefined : "lg"}>
-          <TabContainerHeader
-            borderBottomRadius={isChildrenOpen ? undefined : "lg"}
-            onClick={() =>
-              router.push(
-                `${org.orgUrl}${isChildrenOpen ? "" : "/foret"}`,
-                `${org.orgUrl}${isChildrenOpen ? "" : "/foret"}`,
-                { shallow: true }
-              )
-            }
-          >
-            <Icon
-              as={isChildrenOpen ? ChevronUpIcon : ChevronRightIcon}
-              boxSize={6}
-              ml={3}
-              mr={1}
-            />
-            <Heading size="sm">Forêt de la planète</Heading>
-            <Badge {...badgeProps}>{org.orgs.length}</Badge>
-          </TabContainerHeader>
-
-          {isChildrenOpen && (
-            <TabContainerContent p={3}>
-              {orgQuery.isLoading ? (
-                <Spinner />
-              ) : (
-                <>
-                  {hasItems(org.orgs) ? (
-                    <>
-                      <Flex>
-                        <Button
-                          alignSelf="flex-start"
-                          colorScheme="teal"
-                          isDisabled={
-                            !org.orgs.find(
-                              ({ orgLat, orgLng }) => !!orgLat && !!orgLng
-                            )
-                          }
-                          leftIcon={<FaRegMap />}
-                          onClick={openMapModal}
-                        >
-                          Carte
-                        </Button>
-
-                        {isMapModalOpen && (
-                          <MapModal
-                            isOpen={isMapModalOpen}
-                            header="Carte de la planète"
-                            orgs={
-                              org.orgs.filter(
-                                (org) =>
-                                  typeof org.orgLat === "number" &&
-                                  typeof org.orgLng === "number" &&
-                                  org.orgUrl !== "forum"
-                              ) || []
-                            }
-                            onClose={closeMapModal}
-                          />
-                        )}
-                      </Flex>
-
-                      {isListOpen && (
-                        <>
-                          <Column
-                            borderBottomRadius={0}
-                            maxWidth={undefined}
-                            mt={3}
-                            //bg={isDark ? "gray.700" : "lightcyan"}
-                          >
-                            <OrgsList
-                              data={org.orgs}
-                              keys={
-                                isMobile
-                                  ? (orgType) => [
-                                      {
-                                        key: EOrderKey.orgName,
-                                        label: `Nom de ${orgTypeFull(orgType)}`
-                                      },
-                                      {
-                                        key: EOrderKey.latestActivity,
-                                        label: "Dernier message"
-                                      }
-                                    ]
-                                  : (orgType) => [
-                                      {
-                                        key: EOrderKey.orgName,
-                                        label: `Nom de ${orgTypeFull(orgType)}`
-                                      },
-                                      {
-                                        key: EOrderKey.latestActivity,
-                                        label: "Dernier message"
-                                      },
-                                      {
-                                        key: EOrderKey.createdAt,
-                                        label: "Créé il y a"
-                                      }
-                                    ]
-                              }
-                              //subQuery={subQuery}
-                              orgType={EOrgType.GENERIC}
-                            />
-                          </Column>
-
-                          {session && (
-                            <Button
-                              borderTopRadius={0}
-                              colorScheme="teal"
-                              leftIcon={<FaRecycle />}
-                              onClick={() => setIsEdit({ isAddingChild: true })}
-                            >
-                              Gérer la forêt
-                            </Button>
-                          )}
-                        </>
-                      )}
-                    </>
-                  ) : isCreator || org.orgPermissions?.anyoneCanAddChildren ? (
-                    <Tooltip
-                      placement="right"
-                      label="Planter un arbre dans la forêt de la planète"
-                    >
-                      <IconButton
-                        aria-label="Planter un arbre dans la forêt de la planète"
-                        alignSelf="flex-start"
-                        colorScheme="teal"
-                        icon={
-                          <>
-                            <SmallAddIcon />
-                            <FaTree />
-                          </>
-                        }
-                        pr={1}
-                        onClick={() => setIsEdit({ isAddingChild: true })}
-                      />
-                    </Tooltip>
-                  ) : (
-                    <i>Aucune forêt.</i>
-                  )}
-                </>
-              )}
-            </TabContainerContent>
-          )}
-        </TabContainer>
-      )}
-
       {org.orgType === EOrgType.TREETOOLS && !org.orgLat && (
         <Alert status="info" mb={3}>
           <AlertIcon />
@@ -386,7 +240,7 @@ export const OrgPageHomeTabPanel = ({
           <TabContainerHeader
             heading={
               orgNetworks.length > 0
-                ? "Planètes sur lesquelles cet arbre a été planté"
+                ? "Ateliers sur lesquelles cet arbre a été planté"
                 : "Cet arbre n'a pas encore été planté"
             }
           ></TabContainerHeader>
@@ -400,16 +254,16 @@ export const OrgPageHomeTabPanel = ({
             </List>
             <Tooltip
               placement="right"
-              label="Planter l'arbre sur la planète de votre choix"
+              label="Planter l'arbre sur la atelier de votre choix"
             >
               <IconButton
-                aria-label="Planter l'arbre sur la planète de votre choix"
+                aria-label="Planter l'arbre sur la atelier de votre choix"
                 alignSelf="flex-start"
                 colorScheme="teal"
                 icon={
                   <>
                     <SmallAddIcon />
-                    <FaGlobeEurope />
+                    <GrWorkshop />
                   </>
                 }
                 mt={orgNetworks.length > 0 ? 3 : 0}
@@ -508,6 +362,154 @@ export const OrgPageHomeTabPanel = ({
 };
 
 {
+  /* {org.orgType === EOrgType.NETWORK && (
+        <TabContainer borderBottomRadius={isChildrenOpen ? undefined : "lg"}>
+          <TabContainerHeader
+            borderBottomRadius={isChildrenOpen ? undefined : "lg"}
+            onClick={() =>
+              router.push(
+                `${org.orgUrl}${isChildrenOpen ? "" : "/foret"}`,
+                `${org.orgUrl}${isChildrenOpen ? "" : "/foret"}`,
+                { shallow: true }
+              )
+            }
+          >
+            <Icon
+              as={isChildrenOpen ? ChevronUpIcon : ChevronRightIcon}
+              boxSize={6}
+              ml={3}
+              mr={1}
+            />
+            <Heading size="sm">Forêt de la atelier</Heading>
+            <Badge {...badgeProps}>{org.orgs.length}</Badge>
+          </TabContainerHeader>
+
+          {isChildrenOpen && (
+            <TabContainerContent p={3}>
+              {orgQuery.isLoading ? (
+                <Spinner />
+              ) : (
+                <>
+                  {hasItems(org.orgs) ? (
+                    <>
+                      <Flex>
+                        <Button
+                          alignSelf="flex-start"
+                          colorScheme="teal"
+                          isDisabled={
+                            !org.orgs.find(
+                              ({ orgLat, orgLng }) => !!orgLat && !!orgLng
+                            )
+                          }
+                          leftIcon={<FaRegMap />}
+                          onClick={openMapModal}
+                        >
+                          Carte
+                        </Button>
+
+                        {isMapModalOpen && (
+                          <MapModal
+                            isOpen={isMapModalOpen}
+                            header="Carte de la atelier"
+                            orgs={
+                              org.orgs.filter(
+                                (org) =>
+                                  typeof org.orgLat === "number" &&
+                                  typeof org.orgLng === "number" &&
+                                  org.orgUrl !== "forum"
+                              ) || []
+                            }
+                            onClose={closeMapModal}
+                          />
+                        )}
+                      </Flex>
+
+                      {isListOpen && (
+                        <>
+                          <Column
+                            borderBottomRadius={0}
+                            maxWidth={undefined}
+                            mt={3}
+                            //bg={isDark ? "gray.700" : "lightcyan"}
+                          >
+                            <OrgsList
+                              data={org.orgs}
+                              keys={
+                                isMobile
+                                  ? (orgType) => [
+                                      {
+                                        key: EOrderKey.orgName,
+                                        label: `Nom de ${orgTypeFull(orgType)}`
+                                      },
+                                      {
+                                        key: EOrderKey.latestActivity,
+                                        label: "Dernier message"
+                                      }
+                                    ]
+                                  : (orgType) => [
+                                      {
+                                        key: EOrderKey.orgName,
+                                        label: `Nom de ${orgTypeFull(orgType)}`
+                                      },
+                                      {
+                                        key: EOrderKey.latestActivity,
+                                        label: "Dernier message"
+                                      },
+                                      {
+                                        key: EOrderKey.createdAt,
+                                        label: "Créé il y a"
+                                      }
+                                    ]
+                              }
+                              //subQuery={subQuery}
+                              orgType={EOrgType.GENERIC}
+                            />
+                          </Column>
+
+                          {session && (
+                            <Button
+                              borderTopRadius={0}
+                              colorScheme="teal"
+                              leftIcon={<FaRecycle />}
+                              onClick={() => setIsEdit({ isAddingChild: true })}
+                            >
+                              Gérer la forêt
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </>
+                  ) : isCreator || org.orgPermissions?.anyoneCanAddChildren ? (
+                    <Tooltip
+                      placement="right"
+                      label="Planter un arbre dans la forêt de la atelier"
+                    >
+                      <IconButton
+                        aria-label="Planter un arbre dans la forêt de la atelier"
+                        alignSelf="flex-start"
+                        colorScheme="teal"
+                        icon={
+                          <>
+                            <SmallAddIcon />
+                            <FaTree />
+                          </>
+                        }
+                        pr={1}
+                        onClick={() => setIsEdit({ isAddingChild: true })}
+                      />
+                    </Tooltip>
+                  ) : (
+                    <i>Aucune forêt.</i>
+                  )}
+                </>
+              )}
+            </TabContainerContent>
+          )}
+        </TabContainer>
+      )} */
+}
+
+{
   /*
 const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!orgLng);
 {orgsWithLocation.length > 0 && (
@@ -598,7 +600,7 @@ const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!o
                     org.orgs.length > 0
                       ? `Les arbres plantés`
                       : `Aucun arbres plantés`
-                  } sur la planète ${org.orgName}`
+                  } sur la atelier ${org.orgName}`
             }
           >
             {isCreator && (
@@ -606,13 +608,13 @@ const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!o
                 hasArrow
                 label={`Planter ${
                   org.orgs.length > 0 ? "ou déraciner" : ""
-                } des arbres de la planète ${org.orgName}`}
+                } des arbres de la atelier ${org.orgName}`}
                 placement="bottom"
               >
                 <IconButton
                   aria-label={`Planter ${
                     org.orgs.length > 0 ? "ou déraciner" : ""
-                  } des arbres de la planète ${org.orgName}`}
+                  } des arbres de la atelier ${org.orgName}`}
                   icon={
                     org.orgs.length > 0 ? (
                       <EditIcon />
@@ -730,7 +732,7 @@ const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!o
             heading={
               <>
                 <EntityButton org={org} onClick={null} /> est planté sur la
-                planète :
+                atelier :
               </>
             }
           />

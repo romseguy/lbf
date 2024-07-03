@@ -29,7 +29,7 @@ handler.get<
       settings.push(
         await models.Setting.create({
           settingName: "networkLabel",
-          settingValue: "planète"
+          settingValue: "atelier"
         })
       );
     }

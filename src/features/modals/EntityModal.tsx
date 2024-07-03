@@ -13,6 +13,7 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import React from "react";
+import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { isMobile } from "react-device-detect";
 import { EntityInfo, Link, Modal } from "features/common";
@@ -60,7 +61,7 @@ export const EntityModal = ({
                   event
                     ? CalendarIcon
                     : org?.orgType === EOrgType.NETWORK
-                    ? FaGlobeEurope
+                    ? GrWorkshop
                     : FaTree
                 }
                 mr={1}

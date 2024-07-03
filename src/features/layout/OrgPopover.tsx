@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { EntityAddButton, EntityButton } from "features/common";
@@ -125,15 +126,15 @@ const OrgPopoverContent = ({
           }
         >
           <option value="showOrgsAdded">
-            Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} que j'ai{" "}
+            Les {orgType === EOrgType.NETWORK ? "ateliers" : "arbres"} que j'ai{" "}
             {orgType === EOrgType.NETWORK ? "ajouté" : "ajouté"}
           </option>
           <option value="showOrgsFollowed">
-            Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} où je me
+            Les {orgType === EOrgType.NETWORK ? "ateliers" : "arbres"} où je me
             suis abonné
           </option>
           <option value="showOrgsArchived">
-            Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} que j'ai
+            Les {orgType === EOrgType.NETWORK ? "ateliers" : "arbres"} que j'ai
             archivé
           </option>
         </Select>
@@ -187,7 +188,7 @@ const OrgPopoverContent = ({
               <Text fontSize="smaller">
                 Vous n'avez{" "}
                 {orgType === EOrgType.NETWORK
-                  ? "ajouté aucune planètes"
+                  ? "ajouté aucune ateliers"
                   : "ajouté aucun arbres"}
                 .
               </Text>
@@ -212,7 +213,7 @@ const OrgPopoverContent = ({
               <Text fontSize="smaller">
                 Vous n'êtes abonné{" "}
                 {orgType === EOrgType.NETWORK
-                  ? "aucune planètes"
+                  ? "aucune ateliers"
                   : "aucun arbres"}
                 .
               </Text>
@@ -239,7 +240,7 @@ const OrgPopoverContent = ({
               <Text fontSize="smaller">
                 Vous n'avez archivé{" "}
                 {orgType === EOrgType.NETWORK
-                  ? "aucune planètes"
+                  ? "aucune ateliers"
                   : "aucun arbres"}
                 .
               </Text>
@@ -280,7 +281,7 @@ export const OrgPopover = ({
           _hover={{ bg: "transparent" }}
           icon={
             <Icon
-              as={orgType === EOrgType.NETWORK ? FaGlobeEurope : FaTree}
+              as={orgType === EOrgType.NETWORK ? GrWorkshop : FaTree}
               boxSize={6}
               mx={3}
               //_hover={{ color: "cyan.600" }}

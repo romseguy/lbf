@@ -2,6 +2,7 @@ import { AddIcon, CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { Button, ButtonProps, Icon, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
+import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { EOrgType } from "models/Org";
 
@@ -30,7 +31,7 @@ export const EntityAddButton = ({
         leftIcon={
           <>
             <AddIcon mr={1} />
-            <Icon as={FaGlobeEurope} color={isDark ? "blue" : "blue.100"} />
+            <Icon as={GrWorkshop} color={isDark ? "blue" : "blue.100"} />
           </>
         }
         size="sm"
@@ -38,8 +39,8 @@ export const EntityAddButton = ({
           e.stopPropagation();
           onClick && onClick();
           const url = orgName
-            ? `/planetes/ajouter?orgName=${orgName}`
-            : "/planetes/ajouter";
+            ? `/ateliers/ajouter?orgName=${orgName}`
+            : "/ateliers/ajouter";
           router.push(url, url, {
             shallow: true
           });
@@ -47,7 +48,7 @@ export const EntityAddButton = ({
         data-cy="org-add-button"
         {...props}
       >
-        {label || "Ajouter une planète"}
+        {label || "Ajouter une atelier"}
       </Button>
     );
 

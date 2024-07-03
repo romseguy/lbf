@@ -204,7 +204,7 @@ export const Main = ({
           const protectedRoutes = [
             "/arbres/ajouter",
             "/evenements/ajouter",
-            "/planetes/ajouter"
+            "/ateliers/ajouter"
           ];
           if (protectedRoutes.includes(path))
             router.push("/", "/", { shallow: true });

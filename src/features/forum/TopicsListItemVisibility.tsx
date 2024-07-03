@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { IconType } from "react-icons";
+import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope } from "react-icons/fa";
 import { IEntity, isEvent, isOrg } from "models/Entity";
 import { orgTypeFull } from "models/Org";
@@ -68,7 +69,7 @@ export const TopicsListItemVisibility = ({
     icons = [
       {
         label: "Discussion publique",
-        icon: FaGlobeEurope
+        icon: GrWorkshop
       }
     ];
 

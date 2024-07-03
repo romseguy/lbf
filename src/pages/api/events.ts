@@ -155,7 +155,7 @@ handler.post<
             .json(
               createEndpointError(
                 new Error(
-                  "Vous n'avez pas la permission d'ajouter un événement à cette planète"
+                  "Vous n'avez pas la permission d'ajouter un événement à cette atelier"
                 )
               )
             );

@@ -40,6 +40,9 @@ export const EntityPageTab = ({
       aria-selected={isCurrent}
       __css={{
         ...styles.tab,
+        ...(isCurrent
+          ? { border: "5px solid black", backgroundColor: "white" }
+          : {}),
         ...(isMobile
           ? {
               display: "flex",

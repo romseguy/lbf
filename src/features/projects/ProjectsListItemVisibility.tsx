@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { IconType } from "react-icons";
+import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope } from "react-icons/fa";
 import { IoMdPerson } from "react-icons/io";
 import { IOrg, orgTypeFull } from "models/Org";
@@ -58,7 +59,7 @@ export const ProjectsListItemVisibility = ({
     icons = [
       {
         label: "Projet public",
-        icon: FaGlobeEurope
+        icon: GrWorkshop
       }
     ];
 

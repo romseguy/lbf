@@ -3,7 +3,7 @@ import { Box, BoxProps, Flex, Icon, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import {
-  FaGlobeEurope,
+  GrWorkshop,
   FaRegCalendarCheck,
   FaRegCalendarTimes,
   FaTree
@@ -65,7 +65,7 @@ export const HeaderTitle = ({
       entityUrl === "forum"
         ? ChatIcon
         : entity.orgType === EOrgType.NETWORK
-        ? FaGlobeEurope
+        ? GrWorkshop
         : FaTree;
     iconColor =
       entity.orgType === EOrgType.NETWORK
@@ -174,7 +174,7 @@ export const HeaderTitle = ({
                 <EntityButton
                   org={orgNetwork}
                   tooltipProps={{
-                    label: `Cet arbre a été planté sur la planète ${orgNetwork.orgName}`
+                    label: `Cet arbre a été planté sur la atelier ${orgNetwork.orgName}`
                   }}
                   mb={index !== orgNetworks.length - 1 ? 3 : 0}
                   onClick={(e) => {

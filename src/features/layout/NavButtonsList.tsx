@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
+import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope, FaHome } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useGetOrgsQuery } from "features/api/orgsApi";
@@ -174,9 +175,9 @@ export const NavButtonsList = ({
           // }
           header={
             <InputGroup>
-              <InputLeftAddon children={<Icon as={FaGlobeEurope} />} />
+              <InputLeftAddon children={<Icon as={GrWorkshop} />} />
               <SearchInput
-                placeholder="Rechercher un nom de planète"
+                placeholder="Rechercher un nom de atelier"
                 width="calc(100% - 80px)"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}

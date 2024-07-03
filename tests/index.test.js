@@ -24,9 +24,9 @@ describe("IndexPage", () => {
 
   it("can navigate to OrgForm and EventForm", async () => {
     const user = userEvent.setup()
-    await user.click(screen.getByRole('button', { name: /Mes planètes/i }))
-    await user.click(screen.getByRole('button', { name: /Ajouter une planète/i }))
-    expect(useRouter().push).toBeCalledWith("/planetes/ajouter", "/planetes/ajouter", { shallow: true })
+    await user.click(screen.getByRole('button', { name: /Mes ateliers/i }))
+    await user.click(screen.getByRole('button', { name: /Ajouter une atelier/i }))
+    expect(useRouter().push).toBeCalledWith("/ateliers/ajouter", "/ateliers/ajouter", { shallow: true })
 
     await user.click(screen.getByRole('button', { name: /Mes arbres/i }))
     await user.click(screen.getByRole('button', { name: /Ajouter un arbre/i }))

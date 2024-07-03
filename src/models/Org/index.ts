@@ -1,4 +1,5 @@
 import { ChatIcon, CalendarIcon, SettingsIcon } from "@chakra-ui/icons";
+import { GrWorkshop } from "react-icons/gr";
 import { FaHome, FaTools, FaImages, FaGlobeEurope } from "react-icons/fa";
 import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
 import { EOrgSubscriptionType } from "models/Subscription";
@@ -26,17 +27,6 @@ export const getEventCategories = (org?: IOrg): IOrgEventCategory[] => {
 
 //#region descriptions
 export const getOrgDescriptionByType = (orgType?: EOrgType): string => {
-  if (orgType === EOrgType.TREETOOLS)
-    return `<p>- D&eacute;broussailleuse<br /><br />- Tron&ccedil;onneuse : &agrave; aiguiser<br /><br /><strong>Conditions d'&eacute;change :</strong><br /><br />Tarif fixe, libre, troc, ...<br /><br /><strong>Dur&eacute;e d'emprunt :</strong><br /><br />3 jours &agrave; partir de la remise en main propre</p>`;
-  // return `
-  // <b>Liste du matériel disponible :</b><br/><br/>
-  // - Débroussailleuse<br/><br/>
-  // - Tronçonneuse : à aiguiser<br/><br/>
-  // <b>Conditions d'échange :</b><br/><br/>
-  // Tarif fixe, libre, troc, ...<br /><br />
-  // <b>Durée d'emprunt :</b><br/><br/>
-  // 3 jours à partir de la remise en main propre
-  // `;
   return "";
 };
 //#endregion
@@ -150,7 +140,7 @@ export const getSubscriptions = (org: IOrg, type: string) => {
 
 //#region tabs
 export const defaultTabs: IOrgTabWithMetadata[] = [
-  { order: 0, label: "Accueil", icon: FaGlobeEurope, url: ["/", "/accueil"] },
+  { order: 0, label: "Accueil", icon: GrWorkshop, url: ["/", "/accueil"] },
   {
     order: 1,
     label: ["Discussions", "d"],
@@ -194,7 +184,7 @@ export const orgTypeFull = (orgType: EOrgType = EOrgType.GENERIC): string => {
       ? "de l'"
       : [EOrgType.TREETOOLS].includes(orgType)
       ? "du "
-      : "de la "
+      : "de l'"
   }${OrgTypes[orgType].toLowerCase()}`;
 };
 
@@ -204,7 +194,7 @@ export const orgTypeFull2 = (orgType: EOrgType = EOrgType.GENERIC): string =>
       ? "à l'"
       : [EOrgType.TREETOOLS].includes(orgType)
       ? "au "
-      : "à la "
+      : "à l'"
   }${OrgTypes[orgType].toLowerCase()}`;
 
 export const orgTypeFull3 = (orgType: EOrgType = EOrgType.GENERIC): string => {
@@ -228,7 +218,7 @@ export const orgTypeFull5 = (
 ): string => {
   const str = `${
     [EOrgType.NETWORK].includes(orgType)
-      ? "la "
+      ? "l'"
       : [EOrgType.TREETOOLS].includes(orgType)
       ? "le "
       : "l'"
@@ -241,7 +231,7 @@ export const orgTypeFull5 = (
 
 export const OrgTypes: Record<EOrgType, string> = {
   [EOrgType.GENERIC]: "Arbre",
-  [EOrgType.NETWORK]: "Planète",
+  [EOrgType.NETWORK]: "Atelier",
   [EOrgType.TREETOOLS]: "Noisettier"
 };
 

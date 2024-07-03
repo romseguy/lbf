@@ -128,14 +128,14 @@ export const Header = ({
         </Link>
       )}
 
-      {(!entity || showTitle) && (
+      {/* {(!entity || showTitle) && (
         <HeaderTitle
           alignSelf={isMobile ? undefined : "flex-end"}
           entity={entity}
           pageHeader={pageHeader}
           pageTitle={pageTitle || defaultTitle}
         />
-      )}
+      )} */}
 
       {isE && typeof entity.eventCategory === "string" && (
         <EventCategoryTag

@@ -40,10 +40,13 @@ const IndexPage = (props: PageProps) => {
   });
 
   return (
-    <Layout {...props} pageTitle="Bienvenue !">
+    <Layout
+      {...props}
+      pageTitle={`Bienvenue ${session ? session.user.userName : ""} !`}
+    >
       {session ? (
         <>
-          <AppHeading>Liste des ateliers LEO</AppHeading>
+          <AppHeading mb={5}>Liste des ateliers LEO</AppHeading>
           <OrgsList data={orgsQuery.orgs} />
         </>
       ) : (
@@ -340,7 +343,7 @@ export default IndexPage;
         ) : (
           <Flex>
             <EntityAddButton
-              label="Ajoutez une planète"
+              label="Ajoutez une atelier"
               orgType={EOrgType.NETWORK}
               size={props.isMobile ? "xs" : "md"}
               mb={3}
@@ -377,10 +380,10 @@ export default IndexPage;
                       <>
                          <Text>
                               Pour ajouter un forum à <HostTag /> vous devez
-                              d'abord créer une planète :
+                              d'abord créer une atelier :
                             </Text> 
                         <EntityAddButton
-                          label="Ajoutez une planète"
+                          label="Ajoutez une atelier"
                           orgType={EOrgType.NETWORK}
                           size="md"
                           mt={3}
@@ -548,7 +551,7 @@ export default IndexPage;
 {
   /*
                 <Tooltip
-                  label="Un compte vous permet de créer des planètes, et d'inviter d'autres personnes à collaborer."
+                  label="Un compte vous permet de créer des ateliers, et d'inviter d'autres personnes à collaborer."
                   isOpen={isTooltipOpen}
                 >
                   <IconButton

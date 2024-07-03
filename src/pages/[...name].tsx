@@ -87,23 +87,24 @@ const ErrorPage = ({
 
   if (getEnv() === "production")
     return (
-    <Layout pageTitle="Erreur" {...props}>
-      <Column {...columnProps}>
-        <Box flexDir="row">
-        Une erreur est survenue, <ContactLink label="merci de nous contacter" />{" "}
-        avec une description du scénario.
-      </Box>
-      </Column>
-    </Layout>
-  )
+      <Layout pageTitle="Erreur" {...props}>
+        <Column {...columnProps}>
+          <Box flexDir="row">
+            Une erreur est survenue,{" "}
+            <ContactLink label="merci de nous contacter" /> avec une description
+            du scénario.
+          </Box>
+        </Column>
+      </Layout>
+    );
 
   return (
     <Layout pageTitle="Erreur" {...props}>
       <Column {...columnProps}>
-          <Alert status="error">
-            <AlertIcon />
-            {error ? error : "Une erreur inconnue est survenue."}
-          </Alert>
+        <Alert status="error">
+          <AlertIcon />
+          {error ? error : "Une erreur inconnue est survenue."}
+        </Alert>
       </Column>
     </Layout>
   );
@@ -200,10 +201,10 @@ const HashPage = ({ ...props }: PageProps) => {
       <NotFound
         {...props}
         isRedirect={false}
-        message="Veuillez créer la planète forum."
+        message="Veuillez créer la atelier forum."
       >
         <EntityAddButton
-          label={`Créer la planète « Forum »`}
+          label={`Créer la atelier « Forum »`}
           orgName="Forum"
           orgType={EOrgType.NETWORK}
         />

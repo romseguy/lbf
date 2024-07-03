@@ -20,7 +20,7 @@ import {
   FaQuoteLeft,
   FaLightbulb,
   FaShare,
-  FaGlobeEurope
+  GrWorkshop
 } from "react-icons/fa";
 import { css } from "twin.macro";
 import {
@@ -100,7 +100,7 @@ export const AboutPage = ({
 
     return (
       <Tag bg={isDark ? "gray.500" : "orange.100"} px={1} py={1} {...tagProps}>
-        <Icon as={FaGlobeEurope} boxSize={6} color="green" mr={2} />
+        <Icon as={GrWorkshop} boxSize={6} color="green" mr={2} />
         {urlElement}
         <IconButton
           aria-label="Page d'accueil d'un forum"
@@ -136,8 +136,8 @@ export const AboutPage = ({
           <ListItem mb={3}>
             <Text mb={1}>
               Pour créer votre forum,{" "}
-              <Link href="/planetes/ajouter" shallow variant="underline">
-                ajoutez votre planète
+              <Link href="/ateliers/ajouter" shallow variant="underline">
+                ajoutez votre atelier
               </Link>{" "}
               et devenez propriétaire de cette adresse :
             </Text>
@@ -151,7 +151,7 @@ export const AboutPage = ({
               <Link href="/arbres/ajouter" shallow variant="underline">
                 ajoutez un arbre
               </Link>{" "}
-              et plantez-le dans la forêt de votre planète.
+              et plantez-le dans la forêt de votre atelier.
             </Text>
 
             {/* <OrgTag orgUrl="nom_de_votre_arbre" /> */}
@@ -330,7 +330,7 @@ export default About;
 
 {
   /*
-    <Heading>Communiquez depuis votre planète</Heading>
+    <Heading>Communiquez depuis votre atelier</Heading>
 
     <Column {...columnStyles(isDark)}>
       <Row
