@@ -15,7 +15,11 @@ import React, { useEffect, useState } from "react";
 import { FaVideo } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
-import { RemoteFile, useGetDocumentsQuery } from "features/api/documentsApi";
+import {
+  RemoteFile,
+  useGetDocumentsQuery,
+  Video
+} from "features/api/documentsApi";
 import { Column, ColumnProps, AppHeading } from "features/common";
 import { isOrg } from "models/Entity";
 import { IOrg } from "models/Org";
@@ -23,15 +27,12 @@ import { IUser } from "models/User";
 import { selectIsMobile } from "store/uiSlice";
 import { isVideo } from "utils/string";
 import { hasItems } from "utils/array";
-
-interface Video extends RemoteFile {
-  fileName: string;
-}
+import { IEvent } from "models/Event";
 
 export const DocumentsListPlayer = ({
   entity,
   ...props
-}: ColumnProps & { entity: IOrg | IUser }) => {
+}: ColumnProps & { entity: IEvent | IOrg | IUser }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);

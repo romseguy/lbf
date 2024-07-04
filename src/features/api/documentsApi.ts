@@ -14,6 +14,10 @@ export interface RemoteImage extends RemoteFile {
   cached?: boolean;
 }
 
+export interface Video extends RemoteFile {
+  fileName: string;
+}
+
 export const documentApi = api.injectEndpoints({
   endpoints: (build) => ({
     getDocuments: build.query<

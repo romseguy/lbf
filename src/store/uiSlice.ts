@@ -4,7 +4,12 @@ import { AppState } from "store";
 
 export const uiSlice = createSlice({
   name: "ui",
-  initialState: { isMobile: false, rteditorIndex: 0, screenWidth: 0 },
+  initialState: {
+    isMobile: false,
+    rteditorIndex: 0,
+    screenHeight: 0,
+    screenWidth: 0
+  },
 
   reducers: {
     incrementRTEditorIndex: (state, action: PayloadAction<undefined>) => {
@@ -12,6 +17,9 @@ export const uiSlice = createSlice({
     },
     setIsMobile: (state, action: PayloadAction<boolean>) => {
       state.isMobile = action.payload;
+    },
+    setScreenHeight: (state, action: PayloadAction<number>) => {
+      state.screenHeight = action.payload;
     },
     setScreenWidth: (state, action: PayloadAction<number>) => {
       state.screenWidth = action.payload;
@@ -28,10 +36,15 @@ export const uiSlice = createSlice({
   }
 });
 
-export const { incrementRTEditorIndex, setIsMobile, setScreenWidth } =
-  uiSlice.actions;
+export const {
+  incrementRTEditorIndex,
+  setIsMobile,
+  setScreenHeight,
+  setScreenWidth
+} = uiSlice.actions;
 export const selectRTEditorIndex = (state: AppState) => state.ui.rteditorIndex;
 export const selectIsMobile = (state: AppState) => state.ui.isMobile;
+export const selectScreenHeight = (state: AppState) => state.ui.screenHeight;
 export const selectScreenWidth = (state: AppState) => state.ui.screenWidth;
 
 export default uiSlice.reducer;

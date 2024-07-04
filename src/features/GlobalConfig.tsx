@@ -6,7 +6,9 @@ import { useAppDispatch } from "store";
 import { setIsOffline } from "store/sessionSlice";
 import {
   selectIsMobile,
+  selectScreenHeight,
   selectScreenWidth,
+  setScreenHeight,
   setScreenWidth
 } from "store/uiSlice";
 import api from "utils/api";
@@ -19,13 +21,16 @@ export const GlobalConfig = ({}: {}) => {
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   //const { data: session, loading } = useSession();
+  const screenHeight = useSelector(selectScreenHeight);
   const screenWidth = useSelector(selectScreenWidth);
 
   useEffect(() => {
     //if (!session) dispatch(setIsSessionLoading(true));
 
     (async function checkOnlineStatus() {
-      const res = await api.get("check");
+      const res = await api.get("check", undefined, {
+        isLoggingDisabled: true
+      });
       if (res.error) dispatch(setIsOffline(true));
     })();
 
@@ -37,17 +42,20 @@ export const GlobalConfig = ({}: {}) => {
       dispatch(setIsOffline(false));
     });
 
-    const updateScreenWidth = () => {
+    const updateScreenDimensions = () => {
+      const newScreenHeight = window.innerHeight;
       const newScreenWidth = window.innerWidth - 15;
+      if (newScreenHeight !== screenHeight)
+        dispatch(setScreenHeight(newScreenHeight));
       if (newScreenWidth !== screenWidth)
         dispatch(setScreenWidth(newScreenWidth));
     };
 
     if (!isMobile) {
-      updateScreenWidth();
-      window.addEventListener("resize", updateScreenWidth);
+      updateScreenDimensions();
+      window.addEventListener("resize", updateScreenDimensions);
       signal.addEventListener("abort", () => {
-        window.removeEventListener("resize", updateScreenWidth);
+        window.removeEventListener("resize", updateScreenDimensions);
       });
     }
 

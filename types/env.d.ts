@@ -1,17 +1,23 @@
 import type { MongoClient, Db } from "mongodb";
+import mongoose from "mongoose";
+
+export type Models = {
+  Event: Model<IEvent, {}, {}>;
+  Org: Model<IOrg, {}, {}>;
+  Project: Model<IProject, {}, {}>;
+  Subscription: Model<ISubscription, {}, {}>;
+  Setting: Model<ISetting, {}, {}>;
+  Topic: Model<ITopic, {}, {}>;
+  User: Model<IUser, {}, {}>;
+};
 
 declare global {
   namespace NodeJS {
     interface Global {
       mongo: {
-        conn: {
-          client: MongoClient;
-          db: Db;
-        } | null;
-        promise: Promise<{
-          client: MongoClient;
-          db: Db;
-        }> | null;
+        conn: mongoose.Connection | null;
+        models: Models | null;
+        promise: Promise<mongoose.Connection> | null;
       };
     }
     interface ProcessEnv {

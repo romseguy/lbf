@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Spinner } from "@chakra-ui/react";
+import { Spinner } from "@chakra-ui/react";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -22,12 +22,7 @@ import {
   getUser,
   useGetUserQuery
 } from "features/api/usersApi";
-import {
-  Column,
-  ContactLink,
-  EntityAddButton,
-  NotFound
-} from "features/common";
+import { Column, EntityAddButton, NotFound } from "features/common";
 import { Layout } from "features/layout";
 import { EventPage } from "features/events/EventPage";
 import { OrgPage } from "features/orgs/OrgPage";
@@ -36,15 +31,14 @@ import { UserPage } from "features/users/UserPage";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEvent } from "models/Event";
-import { defaultTabs, EOrgType, IOrg } from "models/Org";
+import { EOrgType, IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
 import { wrapper } from "store";
 import { selectUserEmail } from "store/userSlice";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { IEntity } from "models/Entity";
-import { getEnv } from "utils/env";
+import { ErrorPage } from "./_error";
 
 const initialEventQueryParams = (entityUrl: string) => ({
   eventUrl: entityUrl,
@@ -61,54 +55,6 @@ const initialUserQueryParams = (entityUrl: string) => ({
 const subQueryParams = (email: string) => ({
   email
 });
-
-function getError(query: AppQuery<IEntity>) {
-  if (query.error) {
-    if (query.error.data) {
-      return query.error.data.message;
-    }
-
-    if (query.error.error) return query.error.error;
-  }
-}
-
-const ErrorPage = ({
-  query,
-  ...props
-}: PageProps & {
-  query: AppQuery<IEntity>;
-}) => {
-  const columnProps = {
-    maxWidth: "4xl",
-    m: "0 auto",
-    p: props.isMobile ? 2 : 3
-  };
-  const error = getError(query);
-
-  if (getEnv() === "production")
-    return (
-      <Layout pageTitle="Erreur" {...props}>
-        <Column {...columnProps}>
-          <Box flexDir="row">
-            Une erreur est survenue,{" "}
-            <ContactLink label="merci de nous contacter" /> avec une description
-            du scénario.
-          </Box>
-        </Column>
-      </Layout>
-    );
-
-  return (
-    <Layout pageTitle="Erreur" {...props}>
-      <Column {...columnProps}>
-        <Alert status="error">
-          <AlertIcon />
-          {error ? error : "Une erreur inconnue est survenue."}
-        </Alert>
-      </Column>
-    </Layout>
-  );
-};
 
 const HashPage = ({ ...props }: PageProps) => {
   const columnProps = {

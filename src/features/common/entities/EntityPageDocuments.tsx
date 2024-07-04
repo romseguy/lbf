@@ -19,7 +19,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { FaImages } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { useGetDocumentsQuery } from "features/api/documentsApi";
+import { useGetDocumentsQuery, Video } from "features/api/documentsApi";
 import {
   AppHeading,
   Column,
@@ -41,6 +41,7 @@ import { selectIsMobile } from "store/uiSlice";
 import * as stringUtils from "utils/string";
 import { AppQueryWithData } from "utils/types";
 import { IEvent } from "models/Event";
+import { hasItems } from "utils/array";
 
 export const EntityPageDocuments = ({
   isCreator,
@@ -69,21 +70,42 @@ export const EntityPageDocuments = ({
   const [diskUsage, refreshDiskUsage] = useDiskUsage();
   const [isAdd, setIsAdd] = useState(false);
   const [isFilesOpen, setIsFilesOpen] = useState(false);
-  const documentsQuery = useGetDocumentsQuery({
-    eventId: entity._id,
-    orgId: entity._id,
-    userId: entity._id
-  });
+  const documentsQuery = useGetDocumentsQuery(
+    {
+      eventId: entity._id,
+      orgId: entity._id,
+      userId: entity._id
+    },
+    {
+      selectFromResult: ({ data = [], ...rest }) => {
+        let array: Video[] = [];
+        for (const file of data) {
+          if (stringUtils.isVideo(file.url)) {
+            array.push({
+              ...file,
+              fileName: file.url,
+              url: `${process.env.NEXT_PUBLIC_FILES}/${
+                entity._id
+              }/${encodeURIComponent(file.url)}`
+            });
+          }
+        }
+
+        return { ...rest, data, videos: array };
+      }
+    }
+  );
+
   useEffect(() => {
     documentsQuery.refetch();
   }, [entity]);
 
   return (
     <>
-      <Flex alignItems="center" mb={3}>
+      {/* <Flex alignItems="center" mb={3}>
         <Icon as={FaImages} boxSize={6} mr={3} />
         <AppHeading>Galerie</AppHeading>
-      </Flex>
+      </Flex> */}
 
       <TabContainer borderBottomRadius="lg">
         <TabContainerHeader
@@ -115,6 +137,7 @@ export const EntityPageDocuments = ({
               : { borderBottomRadius: "lg", p: 3 })}
           >
             <Flex
+              alignItems="center"
               flexWrap="wrap"
               mb={3}
               {...(isMobile ? { mx: 3 } : { mt: -3 })}
@@ -196,7 +219,9 @@ export const EntityPageDocuments = ({
         p={0}
       />
 
-      <DocumentsListPlayer entity={entity} p={0} />
+      {hasItems(documentsQuery.videos) && (
+        <DocumentsListPlayer entity={entity} p={0} />
+      )}
     </>
   );
 };

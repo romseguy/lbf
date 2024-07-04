@@ -5,6 +5,7 @@ import {
   Button,
   Flex,
   HStack,
+  IconButton,
   Image,
   Spinner,
   Text,
@@ -22,11 +23,20 @@ import { FullscreenModal } from "features/modals/FullscreenModal";
 import { isOrg } from "models/Entity";
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
-import { selectIsMobile, selectScreenWidth } from "store/uiSlice";
+import {
+  selectIsMobile,
+  selectScreenHeight,
+  selectScreenWidth
+} from "store/uiSlice";
 import { divideArray, hasItems } from "utils/array";
 import * as stringUtils from "utils/string";
 import { useRouter } from "next/router";
 import { IEvent } from "models/Event";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+
+interface IndexedRemoteImage extends RemoteImage {
+  index: number;
+}
 
 export const DocumentsListMasonry = ({
   entity,
@@ -38,9 +48,10 @@ export const DocumentsListMasonry = ({
 }) => {
   const { colorMode } = useColorMode();
   const router = useRouter();
+  const screenHeight = useSelector(selectScreenHeight);
   const screenWidth = useSelector(selectScreenWidth);
   const isO = isOrg(entity);
-  const [images, setImages] = useState<RemoteImage[]>([]);
+  const [images, setImages] = useState<IndexedRemoteImage[]>([]);
   const [imagesSize, setImagesSize] = useState(0);
   const { isLoading, isFetching, data, refetch } = useGetDocumentsQuery({
     [isO ? "orgId" : "userId"]: entity._id
@@ -48,21 +59,28 @@ export const DocumentsListMasonry = ({
   useEffect(() => {
     if (data && hasItems(data)) {
       let count = 0;
-      let arr: RemoteImage[] = []; // = data.filter<RemoteImage>((file): file is RemoteImage => "height" in file)
+      let i = 0;
+      let arr: IndexedRemoteImage[] = []; // = data.filter<RemoteImage>((file): file is RemoteImage => "height" in file)
 
       for (const file of data) {
         if ("height" in file) {
           count += file.bytes;
           arr.push({
             ...file,
+            index: i,
             url: `${process.env.NEXT_PUBLIC_FILES}/${
               entity._id
             }/${encodeURIComponent(file.url)}`
           });
+          i++;
         }
       }
 
-      setImages(arr.sort((a, b) => !!a.time && !!b.time ? (a.time < b.time ? 1 : -1) : 0 ));
+      setImages(
+        arr.sort((a, b) =>
+          !!a.time && !!b.time ? (a.time < b.time ? 1 : -1) : 0
+        )
+      );
       setImagesSize(count);
     }
   }, [data]);
@@ -96,7 +114,7 @@ export const DocumentsListMasonry = ({
     images.length > pageImageCount ? images.length % pageImageCount : 1;
   //const pageLength = images.length / pagesCount;
   const pages = divideArray(images, pagesCount);
-  const masonry = divideArray<RemoteImage>(
+  const masonry = divideArray<IndexedRemoteImage>(
     pages.reduce(
       (arr, page, index) => (index <= currentIndex ? arr.concat(page) : arr),
       []
@@ -107,7 +125,7 @@ export const DocumentsListMasonry = ({
 
   //#region modal state
   const [modalState, setModalState] = useState<
-    UseDisclosureProps & { image?: RemoteImage }
+    UseDisclosureProps & { image?: IndexedRemoteImage }
   >({
     isOpen: false
   });
@@ -117,8 +135,8 @@ export const DocumentsListMasonry = ({
       isOpen: false,
       image: undefined
     });
-  const onOpen = async (image: RemoteImage) => {
-    setModalState({ ...modalState, image, isOpen: true });
+  const onOpen = async (image: IndexedRemoteImage) => {
+    setModalState({ ...modalState, isOpen: true, image });
   };
   //#endregion
 
@@ -149,11 +167,14 @@ export const DocumentsListMasonry = ({
                   <Flex key={index} flexDirection="column" width="100%">
                     {column.map((image, imageIndex) => {
                       let marginAround = 2 * (4 * 12 + 24);
-                      const marginBetween = (columnCount - 1) * 24;
+                      marginAround = 0;
+                      //const marginBetween = (columnCount - 1) * 24;
+                      const marginBetween = 0;
                       let newMW = screenWidth - marginAround;
 
                       if (screenWidth > pxBreakpoints["2xl"]) {
                         marginAround = 2 * (5 * 12 + 20 + 84);
+                        marginAround = 0;
                         newMW =
                           (screenWidth - marginAround - marginBetween) /
                           columnCount;
@@ -167,6 +188,7 @@ export const DocumentsListMasonry = ({
                         // );
                       } else if (columnCount !== 1) {
                         marginAround = 2 * (4 * 12 + 20);
+                        marginAround = 0;
                         newMW =
                           (screenWidth - marginAround - marginBetween) /
                           columnCount;
@@ -183,7 +205,6 @@ export const DocumentsListMasonry = ({
                           borderRadius="12px"
                           cursor="pointer"
                           mb={3}
-                          mx={3}
                           onClick={() => {
                             onOpen(image);
                           }}
@@ -221,13 +242,41 @@ export const DocumentsListMasonry = ({
 
       {modalState.isOpen && modalState.image && (
         <FullscreenModal
-          //header={modalState.image.url.match(/[^=]+$/)![0]}
+          //header={images[modalState.index].url.match(/[^=]+$/)![0]}
           header={
             <HStack>
+              <IconButton
+                aria-label="Précédent"
+                colorScheme="teal"
+                icon={<ChevronLeftIcon boxSize={10} />}
+                isDisabled={modalState.image.index - 1 < 0}
+                onClick={() => {
+                  //@ts-ignore
+                  const index = modalState.image.index - 1;
+                  setModalState({
+                    ...modalState,
+                    image: images[index < 0 ? 0 : index]
+                  });
+                }}
+              />
+              <IconButton
+                aria-label="Suivant"
+                colorScheme="teal"
+                icon={<ChevronRightIcon boxSize={10} />}
+                isDisabled={modalState.image.index + 1 >= images.length}
+                onClick={() => {
+                  //@ts-ignore
+                  const index = modalState.image.index + 1;
+                  setModalState({
+                    ...modalState,
+                    image: images[index > images.length ? images.length : index]
+                  });
+                }}
+              />
               <FaImage />
               <Text>
-                {modalState.image.url.substring(
-                  modalState.image.url.lastIndexOf("/") + 1
+                {images[modalState.image.index].url.substring(
+                  images[modalState.image.index].url.lastIndexOf("/") + 1
                 )}
               </Text>
             </HStack>
@@ -237,8 +286,9 @@ export const DocumentsListMasonry = ({
         >
           <Image
             alignSelf="center"
-            src={modalState.image.url}
-            width={`${modalState.image.width}px`}
+            src={images[modalState.image.index].url}
+            maxHeight={screenHeight - 72 + "px"}
+            //width={`${images[modalState.index].width}px`}
           />
         </FullscreenModal>
       )}

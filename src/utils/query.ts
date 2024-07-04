@@ -1,7 +1,21 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { IEntity } from "models/Entity";
 import { selectSession } from "store/sessionSlice";
 import { TOKEN_NAME } from "./auth";
 import { isServer } from "./isServer";
+import { AppQuery } from "./types";
+
+export function getError(query: AppQuery<IEntity>): Error | undefined {
+  if (query.error) {
+    if (query.error.data) {
+      return new Error(query.error.data.message) || query.error.data;
+    }
+
+    if (query.error.error?.error) return new Error(query.error.error.error);
+
+    return new Error("Une erreur inconnue est survenue");
+  }
+}
 
 export function objectToQueryString(obj: { [key: string]: string } | {}) {
   const keys = Object.keys(obj);
