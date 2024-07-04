@@ -1,5 +1,5 @@
 import type { Db } from "mongodb";
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextHandler } from "next-connect";
 import { IEvent } from "models/Event";
@@ -23,7 +23,24 @@ if (!cached) {
 }
 
 export let db: Db;
-export let models = cached.models;
+//@ts-ignore
+export let models: {
+  Event: Model<IEvent, {}, {}>;
+  Org: Model<IOrg, {}, {}>;
+  Project: Model<IProject, {}, {}>;
+  Subscription: Model<ISubscription, {}, {}>;
+  Setting: Model<ISetting, {}, {}>;
+  Topic: Model<ITopic, {}, {}>;
+  User: Model<IUser, {}, {}>;
+} = cached.models || {
+  Event: {},
+  Org: {},
+  Project: {},
+  Subscription: {},
+  Setting: {},
+  Topic: {},
+  User: {}
+};
 
 export default async function database(
   req: NextApiRequest,

@@ -68,8 +68,6 @@ export const Layout = ({
             ({ topicName }) => tabItem === normalize(topicName)
           ) || {};
         if (topicName) {
-          console.log("🚀 ~ topicName:", topicName);
-
           subtitle = `– ${topicName}`;
         }
       }

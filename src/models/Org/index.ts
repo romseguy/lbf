@@ -139,18 +139,19 @@ export const getSubscriptions = (org: IOrg, type: string) => {
 //#endregion
 
 //#region tabs
+// url and label must be same (not case sensitive)
 export const defaultTabs: IOrgTabWithMetadata[] = [
-  { order: 0, label: "Accueil", icon: GrWorkshop, url: ["/", "/accueil"] },
+  { order: 0, label: "Accueil", icon: GrWorkshop, url: "/" },
   {
     order: 1,
     label: ["Discussions", "d"],
     icon: ChatIcon,
     url: ["/discussions", "/d"]
   },
-  { order: 2, label: "Événements", icon: CalendarIcon, url: "/evenements" },
-  { order: 3, label: "Projets", icon: FaTools, url: "/projets" },
-  { order: 4, label: "Galerie", icon: FaImages, url: "/galerie" },
-  { order: 5, label: "", icon: SettingsIcon, url: "/parametres" }
+  { order: 2, label: "Agenda", icon: CalendarIcon, url: "/agenda" },
+  // { order: 3, label: "Projets", icon: FaTools, url: "/projets" },
+  { order: 3, label: "Galerie", icon: FaImages, url: "/galerie" }
+  //{ order: 5, label: "", icon: SettingsIcon, url: "/parametres" }
 ];
 export const getDefaultTab = ({ url }: { url?: string | string[] }) => {
   if (!url) return undefined;
@@ -168,7 +169,6 @@ export const getCurrentTab = ({
   }
 
   const dt = defaultTabs.find(({ label }) => belongs(label, currentTabLabel));
-
   if (!dt && org.orgTabs) {
     return org.orgTabs.find((orgTab) => belongs(orgTab.label, currentTabLabel));
   }

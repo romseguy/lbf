@@ -577,34 +577,36 @@ export const EventsList = ({
     <>
       {org && (
         <Flex>
-          <Button
-            colorScheme="teal"
-            leftIcon={<AddIcon />}
-            mb={5}
-            onClick={() => {
-              try {
-                let url = "/evenements/ajouter";
+          {session?.user.isAdmin && (
+            <Button
+              colorScheme="teal"
+              leftIcon={<AddIcon />}
+              mb={5}
+              onClick={() => {
+                try {
+                  let url = "/evenements/ajouter";
 
-                if (org && !isCreator)
-                  throw new Error(
-                    `Vous n'avez pas la permission ${orgTypeFull(
-                      org.orgType
-                    )} pour ajouter un événement`
-                  );
+                  if (org && !isCreator)
+                    throw new Error(
+                      `Vous n'avez pas la permission ${orgTypeFull(
+                        org.orgType
+                      )} pour ajouter un événement`
+                    );
 
-                url = `/evenements/ajouter?orgId=${org._id}`;
-                router.push(url, url, { shallow: true });
-              } catch (error: any) {
-                toast({
-                  status: "error",
-                  title: error.message
-                });
-              }
-            }}
-            data-cy="addEvent"
-          >
-            Ajouter un événement
-          </Button>
+                  url = `/evenements/ajouter?orgId=${org._id}`;
+                  router.push(url, url, { shallow: true });
+                } catch (error: any) {
+                  toast({
+                    status: "error",
+                    title: error.message
+                  });
+                }
+              }}
+              data-cy="addEvent"
+            >
+              Ajouter un événement
+            </Button>
+          )}
         </Flex>
       )}
 

@@ -234,7 +234,7 @@ export const EventsListItem = ({
                 </Tooltip>
               )}
 
-              {org && isCreator && (
+              {/* {org && isCreator && (
                 <Tooltip
                   label={`Envoyer des invitations à cet événement`}
                   placement="right"
@@ -261,14 +261,14 @@ export const EventsListItem = ({
                     }}
                   />
                 </Tooltip>
-              )}
+              )} */}
             </>
           )}
 
           <Box flexGrow={1} px={2}>
             {/* eventName */}
-            <GridItem mb={2}>
-              <Link
+            <GridItem my={2}>
+              {/* <Link
                 className={eventNameClassName}
                 fontSize={["sm", "lg"]}
                 fontWeight="bold"
@@ -278,7 +278,8 @@ export const EventsListItem = ({
                 onMouseLeave={() => setEventNameClassName("")}
               >
                 {event.eventName}
-              </Link>
+              </Link> */}
+              <EntityButton event={event} />
             </GridItem>
             <GridItem mb={2}>
               {event.eventDescription && event.eventDescription.length > 0 ? (
@@ -343,7 +344,7 @@ export const EventsListItem = ({
             )}
 
             {/* eventForwardedFrom */}
-            {session && !event.forwardedFrom ? (
+            {/* {session && !event.forwardedFrom ? (
               <Tooltip label="Rediffuser">
                 <span>
                   <IconButton
@@ -426,7 +427,7 @@ export const EventsListItem = ({
                   </span>
                 </Tooltip>
               )
-            )}
+            )} */}
           </Flex>
         </Flex>
       </Td>

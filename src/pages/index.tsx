@@ -1,24 +1,17 @@
-import { Text, Tooltip, useColorMode, useDisclosure } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { FaRegMap } from "react-icons/fa";
-import { useSelector } from "react-redux";
-import { AppHeading, Button, Column, ColumnProps } from "features/common";
-import { useGetEventsQuery } from "features/api/eventsApi";
-import { EventsList } from "features/events/EventsList";
+import { Spinner } from "@chakra-ui/react";
+import React, { useState } from "react";
+import { AppHeading } from "features/common";
 import { Layout } from "features/layout";
-import { MapModal } from "features/modals/MapModal";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
-import { EEventVisibility } from "models/Event";
-import { EOrgType, EOrgVisibility } from "models/Org";
-import { selectIsOffline } from "store/sessionSlice";
+import { EOrgType } from "models/Org";
 import { LoginForm } from "features/forms/LoginForm";
 import { OrgsList } from "features/orgs/OrgsList";
 import { useGetOrgsQuery } from "features/api/orgsApi";
-import { getRefId } from "models/Entity";
+import { getError } from "utils/query";
+import { ErrorPage } from "./_error";
 
-const IndexPage = (props: PageProps) => {
+const IndexPage = ({ ...props }: PageProps) => {
   const {
     data: session,
     loading: isSessionLoading,
@@ -34,10 +27,14 @@ const IndexPage = (props: PageProps) => {
     initialOrgsQueryParams
   );
   const orgsQuery = useGetOrgsQuery(orgsQueryParams, {
-    selectFromResult: ({ data }) => ({
+    selectFromResult: ({ data, ...rest }) => ({
+      ...rest,
       orgs: (data || []).filter((org) => true)
     })
   });
+
+  //@ts-ignore
+  if (getError(orgsQuery)) return <ErrorPage query={orgsQuery} {...props} />;
 
   return (
     <Layout
@@ -47,7 +44,11 @@ const IndexPage = (props: PageProps) => {
       {session ? (
         <>
           <AppHeading mb={5}>Liste des ateliers LEO</AppHeading>
-          <OrgsList data={orgsQuery.orgs} />
+          {orgsQuery.isLoading ? (
+            <Spinner />
+          ) : (
+            <OrgsList data={orgsQuery.orgs} />
+          )}
         </>
       ) : (
         <LoginForm

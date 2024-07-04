@@ -22,12 +22,18 @@ export const userSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    builder.addCase(HYDRATE, (state, action) => {
-      return {
-        ...state,
-        ...action.payload.user
-      };
-    });
+    builder.addCase(
+      HYDRATE,
+      (
+        state,
+        action: PayloadAction<{ user: typeof userSlice }, typeof HYDRATE>
+      ) => {
+        return {
+          ...state,
+          ...action.payload.user
+        };
+      }
+    );
   }
 });
 

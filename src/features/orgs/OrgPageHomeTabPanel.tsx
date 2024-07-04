@@ -24,8 +24,8 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { GrWorkshop } from "react-icons/gr";
 import {
-  GrWorkshop,
   FaMapMarkedAlt,
   FaNewspaper,
   FaRecycle,
@@ -117,7 +117,7 @@ export const OrgPageHomeTabPanel = ({
   }, [org]);
   const [isListOpen, setIsListOpen] = useState(true);
   const [isChildrenOpen, setIsChildrenOpen] = useState(false);
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(true);
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
   const {
     isOpen: isMapModalOpen,

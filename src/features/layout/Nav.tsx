@@ -25,7 +25,7 @@ import {
 } from "features/layout";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
-import { IEntity, isOrg } from "models/Entity";
+import { IEntity, isEvent, isOrg } from "models/Entity";
 import { EOrgType, OrgTypes } from "models/Org";
 import { IUser } from "models/User";
 import { selectUserEmail } from "store/userSlice";
@@ -50,6 +50,7 @@ export const Nav = ({
   const userEmail = useSelector(selectUserEmail);
   const userName = session?.user.userName || "";
   const [isNetworksModalOpen, setIsNetworksModalOpen] = useState(false);
+  const isE = isEvent(entity);
   const isO = isOrg(entity);
 
   const iconProps = {
@@ -89,6 +90,8 @@ export const Nav = ({
                         : entity
                         ? isO
                           ? `${OrgTypes[entity.orgType]} ${entity.orgName}`
+                          : isE
+                          ? entity.eventName
                           : process.env.NEXT_PUBLIC_SHORT_URL + router.asPath
                         : process.env.NEXT_PUBLIC_SHORT_URL}
                     </Link>

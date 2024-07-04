@@ -206,30 +206,42 @@ export const TopicsList = ({
 
   return (
     <>
+      {/*Ajouter une discussion*/}
       <Box>
-        <Button
-          colorScheme="teal"
-          leftIcon={<AddIcon />}
-          mb={3}
-          onClick={onAddClick}
-          data-cy="topic-add-button"
-        >
-          Ajouter une discussion
-        </Button>
+        {session?.user.isAdmin && (
+          <Button
+            colorScheme="teal"
+            leftIcon={<AddIcon />}
+            mb={3}
+            onClick={onAddClick}
+            data-cy="topic-add-button"
+          >
+            Ajouter une discussion
+          </Button>
+        )}
       </Box>
 
-      <Box w="150px" mb={5}>
+      <Box mb={5}>
+        <AppHeading smaller>Ordre d'affichage</AppHeading>
+
         <Select
           defaultValue={defaultOrder}
+          width="275px"
           onChange={(e) => {
             //@ts-ignore
             setSelectedOrder(e.target.value);
           }}
         >
-          <option value={ETopicsListOrder.ALPHA}>A-Z</option>
+          <option value={ETopicsListOrder.ALPHA}>
+            Dans l'ordre alphabétique
+          </option>
           {/* <option value={ETopicsListOrder.PINNED}>Épinglé</option> */}
-          <option value={ETopicsListOrder.NEWEST}>Plus récent</option>
-          <option value={ETopicsListOrder.OLDEST}>Plus ancien</option>
+          <option value={ETopicsListOrder.NEWEST}>
+            Du plus récent au plus ancien
+          </option>
+          <option value={ETopicsListOrder.OLDEST}>
+            Du plus ancien au plus récent
+          </option>
         </Select>
       </Box>
 

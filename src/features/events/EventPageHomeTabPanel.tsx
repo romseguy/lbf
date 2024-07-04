@@ -43,10 +43,17 @@ export const EventPageHomeTabPanel = ({
         display={isMobile ? "" : "flex"}
         justifyContent={isMobile ? "" : "space-between"}
       >
-        <TabContainer {...tabContainerProps}>
-          <TabContainerHeader heading="Organisateurs" />
+        {/* <TabContainer {...tabContainerProps}>
+          <TabContainerHeader heading="Atelier" />
           <TabContainerContent p={3}>
             <EventPageOrgs eventQuery={eventQuery} />
+          </TabContainerContent>
+        </TabContainer> */}
+
+        <TabContainer {...tabContainerProps}>
+          <TabContainerHeader heading="Quand ?" />
+          <TabContainerContent p={3}>
+            <EventPageTimeline eventQuery={eventQuery} />
           </TabContainerContent>
         </TabContainer>
 
@@ -70,13 +77,6 @@ export const EventPageHomeTabPanel = ({
               isCreator={isCreator}
               setIsEdit={setIsEdit}
             />
-          </TabContainerContent>
-        </TabContainer>
-
-        <TabContainer {...tabContainerProps}>
-          <TabContainerHeader heading="Quand ?" />
-          <TabContainerContent p={3}>
-            <EventPageTimeline eventQuery={eventQuery} />
           </TabContainerContent>
         </TabContainer>
       </Box>

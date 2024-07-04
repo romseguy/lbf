@@ -4,12 +4,14 @@ import {
   ButtonProps,
   Icon,
   Tooltip,
-  TooltipProps
+  TooltipProps,
+  useColorMode
 } from "@chakra-ui/react";
 import React from "react";
 import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { IoIosPeople, IoIosPerson } from "react-icons/io";
+import { css } from "twin.macro";
 import { IEvent } from "models/Event";
 import {
   IOrg,
@@ -41,7 +43,9 @@ export const EntityButton = ({
     | ((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void);
   tooltipProps?: Partial<TooltipProps>;
 }) => {
-  if (!org && !event && !user && !topic) return null;
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
   const router = useRouter();
   let entityUrl = org
     ? org.orgUrl
@@ -50,10 +54,13 @@ export const EntityButton = ({
     : typeof user === "object"
     ? user.userName
     : "";
+
   if (topic) {
     entityUrl = `${entityUrl}/discussions/${topic.topicName}`;
   }
   const hasLink = entityUrl !== "" && onClick !== null;
+
+  if (!org && !event && !user && !topic) return null;
 
   return (
     <Tooltip
@@ -80,6 +87,7 @@ export const EntityButton = ({
       <span>
         <Button
           //aria-hidden
+          colorScheme="teal"
           cursor={hasLink ? "pointer" : "default"}
           height="auto"
           m={0}
@@ -121,6 +129,11 @@ export const EntityButton = ({
                 : "blue.500"
             }
             mr={1}
+            css={css`
+              path {
+                fill: ${isDark ? "white" : "white"};
+              }
+            `}
           />
 
           {children ||

@@ -34,7 +34,7 @@ export const EntityPageSubscribeButton = ({
         </Box>
       )}
 
-      <Box mt={3}>
+      {/* <Box mt={3}>
         <SubscribePopover
           isDisabled={isDisabled}
           org={org}
@@ -42,7 +42,7 @@ export const EntityPageSubscribeButton = ({
           subQuery={subQuery}
           notifType="push"
         />
-      </Box>
+      </Box> */}
     </Flex>
   );
 };

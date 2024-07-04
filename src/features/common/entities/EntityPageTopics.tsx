@@ -38,10 +38,10 @@ export const EntityPageTopics = ({
 
   return (
     <>
-      <Flex ref={elementToScrollRef} alignItems="center" mb={3}>
+      {/* <Flex ref={elementToScrollRef} alignItems="center" mb={3}>
         <ChatIcon boxSize={6} mr={3} />
         <AppHeading>Discussions</AppHeading>
-      </Flex>
+      </Flex> */}
 
       <Column bg={isDark ? "gray.700" : "lightblue"}>
         <TopicsList

@@ -30,12 +30,18 @@ export const sessionSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    builder.addCase(HYDRATE, (state, action) => {
-      return {
-        ...state,
-        ...action.payload.session
-      };
-    });
+    builder.addCase(
+      HYDRATE,
+      (
+        state,
+        action: PayloadAction<{ session: typeof sessionSlice }, typeof HYDRATE>
+      ) => {
+        return {
+          ...state,
+          ...action.payload.session
+        };
+      }
+    );
   }
 });
 

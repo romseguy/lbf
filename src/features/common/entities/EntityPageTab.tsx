@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { useSelector } from "react-redux";
+import { css } from "twin.macro";
 import { selectIsMobile } from "store/uiSlice";
 
 //@ts-ignore
@@ -40,9 +41,6 @@ export const EntityPageTab = ({
       aria-selected={isCurrent}
       __css={{
         ...styles.tab,
-        ...(isCurrent
-          ? { border: "5px solid black", backgroundColor: "white" }
-          : {}),
         ...(isMobile
           ? {
               display: "flex",
@@ -62,9 +60,8 @@ export const EntityPageTab = ({
         as={tab.icon || QuestionIcon}
         boxSize={8}
         __css={{
-          ...(isMobile ? {} : {})
+          ...(isMobile ? {} : tab.label !== "Accueil" ? { mr: 2 } : {})
         }}
-        mr={!isMobile && (tab.label === "" || tab.label === "Accueil") ? 0 : 2}
       />
 
       {children}

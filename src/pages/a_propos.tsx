@@ -19,9 +19,9 @@ import {
   FaKey,
   FaQuoteLeft,
   FaLightbulb,
-  FaShare,
-  GrWorkshop
+  FaShare
 } from "react-icons/fa";
+import { GrWorkshop } from "react-icons/gr";
 import { css } from "twin.macro";
 import {
   Row,

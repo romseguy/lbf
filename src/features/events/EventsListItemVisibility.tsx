@@ -12,7 +12,7 @@ export const EventsListItemVisibility = ({
   eventVisibility?: string;
 }) => {
   let label = "Événement public";
-  let icon = <GrWorkshop />;
+  let icon = <FaGlobeEurope />;
 
   if (eventVisibility === EEventVisibility.FOLLOWERS) {
     label = "Événement réservé aux abonnés";

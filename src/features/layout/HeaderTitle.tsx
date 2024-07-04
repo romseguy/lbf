@@ -2,12 +2,8 @@ import { ChatIcon, SunIcon } from "@chakra-ui/icons";
 import { Box, BoxProps, Flex, Icon, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import {
-  GrWorkshop,
-  FaRegCalendarCheck,
-  FaRegCalendarTimes,
-  FaTree
-} from "react-icons/fa";
+import { GrWorkshop } from "react-icons/gr";
+import { FaRegCalendarCheck, FaRegCalendarTimes, FaTree } from "react-icons/fa";
 import { EntityButton, Link, AppHeading, LinkShare } from "features/common";
 import { useSession } from "hooks/useSession";
 import {

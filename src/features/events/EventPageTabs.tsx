@@ -1,5 +1,5 @@
-import { ChatIcon, EmailIcon,CalendarIcon } from "@chakra-ui/icons";
-import { Tabs, useColorMode } from "@chakra-ui/react";
+import { ChatIcon, EmailIcon, CalendarIcon } from "@chakra-ui/icons";
+import { Tabs, useColorMode, useToast } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaHome, FaImages } from "react-icons/fa";
@@ -32,8 +32,9 @@ import { useSession } from "hooks/useSession";
 import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
+import { compareAsc, isBefore, parseISO } from "date-fns";
 
-const defaultTabs: { [key: string]: { icon: AppIcon; url: string } } = {
+let defaultTabs: { [key: string]: { icon: AppIcon; url: string } } = {
   Accueil: { icon: CalendarIcon, url: "/" },
   Discussions: { icon: ChatIcon, url: "/discussions" },
   Galerie: { icon: FaImages, url: "/galerie" }
@@ -63,6 +64,7 @@ export const EventPageTabs = ({
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const { data: session } = useSession();
+  const toast = useToast({ position: "bottom" });
 
   const event = eventQuery.data;
   const columnProps = {
@@ -71,11 +73,13 @@ export const EventPageTabs = ({
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const [showNotifForm, setShowNotifForm] = useState(false);
 
-  if (isCreator)
-    defaultTabs["Invitations"] = {
-      icon: EmailIcon,
-      url: "/invitations"
-    };
+  // if (isCreator)
+  //   defaultTabs["Invitations"] = {
+  //     icon: EmailIcon,
+  //     url: "/invitations"
+  //   };
+
+  const isDisabled = !isBefore(parseISO(event.eventMinDate), new Date());
 
   useEffect(() => {
     Object.keys(defaultTabs).reduce((index, tab) => {
@@ -136,17 +140,22 @@ export const EventPageTabs = ({
               tab={tab}
               tabIndex={tabIndex}
               onClick={() => {
-                router.push(
-                  `/${event.eventUrl}${tab.url}`,
-                  `/${event.eventUrl}${tab.url}`,
-                  {
-                    shallow: true
-                  }
-                );
+                if (isDisabled)
+                  toast({
+                    title: "Cet onglet sera accessible après l'atelier"
+                  });
+                else
+                  router.push(
+                    `/${event.eventUrl}${tab.url}`,
+                    `/${event.eventUrl}${tab.url}`,
+                    {
+                      shallow: true
+                    }
+                  );
               }}
               data-cy={key}
             >
-              {/* {tabLabel} */}
+              {tab.url !== "/" && tabLabel}
             </EntityPageTab>
           );
         })}
@@ -180,8 +189,13 @@ export const EventPageTabs = ({
         <TabPanel aria-hidden>
           <EntityPageDocuments isCreator={isCreator} query={eventQuery} />
         </TabPanel>
+      </TabPanels>
+    </Tabs>
+  );
+};
 
-        {session && isCreator && (
+{
+  /* {session && isCreator && (
           <TabPanel aria-hidden>
             <AppHeading mb={3}>Invitations</AppHeading>
 
@@ -218,7 +232,7 @@ export const EventPageTabs = ({
                 </Flex>
               )}
 
-              {/* {showNotifForm && (
+               {showNotifForm && (
                     <Flex>
                       <Button
                         colorScheme="teal"
@@ -228,7 +242,7 @@ export const EventPageTabs = ({
                         Revenir à la liste des invitations envoyées
                       </Button>
                     </Flex>
-                  )} */}
+                  )} *
 
               {showNotifForm && (
                 <>
@@ -262,8 +276,5 @@ export const EventPageTabs = ({
               </>
             )}
           </TabPanel>
-        )}
-      </TabPanels>
-    </Tabs>
-  );
-};
+        )} */
+}

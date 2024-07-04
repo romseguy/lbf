@@ -185,7 +185,7 @@ export const UrlControl = ({
           append({ url: "", prefix: "https://" });
         }}
       >
-        <Icon as={GrWorkshop} mr={1} /> Ajouter un site internet{" "}
+        <Icon as={FaGlobeEurope} mr={1} /> Ajouter un site internet{" "}
         {fields.length > 0 && "supplémentaire"}
       </Link>
     </Box>

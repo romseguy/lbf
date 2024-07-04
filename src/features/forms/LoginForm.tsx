@@ -192,7 +192,10 @@ export const LoginForm = ({
 
                 <FormControl display="flex" flexDir="row" mb={0}>
                   <FormLabel mt={3}>Mot de passe</FormLabel>
-                  <Checkbox onChange={() => setIsPassword(!isPassword)} />
+                  <Checkbox
+                    borderColor={isDark ? "white" : "black"}
+                    onChange={() => setIsPassword(!isPassword)}
+                  />
                 </FormControl>
 
                 {isPassword && (

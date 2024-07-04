@@ -27,7 +27,7 @@ import {
   EntityPageTopics
 } from "features/common";
 import { EventsList } from "features/events/EventsList";
-import { scrollbarCss } from "features/layout/theme";
+import theme, { scrollbarCss } from "features/layout/theme";
 import { ProjectsList } from "features/projects/ProjectsList";
 import { useSession } from "hooks/useSession";
 import {
@@ -89,24 +89,18 @@ export const OrgPageTabs = ({
   const org = orgQuery.data;
   const orgTabs = [...(org.orgTabs || defaultTabs)];
   //.filter((tab) => tab.label === "" && !session ? false : true);
-  // // console.log("🚀 ~ orgTaxbs:", orgTabs);
-
   //#region tabs
   const documentsQuery = useGetDocumentsQuery({ orgId: org._id });
   const tabs: IOrgTabWithMetadata[] = orgTabs
     //.sort(sortOn("order", ["0", "1", "2", "3", "4", "5"]))
     .map((tab) => {
-      // // console.log("🚀 ~ .map ~ tab:", tab);
       let url = tab.url;
 
       if (tab.url === "") {
         if (tab.label === "") url = "/parametres";
         if (tab.label === "Accueil") url = "/";
       }
-
-      // // console.log("🚀 ~ .map ~ url:", url);
       const dt = getDefaultTab({ url });
-      // // console.log("🚀 ~ .map ~ dt:", dt);
       const metadata: {} = {};
 
       return {
@@ -147,9 +141,7 @@ export const OrgPageTabs = ({
   //#endregion
 
   //#region events TabPanel
-  const [title = "Événements des 7 prochains jours", setTitle] = useState<
-    string | undefined
-  >();
+  const [title = "Agenda", setTitle] = useState<string | undefined>();
   //#endregion
 
   //#region parameters TabPanel
@@ -202,9 +194,9 @@ export const OrgPageTabs = ({
             Array.isArray(tab.label) ? tab.label[0] : tab.label
           )}-tab`;
           const url = Array.isArray(tab.url) ? tab.url[0] : tab.url;
+          const isCurrent = tabIndex === currentTabIndex;
 
           return (
-            // <Link key={key} href={`/${org.orgUrl}${url}`} shallow>
             <EntityPageTab
               key={key}
               currentTabIndex={currentTabIndex}
@@ -215,6 +207,26 @@ export const OrgPageTabs = ({
               documentsQuery.data.length > 0
                 ? {}
                 : {})}
+              css={css`
+                ${isCurrent &&
+                `
+                border: 5px solid ${
+                  isDark ? theme.colors.teal[200] : theme.colors.teal[400]
+                };
+                backgroundcolor: white;
+                  `}
+                path {
+                  fill: ${isDark && isCurrent
+                    ? "white"
+                    : isDark
+                    ? "white"
+                    : !isDark && isCurrent
+                    ? "white"
+                    : !isDark && url !== "/"
+                    ? "black"
+                    : "none"};
+                }
+              `}
               {...(isMobile ? {} : {})}
               onClick={() => {
                 router.push(`/${org.orgUrl}${url}`, `/${org.orgUrl}${url}`, {
@@ -223,6 +235,11 @@ export const OrgPageTabs = ({
               }}
               data-cy={key}
             >
+              {url !== "/"
+                ? typeof tab.label === "string"
+                  ? tab.label
+                  : tab.label[0]
+                : ""}
               {url === "/galerie"
                 ? Array.isArray(documentsQuery.data) &&
                   documentsQuery.data.length > 0 && (
@@ -242,7 +259,6 @@ export const OrgPageTabs = ({
                   )
                 : ""}
             </EntityPageTab>
-            // </Link>
           );
         })}
       </EntityPageTabList>
@@ -279,12 +295,12 @@ export const OrgPageTabs = ({
             </TabPanel>
           )}
 
-          {!!tabs.find(({ label }) => belongs(label, "Événements")) && (
+          {!!tabs.find(({ label }) => belongs(label, "Agenda")) && (
             <TabPanel aria-hidden>
-              <Flex alignItems="center" mb={3}>
+              {/* <Flex alignItems="center" mb={3}>
                 <CalendarIcon boxSize={6} mr={3} />
                 <AppHeading>{title}</AppHeading>
-              </Flex>
+              </Flex> */}
 
               <Column {...columnProps}>
                 <EventsList
@@ -297,7 +313,7 @@ export const OrgPageTabs = ({
             </TabPanel>
           )}
 
-          {!!tabs.find(({ label }) => belongs(label, "Projets")) && (
+          {/* {!!tabs.find(({ label }) => belongs(label, "Projets")) && (
             <TabPanel aria-hidden>
               <Flex alignItems="center" mb={3}>
                 <Icon as={FaTools} boxSize={6} mr={3} />
@@ -314,7 +330,7 @@ export const OrgPageTabs = ({
                 />
               </Column>
             </TabPanel>
-          )}
+          )} */}
 
           {!!tabs.find(({ label }) => belongs(label, "Galerie")) && (
             <TabPanel aria-hidden>
@@ -322,7 +338,7 @@ export const OrgPageTabs = ({
             </TabPanel>
           )}
 
-          {session && isCreator && (
+          {/* {session && isCreator && (
             <TabPanel aria-hidden>
               <AppHeading mb={3}>
                 Fonctionnalités {orgTypeFull(org.orgType)}
@@ -414,7 +430,7 @@ export const OrgPageTabs = ({
                   );
                 })}
             </TabPanel>
-          )}
+          )} */}
         </TabPanels>
       )}
     </Tabs>

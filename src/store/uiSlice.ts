@@ -27,12 +27,18 @@ export const uiSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    builder.addCase(HYDRATE, (state, action) => {
-      return {
-        ...state,
-        ...action.payload.ui
-      };
-    });
+    builder.addCase(
+      HYDRATE,
+      (
+        state,
+        action: PayloadAction<{ ui: typeof uiSlice }, typeof HYDRATE>
+      ) => {
+        return {
+          ...state,
+          ...action.payload.ui
+        };
+      }
+    );
   }
 });
 

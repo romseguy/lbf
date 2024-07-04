@@ -1,5 +1,5 @@
 import type { MongoClient, Db } from "mongodb";
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 
 export type Models = {
   Event: Model<IEvent, {}, {}>;

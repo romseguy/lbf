@@ -12,13 +12,15 @@ import {
   Text,
   VStack,
   useDisclosure,
-  IconButtonProps
+  IconButtonProps,
+  useColorMode
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { GrWorkshop } from "react-icons/gr";
-import { FaGlobeEurope, FaTree } from "react-icons/fa";
+import { FaTree } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import { css } from "twin.macro";
 import { EntityAddButton, EntityButton } from "features/common";
 import { useGetOrgsQuery } from "features/api/orgsApi";
 import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
@@ -269,6 +271,8 @@ export const OrgPopover = ({
   orgType?: EOrgType;
   session: Session;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -283,6 +287,11 @@ export const OrgPopover = ({
             <Icon
               as={orgType === EOrgType.NETWORK ? GrWorkshop : FaTree}
               boxSize={6}
+              css={css`
+                path {
+                  fill: ${isDark ? "white" : "white"};
+                }
+              `}
               mx={3}
               //_hover={{ color: "cyan.600" }}
             />

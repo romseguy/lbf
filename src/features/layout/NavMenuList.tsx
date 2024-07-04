@@ -35,7 +35,7 @@ export const NavMenuList = ({
     <MenuList mr={[1, 3]}>
       <MenuItem
         aria-hidden
-        command={`${email}`}
+        command={`${email} ${session.user.isAdmin ? "(admin)" : ""}`}
         cursor="default"
         _hover={{ bg: isDark ? "gray.700" : "white" }}
       />

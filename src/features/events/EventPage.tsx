@@ -1,18 +1,10 @@
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Flex,
-  Text,
-  useColorMode
-} from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Text, useColorMode } from "@chakra-ui/react";
 import { parseISO, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { EntityPageConfigButton, Link } from "features/common";
 import { Layout } from "features/layout";
-import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { getRefId } from "models/Entity";
 import { IEvent } from "models/Event";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";

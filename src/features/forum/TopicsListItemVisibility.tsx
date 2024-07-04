@@ -69,7 +69,7 @@ export const TopicsListItemVisibility = ({
     icons = [
       {
         label: "Discussion publique",
-        icon: GrWorkshop
+        icon: FaGlobeEurope
       }
     ];
 
