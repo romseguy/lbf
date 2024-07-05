@@ -19,7 +19,11 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { FaImages } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { useGetDocumentsQuery, Video } from "features/api/documentsApi";
+import {
+  IndexedRemoteImage,
+  useGetDocumentsQuery,
+  Video
+} from "features/api/documentsApi";
 import {
   AppHeading,
   Column,
@@ -78,10 +82,10 @@ export const EntityPageDocuments = ({
     },
     {
       selectFromResult: ({ data = [], ...rest }) => {
-        let array: Video[] = [];
+        let videos: Video[] = [];
         for (const file of data) {
           if (stringUtils.isVideo(file.url)) {
-            array.push({
+            videos.push({
               ...file,
               fileName: file.url,
               url: `${process.env.NEXT_PUBLIC_FILES}/${
@@ -91,7 +95,28 @@ export const EntityPageDocuments = ({
           }
         }
 
-        return { ...rest, data, videos: array };
+        let imagesSize = 0;
+        let images: IndexedRemoteImage[] = [];
+        let index = 0;
+        for (const file of data) {
+          if ("height" in file) {
+            if ("bytes" in file) imagesSize += file.bytes;
+
+            images.push({
+              ...file,
+              index,
+              url: `${process.env.NEXT_PUBLIC_FILES}/${
+                entity._id
+              }/${encodeURIComponent(file.url)}`
+            });
+            index++;
+          }
+        }
+        images = images.sort((a, b) =>
+          !!a.time && !!b.time ? (a.time < b.time ? 1 : -1) : 0
+        );
+
+        return { ...rest, data, images, imagesSize, videos };
       }
     }
   );
@@ -190,8 +215,9 @@ export const EntityPageDocuments = ({
                 <DocumentForm
                   entity={entity}
                   onSubmit={() => {
-                    refreshDiskUsage();
+                    documentsQuery.refetch();
                     query.refetch();
+                    refreshDiskUsage();
                     setIsAdd(false);
                   }}
                 />
@@ -200,10 +226,11 @@ export const EntityPageDocuments = ({
 
             {!isAdd && (
               <DocumentsList
-                entity={entity}
                 isCreator={isCreator}
+                query={query}
                 onDelete={() => {
                   documentsQuery.refetch();
+                  query.refetch();
                   refreshDiskUsage();
                 }}
               />
@@ -214,7 +241,10 @@ export const EntityPageDocuments = ({
 
       <DocumentsListMasonry
         isCreator={isCreator}
-        entity={entity}
+        images={documentsQuery.images}
+        imagesSize={documentsQuery.imagesSize}
+        isFetching={documentsQuery.isFetching}
+        isLoading={documentsQuery.isLoading}
         mb={5}
         p={0}
       />

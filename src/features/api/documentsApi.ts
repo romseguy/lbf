@@ -14,6 +14,10 @@ export interface RemoteImage extends RemoteFile {
   cached?: boolean;
 }
 
+export interface IndexedRemoteImage extends RemoteImage {
+  index: number;
+}
+
 export interface Video extends RemoteFile {
   fileName: string;
 }

@@ -160,12 +160,13 @@ export const OrgPageHomeTabPanel = ({
       <TabContainer borderBottomRadius={isInfoOpen ? undefined : "lg"}>
         <TabContainerHeader
           borderBottomRadius={isInfoOpen ? undefined : "lg"}
-          onClick={() =>
-            router.push(
-              `${org.orgUrl}${isInfoOpen ? "" : "/info"}`,
-              `${org.orgUrl}${isInfoOpen ? "" : "/info"}`,
-              { shallow: true }
-            )
+          onClick={
+            () => setIsInfoOpen(!isInfoOpen)
+            // router.push(
+            //   `${org.orgUrl}${isInfoOpen ? "" : "/info"}`,
+            //   `${org.orgUrl}${isInfoOpen ? "" : "/info"}`,
+            //   { shallow: true }
+            // )
           }
         >
           <Icon
@@ -187,17 +188,17 @@ export const OrgPageHomeTabPanel = ({
               label="Modifier les coordonnées"
               placement="bottom"
             >
-              <IconButton
-                aria-label="Modifier les coordonnées"
-                icon={<EditIcon />}
-                bg="transparent"
-                height="auto"
-                _hover={{ color: "green" }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEdit({ isAddingInfo: true });
-                }}
-              />
+              <span>
+                <EditIconButton
+                  aria-label="Modifier les coordonnées"
+                  ml={3}
+                  {...(isMobile ? {} : {})}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEdit({ isAddingInfo: true });
+                  }}
+                />
+              </span>
             </Tooltip>
           )}
         </TabContainerHeader>
@@ -211,13 +212,13 @@ export const OrgPageHomeTabPanel = ({
                 placement="right"
                 label={`Ajouter des coordonnées ${orgTypeFull2(org.orgType)}`}
               >
-                <IconButton
-                  aria-label={`Ajouter des coordonnées ${orgTypeFull2(
-                    org.orgType
-                  )}`}
+                <Button
+                  // aria-label={`Ajouter des coordonnées ${orgTypeFull2(
+                  //   org.orgType
+                  // )}`}
                   alignSelf="flex-start"
                   colorScheme="teal"
-                  icon={
+                  leftIcon={
                     <>
                       <SmallAddIcon />
                       <FaMapMarkedAlt />
@@ -225,7 +226,9 @@ export const OrgPageHomeTabPanel = ({
                   }
                   pr={1}
                   onClick={() => setIsEdit({ isAddingInfo: true })}
-                />
+                >
+                  {`Ajouter des coordonnées`}
+                </Button>
               </Tooltip>
             ) : (
               <Text fontStyle="italic">Aucunes coordonnées.</Text>
@@ -305,8 +308,8 @@ export const OrgPageHomeTabPanel = ({
               <span>
                 <EditIconButton
                   aria-label="Modifier la description"
-                  {...(isMobile ? {} : {})}
                   ml={3}
+                  {...(isMobile ? {} : {})}
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsEdit({ isAddingDescription: true });

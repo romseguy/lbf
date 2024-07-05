@@ -23,6 +23,7 @@ import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import { RemoteImage, useGetDocumentsQuery } from "features/api/documentsApi";
 import {
+  AppHeading,
   Column,
   DeleteButton,
   LinkShare,
@@ -37,6 +38,7 @@ import api from "utils/api";
 import { fullDateString } from "utils/date";
 import * as stringUtils from "utils/string";
 import { IEvent } from "models/Event";
+import { AppQueryWithData } from "utils/types";
 
 enum EDocumentsListOrder {
   ALPHA = "ALPHA",
@@ -47,36 +49,41 @@ enum EDocumentsListOrder {
 const defaultOrder = EDocumentsListOrder.NEWEST;
 
 export const DocumentsList = ({
-  entity,
+  query,
   ...props
 }: {
-  entity: IEvent  | IOrg | IUser;
+  query: AppQueryWithData<IEvent | IOrg | IUser>;
   isCreator?: boolean;
   isFollowed?: boolean;
   onDelete?: () => void;
 }) => {
   const { colorMode } = useColorMode();
+  const entity = query.data;
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
+  const isO = isOrg(entity);
   const router = useRouter();
   const toast = useToast({ position: "top" });
 
-  const isO = isOrg(entity);
-  const query = useGetDocumentsQuery({
-    [isO ? "orgId" : "userId"]: entity._id
-  });
-  useEffect(() => {
-    query.refetch();
-  }, [entity]);
-
   const [selectedOrder, setSelectedOrder] =
     useState<EDocumentsListOrder>(defaultOrder);
-  const documents = useMemo(() => {
-    return [...(query.data || [])].sort((a, b) => {
-      const diff = !!a.time && !!b.time ? a.time - b.time : 0;
-      return diff > 0 ? -1 : 1;
-    });
-  }, [query.data]);
+  const documentsQuery = useGetDocumentsQuery(
+    {
+      eventId: entity._id,
+      orgId: entity._id,
+      userId: entity._id
+    },
+    {
+      selectFromResult: ({ data, ...rest }) => ({
+        ...rest,
+        documents: [...(data || [])].sort((a, b) => {
+          const diff = !!a.time && !!b.time ? a.time - b.time : 0;
+          return diff > 0 ? -1 : 1;
+        })
+      })
+    }
+  );
+  const { documents } = documentsQuery;
 
   //#region modal state
   const [modalState, setModalState] = useState<
@@ -95,6 +102,10 @@ export const DocumentsList = ({
   };
   //#endregion
 
+  const documentsListItemProps = (index: number) => ({
+    borderBottom: index < documents.length - 1 ? `1px solid black` : ""
+  });
+
   return (
     <>
       {Array.isArray(documents) && documents.length > 0 && (
@@ -106,18 +117,27 @@ export const DocumentsList = ({
           // `}
           {...(isMobile ? { px: 1, borderRadius: 0 } : {})}
         >
-          <Box w="150px" mb={5}>
+          <Box mb={5}>
+            <AppHeading smaller>Ordre d'affichage</AppHeading>
+
             <Select
               defaultValue={defaultOrder}
+              width="275px"
               onChange={(e) => {
                 //@ts-ignore
                 setSelectedOrder(e.target.value);
               }}
             >
-              <option value={EDocumentsListOrder.ALPHA}>A-Z</option>
-              <option value={EDocumentsListOrder.PINNED}>Épinglé</option>
-              <option value={EDocumentsListOrder.NEWEST}>Plus récent</option>
-              <option value={EDocumentsListOrder.OLDEST}>Plus ancien</option>
+              <option value={EDocumentsListOrder.ALPHA}>
+                Dans l'ordre alphabétique
+              </option>
+              {/* <option value={EDocumentsListOrder.PINNED}>Épinglé</option> */}
+              <option value={EDocumentsListOrder.NEWEST}>
+                Du plus récent au plus ancien
+              </option>
+              <option value={EDocumentsListOrder.OLDEST}>
+                Du plus ancien au plus récent
+              </option>
             </Select>
           </Box>
 
@@ -127,7 +147,7 @@ export const DocumentsList = ({
             gridColumnGap={3}
             gridRowGap={3}
           >
-            {documents.map((file) => {
+            {documents.map((file, index) => {
               const datetime = file.time
                 ? fullDateString(new Date(file.time))
                 : "";
@@ -155,6 +175,7 @@ export const DocumentsList = ({
                   </GridItem>
 
                   <GridItem
+                    {...documentsListItemProps(index)}
                     // display="flex"
                     // alignItems="center"
                     // p={isMobile ? "0" : "16px 12px 16px 12px"}
@@ -204,6 +225,7 @@ export const DocumentsList = ({
                   </GridItem>
 
                   <GridItem
+
                   //whiteSpace="nowrap"
                   // {...(isMobile ? {} : { pb: 3 })}
                   >
@@ -264,7 +286,7 @@ export const DocumentsList = ({
                             status: "success"
                           });
                           props.onDelete && props.onDelete();
-                          query.refetch();
+                          documentsQuery.refetch();
                         } catch (error) {
                           console.error(error);
                           toast({
@@ -308,3 +330,18 @@ export const DocumentsList = ({
     </>
   );
 };
+
+{
+  /*
+    useEffect(() => {
+      documentsQuery.refetch();
+    }, [entity]);
+
+    const documents = useMemo(() => {
+      return [...(query.data || [])].sort((a, b) => {
+        const diff = !!a.time && !!b.time ? a.time - b.time : 0;
+        return diff > 0 ? -1 : 1;
+      });
+    }, [query.data]);
+  */
+}

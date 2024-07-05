@@ -12,81 +12,36 @@ import {
   useColorMode,
   UseDisclosureProps
 } from "@chakra-ui/react";
-import AbortController from "abort-controller";
 import React, { useEffect, useState } from "react";
 import { FaImage } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { RemoteImage, useGetDocumentsQuery } from "features/api/documentsApi";
+import { IndexedRemoteImage } from "features/api/documentsApi";
 import { Column, ColumnProps, AppHeading } from "features/common";
 import { pxBreakpoints } from "features/layout/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
-import { isOrg } from "models/Entity";
-import { IOrg } from "models/Org";
-import { IUser } from "models/User";
-import {
-  selectIsMobile,
-  selectScreenHeight,
-  selectScreenWidth
-} from "store/uiSlice";
+import { selectScreenHeight, selectScreenWidth } from "store/uiSlice";
 import { divideArray, hasItems } from "utils/array";
 import * as stringUtils from "utils/string";
 import { useRouter } from "next/router";
-import { IEvent } from "models/Event";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
-interface IndexedRemoteImage extends RemoteImage {
-  index: number;
-}
-
 export const DocumentsListMasonry = ({
-  entity,
   isCreator,
+  images,
+  imagesSize,
+  isLoading,
+  isFetching,
   ...props
 }: ColumnProps & {
-  entity: IEvent | IOrg | IUser;
   isCreator?: boolean;
+  images: IndexedRemoteImage[];
+  imagesSize: number;
+  isLoading: boolean;
+  isFetching: boolean;
 }) => {
-  const { colorMode } = useColorMode();
   const router = useRouter();
   const screenHeight = useSelector(selectScreenHeight);
   const screenWidth = useSelector(selectScreenWidth);
-  const isO = isOrg(entity);
-  const [images, setImages] = useState<IndexedRemoteImage[]>([]);
-  const [imagesSize, setImagesSize] = useState(0);
-  const { isLoading, isFetching, data, refetch } = useGetDocumentsQuery({
-    [isO ? "orgId" : "userId"]: entity._id
-  });
-  useEffect(() => {
-    if (data && hasItems(data)) {
-      let count = 0;
-      let i = 0;
-      let arr: IndexedRemoteImage[] = []; // = data.filter<RemoteImage>((file): file is RemoteImage => "height" in file)
-
-      for (const file of data) {
-        if ("height" in file) {
-          count += file.bytes;
-          arr.push({
-            ...file,
-            index: i,
-            url: `${process.env.NEXT_PUBLIC_FILES}/${
-              entity._id
-            }/${encodeURIComponent(file.url)}`
-          });
-          i++;
-        }
-      }
-
-      setImages(
-        arr.sort((a, b) =>
-          !!a.time && !!b.time ? (a.time < b.time ? 1 : -1) : 0
-        )
-      );
-      setImagesSize(count);
-    }
-  }, [data]);
-  useEffect(() => {
-    refetch();
-  }, [entity]);
 
   //#region column count relative to screen width
   const [columnCount, setColumnCount] = useState<number>(1);
@@ -114,7 +69,7 @@ export const DocumentsListMasonry = ({
     images.length > pageImageCount ? images.length % pageImageCount : 1;
   //const pageLength = images.length / pagesCount;
   const pages = divideArray(images, pagesCount);
-  const masonry = divideArray<IndexedRemoteImage>(
+  const masonry = divideArray(
     pages.reduce(
       (arr, page, index) => (index <= currentIndex ? arr.concat(page) : arr),
       []
