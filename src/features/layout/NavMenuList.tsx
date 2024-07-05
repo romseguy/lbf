@@ -39,7 +39,7 @@ export const NavMenuList = ({
         cursor="default"
         _hover={{ bg: isDark ? "gray.700" : "white" }}
       />
-      {getEnv() === "development" && (
+      {getEnv() === "test" && (
         <>
           <MenuItem
             aria-hidden
@@ -55,7 +55,7 @@ export const NavMenuList = ({
           />
         </>
       )}
-      <Link
+      {/* <Link
         aria-hidden
         data-cy="my-page"
         onClick={() => {
@@ -63,7 +63,7 @@ export const NavMenuList = ({
         }}
       >
         <MenuItem>Ma page</MenuItem>
-      </Link>
+      </Link> */}
       <MenuItem>
         <SubscribeSwitch email={email} userName={userName} />
       </MenuItem>

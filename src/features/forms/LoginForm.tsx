@@ -139,7 +139,9 @@ export const LoginForm = ({
 
   return (
     <Flex flexDirection="column" width={isMobile ? "auto" : "md"} m="0 auto">
-      <AppHeading textAlign="center">{title}</AppHeading>
+      <AppHeading textAlign="center" smaller>
+        {title}
+      </AppHeading>
 
       {isSessionLoading && <Spinner mb={3} />}
 

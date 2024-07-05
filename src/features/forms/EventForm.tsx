@@ -1054,7 +1054,7 @@ export const EventForm = withGoogleApi({
           // }
         >
           <FormLabel>
-            La atelier ou l'arbre auquel est rattaché cet événement (optionnel)
+            l'atelier ou l'arbre auquel est rattaché cet événement (optionnel)
           </FormLabel>
           <Controller
             name="eventOrg"
@@ -1072,8 +1072,8 @@ export const EventForm = withGoogleApi({
             getOptionValue={(option: any) => option._id}
             placeholder={
               hasItems(myOrgs)
-                ? "Rechercher une atelier ou un arbre..."
-                : "Vous n'avez ajouté aucune ateliers ou arbres"
+                ? "Rechercher un atelier ou un arbre..."
+                : "Vous n'avez ajouté aucun ateliers ou arbres"
             }
             styles={{
               control: (defaultStyles: any) => {

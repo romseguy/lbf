@@ -147,10 +147,10 @@ const HashPage = ({ ...props }: PageProps) => {
       <NotFound
         {...props}
         isRedirect={false}
-        message="Veuillez créer la atelier forum."
+        message="Veuillez créer l'atelier forum."
       >
         <EntityAddButton
-          label={`Créer la atelier « Forum »`}
+          label={`Créer l'atelier « Forum »`}
           orgName="Forum"
           orgType={EOrgType.NETWORK}
         />

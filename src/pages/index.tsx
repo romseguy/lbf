@@ -1,6 +1,6 @@
-import { Spinner } from "@chakra-ui/react";
+import { Alert, AlertIcon, Flex, Spinner, Text } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { AppHeading } from "features/common";
+import { AppHeading, Column } from "features/common";
 import { Layout } from "features/layout";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
@@ -10,8 +10,11 @@ import { OrgsList } from "features/orgs/OrgsList";
 import { useGetOrgsQuery } from "features/api/orgsApi";
 import { getError } from "utils/query";
 import { ErrorPage } from "./_error";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 const IndexPage = ({ ...props }: PageProps) => {
+  const isMobile = useSelector(selectIsMobile);
   const {
     data: session,
     loading: isSessionLoading,
@@ -51,10 +54,38 @@ const IndexPage = ({ ...props }: PageProps) => {
           )}
         </>
       ) : (
-        <LoginForm
-          {...props}
-          title="Veuillez vous identifier pour accéder aux ateliers"
-        />
+        <>
+          <Flex
+            flexDirection="column"
+            width={isMobile ? "auto" : "md"}
+            m="0 auto"
+          >
+            <Alert
+              fontSize="18px"
+              status="info"
+              m="0 auto"
+              mb={5}
+              {...(isMobile ? { mt: 12 } : {})}
+            >
+              <AlertIcon />
+              <Text align="justify">
+                Pour accéder aux ateliers LEO{" "}
+                <b>
+                  saisissez simplement votre adresse e-mail ci-dessous pour
+                  recevoir un e-mail
+                </b>{" "}
+                qui vous permettra d'accéder aux ateliers. Vous aurez ensuite la
+                possibilité de définir un mot de passe pour votre compte.
+              </Text>
+            </Alert>
+          </Flex>
+
+          <LoginForm
+            {...props}
+            title=""
+            //title="Veuillez saisir votre adresse e-mail ci-dessous pour accéder aux ateliers"
+          />
+        </>
       )}
     </Layout>
   );

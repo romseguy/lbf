@@ -11,10 +11,8 @@
   },
   "scripts": {
     "dev": "NODE_OPTIONS='max_old_space_size=4096' next",
+    "test": "playwright test",
     "start": "NODE_OPTIONS='http-server-default-timeout=0' forever ./node_modules/.bin/next start -p 8001",
-    "test": "jest --watch",
-    "test:s": "NODE_ENV=test next build && NODE_ENV=test next start --port 3004",
-    "test:p": "jest -c ./tests/pptr/jest.config.js --watch",
     "prebuild": "kill-port --port 8001 && node ./maintenance.js &",
     "build": "next build",
     "postbuild": "kill-port --port 8001",
@@ -80,13 +78,13 @@
     "pica": "^7.1.0",
     "polyfill-object.fromentries": "^1.0.1",
     "postcss": "^8.4.29",
-    "react": "^18.2.0",
+    "react": "18.2.0",
     "react-avatar-editor": "14.0.0-beta.2",
     "react-color-palette": "^7.1.0",
     "react-cool-onclickoutside": "^1.6.2",
     "react-datepicker": "^4.1.1",
     "react-device-detect": "2.1.2",
-    "react-dom": "^18.2.0",
+    "react-dom": "18.2.0",
     "react-error-boundary": "^4.0.13",
     "react-geolocated": "^3.2.0",
     "react-google-recaptcha": "^2.1.0",
@@ -105,10 +103,6 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^12.0.3",
-    "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/react": "12.1.4",
-    "@testing-library/react-hooks": "^8.0.1",
-    "@testing-library/user-event": "^14.4.3",
     "@types/bcryptjs": "^2.4.2",
     "@types/body-scroll-lock": "^2.6.2",
     "@types/cookie": "^0.5.1",
@@ -135,13 +129,7 @@
     "cross-fetch": "^4.0.0",
     "dotenv-cli": "^7.3.0",
     "eslint": "8.49.0",
-    "eslint-config-next": "13.5.2",
-    "jest": "^29.6.2",
-    "jest-environment-jsdom": "^29.6.2",
-    "jest-fetch-mock": "^3.0.3",
-    "jest-puppeteer": "^9.0.0",
-    "puppeteer": "^21.1.0",
-    "puppeteer-screen-recorder": "^2.1.2"
+    "eslint-config-next": "13.5.2"
   },
   "browserslist": {
     "production": [

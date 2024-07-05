@@ -64,7 +64,7 @@ export const EntityPageTab = ({
         }}
       />
 
-      {children}
+      {isMobile ? null : children}
     </Tab>
   );
 };

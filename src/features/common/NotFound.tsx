@@ -72,17 +72,17 @@ export const NotFound = ({
       ) : (
         <Flex flexDir="column" alignItems="flex-start">
           <EntityAddButton
-            label={`Créer la atelier « ${entityName} »`}
+            label={`Créer l'atelier « ${entityName} »`}
             orgName={entityName}
             orgType={EOrgType.NETWORK}
             mb={3}
           />
-          <EntityAddButton
+          {/* <EntityAddButton
             label={`Créer l'arbre « ${entityName} »`}
             orgName={entityName}
             orgType={EOrgType.GENERIC}
             mb={3}
-          />
+          /> */}
           <EntityAddButton
             label={`Créer l'événement « ${entityName} »`}
             eventName={entityName}

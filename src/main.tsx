@@ -23,6 +23,7 @@ import { ContactFormModal } from "features/modals/ContactFormModal";
 import { selectIsOffline } from "store/sessionSlice";
 import { NavButtonsList } from "features/layout/NavButtonsList";
 import { PaypalButton } from "features/common/forms/PaypalButton";
+import { selectIsMobile } from "store/uiSlice";
 
 interface customWindow extends Window {
   console: { [key: string]: (...args: any[]) => void };
@@ -43,6 +44,7 @@ export const Main = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
+  const isMobile = useSelector(selectIsMobile);
 
   const {
     isOpen: isDrawerOpen,
@@ -99,12 +101,24 @@ export const Main = ({
       {isOffline && (
         <Box
           position="fixed"
-          right={3}
-          top={props.isMobile ? 14 : 3}
           bg={isDark ? "whiteAlpha.400" : "blackAlpha.300"}
           borderRadius="lg"
+          zIndex={9999}
+          {...(true ? { left: 3, top: 3 } : { right: 3, top: 3 })}
         >
-          <OfflineIcon />
+          <IconButton
+            aria-label="Vous êtes hors ligne"
+            icon={<OfflineIcon />}
+            onClick={() =>
+              toast({
+                status: "warning",
+                position: "top-end",
+                duration: 5000,
+                title:
+                  "Vous ne semblez pas connecté à internet, l'application pourrait ne pas bien fonctionner."
+              })
+            }
+          />
         </Box>
       )}
 
@@ -114,10 +128,10 @@ export const Main = ({
           position="fixed"
           right={3}
           top={3}
+          {...(isMobile ? { zIndex: 9999 } : {})}
           // css={css`
           //   transform: translate(0, 0);
           //   transform: translate3d(0, 0, 0);
-          //   z-index: 9999;
           // `}
         >
           <IconButton
@@ -137,12 +151,12 @@ export const Main = ({
             <DrawerContent>
               <DrawerCloseButton />
               <DrawerHeader d="flex" justifyContent="space-evenly">
-                <IconButton
+                {/* <IconButton
                   aria-label="Rechercher"
                   icon={<SearchIcon />}
                   onClick={() => setIsNetworksModalOpen(true)}
                   //{...buttonProps}
-                />
+                /> */}
                 <DarkModeSwitch mr={3} />
               </DrawerHeader>
               <DrawerBody>

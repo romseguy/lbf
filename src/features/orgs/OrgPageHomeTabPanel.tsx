@@ -257,10 +257,10 @@ export const OrgPageHomeTabPanel = ({
             </List>
             <Tooltip
               placement="right"
-              label="Planter l'arbre sur la atelier de votre choix"
+              label="Planter l'arbre sur l'atelier de votre choix"
             >
               <IconButton
-                aria-label="Planter l'arbre sur la atelier de votre choix"
+                aria-label="Planter l'arbre sur l'atelier de votre choix"
                 alignSelf="flex-start"
                 colorScheme="teal"
                 icon={
@@ -383,7 +383,7 @@ export const OrgPageHomeTabPanel = ({
               ml={3}
               mr={1}
             />
-            <Heading size="sm">Forêt de la atelier</Heading>
+            <Heading size="sm">Forêt de l'atelier</Heading>
             <Badge {...badgeProps}>{org.orgs.length}</Badge>
           </TabContainerHeader>
 
@@ -413,7 +413,7 @@ export const OrgPageHomeTabPanel = ({
                         {isMapModalOpen && (
                           <MapModal
                             isOpen={isMapModalOpen}
-                            header="Carte de la atelier"
+                            header="Carte de l'atelier"
                             orgs={
                               org.orgs.filter(
                                 (org) =>
@@ -485,10 +485,10 @@ export const OrgPageHomeTabPanel = ({
                   ) : isCreator || org.orgPermissions?.anyoneCanAddChildren ? (
                     <Tooltip
                       placement="right"
-                      label="Planter un arbre dans la forêt de la atelier"
+                      label="Planter un arbre dans la forêt de l'atelier"
                     >
                       <IconButton
-                        aria-label="Planter un arbre dans la forêt de la atelier"
+                        aria-label="Planter un arbre dans la forêt de l'atelier"
                         alignSelf="flex-start"
                         colorScheme="teal"
                         icon={
@@ -603,7 +603,7 @@ const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!o
                     org.orgs.length > 0
                       ? `Les arbres plantés`
                       : `Aucun arbres plantés`
-                  } sur la atelier ${org.orgName}`
+                  } sur l'atelier ${org.orgName}`
             }
           >
             {isCreator && (
@@ -611,13 +611,13 @@ const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!o
                 hasArrow
                 label={`Planter ${
                   org.orgs.length > 0 ? "ou déraciner" : ""
-                } des arbres de la atelier ${org.orgName}`}
+                } des arbres de l'atelier ${org.orgName}`}
                 placement="bottom"
               >
                 <IconButton
                   aria-label={`Planter ${
                     org.orgs.length > 0 ? "ou déraciner" : ""
-                  } des arbres de la atelier ${org.orgName}`}
+                  } des arbres de l'atelier ${org.orgName}`}
                   icon={
                     org.orgs.length > 0 ? (
                       <EditIcon />

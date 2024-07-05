@@ -476,7 +476,7 @@ export const OrgForm = withGoogleApi({
       <FormControl mb={3} isInvalid={!!errors["orgs"]}>
         {Array.isArray(orgTrees) && orgTrees.length > 0 && (
           <>
-            <FormLabel>Forêt de la atelier : </FormLabel>
+            <FormLabel>Forêt de l'atelier : </FormLabel>
             <List>
               {orgTrees.map((orgTree) => (
                 <ListItem key={orgTree._id}>
@@ -508,7 +508,7 @@ export const OrgForm = withGoogleApi({
         <FormLabel>
           {isEditConfig?.isAddingChild
             ? orgsPlaceholder + " :"
-            : "Forêt de la atelier (optionnel)"}
+            : "Forêt de l'atelier (optionnel)"}
         </FormLabel>
 
         {myOrgsQuery.isLoading ? (
@@ -629,7 +629,7 @@ export const OrgForm = withGoogleApi({
     const NetworkFormControl = (
       <FormControl mb={3} isInvalid={!!errors["orgs"]}>
         <FormLabel>
-          Sélectionner ou créer la atelier où vous voulez planter cet arbre :
+          Sélectionner ou créer l'atelier où vous voulez planter cet arbre :
         </FormLabel>
 
         {myOrgsQuery.isLoading ? (
@@ -683,12 +683,12 @@ export const OrgForm = withGoogleApi({
                   //#region ui
                   allowCreateWhileLoading
                   formatCreateLabel={(inputValue: string) =>
-                    `Créer la atelier "${inputValue}"`
+                    `Créer l'atelier "${inputValue}"`
                   }
                   isClearable
                   isMulti
                   noOptionsMessage={() => "Aucun résultat"}
-                  placeholder="Sélectionner ou créer la atelier où vous voulez planter cet arbre"
+                  placeholder="Sélectionner ou créer l'atelier où vous voulez planter cet arbre"
                   //#endregion
                   //#region styling
                   className="react-select-container"

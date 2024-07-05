@@ -34,6 +34,7 @@ import { OrgTypes } from "models/Org";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import { timeAgo } from "utils/date";
+import { selectScreenHeight } from "store/uiSlice";
 
 let cachedRefetchSubscription = false;
 
@@ -47,6 +48,7 @@ const TopicPopoverContent = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
+  const screenHeight = useSelector(selectScreenHeight);
   const toast = useToast({ position: "top" });
   const userEmail = useSelector(selectUserEmail);
   const [deleteSubscription] = useDeleteSubscriptionMutation();
@@ -155,7 +157,7 @@ const TopicPopoverContent = ({
               <VStack
                 aria-hidden
                 overflow="auto"
-                height="250px"
+                height={screenHeight ? screenHeight - 225 : 440 + "px"}
                 spacing={2}
                 pr={1}
               >

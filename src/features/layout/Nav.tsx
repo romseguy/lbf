@@ -148,11 +148,11 @@ export const Nav = ({
         </Table>
       )}
 
-      {isMobile && !session && (
+      {/* {isMobile && !session && (
         <LoginButton colorScheme="cyan" bg="lightcyan" mb={1}>
           Se connecter
         </LoginButton>
-      )}
+      )} */}
 
       {session && userEmail && (
         <Table
@@ -209,38 +209,38 @@ export const Nav = ({
                         isMobile={isMobile}
                         orgType={EOrgType.NETWORK}
                         session={session}
-                        offset={[isMobile ? 80 : 140, 15]}
+                        offset={[isMobile ? 95 : 140, 15]}
                         iconProps={{ ...iconProps, ...{} }}
                       />
-                      <OrgPopover
+                      {/* <OrgPopover
                         isMobile={isMobile}
                         session={session}
                         offset={[isMobile ? 20 : 140, 15]}
                         iconProps={iconProps}
-                      />
+                      /> */}
                       <EventPopover
                         isMobile={isMobile}
                         session={session}
-                        offset={[isMobile ? -45 : 140, 15]}
+                        offset={[isMobile ? 35 : 140, 15]}
                         iconProps={iconProps}
                       />
                       <TopicPopover
                         isMobile={isMobile}
                         session={session}
-                        offset={[isMobile ? -106 : 140, 15]}
+                        offset={[isMobile ? -30 : 140, 15]}
                         iconProps={iconProps}
                       />
                     </>
                   )}
 
-                  {!isMobile && (
+                  {/* {!isMobile && (
                     <NotificationPopover
                       isMobile={isMobile}
                       session={session}
                       offset={[isMobile ? -141 : 140, 15]}
                       iconProps={{ ...iconProps, ...{ mr: 0 } }}
                     />
-                  )}
+                  )} */}
                 </Flex>
               </Td>
             </Tr>

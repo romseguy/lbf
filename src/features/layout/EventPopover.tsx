@@ -26,6 +26,7 @@ import { selectSubscriptionRefetch } from "store/subscriptionSlice";
 import { selectUserEmail } from "store/userSlice";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
+import { selectScreenHeight } from "store/uiSlice";
 
 let cachedRefetchSubscription = false;
 
@@ -36,6 +37,7 @@ const EventPopoverContent = ({
   session: Session;
   onClose: () => void;
 }) => {
+  const screenHeight = useSelector(selectScreenHeight);
   const router = useRouter();
   const userEmail = useSelector(selectUserEmail);
 
@@ -130,7 +132,7 @@ const EventPopoverContent = ({
               <VStack
                 alignItems="flex-start"
                 overflow="auto"
-                height="200px"
+                height={screenHeight ? screenHeight - 275 : 385 + "px"}
                 spacing={2}
               >
                 {myEventsQuery.data.map((event) => (

@@ -31,6 +31,7 @@ import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import { AppQuery } from "utils/types";
 import { EOrgsListOrder } from "features/orgs/OrgsList";
+import { selectScreenHeight } from "store/uiSlice";
 
 const OrgPopoverContent = ({
   orgType,
@@ -41,6 +42,7 @@ const OrgPopoverContent = ({
   session: Session;
   onClose: () => void;
 }) => {
+  const screenHeight = useSelector(selectScreenHeight);
   const router = useRouter();
   const userEmail = useSelector(selectUserEmail);
 
@@ -167,7 +169,7 @@ const OrgPopoverContent = ({
                 aria-hidden
                 alignItems="flex-start"
                 overflow="auto"
-                height="200px"
+                height={screenHeight ? screenHeight - 315 : 350 + "px"}
                 spacing={2}
                 py={1}
                 pl={1}
@@ -190,7 +192,7 @@ const OrgPopoverContent = ({
               <Text fontSize="smaller">
                 Vous n'avez{" "}
                 {orgType === EOrgType.NETWORK
-                  ? "ajouté aucune ateliers"
+                  ? "ajouté aucun ateliers"
                   : "ajouté aucun arbres"}
                 .
               </Text>
@@ -215,7 +217,7 @@ const OrgPopoverContent = ({
               <Text fontSize="smaller">
                 Vous n'êtes abonné{" "}
                 {orgType === EOrgType.NETWORK
-                  ? "aucune ateliers"
+                  ? "aucun ateliers"
                   : "aucun arbres"}
                 .
               </Text>
@@ -242,7 +244,7 @@ const OrgPopoverContent = ({
               <Text fontSize="smaller">
                 Vous n'avez archivé{" "}
                 {orgType === EOrgType.NETWORK
-                  ? "aucune ateliers"
+                  ? "aucun ateliers"
                   : "aucun arbres"}
                 .
               </Text>

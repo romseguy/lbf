@@ -31,6 +31,7 @@ import { selectIsMobile } from "store/uiSlice";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { IEvent } from "models/Event";
+import { useSession } from "hooks/useSession";
 
 type FormValues = {
   fichiers: File[];
@@ -49,6 +50,7 @@ export const DocumentForm = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
+  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
 
   const isE = isEvent(entity);
@@ -88,7 +90,7 @@ export const DocumentForm = ({
         if (fsMb > 10) throw `${file.name} est trop volumineux`;
 
         const data = new FormData();
-        data.append("file", file, file.name);
+        data.append("file", file, session?.user.userName + " - " + file.name);
         data.append(isO ? "orgId" : isE ? "eventId" : "userId", entity._id);
 
         await axios.post(process.env.NEXT_PUBLIC_API2, data, {
