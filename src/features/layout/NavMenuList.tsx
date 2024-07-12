@@ -64,9 +64,17 @@ export const NavMenuList = ({
       >
         <MenuItem>Ma page</MenuItem>
       </Link> */}
+
       <MenuItem>
         <SubscribeSwitch email={email} userName={userName} />
       </MenuItem>
+
+      <MenuItem>
+        <Link href="/password" shallow>
+          Définir un nouveau mot de passe
+        </Link>
+      </MenuItem>
+
       <MenuItem>
         <Text
           onClick={async () => {

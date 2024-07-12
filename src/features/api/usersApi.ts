@@ -2,21 +2,31 @@ import { api } from "./";
 import { IUser } from "models/User";
 import { objectToQueryString } from "utils/query";
 
-export type AddUserPayload = Pick<IUser, "email" | "phone" | "userName">;
-export type EditUserPayload = Partial<
-  Pick<IUser, "phone" | "userImage" | "userName">
->;
-
+// Params
 export type GetUserParams = {
   slug: string;
   populate?: string;
   select?: string;
 };
-
 export type GetUsersParams = {
   populate?: string;
   select?: string;
 };
+
+// Payloads
+export type AddUserPayload = Pick<IUser, "email" | "phone" | "userName">;
+export type EditUserPayload = Partial<
+  Pick<
+    IUser,
+    | "password"
+    | "passwordSalt"
+    | "phone"
+    | "userDescription"
+    | "userImage"
+    | "userName"
+    | "userSubscription"
+  >
+>;
 
 export type PostResetPasswordMailPayload = {};
 export type CheckSecurityCodePayload = { code: string; email: string };
@@ -38,15 +48,17 @@ export const userApi = api.injectEndpoints({
           : [];
       }
     }),
-    editUser: build.mutation<IUser, { payload: Partial<IUser>; slug: string }>({
-      query: ({ payload, slug }) => ({
-        url: `user/${slug}`,
-        method: "PUT",
-        body: payload
-      }),
-      invalidatesTags: (result, error, params) =>
-        result ? [{ type: "Users", id: result._id }] : []
-    }),
+    editUser: build.mutation<IUser, { payload: EditUserPayload; slug: string }>(
+      {
+        query: ({ payload, slug }) => ({
+          url: `user/${slug}`,
+          method: "PUT",
+          body: payload
+        }),
+        invalidatesTags: (result, error, params) =>
+          result ? [{ type: "Users", id: result._id }] : []
+      }
+    ),
     getUser: build.query<IUser, GetUserParams>({
       query: ({ slug, ...query }) => {
         const hasQueryParams = Object.keys(query).length > 0;

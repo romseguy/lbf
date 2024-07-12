@@ -323,43 +323,6 @@ export const UserForm = (props: UserFormProps) => {
         </Box>
       )}
 
-      {/* <FormControl
-        mb={3}
-        isRequired
-        isInvalid={!!errors["password"]}
-      >
-        <FormLabel>Mot de passe</FormLabel>
-        <Input
-          name="password"
-          ref={register({
-            required: "Veuillez saisir un mot de passe"
-          })}
-          type="password"
-        />
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="password" />
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl
-        isRequired
-        isInvalid={!!errors["passwordConfirm"]}
-      >
-        <FormLabel>Confirmation du mot de passe</FormLabel>
-        <Input
-          name="passwordConfirm"
-          ref={register({
-            validate: (value) =>
-              value === password.current ||
-              "Les mots de passe ne correspondent pas"
-          })}
-          type="password"
-        />
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="passwordConfirm" />
-        </FormErrorMessage>
-      </FormControl> */}
-
       <Button
         colorScheme="green"
         type="submit"

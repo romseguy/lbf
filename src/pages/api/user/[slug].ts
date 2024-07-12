@@ -14,6 +14,7 @@ import {
 } from "utils/errors";
 import { logJson, normalize, phoneR } from "utils/string";
 import { randomNumber } from "utils/randomNumber";
+import { EditUserPayload } from "features/api/usersApi";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -150,7 +151,7 @@ handler.post<
 handler.put<
   NextApiRequest & {
     query: { slug: string };
-    body: IUser;
+    body: EditUserPayload;
   },
   NextApiResponse
 >(async function editUser(req, res) {
@@ -160,7 +161,7 @@ handler.put<
     body
   }: {
     query: { slug: string };
-    body: Partial<IUser>;
+    body: EditUserPayload;
   } = req;
 
   if (!session && !body.password) {
