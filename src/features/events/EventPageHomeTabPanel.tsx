@@ -51,11 +51,11 @@ export const EventPageHomeTabPanel = ({
         </TabContainer>
 
         <TabContainer {...tabContainerProps}>
-          <TabContainerHeader heading="Coordonnées">
+          <TabContainerHeader heading="Métadonnées">
             {hasInfo && isCreator && (
-              <Tooltip placement="bottom" label="Modifier les coordonnées">
+              <Tooltip placement="bottom" label="Modifier les métadonnées">
                 <IconButton
-                  aria-label="Modifier les coordonnées"
+                  aria-label="Modifier les métadonnées"
                   icon={<EditIcon />}
                   bg="transparent"
                   _hover={{ color: "green" }}

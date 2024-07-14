@@ -30,10 +30,10 @@ export const EventPageInfo = ({
       ) : isCreator ? (
         <Tooltip
           placement="right"
-          label={`Ajouter des coordonnées à l'événement`}
+          label={`Ajouter des métadonnées à l'événement`}
         >
           <IconButton
-            aria-label={`Ajouter des coordonnées à l'événement`}
+            aria-label={`Ajouter des métadonnées à l'événement`}
             alignSelf="flex-start"
             colorScheme="teal"
             icon={
@@ -47,7 +47,7 @@ export const EventPageInfo = ({
           />
         </Tooltip>
       ) : (
-        <Text fontStyle="italic">Aucunes coordonnées.</Text>
+        <Text fontStyle="italic">Aucunes métadonnées.</Text>
       )}
     </>
   );

@@ -1123,7 +1123,7 @@ export const EventForm = withGoogleApi({
         )}
 
         <Box {...formBoxProps(isDark)}>
-          <FormLabel>Coordonnées de l'événement (optionnel)</FormLabel>
+          <FormLabel>Métadonnées de l'événement (optionnel)</FormLabel>
 
           <AddressControl
             name="eventAddress"

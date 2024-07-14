@@ -96,7 +96,7 @@ export const SubscriptionForm = ({
 
     try {
       if (!hasItems(emailArray) && !hasItems(phoneArray)) {
-        throw new Error("Aucunes coordonnées valide");
+        throw new Error("Aucunes métadonnées valide");
       }
 
       for (const email of emailArray) {

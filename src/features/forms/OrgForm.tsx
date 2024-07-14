@@ -777,7 +777,7 @@ export const OrgForm = withGoogleApi({
 
     const InfoFormControl = (
       <>
-        <FormLabel>Coordonnées {orgTypeFull(orgType)} (optionnel)</FormLabel>
+        <FormLabel>Métadonnées {orgTypeFull(orgType)} (optionnel)</FormLabel>
 
         <AddressControl
           name="orgAddress"

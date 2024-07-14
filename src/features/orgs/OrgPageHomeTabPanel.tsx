@@ -320,7 +320,7 @@ export const OrgPageHomeTabPanel = ({
             ml={3}
             mr={1}
           />
-          <Heading size="sm">Coordonnées {orgTypeFull(org.orgType)}</Heading>
+          <Heading size="sm">Métadonnées {orgTypeFull(org.orgType)}</Heading>
           <Badge {...badgeProps}>
             {org.orgAddress.length +
               org.orgEmail.length +
@@ -330,11 +330,11 @@ export const OrgPageHomeTabPanel = ({
           {hasInfo && isCreator && (
             <Tooltip
               hasArrow
-              label="Modifier les coordonnées"
+              label="Modifier les métadonnées"
               placement="bottom"
             >
               <IconButton
-                aria-label="Modifier les coordonnées"
+                aria-label="Modifier les métadonnées"
                 icon={<EditIcon />}
                 bg="transparent"
                 height="auto"
@@ -355,10 +355,10 @@ export const OrgPageHomeTabPanel = ({
             ) : isCreator ? (
               <Tooltip
                 placement="right"
-                label={`Ajouter des coordonnées ${orgTypeFull2(org.orgType)}`}
+                label={`Ajouter des métadonnées ${orgTypeFull2(org.orgType)}`}
               >
                 <IconButton
-                  aria-label={`Ajouter des coordonnées ${orgTypeFull2(
+                  aria-label={`Ajouter des métadonnées ${orgTypeFull2(
                     org.orgType
                   )}`}
                   alignSelf="flex-start"
@@ -374,7 +374,7 @@ export const OrgPageHomeTabPanel = ({
                 />
               </Tooltip>
             ) : (
-              <Text fontStyle="italic">Aucunes coordonnées.</Text>
+              <Text fontStyle="italic">Aucunes métadonnées.</Text>
             )}
           </TabContainerContent>
         )}
