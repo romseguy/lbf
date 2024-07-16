@@ -157,6 +157,7 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
       </Head>
 
       <Flex
+        as="main"
         css={css`
           background-color: ${isDark ? "#2D3748" : "lightblue"};
 
