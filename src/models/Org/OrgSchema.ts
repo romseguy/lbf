@@ -131,7 +131,7 @@ export const OrgSchema = new Schema<IOrg>(
     orgPassword: { type: String, select: false },
     orgSalt: String,
     orgTabs: {
-      type: [{ label: { type: String, trim: true }, url: String }],
+      type: [{ label: { type: Schema.Types.Mixed }, url: Schema.Types.Mixed }],
       default: undefined
     },
     orgVisibility: {

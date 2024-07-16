@@ -21,9 +21,11 @@ export const TopicsListItemShare = ({
 }: IconButtonProps & { topic: Partial<ITopic> }) => {
   const toast = useToast({ position: "top" });
   const [isOpen, setIsOpen] = useState(false);
-  const url = `${process.env.NEXT_PUBLIC_URL}/${
+  const baseUrl = `${process.env.NEXT_PUBLIC_URL}/${
     topic.org ? topic.org.orgUrl : topic.event ? topic.event.eventUrl : ""
-  }/discussions/${normalize(topic.topicName)}`;
+  }/discussions`;
+  const url = `${baseUrl}/${normalize(topic.topicName)}`;
+  const url2 = `${baseUrl}/${topic._id}`;
 
   return (
     <Popover closeOnBlur isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -48,7 +50,12 @@ export const TopicsListItemShare = ({
       </PopoverTrigger>
       <PopoverContent width="auto">
         <PopoverBody onClick={(e) => e.stopPropagation()}>
-          <LinkShare label="Copier le lien de la discussion" url={url} />
+          <LinkShare label="Copier le lien de la discussion" url={url} mr={3} />
+          <LinkShare
+            label="Copier le lien permanent vers la discussion"
+            url={url2}
+            tooltipProps={{ placement: "right" }}
+          />
         </PopoverBody>
       </PopoverContent>
     </Popover>

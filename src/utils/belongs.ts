@@ -1,26 +1,50 @@
-import { normalize } from "./string";
+import * as utils from "./string";
+
+const normalize = (str: string | boolean) => {
+  if (typeof str === "string") {
+    str = utils.normalize(str);
+  }
+  if (str === "") return true;
+  return str;
+};
 
 export const belongs = (a?: string | string[], b?: string | string[]) => {
   if (!a || !b) return false;
 
-  if (typeof a === "string") {
-    a = normalize(a);
+  let na: string | boolean | (string | boolean)[] = a,
+    nb: string | boolean | (string | boolean)[] = b;
 
-    if (typeof b === "string") {
-      b = normalize(b);
-      return a === b;
-    }
-    return b.map((str) => normalize(str)).includes(a);
+  if (typeof na === "string" && na !== "/") {
+    na = normalize(na);
+  }
+  if (typeof nb === "string" && nb !== "/") {
+    nb = normalize(nb);
+  }
+  if (Array.isArray(na)) {
+    na = na.map((str) => (str !== "/" ? normalize(str) : "/"));
+  }
+  if (Array.isArray(nb)) {
+    nb = nb.map((str) => (str !== "/" ? normalize(str) : "/"));
+  }
+  if (typeof na === "string" && typeof nb === "string") {
+    return na.includes(nb);
   }
 
-  if (typeof b === "string") {
-    return a.map((str) => normalize(str)).includes(normalize(b));
-  }
-
-  return (
-    a
-      .map((str) => normalize(str))
+  if (Array.isArray(na) && Array.isArray(nb)) {
+    const found = na.find((value) => {
       //@ts-expect-error
-      .find((value) => b.map((str) => normalize(str)).includes(value))
-  );
+      return nb.includes(value);
+    });
+    return found;
+  }
+
+  if (Array.isArray(na) && typeof nb === "string") {
+    return na.includes(nb);
+  }
+
+  if (Array.isArray(nb) && typeof na === "string") {
+    return nb.includes(na);
+  }
+
+  return false;
 };

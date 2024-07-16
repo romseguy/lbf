@@ -23,6 +23,7 @@ import { selectIsMobile } from "store/uiSlice";
 import { css } from "twin.macro";
 import { AppQuery } from "utils/types";
 import { useSession } from "hooks/useSession";
+import { normalize } from "utils/string";
 
 export const NavButtonsList = ({
   direction = "row",
@@ -92,13 +93,17 @@ export const NavButtonsList = ({
       if (canDisplay) {
         if (!keyword) return true;
 
-        // console.log(
-        //   "🚀 ~ .filter ~ keyword:",
-        //   keyword.toLowerCase(),
-        //   org.orgName.toLowerCase(),
-        //   org.orgName.toLowerCase().includes(keyword.toLowerCase())
-        // );
-        return org.orgName.toLowerCase().includes(keyword.toLowerCase());
+        const foundInFirstLevel = org.orgName
+          .toLowerCase()
+          .includes(keyword.toLowerCase());
+
+        if (foundInFirstLevel) return true;
+
+        const foundDeeper = !!org.orgs.find(({ orgName }) => {
+          return normalize(orgName).includes(normalize(keyword));
+        });
+
+        if (foundDeeper) return true;
       }
 
       return false;
@@ -109,10 +114,21 @@ export const NavButtonsList = ({
         children: org.orgs
           .filter(({ orgName, orgVisibility }) => {
             let canDisplay = orgVisibility === EOrgVisibility.PUBLIC;
+
             if (canDisplay) {
               if (!keyword) return true;
 
-              return org.orgName.toLowerCase().includes(keyword.toLowerCase());
+              const foundInFirstLevel = orgName
+                .toLowerCase()
+                .includes(keyword.toLowerCase());
+
+              if (foundInFirstLevel) return true;
+
+              // const foundDeeper = !!org.orgs.find(({ orgName }) => {
+              //   return normalize(orgName).includes(normalize(keyword));
+              // });
+
+              // if (foundDeeper) return true;
             }
             return false;
           })

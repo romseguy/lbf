@@ -87,35 +87,25 @@ export const OrgPageTabs = ({
   };
   const [editOrg] = useEditOrgMutation();
   const org = orgQuery.data;
-  const orgTabs = [...(org.orgTabs || defaultTabs)];
-  //.filter((tab) => tab.label === "" && !session ? false : true);
-  // // console.log("🚀 ~ orgTaxbs:", orgTabs);
+  const documentsQuery = useGetDocumentsQuery({ orgId: org._id });
 
   //#region tabs
-  const documentsQuery = useGetDocumentsQuery({ orgId: org._id });
-  const tabs: IOrgTabWithMetadata[] = orgTabs
-    //.sort(sortOn("order", ["0", "1", "2", "3", "4", "5"]))
+  const tabs: IOrgTabWithMetadata[] = (org.orgTabs || defaultTabs)
     .map((tab) => {
-      // // console.log("🚀 ~ .map ~ tab:", tab);
-      let url = tab.url;
-
-      if (tab.url === "") {
-        if (tab.label === "") url = "/parametres";
-        if (tab.label === "Accueil") url = "/";
-      }
-
-      // // console.log("🚀 ~ .map ~ url:", url);
+      const url = !tab.label
+        ? "/parametres"
+        : tab.label === "Accueil"
+        ? "/"
+        : tab.url;
       const dt = getDefaultTab({ url });
-      // // console.log("🚀 ~ .map ~ dt:", dt);
       const metadata: {} = {};
 
       return {
-        ...tab,
         ...dt,
         ...metadata
       };
-    });
-  const sortedTabs = tabs.sort(sortOn("order", ["0", "1", "2", "3", "4", "5"]));
+    })
+    .sort(sortOn("order", ["0", "1", "2", "3", "4", "5"]));
   //#endregion
 
   //#region currentTab
@@ -195,8 +185,8 @@ export const OrgPageTabs = ({
               p: 3
             })}
       >
-        {sortedTabs.map((tab, tabIndex) => {
-          if (tab.label === "") return null;
+        {tabs.map((tab, tabIndex) => {
+          //if (tab.label === "") return null;
 
           const key = `org-${normalize(
             Array.isArray(tab.label) ? tab.label[0] : tab.label

@@ -150,9 +150,12 @@ export const TopicsList = ({
     )
       return null;
 
-    const topic = topics.find(
-      (topic) => normalize(topic.topicName) === normalize(currentTopicName)
-    );
+    const topic = topics.find((topic) => {
+      if (normalize(topic.topicName) === normalize(currentTopicName))
+        return true;
+
+      return topic._id === currentTopicName;
+    });
 
     return topic || null;
   }, [currentTopicName, topics]);

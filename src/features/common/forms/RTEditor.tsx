@@ -84,54 +84,6 @@ export const RTEditor = ({
     }
   }, [editorRef]);
   const init: IAllProps["init"] = {
-    branding: false,
-    browser_spellcheck: true,
-    content_css: isDark ? "dark" : undefined,
-    skin: isDark ? "oxide-dark" : undefined,
-    font_css: "/fonts/spectral.css",
-    content_style: `
-      body {
-        font-family: 'Spectral', Georgia, ui-serif, serif;
-        font-size: ${isMobile ? "16px" : "19px"};
-        text-align: justify;
-      }
-      hr {
-        border-top-width: 3px;
-        margin: 0 24px;
-      }
-      p {
-        margin: 0;
-        padding: 0;
-      }
-    `,
-    convert_urls: false,
-    document_base_url: process.env.NEXT_PUBLIC_URL + "/",
-    //font_family_formats: "Spectral",
-    font_family_formats:
-      "Spectral;Andale Mono=andale mono,times;Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Comic Sans MS=comic sans ms,sans-serif;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Symbol=symbol;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva;",
-    height: props.height,
-    language: "fr_FR",
-    language_url: "/tinymce/langs/fr_FR.js",
-    min_height: props.minHeight,
-    max_height: props.maxHeight || maxHeight,
-    text_patterns: [
-      { start: "*", end: "*", format: "italic" },
-      { start: "**", end: "**", format: "bold" },
-      { start: "#", format: "h1" },
-      { start: "##", format: "h2" },
-      { start: "###", format: "h3" },
-      { start: "####", format: "h4" },
-      { start: "#####", format: "h5" },
-      { start: "######", format: "h6" },
-      // The following text patterns require the `lists` plugin
-      { start: "1. ", cmd: "InsertOrderedList" },
-      { start: "* ", cmd: "InsertUnorderedList" },
-      { start: "- ", cmd: "InsertUnorderedList" }
-    ],
-    //image_upload_handler: uploadImage,
-    // image plugin
-    //file_picker_types: "image", // file image media
-    //file_picker_callback: onImageClick,
     plugins: [
       "anchor",
       "autolink",
@@ -149,6 +101,51 @@ export const RTEditor = ({
       //"paste",
       "searchreplace"
     ],
+    branding: false,
+    browser_spellcheck: true,
+    content_css: isDark ? "dark" : undefined,
+    content_style: `
+      body {
+        font-family: 'Spectral', Georgia, ui-serif, serif;
+        font-size: ${isMobile ? "16px" : "19px"};
+        text-align: justify;
+      }
+      hr {
+        border-top-width: 3px;
+        margin: 0 24px;
+      }
+      p {
+        margin: 0;
+        padding: 0;
+      }
+    `,
+    convert_urls: false,
+    document_base_url: process.env.NEXT_PUBLIC_URL + "/",
+    font_css: "/fonts/spectral.css",
+    //font_family_formats: "Spectral",
+    font_family_formats:
+      "Spectral;Andale Mono=andale mono,times;Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Comic Sans MS=comic sans ms,sans-serif;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Symbol=symbol;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva;",
+    height: props.height,
+    language: "fr_FR",
+    language_url: "/tinymce/langs/fr_FR.js",
+    link_default_target: "_blank",
+    min_height: props.minHeight,
+    max_height: props.maxHeight || maxHeight,
+    skin: isDark ? "oxide-dark" : undefined,
+    text_patterns: [
+      { start: "*", end: "*", format: "italic" },
+      { start: "**", end: "**", format: "bold" },
+      { start: "#", format: "h1" },
+      { start: "##", format: "h2" },
+      { start: "###", format: "h3" },
+      { start: "####", format: "h4" },
+      { start: "#####", format: "h5" },
+      { start: "######", format: "h6" },
+      // The following text patterns require the `lists` plugin
+      { start: "1. ", cmd: "InsertOrderedList" },
+      { start: "* ", cmd: "InsertUnorderedList" },
+      { start: "- ", cmd: "InsertUnorderedList" }
+    ],
     contextmenu: false,
     menubar: false,
     statusbar: false,
@@ -157,14 +154,16 @@ export const RTEditor = ({
         name: "outils",
         items: [
           "fullscreen",
+          "styles",
+          "emoticons",
+          "searchreplace",
           "undo",
           "redo",
-          "emoticons",
-          "link",
           "anchor",
+          "link",
           "hr",
-          "removeformat",
-          "searchreplace"
+          "blockquote",
+          "removeformat"
         ]
       },
       {

@@ -23,6 +23,7 @@ import { capitalize, normalize } from "utils/string";
 import { IUser } from "models/User";
 import { Delimiter } from "features/common/Delimiter";
 import { ServerError } from "utils/errors";
+import { PaypalButton } from "features/common/forms/PaypalButton";
 
 export interface LayoutProps extends PageProps, BoxProps {
   banner?: Base64Image & { mode: "dark" | "light" };
@@ -65,8 +66,6 @@ export const Layout = ({
             ({ topicName }) => tabItem === normalize(topicName)
           ) || {};
         if (topicName) {
-          console.log("🚀 ~ topicName:", topicName);
-
           subtitle = `– ${topicName}`;
         }
       }
@@ -140,6 +139,7 @@ export const Layout = ({
     >
       <Nav
         {...props}
+        entity={entity}
         isMobile={isMobile}
         borderTopRadius={isMobile ? 0 : undefined}
         mt={0}
@@ -164,7 +164,7 @@ export const Layout = ({
       {main(c)}
 
       {/* Footer */}
-      <Box as="footer" pb={3} mt={3}>
+      <Flex as="footer" flexDir="column" alignItems="center" pb={3} mt={3}>
         {/* <Image src="/images/bg.png" height="100px" m="0 auto" /> */}
         <Box fontSize="smaller" textAlign="center">
           <Link href="/a_propos" variant="underline">
@@ -183,7 +183,10 @@ export const Layout = ({
             Code
           </Link>
         </Box>
-      </Box>
+        <Box>
+          <PaypalButton />
+        </Box>
+      </Flex>
     </Box>
   );
 

@@ -30,12 +30,14 @@ import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
 import { SearchIcon } from "@chakra-ui/icons";
+import { IEntity } from "models/Entity";
 
 export const Nav = ({
+  entity,
   isMobile,
   pageTitle,
   ...props
-}: BoxProps & PageProps & { pageTitle?: string }) => {
+}: BoxProps & PageProps & { entity?: IEntity; pageTitle?: string }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -166,6 +168,7 @@ export const Nav = ({
                     </MenuButton>
 
                     <NavMenuList
+                      entity={entity}
                       email={userEmail}
                       //session={session}
                       userName={userName}

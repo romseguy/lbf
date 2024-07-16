@@ -36,7 +36,8 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
         //#region elements
         html,
         body,
-        #__next {
+        #__next,
+        main {
           height: 100%;
         }
         body {

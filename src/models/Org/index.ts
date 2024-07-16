@@ -164,7 +164,9 @@ export const defaultTabs: IOrgTabWithMetadata[] = [
 ];
 export const getDefaultTab = ({ url }: { url?: string | string[] }) => {
   if (!url) return undefined;
-  return defaultTabs.find((defaultTab) => belongs(defaultTab.url, url));
+  return defaultTabs.find((defaultTab) => {
+    return belongs(url, defaultTab.url);
+  });
 };
 export const getCurrentTab = ({
   org,
