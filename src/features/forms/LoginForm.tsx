@@ -84,55 +84,53 @@ export const LoginForm = ({
     console.log("submitted", form);
     setIsLoggingIn(true);
 
-    try {
-      if (form.password) {
-        const { data: user } = await dispatch(
-          getUser.initiate({ slug: form.email })
-        );
+    if (form.password) {
+      const { data: user } = await dispatch(
+        getUser.initiate({ slug: form.email })
+      );
 
-        if (user?.passwordSalt) {
-          const hash = await bcrypt.hash(form.password, user.passwordSalt);
-          const {
-            data: { authenticated }
-          } = await api.post("login", { email: form.email, hash });
+      if (!user) throw new Error("Identifiants incorrects");
 
-          if (authenticated) window.location.href = "/";
-          else
-            toast({
-              status: "error",
-              title: "L'adresse e-mail et le mot de passe ne correspondent pas"
-            });
+      if (user?.passwordSalt) {
+        const hash = await bcrypt.hash(form.password, user.passwordSalt);
+        const {
+          data: { authenticated }
+        } = await api.post("login", { email: form.email, hash });
 
-          // todo: POST hash to /api/login
+        if (authenticated) window.location.href = "/";
+        else
+          toast({
+            status: "error",
+            title: "L'adresse e-mail et le mot de passe ne correspondent pas"
+          });
 
-          // if (user.password === hash) {
-          //   toast({ title: "OK" });
-          //   const userToken = {
-          //     email: form.email,
-          //     userId: user._id,
-          //     userName: user.userName
-          //   };
+        // todo: POST hash to /api/login
 
-          //   const authToken = await seal(userToken, "i9udjxke5S", sealOptions);
+        // if (user.password === hash) {
+        //   toast({ title: "OK" });
+        //   const userToken = {
+        //     email: form.email,
+        //     userId: user._id,
+        //     userName: user.userName
+        //   };
 
-          //   dispatch(
-          //     setSession({
-          //       user: userToken,
-          //       [TOKEN_NAME]: authToken
-          //     })
-          //   );
-          // } else toast({ title: "NOK" });
-        }
+        //   const authToken = await seal(userToken, "i9udjxke5S", sealOptions);
 
-        setIsLoggingIn(false);
-      } else {
-        await magic.auth.loginWithMagicLink({
-          email: form.email,
-          redirectURI: new URL("/callback", window.location.origin).href
-        });
+        //   dispatch(
+        //     setSession({
+        //       user: userToken,
+        //       [TOKEN_NAME]: authToken
+        //     })
+        //   );
+        // } else toast({ title: "NOK" });
       }
-    } catch (error) {
+
       setIsLoggingIn(false);
+    } else {
+      await magic.auth.loginWithMagicLink({
+        email: form.email,
+        redirectURI: new URL("/callback", window.location.origin).href
+      });
     }
   };
   //#endregion

@@ -2,11 +2,21 @@ import {
   Alert,
   AlertIcon,
   Badge,
+  Box,
   Button,
   Flex,
   HStack,
   IconButton,
   Image,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
   Spinner,
   Text,
   useColorMode,
@@ -45,6 +55,8 @@ export const DocumentsListMasonry = ({
 
   //#region column count relative to screen width
   const [columnCount, setColumnCount] = useState<number>(1);
+  const [marginBetween, setMarginBetween] = useState<number>(0);
+
   useEffect(() => {
     const getColumnCount = () => {
       let col = 1;
@@ -95,15 +107,64 @@ export const DocumentsListMasonry = ({
   };
   //#endregion
 
+  const handleChange = (valueString: number | string) => {
+    setMarginBetween(
+      typeof valueString === "string" ? Number(valueString) : valueString
+    );
+  };
+
   return (
     <Column {...props}>
-      <Flex alignItems="center" p={3}>
-        <AppHeading noContainer smaller>
-          {images.length} images
-        </AppHeading>
-        <Badge variant="subtle" colorScheme="green" ml={1}>
-          {stringUtils.bytesForHuman(imagesSize)}
-        </Badge>
+      <Flex alignItems="center" p={3} justifyContent="space-between">
+        <HStack>
+          <AppHeading noContainer smaller>
+            {images.length} images
+          </AppHeading>
+          <Badge variant="subtle" colorScheme="green" ml={1}>
+            {stringUtils.bytesForHuman(imagesSize)}
+          </Badge>
+        </HStack>
+        {/* <Flex> */}
+        {/* <Text>Marges</Text> */}
+        {/* </Flex> */}
+      </Flex>
+      <Flex alignItems="center" mb={3}>
+        <Text ml={5}>Marges</Text>
+        <Slider
+          flex="1"
+          focusThumbOnChange={false}
+          value={marginBetween}
+          onChange={handleChange}
+          mx={10}
+        >
+          <SliderTrack>
+            <SliderFilledTrack />
+          </SliderTrack>
+          <SliderThumb fontSize="sm" boxSize="32px" children={marginBetween} />
+        </Slider>
+        <NumberInput
+          maxW="100px"
+          mr="2rem"
+          //allowMouseWheel
+          value={marginBetween}
+          //min={0}
+          //max={200}
+          onChange={handleChange}
+        >
+          <NumberInputField />
+          <NumberInputStepper>
+            <NumberIncrementStepper
+            // bg="green.200"
+            // _active={{ bg: "green.300" }}
+            // children="+"
+            />
+            <NumberDecrementStepper
+            // bg="pink.200"
+            // _active={{ bg: "pink.300" }}
+            // children="-"
+            />
+          </NumberInputStepper>
+        </NumberInput>
       </Flex>
 
       {isLoading || isFetching ? (
@@ -118,21 +179,23 @@ export const DocumentsListMasonry = ({
           <>
             <Flex justifyContent="center">
               {masonry.map((column, index) => {
+                console.log("🚀 ~ {masonry.map ~ column index:", index);
                 return (
                   <Flex key={index} flexDirection="column" width="100%">
                     {column.map((image, imageIndex) => {
+                      console.log("🚀 ~ {column.map ~ row index:", imageIndex);
                       let marginAround = 2 * (4 * 12 + 24);
                       marginAround = 0;
                       //const marginBetween = (columnCount - 1) * 24;
-                      const marginBetween = 0;
                       let newMW = screenWidth - marginAround;
 
                       if (screenWidth > pxBreakpoints["2xl"]) {
                         marginAround = 2 * (5 * 12 + 20 + 84);
                         marginAround = 0;
-                        newMW =
-                          (screenWidth - marginAround - marginBetween) /
-                          columnCount;
+                        // newMW =
+                        //   (screenWidth - marginAround - marginBetween) /
+                        //   columnCount;
+                        newMW = (screenWidth - marginAround) / columnCount;
                         // console.log(
                         //   "1",
                         //   columnCount,
@@ -144,12 +207,21 @@ export const DocumentsListMasonry = ({
                       } else if (columnCount !== 1) {
                         marginAround = 2 * (4 * 12 + 20);
                         marginAround = 0;
-                        newMW =
-                          (screenWidth - marginAround - marginBetween) /
-                          columnCount;
+                        // newMW =
+                        //   (screenWidth - marginAround - marginBetween) /
+                        //   columnCount;
+                        newMW = (screenWidth - marginAround) / columnCount;
                       }
 
-                      const width = image.width > newMW ? newMW : image.width;
+                      let width = image.width > newMW ? newMW : image.width;
+
+                      console.log(
+                        "modulo",
+                        index,
+                        //imageIndex,
+                        columnCount,
+                        index / (columnCount - 1)
+                      );
 
                       return (
                         <Image
@@ -159,7 +231,17 @@ export const DocumentsListMasonry = ({
                           width={`${width}px`}
                           borderRadius="12px"
                           cursor="pointer"
-                          mb={3}
+                          //mb={3}
+                          pb={
+                            imageIndex !== images.length / columnCount - 1
+                              ? marginBetween + "px"
+                              : 0
+                          }
+                          pr={
+                            index / (columnCount - 1) !== 1
+                              ? marginBetween + "px"
+                              : 0
+                          }
                           onClick={() => {
                             onOpen(image);
                           }}

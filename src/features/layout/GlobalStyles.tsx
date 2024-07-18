@@ -36,8 +36,10 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
         //#region elements
         html,
         body,
-        #__next {
+        #__next,
+        main {
           height: 100%;
+          //background-color: ${isDark ? "#2D3748" : "lightblue"};
         }
         body {
           overflow-x: ${isMobile ? "hidden" : "auto"};
