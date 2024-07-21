@@ -276,7 +276,7 @@ export const BannerForm = ({
                 accept="image/*"
                 onChange={async (e) => {
                   if (e.target.files && e.target.files[0]) {
-                    if (e.target.files[0].size < MB) {
+                    if (e.target.files[0].size < 5*MB) {
                       setImage(await getBase64(e.target.files[0]));
                       clearErrors("file");
                     }
@@ -284,8 +284,8 @@ export const BannerForm = ({
                 }}
                 ref={register({
                   validate: (file) => {
-                    if (file && file[0] && file[0].size >= MB) {
-                      return "L'image ne doit pas dépasser 1Mo.";
+                    if (file && file[0] && file[0].size >= 5*MB) {
+                      return "L'image ne doit pas dépasser 5Mo.";
                     }
                     return true;
                   }

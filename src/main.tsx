@@ -207,27 +207,3 @@ export const Main = ({
     </>
   );
 };
-
-{
-  /*
-    {isLoginModalOpen && (
-      <LoginFormModal
-        onClose={() => {
-          setIsLoginModalOpen(false);
-          const path = localStorage.getItem("path") || "/";
-          const protectedRoutes = [
-            "/arbres/ajouter",
-            "/evenements/ajouter",
-            "/ateliers/ajouter"
-          ];
-          if (protectedRoutes.includes(path))
-            router.push("/", "/", { shallow: true });
-          else router.push(path, path, { shallow: true });
-        }}
-        onSubmit={async () => {
-          dispatch(resetUserEmail());
-        }}
-      />
-    )}
-  */
-}

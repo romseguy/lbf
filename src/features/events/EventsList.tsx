@@ -184,7 +184,7 @@ const EventsListTable = ({
 
   return (
     <>
-      {router.asPath !== "/evenements" &&
+      {router.asPath !== "/agenda" &&
         orgQuery &&
         hasItems(orgQuery.data.orgEventCategories) && (
           <Flex flexDirection="column" mb={5}>
@@ -584,7 +584,7 @@ export const EventsList = ({
               mb={5}
               onClick={() => {
                 try {
-                  let url = "/evenements/ajouter";
+                  let url = "/agenda/ajouter";
 
                   if (org && !isCreator)
                     throw new Error(
@@ -593,7 +593,7 @@ export const EventsList = ({
                       )} pour ajouter un événement`
                     );
 
-                  url = `/evenements/ajouter?orgId=${org._id}`;
+                  url = `/agenda/ajouter?orgId=${org._id}`;
                   router.push(url, url, { shallow: true });
                 } catch (error: any) {
                   toast({

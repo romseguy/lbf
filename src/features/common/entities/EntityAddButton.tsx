@@ -130,8 +130,8 @@ export const EntityAddButton = ({
       mt={1}
       onClick={() => {
         const url = eventName
-          ? `/evenements/ajouter?eventName=${eventName}`
-          : "/evenements/ajouter";
+          ? `/agenda/ajouter?eventName=${eventName}`
+          : "/agenda/ajouter";
         router.push(url, url, {
           shallow: true
         });

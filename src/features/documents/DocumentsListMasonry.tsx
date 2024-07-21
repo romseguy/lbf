@@ -33,7 +33,11 @@ import { selectScreenHeight, selectScreenWidth } from "store/uiSlice";
 import { divideArray, hasItems } from "utils/array";
 import * as stringUtils from "utils/string";
 import { useRouter } from "next/router";
-import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  DownloadIcon
+} from "@chakra-ui/icons";
 
 export const DocumentsListMasonry = ({
   isCreator,
@@ -128,6 +132,7 @@ export const DocumentsListMasonry = ({
         {/* <Text>Marges</Text> */}
         {/* </Flex> */}
       </Flex>
+
       <Flex alignItems="center" mb={3}>
         <Text ml={5}>Marges</Text>
         <Slider
@@ -316,6 +321,14 @@ export const DocumentsListMasonry = ({
                   images[modalState.image.index].url.lastIndexOf("/") + 1
                 )}
               </Text>
+              <IconButton
+                aria-label="Télécharger"
+                colorScheme="teal"
+                icon={<DownloadIcon />}
+                onClick={() => {
+                  //const url = `${process.env.NEXT_PUBLIC_FILES}/${entity._id}/${file.url}`;
+                }}
+              />
             </HStack>
           }
           bodyProps={{ bg: "black" }}

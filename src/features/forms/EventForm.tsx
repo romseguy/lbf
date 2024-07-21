@@ -1054,7 +1054,7 @@ export const EventForm = withGoogleApi({
           // }
         >
           <FormLabel>
-            l'atelier ou l'arbre auquel est rattaché cet événement (optionnel)
+            L'atelier auquel est rattaché cet événement (optionnel)
           </FormLabel>
           <Controller
             name="eventOrg"

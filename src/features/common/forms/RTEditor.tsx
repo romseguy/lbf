@@ -160,17 +160,20 @@ export const RTEditor = ({
           "undo",
           "redo",
           "emoticons",
+          "blockquote",
+          "image",
           "link",
           "anchor",
           "hr",
-          "removeformat",
+          //"removeformat",
           "searchreplace"
         ]
       },
       {
         name: "texte",
         items: [
-          "fontfamily",
+          //"fontfamily",
+          "styles",
           "fontsizeinput",
           "forecolor",
           "alignjustify",
@@ -183,7 +186,7 @@ export const RTEditor = ({
       },
       {
         name: "media",
-        items: ["link", "unlink", "image", "media", "code", "help"]
+        items: ["link", "unlink", "media", "code", "help"]
       }
     ]
   };

@@ -3,6 +3,7 @@ import {
   Box,
   BoxProps,
   Flex,
+  Icon,
   Menu,
   MenuButton,
   useColorMode,
@@ -32,6 +33,7 @@ import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
 import { ChevronLeftIcon, SearchIcon } from "@chakra-ui/icons";
+import { FaHome } from "react-icons/fa";
 
 export const Nav = ({
   isMobile,
@@ -75,13 +77,24 @@ export const Nav = ({
               <Td border={0} p={0}>
                 <Flex>
                   {router.pathname !== "/" && (
-                    <IconButton
-                      aria-label="Revenir à la page précédente"
-                      colorScheme="purple"
-                      icon={<ChevronLeftIcon boxSize={10} />}
-                      mr={2}
-                      onClick={() => window.history.back()}
-                    />
+                    <>
+                      <IconButton
+                        aria-label="Revenir à la page précédente"
+                        colorScheme="purple"
+                        icon={<ChevronLeftIcon boxSize={10} />}
+                        mr={2}
+                        onClick={() => window.history.back()}
+                      />
+                      {isE && (
+                        <IconButton
+                          aria-label="Revenir à l'atelier"
+                          colorScheme="purple"
+                          icon={<Icon as={FaHome} boxSize={8} />}
+                          mr={2}
+                          onClick={() => window.history.back()}
+                        />
+                      )}
+                    </>
                   )}
                   <AppHeading mb={0}>
                     <Link href="/" shallow>

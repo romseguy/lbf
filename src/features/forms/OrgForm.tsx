@@ -472,159 +472,160 @@ export const OrgForm = withGoogleApi({
     //#endregion
 
     //#region form controls
-    const ChildrenFormControl = (
-      <FormControl mb={3} isInvalid={!!errors["orgs"]}>
-        {Array.isArray(orgTrees) && orgTrees.length > 0 && (
-          <>
-            <FormLabel>Forêt de l'atelier : </FormLabel>
-            <List>
-              {orgTrees.map((orgTree) => (
-                <ListItem key={orgTree._id}>
-                  <EntityTag
-                    entity={orgTree}
-                    body={
-                      <>
-                        <Icon as={FaTree} mx={1} />
-                        <Text mr={3}>{orgTree.orgName}</Text>
-                      </>
-                    }
-                    mb={3}
-                    onCloseClick={
-                      isCreator
-                        ? () => {
-                            setOrgTrees(
-                              orgTrees.filter(({ _id }) => _id !== orgTree._id)
-                            );
-                          }
-                        : undefined
-                    }
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </>
-        )}
+    const ChildrenFormControl = null;
+    // (
+    //   <FormControl mb={3} isInvalid={!!errors["orgs"]}>
+    //     {Array.isArray(orgTrees) && orgTrees.length > 0 && (
+    //       <>
+    //         <FormLabel>Forêt de l'atelier : </FormLabel>
+    //         <List>
+    //           {orgTrees.map((orgTree) => (
+    //             <ListItem key={orgTree._id}>
+    //               <EntityTag
+    //                 entity={orgTree}
+    //                 body={
+    //                   <>
+    //                     <Icon as={FaTree} mx={1} />
+    //                     <Text mr={3}>{orgTree.orgName}</Text>
+    //                   </>
+    //                 }
+    //                 mb={3}
+    //                 onCloseClick={
+    //                   isCreator
+    //                     ? () => {
+    //                         setOrgTrees(
+    //                           orgTrees.filter(({ _id }) => _id !== orgTree._id)
+    //                         );
+    //                       }
+    //                     : undefined
+    //                 }
+    //               />
+    //             </ListItem>
+    //           ))}
+    //         </List>
+    //       </>
+    //     )}
 
-        <FormLabel>
-          {isEditConfig?.isAddingChild
-            ? orgsPlaceholder + " :"
-            : "Forêt de l'atelier (optionnel)"}
-        </FormLabel>
+    //     <FormLabel>
+    //       {isEditConfig?.isAddingChild
+    //         ? orgsPlaceholder + " :"
+    //         : "Forêt de l'atelier (optionnel)"}
+    //     </FormLabel>
 
-        {myOrgsQuery.isLoading ? (
-          <Spinner />
-        ) : (
-          <Controller
-            name="orgs"
-            control={control}
-            defaultValue={[]}
-            render={(renderProps) => {
-              return (
-                <Creatable
-                  instanceId="nana"
-                  options={orgsOptions.map(({ _id, orgName }) => ({
-                    label: orgName,
-                    value: _id
-                  }))}
-                  value={renderProps.value}
-                  onChange={(options, { action, option }) => {
-                    if (action === "select-option") {
-                      const tree = trees?.find(
-                        ({ _id }) => _id === option.value
-                      );
-                      if (tree) setOrgTrees([...orgTrees, tree]);
-                    } else renderProps.onChange(option);
-                  }}
-                  onCreateOption={async (inputValue: string) => {
-                    try {
-                      const allowedChildrenTypes = Object.keys(
-                        org?.orgPermissions?.allowedChildrenTypes || {}
-                      );
-                      const payload: AddOrgPayload = {
-                        orgName: inputValue,
-                        orgType:
-                          allowedChildrenTypes.length > 0
-                            ? (allowedChildrenTypes[0] as EOrgType)
-                            : EOrgType.GENERIC,
-                        orgs: org ? [org] : [],
-                        orgVisibility: EOrgVisibility.PUBLIC,
-                        orgAddress: [],
-                        orgEmail: [],
-                        orgPhone: [],
-                        orgWeb: []
-                      };
+    //     {myOrgsQuery.isLoading ? (
+    //       <Spinner />
+    //     ) : (
+    //       <Controller
+    //         name="orgs"
+    //         control={control}
+    //         defaultValue={[]}
+    //         render={(renderProps) => {
+    //           return (
+    //             <Creatable
+    //               instanceId="nana"
+    //               options={orgsOptions.map(({ _id, orgName }) => ({
+    //                 label: orgName,
+    //                 value: _id
+    //               }))}
+    //               value={renderProps.value}
+    //               onChange={(options, { action, option }) => {
+    //                 if (action === "select-option") {
+    //                   const tree = trees?.find(
+    //                     ({ _id }) => _id === option.value
+    //                   );
+    //                   if (tree) setOrgTrees([...orgTrees, tree]);
+    //                 } else renderProps.onChange(option);
+    //               }}
+    //               onCreateOption={async (inputValue: string) => {
+    //                 try {
+    //                   const allowedChildrenTypes = Object.keys(
+    //                     org?.orgPermissions?.allowedChildrenTypes || {}
+    //                   );
+    //                   const payload: AddOrgPayload = {
+    //                     orgName: inputValue,
+    //                     orgType:
+    //                       allowedChildrenTypes.length > 0
+    //                         ? (allowedChildrenTypes[0] as EOrgType)
+    //                         : EOrgType.GENERIC,
+    //                     orgs: org ? [org] : [],
+    //                     orgVisibility: EOrgVisibility.PUBLIC,
+    //                     orgAddress: [],
+    //                     orgEmail: [],
+    //                     orgPhone: [],
+    //                     orgWeb: []
+    //                   };
 
-                      const addedOrg = await addOrg(payload).unwrap();
+    //                   const addedOrg = await addOrg(payload).unwrap();
 
-                      setOrgTrees(orgTrees.concat(addedOrg));
+    //                   setOrgTrees(orgTrees.concat(addedOrg));
 
-                      // setValue(
-                      //   "orgs",
-                      //   renderProps.value.concat({
-                      //     label: addedOrg.orgName,
-                      //     value: addedOrg._id
-                      //   })
-                      // );
+    //                   // setValue(
+    //                   //   "orgs",
+    //                   //   renderProps.value.concat({
+    //                   //     label: addedOrg.orgName,
+    //                   //     value: addedOrg._id
+    //                   //   })
+    //                   // );
 
-                      // toast({
-                      //   status: "success",
-                      //   title: "L'arbre a bien été créé !"
-                      // });
-                    } catch (error: any) {
-                      console.error(error);
-                      toast({
-                        status: "error",
-                        title: error.message
-                      });
-                    }
-                  }}
-                  //#region ui
-                  allowCreateWhileLoading
-                  formatCreateLabel={(inputValue: string) =>
-                    `Planter ${
-                      allowedChildrenTypes.length > 0
-                        ? "le " +
-                          OrgTypes[
-                            allowedChildrenTypes[0] as EOrgType
-                          ].toLowerCase()
-                        : "l'arbre"
-                    } "${inputValue}"`
-                  }
-                  isClearable
-                  isMulti
-                  noOptionsMessage={() => "Aucun résultat"}
-                  placeholder={
-                    isEditConfig?.isAddingChild ? "" : orgsPlaceholder
-                  }
-                  //#endregion
-                  //#region styling
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (defaultStyles: any) => {
-                      return {
-                        ...defaultStyles,
-                        borderColor: "#e2e8f0"
-                      };
-                    },
-                    placeholder: () => {
-                      return {
-                        color: "#A0AEC0"
-                      };
-                    }
-                  }}
-                  //#endregion
-                />
-              );
-            }}
-          />
-        )}
+    //                   // toast({
+    //                   //   status: "success",
+    //                   //   title: "L'arbre a bien été créé !"
+    //                   // });
+    //                 } catch (error: any) {
+    //                   console.error(error);
+    //                   toast({
+    //                     status: "error",
+    //                     title: error.message
+    //                   });
+    //                 }
+    //               }}
+    //               //#region ui
+    //               allowCreateWhileLoading
+    //               formatCreateLabel={(inputValue: string) =>
+    //                 `Planter ${
+    //                   allowedChildrenTypes.length > 0
+    //                     ? "le " +
+    //                       OrgTypes[
+    //                         allowedChildrenTypes[0] as EOrgType
+    //                       ].toLowerCase()
+    //                     : "l'arbre"
+    //                 } "${inputValue}"`
+    //               }
+    //               isClearable
+    //               isMulti
+    //               noOptionsMessage={() => "Aucun résultat"}
+    //               placeholder={
+    //                 isEditConfig?.isAddingChild ? "" : orgsPlaceholder
+    //               }
+    //               //#endregion
+    //               //#region styling
+    //               className="react-select-container"
+    //               classNamePrefix="react-select"
+    //               styles={{
+    //                 control: (defaultStyles: any) => {
+    //                   return {
+    //                     ...defaultStyles,
+    //                     borderColor: "#e2e8f0"
+    //                   };
+    //                 },
+    //                 placeholder: () => {
+    //                   return {
+    //                     color: "#A0AEC0"
+    //                   };
+    //                 }
+    //               }}
+    //               //#endregion
+    //             />
+    //           );
+    //         }}
+    //       />
+    //     )}
 
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="orgs" />
-        </FormErrorMessage>
-      </FormControl>
-    );
+    //     <FormErrorMessage>
+    //       <ErrorMessage errors={errors} name="orgs" />
+    //     </FormErrorMessage>
+    //   </FormControl>
+    // );
 
     const NetworkFormControl = (
       <FormControl mb={3} isInvalid={!!errors["orgs"]}>
@@ -1012,7 +1013,8 @@ export const OrgForm = withGoogleApi({
                 display="flex"
                 alignItems="center"
               >
-                Tout le monde peut ajouter un arbre {orgTypeFull2(orgType)}
+                Tout le monde peut ajouter une discussion{" "}
+                {orgTypeFull2(orgType)}
               </Switch>
 
               {/*

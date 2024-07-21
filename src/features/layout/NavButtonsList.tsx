@@ -199,13 +199,13 @@ export const NavButtonsList = ({
         <Link
           {...linkProps}
           onClick={() => {
-            router.push("/evenements", "/evenements", { shallow: true });
+            router.push("/agenda", "/agenda", { shallow: true });
             onClose && onClose();
           }}
         >
           <Button
             leftIcon={<CalendarIcon />}
-            isActive={router.asPath === "/evenements"}
+            isActive={router.asPath === "/agenda"}
             {...buttonProps}
           >
             Événements

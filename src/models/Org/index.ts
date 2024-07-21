@@ -199,7 +199,7 @@ export const orgTypeFull2 = (orgType: EOrgType = EOrgType.GENERIC): string =>
 
 export const orgTypeFull3 = (orgType: EOrgType = EOrgType.GENERIC): string => {
   return `${
-    [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(orgType) ? "un " : "une "
+    [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(orgType) ? "un " : "un "
   }${OrgTypes[orgType].toLowerCase()}`;
 };
 

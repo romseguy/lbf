@@ -365,7 +365,7 @@ export const SubscriptionEditForm = ({
           )}
         </FormLabel>
 
-        {org && !!org.orgTabs?.find(({ url }) => url === "/evenements") && (
+        {org && !!org.orgTabs?.find(({ url }) => url === "/agenda") && (
           <>
             <Switch
               {...switchProps}

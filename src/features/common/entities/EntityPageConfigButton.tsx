@@ -32,7 +32,7 @@ export const EntityPageConfigButton = ({
             onClick={() => setIsConfig(true)}
             {...props}
           >
-            Configurer
+            Configurer l'atelier
           </Button>
         </Flex>
       )}

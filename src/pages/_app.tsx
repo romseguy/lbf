@@ -5,7 +5,7 @@ import { parse } from "cookie";
 import { AppProps as NextAppProps } from "next/app";
 //import { useRouter } from "next/router";
 import NextNprogress from "nextjs-progressbar";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   getSelectorsByUserAgent,
   isMobile as rddIsMobile
@@ -28,6 +28,9 @@ import {
   singleSession
 } from "utils/auth";
 import { isServer } from "utils/isServer";
+import { useRouter } from "next/router";
+import { Spinner } from "@chakra-ui/react";
+import { SimpleLayout } from "features/layout";
 const { getEnv } = require("utils/env");
 if (getEnv === "development") {
   require("../../wdyr");
@@ -35,6 +38,7 @@ if (getEnv === "development") {
 
 interface AppProps {
   cookies?: string;
+  session?: Session;
   pageProps: PageProps;
 }
 
@@ -43,7 +47,24 @@ interface AppProps {
 export let globalEmail: string | undefined;
 
 const App = wrapper.withRedux(
-  ({ Component, cookies, pageProps }: NextAppProps<PageProps> & AppProps) => {
+  ({
+    Component,
+    cookies,
+    session,
+    pageProps
+  }: NextAppProps<PageProps> & AppProps) => {
+    let main = <Main Component={Component} {...pageProps} />;
+    const router = useRouter();
+    useEffect(() => {
+      console.log("🚀 ~ useEffect ~ session:", session);
+      if (!session) router.push("/login", "/login", { shallow: false });
+    }, [session]);
+    if (!session && router.pathname !== "/login")
+      main = (
+        <SimpleLayout {...pageProps} title="Veuillez patienter...">
+          <Spinner />
+        </SimpleLayout>
+      );
     return (
       <>
         <GlobalConfig />
@@ -57,7 +78,7 @@ const App = wrapper.withRedux(
         <ThemeProvider cookies={cookies} isMobile={pageProps.isMobile}>
           {/* <ProgressBarProvider>
             <ProgressBar className="fixed h-1 shadow-lg shadow-sky-500/20 bg-sky-500 top-0" /> */}
-          <Main Component={Component} {...pageProps} />
+          {main}
           {/* </ProgressBarProvider> */}
         </ThemeProvider>
       </>
@@ -159,6 +180,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
 
       return {
         cookies,
+        session,
         pageProps
       };
     }
