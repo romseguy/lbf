@@ -139,40 +139,14 @@ export const OrgPage = ({
           setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}
           mb={3}
-        />
+        >
+          Paramètres de l'atelier
+        </EntityPageConfigButton>
       )}
 
       {!isConfig && !isEdit && (
         <>
           <EntityPageSubscribeButton orgQuery={orgQuery} subQuery={subQuery} />
-
-          <Box my={3}>
-            <Text fontSize="smaller">
-              {org.orgType === EOrgType.GENERIC
-                ? "Arbre créé"
-                : `Atelier ${
-                    org.orgVisibility === EOrgVisibility.PRIVATE
-                      ? "protégée par un mot de passe"
-                      : org.orgVisibility === EOrgVisibility.LINK
-                      ? "accessible uniquement à ceux qui ont le lien"
-                      : ""
-                  } créé`}{" "}
-              le{" "}
-              {format(parseISO(org.createdAt!), "eeee d MMMM yyyy", {
-                locale: fr
-              })}{" "}
-              {orgCreatedByUserName && (
-                <>
-                  par :{" "}
-                  <Link variant="underline" href={`/${orgCreatedByUserName}`}>
-                    {orgCreatedByUserName}
-                  </Link>{" "}
-                  {isCreator &&
-                    `(Vous${session?.user.isAdmin ? " : admin" : ""})`}
-                </>
-              )}
-            </Text>
-          </Box>
 
           {tabs}
         </>

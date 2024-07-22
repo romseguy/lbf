@@ -2,6 +2,7 @@ import { CalendarIcon } from "@chakra-ui/icons";
 import {
   Badge,
   BadgeProps,
+  Box,
   Flex,
   Icon,
   Input,
@@ -9,11 +10,16 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  useColorMode
+  VStack,
+  useColorMode,
+  Alert,
+  AlertIcon,
+  Tooltip,
+  Button
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaTools } from "react-icons/fa";
+import { FaImages, FaTools } from "react-icons/fa";
 import { css } from "twin.macro";
 import { useGetDocumentsQuery } from "features/api/documentsApi";
 import { useEditOrgMutation } from "features/api/orgsApi";
@@ -21,10 +27,12 @@ import {
   AppHeading,
   Column,
   ColumnProps,
+  EntityButton,
   EntityPageDocuments,
   EntityPageTab,
   EntityPageTabList,
-  EntityPageTopics
+  EntityPageTopics,
+  Link
 } from "features/common";
 import { EventsList } from "features/events/EventsList";
 import theme, { scrollbarCss } from "features/layout/theme";
@@ -87,7 +95,7 @@ export const OrgPageTabs = ({
   };
   const [editOrg] = useEditOrgMutation();
   const org = orgQuery.data;
-  console.log("🚀 ~ org:", org);
+  // console.log("🚀 ~ org:", org);
   const orgTabs = [...(org.orgTabs || defaultTabs)];
   //.filter((tab) => tab.label === "" && !session ? false : true);
   //#region tabs
@@ -151,6 +159,13 @@ export const OrgPageTabs = ({
   >(tabs.map((t) => ({ ...t, checked: true })));
   //#endregion
 
+  // const events = org.orgEvents.map((event) => ({
+  //   eventName: event.eventName,
+  //   eventTopics: event.eventTopics.map((topic) => ({
+  //     topicName: topic.topicName
+  //   }))
+  // }));
+
   return (
     <Tabs
       defaultIndex={0}
@@ -189,14 +204,16 @@ export const OrgPageTabs = ({
             })}
       >
         {sortedTabs.map((tab, tabIndex) => {
-          if (tab.label === "") return null;
+          let label = typeof tab.label === "string" ? tab.label : tab.label[0];
+
+          if (label === "") return null;
 
           const key = `org-${normalize(
             Array.isArray(tab.label) ? tab.label[0] : tab.label
           )}-tab`;
           const url = Array.isArray(tab.url) ? tab.url[0] : tab.url;
           const isCurrent = tabIndex === currentTabIndex;
-          console.log("🚀 ~ {sortedTabs.map ~ url:", url);
+          // console.log("🚀 ~ {sortedTabs.map ~ url:", url);
 
           return (
             <EntityPageTab
@@ -204,7 +221,7 @@ export const OrgPageTabs = ({
               currentTabIndex={currentTabIndex}
               tab={tab}
               tabIndex={tabIndex}
-              {...(url === "/galerie" &&
+              {...(url === "/galeries" &&
               Array.isArray(documentsQuery.data) &&
               documentsQuery.data.length > 0
                 ? {}
@@ -224,7 +241,7 @@ export const OrgPageTabs = ({
                     ? "white"
                     : !isDark && isCurrent
                     ? "white"
-                    : !isDark && url !== "/"
+                    : !isDark //&& url !== "/"
                     ? "black"
                     : "none"};
                 }
@@ -237,12 +254,11 @@ export const OrgPageTabs = ({
               }}
               data-cy={key}
             >
-              {url !== "/"
-                ? typeof tab.label === "string"
-                  ? tab.label
-                  : tab.label[0]
-                : ""}
-              {url === "/galerie"
+              {label}
+              {url === "/agenda" && org.orgEvents.length > 0 && (
+                <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
+              )}
+              {/* {url === "/galeries"
                 ? Array.isArray(documentsQuery.data) &&
                   documentsQuery.data.length > 0 && (
                     <Badge {...badgeProps}>{documentsQuery.data.length}</Badge>
@@ -259,7 +275,7 @@ export const OrgPageTabs = ({
                 ? org.orgProjects.length > 0 && (
                     <Badge {...badgeProps}>{org.orgProjects.length}</Badge>
                   )
-                : ""}
+                : ""} */}
             </EntityPageTab>
           );
         })}
@@ -273,7 +289,7 @@ export const OrgPageTabs = ({
             }
           `}
         >
-          {!!tabs.find(({ label }) => belongs(label, "Accueil")) && (
+          {!!tabs.find(({ url }) => belongs(url, "/")) && (
             <TabPanel aria-hidden>
               <OrgPageHomeTabPanel
                 isCreator={isCreator}
@@ -294,6 +310,31 @@ export const OrgPageTabs = ({
                 query={orgQuery}
                 subQuery={subQuery}
               />
+
+              {/* <AppHeading>Discussions des ateliers passés</AppHeading> */}
+              {/* <VStack spacing={3}>
+                {org.orgEvents.map((event) => (
+                  <Column key={event._id}>
+                    <VStack spacing={3}>
+                      <EntityButton event={event} />
+                      {!event.eventTopics.length ? (
+                        <Alert status="info">
+                          <AlertIcon />
+                          Aucune discussions pour cet atelier.
+                        </Alert>
+                      ) : (
+                        event.eventTopics.map((topic) => (
+                          <EntityButton
+                            colorScheme="blue"
+                            event={event}
+                            topic={topic}
+                          />
+                        ))
+                      )}
+                    </VStack>
+                  </Column>
+                ))}
+              </VStack> */}
             </TabPanel>
           )}
 
@@ -334,9 +375,54 @@ export const OrgPageTabs = ({
             </TabPanel>
           )} */}
 
-          {!!tabs.find(({ label }) => belongs(label, "Galerie")) && (
+          {!!tabs.find(({ label }) => belongs(label, "Galeries")) && (
             <TabPanel aria-hidden>
               <EntityPageDocuments isCreator={isCreator} query={orgQuery} />
+
+              {/* <AppHeading>Galeries photo des ateliers passés</AppHeading> */}
+              {/* <VStack spacing={3}>
+                {org.orgEvents.map((event) => (
+                  <Column key={event._id}>
+                    <VStack spacing={3}>
+                      <EntityButton event={event} />
+                      <Tooltip label="Aller à la galerie" hasArrow>
+                        <span>
+                          <Button
+                            //aria-hidden
+                            colorScheme="blue"
+                            cursor="pointer"
+                            height="auto"
+                            m={0}
+                            p={1}
+                            pr={2}
+                            textAlign="left"
+                            whiteSpace="normal"
+                            onClick={(e) => {
+                              router.push(
+                                "/" + event.eventUrl + "/galerie",
+                                "/" + event.eventUrl + "/galerie",
+                                { shallow: true }
+                              );
+                            }}
+                          >
+                            <Icon
+                              as={FaImages}
+                              color="green.500"
+                              mr={1}
+                              css={css`
+                                path {
+                                  fill: ${isDark ? "white" : "white"};
+                                }
+                              `}
+                            />
+                            Galerie photo
+                          </Button>
+                        </span>
+                      </Tooltip>
+                    </VStack>
+                  </Column>
+                ))}
+              </VStack> */}
             </TabPanel>
           )}
 

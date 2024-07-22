@@ -56,31 +56,6 @@ const IndexPage = ({ ...props }: PageProps) => {
         </>
       ) : (
         <>
-          <Flex
-            flexDirection="column"
-            width={isMobile ? "auto" : "md"}
-            m="0 auto"
-          >
-            <Alert
-              fontSize="18px"
-              status="info"
-              m="0 auto"
-              mb={5}
-              {...(isMobile ? { mt: 12 } : {})}
-            >
-              <AlertIcon />
-              <Text align="justify">
-                Pour accéder aux ateliers LEO{" "}
-                <b>
-                  saisissez simplement votre adresse e-mail ci-dessous pour
-                  recevoir un e-mail
-                </b>{" "}
-                qui vous permettra d'accéder aux ateliers. Vous aurez ensuite la
-                possibilité de définir un mot de passe pour votre compte.
-              </Text>
-            </Alert>
-          </Flex>
-
           <LoginForm
             {...props}
             title=""

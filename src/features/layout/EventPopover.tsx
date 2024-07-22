@@ -200,11 +200,11 @@ const EventPopoverContent = ({
         )}
       </PopoverBody>
       <PopoverFooter>
-        <EntityAddButton
+        {/* <EntityAddButton
           onClick={() => {
             onClose();
           }}
-        />
+        /> */}
       </PopoverFooter>
     </>
   );

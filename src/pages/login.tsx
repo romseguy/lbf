@@ -44,6 +44,7 @@ import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
 import { magic, sealOptions, TOKEN_NAME } from "utils/auth";
 import { seal } from "@hapi/iron";
+import { LoginForm } from "features/forms/LoginForm";
 
 const onLoginWithSocial = async (provider: OAuthProvider) => {
   await magic.oauth.loginWithRedirect({
@@ -227,6 +228,26 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
               )}
 
               {!session && (
+                <LoginForm
+                  {...props}
+                  isMobile={isMobile}
+                  title=""
+                  //title="Veuillez saisir votre adresse e-mail ci-dessous pour accéder aux ateliers"
+                />
+              )}
+            </>
+          )}
+        </Flex>
+      </Flex>
+    </>
+  );
+};
+
+export default LoginPage;
+
+{
+  /*
+
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <Column borderRadius={isMobile ? 0 : undefined} mt={3} mb={5}>
                     <EmailControl
@@ -276,16 +297,8 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
 
                   <BackButton colorScheme="red" mb={5} />
                 </form>
-              )}
-            </>
-          )}
-        </Flex>
-      </Flex>
-    </>
-  );
-};
-
-export default LoginPage;
+  */
+}
 
 {
   /* <Link href="/" m="0 auto" mt={3} mb={1}>

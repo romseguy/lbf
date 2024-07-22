@@ -32,6 +32,7 @@ import {
   Button,
   Column,
   EmailControl,
+  ErrorMessageText,
   Link,
   PasswordControl
 } from "features/common";
@@ -44,6 +45,8 @@ import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
 import { magic, sealOptions, TOKEN_NAME } from "utils/auth";
 import { seal } from "@hapi/iron";
+import { handleError } from "utils/form";
+import { ErrorMessage } from "@hookform/error-message";
 
 const onLoginWithSocial = async (provider: OAuthProvider) => {
   await magic.oauth.loginWithRedirect({
@@ -80,56 +83,72 @@ export const LoginForm = ({
   //const email = useWatch<string>({ control, name: "email" });
   //const password = useWatch<string>({ control, name: "password" });
 
+  const onChange = () => {
+    clearErrors("formErrorMessage");
+  };
   const onSubmit = async (form: { email: string; password?: string }) => {
     console.log("submitted", form);
     setIsLoggingIn(true);
 
-    if (form.password) {
-      const { data: user } = await dispatch(
-        getUser.initiate({ slug: form.email })
-      );
+    try {
+      if (form.password) {
+        const { data: user } = await dispatch(
+          getUser.initiate({ slug: form.email })
+        );
 
-      if (!user) throw new Error("Identifiants incorrects");
+        if (!user) throw new Error("Identifiants incorrects");
 
-      if (user?.passwordSalt) {
-        const hash = await bcrypt.hash(form.password, user.passwordSalt);
-        const {
-          data: { authenticated }
-        } = await api.post("login", { email: form.email, hash });
+        if (user?.passwordSalt) {
+          const hash = await bcrypt.hash(form.password, user.passwordSalt);
+          const {
+            data: { authenticated }
+          } = await api.post("login", { email: form.email, hash });
 
-        if (authenticated) window.location.href = "/";
-        else
-          toast({
-            status: "error",
-            title: "L'adresse e-mail et le mot de passe ne correspondent pas"
-          });
+          if (authenticated) window.location.href = "/";
+          else
+            toast({
+              status: "error",
+              title: "L'adresse e-mail et le mot de passe ne correspondent pas"
+            });
 
-        // todo: POST hash to /api/login
+          // todo: POST hash to /api/login
 
-        // if (user.password === hash) {
-        //   toast({ title: "OK" });
-        //   const userToken = {
-        //     email: form.email,
-        //     userId: user._id,
-        //     userName: user.userName
-        //   };
+          // if (user.password === hash) {
+          //   toast({ title: "OK" });
+          //   const userToken = {
+          //     email: form.email,
+          //     userId: user._id,
+          //     userName: user.userName
+          //   };
 
-        //   const authToken = await seal(userToken, "i9udjxke5S", sealOptions);
+          //   const authToken = await seal(userToken, "i9udjxke5S", sealOptions);
 
-        //   dispatch(
-        //     setSession({
-        //       user: userToken,
-        //       [TOKEN_NAME]: authToken
-        //     })
-        //   );
-        // } else toast({ title: "NOK" });
+          //   dispatch(
+          //     setSession({
+          //       user: userToken,
+          //       [TOKEN_NAME]: authToken
+          //     })
+          //   );
+          // } else toast({ title: "NOK" });
+        }
+
+        setIsLoggingIn(false);
+      } else {
+        await magic.auth.loginWithMagicLink({
+          email: form.email,
+          redirectURI: new URL("/callback", window.location.origin).href
+        });
       }
-
+    } catch (error) {
+      console.log("🚀 ~ onSubmit ~ error:", error);
       setIsLoggingIn(false);
-    } else {
-      await magic.auth.loginWithMagicLink({
-        email: form.email,
-        redirectURI: new URL("/callback", window.location.origin).href
+      handleError(error, (message, field) => {
+        console.log("🚀 ~ handleError ~ message:", message);
+        console.log("🚀 ~ handleError ~ field:", field);
+        setError(field || "formErrorMessage", {
+          type: "manual",
+          message
+        });
       });
     }
   };
@@ -177,8 +196,34 @@ export const LoginForm = ({
           )}
 
           {!session && (
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
               <Column borderRadius={isMobile ? 0 : undefined} mt={3} mb={5}>
+                <Flex
+                  flexDirection="column"
+                  //width={isMobile ? "auto" : "md"}
+                  m="0 auto"
+                >
+                  <Alert
+                    fontSize="18px"
+                    status="info"
+                    m="0 auto"
+                    mb={5}
+                    {...(isMobile ? { mt: 12 } : {})}
+                  >
+                    <AlertIcon />
+                    <Text align="justify">
+                      Pour accéder aux ateliers LEO{" "}
+                      <b>
+                        saisissez simplement votre adresse e-mail ci-dessous
+                        pour recevoir un e-mail
+                      </b>{" "}
+                      qui vous permettra d'accéder aux ateliers. Vous aurez
+                      ensuite la possibilité de définir un mot de passe pour
+                      votre compte.
+                    </Text>
+                  </Alert>
+                </Flex>
+
                 <EmailControl
                   name="email"
                   control={control}
@@ -206,6 +251,17 @@ export const LoginForm = ({
                     mb={3}
                   />
                 )}
+
+                <ErrorMessage
+                  errors={errors}
+                  name="formErrorMessage"
+                  render={({ message }) => (
+                    <Alert status="error" mb={3}>
+                      <AlertIcon />
+                      <ErrorMessageText>{message}</ErrorMessageText>
+                    </Alert>
+                  )}
+                />
 
                 <Button
                   type="submit"

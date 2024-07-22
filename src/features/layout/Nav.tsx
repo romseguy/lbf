@@ -91,13 +91,19 @@ export const Nav = ({
                           colorScheme="purple"
                           icon={<Icon as={FaHome} boxSize={8} />}
                           mr={2}
-                          onClick={() => window.history.back()}
+                          onClick={() =>
+                            router.push(
+                              `/${entity.eventOrgs[0].orgUrl}`,
+                              `/${entity.eventOrgs[0].orgUrl}`,
+                              { shallow: true }
+                            )
+                          }
                         />
                       )}
                     </>
                   )}
                   <AppHeading mb={0}>
-                    <Link href="/" shallow>
+                    <Link href="/photo" shallow>
                       {pageTitle
                         ? pageTitle
                         : entity

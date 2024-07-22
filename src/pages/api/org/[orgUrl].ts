@@ -172,7 +172,14 @@ handler.get<
         org = await org
           .populate({
             path: "orgEvents",
-            populate: { path: "eventOrgs" }
+            populate: [
+              { path: "eventOrgs" },
+              {
+                path: "eventTopics",
+                select:
+                  "topicName topicMessages.createdAt topicMessages.updatedAt"
+              }
+            ]
           })
           .execPopulate();
 
@@ -636,5 +643,13 @@ handler.delete<
     res.status(500).json(createEndpointError(error));
   }
 });
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "50mb"
+    }
+  }
+};
 
 export default handler;

@@ -31,6 +31,7 @@ import { isServer } from "utils/isServer";
 import { useRouter } from "next/router";
 import { Spinner } from "@chakra-ui/react";
 import { SimpleLayout } from "features/layout";
+import { useSession } from "hooks/useSession";
 const { getEnv } = require("utils/env");
 if (getEnv === "development") {
   require("../../wdyr");
@@ -50,14 +51,17 @@ const App = wrapper.withRedux(
   ({
     Component,
     cookies,
-    session,
-    pageProps
+    pageProps,
+    ...props
   }: NextAppProps<PageProps> & AppProps) => {
+    const { data } = useSession();
+    const session = data || props.session;
     let main = <Main Component={Component} {...pageProps} />;
     const router = useRouter();
     useEffect(() => {
       console.log("🚀 ~ useEffect ~ session:", session);
-      if (!session) router.push("/login", "/login", { shallow: false });
+      if (!session && router.pathname !== "/callback")
+        router.push("/login", "/login", { shallow: false });
     }, [session]);
     if (!session && router.pathname !== "/login")
       main = (
@@ -111,14 +115,14 @@ App.getInitialProps = wrapper.getInitialAppProps(
       let session: Session | undefined;
 
       if (devSession && getEnv() === "development") {
-        // console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
+        // // console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
         session = devSession;
         //@ts-ignore
         email = devSession.user.email;
       }
 
       if (testSession && getEnv() === "test") {
-        // console.log("🚀 ~ App.getInitialProps ~ testSession:", testSession);
+        // // console.log("🚀 ~ App.getInitialProps ~ testSession:", testSession);
         session = testSession;
         //@ts-ignore
         email = testSession.user.email;
@@ -129,11 +133,11 @@ App.getInitialProps = wrapper.getInitialAppProps(
 
       if (typeof cookies === "string" && cookies.includes(TOKEN_NAME)) {
         const cookie = parse(cookies);
-        // console.log("🚀 ~ App.getInitialProps ~ cookie map:", cookie);
+        // // console.log("🚀 ~ App.getInitialProps ~ cookie map:", cookie);
         authToken = getAuthToken(cookie);
 
         if (authToken) {
-          // console.log("🚀 ~ App.getInitialProps ~ authToken:", authToken);
+          // // console.log("🚀 ~ App.getInitialProps ~ authToken:", authToken);
           const user = await unseal(authToken, process.env.SECRET, sealOptions);
 
           if (user) {

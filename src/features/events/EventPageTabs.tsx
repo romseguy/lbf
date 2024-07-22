@@ -140,7 +140,7 @@ export const EventPageTabs = ({
               tab={tab}
               tabIndex={tabIndex}
               onClick={() => {
-                if (isDisabled)
+                if (isDisabled && tabIndex > 0)
                   toast({
                     title: "Cet onglet sera accessible après l'atelier"
                   });

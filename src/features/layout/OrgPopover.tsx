@@ -253,7 +253,7 @@ const OrgPopoverContent = ({
         )}
       </PopoverBody>
       <PopoverFooter>
-        <EntityAddButton orgType={orgType} mt={1} />
+        {/* <EntityAddButton orgType={orgType} mt={1} /> */}
       </PopoverFooter>
     </>
   );

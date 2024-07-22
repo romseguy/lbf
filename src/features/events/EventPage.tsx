@@ -131,7 +131,9 @@ export const EventPage = ({
           setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}
           mb={3}
-        />
+        >
+          Paramètres de l'événement
+        </EntityPageConfigButton>
       )}
 
       {!isConfig && !isEdit && (
@@ -139,9 +141,9 @@ export const EventPage = ({
           {/* <EntityPageSubscribeButton eventQuery={eventQuery} subQuery={subQuery} /> */}
 
           <Box mb={3}>
-            {tab === "accueil" && !isCreator && (
+            {/* {tab === "accueil" && !isCreator && (
               <EventAttendingForm eventQuery={eventQuery} mb={3} />
-            )}
+            )} */}
 
             {tab === "invitations" && isCreator && !event.isApproved && (
               <Alert status="info">

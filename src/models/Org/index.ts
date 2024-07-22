@@ -141,7 +141,7 @@ export const getSubscriptions = (org: IOrg, type: string) => {
 //#region tabs
 // url and label must be same (not case sensitive)
 export const defaultTabs: IOrgTabWithMetadata[] = [
-  { order: 0, label: "Accueil", icon: GrWorkshop, url: "/" },
+  { order: 0, label: "Présentation", icon: FaHome, url: "/" },
   {
     order: 1,
     label: ["Discussions", "d"],
@@ -150,7 +150,7 @@ export const defaultTabs: IOrgTabWithMetadata[] = [
   },
   { order: 2, label: "Agenda", icon: CalendarIcon, url: "/agenda" },
   // { order: 3, label: "Projets", icon: FaTools, url: "/projets" },
-  { order: 3, label: "Galerie", icon: FaImages, url: "/galerie" }
+  { order: 3, label: "Galeries", icon: FaImages, url: "/galeries" }
   //{ order: 5, label: "", icon: SettingsIcon, url: "/parametres" }
 ];
 export const getDefaultTab = ({ url }: { url?: string | string[] }) => {

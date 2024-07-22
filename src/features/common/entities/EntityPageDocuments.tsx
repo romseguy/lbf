@@ -125,6 +125,8 @@ export const EntityPageDocuments = ({
     documentsQuery.refetch();
   }, [entity]);
 
+  //if (isO) return null;
+
   return (
     <>
       {/* <Flex alignItems="center" mb={3}>

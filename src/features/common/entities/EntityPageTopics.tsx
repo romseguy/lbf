@@ -1,13 +1,11 @@
-import { ChatIcon } from "@chakra-ui/icons";
-import { Flex, useColorMode } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import React, { useEffect } from "react";
-import { Column, AppHeading } from "features/common";
+import { Flex, HStack, useColorMode } from "@chakra-ui/react";
+import React from "react";
+import { Column } from "features/common";
 import { TopicsList } from "features/forum/TopicsList";
-import { useScroll } from "hooks/useScroll";
-import { IEntity } from "models/Entity";
+import { IEntity, isEvent } from "models/Entity";
 import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
+import { IoMdBuild } from "react-icons/io";
 
 export const EntityPageTopics = ({
   currentTopicName,
@@ -24,34 +22,40 @@ export const EntityPageTopics = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  // const isE = isEvent(query.data);
+
+  // if (!isE) return null;
+
+  return (
+    <Column bg={isDark ? "gray.700" : "lightblue"}>
+      <TopicsList
+        currentTopicName={currentTopicName}
+        isCreator={isCreator}
+        isFollowed={isFollowed}
+        query={query}
+        subQuery={subQuery}
+      />
+    </Column>
+  );
+};
+
+{
+  /*
   const router = useRouter();
   const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
 
-  // useEffect(() => {
-  //   if (Array.isArray(router.query.name) && !!router.query.name[2]) return;
+  useEffect(() => {
+    if (Array.isArray(router.query.name) && !!router.query.name[2]) return;
 
-  //   executeScroll();
-  //   console.log(
-  //     "🚀 ~ file: OrgPageTabs.tsx:TopicsTabPanel:62 ~ useEffect ~ executeScroll:"
-  //   );
-  // }, []);
+    executeScroll();
+    console.log(
+      "🚀 ~ file: OrgPageTabs.tsx:TopicsTabPanel:62 ~ useEffect ~ executeScroll:"
+    );
+  }, []);
 
-  return (
-    <>
-      {/* <Flex ref={elementToScrollRef} alignItems="center" mb={3}>
+      <Flex ref={elementToScrollRef} alignItems="center" mb={3}>
         <ChatIcon boxSize={6} mr={3} />
         <AppHeading>Discussions</AppHeading>
-      </Flex> */}
-
-      <Column bg={isDark ? "gray.700" : "lightblue"}>
-        <TopicsList
-          currentTopicName={currentTopicName}
-          isCreator={isCreator}
-          isFollowed={isFollowed}
-          query={query}
-          subQuery={subQuery}
-        />
-      </Column>
-    </>
-  );
-};
+      </Flex>
+  */
+}

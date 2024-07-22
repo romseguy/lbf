@@ -53,13 +53,15 @@ export const DocumentsListMasonry = ({
   isLoading: boolean;
   isFetching: boolean;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const router = useRouter();
   const screenHeight = useSelector(selectScreenHeight);
   const screenWidth = useSelector(selectScreenWidth);
 
   //#region column count relative to screen width
   const [columnCount, setColumnCount] = useState<number>(1);
-  const [marginBetween, setMarginBetween] = useState<number>(0);
+  const [marginBetween, setMarginBetween] = useState<number>(15);
 
   useEffect(() => {
     const getColumnCount = () => {
@@ -134,7 +136,34 @@ export const DocumentsListMasonry = ({
       </Flex>
 
       <Flex alignItems="center" mb={3}>
-        <Text ml={5}>Marges</Text>
+        <Text mx={5}>Marges</Text>
+        <NumberInput
+          maxW="100px"
+          allowMouseWheel
+          value={marginBetween}
+          //min={0}
+          //max={200}
+          onChange={handleChange}
+        >
+          <NumberInputField
+            bgColor="white"
+            color={isDark ? "black" : undefined}
+          />
+          <NumberInputStepper>
+            <NumberIncrementStepper
+              bg="green.200"
+              color={isDark ? "black" : undefined}
+              // _active={{ bg: "green.300" }}
+              children="+"
+            />
+            <NumberDecrementStepper
+              bg="pink.200"
+              color={isDark ? "black" : undefined}
+              // _active={{ bg: "pink.300" }}
+              children="-"
+            />
+          </NumberInputStepper>
+        </NumberInput>
         <Slider
           flex="1"
           focusThumbOnChange={false}
@@ -145,32 +174,16 @@ export const DocumentsListMasonry = ({
           <SliderTrack>
             <SliderFilledTrack />
           </SliderTrack>
-          <SliderThumb fontSize="sm" boxSize="32px" children={marginBetween} />
+          <SliderThumb
+            color="black"
+            fontSize="sm"
+            boxSize="32px"
+            children={marginBetween}
+          />
         </Slider>
-        <NumberInput
-          maxW="100px"
-          mr="2rem"
-          //allowMouseWheel
-          value={marginBetween}
-          //min={0}
-          //max={200}
-          onChange={handleChange}
-        >
-          <NumberInputField />
-          <NumberInputStepper>
-            <NumberIncrementStepper
-            // bg="green.200"
-            // _active={{ bg: "green.300" }}
-            // children="+"
-            />
-            <NumberDecrementStepper
-            // bg="pink.200"
-            // _active={{ bg: "pink.300" }}
-            // children="-"
-            />
-          </NumberInputStepper>
-        </NumberInput>
       </Flex>
+
+      <Box as="hr" mb={5} />
 
       {isLoading || isFetching ? (
         <Spinner m={3} />
@@ -182,13 +195,19 @@ export const DocumentsListMasonry = ({
       ) : (
         !!columnCount && (
           <>
-            <Flex justifyContent="center">
-              {masonry.map((column, index) => {
-                console.log("🚀 ~ {masonry.map ~ column index:", index);
+            <Flex>
+              {masonry.map((column, columnIndex) => {
+                // console.log(
+                // "🚀 ~ {masonry.map ~ column :",
+                // columnIndex,
+                // column
+                // );
+
                 return (
-                  <Flex key={index} flexDirection="column" width="100%">
-                    {column.map((image, imageIndex) => {
-                      console.log("🚀 ~ {column.map ~ row index:", imageIndex);
+                  <Flex key={columnIndex} flexDir="column">
+                    {column.map((image, rowIndex) => {
+                      // console.log("🚀 ~ {column.map ~ row index:", rowIndex);
+
                       let marginAround = 2 * (4 * 12 + 24);
                       marginAround = 0;
                       //const marginBetween = (columnCount - 1) * 24;
@@ -218,43 +237,66 @@ export const DocumentsListMasonry = ({
                         newMW = (screenWidth - marginAround) / columnCount;
                       }
 
-                      let width = image.width > newMW ? newMW : image.width;
+                      // let width = image.width > newMW ? newMW : image.width;
 
-                      console.log(
-                        "modulo",
-                        index,
-                        //imageIndex,
-                        columnCount,
-                        index / (columnCount - 1)
-                      );
+                      // if (columnIndex / (columnCount - 1) !== 1) {
+                      //   width -= marginBetween * 12;
+                      // }
+
+                      // console.log(
+                      //   "modulo",
+                      //   columnIndex,
+                      //   //imageIndex,
+                      //   columnCount,
+                      //   columnIndex / (columnCount - 1)
+                      // );
 
                       return (
-                        <Image
-                          key={`image-${imageIndex}`}
-                          //ref={imageRefs[image.url]}
-                          src={image.url}
-                          width={`${width}px`}
-                          borderRadius="12px"
-                          cursor="pointer"
-                          //mb={3}
+                        <Box
                           pb={
-                            imageIndex !== images.length / columnCount - 1
+                            rowIndex !== images.length / columnCount - 1
                               ? marginBetween + "px"
                               : 0
                           }
                           pr={
-                            index / (columnCount - 1) !== 1
+                            //columnIndex / (columnCount - 1) !== 1
+                            columnIndex < columnCount - 1
                               ? marginBetween + "px"
                               : 0
                           }
-                          onClick={() => {
-                            onOpen(image);
-                          }}
-                          // onLoad={() => {
-                          //   if (!isLoaded[image.url])
-                          //     setIsLoaded({ [image.url]: true });
-                          // }}
-                        />
+                          pl={
+                            //columnIndex / (columnCount - 1) === 1
+                            //columnIndex == columnCount ? marginBetween + "px" : 0
+                            0
+                          }
+                        >
+                          <Image
+                            key={`image-${rowIndex}`}
+                            //ref={imageRefs[image.url]}
+                            src={image.url}
+                            //width={`${width}px`}
+                            borderRadius="12px"
+                            cursor="pointer"
+                            //mb={3}
+                            // pb={
+                            //   rowIndex !== images.length / columnCount - 1
+                            //     ? marginBetween + "px"
+                            //     : 0
+                            // }
+                            // pr={
+                            //   columnIndex / (columnCount - 1) !== 1
+                            //     ? marginBetween + "px"
+                            //     : 0
+                            // }
+                            onClick={() => {
+                              onOpen(image);
+                            }}
+                            // onLoad={() => {
+                            //   if (!isLoaded[image.url])
+                            //     setIsLoaded({ [image.url]: true });
+                            // }}
+                          />
+                        </Box>
                       );
                     })}
                   </Flex>

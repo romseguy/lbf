@@ -1,14 +1,9 @@
 Rapide
 
-- limite 5 mega banniere
-- Rajouter présentation pour hometab (et changer l'icone), description en 1er, avec coordonnées isOpen
-- Rajouter Aucun événement ""dans les 7 prochain jours""
-- angle qui s'aronddissqent  pas1'
-- marge 15 par défaut
 - orgpage :
 
-  * galerie avec les liens vers les galeries des événements passés (option aperçu photos)
-  * texte "vous pouvez déposer vos photos dans la galerie de l'événement auquel vous avez participé'"
+  - galerie avec les liens vers les galeries des événements passés (option aperçu photos)
+  - texte "vous pouvez déposer vos photos dans la galerie de l'événement auquel vous avez participé'"
 
 - /galerie bouton ajouter fichier direct
 
@@ -18,6 +13,7 @@ Rapide
 
 Long
 
+- limite 5 mega banniere
 - orgpage.topics doit regrouper toutes les discussions de tous les événements
 - garder les notif mail pour les réponses aux discussions
 - participer aux discussions et aux galeries doit être réservé à la liste des participants

@@ -399,7 +399,7 @@ const EventsListTable = ({
                     ))}
                   </>
                 ) : (
-                  "."
+                  " dans les 7 prochains jours."
                 )}
               </Box>
             </Alert>
