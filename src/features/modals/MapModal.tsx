@@ -142,8 +142,8 @@ export const MapModal = withGoogleApi({
                 <Spinner />
               ) : (
                 <Text>
-                  Il n'y a encore rien à afficher sur cette carte, revenez plus
-                  tard !
+                  Il n'y a encore rien à descriptionr sur cette carte, revenez
+                  plus tard !
                 </Text>
               )}
             </ModalBody>

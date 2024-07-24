@@ -115,7 +115,7 @@ export const EventsListItem = ({
               <Tooltip
                 label={
                   !isCategorySelected
-                    ? `Afficher les événements de la catégorie "${eventCategory.label}"`
+                    ? `Descriptionr les événements de la catégorie "${eventCategory.label}"`
                     : ""
                 }
               >
@@ -300,11 +300,11 @@ export const EventsListItem = ({
                       })
                     }
                   >
-                    Voir l'affiche de l'événement
+                    Voir l'description de l'événement
                   </Button>
                 </Box>
               ) : (
-                <Text fontSize="smaller">Aucune affiche disponible.</Text>
+                <Text fontSize="smaller">Aucune description disponible.</Text>
               )}
             </GridItem>
 

@@ -112,7 +112,7 @@ export const EntityConfigStyles = ({
               display="flex"
               alignItems="center"
             >
-              Afficher l'entête
+              Descriptionr l'entête
             </Switch>
           </FormControl>
 

@@ -40,9 +40,12 @@ export const EventPageDescription = ({
           />
         </div>
       ) : isCreator ? (
-        <Tooltip placement="right" label={`Ajouter une affiche à l'événement`}>
+        <Tooltip
+          placement="right"
+          label={`Ajouter une description à l'événement`}
+        >
           <IconButton
-            aria-label={`Ajouter une affiche à l'événement`}
+            aria-label={`Ajouter une description à l'événement`}
             alignSelf="flex-start"
             colorScheme="teal"
             icon={

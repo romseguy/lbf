@@ -88,11 +88,11 @@ export const EventPageHomeTabPanel = ({
       <Small />
 
       <TabContainer {...tabContainerProps} mb={0}>
-        <TabContainerHeader heading="Affiche de l'événement">
+        <TabContainerHeader heading="Description de l'événement">
           {event.eventDescription && isCreator && (
-            <Tooltip hasArrow label="Modifier l'affiche" placement="bottom">
+            <Tooltip hasArrow label="Modifier l'description" placement="bottom">
               <IconButton
-                aria-label="Modifier l'affiche"
+                aria-label="Modifier l'description"
                 icon={<EditIcon />}
                 bg="transparent"
                 _hover={{ color: "green" }}

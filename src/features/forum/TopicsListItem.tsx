@@ -381,7 +381,7 @@ export const TopicsListItem = ({
                     <Tooltip
                       label={
                         !hasCategorySelected
-                          ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
+                          ? `Descriptionr les discussions de la catégorie ${topicCategoryLabel}`
                           : ""
                       }
                       hasArrow

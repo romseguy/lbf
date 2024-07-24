@@ -174,7 +174,7 @@ export const TopicsListCategories = ({
             }}
           >
             <Tooltip
-              label={`Afficher les discussions de la catégorie "${label}"`}
+              label={`Descriptionr les discussions de la catégorie "${label}"`}
               hasArrow
             >
               <Flex alignItems="center" p={2}>
