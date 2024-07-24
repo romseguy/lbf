@@ -135,6 +135,56 @@ export const EntityPageDocuments = ({
       </Flex> */}
 
       <TabContainer borderBottomRadius="lg">
+        {/* <TabContainerHeader></TabContainerHeader> */}
+
+        <TabContainerContent>
+          <Button
+            colorScheme="teal"
+            leftIcon={<AddIcon />}
+            rightIcon={isAdd ? <ChevronUpIcon /> : <ChevronRightIcon />}
+            onClick={() => {
+              if (!session) {
+                router.push("/login", "/login", { shallow: true });
+                return;
+              }
+
+              // if (org && !props.isCreator) {
+              //   toast({
+              //     status: "error",
+              //     title: `Vous n'avez pas la permission ${orgTypeFull(
+              //       org.orgType
+              //     )} pour ajouter un fichier`
+              //   });
+              //   return;
+              // }
+
+              setIsAdd(!isAdd);
+            }}
+          >
+            Ajouter un fichier
+          </Button>
+        </TabContainerContent>
+      </TabContainer>
+
+      <DocumentsListMasonry
+        isCreator={isCreator}
+        images={documentsQuery.images}
+        imagesSize={documentsQuery.imagesSize}
+        isFetching={documentsQuery.isFetching}
+        isLoading={documentsQuery.isLoading}
+        mb={5}
+        p={0}
+      />
+
+      {hasItems(documentsQuery.videos) && (
+        <DocumentsListPlayer entity={entity} p={0} />
+      )}
+    </>
+  );
+};
+
+{
+  /*
         <TabContainerHeader
           alignItems="center"
           borderBottomRadius={isFilesOpen ? undefined : "lg"}
@@ -156,6 +206,7 @@ export const EntityPageDocuments = ({
 
           <Badge {...badgeProps}>{documentsQuery.data?.length || ""}</Badge>
         </TabContainerHeader>
+
         {isFilesOpen && (
           <TabContainerContent
             pb={0}
@@ -239,21 +290,5 @@ export const EntityPageDocuments = ({
             )}
           </TabContainerContent>
         )}
-      </TabContainer>
-
-      <DocumentsListMasonry
-        isCreator={isCreator}
-        images={documentsQuery.images}
-        imagesSize={documentsQuery.imagesSize}
-        isFetching={documentsQuery.isFetching}
-        isLoading={documentsQuery.isLoading}
-        mb={5}
-        p={0}
-      />
-
-      {hasItems(documentsQuery.videos) && (
-        <DocumentsListPlayer entity={entity} p={0} />
-      )}
-    </>
-  );
-};
+  */
+}

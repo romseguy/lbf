@@ -20,13 +20,14 @@ import {
   Spinner,
   Text,
   useColorMode,
-  UseDisclosureProps
+  UseDisclosureProps,
+  useToast
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { FaImage } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { IndexedRemoteImage } from "features/api/documentsApi";
-import { Column, ColumnProps, AppHeading } from "features/common";
+import { Column, ColumnProps, AppHeading, DeleteButton } from "features/common";
 import { pxBreakpoints } from "features/layout/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { selectScreenHeight, selectScreenWidth } from "store/uiSlice";
@@ -38,24 +39,34 @@ import {
   ChevronRightIcon,
   DownloadIcon
 } from "@chakra-ui/icons";
+import { IGallery } from "models/Gallery";
+import api from "utils/api";
 
 export const DocumentsListMasonry = ({
+  gallery,
   isCreator,
+  isGalleryCreator,
   images,
   imagesSize,
   isLoading,
   isFetching,
+  position = "top",
   ...props
-}: ColumnProps & {
+}: Omit<ColumnProps, "position"> & {
+  gallery?: IGallery;
   isCreator?: boolean;
+  isGalleryCreator?: boolean;
   images: IndexedRemoteImage[];
   imagesSize: number;
   isLoading: boolean;
   isFetching: boolean;
+  position?: "top" | "bottom";
+  onDelete?: () => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
+  const toast = useToast({ position: "top" });
   const screenHeight = useSelector(selectScreenHeight);
   const screenWidth = useSelector(selectScreenWidth);
 
@@ -119,6 +130,56 @@ export const DocumentsListMasonry = ({
     );
   };
 
+  const config = (
+    <Flex alignItems="center" mb={3}>
+      <Text mx={5}>Marges</Text>
+      <NumberInput
+        maxW="100px"
+        allowMouseWheel
+        value={marginBetween}
+        //min={0}
+        //max={200}
+        onChange={handleChange}
+      >
+        <NumberInputField
+          bgColor="white"
+          color={isDark ? "black" : undefined}
+        />
+        <NumberInputStepper>
+          <NumberIncrementStepper
+            bg="green.200"
+            color={isDark ? "black" : undefined}
+            // _active={{ bg: "green.300" }}
+            children="+"
+          />
+          <NumberDecrementStepper
+            bg="pink.200"
+            color={isDark ? "black" : undefined}
+            // _active={{ bg: "pink.300" }}
+            children="-"
+          />
+        </NumberInputStepper>
+      </NumberInput>
+      <Slider
+        flex="1"
+        focusThumbOnChange={false}
+        value={marginBetween}
+        onChange={handleChange}
+        mx={10}
+      >
+        <SliderTrack>
+          <SliderFilledTrack />
+        </SliderTrack>
+        <SliderThumb
+          color="black"
+          fontSize="sm"
+          boxSize="32px"
+          children={marginBetween}
+        />
+      </Slider>
+    </Flex>
+  );
+
   return (
     <Column {...props}>
       <Flex alignItems="center" p={3} justifyContent="space-between">
@@ -135,55 +196,12 @@ export const DocumentsListMasonry = ({
         {/* </Flex> */}
       </Flex>
 
-      <Flex alignItems="center" mb={3}>
-        <Text mx={5}>Marges</Text>
-        <NumberInput
-          maxW="100px"
-          allowMouseWheel
-          value={marginBetween}
-          //min={0}
-          //max={200}
-          onChange={handleChange}
-        >
-          <NumberInputField
-            bgColor="white"
-            color={isDark ? "black" : undefined}
-          />
-          <NumberInputStepper>
-            <NumberIncrementStepper
-              bg="green.200"
-              color={isDark ? "black" : undefined}
-              // _active={{ bg: "green.300" }}
-              children="+"
-            />
-            <NumberDecrementStepper
-              bg="pink.200"
-              color={isDark ? "black" : undefined}
-              // _active={{ bg: "pink.300" }}
-              children="-"
-            />
-          </NumberInputStepper>
-        </NumberInput>
-        <Slider
-          flex="1"
-          focusThumbOnChange={false}
-          value={marginBetween}
-          onChange={handleChange}
-          mx={10}
-        >
-          <SliderTrack>
-            <SliderFilledTrack />
-          </SliderTrack>
-          <SliderThumb
-            color="black"
-            fontSize="sm"
-            boxSize="32px"
-            children={marginBetween}
-          />
-        </Slider>
-      </Flex>
-
-      <Box as="hr" mb={5} />
+      {position === "top" && (
+        <>
+          {config}
+          <Box as="hr" mb={5} />
+        </>
+      )}
 
       {isLoading || isFetching ? (
         <Spinner m={3} />
@@ -237,7 +255,7 @@ export const DocumentsListMasonry = ({
                         newMW = (screenWidth - marginAround) / columnCount;
                       }
 
-                      // let width = image.width > newMW ? newMW : image.width;
+                      let width = image.width > newMW ? newMW : image.width;
 
                       // if (columnIndex / (columnCount - 1) !== 1) {
                       //   width -= marginBetween * 12;
@@ -253,6 +271,7 @@ export const DocumentsListMasonry = ({
 
                       return (
                         <Box
+                          key={rowIndex}
                           pb={
                             rowIndex !== images.length / columnCount - 1
                               ? marginBetween + "px"
@@ -274,7 +293,7 @@ export const DocumentsListMasonry = ({
                             key={`image-${rowIndex}`}
                             //ref={imageRefs[image.url]}
                             src={image.url}
-                            //width={`${width}px`}
+                            width={`${width}px`}
                             borderRadius="12px"
                             cursor="pointer"
                             //mb={3}
@@ -324,6 +343,13 @@ export const DocumentsListMasonry = ({
         )
       )}
 
+      {position === "bottom" && (
+        <>
+          <Box as="hr" mt={5} pt={5} />
+          {config}
+        </>
+      )}
+
       {modalState.isOpen && modalState.image && (
         <FullscreenModal
           //header={images[modalState.index].url.match(/[^=]+$/)![0]}
@@ -363,6 +389,7 @@ export const DocumentsListMasonry = ({
                   images[modalState.image.index].url.lastIndexOf("/") + 1
                 )}
               </Text>
+
               <IconButton
                 aria-label="Télécharger"
                 colorScheme="teal"
@@ -371,6 +398,51 @@ export const DocumentsListMasonry = ({
                   //const url = `${process.env.NEXT_PUBLIC_FILES}/${entity._id}/${file.url}`;
                 }}
               />
+
+              {isGalleryCreator && gallery && (
+                <DeleteButton
+                  variant="solid"
+                  header={
+                    <>
+                      Êtes vous sûr de vouloir supprimer l'image{" "}
+                      {/* <Text display="inline" color="red" fontWeight="bold">
+                      {modalState.image.url.match(urlFilenameR)[0]}
+                    </Text>{" "} */}
+                      ?
+                    </>
+                  }
+                  isIconOnly
+                  isSmall={false}
+                  placement="bottom"
+                  onClick={async () => {
+                    const [...parts] = modalState.image!.url.split("/");
+                    const fileName = parts[parts.length - 1];
+                    let payload: {
+                      galleryId: string;
+                      fileName: string;
+                    } = {
+                      galleryId: gallery!._id,
+                      fileName
+                    };
+
+                    try {
+                      await api.remove(process.env.NEXT_PUBLIC_API2, payload);
+                      toast({
+                        title: `L'image a été supprimée !`,
+                        status: "success"
+                      });
+                      setModalState({ isOpen: false });
+                      props.onDelete && props.onDelete();
+                    } catch (error) {
+                      console.error(error);
+                      toast({
+                        title: `L'image n'a pas pu être supprimée.`,
+                        status: "error"
+                      });
+                    }
+                  }}
+                />
+              )}
             </HStack>
           }
           bodyProps={{ bg: "black" }}

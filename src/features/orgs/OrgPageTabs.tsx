@@ -22,7 +22,7 @@ import React, { useEffect, useState } from "react";
 import { FaImages, FaTools } from "react-icons/fa";
 import { css } from "twin.macro";
 import { useGetDocumentsQuery } from "features/api/documentsApi";
-import { useEditOrgMutation } from "features/api/orgsApi";
+import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
 import {
   AppHeading,
   Column,
@@ -55,6 +55,7 @@ import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 import { belongs } from "utils/belongs";
 import { sortOn } from "utils/array";
+import { GalleriesList } from "features/galleries/GalleriesList";
 
 export const OrgPageTabs = ({
   currentItemName,
@@ -99,7 +100,7 @@ export const OrgPageTabs = ({
   const orgTabs = [...(org.orgTabs || defaultTabs)];
   //.filter((tab) => tab.label === "" && !session ? false : true);
   //#region tabs
-  const documentsQuery = useGetDocumentsQuery({ orgId: org._id });
+  // const documentsQuery = useGetDocumentsQuery({ orgId: org._id });
   const tabs: IOrgTabWithMetadata[] = orgTabs
     //.sort(sortOn("order", ["0", "1", "2", "3", "4", "5"]))
     .map((tab) => {
@@ -221,11 +222,11 @@ export const OrgPageTabs = ({
               currentTabIndex={currentTabIndex}
               tab={tab}
               tabIndex={tabIndex}
-              {...(url === "/galeries" &&
-              Array.isArray(documentsQuery.data) &&
-              documentsQuery.data.length > 0
-                ? {}
-                : {})}
+              // {...(url === "/galeries" &&
+              // Array.isArray(documentsQuery.data) &&
+              // documentsQuery.data.length > 0
+              //   ? {}
+              //   : {})}
               css={css`
                 ${isCurrent &&
                 `
@@ -377,8 +378,16 @@ export const OrgPageTabs = ({
 
           {!!tabs.find(({ label }) => belongs(label, "Galeries")) && (
             <TabPanel aria-hidden>
-              <EntityPageDocuments isCreator={isCreator} query={orgQuery} />
+              <Column bg={isDark ? "gray.700" : "lightblue"}>
+                <GalleriesList
+                  query={orgQuery}
+                  currentGalleryName={currentItemName}
+                  isCreator={isCreator}
+                  onSubmit={(gallery) => {}}
+                />
+              </Column>
 
+              {/* <EntityPageDocuments isCreator={isCreator} query={orgQuery} /> */}
               {/* <AppHeading>Galeries photo des ateliers passés</AppHeading> */}
               {/* <VStack spacing={3}>
                 {org.orgEvents.map((event) => (

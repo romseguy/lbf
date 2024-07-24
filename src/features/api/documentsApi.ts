@@ -26,13 +26,18 @@ export const documentApi = api.injectEndpoints({
   endpoints: (build) => ({
     getDocuments: build.query<
       (RemoteFile | RemoteImage)[],
-      { eventId: string } | { orgId: string } | { userId: string } | {}
+      | { galleryId: string }
+      | { eventId: string }
+      | { orgId: string }
+      | { userId: string }
+      | {}
     >({
       query: (query) => {
         console.groupCollapsed("getDocuments");
-        if ("eventId" in query) console.log("eventId", query.eventId);
-        if ("orgId" in query) console.log("orgId", query.orgId);
-        if ("userId" in query) console.log("userId", query.userId);
+        if ("galleryId" in query) console.log("galleryId", query.galleryId);
+        else if ("eventId" in query) console.log("eventId", query.eventId);
+        else if ("orgId" in query) console.log("orgId", query.orgId);
+        else if ("userId" in query) console.log("userId", query.userId);
         console.groupEnd();
 
         return {

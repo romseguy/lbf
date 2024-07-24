@@ -20,22 +20,29 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
   .use(cors())
   .get<
     NextApiRequest & {
-      query: { eventId?: string; orgId?: string; userId?: string };
+      query: {
+        galleryId?: string;
+        eventId?: string;
+        orgId?: string;
+        userId?: string;
+      };
     },
     NextApiResponse
   >(async function getDocuments(req, res) {
     try {
       let {
-        query: { eventId, orgId, userId }
+        query: { galleryId, eventId, orgId, userId }
       } = req;
 
-      if (!eventId && !orgId && !userId)
+      if (!galleryId && !eventId && !orgId && !userId)
         return res
           .status(400)
           .json(createEndpointError(new Error("Veuillez indiquer un id")));
 
       const { data } = await client.get(
-        eventId
+        galleryId
+          ? `?galleryId=${galleryId}`
+          : eventId
           ? `?eventId=${eventId}`
           : orgId
           ? `?orgId=${orgId}`

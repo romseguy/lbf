@@ -59,7 +59,7 @@ const App = wrapper.withRedux(
     let main = <Main Component={Component} {...pageProps} />;
     const router = useRouter();
     useEffect(() => {
-      console.log("🚀 ~ useEffect ~ session:", session);
+      console.log("🚀 ~ _app ~ session:", session);
       if (!session && router.pathname !== "/callback")
         router.push("/login", "/login", { shallow: false });
     }, [session]);

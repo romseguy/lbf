@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useAddTopicNotifMutation } from "features/api/topicsApi";
-import { Button, AppHeading } from "features/common";
+import { Button, AppHeading, CategoryTag } from "features/common";
 import {
   NotifModalState,
   EntityNotifModal
@@ -36,7 +36,6 @@ import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { TopicCategoryTag } from "./TopicCategoryTag";
 import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicsListItem } from "./TopicsListItem";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
@@ -302,9 +301,9 @@ export const TopicsList = ({
                           aux catégories :
                           {selectedCategories.map((catId, index) => (
                             <>
-                              <TopicCategoryTag key={index} mx={1}>
+                              <CategoryTag key={index} mx={1}>
                                 {getCategoryLabel(topicCategories, catId)}
-                              </TopicCategoryTag>
+                              </CategoryTag>
                               {index !== selectedCategories.length - 1 && "ou"}
                             </>
                           ))}
@@ -313,9 +312,7 @@ export const TopicsList = ({
                           aux listes :
                           {selectedLists.map(({ listName }, index) => (
                             <>
-                              <TopicCategoryTag mx={1}>
-                                {listName}
-                              </TopicCategoryTag>
+                              <CategoryTag mx={1}>{listName}</CategoryTag>
                               {index !== selectedLists.length - 1 && "ou"}
                             </>
                           ))}
@@ -327,21 +324,21 @@ export const TopicsList = ({
                       {selectedCategories.length === 1 ? (
                         <>
                           Aucune discussions appartenant à la catégorie{" "}
-                          <TopicCategoryTag>
+                          <CategoryTag>
                             {getCategoryLabel(
                               topicCategories,
                               selectedCategories[0]
                             )}
-                          </TopicCategoryTag>
+                          </CategoryTag>
                         </>
                       ) : (
                         <>
                           Aucune discussions appartenant aux catégories
                           {selectedCategories.map((catId, index) => (
                             <>
-                              <TopicCategoryTag key={index} mx={1}>
+                              <CategoryTag key={index} mx={1}>
                                 {getCategoryLabel(topicCategories, catId)}
-                              </TopicCategoryTag>
+                              </CategoryTag>
                               {index !== selectedCategories.length - 1 && "ou"}
                             </>
                           ))}
@@ -353,18 +350,14 @@ export const TopicsList = ({
                       {selectedLists.length === 1 ? (
                         <>
                           Aucune discussions appartenant à la liste{" "}
-                          <TopicCategoryTag>
-                            {selectedLists[0].listName}
-                          </TopicCategoryTag>
+                          <CategoryTag>{selectedLists[0].listName}</CategoryTag>
                         </>
                       ) : (
                         <>
                           Aucune discussions appartenant aux listes
                           {selectedLists.map(({ listName }, index) => (
                             <>
-                              <TopicCategoryTag mx={1}>
-                                {listName}
-                              </TopicCategoryTag>
+                              <CategoryTag mx={1}>{listName}</CategoryTag>
                               {index !== selectedLists.length - 1 && "ou"}
                             </>
                           ))}

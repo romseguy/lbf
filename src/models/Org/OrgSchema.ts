@@ -58,6 +58,19 @@ export const OrgSchema = new Schema<IOrg>(
       type: [{ type: Schema.Types.ObjectId, ref: "Event" }],
       default: []
     },
+    orgGalleryCategories: {
+      type: [
+        {
+          catId: { type: String, required: true, trim: true },
+          label: { type: String, required: true, trim: true }
+        }
+      ],
+      default: []
+    },
+    orgGalleries: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Gallery" }],
+      default: []
+    },
     orgLists: {
       type: [
         {

@@ -3,13 +3,16 @@ import {
   AlertIcon,
   Box,
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
+  HStack,
   Progress,
   Text,
   useColorMode,
-  useToast
+  useToast,
+  VStack
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import axios from "axios";
@@ -32,6 +35,7 @@ import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { IEvent } from "models/Event";
 import { useSession } from "hooks/useSession";
+import { IGallery } from "models/Gallery";
 
 type FormValues = {
   fichiers: File[];
@@ -42,10 +46,12 @@ const maxFileSize = 10;
 
 export const DocumentForm = ({
   entity,
+  gallery,
   ...props
 }: {
-  entity: IEvent | IOrg | IUser;
-  onSubmit: () => void;
+  entity?: IEvent | IOrg | IUser;
+  gallery?: IGallery;
+  onSubmit?: () => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -90,8 +96,14 @@ export const DocumentForm = ({
         if (fsMb > 10) throw `${file.name} est trop volumineux`;
 
         const data = new FormData();
-        data.append("file", file, session?.user.userName + " - " + file.name);
-        data.append(isO ? "orgId" : isE ? "eventId" : "userId", entity._id);
+        data.append("file", file, file.name);
+        //data.append("file", file, session?.user.userName + " - " + file.name);
+
+        if (gallery || entity)
+          data.append(
+            gallery ? "galleryId" : isO ? "orgId" : isE ? "eventId" : "userId",
+            gallery ? gallery._id : entity!._id
+          );
 
         await axios.post(process.env.NEXT_PUBLIC_API2, data, {
           onUploadProgress: (ProgressEvent) => {
@@ -131,8 +143,12 @@ export const DocumentForm = ({
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       <FormControl isInvalid={!!errors["fichiers"]} mb={3}>
         <FormLabel>
-          Sélectionner un ou plusieurs fichiers. Taille maximum par fichier :{" "}
-          <b>10Mo</b>
+          <Flex>
+            Sélectionner un ou plusieurs fichiers. Taille maximum par fichier :{" "}
+            <Text color="red" ml={1}>
+              10Mo
+            </Text>
+          </Flex>
         </FormLabel>
 
         {list.length > 0 && (
@@ -254,14 +270,14 @@ export const DocumentForm = ({
         )}
       />
 
-      <FormControl alignItems="flex-end">
+      <FormControl>
         <Button
           colorScheme="green"
           type="submit"
           isLoading={isLoading}
-          isDisabled={Object.keys(errors).length > 0}
+          isDisabled={!hasItems(list) || Object.keys(errors).length > 0}
         >
-          Ajouter
+          Valider
         </Button>
       </FormControl>
     </form>

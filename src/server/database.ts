@@ -6,6 +6,8 @@ import { IEvent } from "models/Event";
 import { EventSchema } from "models/Event/EventSchema";
 import { IOrg } from "models/Org";
 import { OrgSchema } from "models/Org/OrgSchema";
+import { IGallery } from "models/Gallery";
+import { GallerySchema } from "models/Gallery/GallerySchema";
 import { IProject } from "models/Project";
 import { ProjectSchema } from "models/Project/ProjectSchema";
 import { ISubscription } from "models/Subscription";
@@ -27,6 +29,7 @@ export let db: Db;
 export let models: {
   Event: Model<IEvent, {}, {}>;
   Org: Model<IOrg, {}, {}>;
+  Gallery: Model<IGallery, {}, {}>;
   Project: Model<IProject, {}, {}>;
   Subscription: Model<ISubscription, {}, {}>;
   Setting: Model<ISetting, {}, {}>;
@@ -51,6 +54,7 @@ export default async function database(
     cached.models = models = {
       Event: cached.conn.model<IEvent>("Event", EventSchema),
       Org: cached.conn.model<IOrg>("Org", OrgSchema),
+      Gallery: cached.conn.model<IGallery>("Gallery", GallerySchema),
       Project: cached.conn.model<IProject>("Project", ProjectSchema),
       Subscription: cached.conn.model<ISubscription>(
         "Subscription",
@@ -96,6 +100,7 @@ export default async function database(
     cached.models = models = {
       Event: cached.conn.model<IEvent>("Event", EventSchema),
       Org: cached.conn.model<IOrg>("Org", OrgSchema),
+      Gallery: cached.conn.model<IGallery>("Gallery", GallerySchema),
       Project: cached.conn.model<IProject>("Project", ProjectSchema),
       Subscription: cached.conn.model<ISubscription>(
         "Subscription",

@@ -9,7 +9,15 @@ export const api = createApi({
       return action.payload[reducerPath];
     }
   },
-  tagTypes: ["Orgs", "Events", "Projects", "Subscriptions", "Topics", "Users"],
+  tagTypes: [
+    "Orgs",
+    "Events",
+    "Galleries",
+    "Projects",
+    "Subscriptions",
+    "Topics",
+    "Users"
+  ],
   endpoints: () => ({})
 });
 

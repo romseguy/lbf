@@ -145,6 +145,7 @@ handler.get<
           "orgs",
           "orgEvents",
           "orgLists",
+          "orgGalleries",
           "orgProjects",
           "orgTopics",
           "orgSubscriptions"
@@ -255,6 +256,13 @@ handler.get<
               )
             : [];
         }
+      }
+
+      if (modelKey === "orgGalleries") {
+        org = org.populate({
+          path: "orgGalleries",
+          populate: [{ path: "createdBy", select: "_id userName" }]
+        });
       }
 
       if (modelKey === "orgProjects") {

@@ -10,6 +10,7 @@ import {
   IEntityWeb
 } from "models/Entity";
 import { IEvent } from "models/Event";
+import { IGallery, IGalleryCategory } from "models/Gallery";
 import { IProject } from "models/Project";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
@@ -43,6 +44,8 @@ export interface IOrg extends IEntity {
   orgWeb: IEntityWeb[];
   orgEventCategories: IOrgEventCategory[];
   orgEvents: IEvent[];
+  orgGalleries: IGallery[];
+  orgGalleryCategories: IGalleryCategory[];
   orgLists: IOrgList[];
   orgProjects: IProject[];
   orgSubscriptions: ISubscription[];

@@ -1,7 +1,7 @@
 import { Tag, TagProps, useColorMode } from "@chakra-ui/react";
 import React, { ReactNodeArray } from "react";
 
-export const TopicCategoryTag = ({
+export const CategoryTag = ({
   children,
   ...props
 }: TagProps & {
