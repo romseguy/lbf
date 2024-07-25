@@ -228,7 +228,7 @@ const EventsListTable = ({
                     setShowLocationButton(!showLocationButton);
                   }}
                 >
-                  {city || "Descriptionr les événements autour de..."}
+                  {city || "Afficher les événements autour de..."}
                 </Button>
               </Tooltip>
             ) : (

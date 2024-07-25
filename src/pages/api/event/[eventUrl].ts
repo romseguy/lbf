@@ -95,19 +95,28 @@ handler.get<
 
     event = await event
       .populate("createdBy", isCreator ? "_id email userName" : "_id userName")
-      .populate({
-        path: "eventTopics",
-        populate: [
-          {
-            path: "topicMessages",
-            populate: {
-              path: "createdBy",
-              select: "_id userName"
-            }
-          },
-          { path: "createdBy", select: "_id userName" }
-        ]
-      })
+      .populate([
+        {
+          path: "eventGalleries",
+          populate: [
+            { path: "galleryDocuments" },
+            { path: "createdBy", select: "_id userName" }
+          ]
+        }
+        // {
+        //   path: "eventTopics",
+        //   populate: [
+        //     {
+        //       path: "topicMessages",
+        //       populate: {
+        //         path: "createdBy",
+        //         select: "_id userName"
+        //       }
+        //     },
+        //     { path: "createdBy", select: "_id userName" }
+        //   ]
+        // }
+      ])
       .execPopulate();
 
     res.status(200).json(event);
@@ -449,6 +458,9 @@ handler.delete<
   },
   NextApiResponse
 >(async function removeEvent(req, res) {
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ DELETE /event/[eventUrl] `;
+  console.log(prefix + "query", req.query);
+
   const session = await getSession({ req });
 
   if (!session) {
@@ -498,18 +510,20 @@ handler.delete<
         );
     }
 
-    for (const eventOrgRef of event.eventOrgs) {
-      const eventOrg = await models.Org.findOne({
-        _id: getRefId(eventOrgRef)
+    //#region references
+    for (const eventOrg of event.eventOrgs) {
+      const org = await models.Org.findOne({
+        _id: getRefId(eventOrg)
       });
 
-      if (eventOrg) {
-        eventOrg.orgEvents = eventOrg.orgEvents.filter(
-          (orgEvent) => !equals(orgEvent, event?._id)
+      if (org) {
+        org.orgEvents = org.orgEvents.filter(
+          (orgEvent) => !equals(orgEvent, event!._id)
         );
-        await eventOrg.save();
+        await org.save();
       }
     }
+    //#endregion
 
     res.status(200).json(event);
   } catch (error) {

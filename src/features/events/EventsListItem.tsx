@@ -115,7 +115,7 @@ export const EventsListItem = ({
               <Tooltip
                 label={
                   !isCategorySelected
-                    ? `Descriptionr les événements de la catégorie "${eventCategory.label}"`
+                    ? `Afficher les événements de la catégorie "${eventCategory.label}"`
                     : ""
                 }
               >

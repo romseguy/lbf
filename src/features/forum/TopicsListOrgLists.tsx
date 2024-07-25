@@ -50,7 +50,7 @@ export const TopicsListOrgLists = ({
         return (
           <Tooltip
             key={"orgList-" + index}
-            label={`Descriptionr les discussions de la liste "${orgList.listName}"`}
+            label={`Afficher les discussions de la liste "${orgList.listName}"`}
             hasArrow
           >
             <Button

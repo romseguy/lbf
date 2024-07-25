@@ -9,7 +9,7 @@ export * from "./entities/EntityConfigStyles";
 export * from "./entities/EntityInfo";
 export * from "./entities/EntityNotified";
 export * from "./entities/EntityPageConfigButton";
-export * from "./entities/EntityPageDocuments";
+//export * from "./entities/EntityPageDocuments";
 export * from "./entities/EntityPageSubscribeButton";
 export * from "./entities/EntityPageTab";
 export * from "./entities/EntityPageTabList";
@@ -30,6 +30,7 @@ export * from "./forms/PasswordConfirmControl";
 export * from "./forms/PhoneControl";
 export * from "./forms/RTEditor";
 export * from "./forms/Select";
+export * from "./forms/TagsControl";
 export * from "./forms/Textarea";
 export * from "./forms/UrlControl";
 

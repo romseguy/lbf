@@ -211,7 +211,7 @@ export const TopicMessageForm = ({
               ? "Réponses désactivées"
               : props.topicMessage
               ? "Modifier"
-              : "Répondre"}
+              : "Ajouter"}
           </Button>
         )}
       </Flex>

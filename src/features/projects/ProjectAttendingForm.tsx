@@ -9,7 +9,7 @@ import { IOrg } from "models/Org";
 import { IProject, isAttending, EProjectInviteStatus } from "models/Project";
 import { IUser } from "models/User";
 import { useAppDispatch } from "store";
-import { emailR } from "utils/email";
+import { emailR } from "utils/regex";
 import { AppQueryWithData } from "utils/types";
 
 export const ProjectAttendingForm = ({

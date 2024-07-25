@@ -1,50 +1,31 @@
-import { CalendarIcon } from "@chakra-ui/icons";
 import {
   Badge,
   BadgeProps,
-  Box,
-  Flex,
-  Icon,
-  Input,
-  Switch,
   TabPanel,
   TabPanels,
   Tabs,
-  VStack,
-  useColorMode,
-  Alert,
-  AlertIcon,
-  Tooltip,
-  Button
+  useColorMode
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaImages, FaTools } from "react-icons/fa";
 import { css } from "twin.macro";
-import { useGetDocumentsQuery } from "features/api/documentsApi";
-import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
+import { useEditOrgMutation } from "features/api/orgsApi";
 import {
-  AppHeading,
   Column,
   ColumnProps,
-  EntityButton,
-  EntityPageDocuments,
   EntityPageTab,
   EntityPageTabList,
-  EntityPageTopics,
-  Link
+  EntityPageTopics
 } from "features/common";
 import { EventsList } from "features/events/EventsList";
 import theme, { scrollbarCss } from "features/layout/theme";
-import { ProjectsList } from "features/projects/ProjectsList";
 import { useSession } from "hooks/useSession";
 import {
   defaultTabs,
   getCurrentTab,
   getDefaultTab,
   IOrg,
-  IOrgTabWithMetadata,
-  orgTypeFull
+  IOrgTabWithMetadata
 } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { normalize } from "utils/string";
@@ -54,7 +35,7 @@ import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 import { belongs } from "utils/belongs";
-import { sortOn } from "utils/array";
+import { hasItems, sortOn } from "utils/array";
 import { GalleriesList } from "features/galleries/GalleriesList";
 
 export const OrgPageTabs = ({
@@ -100,7 +81,6 @@ export const OrgPageTabs = ({
   const orgTabs = [...(org.orgTabs || defaultTabs)];
   //.filter((tab) => tab.label === "" && !session ? false : true);
   //#region tabs
-  // const documentsQuery = useGetDocumentsQuery({ orgId: org._id });
   const tabs: IOrgTabWithMetadata[] = orgTabs
     //.sort(sortOn("order", ["0", "1", "2", "3", "4", "5"]))
     .map((tab) => {
@@ -256,9 +236,17 @@ export const OrgPageTabs = ({
               data-cy={key}
             >
               {label}
-              {url === "/agenda" && org.orgEvents.length > 0 && (
+              {url === "/agenda" && hasItems(org.orgEvents) ? (
                 <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
-              )}
+              ) : (url === "/discussions" || url === "/d") &&
+                hasItems(org.orgTopics) ? (
+                <Badge {...badgeProps}>{org.orgTopics.length}</Badge>
+              ) : url === "/galeries" &&
+                (hasItems(org.orgGalleries) || hasItems(org.orgEvents)) ? (
+                <Badge {...badgeProps}>
+                  {org.orgGalleries.length + org.orgEvents.length}
+                </Badge>
+              ) : null}
               {/* {url === "/galeries"
                 ? Array.isArray(documentsQuery.data) &&
                   documentsQuery.data.length > 0 && (

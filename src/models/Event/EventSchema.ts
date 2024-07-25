@@ -62,6 +62,19 @@ export const EventSchema = new Schema<IEvent>(
         prefix: { type: String, trim: true }
       }
     ],
+    eventGalleryCategories: {
+      type: [
+        {
+          catId: { type: String, required: true, trim: true },
+          label: { type: String, required: true, trim: true }
+        }
+      ],
+      default: []
+    },
+    eventGalleries: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Gallery" }],
+      default: []
+    },
     eventNotifications: {
       type: [
         {

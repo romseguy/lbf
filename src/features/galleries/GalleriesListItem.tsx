@@ -1,5 +1,6 @@
 import {
   AddIcon,
+  CalendarIcon,
   ChevronRightIcon,
   ChevronUpIcon,
   EditIcon,
@@ -34,30 +35,35 @@ import { IGallery } from "models/Gallery";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 import { useRouter } from "next/router";
-import { FaFolderOpen, FaFolder } from "react-icons/fa";
+import { FaFolderOpen, FaFolder, FaImages } from "react-icons/fa";
 import { css } from "twin.macro";
-import { DocumentsListMasonry } from "features/documents/DocumentsListMasonry";
-import {
-  IndexedRemoteImage,
-  useGetDocumentsQuery
-} from "features/api/documentsApi";
+import { DocumentsListMosaic } from "features/documents/DocumentsListMosaic";
 import { DocumentForm } from "features/forms/DocumentForm";
 import { ServerError } from "utils/errors";
-import { useEditGalleryMutation } from "features/api/galleriesApi";
+import {
+  useDeleteGalleryMutation,
+  useEditGalleryMutation
+} from "features/api/galleriesApi";
 import { AppQueryWithData } from "utils/types";
 import { IOrg } from "models/Org";
+import { hasItems } from "utils/array";
+import { IEntity, isEvent, isOrg } from "models/Entity";
 
 export const GalleriesListItem = ({
   query,
   gallery,
   galleryIndex,
+  isCreator,
   isCurrent,
   isLoading,
   setIsLoading,
   isGalleryCreator,
+  noHeader = false,
+  onClick,
+  onEditClick,
   ...props
 }: BoxProps & {
-  query: AppQueryWithData<IOrg>;
+  query: AppQueryWithData<IEntity>;
   gallery: IGallery;
   galleryIndex: number;
   isCreator: boolean;
@@ -65,7 +71,9 @@ export const GalleriesListItem = ({
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   isGalleryCreator: boolean;
+  noHeader?: boolean;
   onClick: () => void;
+  onEditClick: () => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -73,137 +81,141 @@ export const GalleriesListItem = ({
   const router = useRouter();
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
+  const [deleteGallery] = useDeleteGalleryMutation();
   const [editGallery] = useEditGalleryMutation();
+  const entity = query.data;
+  const isO = isOrg(entity);
+  const isE = isEvent(entity);
+  const baseUrl = `/${entity.orgUrl}/galeries`;
 
   const [isAdd, setIsAdd] = useState(false);
   const [isHover, setIsHover] = useState(false);
   const hoverColor = isHover ? "white" : "black";
 
-  const documentsQuery = useGetDocumentsQuery(
-    {
-      galleryId: gallery._id
-    },
-    {
-      selectFromResult: ({ data = [], ...rest }) => {
-        let images: IndexedRemoteImage[] = [];
-        let imagesSize = 0;
-
-        let index = 0;
-
-        for (const file of data) {
-          if ("height" in file) {
-            if ("bytes" in file) imagesSize += file.bytes;
-
-            images.push({
-              ...file,
-              index,
-              url: `${process.env.NEXT_PUBLIC_FILES}/${
-                gallery._id
-              }/${encodeURIComponent(file.url)}`
-            });
-            index++;
-          }
-        }
-        images = images.sort((a, b) =>
-          !!a.time && !!b.time ? (a.time < b.time ? 1 : -1) : 0
-        );
-
-        return { ...rest, data, images, imagesSize };
-      }
-    }
-  );
-  const { images, imagesSize } = documentsQuery;
-
-  // const isSubbedToGallery = !!subQuery.data?.galleries?.find(
-  //   (galleriesubscription) => {
-  //     if (!galleriesubscription.gallery) return false;
-  //     return galleriesubscription.gallery._id === gallery._id;
-  //   }
-  // );
-
   const onAddDocumentClick = () => {
     setIsAdd(!isAdd);
   };
 
+  const onDeleteClick = async () => {
+    try {
+      setIsLoading({
+        [gallery._id]: true
+      });
+      const deletedGallery = await deleteGallery(gallery._id).unwrap();
+      toast({
+        title: `${deletedGallery.galleryName} a été supprimé !`,
+        status: "success"
+      });
+      router.push(baseUrl, baseUrl, { shallow: true });
+    } catch (error: ServerError | any) {
+      toast({
+        title:
+          error.data.message ||
+          `La galerie ${gallery.galleryName} n'a pas pu être supprimée`,
+        status: "error"
+      });
+    } finally {
+      setIsLoading({
+        [gallery._id]: false
+      });
+    }
+  };
+
   return (
     <Box key={gallery._id} {...props}>
-      <Flex
-        alignItems={isMobile ? "flex-start" : "center"}
-        flexDir={isMobile ? "column" : "row"}
-        borderTopRadius="xl"
-        borderBottomRadius={!isCurrent ? "lg" : undefined}
-        bg={
-          galleryIndex % 2 === 0
-            ? isDark
-              ? "gray.600"
-              : "orange.200"
-            : isDark
-            ? "gray.500"
-            : "orange.100"
-        }
-        cursor="pointer"
-        py={1}
-        _hover={{ bg: isDark ? "#314356" : "orange.300" }}
-        onClick={props.onClick}
-        onMouseEnter={() => setIsHover(true)}
-        onMouseLeave={() => setIsHover(false)}
-      >
+      {!noHeader && (
         <Flex
-          flexDirection="column"
-          flexGrow={1}
-          //px={2}
-          ml={2}
+          alignItems={isMobile ? "flex-start" : "center"}
+          flexDir={isMobile ? "column" : "row"}
+          borderTopRadius="xl"
+          borderBottomRadius={!isCurrent ? "lg" : undefined}
+          bg={
+            galleryIndex % 2 === 0
+              ? isDark
+                ? "gray.600"
+                : "orange.200"
+              : isDark
+              ? "gray.500"
+              : "orange.100"
+          }
+          cursor="pointer"
+          py={1}
+          _hover={{ bg: isDark ? "#314356" : "orange.300" }}
+          onMouseEnter={() => setIsHover(true)}
+          onMouseLeave={() => setIsHover(false)}
         >
-          {/* Header */}
-          <Table
-            css={css`
-              td {
-                border: none;
-                padding: 0;
-              }
-              td:last-of-type {
-                width: 100%;
-              }
-            `}
+          <Flex
+            flexDirection="column"
+            flexGrow={1}
+            //px={2}
+            ml={2}
+            onClick={onClick}
           >
-            <Tbody>
-              <Tr>
-                <Td>
-                  <Tooltip label={`${images.length} image(s)`}>
-                    <Box pos="relative">
-                      {isCurrent ? (
-                        <Icon
-                          as={FaFolderOpen}
-                          //alignSelf="center"
-                          boxSize={7}
-                          color={isDark ? "teal.200" : "teal"}
-                          mr={2}
-                        />
-                      ) : (
-                        <Icon
-                          as={FaFolder}
-                          boxSize={7}
-                          color={isDark ? "teal.200" : "teal"}
-                          mr={2}
-                        />
-                      )}
-                      {images.length > 0 && (
-                        <Badge
-                          bgColor={isDark ? "teal.600" : "teal.100"}
-                          color={isDark ? "white" : "black"}
-                          pos="absolute"
-                          variant="solid"
-                          left={1}
-                        >
-                          {images.length}
-                        </Badge>
-                      )}
-                    </Box>
-                  </Tooltip>
-                </Td>
+            {/* Header */}
+            <Table
+              css={css`
+                td {
+                  border: none;
+                  padding: 0;
+                }
+                td:last-of-type {
+                  width: 100%;
+                }
+              `}
+            >
+              <Tbody>
+                <Tr>
+                  <Td>
+                    <Tooltip
+                      label={`${gallery.galleryDocuments?.length} image(s)`}
+                    >
+                      <Box pos="relative">
+                        {isCurrent ? (
+                          <Icon
+                            as={FaFolderOpen}
+                            //alignSelf="center"
+                            boxSize={7}
+                            color={isDark ? "teal.200" : "teal"}
+                            mr={2}
+                          />
+                        ) : (
+                          <Icon
+                            as={FaFolder}
+                            boxSize={7}
+                            color={isDark ? "teal.200" : "teal"}
+                            mr={2}
+                          />
+                        )}
 
-                <Td>
-                  {/* {gallery.galleryCategory && (
+                        {hasItems(gallery.galleryDocuments) && (
+                          <Badge
+                            bgColor={isDark ? "teal.600" : "teal.100"}
+                            color={isDark ? "white" : "black"}
+                            pos="absolute"
+                            variant="solid"
+                            left={1}
+                          >
+                            {gallery.galleryDocuments?.length}
+                          </Badge>
+                        )}
+                      </Box>
+                    </Tooltip>
+                  </Td>
+
+                  <Td>
+                    {gallery._id.includes("event") ? (
+                      <CalendarIcon mr={1} mt={-1} />
+                    ) : (
+                      <Icon as={FaImages} mr={1} mt={1} />
+                    )}
+                  </Td>
+
+                  <Td minWidth="70px">
+                    <Text>Galerie : </Text>
+                  </Td>
+
+                  <Td>
+                    {/* {gallery.galleryCategory && (
                               <Tooltip
                                 label={
                                   !hasCategorySelected
@@ -245,22 +257,22 @@ export const GalleriesListItem = ({
                               </Tooltip>
                             )} */}
 
-                  <Text fontWeight="bold">{gallery.galleryName}</Text>
-                </Td>
-              </Tr>
-            </Tbody>
-          </Table>
+                    <Text fontWeight="bold">{gallery.galleryName}</Text>
+                  </Td>
+                </Tr>
+              </Tbody>
+            </Table>
 
-          {/* SubHeader */}
-          <Flex
-            alignItems="center"
-            flexWrap="wrap"
-            fontSize="smaller"
-            color={isDark ? "white" : "purple"}
-            ml={10}
-          >
-            {/* Un descriptif de la galerie */}
-            {/* <Tooltip label="Aller à la page de l'utilisateur">
+            {/* SubHeader */}
+            <Flex
+              alignItems="center"
+              flexWrap="wrap"
+              fontSize="smaller"
+              color={isDark ? "white" : "purple"}
+              ml={10}
+            >
+              {/* Un descriptif de la galerie */}
+              {/* <Tooltip label="Aller à la page de l'utilisateur">
                         <Link
                           href={`/${galleryCreatedByUserName}`}
                           _hover={{
@@ -271,10 +283,10 @@ export const GalleriesListItem = ({
                           {galleryCreatedByUserName}
                         </Link>
                       </Tooltip> */}
-            {/* <Box as="span" aria-hidden mx={1}>
+              {/* <Box as="span" aria-hidden mx={1}>
                         ·
                       </Box> */}
-            {/* <Tooltip
+              {/* <Tooltip
                         placement="bottom"
                         label={`Galerie créée le ${fullDate}`}
                       >
@@ -289,10 +301,10 @@ export const GalleriesListItem = ({
                           {timeAgo}
                         </Text>
                       </Tooltip> */}
-            {/* <Box as="span" aria-hidden mx={1}>
+              {/* <Box as="span" aria-hidden mx={1}>
                         ·
                       </Box> */}
-            {/* <GallerysListItemVisibility
+              {/* <GallerysListItemVisibility
                         query={query}
                         gallery={gallery}
                         //icon props
@@ -303,15 +315,15 @@ export const GalleriesListItem = ({
                         `}
                         onClick={(e) => e.stopPropagation()}
                       /> */}
-            {/* <Box as="span" aria-hidden mx={1}>
+              {/* <Box as="span" aria-hidden mx={1}>
                         ·
                       </Box> */}
-            {/* <GallerysListItemShare
+              {/* <GallerysListItemShare
                         aria-label="Partager la galerie"
                         gallery={gallery}
                         color={isDark ? "white" : "purple"}
                       /> */}
-            {/* {isCreator && (
+              {/* {isCreator && (
                         <>
                           <Box as="span" aria-hidden mx={1}>
                             ·
@@ -337,23 +349,23 @@ export const GalleriesListItem = ({
                            </Link> 
                         </>
                       )} */}
+            </Flex>
           </Flex>
-        </Flex>
 
-        <Flex
-          alignItems="center"
-          // pt={3}
-          // pb={2}
-          ml={2}
-          {...(isMobile ? { pb: 1, pt: 3 } : {})}
-        >
-          {isLoading && <Spinner mr={3} mt={1} mb={2} />}
+          <Flex
+            alignItems="center"
+            // pt={3}
+            // pb={2}
+            ml={2}
+            {...(isMobile ? { pb: 1, pt: 3 } : {})}
+          >
+            {isLoading && <Spinner mr={3} mt={1} mb={2} />}
 
-          {!isLoading && session && (
-            <>
-              {props.isCreator && (
-                <>
-                  {/* <Tooltip
+            {!isLoading && session && (
+              <>
+                {isCreator && (
+                  <>
+                    {/* <Tooltip
                     placement="bottom"
                     label="Envoyer des invitations à la galerie"
                   >
@@ -370,96 +382,102 @@ export const GalleriesListItem = ({
                     />
                   </Tooltip> */}
 
-                  <Tooltip placement="bottom" label="Épingler la galerie">
-                    <IconButton
-                      aria-label="Épingler la galerie"
-                      icon={
-                        gallery.isPinned ? (
-                          <PushPinSlashIcon />
-                        ) : (
-                          <PushPinIcon />
-                        )
-                      }
-                      variant="outline"
-                      colorScheme="teal"
-                      mr={3}
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        setIsLoading({
-                          [gallery._id]: true
-                        });
-                        try {
-                          await editGallery({
-                            payload: {
-                              gallery: { isPinned: !gallery.isPinned }
-                            },
-                            galleryId: gallery._id
-                          }).unwrap();
-                          query.refetch();
-                        } catch (error: ServerError | any) {
-                          toast({
-                            title:
-                              error.data.message ||
-                              `La galerie ${gallery.galleryName} n'a pas pu être épinglée`,
-                            status: "error"
-                          });
-                        } finally {
-                          setIsLoading({
-                            [gallery._id]: false
-                          });
+                    <Tooltip placement="bottom" label="Épingler la galerie">
+                      <IconButton
+                        aria-label="Épingler la galerie"
+                        icon={
+                          gallery.isPinned ? (
+                            <PushPinSlashIcon />
+                          ) : (
+                            <PushPinIcon />
+                          )
                         }
-                      }}
-                    />
-                  </Tooltip>
-                </>
-              )}
+                        variant="outline"
+                        colorScheme="teal"
+                        mr={3}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          setIsLoading({
+                            [gallery._id]: true
+                          });
+                          try {
+                            await editGallery({
+                              payload: {
+                                gallery: { isPinned: !gallery.isPinned }
+                              },
+                              galleryId: gallery._id
+                            }).unwrap();
+                            query.refetch();
+                          } catch (error: ServerError | any) {
+                            toast({
+                              title:
+                                error.data.message ||
+                                `La galerie ${gallery.galleryName} n'a pas pu être épinglée`,
+                              status: "error"
+                            });
+                          } finally {
+                            setIsLoading({
+                              [gallery._id]: false
+                            });
+                          }
+                        }}
+                      />
+                    </Tooltip>
+                  </>
+                )}
 
-              {isGalleryCreator && (
-                <>
-                  <Tooltip placement="bottom" label="Modifier la galerie">
-                    <IconButton
-                      aria-label="Modifier la galerie"
-                      icon={<EditIcon />}
-                      colorScheme="green"
-                      variant="outline"
-                      mr={3}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        //onEditClick();
-                      }}
-                    />
-                  </Tooltip>
+                {isGalleryCreator && (
+                  <>
+                    <Tooltip placement="bottom" label="Modifier la galerie">
+                      <IconButton
+                        aria-label="Modifier la galerie"
+                        icon={<EditIcon />}
+                        colorScheme="green"
+                        variant="outline"
+                        mr={3}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditClick && onEditClick();
+                        }}
+                      />
+                    </Tooltip>
 
-                  <DeleteButton
-                    header={
-                      <>
-                        Êtes vous sûr de vouloir supprimer la galerie
-                        <Text display="inline" color="red" fontWeight="bold">
-                          {` ${gallery.galleryName}`}
-                        </Text>{" "}
-                        ?
-                      </>
-                    }
-                    isIconOnly
-                    isSmall={false}
-                    label="Supprimer la galerie"
-                    mr={3}
-                    placement="bottom"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      //onDeleteClick();
-                    }}
-                    data-cy="gallery-list-item-delete"
-                  />
-                </>
-              )}
-            </>
-          )}
+                    {!gallery._id.includes("event") && (
+                      <DeleteButton
+                        header={
+                          <>
+                            Êtes vous sûr de vouloir supprimer la galerie
+                            <Text
+                              display="inline"
+                              color="red"
+                              fontWeight="bold"
+                            >
+                              {` ${gallery.galleryName}`}
+                            </Text>{" "}
+                            ?
+                          </>
+                        }
+                        isIconOnly
+                        isSmall={false}
+                        label="Supprimer la galerie"
+                        mr={3}
+                        placement="bottom"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteClick();
+                        }}
+                        data-cy="gallery-list-item-delete"
+                      />
+                    )}
+                  </>
+                )}
+              </>
+            )}
 
-          {!isLoading && (
-            <Flex>
-              {/* {session && (
+            {!isLoading && (
+              <Flex>
+                {/* {session && (
                           <Tooltip
                             label={
                               isSubbedToGallery
@@ -492,36 +510,37 @@ export const GalleriesListItem = ({
                           </Tooltip>
                         )} */}
 
-              <Tooltip
-                placement="left"
-                label={`${isCurrent ? "Fermer" : "Ouvrir"} la galerie`}
-              >
-                <IconButton
-                  aria-label={`${isCurrent ? "Fermer" : "Ouvrir"} la galerie`}
-                  icon={
-                    isCurrent ? (
-                      <ChevronUpIcon color={hoverColor} boxSize={9} />
-                    ) : (
-                      <ChevronRightIcon color={hoverColor} boxSize={9} />
-                    )
-                  }
-                  bg="transparent"
-                  height="auto"
-                  minWidth={0}
-                  _hover={{
-                    background: "transparent",
-                    color: isDark ? "teal.100" : "white"
-                  }}
-                  onClick={props.onClick}
-                />
-              </Tooltip>
-            </Flex>
-          )}
+                <Tooltip
+                  placement="left"
+                  label={`${isCurrent ? "Fermer" : "Ouvrir"} la galerie`}
+                >
+                  <IconButton
+                    aria-label={`${isCurrent ? "Fermer" : "Ouvrir"} la galerie`}
+                    icon={
+                      isCurrent ? (
+                        <ChevronUpIcon color={hoverColor} boxSize={9} />
+                      ) : (
+                        <ChevronRightIcon color={hoverColor} boxSize={9} />
+                      )
+                    }
+                    bg="transparent"
+                    height="auto"
+                    minWidth={0}
+                    _hover={{
+                      background: "transparent",
+                      color: isDark ? "teal.100" : "white"
+                    }}
+                    onClick={onClick}
+                  />
+                </Tooltip>
+              </Flex>
+            )}
+          </Flex>
         </Flex>
-      </Flex>
+      )}
 
       {isCurrent && (
-        <Box bg={isDark ? "#314356" : "orange.50"} pb={5}>
+        <Box bg={isDark ? "#314356" : "orange.50"} pt={noHeader ? 0 : 3}>
           {/*
           <GridItem px={3} py={2} data-cy="topic-subscribers">
             <TopicsListItemSubscribers
@@ -540,39 +559,37 @@ export const GalleriesListItem = ({
             pb={3}
           /> */}
 
-          <DocumentsListMasonry
-            gallery={gallery}
-            bg="transparent"
-            images={images}
-            imagesSize={imagesSize}
-            isGalleryCreator={isGalleryCreator}
-            isLoading={false}
-            isFetching={false}
-            position="bottom"
-            onDelete={() => {
-              documentsQuery.refetch();
-            }}
-          />
+          {!isAdd && (
+            <DocumentsListMosaic
+              gallery={gallery}
+              isGalleryCreator={isGalleryCreator}
+              isLoading={isAdd}
+              position="bottom"
+              groupByUser={isE}
+              onDelete={() => {
+                if (isO) query.refetch();
+              }}
+            />
+          )}
 
           <Button
-            colorScheme="teal"
-            leftIcon={<AddIcon />}
+            colorScheme={isAdd ? "red" : "teal"}
+            leftIcon={isAdd ? undefined : <AddIcon />}
             m={3}
             onClick={onAddDocumentClick}
           >
-            Ajouter une photo à cette galerie
+            {isAdd ? "Annuler" : "Ajouter des photo à cette galerie"}
           </Button>
 
           {isAdd && (
-            <Column mx={3}>
-              <DocumentForm
-                gallery={gallery}
-                onSubmit={() => {
-                  documentsQuery.refetch();
-                  setIsAdd(false);
-                }}
-              />
-            </Column>
+            <DocumentForm
+              bg={isDark ? "whiteAlpha.100" : "blackAlpha.100"}
+              p={3}
+              gallery={gallery}
+              onSubmit={() => {
+                setIsAdd(false);
+              }}
+            />
           )}
         </Box>
       )}

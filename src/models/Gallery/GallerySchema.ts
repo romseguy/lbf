@@ -21,6 +21,10 @@ export const GallerySchema = new Schema<IGallery>(
       required: true,
       trim: true
     },
+    galleryDocuments: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Document" }],
+      default: []
+    },
     // galleryNotifications: {
     //   type: [
     //     {

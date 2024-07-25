@@ -12,9 +12,10 @@ import { GalleryForm } from "features/forms/GalleryForm";
 import { IGallery } from "models/Gallery";
 import { AppQueryWithData } from "utils/types";
 import { IOrg } from "models/Org";
+import { IEntity } from "models/Entity";
 
 export const GalleryFormModal = (props: {
-  query: AppQueryWithData<IOrg>;
+  query: AppQueryWithData<IEntity>;
   //subQuery: AppQuery<ISubscription>;
   gallery?: IGallery;
   isOpen: boolean;

@@ -1,6 +1,3 @@
-export const urlR = /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/i;
-export const optionalProtocolUrlR =
-  /^((?:https?:\/\/)?[^./]+(?:\.[^./]+)+(?:\/.*)?)$/i;
 export const unauthorizedEntityUrls = [
   "404",
   "a_propos",

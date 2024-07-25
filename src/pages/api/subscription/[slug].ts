@@ -5,7 +5,7 @@ import database, { models } from "server/database";
 import { createEndpointError } from "utils/errors";
 import { getSession } from "server/auth";
 import { equals, logJson } from "utils/string";
-import { emailR } from "utils/email";
+import { emailR } from "utils/regex";
 import { IUser } from "models/User";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();

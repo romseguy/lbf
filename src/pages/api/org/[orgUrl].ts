@@ -261,7 +261,13 @@ handler.get<
       if (modelKey === "orgGalleries") {
         org = org.populate({
           path: "orgGalleries",
-          populate: [{ path: "createdBy", select: "_id userName" }]
+          populate: [
+            {
+              path: "galleryDocuments"
+              //populate: [{ path: "createdBy", select: "_id userName" }]
+            },
+            { path: "createdBy", select: "_id userName" }
+          ]
         });
       }
 
@@ -581,6 +587,9 @@ handler.delete<
   },
   NextApiResponse
 >(async function removeOrg(req, res) {
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ DELETE /org/[orgUrl] `;
+  console.log(prefix + "query", req.query);
+
   const session = await getSession({ req });
 
   if (!session) {
@@ -632,18 +641,15 @@ handler.delete<
         _id: { $in: org.orgEvents }
       });
     }
-    /*const { deletedCount, n, ok } = */ await models.Project.deleteMany({
-      _id: { $in: org.orgProjects }
-    });
+
+    //  await models.Project.deleteMany({
+    //   _id: { $in: org.orgProjects }
+    // });
     /*const { deletedCount, n, ok } = */ await models.Subscription.deleteMany({
       _id: { $in: org.orgSubscriptions }
     });
     /*const { deletedCount, n, ok } = */ await models.Topic.deleteMany({
       _id: { $in: org.orgTopics }
-    });
-
-    await api.client.delete(`folder`, {
-      data: { orgId: _id }
     });
 
     res.status(200).json(org);
@@ -656,7 +662,8 @@ export const config = {
   api: {
     bodyParser: {
       sizeLimit: "50mb"
-    }
+    },
+    responseLimit: "8mb"
   }
 };
 

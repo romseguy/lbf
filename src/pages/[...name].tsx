@@ -30,7 +30,7 @@ import { OrgPageLogin } from "features/orgs/OrgPageLogin";
 import { UserPage } from "features/users/UserPage";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
-import { IEvent } from "models/Event";
+import { defaultTabs, IEvent } from "models/Event";
 import { EOrgType, IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
@@ -68,7 +68,11 @@ const HashPage = ({ ...props }: PageProps) => {
   //const [isLoading, setIsLoading] = useState(props.isLoading && !!session);
 
   //#region routing
-  let [entityUrl, currentTabLabel = "accueil", entityTabItem] =
+  let [
+    entityUrl,
+    currentTabLabel = Object.keys(defaultTabs)[0],
+    entityTabItem
+  ] =
     "name" in router.query && Array.isArray(router.query.name)
       ? router.query.name
       : [];

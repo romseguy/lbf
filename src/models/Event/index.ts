@@ -16,8 +16,17 @@ import { getNthDayOfMonth, moveDateToCurrentWeek } from "utils/date";
 import { getDistance } from "utils/maps";
 import { IEvent, EEventInviteStatus, EEventVisibility } from "models/Event";
 import { hasItems } from "utils/array";
+import { CalendarIcon } from "@chakra-ui/icons";
+import { FaImages } from "react-icons/fa";
+import { AppIcon } from "utils/types";
 
 export * from "./IEvent";
+
+export let defaultTabs: { [key: string]: { icon: AppIcon; url: string } } = {
+  Présentation: { icon: CalendarIcon, url: "/" },
+  //Discussions: { icon: ChatIcon, url: "/discussions" },
+  Galerie: { icon: FaImages, url: "/galerie" }
+};
 
 //#region EventsList
 export const getEvents = ({

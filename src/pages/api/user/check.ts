@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import { getSession } from "server/auth";
 import database, { models } from "server/database";
-import { emailR } from "utils/email";
+import { emailR } from "utils/regex";
 import { createEndpointError } from "utils/errors";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();

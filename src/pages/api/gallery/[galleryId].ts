@@ -1,11 +1,29 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { EditGalleryPayload } from "features/api/galleriesApi";
+import {
+  EditGalleryPayload,
+  GetGalleryParams
+} from "features/api/galleriesApi";
 import { getRefId } from "models/Entity";
 import { getSession } from "server/auth";
 import { createEndpointError } from "utils/errors";
 import { equals } from "utils/string";
+
+import axios from "axios";
+import https from "https";
+import { getClientIp } from "server/ip";
+import { logEvent, ServerEventTypes } from "server/logging";
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+  requestCert: false
+});
+const client = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API2,
+  responseType: "json",
+  withCredentials: true,
+  httpsAgent: agent
+});
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -187,6 +205,66 @@ handler.use(database);
 //   }
 // });
 
+handler.get<
+  NextApiRequest & {
+    query: GetGalleryParams;
+  },
+  NextApiResponse
+>(async function getGallery(req, res) {
+  let {
+    query: { galleryId }
+  } = req;
+
+  try {
+    const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ GET /gallery/${galleryId} `;
+    console.log(prefix);
+
+    let gallery = await models.Gallery.findOne({ _id: galleryId });
+    if (!gallery)
+      return res
+        .status(404)
+        .json(
+          createEndpointError(
+            new Error(`L'galleryanisation ${galleryId} n'a pas pu être trouvé`)
+          )
+        );
+
+    logEvent({
+      type: ServerEventTypes.API_CALL,
+      metadata: {
+        method: "GET",
+        ip: getClientIp(req),
+        url: `/api/${galleryId}`
+      }
+    });
+
+    const session = await getSession({ req });
+    const isCreator =
+      equals(getRefId(gallery), session?.user.userId) || session?.user.isAdmin;
+    gallery = await gallery
+      .populate([
+        {
+          path: "galleryDocuments",
+          populate: [{ path: "createdBy", select: "_id userName" }]
+        },
+        { path: "createdBy", select: "_id userName" }
+      ])
+      .execPopulate();
+
+    res.status(200).json(gallery);
+  } catch (error: any) {
+    if (error.kind === "ObjectId")
+      return res
+        .status(404)
+        .json(
+          createEndpointError(
+            new Error(`L'galleryanisation ${galleryId} n'a pas pu être trouvé`)
+          )
+        );
+    res.status(500).json(createEndpointError(error));
+  }
+});
+
 handler.put<
   NextApiRequest & {
     query: { galleryId: string };
@@ -210,11 +288,7 @@ handler.put<
     } = req;
 
     const galleryId = req.query.galleryId;
-    let gallery = await models.Gallery.findOne(
-      { _id: galleryId },
-      "+galleryMessages"
-    );
-
+    let gallery = await models.Gallery.findOne({ _id: galleryId });
     if (!gallery)
       return res
         .status(404)
@@ -237,12 +311,10 @@ handler.put<
           );
 
       await models.Gallery.updateOne({ _id: galleryId }, body.gallery);
-
-      // if (nModified !== 1)
-      //   throw new Error("La galerie n'a pas pu être modifié");
     }
 
-    res.status(200).json({});
+    const editedGallery = { ...body.gallery, _id: galleryId, org: gallery.org };
+    res.status(200).json(editedGallery);
   } catch (error) {
     res.status(500).json(createEndpointError(error));
   }
@@ -254,6 +326,9 @@ handler.delete<
   },
   NextApiResponse
 >(async function removeGallery(req, res) {
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ DELETE /gallery/[galleryId] `;
+  console.log(prefix + "query", req.query);
+
   const session = await getSession({ req });
 
   if (!session) {
@@ -263,24 +338,19 @@ handler.delete<
   }
 
   try {
-    const galleryId = req.query.galleryId;
-    let gallery = await models.Gallery.findOne({ _id: galleryId });
+    const _id = req.query.galleryId;
+    let gallery = await models.Gallery.findOne({ _id });
 
     if (!gallery) {
       return res
         .status(404)
-        .json(
-          createEndpointError(new Error(`La galerie n'a pas pu être trouvée`))
-        );
+        .json(createEndpointError(new Error(`Galerie introuvable`)));
     }
 
-    gallery = await gallery.populate("org event").execPopulate();
-    const isCreator = equals(
-      getRefId(gallery.org || gallery.event),
-      session.user.userId
-    );
-    const isGalleryCreator = equals(getRefId(gallery), session.user.userId);
+    gallery = await gallery.populate("org").execPopulate();
 
+    const isCreator = equals(getRefId(gallery.org), session.user.userId);
+    const isGalleryCreator = equals(getRefId(gallery), session.user.userId);
     if (!isCreator && !isGalleryCreator && !session.user.isAdmin)
       return res
         .status(403)
@@ -292,56 +362,40 @@ handler.delete<
           )
         );
 
-    //#region entity references
+    const { deletedCount } = await models.Gallery.deleteOne({ _id });
+
+    if (deletedCount !== 1) {
+      return res
+        .status(400)
+        .json(
+          createEndpointError(
+            new Error(`La galerie ${_id} n'a pas pu être supprimée`)
+          )
+        );
+    }
+
+    //#region references
+    console.log(prefix + "deleting matching documents");
+    for (const _id of gallery.galleryDocuments || []) {
+      await client.delete(`/?fileId=${_id}`);
+      await models.Document.deleteOne({ _id });
+    }
+
     if (gallery.org) {
-      console.log("deleting org reference to gallery", gallery.org);
+      console.log(
+        prefix + "deleting gallery from gallery.org",
+        gallery.org.orgGalleries
+      );
       await models.Org.updateOne(
         { _id: gallery.org._id },
         {
           $pull: { orgGalleries: gallery._id }
         }
       );
-    } else if (gallery.event) {
-      console.log("deleting event reference to gallery", gallery.event);
-      await models.Event.updateOne(
-        {
-          _id:
-            typeof gallery.event === "object"
-              ? gallery.event._id
-              : gallery.event
-        },
-        {
-          $pull: { eventGalleries: gallery._id }
-        }
-      );
     }
     //#endregion
 
-    //#region subscription reference
-    // const subscriptions = await models.Subscription.find({});
-    // let count = 0;
-    // for (const subscription of subscriptions) {
-    //   if (!subscription.galleries) continue;
-    //   subscription.galleries = subscription.galleries.filter(
-    //     (galleriesubscription) => {
-    //       if (galleriesubscription.gallery === null) return false;
-    //       if (equals(galleriesubscription.gallery._id, gallery!._id)) {
-    //         count++;
-    //         return false;
-    //       }
-    //       return true;
-    //     }
-    //   );
-    //   await subscription.save();
-    // }
-    // if (count > 0)
-    //   console.log(count + " subscriptions references to gallery deleted");
-    //#endregion
-
-    const { deletedCount } = await models.Gallery.deleteOne({ _id: galleryId });
-    if (deletedCount !== 1)
-      throw new Error(`La galerie n'a pas pu être supprimée`);
-    res.status(200).json(gallery);
+    res.status(200).json({ ...gallery._doc });
   } catch (error) {
     res.status(500).json(createEndpointError(error));
   }

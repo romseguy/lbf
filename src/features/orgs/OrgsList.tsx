@@ -335,9 +335,9 @@ export const OrgsList = ({
                     />
 
                     {/* {org.orgCity && (
-                        <Tooltip label="Descriptionr sur la carte" placement="top">
+                        <Tooltip label="Afficher sur la carte" placement="top">
                           <IconButton
-                            aria-label="Descriptionr sur la carte"
+                            aria-label="Afficher sur la carte"
                             icon={<FaMapMarkedAlt />}
                             ml={2}
                             onClick={() => setOrgToShow(org)}

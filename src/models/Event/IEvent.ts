@@ -4,6 +4,7 @@ import {
   IEntityLogo,
   IEntityStyles
 } from "models/Entity";
+import { IGallery, IGalleryCategory } from "models/Gallery";
 import { IEventNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
@@ -45,6 +46,8 @@ export interface IEvent<T = string> extends IEntity {
   eventEmail?: { email: string }[];
   eventPhone?: { phone: string }[];
   eventWeb?: { url: string; prefix: string }[];
+  eventGalleries: IGallery[];
+  eventGalleryCategories: IGalleryCategory[];
   eventNotifications: IEventNotification[]; // list of emails the invitation has been sent to
   eventSubscriptions: ISubscription[];
   eventTopicCategories: IEventTopicCategory[];

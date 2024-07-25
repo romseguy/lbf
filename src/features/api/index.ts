@@ -13,6 +13,7 @@ export const api = createApi({
     "Orgs",
     "Events",
     "Galleries",
+    "Documents",
     "Projects",
     "Subscriptions",
     "Topics",

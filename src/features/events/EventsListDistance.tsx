@@ -18,7 +18,7 @@ export const EventsListDistanceSelect = ({
       onChange={(e) => setDistance(parseInt(e.target.value))}
       {...props}
     >
-      <option value={0}>Descriptionr tous les événements</option>
+      <option value={0}>Afficher tous les événements</option>
       <option value={5}>5km de {city}</option>
       <option value={10}>10km de {city}</option>
       <option value={20}>20km de {city}</option>

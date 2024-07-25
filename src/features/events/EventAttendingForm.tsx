@@ -22,7 +22,7 @@ import {
   EEventInviteStatus
 } from "models/Event";
 import { useAppDispatch } from "store";
-import { emailR } from "utils/email";
+import { emailR } from "utils/regex";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { useSelector } from "react-redux";
 

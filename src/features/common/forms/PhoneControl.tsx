@@ -19,7 +19,7 @@ import { AtSignIcon, DeleteIcon, PhoneIcon } from "@chakra-ui/icons";
 import React from "react";
 import { useFieldArray } from "react-hook-form";
 import { Link } from "../Link";
-import { phoneR } from "utils/string";
+import { phoneR } from "utils/regex";
 
 type PhoneControlValue = [{ address: string }] | null;
 

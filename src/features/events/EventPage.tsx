@@ -140,10 +140,10 @@ export const EventPage = ({
         <>
           {/* <EntityPageSubscribeButton eventQuery={eventQuery} subQuery={subQuery} /> */}
 
-          <Box mb={3}>
-            {/* {tab === "accueil" && !isCreator && (
+          {/* <Box mb={3}>
+            {tab === "accueil" && !isCreator && (
               <EventAttendingForm eventQuery={eventQuery} mb={3} />
-            )} */}
+            )}
 
             {tab === "invitations" && isCreator && !event.isApproved && (
               <Alert status="info">
@@ -169,7 +169,7 @@ export const EventPage = ({
               </Link>{" "}
               {isCreator && "(Vous)"}
             </Text>
-          </Box>
+          </Box>*/}
 
           <EventPageTabs
             currentItemName={tabItem}

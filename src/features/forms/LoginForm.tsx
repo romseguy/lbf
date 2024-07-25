@@ -1,50 +1,39 @@
 import {
   Alert,
   AlertIcon,
-  Box,
-  ButtonProps,
   Checkbox,
   Flex,
   FormControl,
   FormLabel,
-  Image,
   Spinner,
   Stack,
   Text,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
-import { ArrowBackIcon } from "@chakra-ui/icons";
 import { OAuthProvider } from "@magic-ext/oauth";
 import bcrypt from "bcryptjs";
 import { FaPowerOff } from "react-icons/fa";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
-import { css } from "twin.macro";
-import {
-  getUser,
-  usePostResetPasswordMailMutation
-} from "features/api/usersApi";
+import { useForm } from "react-hook-form";
+import { getUser } from "features/api/usersApi";
 import {
   AppHeading,
   Button,
   Column,
   EmailControl,
   ErrorMessageText,
-  Link,
   PasswordControl
 } from "features/common";
-import { breakpoints } from "features/layout/theme";
 import { SocialLogins } from "features/session/SocialLogins";
+import { useRouterLoading } from "hooks/useRouterLoading";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { useAppDispatch } from "store";
 import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
-import { magic, sealOptions, TOKEN_NAME } from "utils/auth";
-import { seal } from "@hapi/iron";
+import { magic } from "utils/auth";
 import { handleError } from "utils/form";
 import { ErrorMessage } from "@hookform/error-message";
 
@@ -63,7 +52,8 @@ export const LoginForm = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const dispatch = useAppDispatch();
-  //const router = useRouter();
+  const router = useRouter();
+  const routerLoading = useRouterLoading();
   const {
     data: session,
     loading: isSessionLoading,
@@ -74,6 +64,7 @@ export const LoginForm = ({
   //const [postResetPasswordMail] = usePostResetPasswordMailMutation();
 
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const isLoading = isLoggingIn || routerLoading.isLoading;
   const [isPassword, setIsPassword] = useState(false);
   //const [isSent, setIsSent] = useState(false);
 
@@ -104,7 +95,7 @@ export const LoginForm = ({
             data: { authenticated }
           } = await api.post("login", { email: form.email, hash });
 
-          if (authenticated) window.location.href = "/";
+          if (authenticated) router.push("/photo", "/photo", { shallow: true });
           else
             toast({
               status: "error",
@@ -266,8 +257,8 @@ export const LoginForm = ({
                 <Button
                   type="submit"
                   colorScheme="green"
-                  isLoading={isLoggingIn}
-                  isDisabled={isLoggingIn || Object.keys(errors).length > 0}
+                  isLoading={isLoading}
+                  isDisabled={isLoading || Object.keys(errors).length > 0}
                   fontSize="sm"
                 >
                   {isPassword

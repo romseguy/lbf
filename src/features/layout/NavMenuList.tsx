@@ -39,7 +39,7 @@ export const NavMenuList = ({
         cursor="default"
         _hover={{ bg: isDark ? "gray.700" : "white" }}
       />
-      {getEnv() === "test" && (
+      {getEnv() === "development" && (
         <>
           <MenuItem
             aria-hidden
@@ -71,7 +71,7 @@ export const NavMenuList = ({
 
       <MenuItem>
         <Link href="/password" shallow>
-          Définir un nouveau mot de passe
+          Configurer votre compte
         </Link>
       </MenuItem>
 

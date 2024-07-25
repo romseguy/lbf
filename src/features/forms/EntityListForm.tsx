@@ -20,7 +20,7 @@ import { IOrg, IOrgList } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
-import { emailR } from "utils/email";
+import { emailR } from "utils/regex";
 
 const subscriptionsToOptions = (subscriptions: ISubscription[]) =>
   subscriptions.map((subscription) => {

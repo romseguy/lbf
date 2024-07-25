@@ -1,4 +1,14 @@
-import { Alert, AlertIcon, Flex, Spinner, useToast } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  Spinner,
+  useToast
+} from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
 import { EditUserPayload, useEditUserMutation } from "features/api/usersApi";
@@ -40,10 +50,11 @@ const PasswordPage = ({ ...props }: PageProps & {}) => {
   };
 
   const onSubmit = async (form: {
+    userName: string;
     password: string;
     passwordConfirm: string;
   }) => {
-    let payload: EditUserPayload = {};
+    let payload: EditUserPayload = { userName: form.userName };
 
     try {
       setIsLoading(true);
@@ -57,15 +68,18 @@ const PasswordPage = ({ ...props }: PageProps & {}) => {
         payload
       }).unwrap();
 
-      toast({ title: "Le mot de passe a bien été défini", status: "success" });
+      toast({
+        title:
+          "Vous allez devoir vous reconnecter pour que les changements soient effectifs...",
+        status: "success"
+      });
 
       dispatch(resetUserEmail());
       dispatch(setSession(null));
-
       await magic.user.logout();
       await api.get("logout");
-
       router.push("/login", "/login", { shallow: false });
+
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -113,8 +127,35 @@ const PasswordPage = ({ ...props }: PageProps & {}) => {
   if (!session) return <Spinner />;
 
   return (
-    <Layout {...props} pageTitle="Définir un nouveau mot de passe" noHeader>
+    <Layout {...props} pageTitle="Configurer votre compte" noHeader>
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+        <FormControl
+          isRequired={!!session.user}
+          isInvalid={!!errors["userName"]}
+          mb={3}
+        >
+          <FormLabel>Votre prénom</FormLabel>
+          <Input
+            name="userName"
+            placeholder="Nom d'utilisateur"
+            ref={register({
+              required: session.user
+                ? "Veuillez saisir le nom de l'utilisateur"
+                : false
+              // pattern: {
+              //   value: /^[a-z0-9 ]+$/i,
+              //   message:
+              //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
+              // }
+            })}
+            defaultValue={session.user?.userName}
+            data-cy="username-input"
+          />
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="userName" />
+          </FormErrorMessage>
+        </FormControl>
+
         <PasswordControl
           name="password"
           errors={errors}

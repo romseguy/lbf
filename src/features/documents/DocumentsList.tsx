@@ -21,7 +21,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FaImage, FaFile } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
-import { RemoteImage, useGetDocumentsQuery } from "features/api/documentsApi";
+import { RemoteImage } from "features/api/documentsApi";
 import {
   AppHeading,
   Column,
@@ -39,6 +39,7 @@ import { fullDateString } from "utils/date";
 import * as stringUtils from "utils/string";
 import { IEvent } from "models/Event";
 import { AppQueryWithData } from "utils/types";
+import { IDocument } from "models/Document";
 
 enum EDocumentsListOrder {
   ALPHA = "ALPHA",
@@ -67,23 +68,11 @@ export const DocumentsList = ({
 
   const [selectedOrder, setSelectedOrder] =
     useState<EDocumentsListOrder>(defaultOrder);
-  const documentsQuery = useGetDocumentsQuery(
-    {
-      eventId: entity._id,
-      orgId: entity._id,
-      userId: entity._id
-    },
-    {
-      selectFromResult: ({ data, ...rest }) => ({
-        ...rest,
-        documents: [...(data || [])].sort((a, b) => {
-          const diff = !!a.time && !!b.time ? a.time - b.time : 0;
-          return diff > 0 ? -1 : 1;
-        })
-      })
-    }
-  );
-  const { documents } = documentsQuery;
+  const documents: RemoteImage[] = [];
+  // const documents = [...(data || [])].sort((a, b) => {
+  //         const diff = !!a.time && !!b.time ? a.time - b.time : 0;
+  //         return diff > 0 ? -1 : 1;
+  //       })
 
   //#region modal state
   const [modalState, setModalState] = useState<
@@ -286,7 +275,7 @@ export const DocumentsList = ({
                             status: "success"
                           });
                           props.onDelete && props.onDelete();
-                          documentsQuery.refetch();
+                          //documentsQuery.refetch();
                         } catch (error) {
                           console.error(error);
                           toast({

@@ -15,9 +15,8 @@ import {
 import React, { useState } from "react";
 import { Button, AppHeading, CategoryTag } from "features/common";
 import { useSession } from "hooks/useSession";
-import { getCategoryLabel, getRefId } from "models/Entity";
+import { getCategoryLabel, getRefId, IEntity, isOrg } from "models/Entity";
 import { AppQueryWithData } from "utils/types";
-import { IOrg } from "models/Org";
 import { IGallery } from "models/Gallery";
 import { GalleryFormModal } from "features/modals/GalleryFormModal";
 import { useSelector } from "react-redux";
@@ -25,6 +24,7 @@ import { selectIsMobile } from "store/uiSlice";
 import { useRouter } from "next/router";
 import { GalleriesListItem } from "./GalleriesListItem";
 import { normalize } from "utils/string";
+import { isBefore, parseISO } from "date-fns";
 
 enum EGalleriesListOrder {
   ALPHA = "ALPHA",
@@ -43,7 +43,7 @@ export const GalleriesList = ({
   currentGalleryName,
   ...props
 }: GridProps & {
-  query: AppQueryWithData<IOrg>;
+  query: AppQueryWithData<IEntity>;
   isCreator: boolean;
   currentGalleryName?: string;
   onSubmit?: (gallery: IGallery) => void;
@@ -53,30 +53,51 @@ export const GalleriesList = ({
   const router = useRouter();
   const { data: session } = useSession();
   const isMobile = useSelector(selectIsMobile);
+  const entity = query.data;
+  const isO = isOrg(entity);
 
   //#region local state
   const [isGalleryLoading, setIsGalleryLoading] = useState<
     Record<string, boolean>
   >({});
 
-  const entity = query.data;
-  const galleries = [...(entity.orgGalleries || [])].sort(
-    (galleryA, galleryB) => {
-      if (galleryA.isPinned && !galleryB.isPinned) return -1;
-      if (!galleryA.isPinned && galleryB.isPinned) return 1;
-      return 0;
-    }
-  );
+  const defaultOrder = EGalleriesListOrder.NEWEST;
+  const [selectedOrder, setSelectedOrder] =
+    useState<EGalleriesListOrder>(defaultOrder);
+  const galleries = [
+    ...(isO
+      ? entity.orgGalleries.concat(
+          entity.orgEvents.map((event) => {
+            return {
+              _id: "event" + event.eventUrl,
+              galleryName: event.eventName,
+              isPinned: true,
+              createdAt: event.eventMinDate
+            };
+          })
+        )
+      : entity.eventGalleries || [])
+  ].sort((galleryA, galleryB) => {
+    if (galleryA.isPinned && !galleryB.isPinned) return -1;
+    if (!galleryA.isPinned && galleryB.isPinned) return 1;
+
+    if (selectedOrder === EGalleriesListOrder.ALPHA)
+      return galleryA.galleryName > galleryB.galleryName ? 1 : -1;
+
+    const dateA = parseISO(galleryA.createdAt);
+    const dateB = parseISO(galleryB.createdAt);
+
+    if (selectedOrder === EGalleriesListOrder.OLDEST)
+      return isBefore(dateA, dateB) ? -1 : 1;
+
+    return isBefore(dateB, dateA) ? -1 : 1;
+  });
   const currentGallery = galleries.find(({ galleryName }) => {
     return galleryName === currentGalleryName;
   });
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
   const galleryCategories = entity.orgGalleryCategories || [];
-
-  const defaultOrder = EGalleriesListOrder.NEWEST;
-  const [selectedOrder, setSelectedOrder] =
-    useState<EGalleriesListOrder>(defaultOrder);
 
   //const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
   //#endregion
@@ -136,42 +157,6 @@ export const GalleriesList = ({
           </option>
         </Select>
       </Box>
-
-      {/* <Box
-        {...(isMobile
-          ? {}
-          : { display: "flex", justifyContent: "space-between" })}
-      >
-        {(props.isCreator || galleryCategories.length > 0) && (
-          <Flex flexDirection="column" mb={3}>
-            <AppHeading smaller>Catégories</AppHeading>
-
-            <GalleriesListCategories
-              query={query}
-              isCreator={props.isCreator}
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
-            />
-          </Flex>
-        )}
-
-        {isO &&
-          entity.orgUrl !== "forum" &&
-          session &&
-          hasItems(entity.orgLists) && (
-            <Flex flexDirection="column" mb={3}>
-              <AppHeading smaller>Listes</AppHeading>
-              <GalleriesListOrgLists
-                org={entity}
-                isCreator={props.isCreator}
-                session={session}
-                subQuery={subQuery}
-                //selectedLists={selectedLists}
-                //setSelectedLists={setSelectedLists}
-              />
-            </Flex>
-          )}
-      </Box> */}
 
       <Box>
         {query.isLoading ? (
@@ -272,19 +257,25 @@ export const GalleriesList = ({
               props.isCreator || getRefId(gallery) === session?.user.userId;
 
             const onClick = async () => {
-              let url = "/" + entity.orgUrl + "/galeries";
-
-              if (!isCurrent) {
-                url += "/" + normalize(gallery.galleryName);
+              if (gallery._id.includes("event")) {
+                const url = `/${gallery._id.substring(5) + "/galerie"}`;
                 await router.push(url, url, { shallow: true });
-                //executeScroll();
               } else {
-                await router.push(url, url, { shallow: true });
+                let url = "/" + entity.orgUrl + "/galeries";
+
+                if (!isCurrent) {
+                  url += "/" + normalize(gallery.galleryName);
+                  await router.push(url, url, { shallow: true });
+                  //executeScroll();
+                } else {
+                  await router.push(url, url, { shallow: true });
+                }
               }
             };
 
             return (
               <GalleriesListItem
+                key={gallery._id}
                 query={query}
                 gallery={gallery}
                 galleryIndex={galleryIndex}
@@ -295,21 +286,18 @@ export const GalleriesList = ({
                 isGalleryCreator={isGalleryCreator}
                 mb={galleryIndex < galleries.length - 1 ? 5 : 0}
                 onClick={onClick}
+                onEditClick={() => {
+                  setGalleryModalState({
+                    ...galleryModalState,
+                    isOpen: true,
+                    gallery
+                  });
+                }}
               />
             );
           })
         )}
       </Box>
-
-      {/* {session && (
-        <EntityNotifModal
-          query={query}
-          mutation={addGalleryNotifMutation}
-          setModalState={setNotifyModalState}
-          modalState={notifyModalState}
-          session={session}
-        />
-      )} */}
 
       {galleryModalState.isOpen && (
         <GalleryFormModal
@@ -331,3 +319,52 @@ export const GalleriesList = ({
     </>
   );
 };
+
+{
+  /* <Box
+        {...(isMobile
+          ? {}
+          : { display: "flex", justifyContent: "space-between" })}
+      >
+        {(props.isCreator || galleryCategories.length > 0) && (
+          <Flex flexDirection="column" mb={3}>
+            <AppHeading smaller>Catégories</AppHeading>
+
+            <GalleriesListCategories
+              query={query}
+              isCreator={props.isCreator}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+            />
+          </Flex>
+        )}
+
+        {isO &&
+          entity.orgUrl !== "forum" &&
+          session &&
+          hasItems(entity.orgLists) && (
+            <Flex flexDirection="column" mb={3}>
+              <AppHeading smaller>Listes</AppHeading>
+              <GalleriesListOrgLists
+                org={entity}
+                isCreator={props.isCreator}
+                session={session}
+                subQuery={subQuery}
+                //selectedLists={selectedLists}
+                //setSelectedLists={setSelectedLists}
+              />
+            </Flex>
+          )}
+      </Box> */
+}
+{
+  /* {session && (
+        <EntityNotifModal
+          query={query}
+          mutation={addGalleryNotifMutation}
+          setModalState={setNotifyModalState}
+          modalState={notifyModalState}
+          session={session}
+        />
+      )} */
+}

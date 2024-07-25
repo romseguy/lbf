@@ -97,7 +97,8 @@ export const EntityButton = ({
           whiteSpace="normal"
           onClick={(e) => {
             if (onClick) onClick(e);
-            else router.push(entityUrl!, entityUrl, { shallow: true });
+            else if (onClick !== null)
+              router.push(entityUrl!, entityUrl, { shallow: true });
           }}
           {...props}
         >

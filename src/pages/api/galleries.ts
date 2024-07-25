@@ -11,6 +11,8 @@ import { getSession } from "server/auth";
 import { IGallery } from "models/Gallery";
 import { createEndpointError } from "utils/errors";
 import { logEvent, ServerEventTypes } from "server/logging";
+import { IOrg, IOrgEventCategory } from "models/Org";
+import { randomNumber } from "utils/randomNumber";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -72,6 +74,16 @@ handler.use(database);
 
 handler.post<NextApiRequest & { body: AddGalleryPayload }, NextApiResponse>(
   async function addGallery(req, res) {
+    const {
+      body
+    }: {
+      body: AddGalleryPayload;
+    } = req;
+
+    const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ POST /galleries `;
+    console.log(
+      prefix + "gallery " + req.body.gallery._id + " org " + req.body.org._id
+    );
     const session = await getSession({ req });
 
     if (!session) {
@@ -85,55 +97,28 @@ handler.post<NextApiRequest & { body: AddGalleryPayload }, NextApiResponse>(
     }
 
     try {
-      const {
-        body
-      }: {
-        body: AddGalleryPayload;
-      } = req;
-
-      // let event: (IEvent & Document<any, IEvent>) | null | undefined;
-      // let org: (IOrg & Document<any, IOrg>) | null | undefined;
-
-      // if (body.event)
-      //   event = await models.Event.findOne({ _id: body.event._id });
-      // else if (body.org) org = await models.Org.findOne({ _id: body.org._id });
-
-      // if (!event && !org) {
-      //   return res
-      //     .status(400)
-      //     .json(
-      //       createEndpointError(
-      //         new Error(
-      //           "La discussion doit être associée à une organisation ou à un événément"
-      //         )
-      //       )
-      //     );
-      // }
+      let org: (IOrg & Document<any, any, IOrg>) | null | undefined;
+      if (body.org) org = await models.Org.findOne({ _id: body.org._id });
+      if (!org) {
+        return res
+          .status(404)
+          .json(createEndpointError(new Error("Atelier introuvable")));
+      }
 
       let gallery: (IGallery & Document<any, IGallery>) | null | undefined;
-
       let galleryName = body.gallery.galleryName;
-      // const galleryWithSameName = await models.Gallery.findOne({
-      //   galleryName
-      // });
-      // if (galleryWithSameName) {
-      //   const uid = org
-      //     ? org.orgGalleries.length + 1
-      //     : event
-      //     ? event.eventGalleries.length + 1
-      //     : randomNumber(3);
-      //   galleryName = `${galleryName}-${uid}`;
-      // }
+      const galleryWithSameName = await models.Gallery.findOne({
+        galleryName
+      });
+      if (galleryWithSameName) {
+        const uid = org ? org.orgGalleries.length + 1 : randomNumber(3);
+        galleryName = `${galleryName}-${uid}`;
+      }
 
       gallery = await models.Gallery.create({
         ...body.gallery,
+        org: body.org,
         galleryName,
-        // galleryMessages: body.gallery.galleryMessages?.map(
-        //   (galleryMessage) => ({
-        //     ...galleryMessage,
-        //     createdBy: session.user.userId
-        //   })
-        // ),
         createdBy: session.user.userId
       });
 

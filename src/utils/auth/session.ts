@@ -28,12 +28,13 @@ export const singleSession =
   null;
 
 export const devSession =
-  //  {
+  // admin
+  // {
   //   user: {
   //     email: "contact@lebonforum.fr",
   //     userId: "668354c66b0b7a9351b72baf",
   //     userName: "leo",
-  //     isAdmin: false
+  //     isAdmin: true
   //   }
   // };
 

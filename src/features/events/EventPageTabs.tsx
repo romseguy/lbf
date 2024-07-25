@@ -1,48 +1,37 @@
-import { ChatIcon, EmailIcon, CalendarIcon } from "@chakra-ui/icons";
-import { Tabs, useColorMode, useToast } from "@chakra-ui/react";
+import {
+  Badge,
+  BadgeProps,
+  HStack,
+  Icon,
+  Tabs,
+  useColorMode,
+  useToast
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaHome, FaImages } from "react-icons/fa";
-import {
-  EntityPageDocuments,
-  EntityPageTab,
-  EntityPageTabList
-} from "features/common";
-import { IEvent } from "models/Event";
+import { EntityPageTab, EntityPageTabList } from "features/common";
+import { defaultTabs, IEvent } from "models/Event";
 import { normalize } from "utils/string";
-import { AppIcon } from "utils/types";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 
-import { ArrowForwardIcon } from "@chakra-ui/icons";
-import { Flex, TabPanel, TabPanels } from "@chakra-ui/react";
+import { TabPanel, TabPanels } from "@chakra-ui/react";
 import { css } from "twin.macro";
-import {
-  AppHeading,
-  Button,
-  Column,
-  EmailPreview,
-  EntityButton,
-  EntityPageTopics,
-  EntityNotified
-} from "features/common";
-import { EventNotifForm } from "features/forms/EventNotifForm";
+import { AppHeading, Column } from "features/common";
 import { scrollbarCss } from "features/layout/theme";
 import { useSession } from "hooks/useSession";
 import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
-import { compareAsc, isBefore, parseISO } from "date-fns";
-
-let defaultTabs: { [key: string]: { icon: AppIcon; url: string } } = {
-  Accueil: { icon: CalendarIcon, url: "/" },
-  Discussions: { icon: ChatIcon, url: "/discussions" },
-  Galerie: { icon: FaImages, url: "/galerie" }
-};
+import { isBefore, parseISO } from "date-fns";
+import { GalleriesListItem } from "features/galleries/GalleriesListItem";
+import { FaImages } from "react-icons/fa";
+import { useGetGalleryQuery } from "features/api/galleriesApi";
+import { hasItems } from "utils/array";
 
 export const EventPageTabs = ({
   currentItemName,
-  currentTabLabel = "Accueil",
+  currentTabLabel = "Présentation",
   eventQuery,
   isCreator,
   isFollowed,
@@ -67,6 +56,18 @@ export const EventPageTabs = ({
   const toast = useToast({ position: "bottom" });
 
   const event = eventQuery.data;
+
+  const { data } = useGetGalleryQuery({ galleryId: event._id });
+  const gallery = data || {
+    _id: eventQuery.data._id,
+    galleryName: eventQuery.data._id
+  };
+
+  const badgeProps: BadgeProps = {
+    colorScheme: "teal",
+    variant: "solid",
+    ml: 1
+  };
   const columnProps = {
     bg: isDark ? "gray.700" : "lightblue"
   };
@@ -131,6 +132,7 @@ export const EventPageTabs = ({
       >
         {Object.keys(defaultTabs).map((tabLabel, tabIndex) => {
           const tab = defaultTabs[tabLabel];
+          const url = Array.isArray(tab.url) ? tab.url[0] : tab.url;
           const key = `event-${normalize(tabLabel)}-tab`;
 
           return (
@@ -144,18 +146,22 @@ export const EventPageTabs = ({
                   toast({
                     title: "Cet onglet sera accessible après l'atelier"
                   });
-                else
-                  router.push(
-                    `/${event.eventUrl}${tab.url}`,
-                    `/${event.eventUrl}${tab.url}`,
-                    {
-                      shallow: true
-                    }
-                  );
+                else {
+                  const url =
+                    tab.url === "/"
+                      ? `/${event.eventUrl}`
+                      : `/${event.eventUrl}${tab.url}`;
+                  router.push(url, url, {
+                    shallow: true
+                  });
+                }
               }}
               data-cy={key}
             >
-              {tab.url !== "/" && tabLabel}
+              {tabLabel}
+              {url === "/galerie" && hasItems(gallery.galleryDocuments) ? (
+                <Badge>{gallery.galleryDocuments!.length}</Badge>
+              ) : null}
             </EntityPageTab>
           );
         })}
@@ -177,104 +183,27 @@ export const EventPageTabs = ({
         </TabPanel>
 
         <TabPanel aria-hidden>
-          <EntityPageTopics
-            currentTopicName={currentItemName}
-            isCreator={isCreator}
-            isFollowed={isFollowed}
-            query={eventQuery}
-            subQuery={subQuery}
-          />
-        </TabPanel>
-
-        <TabPanel aria-hidden>
-          <EntityPageDocuments isCreator={isCreator} query={eventQuery} />
+          <Column bg={isDark ? "gray.700" : "lightblue"}>
+            <HStack mb={3}>
+              <Icon as={FaImages} boxSize={10} />
+              <AppHeading>{eventQuery.data.eventName}</AppHeading>
+            </HStack>
+            <GalleriesListItem
+              query={eventQuery}
+              gallery={gallery}
+              galleryIndex={0}
+              isCreator={true}
+              isCurrent={true}
+              isLoading={false}
+              setIsLoading={() => {}}
+              isGalleryCreator={true}
+              onClick={() => {}}
+              onEditClick={() => {}}
+              noHeader
+            />
+          </Column>
         </TabPanel>
       </TabPanels>
     </Tabs>
   );
 };
-
-{
-  /* {session && isCreator && (
-          <TabPanel aria-hidden>
-            <AppHeading mb={3}>Invitations</AppHeading>
-
-            <Column {...columnProps}>
-              {!showNotifForm && (
-                <Flex>
-                  <Button
-                    as="div"
-                    colorScheme="teal"
-                    cursor="pointer"
-                    leftIcon={<ArrowForwardIcon />}
-                    size={isMobile ? "xs" : undefined}
-                    onClick={() => {
-                      if (!event.isApproved)
-                        alert(
-                          "L'événement doit être vérifié par un modérateur avant de pouvoir envoyer des invitations."
-                        );
-                      else setShowNotifForm(!showNotifForm);
-                    }}
-                  >
-                    Envoyer des invitations à{" "}
-                    {isMobile ? (
-                      "l'événement"
-                    ) : (
-                      <EntityButton
-                        event={event}
-                        bg={"whiteAlpha.500"}
-                        ml={2}
-                        py={isMobile ? 3 : undefined}
-                        onClick={null}
-                      />
-                    )}
-                  </Button>
-                </Flex>
-              )}
-
-               {showNotifForm && (
-                    <Flex>
-                      <Button
-                        colorScheme="teal"
-                        leftIcon={<ArrowBackIcon />}
-                        onClick={() => setShowNotifForm(false)}
-                      >
-                        Revenir à la liste des invitations envoyées
-                      </Button>
-                    </Flex>
-                  )} *
-
-              {showNotifForm && (
-                <>
-                  <AppHeading>Aperçu de l'e-mail d'invitation</AppHeading>
-                  <EmailPreview
-                    entity={event}
-                    event={event}
-                    session={session}
-                    mt={5}
-                  />
-
-                  <EventNotifForm
-                    event={event}
-                    eventQuery={eventQuery}
-                    session={session}
-                    onCancel={() => setShowNotifForm(false)}
-                    onSubmit={() => setShowNotifForm(false)}
-                  />
-                </>
-              )}
-            </Column>
-
-            {!showNotifForm && (
-              <>
-                <AppHeading my={3}>
-                  Historique des invitations envoyées
-                </AppHeading>
-                <Column {...columnProps}>
-                  <EntityNotified entity={event} />
-                </Column>
-              </>
-            )}
-          </TabPanel>
-        )} */
-}

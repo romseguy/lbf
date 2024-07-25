@@ -18,7 +18,7 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React from "react";
 import { useFieldArray } from "react-hook-form";
-import { emailR } from "utils/email";
+import { emailR } from "utils/regex";
 
 import { Link } from "../Link";
 

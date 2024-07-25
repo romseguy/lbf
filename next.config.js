@@ -26,6 +26,9 @@ if (process.env.ANALYZE) {
 }
 
 const nextConfig = {
+  experimental: {
+    largePageDataBytes: 10 * 1000000,
+  },
   eslint: {
     ignoreDuringBuilds: true
   },

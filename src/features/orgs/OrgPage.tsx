@@ -133,15 +133,16 @@ export const OrgPage = ({
       isMobile={isMobile}
     >
       {isCreator && (
-        <EntityPageConfigButton
-          isConfig={isConfig}
-          isEdit={isEdit}
-          setIsConfig={setIsConfig}
-          setIsEdit={setIsEdit}
-          mb={3}
-        >
-          Paramètres de l'atelier
-        </EntityPageConfigButton>
+        <Box mb={5}>
+          <EntityPageConfigButton
+            isConfig={isConfig}
+            isEdit={isEdit}
+            setIsConfig={setIsConfig}
+            setIsEdit={setIsEdit}
+          >
+            Paramètres de l'atelier
+          </EntityPageConfigButton>
+        </Box>
       )}
 
       {!isConfig && !isEdit && (

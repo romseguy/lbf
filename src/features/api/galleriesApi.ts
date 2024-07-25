@@ -1,12 +1,6 @@
-import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
-import { IEvent } from "models/Event";
-//import { IGalleryNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { IGallery } from "models/Gallery";
-//import { IGalleryMessage } from "models/GalleryMessage";
-import { globalEmail } from "pages/_app";
-import baseQuery, { objectToQueryString } from "utils/query";
-import { Optional } from "utils/types";
+import { objectToQueryString } from "utils/query";
 import { api } from "./";
 
 //const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
@@ -16,16 +10,13 @@ export interface AddGalleryPayload {
   org?: IOrg;
 }
 
-export interface AddGalleryNotifPayload {
-  email?: string;
-  event?: IEvent<string | Date>;
-  org?: IOrg;
-  orgListsNames?: string[];
-}
-
 export interface EditGalleryPayload {
   gallery: Partial<IGallery>;
 }
+
+export type GetGalleryParams = {
+  galleryId?: string;
+};
 
 export const galleryApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -60,38 +51,17 @@ export const galleryApi = api.injectEndpoints({
         ];
       }
     }),
-    // addGalleryNotif: build.mutation<
-    //   {
-    //     notifications: IGalleryNotification[]
-    //   },
-    //   {
-    //     payload: AddGalleryNotifPayload;
-    //     galleryId: string;
-    //   }
-    // >({
-    //   query: ({ payload, galleryId }) => {
-    //     console.groupCollapsed("addGalleryNotif");
-    //     console.log("addGalleryNotif: galleryId", galleryId);
-    //     console.log("addGalleryNotif: payload", payload);
-    //     console.groupEnd();
-
-    //     return {
-    //       url: `gallery/${galleryId}`,
-    //       method: "POST",
-    //       body: payload
-    //     };
-    //   }
-    // }),
     deleteGallery: build.mutation<IGallery, string>({
       query: (galleryId) => ({ url: `gallery/${galleryId}`, method: "DELETE" }),
       invalidatesTags: (result, error, params) => {
-        // if (result?.org?._id)
-        //   return [
-        //     {
-        //       type: "Orgs",
-        //       id: result?.org?._id
-        //     }
-        //   ];
+        if (result?.org?._id)
+          return [
+            { type: "Galleries", id: "LIST" },
+            {
+              type: "Orgs",
+              id: result?.org?._id
+            }
+          ];
 
         return [{ type: "Galleries", id: "LIST" }];
       }
@@ -115,31 +85,32 @@ export const galleryApi = api.injectEndpoints({
           body: payload
         };
       },
+      //@ts-expect-error
       invalidatesTags: (result, error, params) => {
-        // if (params.payload.gallery.org?._id)
-        //   return [
-        //     {
-        //       type: "Orgs",
-        //       id: params.payload.gallery.org?._id
-        //     }
-        //   ];
+        if (result?.org)
+          return [
+            { type: "Galleries", id: "LIST" },
+            {
+              type: "Orgs",
+              id: result?.org
+            }
+          ];
 
         return [{ type: "Galleries", id: "LIST" }];
       }
     }),
-    getGalleries: build.query<
-      IGallery[],
-      { createdBy?: string; populate?: string } | void
-    >({
-      query: (query) => {
-        console.groupCollapsed("getGalleries");
-        if (query) {
-          console.log("query", query);
-        }
+    getGallery: build.query<IGallery, GetGalleryParams>({
+      query: ({ galleryId, ...query }) => {
+        console.groupCollapsed("getGallery");
+        console.log("galleryId", galleryId);
         console.groupEnd();
 
         return {
-          url: `galleries${query ? `?${objectToQueryString(query)}` : ""}`
+          url: `gallery/${galleryId}${
+            Object.keys(query).length > 0
+              ? `?${objectToQueryString(query)}`
+              : ""
+          }`
         };
       }
     })
@@ -149,11 +120,7 @@ export const galleryApi = api.injectEndpoints({
 
 export const {
   useAddGalleryMutation,
-  // useAddGalleryDetailsMutation,
-  //useAddGalleryNotifMutation,
   useDeleteGalleryMutation,
   useEditGalleryMutation,
-  useGetGalleriesQuery
-  // useGetGalleryByNameQuery,
-  // useGetGalleriesByCreatorQuery
+  useGetGalleryQuery
 } = galleryApi;

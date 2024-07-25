@@ -48,8 +48,7 @@ export const MapContainer = withGoogleApi({
       return (
         <Alert status="warning" mb={3}>
           <AlertIcon />
-          Il n'y a encore rien à descriptionr sur cette carte, revenez plus tard
-          !
+          Il n'y a encore rien à Afficher sur cette carte, revenez plus tard !
         </Alert>
       );
     }

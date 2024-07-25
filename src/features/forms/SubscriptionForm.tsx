@@ -1,3 +1,4 @@
+import { AtSignIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
@@ -6,24 +7,27 @@ import {
   InputLeftElement,
   useColorMode
 } from "@chakra-ui/react";
+import { ItemTag } from "@choc-ui/chakra-autocomplete";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { ErrorMessageText, Button, ListsControl } from "features/common";
+import {
+  Button,
+  ErrorMessageText,
+  ListsControl,
+  TagsControl
+} from "features/common";
+import { formBoxProps } from "features/layout/theme";
 import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
 import { useAddSubscriptionMutation } from "features/api/subscriptionsApi";
 import { getLists, IOrg } from "models/Org";
 import { EOrgSubscriptionType } from "models/Subscription";
 import { hasItems } from "utils/array";
-import { emailR } from "utils/email";
+import { emailR } from "utils/regex";
 import { handleError } from "utils/form";
-import { phoneR } from "utils/string";
+import { phoneR } from "utils/regex";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import useFormPersist from "hooks/useFormPersist";
-import { TagsControl } from "features/common/forms/TagsControl";
-import { ItemTag } from "@choc-ui/chakra-autocomplete";
-import { AtSignIcon } from "@chakra-ui/icons";
-import { formBoxProps } from "features/layout/theme";
 
 type FormValues = {
   emailList: string;

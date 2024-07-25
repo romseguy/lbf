@@ -18,6 +18,8 @@ import { ITopic } from "models/Topic";
 import { TopicSchema } from "models/Topic/TopicSchema";
 import { IUser } from "models/User";
 import { UserSchema } from "models/User/UserSchema";
+import { DocumentSchema } from "models/Document/DocumentSchema";
+import { IDocument } from "models/Document";
 
 let cached = global.mongo;
 if (!cached) {
@@ -27,6 +29,7 @@ if (!cached) {
 export let db: Db;
 //@ts-ignore
 export let models: {
+  Document: Model<IDocument, {}, {}>;
   Event: Model<IEvent, {}, {}>;
   Org: Model<IOrg, {}, {}>;
   Gallery: Model<IGallery, {}, {}>;
@@ -52,6 +55,7 @@ export default async function database(
 ) {
   if (!cached.models && cached.conn) {
     cached.models = models = {
+      Document: cached.conn.model<IDocument>("Document", DocumentSchema),
       Event: cached.conn.model<IEvent>("Event", EventSchema),
       Org: cached.conn.model<IOrg>("Org", OrgSchema),
       Gallery: cached.conn.model<IGallery>("Gallery", GallerySchema),
@@ -98,6 +102,7 @@ export default async function database(
 
   if (!cached.models)
     cached.models = models = {
+      Document: cached.conn.model<IDocument>("Document", DocumentSchema),
       Event: cached.conn.model<IEvent>("Event", EventSchema),
       Org: cached.conn.model<IOrg>("Org", OrgSchema),
       Gallery: cached.conn.model<IGallery>("Gallery", GallerySchema),

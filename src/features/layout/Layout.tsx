@@ -150,7 +150,7 @@ export const Layout = ({
       />
 
       {/* Header */}
-      {!noHeader && router.pathname !== "/" && (
+      {/* {!noHeader && router.pathname !== "/" && (
         <Header
           entity={entity}
           defaultTitle="Merci de patienter..."
@@ -160,7 +160,7 @@ export const Layout = ({
           mb={isMobile ? 3 : undefined}
           mt={0}
         />
-      )}
+      )} */}
 
       {/* Main */}
       {main(c)}

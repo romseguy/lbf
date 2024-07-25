@@ -55,20 +55,28 @@ const App = wrapper.withRedux(
     ...props
   }: NextAppProps<PageProps> & AppProps) => {
     const { data } = useSession();
-    const session = data || props.session;
-    let main = <Main Component={Component} {...pageProps} />;
     const router = useRouter();
+    const session = data || props.session;
+
+    let main = <Main Component={Component} {...pageProps} />;
+
     useEffect(() => {
       console.log("🚀 ~ _app ~ session:", session);
       if (!session && router.pathname !== "/callback")
         router.push("/login", "/login", { shallow: false });
     }, [session]);
-    if (!session && router.pathname !== "/login")
+
+    if (
+      !session &&
+      router.pathname !== "/login" &&
+      router.pathname !== "/callback"
+    )
       main = (
         <SimpleLayout {...pageProps} title="Veuillez patienter...">
           <Spinner />
         </SimpleLayout>
       );
+
     return (
       <>
         <GlobalConfig />
@@ -94,6 +102,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
   (store) =>
     async ({ Component, ctx }): Promise<AppProps> => {
       const headers = ctx.req?.headers;
+      const cookies = headers?.cookie;
 
       //#region browser
       let userAgent = headers?.["user-agent"];
@@ -113,53 +122,53 @@ App.getInitialProps = wrapper.getInitialAppProps(
       //#region email and session handling
       let email = ctx.query.email;
       let session: Session | undefined;
+      let authToken: string | null = null;
 
       if (devSession && getEnv() === "development") {
         // // console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
         session = devSession;
         //@ts-ignore
         email = devSession.user.email;
-      }
-
-      if (testSession && getEnv() === "test") {
+      } else if (testSession && getEnv() === "test") {
         // // console.log("🚀 ~ App.getInitialProps ~ testSession:", testSession);
         session = testSession;
         //@ts-ignore
         email = testSession.user.email;
-      }
+      } else {
+        if (typeof cookies === "string" && cookies.includes(TOKEN_NAME)) {
+          const cookie = parse(cookies);
+          // // console.log("🚀 ~ App.getInitialProps ~ cookie map:", cookie);
+          authToken = getAuthToken(cookie);
 
-      const cookies = headers?.cookie;
-      let authToken: string | null = null;
+          if (authToken) {
+            // // console.log("🚀 ~ App.getInitialProps ~ authToken:", authToken);
+            const user = await unseal(
+              authToken,
+              process.env.SECRET,
+              sealOptions
+            );
 
-      if (typeof cookies === "string" && cookies.includes(TOKEN_NAME)) {
-        const cookie = parse(cookies);
-        // // console.log("🚀 ~ App.getInitialProps ~ cookie map:", cookie);
-        authToken = getAuthToken(cookie);
+            if (user) {
+              const isAdmin =
+                typeof process.env.ADMIN_EMAILS === "string"
+                  ? process.env.ADMIN_EMAILS.split(",").includes(user.email)
+                  : false;
 
-        if (authToken) {
-          // // console.log("🚀 ~ App.getInitialProps ~ authToken:", authToken);
-          const user = await unseal(authToken, process.env.SECRET, sealOptions);
+              session = {
+                user: {
+                  ...user,
+                  isAdmin
+                }
+              };
 
-          if (user) {
-            const isAdmin =
-              typeof process.env.ADMIN_EMAILS === "string"
-                ? process.env.ADMIN_EMAILS.split(",").includes(user.email)
-                : false;
-
-            session = {
-              user: {
-                ...user,
-                isAdmin
-              }
-            };
-
-            email = user.email;
+              email = user.email;
+            }
           }
+        } else if (singleSession) {
+          session = singleSession;
+          //@ts-ignore
+          email = singleSession.user.email;
         }
-      } else if (singleSession) {
-        session = singleSession;
-        //@ts-ignore
-        email = singleSession.user.email;
       }
 
       if (typeof email === "string") {

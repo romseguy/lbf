@@ -29,13 +29,14 @@ import { IGallery } from "models/Gallery";
 import { handleError } from "utils/form";
 import { defaultErrorMessage } from "utils/string";
 import { AppQueryWithData } from "utils/types";
+import { IEntity } from "models/Entity";
 
 export const GalleryForm = ({
   query,
   //subQuery,
   ...props
 }: {
-  query: AppQueryWithData<IOrg>;
+  query: AppQueryWithData<IEntity>;
   gallery?: IGallery;
   isCreator?: boolean;
   onCancel?: () => void;
@@ -48,7 +49,7 @@ export const GalleryForm = ({
   const [edit] = useEditOrgMutation();
 
   //#region local state
-  const entity = query.data;
+  const entity = query.data as IOrg;
   // const isEntityPrivate =
   //   org?.orgVisibility === EOrgVisibility.PRIVATE ||
   //   event?.eventVisibility === EEventVisibility.PRIVATE;
@@ -79,7 +80,7 @@ export const GalleryForm = ({
     useForm<{
       galleryName: string;
       galleryCategory: { label: string; value: string } | null;
-      //galleryMessage?: string;
+      //galleryDescription?: string;
     }>({
       mode: "onChange",
       defaultValues: {
@@ -87,7 +88,7 @@ export const GalleryForm = ({
         galleryCategory: galleryCategory
           ? { label: galleryCategory.label, value: galleryCategory.catId }
           : null
-        //galleryMessage: ""
+        //galleryDescription: ""
       }
     })
   );
@@ -99,7 +100,7 @@ export const GalleryForm = ({
 
   const onSubmit = async (form: {
     galleryName: string;
-    galleryMessage?: string;
+    galleryDescription?: string;
     galleryCategory?: { label: string; value: string } | null;
     galleryVisibility?: [{ label: string; value: string }];
   }) => {
@@ -134,13 +135,13 @@ export const GalleryForm = ({
         props.onSubmit && props.onSubmit(editedGallery);
       } else {
         // if (
-        //   typeof form.galleryMessage === "string" &&
-        //   form.galleryMessage !== ""
+        //   typeof form.galleryDescription === "string" &&
+        //   form.galleryDescription !== ""
         // ) {
-        //   gallery.galleryMessages = [
+        //   gallery.galleryDescription = [
         //     {
-        //       message: form.galleryMessage,
-        //       //messageHtml: form.galleryMessage,
+        //       message: form.galleryDescription,
+        //       //messageHtml: form.galleryDescription,
         //       createdBy: session.user.userId
         //     }
         //   ];
@@ -192,10 +193,10 @@ export const GalleryForm = ({
       </FormControl>
 
       {/* {!props.gallery && (
-        <FormControl isInvalid={!!errors["galleryMessage"]} mb={3}>
+        <FormControl isInvalid={!!errors["galleryDescription"]} mb={3}>
           <FormLabel>Message (optionnel)</FormLabel>
           <Controller
-            name="galleryMessage"
+            name="galleryDescription"
             control={control}
             render={(renderProps) => {
               return (
@@ -209,7 +210,7 @@ export const GalleryForm = ({
             }}
           />
           <FormErrorMessage>
-            <ErrorMessage errors={errors} name="galleryMessage" />
+            <ErrorMessage errors={errors} name="galleryDescription" />
           </FormErrorMessage>
         </FormControl>
       )} */}

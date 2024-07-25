@@ -37,7 +37,7 @@ import {
 } from "models/Subscription";
 import { useAppDispatch } from "store";
 import { selectUserEmail, setUserEmail } from "store/userSlice";
-import { emailR } from "utils/email";
+import { emailR } from "utils/regex";
 import { AppQuery } from "utils/types";
 import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
 

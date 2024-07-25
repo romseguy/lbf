@@ -9,8 +9,6 @@ export * from "./toast";
 
 export const MB = 1000000;
 
-export const phoneR = /^[0-9]{10,}$/i;
-
 export function bytesForHuman(bytes: number, decimals = 0) {
   const units = ["o", "Ko", "Mo", "Go"];
   let i = 0;

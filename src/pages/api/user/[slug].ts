@@ -2,19 +2,20 @@ import { addHours, getUnixTime } from "date-fns";
 import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
+import { EditUserPayload } from "features/api/usersApi";
 import { IUser } from "models/User";
 import { getSession } from "server/auth";
 import database, { models } from "server/database";
 import { sendMail } from "server/email";
-import { createUserPasswordResetMail, emailR } from "utils/email";
+import { createUserPasswordResetMail } from "utils/email";
 import {
   createEndpointError,
   databaseErrorCodes,
   duplicateError
 } from "utils/errors";
-import { logJson, normalize, phoneR } from "utils/string";
 import { randomNumber } from "utils/randomNumber";
-import { EditUserPayload } from "features/api/usersApi";
+import { emailR, phoneR } from "utils/regex";
+import { logJson, normalize } from "utils/string";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 

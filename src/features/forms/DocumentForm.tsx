@@ -2,21 +2,20 @@ import {
   Alert,
   AlertIcon,
   Box,
+  BoxProps,
   Button,
   Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  HStack,
   Progress,
   Text,
   useColorMode,
-  useToast,
-  VStack
+  useToast
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
@@ -27,15 +26,17 @@ import {
   FileInputTable
 } from "features/common";
 import theme, { scrollbarCss } from "features/layout/theme";
-import { isEvent, isOrg } from "models/Entity";
-import { IOrg } from "models/Org";
-import { IUser } from "models/User";
 import { selectIsMobile } from "store/uiSlice";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
-import { IEvent } from "models/Event";
 import { useSession } from "hooks/useSession";
 import { IGallery } from "models/Gallery";
+import {
+  AddDocumentPayload,
+  useAddDocumentMutation
+} from "features/api/documentsApi";
+import { getImageDimensions } from "utils/image";
+import { removeProps } from "utils/object";
 
 type FormValues = {
   fichiers: File[];
@@ -45,11 +46,9 @@ type FormValues = {
 const maxFileSize = 10;
 
 export const DocumentForm = ({
-  entity,
   gallery,
   ...props
-}: {
-  entity?: IEvent | IOrg | IUser;
+}: BoxProps & {
   gallery?: IGallery;
   onSubmit?: () => void;
 }) => {
@@ -58,9 +57,8 @@ export const DocumentForm = ({
   const isMobile = useSelector(selectIsMobile);
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
+  const [addDocument] = useAddDocumentMutation();
 
-  const isE = isEvent(entity);
-  const isO = isOrg(entity);
   const [isLoading, setIsLoading] = useState(false);
   const [loaded, setLoaded] = useState<{ [fileName: string]: number }>({});
   const [list, setList] = useState<File[]>([]);
@@ -95,16 +93,23 @@ export const DocumentForm = ({
 
         if (fsMb > 10) throw `${file.name} est trop volumineux`;
 
+        const { width, height } = await getImageDimensions(file);
+
+        //API1
+        let payload: AddDocumentPayload = {
+          documentName: file.name,
+          documentHeight: height,
+          documentWidth: width,
+          documentTime: new Date().getTime(),
+          documentBytes: file.size,
+          gallery
+        };
+        const doc = await addDocument(payload).unwrap();
+
+        //API2
         const data = new FormData();
+        data.append("fileId", doc._id);
         data.append("file", file, file.name);
-        //data.append("file", file, session?.user.userName + " - " + file.name);
-
-        if (gallery || entity)
-          data.append(
-            gallery ? "galleryId" : isO ? "orgId" : isE ? "eventId" : "userId",
-            gallery ? gallery._id : entity!._id
-          );
-
         await axios.post(process.env.NEXT_PUBLIC_API2, data, {
           onUploadProgress: (ProgressEvent) => {
             setLoaded({
@@ -140,7 +145,12 @@ export const DocumentForm = ({
   };
 
   return (
-    <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+    <Box
+      as="form"
+      onChange={onChange}
+      onSubmit={handleSubmit(onSubmit)}
+      {...removeProps(props, ["onSubmit"])}
+    >
       <FormControl isInvalid={!!errors["fichiers"]} mb={3}>
         <FormLabel>
           <Flex>
@@ -280,7 +290,7 @@ export const DocumentForm = ({
           Valider
         </Button>
       </FormControl>
-    </form>
+    </Box>
   );
 };
 

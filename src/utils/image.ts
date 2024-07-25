@@ -46,6 +46,38 @@ export function calculateScale(scale: number, delta: number): number {
   return clamped;
 }
 
+import axios from "axios";
+import https from "https";
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+  requestCert: false
+});
+const client = axios.create({
+  responseType: "blob",
+  withCredentials: true,
+  httpsAgent: agent
+});
+export async function downloadImage(url: string, fileName: string) {
+  const response = await client.get(url);
+
+  const href = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement("a");
+  link.href = href;
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+
+  // const blob = new Blob([res.data]);
+  // const href = window.URL.createObjectURL(blob);
+  // const a = document.createElement("a");
+  // a.style.display = "none";
+  // a.href = href;
+  // a.download = name;
+  // document.body.appendChild(a);
+  // a.click();
+  window.URL.revokeObjectURL(href);
+}
+
 export const getMeta = async (
   url: string
 ): Promise<{ height: number; width: number }> => {
@@ -58,6 +90,18 @@ export const getMeta = async (
     };
   });
 };
+
+export async function getImageDimensions(file: File) {
+  let img = new Image();
+  img.src = URL.createObjectURL(file);
+  await img.decode();
+  let width = img.width;
+  let height = img.height;
+  return {
+    width,
+    height
+  };
+}
 
 export function isCached(src: string) {
   const img = new Image();

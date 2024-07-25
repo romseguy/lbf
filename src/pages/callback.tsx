@@ -12,7 +12,6 @@ const CallbackPage = (props: PageProps) => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("🚀 ~ CallbackPage ~ isOffline:", isOffline);
     if (isOffline) window.location.href = "/";
   }, [isOffline]);
 
@@ -28,7 +27,7 @@ const CallbackPage = (props: PageProps) => {
               Authorization: "Bearer " + didToken
             }
           });
-          window.location.href = "/";
+          window.location.href = "/password";
         } else if (typeof router.query.magic_credential === "string") {
           const didToken = await magic.auth.loginWithCredential(
             router.query.magic_credential
@@ -40,14 +39,11 @@ const CallbackPage = (props: PageProps) => {
             }
           });
           const json = await response.json();
-          console.log("🚀 ~ CallbackPage ~ json:", json);
-          window.location.href = "/";
+          window.location.href = "/password";
         } else {
-          console.log("🚀 ~ CallbackPage ~ no query params");
           window.location.href = "/";
         }
       } catch (error) {
-        console.log("🚀 ~ CallbackPage ~ error:", error);
         window.location.href = "/";
       }
     })();

@@ -18,11 +18,9 @@ import {
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { useFieldArray } from "react-hook-form";
-import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope } from "react-icons/fa";
 import { css } from "twin.macro";
-
-import { optionalProtocolUrlR, urlR } from "utils/url";
+import { optionalProtocolUrlR, urlR } from "utils/regex";
 import { Link } from "../Link";
 
 export type UrlControlValue = { url: string; prefix: string }[] | null;

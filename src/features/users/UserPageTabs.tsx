@@ -8,9 +8,9 @@ import { selectIsMobile } from "store/uiSlice";
 import { normalize } from "utils/string";
 
 export const defaultTabs: UserPageTabsType = {
-  Accueil: { icon: FaHome, url: "" },
+  Accueil: { icon: FaHome, url: "" }
   // Projets: { icon: FaTools, url: "/projets" },
-  Galerie: { icon: FaImages, url: "/galerie" }
+  //Galerie: { icon: FaImages, url: "/galerie" }
 };
 
 export type UserPageTabsType = {

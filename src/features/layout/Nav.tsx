@@ -17,7 +17,13 @@ import {
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { AppHeading, DarkModeSwitch, Link, LoginButton } from "features/common";
+import {
+  AppHeading,
+  DarkModeSwitch,
+  Link,
+  LinkShare,
+  LoginButton
+} from "features/common";
 import {
   EventPopover,
   OrgPopover,
@@ -27,7 +33,7 @@ import {
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEntity, isEvent, isOrg } from "models/Entity";
-import { EOrgType, OrgTypes } from "models/Org";
+import { EOrgType, orgTypeFull, OrgTypes } from "models/Org";
 import { IUser } from "models/User";
 import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
@@ -54,6 +60,7 @@ export const Nav = ({
   const [isNetworksModalOpen, setIsNetworksModalOpen] = useState(false);
   const isE = isEvent(entity);
   const isO = isOrg(entity);
+  const entityUrl = isO ? entity.orgUrl : isE ? entity.eventUrl : "";
 
   const iconProps = {
     bg: isDark ? "teal.300" : "teal.500",
@@ -102,6 +109,7 @@ export const Nav = ({
                       )}
                     </>
                   )}
+
                   <AppHeading mb={0}>
                     <Link href="/photo" shallow>
                       {pageTitle
@@ -115,6 +123,23 @@ export const Nav = ({
                         : process.env.NEXT_PUBLIC_SHORT_URL}
                     </Link>
                   </AppHeading>
+
+                  {entityUrl && (
+                    <LinkShare
+                      url={`${process.env.NEXT_PUBLIC_URL}/${entityUrl}`}
+                      colorScheme="blue"
+                      label={`Copier le lien ${
+                        isE
+                          ? "de l'événement"
+                          : isO
+                          ? orgTypeFull(entity.orgType)
+                          : "de l'utilisateur"
+                      }`}
+                      ml={2}
+                      tooltipProps={{ placement: "right" }}
+                      variant="outline"
+                    />
+                  )}
                 </Flex>
               </Td>
               <Td border={0} display="flex" justifyContent="flex-end" gap={3}>
