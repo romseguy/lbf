@@ -91,7 +91,7 @@ export const getMeta = async (
   });
 };
 
-export async function getImageDimensions(file: File) {
+export async function getImageDimensions(file: File | Blob) {
   let img = new Image();
   img.src = URL.createObjectURL(file);
   await img.decode();

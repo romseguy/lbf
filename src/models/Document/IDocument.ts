@@ -3,9 +3,9 @@ import { IGallery } from "models/Gallery";
 
 export interface IDocument extends IEntity {
   documentName: string;
-  gallery: IGallery;
+  documentBytes: number;
   documentHeight: number;
   documentWidth: number;
   documentTime?: number;
-  documentBytes: number;
+  gallery: IGallery;
 }

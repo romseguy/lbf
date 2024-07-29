@@ -8,6 +8,8 @@ import { AddDocumentPayload } from "features/api/documentsApi";
 import { getSession } from "server/auth";
 import { models } from "server/database";
 import { logEvent, ServerEventTypes } from "server/logging";
+import { IGallery } from "models/Gallery";
+import { Document } from "mongoose";
 
 const agent = new https.Agent({
   rejectUnauthorized: false,
@@ -43,27 +45,33 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
     } = req;
 
     try {
-      let gallery = await models.Gallery.findOne({ _id: body.gallery._id });
+      let gallery: (IGallery & Document<any, any, IGallery>) | null | undefined;
 
-      if (!gallery) {
-        gallery = await models.Gallery.create({ ...body.gallery });
+      if (body.gallery?._id) {
+        gallery = await models.Gallery.findOne({ _id: body.gallery._id });
+
+        if (!gallery) {
+          gallery = await models.Gallery.create({ ...body.gallery });
+        }
       }
 
-      if (!gallery) {
-        return res
-          .status(401)
-          .json(createEndpointError(new Error("Galerie introuvable")));
-      }
+      // if (!gallery) {
+      //   return res
+      //     .status(401)
+      //     .json(createEndpointError(new Error("Galerie introuvable")));
+      // }
 
       const document = await models.Document.create({
         ...body,
         createdBy: session.user.userId
       });
 
-      await models.Gallery.updateOne(
-        { _id: body.gallery._id },
-        { $push: { galleryDocuments: document._id } }
-      );
+      if (body.gallery?._id) {
+        await models.Gallery.updateOne(
+          { _id: body.gallery._id },
+          { $push: { galleryDocuments: document._id } }
+        );
+      }
 
       res.status(200).json(document);
     } catch (error: any) {
