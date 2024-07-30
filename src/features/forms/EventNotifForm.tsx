@@ -34,7 +34,7 @@ import {
   ErrorMessageText,
   renderCustomInput
 } from "features/common";
-import { useAddEventNotifMutation } from "features/api/eventsApi";
+//import { useAddEventNotifMutation } from "features/api/eventsApi";
 import { formBoxProps } from "features/layout/theme";
 import { IEvent } from "models/Event";
 import { orgTypeFull } from "models/Org";
@@ -93,6 +93,7 @@ export const EventNotifForm = ({
   };
 
   //#region event
+  //@ts-expect-error
   const [addEventNotif] = useAddEventNotifMutation();
   //#endregion
 

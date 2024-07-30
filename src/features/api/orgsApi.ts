@@ -1,6 +1,6 @@
 import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
 import { objectToQueryString } from "utils/query";
-import { api } from "./";
+import { api, TagTypes } from "./";
 
 export type AddOrgPayload = Pick<
   Partial<IOrg>,
@@ -49,7 +49,7 @@ export const orgApi = api.injectEndpoints({
           body: payload
         };
       },
-      invalidatesTags: [{ type: "Orgs", id: "LIST" }]
+      invalidatesTags: [{ type: TagTypes.ORGS, id: "LIST" }]
     }),
     deleteOrg: build.mutation<IOrg, DeleteOrgParams>({
       query: ({ orgId, ...query }) => {
@@ -67,7 +67,7 @@ export const orgApi = api.injectEndpoints({
           }`
         };
       },
-      invalidatesTags: [{ type: "Orgs", id: "LIST" }]
+      invalidatesTags: [{ type: TagTypes.ORGS, id: "LIST" }]
     }),
     editOrg: build.mutation<IOrg, { payload: EditOrgPayload; orgId?: string }>({
       query: ({ payload, orgId }) => {
@@ -86,8 +86,8 @@ export const orgApi = api.injectEndpoints({
       },
       invalidatesTags: (result, error, params) => {
         return [
-          { type: "Orgs", id: params.orgId },
-          { type: "Orgs", id: "LIST" }
+          { type: TagTypes.ORGS, id: params.orgId },
+          { type: TagTypes.ORGS, id: "LIST" }
         ];
       }
     }),
@@ -108,7 +108,7 @@ export const orgApi = api.injectEndpoints({
         };
       },
       providesTags: (result, error, params) => [
-        { type: "Orgs" as const, id: result?._id }
+        { type: TagTypes.ORGS, id: result?._id }
       ]
     }),
     getOrgs: build.query<IOrg[], GetOrgsParams | void>({
@@ -127,14 +127,15 @@ export const orgApi = api.injectEndpoints({
         result
           ? [
               ...result.map(({ _id }) => ({
-                type: "Orgs" as const,
+                type: TagTypes.ORGS,
                 id: _id
               })),
-              { type: "Orgs", id: "LIST" }
+              { type: TagTypes.ORGS, id: "LIST" }
             ]
-          : [{ type: "Orgs", id: "LIST" }]
+          : [{ type: TagTypes.ORGS, id: "LIST" }]
     })
-  })
+  }),
+  overrideExisting: true
 });
 
 export const {

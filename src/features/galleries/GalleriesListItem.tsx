@@ -7,6 +7,8 @@ import {
   Icon
 } from "@chakra-ui/icons";
 import {
+  Alert,
+  AlertIcon,
   Badge,
   Box,
   BoxProps,
@@ -26,7 +28,6 @@ import React, { useState } from "react";
 import {
   Button,
   DeleteButton,
-  Column,
   PushPinSlashIcon,
   PushPinIcon
 } from "features/common";
@@ -45,9 +46,9 @@ import {
   useEditGalleryMutation
 } from "features/api/galleriesApi";
 import { AppQueryWithData } from "utils/types";
-import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import { IEntity, isEvent, isOrg } from "models/Entity";
+import { sanitize } from "utils/string";
 
 export const GalleriesListItem = ({
   query,
@@ -64,7 +65,7 @@ export const GalleriesListItem = ({
   ...props
 }: BoxProps & {
   query: AppQueryWithData<IEntity>;
-  gallery: IGallery;
+  gallery?: IGallery;
   galleryIndex: number;
   isCreator: boolean;
   isCurrent: boolean;
@@ -93,15 +94,16 @@ export const GalleriesListItem = ({
   const hoverColor = isHover ? "white" : "black";
 
   const onAddDocumentClick = () => {
+    //TODO1 if (ne fait pas partie de la liste des participants de l'atelier)
     setIsAdd(!isAdd);
   };
 
   const onDeleteClick = async () => {
     try {
       setIsLoading({
-        [gallery._id]: true
+        [gallery!._id]: true
       });
-      const deletedGallery = await deleteGallery(gallery._id).unwrap();
+      const deletedGallery = await deleteGallery(gallery!._id).unwrap();
       toast({
         title: `${deletedGallery.galleryName} a été supprimé !`,
         status: "success"
@@ -111,15 +113,17 @@ export const GalleriesListItem = ({
       toast({
         title:
           error.data.message ||
-          `La galerie ${gallery.galleryName} n'a pas pu être supprimée`,
+          `La galerie ${gallery!.galleryName} n'a pas pu être supprimée`,
         status: "error"
       });
     } finally {
       setIsLoading({
-        [gallery._id]: false
+        [gallery!._id]: false
       });
     }
   };
+
+  if (!gallery) return <Spinner />;
 
   return (
     <Box key={gallery._id} {...props}>
@@ -541,45 +545,43 @@ export const GalleriesListItem = ({
 
       {isCurrent && (
         <Box bg={isDark ? "#314356" : "orange.50"} pt={noHeader ? 0 : 3}>
-          {/*
-          <GridItem px={3} py={2} data-cy="topic-subscribers">
-            <TopicsListItemSubscribers
-              topic={topic}
-              isSubbedToTopic={isSubbedToTopic}
-            />
-          </GridItem>
-          */}
-
-          {/* <TopicMessagesList
-            isEdit={isEdit}
-            query={query}
-            setIsEdit={setIsEdit}
-            topic={topic}
-            px={3}
-            pb={3}
-          /> */}
-
-          {!isAdd && (
-            <DocumentsListMosaic
-              gallery={gallery}
-              isGalleryCreator={isGalleryCreator}
-              isLoading={isAdd}
-              position="bottom"
-              groupByUser={isE}
-              onDelete={() => {
-                if (isO) query.refetch();
-              }}
-            />
-          )}
-
           <Button
             colorScheme={isAdd ? "red" : "teal"}
             leftIcon={isAdd ? undefined : <AddIcon />}
             m={3}
             onClick={onAddDocumentClick}
           >
-            {isAdd ? "Annuler" : "Ajouter des photo à cette galerie"}
+            {isAdd ? "Annuler" : "Ajouter des photos à cette galerie"}
           </Button>
+
+          {!isAdd && (
+            <Box>
+              {isE && gallery.galleryDescription && (
+                <Alert status="info">
+                  <AlertIcon />
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: sanitize(gallery.galleryDescription)
+                    }}
+                  />
+                </Alert>
+              )}
+
+              {((isE && hasItems(gallery.galleryDocuments)) ||
+                (!isE && hasItems(gallery.galleryDocuments))) && (
+                <DocumentsListMosaic
+                  gallery={gallery}
+                  isGalleryCreator={isGalleryCreator}
+                  isLoading={isAdd}
+                  position="top"
+                  groupByUser={isE}
+                  onDelete={() => {
+                    if (isO) query.refetch();
+                  }}
+                />
+              )}
+            </Box>
+          )}
 
           {isAdd && (
             <DocumentForm

@@ -13,8 +13,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import useFormPersist from "hooks/useFormPersist";
-import Creatable from "react-select/creatable";
-import { ErrorMessageText } from "features/common";
+import { ErrorMessageText, RTEditor } from "features/common";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   AddGalleryPayload,
@@ -24,16 +23,14 @@ import {
 } from "features/api/galleriesApi";
 import { useSession } from "hooks/useSession";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
-import { IOrg, orgTypeFull } from "models/Org";
+import { IOrg } from "models/Org";
 import { IGallery } from "models/Gallery";
 import { handleError } from "utils/form";
-import { defaultErrorMessage } from "utils/string";
 import { AppQueryWithData } from "utils/types";
-import { IEntity } from "models/Entity";
+import { IEntity, isEvent, isOrg } from "models/Entity";
 
 export const GalleryForm = ({
   query,
-  //subQuery,
   ...props
 }: {
   query: AppQueryWithData<IEntity>;
@@ -49,24 +46,27 @@ export const GalleryForm = ({
   const [edit] = useEditOrgMutation();
 
   //#region local state
-  const entity = query.data as IOrg;
+  const entity = query.data;
+  const isE = isEvent(entity);
+  const isO = isOrg(entity);
+
   // const isEntityPrivate =
   //   org?.orgVisibility === EOrgVisibility.PRIVATE ||
   //   event?.eventVisibility === EEventVisibility.PRIVATE;
   //const edit = isE ? editEvent : editOrg;
-  const galleryCategories =
-    //isE ? entity.eventGalleryCategories : isO ?
-    entity.orgGalleryCategories || [];
-  const galleryCategory =
-    props.gallery &&
-    props.gallery.galleryCategory &&
-    galleryCategories.find(
-      ({ catId }) => catId === props.gallery!.galleryCategory
-    );
-  const [isLoading, setIsLoading] = useState(false);
+  //const galleryCategories =
+  //isE ? entity.eventGalleryCategories : isO ?
+  //entity.orgGalleryCategories || [];
+  // const galleryCategory =
+  //   props.gallery &&
+  //   props.gallery.galleryCategory &&
+  //   galleryCategories.find(
+  //     ({ catId }) => catId === props.gallery!.galleryCategory
+  //   );
   //#endregion
 
   //#region form
+  const [isLoading, setIsLoading] = useState(false);
   const {
     control,
     register,
@@ -78,17 +78,18 @@ export const GalleryForm = ({
     formState
   } = useFormPersist(
     useForm<{
+      formErrorMessage: string;
       galleryName: string;
-      galleryCategory: { label: string; value: string } | null;
-      //galleryDescription?: string;
+      //galleryCategory: { label: string; value: string } | null;
+      galleryDescription?: string;
     }>({
       mode: "onChange",
       defaultValues: {
         galleryName: props.gallery?.galleryName,
-        galleryCategory: galleryCategory
-          ? { label: galleryCategory.label, value: galleryCategory.catId }
-          : null
-        //galleryDescription: ""
+        // galleryCategory: galleryCategory
+        //   ? { label: galleryCategory.label, value: galleryCategory.catId }
+        //   : null
+        galleryDescription: props.gallery?.galleryDescription
       }
     })
   );
@@ -101,19 +102,33 @@ export const GalleryForm = ({
   const onSubmit = async (form: {
     galleryName: string;
     galleryDescription?: string;
-    galleryCategory?: { label: string; value: string } | null;
-    galleryVisibility?: [{ label: string; value: string }];
+    // galleryCategory?: { label: string; value: string } | null;
+    // galleryVisibility?: [{ label: string; value: string }];
   }) => {
     console.log("submitted", form);
     setIsLoading(true);
 
     let gallery: Partial<IGallery> = {
-      galleryCategory: form.galleryCategory ? form.galleryCategory.value : null,
-      galleryName: form.galleryName
+      ...form,
+      galleryName: isE ? entity._id : form.galleryName
+      //galleryCategory: form.galleryCategory ? form.galleryCategory.value : null,
       // galleryVisibility: (form.galleryVisibility || []).map(
       //   ({ label, value }) => value
       // )
     };
+
+    // if (
+    //   typeof form.galleryDescription === "string" &&
+    //   form.galleryDescription !== ""
+    // ) {
+    //   gallery.galleryDescription = [
+    //     {
+    //       message: form.galleryDescription,
+    //       //messageHtml: form.galleryDescription,
+    //       createdBy: session?.user.userId
+    //     }
+    //   ];
+    // }
 
     try {
       if (props.gallery) {
@@ -134,21 +149,8 @@ export const GalleryForm = ({
         setIsLoading(false);
         props.onSubmit && props.onSubmit(editedGallery);
       } else {
-        // if (
-        //   typeof form.galleryDescription === "string" &&
-        //   form.galleryDescription !== ""
-        // ) {
-        //   gallery.galleryDescription = [
-        //     {
-        //       message: form.galleryDescription,
-        //       //messageHtml: form.galleryDescription,
-        //       createdBy: session.user.userId
-        //     }
-        //   ];
-        // }
-
         let payload: AddGalleryPayload = {
-          org: entity,
+          org: entity as IOrg,
           gallery
         };
 
@@ -177,20 +179,46 @@ export const GalleryForm = ({
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-      <FormControl isRequired isInvalid={!!errors["galleryName"]} mb={3}>
-        <FormLabel>Nom de la galerie</FormLabel>
-        <Input
-          name="galleryName"
-          ref={register({
-            required: "Veuillez saisir l'nom de la galerie"
-          })}
-          autoComplete="off"
-          placeholder="Nom"
-        />
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="galleryName" />
-        </FormErrorMessage>
-      </FormControl>
+      {isO && (
+        <FormControl isRequired isInvalid={!!errors["galleryName"]} mb={3}>
+          <FormLabel>Nom de la galerie</FormLabel>
+          <Input
+            name="galleryName"
+            ref={register({
+              required: "Veuillez saisir l'nom de la galerie"
+            })}
+            autoComplete="off"
+            placeholder="Nom"
+          />
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="galleryName" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
+
+      {isE && (
+        <FormControl isInvalid={!!errors["galleryDescription"]} mb={3}>
+          <FormLabel>Description de la galerie</FormLabel>
+          <Controller
+            name="galleryDescription"
+            control={control}
+            render={(renderProps) => {
+              return (
+                <RTEditor
+                  placeholder={`Saisir la description de la galerie`}
+                  value={renderProps.value}
+                  onChange={({ html }) => {
+                    renderProps.onChange(html);
+                  }}
+                />
+              );
+            }}
+          />
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="galleryDescription" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
 
       {/* {!props.gallery && (
         <FormControl isInvalid={!!errors["galleryDescription"]} mb={3}>
@@ -215,7 +243,7 @@ export const GalleryForm = ({
         </FormControl>
       )} */}
 
-      <FormControl isInvalid={!!errors["galleryCategory"]} mb={3}>
+      {/* <FormControl isInvalid={!!errors["galleryCategory"]} mb={3}>
         <FormLabel>Catégorie (optionnel)</FormLabel>
         <Controller
           name="galleryCategory"
@@ -324,7 +352,7 @@ export const GalleryForm = ({
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="galleryCategory" />
         </FormErrorMessage>
-      </FormControl>
+      </FormControl> */}
 
       {/* {org && !isEntityPrivate && (
         <FormControl mb={3}>

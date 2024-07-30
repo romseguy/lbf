@@ -4,15 +4,23 @@ import { EntityAddPage } from "features/common";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { EOrgType } from "models/Org";
+import { useErrorBoundary } from "react-error-boundary";
 
 const NetworksAddPage = (props: PageProps) => {
+  const { showBoundary } = useErrorBoundary();
   const router = useRouter();
   const { data: session, loading } = useSession();
 
   useEffect(() => {
-    if (!session && !loading) {
-      window.localStorage.setItem("path", router.asPath);
-      router.push("/login", "/login", { shallow: true });
+    if (!loading) {
+      if (!session) {
+        window.localStorage.setItem("path", router.asPath);
+        router.push("/login", "/login", { shallow: true });
+      } else if (!session.user.isAdmin) {
+        showBoundary(
+          new Error("Vous devez être administrateur pour accéder à cette page")
+        );
+      }
     }
   }, [session, loading]);
 

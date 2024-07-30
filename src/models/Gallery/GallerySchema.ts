@@ -14,6 +14,8 @@ export const GallerySchema = new Schema<IGallery>(
     },
     isPinned: { type: Boolean, default: undefined },
     galleryCategory: { type: String, trim: true },
+    galleryDescription: { type: String, default: undefined },
+    galleryDescriptions: { type: Map, of: String, default: {} },
     // galleryMessages: { type: [GalleryMessageSchema], default: [], select: false },
     //galleryMessagesDisabled: Boolean,
     galleryName: {

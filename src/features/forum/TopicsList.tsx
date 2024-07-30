@@ -207,17 +207,15 @@ export const TopicsList = ({
     <>
       {/*Ajouter une discussion*/}
       <Box>
-        {session?.user.isAdmin && (
-          <Button
-            colorScheme="teal"
-            leftIcon={<AddIcon />}
-            mb={3}
-            onClick={onAddClick}
-            data-cy="topic-add-button"
-          >
-            Ajouter une discussion
-          </Button>
-        )}
+        <Button
+          colorScheme="teal"
+          leftIcon={<AddIcon />}
+          mb={3}
+          onClick={onAddClick}
+          data-cy="topic-add-button"
+        >
+          Ajouter une discussion
+        </Button>
       </Box>
 
       <Box mb={5}>
@@ -384,7 +382,7 @@ export const TopicsList = ({
                 return topicSubscription.topic._id === topic._id;
               }
             );
-
+            //if (!isCurrent) return null;
             return (
               <TopicsListItem
                 key={topic._id}

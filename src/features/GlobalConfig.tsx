@@ -31,7 +31,7 @@ export const GlobalConfig = ({}: {}) => {
       const res = await api.get("check", undefined, {
         isLoggingDisabled: true
       });
-      if (res.error) dispatch(setIsOffline(true));
+      if (res.status === 504) dispatch(setIsOffline(true));
     })();
 
     window.addEventListener("offline", () => {

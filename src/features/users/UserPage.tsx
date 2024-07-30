@@ -17,7 +17,7 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import { Link, GridHeader, GridItem, Column, FileInput } from "features/common";
-import { UserDescriptionForm } from "features/forms/UserDescriptionForm";
+import { DescriptionForm } from "features/forms/DescriptionForm";
 import { UserForm } from "features/forms/UserForm";
 import { Layout } from "features/layout";
 import { useSession } from "hooks/useSession";
@@ -124,7 +124,7 @@ export const UserPage = ({
             `}
           >
             <TabPanel aria-hidden>
-              <Grid templateRows="auto 1fr" mb={3}>
+              {/* <Grid templateRows="auto 1fr" mb={3}>
                 <GridHeader
                   display="flex"
                   alignItems="center"
@@ -166,9 +166,9 @@ export const UserPage = ({
                 >
                   <>
                     {session && isSelf && isDescriptionEdit ? (
-                      <UserDescriptionForm
+                      <DescriptionForm
                         session={session}
-                        userQuery={userQuery}
+                        //userQuery={userQuery}
                         onCancel={() => setIsDescriptionEdit(false)}
                         onSubmit={() => setIsDescriptionEdit(false)}
                       />
@@ -196,7 +196,7 @@ export const UserPage = ({
                     )}
                   </>
                 </GridItem>
-              </Grid>
+              </Grid> */}
 
               {isSelf && session?.user.isAdmin && !isEdit && (
                 <Grid templateRows="auto 1fr">

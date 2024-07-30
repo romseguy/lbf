@@ -219,13 +219,13 @@ handler.get<
     const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ GET /gallery/${galleryId} `;
     console.log(prefix);
 
-    let gallery = await models.Gallery.findOne({ _id: galleryId });
+    let gallery = await models.Gallery.findOne({ galleryName: galleryId });
     if (!gallery)
       return res
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'galleryanisation ${galleryId} n'a pas pu être trouvé`)
+            new Error(`La galerie ${galleryId} n'a pas pu être trouvée`)
           )
         );
 
@@ -258,7 +258,7 @@ handler.get<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'galleryanisation ${galleryId} n'a pas pu être trouvé`)
+            new Error(`La galerie ${galleryId} n'a pas pu être trouvé`)
           )
         );
     res.status(500).json(createEndpointError(error));
@@ -281,6 +281,9 @@ handler.put<
   }
 
   try {
+    const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ PUT /gallery/[galleryId] `;
+    console.log(prefix + JSON.stringify(req.query));
+
     const {
       body
     }: {
@@ -289,12 +292,18 @@ handler.put<
 
     const galleryId = req.query.galleryId;
     let gallery = await models.Gallery.findOne({ _id: galleryId });
-    if (!gallery)
-      return res
-        .status(404)
-        .json(
-          createEndpointError(new Error(`La galerie ${galleryId} n'existe pas`))
-        );
+    if (!gallery) {
+      console.log("🚀 ~ editGallery ~ galleryId:", galleryId);
+      gallery = await models.Gallery.findOne({ galleryName: galleryId });
+      if (!gallery)
+        return res
+          .status(404)
+          .json(
+            createEndpointError(
+              new Error(`La galerie ${galleryId} n'existe pas`)
+            )
+          );
+    }
 
     if (body.gallery) {
       const isCreator = equals(gallery.createdBy, session.user.userId);
@@ -382,14 +391,12 @@ handler.delete<
     }
 
     if (gallery.org) {
-      console.log(
-        prefix + "deleting gallery from gallery.org",
-        gallery.org.orgGalleries
-      );
+      const orgId = getRefId(gallery.org);
+      console.log(prefix + "deleting gallery from org", orgId);
       await models.Org.updateOne(
-        { _id: gallery.org._id },
+        { _id: orgId },
         {
-          $pull: { orgGalleries: gallery._id }
+          $pull: { orgGalleries: _id }
         }
       );
     }

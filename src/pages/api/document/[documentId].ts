@@ -81,12 +81,10 @@ handler.delete<
 
     //#region references
     if (doc.gallery) {
-      console.log(
-        prefix + "deleting document from document.gallery",
-        doc.gallery.galleryDocuments
-      );
+      const galleryId = getRefId(doc.gallery);
+      console.log(prefix + "deleting document from gallery", galleryId);
       await models.Gallery.updateOne(
-        { _id: doc.gallery._id },
+        { _id: galleryId },
         {
           $pull: { galleryDocuments: _id }
         }

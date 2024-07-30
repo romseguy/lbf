@@ -1,4 +1,4 @@
-import { api } from "./";
+import { api, TagTypes } from "./";
 import { IEvent } from "models/Event";
 import { IEventNotification } from "models/INotification";
 import { objectToQueryString } from "utils/query";
@@ -36,50 +36,50 @@ export const eventApi = api.injectEndpoints({
         result
           ? [
               ...result.eventOrgs.map((org) => ({
-                type: "Orgs" as const,
+                type: TagTypes.ORGS,
                 id: org._id
               })),
-              { type: "Events", id: "LIST" }
+              { type: TagTypes.EVENTS, id: "LIST" }
             ]
-          : [{ type: "Events", id: "LIST" }]
+          : [{ type: TagTypes.EVENTS, id: "LIST" }]
     }),
-    addEventNotif: build.mutation<
-      { notifications: IEventNotification[] },
-      {
-        payload: AddEventNotifPayload;
-        eventId: string;
-      }
-    >({
-      query: ({ payload, eventId }) => {
-        console.groupCollapsed("addEventNotif");
-        console.log("addEventNotif: eventId", eventId);
-        console.log("addEventNotif: payload", payload);
-        console.groupEnd();
+    // addEventNotif: build.mutation<
+    //   { notifications: IEventNotification[] },
+    //   {
+    //     payload: AddEventNotifPayload;
+    //     eventId: string;
+    //   }
+    // >({
+    //   query: ({ payload, eventId }) => {
+    //     console.groupCollapsed("addEventNotif");
+    //     console.log("addEventNotif: eventId", eventId);
+    //     console.log("addEventNotif: payload", payload);
+    //     console.groupEnd();
 
-        return {
-          url: `event/${eventId}`,
-          method: "POST",
-          body: payload
-        };
-      },
-      invalidatesTags: (result, error, params) => [
-        { type: "Events", id: params.eventId }
-      ]
-    }),
+    //     return {
+    //       url: `event/${eventId}`,
+    //       method: "POST",
+    //       body: payload
+    //     };
+    //   },
+    //   invalidatesTags: (result, error, params) => [
+    //     { types: TagTypes.EVENTS, id: params.eventId }
+    //   ]
+    // }),
     deleteEvent: build.mutation<IEvent, { eventId: string }>({
       query: ({ eventId }) => ({ url: `event/${eventId}`, method: "DELETE" }),
       invalidatesTags: (result, error, params) =>
         result
           ? [
               ...result.eventOrgs.map((org) => ({
-                type: "Orgs" as const,
+                type: TagTypes.ORGS,
                 id: org._id
               })),
-              { type: "Events", id: "LIST" }
+              { type: TagTypes.EVENTS, id: "LIST" }
             ]
           : [
-              { type: "Orgs", id: "LIST" },
-              { type: "Events", id: "LIST" }
+              { type: TagTypes.ORGS, id: "LIST" },
+              { type: TagTypes.EVENTS, id: "LIST" }
             ]
     }),
     editEvent: build.mutation<
@@ -108,12 +108,12 @@ export const eventApi = api.injectEndpoints({
         result
           ? [
               ...result.eventOrgs.map((org) => ({
-                type: "Orgs" as const,
+                type: TagTypes.ORGS,
                 id: org._id
               })),
-              { type: "Events", id: params.eventId }
+              { type: TagTypes.EVENTS, id: params.eventId }
             ]
-          : [{ type: "Events", id: params.eventId }]
+          : [{ type: TagTypes.EVENTS, id: params.eventId }]
     }),
     getEvent: build.query<IEvent, GetEventParams>({
       query: ({ eventUrl, email, populate }) => {
@@ -132,7 +132,7 @@ export const eventApi = api.injectEndpoints({
         };
       },
       providesTags: (result, error, params) => [
-        { type: "Events" as const, id: result?._id }
+        { type: TagTypes.EVENTS, id: result?._id }
       ]
     }),
     getEvents: build.query<IEvent[], { createdBy: string } | void>({
@@ -151,19 +151,20 @@ export const eventApi = api.injectEndpoints({
         result
           ? [
               ...result.map(({ _id }) => ({
-                type: "Events" as const,
+                type: TagTypes.EVENTS,
                 id: _id
               })),
-              { type: "Events", id: "LIST" }
+              { type: TagTypes.EVENTS, id: "LIST" }
             ]
-          : [{ type: "Events", id: "LIST" }]
+          : [{ type: TagTypes.EVENTS, id: "LIST" }]
     })
-  })
+  }),
+  overrideExisting: true
 });
 
 export const {
   useAddEventMutation,
-  useAddEventNotifMutation,
+  //useAddEventNotifMutation,
   useDeleteEventMutation,
   useEditEventMutation,
   useGetEventQuery,

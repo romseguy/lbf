@@ -20,8 +20,8 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import { LatLon } from "use-places-autocomplete";
 import {
   useDeleteEventMutation,
-  useEditEventMutation,
-  useAddEventNotifMutation
+  useEditEventMutation
+  //useAddEventNotifMutation
 } from "features/api/eventsApi";
 import { AppHeading, LocationButton } from "features/common";
 import { useEditOrgMutation } from "features/api/orgsApi";
@@ -492,7 +492,7 @@ export const EventsList = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const org = orgQuery?.data;
-  const addEventNotifMutation = useAddEventNotifMutation();
+  //const addEventNotifMutation = useAddEventNotifMutation();
 
   //#region local state
   const [showPreviousEvents, setShowPreviousEvents] = useState(false);
@@ -577,7 +577,7 @@ export const EventsList = ({
     <>
       {org && (
         <Flex>
-          {session?.user.isAdmin && (
+          {isCreator && (
             <Button
               colorScheme="teal"
               leftIcon={<AddIcon />}
@@ -672,7 +672,7 @@ export const EventsList = ({
           />
         )}
 
-      {session && orgQuery && (
+      {/* {session && orgQuery && (
         <EntityNotifModal
           query={orgQuery}
           mutation={addEventNotifMutation}
@@ -680,7 +680,7 @@ export const EventsList = ({
           modalState={notifyModalState}
           session={session}
         />
-      )}
+      )} */}
     </>
   );
 };

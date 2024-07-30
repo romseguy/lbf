@@ -35,6 +35,12 @@ export const NavMenuList = ({
     <MenuList mr={[1, 3]}>
       <MenuItem
         aria-hidden
+        command={`${session.user.userName}`}
+        cursor="default"
+        _hover={{ bg: isDark ? "gray.700" : "white" }}
+      />
+      <MenuItem
+        aria-hidden
         command={`${email} ${session.user.isAdmin ? "(admin)" : ""}`}
         cursor="default"
         _hover={{ bg: isDark ? "gray.700" : "white" }}
@@ -44,12 +50,6 @@ export const NavMenuList = ({
           <MenuItem
             aria-hidden
             command={`${session.user.userId}`}
-            cursor="default"
-            _hover={{ bg: isDark ? "gray.700" : "white" }}
-          />
-          <MenuItem
-            aria-hidden
-            command={`${session.user.userName}`}
             cursor="default"
             _hover={{ bg: isDark ? "gray.700" : "white" }}
           />

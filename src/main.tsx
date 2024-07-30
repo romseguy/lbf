@@ -8,22 +8,22 @@ import {
   DrawerOverlay,
   Flex,
   IconButton,
-  Tooltip,
   useColorMode,
   useDisclosure,
   useToast
 } from "@chakra-ui/react";
-import { ChevronUpIcon, HamburgerIcon, SearchIcon } from "@chakra-ui/icons";
+import { ChevronUpIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { NextPage } from "next";
 import React, { useEffect, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { useSelector } from "react-redux";
-//import { css } from "twin.macro";
-import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
+import { DarkModeSwitch, OfflineIcon } from "features/common";
 import { ContactFormModal } from "features/modals/ContactFormModal";
 import { selectIsOffline } from "store/sessionSlice";
 import { NavButtonsList } from "features/layout/NavButtonsList";
-import { PaypalButton } from "features/common/forms/PaypalButton";
 import { selectIsMobile } from "store/uiSlice";
+import ErrorPage from "pages/_error";
+import { ServerError } from "utils/errors";
 
 interface customWindow extends Window {
   console: { [key: string]: (...args: any[]) => void };
@@ -203,7 +203,21 @@ export const Main = ({
       {/* GlobalModals */}
       <ContactFormModal />
 
-      <Component {...props} />
+      <ErrorBoundary
+        fallbackRender={({ error }: { error: Error & ServerError }) => (
+          <ErrorPage
+            message={error.message || error.data?.message}
+            statusCode={error.status || 500}
+            {...props}
+          />
+        )}
+        onError={(error) => {
+          console.log("🚀 ~ error:", error);
+          return;
+        }}
+      >
+        <Component {...props} />
+      </ErrorBoundary>
     </>
   );
 };

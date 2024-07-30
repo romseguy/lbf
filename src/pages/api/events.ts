@@ -68,6 +68,12 @@ handler.post<
       .json(createEndpointError(new Error("Vous devez être identifié")));
   }
 
+  if (!session.user.isAdmin) {
+    return res
+      .status(401)
+      .json(createEndpointError(new Error("Vous devez être administrateur")));
+  }
+
   try {
     let { body }: { body: AddEventPayload<string> } = req;
     const eventName = body.eventName.trim();
@@ -149,7 +155,7 @@ handler.post<
           continue;
         }
 
-        if (!equals(o.createdBy, session.user.userId))
+        if (!session.user.isAdmin && !equals(o.createdBy, session.user.userId))
           return res
             .status(401)
             .json(
@@ -194,6 +200,9 @@ handler.post<
     }
 
     if (event) {
+      await models.Gallery.create({
+        galleryName: event._id
+      });
       await models.Org.updateMany(
         {
           _id: {

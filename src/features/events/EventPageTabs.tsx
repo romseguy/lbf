@@ -9,7 +9,11 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { EntityPageTab, EntityPageTabList } from "features/common";
+import {
+  EditIconButton,
+  EntityPageTab,
+  EntityPageTabList
+} from "features/common";
 import { defaultTabs, IEvent } from "models/Event";
 import { normalize } from "utils/string";
 import { useSelector } from "react-redux";
@@ -28,6 +32,8 @@ import { GalleriesListItem } from "features/galleries/GalleriesListItem";
 import { FaImages } from "react-icons/fa";
 import { useGetGalleryQuery } from "features/api/galleriesApi";
 import { hasItems } from "utils/array";
+import { GalleryFormModal } from "features/modals/GalleryFormModal";
+import { IGallery } from "models/Gallery";
 
 export const EventPageTabs = ({
   currentItemName,
@@ -52,43 +58,51 @@ export const EventPageTabs = ({
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
-  const { data: session } = useSession();
   const toast = useToast({ position: "bottom" });
 
   const event = eventQuery.data;
-
-  const { data } = useGetGalleryQuery({ galleryId: event._id });
-  const gallery = data || {
-    _id: eventQuery.data._id,
-    galleryName: eventQuery.data._id
-  };
-
-  const badgeProps: BadgeProps = {
-    colorScheme: "teal",
-    variant: "solid",
-    ml: 1
-  };
-  const columnProps = {
-    bg: isDark ? "gray.700" : "lightblue"
-  };
-  const [currentTabIndex, setCurrentTabIndex] = useState(0);
-  const [showNotifForm, setShowNotifForm] = useState(false);
-
-  // if (isCreator)
-  //   defaultTabs["Invitations"] = {
-  //     icon: EmailIcon,
-  //     url: "/invitations"
-  //   };
-
   const isDisabled = !isBefore(parseISO(event.eventMinDate), new Date());
 
+  //#region tabs
+  const [currentTabIndex, setCurrentTabIndex] = useState(0);
   useEffect(() => {
-    Object.keys(defaultTabs).reduce((index, tab) => {
-      if (normalize(tab) === normalize(currentTabLabel))
+    Object.keys(defaultTabs).reduce((index, defaultTabKey) => {
+      if (
+        "/" +
+          normalize(
+            currentTabLabel === "Présentation" ? "/" : currentTabLabel
+          ) ===
+        defaultTabs[defaultTabKey].url
+      )
         setCurrentTabIndex(index);
       return index + 1;
     }, 0);
   }, [currentTabLabel]);
+  //#endregion
+
+  //#region gallery
+  const galleryQuery = useGetGalleryQuery({ galleryId: event._id });
+  const [gallery, setGallery] = useState(galleryQuery.data);
+  useEffect(() => {
+    if (galleryQuery.isSuccess) setGallery(galleryQuery.data);
+  }, [galleryQuery.isSuccess, galleryQuery.data]);
+  //#endregion
+
+  //#region gallery modal
+  const [galleryModalState, setGalleryModalState] = useState({
+    isOpen: false
+  });
+  const onOpen = () =>
+    setGalleryModalState({
+      ...galleryModalState,
+      isOpen: true
+    });
+  const onClose = () =>
+    setGalleryModalState({
+      ...galleryModalState,
+      isOpen: false
+    });
+  //#endregion
 
   return (
     <Tabs
@@ -108,7 +122,6 @@ export const EventPageTabs = ({
     >
       <EntityPageTabList
         aria-hidden
-        //flexDirection={isMobile ? "column" : "row"}
         bgColor={isDark ? "gray.700" : "blackAlpha.50"}
         borderRadius="xl"
         css={scrollbarCss}
@@ -116,7 +129,6 @@ export const EventPageTabs = ({
           ? {
               position: "fixed",
               bottom: 0,
-              //width: "calc(100% - 28px)",
               width: "100%",
               overflowX: "scroll",
               left: 0,
@@ -159,8 +171,8 @@ export const EventPageTabs = ({
               data-cy={key}
             >
               {tabLabel}
-              {url === "/galerie" && hasItems(gallery.galleryDocuments) ? (
-                <Badge>{gallery.galleryDocuments!.length}</Badge>
+              {url === "/galerie" && hasItems(gallery?.galleryDocuments) ? (
+                <Badge ml={2}>{gallery?.galleryDocuments!.length}</Badge>
               ) : null}
             </EntityPageTab>
           );
@@ -187,7 +199,14 @@ export const EventPageTabs = ({
             <HStack mb={3}>
               <Icon as={FaImages} boxSize={10} />
               <AppHeading>{eventQuery.data.eventName}</AppHeading>
+              <EditIconButton
+                aria-label="Modifier la galerie de l'événement"
+                onClick={() => {
+                  onOpen();
+                }}
+              />
             </HStack>
+
             <GalleriesListItem
               query={eventQuery}
               gallery={gallery}
@@ -200,6 +219,20 @@ export const EventPageTabs = ({
               onClick={() => {}}
               onEditClick={() => {}}
               noHeader
+            />
+
+            <GalleryFormModal
+              query={eventQuery}
+              gallery={gallery}
+              isOpen={galleryModalState.isOpen}
+              onCancel={() => {
+                onClose();
+              }}
+              onClose={onClose}
+              onSubmit={(gallery) => {
+                setGallery(gallery);
+                onClose();
+              }}
             />
           </Column>
         </TabPanel>

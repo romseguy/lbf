@@ -9,7 +9,7 @@ import { getSession } from "server/auth";
 import { models } from "server/database";
 import { logEvent, ServerEventTypes } from "server/logging";
 import { IGallery } from "models/Gallery";
-import { Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 const agent = new https.Agent({
   rejectUnauthorized: false,
@@ -51,7 +51,9 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
         gallery = await models.Gallery.findOne({ _id: body.gallery._id });
 
         if (!gallery) {
-          gallery = await models.Gallery.create({ ...body.gallery });
+          gallery = await models.Gallery.create({
+            ...body.gallery
+          });
         }
       }
 

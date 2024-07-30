@@ -7,7 +7,7 @@ import { ITopicMessage } from "models/TopicMessage";
 import { globalEmail } from "pages/_app";
 import baseQuery, { objectToQueryString } from "utils/query";
 import { Optional } from "utils/types";
-import { api } from "./";
+import { api, TagTypes } from "./";
 
 //const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
 
@@ -55,15 +55,15 @@ export const topicApi = api.injectEndpoints({
         if (params.payload.org?._id)
           return [
             {
-              type: "Orgs",
+              type: TagTypes.ORGS,
               id: params.payload.org?._id
             },
-            { type: "Subscriptions", id: globalEmail }
+            { type: TagTypes.SUBSCRIPTIONS, id: globalEmail }
           ];
 
         return [
-          { type: "Topics", id: "LIST" }
-          //{ type: "Subscriptions", id: params.payload.email || "LIST" }
+          { type: TagTypes.TOPICS, id: "LIST" }
+          //{ type: TagTypes.SUBSCRIPTIONS, id: params.payload.email || "LIST" }
         ];
       }
     }),
@@ -93,12 +93,12 @@ export const topicApi = api.injectEndpoints({
         if (result?.org?._id)
           return [
             {
-              type: "Orgs",
+              type: TagTypes.ORGS,
               id: result?.org?._id
             }
           ];
 
-        return [{ type: "Topics", id: "LIST" }];
+        return [{ type: TagTypes.TOPICS, id: "LIST" }];
       }
     }),
     editTopic: build.mutation<
@@ -124,12 +124,12 @@ export const topicApi = api.injectEndpoints({
         if (params.payload.topic.org?._id)
           return [
             {
-              type: "Orgs",
+              type: TagTypes.ORGS,
               id: params.payload.topic.org?._id
             }
           ];
 
-        return [{ type: "Topics", id: "LIST" }];
+        return [{ type: TagTypes.TOPICS, id: "LIST" }];
       }
     }),
     getTopics: build.query<
@@ -148,7 +148,8 @@ export const topicApi = api.injectEndpoints({
         };
       }
     })
-  })
+  }),
+  overrideExisting: true
 });
 
 export const {

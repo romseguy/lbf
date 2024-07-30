@@ -2,8 +2,6 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import {
   Input,
   Button,
-  Checkbox,
-  CheckboxGroup,
   FormControl,
   FormLabel,
   FormErrorMessage,
@@ -16,12 +14,6 @@ import {
   Tag,
   Tooltip,
   Box,
-  Popover,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
-  PopoverCloseButton,
-  PopoverHeader,
   IconButton,
   InputGroup
 } from "@chakra-ui/react";
@@ -30,14 +22,11 @@ import {
   addHours,
   addWeeks,
   compareDesc,
-  getDay,
   getDayOfYear,
   getHours,
-  getMinutes,
   intervalToDuration,
   isBefore,
-  parseISO,
-  setDay
+  parseISO
 } from "date-fns";
 import React, { useEffect, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -71,11 +60,10 @@ import {
   IEntityPhone,
   IEntityWeb
 } from "models/Entity";
-import { IEvent, monthRepeatOptions, EEventVisibility } from "models/Event";
+import { IEvent, EEventVisibility } from "models/Event";
 import { getEventCategories, IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
-import * as dateUtils from "utils/date";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
@@ -125,66 +113,10 @@ export const EventForm = withGoogleApi({
 
     //#region local state
     const [isLoading, setIsLoading] = useState(false);
-    const [isRepeat, setIsRepeat] = useState(
-      !!props.event?.repeat || hasItems(props.event?.otherDays)
-    );
+
     const [suggestion, setSuggestion] = useState<Suggestion>();
 
     let hasMonthRepeat = false;
-    const [days, setDays] = useState<DaysMap>(
-      dateUtils.days.reduce((obj, day, index) => {
-        const otherDay = props.event?.otherDays?.find(
-          ({ dayNumber }) => dayNumber === index
-        );
-
-        if (otherDay && hasItems(otherDay.monthRepeat)) hasMonthRepeat = true;
-
-        return {
-          ...obj,
-          [index]: {
-            ...otherDay,
-            checked: !!otherDay,
-            isDisabled: !otherDay?.monthRepeat && hasMonthRepeat,
-            isOpen: false,
-            startDate: otherDay?.startDate
-              ? parseISO(otherDay.startDate)
-              : undefined,
-            endTime: otherDay?.endTime ? parseISO(otherDay.endTime) : undefined
-          }
-        };
-      }, {})
-    );
-    useEffect(() => {
-      let i = 0;
-      while (!hasMonthRepeat && i < dateUtils.days.length) {
-        const day = days[i];
-        if (Array.isArray(day.monthRepeat) && day.monthRepeat.length > 0)
-          hasMonthRepeat = true;
-        i++;
-      }
-    }, [days]);
-    const setDayState = (
-      index: number,
-      match: Partial<DayState> = {},
-      nomatch: Partial<DayState> = {}
-    ) => {
-      return Object.keys(days).reduce(
-        (obj, key, i) =>
-          i === index
-            ? {
-                ...obj,
-                [i]: {
-                  ...days[i],
-                  ...match
-                }
-              }
-            : {
-                ...obj,
-                [i]: { ...days[i], ...nomatch }
-              },
-        {}
-      );
-    };
 
     const [duration, setDuration] = useState<Duration | undefined>();
     const [canRepeat, setCanRepeat] = useState(false);
@@ -282,11 +214,7 @@ export const EventForm = withGoogleApi({
     }, [eventMaxDate]);
 
     const start = eventMinDate;
-    const startDay = start
-      ? getDay(start) === 0
-        ? 6
-        : getDay(start) - 1
-      : undefined;
+
     const [end, setEnd] = useState<Date | null | undefined>(eventMaxDate);
     useEffect(() => {
       if (start && end) {
@@ -306,6 +234,7 @@ export const EventForm = withGoogleApi({
     let eventOrg = useWatch<IOrg>({ control, name: "eventOrg" });
     eventOrg =
       eventOrg && Object.keys(eventOrg).length === 0 ? undefined : eventOrg;
+    console.log("🚀 ~ eventOrg:", eventOrg);
 
     const categories = eventOrg ? getEventCategories(eventOrg) : [];
     const visibilities = eventOrg
@@ -350,6 +279,33 @@ export const EventForm = withGoogleApi({
           setValue("eventAddress", []);
         }
       }
+      if (!hasItems(eventPhone)) {
+        if (eventOrg) {
+          if (eventOrg.orgPhone[0]) {
+            setValue("eventPhone", eventOrg.orgPhone);
+          }
+        } else {
+          setValue("eventPhone", []);
+        }
+      }
+      if (!hasItems(eventEmail)) {
+        if (eventOrg) {
+          if (eventOrg.orgEmail[0]) {
+            setValue("eventEmail", eventOrg.orgEmail);
+          }
+        } else {
+          setValue("eventEmail", []);
+        }
+      }
+      if (!hasItems(eventWeb)) {
+        if (eventOrg) {
+          if (eventOrg.orgWeb[0]) {
+            setValue("eventWeb", eventOrg.orgWeb);
+          }
+        } else {
+          setValue("eventWeb", []);
+        }
+      }
     }, [eventOrg]);
 
     //#region form handlers
@@ -391,30 +347,30 @@ export const EventForm = withGoogleApi({
         eventWeb: Array.isArray(eventWeb) && eventWeb.length > 0 ? eventWeb : []
       };
 
-      payload.otherDays = isRepeat
-        ? Object.keys(days)
-            .filter((key) => {
-              const day = days[parseInt(key)];
-              return !day.isDisabled && day.checked;
-            })
-            .map((key) => {
-              const dayNumber = parseInt(key);
-              const day = days[dayNumber];
-              return {
-                ...day,
-                dayNumber,
-                startDate: day.startDate?.toISOString(),
-                endTime: day.endTime
-                  ? day.endTime.toISOString()
-                  : day.startDate
-                  ? addHours(
-                      day.startDate,
-                      duration?.hours || eventMinDuration
-                    ).toISOString()
-                  : undefined
-              };
-            })
-        : [];
+      // payload.otherDays = isRepeat
+      //   ? Object.keys(days)
+      //       .filter((key) => {
+      //         const day = days[parseInt(key)];
+      //         return !day.isDisabled && day.checked;
+      //       })
+      //       .map((key) => {
+      //         const dayNumber = parseInt(key);
+      //         const day = days[dayNumber];
+      //         return {
+      //           ...day,
+      //           dayNumber,
+      //           startDate: day.startDate?.toISOString(),
+      //           endTime: day.endTime
+      //             ? day.endTime.toISOString()
+      //             : day.startDate
+      //             ? addHours(
+      //                 day.startDate,
+      //                 duration?.hours || eventMinDuration
+      //               ).toISOString()
+      //             : undefined
+      //         };
+      //       })
+      //   : [];
 
       try {
         //const sugg = suggestion || data[0];
@@ -570,11 +526,11 @@ export const EventForm = withGoogleApi({
         {/* eventName */}
         <FormControl
           ref={refs.eventName}
-          //isRequired
+          isRequired
           isInvalid={!!errors["eventName"]}
           mb={!props.event && getValues("eventName") ? 0 : 3}
         >
-          <FormLabel>Nom de l'événement *</FormLabel>
+          <FormLabel>Nom de l'événement</FormLabel>
           <Input
             name="eventName"
             ref={register({
@@ -681,299 +637,6 @@ export const EventForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {/* otherDays */}
-        {canRepeat1day && (
-          <FormControl mb={3}>
-            <Checkbox
-              isChecked={isRepeat}
-              isDisabled={!start || !end}
-              onChange={(e) => setIsRepeat(e.target.checked)}
-            >
-              Autres jours
-            </Checkbox>
-
-            {isRepeat && (
-              <Box mt={3}>
-                {dateUtils.days.map((label, index) => {
-                  const day = days[index];
-
-                  const otherDay = props.event?.otherDays?.find(
-                    ({ dayNumber, startDate }) =>
-                      dayNumber === index && startDate
-                  );
-
-                  let defaultStart: Date | undefined;
-                  if (day.startDate) {
-                    defaultStart = day.startDate;
-                  } else {
-                    if (otherDay?.startDate)
-                      defaultStart = parseISO(otherDay.startDate);
-                    else if (start) defaultStart = setDay(start, index + 1);
-                  }
-
-                  let defaultEnd: Date | undefined;
-                  if (day.endTime) {
-                    defaultEnd = day.endTime;
-                  } else {
-                    if (otherDay?.endTime)
-                      defaultEnd = parseISO(otherDay.endTime);
-                    else if (end) defaultEnd = setDay(end, index + 1);
-                  }
-
-                  let tagLabel = label;
-
-                  if (day.checked) {
-                    if (defaultStart) {
-                      const defaultStartHours = getHours(defaultStart);
-                      const defaultStartMinutes =
-                        getMinutes(defaultStart) !== 0
-                          ? getMinutes(defaultStart)
-                          : "";
-
-                      if (defaultEnd) {
-                        const defaultEndHours = getHours(defaultEnd);
-                        const defaultEndMinutes =
-                          getMinutes(defaultEnd) !== 0
-                            ? getMinutes(defaultEnd)
-                            : "";
-
-                        tagLabel += ` ${defaultStartHours}h${defaultStartMinutes} - ${defaultEndHours}h${defaultEndMinutes}`;
-                      } else
-                        tagLabel += ` ${defaultStartHours}h${defaultStartMinutes}`;
-                    }
-                  }
-
-                  const show =
-                    defaultStart &&
-                    start &&
-                    getDay(defaultStart) !== getDay(start);
-
-                  return (
-                    <Popover
-                      key={"day-" + index}
-                      closeOnBlur
-                      isOpen={!!days[index].isOpen}
-                      isLazy
-                      placement="bottom"
-                      onClose={() =>
-                        setDays(setDayState(index, { isOpen: false }))
-                      }
-                    >
-                      <PopoverTrigger>
-                        <Tag
-                          variant={day.checked ? "solid" : "outline"}
-                          bgColor={day.checked ? "green" : undefined}
-                          cursor={day.isDisabled ? "not-allowed" : "pointer"}
-                          mr={1}
-                          mb={3}
-                          onClick={() => {
-                            if (day.isDisabled) return;
-
-                            let newDays: DaysMap;
-
-                            if (day.checked && !day.isOpen) {
-                              newDays = setDayState(index, { checked: false });
-                              newDays = Object.keys(days).reduce(
-                                (obj, key, i) => {
-                                  const dayNumber = parseInt(key);
-                                  return {
-                                    ...obj,
-                                    [i]: {
-                                      ...newDays[i],
-                                      isDisabled: false
-                                    }
-                                  };
-                                },
-                                {}
-                              );
-                            } else {
-                              newDays = setDayState(
-                                index,
-                                {
-                                  checked: true,
-                                  isOpen: true
-                                },
-                                { isOpen: false }
-                              );
-                              newDays = Object.keys(days).reduce(
-                                (obj, key, i) => {
-                                  const dayNumber = parseInt(key);
-                                  let isDisabled = false;
-
-                                  if (hasMonthRepeat && !newDays[i].monthRepeat)
-                                    isDisabled = true;
-
-                                  return {
-                                    ...obj,
-                                    [i]: {
-                                      ...newDays[i],
-                                      isDisabled
-                                    }
-                                  };
-                                },
-                                {}
-                              );
-                            }
-
-                            setDays(newDays);
-                          }}
-                        >
-                          {tagLabel}
-                        </Tag>
-                      </PopoverTrigger>
-
-                      <PopoverContent>
-                        <PopoverHeader fontWeight="bold">
-                          {dateUtils.days[index]}
-                        </PopoverHeader>
-                        <PopoverCloseButton />
-                        <PopoverBody>
-                          {show && (
-                            <>
-                              <FormControl mb={3}>
-                                <FormLabel>Heure de début</FormLabel>
-                                <DatePicker
-                                  //withPortal
-                                  customInput={renderCustomInput({
-                                    label: "startDate" + index,
-                                    isTimeOnly: true
-                                  })}
-                                  selected={defaultStart}
-                                  dateFormat="Pp"
-                                  showTimeSelect
-                                  showTimeSelectOnly
-                                  timeFormat="p"
-                                  timeIntervals={30}
-                                  filterTime={(time) => {
-                                    if (
-                                      defaultEnd &&
-                                      getHours(time) >= getHours(defaultEnd)
-                                    )
-                                      return false;
-                                    return true;
-                                  }}
-                                  onChange={(startDate: Date) => {
-                                    let endTime;
-                                    if (defaultEnd) {
-                                      if (
-                                        getHours(defaultEnd) >
-                                        getHours(startDate)
-                                      )
-                                        endTime = defaultEnd;
-                                    }
-                                    setDays(
-                                      setDayState(index, {
-                                        startDate: setDay(startDate, index + 1),
-                                        endTime
-                                      })
-                                    );
-                                  }}
-                                />
-                              </FormControl>
-
-                              <FormControl mb={3}>
-                                <FormLabel>Heure de fin</FormLabel>
-                                <DatePicker
-                                  //withPortal
-                                  customInput={renderCustomInput({
-                                    label: "startDate" + index,
-                                    isTimeOnly: true
-                                  })}
-                                  selected={defaultEnd}
-                                  dateFormat="Pp"
-                                  showTimeSelect
-                                  showTimeSelectOnly
-                                  timeFormat="p"
-                                  timeIntervals={30}
-                                  // filterTime={(time) => {
-                                  // FIXME -.-
-                                  //   console.log(
-                                  //     "getHours(time)",
-                                  //     getHours(time)
-                                  //   );
-                                  //   console.log("defaultStart", defaultStart);
-                                  //   return false;
-                                  //   if (
-                                  //     defaultStart &&
-                                  //     getHours(time) <= getHours(defaultStart)
-                                  //   ) {
-                                  //     return false;
-                                  //   }
-                                  //   // console.log("allowing", time);
-                                  //   return true;
-                                  // }}
-                                  onChange={(endDate: Date) => {
-                                    const newDays = setDayState(index, {
-                                      endTime: endDate
-                                    });
-                                    setDays(newDays);
-                                  }}
-                                />
-                              </FormControl>
-                            </>
-                          )}
-
-                          {day.checked && startDay === index && (
-                            <FormControl>
-                              <CheckboxGroup>
-                                {Object.keys(monthRepeatOptions).map((key) => {
-                                  const monthRepeatOption = parseInt(key);
-
-                                  if (
-                                    day.monthRepeat?.length === 3 &&
-                                    !day.monthRepeat.includes(monthRepeatOption)
-                                  )
-                                    return null;
-
-                                  return (
-                                    <Checkbox
-                                      key={monthRepeatOption}
-                                      isChecked={day.monthRepeat?.includes(
-                                        monthRepeatOption
-                                      )}
-                                      onChange={(e) => {
-                                        let monthRepeat: number[];
-
-                                        if (!e.target.checked) {
-                                          monthRepeat =
-                                            day.monthRepeat?.filter(
-                                              (i) => i !== monthRepeatOption
-                                            ) || [];
-                                        } else {
-                                          monthRepeat = [monthRepeatOption];
-
-                                          if (day.monthRepeat)
-                                            monthRepeat =
-                                              day.monthRepeat.concat([
-                                                monthRepeatOption
-                                              ]);
-                                        }
-
-                                        setDays(
-                                          setDayState(index, {
-                                            monthRepeat
-                                          })
-                                        );
-                                      }}
-                                    >
-                                      Le {monthRepeatOptions[monthRepeatOption]}{" "}
-                                      {label} de chaque mois
-                                    </Checkbox>
-                                  );
-                                })}
-                              </CheckboxGroup>
-                            </FormControl>
-                          )}
-                        </PopoverBody>
-                      </PopoverContent>
-                    </Popover>
-                  );
-                })}
-              </Box>
-            )}
-          </FormControl>
-        )}
-
         {/* repeat */}
         {canRepeat && !hasMonthRepeat && (
           <FormControl isInvalid={!!errors["repeat"]} mb={3}>
@@ -1045,13 +708,19 @@ export const EventForm = withGoogleApi({
         {/* eventOrg */}
         <FormControl
           ref={refs.eventOrg}
-          mb={3}
           isInvalid={!!errors["eventOrg"]}
           // isRequired={
           //   eventOrgsRules.required === false
           //     ? false
           //     : !!eventOrgsRules.required
           // }
+          mb={3}
+          visibility="hidden"
+          css={css`
+            .react-select__input-container {
+              visibility: hidden !important;
+            }
+          `}
         >
           <FormLabel>
             L'atelier auquel est rattaché cet événement (optionnel)
@@ -1212,63 +881,365 @@ export const EventForm = withGoogleApi({
 
 {
   /*
-    const eventVisibility = useWatch<string>({
-      control,
-      name: "eventVisibility"
-    });
 
-    const eventOrgsRules: { required: string | boolean } = {
-      required:
-        eventVisibility === EEventVisibility.SUBSCRIBERS
-          ? "Veuillez sélectionner une ou plusieurs organisations"
-          : false
+    const [isRepeat, setIsRepeat] = useState(
+      !!props.event?.repeat || hasItems(props.event?.otherDays)
+    );
+
+    const [days, setDays] = useState<DaysMap>(
+      dateUtils.days.reduce((obj, day, index) => {
+        const otherDay = props.event?.otherDays?.find(
+          ({ dayNumber }) => dayNumber === index
+        );
+
+        if (otherDay && hasItems(otherDay.monthRepeat)) hasMonthRepeat = true;
+
+        return {
+          ...obj,
+          [index]: {
+            ...otherDay,
+            checked: !!otherDay,
+            isDisabled: !otherDay?.monthRepeat && hasMonthRepeat,
+            isOpen: false,
+            startDate: otherDay?.startDate
+              ? parseISO(otherDay.startDate)
+              : undefined,
+            endTime: otherDay?.endTime ? parseISO(otherDay.endTime) : undefined
+          }
+        };
+      }, {})
+    );
+
+    useEffect(() => {
+      let i = 0;
+      while (!hasMonthRepeat && i < dateUtils.days.length) {
+        const day = days[i];
+        if (Array.isArray(day.monthRepeat) && day.monthRepeat.length > 0)
+          hasMonthRepeat = true;
+        i++;
+      }
+    }, [days]);
+
+    const setDayState = (
+      index: number,
+      match: Partial<DayState> = {},
+      nomatch: Partial<DayState> = {}
+    ) => {
+      return Object.keys(days).reduce(
+        (obj, key, i) =>
+          i === index
+            ? {
+                ...obj,
+                [i]: {
+                  ...days[i],
+                  ...match
+                }
+              }
+            : {
+                ...obj,
+                [i]: { ...days[i], ...nomatch }
+              },
+        {}
+      );
     };
 
-    if (
-      !errors.eventOrgs &&
-      typeof eventOrgsRules.required === "string" &&
-      !eventOrg
-    )
-      setError("eventOrg", {
-        type: "manual",
-        message: eventOrgsRules.required
-      });
- */
-}
-{
-  /* eventVisibility */
-}
-{
-  /* {hasItems(visibilities) && (
-          <FormControl
-            isRequired
-            isInvalid={!!errors["eventVisibility"]}
-            onChange={async (e) => {
-              clearErrors("eventOrgs");
-            }}
-            mb={3}
-          >
-            <FormLabel>Visibilité de l'événement</FormLabel>
-            <Select
-              name="eventVisibility"
-              ref={register({
-                required: "Veuillez sélectionner la visibilité de l'événement"
-              })}
-              placeholder="Visibilité de l'événement"
-              color={isDark ? "whiteAlpha.400" : "gray.400"}
-            >
-              {visibilities.map((key) => {
-                const visibility = key as EEventVisibility;
-                return (
-                  <option key={visibility} value={visibility}>
-                    {EventVisibilities[visibility]}
-                  </option>
-                );
-              })}
-            </Select>
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="eventVisibility" />
-            </FormErrorMessage>
-          </FormControl>
-        )} */
+  const startDay = start
+    ? getDay(start) === 0
+      ? 6
+      : getDay(start) - 1
+    : undefined;
+
+  {canRepeat1day && (
+    <FormControl mb={3}>
+      <Checkbox
+        isChecked={isRepeat}
+        isDisabled={!start || !end}
+        onChange={(e) => setIsRepeat(e.target.checked)}
+      >
+        Autres jours
+      </Checkbox>
+
+      {isRepeat && (
+        <Box mt={3}>
+          {dateUtils.days.map((label, index) => {
+            const day = days[index];
+
+            const otherDay = props.event?.otherDays?.find(
+              ({ dayNumber, startDate }) =>
+                dayNumber === index && startDate
+            );
+
+            let defaultStart: Date | undefined;
+            if (day.startDate) {
+              defaultStart = day.startDate;
+            } else {
+              if (otherDay?.startDate)
+                defaultStart = parseISO(otherDay.startDate);
+              else if (start) defaultStart = setDay(start, index + 1);
+            }
+
+            let defaultEnd: Date | undefined;
+            if (day.endTime) {
+              defaultEnd = day.endTime;
+            } else {
+              if (otherDay?.endTime)
+                defaultEnd = parseISO(otherDay.endTime);
+              else if (end) defaultEnd = setDay(end, index + 1);
+            }
+
+            let tagLabel = label;
+
+            if (day.checked) {
+              if (defaultStart) {
+                const defaultStartHours = getHours(defaultStart);
+                const defaultStartMinutes =
+                  getMinutes(defaultStart) !== 0
+                    ? getMinutes(defaultStart)
+                    : "";
+
+                if (defaultEnd) {
+                  const defaultEndHours = getHours(defaultEnd);
+                  const defaultEndMinutes =
+                    getMinutes(defaultEnd) !== 0
+                      ? getMinutes(defaultEnd)
+                      : "";
+
+                  tagLabel += ` ${defaultStartHours}h${defaultStartMinutes} - ${defaultEndHours}h${defaultEndMinutes}`;
+                } else
+                  tagLabel += ` ${defaultStartHours}h${defaultStartMinutes}`;
+              }
+            }
+
+            const show =
+              defaultStart &&
+              start &&
+              getDay(defaultStart) !== getDay(start);
+
+            return (
+              <Popover
+                key={"day-" + index}
+                closeOnBlur
+                isOpen={!!days[index].isOpen}
+                isLazy
+                placement="bottom"
+                onClose={() =>
+                  setDays(setDayState(index, { isOpen: false }))
+                }
+              >
+                <PopoverTrigger>
+                  <Tag
+                    variant={day.checked ? "solid" : "outline"}
+                    bgColor={day.checked ? "green" : undefined}
+                    cursor={day.isDisabled ? "not-allowed" : "pointer"}
+                    mr={1}
+                    mb={3}
+                    onClick={() => {
+                      if (day.isDisabled) return;
+
+                      let newDays: DaysMap;
+
+                      if (day.checked && !day.isOpen) {
+                        newDays = setDayState(index, { checked: false });
+                        newDays = Object.keys(days).reduce(
+                          (obj, key, i) => {
+                            const dayNumber = parseInt(key);
+                            return {
+                              ...obj,
+                              [i]: {
+                                ...newDays[i],
+                                isDisabled: false
+                              }
+                            };
+                          },
+                          {}
+                        );
+                      } else {
+                        newDays = setDayState(
+                          index,
+                          {
+                            checked: true,
+                            isOpen: true
+                          },
+                          { isOpen: false }
+                        );
+                        newDays = Object.keys(days).reduce(
+                          (obj, key, i) => {
+                            const dayNumber = parseInt(key);
+                            let isDisabled = false;
+
+                            if (hasMonthRepeat && !newDays[i].monthRepeat)
+                              isDisabled = true;
+
+                            return {
+                              ...obj,
+                              [i]: {
+                                ...newDays[i],
+                                isDisabled
+                              }
+                            };
+                          },
+                          {}
+                        );
+                      }
+
+                      setDays(newDays);
+                    }}
+                  >
+                    {tagLabel}
+                  </Tag>
+                </PopoverTrigger>
+
+                <PopoverContent>
+                  <PopoverHeader fontWeight="bold">
+                    {dateUtils.days[index]}
+                  </PopoverHeader>
+                  <PopoverCloseButton />
+                  <PopoverBody>
+                    {show && (
+                      <>
+                        <FormControl mb={3}>
+                          <FormLabel>Heure de début</FormLabel>
+                          <DatePicker
+                            //withPortal
+                            customInput={renderCustomInput({
+                              label: "startDate" + index,
+                              isTimeOnly: true
+                            })}
+                            selected={defaultStart}
+                            dateFormat="Pp"
+                            showTimeSelect
+                            showTimeSelectOnly
+                            timeFormat="p"
+                            timeIntervals={30}
+                            filterTime={(time) => {
+                              if (
+                                defaultEnd &&
+                                getHours(time) >= getHours(defaultEnd)
+                              )
+                                return false;
+                              return true;
+                            }}
+                            onChange={(startDate: Date) => {
+                              let endTime;
+                              if (defaultEnd) {
+                                if (
+                                  getHours(defaultEnd) >
+                                  getHours(startDate)
+                                )
+                                  endTime = defaultEnd;
+                              }
+                              setDays(
+                                setDayState(index, {
+                                  startDate: setDay(startDate, index + 1),
+                                  endTime
+                                })
+                              );
+                            }}
+                          />
+                        </FormControl>
+
+                        <FormControl mb={3}>
+                          <FormLabel>Heure de fin</FormLabel>
+                          <DatePicker
+                            //withPortal
+                            customInput={renderCustomInput({
+                              label: "startDate" + index,
+                              isTimeOnly: true
+                            })}
+                            selected={defaultEnd}
+                            dateFormat="Pp"
+                            showTimeSelect
+                            showTimeSelectOnly
+                            timeFormat="p"
+                            timeIntervals={30}
+                            // filterTime={(time) => {
+                            // FIXME -.-
+                            //   console.log(
+                            //     "getHours(time)",
+                            //     getHours(time)
+                            //   );
+                            //   console.log("defaultStart", defaultStart);
+                            //   return false;
+                            //   if (
+                            //     defaultStart &&
+                            //     getHours(time) <= getHours(defaultStart)
+                            //   ) {
+                            //     return false;
+                            //   }
+                            //   // console.log("allowing", time);
+                            //   return true;
+                            // }}
+                            onChange={(endDate: Date) => {
+                              const newDays = setDayState(index, {
+                                endTime: endDate
+                              });
+                              setDays(newDays);
+                            }}
+                          />
+                        </FormControl>
+                      </>
+                    )}
+
+                    {day.checked && startDay === index && (
+                      <FormControl>
+                        <CheckboxGroup>
+                          {Object.keys(monthRepeatOptions).map((key) => {
+                            const monthRepeatOption = parseInt(key);
+
+                            if (
+                              day.monthRepeat?.length === 3 &&
+                              !day.monthRepeat.includes(monthRepeatOption)
+                            )
+                              return null;
+
+                            return (
+                              <Checkbox
+                                key={monthRepeatOption}
+                                isChecked={day.monthRepeat?.includes(
+                                  monthRepeatOption
+                                )}
+                                onChange={(e) => {
+                                  let monthRepeat: number[];
+
+                                  if (!e.target.checked) {
+                                    monthRepeat =
+                                      day.monthRepeat?.filter(
+                                        (i) => i !== monthRepeatOption
+                                      ) || [];
+                                  } else {
+                                    monthRepeat = [monthRepeatOption];
+
+                                    if (day.monthRepeat)
+                                      monthRepeat =
+                                        day.monthRepeat.concat([
+                                          monthRepeatOption
+                                        ]);
+                                  }
+
+                                  setDays(
+                                    setDayState(index, {
+                                      monthRepeat
+                                    })
+                                  );
+                                }}
+                              >
+                                Le {monthRepeatOptions[monthRepeatOption]}{" "}
+                                {label} de chaque mois
+                              </Checkbox>
+                            );
+                          })}
+                        </CheckboxGroup>
+                      </FormControl>
+                    )}
+                  </PopoverBody>
+                </PopoverContent>
+              </Popover>
+            );
+          })}
+        </Box>
+      )}
+    </FormControl>
+  )}
+
+*/
 }

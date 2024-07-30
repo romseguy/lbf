@@ -1,6 +1,6 @@
 import type { IProject } from "models/Project";
 import { IProjectNotification } from "models/INotification";
-import { api } from "./";
+import { api, TagTypes } from "./";
 
 export type AddProjectPayload = Omit<
   IProject,
@@ -30,12 +30,12 @@ export const projectApi = api.injectEndpoints({
         if (Array.isArray(result?.projectOrgs))
           return [
             {
-              type: "Orgs",
+              type: TagTypes.ORGS,
               id: result?.projectOrgs[0]._id
             }
           ];
 
-        return [{ type: "Projects", id: "LIST" }];
+        return [{ type: TagTypes.PROJECTS, id: "LIST" }];
       }
     }),
     addProjectNotif: build.mutation<
@@ -64,12 +64,12 @@ export const projectApi = api.injectEndpoints({
         if (Array.isArray(result?.projectOrgs))
           return [
             {
-              type: "Orgs",
+              type: TagTypes.ORGS,
               id: result?.projectOrgs[0]._id
             }
           ];
 
-        return [{ type: "Topics", id: "LIST" }];
+        return [{ type: TagTypes.TOPICS, id: "LIST" }];
       }
     }),
     editProject: build.mutation<
@@ -96,15 +96,16 @@ export const projectApi = api.injectEndpoints({
         if (Array.isArray(result?.projectOrgs))
           return [
             {
-              type: "Orgs",
+              type: TagTypes.ORGS,
               id: result?.projectOrgs[0]._id
             }
           ];
 
-        return [{ type: "Topics", id: "LIST" }];
+        return [{ type: TagTypes.TOPICS, id: "LIST" }];
       }
     })
-  })
+  }),
+  overrideExisting: true
 });
 
 export const {

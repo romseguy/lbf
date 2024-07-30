@@ -300,7 +300,7 @@ export const EventsListItem = ({
                       })
                     }
                   >
-                    Voir l'description de l'événement
+                    Voir la description de l'événement
                   </Button>
                 </Box>
               ) : (

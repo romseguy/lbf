@@ -1,7 +1,7 @@
 import { IOrg } from "models/Org";
 import { IGallery } from "models/Gallery";
 import { objectToQueryString } from "utils/query";
-import { api } from "./";
+import { api, TagTypes } from "./";
 
 //const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
 
@@ -39,15 +39,15 @@ export const galleryApi = api.injectEndpoints({
         if (params.payload.org?._id)
           return [
             {
-              type: "Orgs",
+              type: TagTypes.ORGS,
               id: params.payload.org?._id
             }
-            //{ type: "Subscriptions", id: globalEmail }
+            //{ type: TagTypes.Subscriptions, id: globalEmail }
           ];
 
         return [
-          { type: "Galleries", id: "LIST" }
-          //{ type: "Subscriptions", id: params.payload.email || "LIST" }
+          { type: TagTypes.ORGS, id: "LIST" }
+          //{ type: TagTypes.Subscriptions, id: params.payload.email || "LIST" }
         ];
       }
     }),
@@ -56,14 +56,14 @@ export const galleryApi = api.injectEndpoints({
       invalidatesTags: (result, error, params) => {
         if (result?.org?._id)
           return [
-            { type: "Galleries", id: "LIST" },
+            { type: TagTypes.ORGS, id: "LIST" },
             {
-              type: "Orgs",
+              type: TagTypes.ORGS,
               id: result?.org?._id
             }
           ];
 
-        return [{ type: "Galleries", id: "LIST" }];
+        return [{ type: TagTypes.ORGS, id: "LIST" }];
       }
     }),
     editGallery: build.mutation<
@@ -85,18 +85,17 @@ export const galleryApi = api.injectEndpoints({
           body: payload
         };
       },
-      //@ts-expect-error
       invalidatesTags: (result, error, params) => {
-        if (result?.org)
-          return [
-            { type: "Galleries", id: "LIST" },
-            {
-              type: "Orgs",
-              id: result?.org
-            }
-          ];
+        let tags = [{ type: TagTypes.GALLERIES, id: params.galleryId }];
 
-        return [{ type: "Galleries", id: "LIST" }];
+        if (result && result.org) {
+          tags.push({ type: TagTypes.GALLERIES, id: "LIST" });
+          tags.push({
+            type: TagTypes.ORGS,
+            id: result.org as unknown as string
+          });
+        }
+        return tags;
       }
     }),
     getGallery: build.query<IGallery, GetGalleryParams>({

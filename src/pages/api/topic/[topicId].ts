@@ -303,6 +303,9 @@ handler.delete<
   },
   NextApiResponse
 >(async function removeTopic(req, res) {
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ DELETE /topic/[topicId] `;
+  console.log(prefix + "query", req.query);
+
   const session = await getSession({ req });
 
   if (!session) {
@@ -312,8 +315,8 @@ handler.delete<
   }
 
   try {
-    const topicId = req.query.topicId;
-    let topic = await models.Topic.findOne({ _id: topicId });
+    const _id = req.query.topicId;
+    let topic = await models.Topic.findOne({ _id });
 
     if (!topic) {
       return res
@@ -345,21 +348,23 @@ handler.delete<
 
     //#region entity references
     if (topic.org) {
-      console.log("deleting org reference to topic", topic.org);
+      const orgId = getRefId(topic.org);
+      console.log(prefix + "deleting topic from org", orgId);
       await models.Org.updateOne(
-        { _id: topic.org._id },
+        { _id: orgId },
         {
-          $pull: { orgTopics: topic._id }
+          $pull: { orgTopics: _id }
         }
       );
     } else if (topic.event) {
-      console.log("deleting event reference to topic", topic.event);
+      const eventId = getRefId(topic.event);
+      console.log(prefix + "deleting topic from event", eventId);
       await models.Event.updateOne(
         {
-          _id: typeof topic.event === "object" ? topic.event._id : topic.event
+          _id: eventId
         },
         {
-          $pull: { eventTopics: topic._id }
+          $pull: { eventTopics: _id }
         }
       );
     }
@@ -384,7 +389,7 @@ handler.delete<
       console.log(count + " subscriptions references to topic deleted");
     //#endregion
 
-    const { deletedCount } = await models.Topic.deleteOne({ _id: topicId });
+    const { deletedCount } = await models.Topic.deleteOne({ _id });
     if (deletedCount !== 1)
       throw new Error(`La discussion n'a pas pu être supprimée`);
     res.status(200).json(topic);

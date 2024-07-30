@@ -24,7 +24,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
       await client.get(`check`);
       res.status(200).json({});
     } catch (error) {
-      res.status(404).json(createEndpointError(error));
+      res.status(504).json(createEndpointError(error));
     }
   })
   .post<NextApiRequest, NextApiResponse>(async function checkLoggedIn(

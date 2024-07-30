@@ -50,6 +50,7 @@ export const OrgPage = ({
     session?.user.userId === getRefId(org) ||
     session?.user.isAdmin ||
     false;
+  console.log("🚀 ~ isCreator:", isCreator);
   const orgCreatedByUserName =
     typeof org.createdBy === "object"
       ? org.createdBy?.userName || org.createdBy?._id
@@ -147,7 +148,7 @@ export const OrgPage = ({
 
       {!isConfig && !isEdit && (
         <>
-          <EntityPageSubscribeButton orgQuery={orgQuery} subQuery={subQuery} />
+          {/* <EntityPageSubscribeButton orgQuery={orgQuery} subQuery={subQuery} /> */}
 
           {tabs}
         </>

@@ -58,7 +58,8 @@ async function request(
 
     if (response.status !== 200) {
       const error = await response.json();
-      console.log(`${prefix}: ${response.status} error`, error);
+      if (!config?.isLoggingDisabled)
+        console.log(`${prefix}: ${response.status} error`, error);
       return { status: response.status, error };
     }
 

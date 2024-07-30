@@ -2,6 +2,28 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { HYDRATE } from "next-redux-wrapper";
 import baseQuery from "utils/query";
 
+export enum TagTypes {
+  ORGS = "Orgs",
+  EVENTS = "Events",
+  GALLERIES = "Galleries",
+  DOCUMENTS = "Documents",
+  PROJECTS = "Projects",
+  SUBSCRIPTIONS = "Subscriptions",
+  TOPICS = "Topics",
+  USERS = "Users"
+}
+
+const tagTypes = [
+  TagTypes.ORGS,
+  TagTypes.EVENTS,
+  TagTypes.GALLERIES,
+  TagTypes.DOCUMENTS,
+  TagTypes.PROJECTS,
+  TagTypes.SUBSCRIPTIONS,
+  TagTypes.TOPICS,
+  TagTypes.USERS
+];
+
 export const api = createApi({
   baseQuery,
   extractRehydrationInfo(action, { reducerPath }) {
@@ -9,16 +31,7 @@ export const api = createApi({
       return action.payload[reducerPath];
     }
   },
-  tagTypes: [
-    "Orgs",
-    "Events",
-    "Galleries",
-    "Documents",
-    "Projects",
-    "Subscriptions",
-    "Topics",
-    "Users"
-  ],
+  tagTypes,
   endpoints: () => ({})
 });
 

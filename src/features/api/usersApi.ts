@@ -1,4 +1,4 @@
-import { api } from "./";
+import { api, TagTypes } from "./";
 import { IUser } from "models/User";
 import { objectToQueryString } from "utils/query";
 
@@ -42,8 +42,8 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: (result, error, params) => {
         return result
           ? [
-              { type: "Users", id: result._id },
-              { type: "Users", id: "LIST" }
+              { type: TagTypes.USERS, id: result._id },
+              { type: TagTypes.USERS, id: "LIST" }
             ]
           : [];
       }
@@ -56,7 +56,7 @@ export const userApi = api.injectEndpoints({
           body: payload
         }),
         invalidatesTags: (result, error, params) =>
-          result ? [{ type: "Users", id: result._id }] : []
+          result ? [{ type: TagTypes.USERS, id: result._id }] : []
       }
     ),
     getUser: build.query<IUser, GetUserParams>({
@@ -77,7 +77,7 @@ export const userApi = api.injectEndpoints({
         };
       },
       providesTags: (result, error, params) => [
-        { type: "Users" as const, id: result?._id }
+        { type: TagTypes.USERS, id: result?._id }
       ]
     }),
     getUsers: build.query<IUser[], GetUsersParams | void>({
@@ -96,12 +96,12 @@ export const userApi = api.injectEndpoints({
         return result
           ? [
               ...result.map(({ _id }) => ({
-                type: "Users" as const,
+                type: TagTypes.USERS,
                 id: _id
               })),
-              { type: "Users", id: "LIST" }
+              { type: TagTypes.USERS, id: "LIST" }
             ]
-          : [{ type: "Users", id: "LIST" }];
+          : [{ type: TagTypes.USERS, id: "LIST" }];
       }
     }),
     postResetPasswordMail: build.mutation<
@@ -143,7 +143,8 @@ export const userApi = api.injectEndpoints({
         };
       }
     })
-  })
+  }),
+  overrideExisting: true
 });
 
 export const {

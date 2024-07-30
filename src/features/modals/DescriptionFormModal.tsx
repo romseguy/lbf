@@ -5,50 +5,41 @@ import {
   ModalHeader,
   ModalBody,
   ModalCloseButton,
-  ModalProps,
-  Icon
+  ModalProps
 } from "@chakra-ui/react";
 import React from "react";
 import { Modal } from "features/common";
-import { GalleryForm } from "features/forms/GalleryForm";
-import { IGallery } from "models/Gallery";
-import { AppQueryWithData } from "utils/types";
-import { IEntity, isEvent } from "models/Entity";
+import { DescriptionForm } from "features/forms/DescriptionForm";
 import { removeProps } from "utils/object";
-import { FaImages } from "react-icons/fa";
 
-export const GalleryFormModal = (props: {
-  query: AppQueryWithData<IEntity>;
-  gallery?: IGallery;
+export const DescriptionFormModal = (props: {
+  description?: string;
   isCreator?: boolean;
   isOpen: boolean;
   onCancel: () => void;
   onClose: () => void;
-  onSubmit: (gallery: IGallery) => void;
+  onSubmit: (description?: string) => void;
 }) => {
-  const isE = isEvent(props.query.data);
   return (
     <Modal {...props} closeOnOverlayClick={false}>
       <ModalOverlay>
         <ModalContent maxWidth="xl" mt={9}>
           <ModalHeader display="flex" alignItems="center">
-            {props.gallery ? (
+            {props.description ? (
               <>
-                <Icon as={FaImages} mr={3} />
                 <EditIcon mr={2} />
-                Modifier la galerie {isE && "de l'événement"}
+                Modifier la description
               </>
             ) : (
               <>
-                <ChatIcon mr={3} />
                 <SmallAddIcon mr={2} />
-                Ajouter une galerie
+                Ajouter une description
               </>
             )}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <GalleryForm {...props} />
+            <DescriptionForm {...props} />
           </ModalBody>
         </ModalContent>
       </ModalOverlay>

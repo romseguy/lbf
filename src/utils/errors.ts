@@ -44,12 +44,12 @@ const createDatabaseError = (error: any) => {
   };
 };
 
-const serverErrorMessages: { [key: string]: any } = {
-  ECONNREFUSED: "Veuillez vérifier votre connexion internet"
+const messageByCode: { [key: string]: any } = {
+  ECONNREFUSED: `${process.env.NEXT_PUBLIC_API2} est hors-ligne`
 };
 
 const createServerError = (error: any) => {
-  const message = serverErrorMessages[error.code];
+  const message = messageByCode[error.code];
 
   return {
     message: message + "."
@@ -89,7 +89,7 @@ export const createEndpointError = (error: any) => {
         return createDatabaseError(error);
       }
     } else if (typeof error.code === "string") {
-      if (serverErrorMessages[error.code]) {
+      if (messageByCode[error.code]) {
         return createServerError(error);
       }
     }

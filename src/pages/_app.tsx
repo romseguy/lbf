@@ -17,7 +17,7 @@ import { Main, PageProps } from "main";
 import { wrapper } from "store";
 import { setIsMobile } from "store/uiSlice";
 import { setUserEmail } from "store/userSlice";
-import { setSession } from "store/sessionSlice";
+import { setIsSessionLoading, setSession } from "store/sessionSlice";
 import {
   devSession,
   testSession,
@@ -101,6 +101,7 @@ const App = wrapper.withRedux(
 App.getInitialProps = wrapper.getInitialAppProps(
   (store) =>
     async ({ Component, ctx }): Promise<AppProps> => {
+      store.dispatch(setIsSessionLoading(true));
       const headers = ctx.req?.headers;
       const cookies = headers?.cookie;
 
@@ -179,6 +180,7 @@ App.getInitialProps = wrapper.getInitialAppProps(
       if (session) {
         store.dispatch(setSession({ ...session, [TOKEN_NAME]: authToken }));
       }
+      store.dispatch(setIsSessionLoading(false));
       //#endregion
 
       //#region page

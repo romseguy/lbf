@@ -470,17 +470,23 @@ handler.delete<
   }
 
   try {
-    const _id = req.query.eventUrl;
-    let event = await models.Event.findOne({ _id });
+    const eventUrl = req.query.eventUrl;
+    let _id: string | undefined;
+    let event = await models.Event.findOne({ eventUrl });
 
     if (!event) {
-      return res
-        .status(404)
-        .json(
-          createEndpointError(
-            new Error(`L'événement ${_id} n'a pas pu être trouvé`)
-          )
-        );
+      _id = eventUrl;
+      event = await models.Event.findOne({ _id });
+
+      if (!event) {
+        return res
+          .status(404)
+          .json(
+            createEndpointError(
+              new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
+            )
+          );
+      }
     }
 
     if (
@@ -505,23 +511,23 @@ handler.delete<
         .status(400)
         .json(
           createEndpointError(
-            new Error(`L'événement ${_id} n'a pas pu être supprimé`)
+            new Error(`L'événement ${eventUrl} n'a pas pu être supprimé`)
           )
         );
     }
 
     //#region references
+    await models.Gallery.deleteOne({ galleryName: event._id });
     for (const eventOrg of event.eventOrgs) {
-      const org = await models.Org.findOne({
-        _id: getRefId(eventOrg)
-      });
+      const orgId = getRefId(eventOrg);
+      console.log(prefix + " deleting event from org", orgId);
 
-      if (org) {
-        org.orgEvents = org.orgEvents.filter(
-          (orgEvent) => !equals(orgEvent, event!._id)
-        );
-        await org.save();
-      }
+      await models.Org.updateOne(
+        { _id: orgId },
+        {
+          $pull: { orgEvents: _id }
+        }
+      );
     }
     //#endregion
 

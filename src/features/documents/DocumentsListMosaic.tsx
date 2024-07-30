@@ -19,13 +19,14 @@ import {
   Text,
   useColorMode,
   UseDisclosureProps,
-  useToast
+  useToast,
+  VStack
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { FaImage } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useDeleteDocumentMutation } from "features/api/documentsApi";
-import { AppHeading, DeleteButton } from "features/common";
+import { AppHeading, DeleteButton, EditIconButton } from "features/common";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { selectScreenHeight } from "store/uiSlice";
 import { hasItems } from "utils/array";
@@ -39,6 +40,8 @@ import { downloadImage } from "utils/image";
 import { useGetGalleryQuery } from "features/api/galleriesApi";
 import { getRefId } from "models/Entity";
 import { Mosaic, MosaicImage } from "./Mosaic";
+import { UserGallery } from "./UserGallery";
+import { AppQueryWithData } from "utils/types";
 
 export const DocumentsListMosaic = ({
   gallery,
@@ -60,6 +63,7 @@ export const DocumentsListMosaic = ({
   groupByUser?: boolean;
   onDelete?: () => void;
 }) => {
+  console.log("🚀 ~ gallery:", gallery);
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
@@ -76,7 +80,10 @@ export const DocumentsListMosaic = ({
 
   const galleryDocuments =
     (galleryQuery.data || gallery || {}).galleryDocuments || [];
-  const imagesByUser: Record<string, MosaicImage[]> = {};
+  const galleryByUser: Record<
+    string,
+    { description?: string; images: MosaicImage[] }
+  > = {};
   const images =
     props.images ||
     galleryDocuments.map((doc, index) => {
@@ -93,14 +100,27 @@ export const DocumentsListMosaic = ({
       if (
         doc.createdBy &&
         typeof doc.createdBy !== "string" &&
+        //"_id" in doc.createdBy &&
         "userName" in doc.createdBy &&
         groupByUser
       ) {
+        //console.log(doc.createdBy._id);
+
         const userName = doc.createdBy.userName;
-        const userEntry = imagesByUser[userName];
-        imagesByUser[userName] = userEntry
-          ? userEntry.concat([image])
-          : [image];
+        const userEntry = galleryByUser[userName];
+        const description = "tnlfskfd";
+
+        if (userEntry) {
+          galleryByUser[userName] = {
+            ...userEntry,
+            images: userEntry.images.concat([image])
+          };
+        } else {
+          galleryByUser[userName] = {
+            description,
+            images: [image]
+          };
+        }
       }
 
       return image;
@@ -201,26 +221,18 @@ export const DocumentsListMosaic = ({
         </Alert>
       ) : groupByUser ? (
         <>
-          {Object.keys(imagesByUser).map((userName) => {
-            const images = imagesByUser[userName];
+          {Object.keys(galleryByUser).map((userName) => {
+            const { description, images } = galleryByUser[userName];
             return (
-              <React.Fragment key={userName}>
-                <Flex alignItems="center" p={3} justifyContent="space-between">
-                  <HStack>
-                    <AppHeading noContainer smaller>
-                      {userName}
-                    </AppHeading>
-                    {/* <Badge variant="subtle" colorScheme="green" ml={1}>
-            {stringUtils.bytesForHuman(imagesSize)}
-          </Badge> */}
-                  </HStack>
-                </Flex>
-                <Mosaic
-                  images={images}
-                  marginBetween={marginBetween}
-                  onImageClick={(image) => onOpen(image)}
-                />
-              </React.Fragment>
+              <UserGallery
+                key={userName}
+                query={galleryQuery as AppQueryWithData<IGallery>}
+                userName={userName}
+                description={description}
+                images={images}
+                marginBetween={marginBetween}
+                onImageClick={(image) => onOpen(image)}
+              />
             );
           })}
         </>

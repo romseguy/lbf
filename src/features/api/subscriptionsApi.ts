@@ -1,5 +1,5 @@
 import type { ISubscription } from "models/Subscription";
-import { api } from "./";
+import { api, TagTypes } from "./";
 
 export type AddSubscriptionPayload = Omit<ISubscription, "_id" | "createdBy">;
 
@@ -22,13 +22,13 @@ export const subscriptionApi = api.injectEndpoints({
         if (error) return [];
 
         const arr = [
-          { type: "Subscriptions", id: "LIST" },
-          { type: "Subscriptions", id: params.email }
+          { type: TagTypes.SUBSCRIPTIONS, id: "LIST" },
+          { type: TagTypes.SUBSCRIPTIONS, id: params.email }
         ];
 
         if (Array.isArray(params.orgs)) {
           for (const orgSubscription of params.orgs)
-            arr.push({ type: "Orgs", id: orgSubscription.org._id });
+            arr.push({ type: TagTypes.ORGS, id: orgSubscription.org._id });
         }
 
         return arr;
@@ -67,9 +67,9 @@ export const subscriptionApi = api.injectEndpoints({
 
         //const email = params.email;
         //console.log("🚀 ~ file: subscriptionsApi.ts:58 ~ email:", email);
-        //if (email) return [{ type: "Subscriptions", email }];
+        //if (email) return [{ type: TagTypes.SUBSCRIPTIONS, email }];
         const id = params.subscriptionId || result?._id;
-        if (id) arr.push({ type: "Subscriptions", id });
+        if (id) arr.push({ type: TagTypes.SUBSCRIPTIONS, id });
 
         return arr;
       }
@@ -101,7 +101,7 @@ export const subscriptionApi = api.injectEndpoints({
         };
       },
       providesTags: (result, error, params) => [
-        { type: "Subscriptions" as const, id: params.email }
+        { type: TagTypes.SUBSCRIPTIONS, id: params.email }
       ]
     }),
     getSubscriptions: build.query<ISubscription[], { topicId?: string }>({
@@ -112,17 +112,18 @@ export const subscriptionApi = api.injectEndpoints({
         result
           ? [
               ...result.map(({ _id }) => ({
-                type: "Subscriptions" as const,
+                type: TagTypes.SUBSCRIPTIONS,
                 id: _id
               })),
-              { type: "Subscriptions", id: "LIST" }
+              { type: TagTypes.SUBSCRIPTIONS, id: "LIST" }
             ]
-          : [{ type: "Subscriptions", id: "LIST" }]
+          : [{ type: TagTypes.SUBSCRIPTIONS, id: "LIST" }]
     })
     // getSubscription: build.query<ISubscription, string | undefined>({
     //   query: (string) => ({ url: `subscriptions/${string}` })
     // })
-  })
+  }),
+  overrideExisting: true
 });
 
 export const {

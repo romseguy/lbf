@@ -9,6 +9,7 @@ export const unauthorizedEntityUrls = [
   "index",
   "login",
   "organisations",
+  "password",
   "privacy",
   "sandbox",
   "sent"
