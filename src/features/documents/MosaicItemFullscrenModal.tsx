@@ -1,0 +1,207 @@
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  DownloadIcon
+} from "@chakra-ui/icons";
+import {
+  Button,
+  HStack,
+  IconButton,
+  Image,
+  Text,
+  Tooltip,
+  useColorMode,
+  UseDisclosureProps,
+  useToast
+} from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import React from "react";
+import { FaImage } from "react-icons/fa";
+import { useSelector } from "react-redux";
+
+import { useDeleteDocumentMutation } from "features/api/documentsApi";
+import { AddTopicPayload, useAddTopicMutation } from "features/api/topicsApi";
+import { DeleteButton } from "features/common";
+import { FullscreenModal } from "features/modals/FullscreenModal";
+import { selectScreenHeight } from "store/uiSlice";
+import { downloadImage } from "utils/image";
+import { MosaicImage } from "./Mosaic";
+
+export const MosaicItemFullscrenModal = ({
+  images,
+  isGalleryCreator = false,
+  modalState,
+  setModalState,
+  onOpen,
+  onClose,
+  ...props
+}: {
+  images: MosaicImage[];
+  isGalleryCreator?: boolean;
+  modalState: UseDisclosureProps & {
+    image: MosaicImage | undefined;
+  };
+  setModalState: React.Dispatch<
+    React.SetStateAction<
+      UseDisclosureProps & {
+        image: MosaicImage | undefined;
+      }
+    >
+  >;
+  onOpen: (image: MosaicImage) => Promise<void>;
+  onClose: () => void;
+}) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+  const router = useRouter();
+  const toast = useToast({ position: "top" });
+  const [addTopic] = useAddTopicMutation();
+  const [deleteDocument] = useDeleteDocumentMutation();
+  const screenHeight = useSelector(selectScreenHeight);
+
+  return (
+    <FullscreenModal
+      //header={images[modalState.index].url.match(/[^=]+$/)![0]}
+      header={
+        <HStack>
+          <Tooltip label="Image précédente">
+            <IconButton
+              aria-label="Image précédente"
+              colorScheme="teal"
+              icon={<ChevronLeftIcon boxSize={10} />}
+              isDisabled={modalState.image!.index - 1 < 0}
+              onClick={() => {
+                //@ts-ignore
+                const index = modalState.image.index - 1;
+                setModalState({
+                  ...modalState,
+                  image: images[index < 0 ? 0 : index]
+                });
+              }}
+            />
+          </Tooltip>
+          <Tooltip label="Image suivante">
+            <IconButton
+              aria-label="Image suivante"
+              colorScheme="teal"
+              icon={<ChevronRightIcon boxSize={10} />}
+              isDisabled={modalState.image!.index + 1 >= images.length}
+              onClick={() => {
+                //@ts-ignore
+                const index = modalState.image.index + 1;
+                setModalState({
+                  ...modalState,
+                  image: images[index > images.length ? images.length : index]
+                });
+              }}
+            />
+          </Tooltip>
+
+          <FaImage />
+          <Text>
+            {/* {images[modalState.image.index].url.substring(
+                  images[modalState.image.index].url.lastIndexOf("/") + 1
+                )} */}
+            {modalState.image!.name}
+          </Text>
+
+          <Tooltip label="Télécharger l'image">
+            <IconButton
+              aria-label="Télécharger"
+              colorScheme="teal"
+              icon={<DownloadIcon />}
+              onClick={() => {
+                downloadImage(
+                  `${process.env.NEXT_PUBLIC_API}/documents/download?id=${
+                    modalState.image!.id
+                  }&fileName=${modalState.image!.name}`,
+                  modalState.image!.name || ""
+                );
+              }}
+            />
+          </Tooltip>
+
+          {isGalleryCreator && (
+            <DeleteButton
+              variant="solid"
+              header={
+                <>
+                  Êtes vous sûr de vouloir supprimer l'image{" "}
+                  {modalState.image!.name}
+                  {/* <Text display="inline" color="red" fontWeight="bold">
+                      {modalState.image.url.match(urlFilenameR)[0]}
+                    </Text>{" "} */}
+                  ?
+                </>
+              }
+              isIconOnly
+              isSmall={false}
+              placement="bottom"
+              onClick={async () => {
+                const [...parts] = modalState.image!.url.split("/");
+                const fileName = parts[parts.length - 1];
+
+                try {
+                  await deleteDocument(fileName).unwrap();
+                  //await api.remove(process.env.NEXT_PUBLIC_API2, payload);
+                  toast({
+                    title: `L'image a été supprimée !`,
+                    status: "success",
+                    isClosable: true
+                  });
+                  setModalState({ ...modalState, isOpen: false });
+                  //onDelete && onDelete();
+                } catch (error) {
+                  console.error(error);
+                  toast({
+                    title: `L'image n'a pas pu être supprimée.`,
+                    status: "error"
+                  });
+                }
+              }}
+            />
+          )}
+
+          <Button
+            colorScheme="green"
+            onClick={async () => {
+              try {
+                const topicName = modalState.image!.name;
+                const payload: AddTopicPayload = {
+                  topic: {
+                    topicName,
+                    topicMessages: [
+                      {
+                        message: `<img src="${
+                          modalState.image!.url
+                        }" style="max-height: 400px"/>`
+                      }
+                    ]
+                  }
+                };
+                const topic = await addTopic({ payload }).unwrap();
+                router.push("/photo/d/" + topicName);
+              } catch (error) {
+                toast({
+                  title: "La discussion n'a pas pu être créée",
+                  status: "error"
+                });
+              }
+            }}
+          >
+            Commenter
+          </Button>
+        </HStack>
+      }
+      bodyProps={{ bg: "black" }}
+      onClose={onClose}
+    >
+      <Image
+        alignSelf="center"
+        src={images[modalState.image!.index].url}
+        maxHeight={screenHeight - 72 + "px"}
+        //width={`${images[modalState.index].width}px`}
+      />
+    </FullscreenModal>
+  );
+};

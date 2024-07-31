@@ -46,6 +46,7 @@ export * from "./DateRange";
 export * from "./DeleteButton";
 export * from "./DeleteIconButton";
 export * from "./DidYouKnow";
+export * from "./DiskUsage";
 export * from "./EditIconButton";
 export * from "./EmailPreview";
 export * from "./ErrorMessageText";

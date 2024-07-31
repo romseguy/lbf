@@ -4,13 +4,11 @@ import { IEntity } from "models/Entity";
 export interface ITopicMessage extends Omit<IEntity, "_id"> {
   _id?: string;
   message: string;
-  messageHtml?: string;
 }
 
 export const TopicMessageSchema = new Schema<ITopicMessage>(
   {
     message: { type: String, default: "" },
-    //messageHtml: { type: String, default: "" },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User"

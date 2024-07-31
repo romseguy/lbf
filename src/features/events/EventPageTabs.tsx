@@ -59,10 +59,8 @@ export const EventPageTabs = ({
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
-  const toast = useToast({ position: "bottom" });
-
+  const toast = useToast({ position: "top" });
   const event = eventQuery.data;
-  const isDisabled = !isBefore(parseISO(event.eventMinDate), new Date());
 
   //#region tabs
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
@@ -177,19 +175,13 @@ export const EventPageTabs = ({
               `}
               {...(isMobile ? {} : {})}
               onClick={() => {
-                if (isDisabled && tabIndex > 0)
-                  toast({
-                    title: "Cet onglet sera accessible après l'atelier"
-                  });
-                else {
-                  const url =
-                    tab.url === "/"
-                      ? `/${event.eventUrl}`
-                      : `/${event.eventUrl}${tab.url}`;
-                  router.push(url, url, {
-                    shallow: true
-                  });
-                }
+                const url =
+                  tab.url === "/"
+                    ? `/${event.eventUrl}`
+                    : `/${event.eventUrl}${tab.url}`;
+                router.push(url, url, {
+                  shallow: true
+                });
               }}
               data-cy={key}
             >
@@ -251,6 +243,17 @@ export const EventPageTabs = ({
               isCurrent
               isGalleryCreator={true}
               noHeader
+              {...(!isBefore(parseISO(event.eventMinDate), new Date())
+                ? {
+                    //TODO1 if (ne fait pas partie de la liste des participants de l'atelier)
+                    onAddDocumentClick: () => {
+                      toast({
+                        title:
+                          "Vous pourrez ajouter des photos seulement après avoir participé à l'atelier"
+                      });
+                    }
+                  }
+                : {})}
             />
 
             <GalleryFormModal

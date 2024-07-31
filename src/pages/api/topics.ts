@@ -102,15 +102,18 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       else if (body.org) org = await models.Org.findOne({ _id: body.org._id });
 
       if (!event && !org) {
-        return res
-          .status(400)
-          .json(
-            createEndpointError(
-              new Error(
-                "La discussion doit être associée à une organisation ou à un événément"
+        org = await models.Org.findOne({ orgUrl: "photo" });
+        if (!org) {
+          return res
+            .status(400)
+            .json(
+              createEndpointError(
+                new Error(
+                  "La discussion doit être associée à une organisation ou à un événément"
+                )
               )
-            )
-          );
+            );
+        }
       }
 
       let topic: (ITopic & Document<any, ITopic>) | null | undefined;

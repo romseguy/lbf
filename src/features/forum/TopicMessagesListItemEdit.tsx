@@ -87,7 +87,6 @@ export const TopicMessagesListItemEdit = ({
                 topicMessage: {
                   _id,
                   message: newMessage
-                  //messageHtml: newMessage
                 }
               }
             }).unwrap();

@@ -124,7 +124,6 @@ export const GalleryForm = ({
     //   gallery.galleryDescription = [
     //     {
     //       message: form.galleryDescription,
-    //       //messageHtml: form.galleryDescription,
     //       createdBy: session?.user.userId
     //     }
     //   ];

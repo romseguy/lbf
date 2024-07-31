@@ -3,9 +3,6 @@ import {
   AlertIcon,
   Box,
   Flex,
-  HStack,
-  IconButton,
-  Image,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -21,25 +18,20 @@ import {
   UseDisclosureProps,
   useToast
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaImage } from "react-icons/fa";
 import { useSelector } from "react-redux";
+
 import { useDeleteDocumentMutation } from "features/api/documentsApi";
-import { DeleteButton } from "features/common";
-import { FullscreenModal } from "features/modals/FullscreenModal";
+import { useGetGalleryQuery } from "features/api/galleriesApi";
+import { useAddTopicMutation } from "features/api/topicsApi";
+import { IGallery } from "models/Gallery";
 import { selectScreenHeight } from "store/uiSlice";
 import { hasItems } from "utils/array";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  DownloadIcon
-} from "@chakra-ui/icons";
-import { IGallery } from "models/Gallery";
-import { downloadImage } from "utils/image";
-import { useGetGalleryQuery } from "features/api/galleriesApi";
+import { AppQueryWithData } from "utils/types";
 import { Mosaic, MosaicImage } from "./Mosaic";
 import { UserGallery } from "./UserGallery";
-import { AppQueryWithData } from "utils/types";
+import { MosaicItemFullscrenModal } from "./MosaicItemFullscrenModal";
 
 export const DocumentsListMosaic = ({
   isCreator,
@@ -50,7 +42,7 @@ export const DocumentsListMosaic = ({
   onDelete,
   ...props
 }: {
-  gallery?: IGallery;
+  gallery: IGallery;
   isCreator?: boolean;
   isGalleryCreator?: boolean;
   images?: MosaicImage[];
@@ -62,14 +54,16 @@ export const DocumentsListMosaic = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const router = useRouter();
   const toast = useToast({ position: "top" });
+  const [addTopic] = useAddTopicMutation();
   const [deleteDocument] = useDeleteDocumentMutation();
   const screenHeight = useSelector(selectScreenHeight);
 
   const [marginBetween, setMarginBetween] = useState<number>(15);
 
   //#region images
-  const galleryQuery = useGetGalleryQuery({ galleryId: props.gallery?._id });
+  const galleryQuery = useGetGalleryQuery({ galleryId: props.gallery._id });
   const gallery = galleryQuery.data || props.gallery;
   useEffect(() => {
     galleryQuery.refetch();
@@ -254,126 +248,17 @@ export const DocumentsListMosaic = ({
       )}
 
       {modalState.isOpen && modalState.image && (
-        <FullscreenModal
-          //header={images[modalState.index].url.match(/[^=]+$/)![0]}
-          header={
-            <HStack>
-              <IconButton
-                aria-label="Précédent"
-                colorScheme="teal"
-                icon={<ChevronLeftIcon boxSize={10} />}
-                isDisabled={modalState.image.index - 1 < 0}
-                onClick={() => {
-                  //@ts-ignore
-                  const index = modalState.image.index - 1;
-                  setModalState({
-                    ...modalState,
-                    image: images[index < 0 ? 0 : index]
-                  });
-                }}
-              />
-              <IconButton
-                aria-label="Suivant"
-                colorScheme="teal"
-                icon={<ChevronRightIcon boxSize={10} />}
-                isDisabled={modalState.image.index + 1 >= images.length}
-                onClick={() => {
-                  //@ts-ignore
-                  const index = modalState.image.index + 1;
-                  setModalState({
-                    ...modalState,
-                    image: images[index > images.length ? images.length : index]
-                  });
-                }}
-              />
-
-              <FaImage />
-              <Text>
-                {/* {images[modalState.image.index].url.substring(
-                  images[modalState.image.index].url.lastIndexOf("/") + 1
-                )} */}
-                {modalState.image.name}
-              </Text>
-
-              <IconButton
-                aria-label="Télécharger"
-                colorScheme="teal"
-                icon={<DownloadIcon />}
-                onClick={() => {
-                  downloadImage(
-                    `${process.env.NEXT_PUBLIC_API}/documents/download?id=${modalState.image?.id}&fileName=${modalState.image?.name}`,
-                    modalState.image?.name || ""
-                  );
-                }}
-              />
-
-              {isGalleryCreator && gallery && (
-                <DeleteButton
-                  variant="solid"
-                  header={
-                    <>
-                      Êtes vous sûr de vouloir supprimer l'image{" "}
-                      {modalState.image.name}
-                      {/* <Text display="inline" color="red" fontWeight="bold">
-                      {modalState.image.url.match(urlFilenameR)[0]}
-                    </Text>{" "} */}
-                      ?
-                    </>
-                  }
-                  isIconOnly
-                  isSmall={false}
-                  placement="bottom"
-                  onClick={async () => {
-                    const [...parts] = modalState.image!.url.split("/");
-                    const fileName = parts[parts.length - 1];
-
-                    try {
-                      await deleteDocument(fileName).unwrap();
-                      //await api.remove(process.env.NEXT_PUBLIC_API2, payload);
-                      toast({
-                        title: `L'image a été supprimée !`,
-                        status: "success",
-                        isClosable: true
-                      });
-                      setModalState({ isOpen: false });
-                      galleryQuery.refetch();
-                      onDelete && onDelete();
-                    } catch (error) {
-                      console.error(error);
-                      toast({
-                        title: `L'image n'a pas pu être supprimée.`,
-                        status: "error"
-                      });
-                    }
-                  }}
-                />
-              )}
-            </HStack>
-          }
-          bodyProps={{ bg: "black" }}
+        <MosaicItemFullscrenModal
+          images={images}
+          isGalleryCreator={isGalleryCreator}
+          //@ts-expect-error
+          modalState={modalState}
+          //@ts-expect-error
+          setModalState={setModalState}
+          onOpen={onOpen}
           onClose={onClose}
-        >
-          <Image
-            alignSelf="center"
-            src={images[modalState.image.index].url}
-            maxHeight={screenHeight - 72 + "px"}
-            //width={`${images[modalState.index].width}px`}
-          />
-        </FullscreenModal>
+        />
       )}
     </>
   );
 };
-
-{
-  /* <Flex alignItems="center" p={3} justifyContent="space-between">
-        <HStack>
-          <AppHeading noContainer smaller>
-            {images.length} photos
-          </AppHeading>
-          <Badge variant="subtle" colorScheme="green" ml={1}>
-            {stringUtils.bytesForHuman(imagesSize)}
-          </Badge>
-        </HStack>
-      </Flex> */
-}

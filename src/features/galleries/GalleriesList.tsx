@@ -72,7 +72,6 @@ export const GalleriesList = ({
           //@ts-expect-error
           entity.orgEvents.map((event) => {
             return {
-              //_id: "event" + event.eventUrl,
               galleryName: event._id,
               isPinned: true,
               createdAt: event.eventMinDate

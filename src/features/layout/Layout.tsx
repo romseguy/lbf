@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 import React, { ReactNode } from "react";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import { css } from "twin.macro";
-import { AppHeading, ContactLink, Link } from "features/common";
+import { AppHeading, ContactLink, DiskUsage, Link } from "features/common";
 import { Header, Nav } from "features/layout";
 import theme, { breakpoints } from "features/layout/theme";
 import { PageProps } from "main";
@@ -51,7 +51,6 @@ export const Layout = ({
   tabItem,
   ...props
 }: React.PropsWithChildren<LayoutProps>) => {
-  console.log("🚀 ~ mainContainer:", mainContainer);
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -167,15 +166,16 @@ export const Layout = ({
       {main(c)}
 
       {/* Footer */}
-      <Box as="footer" pb={3} mt={3}>
+      <Box as="footer">
         {/* <Image src="/images/bg.png" height="100px" m="0 auto" /> */}
-        <Box fontSize="smaller" textAlign="center">
+        <Flex flexDir="column" alignItems="center" fontSize="smaller">
           {/* <Link href="/a_propos" variant="underline">
             À propos
           </Link>
           <Delimiter /> */}
+          <DiskUsage />
           <Link href="/contact" variant="underline">
-            Contacter le développeur
+            Besoin de plus d'espace de stockage ?
           </Link>
           {/* <Delimiter />
           <Link href="/privacy" variant="underline">
@@ -185,7 +185,7 @@ export const Layout = ({
           <Link href="https://github.com/romseguy/lbf" variant="underline">
             Code
           </Link> */}
-        </Box>
+        </Flex>
       </Box>
     </Box>
   );

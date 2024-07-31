@@ -154,7 +154,6 @@ export const TopicForm = ({
           topic.topicMessages = [
             {
               message: form.topicMessage,
-              //messageHtml: form.topicMessage,
               createdBy: session.user.userId
             }
           ];

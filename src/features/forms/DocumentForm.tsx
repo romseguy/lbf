@@ -162,28 +162,6 @@ export const DocumentForm = ({
         </FormLabel>
 
         {list.length > 0 && (
-          // <Box
-          //   alignSelf="flex-start"
-          //   bgColor={isDark ? "black" : "white"}
-          //   overflowX="scroll"
-          //   borderWidth={1}
-          //   borderBottom="none"
-          //   borderColor={isDark ? "gray.600" : "gray.200"}
-          //   borderRadius="lg"
-          //   mb={3}
-          //   css={css`
-          //     table {
-          //       width: auto;
-          //     }
-          //     table th {
-          //       padding: 12px;
-          //     }
-          //     table td {
-          //       border: none;
-          //       padding: 12px;
-          //     }
-          //   `}
-          // >
           <Column
             bg={isDark ? "gray.700" : "white"}
             borderColor={isDark ? "gray.500" : "gray.200"}
@@ -205,7 +183,6 @@ export const DocumentForm = ({
               `}
             />
           </Column>
-          // </Box>
         )}
 
         <Controller
@@ -241,17 +218,6 @@ export const DocumentForm = ({
                   onChange();
                   renderProps.onChange(files);
                 }}
-                // onChange={async (fichiers) => {
-                //   console.log(
-                //     "🚀 ~ file: DocumentForm.tsx:173 ~ onChange={ ~ fichiers:",
-                //     fichiers
-                //   );
-                //   onChange();
-                //   renderProps.onChange(fichiers);
-                //   //@ts-expect-error
-                //   //document.getElementById("fichiers").value = "";
-                //   //setValue("fichiers", fichiers);
-                // }}
               />
             );
           }}
@@ -293,6 +259,50 @@ export const DocumentForm = ({
     </Box>
   );
 };
+
+{
+  /*
+                 onChange={async (fichiers) => {
+                   console.log(
+                     "🚀 ~ file: DocumentForm.tsx:173 ~ onChange={ ~ fichiers:",
+                     fichiers
+                   );
+                   onChange();
+                   renderProps.onChange(fichiers);
+                   @ts-expect-error
+                   document.getElementById("fichiers").value = "";
+                   setValue("fichiers", fichiers);
+                 }}
+  */
+}
+
+{
+  /**
+           <Box
+             alignSelf="flex-start"
+             bgColor={isDark ? "black" : "white"}
+             overflowX="scroll"
+             borderWidth={1}
+             borderBottom="none"
+             borderColor={isDark ? "gray.600" : "gray.200"}
+             borderRadius="lg"
+             mb={3}
+             css={css`
+               table {
+                 width: auto;
+               }
+               table th {
+                 padding: 12px;
+               }
+               table td {
+                 border: none;
+                 padding: 12px;
+               }
+             `}
+           >
+          // </Box>
+ */
+}
 
 {
   /*

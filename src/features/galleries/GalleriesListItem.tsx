@@ -4,11 +4,10 @@ import {
   AlertIcon,
   Box,
   BoxProps,
-  Spinner,
   useColorMode
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { Button } from "features/common";
+import { Button, DiskUsage } from "features/common";
 import { IGallery } from "models/Gallery";
 import { DocumentsListMosaic } from "features/documents/DocumentsListMosaic";
 import { DocumentForm } from "features/forms/DocumentForm";
@@ -17,6 +16,7 @@ import { hasItems } from "utils/array";
 import { IEntity, isEvent, isOrg } from "models/Entity";
 import { sanitize } from "utils/string";
 import { GalleriesListItemHeader } from "./GalleriesListItemHeader";
+import { removeProps } from "utils/object";
 
 export const GalleriesListItem = ({
   query,
@@ -42,6 +42,7 @@ export const GalleriesListItem = ({
   setIsLoading?: (isLoading: boolean) => void;
   noHeader?: boolean;
   //onClick?: () => void;
+  onAddDocumentClick?: () => void;
   onEditClick?: () => void;
 }) => {
   const { colorMode } = useColorMode();
@@ -52,14 +53,13 @@ export const GalleriesListItem = ({
   const [isAdd, setIsAdd] = useState(false);
 
   const onAddDocumentClick = () => {
-    //TODO1 if (ne fait pas partie de la liste des participants de l'atelier)
-    setIsAdd(!isAdd);
+    props.onAddDocumentClick ? props.onAddDocumentClick() : setIsAdd(!isAdd);
   };
 
-  if (!gallery) return <Spinner />;
+  if (!gallery) return null;
 
   return (
-    <Box key={gallery._id} {...props}>
+    <Box key={gallery._id} {...removeProps(props, ["onAddDocumentClick"])}>
       {!noHeader && (
         <GalleriesListItemHeader
           query={query}
@@ -123,49 +123,57 @@ export const GalleriesListItem = ({
           )}
 
           {isAdd && (
-            <DocumentForm
-              bg={isDark ? "whiteAlpha.100" : "blackAlpha.100"}
-              p={3}
-              gallery={gallery}
-              onSubmit={() => {
-                setIsAdd(false);
-              }}
-            />
+            <>
+              <DocumentForm
+                bg={isDark ? "whiteAlpha.100" : "blackAlpha.100"}
+                p={3}
+                gallery={gallery}
+                onSubmit={() => {
+                  // TODO1
+                  // dispatch setRefreshDiskUsage(!refreshDiskUsage);
+                  setIsAdd(false);
+                }}
+              />
+            </>
           )}
         </Box>
       )}
     </Box>
   );
 
-  // return (
-  //   <GalleriesListItem
-  //     key={gallery._id}
-  //     isMobile={isMobile}
-  //     session={session}
-  //     isCreator={props.isCreator}
-  //     query={query}
-  //     subQuery={subQuery}
-  //     currentGalleryName={currentGalleryName}
-  //     gallery={gallery}
-  //     galleryIndex={galleryIndex}
-  //     isSubbedToGallery={isSubbedToGallery}
-  //     isCurrent={isCurrent}
-  //     isGalleryCreator={isGalleryCreator}
-  //     isDark={isDark}
-  //     //isLoading={isLoading[gallery._id] || query.isLoading}
-  //     //setIsLoading && setIsLoading={setIsLoading && setIsLoading}
-  //     selectedCategories={selectedCategories}
-  //     setSelectedCategories={setSelectedCategories}
-  //     notifyModalState={notifyModalState}
-  //     setNotifyModalState={setNotifyModalState}
-  //     galleryModalState={galleryModalState}
-  //     setGalleryModalState={setGalleryModalState}
-  //     mb={galleryIndex < galleries.length - 1 ? 5 : 0}
-  //     // onClick={onClick}
-  //     // onDeleteClick={onDeleteClick}
-  //     // onEditClick={onEditClick}
-  //     // onNotifClick={onNotifClick}
-  //     // onSubscribeClick={onSubscribeClick}
-  //   />
-  // );
+  {
+    /*
+  return (
+    <GalleriesListItem
+      key={gallery._id}
+      isMobile={isMobile}
+      session={session}
+      isCreator={props.isCreator}
+      query={query}
+      subQuery={subQuery}
+      currentGalleryName={currentGalleryName}
+      gallery={gallery}
+      galleryIndex={galleryIndex}
+      isSubbedToGallery={isSubbedToGallery}
+      isCurrent={isCurrent}
+      isGalleryCreator={isGalleryCreator}
+      isDark={isDark}
+      //isLoading={isLoading[gallery._id] || query.isLoading}
+      //setIsLoading && setIsLoading={setIsLoading && setIsLoading}
+      selectedCategories={selectedCategories}
+      setSelectedCategories={setSelectedCategories}
+      notifyModalState={notifyModalState}
+      setNotifyModalState={setNotifyModalState}
+      galleryModalState={galleryModalState}
+      setGalleryModalState={setGalleryModalState}
+      mb={galleryIndex < galleries.length - 1 ? 5 : 0}
+      // onClick={onClick}
+      // onDeleteClick={onDeleteClick}
+      // onEditClick={onEditClick}
+      // onNotifClick={onNotifClick}
+      // onSubscribeClick={onSubscribeClick}
+    />
+  );
+    */
+  }
 };

@@ -108,7 +108,7 @@ export const GalleriesListItemHeader = ({
 
   const onClick = async () => {
     if (isEventGallery) {
-      const url = `/${event.eventName}/galerie`;
+      const url = `/${event.eventUrl}/galerie`;
       await router.push(url, url, { shallow: true });
     } else {
       let url = "/" + org.orgUrl + "/galeries";

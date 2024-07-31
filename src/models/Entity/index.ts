@@ -24,7 +24,7 @@ export const getRefId = (
     if (typeof entity === "string") return entity;
 
     if (typeof entity === "object") {
-      if (typeof entity.toString === "function") return entity.toString();
+      //if (typeof entity.toString === "function") return entity.toString();
 
       const value = entity[key || "createdBy"];
 

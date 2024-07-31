@@ -94,7 +94,6 @@ export const TopicMessageForm = ({
         topicMessages: [
           {
             message: form.topicMessage,
-            //messageHtml: form.topicMessage,
             createdBy: session!.user.userId
           }
         ]
